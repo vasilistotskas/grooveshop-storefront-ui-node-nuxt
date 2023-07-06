@@ -1,0 +1,29 @@
+{
+	// https://v3.nuxtjs.org/concepts/typescript
+	"extends": "./.nuxt/tsconfig.json",
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"outDir": "./.output",
+		"strict": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"moduleResolution": "bundler",
+		"types": [
+			"node",
+			"@vueuse/nuxt",
+			"@pinia/nuxt",
+			"@nuxt/image",
+			"unplugin-icons/types/vue",
+			"@testing-library/jest-dom"
+		],
+		"typeRoots": [
+			"node_modules/@types",
+			"global.d.ts",
+			"components.d.ts",
+			"custom.d.ts",
+			"auto-imports.d.ts"
+		]
+	},
+	"files": ["global.d.ts", "components.d.ts", "custom.d.ts"]
+}

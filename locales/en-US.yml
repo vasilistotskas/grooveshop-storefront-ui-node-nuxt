@@ -1,0 +1,656 @@
+components:
+  global:
+    generic_modal:
+      close: Close
+    pwa:
+      ready_to_work_offline: App ready to work offline
+      new_content_available: New content available, click on reload button to update.
+      reload: Reload
+      close: Close
+      install_pwa: Install PWA
+      install: Install
+      cancel: Cancel
+  page:
+    footer:
+      copyright: Copyright © 2022
+      rights: All rights reserved . Made with
+      design_by: Design by
+  language:
+    switcher:
+      change_language: Change Language
+      theme: Theme
+  theme_switcher:
+    theme: theme
+    change_theme: change theme
+  ordering:
+    title: Ordering
+  breadcrumbs:
+    title: Breadcrumb
+  pagination:
+    title: Pagination
+    prev: previous
+    next: next
+    previous_page: Previous Page
+    next_page: Next Page
+    first_page: First Page
+    last_page: Last Page
+    go_to_page: Go to page %{page}
+    you_are_on_last_page: You are on the last page
+  builder:
+    navbar:
+      toggle_drawer_menu: Toggle Drawer Menu
+      toggle_options_menu: Toggle Options Menu
+  cookie:
+    accept: Accept
+    accept_all: Accept All
+    banner:
+      description: By clicking “Accept All Cookies”, you agree to the storing of cookies on your device to enhance site navigation, analyze site usage, and assist in our marketing efforts.
+      title: Cookies
+    close: Close
+    cookies:
+      functional: Functional cookies
+      functional_description: Functional cookies help to perform certain functionalities like sharing the content of the website on social media platforms, collect feedbacks, and other third-party features.
+      necessary: Necessary cookies
+      necessary_description: Necessary cookies help make a website usable by enabling basic functions like page navigation and access to secure areas of the website. The website cannot function properly without these cookies.
+      optional: Optional cookies
+      optional_links:
+        privacy_policy: Privacy Policy
+      google:
+        analytics: Google Analytics
+        analytics_description: Used for cookie control.
+    decline: Decline
+    decline_all: Decline All
+    here: here
+    iframe_blocked: To see this, please enable functional cookies.
+    manage_cookies: Cookies Settings
+    save: Save
+    settings:
+      unsaved: You have unsaved changes.
+  form:
+    validation:
+      email: Email
+      password: Password
+      submit: Submit
+      too_many_attempts: Too many attempts, please try again later.
+  product:
+    card:
+      price: Price
+      vat_percent: VAT Percent
+      total_price: Total Price
+      add_to_cart: Add to cart
+      share: Share
+      share_not_supported: Web share is not supported in your browser
+    reviews:
+      title: Reviews
+      empty: No reviews yet
+      ordering:
+        id: ID
+        user_id: User ID
+        product_id: Product ID
+        created_at: Created At
+      summary:
+        reviews: Reviews
+    review:
+      write_review: Write a review
+      edit_review: Edit review
+      update_review: Update review
+      delete_review: Delete review
+      must_be_logged_in: You must be logged in to write a review
+      write_review_for_product: Write a review for product %{product}
+      confirm_delete: Are you sure you want to delete this review?
+      too_many_attempts: Too many attempts, please try again later.
+      delete_review_confirm: Delete
+      delete_review_cancel: Cancel
+      rating:
+        title: Rating
+        bad: Bad
+        not_that_good: Not that good
+        meh: Meh
+        its_ok: It's ok
+        good: Good
+        very_good: Very good
+        perfect: Perfect!
+      comment:
+        title: Comment
+        placeholder: Share your experience...
+        label: Comment
+      validation:
+        comment:
+          min: Comment must be at least %{min} characters long
+          max: Comment must be at most %{max} characters long
+        rate:
+          min: Rating must be at least %{min}
+          max: Rating must be at most %{max}
+  add_to_cart_button:
+    text: Add to cart
+    added_to_cart: Added to cart
+  add_to_favourite_button:
+    not_authenticated: You must be logged in to add to favourites
+    added: Added to favourites
+    removed: Removed from favourites
+    add: Add to favourites
+    remove: Remove from favourites
+  user:
+    avatar:
+      change: Change
+      no_file_selected: No file selected
+      file_extension_not_allowed: File extension not allowed
+      image:
+        updated: Image updated
+        not_updated: Image not updated
+  order:
+    list:
+      footer: Footer
+    card:
+      extra: + %{count} more products
+      extra_one: + 1 more product
+      id: ID
+      address: Address
+      pay_way: Pay Way
+      status: Status
+      total_price: Total Price
+      actions:
+        details: Details
+  cart:
+    item_card:
+      remove_from_cart: Remove from cart %{name}
+  address:
+    add_new:
+      title: You can add a new address and use it on all your next purchases.
+      button: Add
+    card:
+      delete:
+        success: Address deleted
+        error: Address not deleted
+        cant_delete_main: You can't delete your main address, please set another address as main and try again.
+  checkout:
+    sidebar:
+      title: Checkout
+      items: Items
+      items_unique: Item
+      shipping: Shipping
+      discount: Discount
+      vat: VAT
+      total: Total
+    pay_ways:
+      title: Choose the payment method
+      label: Pay Way
+    items:
+      title: Items
+pages:
+  testing:
+    nav: testing
+    title: testing
+    index:
+      nav: testing
+      title: testing
+      description: this is a testing page
+      keywords: testing
+    blank:
+      nav: blank
+      title: blank page
+      description: this is a blank page
+      just_blank_page_with_title: just blank page with title
+    test:
+      nav: test
+      title: testing
+      description: this is a test page
+      counter: counter
+      increment: increment
+      decrement: decrement
+      reset: reset
+      identity: identity
+      full_name: fullName
+    setting:
+      nav: setting
+      title: setting
+      description: this is a setting page
+      sections:
+        validate_username:
+          title: validate github profile
+          description: type your github username and click the button to validate.
+          footer: Learn more about
+          footer_button: validate
+          footer_link: github users api
+        bot_id:
+          title: bot id
+          description: This is your bot ID.
+          footer: Used when interacting with the bot.
+        protection_spam:
+          title: spam protection
+          description: toggle enable to remove the red border
+          footer: if enable we will secure your comments from spam
+        advanced_enable_advanced:
+          title: enable advanced settings
+          description: you can enable advanced settings to change the settings
+        advanced_dir_listing:
+          title: directory listing
+          description: if no index file is present within a directory, the directory contents will be displayed.
+  index:
+    nav: home
+    title: DeepWeb
+    description: DeepWeb
+    keywords: DeepWeb
+    add_to_cart: Add to cart
+  404:
+    title: page not found
+    description: page not found
+  product:
+    add_to_cart: Add to cart
+    product_id: Product ID
+    save: Save
+    inclusive_of_taxes: Inclusive of all Taxes.
+    qty: Qty
+    ordering:
+      name: Name
+      price: Price
+      created_at: Created At
+    share: Share
+    share_not_supported: Web share is not supported in your browser
+    review:
+      created:
+        success: Review created successfully
+        error: Review creation error
+      updated:
+        success: Review updated successfully
+        error: Review update error
+      deleted:
+        success: Review deleted successfully
+        error: Review delete error
+  products:
+    title: Products
+    nav: products
+    description: products list
+    keywords: products
+  cart:
+    title: Cart
+    nav: cart
+    description: cart
+    keywords: cart
+    updated: Cart updated
+    update_error: Cart update error
+    deleted: Cart Item deleted
+    delete_error: Cart Item delete error
+    checkout: Checkout
+    empty:
+      title: Your cart is empty
+      description: Your cart is empty
+      button: Go to products
+  checkout:
+    title: Checkout
+    nav: checkout
+    description: checkout
+    keywords: checkout
+    empty: Your cart is empty
+    form:
+      first_name: First Name
+      last_name: Last Name
+      address: Address
+      city: City
+      email: Email
+      phone: Phone
+      place: Place
+      zipcode: Zipcode
+      country: Country
+      region: Region
+      mobile_phone: Mobile Phone
+      floor: Floor
+      location_type: Location Type
+      customer_notes: Customer Notes
+      submit: Submit
+      too_many_attempts: Too many attempts, please try again later.
+      choose:
+        country: Choose Country
+        region: Choose Region
+    success:
+      title: Order created
+    validation:
+      email:
+        required: Email is required
+        email: Email must be a valid email address
+      first_name:
+        required: First Name is required
+        min: First Name must be at least %{min} characters long
+      last_name:
+        required: Last Name is required
+        min: Last Name must be at least %{min} characters long
+      street:
+        required: Street is required
+        min: Street must be at least %{min} characters long
+      street_number:
+        required: Street Number is required
+        min: Street Number must be at least %{min} characters long
+      zipcode:
+        required: Zipcode is required
+        min: Zipcode must be at least %{min} characters long
+      place:
+        required: Place is required
+        min: Place must be at least %{min} characters long
+      city:
+        required: City is required
+        min: City must be at least %{min} characters long
+      phone:
+        required: Phone is required
+        min: Phone must be at least %{min} characters long
+  accounts:
+    login:
+      title: Account
+    logout:
+      title: Logout
+    security:
+      title: Security
+  account:
+    index:
+      title: Account
+      nav: account
+      description: account
+      keywords: account
+    orders:
+      title: Orders
+      nav: orders
+      description: orders
+      keywords: orders
+      updated: Orders updated
+      update_error: Orders update error
+      deleted: Orders Item deleted
+      delete_error: Orders Item delete error
+      ordering:
+        created_at: Created At
+      empty:
+        title: Your orders is empty
+        description: You have not placed any orders yet.
+        button: Go to shop
+    favourites:
+      title: Favourites
+      nav: favourites
+      description: favourites
+      keywords: favourites
+      updated: Favourites updated
+      update_error: Favourites update error
+      deleted: Favourites Item deleted
+      delete_error: Favourites Item delete error
+      ordering:
+        created_at: Created At
+      empty:
+        title: Your favourites is empty
+        description: You have not added any favourites yet.
+        button: Go to shop
+    reviews:
+      title: Reviews
+      nav: reviews
+      description: reviews
+      keywords: reviews
+      updated: Reviews updated
+      update_error: Reviews update error
+      deleted: Reviews Item deleted
+      delete_error: Reviews Item delete error
+      ordering:
+        created_at: Created At
+      empty:
+        title: Your reviews are empty
+        description: You have not added any reviews yet.
+        button: Go to shop
+    settings:
+      title: Settings
+      nav: settings
+      description: settings
+      keywords: settings
+      updated: Settings updated
+      update_error: Settings update error
+      deleted: Settings Item deleted
+      delete_error: Settings Item delete error
+      validation:
+        email:
+          invalid: Email is invalid
+        region:
+          required: Region is required
+        first_name:
+          min: First Name must be at least %{min} characters
+        last_name:
+          min: Last Name must be at least %{min} characters
+      form:
+        email: Email
+        first_name: First Name
+        last_name: Last Name
+        phone: Phone
+        city: City
+        zipcode: Zipcode
+        address: Address
+        place: Place
+        birth_date: Birth Date
+        country: Country
+        region: Region
+        submit: Submit
+        success: Settings updated successfully
+        error: Settings update error
+        choose:
+          country: Choose Country
+          region: Choose Region
+        date_picker:
+          cancel: Cancel
+          select: Select
+          now: Now
+    addresses:
+      title: Addresses
+      nav: addresses
+      description: addresses
+      keywords: addresses
+      updated: Addresses updated
+      update_error: Addresses update error
+      deleted: Addresses Item deleted
+      delete_error: Addresses Item delete error
+      total: Total
+      delete: Delete
+      ordering:
+        created_at: Created At
+        is_main: Main
+      empty:
+        title: Your addresses are empty
+        description: You have not added any addresses yet.
+        button: Go to shop
+      new:
+        title: New Address
+        error: Address creation error
+        success: Address created successfully
+        back: Back To Addresses
+        main:
+          title: Main Address
+          success: Main Address updated successfully
+          error: Main Address update error
+        form:
+          title: Address
+          first_name: First Name
+          last_name: Last Name
+          street: Street
+          street_number: Street Number
+          city: City
+          zipcode: Zipcode
+          phone: Phone
+          mobile_phone: Mobile Phone
+          notes: Notes
+          floor: Floor
+          location_type: Location Type
+          country: Country
+          region: Region
+          submit: Submit
+        validation:
+          title:
+            min: Title must be at least %{min} characters
+          first_name:
+            min: First Name must be at least %{min} characters
+          last_name:
+            min: Last Name must be at least %{min} characters
+          street:
+            min: Street must be at least %{min} characters
+          street_number:
+            min: Street Number must be at least %{min} characters
+          city:
+            min: City must be at least %{min} characters
+          zipcode:
+            min: Zipcode must be at least %{min} characters
+          region:
+            required: Region is required
+      edit:
+        title: Edit Address
+        error: Address update error
+        success: Address updated successfully
+        back: Back To Addresses
+        main:
+          title: Main Address
+          success: Main Address updated successfully
+          error: Main Address update error
+          button: Set as Main Address
+        form:
+          title: Address
+          first_name: First Name
+          last_name: Last Name
+          street: Street
+          street_number: Street Number
+          city: City
+          zipcode: Zipcode
+          phone: Phone
+          mobile_phone: Mobile Phone
+          notes: Notes
+          floor: Floor
+          location_type: Location Type
+          country: Country
+          region: Region
+          submit: Submit
+          update: Update
+        validation:
+          title:
+            min: Title must be at least %{min} characters
+          first_name:
+            min: First Name must be at least %{min} characters
+          last_name:
+            min: Last Name must be at least %{min} characters
+          street:
+            min: Street must be at least %{min} characters
+          street_number:
+            min: Street Number must be at least %{min} characters
+          city:
+            min: City must be at least %{min} characters
+          zipcode:
+            min: Zipcode must be at least %{min} characters
+          region:
+            required: Region is required
+    help:
+      title: Help
+      nav: help
+      description: help
+      keywords: help
+      updated: Help updated
+      update_error: Help update error
+      deleted: Help Item deleted
+      delete_error: Help Item delete error
+layouts:
+  title: DeepWeb %{title}
+  description: DeepWeb-Description %{description}
+banners:
+  welcome: Welcome to %{app_name}!
+routes:
+  el: Greek
+  en: English
+  de: German
+  id: Indonesian
+  ja: Japanese
+  ko: Korean
+  zh: Chinese
+  setting: Setting
+  test: Test
+  blank: Blank
+  testing: Testing
+  products: Products
+  product: Product
+  home: Home
+  cart: Cart
+  checkout: Checkout
+  account: Account
+  orders: Orders
+  favourites: Favourites
+  reviews: Reviews
+  settings: Settings
+  help: Help
+swal:
+  default:
+    warning:
+      title: Are you sure?
+      text: You won't be able to revert this!
+      confirm_button_text: Yes, delete it!
+      cancel_button_text: Cancel
+    error:
+      title: Error
+      text: Something went wrong!
+      confirm_button_text: Ok
+      cancel_button_text: Cancel
+    success:
+      title: Success
+      text: Operation completed successfully!
+      confirm_button_text: Ok
+      cancel_button_text: Cancel
+    info:
+      title: Info
+      text: Info
+      confirm_button_text: Ok
+      cancel_button_text: Cancel
+    question:
+      title: Question
+      text: Question
+      confirm_button_text: Ok
+      cancel_button_text: Cancel
+  delete_address:
+    title: Delete Address
+    text: Are you sure you want to delete this address?
+    success:
+      title: Address deleted
+      text: Address deleted successfully
+      html: Address deleted successfully
+common:
+  home: home
+  learn_more: learn more
+  copy: copy
+  enabled: enabled
+  disabled: disabled
+  read_less: read less
+  read_more: read more
+  choose: Choose...
+  floor: Floor
+  location_type: Location Type
+  phone: Phone
+  mobile_phone: Mobile Phone
+  notes: Notes
+  back: Back
+  client_only_fallback: Loading...
+  unknown:
+    error: Unknown error
+  errors:
+    unknown_internal_api_error: Unknown internal API error
+  shop: Shop
+  next: Next
+  previous: Previous
+  empty:
+    title: Empty
+    description: Empty
+    button: Return to home
+  validation:
+    date:
+      required_error: Please select a date and time
+      invalid_type_error: That's not a date!
+    email:
+      invalid: Email is invalid
+    first_name:
+      min: First Name must be at least %{min} characters
+    last_name:
+      min: Last Name must be at least %{min} characters
+    street:
+      min: Street must be at least %{min} characters
+    street_number:
+      min: Street Number must be at least %{min} characters
+    city:
+      min: City must be at least %{min} characters
+    zipcode:
+      min: Zipcode must be at least %{min} characters
+    country:
+      required: Country is required
+    region:
+      required: Region is required

@@ -1,0 +1,55 @@
+// vars
+@import 'variables';
+
+.container-small {
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 15px;
+	padding-right: 15px;
+	width: 100%;
+	@media (min-width: map-get($grid-breakpoints, 'sm')) {
+		max-width: 540px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'md')) {
+		max-width: 720px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'lg')) {
+		max-width: 960px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'xl')) {
+		max-width: 1140px;
+	}
+
+	@media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
+		max-width: 1320px;
+	}
+}
+
+.container-x_small {
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 15px;
+	padding-right: 15px;
+	width: 100%;
+	@media (min-width: map-get($grid-breakpoints, 'sm')) {
+		max-width: 360px;
+	}
+	@media (min-width: map-get($grid-breakpoints, 'md')) {
+		max-width: 540px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'lg')) {
+		max-width: 720px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'xl')) {
+		max-width: 960px;
+	}
+
+	@media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
+		max-width: 1200px;
+	}
+}

@@ -1,0 +1,18 @@
+*.log
+nuxt.d.ts
+
+# ignore all env files except .env.example
+.env*
+!*.env.example
+
+# deps
+node_modules
+
+# build or generate
+.nuxt
+dist
+.output
+
+# IDE
+.idea
+.vercel

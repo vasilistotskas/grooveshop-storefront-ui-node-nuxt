@@ -1,0 +1,683 @@
+components:
+  global:
+    generic_modal:
+      close: schließen
+    pwa:
+      ready_to_work_offline: app bereit, offline zu arbeiten
+      new_content_available: >-
+        neue inhalte verfügbar. klicken sie zum aktualisieren auf die
+        schaltfläche „neu laden“.
+      reload: neu laden
+      close: schließen
+      install_pwa: installieren sie pwa
+      install: installieren
+      cancel: stornieren
+  page:
+    footer:
+      copyright: urheberrecht © 2022
+      rights: alle rechte vorbehalten . gemacht mit
+      design_by: design von
+  language:
+    switcher:
+      change_language: sprache ändern
+      theme: thema
+  theme_switcher:
+    theme: thema
+    change_theme: thema ändern
+  ordering:
+    title: bestellung
+  breadcrumbs:
+    title: semmelbrösel
+  pagination:
+    title: seitennummerierung
+    prev: vorherige
+    next: nächste
+    previous_page: vorherige seite
+    next_page: nächste seite
+    first_page: erste seite
+    last_page: letzte seite
+    go_to_page: gehe zur seite %{page}
+    you_are_on_last_page: sie befinden sich auf der letzten seite
+  builder:
+    navbar:
+      toggle_drawer_menu: schubladenmenü umschalten
+      toggle_options_menu: optionsmenü umschalten
+  cookie:
+    accept: akzeptieren
+    accept_all: akzeptiere alle
+    banner:
+      description: >-
+        indem sie auf „alle cookies akzeptieren“ klicken, stimmen sie der
+        speicherung von cookies auf ihrem gerät zu, um die navigation auf der
+        website zu verbessern, die nutzung der website zu analysieren und unsere
+        marketingbemühungen zu unterstützen.
+      title: kekse
+    close: schließen
+    cookies:
+      functional: funktionelle cookies
+      functional_description: >-
+        funktionale cookies helfen dabei, bestimmte funktionen auszuführen, wie
+        das teilen des inhalts der website auf social-media-plattformen, das
+        sammeln von feedback und andere funktionen von drittanbietern.
+      necessary: notwendige cookies
+      necessary_description: >-
+        notwendige cookies tragen dazu bei, eine website nutzbar zu machen,
+        indem sie grundfunktionen wie seitennavigation und zugriff auf sichere
+        bereiche der website ermöglichen. ohne diese cookies kann die website
+        nicht ordnungsgemäß funktionieren.
+      optional: optionale cookies
+      optional_links:
+        privacy_policy: datenschutz-bestimmungen
+      google:
+        analytics: google analytics
+        analytics_description: wird zur cookie-kontrolle verwendet.
+    decline: abfall
+    decline_all: alle ablehnen
+    here: hier
+    iframe_blocked: um dies zu sehen, aktivieren sie bitte funktionale cookies.
+    manage_cookies: cookie-einstellungen
+    save: speichern
+    settings:
+      unsaved: du hast nicht gespeicherte änderungen.
+  form:
+    validation:
+      email: email
+      password: passwort
+      submit: einreichen
+      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
+  product:
+    card:
+      price: preis
+      vat_percent: mehrwertsteuer-prozent
+      total_price: gesamtpreis
+      add_to_cart: in den warenkorb legen
+      share: aktie
+      share_not_supported: web share wird in ihrem browser nicht unterstützt
+    reviews:
+      title: rezensionen
+      empty: noch keine bewertungen
+      ordering:
+        id: ausweis
+        user_id: benutzer-id
+        product_id: produkt id
+        created_at: hergestellt in
+      summary:
+        reviews: rezensionen
+    review:
+      write_review: eine rezension schreiben
+      edit_review: rezension bearbeiten
+      update_review: update-überprüfung
+      delete_review: bewertung löschen
+      must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
+      write_review_for_product: schreiben sie eine bewertung für produkt %{product}
+      confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
+      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
+      delete_review_confirm: löschen
+      delete_review_cancel: stornieren
+      rating:
+        title: bewertung
+        bad: schlecht
+        not_that_good: nicht so gut
+        meh: meh
+        its_ok: es ist in ordnung
+        good: gut
+        very_good: sehr gut
+        perfect: perfekt!
+      comment:
+        title: kommentar
+        placeholder: teile deine erfahrung...
+        label: kommentar
+      validation:
+        comment:
+          min: der kommentar muss mindestens %{min} zeichen lang sein
+          max: der kommentar darf höchstens %{max} zeichen lang sein
+        rate:
+          min: die bewertung muss mindestens %{min} betragen
+          max: die bewertung darf höchstens %{max} betragen
+  add_to_cart_button:
+    text: in den warenkorb legen
+    added_to_cart: zum warenkorb hinzugefügt
+  add_to_favourite_button:
+    not_authenticated: sie müssen angemeldet sein, um favoriten hinzuzufügen
+    added: zu den favoriten hinzugefügt
+    removed: aus den favoriten entfernt
+    add: zu favoriten hinzufügen
+    remove: von den favoriten entfernen
+  user:
+    avatar:
+      change: ändern
+      no_file_selected: keine datei ausgewählt
+      file_extension_not_allowed: dateierweiterung nicht zulässig
+      image:
+        updated: bild aktualisiert
+        not_updated: bild nicht aktualisiert
+  order:
+    list:
+      footer: fusszeile
+    card:
+      extra: '%{count} weitere produkte'
+      extra_one: 1 weiteres produkt
+      id: ausweis
+      address: adresse
+      pay_way: bezahlungsweise
+      status: status
+      total_price: gesamtpreis
+      actions:
+        details: einzelheiten
+  cart:
+    item_card:
+      remove_from_cart: aus dem warenkorb entfernen %{name}
+  address:
+    add_new:
+      title: >-
+        sie können eine neue adresse hinzufügen und diese für alle ihre nächsten
+        einkäufe verwenden.
+      button: hinzufügen
+    card:
+      delete:
+        success: adresse gelöscht
+        error: adresse nicht gelöscht
+        cant_delete_main: >-
+          sie können ihre hauptadresse nicht löschen. legen sie bitte eine
+          andere adresse als hauptadresse fest und versuchen sie es erneut.
+  checkout:
+    sidebar:
+      title: kasse
+      items: artikel
+      items_unique: artikel
+      shipping: versand
+      discount: rabatt
+      vat: mwst
+      total: gesamt
+    pay_ways:
+      title: wählen sie die zahlungsmethode
+      label: bezahlungsweise
+    items:
+      title: artikel
+pages:
+  '404':
+    title: seite nicht gefunden
+    description: seite nicht gefunden
+  testing:
+    nav: testen
+    title: testen
+    index:
+      nav: testen
+      title: testen
+      description: dies ist eine testseite
+      keywords: testen
+    blank:
+      nav: leer
+      title: leere seite
+      description: das ist eine leere seite
+      just_blank_page_with_title: nur eine leere seite mit titel
+    test:
+      nav: prüfen
+      title: testen
+      description: dies ist eine testseite
+      counter: schalter
+      increment: zuwachs
+      decrement: dekrementieren
+      reset: zurücksetzen
+      identity: identität
+      full_name: vollständiger name
+    setting:
+      nav: einstellung
+      title: einstellung
+      description: dies ist eine einstellungsseite
+      sections:
+        validate_username:
+          title: validieren sie das github-profil
+          description: >-
+            geben sie ihren github-benutzernamen ein und klicken sie zur
+            bestätigung auf die schaltfläche.
+          footer: lerne mehr über
+          footer_button: bestätigen
+          footer_link: github-benutzer-api
+        bot_id:
+          title: bot-id
+          description: dies ist ihre bot-id.
+          footer: wird bei der interaktion mit dem bot verwendet.
+        protection_spam:
+          title: spamschutz
+          description: >-
+            schalten sie die option „aktivieren“ um, um den roten rand zu
+            entfernen
+          footer: >-
+            wenn diese option aktiviert ist, schützen wir ihre kommentare vor
+            spam
+        advanced_enable_advanced:
+          title: erweiterte einstellungen aktivieren
+          description: >-
+            sie können erweiterte einstellungen aktivieren, um die einstellungen
+            zu ändern
+        advanced_dir_listing:
+          title: verzeichnisliste
+          description: >-
+            wenn in einem verzeichnis keine indexdatei vorhanden ist, wird der
+            verzeichnisinhalt angezeigt.
+  index:
+    nav: heim
+    title: deep web
+    description: deep web
+    keywords: deep web
+    add_to_cart: in den warenkorb legen
+  product:
+    add_to_cart: in den warenkorb legen
+    product_id: produkt id
+    save: speichern
+    inclusive_of_taxes: inklusive aller steuern.
+    qty: menge
+    ordering:
+      name: name
+      price: preis
+      created_at: hergestellt in
+    share: aktie
+    share_not_supported: web share wird in ihrem browser nicht unterstützt
+    review:
+      created:
+        success: bewertung erfolgreich erstellt
+        error: fehler bei der erstellung der rezension
+      updated:
+        success: bewertung erfolgreich aktualisiert
+        error: überprüfen sie den aktualisierungsfehler
+      deleted:
+        success: bewertung erfolgreich gelöscht
+        error: fehler beim löschen der rezension
+  products:
+    title: produkte
+    nav: produkte
+    description: produktliste
+    keywords: produkte
+  cart:
+    title: wagen
+    nav: wagen
+    description: wagen
+    keywords: wagen
+    updated: warenkorb aktualisiert
+    update_error: fehler bei der warenkorbaktualisierung
+    deleted: warenkorbartikel gelöscht
+    delete_error: fehler beim löschen des warenkorbartikels
+    checkout: kasse
+    empty:
+      title: ihr warenkorb ist leer
+      description: ihr warenkorb ist leer
+      button: gehen sie zu den produkten
+  checkout:
+    title: kasse
+    nav: kasse
+    description: kasse
+    keywords: kasse
+    empty: ihr warenkorb ist leer
+    form:
+      first_name: vorname
+      last_name: familienname, nachname
+      address: adresse
+      city: stadt
+      email: email
+      phone: telefon
+      place: ort
+      zipcode: plz
+      country: land
+      region: region
+      mobile_phone: mobiltelefon
+      floor: boden
+      location_type: standorttyp
+      customer_notes: kundenhinweise
+      submit: einreichen
+      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
+      choose:
+        country: land auswählen
+        region: wählen sie region
+    success:
+      title: auftrag erstellt
+    validation:
+      email:
+        required: e-mail ist erforderlich
+        email: e-mail muss eine gültige e-mail-adresse sein
+      first_name:
+        required: vorname ist erforderlich
+        min: der vorname muss mindestens %{min} zeichen lang sein
+      last_name:
+        required: nachname ist erforderlich
+        min: der nachname muss mindestens %{min} zeichen lang sein
+      street:
+        required: straße ist erforderlich
+        min: die straße muss mindestens %{min} zeichen lang sein
+      street_number:
+        required: die hausnummer ist erforderlich
+        min: die straßennummer muss mindestens %{min} zeichen lang sein
+      zipcode:
+        required: postleitzahl ist erforderlich
+        min: die postleitzahl muss mindestens %{min} zeichen lang sein
+      place:
+        required: platz ist erforderlich
+        min: der ort muss mindestens %{min} zeichen lang sein
+      city:
+        required: stadt ist erforderlich
+        min: die stadt muss mindestens %{min} zeichen lang sein
+      phone:
+        required: telefon ist erforderlich
+        min: das telefon muss mindestens %{min} zeichen lang sein
+  accounts:
+    login:
+      title: konto
+    logout:
+      title: ausloggen
+    security:
+      title: sicherheit
+  account:
+    index:
+      title: konto
+      nav: konto
+      description: konto
+      keywords: konto
+    orders:
+      title: aufträge
+      nav: aufträge
+      description: aufträge
+      keywords: aufträge
+      updated: bestellungen aktualisiert
+      update_error: fehler bei der aktualisierung der bestellungen
+      deleted: bestellartikel gelöscht
+      delete_error: fehler beim löschen des bestellartikels
+      ordering:
+        created_at: hergestellt in
+      empty:
+        title: ihre bestellungen sind leer
+        description: sie haben noch keine bestellungen aufgegeben.
+        button: zum laden gehen
+    favourites:
+      title: favoriten
+      nav: favoriten
+      description: favoriten
+      keywords: favoriten
+      updated: favoriten aktualisiert
+      update_error: fehler bei der aktualisierung der favoriten
+      deleted: favoritenelement gelöscht
+      delete_error: fehler beim löschen des favoritenelements
+      ordering:
+        created_at: hergestellt in
+      empty:
+        title: ihre favoriten sind leer
+        description: sie haben noch keine favoriten hinzugefügt.
+        button: zum laden gehen
+    reviews:
+      title: rezensionen
+      nav: bewertungen
+      description: bewertungen
+      keywords: bewertungen
+      updated: bewertungen aktualisiert
+      update_error: fehler bei der aktualisierung der bewertungen
+      deleted: bewertungen artikel gelöscht
+      delete_error: fehler beim löschen des artikels
+      ordering:
+        created_at: hergestellt in
+      empty:
+        title: ihre bewertungen sind leer
+        description: sie haben noch keine bewertungen hinzugefügt.
+        button: zum laden gehen
+    settings:
+      title: einstellungen
+      nav: einstellungen
+      description: einstellungen
+      keywords: einstellungen
+      updated: einstellungen aktualisiert
+      update_error: fehler bei der aktualisierung der einstellungen
+      deleted: einstellungselement gelöscht
+      delete_error: fehler beim löschen des einstellungselements
+      validation:
+        email:
+          invalid: e-mail ist ungültig
+        region:
+          required: region ist erforderlich
+        first_name:
+          min: der vorname muss mindestens %{min} zeichen lang sein
+        last_name:
+          min: der nachname muss mindestens %{min} zeichen lang sein
+      form:
+        email: email
+        first_name: vorname
+        last_name: familienname, nachname
+        phone: telefon
+        city: stadt
+        zipcode: plz
+        address: adresse
+        place: ort
+        birth_date: geburtsdatum
+        country: land
+        region: region
+        submit: einreichen
+        success: einstellungen erfolgreich aktualisiert
+        error: fehler bei der aktualisierung der einstellungen
+        choose:
+          country: land auswählen
+          region: wählen sie region
+        date_picker:
+          cancel: stornieren
+          select: wählen
+          now: jetzt
+    addresses:
+      title: adressen
+      nav: adressen
+      description: adressen
+      keywords: adressen
+      updated: adressen aktualisiert
+      update_error: behebt aktualisierungsfehler
+      deleted: adressen element gelöscht
+      delete_error: fehler beim löschen des adressenelements
+      total: gesamt
+      delete: löschen
+      ordering:
+        created_at: hergestellt in
+        is_main: hauptsächlich
+      empty:
+        title: ihre adressen sind leer
+        description: sie haben noch keine adressen hinzugefügt.
+        button: zum laden gehen
+      new:
+        title: neue adresse
+        error: fehler bei der adresserstellung
+        success: adresse erfolgreich erstellt
+        back: zurück zu adressen
+        main:
+          title: hauptadresse
+          success: hauptadresse erfolgreich aktualisiert
+          error: fehler bei der aktualisierung der hauptadresse
+        form:
+          title: adresse
+          first_name: vorname
+          last_name: familienname, nachname
+          street: straße
+          street_number: hausnummer
+          city: stadt
+          zipcode: plz
+          phone: telefon
+          mobile_phone: mobiltelefon
+          notes: anmerkungen
+          floor: boden
+          location_type: standorttyp
+          country: land
+          region: region
+          submit: einreichen
+        validation:
+          title:
+            min: der titel muss mindestens %{min} zeichen lang sein
+          first_name:
+            min: der vorname muss mindestens %{min} zeichen lang sein
+          last_name:
+            min: der nachname muss mindestens %{min} zeichen lang sein
+          street:
+            min: die straße muss mindestens %{min} zeichen lang sein
+          street_number:
+            min: die straßennummer muss mindestens %{min} zeichen lang sein
+          city:
+            min: die stadt muss mindestens %{min} zeichen lang sein
+          zipcode:
+            min: die postleitzahl muss mindestens %{min} zeichen lang sein
+          region:
+            required: region ist erforderlich
+      edit:
+        title: adresse bearbeiten
+        error: fehler bei der adressaktualisierung
+        success: adresse erfolgreich aktualisiert
+        back: zurück zu adressen
+        main:
+          title: hauptadresse
+          success: hauptadresse erfolgreich aktualisiert
+          error: fehler bei der aktualisierung der hauptadresse
+          button: als hauptadresse festlegen
+        form:
+          title: adresse
+          first_name: vorname
+          last_name: familienname, nachname
+          street: straße
+          street_number: hausnummer
+          city: stadt
+          zipcode: plz
+          phone: telefon
+          mobile_phone: mobiltelefon
+          notes: anmerkungen
+          floor: boden
+          location_type: standorttyp
+          country: land
+          region: region
+          submit: einreichen
+          update: aktualisieren
+        validation:
+          title:
+            min: der titel muss mindestens %{min} zeichen lang sein
+          first_name:
+            min: der vorname muss mindestens %{min} zeichen lang sein
+          last_name:
+            min: der nachname muss mindestens %{min} zeichen lang sein
+          street:
+            min: die straße muss mindestens %{min} zeichen lang sein
+          street_number:
+            min: die straßennummer muss mindestens %{min} zeichen lang sein
+          city:
+            min: die stadt muss mindestens %{min} zeichen lang sein
+          zipcode:
+            min: die postleitzahl muss mindestens %{min} zeichen lang sein
+          region:
+            required: region ist erforderlich
+    help:
+      title: hilfe
+      nav: hilfe
+      description: hilfe
+      keywords: hilfe
+      updated: hilfe aktualisiert
+      update_error: fehler beim update der hilfe
+      deleted: hilfeelement gelöscht
+      delete_error: fehler beim löschen des hilfeelements
+layouts:
+  title: deepweb %{title}
+  description: deepweb-beschreibung %{description}
+banners:
+  welcome: willkommen bei %{app_name}!
+routes:
+  el: griechisch
+  en: englisch
+  de: deutsch
+  id: indonesisch
+  ja: japanisch
+  ko: koreanisch
+  zh: chinesisch
+  setting: einstellung
+  test: prüfen
+  blank: leer
+  testing: testen
+  products: produkte
+  product: produkt
+  home: heim
+  cart: wagen
+  checkout: kasse
+  account: konto
+  orders: aufträge
+  favourites: favoriten
+  reviews: rezensionen
+  settings: einstellungen
+  help: hilfe
+swal:
+  default:
+    warning:
+      title: bist du dir sicher?
+      text: sie können dies nicht rückgängig machen!
+      confirm_button_text: ja, löschen sie es!
+      cancel_button_text: stornieren
+    error:
+      title: fehler
+      text: etwas ist schief gelaufen!
+      confirm_button_text: ok
+      cancel_button_text: stornieren
+    success:
+      title: erfolg
+      text: operation erfolgreich abgeschlossen!
+      confirm_button_text: ok
+      cancel_button_text: stornieren
+    info:
+      title: die info
+      text: die info
+      confirm_button_text: ok
+      cancel_button_text: stornieren
+    question:
+      title: frage
+      text: frage
+      confirm_button_text: ok
+      cancel_button_text: stornieren
+  delete_address:
+    title: adresse löschen
+    text: sind sie sicher, dass sie diese adresse löschen möchten?
+    success:
+      title: adresse gelöscht
+      text: adresse erfolgreich gelöscht
+      html: adresse erfolgreich gelöscht
+common:
+  home: heim
+  learn_more: lern mehr
+  copy: kopieren
+  enabled: ermöglicht
+  disabled: behinderte
+  read_less: lese weniger
+  read_more: weiterlesen
+  choose: wählen...
+  floor: boden
+  location_type: standorttyp
+  phone: telefon
+  mobile_phone: mobiltelefon
+  notes: anmerkungen
+  back: zurück
+  client_only_fallback: wird geladen...
+  unknown:
+    error: unbekannter fehler
+  errors:
+    unknown_internal_api_error: unbekannter interner api-fehler
+  shop: geschäft
+  next: nächste
+  previous: vorherige
+  empty:
+    title: leer
+    description: leer
+    button: nach hause zurückkehren
+  validation:
+    date:
+      required_error: bitte wählen sie ein datum und eine uhrzeit aus
+      invalid_type_error: das ist kein date!
+    email:
+      invalid: e-mail ist ungültig
+    first_name:
+      min: der vorname muss mindestens %{min} zeichen lang sein
+    last_name:
+      min: der nachname muss mindestens %{min} zeichen lang sein
+    street:
+      min: die straße muss mindestens %{min} zeichen lang sein
+    street_number:
+      min: die straßennummer muss mindestens %{min} zeichen lang sein
+    city:
+      min: die stadt muss mindestens %{min} zeichen lang sein
+    zipcode:
+      min: die postleitzahl muss mindestens %{min} zeichen lang sein
+    country:
+      required: land ist erforderlich
+    region:
+      required: region ist erforderlich

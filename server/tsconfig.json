@@ -1,0 +1,11 @@
+{
+	"extends": "../.nuxt/tsconfig.server.json",
+	"compilerOptions": {
+		"baseUrl": "..",
+		"paths": {
+			"~/*": ["./src/*"],
+			"~/zod/*": ["./zod/*"],
+			"~/utils/*": ["./utils/*"]
+		}
+	}
+}
