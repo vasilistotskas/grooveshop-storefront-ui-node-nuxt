@@ -402,7 +402,7 @@ useHead(() => ({
 									<ButtonAddToCart
 										v-if="product"
 										:product="product"
-										:quantity="selectorQuantity as number || 1"
+										:quantity="(selectorQuantity as number) || 1"
 										:text="$t('pages.product.add_to_cart')"
 									/>
 								</div>

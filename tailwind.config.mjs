@@ -1,4 +1,3 @@
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { spacing, fontFamily } = require('tailwindcss/defaultTheme')
 

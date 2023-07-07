@@ -201,7 +201,9 @@ const userToProductFavourite = computed(() => {
 		}
 	}
 	.card-body {
-		transition: transform 0.3s ease, -webkit-transform 0.3s ease;
+		transition:
+			transform 0.3s ease,
+			-webkit-transform 0.3s ease;
 		will-change: transform;
 		display: flex;
 		position: relative;

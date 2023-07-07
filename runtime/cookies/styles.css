@@ -57,7 +57,9 @@
 	cursor: pointer;
 	padding: 12px 20px;
 	backface-visibility: hidden;
-	transition: background-color 200ms, color 200ms;
+	transition:
+		background-color 200ms,
+		color 200ms;
 }
 .cookieControl__BarButtons__ManageCookies {
 	background-color: transparent;

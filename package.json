@@ -28,7 +28,8 @@
 		"test:dev": "NUXT_VITEST_DEV_TEST=true nuxt dev",
 		"test:unit": "vitest",
 		"test:types": "nuxi prepare && vue-tsc --noEmit",
-		"test": "npm test:unit --run && npm test:dev && npm test:types"
+		"test": "npm test:unit --run && npm test:dev && npm test:types",
+		"semantic-release": "semantic-release"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.22.7",
@@ -56,13 +57,19 @@
 		"@vueuse/core": "^10.2.1",
 		"@vueuse/nuxt": "^10.2.1",
 		"@testing-library/jest-dom": "^5.16.5",
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/commit-analyzer": "^10.0.1",
+		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/github": "^9.0.3",
+		"@semantic-release/npm": "^10.0.4",
+		"@semantic-release/release-notes-generator": "^11.0.3",
 		"autoprefixer": "^10.4.14",
 		"cookie-es": "^1.0.0",
 		"css-vars-ponyfill": "^2.4.8",
 		"eslint": "^8.44.0",
 		"eslint-config-prettier": "^8.8.0",
 		"eslint-plugin-nuxt": "^4.0.0",
-    "eslint-plugin-prettier": "^v5.0.0-alpha.0",
+		"eslint-plugin-prettier": "^v5.0.0-alpha.0",
 		"js-yaml": "^4.1.0",
 		"lint-staged": "^13.2.3",
 		"lottie-web": "^5.12.2",
@@ -96,7 +103,28 @@
 		"vue-toastification": "^2.0.0-rc.5",
 		"vue-tsc": "^1.8.4",
 		"webpack": "^5.88.1",
-		"zod": "^3.21.4"
+		"zod": "^3.21.4",
+		"semantic-release": "^21.0.6"
+	},
+	"release": {
+		"branches": [
+			"main"
+		],
+		"plugins": [
+			"@semantic-release/commit-analyzer",
+			"@semantic-release/release-notes-generator",
+			"@semantic-release/changelog",
+			[
+				"@semantic-release/git",
+				{
+					"assets": [
+						"CHANGELOG.md",
+						"package.json"
+					],
+					"message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+				}
+			]
+		]
 	},
 	"lint-staged": {
 		"**/*.{js,ts,vue,html}": [
