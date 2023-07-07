@@ -81,7 +81,7 @@ useSchemaOrg([
 ])
 useServerSeoMeta({
 	title: () => title.value as Title,
-	description: () => description.value,
+	description: () => description.value as string,
 	colorScheme: () => (theme.value === 'dark' ? 'dark' : 'light'),
 	themeColor: () => themeColor.value,
 	applicationName: () => config.public.appTitle as string,
@@ -94,9 +94,9 @@ useServerSeoMeta({
 	ogLocaleAlternate: () => locales.value.map((l: any) => l.iso),
 	fbAppId: () => config.public.facebookAppId as string,
 	twitterCard: () => 'summary_large_image',
-	twitterTitle: () => title.value,
-	twitterDescription: () => description.value,
-	twitterImage: () => config.public.appImage,
+	twitterTitle: () => title.value as string,
+	twitterDescription: () => description.value as string,
+	twitterImage: () => config.public.appImage as string,
 	mobileWebAppCapable: () => 'yes',
 	msapplicationTileImage: () => config.public.appImage as string,
 	msapplicationTileColor: () => themeColor.value

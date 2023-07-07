@@ -22,8 +22,9 @@
 			"global.d.ts",
 			"components.d.ts",
 			"custom.d.ts",
-			"auto-imports.d.ts"
+			"auto-imports.d.ts",
+			"nuxt-seo-kit.d.ts"
 		]
 	},
-	"files": ["global.d.ts", "components.d.ts", "custom.d.ts"]
+	"files": ["global.d.ts", "components.d.ts", "custom.d.ts", "auto-imports.d.ts", "nuxt-seo-kit.d.ts"],
 }

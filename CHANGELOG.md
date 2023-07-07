@@ -1,9 +1,8 @@
 ## [1.1.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.2...v1.1.3) (2023-07-07)
 
-
 ### Bug Fixes
 
-* **typos:** Fix typing from useRuntimeConfig ([f96c7e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f96c7e1780eef29a368b6112955cda37457eb85e))
+- **typos:** Fix typing from useRuntimeConfig ([f96c7e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f96c7e1780eef29a368b6112955cda37457eb85e))
 
 ## [1.1.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.1...v1.1.2) (2023-07-07)
 
