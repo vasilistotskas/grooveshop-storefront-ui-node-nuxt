@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.0.0...v1.0.1) (2023-07-07)
+
+
+### Bug Fixes
+
+* **workflows:** workflow testing ([fcd6860](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fcd68608509f2c1a7485d09542a4257cfc889374))
+
 # 1.0.0 (2023-07-07)
 
 

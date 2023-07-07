@@ -1,9 +1,9 @@
 {
 	"name": "nuxt3",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Deep Web Description",
 	"type": "module",
-  "repository": "https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt",
+	"repository": "https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt",
 	"author": "vasilistotskas",
 	"license": "MIT",
 	"scripts": {
@@ -111,7 +111,7 @@
 			"@semantic-release/commit-analyzer",
 			"@semantic-release/release-notes-generator",
 			"@semantic-release/changelog",
-      "@semantic-release/npm",
+			"@semantic-release/npm",
 			[
 				"@semantic-release/git",
 				{
@@ -122,30 +122,30 @@
 					"message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
 				}
 			],
-      [
-        "@semantic-release/github",
-        {
-          "assets": [
-            {
-              "path": ".nuxt/dist/client",
-              "label": "Client"
-            },
-            {
-              "path": ".nuxt/dist/server",
-              "label": "Server"
-            },
-            {
-              "path": ".output",
-              "label": "Output"
-            }
-          ]
-        }
-      ]
+			[
+				"@semantic-release/github",
+				{
+					"assets": [
+						{
+							"path": ".nuxt/dist/client",
+							"label": "Client"
+						},
+						{
+							"path": ".nuxt/dist/server",
+							"label": "Server"
+						},
+						{
+							"path": ".output",
+							"label": "Output"
+						}
+					]
+				}
+			]
 		]
 	},
-  "publishConfig": {
-    "@vasilistotskas:registry": "https://npm.pkg.github.com"
-  },
+	"publishConfig": {
+		"@vasilistotskas:registry": "https://npm.pkg.github.com"
+	},
 	"lint-staged": {
 		"**/*.{js,ts,vue,html}": [
 			"npm lint:fix",
