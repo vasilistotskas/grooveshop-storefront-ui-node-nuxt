@@ -119,7 +119,7 @@ const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, typ
 					<Anchor
 						:text="'Github'"
 						class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center text-gray-700 dark:text-gray-200"
-						href="https://github.com/vasilistotskas/grooveShop/storefrontUINodeNuxt"
+						href="https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt"
 						title="Github"
 					>
 						<IconMdi:githubFace />
@@ -177,7 +177,7 @@ const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, typ
 					type="button"
 					:style="'secondary'"
 					title="Github"
-					href="https://github.com/vasilistotskas/grooveShop/storefrontUINodeNuxt"
+					href="https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt"
 				>
 					<IconMdi:githubFace />
 					<span class="ml-1 text-gray-700 dark:text-gray-200">Github</span>
