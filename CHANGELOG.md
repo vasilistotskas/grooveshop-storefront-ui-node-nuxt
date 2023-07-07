@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.0...v1.1.1) (2023-07-07)
+
+
+### Bug Fixes
+
+* **package.json:** remove plugin npm ([4b214bb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4b214bb8118709d957413227ca656b2f2cdb280e))
+
 # [1.1.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.0.2...v1.1.0) (2023-07-07)
 
 
