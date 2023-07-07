@@ -37,8 +37,10 @@ export default defineNuxtConfig({
 		tsConfig: {
 			compilerOptions: {
 				moduleResolution: 'bundler',
-				types: ['unplugin-icons/types/vue']
-			}
+				types: ['unplugin-icons/types/vue'],
+				skipLibCheck: true
+			},
+			exclude: ['node_modules']
 		}
 	},
 	css: [

@@ -25,6 +25,6 @@
 			"auto-imports.d.ts"
 		]
 	},
-  "exclude": ["node_modules"],
-	"files": ["global.d.ts", "components.d.ts", "custom.d.ts", "auto-imports.d.ts"],
+	"exclude": ["node_modules"],
+	"files": ["global.d.ts", "components.d.ts", "custom.d.ts", "auto-imports.d.ts"]
 }
