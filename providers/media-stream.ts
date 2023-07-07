@@ -74,7 +74,7 @@ const defaultModifiers = {
 
 export const getImage: ProviderGetImage = (src: string, { modifiers = {} } = {}) => {
 	const config = useRuntimeConfig()
-	const baseURL = config.public.mediaStreamUrl
+	const baseURL = config.public.mediaStreamUrl as string
 	if ('loading' in modifiers) {
 		delete modifiers.loading
 	}

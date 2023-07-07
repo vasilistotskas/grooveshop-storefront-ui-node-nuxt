@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Title } from '@unhead/schema'
 import { AppSetup } from '~/utils/app'
 import { ITheme } from '~/utils/theme'
 import { GlobalEvents } from '~/events/global'
@@ -62,8 +63,8 @@ useHead({
 })
 useSchemaOrg([
 	defineOrganization({
-		name: config.public.appTitle,
-		logo: config.public.appImage,
+		name: config.public.appTitle as string,
+		logo: config.public.appImage as string,
 		sameAs: [
 			'https://www.facebook.com/...',
 			'https://twitter.com/...',
@@ -71,33 +72,33 @@ useSchemaOrg([
 		]
 	}),
 	defineWebSite({
-		url: config.public.baseUrl,
-		name: config.public.appTitle,
-		description: config.public.appDescription,
+		url: config.public.baseUrl as string,
+		name: config.public.appTitle as string,
+		description: config.public.appDescription as string,
 		inLanguage: locales.value.map((l: any) => l.iso)
 	}),
 	defineWebPage()
 ])
 useServerSeoMeta({
-	title: () => title.value,
+	title: () => title.value as Title,
 	description: () => description.value,
 	colorScheme: () => (theme.value === 'dark' ? 'dark' : 'light'),
 	themeColor: () => themeColor.value,
-	applicationName: () => config.public.appTitle,
-	author: () => config.public.author.name,
-	creator: () => config.public.author.name,
-	publisher: () => config.public.author.name,
-	ogSiteName: () => config.public.appTitle,
-	ogImage: () => config.public.appImage,
+	applicationName: () => config.public.appTitle as string,
+	author: () => config.public.author.name as string,
+	creator: () => config.public.author.name as string,
+	publisher: () => config.public.author.name as string,
+	ogSiteName: () => config.public.appTitle as string,
+	ogImage: () => config.public.appImage as string,
 	ogLocale: () => locale.value,
 	ogLocaleAlternate: () => locales.value.map((l: any) => l.iso),
-	fbAppId: () => config.public.facebookAppId,
+	fbAppId: () => config.public.facebookAppId as string,
 	twitterCard: () => 'summary_large_image',
 	twitterTitle: () => title.value,
 	twitterDescription: () => description.value,
 	twitterImage: () => config.public.appImage,
 	mobileWebAppCapable: () => 'yes',
-	msapplicationTileImage: () => config.public.appImage,
+	msapplicationTileImage: () => config.public.appImage as string,
 	msapplicationTileColor: () => themeColor.value
 })
 defineOgImageScreenshot({

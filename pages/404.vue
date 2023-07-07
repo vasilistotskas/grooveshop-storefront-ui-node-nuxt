@@ -29,7 +29,7 @@ useHead(() => ({
 
 useServerSeoMeta({
 	colorScheme: computed(() => (theme.value === 'dark' ? 'dark' : 'light')),
-	applicationName: computed(() => config.public.appTitle),
+	applicationName: computed(() => config.public.appTitle as string),
 	themeColor: computed(() => (theme.value === 'dark' ? '#000000' : '#ffffff'))
 })
 </script>

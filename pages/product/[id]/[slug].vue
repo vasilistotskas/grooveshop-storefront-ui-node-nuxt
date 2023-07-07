@@ -206,7 +206,8 @@ definePageMeta({
 })
 useSeoMeta({
 	title: () => productTitle.value,
-	description: () => product.value?.seoDescription || config.public.appDescription,
+	description: () =>
+		product.value?.seoDescription || (config.public.appDescription as string),
 	ogImage: () => product.value?.mainImageAbsoluteUrl || ''
 })
 useSchemaOrg([
@@ -226,7 +227,7 @@ useHead(() => ({
 	meta: [
 		{
 			name: 'description',
-			content: product.value?.seoDescription || config.public.appDescription
+			content: product.value?.seoDescription || (config.public.appDescription as string)
 		},
 		{
 			name: 'keywords',

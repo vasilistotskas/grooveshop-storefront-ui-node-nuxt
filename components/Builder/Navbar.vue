@@ -51,7 +51,7 @@ const toggleOptions = (show?: boolean) => {
 		showOptions.value = !showOptions.value
 	}
 }
-const appTitle = computed(() => config.public.appTitle)
+const appTitle = computed(() => config.public.appTitle as string)
 </script>
 
 <template>
