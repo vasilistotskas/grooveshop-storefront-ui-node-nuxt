@@ -1,12 +1,12 @@
 {
 	"name": "nuxt3",
-	"version": "1.0.1",
-  "private": false,
+	"version": "1.0.2",
+	"private": false,
 	"description": "Nuxt.js project",
 	"type": "module",
 	"repository": "https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt.git",
 	"author": "vasilistotskas",
-  "license": "MIT",
+	"license": "MIT",
 	"scripts": {
 		"build": "nuxi build",
 		"dev": "nuxi dev",

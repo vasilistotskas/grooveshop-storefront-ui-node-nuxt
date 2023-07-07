@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.0.1...v1.0.2) (2023-07-07)
+
+
+### Bug Fixes
+
+* **package.json:** Updated ([eac0ddc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eac0ddcaf7e269a3f7eb5fa12257e9b9b205f459))
+
 ## [1.0.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.0.0...v1.0.1) (2023-07-07)
 
 
