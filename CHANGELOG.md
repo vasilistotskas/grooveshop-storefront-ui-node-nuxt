@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.0.2...v1.1.0) (2023-07-07)
+
+
+### Features
+
+* **docker:** Add Dockerfile ([08ddeeb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/08ddeeb01e2ba9377555f55fbfa57df075858881))
+
 ## [1.0.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.0.1...v1.0.2) (2023-07-07)
 
 
