@@ -1,3 +1,10 @@
+## [1.1.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.6...v1.1.7) (2023-07-07)
+
+
+### Bug Fixes
+
+* **npm-publish-github-packages.yml:** Commented out tests for now ([c2aa758](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c2aa758982643b7602d156b223d3136c85b04bca))
+
 ## [1.1.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.5...v1.1.6) (2023-07-07)
 
 
