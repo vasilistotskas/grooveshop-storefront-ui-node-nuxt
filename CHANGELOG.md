@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.3...v1.1.4) (2023-07-07)
+
+
+### Bug Fixes
+
+* **typos:** Fix typing from useRuntimeConfig and add a dts for nuxt-seo-kit ([d455906](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d4559067f3b118543a415617d0b149cdda7e4753))
+
 ## [1.1.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.2...v1.1.3) (2023-07-07)
 
 ### Bug Fixes
