@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.4...v1.1.5) (2023-07-07)
+
+
+### Bug Fixes
+
+* **tsconfig.json:** remove nuxt-seo-kit.d.ts and add "exclude": ["node_modules"} in tsconfig ([4d79c76](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4d79c763bfcf83e21b36036ea9641d13b51202c3))
+
 ## [1.1.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.3...v1.1.4) (2023-07-07)
 
 
