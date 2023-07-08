@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.2.0...v1.2.1) (2023-07-08)
+
+
+### Bug Fixes
+
+* **repo:** Name fixed ([4f64c4a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4f64c4a03db76ee3c1e35625cc65853efc4d01c1))
+
 # [1.2.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.1.7...v1.2.0) (2023-07-08)
 
 
