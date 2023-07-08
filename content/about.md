@@ -5,7 +5,7 @@
 :::tab{name="git" title="Git"}
 
 ```bash
-$ git clone https://github.com/viandwi24/nuxt3-awesome-starter
+$ git clone https://github.com
 ```
 
 :::
