@@ -22,9 +22,11 @@ ENV NUXT_PORT 3000
 ENV NODE_ENV production
 
 WORKDIR /app
+RUN npm install -g pm2 && \
+    chown -R node:node /app
 USER node
 
 COPY --from=construction /app/.output /app/.output
 COPY --from=construction /app/.nuxt /app/.nuxt
 
-ENTRYPOINT ["node", "/app/.output/server/index.mjs"]
+ENTRYPOINT ["pm2-runtime", "/app/.output/server/index.mjs"]
