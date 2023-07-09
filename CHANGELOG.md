@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.3.1...v1.4.0) (2023-07-09)
+
+
+### Features
+
+* **pm2:** Added pm2 prototype ([6199a3b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6199a3b10ad77f8dda3ef05bb704f998013ae740))
+
 ## [1.3.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.3.0...v1.3.1) (2023-07-09)
 
 
