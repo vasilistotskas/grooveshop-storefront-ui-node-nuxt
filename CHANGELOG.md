@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.3.0...v1.3.1) (2023-07-09)
+
+
+### Bug Fixes
+
+* **workflow:** Trying to normalize the C ([643e87a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/643e87a1528338dbfe5f7a640b573d858ade4b96))
+
 # [1.3.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.2.2...v1.3.0) (2023-07-09)
 
 
