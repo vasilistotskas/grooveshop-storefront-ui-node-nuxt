@@ -7,7 +7,7 @@ export const app = {
 			{ name: 'msapplication-config', content: '/assets/favicon/browserconfig.xml' },
 			{
 				name: 'google-site-verification',
-				content: process.env.NUXT_APP_GOOGLE_SITE_VERIFICATION
+				content: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION
 			}
 		],
 		link: [

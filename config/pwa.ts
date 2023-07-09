@@ -6,9 +6,9 @@ export const pwa: PWAModuleOptions = {
 	injectRegister: 'auto',
 	registerType: 'autoUpdate',
 	manifest: {
-		name: process.env.NUXT_APP_TITLE,
-		short_name: process.env.NUXT_APP_TITLE,
-		description: process.env.NUXT_APP_DESCRIPTION,
+		name: process.env.NUXT_PUBLIC_TITLE,
+		short_name: process.env.NUXT_PUBLIC_TITLE,
+		description: process.env.NUXT_PUBLIC_DESCRIPTION,
 		theme_color: '#ffffff',
 		background_color: '#ffffff',
 		display: 'standalone',

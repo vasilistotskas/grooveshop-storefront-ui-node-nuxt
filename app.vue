@@ -113,7 +113,6 @@ defineOgImageScreenshot({
 		<VitePwaManifest />
 		<NuxtLoadingIndicator />
 		<NuxtLayout>
-			<SeoKit :language="locale" />
 			<NuxtPage />
 		</NuxtLayout>
 		<CookieControl />

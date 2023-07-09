@@ -9,6 +9,8 @@ import { image } from './config/image'
 import { eslint } from './config/eslint'
 import { postcss } from './config/postcss'
 import { htmlValidator } from './config/html-validator'
+import { linkChecker } from './config/link-checker'
+import { schemaOrg } from './config/schema-org'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
@@ -24,7 +26,6 @@ export default defineNuxtConfig({
 		typedPages: true,
 		watcher: 'chokidar'
 	},
-	extends: ['nuxt-seo-kit'],
 	imports: {
 		dirs: [
 			// all directories under store/ will be auto-imported
@@ -52,9 +53,6 @@ export default defineNuxtConfig({
 	build: {
 		transpile: ['@headlessui/vue', 'vue-toastification']
 	},
-	linkChecker: {
-		failOn404: true
-	},
 	modules: [
 		'@nuxt/image',
 		'@nuxt/content',
@@ -66,15 +64,20 @@ export default defineNuxtConfig({
 		'@vite-pwa/nuxt',
 		'unplugin-icons/nuxt',
 		'nuxt-lodash',
-		'nuxt-vitest'
+		'nuxt-vitest',
+		'nuxt-simple-sitemap',
+		'nuxt-simple-robots',
+		'nuxt-og-image',
+		'nuxt-link-checker',
+		'nuxt-schema-org'
 	],
 	i18n: {
 		strategy: 'prefix_except_default',
 		lazy: true,
-		defaultLocale: process.env.NUXT_APP_DEFAULT_LOCALE,
+		defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE,
 		debug: false, // process.env.NODE_ENV !== 'production',
 		langDir: 'locales/',
-		baseUrl: process.env.NUXT_APP_PUBLIC_BASE_URL || 'http://localhost:3000',
+		baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
 		detectBrowserLanguage: {
 			useCookie: true,
 			redirectOn: 'root',
@@ -116,5 +119,7 @@ export default defineNuxtConfig({
 	image,
 	postcss,
 	pwa,
-	htmlValidator
+	htmlValidator,
+	linkChecker,
+	schemaOrg
 })

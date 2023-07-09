@@ -201,8 +201,7 @@ useSchemaOrg([
 ])
 definePageMeta({
 	middleware: ['product'],
-	layout: 'page',
-	customBreadcrumbs: true
+	layout: 'page'
 })
 useSeoMeta({
 	title: () => productTitle.value,

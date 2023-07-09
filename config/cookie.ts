@@ -30,7 +30,7 @@ export const cookieControl = {
 				id: 'ga',
 				name: 'components.cookie.cookies.google.analytics',
 				description: 'components.cookie.cookies.google.analytics_description',
-				src: `https://www.googletagmanager.com/gtag/js?id=${process.env.NUXT_APP_PUBLIC_GOOGLE_TAG_ID}`,
+				src: `https://www.googletagmanager.com/gtag/js?id=${process.env.NUXT_PUBLIC_GOOGLE_TAG_ID}`,
 				targetCookieIds: ['_ga', '_gat', '_gid']
 			}
 		]
