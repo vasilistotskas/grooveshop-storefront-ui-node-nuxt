@@ -58,7 +58,7 @@ export const vite = {
 			path: 'hmr/'
 		},
 		watch: {
-			usePolling: false // process.env.NODE_ENV !== 'production'
+			usePolling: process.env.NODE_ENV !== 'production'
 		}
 	}
 }

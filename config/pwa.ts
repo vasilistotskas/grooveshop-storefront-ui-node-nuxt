@@ -65,7 +65,7 @@ export const pwa: PWAModuleOptions = {
 		periodicSyncForUpdates: 20
 	},
 	devOptions: {
-		enabled: false, // process.env.NODE_ENV !== 'production',
+		enabled: process.env.NODE_ENV !== 'production',
 		type: 'module'
 	}
 }
