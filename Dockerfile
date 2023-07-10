@@ -7,6 +7,9 @@ RUN chmod -R 777 /app && \
 
 COPY . ./
 
+ENV GENERATE_SOURCEMAP=false
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+
 RUN rm -rf ./node_modules & \
     rm -rf ./build & \
     rm -rf ./dist
