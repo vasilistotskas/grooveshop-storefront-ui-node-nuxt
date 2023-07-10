@@ -1,29 +1,33 @@
-FROM node:hydrogen-alpine3.18 as builder
+# syntax = docker/dockerfile:1
 
-COPY . ./
-WORKDIR /app
+ARG NODE_VERSION=18.16.0
 
-RUN rm -rf ./node_modules & \
-    rm -rf ./build & \
-    rm -rf ./dist
+FROM node:${NODE_VERSION}-slim as base
 
-RUN npm install && npm run build
+ARG PORT=3000
 
-FROM node:hydrogen-alpine3.18 as production
+ENV NODE_ENV=production
 
-ENV NUXT_HOST 0.0.0.0
-ENV NUXT_PORT 3000
-ENV NODE_ENV production
+WORKDIR /src
 
+# Build
+FROM base as build
 
-COPY --from=builder /app/.output /app/.output
-COPY --from=builder /app/.nuxt /app/.nuxt
-COPY --from=builder /app/package.json /app/package.json
-COPY --from=builder /app/package-lock.json /app/package-lock.json
+COPY --link package.json package-lock.json ./
+RUN npm install --production=false
 
-WORKDIR /app
-RUN npm install -g pm2 && \
-    chown -R node:node /app
-USER node
+COPY --link . .
 
-ENTRYPOINT ["pm2-runtime", "/app/.output/server/index.mjs"]
+RUN npm run build
+RUN npm prune
+
+# Run
+FROM base
+
+ENV PORT=$PORT
+
+COPY --from=build /src/.output /src/.output
+# Optional, only needed if you rely on unbundled dependencies
+COPY --from=build /src/node_modules /src/node_modules
+
+CMD [ "node", ".output/server/index.mjs" ]
