@@ -50,15 +50,15 @@ export const vite = {
 				}
 			}
 		}
+	},
+	server: {
+		hmr: {
+			protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws',
+			clientPort: 24678,
+			path: 'hmr/'
+		},
+		watch: {
+			usePolling: process.env.NODE_ENV !== 'production'
+		}
 	}
-	// server: {
-	// 	hmr: {
-	// 		protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws',
-	// 		clientPort: 24678,
-	// 		path: 'hmr/'
-	// 	},
-	// 	watch: {
-	// 		usePolling: process.env.NODE_ENV !== 'production'
-	// 	}
-	// }
 }
