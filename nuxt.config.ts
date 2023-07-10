@@ -15,7 +15,7 @@ import { schemaOrg } from './config/schema-org'
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
 	ssr: true,
-	sourcemap: true,
+	sourcemap: process.env.NODE_ENV !== 'production',
 	devtools: {
 		enabled: process.env.NODE_ENV !== 'production'
 	},

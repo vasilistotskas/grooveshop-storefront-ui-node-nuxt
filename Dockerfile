@@ -14,6 +14,8 @@ FROM node:hydrogen-alpine3.18 as production
 ENV NUXT_HOST 0.0.0.0
 ENV NUXT_PORT 3000
 ENV NODE_ENV production
+ENV NUXT_APP_BASE_URL http://localhost:3000
+ENV NUXT_PUBLIC_BASE_URL http://localhost:3000
 
 COPY --from=builder /src/node_modules /app/node_modules
 COPY --from=builder /src/.output /app/.output
