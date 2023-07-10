@@ -1,13 +1,17 @@
 FROM node:hydrogen-alpine3.18 as builder
 
-COPY . ./
 WORKDIR /app
+
+RUN chmod -R 777 /app && \
+    chown -R node:node /app
+
+COPY . ./
 
 RUN rm -rf ./node_modules & \
     rm -rf ./build & \
     rm -rf ./dist
 
-RUN NODE_OPTIONS="--max-old-space-size=8192" npm install && npm run build
+RUN NODE_OPTIONS="--max-old-space-size=8192" npm ci && npm run build
 
 FROM node:hydrogen-alpine3.18 as production
 
