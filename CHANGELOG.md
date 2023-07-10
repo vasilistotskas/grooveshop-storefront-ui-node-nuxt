@@ -1,3 +1,10 @@
+## [1.4.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.8...v1.4.9) (2023-07-10)
+
+
+### Bug Fixes
+
+* **workflows:** Trying to push to docker ([b308c87](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b308c87494810e9effc4e2535379d4d4707282ed))
+
 ## [1.4.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.7...v1.4.8) (2023-07-10)
 
 
