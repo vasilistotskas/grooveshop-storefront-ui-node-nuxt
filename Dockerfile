@@ -1,4 +1,4 @@
-FROM node:18.16.0-alpine as construction
+FROM node:hydrogen-alpine3.18 as builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN rm -rf ./node_modules & \
 
 RUN npm ci && npm run build
 
-FROM node:18.16.0-alpine as deployment
+FROM node:hydrogen-alpine3.18 as production
 
 USER node
 
@@ -26,7 +26,7 @@ RUN npm install -g pm2 && \
     chown -R node:node /app
 USER node
 
-COPY --from=construction /app/.output /app/.output
-COPY --from=construction /app/.nuxt /app/.nuxt
+COPY --from=builder /app/.output /app/.output
+COPY --from=builder /app/.nuxt /app/.nuxt
 
 ENTRYPOINT ["pm2-runtime", "/app/.output/server/index.mjs"]
