@@ -1,6 +1,6 @@
 {
 	"name": "@vasilistotskas/grooveshop-storefront-ui-node-nuxt",
-	"version": "1.4.5",
+	"version": "1.4.6",
 	"private": false,
 	"description": "Grooveshop Storefront UI Node Nuxt",
 	"type": "module",
@@ -123,7 +123,7 @@
 			"@semantic-release/commit-analyzer",
 			"@semantic-release/release-notes-generator",
 			"@semantic-release/changelog",
-      "@semantic-release/npm",
+			"@semantic-release/npm",
 			[
 				"@semantic-release/git",
 				{
@@ -153,13 +153,13 @@
 					]
 				}
 			],
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": true,
-          "tarballDir": ".output"
-        }
-      ]
+			[
+				"@semantic-release/npm",
+				{
+					"npmPublish": true,
+					"tarballDir": ".output"
+				}
+			]
 		]
 	},
 	"lint-staged": {
