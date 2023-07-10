@@ -3,6 +3,6 @@ export const nitro = {
 	prerender: {
 		crawlLinks: true,
 		ignore: [],
-		routes: ['/', '/404.html']
+		routes: ['/', '/200.html', '/404.html']
 	}
 }

@@ -15,8 +15,8 @@
 </template>
 
 <script lang="ts" setup>
-import { FetchError } from "ofetch";
-import { ITheme } from "~/utils/theme";
+import { FetchError } from 'ofetch'
+import { ITheme } from '~/utils/theme'
 
 const props = defineProps({
 	error: {
@@ -41,7 +41,7 @@ const i18nHead = useLocaleHead({
 	i18n: useI18n()
 })
 useHead({
-  title: 'Error',
+	title: 'Error',
 	htmlAttrs: {
 		lang: i18nHead.value.htmlAttrs!.lang,
 		class: () => themeClass.value,
@@ -51,8 +51,8 @@ useHead({
 	meta: [...(i18nHead.value.meta || [])]
 })
 useServerSeoMeta({
-  title: 'Error',
-  description: 'Error page',
+	title: 'Error',
+	description: 'Error page'
 })
 
 const handleError = () => clearError({ redirect: '/' })
