@@ -1,3 +1,10 @@
+## [1.4.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.6...v1.4.7) (2023-07-10)
+
+
+### Bug Fixes
+
+* **workflows:** remove npm-publish-github-packages as job is done in ci.yml ([d594006](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d594006271726f1d49e7990c48f60cdee1bb4407))
+
 ## [1.4.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.5...v1.4.6) (2023-07-10)
 
 
