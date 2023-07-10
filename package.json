@@ -3,7 +3,6 @@
 	"version": "1.4.14",
 	"private": false,
 	"description": "Grooveshop Storefront UI Node Nuxt",
-	"type": "module",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt.git"
@@ -11,7 +10,7 @@
 	"author": "vasilistotskas",
 	"license": "MIT",
 	"scripts": {
-		"build": "node --max-old-space-size=8192 nuxi build",
+		"build": "nuxi build",
 		"dev": "nuxi dev",
 		"prepare": "nuxi prepare",
 		"generate": "nuxi generate",
