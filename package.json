@@ -1,6 +1,6 @@
 {
 	"name": "@vasilistotskas/grooveshop-storefront-ui-node-nuxt",
-	"version": "1.4.3",
+	"version": "1.4.4",
 	"private": false,
 	"description": "Grooveshop Storefront UI Node Nuxt",
 	"type": "module",
@@ -112,9 +112,9 @@
 		"webpack": "^5.88.1",
 		"zod": "^3.21.4"
 	},
-  "publishConfig": {
-    "@vasilistotskas:registry": "https://npm.pkg.github.com"
-  },
+	"publishConfig": {
+		"@vasilistotskas:registry": "https://npm.pkg.github.com"
+	},
 	"release": {
 		"branches": [
 			"main"

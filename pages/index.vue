@@ -1,7 +1,11 @@
 <script lang="ts" setup>
-// composable
 const { t } = useLang()
-// meta
+
+// eslint-disable-next-line n/handle-callback-err
+const errorLogger = (error: unknown) => {
+	// console.error(error)
+}
+
 definePageMeta({
 	layout: 'page'
 })
@@ -90,6 +94,13 @@ useServerSeoMeta({
 			</PageSection>
 		</PageBody>
 	</PageWrapper>
+	<NuxtErrorBoundary @error="errorLogger">
+		<!-- You use the default slot to render your content -->
+		<template #error="{ error, clearError }">
+			You can display the error locally here: {{ error }}
+			<button @click="clearError">This will clear the error.</button>
+		</template>
+	</NuxtErrorBoundary>
 </template>
 
 <style lang="scss"></style>
