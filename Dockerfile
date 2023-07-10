@@ -7,7 +7,7 @@ RUN rm -rf ./node_modules & \
     rm -rf ./build & \
     rm -rf ./dist
 
-RUN npm install && npm run build
+RUN npm install && npm run build --max-old-space-size=4096
 
 FROM node:hydrogen-alpine3.18 as production
 
