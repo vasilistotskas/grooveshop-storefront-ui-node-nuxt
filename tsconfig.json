@@ -2,8 +2,8 @@
 	// https://v3.nuxtjs.org/concepts/typescript
 	"extends": "./.nuxt/tsconfig.json",
 	"compilerOptions": {
-		"target": "esnext",
-		"module": "esnext",
+		"target": "ESNext",
+		"module": "ESNext",
 		"outDir": "./.output",
 		"strict": true,
 		"skipLibCheck": true,
@@ -19,12 +19,12 @@
 		],
 		"typeRoots": [
 			"node_modules/@types",
-			"global.d.ts",
+			"unplugin-icons.d.ts",
 			"components.d.ts",
 			"custom.d.ts",
 			"auto-imports.d.ts"
 		]
 	},
 	"exclude": ["node_modules"],
-	"files": ["global.d.ts", "components.d.ts", "custom.d.ts", "auto-imports.d.ts"]
+	"files": ["unplugin-icons.d.ts", "components.d.ts", "custom.d.ts", "auto-imports.d.ts"]
 }
