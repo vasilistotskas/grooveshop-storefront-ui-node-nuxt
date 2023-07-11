@@ -1,3 +1,10 @@
+## [1.4.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.17...v1.4.18) (2023-07-11)
+
+
+### Bug Fixes
+
+* **trailingSlashes:** Added, nitro crawlLinks and baseUrl remove ([8cdeeea](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8cdeeea85e10c45ec550c277e38ef0412ced01e7))
+
 ## [1.4.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.16...v1.4.17) (2023-07-10)
 
 
