@@ -424,7 +424,7 @@ useHead(() => ({
 						<Button
 							:text="$t('common.empty.button')"
 							:type="'link'"
-							:to="'index'"
+							:to="'index/'"
 						></Button>
 					</template>
 				</EmptyState>

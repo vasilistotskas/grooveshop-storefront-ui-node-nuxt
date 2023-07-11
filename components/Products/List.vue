@@ -111,7 +111,11 @@ watch(
 		<template v-if="!pending.products && !products?.results?.length">
 			<EmptyState :icon="emptyIcon">
 				<template #actions>
-					<Button :text="$t('common.empty.button')" :type="'link'" :to="'index'"></Button>
+					<Button
+						:text="$t('common.empty.button')"
+						:type="'link'"
+						:to="'index/'"
+					></Button>
 				</template>
 			</EmptyState>
 		</template>

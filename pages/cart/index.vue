@@ -68,9 +68,9 @@ querySelectorBus.on((event, payload: { cartItemId: number; quantity: number }) =
 			<h2 class="grid justify-items-center justify-self-end">
 				<Button
 					:text="$t('pages.cart.checkout')"
+					:type="'link'"
 					class="font-extrabold capitalize"
-					:to="'checkout'"
-					:href="'checkout'"
+					:to="'checkout/'"
 				/>
 			</h2>
 		</div>
@@ -104,7 +104,7 @@ querySelectorBus.on((event, payload: { cartItemId: number; quantity: number }) =
 						<Button
 							:text="$t('common.empty.button')"
 							:type="'link'"
-							:to="'index'"
+							:to="'index/'"
 						></Button>
 					</template>
 				</EmptyState>

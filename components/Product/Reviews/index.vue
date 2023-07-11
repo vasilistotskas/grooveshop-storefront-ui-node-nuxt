@@ -134,7 +134,7 @@ const ordering = computed(() => {
 								<Button
 									:text="$t('common.empty.button')"
 									:type="'link'"
-									:to="'index'"
+									:to="'index/'"
 								></Button>
 							</template>
 						</EmptyState>

@@ -77,7 +77,7 @@
 		"nuxt": "3.6.2",
 		"nuxt-link-checker": "^1.0.5",
 		"nuxt-lodash": "^2.5.0",
-		"nuxt-og-image": "^2.0.6",
+		"nuxt-og-image": "^2.0.9",
 		"nuxt-schema-org": "^2.2.0",
 		"nuxt-seo-experiments": "^3.0.5",
 		"nuxt-simple-robots": "^3.0.2",

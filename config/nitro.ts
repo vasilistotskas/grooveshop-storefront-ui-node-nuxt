@@ -1,6 +1,8 @@
 export const nitro = {
 	compressPublicAssets: true,
 	prerender: {
-		crawlLinks: false
+		crawlLinks: true,
+		ignore: [],
+		routes: ['/', '/200.html', '/404.html']
 	}
 }
