@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.18...v1.5.0) (2023-07-11)
+
+
+### Features
+
+* **app:** nuxt.config.ts split configs , introduce tailwind and stylelint official modules and global.d.ts rename to uplugin-icons.d.ts ([6fa5034](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6fa5034e1c621fe2bc7d318dc455a1fd8f610080))
+
 ## [1.4.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.17...v1.4.18) (2023-07-11)
 
 
