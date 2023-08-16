@@ -1,6 +1,6 @@
 export const eslint = {
 	cache: true,
-	lintOnStart: true,
+	lintOnStart: false,
 	failOnWarning: false,
 	failOnError: false
 }

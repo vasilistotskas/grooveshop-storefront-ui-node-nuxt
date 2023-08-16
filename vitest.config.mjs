@@ -1,8 +1,10 @@
 import { defineVitestConfig } from 'nuxt-vitest/config'
 import { fileURLToPath } from 'node:url'
 
-export default defineVitestConfig({
+/** @type {import("nuxt-vitest/config")} */
+const config = {
 	test: {
+		environment: 'nuxt',
 		dir: 'tests',
 		testTimeout: 10000,
 		setupFiles: ['tests/setup.ts'],
@@ -17,6 +19,8 @@ export default defineVitestConfig({
 		}
 	},
 	define: {
-		'process.test': 'true'
+		'process.test': true
 	}
-})
+}
+
+export default defineVitestConfig(config)

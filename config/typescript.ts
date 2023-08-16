@@ -3,7 +3,6 @@ export const typescript = {
 	typeCheck: true,
 	tsConfig: {
 		compilerOptions: {
-			moduleResolution: 'bundler',
 			types: ['unplugin-icons/types/vue'],
 			skipLibCheck: true
 		},

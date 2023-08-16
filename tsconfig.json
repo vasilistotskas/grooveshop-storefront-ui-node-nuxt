@@ -14,8 +14,7 @@
 			"@vueuse/nuxt",
 			"@pinia/nuxt",
 			"@nuxt/image",
-			"unplugin-icons/types/vue",
-			"@testing-library/jest-dom"
+			"unplugin-icons/types/vue"
 		],
 		"typeRoots": [
 			"node_modules/@types",

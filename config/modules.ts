@@ -9,6 +9,7 @@ export const modules = [
 	'@pinia/nuxt',
 	'@vueuse/nuxt',
 	'@vite-pwa/nuxt',
+	'@vee-validate/nuxt',
 	'unplugin-icons/nuxt',
 	'nuxt-lodash',
 	'nuxt-vitest',

@@ -53,10 +53,11 @@ export const pwa: PWAModuleOptions = {
 		]
 	},
 	workbox: {
-		navigateFallback: '/',
-		globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+		navigateFallback: undefined,
+		globPatterns: ['**/*.{js,css,html,png,svg,ico,jpg,ttf}'],
 		navigateFallbackDenylist: [/\/api\/.*/],
-		sourcemap: true
+		sourcemap: process.env.NODE_ENV !== 'production',
+		additionalManifestEntries: [{ url: '/', revision: new Date().getTime().toString() }]
 	},
 	client: {
 		installPrompt: true,
@@ -65,7 +66,7 @@ export const pwa: PWAModuleOptions = {
 		periodicSyncForUpdates: 20
 	},
 	devOptions: {
-		enabled: process.env.NODE_ENV !== 'production',
+		enabled: false,
 		type: 'module'
 	}
 }

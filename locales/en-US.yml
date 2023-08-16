@@ -44,8 +44,12 @@ components:
     accept: Accept
     accept_all: Accept All
     banner:
-      description: By clicking “Accept All Cookies”, you agree to the storing of cookies on your device to enhance site navigation, analyze site usage, and assist in our marketing efforts.
-      title: Cookies
+      description: We use cookies and similar technologies to help personalize content and offer a better experience. You can opt to customize them by clicking the customize button.
+      title: 🍪 Hi. This site uses cookies
+    modal:
+      title: Customize
+      description: We use different types of cookies to optimize your experience on our website. Click on the categories below to learn more about their purposes. You can choose the types of cookies to be allowed and can change your preferences later. Remember that disabling cookies can affect your experience.
+      privacy-policy: Privacy Policy
     close: Close
     cookies:
       functional: Functional cookies
@@ -405,8 +409,10 @@ pages:
         region:
           required: Region is required
         first_name:
+          required: First Name is required
           min: First Name must be at least %{min} characters
         last_name:
+          required: Last Name is required
           min: Last Name must be at least %{min} characters
       form:
         email: Email

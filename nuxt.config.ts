@@ -26,6 +26,7 @@ import { tailwindcss } from './config/tailwindcss'
 import { content } from './config/content'
 import { stylelint } from './config/stylelint'
 import { sitemap } from './config/sitemap'
+import { veeValidate } from './config/vee-validate'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
 
@@ -59,5 +60,6 @@ export default defineNuxtConfig({
 	htmlValidator,
 	linkChecker,
 	schemaOrg,
-	sitemap
+	sitemap,
+	veeValidate
 })

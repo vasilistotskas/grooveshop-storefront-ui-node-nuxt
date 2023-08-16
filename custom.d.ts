@@ -13,7 +13,7 @@ const envVariables = z.object({
 	NUXT_PUBLIC_DJANGO_URL: z.string(),
 	NUXT_PUBLIC_DJANGO_CANONICAL_URL: z.string(),
 	NUXT_PUBLIC_API_BASE_URL: z.string(),
-	NUXT_PUBLIC_MEDIA_STREAM_URL: z.string(),
+	NUXT_PUBLIC_MEDIA_STREAM_PATH: z.string(),
 	NUXT_PUBLIC_SITE_URL: z.string(),
 	NUXT_PUBLIC_TRAILING_SLASH: z.string(),
 	NUXT_PUBLIC_SITE_NAME: z.string(),
@@ -21,7 +21,7 @@ const envVariables = z.object({
 	NUXT_PUBLIC_LOCALES: z.string(),
 	NUXT_PUBLIC_LANGUAGE: z.string(),
 
-	NUXT_PUBLIC_PRIVATE_API_SECRET: z.string(),
+	NUXT_PRIVATE_API_SECRET: z.string(),
 
 	NUXT_PUBLIC_AUTHOR_NAME: z.string(),
 	NUXT_PUBLIC_AUTHOR_GITHUB_URL: z.string(),
@@ -40,6 +40,6 @@ declare global {
 
 declare module '@vue/runtime-core' {
 	export interface GlobalComponents {
-		VueDatePicker: typeof import('@vuepic/vue-datepicker')['default']
+		VueDatePicker: (typeof import('@vuepic/vue-datepicker'))['default']
 	}
 }

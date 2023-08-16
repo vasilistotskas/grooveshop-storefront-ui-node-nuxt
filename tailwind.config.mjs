@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { spacing, fontFamily } = require('tailwindcss/defaultTheme')
+import { fontFamily, spacing } from 'tailwindcss/defaultTheme'
 
 const MyTheme = {
 	colors: {
@@ -57,7 +56,8 @@ const MyTheme = {
 	}
 }
 
-module.exports = {
+/** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
+const config = {
 	content: [
 		'./components/**/*.{vue,js}',
 		'./composables/**/*.{js,ts}',
@@ -189,3 +189,5 @@ module.exports = {
 	},
 	plugins: [require('@tailwindcss/typography')]
 }
+
+export default config

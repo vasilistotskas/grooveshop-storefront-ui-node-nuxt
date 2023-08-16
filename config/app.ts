@@ -4,7 +4,10 @@ export const app = {
 		charset: 'utf-8',
 		viewport: 'width=device-width,initial-scale=1,viewport-fit=cover',
 		meta: [
-			{ name: 'msapplication-config', content: '/assets/favicon/browserconfig.xml' },
+			{
+				name: 'msapplication-config',
+				content: '/assets/favicon/browserconfig.xml'
+			},
 			{
 				name: 'google-site-verification',
 				content: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION

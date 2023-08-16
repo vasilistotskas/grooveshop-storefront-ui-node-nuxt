@@ -47,11 +47,20 @@ components:
     accept_all: akzeptiere alle
     banner:
       description: >-
-        indem sie auf „alle cookies akzeptieren“ klicken, stimmen sie der
-        speicherung von cookies auf ihrem gerät zu, um die navigation auf der
-        website zu verbessern, die nutzung der website zu analysieren und unsere
-        marketingbemühungen zu unterstützen.
-      title: kekse
+        wir verwenden cookies und ähnliche technologien, um inhalte zu
+        personalisieren und ein besseres erlebnis zu bieten. sie können sie
+        individuell anpassen, indem sie auf die schaltfläche „anpassen“ klicken.
+      title: 🍪 hallo. diese seite verwendet cookies
+    modal:
+      title: anpassen
+      description: >-
+        wir verwenden verschiedene arten von cookies, um ihr erlebnis auf
+        unserer website zu optimieren. klicken sie auf die kategorien unten, um
+        mehr über deren zweck zu erfahren. sie können die arten von cookies
+        auswählen, die zugelassen werden sollen, und ihre einstellungen später
+        ändern. denken sie daran, dass die deaktivierung von cookies ihr
+        erlebnis beeinträchtigen kann.
+      privacy-policy: datenschutzrichtlinie
     close: schließen
     cookies:
       functional: funktionelle cookies
@@ -67,7 +76,7 @@ components:
         nicht ordnungsgemäß funktionieren.
       optional: optionale cookies
       optional_links:
-        privacy_policy: datenschutz-bestimmungen
+        privacy_policy: datenschutzrichtlinie
       google:
         analytics: google analytics
         analytics_description: wird zur cookie-kontrolle verwendet.
@@ -107,7 +116,7 @@ components:
       write_review: eine rezension schreiben
       edit_review: rezension bearbeiten
       update_review: update-überprüfung
-      delete_review: bewertung löschen
+      delete_review: rezension löschen
       must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
       write_review_for_product: schreiben sie eine bewertung für produkt %{product}
       confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
@@ -432,8 +441,10 @@ pages:
         region:
           required: region ist erforderlich
         first_name:
+          required: vorname ist erforderlich
           min: der vorname muss mindestens %{min} zeichen lang sein
         last_name:
+          required: nachname ist erforderlich
           min: der nachname muss mindestens %{min} zeichen lang sein
       form:
         email: email
@@ -562,10 +573,10 @@ pages:
           region:
             required: region ist erforderlich
     help:
-      title: hilfe
-      nav: hilfe
-      description: hilfe
-      keywords: hilfe
+      title: helfen
+      nav: helfen
+      description: helfen
+      keywords: helfen
       updated: hilfe aktualisiert
       update_error: fehler beim update der hilfe
       deleted: hilfeelement gelöscht
@@ -597,11 +608,11 @@ routes:
   favourites: favoriten
   reviews: rezensionen
   settings: einstellungen
-  help: hilfe
+  help: helfen
 swal:
   default:
     warning:
-      title: bist du dir sicher?
+      title: bist du sicher?
       text: sie können dies nicht rückgängig machen!
       confirm_button_text: ja, löschen sie es!
       cancel_button_text: stornieren
@@ -637,9 +648,9 @@ common:
   learn_more: lern mehr
   copy: kopieren
   enabled: ermöglicht
-  disabled: behinderte
+  disabled: deaktiviert
   read_less: lese weniger
-  read_more: weiterlesen
+  read_more: mehr lesen
   choose: wählen...
   floor: boden
   location_type: standorttyp

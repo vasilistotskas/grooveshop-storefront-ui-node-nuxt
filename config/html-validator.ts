@@ -1,6 +1,5 @@
 export const htmlValidator = {
 	usePrettier: true,
-	logLevel: 'verbose',
 	failOnError: false,
 	options: {
 		extends: [
@@ -9,6 +8,7 @@ export const htmlValidator = {
 			'html-validate:standard'
 		],
 		rules: {
+			'heading-level': ['warn', { allowMultipleH1: true }],
 			'svg-focusable': 'off',
 			'no-unknown-elements': 'error',
 			// Conflicts or not needed as we use prettier formatting

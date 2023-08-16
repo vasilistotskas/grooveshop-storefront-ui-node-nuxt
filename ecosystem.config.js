@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import("pm2").Config} */
+const config = {
 	apps: [
 		{
 			name: '@vasilistotskas/grooveshop-storefront-ui-node-nuxt',
@@ -9,3 +10,5 @@ module.exports = {
 		}
 	]
 }
+
+module.exports = config
