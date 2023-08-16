@@ -96,13 +96,13 @@ const props = defineProps({
 			<a
 				id="card-link"
 				aria-label="skeleton"
-				:class="`card card__${direction}`"
+				:class="`card card-${direction}`"
 				target="_blank"
 				:style="`width:${cardWidth}; height:${cardHeight};`"
 			>
 				<div
 					:class="[
-						'card__header gap-2 w-full items-center',
+						'card-header gap-2 w-full items-center',
 						{ 'flex-row': headerDirection === 'row' },
 						{ 'flex-col': headerDirection === 'column' }
 					]"
@@ -110,7 +110,7 @@ const props = defineProps({
 					<div v-if="showImage">
 						<div
 							id="logo-img"
-							class="header__img skeleton"
+							class="header-img skeleton"
 							:style="{
 								borderRadius: isCircle ? '50%' : 'none',
 								width: imageWidth,
@@ -121,7 +121,7 @@ const props = defineProps({
 					<h3
 						v-if="showHeading"
 						id="card-title"
-						class="card__header header__title grid gap-3"
+						class="card-header header-title grid gap-3"
 						:class="
 							headerDirection === 'row'
 								? 'w-full flex-col items-center'
@@ -136,20 +136,20 @@ const props = defineProps({
 					</h3>
 				</div>
 
-				<div class="card__body w-full grid">
+				<div class="card-body w-full grid">
 					<div
 						v-if="showParagraph"
 						id="card-details"
-						class="card__body body__text grid gap-3"
+						class="card-body body-text grid gap-3"
 					>
 						<div
 							v-for="n in cardBodyParagraphs"
 							:key="n"
-							class="skeleton skeleton-text skeleton-text__body"
+							class="skeleton skeleton-text skeleton-text-body"
 						></div>
 					</div>
 
-					<div v-if="showBodyImage" class="card__body body__img">
+					<div v-if="showBodyImage" class="card-body body-img">
 						<div
 							id="cover-img"
 							class="skeleton"
@@ -158,7 +158,7 @@ const props = defineProps({
 					</div>
 				</div>
 
-				<div v-if="showFooter" id="card-footer" class="card__footer w-full">
+				<div v-if="showFooter" id="card-footer" class="card-footer w-full">
 					<span
 						v-for="n in footerParagraphs"
 						:key="n"
@@ -172,7 +172,6 @@ const props = defineProps({
 </template>
 
 <style lang="scss" scoped>
-//Hides the broken image icon
 img[alt] {
 	text-indent: -10000px;
 }
@@ -183,37 +182,38 @@ img[alt] {
 	justify-content: center;
 	align-items: center;
 
-	@media screen and (max-width: 768px) {
+	@media screen and (width <= 768px) {
 		margin: -0.5rem;
 	}
 }
 
 .card {
 	@apply bg-gray-50 dark:bg-gray-900;
+
 	box-shadow:
 		0 0 transparent,
 		0 0 transparent,
-		0 0.375rem 0.375rem -0.125rem rgba(168, 179, 207, 0.4);
+		0 0.375rem 0.375rem -0.125rem rgb(168 179 207 / 40%);
 	padding: 0.5rem;
 	border-radius: 0.5rem;
-	border: 1px solid rgba(82, 88, 102, 0.2);
+	border: 1px solid rgb(82 88 102 / 20%);
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
 	transition: all 0.2s ease;
 
-	&__header {
+	&-header {
 		display: flex;
 		margin: 0.5rem 0 0.5rem 0.5rem;
 
-		.header__img {
+		.header-img {
 			height: 2rem;
 			width: 2rem;
 			object-fit: cover;
 			border-radius: 50%;
 		}
 
-		.header__title {
+		.header-title {
 			font-size: 1.0625rem;
 			line-height: 1.375rem;
 			color: #0e1217;
@@ -222,10 +222,10 @@ img[alt] {
 		}
 	}
 
-	&__body {
+	&-body {
 		margin: 0 0.5rem;
 
-		.body__text {
+		.body-text {
 			color: #525866;
 			font-size: 0.8125rem;
 			display: grid;
@@ -233,7 +233,7 @@ img[alt] {
 			align-items: center;
 		}
 
-		.body__img {
+		.body-img {
 			height: 10rem;
 			margin: 0.5rem 0;
 
@@ -247,7 +247,7 @@ img[alt] {
 		}
 	}
 
-	&__footer {
+	&-footer {
 		display: flex;
 		justify-content: space-around;
 		align-items: center;
@@ -255,12 +255,14 @@ img[alt] {
 	}
 
 	&:hover {
-		border-color: rgba(82, 88, 102, 0.4);
+		border-color: rgb(82 88 102 / 40%);
 	}
-	&.card__row {
+
+	&.card-row {
 		flex-direction: row;
 	}
-	&.card__column {
+
+	&.card-column {
 		flex-direction: column;
 	}
 }
@@ -271,10 +273,11 @@ img[alt] {
 
 @keyframes skeleton-loading {
 	0% {
-		background-color: hsl(200, 20%, 80%);
+		background-color: hsl(200deg 20% 80%);
 	}
+
 	100% {
-		background-color: hsl(200, 20%, 95%);
+		background-color: hsl(200deg 20% 95%);
 	}
 }
 
@@ -284,7 +287,7 @@ img[alt] {
 	border-radius: 0.25rem;
 }
 
-.skeleton-text__body {
+.skeleton-text-body {
 	width: 75%;
 }
 

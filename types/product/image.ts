@@ -1,16 +1,22 @@
 import { z } from 'zod'
-import { PaginationQuery } from '~/zod/pagination/pagination'
-import { OrderingQuery } from '~/zod/ordering/ordering'
+import { PaginationQuery } from '~/types/pagination/pagination'
+import { OrderingQuery } from '~/types/ordering/ordering'
+
+const ZodImageTranslations = z.record(
+	z.object({
+		title: z.string().nullish()
+	})
+)
 
 export const ZodImage = z.object({
 	id: z.number(),
-	title: z.string(),
+	translations: ZodImageTranslations,
 	product: z.number(),
 	image: z.string(),
 	thumbnail: z.string().nullish(),
 	isMain: z.boolean(),
-	productImageAbsoluteUrl: z.string(),
-	productImageFilename: z.string(),
+	mainImageAbsoluteUrl: z.string(),
+	mainImageFilename: z.string(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string(),

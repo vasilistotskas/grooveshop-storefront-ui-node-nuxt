@@ -1,11 +1,11 @@
 import { z } from 'zod'
-import { ZodOrderItem } from '~/zod/order/order-item'
-import { PaginationQuery } from '~/zod/pagination/pagination'
-import { OrderingQuery } from '~/zod/ordering/ordering'
-import { ZodCountry } from '~/zod/country/country'
-import { ZodRegion } from '~/zod/region/region'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/zod/global/general'
-import { ZodPayWay } from '~/zod/pay-way/pay-way'
+import { ZodOrderItem } from '~/types/order/order-item'
+import { PaginationQuery } from '~/types/pagination/pagination'
+import { OrderingQuery } from '~/types/ordering/ordering'
+import { ZodCountry } from '~/types/country/country'
+import { ZodRegion } from '~/types/region/region'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import { ZodPayWay } from '~/types/pay-way/pay-way'
 
 export const StatusEnum = z.enum(['Sent', 'Paid and sent', 'Canceled', 'Pending'])
 export const documentTypeEnum = z.enum(['receipt', 'invoice'])
@@ -24,19 +24,21 @@ export const ZodOrder = z.object({
 	street: z.string(),
 	streetNumber: z.string(),
 	zipcode: z.string(),
-	place: z.string(),
+	place: z.string().nullish(),
 	city: z.string(),
 	phone: z.string(),
 	mobilePhone: z.string().nullish(),
 	status: StatusEnum,
 	customerNotes: z.string().nullish(),
 	shippingPrice: z.number(),
+	paidAmount: z.number(),
 	documentType: documentTypeEnum,
 	orderItemOrder: z.array(ZodOrderItem),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string(),
-	totalPrice: z.number(),
+	totalPriceItems: z.number(),
+	totalPriceExtra: z.number(),
 	fullAddress: z.string()
 })
 
@@ -53,7 +55,7 @@ export const ZodOrderCreateRequest = z.object({
 	email: z.string(),
 	address: z.string(),
 	zipcode: z.string(),
-	place: z.string(),
+	place: z.string().nullish(),
 	city: z.string(),
 	phone: z.string(),
 	customerNotes: z.string().nullish(),

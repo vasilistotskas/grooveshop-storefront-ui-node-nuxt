@@ -1,6 +1,6 @@
 import { FetchError } from 'ofetch'
-import { CountriesQuery, Country } from '~/zod/country/country'
-import { Pagination } from '~/zod/pagination/pagination'
+import { CountriesQuery, Country } from '~/types/country/country'
+import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	countries: FetchError | null

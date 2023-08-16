@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Favourite } from '~/zod/product/favourite'
-import { ButtonSize } from '~/zod/global/button'
+import { Favourite } from '~/types/product/favourite'
+import { ButtonSize } from '~/types/global/button'
 
 const props = defineProps({
 	productId: {

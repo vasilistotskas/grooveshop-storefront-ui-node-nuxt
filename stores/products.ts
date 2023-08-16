@@ -1,6 +1,6 @@
 import { FetchError } from 'ofetch'
-import { Product, ProductQuery } from '~/zod/product/product'
-import { Pagination } from '~/zod/pagination/pagination'
+import { Product, ProductQuery } from '~/types/product/product'
+import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	products: FetchError | null

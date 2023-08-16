@@ -1,20 +1,20 @@
 import { z } from 'zod'
-import { PaginationQuery } from '~/zod/pagination/pagination'
-import { OrderingQuery } from '~/zod/ordering/ordering'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/zod/global/general'
+import { PaginationQuery } from '~/types/pagination/pagination'
+import { OrderingQuery } from '~/types/ordering/ordering'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 
 export const ZodAddress = z.object({
 	id: z.number(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid(),
-	title: z.string().min(3),
-	firstName: z.string().min(3),
-	lastName: z.string().min(3),
-	street: z.string().min(3),
-	streetNumber: z.string().min(1),
-	city: z.string().min(3),
-	zipcode: z.string().min(3),
+	title: z.string(),
+	firstName: z.string(),
+	lastName: z.string(),
+	street: z.string(),
+	streetNumber: z.string(),
+	city: z.string(),
+	zipcode: z.string(),
 	floor: z.nativeEnum(FloorChoicesEnum).nullish(),
 	locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
 	phone: z.string().nullish(),
@@ -22,8 +22,8 @@ export const ZodAddress = z.object({
 	notes: z.string().nullish(),
 	isMain: z.boolean().nullish(),
 	user: z.number().nullish(),
-	country: z.string().min(2).nullish(),
-	region: z.string().min(3).nullish()
+	country: z.string().nullish(),
+	region: z.string().nullish()
 })
 
 export const ZodAddressQuery = z.object({
@@ -35,13 +35,13 @@ export const ZodAddressQuery = z.object({
 })
 
 export const ZodAddressCreateRequest = z.object({
-	title: z.string().min(3),
-	firstName: z.string().min(3),
-	lastName: z.string().min(3),
-	street: z.string().min(3),
-	streetNumber: z.string().min(1),
-	city: z.string().min(3),
-	zipcode: z.string().min(3),
+	title: z.string(),
+	firstName: z.string(),
+	lastName: z.string(),
+	street: z.string(),
+	streetNumber: z.string(),
+	city: z.string(),
+	zipcode: z.string(),
 	floor: z.nativeEnum(FloorChoicesEnum).nullish(),
 	locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
 	phone: z.string().nullish(),
@@ -49,8 +49,8 @@ export const ZodAddressCreateRequest = z.object({
 	notes: z.string().nullish(),
 	isMain: z.boolean().nullish(),
 	user: z.number().nullish(),
-	country: z.string().min(2).nullish(),
-	region: z.string().min(3).nullish()
+	country: z.string().nullish(),
+	region: z.string().nullish()
 })
 
 export const ZodAddressParams = z.object({
@@ -58,13 +58,13 @@ export const ZodAddressParams = z.object({
 })
 
 export const ZodAddressPutRequest = z.object({
-	title: z.string().min(3),
-	firstName: z.string().min(3),
-	lastName: z.string().min(3),
-	street: z.string().min(3),
-	streetNumber: z.string().min(1),
-	city: z.string().min(3),
-	zipcode: z.string().min(3),
+	title: z.string(),
+	firstName: z.string(),
+	lastName: z.string(),
+	street: z.string(),
+	streetNumber: z.string(),
+	city: z.string(),
+	zipcode: z.string(),
 	floor: z.nativeEnum(FloorChoicesEnum).nullish(),
 	locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
 	phone: z.string().nullish(),
@@ -72,8 +72,8 @@ export const ZodAddressPutRequest = z.object({
 	notes: z.string().nullish(),
 	isMain: z.boolean().nullish(),
 	user: z.number().nullish(),
-	country: z.string().min(2).nullish(),
-	region: z.string().min(3).nullish()
+	country: z.string().nullish(),
+	region: z.string().nullish()
 })
 
 export type Address = z.infer<typeof ZodAddress>

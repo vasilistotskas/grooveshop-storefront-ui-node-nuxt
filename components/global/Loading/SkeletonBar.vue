@@ -41,9 +41,9 @@ defineSlots<{
 				target="_blank"
 				:style="`width:${cardWidth}; height:${cardHeight}; border-radius:${borderRadius};`"
 			>
-				<div class="card__body">
-					<div id="card-details" class="card__body body__text">
-						<div class="skeleton skeleton-text skeleton-text__body"></div>
+				<div class="card-body">
+					<div id="card-details" class="card-body body-text">
+						<div class="skeleton skeleton-text skeleton-text-body"></div>
 					</div>
 				</div>
 			</a>
@@ -55,7 +55,6 @@ defineSlots<{
 </template>
 
 <style lang="scss" scoped>
-//Hides the broken image icon
 img[alt] {
 	text-indent: -10000px;
 }
@@ -66,31 +65,34 @@ img[alt] {
 	justify-content: flex-start;
 	align-items: flex-start;
 
-	@media screen and (max-width: 767px) {
+	@media screen and (width <= 767px) {
 		margin: -0.5rem;
 	}
 }
 
 .card {
 	@apply bg-gray-50 dark:bg-gray-900;
+
 	box-shadow:
 		0 0 transparent,
 		0 0 transparent,
-		0 0.375rem 0.375rem -0.125rem rgba(168, 179, 207, 0.4);
+		0 0.375rem 0.375rem -0.125rem rgb(168 179 207 / 40%);
 	padding: 0.5rem;
-	border: 1px solid rgba(82, 88, 102, 0.2);
+	border: 1px solid rgb(82 88 102 / 20%);
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
 	transition: all 0.2s ease;
-	&__body {
-		.body__text {
+
+	&-body {
+		.body-text {
 			color: #525866;
 			font-size: 0.8125rem;
 		}
 	}
+
 	&:hover {
-		border-color: rgba(82, 88, 102, 0.4);
+		border-color: rgb(82 88 102 / 40%);
 	}
 }
 
@@ -100,10 +102,11 @@ img[alt] {
 
 @keyframes skeleton-loading {
 	0% {
-		background-color: hsl(200, 20%, 80%);
+		background-color: hsl(200deg 20% 80%);
 	}
+
 	100% {
-		background-color: hsl(200, 20%, 95%);
+		background-color: hsl(200deg 20% 95%);
 	}
 }
 
@@ -113,7 +116,7 @@ img[alt] {
 	border-radius: 0.25rem;
 }
 
-.skeleton-text__body {
+.skeleton-text-body {
 	width: 100%;
 }
 </style>

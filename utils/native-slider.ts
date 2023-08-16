@@ -97,12 +97,12 @@ export function NativeSlider() {
 		renderLoopTimingBelt: null,
 		renderQueue: null,
 		classList: {
-			draggable: 'native_slider-dragged',
-			listGroup: 'native_slider-lg',
-			listItem: 'native_slider-li',
-			button: 'native_slider-btn',
-			buttonNext: 'native_slider-btn-next',
-			buttonPrev: 'native_slider-btn-prev'
+			draggable: 'native-slider-dragged',
+			listGroup: 'native-slider-lg',
+			listItem: 'native-slider-li',
+			button: 'native-slider-btn',
+			buttonNext: 'native-slider-btn-next',
+			buttonPrev: 'native-slider-btn-prev'
 		},
 		events: {
 			nativeSliderRenderLoopPreUpdate: {
@@ -430,7 +430,7 @@ export function NativeSlider() {
 			this.renderLoopTimingBelt = null
 			document.addEventListener('nativeSliderRenderLoopPreUpdate', (e) => {
 				if (this.renderLoopTimingBelt !== null) {
-					clearInterval(this.renderLoopTimingBelt)
+					clearInterval(Number(this.renderLoopTimingBelt))
 				}
 				if (!('detail' in e)) {
 					return

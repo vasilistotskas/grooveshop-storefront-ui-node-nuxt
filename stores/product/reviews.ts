@@ -1,5 +1,5 @@
 import { FetchError } from 'ofetch'
-import { Pagination } from '~/zod/pagination/pagination'
+import { Pagination } from '~/types/pagination/pagination'
 import {
 	Review,
 	ReviewCreateQuery,
@@ -7,7 +7,7 @@ import {
 	ReviewPutRequest,
 	ReviewQuery,
 	ReviewUserHadReviewedRequest
-} from '~/zod/product/review'
+} from '~/types/product/review'
 
 interface ErrorRecord {
 	reviews: FetchError | null
@@ -141,6 +141,7 @@ export const useReviewsStore = defineStore({
 				this.pending.reviews = pending.value
 			} catch (error) {
 				this.error.reviews = error as FetchError
+				throw error
 			}
 		},
 		async deleteReview(id: number) {
@@ -174,7 +175,7 @@ export const useReviewsStore = defineStore({
 					// If current review in results listing update it
 					if (index !== -1) {
 						this.reviews.results[index] = {
-							comment: review.value.comment,
+							translations: review.value.translations,
 							createdAt: review.value.createdAt,
 							id: review.value.id,
 							isPublished: review.value.isPublished,

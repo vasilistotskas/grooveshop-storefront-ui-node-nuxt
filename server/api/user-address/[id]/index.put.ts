@@ -1,6 +1,6 @@
 import { H3Event } from 'h3'
-import { parseBodyAs, parseDataAs, parseParamsAs } from '~/zod/parser'
-import { ZodAddress, ZodAddressParams, ZodAddressPutRequest } from '~/zod/user/address'
+import { parseBodyAs, parseDataAs, parseParamsAs } from '~/types/parser'
+import { ZodAddress, ZodAddressParams, ZodAddressPutRequest } from '~/types/user/address'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

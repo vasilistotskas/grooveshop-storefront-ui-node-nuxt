@@ -1,7 +1,7 @@
 import { H3Event } from 'h3'
 import { buildFullUrl } from '~/utils/api'
-import { parseDataAs, parseParamsAs, parseQueryAs } from '~/zod/parser'
-import { ZodOrder, ZodOrderParams, ZodOrderQuery } from '~/zod/order/order'
+import { parseDataAs, parseParamsAs, parseQueryAs } from '~/types/parser'
+import { ZodOrder, ZodOrderParams, ZodOrderQuery } from '~/types/order/order'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

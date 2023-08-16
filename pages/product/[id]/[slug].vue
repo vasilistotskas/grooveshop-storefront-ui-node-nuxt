@@ -2,16 +2,17 @@
 import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
 import { capitalize } from '~/utils/str'
-import { ReviewActionPayload, ReviewQuery } from '~/zod/product/review'
-import { ProductQuery } from '~/zod/product/product'
+import { ReviewActionPayload, ReviewQuery } from '~/types/product/review'
+import { ProductQuery } from '~/types/product/product'
 import { GlobalEvents } from '~/events/global'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const router = useRouter()
 const route = useRoute('product-id-slug___en')
 const config = useRuntimeConfig()
-const { t } = useLang()
+const { t, locale } = useLang()
 const toast = useToast()
+const { extractTranslated } = useTranslationExtractor()
 
 const productStore = useProductStore()
 const authStore = useAuthStore()
@@ -26,21 +27,13 @@ const { isAuthenticated } = storeToRefs(authStore)
 const { product, pending, error } = storeToRefs(productStore)
 const { userHadReviewed } = storeToRefs(reviewsStore)
 
-try {
-	await productStore.fetchProduct(productId)
-} catch (error) {
-	//
-}
+await productStore.fetchProduct(productId)
 
-try {
-	if (account.value?.id && productId) {
-		await reviewsStore.fetchUserHadReviewed({
-			product: String(productId),
-			user: String(account.value?.id)
-		})
-	}
-} catch (error) {
-	//
+if (account.value?.id && productId) {
+	await reviewsStore.fetchUserHadReviewed({
+		product: String(productId),
+		user: String(account.value?.id)
+	})
 }
 
 const productRefresh = async () => await productStore.fetchProduct(productId)
@@ -62,18 +55,18 @@ const routePaginationParams = ref<ReviewQuery>({
 })
 
 const productTitle = computed(() => {
-	return capitalize(product.value?.seoTitle || product.value?.name || '')
+	return capitalize(
+		product.value?.seoTitle ||
+			extractTranslated(product.value, 'name', locale.value) ||
+			''
+	)
 })
 const selectorQuantity = ref(1)
-const productUrl = computed(() => {
-	if (!product.value) return ''
-	return `/product/${product.value?.id}/${product.value?.slug}`
-})
 
 const shareOptions = ref({
-	title: product.value?.name,
-	text: product.value?.description || '',
-	url: isClient ? productUrl : ''
+	title: extractTranslated(product.value, 'name', locale.value),
+	text: extractTranslated(product.value, 'description', locale.value) || '',
+	url: isClient ? `/product/${product.value?.id}/${product.value?.slug}` : ''
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
@@ -211,8 +204,9 @@ useSeoMeta({
 })
 useSchemaOrg([
 	defineProduct({
-		name: () => product.value?.name || '',
-		description: () => product.value?.description || '',
+		name: () => extractTranslated(product.value, 'name', locale.value) || '',
+		description: () =>
+			extractTranslated(product.value, 'description', locale.value) || '',
 		image: () => [product.value?.mainImageAbsoluteUrl || ''],
 		sku: () => product.value?.uuid || '',
 		offer: {
@@ -299,7 +293,7 @@ useHead(() => ({
 								<h2
 									class="leading-tight tracking-tight font-bold text-gray-700 dark:text-gray-200 text-2xl md:text-3xl"
 								>
-									{{ product.name }}
+									{{ extractTranslated(product, 'name', locale) }}
 								</h2>
 								<PageSection class="actions flex gap-4">
 									<ClientOnly>
@@ -320,7 +314,7 @@ useHead(() => ({
 									</ClientOnly>
 									<ProductReview
 										v-if="product"
-										:existing-review="existingReview || undefined"
+										:existing-review="existingReview"
 										:user-had-reviewed="userHadReviewed"
 										:product="product"
 										:user="account || undefined"
@@ -352,14 +346,18 @@ useHead(() => ({
 									</div>
 									<div class="flex-1">
 										<p class="text-green-500 text-xl font-semibold">
-											{{ $t('pages.product.save') }} {{ product.priceSavePercent }}%
+											{{ $t('pages.product.save') }}
+											{{ product.priceSavePercent }}%
 										</p>
 										<p class="text-gray-700 dark:text-gray-200 text-sm">
 											{{ $t('pages.product.inclusive_of_taxes') }}
 										</p>
 									</div>
 								</div>
-								<ReadMore :text="product.description || ''" :max-chars="100"></ReadMore>
+								<ReadMore
+									:text="extractTranslated(product, 'description', locale) || ''"
+									:max-chars="100"
+								></ReadMore>
 								<div class="flex space-x-4">
 									<div class="relative">
 										<div
@@ -424,7 +422,7 @@ useHead(() => ({
 						<Button
 							:text="$t('common.empty.button')"
 							:type="'link'"
-							:to="'index/'"
+							:to="'index'"
 						></Button>
 					</template>
 				</EmptyState>

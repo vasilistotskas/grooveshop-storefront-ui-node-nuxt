@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { PropType } from 'vue'
-import { OrderingOption } from '~/zod/ordering/ordering'
+import { OrderingOption } from '~/types/ordering/ordering'
 
 const route = useRoute()
 

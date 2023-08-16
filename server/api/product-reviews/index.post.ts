@@ -1,10 +1,10 @@
 import { H3Event } from 'h3'
-import { parseBodyAs, parseDataAs, parseQueryAs } from '~/zod/parser'
+import { parseBodyAs, parseDataAs, parseQueryAs } from '~/types/parser'
 import {
 	ZodReview,
 	ZodReviewCreateQuery,
 	ZodReviewCreateRequest
-} from '~/zod/product/review'
+} from '~/types/product/review'
 import { buildFullUrl } from '~/utils/api'
 
 export default defineEventHandler(async (event: H3Event) => {

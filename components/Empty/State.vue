@@ -25,14 +25,16 @@ defineSlots<{
 	<div
 		class="empty-state flex flex-col gap-4 items-center justify-center border border-gray-900/10 dark:border-gray-50/[0.2] rounded-lg p-16 text-center text-gray-700 dark:text-gray-200"
 	>
-		<div class="empty-state__icon"></div>
-		<div class="empty-state__title">
+		<div class="empty-state-icon">
+			<component :is="icon" />
+		</div>
+		<div class="empty-state-title">
 			{{ $t(title) }}
 		</div>
-		<div class="empty-state__description">
+		<div class="empty-state-description">
 			{{ $t(description) }}
 		</div>
-		<div class="empty-state__actions">
+		<div class="empty-state-actions">
 			<slot name="actions"></slot>
 		</div>
 	</div>

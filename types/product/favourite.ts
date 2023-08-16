@@ -1,8 +1,8 @@
 import { z } from 'zod'
-import { PaginationQuery } from '~/zod/pagination/pagination'
-import { OrderingQuery } from '~/zod/ordering/ordering'
-import { ZodProduct } from '~/zod/product/product'
-import { ZodAccount } from '~/zod/user/account'
+import { PaginationQuery } from '~/types/pagination/pagination'
+import { OrderingQuery } from '~/types/ordering/ordering'
+import { ZodProduct } from '~/types/product/product'
+import { ZodAccount } from '~/types/user/account'
 
 export const ZodFavourite = z.object({
 	id: z.number(),

@@ -1,4 +1,4 @@
-import { EntityOrdering, OrderingOption } from '~/zod/ordering/ordering'
+import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 
 export const useOrdering = <T extends string>(
 	ordering: EntityOrdering<T>,

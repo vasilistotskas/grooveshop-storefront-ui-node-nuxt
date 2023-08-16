@@ -27,7 +27,7 @@ onMounted(() => {
 			<ul>
 				<li v-for="i in 29" :key="i">
 					<Anchor
-						:to="'testing/'"
+						:to="'testing'"
 						:text="$t('pages.testing.index.nav')"
 						class="group flex items-center mb-4 hover:no-underline"
 					>

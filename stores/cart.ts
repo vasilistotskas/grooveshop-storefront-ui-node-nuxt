@@ -1,6 +1,10 @@
 import { FetchError } from 'ofetch'
-import { Cart } from '~/zod/cart/cart'
-import { CartItem, CartItemCreateRequest, CartItemPutRequest } from '~/zod/cart/cart-item'
+import { Cart } from '~/types/cart/cart'
+import {
+	CartItem,
+	CartItemCreateRequest,
+	CartItemPutRequest
+} from '~/types/cart/cart-item'
 
 interface ErrorRecord {
 	cart: FetchError | null

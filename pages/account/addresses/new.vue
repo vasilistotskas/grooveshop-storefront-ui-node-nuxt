@@ -8,9 +8,10 @@ import {
 	floorChoicesList,
 	LocationChoicesEnum,
 	locationChoicesList
-} from '~/zod/global/general'
+} from '~/types/global/general'
 
-const { t } = useLang()
+const { t, locale } = useLang()
+const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 const router = useRouter()
 const userStore = useUserStore()
@@ -27,27 +28,13 @@ await regionStore.fetchRegions({
 })
 
 const ZodAddress = z.object({
-	title: z
-		.string()
-		.min(3, t('pages.account.addresses.new.validation.title.min', { min: 3 })),
-	firstName: z
-		.string()
-		.min(3, t('pages.account.addresses.new.validation.first_name.min', { min: 3 })),
-	lastName: z
-		.string()
-		.min(3, t('pages.account.addresses.new.validation.last_name.min', { min: 3 })),
-	street: z
-		.string()
-		.min(3, t('pages.account.addresses.new.validation.street.min', { min: 3 })),
-	streetNumber: z
-		.string()
-		.min(1, t('pages.account.addresses.new.validation.street_number.min', { min: 1 })),
-	city: z
-		.string()
-		.min(3, t('pages.account.addresses.new.validation.city.min', { min: 3 })),
-	zipcode: z
-		.string()
-		.min(3, t('pages.account.addresses.new.validation.zipcode.min', { min: 3 })),
+	title: z.string(),
+	firstName: z.string(),
+	lastName: z.string(),
+	street: z.string(),
+	streetNumber: z.string(),
+	city: z.string(),
+	zipcode: z.string(),
 	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
 	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
 	phone: z.string().nullish(),
@@ -425,7 +412,7 @@ definePageMeta({
 									class="text-gray-700 dark:text-gray-300"
 									:value="cntry.alpha2"
 								>
-									{{ cntry.name }}
+									{{ extractTranslated(cntry, 'name', locale) }}
 								</option>
 							</select>
 						</div>
@@ -445,6 +432,7 @@ definePageMeta({
 								title="region"
 								class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
 								name="region"
+								:disabled="country === 'choose'"
 								required
 							>
 								<option disabled value="choose">
@@ -456,7 +444,7 @@ definePageMeta({
 									class="text-gray-700 dark:text-gray-300"
 									:value="rgn.alpha"
 								>
-									{{ rgn.name }}
+									{{ extractTranslated(rgn, 'name', locale) }}
 								</option>
 							</select>
 						</div>
@@ -497,5 +485,3 @@ definePageMeta({
 		</PageBody>
 	</PageWrapper>
 </template>
-
-<style lang="scss" scoped></style>

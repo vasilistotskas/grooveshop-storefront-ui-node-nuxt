@@ -5,11 +5,12 @@ import {
 	RadioGroupLabel,
 	RadioGroupOption
 } from '@headlessui/vue'
-import { PayWay, PayWaysEnum } from '~/zod/pay-way/pay-way'
+import { PayWay, PayWayEnum } from '~/types/pay-way/pay-way'
 import CreditCardJSON from '~/assets/lotties/credit_card.json'
 import PayOnDeliveryJSON from '~/assets/lotties/pay_on_delivery.json'
 
-const { t } = useLang()
+const { t, locale } = useLang()
+const { extractTranslated } = useTranslationExtractor()
 
 const payWayStore = usePayWayStore()
 
@@ -24,11 +25,7 @@ const emit = defineEmits(['update:model-value'])
 
 const { payWay, getActivePayWays, pending, error } = storeToRefs(payWayStore)
 
-try {
-	await payWayStore.fetchPayWays()
-} catch (error) {
-	//
-}
+await payWayStore.fetchPayWays()
 
 const selectedPayWay = computed(() => {
 	if (getActivePayWays.value && !payWay.value) {
@@ -39,10 +36,10 @@ const selectedPayWay = computed(() => {
 
 const getPayWayLottie = (name: string) => {
 	switch (name) {
-		case PayWaysEnum.CREDIT_CARD: {
+		case PayWayEnum.CREDIT_CARD: {
 			return CreditCardJSON
 		}
-		case PayWaysEnum.PAY_ON_DELIVERY: {
+		case PayWayEnum.PAY_ON_DELIVERY: {
 			return PayOnDeliveryJSON
 		}
 		default: {
@@ -59,12 +56,12 @@ const updatePayWay = (value: PayWay) => {
 
 <template>
 	<div class="pay-ways">
-		<div class="pay-ways__title">
+		<div class="pay-ways-title">
 			<h3 class="text-gray-700 dark:text-gray-200 text-md font-bold">
 				{{ t('components.checkout.pay_ways.title') }}
 			</h3>
 		</div>
-		<div class="pay-ways__list">
+		<div class="pay-ways-list">
 			<Error
 				v-if="error.payWays"
 				:code="error.payWays.statusCode"
@@ -114,7 +111,7 @@ const updatePayWay = (value: PayWay) => {
 												as="p"
 												class="font-medium"
 											>
-												{{ option.name }}
+												{{ extractTranslated(option, 'name', locale) }}
 											</RadioGroupLabel>
 											<RadioGroupDescription
 												:class="
@@ -129,7 +126,9 @@ const updatePayWay = (value: PayWay) => {
 									</div>
 									<Lottie
 										class="grid"
-										:animation-data="getPayWayLottie(option.name)"
+										:animation-data="
+											getPayWayLottie(extractTranslated(option, 'name', locale))
+										"
 										:width="'40px'"
 									/>
 									<div
@@ -162,7 +161,7 @@ const updatePayWay = (value: PayWay) => {
 	display: grid;
 	gap: 1rem;
 
-	&__title {
+	&-title {
 		display: grid;
 		align-items: center;
 		justify-content: center;

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Account } from '~/zod/user/account'
+import { Account } from '~/types/user/account'
 
 const props = defineProps({
 	userAccount: {
@@ -82,9 +82,9 @@ const uploadImage = async (event: Event) => {
 	<div class="flex items-center" :class="[showName ? 'gap-2' : 'gap-0']">
 		<div
 			:class="[
-				'user__avatar',
+				'user-avatar',
 				{
-					'user__avatar__border border-8 rounded-full bg-gray-200 dark:bg-slate-800 border-gray-200 dark:border-slate-800':
+					'user-avatar-border border-8 rounded-full bg-gray-200 dark:bg-slate-800 border-gray-200 dark:border-slate-800':
 						backgroundBorder
 				}
 			]"
@@ -115,7 +115,7 @@ const uploadImage = async (event: Event) => {
 			<form
 				v-if="changeAvatar"
 				enctype="multipart/form-data"
-				class="user__avatar__change"
+				class="user-avatar-change"
 				name="uploadImageForm"
 				:title="$t('components.user.avatar.change')"
 			>
@@ -184,14 +184,10 @@ const uploadImage = async (event: Event) => {
 </template>
 
 <style lang="scss" scoped>
-.user__avatar {
+.user-avatar {
 	position: relative;
-	&:hover {
-		svg {
-			stroke-dashoffset: 0;
-		}
-	}
-	&__border {
+
+	&-border {
 		display: inline-block;
 		position: relative;
 		flex-shrink: 0;
@@ -200,16 +196,12 @@ const uploadImage = async (event: Event) => {
 		text-align: center;
 		line-height: 110px;
 	}
-	&__change {
+
+	&-change {
 		position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
+		inset: 0;
 		z-index: 1;
-		&:hover {
-			background-color: transparent;
-		}
+
 		svg {
 			display: none;
 			position: absolute;
@@ -217,7 +209,8 @@ const uploadImage = async (event: Event) => {
 			left: 1px;
 			transform: scale(0.4);
 			cursor: pointer;
-			@media screen and (min-width: 768px) {
+
+			@media screen and (width >= 768px) {
 				display: block;
 				top: 21px;
 				transform: scale(0.5);
@@ -225,6 +218,16 @@ const uploadImage = async (event: Event) => {
 				stroke-dashoffset: 75px;
 				stroke-dasharray: 75px;
 			}
+		}
+
+		&:hover {
+			background-color: transparent;
+		}
+	}
+
+	&:hover {
+		svg {
+			stroke-dashoffset: 0;
 		}
 	}
 }

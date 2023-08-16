@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import { Order, OrderOrderingField, OrderQuery } from '~/zod/order/order'
-import { EntityOrdering, OrderingOption } from '~/zod/ordering/ordering'
+import { Order, OrderOrderingField, OrderQuery } from '~/types/order/order'
+import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 
 const { t } = useLang()
 const route = useRoute('account-orders___en')
@@ -38,14 +38,11 @@ const routePaginationParams = ref<OrderQuery>({
 	userId: String(account.value?.id)
 })
 
-try {
-	await orderStore.fetchOrders(routePaginationParams.value)
-} catch (error) {
-	//
-}
+await orderStore.fetchOrders(routePaginationParams.value)
+
 const refresh = async () => await orderStore.fetchOrders(routePaginationParams.value)
 
-// @TODO: Event bus like this should have an Enum for key and event name
+// @TODO: Event bus names and event names fix
 const bus = useEventBus<string>('userOrders')
 bus.on((event, payload: OrderQuery) => {
 	routePaginationParams.value = payload
@@ -112,7 +109,7 @@ useHead(() => ({
 						<Button
 							:text="$t('common.empty.button')"
 							:type="'link'"
-							:to="'index/'"
+							:to="'index'"
 						></Button>
 					</template>
 				</EmptyState>

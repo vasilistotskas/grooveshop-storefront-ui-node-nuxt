@@ -15,8 +15,16 @@ const consoleLogImageLoaded = () => {
 	// Image loaded
 }
 const menus = computed((): IMenuItem[] => [
-	{ type: 'link', text: t('pages.testing.blank.nav'), route: { name: 'testing-blank' } },
-	{ type: 'link', text: t('pages.testing.test.nav'), route: { name: 'testing-test' } },
+	{
+		type: 'link',
+		text: t('pages.testing.blank.nav'),
+		route: { name: 'testing-blank' }
+	},
+	{
+		type: 'link',
+		text: t('pages.testing.test.nav'),
+		route: { name: 'testing-test' }
+	},
 	{
 		type: 'link',
 		text: t('pages.testing.setting.nav'),

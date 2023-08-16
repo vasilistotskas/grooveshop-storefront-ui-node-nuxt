@@ -12,8 +12,8 @@ const props = defineProps({
 </script>
 
 <template>
-	<div class="client__only__fallback skeleton">
-		<p class="client__only__fallback__text">
+	<div class="client-only-fallback skeleton">
+		<p class="client-only-fallback-text">
 			{{ $t('common.client_only_fallback') }}
 		</p>
 	</div>
@@ -26,21 +26,23 @@ const props = defineProps({
 
 @keyframes skeleton-loading {
 	0% {
-		background-color: hsl(200, 20%, 80%);
+		background-color: hsl(200deg 20% 80%);
 	}
+
 	100% {
-		background-color: hsl(200, 20%, 95%);
+		background-color: hsl(200deg 20% 95%);
 	}
 }
 
 .client {
-	&__only {
-		&__fallback {
+	&-only {
+		&-fallback {
 			border-radius: 5px;
 			display: grid;
 			width: v-bind(width);
 			height: v-bind(height);
-			&__text {
+
+			&-text {
 				visibility: hidden;
 			}
 		}

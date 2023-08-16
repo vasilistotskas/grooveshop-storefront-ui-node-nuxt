@@ -1,13 +1,19 @@
 import { z } from 'zod'
 
-export enum PayWaysEnum {
+export enum PayWayEnum {
 	CREDIT_CARD = 'Credit Card',
 	PAY_ON_DELIVERY = 'Pay On Delivery'
 }
 
+const ZodPayWayTranslations = z.record(
+	z.object({
+		name: z.string().nullish()
+	})
+)
+
 export const ZodPayWay = z.object({
+	translations: ZodPayWayTranslations,
 	id: z.number(),
-	name: z.string(),
 	active: z.boolean(),
 	cost: z.number(),
 	freeForOrderAmount: z.number(),
@@ -23,7 +29,6 @@ export const ZodPayWay = z.object({
 export const ZodPayWayQuery = z.object({
 	page: z.string().nullish(),
 	ordering: z.string().nullish(),
-	name: z.string().nullish(),
 	active: z.string().nullish(),
 	cost: z.string().nullish(),
 	freeForOrderAmount: z.string().nullish()

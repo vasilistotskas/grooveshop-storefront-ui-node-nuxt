@@ -25,7 +25,7 @@ const { cart } = storeToRefs(cartStore)
 						<li class="flex w-full gap-4">
 							<h2>
 								<Anchor
-									:to="'products/'"
+									:to="'products'"
 									:title="$t('common.shop')"
 									:text="$t('common.shop')"
 									class="text-lg hover:no-underline hover:text-slate-900 hover:dark:text-white capitalize"
@@ -48,7 +48,7 @@ const { cart } = storeToRefs(cartStore)
 						<span class="cart-items-count" :data-count="cart?.totalItems"></span>
 						<Anchor
 							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
-							:to="'cart/'"
+							:to="'cart'"
 							:title="$t('pages.cart.title')"
 							:text="$t('pages.cart.title')"
 						>
@@ -61,7 +61,7 @@ const { cart } = storeToRefs(cartStore)
 							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
 							:title="$t('pages.accounts.login.title')"
 							:text="$t('pages.accounts.login.title')"
-							:to="'account/'"
+							:to="'account'"
 						>
 							<IconFa6Solid:circleUser />
 						</Anchor>
@@ -88,7 +88,7 @@ const { cart } = storeToRefs(cartStore)
 								class="flex w-full pb-2 mb-2 border-b border-gray-900/10 dark:border-gray-50/[0.2] link"
 							>
 								<Anchor
-									:to="'products/'"
+									:to="'products'"
 									:title="$t('common.shop')"
 									:text="$t('common.shop')"
 									class="flex-1 hover:no-underline capitalize"
@@ -111,7 +111,7 @@ const { cart } = storeToRefs(cartStore)
 					</div>
 					<Anchor
 						class="text-gray-700 dark:text-gray-200 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2 mt-4"
-						:to="'cart/'"
+						:to="'cart'"
 						:title="$t('pages.cart.title')"
 						:text="$t('pages.cart.title')"
 					>

@@ -1,11 +1,17 @@
 import { z } from 'zod'
-import { PaginationQuery } from '~/zod/pagination/pagination'
-import { OrderingQuery } from '~/zod/ordering/ordering'
+import { PaginationQuery } from '~/types/pagination/pagination'
+import { OrderingQuery } from '~/types/ordering/ordering'
+
+const ZodRegionTranslations = z.record(
+	z.object({
+		name: z.string().nullish()
+	})
+)
 
 export const ZodRegion = z.object({
+	translations: ZodRegionTranslations,
 	alpha: z.string().min(3),
 	alpha2: z.string().min(2),
-	name: z.string(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	sortOrder: z.number().nullish(),

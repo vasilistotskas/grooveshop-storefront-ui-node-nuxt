@@ -6,8 +6,10 @@ const props = defineProps({
 	cartItemId: { type: Number, required: true }
 })
 
+const { max, cartItemId } = toRefs(props)
+
 const bus = useEventBus<string>(GlobalEvents.CART_QUANTITY_SELECTOR)
-const cartItemQuantity = useState<number>(`${props.cartItemId}-quantity`)
+const cartItemQuantity = useState<number>(`${cartItemId.value}-quantity`)
 
 const decreaseQuantityEvent = () => {
 	if (cartItemQuantity.value <= 1) return

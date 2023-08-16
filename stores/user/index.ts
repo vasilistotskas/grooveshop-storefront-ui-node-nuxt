@@ -1,10 +1,10 @@
 import { FetchError } from 'ofetch'
-import { Account, AccountPutRequest, ZodAccount } from '~/zod/user/account'
-import { Favourite, FavouriteCreateRequest } from '~/zod/product/favourite'
-import { Review } from '~/zod/product/review'
-import { Order } from '~/zod/order/order'
-import { parseDataAs } from '~/zod/parser'
-import { Address } from '~/zod/user/address'
+import { Account, AccountPutRequest, ZodAccount } from '~/types/user/account'
+import { Favourite, FavouriteCreateRequest } from '~/types/product/favourite'
+import { Review } from '~/types/product/review'
+import { Order } from '~/types/order/order'
+import { parseDataAs } from '~/types/parser'
+import { Address } from '~/types/user/address'
 
 interface ErrorRecord {
 	account: FetchError | null

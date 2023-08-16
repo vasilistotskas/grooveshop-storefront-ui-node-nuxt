@@ -1,12 +1,12 @@
 import { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs } from '~/zod/parser'
-import { ZodAccount } from '~/zod/user/account'
+import { parseDataAs } from '~/types/parser'
+import { ZodAccount } from '~/types/user/account'
 import { buildFullUrl } from '~/utils/api'
-import { FavouriteQuery, ZodFavourite } from '~/zod/product/favourite'
-import { OrderQuery, ZodOrder } from '~/zod/order/order'
-import { ReviewQuery, ZodReview } from '~/zod/product/review'
-import { AddressQuery, ZodAddress } from '~/zod/user/address'
+import { FavouriteQuery, ZodFavourite } from '~/types/product/favourite'
+import { OrderQuery, ZodOrder } from '~/types/order/order'
+import { ReviewQuery, ZodReview } from '~/types/product/review'
+import { AddressQuery, ZodAddress } from '~/types/user/address'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

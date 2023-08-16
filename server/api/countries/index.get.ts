@@ -1,8 +1,8 @@
 import { H3Event } from 'h3'
-import { ZodPagination } from '~/zod/pagination/pagination'
+import { ZodPagination } from '~/types/pagination/pagination'
 import { buildFullUrl } from '~/utils/api'
-import { parseDataAs, parseQueryAs } from '~/zod/parser'
-import { ZodCountriesQuery, ZodCountry } from '~/zod/country/country'
+import { parseDataAs, parseQueryAs } from '~/types/parser'
+import { ZodCountriesQuery, ZodCountry } from '~/types/country/country'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Order } from '~/zod/order/order'
+import { Order } from '~/types/order/order'
 
 const props = defineProps({
 	orders: {
@@ -17,10 +17,10 @@ const { t } = useLang()
 </script>
 
 <template>
-	<div class="order__list">
+	<div class="order-list">
 		<slot class="header"></slot>
 		<slot>
-			<div class="order__list__body">
+			<div class="order-list-body">
 				<OrderCard v-for="order in orders" :key="order.id" :order="order" />
 			</div>
 		</slot>
@@ -29,11 +29,12 @@ const { t } = useLang()
 </template>
 
 <style lang="scss" scoped>
-.order__list {
+.order-list {
 	width: 100%;
 	display: grid;
 	align-items: start;
-	&__body {
+
+	&-body {
 		display: grid;
 		gap: 1rem;
 	}

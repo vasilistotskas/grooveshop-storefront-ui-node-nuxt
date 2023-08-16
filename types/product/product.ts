@@ -1,14 +1,20 @@
 import { z } from 'zod'
-import { PaginationQuery } from '~/zod/pagination/pagination'
-import { OrderingQuery } from '~/zod/ordering/ordering'
+import { PaginationQuery } from '~/types/pagination/pagination'
+import { OrderingQuery } from '~/types/ordering/ordering'
+
+const ZodProductTranslations = z.record(
+	z.object({
+		name: z.string().nullish(),
+		description: z.string().nullish()
+	})
+)
 
 export const ZodProduct = z.object({
+	translations: ZodProductTranslations,
 	id: z.number().int(),
-	name: z.string(),
 	slug: z.string(),
 	category: z.number().int(),
 	absoluteUrl: z.string(),
-	description: z.string().nullish(),
 	price: z.number(),
 	vat: z.number(),
 	vatPercent: z.number(),

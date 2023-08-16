@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Product } from '~/zod/product/product'
+import { Product } from '~/types/product/product'
 
 const props = defineProps({
 	product: {
@@ -9,13 +9,13 @@ const props = defineProps({
 	}
 })
 
+const { product } = toRefs(props)
+const { locale } = useLang()
+const { extractTranslated } = useTranslationExtractor()
+
 const imagesStore = useImagesStore()
 
-try {
-	await imagesStore.fetchImages({ product: String(props.product.id) })
-} catch (error) {
-	//
-}
+await imagesStore.fetchImages({ product: String(product.value.id) })
 
 const { images, error } = storeToRefs(imagesStore)
 
@@ -28,7 +28,7 @@ const mainImage = computed(() => {
 
 const { resolveImageFileExtension } = useImageResolver()
 
-const imageId = useState<number>(`${props.product?.uuid}-imageID`, () => {
+const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
 	if (!images?.value?.results) {
 		return 0
 	}
@@ -61,13 +61,13 @@ const imageId = useState<number>(`${props.product?.uuid}-imageID`, () => {
 					:position="'entropy'"
 					:background="'transparent'"
 					:trim-threshold="5"
-					:format="resolveImageFileExtension(productImage.productImageFilename)"
+					:format="resolveImageFileExtension(productImage.mainImageFilename)"
 					sizes="sm:100vw md:50vw lg:592px"
 					:src="
-						`media/uploads/products/${productImage.productImageFilename}` ||
+						`media/uploads/products/${productImage.mainImageFilename}` ||
 						'/assets/images/placeholder.png'
 					"
-					:alt="product?.name || ''"
+					:alt="extractTranslated(product, 'name', locale) || ''"
 				/>
 			</div>
 		</div>
@@ -98,13 +98,13 @@ const imageId = useState<number>(`${props.product?.uuid}-imageID`, () => {
 							:position="'entropy'"
 							:background="'transparent'"
 							:trim-threshold="5"
-							:format="resolveImageFileExtension(productImage.productImageFilename)"
+							:format="resolveImageFileExtension(productImage.mainImageFilename)"
 							sizes="sm:100vw md:50vw lg:278px"
 							:src="
-								`media/uploads/products/${productImage.productImageFilename}` ||
+								`media/uploads/products/${productImage.mainImageFilename}` ||
 								'/assets/images/placeholder.png'
 							"
-							:alt="product?.name || ''"
+							:alt="extractTranslated(product, 'name', locale) || ''"
 						/>
 					</button>
 				</div>

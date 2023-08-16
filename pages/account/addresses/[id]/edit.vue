@@ -8,9 +8,10 @@ import {
 	floorChoicesList,
 	LocationChoicesEnum,
 	locationChoicesList
-} from '~/zod/global/general'
+} from '~/types/global/general'
 
-const { t } = useLang()
+const { t, locale } = useLang()
+const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 const route = useRoute('account-addresses-id-edit___en')
 const router = useRouter()
@@ -25,43 +26,21 @@ const { regions } = storeToRefs(regionStore)
 
 const addressId = route.params.id
 
-try {
-	await userAddressStore.fetchAddress(addressId)
-} catch (error) {
-	//
-}
+await userAddressStore.fetchAddress(addressId)
 
-try {
-	await countryStore.fetchCountries()
-	await regionStore.fetchRegions({
-		alpha2: account.value?.country ?? ''
-	})
-} catch (error) {
-	//
-}
+await countryStore.fetchCountries()
+await regionStore.fetchRegions({
+	alpha2: account.value?.country ?? ''
+})
 
 const ZodAddress = z.object({
-	title: z
-		.string()
-		.min(3, t('pages.account.addresses.edit.validation.title.min', { min: 3 })),
-	firstName: z
-		.string()
-		.min(3, t('pages.account.addresses.edit.validation.first_name.min', { min: 3 })),
-	lastName: z
-		.string()
-		.min(3, t('pages.account.addresses.edit.validation.last_name.min', { min: 3 })),
-	street: z
-		.string()
-		.min(3, t('pages.account.addresses.edit.validation.street.min', { min: 3 })),
-	streetNumber: z
-		.string()
-		.min(1, t('pages.account.addresses.edit.validation.street_number.min', { min: 1 })),
-	city: z
-		.string()
-		.min(3, t('pages.account.addresses.edit.validation.city.min', { min: 3 })),
-	zipcode: z
-		.string()
-		.min(3, t('pages.account.addresses.edit.validation.zipcode.min', { min: 3 })),
+	title: z.string(),
+	firstName: z.string(),
+	lastName: z.string(),
+	street: z.string(),
+	streetNumber: z.string(),
+	city: z.string(),
+	zipcode: z.string(),
 	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
 	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
 	phone: z.string().nullish(),
@@ -76,22 +55,22 @@ const ZodAddress = z.object({
 })
 const validationSchema = toTypedSchema(ZodAddress)
 const initialValues = ZodAddress.parse({
-	title: address.value?.title ?? '',
-	firstName: address.value?.firstName ?? '',
-	lastName: address.value?.lastName ?? '',
-	street: address.value?.street ?? '',
-	streetNumber: address.value?.streetNumber ?? '',
-	city: address.value?.city ?? '',
-	zipcode: address.value?.zipcode ?? '',
-	floor: address.value?.floor ?? defaultSelectOptionChoose,
-	locationType: address.value?.locationType ?? defaultSelectOptionChoose,
-	phone: address.value?.phone ?? null,
-	mobilePhone: address.value?.mobilePhone ?? '',
-	notes: address.value?.notes ?? '',
-	isMain: address.value?.isMain ?? false,
-	user: address.value?.user ?? null,
-	country: address.value?.country ?? '',
-	region: address.value?.region ?? defaultSelectOptionChoose
+	title: address.value?.title || '',
+	firstName: address.value?.firstName || '',
+	lastName: address.value?.lastName || '',
+	street: address.value?.street || '',
+	streetNumber: address.value?.streetNumber || '',
+	city: address.value?.city || '',
+	zipcode: address.value?.zipcode || '',
+	floor: address.value?.floor || defaultSelectOptionChoose,
+	locationType: address.value?.locationType || defaultSelectOptionChoose,
+	phone: address.value?.phone || null,
+	mobilePhone: address.value?.mobilePhone || '',
+	notes: address.value?.notes || '',
+	isMain: address.value?.isMain || false,
+	user: address.value?.user || null,
+	country: address.value?.country || '',
+	region: address.value?.region || defaultSelectOptionChoose
 })
 const { handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
@@ -502,7 +481,7 @@ definePageMeta({
 									class="text-gray-700 dark:text-gray-300"
 									:value="cntry.alpha2"
 								>
-									{{ cntry.name }}
+									{{ extractTranslated(cntry, 'name', locale) }}
 								</option>
 							</select>
 						</div>
@@ -522,6 +501,7 @@ definePageMeta({
 								title="region"
 								class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
 								name="region"
+								:disabled="country === 'choose'"
 							>
 								<option disabled value="choose">
 									{{ $t('common.choose') }}
@@ -532,7 +512,7 @@ definePageMeta({
 									class="text-gray-700 dark:text-gray-300"
 									:value="rgn.alpha"
 								>
-									{{ rgn.name }}
+									{{ extractTranslated(rgn, 'name', locale) }}
 								</option>
 							</select>
 						</div>
@@ -573,5 +553,3 @@ definePageMeta({
 		</PageBody>
 	</PageWrapper>
 </template>
-
-<style lang="scss" scoped></style>

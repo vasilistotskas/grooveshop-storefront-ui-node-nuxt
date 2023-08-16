@@ -40,7 +40,7 @@ const backgroundStars = (productRate: number): string[] => {
 
 <template>
 	<div class="rating">
-		<div class="rating__stars">
+		<div class="rating-stars">
 			<!-- eslint-disable vue/no-v-html -->
 			<svg
 				v-for="(star, i) of backgroundStars(rate)"
@@ -57,8 +57,8 @@ const backgroundStars = (productRate: number): string[] => {
 			/>
 			<!-- eslint-enable -->
 		</div>
-		<div class="rating__user">
-			<span class="rating__user__rate">({{ rate }}/{{ maxRate }})</span>
+		<div class="rating-user">
+			<span class="rating-user-rate">({{ rate }}/{{ maxRate }})</span>
 		</div>
 	</div>
 </template>
@@ -68,22 +68,26 @@ const backgroundStars = (productRate: number): string[] => {
 	display: flex;
 	align-items: center;
 	gap: 5px;
+
 	.star {
 		color: #f68b24;
 		width: 20px;
 		height: 20px;
 	}
-	&__stars {
+
+	&-stars {
 		display: flex;
 		width: auto;
 		max-width: 130px;
 		height: auto;
 	}
-	&__user {
+
+	&-user {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		&__rate {
+
+		&-rate {
 			font-size: 0.8rem;
 		}
 	}

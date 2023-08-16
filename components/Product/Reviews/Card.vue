@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Review } from '~/zod/product/review'
+import { Review } from '~/types/product/review'
 
 const props = defineProps({
 	review: {
@@ -26,28 +26,33 @@ const userAccount = computed(() => {
 
 const { resolveImageFilenameNoExt, resolveImageFileExtension, resolveImageSrc } =
 	useImageResolver()
+const { locale } = useLang()
+const { extractTranslated } = useTranslationExtractor()
 </script>
 
 <template>
-	<div class="card reviews_list__item__content">
-		<div class="reviews_list__item__content__header">
-			<div class="reviews_list__item__content__header__user">
-				<div class="reviews_list__item__content__header__avatar">
+	<div class="card reviews-list-item-content">
+		<div class="reviews-list-item-content-header">
+			<div class="reviews-list-item-content-header-user">
+				<div class="reviews-list-item-content-header-avatar">
 					<UserAvatar
 						v-if="userAccount && displayImageOf === 'user'"
 						:user-account="userAccount"
 					/>
 					<div
 						v-if="displayImageOf === 'product' && product"
-						class="reviews_list__item__content__header__avatar__product"
+						class="reviews-list-item-content-header-avatar-product"
 					>
-						<Anchor :to="`/product${product.absoluteUrl}`" :text="product.name">
+						<Anchor
+							:to="`/product${product.absoluteUrl}`"
+							:text="extractTranslated(product, 'name', locale)"
+						>
 							<NuxtImg
 								preload
 								placeholder
 								loading="lazy"
 								provider="mediaStream"
-								class="product_img"
+								class="product-img"
 								:style="{ objectFit: 'contain' }"
 								:width="120"
 								:height="80"
@@ -65,27 +70,30 @@ const { resolveImageFilenameNoExt, resolveImageFileExtension, resolveImageSrc } 
 										)}`
 									)
 								"
-								:alt="product.name"
+								:alt="extractTranslated(product, 'name', locale)"
 							/>
 						</Anchor>
-						<Anchor :to="`/product${product.absoluteUrl}`" :text="product.name">
-							<span class="reviews_list__item__content__header__avatar__product__name">
-								{{ product.name }}
+						<Anchor
+							:to="`/product${product.absoluteUrl}`"
+							:text="extractTranslated(product, 'name', locale)"
+						>
+							<span class="reviews-list-item-content-header-avatar-product-name">
+								{{ extractTranslated(product, 'name', locale) }}
 							</span>
 						</Anchor>
 					</div>
 				</div>
-				<div class="reviews_list__item__content__header__rate">
+				<div class="reviews-list-item-content-header-rate">
 					<Rating :rate="review.rate" />
 				</div>
 			</div>
-			<div class="reviews_list__item__content__body">
-				<div class="reviews_list__item__content__body__comment">
-					<span>{{ review.comment }}</span>
+			<div class="reviews-list-item-content-body">
+				<div class="reviews-list-item-content-body-comment">
+					<span>{{ extractTranslated(review, 'comment', locale) }}</span>
 				</div>
 			</div>
-			<div class="reviews_list__item__content__footer">
-				<div class="reviews_list__item__content__footer__date">
+			<div class="reviews-list-item-content-footer">
+				<div class="reviews-list-item-content-footer-date">
 					<span>{{ review.createdAt }}</span>
 				</div>
 			</div>
@@ -94,44 +102,53 @@ const { resolveImageFilenameNoExt, resolveImageFileExtension, resolveImageSrc } 
 </template>
 
 <style lang="scss" scoped>
-.reviews_list__item__content {
-	&__header {
+.reviews-list-item-content {
+	&-header {
 		display: grid;
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: 1rem;
-		@media screen and (min-width: 768px) {
+
+		@media screen and (width >= 768px) {
 			display: flex;
 		}
-		&__avatar {
+
+		&-avatar {
 			margin-right: 1rem;
-			&__product {
+
+			&-product {
 				display: grid;
 				gap: 0.5rem;
-				&__name {
+
+				&-name {
 					font-size: 1.2rem;
 					font-weight: 500;
 				}
 			}
 		}
-		&__rate {
+
+		&-rate {
 			font-size: 1.5rem;
 		}
-		&__user {
+
+		&-user {
 			display: grid;
 			align-items: center;
 			gap: 1rem;
 		}
 	}
-	&__body {
-		&__comment {
+
+	&-body {
+		&-comment {
 			font-size: 1.2rem;
 		}
 	}
-	&__footer {
+
+	&-footer {
 		display: flex;
 		justify-content: flex-end;
-		&__date {
+
+		&-date {
 			font-size: 0.8rem;
 		}
 	}

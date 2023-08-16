@@ -144,52 +144,81 @@ defineSlots<{
 	footer(props: {}): any
 }>()
 
-const { t } = useLang()
-const emit = defineEmits(['submitForm'])
+defineEmits(['submitForm'])
 
-const isModalCurrentlyOpen = ref(props.shouldModalStartInOpenState)
-const getMyId = computed(() => `modal-${props.uniqueId}`)
+const {
+	shouldModalStartInOpenState,
+	uniqueId,
+	closeBtnColor,
+	closeBtnPosition,
+	hasHeader,
+	hasFooter,
+	openDispatchEvent,
+	closeDispatchEvent,
+	width,
+	height,
+	maxWidth,
+	maxHeight,
+	overflow,
+	gap,
+	padding,
+	modalOpenTriggerHandlerId,
+	modalCloseTriggerHandlerId,
+	modalOpenedTriggerHandlerId,
+	modalClosedTriggerHandlerId,
+	exitModalIconClass,
+	position,
+	backgroundBlur,
+	borderRadius,
+	border,
+	isForm,
+	formId,
+	formName
+} = toRefs(props)
+
+const isModalCurrentlyOpen = ref(shouldModalStartInOpenState.value)
+const getMyId = computed(() => `modal-${uniqueId.value}`)
 
 const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
 const openModal = () => {
 	isModalCurrentlyOpen.value = true
-	bus.emit(props.modalOpenedTriggerHandlerId)
+	bus.emit(modalOpenedTriggerHandlerId.value)
 }
 
 const closeModal = () => {
 	isModalCurrentlyOpen.value = false
-	bus.emit(props.modalClosedTriggerHandlerId)
+	bus.emit(modalClosedTriggerHandlerId.value)
 }
 
 bus.on((event: string) => {
-	if (event === props.modalOpenTriggerHandlerId) {
+	if (event === modalOpenTriggerHandlerId.value) {
 		openModal()
 	}
-	if (event === props.modalCloseTriggerHandlerId) {
+	if (event === modalCloseTriggerHandlerId.value) {
 		closeModal()
 	}
 })
 
 onMounted(() => {
-	isModalCurrentlyOpen.value = props.shouldModalStartInOpenState
+	isModalCurrentlyOpen.value = shouldModalStartInOpenState.value
 })
 </script>
 
 <template>
 	<Teleport to="body">
 		<div
-			:class="`cp-utilities-generic_modal-wrapper ${
+			:class="`cp-utilities-generic-modal-wrapper ${
 				isModalCurrentlyOpen ? 'open' : 'closed'
 			}`"
 		>
 			<div
-				class="cp-utilities-generic_modal-overlay"
+				class="cp-utilities-generic-modal-overlay"
 				:style="`backdrop-filter:${backgroundBlur};`"
 				@click="closeModal"
 			>
 				<svg
-					class="cp-utilities-generic_modal-overlay-static"
+					class="cp-utilities-generic-modal-overlay-static"
 					xmlns="http://www.w3.org/2000/svg"
 				>
 					<filter :id="getMyId">
@@ -206,7 +235,7 @@ onMounted(() => {
 			<button
 				v-if="closeBtnPosition === 'out'"
 				:style="`color: ${closeBtnColor}`"
-				class="cp-utilities-generic_modal-overlay-close"
+				class="cp-utilities-generic-modal-overlay-close"
 				type="button"
 				aria-label="Close"
 				@click="closeModal"
@@ -217,23 +246,23 @@ onMounted(() => {
 			<template v-if="isForm">
 				<form
 					:id="formId"
-					class="cp-utilities-generic_modal bg-white dark:bg-zinc-900"
+					class="cp-utilities-generic-modal bg-white dark:bg-zinc-900"
 					:name="formName"
 					@submit="$emit('submitForm', $event)"
 				>
-					<div v-if="hasHeader" class="cp-utilities-generic_modal-header">
+					<div v-if="hasHeader" class="cp-utilities-generic-modal-header">
 						<slot name="header" />
 					</div>
-					<div class="cp-utilities-generic_modal-body">
+					<div class="cp-utilities-generic-modal-body">
 						<slot name="body" />
 					</div>
-					<div v-if="hasFooter" class="cp-utilities-generic_modal-footer">
+					<div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
 						<slot name="footer" />
 					</div>
 					<button
 						v-if="closeBtnPosition === 'in'"
 						:style="`color: ${closeBtnColor}`"
-						class="cp-utilities-generic_modal-overlay-close"
+						class="cp-utilities-generic-modal-overlay-close"
 						type="button"
 						aria-label="Close"
 						@click="closeModal"
@@ -244,20 +273,20 @@ onMounted(() => {
 				</form>
 			</template>
 			<template v-else>
-				<div class="cp-utilities-generic_modal bg-white dark:bg-zinc-900">
-					<div v-if="hasHeader" class="cp-utilities-generic_modal-header">
+				<div class="cp-utilities-generic-modal bg-white dark:bg-zinc-900">
+					<div v-if="hasHeader" class="cp-utilities-generic-modal-header">
 						<slot name="header" />
 					</div>
-					<div class="cp-utilities-generic_modal-body">
+					<div class="cp-utilities-generic-modal-body">
 						<slot name="body" />
 					</div>
-					<div v-if="hasFooter" class="cp-utilities-generic_modal-footer">
+					<div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
 						<slot name="footer" />
 					</div>
 					<button
 						v-if="closeBtnPosition === 'in'"
 						:style="`color: ${closeBtnColor}`"
-						class="cp-utilities-generic_modal-overlay-close"
+						class="cp-utilities-generic-modal-overlay-close"
 						type="button"
 						aria-label="Close"
 						@click="closeModal"
@@ -274,7 +303,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 $transitional-profile-1: all 0.2s ease-out;
 
-.cp-utilities-generic_modal {
+.cp-utilities-generic-modal {
 	visibility: hidden;
 	content-visibility: hidden;
 	z-index: 32;
@@ -303,12 +332,13 @@ $transitional-profile-1: all 0.2s ease-out;
 		justify-items: center;
 		justify-content: center;
 		z-index: 31;
+
 		&.open {
 			opacity: 1;
 			pointer-events: auto;
 			user-select: initial;
 
-			.cp-utilities-generic_modal {
+			.cp-utilities-generic-modal {
 				visibility: visible;
 				content-visibility: visible;
 				display: grid;
@@ -316,16 +346,19 @@ $transitional-profile-1: all 0.2s ease-out;
 				padding: 1rem;
 				border: v-bind(border);
 				border-radius: v-bind(borderRadius);
-				@media screen and (max-width: 1200px) {
+
+				@media screen and (width <= 1200px) {
 					max-height: unset;
 				}
-				@media screen and (max-width: 767px) {
+
+				@media screen and (width <= 767px) {
 					max-width: 100% !important;
 					padding: 0;
 				}
 			}
 		}
 	}
+
 	&-overlay {
 		position: fixed;
 		top: 0;
@@ -336,7 +369,7 @@ $transitional-profile-1: all 0.2s ease-out;
 		z-index: 30;
 		transition: $transitional-profile-1;
 
-		@media screen and (max-width: 767px) {
+		@media screen and (width <= 767px) {
 			width: 100svw;
 			height: 100lvh;
 		}
@@ -357,23 +390,28 @@ $transitional-profile-1: all 0.2s ease-out;
 			color: #ef1b1b;
 			z-index: 33;
 			transition: $transitional-profile-1;
+
 			span {
 				i {
 					font-weight: 900;
 				}
 			}
+
 			&:hover {
 				transform: scale(1.5);
 			}
+
 			&:active {
 				transform: scale(0.8);
 			}
 		}
 	}
+
 	&-body {
 		display: grid;
 		transition: all 0.5s ease;
 	}
+
 	&-header {
 		position: relative;
 	}

@@ -1,5 +1,5 @@
 <template>
-	<li class="add__new">
+	<li class="add-new">
 		<p class="text-gray-700 dark:text-gray-200">
 			{{ $t('components.address.add_new.title') }}
 		</p>
@@ -16,7 +16,7 @@
 </template>
 
 <style lang="scss" scoped>
-.add__new {
+.add-new {
 	position: relative;
 	font-size: 16px;
 	line-height: 21px;
@@ -32,10 +32,11 @@
 	text-align: left;
 	color: #707070;
 
-	@media screen and (min-width: 961px) {
+	@media screen and (width >= 961px) {
 		overflow-y: hidden;
 	}
-	@media screen and (min-width: 634px) {
+
+	@media screen and (width >= 634px) {
 		padding: 40px 16px 16px;
 	}
 }

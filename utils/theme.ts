@@ -92,7 +92,7 @@ export function ThemeManager() {
 		window
 			.matchMedia('(prefers-color-scheme: dark)')
 			.removeEventListener('change', onThemeSystemChange)
-		if (intervalCheckTime) clearInterval(intervalCheckTime)
+		if (intervalCheckTime) clearInterval(Number(intervalCheckTime))
 	})
 
 	return {

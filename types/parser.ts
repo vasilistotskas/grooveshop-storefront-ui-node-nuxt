@@ -1,5 +1,5 @@
-import { createError, readBody, getQuery, getHeaders, parseCookies } from 'h3'
 import type { H3Event } from 'h3'
+import { createError, getHeaders, getQuery, parseCookies, readBody } from 'h3'
 import { z } from 'zod'
 
 const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(

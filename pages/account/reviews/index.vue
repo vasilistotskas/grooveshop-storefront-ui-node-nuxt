@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { EntityOrdering, OrderingOption } from '~/zod/ordering/ordering'
-import { Review, ReviewOrderingField, ReviewQuery } from '~/zod/product/review'
+import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const { t } = useLang()
@@ -40,11 +40,7 @@ const routePaginationParams = ref<ReviewQuery>({
 	expand: 'true'
 })
 
-try {
-	await reviewsStore.fetchReviews(routePaginationParams.value)
-} catch (error) {
-	//
-}
+await reviewsStore.fetchReviews(routePaginationParams.value)
 const refresh = () => reviewsStore.fetchReviews(routePaginationParams.value)
 
 const bus = useEventBus<string>('userReviews')
@@ -119,7 +115,7 @@ definePageMeta({
 						<Button
 							:text="$t('common.empty.button')"
 							:type="'link'"
-							:to="'index/'"
+							:to="'index'"
 						></Button>
 					</template>
 				</EmptyState>

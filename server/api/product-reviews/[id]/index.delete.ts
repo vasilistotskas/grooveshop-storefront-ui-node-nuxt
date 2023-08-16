@@ -1,7 +1,7 @@
 import { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseParamsAs } from '~/zod/parser'
-import { ZodReviewParams } from '~/zod/product/review'
+import { parseDataAs, parseParamsAs } from '~/types/parser'
+import { ZodReviewParams } from '~/types/product/review'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

@@ -10,7 +10,9 @@ const props = defineProps({
 	}
 })
 
-const { data } = await useAsyncData(props.path, () => queryContent(props.path).findOne())
+const { path, pageTitle } = toRefs(props)
+
+const { data } = await useAsyncData(path.value, () => queryContent(path.value).findOne())
 </script>
 
 <template>

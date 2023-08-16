@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Address, AddressOrderingField, AddressQuery } from '~/zod/user/address'
-import { EntityOrdering, OrderingOption } from '~/zod/ordering/ordering'
+import { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
+import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const { t } = useLang()
@@ -45,11 +45,7 @@ const routePaginationParams = ref<AddressQuery>({
 	expand: 'true'
 })
 
-try {
-	await addressStore.fetchAddresses(routePaginationParams.value)
-} catch (error) {
-	//
-}
+await addressStore.fetchAddresses(routePaginationParams.value)
 
 const refresh = () => addressStore.fetchAddresses(routePaginationParams.value)
 
@@ -119,15 +115,18 @@ definePageMeta({
 				:error="error.addresses"
 			/>
 			<template v-else-if="!addresses?.results?.length">
-				<EmptyState :icon="emptyIcon">
-					<template #actions>
-						<Button
-							:text="$t('common.empty.button')"
-							:type="'link'"
-							:to="'index/'"
-						></Button>
-					</template>
-				</EmptyState>
+				<div class="flex gap-4">
+					<AddressAddNew />
+					<EmptyState :icon="emptyIcon">
+						<template #actions>
+							<Button
+								:text="$t('common.empty.button')"
+								:type="'link'"
+								:to="'index'"
+							></Button>
+						</template>
+					</EmptyState>
+				</div>
 			</template>
 		</PageBody>
 	</PageWrapper>

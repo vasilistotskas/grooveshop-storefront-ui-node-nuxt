@@ -12,11 +12,8 @@ const router = useRouter()
 const { t, locale, locales } = useLang()
 const cartStore = useCartStore()
 
-try {
-	await cartStore.fetchCart()
-} catch (error) {
-	//
-}
+await cartStore.fetchCart()
+
 const refreshCart = async () => await cartStore.fetchCart()
 
 const title = computed(() => {

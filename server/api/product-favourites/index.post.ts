@@ -1,6 +1,6 @@
 import { H3Event } from 'h3'
-import { parseBodyAs, parseDataAs } from '~/zod/parser'
-import { ZodFavouriteCreateRequest, ZodFavourite } from '~/zod/product/favourite'
+import { parseBodyAs, parseDataAs } from '~/types/parser'
+import { ZodFavourite, ZodFavouriteCreateRequest } from '~/types/product/favourite'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

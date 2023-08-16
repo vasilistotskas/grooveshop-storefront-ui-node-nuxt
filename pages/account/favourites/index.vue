@@ -3,8 +3,8 @@ import {
 	Favourite,
 	FavouriteOrderingField,
 	FavouriteQuery
-} from '~/zod/product/favourite'
-import { EntityOrdering, OrderingOption } from '~/zod/ordering/ordering'
+} from '~/types/product/favourite'
+import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const { t } = useLang()
@@ -43,11 +43,7 @@ const routePaginationParams = ref<FavouriteQuery>({
 	expand: 'true'
 })
 
-try {
-	await favouriteStore.fetchFavourites(routePaginationParams.value)
-} catch (error) {
-	//
-}
+await favouriteStore.fetchFavourites(routePaginationParams.value)
 
 const refresh = async () =>
 	await favouriteStore.fetchFavourites(routePaginationParams.value)
@@ -118,7 +114,7 @@ definePageMeta({
 						<Button
 							:text="$t('common.empty.button')"
 							:type="'link'"
-							:to="'index/'"
+							:to="'index'"
 						></Button>
 					</template>
 				</EmptyState>

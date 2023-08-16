@@ -1,6 +1,6 @@
 import { FetchError } from 'ofetch'
-import { Pagination } from '~/zod/pagination/pagination'
-import { Image, ImageQuery } from '~/zod/product/image'
+import { Pagination } from '~/types/pagination/pagination'
+import { Image, ImageQuery } from '~/types/product/image'
 
 interface ErrorRecord {
 	images: FetchError | null

@@ -1,16 +1,22 @@
 import { z } from 'zod'
-import { PaginationQuery } from '~/zod/pagination/pagination'
-import { OrderingQuery } from '~/zod/ordering/ordering'
-import { ZodProduct } from '~/zod/product/product'
-import { ZodAccount } from '~/zod/user/account'
+import { PaginationQuery } from '~/types/pagination/pagination'
+import { OrderingQuery } from '~/types/ordering/ordering'
+import { ZodProduct } from '~/types/product/product'
+import { ZodAccount } from '~/types/user/account'
 
 export const StatusEnum = z.enum(['New', 'True', 'False'])
 
+const ZodReviewTranslations = z.record(
+	z.object({
+		comment: z.string().nullish()
+	})
+)
+
 export const ZodReview = z.object({
+	translations: ZodReviewTranslations,
 	id: z.number(),
 	product: z.union([z.number(), ZodProduct]),
 	user: z.union([z.number(), ZodAccount]),
-	comment: z.string(),
 	rate: z.number(),
 	status: StatusEnum,
 	createdAt: z.string().datetime({ offset: true }),

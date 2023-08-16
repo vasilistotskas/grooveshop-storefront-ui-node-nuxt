@@ -47,18 +47,18 @@ defineSlots<{
 </script>
 
 <template>
-	<div :class="['native_slider', parentClass]">
+	<div :class="['native-slider', parentClass]">
 		<button
 			type="button"
 			:data-scroll_left_by="leftButtonScrollLeftBy"
 			:data-always_show="buttonAlwaysShow"
 			:aria-label="$t('common.previous')"
-			:class="['native_slider-btn', 'native_slider-btn-prev', buttonClass]"
+			:class="['native-slider-btn', 'native-slider-btn-prev', buttonClass]"
 		>
 			{{ $t('common.previous') }}
 		</button>
 		<div
-			:class="['native_slider-lg', sliderClass]"
+			:class="['native-slider-lg', sliderClass]"
 			:data-drag_speed="dragSpeed"
 			:data-autoplay_interval="autoplayInterval > 0 ? autoplayInterval : null"
 		>
@@ -69,7 +69,7 @@ defineSlots<{
 			:data-scroll_left_by="rightButtonScrollLeftBy"
 			:aria-label="$t('common.next')"
 			:data-always_show="buttonAlwaysShow"
-			:class="['native_slider-btn', 'native_slider-btn-next', buttonClass]"
+			:class="['native-slider-btn', 'native-slider-btn-next', buttonClass]"
 		>
 			{{ $t('common.next') }}
 		</button>

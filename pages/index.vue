@@ -39,37 +39,34 @@ useServerSeoMeta({
 				>
 					<a href="/">
 						<NuxtImg
-							provider="mediaStream"
 							:modifiers="{ w: 1920, h: 640, format: 'webp' }"
 							alt="Main Banner"
 							class="w-full h-full object-cover"
 							format="webp"
 							height="640"
-							src="/nuxt/images/dummy/1920x640.png"
+							src="/assets/images/dummy/1920x640.png"
 							width="1920"
 						/>
 					</a>
 					<a href="/">
 						<NuxtImg
-							provider="mediaStream"
 							:modifiers="{ w: 1920, h: 640, format: 'webp' }"
 							alt="Main Banner"
 							class="w-full h-full object-cover"
 							format="webp"
 							height="640"
-							src="/nuxt/images/dummy/1920x640.png"
+							src="/assets/images/dummy/1920x640.png"
 							width="1920"
 						/>
 					</a>
 					<a href="/">
 						<NuxtImg
-							provider="mediaStream"
 							:modifiers="{ w: 1920, h: 640, format: 'webp' }"
 							alt="Main Banner"
 							class="w-full h-full object-cover"
 							format="webp"
 							height="640"
-							src="/nuxt/images/dummy/1920x640.png"
+							src="/assets/images/dummy/1920x640.png"
 							width="1920"
 						/>
 					</a>
@@ -81,26 +78,16 @@ useServerSeoMeta({
 					<NuxtImg
 						v-for="i in 6"
 						:key="i"
-						provider="mediaStream"
 						:modifiers="{ w: 80, h: 40, format: 'webp' }"
 						alt="Usp"
 						class="w-auto h-auto object-cover"
 						format="webp"
 						height="40"
-						src="/nuxt/images/dummy/80x40.png"
+						src="/assets/images/dummy/80x40.png"
 						width="80"
 					/>
 				</div>
 			</PageSection>
 		</PageBody>
 	</PageWrapper>
-	<NuxtErrorBoundary @error="errorLogger">
-		<!-- You use the default slot to render your content -->
-		<template #error="{ error, clearError }">
-			You can display the error locally here: {{ error }}
-			<button @click="clearError">This will clear the error.</button>
-		</template>
-	</NuxtErrorBoundary>
 </template>
-
-<style lang="scss"></style>

@@ -4,8 +4,8 @@ import {
 	AddressCreateRequest,
 	AddressPutRequest,
 	AddressQuery
-} from '~/zod/user/address'
-import { Pagination } from '~/zod/pagination/pagination'
+} from '~/types/user/address'
+import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	addresses: FetchError | null

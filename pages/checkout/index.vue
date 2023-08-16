@@ -8,9 +8,10 @@ import {
 	floorChoicesList,
 	LocationChoicesEnum,
 	locationChoicesList
-} from '~/zod/global/general'
+} from '~/types/global/general'
 
-const { t } = useLang()
+const { t, locale } = useLang()
+const { extractTranslated } = useTranslationExtractor()
 
 const cartStore = useCartStore()
 const countryStore = useCountryStore()
@@ -20,11 +21,7 @@ const { cart, getCartItems } = storeToRefs(cartStore)
 const { countries } = storeToRefs(countryStore)
 const { regions } = storeToRefs(regionStore)
 
-try {
-	await countryStore.fetchCountries()
-} catch (error) {
-	//
-}
+await countryStore.fetchCountries()
 
 const cartItems = computed(() => cart.value?.cartItems || [])
 const shippingPrice = ref(3)
@@ -123,7 +120,7 @@ useServerSeoMeta({
 </script>
 
 <template>
-	<PageWrapper class="container-x_small flex flex-col gap-4 mt-4">
+	<PageWrapper class="container-xs flex flex-col gap-4 mt-4">
 		<PageTitle :text="$t('pages.checkout.title')" class="capitalize" />
 		<PageBody>
 			<template v-if="cart && getCartItems?.length">
@@ -413,7 +410,7 @@ useServerSeoMeta({
 												:value="cntry.alpha2"
 												class="text-gray-700 dark:text-gray-300"
 											>
-												{{ cntry.name }}
+												{{ extractTranslated(cntry, 'name', locale) }}
 											</option>
 										</select>
 									</div>
@@ -434,6 +431,7 @@ useServerSeoMeta({
 											v-model="region.value"
 											class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
 											name="region"
+											:disabled="country === 'choose'"
 											title="region"
 										>
 											<option disabled value="choose">
@@ -445,7 +443,7 @@ useServerSeoMeta({
 												:value="rgn.alpha"
 												class="text-gray-700 dark:text-gray-300"
 											>
-												{{ rgn.name }}
+												{{ extractTranslated(rgn, 'name', locale) }}
 											</option>
 										</select>
 									</div>
@@ -502,7 +500,7 @@ useServerSeoMeta({
 	display: block;
 	font-size: 14px;
 	height: 43px;
-	line-height: 1.428571429;
+	line-height: 1.4286;
 	padding: 11px 12px;
 	transition: all 0.3s ease-in-out;
 	vertical-align: middle;

@@ -3,10 +3,10 @@ import { PropType } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { FieldContext, useField, useForm } from 'vee-validate'
-import { Review } from '~/zod/product/review'
+import { Review } from '~/types/product/review'
 import { GlobalEvents } from '~/events/global'
-import { Product } from '~/zod/product/product'
-import { Account } from '~/zod/user/account'
+import { Product } from '~/types/product/product'
+import { Account } from '~/types/user/account'
 
 const starSvg =
 	'<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
@@ -15,9 +15,9 @@ const starHalfSvg =
 
 const props = defineProps({
 	existingReview: {
-		type: Object as PropType<Review>,
+		type: Object as PropType<Review | null>,
 		required: false,
-		default: undefined
+		default: null
 	},
 	userHadReviewed: {
 		type: Boolean as PropType<boolean | null>,
@@ -40,7 +40,8 @@ const props = defineProps({
 	}
 })
 
-const { t } = useLang()
+const { existingReview, userHadReviewed, product, user, isAuthenticated } = toRefs(props)
+const { t, locale } = useLang()
 const toast = useToast()
 const swal = useSwal()
 
@@ -52,8 +53,10 @@ const newSelectionRatio = ref(0)
 const selectedRatio = ref(0)
 const ratingBoard = ref<HTMLElement | null>(null)
 
+const { extractTranslated } = useTranslationExtractor()
+
 const reviewButtonText = computed(() => {
-	if (!props.userHadReviewed) {
+	if (!userHadReviewed.value) {
 		return t('components.product.review.write_review')
 	}
 	return t('components.product.review.update_review')
@@ -61,10 +64,10 @@ const reviewButtonText = computed(() => {
 
 const reviewCount = computed(() => {
 	if (
-		props.existingReview?.rate !== null &&
-		!isNaN(props.existingReview?.rate as unknown as number)
+		existingReview.value?.rate !== null &&
+		!isNaN(existingReview.value?.rate as unknown as number)
 	) {
-		return Number(props.existingReview?.rate).toFixed(1)
+		return Number(existingReview.value?.rate).toFixed(1)
 	}
 	return null
 })
@@ -120,7 +123,7 @@ const reviewScoreText = computed(() => {
 	if (
 		liveReviewCountRatio.value < 0.01 ||
 		(newSelectionRatio === null &&
-			(reviewCount.value === null || props.existingReview?.rate === 0))
+			(reviewCount.value === null || existingReview.value?.rate === 0))
 	) {
 		return ''
 	}
@@ -192,7 +195,7 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
 const bus = useEventBus<string>('productReview')
 
 const deleteReviewHandle = () => {
-	if (props.isAuthenticated && props.userHadReviewed) {
+	if (isAuthenticated.value && userHadReviewed.value) {
 		swal
 			.fire({
 				title: t('components.product.review.delete_review'),
@@ -210,7 +213,7 @@ const deleteReviewHandle = () => {
 					return
 				}
 				bus.emit('delete', {
-					id: props.existingReview?.id
+					id: existingReview.value?.id
 				})
 				setFieldValue('rate', 0)
 				setFieldValue('comment', '')
@@ -222,7 +225,7 @@ const deleteReviewHandle = () => {
 
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const openModal = () => {
-	if (props.isAuthenticated) {
+	if (isAuthenticated.value) {
 		modalBus.emit('modal-open-reviewModal')
 	} else {
 		toast.error(t('components.product.review.must_be_logged_in'))
@@ -236,10 +239,14 @@ const ZodReviewSchema = z.object({
 	comment: z
 		.string()
 		.min(10, {
-			message: t('components.product.review.validation.comment.min', { min: 10 })
+			message: t('components.product.review.validation.comment.min', {
+				min: 10
+			})
 		})
 		.max(1000, {
-			message: t('components.product.review.validation.comment.max', { max: 1000 })
+			message: t('components.product.review.validation.comment.max', {
+				max: 1000
+			})
 		}),
 	rate: z
 		.number()
@@ -255,8 +262,10 @@ const validationSchema = toTypedSchema(ZodReviewSchema)
 const { values, setFieldValue, handleSubmit, errors, submitCount } = useForm({
 	validationSchema,
 	initialValues: {
-		comment: props.existingReview?.comment || '',
-		rate: props.existingReview?.rate || 0
+		comment: existingReview.value
+			? extractTranslated(existingReview.value, 'comment', locale.value)
+			: '',
+		rate: existingReview.value?.rate || 0
 	}
 })
 
@@ -268,22 +277,22 @@ const tooManyAttempts = computed(() => {
 })
 
 const onSubmit = handleSubmit((event) => {
-	if (props.isAuthenticated) {
-		if (!props.userHadReviewed) {
+	if (isAuthenticated.value) {
+		if (!userHadReviewed.value) {
 			bus.emit('create', {
 				comment: event.comment,
 				rate: event.rate,
-				productId: props.product?.id,
-				userId: props.user?.id,
+				productId: product.value?.id,
+				userId: user?.value?.id,
 				status: 'True'
 			})
 		} else {
 			bus.emit('update', {
-				id: props.existingReview?.id,
+				id: existingReview.value?.id,
 				comment: event.comment,
 				rate: event.rate,
-				productId: props.product?.id,
-				userId: props.user?.id,
+				productId: product.value?.id,
+				userId: user?.value?.id,
 				status: 'True'
 			})
 		}
@@ -326,10 +335,10 @@ watch(
 			<div class="review_header">
 				<!-- eslint-disable vue/no-v-html -->
 				<span
-					class="review_header__title"
+					class="review_header-title"
 					v-html="
 						$t('components.product.review.write_review_for_product', {
-							product: product?.name
+							product: extractTranslated(product, 'name', locale)
 						})
 					"
 				></span>
@@ -340,11 +349,11 @@ watch(
 
 		<template #body>
 			<div class="review_body">
-				<div class="review_body__rating">
-					<div class="review_body__rating__title">
+				<div class="review_body-rating">
+					<div class="review_body-rating-title">
 						<p>{{ $t('components.product.review.rating.title') }}</p>
 					</div>
-					<div class="review_body__rating__content">
+					<div class="review_body-rating-content">
 						<div
 							ref="ratingBoard"
 							class="rating-board rating-background"
@@ -389,29 +398,29 @@ watch(
 						</div>
 						<span class="px-2">{{ reviewScoreText }}</span>
 					</div>
-					<span class="review_body__rating__error h-6">{{ errors.rate }}</span>
+					<span class="review_body-rating-error h-6">{{ errors.rate }}</span>
 				</div>
 
-				<div class="review_body__comment">
-					<div class="review_body__comment__title">
-						<p class="review_body__comment__title__text">
+				<div class="review_body-comment">
+					<div class="review_body-comment-title">
+						<p class="review_body-comment-title-text">
 							<label for="comment">{{
 								$t('components.product.review.comment.label')
 							}}</label>
 						</p>
 					</div>
-					<div class="review_body__comment__content">
+					<div class="review_body-comment-content">
 						<textarea
 							id="comment"
 							v-model="comment"
 							name="comment"
-							class="review_body__comment__content__textarea text-gray-700 dark:text-gray-200 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+							class="review_body-comment-content-textarea text-gray-700 dark:text-gray-200 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
 							maxlength="10000"
 							:placeholder="$t('components.product.review.comment.placeholder')"
 							rows="6"
 						/>
 					</div>
-					<span class="review_body__rating__error h-6">{{ errors.comment }}</span>
+					<span class="review_body-rating-error h-6">{{ errors.comment }}</span>
 				</div>
 
 				<input v-model="rate" type="hidden" name="rate" />
@@ -419,10 +428,10 @@ watch(
 		</template>
 		<template #footer>
 			<div class="review_footer">
-				<div class="review_footer__content">
+				<div class="review_footer-content">
 					<Button
 						v-if="!tooManyAttempts"
-						class="review_footer__button"
+						class="review_footer-button"
 						:text="reviewButtonText"
 						type="input"
 						:style="'success'"
@@ -431,9 +440,9 @@ watch(
 						{{ $t('components.product.review.too_many_attempts') }}
 					</Button>
 				</div>
-				<div v-if="existingReview" class="review_footer__content">
+				<div v-if="existingReview" class="review_footer-content">
 					<Button
-						class="review_footer__button gap-2"
+						class="review_footer-button gap-2"
 						:text="$t('components.product.review.delete_review')"
 						type="button"
 						:style="'danger'"
@@ -464,68 +473,82 @@ watch(
 		justify-content: space-between;
 		align-items: center;
 		gap: 1rem;
-		&__title {
+
+		&-title {
 			font-size: 1.25rem;
 			font-weight: 500;
 			line-height: 1.2;
 			margin-bottom: 0;
 		}
 	}
+
 	&_body {
 		position: relative;
 		display: grid;
-		&__rating {
+
+		&-rating {
 			display: grid;
 			gap: 0.5rem;
-			&__title {
+
+			&-title {
 				font-size: 1.25rem;
 				font-weight: 500;
 				line-height: 1.2;
 				margin-bottom: 0;
 			}
-			&__content {
+
+			&-content {
 				position: relative;
 				display: grid;
 				grid-template-columns: auto 1fr;
 				align-items: center;
 			}
-			&__error {
+
+			&-error {
 				color: #f56565;
 				font-size: 0.875rem;
 				font-weight: 400;
 			}
 		}
-		&__comment {
+
+		&-comment {
 			display: grid;
 			gap: 0.5rem;
-			&__title {
+
+			&-title {
 				font-size: 1.25rem;
 				font-weight: 500;
 				line-height: 1.2;
 				margin-bottom: 0;
 			}
-			&__content {
+
+			&-content {
 				position: relative;
-				&__textarea {
+
+				&-textarea {
 					width: 100%;
 				}
 			}
 		}
 	}
+
 	&_footer {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		gap: 1rem;
-		&__content {
+
+		&-content {
 			display: grid;
 			width: 100%;
 		}
-		&__button {
+
+		&-button {
 			width: 100%;
 		}
 	}
 }
+
 .rating {
 	align-items: center;
 	display: flex;
@@ -547,14 +570,14 @@ watch(
 		align-content: center;
 		align-items: center;
 		display: inline-flex;
-		flex-direction: row;
-		flex-wrap: nowrap;
+		flex-flow: row nowrap;
 		height: 26px;
 		justify-content: flex-start;
 		left: 0;
 		top: 0;
 	}
 }
+
 .star {
 	cursor: pointer;
 	height: 26px;

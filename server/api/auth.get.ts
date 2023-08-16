@@ -1,6 +1,6 @@
 import { H3Event } from 'h3'
-import { ZodSession } from '~/zod/auth/session'
-import { parseDataAs } from '~/zod/parser'
+import { ZodSession } from '~/types/auth/session'
+import { parseDataAs } from '~/types/parser'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

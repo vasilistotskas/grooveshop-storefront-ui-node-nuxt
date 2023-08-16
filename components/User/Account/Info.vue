@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Account } from '~/zod/user/account'
+import { Account } from '~/types/user/account'
 
 const { t } = useLang()
 const props = defineProps({
@@ -27,9 +27,9 @@ const props = defineProps({
 </script>
 
 <template>
-	<div class="user__info">
-		<div class="user__info__container">
-			<div class="user__info__avatar">
+	<div class="user-info">
+		<div class="user-info-container">
+			<div class="user-info-avatar">
 				<UserAvatar
 					:user-account="account"
 					:img-width="135"
@@ -39,15 +39,15 @@ const props = defineProps({
 					:change-avatar="true"
 				/>
 			</div>
-			<div class="user__info__name">
+			<div class="user-info-name">
 				<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
 					{{ account.firstName }} {{ account.lastName }}
 				</h1>
 			</div>
-			<div class="user__info__stats">
-				<div class="user__info__stats__item">
+			<div class="user-info-stats">
+				<div class="user-info-stats-item">
 					<Anchor
-						class="user__info__stats__item__link"
+						class="user-info-stats-item-link"
 						:to="`/account/orders`"
 						:title="$t('pages.account.orders.title')"
 					>
@@ -62,9 +62,9 @@ const props = defineProps({
 						}}</span>
 					</Anchor>
 				</div>
-				<div class="user__info__stats__item">
+				<div class="user-info-stats-item">
 					<Anchor
-						class="user__info__stats__item__link"
+						class="user-info-stats-item-link"
 						:to="`/account/favourites`"
 						:title="$t('pages.account.favourites.title')"
 					>
@@ -79,9 +79,9 @@ const props = defineProps({
 						}}</span>
 					</Anchor>
 				</div>
-				<div class="user__info__stats__item">
+				<div class="user-info-stats-item">
 					<Anchor
-						class="user__info__stats__item__link"
+						class="user-info-stats-item-link"
 						:to="`/account/reviews`"
 						:title="$t('pages.account.reviews.title')"
 					>
@@ -103,22 +103,25 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .user {
-	&__info {
+	&-info {
 		width: calc(100% - 128px);
 		margin: 0 auto;
 		display: grid;
 		align-items: center;
 		z-index: 20;
-		@media screen and (max-width: 767px) {
+
+		@media screen and (width <= 767px) {
 			width: calc(100% - 16px);
 		}
-		&__container {
+
+		&-container {
 			display: flex;
 			align-items: center;
 			padding-top: 1.5rem;
 			padding-bottom: 1.5rem;
 			gap: 2rem;
-			@media screen and (max-width: 767px) {
+
+			@media screen and (width <= 767px) {
 				display: grid;
 				justify-items: center;
 				align-items: center;
@@ -128,22 +131,33 @@ const props = defineProps({
 				gap: 1rem;
 			}
 		}
-		&__name {
+
+		&-name {
 			font-size: 1.25rem;
 			font-weight: 600;
+
+			@media screen and (width <= 767px) {
+				grid-row: 1 / span 1;
+				grid-column: 2 / span 1;
+			}
 		}
-		&__stats {
+
+		&-stats {
 			display: grid;
 			align-items: center;
 			margin-left: auto;
 			gap: 1rem;
 			grid-template-columns: repeat(3, minmax(110px, 1fr));
-			@media screen and (max-width: 767px) {
+
+			@media screen and (width <= 767px) {
 				width: 100%;
 				grid-template-columns: repeat(3, 1fr);
+				grid-row: 2 / span 1;
+				grid-column: 1 / span 2;
 			}
-			&__item {
-				&__link {
+
+			&-item {
+				&-link {
 					display: flex;
 					flex-direction: column;
 					padding: 1rem;
@@ -160,22 +174,11 @@ const props = defineProps({
 				}
 			}
 		}
-		&__avatar {
-			@media screen and (max-width: 767px) {
+
+		&-avatar {
+			@media screen and (width <= 767px) {
 				grid-row: 1 / span 1;
 				grid-column: 1 / span 1;
-			}
-		}
-		&__name {
-			@media screen and (max-width: 767px) {
-				grid-row: 1 / span 1;
-				grid-column: 2 / span 1;
-			}
-		}
-		&__stats {
-			@media screen and (max-width: 767px) {
-				grid-row: 2 / span 1;
-				grid-column: 1 / span 2;
 			}
 		}
 	}

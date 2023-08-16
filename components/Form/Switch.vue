@@ -19,6 +19,7 @@ defineSlots<{
 }>()
 
 const emit = defineEmits(['update:modelValue'])
+const { modelValue, on, id } = toRefs(props)
 
 // random
 const randomId = () =>
@@ -26,7 +27,7 @@ const randomId = () =>
 	Math.random().toString(36).substring(2, 15)
 
 // state
-const id = ref(props.id || randomId())
+const switchId = ref(id?.value || randomId())
 const input = ref<HTMLInputElement>()
 
 // funcs
@@ -51,13 +52,13 @@ onMounted(() => {
 </script>
 
 <template>
-	<label :for="id" class="flex cursor-pointer">
+	<label :for="switchId" class="flex cursor-pointer">
 		<label
-			:for="id"
+			:for="switchId"
 			class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"
 		>
 			<input
-				:id="id"
+				:id="switchId"
 				ref="input"
 				type="checkbox"
 				class="switch-checkbox absolute block w-6 h-6 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 appearance-none cursor-pointer"
@@ -67,7 +68,7 @@ onMounted(() => {
 				@change="onInputChange"
 			/>
 			<label
-				:for="id"
+				:for="switchId"
 				class="switch-label block overflow-hidden h-6 rounded-full bg-gray-200 dark:bg-slate-700 cursor-pointer border border-slate-300 dark:border-slate-500"
 			/>
 		</label>

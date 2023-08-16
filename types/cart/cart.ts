@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZodCartItem } from '~/zod/cart/cart-item'
+import { ZodCartItem } from '~/types/cart/cart-item'
 
 export const ZodCart = z.object({
 	id: z.number(),

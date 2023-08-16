@@ -1,4 +1,4 @@
-import { Pagination } from '~/zod/pagination/pagination'
+import { Pagination } from '~/types/pagination/pagination'
 
 export const usePagination = <T>(results: Pagination<T> | null) => {
 	if (!results)

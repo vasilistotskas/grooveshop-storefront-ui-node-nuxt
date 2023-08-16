@@ -1,7 +1,7 @@
 import { FetchError } from 'ofetch'
-import { Category } from '~/zod/product/category'
-import { ProductQuery } from '~/zod/product/product'
-import { Pagination } from '~/zod/pagination/pagination'
+import { Category } from '~/types/product/category'
+import { ProductQuery } from '~/types/product/product'
+import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	categories: FetchError | null

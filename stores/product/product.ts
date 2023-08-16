@@ -1,5 +1,5 @@
 import { FetchError } from 'ofetch'
-import { Product, ProductCreateRequest } from '~/zod/product/product'
+import { Product, ProductCreateRequest } from '~/types/product/product'
 
 interface ErrorRecord {
 	product: FetchError | null

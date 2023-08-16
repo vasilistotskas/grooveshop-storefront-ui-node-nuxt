@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Product, ProductOrderingField, ProductQuery } from '~/zod/product/product'
-import { EntityOrdering, OrderingOption } from '~/zod/ordering/ordering'
+import { Product, ProductOrderingField, ProductQuery } from '~/types/product/product'
+import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const route = useRoute()
@@ -37,11 +37,8 @@ const orderingFields: Partial<Record<ProductOrderingField, OrderingOption[]>> = 
 	createdAt: []
 }
 
-try {
-	await store.fetchProducts(routePaginationParams.value)
-} catch (error) {
-	//
-}
+await store.fetchProducts(routePaginationParams.value)
+
 const refresh = async () => await store.fetchProducts(routePaginationParams.value)
 
 const { products, pending, error } = storeToRefs(store)
@@ -111,11 +108,7 @@ watch(
 		<template v-if="!pending.products && !products?.results?.length">
 			<EmptyState :icon="emptyIcon">
 				<template #actions>
-					<Button
-						:text="$t('common.empty.button')"
-						:type="'link'"
-						:to="'index/'"
-					></Button>
+					<Button :text="$t('common.empty.button')" :type="'link'" :to="'index'"></Button>
 				</template>
 			</EmptyState>
 		</template>

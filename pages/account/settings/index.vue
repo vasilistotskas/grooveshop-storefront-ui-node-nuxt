@@ -2,10 +2,11 @@
 import { FieldContext, useField, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
-import { defaultSelectOptionChoose } from '~/zod/global/general'
+import { defaultSelectOptionChoose } from '~/types/global/general'
 import { ITheme } from '~/utils/theme'
 
 const { t, locale } = useLang()
+const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 
 const userStore = useUserStore()
@@ -17,25 +18,17 @@ const { regions } = storeToRefs(regionStore)
 
 const userId = account.value?.id
 
-try {
-	await countryStore.fetchCountries()
-	await regionStore.fetchRegions({
-		alpha2: account.value?.country ?? ''
-	})
-} catch (error) {
-	//
-}
+await countryStore.fetchCountries()
+await regionStore.fetchRegions({
+	alpha2: account.value?.country ?? ''
+})
 
 const ZodAccountSettings = z.object({
 	email: z.string().email({
 		message: t('pages.account.settings.validation.email.invalid')
 	}),
-	firstName: z.string().min(2, {
-		message: t('pages.account.settings.validation.first_name.min', { min: 2 })
-	}),
-	lastName: z.string().min(2, {
-		message: t('pages.account.settings.validation.last_name.min', { min: 2 })
-	}),
+	firstName: z.string(),
+	lastName: z.string(),
 	phone: z.string(),
 	city: z.string(),
 	zipcode: z.string(),
@@ -47,29 +40,25 @@ const ZodAccountSettings = z.object({
 			invalid_type_error: t('common.validation.date.invalid_type_error')
 		})
 		.nullish(),
-	country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	}),
-	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	})
+	country: z.string().default(defaultSelectOptionChoose).nullish(),
+	region: z.string().default(defaultSelectOptionChoose).nullish()
 })
 
 const validationSchema = toTypedSchema(ZodAccountSettings)
 
 const initialValues = ZodAccountSettings.parse({
-	email: account.value?.email ?? '',
-	firstName: account.value?.firstName ?? '',
-	lastName: account.value?.lastName ?? '',
-	phone: account.value?.phone ?? '',
-	city: account.value?.city ?? '',
-	zipcode: account.value?.zipcode ?? '',
-	address: account.value?.address ?? '',
-	place: account.value?.place ?? '',
+	email: account.value?.email || '',
+	firstName: account.value?.firstName || '',
+	lastName: account.value?.lastName || '',
+	phone: account.value?.phone || '',
+	city: account.value?.city || '',
+	zipcode: account.value?.zipcode || '',
+	address: account.value?.address || '',
+	place: account.value?.place || '',
 	birthDate:
-		account.value?.birthDate ?? new Date('2000-01-01').toISOString().slice(0, 10),
-	country: account.value?.country ?? '',
-	region: account.value?.region ?? defaultSelectOptionChoose
+		account.value?.birthDate || new Date('2000-01-01').toISOString().slice(0, 10),
+	country: account.value?.country || defaultSelectOptionChoose,
+	region: account.value?.region || defaultSelectOptionChoose
 })
 
 const { handleSubmit, errors, isSubmitting } = useForm({
@@ -98,6 +87,14 @@ const onCountryChange = (event: Event) => {
 }
 
 const onSubmit = handleSubmit((values) => {
+	if (
+		values.region === defaultSelectOptionChoose ||
+		values.country === defaultSelectOptionChoose
+	) {
+		values.region = null
+		values.country = null
+	}
+
 	if (userId === undefined) return
 	userStore
 		.updateAccount(userId, {
@@ -149,26 +146,26 @@ const format = (date: Date) => {
 		<PageHeader class="pb-4">
 			<PageTitle :text="$t('pages.account.settings.title')" />
 		</PageHeader>
-		<nav class="user__account__navbar">
-			<ul role="tablist" class="user__account__navbar__list">
-				<li role="tab" class="user__account__navbar__list__item">
+		<nav class="user-account-navbar">
+			<ul role="tablist" class="user-account-navbar-list">
+				<li role="tab" class="user-account-navbar-list-item">
 					<Anchor
 						:to="`/account/settings`"
 						:aria-label="$t('pages.account.settings.title')"
 						:title="$t('pages.account.settings.title')"
-						class="user__account__navbar__list__item__link"
+						class="user-account-navbar-list-item-link"
 					>
 						<span class="text-black dark:text-white">
 							{{ $t('pages.account.settings.title') }}
 						</span>
 					</Anchor>
 				</li>
-				<li role="tab" class="user__account__navbar__list__item">
+				<li role="tab" class="user-account-navbar-list-item">
 					<Anchor
 						:to="`/account/addresses`"
 						:aria-label="$t('pages.account.settings.title')"
 						:title="$t('pages.account.addresses.title')"
-						class="user__account__navbar__list__item__link"
+						class="user-account-navbar-list-item-link"
 					>
 						<span class="text-black dark:text-white">
 							{{ $t('pages.account.addresses.title') }}
@@ -369,7 +366,7 @@ const format = (date: Date) => {
 								class="text-gray-700 dark:text-gray-300"
 								:value="cntry.alpha2"
 							>
-								{{ cntry.name }}
+								{{ extractTranslated(cntry, 'name', locale) }}
 							</option>
 						</select>
 					</div>
@@ -388,6 +385,7 @@ const format = (date: Date) => {
 							v-model="region.value"
 							class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
 							name="region"
+							:disabled="country === 'choose'"
 						>
 							<option disabled value="choose">
 								{{ $t('common.choose') }}
@@ -398,7 +396,7 @@ const format = (date: Date) => {
 								class="text-gray-700 dark:text-gray-300"
 								:value="rgn.alpha"
 							>
-								{{ rgn.name }}
+								{{ extractTranslated(rgn, 'name', locale) }}
 							</option>
 						</select>
 					</div>
@@ -430,13 +428,13 @@ const format = (date: Date) => {
 	display: block;
 	font-size: 14px;
 	height: 43px;
-	line-height: 1.428571429;
+	line-height: 1.4286;
 	padding: 11px 12px;
 	transition: all 0.3s ease-in-out;
-	vertical-align: middle;
 	width: 100%;
 }
-.user__account__navbar {
+
+.user-account-navbar {
 	position: fixed;
 	top: 56px;
 	left: 0;
@@ -444,34 +442,38 @@ const format = (date: Date) => {
 	width: 100%;
 	box-shadow: 0 2px 4px 0 #dcdcdc;
 	background-color: #fff;
-	@media screen and (min-width: 1020px) {
+
+	@media screen and (width >= 1020px) {
 		position: static;
 		width: auto;
 		border-bottom: 1px solid #dcdcdc;
 		box-shadow: none;
 		background-color: transparent;
 	}
-	@media screen and (max-width: 1020px) {
+
+	@media screen and (width <= 1020px) {
 		padding-left: 1rem;
 		padding-right: 1rem;
 	}
-	&__list {
+
+	&-list {
 		-ms-overflow-style: none;
 		scrollbar-width: none;
 		display: -webkit-box;
-		display: -ms-flexbox;
 		display: flex;
 		gap: 1rem;
 		position: relative;
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
-		@media screen and (min-width: 1020px) {
+
+		@media screen and (width >= 1020px) {
 			-webkit-box-pack: start;
 			-ms-flex-pack: start;
 			justify-content: flex-start;
 		}
-		&__item {
-			&__link {
+
+		&-item {
+			&-link {
 				font-size: 14px;
 				line-height: 18px;
 				display: block;
@@ -479,9 +481,11 @@ const format = (date: Date) => {
 				padding: 16px 0;
 				white-space: nowrap;
 				color: #999;
-				@media screen and (max-width: 1020px) {
+
+				@media screen and (width <= 1020px) {
 					padding: 8px 0;
 				}
+
 				&.router-link-active {
 					border-bottom: 1px solid black;
 				}

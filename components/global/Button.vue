@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { ButtonSize, ButtonStyle, ButtonType } from '~/zod/global/button'
+import { ButtonSize, ButtonStyle, ButtonType } from '~/types/global/button'
 
 const props = defineProps({
 	text: {

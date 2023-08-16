@@ -37,7 +37,9 @@ querySelectorBus.on((event, payload: { cartItemId: number; quantity: number }) =
 	switch (event) {
 		case 'update':
 			store
-				.updateCartItem(payload.cartItemId, { quantity: String(payload.quantity) })
+				.updateCartItem(payload.cartItemId, {
+					quantity: String(payload.quantity)
+				})
 				.then(() => {
 					toast.success(t('pages.cart.updated'))
 					cartBus.emit(GlobalEvents.ON_CART_UPDATED)
@@ -70,7 +72,7 @@ querySelectorBus.on((event, payload: { cartItemId: number; quantity: number }) =
 					:text="$t('pages.cart.checkout')"
 					:type="'link'"
 					class="font-extrabold capitalize"
-					:to="'checkout/'"
+					:to="'checkout'"
 				/>
 			</h2>
 		</div>
@@ -104,7 +106,7 @@ querySelectorBus.on((event, payload: { cartItemId: number; quantity: number }) =
 						<Button
 							:text="$t('common.empty.button')"
 							:type="'link'"
-							:to="'index/'"
+							:to="'index'"
 						></Button>
 					</template>
 				</EmptyState>

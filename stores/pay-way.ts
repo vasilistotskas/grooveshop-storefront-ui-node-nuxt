@@ -1,6 +1,6 @@
 import { FetchError } from 'ofetch'
-import { Pagination } from '~/zod/pagination/pagination'
-import { PayWay, PayWayQuery } from '~/zod/pay-way/pay-way'
+import { Pagination } from '~/types/pagination/pagination'
+import { PayWay, PayWayQuery } from '~/types/pay-way/pay-way'
 
 interface ErrorRecord {
 	payWays: FetchError | null

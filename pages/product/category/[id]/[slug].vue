@@ -7,11 +7,7 @@ const categoryStore = useCategoryStore()
 const categoryId = route.params.id
 const { category, pending, error } = storeToRefs(categoryStore)
 
-try {
-	await categoryStore.fetchCategory(categoryId)
-} catch (e) {
-	//
-}
+await categoryStore.fetchCategory(categoryId)
 
 definePageMeta({
 	layout: 'page'

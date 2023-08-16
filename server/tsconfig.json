@@ -4,7 +4,7 @@
 		"baseUrl": "..",
 		"paths": {
 			"~/*": ["./src/*"],
-			"~/zod/*": ["./zod/*"],
+			"~/types/*": ["./types/*"],
 			"~/utils/*": ["./utils/*"]
 		}
 	}

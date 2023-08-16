@@ -1,7 +1,7 @@
 import { H3Event } from 'h3'
-import { ZodCategory } from '~/zod/product/category'
-import { ZodPagination } from '~/zod/pagination/pagination'
-import { parseDataAs } from '~/zod/parser'
+import { ZodCategory } from '~/types/product/category'
+import { ZodPagination } from '~/types/pagination/pagination'
+import { parseDataAs } from '~/types/parser'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

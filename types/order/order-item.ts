@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZodProduct } from '~/zod/product/product'
+import { ZodProduct } from '~/types/product/product'
 
 export const ZodOrderItem = z.object({
 	price: z.number(),

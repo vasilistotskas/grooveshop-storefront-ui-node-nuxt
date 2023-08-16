@@ -151,7 +151,11 @@ const link = computed(() => {
 				<Anchor
 					:to="{
 						path: link,
-						query: { limit, offset: (page - 1) * limit, ordering: route.query?.ordering }
+						query: {
+							limit,
+							offset: (page - 1) * limit,
+							ordering: route.query?.ordering
+						}
 					}"
 					:class="{
 						'grid items-center justify-center w-full rounded bg-gray-200 dark:bg-gray-800 py-1 px-2': true,
@@ -200,7 +204,11 @@ const link = computed(() => {
 				<Anchor
 					:to="{
 						path: link,
-						query: { limit, offset: offset + limit, ordering: route.query?.ordering }
+						query: {
+							limit,
+							offset: offset + limit,
+							ordering: route.query?.ordering
+						}
 					}"
 					:class="{
 						disabled: isInLastPage

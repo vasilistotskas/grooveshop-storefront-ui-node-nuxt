@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Pagination } from '~/zod/pagination/pagination'
+import { Pagination } from '~/types/pagination/pagination'
 
 const props = defineProps({
 	resultsCount: {

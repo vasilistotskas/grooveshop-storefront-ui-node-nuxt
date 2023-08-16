@@ -20,7 +20,7 @@ export interface LottieProps {
 	animationLink: string
 	loop: boolean | number
 	autoPlay: boolean
-	rendererSettings: any
+	rendererSettings: 'svg' | 'canvas' | 'html'
 	width: number | string
 	height: number | string
 	speed: number

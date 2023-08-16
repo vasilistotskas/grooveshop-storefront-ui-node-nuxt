@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Review, ReviewOrderingField, ReviewQuery } from '~/zod/product/review'
-import { EntityOrdering, OrderingOption } from '~/zod/ordering/ordering'
+import { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
+import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const props = defineProps({
@@ -26,12 +26,12 @@ const props = defineProps({
 	}
 })
 
+const { productId, reviewsAverage, reviewsCount, displayImageOf } = toRefs(props)
 const { t } = useLang()
-const toast = useToast()
 const route = useRoute()
 
 const routePaginationParams = ref<ReviewQuery>({
-	productId: String(props.productId),
+	productId: String(productId.value),
 	page: Number(route.query.page) || undefined,
 	ordering: route.query.ordering || '-createdAt',
 	expand: 'true'
@@ -39,11 +39,8 @@ const routePaginationParams = ref<ReviewQuery>({
 
 const reviewsStore = useReviewsStore()
 const { reviews, error, pending } = storeToRefs(reviewsStore)
-try {
-	await reviewsStore.fetchReviews(routePaginationParams.value)
-} catch (error) {
-	//
-}
+
+await reviewsStore.fetchReviews(routePaginationParams.value)
 
 const entityOrdering: EntityOrdering<ReviewOrderingField> = [
 	{
@@ -76,17 +73,19 @@ const ordering = computed(() => {
 
 <template>
 	<div
-		class="container-small reviews_list text-gray-700 dark:text-gray-200 p-6 border-t border-gray-900/10 dark:border-gray-50/[0.2]"
+		class="container-small reviews-list text-gray-700 dark:text-gray-200 p-6 border-t border-gray-900/10 dark:border-gray-50/[0.2]"
 	>
 		<Error v-if="error.reviews" :code="error.reviews.statusCode" :error="error.reviews" />
 		<template v-else>
-			<div class="reviews_list__header">
-				<h2 class="reviews_list__title">{{ $t('components.product.reviews.title') }}</h2>
+			<div class="reviews-list-header">
+				<h2 class="reviews-list-title">
+					{{ $t('components.product.reviews.title') }}
+				</h2>
 				<div
 					v-if="reviews?.results && reviews?.results?.length > 0"
-					class="reviews_list__actions"
+					class="reviews-list-actions"
 				>
-					<div class="reviews_list__pagination">
+					<div class="reviews-list-pagination">
 						<PaginationPageNumber
 							:results-count="pagination.resultsCount"
 							:total-pages="pagination.totalPages"
@@ -96,7 +95,7 @@ const ordering = computed(() => {
 							:links="pagination.links"
 						/>
 					</div>
-					<div class="reviews_list__ordering">
+					<div class="reviews-list-ordering">
 						<Ordering
 							:ordering="String(routePaginationParams.ordering)"
 							:ordering-options="ordering.orderingOptionsArray.value"
@@ -104,8 +103,8 @@ const ordering = computed(() => {
 					</div>
 				</div>
 			</div>
-			<div class="reviews_list__body">
-				<div class="reviews_list__items">
+			<div class="reviews-list-body">
+				<div class="reviews-list-items">
 					<LoadingSkeleton
 						v-if="pending.reviews && !error.reviews && !reviews?.results?.length"
 						:card-height="'130px'"
@@ -134,64 +133,76 @@ const ordering = computed(() => {
 								<Button
 									:text="$t('common.empty.button')"
 									:type="'link'"
-									:to="'index/'"
+									:to="'index'"
 								></Button>
 							</template>
 						</EmptyState>
 					</template>
 				</div>
 			</div>
-			<div class="reviews_list__footer"></div>
+			<div class="reviews-list-footer"></div>
 		</template>
 	</div>
 </template>
 
 <style lang="scss" scoped>
-.reviews_list {
+.reviews-list {
 	width: 100%;
 	display: grid;
-	&__header {
+
+	&-header {
 		display: grid;
 		gap: 1rem;
 	}
-	&__title {
+
+	&-title {
 		font-size: 1.5rem;
 		font-weight: 600;
 	}
-	&__actions {
+
+	&-actions {
 		display: grid;
 		justify-items: start;
 		gap: 1rem;
-		@media screen and (min-width: 768px) {
+
+		@media screen and (width >= 768px) {
 			display: flex;
 			align-items: center;
 		}
 	}
-	&__pagination {
+
+	&-pagination {
 		display: grid;
 	}
-	&__ordering {
+
+	&-ordering {
 		display: grid;
 	}
-	&__body {
+
+	&-body {
 		display: grid;
 	}
-	&__items {
+
+	&-items {
 		display: grid;
 		gap: 1rem;
 	}
-	&__item {
+
+	&-item {
 		padding: 1rem;
-		&__content {
+
+		&-content {
 			display: grid;
 			gap: 1rem;
-			&__header {
+
+			&-header {
 				display: grid;
 				gap: 0.5rem;
 			}
 		}
 	}
-	&__footer {
+
+	&-footer {
 		display: flex;
 		align-items: center;
 		justify-content: center;

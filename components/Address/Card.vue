@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { Address } from '~/zod/user/address'
+import { Address } from '~/types/user/address'
 
 const props = defineProps({
 	address: {
@@ -60,22 +60,22 @@ const deleteAddress = (id: string) => {
 
 <template>
 	<li
-		class="address__card p-5 bg-white text-white dark:bg-slate-800 dark:text-black rounded-lg"
+		class="address-card p-5 bg-white text-white dark:bg-slate-800 dark:text-black rounded-lg"
 	>
-		<div v-if="address.isMain" class="address__card__main">
+		<div v-if="address.isMain" class="address-card-main">
 			<IconMdi:star></IconMdi:star>
 		</div>
-		<div class="address__card__header">
-			<div class="address__card__header__title">
+		<div class="address-card-header">
+			<div class="address-card-header-title">
 				<h3
-					class="address__card__header__title__value font-bold text-gray-700 dark:text-gray-200"
+					class="address-card-header-title-value font-bold text-gray-700 dark:text-gray-200"
 				>
 					{{ contentShorten(address.title, 0, 25) }}
 				</h3>
 			</div>
-			<div class="address__card__header__actions">
+			<div class="address-card-header-actions">
 				<Button
-					class="address__card__header__actions__button"
+					class="address-card-header-actions-button"
 					type="link"
 					:to="`/account/addresses/${address.id}/edit`"
 					size="sm"
@@ -85,7 +85,7 @@ const deleteAddress = (id: string) => {
 					<IconFa6Solid:pencil class="text-cyan-600" />
 				</Button>
 				<Button
-					class="address__card__header__actions__button"
+					class="address-card-header-actions-button"
 					type="button"
 					size="sm"
 					:style="'secondary'"
@@ -96,51 +96,33 @@ const deleteAddress = (id: string) => {
 				</Button>
 			</div>
 		</div>
-		<div class="address__card__body">
-			<div class="address__card__body__address">
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+		<div class="address-card-body">
+			<div class="address-card-body-address">
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ address.firstName }} {{ address.lastName }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ address.street }} {{ address.streetNumber }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ address.city }} {{ address.zipcode }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ address.country }} {{ address.region }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ $t('common.floor') }}: {{ address.floor }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ $t('common.location_type') }}: {{ address.locationType }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ $t('common.phone') }}: {{ address.phone }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ $t('common.mobile_phone') }}: {{ address.mobilePhone }}
 				</span>
-				<span
-					class="address__card__body__address__value text-gray-700 dark:text-gray-200"
-				>
+				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
 					{{ $t('common.notes') }}: {{ address.notes }}
 				</span>
 			</div>
@@ -149,39 +131,46 @@ const deleteAddress = (id: string) => {
 </template>
 
 <style lang="scss" scoped>
-.address__card {
+.address-card {
 	position: relative;
 	width: 100%;
 	display: grid;
 	align-items: start;
 	gap: 2rem;
-	@media screen and (min-width: 961px) {
+
+	@media screen and (width >= 961px) {
 		overflow-y: hidden;
 	}
-	@media screen and (min-width: 634px) {
+
+	@media screen and (width >= 634px) {
 		padding: 40px 16px 16px;
 	}
-	&__header {
+
+	&-header {
 		display: grid;
 		grid-template-columns: 1fr auto;
 		align-items: center;
 		justify-items: center;
 		gap: 0.5rem;
-		&__title {
+
+		&-title {
 			display: grid;
 			align-items: center;
 			gap: 0.5rem;
-			&__value,
-			&__label {
+
+			&-value,
+			&-label {
 				font-size: 1.3rem;
 			}
 		}
-		&__actions {
+
+		&-actions {
 			display: grid;
 			grid-template-columns: auto auto;
 			align-items: center;
 			gap: 0.5rem;
-			&__button {
+
+			&-button {
 				width: 2rem;
 				height: 2rem;
 				border-radius: 50%;
@@ -191,24 +180,28 @@ const deleteAddress = (id: string) => {
 			}
 		}
 	}
-	&__body {
+
+	&-body {
 		display: grid;
 		justify-items: center;
 		align-items: center;
 		gap: 1rem;
-		&__address {
+
+		&-address {
 			display: grid;
 			align-items: center;
 			gap: 0.5rem;
 			width: 100%;
 			height: 100%;
-			&__value {
+
+			&-value {
 				font-size: 0.875rem;
 				font-weight: 400;
 			}
 		}
 	}
-	&__main {
+
+	&-main {
 		position: absolute;
 		top: 0.75rem;
 		right: 0.75rem;

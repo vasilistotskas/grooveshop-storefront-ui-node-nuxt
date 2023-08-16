@@ -1,6 +1,6 @@
 import { FetchError } from 'ofetch'
-import { Order, OrderCreateRequest, OrderQuery } from '~/zod/order/order'
-import { Pagination } from '~/zod/pagination/pagination'
+import { Order, OrderCreateRequest, OrderQuery } from '~/types/order/order'
+import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	orders: FetchError | null

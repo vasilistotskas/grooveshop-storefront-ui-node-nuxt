@@ -1,6 +1,6 @@
 import { FetchError } from 'ofetch'
-import { Region, RegionsQuery } from '~/zod/region/region'
-import { Pagination } from '~/zod/pagination/pagination'
+import { Region, RegionsQuery } from '~/types/region/region'
+import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	regions: FetchError | null
