@@ -1,3 +1,11 @@
+# [1.6.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.5.0...v1.6.0) (2023-08-16)
+
+
+### Features
+
+* **app:** Cookies module refactor, tests minor updates, vee-validate.ts config added, new useTranslationExtractor composable. ([d683f79](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d683f791ed1d898ed761d97fdfb8985a49e263c5))
+* **app:** sass improvements, nuxt.run.xml added for testing configuration in jetBrains editors, .stylelintrc.cjs added, new 404 page prototype, .dockerignore and .gitignore updated. ([241429e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/241429e74b6edf0b7b55000010f5b00551b15f22))
+
 # [1.5.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.4.18...v1.5.0) (2023-07-11)
 
 
