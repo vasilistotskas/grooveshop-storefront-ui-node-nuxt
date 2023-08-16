@@ -8,7 +8,6 @@ import {
 	setCookie
 } from '#cookie-control/methods'
 import { Cookie, CookieTypeEnum } from '#cookie-control/types'
-import setCssVariables from '#cookie-control/set-vars'
 
 defineSlots<{
 	bar(props: {}): any
@@ -28,8 +27,8 @@ const {
 const expires = new Date()
 const localCookiesEnabled = ref([...(cookiesEnabled.value || [])])
 const allCookieIdsString = getAllCookieIdsString(moduleOptions)
-const cookieIsConsentGiven = useCookie(moduleOptions.cookieNameIsConsentGiven)
-const cookieCookiesEnabledIds = useCookie(moduleOptions.cookieNameCookiesEnabledIds)
+const cookieIsConsentGiven = ref(useCookie(moduleOptions.cookieNameIsConsentGiven))
+const cookieCookiesEnabledIds = ref(useCookie(moduleOptions.cookieNameCookiesEnabledIds))
 // computations
 const isSaved = computed(
 	() =>
@@ -114,13 +113,6 @@ const toggleLabel = ($event: KeyboardEvent) => {
 }
 // lifecycle
 onBeforeMount(() => {
-	if (moduleOptions.colors) {
-		const variables: Record<string, any> = {}
-		for (const key in moduleOptions.colors) {
-			variables[`cookie-control-${key}`] = `${moduleOptions.colors[key]}`
-		}
-		setCssVariables(variables)
-	}
 	if (cookieIsConsentGiven.value === allCookieIdsString) {
 		for (const cookieOptional of moduleOptions.cookies.optional) {
 			if (
@@ -200,27 +192,24 @@ init()
 
 <template>
 	<section class="cookieControl">
-		<Transition :name="`cookieControl__Bar--${moduleOptions.barPosition}`">
-			<div
-				v-if="!isConsentGiven"
-				:class="`cookieControl__Bar cookieControl__Bar--${moduleOptions.barPosition}`"
-			>
-				<div class="cookieControl__BarContainer">
+		<Transition :name="`cookieControl-Bar`">
+			<div v-if="!isConsentGiven" :class="`cookieControl-Bar cookieControl-Bar`">
+				<div class="cookieControl-BarContainer">
 					<div>
 						<slot name="bar">
-							<h3 class="hidden" v-text="$t('components.cookie.banner.title')" />
+							<h3 v-text="$t('components.cookie.banner.title')" />
 							<p v-text="$t('components.cookie.banner.description')" />
 						</slot>
 					</div>
-					<div class="cookieControl__BarButtons">
+					<div class="cookieControl-BarButtons">
 						<button
-							class="cookieControl__BarButtons__ManageCookies"
+							class="cookieControl-BarButtons-ManageCookies"
 							type="button"
 							@click="isModalActive = true"
 							v-text="$t('components.cookie.manage_cookies')"
 						/>
 						<button
-							class="cookieControl__BarButtons__AcceptAll"
+							class="cookieControl-BarButtons-AcceptAll"
 							type="button"
 							@click="accept()"
 							v-text="$t('components.cookie.accept')"
@@ -228,7 +217,7 @@ init()
 						<button
 							v-if="moduleOptions.isAcceptNecessaryButtonEnabled"
 							type="button"
-							class="cookieControl__BarButtons__Decline"
+							class="cookieControl-BarButtons-Decline"
 							@click="decline()"
 							v-text="$t('components.cookie.decline')"
 						/>
@@ -240,7 +229,7 @@ init()
 			v-if="moduleOptions.isControlButtonEnabled && isConsentGiven"
 			type="button"
 			aria-label="Cookie control"
-			class="cookieControl__ControlButton"
+			class="cookieControl-ControlButton"
 			data-testid="nuxt-cookie-control-control-button"
 			@click="isModalActive = true"
 		>
@@ -251,18 +240,29 @@ init()
 				/>
 			</svg>
 		</button>
-		<Transition name="cookieControl__Modal">
-			<div v-if="isModalActive" class="cookieControl__Modal">
+		<Transition name="cookieControl-Modal">
+			<div v-if="isModalActive" class="cookieControl-Modal">
 				<p
 					v-if="isSaved"
-					class="cookieControl__ModalUnsaved"
+					class="cookieControl-ModalUnsaved"
 					v-text="$t('components.cookie.settings.unsaved')"
 				/>
-				<div class="cookieControl__ModalContent">
-					<div class="cookieControl__ModalContentInner">
-						<slot name="modal" />
+				<div class="cookieControl-ModalContent">
+					<div class="cookieControl-ModalContentInner">
+						<slot name="modal">
+							<h3>{{ $t('components.cookie.modal.title') }}</h3>
+							<p>
+								{{ $t('components.cookie.modal.description') }}
+								<Anchor
+									:to="'privacy-policy'"
+									:title="$t('components.cookie.modal.privacy-policy')"
+									:text="$t('components.cookie.modal.privacy-policy')"
+									>{{ $t('components.cookie.modal.privacy-policy') }}</Anchor
+								>
+							</p>
+						</slot>
 						<button
-							class="cookieControl__ModalClose"
+							class="cookieControl-ModalClose"
 							type="button"
 							@click="isModalActive = false"
 							v-text="$t('components.cookie.close')"
@@ -281,7 +281,7 @@ init()
 										v-for="cookie in moduleOptions.cookies[cookieType]"
 										:key="cookie.id"
 									>
-										<div class="cookieControl__ModalInputWrapper">
+										<div class="cookieControl-ModalInputWrapper">
 											<input
 												v-if="
 													cookieType === CookieTypeEnum.enum.necessary &&
@@ -312,7 +312,7 @@ init()
 												{{ getName(cookie.name) }}
 											</button>
 											<label
-												class="cookieControl__ModalCookieName"
+												class="cookieControl-ModalCookieName"
 												:for="cookie.name"
 												tabindex="0"
 												@keydown="toggleLabel($event)"
@@ -347,7 +347,7 @@ init()
 								</ul>
 							</template>
 						</template>
-						<div class="cookieControl__ModalButtons">
+						<div class="cookieControl-ModalButtons">
 							<button
 								type="button"
 								@click="

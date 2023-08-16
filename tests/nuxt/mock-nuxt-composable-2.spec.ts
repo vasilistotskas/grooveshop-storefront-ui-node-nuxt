@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { mockNuxtImport } from 'vitest-environment-nuxt/utils'
+import { mockNuxtImport } from 'nuxt-vitest/utils'
 
 mockNuxtImport('useHead', () => {
 	return () => true

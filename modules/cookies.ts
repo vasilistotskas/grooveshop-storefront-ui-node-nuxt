@@ -24,14 +24,9 @@ export default defineNuxtModule<ModuleOptions>({
 	defaults: DEFAULTS,
 	// eslint-disable-next-line require-await
 	async setup(moduleOptions, nuxt) {
-		nuxt.options.alias['#cookie-control/set-vars'] = moduleOptions.isCssPonyfillEnabled
-			? resolve(runtimeDir, 'set-vars/ponyfill')
-			: resolve(runtimeDir, 'set-vars/native')
-
 		nuxt.options.alias['#cookie-control'] = cookiesDir
 		nuxt.options.build.transpile.push(cookiesDir)
 
-		pushCss(moduleOptions, nuxt)
 		blockIframes(moduleOptions)
 
 		addPlugin(resolve(cookiesDir, 'plugin'))
@@ -81,8 +76,4 @@ const blockIframes = (moduleOptions: ModuleOptions) => {
 			})
 		})
 	}
-}
-
-const pushCss = (moduleOptions: ModuleOptions, nuxt: any) => {
-	if (moduleOptions.isCssEnabled) nuxt.options.css.push(resolve(cookiesDir, 'styles.css'))
 }

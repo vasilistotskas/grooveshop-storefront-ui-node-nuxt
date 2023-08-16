@@ -15,14 +15,6 @@ export interface Cookie {
 }
 
 export interface ModuleOptions {
-	barPosition:
-		| 'top-left'
-		| 'top-right'
-		| 'top-full'
-		| 'bottom-left'
-		| 'bottom-right'
-		| 'bottom-full'
-	colors: false | Record<string, any>
 	cookieExpiryOffsetMs: number
 	cookieNameCookiesEnabledIds: string
 	cookieNameIsConsentGiven: string
@@ -35,41 +27,11 @@ export interface ModuleOptions {
 	isControlButtonEnabled: boolean
 	isCookieIdVisible: boolean
 	isCssEnabled: boolean
-	isCssPonyfillEnabled: boolean
 	isDashInDescriptionEnabled: boolean
 	isIframeBlocked: boolean | { initialState: boolean }
 }
 
 export const DEFAULTS: Required<ModuleOptions> = {
-	barPosition: 'bottom-full',
-	colors: {
-		barBackground: '#000',
-		barButtonBackground: '#fff',
-		barButtonColor: '#000',
-		barButtonHoverBackground: '#333',
-		barButtonHoverColor: '#fff',
-		barTextColor: '#fff',
-		checkboxActiveBackground: '#000',
-		checkboxActiveCircleBackground: '#fff',
-		checkboxDisabledBackground: '#ddd',
-		checkboxDisabledCircleBackground: '#fff',
-		checkboxInactiveBackground: '#000',
-		checkboxInactiveCircleBackground: '#fff',
-		controlButtonBackground: '#fff',
-		controlButtonHoverBackground: '#000',
-		controlButtonIconColor: '#000',
-		controlButtonIconHoverColor: '#fff',
-		focusRingColor: '#808080',
-		modalBackground: '#fff',
-		modalButtonBackground: '#000',
-		modalButtonColor: '#fff',
-		modalButtonHoverBackground: '#333',
-		modalButtonHoverColor: '#fff',
-		modalOverlay: '#000',
-		modalOverlayOpacity: 0.8,
-		modalTextColor: '#000',
-		modalUnsavedColor: '#fff'
-	},
 	cookies: {
 		necessary: [],
 		optional: []
@@ -81,7 +43,6 @@ export const DEFAULTS: Required<ModuleOptions> = {
 	isControlButtonEnabled: true,
 	isCookieIdVisible: false,
 	isCssEnabled: true,
-	isCssPonyfillEnabled: false,
 	isDashInDescriptionEnabled: true,
 	isIframeBlocked: false,
 	domain: ''
