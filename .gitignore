@@ -12,6 +12,7 @@ node_modules
 .nuxt
 dist
 .output
+.stylelintcache
 
 # IDE
 .idea

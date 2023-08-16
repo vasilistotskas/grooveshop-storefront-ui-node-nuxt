@@ -1,4 +1,5 @@
 // page transition
+
 /* Slide-from-right & Slide-from-left */
 .slide-from-right-leave-active,
 .slide-from-right-enter-active,
@@ -63,7 +64,7 @@
 	@apply rounded bg-gray-400;
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
 	0% {
 		opacity: 0.001;
 	}
@@ -73,7 +74,7 @@
 	}
 }
 
-@keyframes fadeDisabledIn {
+@keyframes fade-disabled-in {
 	0% {
 		opacity: 0.001;
 	}
@@ -83,7 +84,7 @@
 	}
 }
 
-@keyframes fadeOut {
+@keyframes fade-out {
 	0% {
 		opacity: 1;
 	}
@@ -105,12 +106,12 @@
 
 .page-enter-active {
 	animation-duration: 250ms;
-	animation-name: fadeIn;
+	animation-name: fade-in;
 	animation-timing-function: linear;
 	backface-visibility: hidden;
 }
 
 .page-leave-active {
-	animation-name: fadeOut;
+	animation-name: fade-out;
 	animation-duration: 0.25s;
 }

@@ -1,3 +1,5 @@
+@use 'sass:map';
+
 $grid-breakpoints: (
 	xs: 0,
 	sm: 576px,
@@ -8,7 +10,6 @@ $grid-breakpoints: (
 	xxl: 1620px,
 	xxxl: 1920px
 ) !default;
-
 $container-sizes: (
 	sm: 100%,
 	md: 1160px,
@@ -16,12 +17,15 @@ $container-sizes: (
 ) !default;
 
 @mixin container {
-	@extend .container;
-	max-width: map-get($container-sizes, 'lg');
-	@media screen and (max-width: map-get($grid-breakpoints, 'xxl')) {
-		max-width: map-get($container-sizes, 'md');
+	@extend %container;
+
+	max-width: map.get($container-sizes, 'lg');
+
+	@media screen and (max-width: map.get($grid-breakpoints, 'xxl')) {
+		max-width: map.get($container-sizes, 'md');
 	}
-	@media screen and (max-width: map-get($grid-breakpoints, 'xl')) {
-		max-width: map-get($container-sizes, 'sm');
+
+	@media screen and (max-width: map.get($grid-breakpoints, 'xl')) {
+		max-width: map.get($container-sizes, 'sm');
 	}
 }
