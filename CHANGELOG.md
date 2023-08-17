@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.6.0...v1.6.1) (2023-08-17)
+
+
+### Bug Fixes
+
+* test minor fix and versions bump. ([dcfe384](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dcfe384c122bb7239e9a1a449c02c48300c199a0))
+
 # [1.6.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.5.0...v1.6.0) (2023-08-16)
 
 
