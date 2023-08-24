@@ -1,8 +1,8 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Product, ProductCreateRequest } from '~/types/product/product'
 
 interface ErrorRecord {
-	product: FetchError | null
+	product: IFetchError | null
 }
 
 interface PendingRecord {
@@ -56,7 +56,7 @@ export const useProductStore = defineStore({
 				this.error.product = error.value
 				this.pending.product = pending.value
 			} catch (error) {
-				this.error.product = error as FetchError
+				this.error.product = error as IFetchError
 			}
 		},
 		async updateProductHits(id: string | number) {
@@ -70,7 +70,7 @@ export const useProductStore = defineStore({
 				this.error.product = error.value
 				this.pending.product = pending.value
 			} catch (error) {
-				this.error.product = error as FetchError
+				this.error.product = error as IFetchError
 			}
 		}
 	}

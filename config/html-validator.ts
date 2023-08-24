@@ -1,6 +1,6 @@
 export const htmlValidator = {
-	usePrettier: true,
-	failOnError: false,
+	usePrettier: false,
+	failOnError: true,
 	options: {
 		extends: [
 			'html-validate:document',

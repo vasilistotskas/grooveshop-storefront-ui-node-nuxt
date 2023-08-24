@@ -311,6 +311,9 @@ export function NativeSlider() {
 			if (!this.events.nativeSliderRenderLoopPreUpdate.enabled) {
 				return
 			}
+			if (!document) {
+				return
+			}
 			document.dispatchEvent(
 				new CustomEvent(this.events.nativeSliderRenderLoopPreUpdate.handle, {
 					detail: {

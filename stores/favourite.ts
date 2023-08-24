@@ -1,9 +1,9 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Favourite, FavouriteQuery } from '~/types/product/favourite'
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
-	favourites: FetchError | null
+	favourites: IFetchError | null
 }
 
 interface PendingRecord {
@@ -56,7 +56,7 @@ export const useFavouriteStore = defineStore({
 				this.error.favourites = error.value
 				this.pending.favourites = pending.value
 			} catch (error) {
-				this.error.favourites = error as FetchError
+				this.error.favourites = error as IFetchError
 			}
 		}
 	}

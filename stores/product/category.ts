@@ -1,11 +1,11 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Category } from '~/types/product/category'
 import { ProductQuery } from '~/types/product/product'
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
-	categories: FetchError | null
-	category: FetchError | null
+	categories: IFetchError | null
+	category: IFetchError | null
 }
 
 interface PendingRecord {
@@ -62,7 +62,7 @@ export const useCategoryStore = defineStore({
 				this.error.categories = error.value
 				this.pending.categories = pending.value
 			} catch (error) {
-				this.error.categories = error as FetchError
+				this.error.categories = error as IFetchError
 			}
 		},
 		async fetchCategory(categoryId: string | number): Promise<void> {
@@ -78,7 +78,7 @@ export const useCategoryStore = defineStore({
 				this.error.category = error.value
 				this.pending.category = pending.value
 			} catch (error) {
-				this.error.category = error as FetchError
+				this.error.category = error as IFetchError
 			}
 		}
 	}

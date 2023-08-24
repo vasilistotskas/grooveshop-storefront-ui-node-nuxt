@@ -1,6 +1,6 @@
 export const stylelint = {
 	cache: true,
-	lintOnStart: false,
+	lintOnStart: true,
 	emitWarning: true,
 	emitError: true,
 	failOnWarning: false,

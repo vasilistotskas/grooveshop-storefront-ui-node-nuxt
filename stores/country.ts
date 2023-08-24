@@ -1,10 +1,10 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { CountriesQuery, Country } from '~/types/country/country'
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
-	countries: FetchError | null
-	country: FetchError | null
+	countries: IFetchError | null
+	country: IFetchError | null
 }
 
 interface PendingRecord {
@@ -52,7 +52,7 @@ export const useCountryStore = defineStore({
 				this.error.countries = error.value
 				this.pending.countries = pending.value
 			} catch (error) {
-				this.error.countries = error as FetchError
+				this.error.countries = error as IFetchError
 			}
 		}
 	}

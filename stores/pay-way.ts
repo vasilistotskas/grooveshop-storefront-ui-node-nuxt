@@ -1,10 +1,10 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Pagination } from '~/types/pagination/pagination'
 import { PayWay, PayWayQuery } from '~/types/pay-way/pay-way'
 
 interface ErrorRecord {
-	payWays: FetchError | null
-	payWay: FetchError | null
+	payWays: IFetchError | null
+	payWay: IFetchError | null
 }
 
 interface PendingRecord {
@@ -57,7 +57,7 @@ export const usePayWayStore = defineStore({
 				this.error.payWays = error.value
 				this.pending.payWays = pending.value
 			} catch (error) {
-				this.error.payWays = error as FetchError
+				this.error.payWays = error as IFetchError
 			}
 		}
 	}

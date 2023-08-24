@@ -1,7 +1,7 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 
 interface ErrorRecord {
-	isAuthenticated: FetchError | null
+	isAuthenticated: IFetchError | null
 }
 
 interface PendingRecord {
@@ -42,7 +42,7 @@ export const useAuthStore = defineStore({
 				this.error.isAuthenticated = error.value
 				this.pending.isAuthenticated = pending.value
 			} catch (error) {
-				this.error.isAuthenticated = error as FetchError
+				this.error.isAuthenticated = error as IFetchError
 			}
 		}
 	}

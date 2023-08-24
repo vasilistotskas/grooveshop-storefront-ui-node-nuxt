@@ -1,10 +1,10 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Region, RegionsQuery } from '~/types/region/region'
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
-	regions: FetchError | null
-	region: FetchError | null
+	regions: IFetchError | null
+	region: IFetchError | null
 }
 
 interface PendingRecord {
@@ -54,7 +54,7 @@ export const useRegionStore = defineStore({
 				this.error.regions = error.value
 				this.pending.regions = pending.value
 			} catch (error) {
-				this.error.regions = error as FetchError
+				this.error.regions = error as IFetchError
 			}
 		}
 	}

@@ -15,12 +15,12 @@
 </template>
 
 <script lang="ts" setup>
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { ITheme } from '~/utils/theme'
 
 const props = defineProps({
 	error: {
-		type: Object as PropType<FetchError | null>,
+		type: Object as PropType<IFetchError | null>,
 		required: false,
 		default: null
 	}

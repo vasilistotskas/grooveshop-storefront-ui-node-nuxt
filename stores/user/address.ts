@@ -1,4 +1,4 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import {
 	Address,
 	AddressCreateRequest,
@@ -8,8 +8,8 @@ import {
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
-	addresses: FetchError | null
-	address: FetchError | null
+	addresses: IFetchError | null
+	address: IFetchError | null
 }
 
 interface PendingRecord {
@@ -66,7 +66,7 @@ export const useUserAddressStore = defineStore({
 				this.error.addresses = error.value
 				this.pending.addresses = pending.value
 			} catch (error) {
-				this.error.addresses = error as FetchError
+				this.error.addresses = error as IFetchError
 			}
 		},
 		async fetchAddress(id: string | number): Promise<void> {
@@ -82,7 +82,7 @@ export const useUserAddressStore = defineStore({
 				this.error.address = error.value
 				this.pending.address = pending.value
 			} catch (error) {
-				this.error.address = error as FetchError
+				this.error.address = error as IFetchError
 			}
 		},
 		async createAddress(body: AddressCreateRequest): Promise<void> {
@@ -99,7 +99,7 @@ export const useUserAddressStore = defineStore({
 				this.error.address = error.value
 				this.pending.address = pending.value
 			} catch (error) {
-				this.error.address = error as FetchError
+				this.error.address = error as IFetchError
 			}
 		},
 		async updateAddress(id: string | number, body: AddressPutRequest): Promise<void> {
@@ -116,7 +116,7 @@ export const useUserAddressStore = defineStore({
 				this.error.address = error.value
 				this.pending.address = pending.value
 			} catch (error) {
-				this.error.address = error as FetchError
+				this.error.address = error as IFetchError
 			}
 		},
 		async deleteAddress(id: string | number): Promise<void> {
@@ -133,7 +133,7 @@ export const useUserAddressStore = defineStore({
 					this.addresses?.results?.splice(index, 1)
 				}
 			} catch (error) {
-				this.error.address = error as FetchError
+				this.error.address = error as IFetchError
 			}
 		},
 		async setMainAddress(id: string | number): Promise<void> {
@@ -147,7 +147,7 @@ export const useUserAddressStore = defineStore({
 					this.address.isMain = true
 				}
 			} catch (error) {
-				this.error.address = error as FetchError
+				this.error.address = error as IFetchError
 			}
 		}
 	}

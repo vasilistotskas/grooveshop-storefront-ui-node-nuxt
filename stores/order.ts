@@ -1,10 +1,10 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Order, OrderCreateRequest, OrderQuery } from '~/types/order/order'
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
-	orders: FetchError | null
-	order: FetchError | null
+	orders: IFetchError | null
+	order: IFetchError | null
 }
 
 interface PendingRecord {
@@ -63,7 +63,7 @@ export const useOrderStore = defineStore({
 				this.error.orders = error.value
 				this.pending.orders = pending.value
 			} catch (error) {
-				this.error.orders = error as FetchError
+				this.error.orders = error as IFetchError
 			}
 		},
 		async fetchOrder(id: string | number) {
@@ -79,7 +79,7 @@ export const useOrderStore = defineStore({
 				this.error.order = error.value
 				this.pending.order = pending.value
 			} catch (error) {
-				this.error.order = error as FetchError
+				this.error.order = error as IFetchError
 			}
 		},
 		async createOrder(body: OrderCreateRequest) {
@@ -96,7 +96,7 @@ export const useOrderStore = defineStore({
 				this.error.order = error.value
 				this.pending.order = pending.value
 			} catch (error) {
-				this.error.order = error as FetchError
+				this.error.order = error as IFetchError
 			}
 		}
 	}

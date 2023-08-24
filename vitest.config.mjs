@@ -14,7 +14,8 @@ const config = {
 		},
 		environmentOptions: {
 			nuxt: {
-				rootDir: fileURLToPath(new URL('./', import.meta.url))
+				rootDir: fileURLToPath(new URL('./', import.meta.url)),
+				domEnvironment: 'jsdom'
 			}
 		}
 	},

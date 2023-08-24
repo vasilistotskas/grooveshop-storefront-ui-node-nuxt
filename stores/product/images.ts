@@ -1,9 +1,9 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Pagination } from '~/types/pagination/pagination'
 import { Image, ImageQuery } from '~/types/product/image'
 
 interface ErrorRecord {
-	images: FetchError | null
+	images: IFetchError | null
 }
 
 interface PendingRecord {
@@ -53,7 +53,7 @@ export const useImagesStore = defineStore({
 				this.error.images = error.value
 				this.pending.images = pending.value
 			} catch (error) {
-				this.error.images = error as FetchError
+				this.error.images = error as IFetchError
 			}
 		}
 	}

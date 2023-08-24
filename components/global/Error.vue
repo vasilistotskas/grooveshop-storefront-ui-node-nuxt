@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 
 const PageWrapper = resolveComponent('PageWrapper') as string
 
-const props = defineProps({
+defineProps({
 	error: {
-		type: Object as PropType<FetchError | null>,
+		type: Object as PropType<IFetchError | null>,
 		required: false,
 		default: null
 	},

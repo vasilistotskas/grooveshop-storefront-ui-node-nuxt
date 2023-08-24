@@ -1,4 +1,4 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Cart } from '~/types/cart/cart'
 import {
 	CartItem,
@@ -7,7 +7,7 @@ import {
 } from '~/types/cart/cart-item'
 
 interface ErrorRecord {
-	cart: FetchError | null
+	cart: IFetchError | null
 }
 
 interface PendingRecord {
@@ -67,7 +67,7 @@ export const useCartStore = defineStore({
 				this.error.cart = error.value
 				this.pending.cart = pending.value
 			} catch (error) {
-				this.error.cart = error as FetchError
+				this.error.cart = error as IFetchError
 			}
 		},
 		async addCartItem(body: CartItemCreateRequest) {
@@ -79,7 +79,7 @@ export const useCartStore = defineStore({
 				this.error.cart = error.value
 				this.pending.cart = pending.value
 			} catch (error) {
-				this.error.cart = error as FetchError
+				this.error.cart = error as IFetchError
 			}
 		},
 		async updateCartItem(id: number, body: CartItemPutRequest) {
@@ -91,7 +91,7 @@ export const useCartStore = defineStore({
 				this.error.cart = error.value
 				this.pending.cart = pending.value
 			} catch (error) {
-				this.error.cart = error as FetchError
+				this.error.cart = error as IFetchError
 			}
 		},
 		async deleteCartItem(id: number) {
@@ -102,7 +102,7 @@ export const useCartStore = defineStore({
 				this.error.cart = error.value
 				this.pending.cart = pending.value
 			} catch (error) {
-				this.error.cart = error as FetchError
+				this.error.cart = error as IFetchError
 			}
 		}
 	}

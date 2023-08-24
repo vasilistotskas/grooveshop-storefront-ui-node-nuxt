@@ -1,4 +1,4 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Account, AccountPutRequest, ZodAccount } from '~/types/user/account'
 import { Favourite, FavouriteCreateRequest } from '~/types/product/favourite'
 import { Review } from '~/types/product/review'
@@ -7,11 +7,11 @@ import { parseDataAs } from '~/types/parser'
 import { Address } from '~/types/user/address'
 
 interface ErrorRecord {
-	account: FetchError | null
-	favourites: FetchError | null
-	reviews: FetchError | null
-	orders: FetchError | null
-	addresses: FetchError | null
+	account: IFetchError | null
+	favourites: IFetchError | null
+	reviews: IFetchError | null
+	orders: IFetchError | null
+	addresses: IFetchError | null
 }
 
 interface PendingRecord {
@@ -91,7 +91,7 @@ export const useUserStore = defineStore({
 				this.error.account = error.value
 				this.pending.account = pending.value
 			} catch (error) {
-				this.error.account = error as FetchError
+				this.error.account = error as IFetchError
 			}
 		},
 		async updateAccount(id: number, body: AccountPutRequest) {
@@ -108,7 +108,7 @@ export const useUserStore = defineStore({
 				this.error.account = error.value
 				this.pending.account = pending.value
 			} catch (error) {
-				this.error.account = error as FetchError
+				this.error.account = error as IFetchError
 			}
 		},
 		async updateAccountImage(id: number, body: FormData) {
@@ -134,7 +134,7 @@ export const useUserStore = defineStore({
 				this.error.account = error.value
 				this.pending.account = pending.value
 			} catch (error) {
-				this.error.account = error as FetchError
+				this.error.account = error as IFetchError
 			}
 		},
 		async addFavourite(body: FavouriteCreateRequest) {
@@ -153,7 +153,7 @@ export const useUserStore = defineStore({
 				this.error.favourites = error.value
 				this.pending.favourites = pending.value
 			} catch (error) {
-				this.error.favourites = error as FetchError
+				this.error.favourites = error as IFetchError
 			}
 		},
 		async removeFavourite(id: number) {
@@ -166,7 +166,7 @@ export const useUserStore = defineStore({
 				this.error.favourites = error.value
 				this.pending.favourites = pending.value
 			} catch (error) {
-				this.error.favourites = error as FetchError
+				this.error.favourites = error as IFetchError
 			}
 		}
 	}

@@ -1,9 +1,9 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Product, ProductQuery } from '~/types/product/product'
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
-	products: FetchError | null
+	products: IFetchError | null
 }
 
 interface PendingRecord {
@@ -50,7 +50,7 @@ export const useProductsStore = defineStore({
 				this.error.products = error.value
 				this.pending.products = pending.value
 			} catch (error) {
-				this.error.products = error as FetchError
+				this.error.products = error as IFetchError
 			}
 		}
 	}

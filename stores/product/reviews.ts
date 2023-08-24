@@ -1,4 +1,4 @@
-import { FetchError } from 'ofetch'
+import { IFetchError } from 'ofetch'
 import { Pagination } from '~/types/pagination/pagination'
 import {
 	Review,
@@ -10,8 +10,8 @@ import {
 } from '~/types/product/review'
 
 interface ErrorRecord {
-	reviews: FetchError | null
-	userHadReviewed: FetchError | null
+	reviews: IFetchError | null
+	userHadReviewed: IFetchError | null
 }
 
 interface PendingRecord {
@@ -72,7 +72,7 @@ export const useReviewsStore = defineStore({
 				this.error.reviews = error.value
 				this.pending.reviews = pending.value
 			} catch (error) {
-				this.error.reviews = error as FetchError
+				this.error.reviews = error as IFetchError
 			}
 		},
 		async fetchUserToProductReview({ productId, userId, expand }: ReviewQuery) {
@@ -95,7 +95,7 @@ export const useReviewsStore = defineStore({
 				this.error.reviews = error.value
 				this.pending.reviews = pending.value
 			} catch (error) {
-				this.error.reviews = error as FetchError
+				this.error.reviews = error as IFetchError
 			}
 		},
 		async fetchUserHadReviewed({ product, user }: ReviewUserHadReviewedRequest) {
@@ -115,7 +115,7 @@ export const useReviewsStore = defineStore({
 				this.error.userHadReviewed = error.value
 				this.pending.userHadReviewed = pending.value
 			} catch (error) {
-				this.error.userHadReviewed = error as FetchError
+				this.error.userHadReviewed = error as IFetchError
 			}
 		},
 		async addReview(body: ReviewCreateRequest, params: ReviewCreateQuery) {
@@ -140,7 +140,7 @@ export const useReviewsStore = defineStore({
 				this.error.reviews = error.value
 				this.pending.reviews = pending.value
 			} catch (error) {
-				this.error.reviews = error as FetchError
+				this.error.reviews = error as IFetchError
 				throw error
 			}
 		},
@@ -157,7 +157,7 @@ export const useReviewsStore = defineStore({
 				this.error.reviews = error.value
 				this.pending.reviews = pending.value
 			} catch (error) {
-				this.error.reviews = error as FetchError
+				this.error.reviews = error as IFetchError
 			}
 		},
 		async updateReview(id: number, body: ReviewPutRequest) {
@@ -192,7 +192,7 @@ export const useReviewsStore = defineStore({
 				this.error.reviews = error.value
 				this.pending.reviews = pending.value
 			} catch (error) {
-				this.error.reviews = error as FetchError
+				this.error.reviews = error as IFetchError
 			}
 		}
 	}
