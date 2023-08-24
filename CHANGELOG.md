@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.6.1...v1.7.0) (2023-08-24)
+
+
+### Features
+
+* Type fix FetchError usage, lints open, package versions bump ([fc9442b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fc9442b1258463ca30b5d18cb6b426cc8bb2d824))
+
 ## [1.6.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.6.0...v1.6.1) (2023-08-17)
 
 
