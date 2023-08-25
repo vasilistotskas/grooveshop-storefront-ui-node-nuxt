@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.7.0...v1.7.1) (2023-08-25)
+
+
+### Bug Fixes
+
+* Product Review create/update fix for translation field, some image optimazations ([bed232f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bed232fd42141dfbf9d9874e57969a601c1a6fee))
+
 # [1.7.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.6.1...v1.7.0) (2023-08-24)
 
 
