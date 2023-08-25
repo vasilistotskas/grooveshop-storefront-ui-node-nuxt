@@ -25,7 +25,7 @@ const productId = route.params.id
 const { account, favourites } = storeToRefs(userStore)
 const { isAuthenticated } = storeToRefs(authStore)
 const { product, pending, error } = storeToRefs(productStore)
-const { userHadReviewed } = storeToRefs(reviewsStore)
+const { userHadReviewed, error: reviewsError } = storeToRefs(reviewsStore)
 
 await productStore.fetchProduct(productId)
 
@@ -110,13 +110,21 @@ reviewBus.on((event, payload: ReviewActionPayload) => {
 					{
 						product: String(payload.productId),
 						user: String(payload.userId),
-						comment: payload.comment,
 						rate: String(payload.rate),
-						status: 'True'
+						status: 'True',
+						translations: {
+							[locale.value]: {
+								comment: payload.comment
+							}
+						}
 					},
 					{ expand: 'true' }
 				)
 				.then(() => {
+					if (reviewsError.value.reviews) {
+						toast.error(reviewsError.value.reviews.message)
+						return
+					}
 					toast.success(t('pages.product.review.created.success'))
 					productRefresh()
 					existingReviewRefresh()
@@ -134,8 +142,12 @@ reviewBus.on((event, payload: ReviewActionPayload) => {
 				.updateReview(payload.id, {
 					product: String(payload.productId),
 					user: String(payload.userId),
-					comment: payload.comment,
-					rate: String(payload.rate)
+					rate: String(payload.rate),
+					translations: {
+						[locale.value]: {
+							comment: payload.comment
+						}
+					}
 				})
 				.then(() => {
 					toast.success(t('pages.product.review.updated.success'))

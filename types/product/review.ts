@@ -38,7 +38,7 @@ export const ZodReviewQuery = z.object({
 export const ZodReviewCreateRequest = z.object({
 	product: z.string(),
 	user: z.string(),
-	comment: z.string(),
+	translations: ZodReviewTranslations,
 	rate: z.string(),
 	status: z.string()
 })
@@ -50,7 +50,7 @@ export const ZodReviewCreateQuery = z.object({
 export const ZodReviewPutRequest = z.object({
 	product: z.string(),
 	user: z.string(),
-	comment: z.string(),
+	translations: ZodReviewTranslations,
 	rate: z.string()
 })
 
@@ -79,7 +79,7 @@ export type ReviewQuery = PaginationQuery &
 	}
 export type ReviewActionPayload = {
 	id: number
-	comment: string
+	translations: ZodReviewTranslations
 	productId: number
 	rate: number
 	userId: number

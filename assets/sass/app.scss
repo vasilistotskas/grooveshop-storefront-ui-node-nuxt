@@ -67,6 +67,8 @@ body {
 
 img {
 	image-rendering: crisp-edges;
+	object-fit: contain;
+	content-visibility: auto;
 }
 
 // stylelint-disable-next-line selector-id-pattern

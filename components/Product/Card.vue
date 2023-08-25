@@ -91,10 +91,11 @@ const userToProductFavourite = computed(() => {
 									<NuxtImg
 										preload
 										placeholder
-										loading="auto"
+										loading="lazy"
 										provider="mediaStream"
 										class="product-img bg-transparent"
-										:style="{ objectFit: 'contain' }"
+										decoding="async"
+										:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 										:width="imgWidth"
 										:height="imgHeight"
 										:fit="'contain'"
