@@ -116,7 +116,7 @@ components:
       write_review: eine rezension schreiben
       edit_review: rezension bearbeiten
       update_review: update-überprüfung
-      delete_review: rezension löschen
+      delete_review: bewertung löschen
       must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
       write_review_for_product: schreiben sie eine bewertung für produkt %{product}
       confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
@@ -417,7 +417,7 @@ pages:
       description: bewertungen
       keywords: bewertungen
       updated: bewertungen aktualisiert
-      update_error: fehler bei der aktualisierung der bewertungen
+      update_error: fehler bei der aktualisierung der rezensionen
       deleted: bewertungen artikel gelöscht
       delete_error: fehler beim löschen des artikels
       ordering:
