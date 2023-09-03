@@ -2,7 +2,7 @@
 import { PropType } from 'vue'
 import { Order } from '~/types/order/order'
 
-const props = defineProps({
+defineProps({
 	orders: {
 		type: Array as PropType<Order[] | null>,
 		required: true
@@ -13,7 +13,6 @@ defineSlots<{
 	header(props: {}): any
 	footer(props: {}): any
 }>()
-const { t } = useLang()
 </script>
 
 <template>

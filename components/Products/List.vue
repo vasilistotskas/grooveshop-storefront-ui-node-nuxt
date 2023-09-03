@@ -2,6 +2,7 @@
 import { Product, ProductOrderingField, ProductQuery } from '~/types/product/product'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import { GlobalEvents } from '~/events/global'
 
 const route = useRoute()
 const { t } = useLang()
@@ -51,7 +52,7 @@ const ordering = computed(() => {
 	return useOrdering<ProductOrderingField>(entityOrdering, orderingFields)
 })
 
-const bus = useEventBus<string>('products')
+const bus = useEventBus<string>(GlobalEvents.PRODUCT_LIST)
 bus.on((event, payload: ProductQuery) => {
 	routePaginationParams.value = payload
 	refresh()

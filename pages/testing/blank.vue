@@ -1,25 +1,10 @@
-<script lang="ts" setup>
-import { capitalize } from '~/utils/str'
-
-const config = useRuntimeConfig()
-const { t } = useLang()
-
+<script setup lang="ts">
 definePageMeta({
 	layout: 'testing'
 })
-useHead(() => ({
-	title: capitalize(t('pages.testing.blank.title')),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.testing.blank.description')
-		}
-	]
-}))
 </script>
-
 <template>
-	<PageWrapper>
+	<PageWrapper class="container mt-1 min-h-full">
 		<PageHeader>
 			<PageTitle :text="$t('pages.testing.blank.title')" class="capitalize" />
 		</PageHeader>

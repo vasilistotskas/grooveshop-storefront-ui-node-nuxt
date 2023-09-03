@@ -1,30 +1,17 @@
 <script lang="ts" setup>
-import { capitalize } from '~/utils/str'
 import { useIdentityStore } from '~/stores/testing/identity'
 import { useCounterStore } from '~/stores/testing/counter'
-
-const config = useRuntimeConfig()
-const { t } = useLang()
 
 definePageMeta({
 	layout: 'testing'
 })
-useHead(() => ({
-	title: capitalize(t('pages.testing.test.title')),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.testing.test.description')
-		}
-	]
-}))
 
 const counter = useCounterStore()
 const identity = useIdentityStore()
 </script>
 
 <template>
-	<PageWrapper>
+	<PageWrapper class="container mt-1 min-h-full">
 		<PageHeader>
 			<PageTitle :text="$t('pages.testing.test.title')" class="capitalize" />
 		</PageHeader>

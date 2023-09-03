@@ -1,15 +1,14 @@
 components:
-  global:
-    generic_modal:
-      close: Close
-    pwa:
-      ready_to_work_offline: App ready to work offline
-      new_content_available: New content available, click on reload button to update.
-      reload: Reload
-      close: Close
-      install_pwa: Install PWA
-      install: Install
-      cancel: Cancel
+  generic_modal:
+    close: Close
+  pwa:
+    ready_to_work_offline: App ready to work offline
+    new_content_available: New content available, click on reload button to update.
+    reload: Reload
+    close: Close
+    install_pwa: Install PWA
+    install: Install
+    cancel: Cancel
   page:
     footer:
       copyright: Copyright © 2022
@@ -19,9 +18,11 @@ components:
     switcher:
       change_language: Change Language
       theme: Theme
-  theme_switcher:
-    theme: theme
-    change_theme: change theme
+  theme:
+    switcher:
+      theme: theme
+      change:
+        theme: change theme
   ordering:
     title: Ordering
   breadcrumbs:
@@ -230,6 +231,12 @@ pages:
         advanced_dir_listing:
           title: directory listing
           description: if no index file is present within a directory, the directory contents will be displayed.
+    cache:
+      title: cache
+      nav: Cache
+    ws:
+      title: ws
+      nav: WS
   index:
     nav: home
     title: DeepWeb
@@ -239,6 +246,7 @@ pages:
   404:
     title: page not found
     description: page not found
+    keywords: page not found
   product:
     add_to_cart: Add to cart
     product_id: Product ID
@@ -626,7 +634,9 @@ common:
   mobile_phone: Mobile Phone
   notes: Notes
   back: Back
-  client_only_fallback: Loading...
+  client:
+    only:
+      fallback: Only for client side
   unknown:
     error: Unknown error
   errors:

@@ -2,12 +2,10 @@
 import { v4 as uuidv4 } from 'uuid'
 
 const props = defineProps({
-	// The text to display
 	text: {
 		type: String,
 		required: true
 	},
-	// The number of characters to display before truncating
 	maxChars: {
 		type: Number,
 		default: 100

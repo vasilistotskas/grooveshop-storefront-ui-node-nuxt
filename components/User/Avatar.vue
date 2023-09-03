@@ -39,18 +39,12 @@ const toast = useToast()
 
 const userStore = useUserStore()
 
-const { resolveImageFilenameNoExt, resolveImageFileExtension, resolveImageSrc } =
-	useImageResolver()
+const { resolveImageFileExtension, resolveImageSrc } = useImageResolver()
 
-const imageExtension = computed(() => {
-	return resolveImageFileExtension(props.userAccount?.mainImageFilename)
-})
 const imageSrc = computed(() => {
 	return resolveImageSrc(
 		props.userAccount?.mainImageFilename,
-		`media/uploads/users/${resolveImageFilenameNoExt(
-			props.userAccount?.mainImageFilename
-		)}`
+		`media/uploads/users/${props.userAccount?.mainImageFilename}`
 	)
 })
 
@@ -95,19 +89,22 @@ const uploadImage = async (event: Event) => {
 		>
 			<NuxtImg
 				preload
-				placeholder
+				plaholder
 				loading="auto"
 				provider="mediaStream"
 				class="rounded-full"
+				sizes="`sm:100vw md:50vw lg:auto`"
 				:style="{ objectFit: 'contain' }"
 				:width="imgWidth || 100"
 				:height="imgHeight || 100"
-				:fit="'cover'"
-				:position="'entropy'"
-				:background="'transparent'"
-				:trim-threshold="5"
-				:format="imageExtension"
-				sizes="`sm:100vw md:50vw lg:auto`"
+				:modifiers="{
+					fit: 'cover',
+					position: 'entropy',
+					background: 'transparent',
+					format: 'webp',
+					trimThreshold: 5
+				}"
+				:format="'webp'"
 				:src="imageSrc"
 				:alt="userAccount?.firstName + ' ' + userAccount?.lastName"
 			/>

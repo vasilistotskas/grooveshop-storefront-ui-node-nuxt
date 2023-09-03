@@ -1,3 +1,5 @@
+import { ModuleOptions } from '@pinia/nuxt'
+
 export const pinia = {
 	autoImports: [
 		// automatically imports `defineStore`
@@ -5,4 +7,4 @@ export const pinia = {
 		'storeToRefs', // import { storeToRefs } from 'pinia'
 		'acceptHMRUpdate'
 	]
-}
+} satisfies Partial<ModuleOptions>

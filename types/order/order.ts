@@ -7,8 +7,8 @@ import { ZodRegion } from '~/types/region/region'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 import { ZodPayWay } from '~/types/pay-way/pay-way'
 
-export const StatusEnum = z.enum(['Sent', 'Paid and sent', 'Canceled', 'Pending'])
-export const documentTypeEnum = z.enum(['receipt', 'invoice'])
+export const StatusEnum = z.enum(['SENT', 'PAID_AND_SENT', 'CANCELED', 'PENDING'])
+export const documentTypeEnum = z.enum(['RECEIPT', 'INVOICE'])
 
 export const ZodOrder = z.object({
 	id: z.number(),

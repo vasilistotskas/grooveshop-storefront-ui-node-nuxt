@@ -24,8 +24,7 @@ const userAccount = computed(() => {
 	return props.review?.user
 })
 
-const { resolveImageFilenameNoExt, resolveImageFileExtension, resolveImageSrc } =
-	useImageResolver()
+const { resolveImageSrc } = useImageResolver()
 const { locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
 </script>
@@ -60,14 +59,12 @@ const { extractTranslated } = useTranslationExtractor()
 								:position="'entropy'"
 								:background="'transparent'"
 								:trim-threshold="5"
-								:format="resolveImageFileExtension(product.mainImageFilename)"
+								:format="'webp'"
 								sizes="sm:100vw md:50vw lg:120px"
 								:src="
 									resolveImageSrc(
 										product.mainImageFilename,
-										`media/uploads/products/${resolveImageFilenameNoExt(
-											product.mainImageFilename
-										)}`
+										`media/uploads/products/${product.mainImageFilename}`
 									)
 								"
 								:alt="extractTranslated(product, 'name', locale)"

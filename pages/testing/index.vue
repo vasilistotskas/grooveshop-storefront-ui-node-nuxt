@@ -1,30 +1,11 @@
 <script lang="ts" setup>
-const { t } = useLang()
-
 definePageMeta({
 	layout: 'testing'
-})
-useHead(() => ({
-	title: t('pages.testing.index.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.testing.index.description')
-		},
-		{
-			name: 'keywords',
-			content: t('pages.testing.index.keywords')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.testing.index.title'),
-	description: t('pages.testing.index.description')
 })
 </script>
 
 <template>
-	<PageWrapper>
+	<PageWrapper class="container mt-1 min-h-full">
 		<PageHeader>
 			<PageTitle :text="$t('pages.testing.index.title')" class="capitalize" />
 		</PageHeader>

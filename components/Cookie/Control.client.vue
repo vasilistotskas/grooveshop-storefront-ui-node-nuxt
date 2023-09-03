@@ -191,25 +191,25 @@ init()
 </script>
 
 <template>
-	<section class="cookieControl">
-		<Transition :name="`cookieControl-Bar`">
-			<div v-if="!isConsentGiven" :class="`cookieControl-Bar cookieControl-Bar`">
-				<div class="cookieControl-BarContainer">
+	<section class="cookie-control">
+		<Transition :name="`cookie-control-Bar`">
+			<div v-if="!isConsentGiven" :class="`cookie-control-Bar cookie-control-Bar`">
+				<div class="cookie-control-BarContainer">
 					<div>
 						<slot name="bar">
 							<h3 v-text="$t('components.cookie.banner.title')" />
 							<p v-text="$t('components.cookie.banner.description')" />
 						</slot>
 					</div>
-					<div class="cookieControl-BarButtons">
+					<div class="cookie-control-BarButtons">
 						<button
-							class="cookieControl-BarButtons-ManageCookies"
+							class="cookie-control-BarButtons-ManageCookies"
 							type="button"
 							@click="isModalActive = true"
 							v-text="$t('components.cookie.manage_cookies')"
 						/>
 						<button
-							class="cookieControl-BarButtons-AcceptAll"
+							class="cookie-control-BarButtons-AcceptAll"
 							type="button"
 							@click="accept()"
 							v-text="$t('components.cookie.accept')"
@@ -217,7 +217,7 @@ init()
 						<button
 							v-if="moduleOptions.isAcceptNecessaryButtonEnabled"
 							type="button"
-							class="cookieControl-BarButtons-Decline"
+							class="cookie-control-BarButtons-Decline"
 							@click="decline()"
 							v-text="$t('components.cookie.decline')"
 						/>
@@ -229,7 +229,7 @@ init()
 			v-if="moduleOptions.isControlButtonEnabled && isConsentGiven"
 			type="button"
 			aria-label="Cookie control"
-			class="cookieControl-ControlButton"
+			class="cookie-control-ControlButton"
 			data-testid="nuxt-cookie-control-control-button"
 			@click="isModalActive = true"
 		>
@@ -240,15 +240,15 @@ init()
 				/>
 			</svg>
 		</button>
-		<Transition name="cookieControl-Modal">
-			<div v-if="isModalActive" class="cookieControl-Modal">
+		<Transition name="cookie-control-Modal">
+			<div v-if="isModalActive" class="cookie-control-Modal">
 				<p
 					v-if="isSaved"
-					class="cookieControl-ModalUnsaved"
+					class="cookie-control-ModalUnsaved"
 					v-text="$t('components.cookie.settings.unsaved')"
 				/>
-				<div class="cookieControl-ModalContent">
-					<div class="cookieControl-ModalContentInner">
+				<div class="cookie-control-ModalContent">
+					<div class="cookie-control-ModalContentInner">
 						<slot name="modal">
 							<h3>{{ $t('components.cookie.modal.title') }}</h3>
 							<p>
@@ -262,7 +262,7 @@ init()
 							</p>
 						</slot>
 						<button
-							class="cookieControl-ModalClose"
+							class="cookie-control-ModalClose"
 							type="button"
 							@click="isModalActive = false"
 							v-text="$t('components.cookie.close')"
@@ -281,7 +281,7 @@ init()
 										v-for="cookie in moduleOptions.cookies[cookieType]"
 										:key="cookie.id"
 									>
-										<div class="cookieControl-ModalInputWrapper">
+										<div class="cookie-control-ModalInputWrapper">
 											<input
 												v-if="
 													cookieType === CookieTypeEnum.enum.necessary &&
@@ -312,7 +312,7 @@ init()
 												{{ getName(cookie.name) }}
 											</button>
 											<label
-												class="cookieControl-ModalCookieName"
+												class="cookie-control-ModalCookieName"
 												:for="cookie.name"
 												tabindex="0"
 												@keydown="toggleLabel($event)"
@@ -347,7 +347,7 @@ init()
 								</ul>
 							</template>
 						</template>
-						<div class="cookieControl-ModalButtons">
+						<div class="cookie-control-ModalButtons">
 							<button
 								type="button"
 								@click="

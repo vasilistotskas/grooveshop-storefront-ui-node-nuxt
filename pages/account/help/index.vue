@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-const { t } = useLang()
-
 definePageMeta({
 	layout: 'user'
 })

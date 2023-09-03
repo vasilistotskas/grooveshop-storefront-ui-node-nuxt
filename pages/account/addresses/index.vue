@@ -2,6 +2,7 @@
 import { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import { GlobalEvents } from '~/events/global'
 
 const { t } = useLang()
 const route = useRoute('account-addresses___en')
@@ -49,7 +50,7 @@ await addressStore.fetchAddresses(routePaginationParams.value)
 
 const refresh = () => addressStore.fetchAddresses(routePaginationParams.value)
 
-const bus = useEventBus<string>('userAddresses')
+const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_ADDRESS)
 bus.on((event, payload: AddressQuery) => {
 	switch (event) {
 		case 'update':

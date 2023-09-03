@@ -14,7 +14,7 @@ const props = defineProps({
 <template>
 	<div class="client-only-fallback skeleton">
 		<p class="client-only-fallback-text">
-			{{ $t('common.client_only_fallback') }}
+			{{ $t('common.client.only.fallback') }}
 		</p>
 	</div>
 </template>

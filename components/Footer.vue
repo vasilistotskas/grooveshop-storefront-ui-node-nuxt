@@ -1,6 +1,4 @@
-<script lang="ts" setup>
-const config = useRuntimeConfig()
-</script>
+<script lang="ts" setup></script>
 
 <template>
 	<footer class="bg-white dark:bg-gray-900 mt-6 w-full pt-2 border-t-2 border-gray-500">

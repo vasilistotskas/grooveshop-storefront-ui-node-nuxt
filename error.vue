@@ -16,7 +16,7 @@
 
 <script lang="ts" setup>
 import { IFetchError } from 'ofetch'
-import { ITheme } from '~/utils/theme'
+import { IThemeValue } from '~/utils/theme'
 
 const props = defineProps({
 	error: {
@@ -29,7 +29,7 @@ const props = defineProps({
 const route = useRoute()
 const router = useRouter()
 
-const theme = useState<ITheme>('theme.current')
+const theme = useState<IThemeValue>('theme.current')
 const themeClass = computed(() => (theme.value === 'dark' ? 'dark' : 'light'))
 
 const i18nHead = useLocaleHead({
@@ -40,7 +40,7 @@ const i18nHead = useLocaleHead({
 	router,
 	i18n: useI18n()
 })
-useHead({
+useServerHead({
 	title: 'Error',
 	htmlAttrs: {
 		lang: i18nHead.value.htmlAttrs!.lang,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineSlots<{
 	default(props: {}): any
+	main(props: {}): any
 	header(props: {}): any
 	footer(props: {}): any
 	'app-before'(props: {}): any
@@ -10,27 +11,28 @@ defineSlots<{
 
 <template>
 	<div class="relative">
-		<slot name="app-before" />
-		<div id="app-before"></div>
+		<div id="app-before">
+			<slot name="app-before" />
+		</div>
 		<slot name="header">
 			<PageHeader>
 				<PageNavbar />
 			</PageHeader>
 		</slot>
-		<div class="relative flex-1 flex flex-col w-full h-full">
-			<PageMain>
+		<slot name="main">
+			<Main class="relative flex-1 flex flex-col w-full h-full">
 				<PageSection class="flex flex-col">
 					<div class="flex-1 w-full flex flex-col">
 						<slot />
 					</div>
 				</PageSection>
-			</PageMain>
-		</div>
-		<slot name="footer">
-			<PageFooter />
+			</Main>
 		</slot>
-		<slot name="app-after" />
-		<div id="app-after"></div>
-		<Pwa />
+		<slot name="footer">
+			<Footer />
+		</slot>
+		<div id="app-after">
+			<slot name="app-after" />
+		</div>
 	</div>
 </template>

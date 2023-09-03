@@ -2,7 +2,7 @@
 	<ClientOnly>
 		<Teleport to="body">
 			<iframe v-if="isCookieFunctionalEnabled" />
-			<div v-else class="cookieControl-BlockedIframe">
+			<div v-else class="cookie-control-BlockedIframe">
 				<p>
 					{{ $t('components.cookie.iframe_blocked') }}
 					<a

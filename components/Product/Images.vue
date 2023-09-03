@@ -12,6 +12,7 @@ const props = defineProps({
 const { product } = toRefs(props)
 const { locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
+const { resolveImageSrc } = useImageResolver()
 
 const imagesStore = useImagesStore()
 
@@ -25,8 +26,6 @@ const mainImage = computed(() => {
 	}
 	return images.value.results.find((image) => image.isMain)
 })
-
-const { resolveImageFileExtension } = useImageResolver()
 
 const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
 	if (!images?.value?.results) {
@@ -61,7 +60,7 @@ const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
 					:position="'entropy'"
 					:background="'transparent'"
 					:trim-threshold="5"
-					:format="resolveImageFileExtension(productImage.mainImageFilename)"
+					:format="'webp'"
 					sizes="sm:100vw md:50vw lg:592px"
 					:src="
 						`media/uploads/products/${productImage.mainImageFilename}` ||
@@ -98,11 +97,13 @@ const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
 							:position="'entropy'"
 							:background="'transparent'"
 							:trim-threshold="5"
-							:format="resolveImageFileExtension(productImage.mainImageFilename)"
+							:format="'webp'"
 							sizes="sm:100vw md:50vw lg:278px"
 							:src="
-								`media/uploads/products/${productImage.mainImageFilename}` ||
-								'/assets/images/placeholder.png'
+								resolveImageSrc(
+									productImage.mainImageFilename,
+									`media/uploads/products/${productImage.mainImageFilename}`
+								)
 							"
 							:alt="extractTranslated(product, 'name', locale) || ''"
 						/>

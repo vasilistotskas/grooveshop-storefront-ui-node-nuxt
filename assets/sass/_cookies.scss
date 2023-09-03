@@ -1,7 +1,4 @@
-/* stylelint-disable selector-class-pattern */
-/* stylelint-disable no-descending-specificity */
-
-.cookieControl-ModalCookieName {
+.cookie-control-ModalCookieName {
 	@apply font-medium;
 	@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
 
@@ -10,7 +7,7 @@
 	}
 }
 
-.cookieControl-ModalInputWrapper {
+.cookie-control-ModalInputWrapper {
 	span:nth-child(1) {
 		@apply mt-4 text-xs;
 	}
@@ -24,7 +21,7 @@
 	}
 }
 
-.cookieControl-ModalButtons {
+.cookie-control-ModalButtons {
 	@apply fixed mb-2 mt-5 flex flex-col sm:flex-row-reverse;
 
 	button {
@@ -42,7 +39,7 @@
 	}
 }
 
-.cookieControl-BarButtons {
+.cookie-control-BarButtons {
 	@apply ml-auto flex flex-col space-y-3 md:space-x-3 md:space-y-0;
 	@apply mt-4 lg:mt-0;
 	@apply md:flex-row-reverse;
@@ -58,7 +55,7 @@
 	}
 }
 
-.cookieControl-ModalContent {
+.cookie-control-ModalContent {
 	@apply relative mb-6 transform rounded-lg border shadow-xl transition-all sm:mx-auto sm:w-full md:max-w-3xl;
 	@apply border-gray-200 bg-gray-50 dark:border-gray-700  dark:bg-gray-800;
 
@@ -101,7 +98,7 @@
 	}
 }
 
-.cookieControl-ModalContentInner {
+.cookie-control-ModalContentInner {
 	@apply max-h-[90vh] md:max-h-[80vh] overflow-y-scroll;
 	@apply px-7 py-3;
 
@@ -132,7 +129,7 @@
 	}
 }
 
-.cookieControl-BarContainer {
+.cookie-control-BarContainer {
 	@apply flex items-center justify-between space-x-6 sm:space-x-0;
 	@apply flex-col lg:flex-row;
 	@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
@@ -149,18 +146,18 @@
 	}
 }
 
-.cookieControl-ModalUnsaved {
+.cookie-control-ModalUnsaved {
 	@apply fixed bottom-0 left-0 right-0 z-50 mx-auto mb-5 border  p-3 text-center text-sm sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-sm sm:rounded-md;
 	@apply border-gray-200 bg-gray-50 dark:border-gray-700  dark:bg-gray-800;
 }
 
-.cookieControl-ModalClose {
+.cookie-control-ModalClose {
 	@apply bg-red-500 text-white hover:bg-red-600 hover:text-white focus:ring-red-200 dark:bg-red-500 dark:text-white dark:hover:bg-red-600 dark:focus:ring-red-400;
 	@apply absolute right-6 top-6 z-10 h-auto whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out  focus:z-10 focus:outline-none focus:ring-4;
 	@apply border-gray-200 dark:border-gray-600 dark:hover:text-white;
 }
 
-.cookieControl-ControlButton {
+.cookie-control-ControlButton {
 	@apply border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-100 hover:text-gray-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700;
 	@apply fixed bottom-[20px] right-[20px] h-[40px] w-[40px] cursor-pointer rounded-full border outline-0;
 
@@ -184,13 +181,13 @@
 	}
 }
 
-.cookieControl-Bar {
+.cookie-control-Bar {
 	@apply fixed bottom-0 left-0 right-0 z-50 mx-auto border px-6 py-4 shadow-xl sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-5xl sm:rounded-md;
 	@apply border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800;
 	@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
 }
 
-.cookieControl-Modal {
+.cookie-control-Modal {
 	@apply fixed inset-0 z-[1000] flex items-center overflow-y-auto px-4 py-6 shadow-xl ring-1  drop-shadow-sm backdrop-blur-[.125em];
 
 	background: rgb(0 0 0 / 25%);

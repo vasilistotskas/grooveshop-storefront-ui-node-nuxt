@@ -1,3 +1,5 @@
+import { ModuleOptions } from '#cookie-control/types'
+
 export const cookieControl = {
 	cookies: {
 		necessary: [
@@ -34,4 +36,4 @@ export const cookieControl = {
 			}
 		]
 	}
-}
+} satisfies Partial<ModuleOptions>

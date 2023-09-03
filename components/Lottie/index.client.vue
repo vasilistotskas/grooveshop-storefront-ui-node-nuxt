@@ -2,7 +2,7 @@
 	<component
 		:is="componentElement"
 		:data-id="elementId"
-		class="lottie-animation-container"
+		class="lottie-animation-container circle"
 		v-bind="$attrs"
 		@mouseenter="hoverStarted"
 		@mouseleave="hoverEnded"
@@ -29,6 +29,7 @@ export interface LottieProps {
 	pauseOnHover: boolean
 	playOnHover: boolean
 	backgroundColor: string
+	backgroundColorDark: string
 	pauseAnimation: boolean
 	assetsPath: string
 	componentElement: string
@@ -82,6 +83,10 @@ export default defineComponent({
 		},
 		backgroundColor: {
 			type: String as PropType<LottieProps['backgroundColor']>,
+			default: 'transparent'
+		},
+		backgroundColorDark: {
+			type: String as PropType<LottieProps['backgroundColorDark']>,
 			default: 'transparent'
 		},
 		pauseAnimation: {
@@ -250,7 +255,8 @@ export default defineComponent({
 			return {
 				'--lottie-animation-container-width': width,
 				'--lottie-animation-container-height': height,
-				'--lottie-animation-container-background-color': props.backgroundColor
+				'--lottie-animation-container-background-color': props.backgroundColor,
+				'--lottie-animation-container-background-color-dark': props.backgroundColorDark
 			}
 		})
 
@@ -462,6 +468,7 @@ export default defineComponent({
 	height: v-bind(height);
 	background-color: v-bind(backgroundColor);
 	overflow: hidden;
-	margin: 0 auto;
+
+	@apply border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800;
 }
 </style>

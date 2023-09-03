@@ -12,7 +12,7 @@ await categoryStore.fetchCategory(categoryId)
 definePageMeta({
 	layout: 'page'
 })
-useHead(() => ({
+useServerHead(() => ({
 	title: capitalize(category.value?.seoTitle || ''),
 	meta: [
 		{

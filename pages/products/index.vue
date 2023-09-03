@@ -6,7 +6,7 @@ const route = useRoute('products___en')
 definePageMeta({
 	layout: 'page'
 })
-useHead(() => ({
+useServerHead(() => ({
 	title: t('pages.products.title'),
 	meta: [
 		{

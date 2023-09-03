@@ -1,17 +1,16 @@
 components:
-  global:
-    generic_modal:
-      close: schließen
-    pwa:
-      ready_to_work_offline: app bereit, offline zu arbeiten
-      new_content_available: >-
-        neue inhalte verfügbar. klicken sie zum aktualisieren auf die
-        schaltfläche „neu laden“.
-      reload: neu laden
-      close: schließen
-      install_pwa: installieren sie pwa
-      install: installieren
-      cancel: stornieren
+  generic_modal:
+    close: schließen
+  pwa:
+    ready_to_work_offline: app bereit, offline zu arbeiten
+    new_content_available: >-
+      neue inhalte verfügbar. klicken sie zum aktualisieren auf die schaltfläche
+      „neu laden“.
+    reload: neu laden
+    close: schließen
+    install_pwa: installieren sie pwa
+    install: installieren
+    cancel: stornieren
   page:
     footer:
       copyright: urheberrecht © 2022
@@ -21,9 +20,11 @@ components:
     switcher:
       change_language: sprache ändern
       theme: thema
-  theme_switcher:
-    theme: thema
-    change_theme: thema ändern
+  theme:
+    switcher:
+      theme: thema
+      change:
+        theme: thema ändern
   ordering:
     title: bestellung
   breadcrumbs:
@@ -207,6 +208,7 @@ pages:
   '404':
     title: seite nicht gefunden
     description: seite nicht gefunden
+    keywords: seite nicht gefunden
   testing:
     nav: testen
     title: testen
@@ -265,6 +267,12 @@ pages:
           description: >-
             wenn in einem verzeichnis keine indexdatei vorhanden ist, wird der
             verzeichnisinhalt angezeigt.
+    cache:
+      title: zwischenspeicher
+      nav: zwischenspeicher
+    ws:
+      title: ws
+      nav: ws
   index:
     nav: heim
     title: deep web
@@ -417,7 +425,7 @@ pages:
       description: bewertungen
       keywords: bewertungen
       updated: bewertungen aktualisiert
-      update_error: fehler bei der aktualisierung der rezensionen
+      update_error: fehler bei der aktualisierung der bewertungen
       deleted: bewertungen artikel gelöscht
       delete_error: fehler beim löschen des artikels
       ordering:
@@ -658,7 +666,9 @@ common:
   mobile_phone: mobiltelefon
   notes: anmerkungen
   back: zurück
-  client_only_fallback: wird geladen...
+  client:
+    only:
+      fallback: nur für clientseite
   unknown:
     error: unbekannter fehler
   errors:

@@ -4,7 +4,7 @@ import { OrderingQuery } from '~/types/ordering/ordering'
 import { ZodProduct } from '~/types/product/product'
 import { ZodAccount } from '~/types/user/account'
 
-export const StatusEnum = z.enum(['New', 'True', 'False'])
+export const StatusEnum = z.enum(['NEW', 'TRUE', 'FALSE'])
 
 const ZodReviewTranslations = z.record(
 	z.object({
@@ -79,7 +79,7 @@ export type ReviewQuery = PaginationQuery &
 	}
 export type ReviewActionPayload = {
 	id: number
-	translations: ZodReviewTranslations
+	comment: string
 	productId: number
 	rate: number
 	userId: number

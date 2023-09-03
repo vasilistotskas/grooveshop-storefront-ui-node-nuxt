@@ -16,8 +16,8 @@ export default defineNuxtPlugin((nuxtApp) => {
 	)
 	// called right after a new locale has been set
 	nuxtApp.hook('i18n:localeSwitched', ({ oldLocale, newLocale }) => {
-		const bus = useEventBus<string>(GlobalEvents.ON_LANGUAGE_SWITCHED)
-		bus.emit(GlobalEvents.ON_LANGUAGE_SWITCHED, {
+		const bus = useEventBus<string>(GlobalEvents.ON_LANGUAGE_UPDATED)
+		bus.emit(GlobalEvents.ON_LANGUAGE_UPDATED, {
 			oldLocale,
 			newLocale
 		})

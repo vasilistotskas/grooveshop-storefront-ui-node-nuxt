@@ -192,7 +192,7 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
 	newSelectionRatio.value = leftBound / rightBound
 }
 
-const bus = useEventBus<string>('productReview')
+const bus = useEventBus<string>(GlobalEvents.PRODUCT_REVIEW)
 
 const deleteReviewHandle = () => {
 	if (isAuthenticated.value && userHadReviewed.value) {

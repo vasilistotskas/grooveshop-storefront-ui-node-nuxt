@@ -4,23 +4,6 @@ const { t } = useLang()
 definePageMeta({
 	layout: 'user'
 })
-useHead(() => ({
-	title: t('pages.account.index.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.account.index.description')
-		},
-		{
-			name: 'keywords',
-			content: t('pages.account.index.keywords')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.account.index.title'),
-	description: t('pages.account.index.description')
-})
 </script>
 
 <template>

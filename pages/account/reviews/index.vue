@@ -2,6 +2,7 @@
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import { GlobalEvents } from '~/events/global'
 
 const { t } = useLang()
 const route = useRoute('account-reviews___en')
@@ -43,7 +44,7 @@ const routePaginationParams = ref<ReviewQuery>({
 await reviewsStore.fetchReviews(routePaginationParams.value)
 const refresh = () => reviewsStore.fetchReviews(routePaginationParams.value)
 
-const bus = useEventBus<string>('userReviews')
+const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_REVIEW)
 bus.on((event, payload: ReviewQuery) => {
 	routePaginationParams.value = payload
 	refresh()

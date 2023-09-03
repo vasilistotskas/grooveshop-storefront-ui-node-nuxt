@@ -1,13 +1,11 @@
 <script lang="ts" setup>
-const { t } = useLang()
-
 definePageMeta({
 	layout: 'testing'
 })
 </script>
 
 <template>
-	<PageWrapper>
+	<PageWrapper class="container mt-1 min-h-full">
 		<PageHeader>
 			<PageTitle :text="$t('pages.testing.index.title')" class="capitalize" />
 		</PageHeader>

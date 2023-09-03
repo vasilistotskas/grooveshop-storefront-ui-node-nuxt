@@ -93,8 +93,8 @@ const { data: existingReview, refresh: existingReviewRefresh } = await useAsyncD
 			expand: 'true'
 		})
 )
-const reviewBus = useEventBus<string>('productReview')
-const reviewsBus = useEventBus<string>('productReviews')
+const reviewBus = useEventBus<string>(GlobalEvents.PRODUCT_REVIEW)
+const reviewsBus = useEventBus<string>(GlobalEvents.PRODUCT_REVIEWS)
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
 reviewsBus.on((event, payload: ProductQuery) => {
@@ -208,7 +208,7 @@ definePageMeta({
 	middleware: ['product'],
 	layout: 'page'
 })
-useSeoMeta({
+useServerSeoMeta({
 	title: () => productTitle.value,
 	description: () =>
 		product.value?.seoDescription || (config.public.appDescription as string),
@@ -227,7 +227,7 @@ useSchemaOrg([
 	})
 ])
 
-useHead(() => ({
+useServerHead(() => ({
 	title: productTitle.value,
 	meta: [
 		{
@@ -307,7 +307,7 @@ useHead(() => ({
 								>
 									{{ extractTranslated(product, 'name', locale) }}
 								</h2>
-								<PageSection class="actions flex gap-4">
+								<PageSection class="actions flex gap-4 items-center">
 									<ClientOnly>
 										<Button
 											v-if="isSupported"

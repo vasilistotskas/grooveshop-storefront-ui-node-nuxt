@@ -1,17 +1,16 @@
 components:
-  global:
-    generic_modal:
-      close: κλείσε
-    pwa:
-      ready_to_work_offline: εφαρμογή έτοιμη για εργασία εκτός σύνδεσης
-      new_content_available: >-
-        νέο διαθέσιμο περιεχόμενο, κάντε κλικ στο κουμπί επαναφόρτωσης για
-        ενημέρωση.
-      reload: γεμίζω πάλι
-      close: κλείσε
-      install_pwa: εγκαταστήστε το pwa
-      install: εγκαθιστώ
-      cancel: ματαίωση
+  generic_modal:
+    close: κλείσε
+  pwa:
+    ready_to_work_offline: εφαρμογή έτοιμη για εργασία εκτός σύνδεσης
+    new_content_available: >-
+      νέο διαθέσιμο περιεχόμενο, κάντε κλικ στο κουμπί επαναφόρτωσης για
+      ενημέρωση.
+    reload: γεμίζω πάλι
+    close: κλείσε
+    install_pwa: εγκαταστήστε το pwa
+    install: εγκαθιστώ
+    cancel: ματαίωση
   page:
     footer:
       copyright: πνευματικά δικαιώματα © 2022
@@ -21,9 +20,11 @@ components:
     switcher:
       change_language: αλλαξε γλώσσα
       theme: θέμα
-  theme_switcher:
-    theme: θέμα
-    change_theme: άλλαξε θέμα
+  theme:
+    switcher:
+      theme: θέμα
+      change:
+        theme: άλλαξε θέμα
   ordering:
     title: παραγγελία
   breadcrumbs:
@@ -207,6 +208,7 @@ pages:
   '404':
     title: η σελίδα δεν βρέθηκε
     description: η σελίδα δεν βρέθηκε
+    keywords: η σελίδα δεν βρέθηκε
   testing:
     nav: δοκιμή
     title: δοκιμή
@@ -263,6 +265,12 @@ pages:
           description: >-
             εάν δεν υπάρχει αρχείο ευρετηρίου σε έναν κατάλογο, θα εμφανιστούν
             τα περιεχόμενα του καταλόγου.
+    cache:
+      title: κρύπτη
+      nav: κρύπτη
+    ws:
+      title: ws
+      nav: ws
   index:
     nav: σπίτι
     title: deepweb
@@ -363,7 +371,7 @@ pages:
         required: η θέση είναι απαραίτητη
         min: το μέρος πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
       city:
-        required: η πόλη είναι απαραίτητη
+        required: η πόλη απαιτείται
         min: η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
       phone:
         required: απαιτείται τηλέφωνο
@@ -433,7 +441,7 @@ pages:
       keywords: ρυθμίσεις
       updated: οι ρυθμίσεις ενημερώθηκαν
       update_error: σφάλμα ενημέρωσης ρυθμίσεων
-      deleted: ρυθμίσεις το στοιχείο διαγράφηκε
+      deleted: το στοιχείο ρυθμίσεων διαγράφηκε
       delete_error: σφάλμα διαγραφής στοιχείου ρυθμίσεων
       validation:
         email:
@@ -662,7 +670,9 @@ common:
   mobile_phone: κινητό τηλέφωνο
   notes: σημειώσεις
   back: πίσω
-  client_only_fallback: φόρτωση...
+  client:
+    only:
+      fallback: μόνο για την πλευρά του πελάτη
   unknown:
     error: αγνωστο σφάλμα
   errors:

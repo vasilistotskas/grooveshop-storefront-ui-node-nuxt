@@ -2,6 +2,7 @@
 import emptyIcon from '~icons/mdi/package-variant-remove'
 import { Order, OrderOrderingField, OrderQuery } from '~/types/order/order'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import { GlobalEvents } from '~/events/global'
 
 const { t } = useLang()
 const route = useRoute('account-orders___en')
@@ -42,8 +43,7 @@ await orderStore.fetchOrders(routePaginationParams.value)
 
 const refresh = async () => await orderStore.fetchOrders(routePaginationParams.value)
 
-// @TODO: Event bus names and event names fix
-const bus = useEventBus<string>('userOrders')
+const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_ORDER)
 bus.on((event, payload: OrderQuery) => {
 	routePaginationParams.value = payload
 	refresh()
@@ -63,9 +63,6 @@ watch(
 definePageMeta({
 	layout: 'user'
 })
-useHead(() => ({
-	title: t('pages.account.orders.title')
-}))
 </script>
 
 <template>

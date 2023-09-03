@@ -22,9 +22,7 @@ const imageExtension = computed(() => {
 const imageSrc = computed(() => {
 	return resolveImageSrc(
 		cartItem.value.product.mainImageFilename,
-		`media/uploads/products/${resolveImageFilenameNoExt(
-			cartItem.value.product.mainImageFilename
-		)}`
+		`media/uploads/products/${cartItem.value.product.mainImageFilename}`
 	)
 })
 
@@ -58,7 +56,7 @@ const cartItemQuantity = useState<number>(
 					:position="'entropy'"
 					:background="'transparent'"
 					:trim-threshold="5"
-					:format="imageExtension"
+					:format="'webp'"
 					sizes="sm:100vw md:50vw lg:237px"
 					:src="imageSrc"
 					:alt="extractTranslated(cartItem.product, 'name', locale)"

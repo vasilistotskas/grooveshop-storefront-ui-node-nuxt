@@ -1,9 +1,6 @@
 import { joinURL } from 'ufo'
-import { defu } from 'defu'
 import { ProviderGetImage } from '@nuxt/image'
 import { createOperationsGenerator } from '#image'
-
-const removePathExtension = (value: string) => value.replace(/\.[^/.]+$/, '')
 
 const operationsGenerator = createOperationsGenerator({
 	keyMap: {
@@ -69,23 +66,24 @@ const defaultModifiers = {
 	position: 'entropy',
 	background: 'transparent',
 	trimThreshold: 5,
-	format: 'jpg'
+	format: 'webp'
 }
 
-export const getImage: ProviderGetImage = (src: string, { modifiers = {} } = {}) => {
+export const getImage: ProviderGetImage = (
+	src: string,
+	{ modifiers = {}, baseURL: string = '/' } = {}
+) => {
 	const config = useRuntimeConfig()
 	const baseURL = config.public.mediaStreamUrl as string
-	if ('loading' in modifiers) {
-		delete modifiers.loading
-	}
-	if ('quality' in modifiers) {
-		delete modifiers.quality
-	}
-	const mergeModifiers = defu(modifiers, defaultModifiers)
+	const mergeModifiers = { ...defaultModifiers, ...modifiers }
 	const operations = operationsGenerator(mergeModifiers as any)
-	src = removePathExtension(src)
 
+	if (src.startsWith('/assets/images/')) {
+		src = src.replace('/assets/images/', '/nuxt/images/')
+	}
+
+	const url = joinURL(baseURL, src, operations)
 	return {
-		url: joinURL(baseURL, src, operations)
+		url
 	}
 }

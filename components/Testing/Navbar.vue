@@ -22,6 +22,11 @@ const menus = computed((): IMenuItem[] => [
 	},
 	{
 		type: 'link',
+		text: t('pages.testing.cache.nav'),
+		route: { name: 'testing-cache' }
+	},
+	{
+		type: 'link',
 		text: t('pages.testing.test.nav'),
 		route: { name: 'testing-test' }
 	},
@@ -169,7 +174,7 @@ const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, typ
 						</ul>
 					</nav>
 					<div class="text-gray-700 dark:text-gray-200 mt-6 text-sm font-bold capitalize">
-						{{ $t('components.theme_switcher.change_theme') }}
+						{{ $t('components.theme.switcher.change.theme') }}
 					</div>
 					<div class="mt-2">
 						<ThemeSwitcher type="select-box" />

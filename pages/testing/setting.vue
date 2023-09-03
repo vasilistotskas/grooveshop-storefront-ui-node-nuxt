@@ -1,34 +1,19 @@
 <script lang="ts" setup>
 import {
+	Tab as HeadlessUiTab,
 	TabGroup,
 	TabList,
-	Tab as HeadlessUiTab,
-	TabPanels,
-	TabPanel
+	TabPanel,
+	TabPanels
 } from '@headlessui/vue'
-import { capitalize } from '~/utils/str'
 import { Size } from '~/composables/useScreen'
 
-// composable
-const { t } = useLang()
-const screen = useScreen()
-const config = useRuntimeConfig()
-
-// compiler macro
 definePageMeta({
 	layout: 'testing'
 })
-useHead(() => ({
-	title: capitalize(t('pages.testing.setting.title')),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.testing.setting.description')
-		}
-	]
-}))
 
-// funcs
+const screen = useScreen()
+const config = useRuntimeConfig()
 const randomToken = () => {
 	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 	let token = ''
@@ -38,16 +23,12 @@ const randomToken = () => {
 	return token
 }
 
-// state
 const username = ref(config.public.author.name)
 const id = ref(randomToken())
 const enableSpamProtection = ref(false)
 const enableDirList = ref(false)
 const enableAdvancedSetting = ref(false)
-
-// methods
 const validate = async () => {
-	// fetch username from github api
 	try {
 		const response = await fetch(`https://api.github.com/users/${username.value}`)
 		if (response.status !== 200)
@@ -66,7 +47,7 @@ const validate = async () => {
 </script>
 
 <template>
-	<PageWrapper>
+	<PageWrapper class="container mt-1 min-h-full">
 		<PageSection class="mb-0">
 			<Alert
 				type="success"

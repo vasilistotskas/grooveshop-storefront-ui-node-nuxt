@@ -16,6 +16,7 @@ const envVariables = z.object({
 	NUXT_PUBLIC_MEDIA_STREAM_PATH: z.string(),
 	NUXT_PUBLIC_SITE_URL: z.string(),
 	NUXT_PUBLIC_TRAILING_SLASH: z.string(),
+	NUXT_PUBLIC_TITLE_SEPARATOR: z.string(),
 	NUXT_PUBLIC_SITE_NAME: z.string(),
 
 	NUXT_PUBLIC_LOCALES: z.string(),
@@ -29,7 +30,9 @@ const envVariables = z.object({
 	NUXT_PUBLIC_FACEBOOK_APP_ID: z.string(),
 
 	NUXT_PUBLIC_GOOGLE_TAG_MANAGER_ID: z.string(),
-	NUXT_PUBLIC_GOOGLE_TAG_ID: z.string()
+	NUXT_PUBLIC_GOOGLE_TAG_ID: z.string(),
+
+	WEB_SOCKET_SERVER_PORT: z.string()
 })
 
 declare global {

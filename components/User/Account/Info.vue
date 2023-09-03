@@ -2,7 +2,6 @@
 import { PropType } from 'vue'
 import { Account } from '~/types/user/account'
 
-const { t } = useLang()
 const props = defineProps({
 	account: {
 		type: Object as PropType<Account>,
@@ -24,6 +23,8 @@ const props = defineProps({
 		default: 0
 	}
 })
+
+const { t } = useLang()
 </script>
 
 <template>

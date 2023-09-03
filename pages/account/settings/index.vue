@@ -3,7 +3,7 @@ import { FieldContext, useField, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { defaultSelectOptionChoose } from '~/types/global/general'
-import { ITheme } from '~/utils/theme'
+import { IThemeValue } from '~/utils/theme'
 
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
@@ -126,7 +126,7 @@ definePageMeta({
 	layout: 'user'
 })
 
-const theme = useState<ITheme>('theme.current')
+const theme = useState<IThemeValue>('theme.current')
 const dark = computed(() => theme.value === 'dark')
 // Date picker
 const flow: ('month' | 'year' | 'calendar' | 'time' | 'minutes' | 'hours' | 'seconds')[] =

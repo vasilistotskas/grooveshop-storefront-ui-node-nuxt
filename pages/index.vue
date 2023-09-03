@@ -1,30 +1,10 @@
 <script lang="ts" setup>
-const { t } = useLang()
-
 // eslint-disable-next-line n/handle-callback-err
 const errorLogger = (error: unknown) => {
 	// console.error(error)
 }
-
 definePageMeta({
 	layout: 'page'
-})
-useHead(() => ({
-	title: t('pages.index.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.index.description')
-		},
-		{
-			name: 'keywords',
-			content: t('pages.index.keywords')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.index.title'),
-	description: t('pages.index.description')
 })
 </script>
 
@@ -37,37 +17,22 @@ useServerSeoMeta({
 					:left-button-scroll-left-by="-1"
 					:right-button-scroll-left-by="1"
 				>
-					<a href="/">
+					<a v-for="i in 3" :key="i" href="/">
 						<NuxtImg
-							:modifiers="{ w: 1920, h: 640, format: 'webp' }"
-							alt="Main Banner"
+							loading="eager"
+							provider="mediaStream"
 							class="w-full h-full object-cover"
-							format="webp"
-							height="640"
-							src="/assets/images/dummy/1920x640.png"
-							width="1920"
-						/>
-					</a>
-					<a href="/">
-						<NuxtImg
-							:modifiers="{ w: 1920, h: 640, format: 'webp' }"
-							alt="Main Banner"
-							class="w-full h-full object-cover"
-							format="webp"
-							height="640"
-							src="/assets/images/dummy/1920x640.png"
-							width="1920"
-						/>
-					</a>
-					<a href="/">
-						<NuxtImg
-							:modifiers="{ w: 1920, h: 640, format: 'webp' }"
-							alt="Main Banner"
-							class="w-full h-full object-cover"
-							format="webp"
-							height="640"
-							src="/assets/images/dummy/1920x640.png"
-							width="1920"
+							:style="{ objectFit: 'contain' }"
+							:src="'/assets/images/1920x640.png'"
+							:width="1920"
+							:height="640"
+							:fit="'cover'"
+							:position="'entropy'"
+							:background="'transparent'"
+							:trim-threshold="5"
+							:format="'webp'"
+							:alt="'Main Banner'"
+							sizes="sm:100vw md:50vw lg:1920px"
 						/>
 					</a>
 				</NativeSlider>
@@ -75,17 +40,30 @@ useServerSeoMeta({
 				<div
 					class="usps container-small flex flex-wrap items-center justify-center gap-8 my-16 text-center brand lg:justify-between"
 				>
-					<NuxtImg
-						v-for="i in 6"
-						:key="i"
-						:modifiers="{ w: 80, h: 40, format: 'webp' }"
-						alt="Usp"
-						class="w-auto h-auto object-cover"
-						format="webp"
-						height="40"
-						src="/assets/images/dummy/80x40.png"
-						width="80"
-					/>
+					<NativeSlider
+						:drag-speed="1"
+						:left-button-scroll-left-by="-1"
+						:right-button-scroll-left-by="1"
+					>
+						<NuxtImg
+							v-for="i in 6"
+							:key="i"
+							loading="lazy"
+							provider="mediaStream"
+							class="w-full h-full object-cover"
+							:style="{ objectFit: 'contain' }"
+							:src="'/assets/images/80x40.png'"
+							:width="80"
+							:height="40"
+							:fit="'cover'"
+							:position="'entropy'"
+							:background="'transparent'"
+							:trim-threshold="5"
+							:format="'webp'"
+							:alt="'Usp'"
+							sizes="sm:100vw md:50vw lg:80px"
+						/>
+					</NativeSlider>
 				</div>
 			</PageSection>
 		</PageBody>

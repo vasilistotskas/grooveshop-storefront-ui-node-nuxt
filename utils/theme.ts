@@ -1,9 +1,16 @@
-export type IThemeSettingOptions = 'dark' | 'light' | 'system' | 'realtime'
+import { GlobalEvents } from '~/events/global'
 
-export type ITheme = 'dark' | 'light'
+export type IThemeStrategyOptions = 'dark' | 'light' | 'system' | 'realtime'
+
+export type IThemeValue = 'dark' | 'light'
+
+export interface IThemeEventPayload {
+	themeStrategy: IThemeStrategyOptions
+	themeValue?: IThemeValue | null
+}
 
 export const availableThemes: {
-	key: IThemeSettingOptions
+	key: IThemeStrategyOptions
 	text: string
 }[] = [
 	{ key: 'light', text: 'Light' },
@@ -14,92 +21,72 @@ export const availableThemes: {
 
 export function ThemeManager() {
 	// composable
-	const themeUserSetting = useCookie<IThemeSettingOptions>('theme')
+	const themeUserStrategy = useCookie<IThemeStrategyOptions>('theme')
+	const defaultTheme = (process.env.NUXT_PUBLIC_DEFAULT_THEME || 'light') as IThemeValue
 
 	// methods
-	const getUserSetting = (): IThemeSettingOptions => themeUserSetting.value || 'system'
-	const getSystemTheme = (): ITheme => {
+	const getUserStrategy = (): IThemeStrategyOptions => themeUserStrategy.value || 'system'
+	const getSystemTheme = (): IThemeValue => {
 		try {
 			return window
 				? window.matchMedia('(prefers-color-scheme: dark)').matches
 					? 'dark'
 					: 'light'
-				: 'dark'
+				: defaultTheme
 		} catch (error) {
-			return 'dark'
+			return defaultTheme
 		}
-	}
-	const getRealtimeTheme = (): ITheme => {
-		const now = new Date()
-		const hour = now.getHours()
-		const isNight = hour >= 17 || hour <= 5
-		return isNight ? 'dark' : 'light'
 	}
 
 	// state
-	const themeSetting = useState<IThemeSettingOptions>('theme.setting', () =>
-		getUserSetting()
+	const themeStrategy = useState<IThemeStrategyOptions>('theme.strategy', () =>
+		getUserStrategy()
 	)
-	const themeCurrent = useState<ITheme>('theme.current', () =>
-		process.client ? getSystemTheme() : 'light'
-	)
+	const themeCurrent = useState<IThemeValue>('theme.current', () => getSystemTheme())
 
 	// watchers
-	const onThemeSettingChange = (themeSetting: IThemeSettingOptions) => {
-		themeUserSetting.value = themeSetting
-		if (themeSetting === 'realtime') {
-			themeCurrent.value = getRealtimeTheme()
-		} else if (themeSetting === 'system') {
-			themeCurrent.value = getSystemTheme()
-		} else {
-			themeCurrent.value = themeSetting
+	const onThemeStrategyChange = (eventPayload: IThemeEventPayload) => {
+		switch (eventPayload.themeStrategy) {
+			case 'dark':
+				themeCurrent.value = 'dark'
+				break
+			case 'light':
+				themeCurrent.value = 'light'
+				break
+			case 'system':
+				themeCurrent.value = getSystemTheme()
+				break
+			case 'realtime':
+				themeCurrent.value = eventPayload.themeValue || defaultTheme
+				break
+			default:
+				themeCurrent.value = defaultTheme
+				break
 		}
+
+		themeUserStrategy.value = eventPayload.themeStrategy
 	}
 
-	const bus = useEventBus<string>('theme')
-	bus.on((event: string, payload: IThemeSettingOptions) => {
+	const bus = useEventBus<string>(GlobalEvents.ON_THEME_UPDATED)
+	bus.on((event: string, payload: IThemeEventPayload) => {
 		if (event === 'change') {
-			onThemeSettingChange(payload)
+			onThemeStrategyChange(payload)
 		}
 	})
-	const onThemeSystemChange = () => {
-		if (themeSetting.value === 'system') {
-			themeCurrent.value = getSystemTheme()
-		}
-	}
-	const onRealtimeCheck = () => {
-		if (themeSetting.value === 'realtime') {
-			themeCurrent.value = getRealtimeTheme()
-		}
-	}
 
 	// init theme
 	const init = () => {
-		themeSetting.value = getUserSetting()
+		themeStrategy.value = getUserStrategy()
 	}
-	onThemeSettingChange(themeSetting.value)
+	onThemeStrategyChange({ themeStrategy: themeStrategy.value })
 
 	// lifecycle
-	let intervalCheckTime: NodeJS.Timer
 	onBeforeMount(() => init())
-	onMounted(() => {
-		window
-			.matchMedia('(prefers-color-scheme: dark)')
-			.addEventListener('change', onThemeSystemChange)
-		intervalCheckTime = setInterval(onRealtimeCheck, 1000)
-	})
-	onBeforeUnmount(() => {
-		window
-			.matchMedia('(prefers-color-scheme: dark)')
-			.removeEventListener('change', onThemeSystemChange)
-		if (intervalCheckTime) clearInterval(Number(intervalCheckTime))
-	})
 
 	return {
-		themeSetting,
+		themeStrategy,
 		themeCurrent,
-		getUserSetting,
-		getSystemTheme,
-		getRealtimeTheme
+		getUserStrategy,
+		getSystemTheme
 	}
 }

@@ -14,16 +14,17 @@
 			"@vueuse/nuxt",
 			"@pinia/nuxt",
 			"@nuxt/image",
+			"@vite-pwa/nuxt",
 			"unplugin-icons/types/vue"
 		],
 		"typeRoots": [
 			"node_modules/@types",
 			"unplugin-icons.d.ts",
 			"components.d.ts",
-			"custom.d.ts",
+			"global.d.ts",
 			"auto-imports.d.ts"
 		]
 	},
 	"exclude": ["node_modules"],
-	"files": ["unplugin-icons.d.ts", "components.d.ts", "custom.d.ts", "auto-imports.d.ts"]
+	"files": ["unplugin-icons.d.ts", "components.d.ts", "global.d.ts", "auto-imports.d.ts"]
 }

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-// compiler macro
 const props = defineProps({
 	modelValue: {
 		type: Boolean,
@@ -21,16 +20,13 @@ defineSlots<{
 const emit = defineEmits(['update:modelValue'])
 const { modelValue, on, id } = toRefs(props)
 
-// random
 const randomId = () =>
 	Math.random().toString(36).substring(2, 15) +
 	Math.random().toString(36).substring(2, 15)
 
-// state
 const switchId = ref(id?.value || randomId())
 const input = ref<HTMLInputElement>()
 
-// funcs
 const checked = useSyncProps<boolean>(props, 'modelValue', emit)
 const onInputChange = (e: Event) => {
 	const target = e.target as HTMLInputElement
@@ -38,7 +34,6 @@ const onInputChange = (e: Event) => {
 	emit('update:modelValue', target.checked)
 }
 
-// lifecycle
 onMounted(() => {
 	if (props.on) {
 		checked.value = true

@@ -1,4 +1,4 @@
-import { fontFamily, spacing } from 'tailwindcss/defaultTheme'
+import { Config } from 'tailwindcss'
 
 const MyTheme = {
 	colors: {
@@ -57,7 +57,7 @@ const MyTheme = {
 }
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
-const config = {
+export default {
 	content: [
 		'./components/**/*.{vue,js}',
 		'./composables/**/*.{js,ts}',
@@ -91,9 +91,9 @@ const config = {
 				red: MyTheme.colors.red
 			},
 			fontFamily: {
-				sans: ['Inter', ...fontFamily.sans]
+				sans: ['Inter', 'sans-serif']
 			},
-			typography: (theme) => ({
+			typography: (theme: any) => ({
 				DEFAULT: {
 					css: {
 						color: theme('colors.gray.700'),
@@ -103,9 +103,6 @@ const config = {
 								color: theme('colors.blue.700')
 							},
 							code: { color: theme('colors.blue.400') }
-						},
-						'h2,h3,h4': {
-							'scroll-margin-top': spacing[32]
 						},
 						thead: {
 							borderBottomColor: theme('colors.gray.200')
@@ -130,8 +127,7 @@ const config = {
 							color: theme('colors.gray.300')
 						},
 						'h2,h3,h4': {
-							color: theme('colors.gray.100'),
-							'scroll-margin-top': spacing[32]
+							color: theme('colors.gray.100')
 						},
 						hr: { borderColor: theme('colors.gray.700') },
 						ol: {
@@ -188,6 +184,4 @@ const config = {
 		'dark-img': 'hidden dark:block'
 	},
 	plugins: [require('@tailwindcss/typography')]
-}
-
-export default config
+} satisfies Partial<Config>

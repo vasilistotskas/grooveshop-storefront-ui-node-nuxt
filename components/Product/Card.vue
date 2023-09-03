@@ -18,8 +18,7 @@ const props = defineProps({
 
 const { locale } = useLang()
 const { contentShorten } = useText()
-const { resolveImageFilenameNoExt, resolveImageFileExtension, resolveImageSrc } =
-	useImageResolver()
+const { resolveImageFileExtension, resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
 const authStore = useAuthStore()
 const userStore = useUserStore()
@@ -35,7 +34,7 @@ const {
 	showStartPrice,
 	showDescription
 } = toRefs(props)
-const { account, favourites } = storeToRefs(userStore)
+const { account } = storeToRefs(userStore)
 
 const isAuthenticated = authStore.isAuthenticated
 
@@ -51,9 +50,7 @@ const imageExtension = computed(() => {
 const imageSrc = computed(() => {
 	return resolveImageSrc(
 		product.value?.mainImageFilename,
-		`media/uploads/products/${resolveImageFilenameNoExt(
-			product.value?.mainImageFilename
-		)}`
+		`media/uploads/products/${product.value?.mainImageFilename}`
 	)
 })
 
@@ -102,7 +99,7 @@ const userToProductFavourite = computed(() => {
 										:position="'entropy'"
 										:background="'transparent'"
 										:trim-threshold="5"
-										:format="imageExtension"
+										:format="'webp'"
 										:sizes="`sm:100vw md:50vw lg:${imgWidth}px`"
 										:src="imageSrc"
 										:alt="extractTranslated(product, 'name', locale)"

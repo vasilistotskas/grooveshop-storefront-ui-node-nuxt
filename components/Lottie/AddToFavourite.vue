@@ -4,6 +4,7 @@ import { Favourite } from '~/types/product/favourite'
 import { ButtonSize } from '~/types/global/button'
 import heartJSON from '~/assets/lotties/heart.json'
 import LottieClient from '~/components/global/Lottie/index.client.vue'
+import { GlobalEvents } from '~/events/global'
 
 const props = defineProps({
 	productId: {
@@ -40,36 +41,25 @@ const toast = useToast()
 const userStore = useUserStore()
 const { favourites } = storeToRefs(userStore)
 const lottie = ref<InstanceType<typeof LottieClient>>()
+const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_FAVOURITE)
 
-const toggleFavourite = async () => {
+const toggleFavourite = () => {
 	if (!props.isAuthenticated || !props.userId || !favourites.value) {
 		toast.error(t('components.add_to_favourite_button.not_authenticated'))
 		return
 	}
 	const favouriteIndex = favourites.value.findIndex((f) => f.product === props.productId)
 	if (favouriteIndex === -1) {
-		await userStore
-			.addFavourite({
-				product: String(props.productId),
-				user: String(props.userId)
-			})
-			.then(() => {
-				lottie.value?.play()
-				toast.success(t('components.add_to_favourite_button.added'))
-			})
-			.catch((err) => {
-				toast.error(err.message)
-			})
+		bus.emit('create', {
+			productId: String(props.productId),
+			userId: String(props.userId)
+		})
+		lottie.value?.play()
+		toast.success(t('components.add_to_favourite_button.added'))
 	} else {
-		await userStore
-			.removeFavourite(favourites.value[favouriteIndex].id)
-			.then(() => {
-				lottie.value?.goToAndStop(0)
-				toast.success(t('components.add_to_favourite_button.removed'))
-			})
-			.catch((err) => {
-				toast.error(err.message)
-			})
+		bus.emit('delete', favourites.value[favouriteIndex].id)
+		lottie.value?.goToAndStop(0)
+		toast.success(t('components.add_to_favourite_button.removed'))
 	}
 }
 
@@ -95,7 +85,7 @@ const onAnimationLoaded = () => {
 		:component-element="'button'"
 		:size="size"
 		:animation-data="heartJSON"
-		:width="'100px'"
+		:width="'40px'"
 		:loop="false"
 		:auto-play="false"
 		@on-animation-loaded="onAnimationLoaded"

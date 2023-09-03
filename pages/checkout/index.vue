@@ -100,7 +100,7 @@ const submitButtonDisabled = computed(() => {
 definePageMeta({
 	layout: 'page'
 })
-useHead(() => ({
+useServerHead(() => ({
 	title: t('pages.checkout.title'),
 	meta: [
 		{

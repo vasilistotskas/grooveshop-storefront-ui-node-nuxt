@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
 import { Address } from '~/types/user/address'
+import { GlobalEvents } from '~/events/global'
 
 const props = defineProps({
 	address: {
@@ -16,7 +17,7 @@ const router = useRouter()
 const { contentShorten } = useText()
 
 const userAddressStore = useUserAddressStore()
-const bus = useEventBus<string>('userAddresses')
+const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_ADDRESS)
 
 const deleteAddress = (id: string) => {
 	if (props.address && props.address.isMain) {

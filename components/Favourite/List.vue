@@ -2,7 +2,7 @@
 import { PropType } from 'vue'
 import { Favourite } from '~/types/product/favourite'
 
-const props = defineProps({
+defineProps({
 	favourites: {
 		type: Array as PropType<Favourite[] | null>,
 		required: true
@@ -13,8 +13,6 @@ const props = defineProps({
 		default: true
 	}
 })
-
-const { t } = useLang()
 </script>
 
 <template>

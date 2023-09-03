@@ -19,30 +19,29 @@ const props = defineProps({
 	}
 })
 
-const { t, locale } = useLang()
+const { locale } = useLang()
 const { contentShorten } = useText()
-const { resolveImageFilenameNoExt, resolveImageFileExtension, resolveImageSrc } =
-	useImageResolver()
+const { resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
 
 const statusClass = computed(() => {
 	switch (props.order?.status) {
-		case 'Sent':
+		case 'SENT':
 			return {
 				icon: SentIcon,
 				color: 'text-blue-500'
 			}
-		case 'Paid and sent':
+		case 'PAID_AND_SENT':
 			return {
 				icon: PaidSentIcon,
 				color: 'text-green-500'
 			}
-		case 'Canceled':
+		case 'CANCELED':
 			return {
 				icon: CanceledSentIcon,
 				color: 'text-red-500'
 			}
-		case 'Pending':
+		case 'PENDING':
 			return {
 				icon: PendingSentIcon,
 				color: 'text-gray-500'
@@ -79,14 +78,12 @@ const statusClass = computed(() => {
 					:position="'entropy'"
 					:background="'transparent'"
 					:trim-threshold="5"
-					:format="resolveImageFileExtension(item.product.mainImageFilename)"
+					:format="'webp'"
 					sizes="sm:100vw md:50vw lg:80px"
 					:src="
 						resolveImageSrc(
 							item.product.mainImageFilename,
-							`media/uploads/products/${resolveImageFilenameNoExt(
-								item.product.mainImageFilename
-							)}`
+							`media/uploads/products/${item.product.mainImageFilename}`
 						)
 					"
 					:alt="extractTranslated(item.product, 'name', locale)"

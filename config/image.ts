@@ -1,3 +1,5 @@
+import { ModuleOptions } from '@nuxt/image'
+
 export const image = {
 	dir: 'public',
 	staticFilename: '[publicPath]/assets/images/[name]-[hash][ext]',
@@ -6,7 +8,14 @@ export const image = {
 			name: 'mediaStream', // optional value to overrider provider name
 			provider: '~/providers/media-stream', // Path to custom provider
 			options: {
-				background: 'transparent'
+				format: 'webp',
+				width: 100,
+				height: 100,
+				fit: 'contain',
+				position: 'entropy',
+				background: 'transparent',
+				trimThreshold: 5,
+				path: ''
 			}
 		}
 	},
@@ -19,4 +28,4 @@ export const image = {
 		xxl: 1536,
 		'2xl': 1536
 	}
-}
+} satisfies Partial<ModuleOptions>

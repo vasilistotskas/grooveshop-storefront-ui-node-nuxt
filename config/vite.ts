@@ -35,22 +35,6 @@ export const vite = {
 			dts: true // generate TypeScript declaration
 		})
 	],
-	build: {
-		rollupOptions: {
-			output: {
-				manualChunks(id: string) {
-					const chunks = ['lodash', 'sweetalert2', 'vue-toastification', 'vuepic', 'zod']
-					if (id.includes('/node_modules/')) {
-						for (const chunkName of chunks) {
-							if (id.includes(chunkName)) {
-								return chunkName
-							}
-						}
-					}
-				}
-			}
-		}
-	},
 	server: {
 		hmr: {
 			protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws',

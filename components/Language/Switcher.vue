@@ -1,14 +1,12 @@
 <script lang="ts" setup>
-// @ts-nocheck
 import {
 	Listbox,
 	ListboxButton,
 	ListboxLabel,
-	ListboxOptions,
-	ListboxOption
+	ListboxOption,
+	ListboxOptions
 } from '@headlessui/vue'
 
-// micro compiler
 const props = defineProps({
 	type: {
 		type: String,
@@ -16,7 +14,6 @@ const props = defineProps({
 	}
 })
 
-// state
 const currentStyle = toRef(props, 'type')
 
 const { locale, locales, setLocale } = useLang()

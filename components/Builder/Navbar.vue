@@ -97,24 +97,6 @@ const appTitle = computed(() => config.public.appTitle as string)
 									aria-label="index"
 									class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-gray-700 dark:text-gray-200"
 								>
-									<NuxtImg
-										preload
-										placeholder
-										loading="eager"
-										provider="mediaStream"
-										class="rounded-full"
-										:style="{ objectFit: 'contain' }"
-										:src="`static/images/websiteLogo_circle`"
-										:width="32"
-										:height="32"
-										:fit="'contain'"
-										:position="'entropy'"
-										:background="'transparent'"
-										:trim-threshold="5"
-										:format="'png'"
-										sizes="sm:75vw md:125vw lg:32px"
-										:alt="appTitle"
-									/>
 									<span>{{ appTitle }}</span>
 								</Anchor>
 							</strong>

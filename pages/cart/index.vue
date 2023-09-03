@@ -13,7 +13,7 @@ const { cart, error, pending } = storeToRefs(store)
 definePageMeta({
 	layout: 'page'
 })
-useHead(() => ({
+useServerHead(() => ({
 	title: t('pages.cart.title'),
 	meta: [
 		{

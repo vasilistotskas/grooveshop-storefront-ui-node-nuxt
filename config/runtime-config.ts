@@ -2,6 +2,7 @@ export const runtimeConfig = {
 	// The private keys which are only available server-side
 	apiSecret: process.env.NUXT_PRIVATE_API_SECRET,
 	buildDate: new Date().toISOString(),
+	websocketUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 
 	// Keys within public are also exposed client-side
 	public: {

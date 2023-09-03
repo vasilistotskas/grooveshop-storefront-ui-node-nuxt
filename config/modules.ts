@@ -1,10 +1,7 @@
 export const modules = [
 	'@nuxt/image',
-	'@nuxt/content',
-	'@nuxtjs/html-validator',
 	'@nuxtjs/i18n',
 	'@nuxtjs/eslint-module',
-	'@nuxtjs/stylelint-module',
 	'@nuxtjs/tailwindcss',
 	'@pinia/nuxt',
 	'@vueuse/nuxt',
@@ -16,6 +13,5 @@ export const modules = [
 	'nuxt-simple-sitemap',
 	'nuxt-simple-robots',
 	'nuxt-og-image',
-	'nuxt-link-checker',
 	'nuxt-schema-org'
 ]

@@ -6,6 +6,7 @@ import {
 } from '~/types/product/favourite'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import { GlobalEvents } from '~/events/global'
 
 const { t } = useLang()
 const route = useRoute('account-favourites___en')
@@ -45,13 +46,23 @@ const routePaginationParams = ref<FavouriteQuery>({
 
 await favouriteStore.fetchFavourites(routePaginationParams.value)
 
-const refresh = async () =>
-	await favouriteStore.fetchFavourites(routePaginationParams.value)
+const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_FAVOURITE)
+bus.on(async (event, payload: FavouriteQuery | number) => {
+	const productId = (payload as FavouriteQuery).productId
+	const userId = (payload as FavouriteQuery).userId
 
-const bus = useEventBus<string>('userFavourites')
-bus.on((event, payload: FavouriteQuery) => {
-	routePaginationParams.value = payload
-	refresh()
+	switch (event) {
+		case 'create':
+			if (!productId || !userId) return
+			await userStore.addFavourite({
+				product: productId,
+				user: userId
+			})
+			break
+		case 'delete':
+			await userStore.removeFavourite(payload as number)
+			break
+	}
 })
 
 watch(
