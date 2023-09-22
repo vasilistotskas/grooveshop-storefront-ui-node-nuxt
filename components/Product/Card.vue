@@ -18,22 +18,12 @@ const props = defineProps({
 
 const { locale } = useLang()
 const { contentShorten } = useText()
-const { resolveImageFileExtension, resolveImageSrc } = useImageResolver()
+const { resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
 const authStore = useAuthStore()
 const userStore = useUserStore()
 
-const {
-	product,
-	showAddToFavouriteButton,
-	showShareButton,
-	showAddToCartButton,
-	imgWidth,
-	imgHeight,
-	showVat,
-	showStartPrice,
-	showDescription
-} = toRefs(props)
+const { product } = toRefs(props)
 const { account } = storeToRefs(userStore)
 
 const isAuthenticated = authStore.isAuthenticated
@@ -43,15 +33,15 @@ const productUrl = computed(() => {
 	return `/product/${product.value.id}/${product.value.slug}`
 })
 
-const imageExtension = computed(() => {
-	return resolveImageFileExtension(product.value?.mainImageFilename)
-})
-
-const imageSrc = computed(() => {
+const src = computed(() => {
 	return resolveImageSrc(
 		product.value?.mainImageFilename,
 		`media/uploads/products/${product.value?.mainImageFilename}`
 	)
+})
+
+const alt = computed(() => {
+	return extractTranslated(product.value, 'title', locale.value)
 })
 
 const shareOptions = ref({
@@ -81,28 +71,24 @@ const userToProductFavourite = computed(() => {
 					<div class="card-thumb">
 						<div class="card-thumb-container">
 							<div class="card-thumb-image">
-								<Anchor
-									:to="`/product${product.absoluteUrl}`"
-									:text="extractTranslated(product, 'name', locale)"
-								>
+								<Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
 									<NuxtImg
 										preload
-										placeholder
 										loading="lazy"
 										provider="mediaStream"
 										class="product-img bg-transparent"
 										decoding="async"
 										:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-										:width="imgWidth"
-										:height="imgHeight"
+										:width="imgWidth || 100"
+										:height="imgHeight || 100"
 										:fit="'contain'"
 										:position="'entropy'"
 										:background="'transparent'"
 										:trim-threshold="5"
 										:format="'webp'"
-										:sizes="`sm:100vw md:50vw lg:${imgWidth}px`"
-										:src="imageSrc"
-										:alt="extractTranslated(product, 'name', locale)"
+										sizes="`sm:100vw md:50vw lg:auto`"
+										:src="src"
+										:alt="alt"
 									/>
 								</Anchor>
 							</div>
@@ -112,7 +98,7 @@ const userToProductFavourite = computed(() => {
 				<div class="card-body gap-2">
 					<div class="card-actions h-6 flex gap-4">
 						<ClientOnly>
-							<Button
+							<MainButton
 								v-if="isSupported && showShareButton"
 								:disabled="!isSupported"
 								:text="
@@ -141,10 +127,10 @@ const userToProductFavourite = computed(() => {
 					<h2 class="card-title text-gray-700 dark:text-gray-200">
 						<Anchor
 							:to="`/product${product.absoluteUrl}`"
-							:text="extractTranslated(product, 'name', locale)"
+							:text="alt"
 							css-class="card-title-text"
 						>
-							{{ extractTranslated(product, 'name', locale) }}
+							{{ alt }}
 						</Anchor>
 					</h2>
 					<p

@@ -3,10 +3,11 @@ import { PropType } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { FieldContext, useField, useForm } from 'vee-validate'
-import { Review } from '~/types/product/review'
+import { Review, ReviewQuery, StatusEnum } from '~/types/product/review'
 import { GlobalEvents } from '~/events/global'
 import { Product } from '~/types/product/product'
 import { Account } from '~/types/user/account'
+import { useReviewsStore } from '~/stores/product/reviews'
 
 const starSvg =
 	'<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
@@ -42,8 +43,27 @@ const props = defineProps({
 
 const { existingReview, userHadReviewed, product, user, isAuthenticated } = toRefs(props)
 const { t, locale } = useLang()
+const route = useRoute()
 const toast = useToast()
 const swal = useSwal()
+
+const routePaginationParams = computed<ReviewQuery>(() => {
+	const id = String(product.value?.id)
+	const page = Number(route.query.page) || undefined
+	const ordering = route.query.ordering || '-createdAt'
+	const expand = 'true'
+
+	return {
+		productId: id,
+		page,
+		ordering,
+		expand
+	}
+})
+
+const reviewsStore = useReviewsStore()
+const refreshReviews = async () =>
+	await reviewsStore.fetchReviews(routePaginationParams.value)
 
 const editingLocked = ref(false)
 const reviewCountMax = ref(10)
@@ -127,16 +147,24 @@ const reviewScoreText = computed(() => {
 	) {
 		return ''
 	}
-	const matches = useFilter(
-		breakpoints,
-		(breakpoint: { threshold: number; value: string }) =>
-			breakpoint.threshold - 0.1 <= liveReviewCountRatio.value
-	)
-	if (undefined !== useLast(matches)) {
-		return useLast(matches)?.value
+	const matches = breakpoints.filter((breakpoint) => {
+		return breakpoint.threshold - 0.1 <= liveReviewCountRatio.value
+	})
+	if (matches.length > 0) {
+		return matches[matches.length - 1].value
 	}
-	return useFirst(breakpoints)?.value
+	if (breakpoints.length > 0) {
+		return breakpoints[0].value
+	}
 })
+
+const useTimes = (n: number, iteratee: (i: number) => string) => {
+	return Array.from({ length: n }, (_, i) => iteratee(i))
+}
+
+const useConstant = (value: string) => {
+	return () => value
+}
 
 const foregroundStars = computed(() => {
 	if (!values.rate) return []
@@ -144,7 +172,7 @@ const foregroundStars = computed(() => {
 	if (reviewStarRatio < 0.1) {
 		return []
 	}
-	const stars: string[] = useTimes(Math.round(reviewStarRatio), useConstant(starSvg))
+	const stars = useTimes(Math.round(reviewStarRatio), useConstant(starSvg))
 	if (reviewStarRatio % 1 < 0.5) {
 		stars.push(starHalfSvg)
 	}
@@ -192,48 +220,16 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
 	newSelectionRatio.value = leftBound / rightBound
 }
 
-const bus = useEventBus<string>(GlobalEvents.PRODUCT_REVIEW)
-
-const deleteReviewHandle = () => {
-	if (isAuthenticated.value && userHadReviewed.value) {
-		swal
-			.fire({
-				title: t('components.product.review.delete_review'),
-				text: t('components.product.review.delete_review_confirm'),
-				icon: 'warning',
-				showCancelButton: true,
-				confirmButtonText: t('components.product.review.delete_review_confirm'),
-				cancelButtonText: t('components.product.review.delete_review_cancel'),
-				customClass: {
-					container: 'z-40'
-				}
-			})
-			.then((result) => {
-				if (!result.isConfirmed) {
-					return
-				}
-				bus.emit('delete', {
-					id: existingReview.value?.id
-				})
-				setFieldValue('rate', 0)
-				setFieldValue('comment', '')
-			})
-	} else {
-		toast.error(t('components.product.review.must_be_logged_in'))
-	}
-}
-
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const openModal = () => {
 	if (isAuthenticated.value) {
 		modalBus.emit('modal-open-reviewModal')
 	} else {
-		toast.error(t('components.product.review.must_be_logged_in'))
+		toast.add({
+			title: t('components.product.review.must_be_logged_in')
+		})
 	}
 }
-modalBus.on((event: string) => {
-	//
-})
 
 const ZodReviewSchema = z.object({
 	comment: z
@@ -276,29 +272,82 @@ const tooManyAttempts = computed(() => {
 	return submitCount.value >= 10
 })
 
-const onSubmit = handleSubmit((event) => {
-	if (isAuthenticated.value) {
+const addReviewEvent = async (event: { comment: string; rate: number }) => {
+	await reviewsStore.addReview(
+		{
+			product: String(product.value?.id),
+			user: String(user?.value?.id),
+			translations: {
+				[locale.value]: {
+					comment: event.comment
+				}
+			},
+			rate: String(event.rate),
+			status: StatusEnum.enum.TRUE
+		},
+		{ expand: 'true' }
+	)
+	await refreshReviews()
+}
+
+const updateReviewEvent = async (event: { comment: string; rate: number }) => {
+	if (!existingReview.value) return
+	await reviewsStore.updateReview(existingReview?.value?.id, {
+		product: String(product.value?.id),
+		user: String(user?.value?.id),
+		rate: String(event.rate),
+		translations: {
+			[locale.value]: {
+				comment: event.comment
+			}
+		}
+	})
+	await refreshReviews()
+}
+
+const deleteReviewEvent = async () => {
+	if (isAuthenticated.value && existingReview.value) {
+		await swal
+			.fire({
+				title: t('components.product.review.delete_review'),
+				text: t('components.product.review.delete_review_confirm'),
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonText: t('components.product.review.delete_review_confirm'),
+				cancelButtonText: t('components.product.review.delete_review_cancel'),
+				customClass: {
+					container: 'z-40'
+				}
+			})
+			.then(async (result) => {
+				if (!result.isConfirmed || !existingReview.value) {
+					return
+				}
+				await reviewsStore.deleteReview(existingReview.value.id)
+				setFieldValue('rate', 0)
+				setFieldValue('comment', '')
+				await refreshReviews()
+			})
+	} else {
+		toast.add({
+			title: t('components.product.review.must_be_logged_in')
+		})
+	}
+}
+
+const onSubmit = handleSubmit(async (event) => {
+	if (user && isAuthenticated.value) {
 		if (!userHadReviewed.value) {
-			bus.emit('create', {
-				comment: event.comment,
-				rate: event.rate,
-				productId: product.value?.id,
-				userId: user?.value?.id,
-				status: 'True'
-			})
+			await addReviewEvent(event)
 		} else {
-			bus.emit('update', {
-				id: existingReview.value?.id,
-				comment: event.comment,
-				rate: event.rate,
-				productId: product.value?.id,
-				userId: user?.value?.id,
-				status: 'True'
-			})
+			await updateReviewEvent(event)
 		}
 	} else {
-		toast.error(t('components.product.review.must_be_logged_in'))
+		toast.add({
+			title: t('components.product.review.must_be_logged_in')
+		})
 	}
+	modalBus.emit('modal-close-reviewModal')
 })
 
 watch(
@@ -429,41 +478,41 @@ watch(
 		<template #footer>
 			<div class="review_footer">
 				<div class="review_footer-content">
-					<Button
+					<MainButton
 						v-if="!tooManyAttempts"
 						class="review_footer-button"
 						:text="reviewButtonText"
 						type="input"
 						:style="'success'"
 					/>
-					<Button v-else type="button" disabled>
+					<MainButton v-else type="button" disabled>
 						{{ $t('components.product.review.too_many_attempts') }}
-					</Button>
+					</MainButton>
 				</div>
 				<div v-if="existingReview" class="review_footer-content">
-					<Button
+					<MainButton
 						class="review_footer-button gap-2"
 						:text="$t('components.product.review.delete_review')"
 						type="button"
 						:style="'danger'"
 						size="sm"
-						@click.prevent="deleteReviewHandle()"
+						@click.prevent="deleteReviewEvent()"
 					>
 						<template #icon>
 							<IconFaSolid:trash />
 						</template>
-					</Button>
+					</MainButton>
 				</div>
 			</div>
 		</template>
 	</GenericModal>
-	<Button
+	<MainButton
 		type="button"
 		class="hover:no-underline hover:text-slate-900 hover:dark:text-white capitalize"
 		:text="reviewButtonText"
 		@click="openModal"
 	>
-	</Button>
+	</MainButton>
 </template>
 
 <style lang="scss" scoped>

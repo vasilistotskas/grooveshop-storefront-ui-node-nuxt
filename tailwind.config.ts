@@ -1,4 +1,4 @@
-import { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss'
 
 const MyTheme = {
 	colors: {
@@ -83,13 +83,6 @@ export default {
 			maxWidth: {
 				'8xl': '90rem'
 			},
-			colors: {
-				'blue-opaque': 'rgb(13 42 148 / 18%)',
-				primary: MyTheme.colors.green,
-				green: MyTheme.colors.green,
-				blue: MyTheme.colors.blue,
-				red: MyTheme.colors.red
-			},
 			fontFamily: {
 				sans: ['Inter', 'sans-serif']
 			},
@@ -161,6 +154,7 @@ export default {
 				'1fr-auto': '1fr auto',
 				'auto-auto': 'auto auto',
 				'repeat-auto-fill-mimax-80-auto': 'repeat(auto-fill, minmax(87px, auto));',
+				'repeat-auto-fill-mimax-200-auto': 'repeat(auto-fill, minmax(200px, auto));',
 				'repeat-auto-fill-mimax-350-auto': 'repeat(auto-fill, minmax(350px, auto));'
 			},
 			gridTemplateRows: {

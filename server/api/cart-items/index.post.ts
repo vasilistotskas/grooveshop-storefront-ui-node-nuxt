@@ -5,20 +5,11 @@ import {
 	ZodCartItemCreateResponse
 } from '~/types/cart/cart-item'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const body = await parseBodyAs(event, ZodCartItemCreateRequest)
-	const cookie = event.node.req.headers.cookie
-	const csrftoken = getCookie(event, 'csrftoken') || ''
-	const response = await $fetch(`${config.public.apiBaseUrl}/cart/item/`, {
-		headers: {
-			Cookie: cookie || '',
-			'X-CSRFToken': csrftoken,
-			'Content-Type': 'application/json',
-			method: 'post'
-		},
-		body: JSON.stringify(body),
-		method: 'post'
+	const response = await $api(`${config.public.apiBaseUrl}/cart/item/`, event, {
+		body: JSON.stringify(body)
 	})
 	return await parseDataAs(response, ZodCartItemCreateResponse)
 })

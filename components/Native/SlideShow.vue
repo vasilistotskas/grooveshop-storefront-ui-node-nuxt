@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-const props = defineProps({
+defineProps({
 	leftButtonScrollLeftBy: {
 		type: Number,
-		required: true,
-		default: 0
+		required: false,
+		default: -1
 	},
 	rightButtonScrollLeftBy: {
 		type: Number,
-		required: true,
-		default: 0
+		required: false,
+		default: 1
 	},
 	buttonAlwaysShow: {
 		type: Boolean,

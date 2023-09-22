@@ -2,24 +2,24 @@
 import { Product, ProductOrderingField, ProductQuery } from '~/types/product/product'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import { GlobalEvents } from '~/events/global'
 
 const route = useRoute()
 const { t } = useLang()
 const store = useProductsStore()
 
-const routePaginationParams = ref<ProductQuery>({
-	limit: Number(route.query.limit) || undefined,
-	offset: Number(route.query.offset) || undefined,
-	ordering: route.query.ordering || '-createdAt'
+const routePaginationParams = computed<ProductQuery>(() => {
+	const limit = Number(route.query.limit) || undefined
+	const offset = Number(route.query.offset) || undefined
+	const ordering = route.query.ordering || '-createdAt'
+
+	return {
+		limit,
+		offset,
+		ordering
+	}
 })
 
-const entityOrdering: EntityOrdering<ProductOrderingField> = [
-	{
-		value: 'name',
-		label: t('pages.product.ordering.name'),
-		options: ['ascending', 'descending']
-	},
+const entityOrdering: EntityOrdering<ProductOrderingField> = reactive([
 	{
 		value: 'price',
 		label: t('pages.product.ordering.price'),
@@ -30,17 +30,16 @@ const entityOrdering: EntityOrdering<ProductOrderingField> = [
 		label: t('pages.product.ordering.created_at'),
 		options: ['ascending', 'descending']
 	}
-]
+])
 
-const orderingFields: Partial<Record<ProductOrderingField, OrderingOption[]>> = {
-	name: [],
+const orderingFields: Partial<Record<ProductOrderingField, OrderingOption[]>> = reactive({
 	price: [],
 	createdAt: []
-}
+})
 
 await store.fetchProducts(routePaginationParams.value)
 
-const refresh = async () => await store.fetchProducts(routePaginationParams.value)
+const refreshProducts = async () => await store.fetchProducts(routePaginationParams.value)
 
 const { products, pending, error } = storeToRefs(store)
 
@@ -52,21 +51,9 @@ const ordering = computed(() => {
 	return useOrdering<ProductOrderingField>(entityOrdering, orderingFields)
 })
 
-const bus = useEventBus<string>(GlobalEvents.PRODUCT_LIST)
-bus.on((event, payload: ProductQuery) => {
-	routePaginationParams.value = payload
-	refresh()
-})
-
 watch(
 	() => route.query,
-	() => {
-		bus.emit('update', {
-			limit: Number(route.query.limit) || undefined,
-			offset: Number(route.query.offset) || undefined,
-			ordering: route.query.ordering || '-createdAt'
-		})
-	}
+	() => refreshProducts()
 )
 </script>
 
@@ -77,17 +64,10 @@ watch(
 			:code="error.products?.statusCode"
 			:error="error.products"
 		/>
-		<LoadingSkeleton
-			v-else-if="pending.products && !products?.results?.length"
-			:card-height="'512px'"
-			:class="pending.products ? 'block' : 'hidden'"
-			:loading="pending.products"
-			:replicas="products?.results?.length || 4"
-		></LoadingSkeleton>
 		<template v-if="!pending.products && products?.results?.length">
 			<div class="grid gap-2 md:flex md:items-center">
 				<PaginationLimitOffset
-					:current-page="pagination.currentPage"
+					:page="pagination.page"
 					:limit="pagination.limit"
 					:offset="pagination.offset"
 					:total-pages="pagination.totalPages"
@@ -109,7 +89,11 @@ watch(
 		<template v-if="!pending.products && !products?.results?.length">
 			<EmptyState :icon="emptyIcon">
 				<template #actions>
-					<Button :text="$t('common.empty.button')" :type="'link'" :to="'index'"></Button>
+					<MainButton
+						:text="$t('common.empty.button')"
+						:type="'link'"
+						:to="'index'"
+					></MainButton>
 				</template>
 			</EmptyState>
 		</template>

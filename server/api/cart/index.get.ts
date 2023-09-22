@@ -1,14 +1,9 @@
 import { H3Event } from 'h3'
 import { parseDataAs } from '~/types/parser'
-import { ZodCart } from '~/types/cart/cart'
+import { ZodCart, Cart } from '~/types/cart/cart'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const cookie = event.node.req.headers.cookie
-	const response = await $fetch(`${config.public.apiBaseUrl}/cart/`, {
-		headers: {
-			Cookie: cookie || ''
-		}
-	})
+	const response = await $api<Cart>(`${config.public.apiBaseUrl}/cart/`, event)
 	return await parseDataAs(response, ZodCart)
 })

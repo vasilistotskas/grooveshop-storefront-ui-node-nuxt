@@ -17,8 +17,3 @@ export const getCookieIds = (cookies: Cookie[] | undefined) => {
 
 export const removeCookie = (name: string) =>
 	(document.cookie = serialize(name, '', { expires: new Date(0) }))
-export const setCookie = (name: string, value: string, options: CookieSerializeOptions) =>
-	(document.cookie = serialize(name, value, {
-		sameSite: 'strict',
-		...options
-	}))

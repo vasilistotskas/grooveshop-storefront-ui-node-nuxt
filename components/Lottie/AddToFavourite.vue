@@ -4,7 +4,6 @@ import { Favourite } from '~/types/product/favourite'
 import { ButtonSize } from '~/types/global/button'
 import heartJSON from '~/assets/lotties/heart.json'
 import LottieClient from '~/components/global/Lottie/index.client.vue'
-import { GlobalEvents } from '~/events/global'
 
 const props = defineProps({
 	productId: {
@@ -41,25 +40,30 @@ const toast = useToast()
 const userStore = useUserStore()
 const { favourites } = storeToRefs(userStore)
 const lottie = ref<InstanceType<typeof LottieClient>>()
-const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_FAVOURITE)
 
-const toggleFavourite = () => {
+const toggleFavourite = async () => {
 	if (!props.isAuthenticated || !props.userId || !favourites.value) {
-		toast.error(t('components.add_to_favourite_button.not_authenticated'))
+		toast.add({
+			title: t('components.add_to_favourite_button.not_authenticated')
+		})
 		return
 	}
 	const favouriteIndex = favourites.value.findIndex((f) => f.product === props.productId)
 	if (favouriteIndex === -1) {
-		bus.emit('create', {
-			productId: String(props.productId),
-			userId: String(props.userId)
+		await userStore.addFavourite({
+			user: String(props.userId),
+			product: String(props.productId)
 		})
 		lottie.value?.play()
-		toast.success(t('components.add_to_favourite_button.added'))
+		toast.add({
+			title: t('components.add_to_favourite_button.added')
+		})
 	} else {
-		bus.emit('delete', favourites.value[favouriteIndex].id)
+		await userStore.removeFavourite(favourites.value[favouriteIndex].id)
 		lottie.value?.goToAndStop(0)
-		toast.success(t('components.add_to_favourite_button.removed'))
+		toast.add({
+			title: t('components.add_to_favourite_button.removed')
+		})
 	}
 }
 

@@ -38,7 +38,7 @@ export const useProductsStore = defineStore({
 					data: products,
 					error,
 					pending
-				} = await useFetch(`/api/products`, {
+				} = await useFetch<Pagination<Product>>(`/api/products`, {
 					method: 'get',
 					params: {
 						offset,

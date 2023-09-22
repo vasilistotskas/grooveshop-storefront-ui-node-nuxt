@@ -256,7 +256,7 @@ pages:
             εάν ενεργοποιηθεί, θα προστατεύσουμε τα σχόλιά σας από ανεπιθύμητα
             μηνύματα
         advanced_enable_advanced:
-          title: ενεργοποίηση σύνθετων ρυθμίσεων
+          title: ενεργοποιήστε τις σύνθετες ρυθμίσεις
           description: >-
             μπορείτε να ενεργοποιήσετε τις σύνθετες ρυθμίσεις για να αλλάξετε
             τις ρυθμίσεις
@@ -277,6 +277,10 @@ pages:
     description: deepweb
     keywords: deepweb
     add_to_cart: προσθήκη στο καλάθι
+  error:
+    title: ωχ! κάτι πήγε στραβά.
+    clean: καθαρίστε το σφάλμα
+    home: πλοηγηθείτε στο σπίτι
   product:
     add_to_cart: προσθήκη στο καλάθι
     product_id: αναγνωριστικό προϊόντος
@@ -593,6 +597,20 @@ pages:
       update_error: σφάλμα ενημέρωσης βοήθειας
       deleted: το στοιχείο βοήθειας διαγράφηκε
       delete_error: σφάλμα διαγραφής στοιχείου βοήθειας
+  search:
+    title: αναζήτηση
+    nav: αναζήτηση
+    description: αναζήτηση
+    keywords: αναζήτηση
+    empty:
+      title: δεν βρέθηκαν αποτελέσματα
+      description: δεν βρέθηκαν αποτελέσματα
+      button: πηγαίνετε στο κατάστημα
+    placeholder: πληκτρολογήστε για αναζήτηση...
+    error: παρουσιάστηκε σφάλμα κατά την ανάκτηση
+    results: αποτέλεσμα αναζήτησης για
+    start_searching: πληκτρολογήστε κάτι για αναζήτηση...
+    back_to_home: πίσω στο σπίτι
 layouts:
   title: deepweb %{title}
   description: deepweb-description %{description}
@@ -670,6 +688,9 @@ common:
   mobile_phone: κινητό τηλέφωνο
   notes: σημειώσεις
   back: πίσω
+  retry: ξαναδοκιμάσετε
+  items:
+    count: σύνολο αντικειμένων
   client:
     only:
       fallback: μόνο για την πλευρά του πελάτη

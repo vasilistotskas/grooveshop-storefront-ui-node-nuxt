@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
 import { Address } from '~/types/user/address'
-import { GlobalEvents } from '~/events/global'
 
 const props = defineProps({
 	address: {
@@ -13,18 +12,18 @@ const props = defineProps({
 const { t } = useLang()
 const swal = useSwal()
 const toast = useToast()
-const router = useRouter()
 const { contentShorten } = useText()
 
 const userAddressStore = useUserAddressStore()
-const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_ADDRESS)
 
-const deleteAddress = (id: string) => {
+const deleteAddress = async (id: string) => {
 	if (props.address && props.address.isMain) {
-		toast.error(t('components.address.card.delete.cant_delete_main'))
+		toast.add({
+			title: t('components.address.card.delete.cant_delete_main')
+		})
 		return
 	}
-	swal
+	await swal
 		.fire({
 			title: t('swal.delete_address.title'),
 			text: t('swal.delete_address.text'),
@@ -43,8 +42,9 @@ const deleteAddress = (id: string) => {
 			userAddressStore
 				.deleteAddress(id)
 				.then(async () => {
-					await bus.emit('delete', id)
-					toast.success(t('components.address.card.delete.success'))
+					toast.add({
+						title: t('components.address.card.delete.success')
+					})
 					await swal.fire({
 						title: t('swal.delete_address.success.title'),
 						text: t('swal.delete_address.success.text'),
@@ -53,7 +53,9 @@ const deleteAddress = (id: string) => {
 					})
 				})
 				.catch(() => {
-					toast.error(t('components.address.card.delete.error'))
+					toast.add({
+						title: t('components.address.card.delete.error')
+					})
 				})
 		})
 }
@@ -75,7 +77,7 @@ const deleteAddress = (id: string) => {
 				</h3>
 			</div>
 			<div class="address-card-header-actions">
-				<Button
+				<MainButton
 					class="address-card-header-actions-button"
 					type="link"
 					:to="`/account/addresses/${address.id}/edit`"
@@ -84,8 +86,8 @@ const deleteAddress = (id: string) => {
 				>
 					<span class="hidden">{{ t('pages.account.addresses.edit.title') }}</span>
 					<IconFa6Solid:pencil class="text-cyan-600" />
-				</Button>
-				<Button
+				</MainButton>
+				<MainButton
 					class="address-card-header-actions-button"
 					type="button"
 					size="sm"
@@ -94,7 +96,7 @@ const deleteAddress = (id: string) => {
 				>
 					<span class="hidden">{{ t('pages.account.addresses.delete') }}</span>
 					<IconFa6Solid:trash class="text-red-600" />
-				</Button>
+				</MainButton>
 			</div>
 		</div>
 		<div class="address-card-body">

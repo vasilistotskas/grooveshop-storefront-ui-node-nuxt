@@ -30,3 +30,7 @@ export function contentShortenByWords(
 	if (words.length < to) return content
 	return words.slice(from, to).join(' ') + suffix
 }
+
+export function cleanHtml(html: string): string {
+	return html.replace(/<\/?[^>]+(>|$)/g, '')
+}

@@ -60,7 +60,7 @@ const pwa = useNuxtApp().$pwa
 			</div>
 		</div>
 		<template #fallback>
-			<ClientOnlyFallback />
+			<ClientOnlyFallback class="pwa-toast" />
 		</template>
 	</ClientOnly>
 </template>
@@ -80,7 +80,7 @@ const pwa = useNuxtApp().$pwa
 	padding: 12px;
 	border: 1px solid #8885;
 	border-radius: 4px;
-	z-index: 1;
+	z-index: 10;
 	text-align: left;
 	box-shadow: 3px 4px 5px 0 #8885;
 }

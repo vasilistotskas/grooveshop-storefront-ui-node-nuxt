@@ -2,7 +2,6 @@ export const runtimeConfig = {
 	// The private keys which are only available server-side
 	apiSecret: process.env.NUXT_PRIVATE_API_SECRET,
 	buildDate: new Date().toISOString(),
-	websocketUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 
 	// Keys within public are also exposed client-side
 	public: {
@@ -21,6 +20,7 @@ export const runtimeConfig = {
 		baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
 		djangoUrl: process.env.NUXT_PUBLIC_DJANGO_URL || 'http://localhost:8000',
 		apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
+		djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST || 'localhost:8000',
 		facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID || '123456789',
 		mediaStreamUrl:
 			process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH ||

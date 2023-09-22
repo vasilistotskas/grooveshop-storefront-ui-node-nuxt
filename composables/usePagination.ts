@@ -3,11 +3,11 @@ import { Pagination } from '~/types/pagination/pagination'
 export const usePagination = <T>(results: Pagination<T> | null) => {
 	if (!results)
 		return {
-			resultsCount: 0,
+			count: 0,
 			totalPages: 0,
 			pageTotalResults: 0,
 			pageSize: 0,
-			currentPage: 0,
+			page: 0,
 			links: {
 				next: null,
 				prev: null
@@ -15,28 +15,30 @@ export const usePagination = <T>(results: Pagination<T> | null) => {
 			offset: 0,
 			limit: 0
 		}
-	const resultsCount = results.count
+	const count = results.count
 
 	const totalPages = results.totalPages
 	const pageTotalResults = results.pageTotalResults
 
 	const pageSize = results.pageSize
 
-	const currentPage = results.page
+	const page = results.page
 
 	const links = results.links
+	const pageResults = results.results
 
-	const offset = (currentPage - 1) * pageSize
+	const offset = (page - 1) * pageSize
 	const limit = pageSize
 
 	return {
-		resultsCount,
+		count,
 		totalPages,
 		pageTotalResults,
 		pageSize,
-		currentPage,
+		page,
 		links,
+		results: pageResults,
 		offset,
 		limit
-	}
+	} satisfies Pagination<T>
 }

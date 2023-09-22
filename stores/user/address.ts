@@ -48,18 +48,18 @@ export const useUserAddressStore = defineStore({
 		}
 	},
 	actions: {
-		async fetchAddresses({ page, ordering, userId }: AddressQuery): Promise<void> {
+		async fetchAddresses({ page, ordering, user }: AddressQuery): Promise<void> {
 			try {
 				const {
 					data: addresses,
 					error,
 					pending
-				} = await useFetch(`/api/user-address`, {
+				} = await useFetch<Pagination<Address>>(`/api/user-address`, {
 					method: 'get',
 					params: {
 						page,
 						ordering,
-						userId
+						user
 					}
 				})
 				this.addresses = addresses.value
@@ -75,7 +75,7 @@ export const useUserAddressStore = defineStore({
 					data: address,
 					error,
 					pending
-				} = await useFetch(`/api/user-address/${id}`, {
+				} = await useFetch<Address>(`/api/user-address/${id}`, {
 					method: 'get'
 				})
 				this.address = address.value
@@ -91,7 +91,7 @@ export const useUserAddressStore = defineStore({
 					data: address,
 					error,
 					pending
-				} = await useFetch(`/api/user-address`, {
+				} = await useFetch<Address>(`/api/user-address`, {
 					method: 'post',
 					body
 				})
@@ -108,7 +108,7 @@ export const useUserAddressStore = defineStore({
 					data: address,
 					error,
 					pending
-				} = await useFetch(`/api/user-address/${id}`, {
+				} = await useFetch<Address>(`/api/user-address/${id}`, {
 					method: 'put',
 					body
 				})

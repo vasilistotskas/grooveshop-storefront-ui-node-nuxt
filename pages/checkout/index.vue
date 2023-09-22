@@ -77,9 +77,9 @@ const { value: locationType }: FieldContext<string> = useField('locationType')
 const { value: country }: FieldContext<string> = useField('country')
 const region = reactive(useField('region'))
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	regionStore.fetchRegions({
+	await regionStore.fetchRegions({
 		alpha2: event.target.value
 	})
 	region.value = defaultSelectOptionChoose

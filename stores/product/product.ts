@@ -36,7 +36,7 @@ export const useProductStore = defineStore({
 				data: product,
 				error,
 				pending
-			} = await useFetch(`/api/product/${id}`, {
+			} = await useFetch<Product>(`/api/product/${id}`, {
 				method: 'get'
 			})
 			this.product = product.value
@@ -49,10 +49,11 @@ export const useProductStore = defineStore({
 					data: newProduct,
 					error,
 					pending
-				} = await useFetch(`/api/products`, {
+				} = await useFetch<Product>(`/api/products`, {
 					method: 'post',
-					body: JSON.stringify(body)
+					body
 				})
+				this.product = newProduct.value
 				this.error.product = error.value
 				this.pending.product = pending.value
 			} catch (error) {

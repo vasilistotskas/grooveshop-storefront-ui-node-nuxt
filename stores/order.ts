@@ -51,7 +51,7 @@ export const useOrderStore = defineStore({
 					data: orders,
 					error,
 					pending
-				} = await useFetch(`/api/orders`, {
+				} = await useFetch<Pagination<Order>>(`/api/orders`, {
 					method: 'get',
 					params: {
 						page,
@@ -72,7 +72,7 @@ export const useOrderStore = defineStore({
 					data: order,
 					error,
 					pending
-				} = await useFetch(`/api/order/${id}`, {
+				} = await useFetch<Order>(`/api/order/${id}`, {
 					method: 'get'
 				})
 				this.order = order.value
@@ -88,7 +88,7 @@ export const useOrderStore = defineStore({
 					data: order,
 					error,
 					pending
-				} = await useFetch(`/api/orders`, {
+				} = await useFetch<Order>(`/api/orders`, {
 					method: 'post',
 					body
 				})

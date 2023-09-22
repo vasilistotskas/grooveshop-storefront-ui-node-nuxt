@@ -1,13 +1,15 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+import { RedisData } from '~/server/api/test/index.get'
+
 definePageMeta({
 	layout: 'testing'
 })
 
-const { data: resDataSuccess } = await useFetch('/api/test', {
+const { data: resDataSuccess } = await useFetch<string>('/api/test', {
 	method: 'post',
 	body: { text: 'Nuxt is Awesome!' }
 })
-const { data: resData } = await useFetch('/api/test')
+const { data: resData } = await useFetch<RedisData>('/api/test')
 </script>
 
 <template>

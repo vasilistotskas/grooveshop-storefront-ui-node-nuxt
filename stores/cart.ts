@@ -60,7 +60,7 @@ export const useCartStore = defineStore({
 					data: cart,
 					error,
 					pending
-				} = await useFetch(`/api/cart`, {
+				} = await useFetch<Cart>(`/api/cart`, {
 					method: 'get'
 				})
 				this.cart = cart.value
@@ -74,7 +74,7 @@ export const useCartStore = defineStore({
 			try {
 				const { error, pending } = await useFetch(`/api/cart-items`, {
 					method: 'post',
-					body: JSON.stringify(body)
+					body
 				})
 				this.error.cart = error.value
 				this.pending.cart = pending.value

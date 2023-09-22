@@ -49,6 +49,6 @@ const divTag = ref('div')
 		>
 			( {{ error?.data.detail }} )
 		</h2>
-		<Button class="mt-4" text="Home" to="/" size="sm" />
+		<MainButton class="mt-4" text="Home" to="/" size="sm" />
 	</Component>
 </template>

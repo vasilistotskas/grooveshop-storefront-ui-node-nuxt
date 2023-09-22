@@ -44,7 +44,7 @@ export const useCountryStore = defineStore({
 					data: countries,
 					error,
 					pending
-				} = await useFetch(`/api/countries`, {
+				} = await useFetch<Pagination<Country>>(`/api/countries`, {
 					method: 'get',
 					params
 				})

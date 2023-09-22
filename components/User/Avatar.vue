@@ -39,13 +39,17 @@ const toast = useToast()
 
 const userStore = useUserStore()
 
-const { resolveImageFileExtension, resolveImageSrc } = useImageResolver()
+const { resolveImageSrc } = useImageResolver()
 
-const imageSrc = computed(() => {
+const src = computed(() => {
 	return resolveImageSrc(
 		props.userAccount?.mainImageFilename,
 		`media/uploads/users/${props.userAccount?.mainImageFilename}`
 	)
+})
+
+const alt = computed(() => {
+	return props.userAccount?.firstName + ' ' + props.userAccount?.lastName
 })
 
 const uploadImage = async (event: Event) => {
@@ -55,20 +59,21 @@ const uploadImage = async (event: Event) => {
 	const fileExtensionAllowed = allowedExtensions.includes(
 		file?.name.split('.').pop()?.toLowerCase() || ''
 	)
-	if (!file) return toast.error(t('components.user.avatar.no_file_selected'))
+	if (!file)
+		return toast.add({
+			title: t('components.user.avatar.no_file_selected')
+		})
 	if (!fileExtensionAllowed)
-		return toast.error(t('components.user.avatar.file_extension_not_allowed'))
+		return toast.add({
+			title: t('components.user.avatar.file_extension_not_allowed')
+		})
 	const formData = new FormData()
 	formData.append('image', file)
 	if (!props.userAccount) return
-	await userStore.updateAccountImage(props.userAccount.id, formData).then(
-		() => {
-			toast.success(t('components.user.avatar.image.updated'))
-		},
-		() => {
-			toast.error(t('components.user.avatar.image.not_updated'))
-		}
-	)
+	await userStore.updateAccountImage(props.userAccount.id, formData)
+	toast.add({
+		title: t('components.user.avatar.image.updated')
+	})
 }
 </script>
 
@@ -89,24 +94,21 @@ const uploadImage = async (event: Event) => {
 		>
 			<NuxtImg
 				preload
-				plaholder
 				loading="auto"
 				provider="mediaStream"
 				class="rounded-full"
-				sizes="`sm:100vw md:50vw lg:auto`"
+				decoding="async"
 				:style="{ objectFit: 'contain' }"
 				:width="imgWidth || 100"
 				:height="imgHeight || 100"
-				:modifiers="{
-					fit: 'cover',
-					position: 'entropy',
-					background: 'transparent',
-					format: 'webp',
-					trimThreshold: 5
-				}"
+				:fit="'contain'"
+				:position="'entropy'"
+				:background="'transparent'"
+				:trim-threshold="5"
 				:format="'webp'"
-				:src="imageSrc"
-				:alt="userAccount?.firstName + ' ' + userAccount?.lastName"
+				sizes="`sm:100vw md:50vw lg:auto`"
+				:src="src"
+				:alt="alt"
 			/>
 
 			<form

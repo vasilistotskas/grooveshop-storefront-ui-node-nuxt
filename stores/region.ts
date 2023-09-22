@@ -44,7 +44,7 @@ export const useRegionStore = defineStore({
 					data: regions,
 					error,
 					pending
-				} = await useFetch(`/api/regions`, {
+				} = await useFetch<Pagination<Region>>(`/api/regions`, {
 					method: 'get',
 					params: {
 						alpha2

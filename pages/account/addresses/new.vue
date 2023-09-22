@@ -42,12 +42,18 @@ const ZodAddress = z.object({
 	notes: z.string().nullish(),
 	isMain: z.boolean().nullish(),
 	user: z.number().nullish(),
-	country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	}),
-	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	})
+	country: z
+		.string()
+		.refine((value) => value !== defaultSelectOptionChoose, {
+			message: t('common.validation.region.required')
+		})
+		.nullish(),
+	region: z
+		.string()
+		.refine((value) => value !== defaultSelectOptionChoose, {
+			message: t('common.validation.region.required')
+		})
+		.nullish()
 })
 const validationSchema = toTypedSchema(ZodAddress)
 const { handleSubmit, errors, isSubmitting } = useForm({
@@ -76,9 +82,9 @@ const { value: isMain }: FieldContext<boolean> = useField('isMain')
 const { value: country }: FieldContext<string> = useField('country')
 const region = reactive(useField('region'))
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	regionStore.fetchRegions({
+	await regionStore.fetchRegions({
 		alpha2: event.target.value
 	})
 	region.value = defaultSelectOptionChoose
@@ -107,11 +113,15 @@ const onSubmit = handleSubmit(async (values) => {
 			region: values.region
 		})
 		.then(() => {
-			toast.success(t('pages.account.addresses.new.success'))
+			toast.add({
+				title: t('pages.account.addresses.new.success')
+			})
 			router.push('/account/addresses')
 		})
 		.catch(() => {
-			toast.error(t('pages.account.addresses.new.error'))
+			toast.add({
+				title: t('pages.account.addresses.new.error')
+			})
 		})
 })
 
@@ -128,14 +138,14 @@ definePageMeta({
 	<PageWrapper class="grid gap-4">
 		<PageHeader>
 			<div class="grid grid-cols-auto-1fr gap-4 items-center justify-items">
-				<Button
+				<MainButton
 					:type="'link'"
 					:text="$t('common.back')"
 					:to="{ name: 'account-addresses' }"
 					size="sm"
 				>
 					<IconFa6Solid:arrowLeft />
-				</Button>
+				</MainButton>
 				<PageTitle class="text-center">{{
 					$t('pages.account.addresses.new.title')
 				}}</PageTitle>

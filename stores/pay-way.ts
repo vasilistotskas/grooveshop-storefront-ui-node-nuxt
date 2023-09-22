@@ -49,7 +49,7 @@ export const usePayWayStore = defineStore({
 					data: payWays,
 					error,
 					pending
-				} = await useFetch(`/api/pay-way`, {
+				} = await useFetch<Pagination<PayWay>>(`/api/pay-way`, {
 					method: 'get',
 					params
 				})

@@ -12,6 +12,10 @@ export type Pagination<T> = {
 	pageSize: number
 	page: number
 	results: T[] | null
+} & {
+	limit?: number
+	offset?: number
+	cursor?: string
 }
 
 export const ZodPagination = <T>(resultSchema: z.Schema<T>): z.Schema<Pagination<T>> =>

@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineWrappedResponseHandler(async (event) => {
 	const body = await readBody(event)
 	await useStorage().setItem('redis:test', body)
 	return 'Data is set'

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 const counter = ref(1)
 const doubled = computed(() => counter.value * 2)
 </script>

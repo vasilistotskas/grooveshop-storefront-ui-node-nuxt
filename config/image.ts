@@ -1,4 +1,4 @@
-import { ModuleOptions } from '@nuxt/image'
+import { ModuleOptions } from '@nuxt/image-edge'
 
 export const image = {
 	dir: 'public',

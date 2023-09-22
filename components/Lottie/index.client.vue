@@ -1,5 +1,5 @@
 <template :style="getCurrentStyle">
-	<component
+	<Component
 		:is="componentElement"
 		:data-id="elementId"
 		class="lottie-animation-container circle"
@@ -8,7 +8,7 @@
 		@mouseleave="hoverEnded"
 	>
 		<span class="hidden"></span>
-	</component>
+	</Component>
 </template>
 
 <script lang="ts">
@@ -139,8 +139,8 @@ export default defineComponent({
 			// creating a copy of the animation data to prevent the original data from being modified
 			// also needed to render multiple animations on the same page
 			let animationData = {}
-			if (!isEqual(props.animationData, {})) {
-				animationData = useCloneDeep(props.animationData)
+			if (Object.keys(props.animationData).length !== 0) {
+				animationData = { ...props.animationData }
 			}
 
 			if (props.animationLink !== '') {
@@ -174,7 +174,7 @@ export default defineComponent({
 				assetsPath: props.assetsPath
 			}
 
-			if (!isEqual(props.rendererSettings, {})) {
+			if (Object.keys(props.rendererSettings).length !== 0) {
 				lottieAnimationConfig.rendererSettings = props.rendererSettings
 			}
 
@@ -417,7 +417,7 @@ export default defineComponent({
 				)
 			}
 
-			if (props.animationLink === '' && isEqual(props.animationData, {})) {
+			if (props.animationLink === '' && Object.keys(props.animationData).length === 0) {
 				throw new Error('You must provide either animationLink or animationData')
 			}
 

@@ -8,18 +8,13 @@ import { OrderQuery, ZodOrder } from '~/types/order/order'
 import { ReviewQuery, ZodReview } from '~/types/product/review'
 import { AddressQuery, ZodAddress } from '~/types/user/address'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const cookie = event.node.req.headers.cookie
 
 	// Account
-	const accountResponse = await $fetch(
+	const accountResponse = await $api(
 		`${config.public.apiBaseUrl}/user/account/session/`,
-		{
-			headers: {
-				Cookie: cookie || ''
-			}
-		}
+		event
 	)
 	const accountParsedData = await parseDataAs(accountResponse, ZodAccount)
 
@@ -32,11 +27,7 @@ export default defineEventHandler(async (event: H3Event) => {
 		`${config.public.apiBaseUrl}/product/favourite/`,
 		favouritesQuery
 	)
-	const favouritesResponse = await $fetch(favouritesUrl, {
-		headers: {
-			Cookie: cookie || ''
-		}
-	})
+	const favouritesResponse = await $api(favouritesUrl, event)
 
 	// Reviews
 	const reviewsQuery: ReviewQuery = {
@@ -47,11 +38,7 @@ export default defineEventHandler(async (event: H3Event) => {
 		`${config.public.apiBaseUrl}/product/review/`,
 		reviewsQuery
 	)
-	const reviewsResponse = await $fetch(reviewsUrl, {
-		headers: {
-			Cookie: cookie || ''
-		}
-	})
+	const reviewsResponse = await $api(reviewsUrl, event)
 
 	// Orders
 	const ordersQuery: OrderQuery = {
@@ -59,15 +46,11 @@ export default defineEventHandler(async (event: H3Event) => {
 		pagination: 'false'
 	}
 	const ordersUrl = buildFullUrl(`${config.public.apiBaseUrl}/order/`, ordersQuery)
-	const ordersResponse = await $fetch(ordersUrl, {
-		headers: {
-			Cookie: cookie || ''
-		}
-	})
+	const ordersResponse = await $api(ordersUrl, event)
 
 	// Addresses
 	const addressesQuery: AddressQuery = {
-		userId: String(accountParsedData.id),
+		user: String(accountParsedData.id),
 		pagination: 'false'
 	}
 
@@ -75,11 +58,7 @@ export default defineEventHandler(async (event: H3Event) => {
 		`${config.public.apiBaseUrl}/user/address/`,
 		addressesQuery
 	)
-	const addressesResponse = await $fetch(addressesUrl, {
-		headers: {
-			Cookie: cookie || ''
-		}
-	})
+	const addressesResponse = await $api(addressesUrl, event)
 
 	// Parse data
 	const favouritesParsedData = await parseDataAs(

@@ -34,8 +34,8 @@ export const ZodProduct = z.object({
 	priceSavePercent: z.number(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
-	mainImageAbsoluteUrl: z.string(),
-	mainImageFilename: z.string(),
+	mainImageAbsoluteUrl: z.string().nullish(),
+	mainImageFilename: z.string().nullish(),
 	reviewAverage: z.number(),
 	reviewCounter: z.number().int()
 })
@@ -71,4 +71,4 @@ export type Product = Readonly<z.infer<typeof ZodProduct>>
 export type ProductParams = z.infer<typeof ZodProductParams>
 export type ProductCreateRequest = z.infer<typeof ZodProductCreateRequest>
 export type ProductQuery = PaginationQuery & OrderingQuery
-export type ProductOrderingField = 'name' | 'price' | 'createdAt'
+export type ProductOrderingField = 'price' | 'createdAt'

@@ -58,7 +58,7 @@ export const useReviewsStore = defineStore({
 					data: reviews,
 					error,
 					pending
-				} = await useFetch(`/api/product-reviews`, {
+				} = await useFetch<Pagination<Review>>(`/api/product-reviews`, {
 					method: 'get',
 					params: {
 						productId,
@@ -81,7 +81,7 @@ export const useReviewsStore = defineStore({
 					data: review,
 					error,
 					pending
-				} = await useFetch(`/api/product-reviews`, {
+				} = await useFetch<Pagination<Review>>(`/api/product-reviews`, {
 					method: 'get',
 					params: {
 						productId,
@@ -104,7 +104,7 @@ export const useReviewsStore = defineStore({
 					data: userHadReviewed,
 					error,
 					pending
-				} = await useFetch(`/api/product-reviews/user-had-reviewed`, {
+				} = await useFetch<boolean>(`/api/product-reviews/user-had-reviewed`, {
 					method: 'post',
 					body: {
 						product,
@@ -124,7 +124,7 @@ export const useReviewsStore = defineStore({
 					data: review,
 					error,
 					pending
-				} = await useFetch(`/api/product-reviews`, {
+				} = await useFetch<Review>(`/api/product-reviews`, {
 					method: 'post',
 					body,
 					params
@@ -166,9 +166,9 @@ export const useReviewsStore = defineStore({
 					data: review,
 					error,
 					pending
-				} = await useFetch(`/api/product-reviews/${id}`, {
+				} = await useFetch<Review>(`/api/product-reviews/${id}`, {
 					method: 'put',
-					body: JSON.stringify(body)
+					body
 				})
 				if (review.value && this.reviews?.results) {
 					const index = this.reviews?.results?.findIndex((review) => review.id === id)

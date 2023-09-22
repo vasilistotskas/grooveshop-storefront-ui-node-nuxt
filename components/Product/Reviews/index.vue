@@ -30,11 +30,18 @@ const { productId, reviewsAverage, reviewsCount, displayImageOf } = toRefs(props
 const { t } = useLang()
 const route = useRoute()
 
-const routePaginationParams = ref<ReviewQuery>({
-	productId: String(productId.value),
-	page: Number(route.query.page) || undefined,
-	ordering: route.query.ordering || '-createdAt',
-	expand: 'true'
+const routePaginationParams = computed<ReviewQuery>(() => {
+	const id = String(productId.value)
+	const page = Number(route.query.page) || undefined
+	const ordering = route.query.ordering || '-createdAt'
+	const expand = 'true'
+
+	return {
+		productId: id,
+		page,
+		ordering,
+		expand
+	}
 })
 
 const reviewsStore = useReviewsStore()
@@ -42,7 +49,7 @@ const { reviews, error, pending } = storeToRefs(reviewsStore)
 
 await reviewsStore.fetchReviews(routePaginationParams.value)
 
-const entityOrdering: EntityOrdering<ReviewOrderingField> = [
+const entityOrdering: EntityOrdering<ReviewOrderingField> = reactive([
 	{
 		value: 'id',
 		label: t('components.product.reviews.ordering.id'),
@@ -53,14 +60,14 @@ const entityOrdering: EntityOrdering<ReviewOrderingField> = [
 		label: t('components.product.reviews.ordering.created_at'),
 		options: ['ascending', 'descending']
 	}
-]
+])
 
-const orderingFields: Partial<Record<ReviewOrderingField, OrderingOption[]>> = {
+const orderingFields: Partial<Record<ReviewOrderingField, OrderingOption[]>> = reactive({
 	id: [],
 	userId: [],
 	productId: [],
 	createdAt: []
-}
+})
 
 const pagination = computed(() => {
 	return usePagination<Review>(reviews.value)
@@ -75,7 +82,11 @@ const ordering = computed(() => {
 	<div
 		class="container-small reviews-list text-gray-700 dark:text-gray-200 p-6 border-t border-gray-900/10 dark:border-gray-50/[0.2]"
 	>
-		<Error v-if="error.reviews" :code="error.reviews.statusCode" :error="error.reviews" />
+		<Error
+			v-if="error.reviews"
+			:code="error.reviews?.statusCode"
+			:error="error.reviews"
+		/>
 		<template v-else>
 			<div class="reviews-list-header">
 				<h2 class="reviews-list-title">
@@ -87,11 +98,11 @@ const ordering = computed(() => {
 				>
 					<div class="reviews-list-pagination">
 						<PaginationPageNumber
-							:results-count="pagination.resultsCount"
+							:count="pagination.count"
 							:total-pages="pagination.totalPages"
 							:page-total-results="pagination.pageTotalResults"
 							:page-size="pagination.pageSize"
-							:current-page="pagination.currentPage"
+							:page="pagination.page"
 							:links="pagination.links"
 						/>
 					</div>
@@ -105,21 +116,6 @@ const ordering = computed(() => {
 			</div>
 			<div class="reviews-list-body">
 				<div class="reviews-list-items">
-					<LoadingSkeleton
-						v-if="pending.reviews && !error.reviews && !reviews?.results?.length"
-						:card-height="'130px'"
-						:class="
-							pending.reviews
-								? 'grid grid-rows-repeat-auto-fill-mimax-100-130 gap-4'
-								: 'hidden'
-						"
-						:loading="pending.reviews"
-						:direction="'row'"
-						:columns-md="1"
-						:columns-lg="1"
-						:card-body-paragraphs="5"
-						:replicas="reviews?.results?.length || 4"
-					></LoadingSkeleton>
 					<ProductReviewsList
 						v-if="!pending.reviews && reviews?.results?.length"
 						:reviews-average="reviewsAverage"
@@ -130,11 +126,11 @@ const ordering = computed(() => {
 					<template v-if="!pending.reviews && !reviews?.results?.length">
 						<EmptyState :icon="emptyIcon">
 							<template #actions>
-								<Button
+								<MainButton
 									:text="$t('common.empty.button')"
 									:type="'link'"
 									:to="'index'"
-								></Button>
+								></MainButton>
 							</template>
 						</EmptyState>
 					</template>

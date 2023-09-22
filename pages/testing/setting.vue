@@ -148,7 +148,7 @@ const validate = async () => {
 											href="https://docs.github.com/en/rest/users/users#get-a-user"
 										/>
 									</p>
-									<Button
+									<MainButton
 										class="capitalize"
 										size="sm"
 										type="button"
@@ -177,14 +177,14 @@ const validate = async () => {
 											class="w-full md:w-1/3"
 										>
 											<template #suffix>
-												<Button
+												<MainButton
 													type="button"
 													:style="'opposite'"
 													class="space-x-1 border-none"
 												>
 													<IconIc:baselineContentCopy />
 													{{ $t('common.copy') }}
-												</Button>
+												</MainButton>
 											</template>
 										</FormTextInput>
 									</div>

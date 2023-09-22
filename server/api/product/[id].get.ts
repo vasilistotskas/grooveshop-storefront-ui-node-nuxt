@@ -2,14 +2,9 @@ import { H3Event } from 'h3'
 import { ZodProduct, ZodProductParams } from '~/types/product/product'
 import { parseDataAs, parseParamsAs } from '~/types/parser'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const params = parseParamsAs(event, ZodProductParams)
-	const cookie = event.node.req.headers.cookie
-	const response = await $fetch(`${config.public.apiBaseUrl}/product/${params.id}/`, {
-		headers: {
-			Cookie: cookie || ''
-		}
-	})
+	const response = await $api(`${config.public.apiBaseUrl}/product/${params.id}/`, event)
 	return await parseDataAs(response, ZodProduct)
 })

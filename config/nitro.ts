@@ -1,7 +1,10 @@
 export const nitro = {
-	compressPublicAssets: { gzip: true, brotli: true },
+	routeRules: {
+		'/**': { isr: false }
+	},
+	compressPublicAssets: { gzip: true },
 	prerender: {
-		crawlLinks: false,
+		crawlLinks: false, // process.env.NODE_ENV === 'production',
 		routes: []
 	},
 	publicAssets: [

@@ -1,7 +1,44 @@
 <script lang="ts" setup>
+import { WebsocketMessageData } from '~/types/websocket'
+
 definePageMeta({
 	layout: 'testing'
 })
+
+const config = useRuntimeConfig()
+
+let ws: WebSocket
+onMounted(() => {
+	const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+	const djangoApiHost = config.public.djangoHost
+	const wsEndpoint = `${websocketProtocol}://${djangoApiHost}/ws/notifications/`
+	ws = new WebSocket(wsEndpoint)
+	ws.onmessage = (event: MessageEvent<WebsocketMessageData>) => {
+		// eslint-disable-next-line no-console
+		console.log(
+			'event',
+			event,
+			event.data.users,
+			event.data.isRead,
+			event.data.link,
+			event.data.kind,
+			event.data.translations
+		)
+	}
+
+	ws.onopen = (event) => {
+		// eslint-disable-next-line no-console
+		console.log('WebSocket connection opened!', event)
+	}
+
+	ws.onclose = (event) => {
+		// eslint-disable-next-line no-console
+		console.log('WebSocket connection closed!', event)
+	}
+})
+const sendMessage = () => {
+	ws.send('hello')
+}
 </script>
 
 <template>

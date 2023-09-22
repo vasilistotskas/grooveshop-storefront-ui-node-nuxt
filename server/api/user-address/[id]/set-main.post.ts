@@ -3,22 +3,12 @@ import { z } from 'zod'
 import { ZodAddressParams } from '~/types/user/address'
 import { parseDataAs, parseParamsAs } from '~/types/parser'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const params = parseParamsAs(event, ZodAddressParams)
-	const cookie = event.node.req.headers.cookie
-	const csrftoken = getCookie(event, 'csrftoken') || ''
-	const response = await $fetch(
+	const response = await $api(
 		`${config.public.apiBaseUrl}/user/address/${params.id}/set_main/`,
-		{
-			headers: {
-				Cookie: cookie || '',
-				'X-CSRFToken': csrftoken,
-				'Content-Type': 'application/json',
-				method: 'post'
-			},
-			method: 'post'
-		}
+		event
 	)
 	return await parseDataAs(response, z.any())
 })

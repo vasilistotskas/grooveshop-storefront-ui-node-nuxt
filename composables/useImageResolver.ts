@@ -9,7 +9,10 @@ export const useImageResolver = () => {
 		return fileName.split('.').pop() || 'png'
 	}
 
-	const resolveImageSrc = (filename: string | undefined, source: string | undefined) => {
+	const resolveImageSrc = (
+		filename: string | null | undefined,
+		source: string | undefined
+	) => {
 		if (!source || !filename) return 'static/images/default.png'
 		return source
 	}

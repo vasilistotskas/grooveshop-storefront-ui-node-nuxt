@@ -10,7 +10,7 @@ const props = defineProps({
 		required: true,
 		default: 0
 	},
-	currentPage: {
+	page: {
 		type: Number,
 		required: true,
 		default: 1
@@ -37,32 +37,32 @@ const { t } = useLang()
 const firstPageNumber = computed(() => 1)
 const lastPageNumber = computed(() => props.totalPages)
 const startPage = computed(() => {
-	if (props.currentPage === 1) {
+	if (props.page === 1) {
 		return 1
 	}
-	if (props.currentPage === props.totalPages) {
+	if (props.page === props.totalPages) {
 		if (props.totalPages - props.maxVisibleButtons + 1 === 0) {
 			return 1
 		}
 		return props.totalPages - props.maxVisibleButtons + 1
 	}
-	return props.currentPage - 1
+	return props.page - 1
 })
 
-const isInFirstPage = computed(() => props.currentPage === 1)
-const isInLastPage = computed(() => props.currentPage === props.totalPages)
+const isInFirstPage = computed(() => props.page === 1)
+const isInLastPage = computed(() => props.page === props.totalPages)
 
 const shouldDisplayFirstPage = computed(() => {
-	return !isInFirstPage.value && props.currentPage > firstPageNumber.value + 1
+	return !isInFirstPage.value && props.page > firstPageNumber.value + 1
 })
 const shouldDisplayLastPage = computed(() => {
-	return !isInLastPage.value && props.currentPage < lastPageNumber.value - 1
+	return !isInLastPage.value && props.page < lastPageNumber.value - 1
 })
 const shouldDisplayPreviousTripleDots = computed(() => {
-	return props.currentPage > props.maxVisibleButtons
+	return props.page > props.maxVisibleButtons
 })
 const shouldDisplayNextTripleDots = computed(() => {
-	return props.currentPage < props.totalPages - props.maxVisibleButtons + 1
+	return props.page < props.totalPages - props.maxVisibleButtons + 1
 })
 
 const pages = computed(() => {
@@ -147,24 +147,24 @@ const link = computed(() => {
 				</Anchor>
 			</li>
 
-			<li v-for="(page, index) in pages" :key="page">
+			<li v-for="(pageNumber, index) in pages" :key="pageNumber">
 				<Anchor
 					:to="{
 						path: link,
 						query: {
 							limit,
-							offset: (page - 1) * limit,
+							offset: (pageNumber - 1) * limit,
 							ordering: route.query?.ordering
 						}
 					}"
 					:class="{
 						'grid items-center justify-center w-full rounded bg-gray-200 dark:bg-gray-800 py-1 px-2': true,
-						'bg-primary-400 dark:bg-primary-400': page === currentPage
+						'bg-primary-400 dark:bg-primary-400': pageNumber === page
 					}"
 					:text="String(index)"
-					:title="$t('components.pagination.go_to_page', { page: page })"
+					:title="$t('components.pagination.go_to_page', { page: pageNumber })"
 				>
-					<span class="text-gray-700 dark:text-gray-200">{{ page }}</span>
+					<span class="text-gray-700 dark:text-gray-200">{{ pageNumber }}</span>
 				</Anchor>
 			</li>
 

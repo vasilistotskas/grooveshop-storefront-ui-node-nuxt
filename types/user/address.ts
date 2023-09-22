@@ -30,7 +30,7 @@ export const ZodAddressQuery = z.object({
 	page: z.string().nullish(),
 	ordering: z.string().nullish(),
 	id: z.string().nullish(),
-	userId: z.string().nullish(),
+	user: z.string().nullish(),
 	expand: z.string().nullish()
 })
 
@@ -83,7 +83,7 @@ export type AddressCreateRequest = z.infer<typeof ZodAddressCreateRequest>
 export type AddressQuery = PaginationQuery &
 	OrderingQuery & {
 		id?: string | undefined
-		userId?: string | undefined
+		user?: string | undefined
 		expand?: string | undefined
 	}
 export type AddressOrderingField =

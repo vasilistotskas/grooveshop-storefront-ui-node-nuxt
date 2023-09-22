@@ -48,10 +48,8 @@ const ZodAddress = z.object({
 	notes: z.string().nullish(),
 	isMain: z.boolean().nullish(),
 	user: z.number().nullish(),
-	country: z.string(),
-	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	})
+	country: z.string().nullish(),
+	region: z.string().nullish()
 })
 const validationSchema = toTypedSchema(ZodAddress)
 const initialValues = ZodAddress.parse({
@@ -92,53 +90,53 @@ const { value: isMain }: FieldContext<boolean> = useField('isMain')
 const { value: country }: FieldContext<string> = useField('country')
 const region = reactive(useField('region'))
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	regionStore.fetchRegions({
+	await regionStore.fetchRegions({
 		alpha2: event.target.value
 	})
 	region.value = defaultSelectOptionChoose
 }
-const onSubmit = handleSubmit((values) => {
+const onSubmit = handleSubmit(async (values) => {
 	if (String(floor) === defaultSelectOptionChoose) values.floor = null
 	if (String(locationType) === defaultSelectOptionChoose) values.locationType = null
-	userAddressStore
-		.updateAddress(addressId, {
-			title: values.title,
-			firstName: values.firstName,
-			lastName: values.lastName,
-			street: values.street,
-			streetNumber: values.streetNumber,
-			city: values.city,
-			zipcode: values.zipcode,
-			floor: Number(values.floor),
-			locationType: Number(values.locationType),
-			phone: values.phone,
-			mobilePhone: values.mobilePhone,
-			notes: values.notes,
-			isMain: values.isMain,
-			user: values.user,
-			country: values.country,
-			region: values.region
-		})
-		.then(() => {
-			toast.success(t('pages.account.addresses.edit.success'))
-			router.push('/account/addresses')
-		})
-		.catch(() => {
-			toast.error(t('pages.account.addresses.edit.error'))
-		})
+	await userAddressStore.updateAddress(addressId, {
+		title: values.title,
+		firstName: values.firstName,
+		lastName: values.lastName,
+		street: values.street,
+		streetNumber: values.streetNumber,
+		city: values.city,
+		zipcode: values.zipcode,
+		floor: Number(values.floor),
+		locationType: Number(values.locationType),
+		phone: values.phone,
+		mobilePhone: values.mobilePhone,
+		notes: values.notes,
+		isMain: values.isMain,
+		user: values.user,
+		country: values.country,
+		region: values.region
+	})
+	toast.add({
+		title: t('pages.account.addresses.edit.success')
+	})
+	await router.push('/account/addresses')
 })
 
-const onSetMain = () => {
-	userAddressStore
+const onSetMain = async () => {
+	await userAddressStore
 		.setMainAddress(addressId)
 		.then(() => {
-			toast.success(t('pages.account.addresses.edit.main.success'))
+			toast.add({
+				title: t('pages.account.addresses.edit.main.success')
+			})
 			router.push('/account/addresses')
 		})
 		.catch(() => {
-			toast.error(t('pages.account.addresses.edit.main.error'))
+			toast.add({
+				title: t('pages.account.addresses.edit.main.error')
+			})
 		})
 }
 
@@ -160,14 +158,14 @@ definePageMeta({
 			]"
 		>
 			<div class="grid grid-cols-auto-1fr gap-4 items-center">
-				<Button
+				<MainButton
 					:type="'link'"
 					:text="$t('common.back')"
 					:to="{ name: 'account-addresses' }"
 					size="sm"
 				>
 					<IconFa6Solid:arrowLeft />
-				</Button>
+				</MainButton>
 				<PageTitle :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`" />
 			</div>
 			<template v-if="address?.isMain">
@@ -181,7 +179,7 @@ definePageMeta({
 				</div>
 			</template>
 			<template v-else>
-				<Button
+				<MainButton
 					class="gap-4"
 					:text="$t('pages.account.addresses.edit.main.button')"
 					@click="onSetMain"
@@ -190,25 +188,15 @@ definePageMeta({
 						$t('pages.account.addresses.edit.main.button')
 					}}</span>
 					<IconFa6Solid:circleCheck />
-				</Button>
+				</MainButton>
 			</template>
 		</PageHeader>
 		<PageBody>
 			<Error
 				v-if="error.address"
-				:code="error.address.statusCode"
+				:code="error.address?.statusCode"
 				:error="error.address"
 			/>
-			<LoadingSkeleton
-				v-else-if="pending.address"
-				:card-height="'512px'"
-				:class="pending.address ? 'block' : 'hidden'"
-				:loading="pending.address"
-				:columns="1"
-				:columns-md="1"
-				:columns-lg="1"
-				:replicas="1"
-			></LoadingSkeleton>
 			<form
 				v-if="!pending.address && !error.address && address"
 				id="AddressEditForm"

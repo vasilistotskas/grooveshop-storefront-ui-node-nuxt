@@ -1,46 +1,18 @@
 <script lang="ts" setup>
-import { Title } from '@unhead/schema'
-import { AppSetup } from '~/utils/app'
-import { IThemeValue } from '~/utils/theme'
-import { GlobalEvents } from '~/events/global'
+import { UseSeoMetaInput } from '@unhead/schema'
 import pkg from '~/package.json'
 
-AppSetup()
 const config = useRuntimeConfig()
 const route = useRoute()
 const router = useRouter()
 const { locale, locales } = useLang()
-const themeValue = useState<IThemeValue>('theme.current')
+const colorMode = useColorMode()
 
 const cartStore = useCartStore()
 await cartStore.fetchCart()
 
-const refreshCart = async () => await cartStore.fetchCart()
-
-const title = computed(() => {
-	if ('title' in route.meta) {
-		return route.meta.title as string
-	}
-	return config.public.appTitle
-})
-const description = computed(() => {
-	if ('description' in route.meta) {
-		return route.meta.description as string
-	}
-	return config.public.appDescription
-})
-const themeClass = computed(() => (themeValue.value === 'dark' ? 'dark' : 'light'))
-const themeColor = computed(() => (themeValue.value === 'dark' ? '#1a202c' : '#ffffff'))
-
-const langBus = useEventBus<string>(GlobalEvents.ON_LANGUAGE_UPDATED)
-langBus.on((event: string, payload) => {
-	// ON_LANGUAGE_UPDATED event
-})
-
-const cartBus = useEventBus<string>(GlobalEvents.ON_CART_UPDATED)
-cartBus.on((event: string, payload) => {
-	refreshCart()
-})
+const themeClass = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
+const themeColor = computed(() => (colorMode.value === 'dark' ? '#1a202c' : '#ffffff'))
 
 const i18nHead = useLocaleHead({
 	addDirAttribute: true,
@@ -50,16 +22,15 @@ const i18nHead = useLocaleHead({
 	router,
 	i18n: useI18n()
 })
+
 const headOptions = {
 	htmlAttrs: {
 		lang: i18nHead.value.htmlAttrs!.lang,
 		class: () => themeClass.value,
 		dir: i18nHead.value.htmlAttrs?.dir
 	},
-	link: [
-		{ rel: 'manifest', href: 'manifest.webmanifest', crossorigin: 'use-credentials' },
-		...(i18nHead.value.link || [])
-	],
+	charset: 'utf-8',
+	title: () => config.public.appTitle,
 	meta: [
 		{
 			name: 'msapplication-config',
@@ -73,12 +44,10 @@ const headOptions = {
 	]
 }
 
-useServerHead(headOptions)
-useHead(headOptions)
-useSchemaOrg([
+const schemaOrgOptions = [
 	defineOrganization({
-		name: config.public.appTitle as string,
-		logo: config.public.appImage as string,
+		name: config.public.appTitle,
+		logo: config.public.appImage,
 		sameAs: [
 			'https://www.facebook.com/...',
 			'https://twitter.com/...',
@@ -86,56 +55,67 @@ useSchemaOrg([
 		]
 	}),
 	defineWebSite({
-		url: config.public.baseUrl as string,
-		name: config.public.appTitle as string,
-		description: config.public.appDescription as string,
+		url: config.public.baseUrl,
+		name: config.public.appTitle,
+		description: config.public.appDescription,
 		inLanguage: locales.value.map((l: any) => l.iso)
 	}),
 	defineWebPage()
-])
-useServerSeoMeta({
-	title: title.value as Title,
-	description: description.value as string,
-	colorScheme: () => (themeValue.value === 'dark' ? 'dark' : 'light'),
-	themeColor: () => themeColor.value,
-	applicationName: config.public.appTitle as string,
-	author: config.public.author.name as string,
-	creator: config.public.author.name as string,
-	publisher: config.public.author.name as string,
-	ogTitle: `${config.public.appTitle as string} - v${pkg.version}`,
+]
+
+const seoMetaOptions = {
+	title: config.public.appTitle,
+	description: config.public.appDescription,
+	colorScheme: colorMode.value === 'dark' ? 'dark' : 'light',
+	themeColor: themeColor.value,
+	applicationName: config.public.appTitle,
+	author: config.public.author.name,
+	creator: config.public.author.name,
+	publisher: config.public.author.name,
+	ogTitle: `${config.public.appTitle} - v${pkg.version}`,
 	ogType: 'website',
 	ogUrl: pkg.homepage,
-	ogImage: config.public.appImage as string,
+	ogImage: config.public.appImage,
 	ogImageAlt: pkg.name,
-	ogSiteName: config.public.appTitle as string,
+	ogSiteName: config.public.appTitle,
 	ogLocale: locale.value,
 	ogLocaleAlternate: locales.value.map((l: any) => l.iso),
-	fbAppId: config.public.facebookAppId as string,
+	fbAppId: config.public.facebookAppId,
 	twitterCard: 'summary_large_image',
-	twitterTitle: title.value as string,
-	twitterDescription: description.value as string,
-	twitterImage: config.public.appImage as string,
+	twitterTitle: config.public.appTitle,
+	twitterDescription: config.public.appDescription,
+	twitterImage: config.public.appImage,
 	mobileWebAppCapable: 'yes',
-	msapplicationTileImage: config.public.appImage as string,
-	msapplicationTileColor: () => themeColor.value
-})
-defineOgImage({
-	title: title.value,
-	description: description.value,
-	alt: title.value,
+	msapplicationTileImage: config.public.appImage,
+	msapplicationTileColor: themeColor.value
+} satisfies UseSeoMetaInput
+
+const ogImageOptions = {
+	title: config.public.appTitle,
+	description: config.public.appDescription,
+	alt: config.public.appTitle,
 	cache: true,
 	cacheKey: 'og-image',
 	cacheTtl: 60 * 60 * 24 * 7
-})
+}
+
+useServerHead(headOptions)
+useHead(headOptions)
+useSchemaOrg(schemaOrgOptions)
+useServerSeoMeta(seoMetaOptions)
+useSeoMeta(seoMetaOptions)
+defineOgImage(ogImageOptions)
 </script>
 
 <template>
-	<Body>
+	<div class="app">
+		<VitePwaManifest />
 		<NuxtLoadingIndicator />
 		<NuxtLayout>
 			<NuxtPage />
 		</NuxtLayout>
-	</Body>
-	<Pwa />
-	<CookieControl />
+		<Pwa />
+		<CookieControl />
+		<UNotifications />
+	</div>
 </template>

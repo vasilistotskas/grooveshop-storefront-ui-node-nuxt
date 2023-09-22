@@ -1,3 +1,5 @@
+import { Product } from '~/types/product/product'
+
 export default defineNuxtRouteMiddleware(async (to, from) => {
 	const nuxtApp = useNuxtApp()
 
@@ -5,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 		return navigateTo('/')
 	}
 
-	const product = await $fetch(`/api/product/${to.params.id}`)
+	const product = await $fetch<Product>(`/api/product/${to.params.id}`)
 	const productSlug = product.slug
 	const productId = product.id
 	const currentLocale = nuxtApp.$i18n.locale.value

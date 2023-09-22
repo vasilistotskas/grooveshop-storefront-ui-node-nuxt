@@ -1,24 +1,7 @@
-<template>
-	<div class="relative font-sans" n="green6">
-		<div class="container max-w-200 mx-auto py-10 px-4">
-			<h1>{{ error?.message }}</h1>
-			There was an error 😱
-
-			<br />
-			<button type="button" @click="handleError">Clear error</button>
-			<br />
-			<NuxtLink to="/404"> Trigger another error </NuxtLink>
-			<br />
-			<NuxtLink to="/"> Navigate home </NuxtLink>
-		</div>
-	</div>
-</template>
-
 <script lang="ts" setup>
 import { IFetchError } from 'ofetch'
-import { IThemeValue } from '~/utils/theme'
 
-const props = defineProps({
+defineProps({
 	error: {
 		type: Object as PropType<IFetchError | null>,
 		required: false,
@@ -26,34 +9,23 @@ const props = defineProps({
 	}
 })
 
-const route = useRoute()
-const router = useRouter()
-
-const theme = useState<IThemeValue>('theme.current')
-const themeClass = computed(() => (theme.value === 'dark' ? 'dark' : 'light'))
-
-const i18nHead = useLocaleHead({
-	addDirAttribute: true,
-	addSeoAttributes: true,
-	identifierAttribute: 'hid',
-	route,
-	router,
-	i18n: useI18n()
-})
-useServerHead({
-	title: 'Error',
-	htmlAttrs: {
-		lang: i18nHead.value.htmlAttrs!.lang,
-		class: () => themeClass.value,
-		dir: i18nHead.value.htmlAttrs?.dir
-	},
-	link: [...(i18nHead.value.link || [])],
-	meta: [...(i18nHead.value.meta || [])]
-})
-useServerSeoMeta({
-	title: 'Error',
-	description: 'Error page'
-})
-
 const handleError = () => clearError({ redirect: '/' })
 </script>
+
+<template>
+	<div class="flex items-center justify-center min-h-screen bg-gray-100">
+		<div class="bg-white p-6 rounded-lg shadow-md">
+			<h1 class="text-2xl text-red-500 mb-2">{{ error?.message }}</h1>
+			<p class="text-gray-600">{{ $t('pages.error.title') }}</p>
+			<button
+				class="bg-red-500 text-white px-4 py-2 rounded-md mt-4 hover:bg-red-600 transition duration-300"
+				@click="handleError"
+			>
+				{{ $t('pages.error.clean') }}
+			</button>
+			<NuxtLink to="/" class="text-blue-500 hover:underline block mt-2">
+				{{ $t('pages.error.home') }}
+			</NuxtLink>
+		</div>
+	</div>
+</template>

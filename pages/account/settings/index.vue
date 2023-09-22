@@ -3,7 +3,6 @@ import { FieldContext, useField, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { defaultSelectOptionChoose } from '~/types/global/general'
-import { IThemeValue } from '~/utils/theme'
 
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
@@ -78,9 +77,9 @@ const { value: birthDate }: FieldContext<Date> = useField('birthDate')
 const { value: country }: FieldContext<string> = useField('country')
 const region = reactive(useField('region'))
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	regionStore.fetchRegions({
+	await regionStore.fetchRegions({
 		alpha2: event.target.value
 	})
 	region.value = defaultSelectOptionChoose
@@ -111,10 +110,10 @@ const onSubmit = handleSubmit((values) => {
 			region: values.region
 		})
 		.then(() => {
-			toast.success(t('pages.account.settings.form.success'))
+			toast.add({ title: t('pages.account.settings.form.success') })
 		})
 		.catch(() => {
-			toast.error(t('pages.account.settings.form.error'))
+			toast.add({ title: t('pages.account.settings.form.error') })
 		})
 })
 
@@ -126,19 +125,12 @@ definePageMeta({
 	layout: 'user'
 })
 
-const theme = useState<IThemeValue>('theme.current')
-const dark = computed(() => theme.value === 'dark')
+const colorMode = useColorMode()
+const dark = computed(() => colorMode.value === 'dark')
 // Date picker
 const flow: ('month' | 'year' | 'calendar' | 'time' | 'minutes' | 'hours' | 'seconds')[] =
 	['year', 'month', 'calendar']
 const date = ref(new Date())
-const format = (date: Date) => {
-	const day = date.getDate()
-	const month = date.getMonth() + 1
-	const year = date.getFullYear()
-
-	return `${day}/${month}/${year}`
-}
 </script>
 
 <template>
@@ -334,7 +326,6 @@ const format = (date: Date) => {
 							:select-text="$t('pages.account.settings.form.date_picker.select')"
 							:now-button-label="$t('pages.account.settings.form.date_picker.now')"
 							:flow="flow"
-							:format="format"
 							:dark="dark"
 							:auto-apply="true"
 							:max-date="date"

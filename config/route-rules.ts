@@ -1,4 +1,8 @@
 export const routeRules = {
+	'/**':
+		process.env.NODE_ENV === 'development'
+			? {}
+			: { cache: { swr: true, maxAge: 120, staleMaxAge: 60, headersOnly: true } },
 	// Homepage pre-rendered at build time
 	'/': { prerender: true },
 	// Product page generated on-demand, revalidates in background

@@ -56,7 +56,7 @@ const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, typ
 							class="hover:no-underline hover:text-slate-900 hover:dark:text-white capitalize"
 							>{{ item.text }}</Anchor
 						>
-						<Button
+						<MainButton
 							v-else-if="item.type === 'button'"
 							:text="item.text"
 							size="xs"
@@ -162,7 +162,7 @@ const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, typ
 									class="flex-1 hover:no-underline capitalize"
 									>{{ item.text }}</Anchor
 								>
-								<Button
+								<MainButton
 									v-else-if="item.type === 'button'"
 									:text="item.text"
 									size="xs"
@@ -186,7 +186,7 @@ const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, typ
 						<LanguageSwitcher type="select-box" />
 					</div>
 				</ActionSheetBody>
-				<Button
+				<MainButton
 					type="button"
 					:style="'secondary'"
 					title="Github"
@@ -194,8 +194,8 @@ const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, typ
 				>
 					<IconMdi:githubFace />
 					<span class="ml-1 text-gray-700 dark:text-gray-200">Github</span>
-				</Button>
-				<Button
+				</MainButton>
+				<MainButton
 					text="Close"
 					:style="'secondary'"
 					type="button"

@@ -86,7 +86,7 @@ const menus = computed((): IMenuItem[] => [
 							<span class="hidden md:grid">{{ item.text }}</span>
 							<Component :is="item.icon" />
 						</Anchor>
-						<Button
+						<MainButton
 							v-else-if="item.type === 'button'"
 							:text="item.text"
 							size="xs"
@@ -187,7 +187,7 @@ const menus = computed((): IMenuItem[] => [
 						>
 					</Anchor>
 				</ActionSheetBody>
-				<Button
+				<MainButton
 					text="Close"
 					type="button"
 					:style="'secondary'"
@@ -220,6 +220,7 @@ const menus = computed((): IMenuItem[] => [
 		pointer-events: none;
 		right: -5px;
 		z-index: 10;
+		line-height: 16px;
 	}
 }
 </style>

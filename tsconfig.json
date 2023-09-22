@@ -13,7 +13,7 @@
 			"node",
 			"@vueuse/nuxt",
 			"@pinia/nuxt",
-			"@nuxt/image",
+			"@nuxt/image-edge",
 			"@vite-pwa/nuxt",
 			"unplugin-icons/types/vue"
 		],

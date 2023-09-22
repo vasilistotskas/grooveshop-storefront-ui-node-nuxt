@@ -4,7 +4,7 @@
 			{{ $t('components.address.add_new.title') }}
 		</p>
 		<div class="grid items-center justify-center">
-			<Button
+			<MainButton
 				:text="$t('components.address.add_new.button')"
 				type="link"
 				to="/account/addresses/new"

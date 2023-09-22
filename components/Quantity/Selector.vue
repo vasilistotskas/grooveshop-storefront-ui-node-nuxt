@@ -1,39 +1,38 @@
 <script lang="ts" setup>
-import { GlobalEvents } from '~/events/global'
-
 const props = defineProps({
 	max: { type: Number, required: true, default: 1 },
 	cartItemId: { type: Number, required: true }
 })
 
 const { max, cartItemId } = toRefs(props)
+const cartStore = useCartStore()
 
-const bus = useEventBus<string>(GlobalEvents.CART_QUANTITY_SELECTOR)
 const cartItemQuantity = useState<number>(`${cartItemId.value}-quantity`)
+const refreshCart = async () => await cartStore.fetchCart()
 
-const decreaseQuantityEvent = () => {
+const decreaseQuantityEvent = async () => {
 	if (cartItemQuantity.value <= 1) return
 	cartItemQuantity.value -= 1
-	bus.emit('update', {
-		quantity: cartItemQuantity.value,
-		cartItemId: props.cartItemId
+	await cartStore.updateCartItem(props.cartItemId, {
+		quantity: String(cartItemQuantity.value)
 	})
+	await refreshCart()
 }
-const increaseQuantityEvent = () => {
+const increaseQuantityEvent = async () => {
 	if (cartItemQuantity.value >= props.max) return
 	cartItemQuantity.value += 1
-	bus.emit('update', {
-		quantity: cartItemQuantity.value,
-		cartItemId: props.cartItemId
+	await cartStore.updateCartItem(props.cartItemId, {
+		quantity: String(cartItemQuantity.value)
 	})
+	await refreshCart()
 }
-const changeQuantityEvent = (event: Event) => {
+const changeQuantityEvent = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	const value = parseInt(event.target.value)
-	bus.emit('update', {
-		quantity: value,
-		cartItemId: props.cartItemId
+	await cartStore.updateCartItem(props.cartItemId, {
+		quantity: String(value)
 	})
+	await refreshCart()
 }
 </script>
 

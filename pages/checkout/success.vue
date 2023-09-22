@@ -1,6 +1,4 @@
-<script lang="ts" setup>
-const { t } = useLang()
-</script>
+<script lang="ts" setup></script>
 
 <template>
 	<PageWrapper>

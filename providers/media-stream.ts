@@ -1,5 +1,5 @@
 import { joinURL } from 'ufo'
-import { ProviderGetImage } from '@nuxt/image'
+import { ProviderGetImage } from '@nuxt/image-edge'
 import { createOperationsGenerator } from '#image'
 
 const operationsGenerator = createOperationsGenerator({

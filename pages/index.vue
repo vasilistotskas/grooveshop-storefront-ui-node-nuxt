@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-// eslint-disable-next-line n/handle-callback-err
-const errorLogger = (error: unknown) => {
-	// console.error(error)
-}
 definePageMeta({
 	layout: 'page'
 })
@@ -12,18 +8,15 @@ definePageMeta({
 	<PageWrapper>
 		<PageBody>
 			<PageSection>
-				<NativeSlider
-					:drag-speed="1"
-					:left-button-scroll-left-by="-1"
-					:right-button-scroll-left-by="1"
-				>
+				<NativeSlideShow>
 					<a v-for="i in 3" :key="i" href="/">
-						<NuxtImg
+						<NuxtPicture
 							loading="eager"
 							provider="mediaStream"
+							placeholder
 							class="w-full h-full object-cover"
 							:style="{ objectFit: 'contain' }"
-							:src="'/assets/images/1920x640.png'"
+							:src="'/assets/images/black.png'"
 							:width="1920"
 							:height="640"
 							:fit="'cover'"
@@ -32,19 +25,14 @@ definePageMeta({
 							:trim-threshold="5"
 							:format="'webp'"
 							:alt="'Main Banner'"
-							sizes="sm:100vw md:50vw lg:1920px"
+							sizes="100vw sm:50vw md:960px"
 						/>
 					</a>
-				</NativeSlider>
-
+				</NativeSlideShow>
 				<div
 					class="usps container-small flex flex-wrap items-center justify-center gap-8 my-16 text-center brand lg:justify-between"
 				>
-					<NativeSlider
-						:drag-speed="1"
-						:left-button-scroll-left-by="-1"
-						:right-button-scroll-left-by="1"
-					>
+					<NativeSlideShow>
 						<NuxtImg
 							v-for="i in 6"
 							:key="i"
@@ -52,7 +40,7 @@ definePageMeta({
 							provider="mediaStream"
 							class="w-full h-full object-cover"
 							:style="{ objectFit: 'contain' }"
-							:src="'/assets/images/80x40.png'"
+							:src="'/assets/images/black.png'"
 							:width="80"
 							:height="40"
 							:fit="'cover'"
@@ -63,7 +51,7 @@ definePageMeta({
 							:alt="'Usp'"
 							sizes="sm:100vw md:50vw lg:80px"
 						/>
-					</NativeSlider>
+					</NativeSlideShow>
 				</div>
 			</PageSection>
 		</PageBody>

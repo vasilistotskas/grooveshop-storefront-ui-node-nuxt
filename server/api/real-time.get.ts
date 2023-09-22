@@ -36,7 +36,13 @@ type ITimeZoneApiResponse = {
 	week_number: number
 }
 
-export default defineEventHandler(async (event: H3Event) => {
+export type RealTimeResponse = {
+	ipApiResponse?: IPAPIResponse
+	timeZoneApiResponse?: ITimeZoneApiResponse
+	theme: ITheme
+}
+
+export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const defaultTheme = (process.env.NUXT_PUBLIC_DEFAULT_THEME || 'light') as ITheme
 	try {
 		const ipApiResponse = await $fetch<IPAPIResponse>('http://ip-api.com/json')

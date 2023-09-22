@@ -23,11 +23,13 @@ import { veeValidate } from './config/vee-validate'
 import { routeRules } from './config/route-rules'
 import { pwa } from './config/pwa'
 import { vue } from './config/vue'
+import { site } from './config/site'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
 	ssr: true,
 	sourcemap: process.env.NODE_ENV !== 'production',
+	site,
 	modules,
 	routeRules,
 	plugins,

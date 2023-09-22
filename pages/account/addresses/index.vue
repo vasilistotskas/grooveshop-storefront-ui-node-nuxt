@@ -2,7 +2,6 @@
 import { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import { GlobalEvents } from '~/events/global'
 
 const { t } = useLang()
 const route = useRoute('account-addresses___en')
@@ -13,7 +12,7 @@ const { account } = storeToRefs(userStore)
 const addressStore = useUserAddressStore()
 const { addresses, pending, error } = storeToRefs(addressStore)
 
-const entityOrdering: EntityOrdering<AddressOrderingField> = [
+const entityOrdering: EntityOrdering<AddressOrderingField> = reactive([
 	{
 		value: 'createdAt',
 		label: t('pages.account.addresses.ordering.created_at'),
@@ -24,12 +23,12 @@ const entityOrdering: EntityOrdering<AddressOrderingField> = [
 		label: t('pages.account.addresses.ordering.is_main'),
 		options: ['ascending', 'descending']
 	}
-]
+])
 
-const orderingFields: Partial<Record<AddressOrderingField, OrderingOption[]>> = {
+const orderingFields: Partial<Record<AddressOrderingField, OrderingOption[]>> = reactive({
 	createdAt: [],
 	isMain: []
-}
+})
 
 const pagination = computed(() => {
 	return usePagination<Address>(addresses.value)
@@ -39,40 +38,28 @@ const ordering = computed(() => {
 	return useOrdering<AddressOrderingField>(entityOrdering, orderingFields)
 })
 
-const routePaginationParams = ref<AddressQuery>({
-	page: Number(route.query.page) || undefined,
-	ordering: route.query.ordering || '-isMain',
-	userId: String(account.value?.id),
-	expand: 'true'
+const routePaginationParams = computed<AddressQuery>(() => {
+	const page = Number(route.query.page) || 1
+	const ordering = route.query.ordering || '-isMain'
+	const user = String(account.value?.id)
+	const expand = 'true'
+
+	return {
+		page,
+		ordering,
+		user,
+		expand
+	}
 })
 
 await addressStore.fetchAddresses(routePaginationParams.value)
 
-const refresh = () => addressStore.fetchAddresses(routePaginationParams.value)
-
-const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_ADDRESS)
-bus.on((event, payload: AddressQuery) => {
-	switch (event) {
-		case 'update':
-			routePaginationParams.value = payload
-			refresh()
-			break
-		case 'delete':
-			refresh()
-			break
-	}
-})
+const refreshAddresses = async () =>
+	await addressStore.fetchAddresses(routePaginationParams.value)
 
 watch(
 	() => route.query,
-	() => {
-		bus.emit('update', {
-			page: Number(route.query.page) || 1,
-			ordering: route.query.ordering || '-isMain',
-			userId: String(account.value?.id),
-			expand: 'true'
-		})
-	}
+	() => refreshAddresses()
 )
 
 definePageMeta({
@@ -86,21 +73,14 @@ definePageMeta({
 			<PageTitle :text="$t('pages.account.addresses.title')" />
 		</PageHeader>
 		<PageBody>
-			<LoadingSkeleton
-				v-if="pending.addresses"
-				:card-height="'422px'"
-				:class="pending.addresses ? 'block' : 'hidden'"
-				:loading="pending.addresses"
-				:replicas="addresses?.results?.length || 4"
-			></LoadingSkeleton>
 			<template v-if="!pending.addresses && addresses?.results?.length">
 				<div class="grid gap-2 md:flex md:items-center">
 					<PaginationPageNumber
-						:results-count="pagination.resultsCount"
+						:count="pagination.count"
 						:total-pages="pagination.totalPages"
 						:page-total-results="pagination.pageTotalResults"
 						:page-size="pagination.pageSize"
-						:current-page="pagination.currentPage"
+						:page="pagination.page"
 						:links="pagination.links"
 					/>
 					<Ordering
@@ -112,7 +92,7 @@ definePageMeta({
 			</template>
 			<Error
 				v-else-if="error.addresses"
-				:code="error.addresses.statusCode"
+				:code="error.addresses?.statusCode"
 				:error="error.addresses"
 			/>
 			<template v-else-if="!addresses?.results?.length">
@@ -120,11 +100,11 @@ definePageMeta({
 					<AddressAddNew />
 					<EmptyState :icon="emptyIcon">
 						<template #actions>
-							<Button
+							<MainButton
 								:text="$t('common.empty.button')"
 								:type="'link'"
 								:to="'index'"
-							></Button>
+							></MainButton>
 						</template>
 					</EmptyState>
 				</div>

@@ -243,6 +243,10 @@ pages:
     description: DeepWeb
     keywords: DeepWeb
     add_to_cart: Add to cart
+  error:
+    title: Oops! Something went wrong.
+    clean: Clear error
+    home: Navigate home
   404:
     title: page not found
     description: page not found
@@ -557,6 +561,20 @@ pages:
       update_error: Help update error
       deleted: Help Item deleted
       delete_error: Help Item delete error
+  search:
+    title: Search
+    nav: search
+    description: search
+    keywords: search
+    empty:
+      title: No results found
+      description: No results found
+      button: Go to shop
+    placeholder: Type to search...
+    error: Error occurred on fetching
+    results: Search result for
+    start_searching: Type something to search...
+    back_to_home: Back to home
 layouts:
   title: DeepWeb %{title}
   description: DeepWeb-Description %{description}
@@ -634,6 +652,9 @@ common:
   mobile_phone: Mobile Phone
   notes: Notes
   back: Back
+  retry: Retry
+  items:
+    count: Total Items
   client:
     only:
       fallback: Only for client side

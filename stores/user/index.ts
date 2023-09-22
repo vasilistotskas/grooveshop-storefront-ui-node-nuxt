@@ -1,9 +1,8 @@
 import { IFetchError } from 'ofetch'
-import { Account, AccountPutRequest, ZodAccount } from '~/types/user/account'
+import { Account, AccountPutRequest, UserAccountSession } from '~/types/user/account'
 import { Favourite, FavouriteCreateRequest } from '~/types/product/favourite'
 import { Review } from '~/types/product/review'
 import { Order } from '~/types/order/order'
-import { parseDataAs } from '~/types/parser'
 import { Address } from '~/types/user/address'
 
 interface ErrorRecord {
@@ -78,7 +77,7 @@ export const useUserStore = defineStore({
 					data: account,
 					error,
 					pending
-				} = await useFetch(`/api/user-account-session`, {
+				} = await useFetch<UserAccountSession>(`/api/user-account-session`, {
 					method: 'get'
 				})
 				if (account.value) {
@@ -100,7 +99,7 @@ export const useUserStore = defineStore({
 					data: account,
 					error,
 					pending
-				} = await useFetch(`/api/user-account/${id}`, {
+				} = await useFetch<Account>(`/api/user-account/${id}`, {
 					method: 'put',
 					body
 				})
@@ -113,24 +112,15 @@ export const useUserStore = defineStore({
 		},
 		async updateAccountImage(id: number, body: FormData) {
 			try {
-				const config = useRuntimeConfig()
-				const csrfToken = useCookie('csrftoken')
-				const sessionID = useCookie('sessionid')
-				const { data, pending, error } = await useFetch(
-					`${config.public.apiBaseUrl}/user/account/${id}/`,
-					{
-						headers: {
-							Cookie: `csrftoken=${csrfToken.value}; sessionid=${sessionID.value}`,
-							'X-CSRFToken': csrfToken.value || ''
-						},
-						method: 'PATCH',
-						body
-					}
-				)
-				this.account = await parseDataAs(data.value, ZodAccount).catch((error) => {
-					this.error = error?.data
-					return null
+				const {
+					data: account,
+					pending,
+					error
+				} = await useFetch<Account>(`/api/user-account/${id}`, {
+					method: 'patch',
+					body
 				})
+				this.account = account.value
 				this.error.account = error.value
 				this.pending.account = pending.value
 			} catch (error) {
@@ -143,7 +133,7 @@ export const useUserStore = defineStore({
 					data: favourite,
 					error,
 					pending
-				} = await useFetch(`/api/product-favourites`, {
+				} = await useFetch<Favourite>(`/api/product-favourites`, {
 					method: 'post',
 					body
 				})

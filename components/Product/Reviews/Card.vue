@@ -27,6 +27,29 @@ const userAccount = computed(() => {
 const { resolveImageSrc } = useImageResolver()
 const { locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
+
+const src = computed(() => {
+	if (props.displayImageOf === 'user') {
+		return resolveImageSrc(
+			userAccount.value?.mainImageFilename,
+			`media/uploads/users/${userAccount.value?.mainImageFilename}`
+		)
+	} else {
+		return resolveImageSrc(
+			product.value?.mainImageFilename,
+			`media/uploads/products/${product.value?.mainImageFilename}`
+		)
+	}
+})
+
+const alt = computed(() => {
+	if (props.displayImageOf === 'user' && userAccount && userAccount?.value) {
+		return userAccount.value?.firstName + ' ' + userAccount.value?.lastName
+	} else if (props.displayImageOf === 'product' && product && product?.value) {
+		return extractTranslated(product?.value, 'name', locale.value)
+	}
+	return ''
+})
 </script>
 
 <template>
@@ -48,11 +71,11 @@ const { extractTranslated } = useTranslationExtractor()
 						>
 							<NuxtImg
 								preload
-								placeholder
 								loading="lazy"
 								provider="mediaStream"
 								class="product-img"
-								:style="{ objectFit: 'contain' }"
+								decoding="async"
+								:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 								:width="120"
 								:height="80"
 								:fit="'contain'"
@@ -60,14 +83,9 @@ const { extractTranslated } = useTranslationExtractor()
 								:background="'transparent'"
 								:trim-threshold="5"
 								:format="'webp'"
-								sizes="sm:100vw md:50vw lg:120px"
-								:src="
-									resolveImageSrc(
-										product.mainImageFilename,
-										`media/uploads/products/${product.mainImageFilename}`
-									)
-								"
-								:alt="extractTranslated(product, 'name', locale)"
+								sizes="`sm:100vw md:50vw lg:auto`"
+								:src="src"
+								:alt="alt"
 							/>
 						</Anchor>
 						<Anchor

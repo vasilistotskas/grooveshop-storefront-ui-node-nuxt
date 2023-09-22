@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { PropType } from 'vue'
 import { Product } from '~/types/product/product'
-import { GlobalEvents } from '~/events/global'
 
 const props = defineProps({
 	product: { type: Object as PropType<Product>, required: true },
@@ -12,32 +11,31 @@ const props = defineProps({
 	}
 })
 
+const { product, quantity, text } = toRefs(props)
 const { t } = useLang()
-const store = useCartStore()
+const cartStore = useCartStore()
 const toast = useToast()
 
-const cartBus = useEventBus<string>(GlobalEvents.ON_CART_UPDATED)
+const refreshCart = async () => await cartStore.fetchCart()
+
+const addToCartEvent = async () => {
+	await cartStore.addCartItem({
+		product: String(product.value.id),
+		quantity: String(quantity.value)
+	})
+	await refreshCart()
+	toast.add({
+		title: t('components.add_to_cart_button.added_to_cart')
+	})
+}
 </script>
 
 <template>
-	<Button
+	<MainButton
 		class="w-full md:w-auto"
 		type="button"
 		size="lg"
 		:text="text"
-		@click.prevent="
-			store
-				.addCartItem({
-					product: String(product.id),
-					quantity: String(quantity)
-				})
-				.then(() => {
-					toast.success(t('components.add_to_cart_button.added_to_cart'))
-					cartBus.emit(GlobalEvents.ON_CART_UPDATED)
-				})
-				.catch((err) => {
-					toast.error(err.message)
-				})
-		"
+		@click.prevent="addToCartEvent"
 	/>
 </template>

@@ -64,16 +64,9 @@ const updatePayWay = (value: PayWay) => {
 		<div class="pay-ways-list">
 			<Error
 				v-if="error.payWays"
-				:code="error.payWays.statusCode"
+				:code="error.payWays?.statusCode"
 				:error="error.payWays"
 			/>
-			<LoadingSkeleton
-				v-else-if="pending && !getActivePayWays?.length"
-				:card-height="'422px'"
-				:class="pending ? 'block' : 'hidden'"
-				:loading="pending.payWays"
-				:replicas="getActivePayWays?.length || 4"
-			></LoadingSkeleton>
 			<template v-if="selectedPayWay && !pending.payWays && getActivePayWays?.length">
 				<RadioGroup
 					:model-value="selectedPayWay"

@@ -1,11 +1,9 @@
-<script setup lang="ts">
-import { computed, onBeforeMount, ref, watch } from 'vue'
+<script lang="ts" setup>
 import {
 	getAllCookieIdsString,
 	getCookieId,
 	getCookieIds,
-	removeCookie,
-	setCookie
+	removeCookie
 } from '#cookie-control/methods'
 import { Cookie, CookieTypeEnum } from '#cookie-control/types'
 
@@ -23,12 +21,19 @@ const {
 	isModalActive,
 	moduleOptions
 } = useCookieControl()
+
 // data
-const expires = new Date()
+const expires = new Date(Date.now() + moduleOptions.cookieExpiryOffsetMs)
 const localCookiesEnabled = ref([...(cookiesEnabled.value || [])])
 const allCookieIdsString = getAllCookieIdsString(moduleOptions)
-const cookieIsConsentGiven = ref(useCookie(moduleOptions.cookieNameIsConsentGiven))
-const cookieCookiesEnabledIds = ref(useCookie(moduleOptions.cookieNameCookiesEnabledIds))
+const cookieIsConsentGiven = useCookie(moduleOptions.cookieNameIsConsentGiven, {
+	expires,
+	...moduleOptions.cookieOptions
+})
+const cookieCookiesEnabledIds = useCookie(moduleOptions.cookieNameCookiesEnabledIds, {
+	expires,
+	...moduleOptions.cookieOptions
+})
 // computations
 const isSaved = computed(
 	() =>
@@ -36,6 +41,7 @@ const isSaved = computed(
 			.sort()
 			.join('|') !== getCookieIds(localCookiesEnabled.value).sort().join('|')
 )
+
 // methods
 const accept = () => {
 	setCookies({
@@ -43,14 +49,9 @@ const accept = () => {
 		cookiesOptionalEnabled: moduleOptions.cookies.optional
 	})
 }
-const decline = () => {
-	setCookies({
-		isConsentGiven: true,
-		cookiesOptionalEnabled: moduleOptions.cookies.necessary
-	})
-}
 const acceptPartial = () => {
 	const localCookiesEnabledIds = getCookieIds(localCookiesEnabled.value)
+
 	setCookies({
 		isConsentGiven: true,
 		cookiesOptionalEnabled: [
@@ -59,19 +60,17 @@ const acceptPartial = () => {
 		].filter((cookie) => localCookiesEnabledIds.includes(getCookieId(cookie)))
 	})
 }
-const declineAll = () => {
+const decline = () => {
 	setCookies({
 		isConsentGiven: true,
 		cookiesOptionalEnabled: moduleOptions.cookies.necessary
 	})
 }
-const toggleCookie = (cookie: Cookie) => {
-	const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(getCookieId(cookie))
-	if (cookieIndex < 0) {
-		localCookiesEnabled.value.push(cookie)
-	} else {
-		localCookiesEnabled.value.splice(cookieIndex, 1)
-	}
+const declineAll = () => {
+	setCookies({
+		isConsentGiven: false,
+		cookiesOptionalEnabled: []
+	})
 }
 const getDescription = (description: string) =>
 	`${!moduleOptions.isDashInDescriptionEnabled ? '' : '-'} ${t(description)}`
@@ -85,8 +84,16 @@ const resolveLinkEntryText = (entry: [string, unknown]) => {
 	return entry[0]
 }
 const init = () => {
-	expires.setTime(expires.getTime() + moduleOptions.cookieExpiryOffsetMs)
+	// eslint-disable-next-line no-console
+	console.log('Cookies Initialized')
 }
+
+const onModalClick = () => {
+	if (moduleOptions.closeModalOnClickOutside) {
+		isModalActive.value = false
+	}
+}
+
 const setCookies = ({
 	cookiesOptionalEnabled: cookiesOptionalEnabledNew,
 	isConsentGiven: isConsentGivenNew
@@ -108,37 +115,37 @@ const setCookies = ({
 const toggleButton = ($event: MouseEvent) => {
 	;(($event.target as HTMLButtonElement | null)?.nextSibling as HTMLLabelElement)?.click()
 }
+
+const toggleCookie = (cookie: Cookie) => {
+	const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(getCookieId(cookie))
+
+	if (cookieIndex < 0) {
+		localCookiesEnabled.value.push(cookie)
+	} else {
+		localCookiesEnabled.value.splice(cookieIndex, 1)
+	}
+}
 const toggleLabel = ($event: KeyboardEvent) => {
 	if ($event.key === ' ') ($event.target as HTMLLabelElement)?.click()
 }
 // lifecycle
 onBeforeMount(() => {
-	if (cookieIsConsentGiven.value === allCookieIdsString) {
-		for (const cookieOptional of moduleOptions.cookies.optional) {
-			if (
-				typeof moduleOptions.isIframeBlocked === 'boolean'
-					? moduleOptions.isIframeBlocked
-					: moduleOptions.isIframeBlocked.initialState
-			) {
-				localCookiesEnabled.value.push(cookieOptional)
-			}
-		}
+	if (moduleOptions.isModalForced && !isConsentGiven.value) {
+		isModalActive.value = true
 	}
 })
+
 watch(
 	() => cookiesEnabled.value,
 	(current, _previous) => {
 		localCookiesEnabled.value = [...(current || [])]
+
 		if (isConsentGiven.value) {
-			setCookie(
-				moduleOptions.cookieNameCookiesEnabledIds,
-				getCookieIds(current || []).join('|'),
-				{
-					expires
-				}
-			)
+			cookieCookiesEnabledIds.value = getCookieIds(current || []).join('|')
+
 			for (const cookieEnabled of current || []) {
 				if (!cookieEnabled.src) continue
+
 				const script = document.createElement('script')
 				script.src = cookieEnabled.src
 				document.getElementsByTagName('head')[0].appendChild(script)
@@ -146,15 +153,19 @@ watch(
 		} else {
 			cookieCookiesEnabledIds.value = undefined
 		}
+
 		// delete formerly enabled cookies that are now disabled
 		const cookiesOptionalDisabled = moduleOptions.cookies.optional.filter(
-			(cookieOptional: Cookie) => !(current || []).includes(cookieOptional)
+			(cookieOptional) => !(current || []).includes(cookieOptional)
 		)
+
 		for (const cookieOptionalDisabled of cookiesOptionalDisabled) {
 			if (!cookieOptionalDisabled.targetCookieIds) continue
+
 			for (const cookieOptionalDisabledId of cookieOptionalDisabled.targetCookieIds) {
 				removeCookie(cookieOptionalDisabledId)
 			}
+
 			if (cookieOptionalDisabled.src) {
 				for (const script of [
 					...document.head.querySelectorAll(`script[src="${cookieOptionalDisabled.src}"]`)
@@ -166,34 +177,32 @@ watch(
 	},
 	{ deep: true }
 )
+
 watch(isConsentGiven, (current, _previous) => {
 	if (current === undefined) {
 		cookieIsConsentGiven.value = undefined
 	} else {
-		setCookie(
-			moduleOptions.cookieNameIsConsentGiven,
-			current ? allCookieIdsString : '0',
-			{
-				expires
-			}
-		)
+		cookieIsConsentGiven.value = current ? allCookieIdsString : '0'
 	}
 })
+
+// initialization
+init()
 
 defineExpose({
 	accept,
 	acceptPartial,
 	decline
 })
-
-// initialization
-init()
 </script>
 
 <template>
 	<section class="cookie-control">
 		<Transition :name="`cookie-control-Bar`">
-			<div v-if="!isConsentGiven" :class="`cookie-control-Bar cookie-control-Bar`">
+			<div
+				v-if="!isConsentGiven && !moduleOptions.isModalForced"
+				:class="`cookie-control-Bar cookie-control-Bar`"
+			>
 				<div class="cookie-control-BarContainer">
 					<div>
 						<slot name="bar">
@@ -241,7 +250,7 @@ init()
 			</svg>
 		</button>
 		<Transition name="cookie-control-Modal">
-			<div v-if="isModalActive" class="cookie-control-Modal">
+			<div v-if="isModalActive" class="cookie-control-Modal" @click.self="onModalClick">
 				<p
 					v-if="isSaved"
 					class="cookie-control-ModalUnsaved"
@@ -262,6 +271,7 @@ init()
 							</p>
 						</slot>
 						<button
+							v-if="!moduleOptions.isModalForced"
 							class="cookie-control-ModalClose"
 							type="button"
 							@click="isModalActive = false"
@@ -299,12 +309,7 @@ init()
 												:id="cookie.name"
 												type="checkbox"
 												:checked="
-													getCookieIds(localCookiesEnabled).includes(
-														getCookieId(cookie)
-													) ||
-													(cookieIsConsentGiven !== allCookieIdsString &&
-														typeof moduleOptions.isIframeBlocked === 'object' &&
-														moduleOptions.isIframeBlocked.initialState)
+													getCookieIds(localCookiesEnabled).includes(getCookieId(cookie))
 												"
 												@change="toggleCookie(cookie)"
 											/>
@@ -369,6 +374,7 @@ init()
 								v-text="$t('components.cookie.accept_all')"
 							/>
 							<button
+								v-if="!moduleOptions.isModalForced"
 								type="button"
 								@click="
 									() => {

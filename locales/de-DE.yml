@@ -279,6 +279,10 @@ pages:
     description: deep web
     keywords: deep web
     add_to_cart: in den warenkorb legen
+  error:
+    title: hoppla! etwas ist schief gelaufen.
+    clean: klarer fehler
+    home: nach hause navigieren
   product:
     add_to_cart: in den warenkorb legen
     product_id: produkt id
@@ -589,6 +593,20 @@ pages:
       update_error: fehler beim update der hilfe
       deleted: hilfeelement gelöscht
       delete_error: fehler beim löschen des hilfeelements
+  search:
+    title: suchen
+    nav: suchen
+    description: suchen
+    keywords: suchen
+    empty:
+      title: keine ergebnisse gefunden
+      description: keine ergebnisse gefunden
+      button: zum laden gehen
+    placeholder: tippe um zu suchen...
+    error: beim abrufen ist ein fehler aufgetreten
+    results: suchergebnis für
+    start_searching: geben sie etwas zum suchen ein...
+    back_to_home: zurück nach hause
 layouts:
   title: deepweb %{title}
   description: deepweb-beschreibung %{description}
@@ -666,6 +684,9 @@ common:
   mobile_phone: mobiltelefon
   notes: anmerkungen
   back: zurück
+  retry: wiederholen
+  items:
+    count: gesamtanzahl
   client:
     only:
       fallback: nur für clientseite

@@ -40,7 +40,9 @@ const { favourites } = storeToRefs(userStore)
 
 const toggleFavourite = async () => {
 	if (!props.isAuthenticated || !props.userId || !favourites.value) {
-		toast.error(t('components.add_to_favourite_button.not_authenticated'))
+		toast.add({
+			title: t('components.add_to_favourite_button.not_authenticated')
+		})
 		return
 	}
 	const favouriteIndex = favourites.value.findIndex((f) => f.product === props.productId)
@@ -51,19 +53,27 @@ const toggleFavourite = async () => {
 				user: String(props.userId)
 			})
 			.then(() => {
-				toast.success(t('components.add_to_favourite_button.added'))
+				toast.add({
+					title: t('components.add_to_favourite_button.added')
+				})
 			})
 			.catch((err) => {
-				toast.error(err.message)
+				toast.add({
+					title: err.message
+				})
 			})
 	} else {
 		await userStore
 			.removeFavourite(favourites.value[favouriteIndex].id)
 			.then(() => {
-				toast.success(t('components.add_to_favourite_button.removed'))
+				toast.add({
+					title: t('components.add_to_favourite_button.removed')
+				})
 			})
 			.catch((err) => {
-				toast.error(err.message)
+				toast.add({
+					title: err.message
+				})
 			})
 	}
 }
@@ -80,8 +90,8 @@ const buttonColor = computed(() => {
 </script>
 
 <template>
-	<Button type="button" :text="buttonLabel" :size="size" @click="toggleFavourite">
+	<MainButton type="button" :text="buttonLabel" :size="size" @click="toggleFavourite">
 		<IconMdi:heart v-if="isFavourite" :style="{ color: buttonColor }" />
 		<IconMdi:heartOutline v-else :style="{ color: buttonColor }" />
-	</Button>
+	</MainButton>
 </template>

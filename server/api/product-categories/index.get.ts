@@ -3,13 +3,8 @@ import { ZodCategory } from '~/types/product/category'
 import { ZodPagination } from '~/types/pagination/pagination'
 import { parseDataAs } from '~/types/parser'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const cookie = event.node.req.headers.cookie
-	const response = await $fetch(`${config.public.apiBaseUrl}/category/`, {
-		headers: {
-			Cookie: cookie || ''
-		}
-	})
+	const response = await $api(`${config.public.apiBaseUrl}/category/`, event)
 	return await parseDataAs(response, ZodPagination(ZodCategory))
 })

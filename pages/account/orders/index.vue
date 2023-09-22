@@ -2,7 +2,6 @@
 import emptyIcon from '~icons/mdi/package-variant-remove'
 import { Order, OrderOrderingField, OrderQuery } from '~/types/order/order'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
-import { GlobalEvents } from '~/events/global'
 
 const { t } = useLang()
 const route = useRoute('account-orders___en')
@@ -13,17 +12,17 @@ const { account } = storeToRefs(userStore)
 const orderStore = useOrderStore()
 const { orders, pending, error } = storeToRefs(orderStore)
 
-const entityOrdering: EntityOrdering<OrderOrderingField> = [
+const entityOrdering: EntityOrdering<OrderOrderingField> = reactive([
 	{
 		value: 'createdAt',
 		label: t('pages.account.orders.ordering.created_at'),
 		options: ['ascending', 'descending']
 	}
-]
+])
 
-const orderingFields: Partial<Record<OrderOrderingField, OrderingOption[]>> = {
+const orderingFields: Partial<Record<OrderOrderingField, OrderingOption[]>> = reactive({
 	createdAt: []
-}
+})
 
 const pagination = computed(() => {
 	return usePagination<Order>(orders.value)
@@ -33,31 +32,25 @@ const ordering = computed(() => {
 	return useOrdering<OrderOrderingField>(entityOrdering, orderingFields)
 })
 
-const routePaginationParams = ref<OrderQuery>({
-	page: Number(route.query.page) || undefined,
-	ordering: route.query.ordering || '-createdAt',
-	userId: String(account.value?.id)
+const routePaginationParams = computed<OrderQuery>(() => {
+	const page = Number(route.query.page) || undefined
+	const ordering = route.query.ordering || '-createdAt'
+	const userId = String(account.value?.id)
+
+	return {
+		page,
+		ordering,
+		userId
+	}
 })
 
 await orderStore.fetchOrders(routePaginationParams.value)
-
-const refresh = async () => await orderStore.fetchOrders(routePaginationParams.value)
-
-const bus = useEventBus<string>(GlobalEvents.USER_ACCOUNT_ORDER)
-bus.on((event, payload: OrderQuery) => {
-	routePaginationParams.value = payload
-	refresh()
-})
+const refreshOrders = async () =>
+	await orderStore.fetchOrders(routePaginationParams.value)
 
 watch(
 	() => route.query,
-	() => {
-		bus.emit('update', {
-			page: Number(route.query.page) || undefined,
-			ordering: route.query.ordering || '-createdAt',
-			userId: String(account.value?.id)
-		})
-	}
+	() => refreshOrders()
 )
 
 definePageMeta({
@@ -71,26 +64,15 @@ definePageMeta({
 			<PageTitle :text="$t('pages.account.orders.title')" />
 		</PageHeader>
 		<PageBody>
-			<Error v-if="error.orders" :code="error.orders.statusCode" :error="error.orders" />
-			<LoadingSkeleton
-				v-else-if="pending.orders && !orders?.results?.length"
-				:card-height="'195px'"
-				:class="pending.orders ? 'block' : 'hidden'"
-				:loading="pending.orders"
-				:direction="'row'"
-				:columns-md="1"
-				:columns-lg="1"
-				:card-body-paragraphs="2"
-				:replicas="orders?.results?.length || 4"
-			></LoadingSkeleton>
+			<Error v-if="error.orders" :code="error.orders?.statusCode" :error="error.orders" />
 			<template v-if="orders && !pending.orders && orders?.results?.length">
 				<div class="grid gap-2 md:flex md:items-center">
 					<PaginationPageNumber
-						:results-count="pagination.resultsCount"
+						:count="pagination.count"
 						:total-pages="pagination.totalPages"
 						:page-total-results="pagination.pageTotalResults"
 						:page-size="pagination.pageSize"
-						:current-page="pagination.currentPage"
+						:page="pagination.page"
 						:links="pagination.links"
 					/>
 					<Ordering
@@ -103,11 +85,11 @@ definePageMeta({
 			<template v-if="!pending.orders && !orders?.results?.length">
 				<EmptyState :icon="emptyIcon">
 					<template #actions>
-						<Button
+						<MainButton
 							:text="$t('common.empty.button')"
 							:type="'link'"
 							:to="'index'"
-						></Button>
+						></MainButton>
 					</template>
 				</EmptyState>
 			</template>

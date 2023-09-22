@@ -2,16 +2,11 @@
 import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
 import { capitalize } from '~/utils/str'
-import { ReviewActionPayload, ReviewQuery } from '~/types/product/review'
-import { ProductQuery } from '~/types/product/product'
-import { GlobalEvents } from '~/events/global'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
-const router = useRouter()
 const route = useRoute('product-id-slug___en')
 const config = useRuntimeConfig()
-const { t, locale } = useLang()
-const toast = useToast()
+const { locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
 
 const productStore = useProductStore()
@@ -22,10 +17,10 @@ const reviewsStore = useReviewsStore()
 const fullPath = config.public.baseUrl + route.fullPath
 const productId = route.params.id
 
-const { account, favourites } = storeToRefs(userStore)
+const { account } = storeToRefs(userStore)
 const { isAuthenticated } = storeToRefs(authStore)
 const { product, pending, error } = storeToRefs(productStore)
-const { userHadReviewed, error: reviewsError } = storeToRefs(reviewsStore)
+const { userHadReviewed } = storeToRefs(reviewsStore)
 
 await productStore.fetchProduct(productId)
 
@@ -37,22 +32,6 @@ if (account.value?.id && productId) {
 }
 
 const productRefresh = async () => await productStore.fetchProduct(productId)
-
-const reviewsRefresh = async () =>
-	await reviewsStore.fetchReviews(routePaginationParams.value)
-
-const userHadReviewedRefresh = async () =>
-	await reviewsStore.fetchUserHadReviewed({
-		product: String(productId),
-		user: String(account.value?.id)
-	})
-
-const routePaginationParams = ref<ReviewQuery>({
-	productId: String(productId),
-	page: Number(route.query.page) || undefined,
-	ordering: route.query.ordering || '-createdAt',
-	expand: 'true'
-})
 
 const productTitle = computed(() => {
 	return capitalize(
@@ -84,126 +63,17 @@ const userToProductFavourite = computed(() => {
 	return userStore.getUserToProductFavourite(productId)
 })
 
-const { data: existingReview, refresh: existingReviewRefresh } = await useAsyncData(
-	'productReview',
-	() =>
-		reviewsStore.fetchUserToProductReview({
-			productId: String(productId),
-			userId: account.value?.id ? String(account.value.id) : undefined,
-			expand: 'true'
-		})
+const { data: existingReview } = await useAsyncData('productReview', () =>
+	reviewsStore.fetchUserToProductReview({
+		productId: String(productId),
+		userId: String(account?.value?.id) || undefined,
+		expand: 'true'
+	})
 )
-const reviewBus = useEventBus<string>(GlobalEvents.PRODUCT_REVIEW)
-const reviewsBus = useEventBus<string>(GlobalEvents.PRODUCT_REVIEWS)
-const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
-
-reviewsBus.on((event, payload: ProductQuery) => {
-	routePaginationParams.value = payload
-	reviewsRefresh()
-})
-
-reviewBus.on((event, payload: ReviewActionPayload) => {
-	switch (event) {
-		case 'create':
-			reviewsStore
-				.addReview(
-					{
-						product: String(payload.productId),
-						user: String(payload.userId),
-						rate: String(payload.rate),
-						status: 'True',
-						translations: {
-							[locale.value]: {
-								comment: payload.comment
-							}
-						}
-					},
-					{ expand: 'true' }
-				)
-				.then(() => {
-					if (reviewsError.value.reviews) {
-						toast.error(reviewsError.value.reviews.message)
-						return
-					}
-					toast.success(t('pages.product.review.created.success'))
-					productRefresh()
-					existingReviewRefresh()
-					userHadReviewedRefresh()
-				})
-				.catch((err) => {
-					toast.error(err.message)
-				})
-				.finally(() => {
-					modalBus.emit('modal-close-reviewModal')
-				})
-			break
-		case 'update':
-			reviewsStore
-				.updateReview(payload.id, {
-					product: String(payload.productId),
-					user: String(payload.userId),
-					rate: String(payload.rate),
-					translations: {
-						[locale.value]: {
-							comment: payload.comment
-						}
-					}
-				})
-				.then(() => {
-					toast.success(t('pages.product.review.updated.success'))
-					productRefresh()
-					existingReviewRefresh()
-					userHadReviewedRefresh()
-				})
-				.catch((err) => {
-					toast.error(err.message)
-				})
-				.finally(() => {
-					modalBus.emit('modal-close-reviewModal')
-				})
-			break
-		case 'delete':
-			reviewsStore
-				.deleteReview(payload.id)
-				.then(() => {
-					toast.success(t('pages.product.review.deleted.success'))
-					productRefresh()
-					existingReviewRefresh()
-					userHadReviewedRefresh()
-				})
-				.catch((err) => {
-					toast.error(err.message)
-				})
-				.finally(() => {
-					modalBus.emit('modal-close-reviewModal')
-				})
-			break
-	}
-})
-
 watch(
 	() => route.query,
-	() => {
-		reviewsBus.emit('update', {
-			productId: String(productId),
-			page: Number(route.query.page) || undefined,
-			ordering: route.query.ordering || '-createdAt',
-			expand: 'true'
-		})
-	}
+	() => productRefresh()
 )
-const breadcrumbs = [
-	// item is the url and will be resolved to the absolute url
-	{ name: 'Home', item: '/' },
-	{ name: 'Products', item: '/products' },
-	// item is not required for the last list element
-	{ name: 'How do breadcrumbs work' }
-]
-useSchemaOrg([
-	defineBreadcrumb({
-		itemListElement: breadcrumbs
-	})
-])
 definePageMeta({
 	middleware: ['product'],
 	layout: 'page'
@@ -298,7 +168,7 @@ useServerHead(() => ({
 				<div class="product mb-12 md:mb-24">
 					<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
 						<div class="grid md:grid-cols-2 gap-2">
-							<div class="md:flex-1 px-4">
+							<div class="overflow-hidden px-4">
 								<ProductImages v-if="product" :product="product"></ProductImages>
 							</div>
 							<div class="grid gap-6 px-4 items-center content-center">
@@ -309,7 +179,7 @@ useServerHead(() => ({
 								</h2>
 								<PageSection class="actions flex gap-4 items-center">
 									<ClientOnly>
-										<Button
+										<MainButton
 											v-if="isSupported"
 											:disabled="!isSupported"
 											type="button"
@@ -431,11 +301,11 @@ useServerHead(() => ({
 			<template v-if="!pending.product && !product">
 				<EmptyState :icon="emptyIcon">
 					<template #actions>
-						<Button
+						<MainButton
 							:text="$t('common.empty.button')"
 							:type="'link'"
 							:to="'index'"
-						></Button>
+						></MainButton>
 					</template>
 				</EmptyState>
 			</template>

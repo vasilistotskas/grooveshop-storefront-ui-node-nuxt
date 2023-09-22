@@ -1,4 +1,5 @@
 import { IFetchError } from 'ofetch'
+import { Session } from '~/types/auth/session'
 
 interface ErrorRecord {
 	isAuthenticated: IFetchError | null
@@ -35,7 +36,7 @@ export const useAuthStore = defineStore({
 					data: auth,
 					error,
 					pending
-				} = await useFetch(`/api/auth`, {
+				} = await useFetch<Session>(`/api/auth`, {
 					method: 'get'
 				})
 				this.isAuthenticated = auth.value?.isAuthenticated || false

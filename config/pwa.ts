@@ -1,21 +1,73 @@
 import { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 
-export const pwa: PWAModuleOptions = {
-	manifest: false, // public/manifest.webmanifest
-	strategies: 'generateSW',
-	injectRegister: 'auto',
+export const pwa = {
 	registerType: 'autoUpdate',
+	manifest: {
+		name: process.env.NUXT_PUBLIC_TITLE,
+		short_name: process.env.NUXT_PUBLIC_TITLE,
+		description: process.env.NUXT_PUBLIC_DESCRIPTION,
+		theme_color: '#ffffff',
+		background_color: '#ffffff',
+		display: 'standalone',
+		orientation: 'portrait',
+		icons: [
+			{
+				src: '/assets/favicon/android-icon-144x144.png',
+				sizes: '144x144',
+				type: 'image/png',
+				purpose: 'maskable'
+			},
+			{
+				src: '/assets/favicon/android-icon-192x192.png',
+				sizes: '192x192',
+				type: 'image/png',
+				purpose: 'maskable'
+			},
+			{
+				src: '/assets/favicon/android-icon-512x512.png',
+				sizes: '512x512',
+				type: 'image/png',
+				purpose: 'maskable'
+			},
+			{
+				src: '/assets/favicon/android-icon-144x144.png',
+				sizes: '144x144',
+				type: 'image/png',
+				purpose: 'any'
+			},
+			{
+				src: '/assets/favicon/android-icon-192x192.png',
+				sizes: '192x192',
+				type: 'image/png',
+				purpose: 'any'
+			},
+			{
+				src: '/assets/favicon/android-icon-512x512.png',
+				sizes: '512x512',
+				type: 'image/png',
+				purpose: 'any'
+			}
+		]
+	},
 	workbox: {
-		// globDirectory: 'dist',
-		navigateFallback: null,
-		globPatterns: ['**/*.{js,css,html,json,md,txt,svg,webp,ico,png,jpg}'],
+		navigateFallback: '/',
+		globPatterns: ['**/*.{js,css,scss,html,json,md,txt,svg,webp,ico,png,jpg}'],
 		globIgnores: ['google*.html'],
 		cleanupOutdatedCaches: true,
-		additionalManifestEntries: [{ url: '/', revision: new Date().getTime().toString() }],
+		sourcemap: process.env.NODE_ENV !== 'development',
 		runtimeCaching: [
 			{
 				urlPattern: ({ url }) => {
-					return url.pathname.startsWith('/api')
+					const pwaExcludedCachePaths = [
+						'/api/cart',
+						'/api/auth',
+						'/api/cart',
+						'/api/cart-items'
+					]
+					return (
+						url.pathname.startsWith('/api') &&
+						!pwaExcludedCachePaths.some((path) => url.pathname.startsWith(path))
+					)
 				},
 				handler: 'CacheFirst' as const,
 				options: {
@@ -37,15 +89,33 @@ export const pwa: PWAModuleOptions = {
 						}
 					}
 				}
+			},
+			{
+				urlPattern: ({ url }) => {
+					return url.origin === 'http://localhost:3003'
+				},
+				handler: 'StaleWhileRevalidate' as const,
+				options: {
+					cacheName: 'media-stream-cache',
+					expiration: {
+						maxEntries: 100
+					},
+					cacheableResponse: {
+						statuses: [0, 200]
+					}
+				}
 			}
-		],
-		sourcemap: process.env.NODE_ENV !== 'development'
+		]
 	},
 	devOptions: {
-		enabled: false
+		enabled: false, // process.env.NODE_ENV === 'development',
+		suppressWarnings: true,
+		navigateFallbackAllowlist: [/^\/$/],
+		type: 'module'
 	},
 	client: {
 		installPrompt: true,
-		periodicSyncForUpdates: 300 // per 5 min for testing only
+		// if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
+		periodicSyncForUpdates: 5
 	}
-}
+} satisfies PWAModuleOptions

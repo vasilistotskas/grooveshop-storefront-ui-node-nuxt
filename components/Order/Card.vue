@@ -21,7 +21,6 @@ const props = defineProps({
 
 const { locale } = useLang()
 const { contentShorten } = useText()
-const { resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
 
 const statusClass = computed(() => {
@@ -59,36 +58,12 @@ const statusClass = computed(() => {
 	<div
 		class="order-card text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded"
 	>
-		<div class="order-card-image">
-			<div
+		<div class="order-card-items">
+			<OrderCardItem
 				v-for="item in order.orderItemOrder.slice(0, maxItems)"
 				:key="item.product.id"
-				class="order-card-image-container"
-			>
-				<NuxtImg
-					preload
-					placeholder
-					loading="lazy"
-					provider="mediaStream"
-					class="product-img"
-					:style="{ objectFit: 'contain' }"
-					:width="80"
-					:height="80"
-					:fit="'contain'"
-					:position="'entropy'"
-					:background="'transparent'"
-					:trim-threshold="5"
-					:format="'webp'"
-					sizes="sm:100vw md:50vw lg:80px"
-					:src="
-						resolveImageSrc(
-							item.product.mainImageFilename,
-							`media/uploads/products/${item.product.mainImageFilename}`
-						)
-					"
-					:alt="extractTranslated(item.product, 'name', locale)"
-				/>
-			</div>
+				:item="item"
+			/>
 			<div
 				v-if="order.orderItemOrder.length > maxItems"
 				class="order-card-extra-products"
@@ -146,7 +121,7 @@ const statusClass = computed(() => {
 		</div>
 		<div class="order-card-footer">
 			<div class="order-card-footer-item">
-				<Button
+				<MainButton
 					:to="{
 						name: 'account-order',
 						params: { id: order.id }
@@ -311,7 +286,7 @@ const statusClass = computed(() => {
 		}
 	}
 
-	&-image {
+	&-items {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		grid-template-rows: 1fr auto;
