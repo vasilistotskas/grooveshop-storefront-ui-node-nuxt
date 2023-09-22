@@ -14,7 +14,9 @@ RUN rm -rf ./node_modules & \
     rm -rf ./build & \
     rm -rf ./dist
 
-RUN NODE_OPTIONS="--max-old-space-size=8192" npm ci && npm run build
+RUN NODE_OPTIONS="--max-old-space-size=8192" npm install -g pnpm && \
+    pnpm install --frozen-lockfile && \
+    pnpm run build
 
 FROM node:hydrogen-alpine3.18 as production
 
@@ -26,10 +28,11 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/.output /app/.output
 COPY --from=builder /app/.nuxt /app/.nuxt
 COPY --from=builder /app/package.json /app/package.json
-COPY --from=builder /app/package-lock.json /app/package-lock.json
+#COPY --from=builder /app/package-lock.json /app/package-lock.json
+COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 
 WORKDIR /app
-RUN npm install -g pm2 && \
+RUN pnpm install -g pm2 && \
     chown -R node:node /app
 USER node
 
