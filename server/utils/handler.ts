@@ -21,6 +21,6 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(
 			// do something after the route handler
 			return response
 		} catch (error) {
-			handleError(error)
+			await handleError(error)
 		}
 	})
