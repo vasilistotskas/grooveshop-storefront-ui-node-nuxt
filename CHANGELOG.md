@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.0...v1.8.1) (2023-09-24)
+
+
+### Bug Fixes
+
+* **server:** Error handler await error. ([b1602d1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1602d16d15e2b005d5528a7316d468b3f5308e8))
+
 # [1.8.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.7.1...v1.8.0) (2023-09-22)
 
 
