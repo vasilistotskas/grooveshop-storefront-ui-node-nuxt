@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.1...v1.8.2) (2023-09-25)
+
+
+### Bug Fixes
+
+* **Dockerfile:** Fix flow. ([b5f8468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b5f8468b3f004505fb639fb04aeb3d3bf4fb8f37))
+
 ## [1.8.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.0...v1.8.1) (2023-09-24)
 
 
