@@ -33,7 +33,8 @@ COPY --from=builder /app/package.json /app/package.json
 #COPY --from=builder /app/package-lock.json /app/package-lock.json
 COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 
-RUN pnpm install -g pm2
+RUN npm install -g pnpm && \
+    pnpm install -g pm2
 
 RUN chmod -R 777 /app && \
     chown -R node:node /app
