@@ -20,7 +20,7 @@ jobs:
       id-token: write # to enable use of OIDC for npm provenance
       packages: write # to be able to publish to GitHub Packages
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup Node.js
