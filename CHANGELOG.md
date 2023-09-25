@@ -1,3 +1,10 @@
+## [1.8.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.4...v1.8.5) (2023-09-25)
+
+
+### Bug Fixes
+
+* **Dockerfile:** Run pnpm setup ([16d1f32](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/16d1f32a49eae7c99e5c23b1e3683f27d6d5aec8))
+
 ## [1.8.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.3...v1.8.4) (2023-09-25)
 
 
