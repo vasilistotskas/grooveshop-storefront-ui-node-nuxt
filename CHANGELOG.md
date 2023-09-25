@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.6...v1.9.0) (2023-09-25)
+
+
+### Features
+
+* **ci:** Use actions/checkout@v4 and versions bump ([8d3150a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8d3150a66c80bbba239948bc088d4d60f5dcb6ae))
+
 ## [1.8.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.5...v1.8.6) (2023-09-25)
 
 
