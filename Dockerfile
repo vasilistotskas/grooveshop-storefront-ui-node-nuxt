@@ -23,6 +23,7 @@ FROM node:20.7.0-alpine as production
 ENV NUXT_HOST 0.0.0.0
 ENV NUXT_PORT 3000
 ENV NODE_ENV production
+ENV PNPM_HOME=/usr/local/bin
 
 WORKDIR /app
 
@@ -34,7 +35,6 @@ COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 
 RUN npm install -g pnpm && \
-    pnpm setup && \
     pnpm install -g pm2
 
 RUN chmod -R 777 /app && \
