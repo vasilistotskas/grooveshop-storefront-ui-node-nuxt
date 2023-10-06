@@ -16,17 +16,18 @@ const props = defineProps({
 	showDescription: { type: Boolean, required: false, default: false }
 })
 
+const { isAuthenticated } = useAuthSession()
+
+const userStore = useUserStore()
+const { account } = storeToRefs(userStore)
+const { getIsProductInFavourites, getUserToProductFavourite } = userStore
+
 const { locale } = useLang()
 const { contentShorten } = useText()
 const { resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
-const authStore = useAuthStore()
-const userStore = useUserStore()
 
 const { product } = toRefs(props)
-const { account } = storeToRefs(userStore)
-
-const isAuthenticated = authStore.isAuthenticated
 
 const productUrl = computed(() => {
 	if (!props.product) return ''
@@ -41,7 +42,7 @@ const src = computed(() => {
 })
 
 const alt = computed(() => {
-	return extractTranslated(product.value, 'title', locale.value)
+	return extractTranslated(product.value, 'name', locale.value)
 })
 
 const shareOptions = ref({
@@ -53,18 +54,18 @@ const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
 
 const productInUserFavourites = computed(() => {
-	return userStore.getIsProductInFavourites(product.value?.id)
+	return getIsProductInFavourites(product.value?.id)
 })
 
 const userToProductFavourite = computed(() => {
-	return userStore.getUserToProductFavourite(product.value?.id)
+	return getUserToProductFavourite(product.value?.id)
 })
 </script>
 
 <template>
 	<li v-if="product" class="product-card">
 		<div
-			class="container p-5 bg-white text-white dark:bg-slate-800 dark:text-black rounded-lg"
+			class="container p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
 		>
 			<div class="card grid gap-2">
 				<div class="card-head">
@@ -124,18 +125,18 @@ const userToProductFavourite = computed(() => {
 							size="xs"
 						/>
 					</div>
-					<h2 class="card-title text-gray-700 dark:text-gray-200">
+					<h2 class="card-title text-primary-700 dark:text-primary-100">
 						<Anchor
 							:to="`/product${product.absoluteUrl}`"
 							:text="alt"
 							css-class="card-title-text"
 						>
-							{{ alt }}
+							{{ extractTranslated(product, 'name', locale) }}
 						</Anchor>
 					</h2>
 					<p
 						v-if="showDescription"
-						class="card-description text-gray-700 dark:text-gray-200 text-muted"
+						class="card-description text-primary-700 dark:text-primary-100 text-muted"
 					>
 						{{
 							contentShorten(extractTranslated(product, 'description', locale), 0, 100)
@@ -144,18 +145,20 @@ const userToProductFavourite = computed(() => {
 					<div class="card-prices">
 						<div v-if="showStartPrice" class="card-price d-flex justify-content-between">
 							<p class="card-prices-start-price">
-								<span class="text-gray-700 dark:text-gray-200">{{
+								<span class="text-primary-700 dark:text-primary-100">{{
 									$t('components.product.card.price')
 								}}</span
-								><span class="text-gray-700 dark:text-gray-200">{{ product.price }}</span>
+								><span class="text-primary-700 dark:text-primary-100">{{
+									product.price
+								}}</span>
 							</p>
 						</div>
 						<div v-if="showVat" class="card-vat-percent d-flex justify-content-between">
 							<p class="card-prices-vat-percent">
-								<span class="text-gray-700 dark:text-gray-200">{{
+								<span class="text-primary-700 dark:text-primary-100">{{
 									$t('components.product.card.vat_percent')
 								}}</span
-								><span class="text-gray-700 dark:text-gray-200">{{
+								><span class="text-primary-700 dark:text-primary-100">{{
 									product.vatPercent
 								}}</span>
 							</p>
@@ -166,10 +169,10 @@ const userToProductFavourite = computed(() => {
 					>
 						<p class="card-final-price-total">
 							<span
-								class="card-final-price-total-text text-gray-700 dark:text-gray-200"
+								class="card-final-price-total-text text-primary-700 dark:text-primary-100"
 								>{{ $t('components.product.card.total_price') }}</span
 							><span
-								class="card-final-price-total-price text-gray-700 dark:text-gray-200"
+								class="card-final-price-total-price text-primary-700 dark:text-primary-100"
 								>{{ product.finalPrice }}</span
 							>
 						</p>

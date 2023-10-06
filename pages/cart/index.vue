@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
-const { t } = useLang()
-const store = useCartStore()
+const cartStore = useCartStore()
+const { cart, pending } = storeToRefs(cartStore)
 
-const { cart, error, pending } = storeToRefs(store)
+const { t } = useLang()
 
 definePageMeta({
 	layout: 'page'
@@ -29,7 +29,7 @@ useServerSeoMeta({
 </script>
 
 <template>
-	<PageWrapper class="container grid gap-4 grid-rows-auto-1fr mt-4">
+	<PageWrapper class="container grid gap-4 grid-rows-auto-1fr">
 		<div class="grid grid-cols-2 items-center">
 			<PageTitle :text="$t('pages.cart.title')" class="capitalize" />
 			<h2 class="grid justify-items-center justify-self-end">
@@ -42,7 +42,6 @@ useServerSeoMeta({
 			</h2>
 		</div>
 		<PageBody>
-			<Error v-if="error.cart" :code="error.cart?.statusCode" :error="error.cart" />
 			<template v-if="!pending.cart && cart?.cartItems?.length">
 				<div class="grid grid-rows-repeat-auto-fill-mimax-100-130 gap-4">
 					<CartItemCard

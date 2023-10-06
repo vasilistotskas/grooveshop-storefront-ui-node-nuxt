@@ -12,7 +12,7 @@ defineSlots<{
 
 <template>
 	<div class="text-4xl font-bold">
-		<h2 class="text-gray-700 dark:text-gray-200">
+		<h2 class="text-primary-700 dark:text-primary-100">
 			<slot>{{ text }}</slot>
 		</h2>
 	</div>

@@ -62,7 +62,9 @@ export const pwa = {
 						'/api/cart',
 						'/api/auth',
 						'/api/cart',
-						'/api/cart-items'
+						'/api/cart-items',
+						'/api/user-account',
+						'/api/user-account-session'
 					]
 					return (
 						url.pathname.startsWith('/api') &&

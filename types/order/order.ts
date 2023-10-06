@@ -49,7 +49,7 @@ export const ZodOrderQuery = z.object({
 	status: z.string().nullish()
 })
 
-export const ZodOrderCreateRequest = z.object({
+export const ZodOrderCreateBody = z.object({
 	firstName: z.string(),
 	lastName: z.string(),
 	email: z.string(),
@@ -67,7 +67,7 @@ export const ZodOrderParams = z.object({
 })
 
 export type Order = z.infer<typeof ZodOrder>
-export type OrderCreateRequest = z.infer<typeof ZodOrderCreateRequest>
+export type OrderCreateBody = z.infer<typeof ZodOrderCreateBody>
 export type OrderParams = z.infer<typeof ZodOrderParams>
 export type OrderOrderingField = 'createdAt'
 export type OrderQuery = PaginationQuery &

@@ -18,46 +18,42 @@ const pendingFactory = (): PendingRecord => ({
 	favourites: false
 })
 
-export interface FavouriteState {
-	favourites: Pagination<Favourite> | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useFavouriteStore = defineStore('favourite', () => {
+	const favourites = ref<Pagination<Favourite> | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useFavouriteStore = defineStore({
-	id: 'favourite',
-	state: (): FavouriteState => ({
-		favourites: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	actions: {
-		async fetchFavourites({
-			page,
-			ordering,
-			userId,
-			expand
-		}: FavouriteQuery): Promise<void> {
-			try {
-				const {
-					data: favourites,
-					error,
-					pending
-				} = await useFetch<Pagination<Favourite>>(`/api/product-favourites`, {
-					method: 'get',
-					params: {
-						page,
-						ordering,
-						userId,
-						expand
-					}
-				})
-				this.favourites = favourites.value
-				this.error.favourites = error.value
-				this.pending.favourites = pending.value
-			} catch (error) {
-				this.error.favourites = error as IFetchError
+	async function fetchFavourites({ page, ordering, userId, expand }: FavouriteQuery) {
+		const {
+			data,
+			error: favouriteError,
+			pending: favouritePending,
+			refresh
+		} = await useFetch<Pagination<Favourite>>(`/api/product-favourites`, {
+			method: 'get',
+			params: {
+				page,
+				ordering,
+				userId,
+				expand
 			}
+		})
+		favourites.value = data.value
+		error.value.favourites = favouriteError.value
+		pending.value.favourites = favouritePending.value
+
+		return {
+			data,
+			error: favouriteError,
+			pending: favouritePending,
+			refresh
 		}
+	}
+
+	return {
+		favourites,
+		pending,
+		error,
+		fetchFavourites
 	}
 })

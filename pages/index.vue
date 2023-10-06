@@ -5,7 +5,7 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper>
+	<div class="relative">
 		<PageBody>
 			<PageSection>
 				<NativeSlideShow>
@@ -30,7 +30,7 @@ definePageMeta({
 					</a>
 				</NativeSlideShow>
 				<div
-					class="usps container-small flex flex-wrap items-center justify-center gap-8 my-16 text-center brand lg:justify-between"
+					class="usps container-sm flex flex-wrap items-center justify-center gap-8 my-16 text-center brand lg:justify-between"
 				>
 					<NativeSlideShow>
 						<NuxtImg
@@ -55,5 +55,5 @@ definePageMeta({
 				</div>
 			</PageSection>
 		</PageBody>
-	</PageWrapper>
+	</div>
 </template>

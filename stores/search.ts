@@ -17,83 +17,94 @@ const pendingFactory = (): PendingRecord => ({
 	results: false
 })
 
-interface SearchState {
-	results: SearchResults | null
-	storage: string[]
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useSearchStore = defineStore('search', () => {
+	const results = ref<SearchResults | null>(null)
+	const storage = ref<string[]>([])
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useSearchStore = defineStore({
-	id: 'search',
-	state: (): SearchState => ({
-		results: null,
-		storage: [],
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	getters: {
-		totalCount: (state) => {
-			const totalProductsCount = state.results?.products?.resultCount || 0
-			const totalProductCategoriesCount = 0
-			return totalProductsCount + totalProductCategoriesCount
-		},
-		resultsEmpty: (state): boolean => {
-			if (!state.results) {
-				return true
-			}
-			const totalProductsCount = state.results?.products?.resultCount || 0
-			const totalProductCategoriesCount =
-				state.results?.productCategories?.resultCount || 0
-			return totalProductsCount + totalProductCategoriesCount === 0
-		},
-		productSearchItems: (state): SearchProduct[] => {
-			return state.results?.products?.results || []
-		},
-		productHeadlines: (state): Record<string, string> => {
-			return state.results?.products?.headlines || {}
-		},
-		productCategorySearchItems: (state) => {
-			return state.results?.productCategories?.results || []
+	const totalCount = computed(() => {
+		const totalProductsCount = results.value?.products?.resultCount || 0
+		const totalProductCategoriesCount = 0
+		return totalProductsCount + totalProductCategoriesCount
+	})
+
+	const resultsEmpty = computed(() => {
+		if (!results.value) {
+			return true
 		}
-	},
-	actions: {
-		async search(query: SearchQuery) {
-			this.pending.results = true
+		const totalProductsCount = results.value?.products?.resultCount || 0
+		const totalProductCategoriesCount = results.value?.productCategories?.resultCount || 0
+		return totalProductsCount + totalProductCategoriesCount === 0
+	})
 
-			if (!query.query) {
-				return
-			}
+	const productSearchItems = computed(() => {
+		return results.value?.products?.results || []
+	})
 
-			try {
-				const {
-					data: results,
-					error,
-					pending
-				} = await useFetch<SearchResults>(`/api/search`, {
-					method: 'get',
-					params: {
-						query: query.query
-					}
-				})
-				this.results = results.value
-				this.error.results = error.value
-				this.pending.results = pending.value
+	const productHeadlines = computed(() => {
+		return results.value?.products?.headlines || {}
+	})
 
-				if (process.client && !this.resultsEmpty) {
-					const value = useLocalStorage(`$search:${query.query}`, query.query).value
-					if (!this.storage.includes(value)) {
-						this.storage.push(value)
-					}
-				}
-			} catch (error) {
-				this.error.results = error as IFetchError
-			}
-		},
-		reset() {
-			this.results = null
-			this.pending = pendingFactory()
-			this.error = errorsFactory()
+	const productCategorySearchItems = computed(() => {
+		return results.value?.productCategories?.results || []
+	})
+
+	async function search(query: SearchQuery) {
+		pending.value.results = true
+
+		if (!query.query) {
+			return
 		}
+
+		const {
+			data,
+			error: searchError,
+			pending: searchPending,
+			refresh
+		} = await useFetch<SearchResults>(`/api/search`, {
+			method: 'get',
+			params: {
+				query: query.query
+			}
+		})
+
+		results.value = data.value
+		error.value.results = searchError.value
+		pending.value.results = searchPending.value
+
+		if (process.client && !resultsEmpty.value) {
+			const value = useLocalStorage(`$search:${query.query}`, query.query).value
+			if (!storage.value.includes(value)) {
+				storage.value.push(value)
+			}
+		}
+
+		return {
+			data,
+			error: searchError,
+			pending: searchPending,
+			refresh
+		}
+	}
+
+	function reset() {
+		results.value = null
+		pending.value = pendingFactory()
+		error.value = errorsFactory()
+	}
+
+	return {
+		results,
+		storage,
+		pending,
+		error,
+		totalCount,
+		resultsEmpty,
+		productSearchItems,
+		productHeadlines,
+		productCategorySearchItems,
+		search,
+		reset
 	}
 })

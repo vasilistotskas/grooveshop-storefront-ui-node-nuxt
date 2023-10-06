@@ -8,12 +8,10 @@ defineSlots<{
 	'app-after'(props: {}): any
 }>()
 
-const { t } = useLang()
-const route = useRoute()
-
 const userStore = useUserStore()
+const { account, favourites, reviews, orders } = storeToRefs(userStore)
 
-const { account, favourites, reviews, orders, pending, error } = storeToRefs(userStore)
+const route = useRoute()
 </script>
 
 <template>

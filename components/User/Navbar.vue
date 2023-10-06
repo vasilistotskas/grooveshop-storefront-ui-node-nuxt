@@ -20,15 +20,25 @@ defineSlots<{
 const { t } = useLang()
 const config = useRuntimeConfig()
 
-const authStore = useAuthStore()
+const { isAuthenticated } = useAuthSession()
+const { logout } = useAuth()
+
+const userStore = useUserStore()
+const { cleanAccountState } = userStore
+
 const cartStore = useCartStore()
-
-const { isAuthenticated } = storeToRefs(authStore)
 const { cart } = storeToRefs(cartStore)
+const { cleanCartState, fetchCart } = cartStore
 
-const consoleLogImageLoaded = () => {
-	// Image loaded
+const authLogoutEvent = async () => {
+	await logout()
+	cleanAccountState()
+	cleanCartState()
+	await fetchCart()
+	const idb = await useAsyncIDBKeyval('auth', false)
+	idb.value = false
 }
+
 const menus = computed((): IMenuItem[] => [
 	{
 		type: 'external-link',
@@ -36,15 +46,7 @@ const menus = computed((): IMenuItem[] => [
 		href: `${config.public.djangoUrl}/accounts/email/`,
 		icon: userShield,
 		cssClass:
-			'text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700'
-	},
-	{
-		type: 'external-link',
-		text: t('pages.accounts.logout.title'),
-		href: `${config.public.djangoUrl}/accounts/logout/`,
-		icon: doorArrowRight,
-		cssClass:
-			'text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700'
+			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'
 	}
 ])
 </script>
@@ -52,10 +54,15 @@ const menus = computed((): IMenuItem[] => [
 <template>
 	<BuilderNavbar>
 		<template #menu>
-			<nav class="text-sm leading-6 font-semibold text-gray-700 dark:text-gray-200">
+			<nav
+				class="flex items-center text-lg leading-6 font-semibold text-primary-700 dark:text-primary-100"
+			>
 				<ul class="flex items-center gap-4">
-					<li></li>
-					<li v-for="(item, i) in menus" :key="i">
+					<li
+						v-for="(item, i) in menus"
+						:key="i"
+						class="relative grid items-center justify-center justify-items-center"
+					>
 						<Anchor
 							v-if="item.type === 'link'"
 							:to="item.route ? item.route : undefined"
@@ -95,6 +102,21 @@ const menus = computed((): IMenuItem[] => [
 							:href="item.href ? item.href : undefined"
 						/>
 					</li>
+					<li class="relative grid items-center justify-center justify-items-center">
+						<MainButton
+							size="md"
+							type="button"
+							:style="'danger'"
+							:text="$t('pages.accounts.logout.title')"
+							class="gap-2 text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+							@click="authLogoutEvent"
+						>
+							<span class="hidden md:grid">
+								{{ $t('common.logout') }}
+							</span>
+							<IconFluent:doorArrowRight28Regular />
+						</MainButton>
+					</li>
 				</ul>
 			</nav>
 			<div class="relative hidden lg:flex items-center ml-auto">
@@ -102,18 +124,18 @@ const menus = computed((): IMenuItem[] => [
 					<slot name="image" />
 				</div>
 				<ul
-					class="flex items-center gap-3 border-l ml-6 pl-6 border-gray-900/10 dark:border-gray-50/[0.2] text-gray-700 dark:text-gray-200"
+					class="flex items-center gap-3 border-l ml-6 pl-6 border-gray-900/10 dark:border-gray-50/[0.2] text-primary-700 dark:text-primary-100"
 				>
-					<li class="relative">
+					<li class="relative grid items-center justify-center justify-items-center">
 						<LanguageSwitcher />
 					</li>
-					<li class="relative">
+					<li class="relative grid items-center justify-center justify-items-center">
 						<ThemeSwitcher />
 					</li>
-					<li class="relative">
+					<li class="relative grid items-center justify-center justify-items-center">
 						<span class="cart-items-count" :data-count="cart?.totalItems"></span>
 						<Anchor
-							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
+							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 							:to="'cart'"
 							:title="$t('pages.cart.title')"
 							:text="$t('pages.cart.title')"
@@ -121,10 +143,10 @@ const menus = computed((): IMenuItem[] => [
 							<IconFa6Solid:cartShopping />
 						</Anchor>
 					</li>
-					<li class="relative">
+					<li class="relative grid items-center justify-center justify-items-center">
 						<Anchor
 							v-if="isAuthenticated"
-							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
+							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 							:title="$t('pages.accounts.login.title')"
 							:text="$t('pages.accounts.login.title')"
 							:to="'account'"
@@ -133,7 +155,7 @@ const menus = computed((): IMenuItem[] => [
 						</Anchor>
 						<Anchor
 							v-else
-							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
+							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 							:title="$t('pages.accounts.login.title')"
 							:text="$t('pages.accounts.login.title')"
 							:href="`${config.public.djangoUrl}/accounts/login/`"
@@ -148,7 +170,7 @@ const menus = computed((): IMenuItem[] => [
 			<ActionSheet @on-close="toggleOptions(false)">
 				<ActionSheetBody>
 					<ActionSheetHeader text="Menu" />
-					<nav class="leading-6 font-semibold text-gray-700 dark:text-gray-200">
+					<nav class="leading-6 font-semibold text-primary-700 dark:text-primary-100">
 						<ul class="flex flex-col">
 							<li
 								class="flex w-full pb-2 mb-2 border-b border-gray-900/10 dark:border-gray-50/[0.2] link"
@@ -163,26 +185,30 @@ const menus = computed((): IMenuItem[] => [
 							</li>
 						</ul>
 					</nav>
-					<div class="text-gray-700 dark:text-gray-200 mt-6 text-sm font-bold capitalize">
+					<div
+						class="text-primary-700 dark:text-primary-100 mt-6 text-sm font-bold capitalize"
+					>
 						{{ $t('components.theme.switcher.change.theme') }}
 					</div>
 					<div class="mt-2">
 						<ThemeSwitcher type="select-box" />
 					</div>
-					<div class="text-gray-700 dark:text-gray-200 mt-6 text-sm font-bold capitalize">
+					<div
+						class="text-primary-700 dark:text-primary-100 mt-6 text-sm font-bold capitalize"
+					>
 						{{ $t('components.language.switcher.change_language') }}
 					</div>
 					<div class="mt-2">
 						<LanguageSwitcher type="select-box" />
 					</div>
 					<Anchor
-						class="text-gray-700 dark:text-gray-200 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2 mt-4"
+						class="text-primary-700 dark:text-primary-100 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2 mt-4"
 						:to="'cart'"
 						:title="$t('pages.cart.title')"
 						:text="$t('pages.cart.title')"
 					>
 						<IconFa6Solid:cartShopping />
-						<span class="ml-1 text-gray-700 dark:text-gray-200">
+						<span class="ml-1 text-primary-700 dark:text-primary-100">
 							{{ $t('pages.cart.title') }}</span
 						>
 					</Anchor>

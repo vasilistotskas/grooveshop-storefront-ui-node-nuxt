@@ -71,10 +71,10 @@ const validate = async () => {
 							<button
 								type="button"
 								:class="[
-									'md:w-full text-left px-3 py-1.5 rounded py-2.5 text-sm leading-5 transition-all hover:bg-gray-200 hover:text-slate-900 dark:hover:bg-white/[0.12] dark:hover:text-white',
+									'md:w-full text-left px-3 py-1.5 rounded py-2.5 text-sm leading-5 transition-all hover:bg-zinc-200 hover:text-slate-900 dark:hover:bg-white/[0.12] dark:hover:text-white',
 									selected
 										? 'font-extrabold text-primary-400'
-										: 'text-gray-700 dark:text-gray-200'
+										: 'text-primary-700 dark:text-primary-100'
 								]"
 							>
 								General
@@ -84,10 +84,10 @@ const validate = async () => {
 							<button
 								type="button"
 								:class="[
-									'md:w-full text-left px-3 py-1.5 rounded py-2.5 text-sm leading-5 transition-all hover:bg-gray-200 hover:text-slate-900 dark:hover:bg-white/[0.12] dark:hover:text-white',
+									'md:w-full text-left px-3 py-1.5 rounded py-2.5 text-sm leading-5 transition-all hover:bg-zinc-200 hover:text-slate-900 dark:hover:bg-white/[0.12] dark:hover:text-white',
 									selected
 										? 'font-extrabold text-primary-400'
-										: 'text-gray-700 dark:text-gray-200'
+										: 'text-primary-700 dark:text-primary-100'
 								]"
 							>
 								Protection
@@ -97,10 +97,10 @@ const validate = async () => {
 							<button
 								type="button"
 								:class="[
-									'md:w-full text-left px-3 py-1.5 rounded py-2.5 text-sm leading-5 transition-all hover:bg-gray-200 hover:text-slate-900 dark:hover:bg-white/[0.12] dark:hover:text-white',
+									'md:w-full text-left px-3 py-1.5 rounded py-2.5 text-sm leading-5 transition-all hover:bg-zinc-200 hover:text-slate-900 dark:hover:bg-white/[0.12] dark:hover:text-white',
 									selected
 										? 'font-extrabold text-primary-400'
-										: 'text-gray-700 dark:text-gray-200'
+										: 'text-primary-700 dark:text-primary-100'
 								]"
 							>
 								Advanced
@@ -115,7 +115,7 @@ const validate = async () => {
 										class="capitalize"
 										:text="$t('pages.testing.setting.sections.validate_username.title')"
 									/>
-									<p class="text-gray-700 dark:text-gray-200 mb-2">
+									<p class="text-primary-700 dark:text-primary-100 mb-2">
 										{{
 											$t('pages.testing.setting.sections.validate_username.description')
 										}}
@@ -128,7 +128,8 @@ const validate = async () => {
 											class="w-full md:w-1/3"
 										>
 											<template #prefix-disabled>
-												<span class="flex-1 px-4 py-2 text-gray-700 dark:text-gray-200"
+												<span
+													class="flex-1 px-4 py-2 text-primary-700 dark:text-primary-100"
 													>github.com/</span
 												>
 											</template>
@@ -138,7 +139,7 @@ const validate = async () => {
 								<CardFooter
 									class="flex flex-col space-y-2 md:space-y md:flex-row items-center md:justify-between"
 								>
-									<p class="text-gray-700 dark:text-gray-200">
+									<p class="text-primary-700 dark:text-primary-100">
 										{{ $t('pages.testing.setting.sections.validate_username.footer') }}
 										<Anchor
 											class="underline font-bold capitalize"
@@ -166,7 +167,7 @@ const validate = async () => {
 										class="capitalize"
 										:text="$t('pages.testing.setting.sections.bot_id.title')"
 									/>
-									<p class="text-gray-700 dark:text-gray-200 mb-2">
+									<p class="text-primary-700 dark:text-primary-100 mb-2">
 										{{ $t('pages.testing.setting.sections.bot_id.description') }}
 									</p>
 									<div class="flex">
@@ -190,7 +191,7 @@ const validate = async () => {
 									</div>
 								</CardContent>
 								<CardFooter class="justify-between">
-									<p class="text-gray-700 dark:text-gray-200">
+									<p class="text-primary-700 dark:text-primary-100">
 										{{ $t('pages.testing.setting.sections.bot_id.footer') }}
 									</p>
 								</CardFooter>
@@ -208,12 +209,12 @@ const validate = async () => {
 										class="capitalize"
 										:text="$t('pages.testing.setting.sections.protection_spam.title')"
 									/>
-									<p class="text-gray-700 dark:text-gray-200 mb-2">
+									<p class="text-primary-700 dark:text-primary-100 mb-2">
 										{{ $t('pages.testing.setting.sections.protection_spam.description') }}
 									</p>
 									<div class="flex">
 										<FormSwitch v-model="enableSpamProtection">
-											<span class="capitalize text-gray-700 dark:text-gray-200">{{
+											<span class="capitalize text-primary-700 dark:text-primary-100">{{
 												enableSpamProtection
 													? $t('common.enabled')
 													: $t('common.disabled')
@@ -222,7 +223,7 @@ const validate = async () => {
 									</div>
 								</CardContent>
 								<CardFooter class="justify-between">
-									<p class="text-gray-700 dark:text-gray-200">
+									<p class="text-primary-700 dark:text-primary-100">
 										{{ $t('pages.testing.setting.sections.protection_spam.footer') }}
 									</p>
 								</CardFooter>
@@ -237,7 +238,7 @@ const validate = async () => {
 											$t('pages.testing.setting.sections.advanced_enable_advanced.title')
 										"
 									/>
-									<p class="text-gray-700 dark:text-gray-200 mb-2">
+									<p class="text-primary-700 dark:text-primary-100 mb-2">
 										{{
 											$t(
 												'pages.testing.setting.sections.advanced_enable_advanced.description'
@@ -246,7 +247,7 @@ const validate = async () => {
 									</p>
 									<div class="flex">
 										<FormSwitch v-model="enableAdvancedSetting">
-											<span class="capitalize text-gray-700 dark:text-gray-200">{{
+											<span class="capitalize text-primary-700 dark:text-primary-100">{{
 												enableAdvancedSetting
 													? $t('common.enabled')
 													: $t('common.disabled')
@@ -263,7 +264,7 @@ const validate = async () => {
 											$t('pages.testing.setting.sections.advanced_dir_listing.title')
 										"
 									/>
-									<p class="text-gray-700 dark:text-gray-200 mb-2">
+									<p class="text-primary-700 dark:text-primary-100 mb-2">
 										{{
 											$t(
 												'pages.testing.setting.sections.advanced_dir_listing.description'
@@ -272,7 +273,7 @@ const validate = async () => {
 									</p>
 									<div class="flex">
 										<FormSwitch v-model="enableDirList" on>
-											<span class="capitalize text-gray-700 dark:text-gray-200">{{
+											<span class="capitalize text-primary-700 dark:text-primary-100">{{
 												enableDirList ? $t('common.enabled') : $t('common.disabled')
 											}}</span>
 										</FormSwitch>

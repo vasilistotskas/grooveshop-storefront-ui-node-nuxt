@@ -1,3 +1,6 @@
+import { NitroConfig } from 'nitropack'
+import { useNuxt } from '@nuxt/kit'
+import { isCI } from 'std-env'
 import { runtimeConfig } from './config/runtime-config'
 import { cookieControl } from './config/cookie'
 import { pinia } from './config/pinia'
@@ -29,6 +32,20 @@ import { site } from './config/site'
 export default defineNuxtConfig({
 	ssr: true,
 	sourcemap: process.env.NODE_ENV !== 'production',
+	appConfig: {
+		storage: {
+			driver: process.env.NUXT_STORAGE_DRIVER ?? (isCI ? 'cloudflare' : 'fs')
+		}
+	},
+	hooks: {
+		'nitro:config': function (config: NitroConfig) {
+			const nuxt = useNuxt()
+			config.virtual = config.virtual || {}
+			config.virtual['#storage-config'] = `export const driver = ${JSON.stringify(
+				nuxt.options.appConfig.storage.driver
+			)}`
+		}
+	},
 	site,
 	modules,
 	routeRules,

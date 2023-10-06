@@ -6,14 +6,17 @@ const props = defineProps({
 	cartItem: { type: Object as PropType<CartItem>, required: true }
 })
 
-const { cartItem } = toRefs(props)
+const cartStore = useCartStore()
+const { fetchCart, deleteCartItem } = cartStore
+
 const { extractTranslated } = useTranslationExtractor()
 const { locale } = useLang()
 const { contentShorten } = useText()
 const { resolveImageSrc } = useImageResolver()
 
-const cartStore = useCartStore()
-const refreshCart = async () => await cartStore.fetchCart()
+const { cartItem } = toRefs(props)
+
+const refreshCart = async () => await fetchCart()
 
 const src = computed(() => {
 	return resolveImageSrc(
@@ -32,7 +35,7 @@ const cartItemQuantity = useState<number>(
 )
 
 const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
-	await cartStore.deleteCartItem(cartItemId)
+	await deleteCartItem(cartItemId)
 	await refreshCart()
 }
 </script>
@@ -40,7 +43,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 <template>
 	<div
 		v-if="cartItem"
-		class="grid grid-cols-6 items-center gap-4 py-4 bg-white dark:bg-slate-800 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
+		class="grid grid-cols-6 items-center gap-4 py-4 bg-white dark:bg-zinc-800 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
 	>
 		<div class="image">
 			<Anchor :to="`/product${cartItem.product.absoluteUrl}`" :title="alt">
@@ -65,7 +68,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 			</Anchor>
 		</div>
 		<div class="title">
-			<h3 class="text-gray-700 dark:text-gray-200">
+			<h3 class="text-primary-700 dark:text-primary-100">
 				<Anchor :to="`/product${cartItem.product.absoluteUrl}`" :title="alt">{{
 					contentShorten(alt, 50)
 				}}</Anchor>
@@ -79,16 +82,18 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 			/>
 		</div>
 		<div class="price">
-			<span class="text-gray-700 dark:text-gray-200">{{
+			<span class="text-primary-700 dark:text-primary-100">{{
 				cartItem.product.finalPrice
 			}}</span>
 		</div>
 		<div class="total-price">
-			<span class="text-gray-700 dark:text-gray-200">{{ cartItem.totalPrice }}</span>
+			<span class="text-primary-700 dark:text-primary-100">{{
+				cartItem.totalPrice
+			}}</span>
 		</div>
 		<div class="remove-from-cart">
 			<button
-				class="text-gray-700 dark:text-gray-200"
+				class="text-primary-700 dark:text-primary-100"
 				:title="
 					$t('components.cart.item_card.remove_from_cart', {
 						name: alt

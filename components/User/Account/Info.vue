@@ -23,8 +23,6 @@ const props = defineProps({
 		default: 0
 	}
 })
-
-const { t } = useLang()
 </script>
 
 <template>
@@ -41,7 +39,7 @@ const { t } = useLang()
 				/>
 			</div>
 			<div class="user-info-name">
-				<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+				<h1 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
 					{{ account.firstName }} {{ account.lastName }}
 				</h1>
 			</div>
@@ -53,12 +51,12 @@ const { t } = useLang()
 						:title="$t('pages.account.orders.title')"
 					>
 						<IconMdi:packageVariantClosed
-							class="text-gray-500 dark:text-gray-400 text-xl md:text-2xl"
+							class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
 						/>
-						<span class="text-gray-500 dark:text-gray-400">{{
+						<span class="text-primary-500 dark:text-primary-400">{{
 							$t('pages.account.orders.title')
 						}}</span>
-						<span class="text-gray-900 dark:text-gray-100 font-bold text-2xl">{{
+						<span class="text-primary-900 dark:text-primary-100 font-bold text-2xl">{{
 							ordersCount
 						}}</span>
 					</Anchor>
@@ -70,12 +68,12 @@ const { t } = useLang()
 						:title="$t('pages.account.favourites.title')"
 					>
 						<IconMdi:heartOutline
-							class="text-gray-500 dark:text-gray-400 text-xl md:text-2xl"
+							class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
 						/>
-						<span class="text-gray-500 dark:text-gray-400">{{
+						<span class="text-primary-500 dark:text-primary-400">{{
 							$t('pages.account.favourites.title')
 						}}</span>
-						<span class="text-gray-900 dark:text-gray-100 font-bold text-2xl">{{
+						<span class="text-primary-900 dark:text-primary-100 font-bold text-2xl">{{
 							favouritesCount
 						}}</span>
 					</Anchor>
@@ -87,12 +85,12 @@ const { t } = useLang()
 						:title="$t('pages.account.reviews.title')"
 					>
 						<IconMdi:starOutline
-							class="text-gray-500 dark:text-gray-400 text-xl md:text-2xl"
+							class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
 						/>
-						<span class="text-gray-500 dark:text-gray-400">{{
+						<span class="text-primary-500 dark:text-primary-400">{{
 							$t('pages.account.reviews.title')
 						}}</span>
-						<span class="text-gray-900 dark:text-gray-100 font-bold text-2xl">{{
+						<span class="text-primary-900 dark:text-primary-100 font-bold text-2xl">{{
 							reviewsCount
 						}}</span>
 					</Anchor>

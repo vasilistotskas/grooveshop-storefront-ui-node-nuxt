@@ -1,6 +1,6 @@
 import { IFetchError } from 'ofetch'
-import { Account, AccountPutRequest, UserAccountSession } from '~/types/user/account'
-import { Favourite, FavouriteCreateRequest } from '~/types/product/favourite'
+import { Account, AccountPutBody, UserAccountSession } from '~/types/user/account'
+import { Favourite, FavouriteCreateBody } from '~/types/product/favourite'
 import { Review } from '~/types/product/review'
 import { Order } from '~/types/order/order'
 import { Address } from '~/types/user/address'
@@ -37,127 +37,164 @@ const pendingFactory = (): PendingRecord => ({
 	addresses: false
 })
 
-export interface UserState {
-	account: Account | null
-	favourites: Favourite[] | null
-	reviews: Review[] | null
-	orders: Order[] | null
-	addresses: Address[] | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useUserStore = defineStore('user', () => {
+	const account = ref<Account | null>(null)
+	const favourites = ref<Favourite[] | null>(null)
+	const reviews = ref<Review[] | null>(null)
+	const orders = ref<Order[] | null>(null)
+	const addresses = ref<Address[] | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useUserStore = defineStore({
-	id: 'user',
-	state: (): UserState => ({
-		account: null,
-		favourites: null,
-		reviews: null,
-		orders: null,
-		addresses: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	getters: {
-		getIsProductInFavourites:
-			(state) =>
-			(id: number): boolean => {
-				return state.favourites?.some((favourite) => favourite.product === id) || false
-			},
-		getUserToProductFavourite:
-			(state) =>
-			(id: number): Favourite | null => {
-				return state.favourites?.find((favourite) => favourite.product === id) || null
-			}
-	},
-	actions: {
-		async fetchAccount() {
-			try {
-				const {
-					data: account,
-					error,
-					pending
-				} = await useFetch<UserAccountSession>(`/api/user-account-session`, {
-					method: 'get'
-				})
-				if (account.value) {
-					this.account = account.value.account
-					this.favourites = account.value.favourites
-					this.reviews = account.value.reviews
-					this.orders = account.value.orders
-					this.addresses = account.value.addresses
-				}
-				this.error.account = error.value
-				this.pending.account = pending.value
-			} catch (error) {
-				this.error.account = error as IFetchError
-			}
-		},
-		async updateAccount(id: number, body: AccountPutRequest) {
-			try {
-				const {
-					data: account,
-					error,
-					pending
-				} = await useFetch<Account>(`/api/user-account/${id}`, {
-					method: 'put',
-					body
-				})
-				this.account = account.value
-				this.error.account = error.value
-				this.pending.account = pending.value
-			} catch (error) {
-				this.error.account = error as IFetchError
-			}
-		},
-		async updateAccountImage(id: number, body: FormData) {
-			try {
-				const {
-					data: account,
-					pending,
-					error
-				} = await useFetch<Account>(`/api/user-account/${id}`, {
-					method: 'patch',
-					body
-				})
-				this.account = account.value
-				this.error.account = error.value
-				this.pending.account = pending.value
-			} catch (error) {
-				this.error.account = error as IFetchError
-			}
-		},
-		async addFavourite(body: FavouriteCreateRequest) {
-			try {
-				const {
-					data: favourite,
-					error,
-					pending
-				} = await useFetch<Favourite>(`/api/product-favourites`, {
-					method: 'post',
-					body
-				})
-				if (favourite.value) {
-					this.favourites?.push(favourite.value)
-				}
-				this.error.favourites = error.value
-				this.pending.favourites = pending.value
-			} catch (error) {
-				this.error.favourites = error as IFetchError
-			}
-		},
-		async removeFavourite(id: number) {
-			try {
-				const { error, pending } = await useFetch(`/api/product-favourites/${id}`, {
-					method: 'delete'
-				})
-				this.favourites =
-					this.favourites?.filter((favourite) => favourite.id !== id) || null
-				this.error.favourites = error.value
-				this.pending.favourites = pending.value
-			} catch (error) {
-				this.error.favourites = error as IFetchError
-			}
+	const getIsProductInFavourites = (id: number): boolean => {
+		return favourites.value?.some((favourite) => favourite.product === id) || false
+	}
+
+	const getUserToProductFavourite = (id: number): Favourite | null => {
+		return favourites.value?.find((favourite) => favourite.product === id) || null
+	}
+
+	async function fetchAccount() {
+		const {
+			data,
+			error: accountError,
+			pending: accountPending,
+			refresh
+		} = await useFetch<UserAccountSession>(`/api/user-account-session`, {
+			method: 'get'
+		})
+
+		if (data.value) {
+			account.value = data.value.account
+			favourites.value = data.value.favourites
+			reviews.value = data.value.reviews
+			orders.value = data.value.orders
+			addresses.value = data.value.addresses
 		}
+		error.value.account = accountError.value
+		pending.value.account = accountPending.value
+
+		return {
+			data,
+			error: accountError,
+			pending: accountPending,
+			refresh
+		}
+	}
+
+	async function updateAccount(id: number, body: AccountPutBody) {
+		const {
+			data,
+			error: accountError,
+			pending: accountPending,
+			refresh
+		} = await useFetch<Account>(`/api/user-account/${id}`, {
+			method: 'put',
+			body
+		})
+		account.value = data.value
+		error.value.account = accountError.value
+		pending.value.account = accountPending.value
+
+		return {
+			data,
+			error: accountError,
+			pending: accountPending,
+			refresh
+		}
+	}
+
+	async function updateAccountImage(id: number, body: FormData) {
+		const {
+			data,
+			error: accountError,
+			pending: accountPending,
+			refresh
+		} = await useFetch<Account>(`/api/user-account/${id}`, {
+			method: 'patch',
+			body
+		})
+		account.value = data.value
+		error.value.account = accountError.value
+		pending.value.account = accountPending.value
+
+		return {
+			data,
+			error: accountError,
+			pending: accountPending,
+			refresh
+		}
+	}
+
+	async function addFavourite(body: FavouriteCreateBody) {
+		const {
+			data,
+			error: favouriteError,
+			pending: favouritePending,
+			refresh
+		} = await useFetch<Favourite>(`/api/product-favourites`, {
+			method: 'post',
+			body
+		})
+		if (data.value) {
+			favourites.value?.push(data.value)
+		}
+		error.value.favourites = favouriteError.value
+		pending.value.favourites = favouritePending.value
+
+		return {
+			data,
+			error: favouriteError,
+			pending: favouritePending,
+			refresh
+		}
+	}
+
+	async function removeFavourite(id: number) {
+		const {
+			error: favouriteError,
+			pending: favouritePending,
+			refresh
+		} = await useFetch(`/api/product-favourites/${id}`, {
+			method: 'delete'
+		})
+		favourites.value =
+			favourites.value?.filter((favourite) => favourite.id !== id) ?? null
+		error.value.favourites = favouriteError.value
+		pending.value.favourites = favouritePending.value
+
+		return {
+			error: favouriteError,
+			pending: favouritePending,
+			refresh
+		}
+	}
+
+	function cleanAccountState() {
+		account.value = null
+		favourites.value = null
+		reviews.value = null
+		orders.value = null
+		addresses.value = null
+		pending.value = pendingFactory()
+		error.value = errorsFactory()
+	}
+
+	return {
+		account,
+		favourites,
+		reviews,
+		orders,
+		addresses,
+		pending,
+		error,
+		getIsProductInFavourites,
+		getUserToProductFavourite,
+		fetchAccount,
+		updateAccount,
+		updateAccountImage,
+		addFavourite,
+		removeFavourite,
+		cleanAccountState
 	}
 })

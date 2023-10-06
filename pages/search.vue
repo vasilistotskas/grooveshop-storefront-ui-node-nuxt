@@ -1,14 +1,17 @@
 <script lang="ts" setup>
 import SearchingJson from '~/assets/lotties/searching.json'
 import SearchingNoResultsJson from '~/assets/lotties/search_no_results.json'
-
 definePageMeta({
 	pageTransition: false
 })
 
+const searchStore = useSearchStore()
+const { storage, pending, error, totalCount, productSearchItems, productHeadlines } =
+	storeToRefs(searchStore)
+const { search, reset } = searchStore
+
 const route = useRoute()
 const router = useRouter()
-const searchStore = useSearchStore()
 const { locale } = useLang()
 const { cleanHtml } = useText()
 
@@ -16,30 +19,22 @@ const currentSearch = ref((route.query.query || '').toString())
 const suggestions = ref(null)
 const isSuggestionsOpen = ref(false)
 
-const {
-	totalCount,
-	productSearchItems,
-	productHeadlines,
-	storage,
-	pending: searchPending,
-	error: searchError
-} = storeToRefs(searchStore)
-
 onClickOutside(suggestions, () => {
 	isSuggestionsOpen.value = false
 })
 
-async function search() {
-	searchPending.value.results = true
-	await searchStore.search({
+await search({
+	query: currentSearch.value,
+	language: locale.value
+})
+
+const refreshSearch = async () =>
+	await search({
 		query: currentSearch.value,
 		language: locale.value
 	})
-}
 
-await search()
-
-const throttledSearch = useDebounceFn(search, 250)
+const throttledSearch = useDebounceFn(refreshSearch, 250)
 
 const vFocus = {
 	mounted: (el: HTMLElement) => el.focus()
@@ -57,7 +52,7 @@ const showSearchHistory = computed(() => {
 })
 
 const showHeadlines = computed(() => {
-	return Object.keys(productHeadlines.value).length > 0
+	return Object.keys(productHeadlines).length > 0
 })
 
 const showSuggestions = computed(() => {
@@ -66,40 +61,38 @@ const showSuggestions = computed(() => {
 
 const showResults = computed(() => {
 	return (
-		productSearchItems.value.length > 0 &&
-		!searchPending.value.results &&
-		!searchError.value.results
+		productSearchItems.value.length > 0 && !pending.value.results && !error.value.results
 	)
 })
 
 const showStartSearching = computed(() => {
-	return !currentSearch.value && !searchPending.value.results
+	return !currentSearch.value && !pending.value.results
 })
 
 const showTotalCount = computed(() => {
-	return totalCount.value > 0 && !searchPending.value.results
+	return totalCount.value > 0 && !pending.value.results
 })
 
 const showIsSearching = computed(() => {
-	return searchPending.value.results && !searchError.value.results
+	return pending.value.results && !error.value.results
 })
 
 const showNoResults = computed(() => {
 	return (
 		!showIsSearching.value &&
 		productSearchItems.value.length === 0 &&
-		!searchError.value.results
+		!error.value.results
 	)
 })
 
 const showErrors = computed(() => {
-	return searchError.value.results
+	return error.value.results
 })
 
 watch(
 	() => currentSearch.value,
 	() => {
-		searchPending.value.results = true
+		pending.value.results = true
 		isSuggestionsOpen.value = false
 		throttledSearch()
 		// 	replace router params
@@ -115,7 +108,7 @@ watch(
 onUnmounted(() => {
 	currentSearch.value = ''
 	isSuggestionsOpen.value = false
-	searchStore.reset()
+	reset()
 })
 
 onMounted(() => {
@@ -129,13 +122,13 @@ onMounted(() => {
 			<div
 				id="search"
 				v-focus
-				class="grid bg-gray-50 dark:bg-gray-800 items-center p-4 gap-4 w-full fixed top-0 z-10 left-0"
+				class="grid bg-zinc-50 dark:bg-zinc-800 items-center p-4 gap-4 w-full fixed top-0 z-10 left-0"
 			>
 				<div class="flex items-center gap-4 w-full">
 					<Anchor
 						:to="'index'"
 						aria-label="index"
-						class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-gray-700 dark:text-gray-200 border-r-2 border-gray-900/10 dark:border-gray-50/[0.2] close"
+						class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-primary-700 dark:text-primary-100 border-r-2 border-gray-900/10 dark:border-gray-50/[0.2] close"
 					>
 						<span class="hidden">{{ $t('pages.search.back_to_home') }}</span>
 						<IconEntypo:arrowLeft></IconEntypo:arrowLeft>
@@ -147,20 +140,20 @@ onMounted(() => {
 						type="text"
 						class="text-xl bg-transparent outline-none w-full"
 						:placeholder="$t('pages.search.placeholder')"
-						@keyup.enter="search"
+						@keyup.enter="refreshSearch"
 						@click="isSuggestionsOpen = true"
 					/>
 				</div>
 				<div
 					v-if="showSuggestions"
 					ref="suggestions"
-					class="suggestions bg-gray-50/50 dark:bg-gray-800/90"
+					class="suggestions bg-zinc-50/50 dark:bg-zinc-800/90"
 				>
 					<TransitionGroup name="list" tag="ul" class="grid">
 						<li
 							v-for="suggestion in storageSearchHistory"
 							:key="suggestion"
-							class="suggestions-link hover:bg-gray-100 dark:hover:bg-gray-700"
+							class="suggestions-link hover:bg-zinc-100 dark:hover:bg-zinc-700"
 						>
 							<Anchor
 								:to="`/search?query=${suggestion}`"
@@ -168,7 +161,7 @@ onMounted(() => {
 								@click="currentSearch = suggestion"
 							>
 								<IconFa6Solid:clockRotateLeft />
-								<span class="text-gray-700 dark:text-gray-200">
+								<span class="text-primary-700 dark:text-primary-100">
 									{{ suggestion }}
 								</span>
 							</Anchor>
@@ -176,7 +169,7 @@ onMounted(() => {
 						<li
 							v-for="(headline, productId) in productHeadlines"
 							:key="productId"
-							class="suggestions-link hover:bg-gray-100 dark:hover:bg-gray-700"
+							class="suggestions-link hover:bg-zinc-100 dark:hover:bg-zinc-700"
 						>
 							<Anchor
 								:to="`/search?query=${cleanHtml(headline)}`"
@@ -186,7 +179,7 @@ onMounted(() => {
 								<IconFa6Solid:magnifyingGlass />
 								<!-- eslint-disable vue/no-v-html -->
 								<span
-									class="text-gray-700 dark:text-gray-200 headline"
+									class="text-primary-700 dark:text-primary-100 headline"
 									v-html="headline"
 								/>
 							</Anchor>
@@ -243,7 +236,7 @@ onMounted(() => {
 				<h1 class="text-4xl text-red">
 					{{ $t('pages.search.error') }}
 				</h1>
-				<pre class="py-2">{{ searchError.results }}</pre>
+				<pre class="py-2">{{ error.results }}</pre>
 			</div>
 		</PageBody>
 	</PageWrapper>

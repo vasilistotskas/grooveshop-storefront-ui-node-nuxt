@@ -9,7 +9,8 @@ const { locale, locales } = useLang()
 const colorMode = useColorMode()
 
 const cartStore = useCartStore()
-await cartStore.fetchCart()
+const { fetchCart } = cartStore
+await fetchCart()
 
 const themeClass = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
 const themeColor = computed(() => (colorMode.value === 'dark' ? '#1a202c' : '#ffffff'))

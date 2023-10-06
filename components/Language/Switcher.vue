@@ -36,17 +36,19 @@ const navigateToLocale = (code: string) => {
 			<ListboxButton
 				type="button"
 				title="Change Language"
-				class="transition-colors duration-300"
+				class="text-[1.5rem] transition-colors duration-300"
 			>
 				<span class="hidden">{{
 					$t('components.language.switcher.change_language')
 				}}</span>
-				<span class="text-gray-700 dark:text-gray-200 justify-center items-center flex">
+				<span
+					class="text-primary-700 dark:text-primary-100 justify-center items-center flex"
+				>
 					<IconLa:language />
 				</span>
 			</ListboxButton>
 			<ListboxOptions
-				class="p-1 absolute z-50 top-full right-0 outline-none bg-white rounded-lg ring-1 ring-gray-900/10 shadow-lg overflow-hidden w-36 py-1 text-sm text-gray-700 font-semibold dark:bg-gray-800 dark:ring-0 dark:highlight-white/5 dark:text-gray-300"
+				class="p-1 absolute z-50 top-full right-0 outline-none bg-white rounded-lg ring-1 ring-gray-900/10 shadow-lg overflow-hidden w-36 py-1 text-lg text-primary-700 font-semibold dark:bg-zinc-800 dark:ring-0 dark:highlight-white/5 dark:text-primary-300"
 			>
 				<ListboxOption
 					v-for="lang in locales"
@@ -54,18 +56,18 @@ const navigateToLocale = (code: string) => {
 					:value="lang.code"
 					:class="{
 						'py-2 px-2 flex items-center cursor-pointer': true,
-						'text-sky-500 bg-gray-100 dark:bg-gray-600/30': locale === lang.code,
-						'hover:bg-gray-50 dark:hover:bg-gray-700/30': locale !== lang.code
+						'text-sky-500 bg-zinc-100 dark:bg-zinc-600/30': locale === lang.code,
+						'hover:bg-zinc-50 dark:hover:bg-zinc-700/30': locale !== lang.code
 					}"
 					@click.prevent.stop="navigateToLocale(lang.code)"
 				>
 					<NuxtLink :to="switchLocalePath(lang.code)">
-						<span class="text-gray-700 dark:text-gray-200 text-sm mr-2">
+						<span class="text-primary-700 dark:text-primary-100 text-lg mr-2">
 							{{ lang.flag }}
 						</span>
-						<span class="text-gray-700 dark:text-gray-200 flex-1 truncate">
+						<span class="text-primary-700 dark:text-primary-100 flex-1 truncate text-sm">
 							{{ lang.name }}
-							<span class="text-gray-700 dark:text-gray-200 text-xs"
+							<span class="text-primary-700 dark:text-primary-100 text-xs"
 								>({{ lang.code }})</span
 							>
 						</span>
@@ -75,7 +77,7 @@ const navigateToLocale = (code: string) => {
 		</Listbox>
 		<select
 			v-if="currentStyle === 'select-box'"
-			class="w-full px-2 pr-3 py-1 outline-none rounded border bg-transparent text-gray-700 dark:text-gray-300 border-gray-900/10 dark:border-gray-50/[0.2]"
+			class="w-full px-2 pr-3 py-1 outline-none rounded border bg-transparent text-primary-700 dark:text-primary-300 border-gray-900/10 dark:border-gray-50/[0.2]"
 		>
 			<option
 				v-for="lang in locales"

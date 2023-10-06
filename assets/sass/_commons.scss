@@ -1,7 +1,7 @@
 // vars
 @import 'variables';
 
-.container-small {
+.container-sm {
 	margin-left: auto;
 	margin-right: auto;
 	padding-left: 15px;
@@ -36,24 +36,48 @@
 	padding-right: 15px;
 	width: 100%;
 
-	@media (min-width: map-get($grid-breakpoints, 'sm')) {
-		max-width: 360px;
-	}
-
 	@media (min-width: map-get($grid-breakpoints, 'md')) {
-		max-width: 540px;
+		max-width: 480px;
 	}
 
 	@media (min-width: map-get($grid-breakpoints, 'lg')) {
-		max-width: 720px;
+		max-width: 540px;
 	}
 
 	@media (min-width: map-get($grid-breakpoints, 'xl')) {
-		max-width: 960px;
+		max-width: 720px;
 	}
 
 	@media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
-		max-width: 1200px;
+		max-width: 960px;
+	}
+}
+
+.container-xxs {
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 15px;
+	padding-right: 15px;
+	width: 100%;
+
+	@media (min-width: map-get($grid-breakpoints, 'sm')) {
+		max-width: 240px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'md')) {
+		max-width: 360px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'lg')) {
+		max-width: 480px;
+	}
+
+	@media (min-width: map-get($grid-breakpoints, 'xl')) {
+		max-width: 640px;
+	}
+
+	@media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
+		max-width: 800px;
 	}
 }
 

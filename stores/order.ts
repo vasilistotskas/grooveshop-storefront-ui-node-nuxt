@@ -1,5 +1,5 @@
 import { IFetchError } from 'ofetch'
-import { Order, OrderCreateRequest, OrderQuery } from '~/types/order/order'
+import { Order, OrderCreateBody, OrderQuery } from '~/types/order/order'
 import { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
@@ -22,82 +22,88 @@ const pendingFactory = (): PendingRecord => ({
 	order: false
 })
 
-export interface OrderState {
-	orders: Pagination<Order> | null
-	order: Order | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useOrderStore = defineStore('order', () => {
+	const orders = ref<Pagination<Order> | null>(null)
+	const order = ref<Order | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useOrderStore = defineStore({
-	id: 'order',
-	state: (): OrderState => ({
-		orders: null,
-		order: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	getters: {
-		getOrderById:
-			(state) =>
-			(id: number): Order | null => {
-				return state.orders?.results?.find((order) => order.id === id) || null
+	async function fetchOrders({ page, ordering, userId }: OrderQuery) {
+		const {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
+		} = await useFetch<Pagination<Order>>(`/api/orders`, {
+			method: 'get',
+			params: {
+				page,
+				ordering,
+				userId
 			}
-	},
-	actions: {
-		async fetchOrders({ page, ordering, userId }: OrderQuery) {
-			try {
-				const {
-					data: orders,
-					error,
-					pending
-				} = await useFetch<Pagination<Order>>(`/api/orders`, {
-					method: 'get',
-					params: {
-						page,
-						ordering,
-						userId
-					}
-				})
-				this.orders = orders.value
-				this.error.orders = error.value
-				this.pending.orders = pending.value
-			} catch (error) {
-				this.error.orders = error as IFetchError
-			}
-		},
-		async fetchOrder(id: string | number) {
-			try {
-				const {
-					data: order,
-					error,
-					pending
-				} = await useFetch<Order>(`/api/order/${id}`, {
-					method: 'get'
-				})
-				this.order = order.value
-				this.error.order = error.value
-				this.pending.order = pending.value
-			} catch (error) {
-				this.error.order = error as IFetchError
-			}
-		},
-		async createOrder(body: OrderCreateRequest) {
-			try {
-				const {
-					data: order,
-					error,
-					pending
-				} = await useFetch<Order>(`/api/orders`, {
-					method: 'post',
-					body
-				})
-				this.order = order.value
-				this.error.order = error.value
-				this.pending.order = pending.value
-			} catch (error) {
-				this.error.order = error as IFetchError
-			}
+		})
+		orders.value = data.value
+		error.value.orders = orderError.value
+		pending.value.orders = orderPending.value
+
+		return {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
 		}
+	}
+
+	async function fetchOrder(id: string | number) {
+		const {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
+		} = await useFetch<Order>(`/api/order/${id}`, {
+			method: 'get'
+		})
+		order.value = data.value
+		error.value.order = orderError.value
+		pending.value.order = orderPending.value
+
+		return {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
+		}
+	}
+
+	async function createOrder(body: OrderCreateBody) {
+		const {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
+		} = await useFetch<Order>(`/api/orders`, {
+			method: 'post',
+			body
+		})
+		order.value = data.value
+		error.value.order = orderError.value
+		pending.value.order = orderPending.value
+
+		return {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
+		}
+	}
+
+	return {
+		orders,
+		order,
+		pending,
+		error,
+		fetchOrders,
+		fetchOrder,
+		createOrder
 	}
 })

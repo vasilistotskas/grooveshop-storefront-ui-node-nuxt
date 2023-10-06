@@ -53,11 +53,11 @@ const styles = reactive<{
 }>({
 	none: '',
 	primary:
-		'primary-btn text-gray-700 dark:text-gray-200 hover:bg-primary-400 border-primary-500',
+		'primary-btn text-primary-700 dark:text-primary-100 hover:bg-primary-400 border-primary-500',
 	secondary:
-		'secondary-btn text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700',
+		'secondary-btn text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
 	opposite:
-		'opposite-btn text-gray-700 dark:text-gray-700 bg-gray-800 hover:bg-white hover:text-gray-800 hover:border-gray-900  dark:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-100 dark:border-white',
+		'opposite-btn text-primary-700 dark:text-primary-700 bg-zinc-800 hover:bg-white hover:text-primary-800 hover:border-gray-900  dark:bg-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-primary-100 dark:border-white',
 	success:
 		'success-btn text-white dark:text-white bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700',
 	danger:

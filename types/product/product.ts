@@ -40,7 +40,7 @@ export const ZodProduct = z.object({
 	reviewCounter: z.number().int()
 })
 
-export const ZodProductCreateRequest = z.object({
+export const ZodProductCreateBody = z.object({
 	name: z.string(),
 	slug: z.string(),
 	category: z.number().int(),
@@ -69,6 +69,6 @@ export const ZodProductQuery = z.object({
 
 export type Product = Readonly<z.infer<typeof ZodProduct>>
 export type ProductParams = z.infer<typeof ZodProductParams>
-export type ProductCreateRequest = z.infer<typeof ZodProductCreateRequest>
+export type ProductCreateBody = z.infer<typeof ZodProductCreateBody>
 export type ProductQuery = PaginationQuery & OrderingQuery
 export type ProductOrderingField = 'price' | 'createdAt'

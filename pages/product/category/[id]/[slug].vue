@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-const config = useRuntimeConfig()
+const productCategoryStore = useProductCategoryStore()
+const { category } = storeToRefs(productCategoryStore)
+const { fetchCategory } = productCategoryStore
+
 const route = useRoute('product-category-id-slug___en')
-const { t } = useLang()
 
-const categoryStore = useCategoryStore()
 const categoryId = route.params.id
-const { category, pending, error } = storeToRefs(categoryStore)
 
-await categoryStore.fetchCategory(categoryId)
+await fetchCategory(categoryId)
 
 definePageMeta({
 	layout: 'page'

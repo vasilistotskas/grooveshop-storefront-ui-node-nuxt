@@ -239,14 +239,20 @@ pages:
       nav: WS
   index:
     nav: home
-    title: DeepWeb
-    description: DeepWeb
-    keywords: DeepWeb
+    title: GrooveShop
+    description: GrooveShop
+    keywords: GrooveShop
     add_to_cart: Add to cart
   error:
     title: Oops! Something went wrong.
     clean: Clear error
-    home: Navigate home
+    home: Back to home
+    hmmm: Hmmm
+    page:
+      not:
+        found: Our hound cannot find the page you are looking for.
+    go:
+      home: It can lead you to the homepage though!
   404:
     title: page not found
     description: page not found
@@ -575,9 +581,123 @@ pages:
     results: Search result for
     start_searching: Type something to search...
     back_to_home: Back to home
+  auth:
+    login:
+      title: Login
+      description: Login
+      keywords: Login
+      nav: login
+      form:
+        email:
+          label: Email
+          validation:
+            email: Email must be a valid email address
+        password:
+          label: Password
+          validation:
+            min: Password must be at least %{min} characters
+        remember: Remember me
+        forgot:
+          password:
+            reset: Forgot your password?
+        submit: Login
+        facebook: Login with Facebook
+        google: Login with Google
+        or: or
+        no:
+          account: You don't have an account?
+    registration:
+      title: Registration
+      description: Registration
+      keywords: Registration
+      nav: registration
+      form:
+        email:
+          label: Email
+          validation:
+            email: Email must be a valid email address
+        password1:
+          label: Password
+          validation:
+            min: Password must be at least %{min} characters
+        password2:
+          label: Password Confirmation
+          validation:
+            min: Password Confirmation must be at least %{min} characters
+            match: Password Confirmation must match Password
+        password_confirmation:
+          label: Password Confirmation
+          validation:
+            min: Password Confirmation must be at least %{min} characters
+        submit: Register
+        facebook: Register with Facebook
+        google: Register with Google
+        or: or
+        already_have_account: Already have an account?
+      account-confirm-email:
+        title: Confirm Email
+        description: Confirm Email
+        keywords: Confirm Email
+        loading: Sending confirmation email...
+        success:
+          title: Email confirmed
+          description: Your email has been confirmed, you can now login.
+          button: Login
+        error:
+          title: Email confirmation error
+          description: Maybe the link is expired or invalid.
+          button: Resend confirmation link
+        resend:
+          success:
+            title: Email confirmation link sent
+            description: Email confirmation link sent successfully.
+          error:
+            title: Email confirmation link resend error
+            description: Email confirmation link resend error.
+          button: Resend confirmation link
+    password:
+      reset:
+        title: Reset your password
+        description: Enter your user account's verified email address and we will send you a password reset link.
+        keywords: Reset Password
+        form:
+          email:
+            label: Email
+            placeholder: Enter your email address
+            validation:
+              email: Email must be a valid email address
+          submit: Send Password Reset Link
+        success:
+          title: Password reset link sent
+          description: Password reset link sent successfully.
+        error:
+          title: Password reset link send error
+          description: Password reset link send error.
+        button: Send password reset email
+        confirm:
+          title: Reset Password
+          description: Enter your new password.
+          keywords: Reset Password
+          form:
+            newPassword1:
+              label: Password
+              validation:
+                min: Password must be at least %{min} characters
+            newPassword2:
+              label: Password Confirmation
+              validation:
+                min: Password Confirmation must be at least %{min} characters
+                match: Password Confirmation must match Password
+              errors:
+                match: Password Confirmation must match Password
+            password_confirmation:
+              label: Password Confirmation
+              validation:
+                min: Password Confirmation must be at least %{min} characters
+            submit: Reset Password
 layouts:
-  title: DeepWeb %{title}
-  description: DeepWeb-Description %{description}
+  title: GrooveShop %{title}
+  description: GrooveShop-Description %{description}
 banners:
   welcome: Welcome to %{app_name}!
 routes:
@@ -639,6 +759,13 @@ swal:
       html: Address deleted successfully
 common:
   home: home
+  auth:
+    login:
+      success: Login successfully
+      error: Login error
+    registration:
+      success: Registration successfully
+      error: Registration error
   learn_more: learn more
   copy: copy
   enabled: enabled
@@ -660,11 +787,17 @@ common:
       fallback: Only for client side
   unknown:
     error: Unknown error
+  error:
+    page:
+      not:
+        found: Page not found
   errors:
     unknown_internal_api_error: Unknown internal API error
   shop: Shop
   next: Next
   previous: Previous
+  login: Login
+  logout: Logout
   empty:
     title: Empty
     description: Empty

@@ -11,15 +11,17 @@ const props = defineProps({
 	}
 })
 
+const cartStore = useCartStore()
+const { fetchCart, addCartItem } = cartStore
+
 const { product, quantity, text } = toRefs(props)
 const { t } = useLang()
-const cartStore = useCartStore()
 const toast = useToast()
 
-const refreshCart = async () => await cartStore.fetchCart()
+const refreshCart = async () => await fetchCart()
 
 const addToCartEvent = async () => {
-	await cartStore.addCartItem({
+	await addCartItem({
 		product: String(product.value.id),
 		quantity: String(quantity.value)
 	})

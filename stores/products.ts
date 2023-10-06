@@ -18,40 +18,41 @@ const pendingFactory = (): PendingRecord => ({
 	products: false
 })
 
-interface ProductState {
-	products: Pagination<Product> | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useProductsStore = defineStore('products', () => {
+	const products = ref<Pagination<Product> | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useProductsStore = defineStore({
-	id: 'products',
-	state: (): ProductState => ({
-		products: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	actions: {
-		async fetchProducts({ offset, limit, ordering }: ProductQuery) {
-			try {
-				const {
-					data: products,
-					error,
-					pending
-				} = await useFetch<Pagination<Product>>(`/api/products`, {
-					method: 'get',
-					params: {
-						offset,
-						limit,
-						ordering
-					}
-				})
-				this.products = products.value
-				this.error.products = error.value
-				this.pending.products = pending.value
-			} catch (error) {
-				this.error.products = error as IFetchError
+	async function fetchProducts({ offset, limit, ordering }: ProductQuery) {
+		const {
+			data,
+			error: productError,
+			pending: productPending,
+			refresh
+		} = await useFetch<Pagination<Product>>(`/api/products`, {
+			method: 'get',
+			params: {
+				offset,
+				limit,
+				ordering
 			}
+		})
+		products.value = data.value
+		error.value.products = productError.value
+		pending.value.products = productPending.value
+
+		return {
+			data,
+			error: productError,
+			pending: productPending,
+			refresh
 		}
+	}
+
+	return {
+		products,
+		pending,
+		error,
+		fetchProducts
 	}
 })

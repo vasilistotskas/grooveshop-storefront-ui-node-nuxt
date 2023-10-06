@@ -3,15 +3,15 @@ import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
-const { t } = useLang()
-const route = useRoute('account-reviews___en')
-
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
 
-const reviewsStore = useReviewsStore()
+const productReviewStore = useProductReviewStore()
+const { reviews, pending } = storeToRefs(productReviewStore)
+const { fetchReviews } = productReviewStore
 
-const { reviews, pending, error } = storeToRefs(reviewsStore)
+const { t } = useLang()
+const route = useRoute('account-reviews___en')
 
 const entityOrdering: EntityOrdering<ReviewOrderingField> = reactive([
 	{
@@ -47,9 +47,8 @@ const routePaginationParams = computed<ReviewQuery>(() => {
 	}
 })
 
-await reviewsStore.fetchReviews(routePaginationParams.value)
-const refreshReviews = async () =>
-	await reviewsStore.fetchReviews(routePaginationParams.value)
+await fetchReviews(routePaginationParams.value)
+const refreshReviews = async () => await fetchReviews(routePaginationParams.value)
 
 watch(
 	() => route.query,
@@ -57,7 +56,8 @@ watch(
 )
 
 definePageMeta({
-	layout: 'user'
+	layout: 'user',
+	middleware: 'auth'
 })
 </script>
 
@@ -67,11 +67,6 @@ definePageMeta({
 			<PageTitle :text="$t('pages.account.reviews.title')" />
 		</PageHeader>
 		<PageBody>
-			<Error
-				v-if="error.reviews"
-				:code="error.reviews?.statusCode"
-				:error="error.reviews"
-			/>
 			<template v-if="reviews && !pending.reviews && reviews?.results?.length">
 				<div class="grid gap-2 md:flex md:items-center">
 					<PaginationPageNumber

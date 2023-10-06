@@ -8,14 +8,13 @@ const props = defineProps({
 		required: true
 	}
 })
-
 const { product } = toRefs(props)
 
-const imagesStore = useImagesStore()
+const productImageStore = useProductImageStore()
+const { images } = storeToRefs(productImageStore)
+const { fetchImages } = productImageStore
 
-await imagesStore.fetchImages({ product: String(product.value.id) })
-
-const { images } = storeToRefs(imagesStore)
+await fetchImages({ product: String(product.value.id) })
 
 const mainImage = computed(() => {
 	if (!images.value?.results) {
@@ -25,21 +24,21 @@ const mainImage = computed(() => {
 })
 
 const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
-	if (!images?.value?.results) {
+	if (!images.value?.results) {
 		return 0
 	}
-	return mainImage.value?.id || images?.value.results[0]?.id || 0
+	return mainImage.value?.id || images.value?.results[0]?.id || 0
 })
 </script>
 
 <template>
 	<div class="grid">
-		<div class="h-64 md:h-80 rounded-lg bg-gray-100 mb-4">
+		<div class="h-64 md:h-80 rounded-lg bg-zinc-100 mb-4">
 			<ProductImage
 				:image="mainImage"
 				:width="592"
 				:height="350"
-				class="main-image product-images-main grid h-64 md:h-80 rounded-lg bg-gray-100 mb-4 items-center justify-center"
+				class="main-image product-images-main grid h-64 md:h-80 rounded-lg bg-zinc-100 mb-4 items-center justify-center"
 			/>
 		</div>
 
@@ -54,7 +53,7 @@ const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
 							'ring-2 ring-indigo-300 ring-inset': imageId === productImage.id
 						}"
 						type="button"
-						class="focus:outline-none w-full rounded-lg h-24 md:h-32 bg-gray-100 flex items-center justify-center"
+						class="focus:outline-none w-full rounded-lg h-24 md:h-32 bg-zinc-100 flex items-center justify-center"
 						@click="imageId = productImage.id"
 					>
 						<ProductImage

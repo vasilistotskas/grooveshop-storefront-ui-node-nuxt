@@ -1,9 +1,5 @@
-export type RedisData = {
-	text: string
-}
-
 export default defineWrappedResponseHandler(async (event) => {
-	const data = await useStorage<RedisData>().getItem('redis:test')
+	const data = await useStorage().getItem('storage:test')
 	if (!data) {
 		throw createError({
 			statusCode: 404,

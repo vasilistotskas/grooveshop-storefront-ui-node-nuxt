@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { RedisData } from '~/server/api/test/index.get'
-
 definePageMeta({
 	layout: 'testing'
 })
@@ -9,7 +7,7 @@ const { data: resDataSuccess } = await useFetch<string>('/api/test', {
 	method: 'post',
 	body: { text: 'Nuxt is Awesome!' }
 })
-const { data: resData } = await useFetch<RedisData>('/api/test')
+const { data: resData } = await useFetch<any>('/api/test')
 </script>
 
 <template>
@@ -19,7 +17,7 @@ const { data: resData } = await useFetch<RedisData>('/api/test')
 		</PageHeader>
 		<PageBody>
 			<PageSection>
-				<div class="text-gray-700 dark:text-gray-200">
+				<div class="text-primary-700 dark:text-primary-100">
 					<div>Post state: {{ resDataSuccess }}</div>
 					<div>Get Data: {{ resData?.text }}</div>
 				</div>

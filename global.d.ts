@@ -1,6 +1,8 @@
 import { z } from 'zod'
 
 const envVariables = z.object({
+	NODE_ENV: z.string(),
+
 	NUXT_PUBLIC_TITLE: z.string(),
 	NUXT_PUBLIC_DESCRIPTION: z.string(),
 	NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION: z.string(),
@@ -34,7 +36,19 @@ const envVariables = z.object({
 	NUXT_PUBLIC_GOOGLE_TAG_MANAGER_ID: z.string(),
 	NUXT_PUBLIC_GOOGLE_TAG_ID: z.string(),
 
-	WEB_SOCKET_SERVER_PORT: z.string()
+	NUXT_STORAGE_DRIVER: z.string(),
+	NUXT_STORAGE_FS_BASE: z.string(),
+
+	WEB_SOCKET_SERVER_PORT: z.string(),
+
+	AUTH_EMAIL_FROM: z.string(),
+	AUTH_EMAIL_SENDGRID_API_KEY: z.string(),
+	AUTH_BASE_URL: z.string(),
+	AUTH_ACCESS_TOKEN_SECRET: z.string(),
+	AUTH_REFRESH_TOKEN_SECRET: z.string(),
+	AUTH_OAUTH_GOOGLE_CLIENT_ID: z.string(),
+	AUTH_OAUTH_GOOGLE_CLIENT_SECRET: z.string(),
+	AUTH_OAUTH_GOOGLE_SCOPES: z.string()
 })
 
 declare global {

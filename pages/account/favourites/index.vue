@@ -7,14 +7,15 @@ import {
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
-const { t } = useLang()
-const route = useRoute('account-favourites___en')
-
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
 
 const favouriteStore = useFavouriteStore()
-const { favourites, pending, error } = storeToRefs(favouriteStore)
+const { favourites, pending } = storeToRefs(favouriteStore)
+const { fetchFavourites } = favouriteStore
+
+const { t } = useLang()
+const route = useRoute('account-favourites___en')
 
 const entityOrdering: EntityOrdering<FavouriteOrderingField> = reactive([
 	{
@@ -51,9 +52,9 @@ const routePaginationParams = computed<FavouriteQuery>(() => {
 	}
 })
 
-await favouriteStore.fetchFavourites(routePaginationParams.value)
+await fetchFavourites(routePaginationParams.value)
 const refreshFavourites = async () => {
-	await favouriteStore.fetchFavourites(routePaginationParams.value)
+	await fetchFavourites(routePaginationParams.value)
 }
 
 watch(
@@ -62,7 +63,8 @@ watch(
 )
 
 definePageMeta({
-	layout: 'user'
+	layout: 'user',
+	middleware: 'auth'
 })
 </script>
 
@@ -72,11 +74,6 @@ definePageMeta({
 			<PageTitle :text="$t('pages.account.favourites.title')" />
 		</PageHeader>
 		<PageBody>
-			<Error
-				v-if="error.favourites"
-				:code="error.favourites?.statusCode"
-				:error="error.favourites"
-			/>
 			<template v-if="!pending.favourites && favourites?.results?.length">
 				<div class="grid gap-2 md:flex md:items-center">
 					<PaginationPageNumber

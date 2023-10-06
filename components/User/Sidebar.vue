@@ -15,7 +15,7 @@ interface IMenuItem {
 	cssClass?: string
 }
 
-const props = defineProps({
+defineProps({
 	mode: {
 		type: String,
 		default: 'normal'
@@ -24,7 +24,6 @@ const props = defineProps({
 
 const { t } = useLang()
 const route = useRoute()
-const config = useRuntimeConfig()
 
 const menus = computed((): IMenuItem[] => [
 	{
@@ -33,7 +32,7 @@ const menus = computed((): IMenuItem[] => [
 		route: { name: 'account-orders', path: '/account/orders' },
 		icon: ordersIcon,
 		cssClass:
-			'text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700'
+			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'
 	},
 	{
 		type: 'link',
@@ -41,7 +40,7 @@ const menus = computed((): IMenuItem[] => [
 		route: { name: 'account-favourites', path: '/account/favourites' },
 		icon: favouritesIcon,
 		cssClass:
-			'text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700'
+			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'
 	},
 	{
 		type: 'link',
@@ -49,7 +48,7 @@ const menus = computed((): IMenuItem[] => [
 		route: { name: 'account-reviews', path: '/account/reviews' },
 		icon: reviewsIcon,
 		cssClass:
-			'text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700'
+			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'
 	},
 	{
 		type: 'link',
@@ -57,7 +56,7 @@ const menus = computed((): IMenuItem[] => [
 		route: { name: 'account-settings', path: '/account/settings' },
 		icon: settingsIcon,
 		cssClass:
-			'text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700'
+			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'
 	},
 	{
 		type: 'link',
@@ -65,7 +64,7 @@ const menus = computed((): IMenuItem[] => [
 		route: { name: 'account-help', path: '/account/help' },
 		icon: helpIcon,
 		cssClass:
-			'text-gray-700 dark:text-gray-200 bg-gray-200 border-gray-200 hover:bg-gray-300 dark:border-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700'
+			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'
 	}
 ])
 
@@ -94,7 +93,7 @@ onMounted(() => {
 				<li
 					v-for="(item, i) in menus"
 					:key="i"
-					class="p-2 md:p-0 bg-gray-100 md:bg-transparent dark:bg-slate-700 md:dark:bg-transparent border border-gray-700 md:border-transparent rounded"
+					class="p-2 md:p-0 bg-zinc-100 md:bg-transparent dark:bg-zinc-700 md:dark:bg-transparent border border-gray-700 md:border-transparent rounded"
 				>
 					<Anchor
 						v-if="item.type === 'link'"
@@ -107,14 +106,14 @@ onMounted(() => {
 							:class="{
 								'text-white dark:text-white group-hover:bg-sky-500 bg-sky-500':
 									route.path === item.route?.path,
-								'text-slate-500 dark:text-gray-100 group-hover:bg-gray-200 dark:group-hover:bg-slate-600 bg-gray-100 dark:bg-slate-700':
+								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-700':
 									route.path !== item.route?.path
 							}"
 						>
 							<Component :is="item.icon" class="text-2xl md:text-xl" />
 						</div>
 						<span
-							class="text-2xl md:text-xl font-semibold capitalize text-gray-700 dark:text-gray-200"
+							class="text-2xl md:text-xl font-semibold capitalize text-primary-700 dark:text-primary-100"
 							:class="{
 								'font-extrabold text-sky-500 dark:text-sky-400':
 									route.path === item.route?.path
@@ -134,14 +133,14 @@ onMounted(() => {
 							:class="{
 								'text-white dark:text-white group-hover:bg-sky-500 bg-sky-500':
 									item.route?.path === route.path,
-								'text-slate-500 dark:text-gray-100 group-hover:bg-gray-200 dark:group-hover:bg-slate-600 bg-gray-100 dark:bg-slate-700':
+								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-700':
 									item.route?.path !== route.path
 							}"
 						>
 							<Component :is="item.icon" class="text-2xl md:text-xl" />
 						</div>
 						<span
-							class="text-2xl md:text-xl font-semibold capitalize text-gray-700 dark:text-gray-200"
+							class="text-2xl md:text-xl font-semibold capitalize text-primary-700 dark:text-primary-100"
 							:class="{
 								'font-extrabold text-sky-500 dark:text-sky-400':
 									item.route?.path === route.path

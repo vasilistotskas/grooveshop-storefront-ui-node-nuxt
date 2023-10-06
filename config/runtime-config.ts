@@ -1,7 +1,49 @@
+import { UserRole } from '~/types/auth'
+
 export const runtimeConfig = {
 	// The private keys which are only available server-side
-	apiSecret: process.env.NUXT_PRIVATE_API_SECRET,
+	apiSecret: process.env.NUXT_PRIVATE_API_SECRET || 'secret',
 	buildDate: new Date().toISOString(),
+
+	// Auth
+	auth: {
+		accessToken: {
+			cookieName: 'jwt-auth',
+			jwtSecret: process.env.AUTH_ACCESS_TOKEN_SECRET!,
+			maxAge: 60 * 60 * 24 * 7 // 7 days
+		},
+
+		refreshToken: {
+			cookieName: 'jwt-refresh-auth',
+			jwtSecret: process.env.AUTH_REFRESH_TOKEN_SECRET!,
+			maxAge: 60 * 60 * 24 * 30 // 30 days
+		},
+
+		oauth: {
+			google: {
+				clientId: process.env.AUTH_OAUTH_GOOGLE_CLIENT_ID!,
+				clientSecret: process.env.AUTH_OAUTH_GOOGLE_CLIENT_SECRET!,
+				scopes: process.env.AUTH_OAUTH_GOOGLE_SCOPES!,
+				authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+				tokenUrl: 'https://oauth2.googleapis.com/token',
+				userUrl: 'https://www.googleapis.com/oauth2/v3/userinfo'
+			}
+		},
+
+		email: {
+			from: process.env.AUTH_EMAIL_FROM!,
+			provider: {
+				name: 'sendgrid',
+				apiKey: process.env.AUTH_EMAIL_SENDGRID_API_KEY!
+			}
+		},
+
+		registration: {
+			enable: true,
+			defaultRole: 'user' as UserRole,
+			requireEmailVerification: false
+		}
+	},
 
 	// Keys within public are also exposed client-side
 	public: {
@@ -28,6 +70,29 @@ export const runtimeConfig = {
 		author: {
 			name: process.env.NUXT_PUBLIC_AUTHOR_NAME || 'Nuxt',
 			github_url: process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL || ''
+		},
+
+		// Auth
+		auth: {
+			enableGlobalAuthMiddleware: false,
+			redirect: {
+				login: '/auth/login',
+				logout: '/',
+				home: '/',
+				callback: '/account'
+			}
 		}
+	},
+
+	// Cloudflare
+	cloudflare: {
+		accountId: '',
+		namespaceId: '',
+		apiToken: ''
+	},
+
+	// Storage
+	storage: {
+		fsBase: 'node_modules/.cache/app'
 	}
 }

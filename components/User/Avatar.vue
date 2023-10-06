@@ -34,11 +34,11 @@ const props = defineProps({
 	}
 })
 
+const userStore = useUserStore()
+const { updateAccountImage } = userStore
+
 const { t } = useLang()
 const toast = useToast()
-
-const userStore = useUserStore()
-
 const { resolveImageSrc } = useImageResolver()
 
 const src = computed(() => {
@@ -70,7 +70,7 @@ const uploadImage = async (event: Event) => {
 	const formData = new FormData()
 	formData.append('image', file)
 	if (!props.userAccount) return
-	await userStore.updateAccountImage(props.userAccount.id, formData)
+	await updateAccountImage(props.userAccount.id, formData)
 	toast.add({
 		title: t('components.user.avatar.image.updated')
 	})
@@ -83,7 +83,7 @@ const uploadImage = async (event: Event) => {
 			:class="[
 				'user-avatar',
 				{
-					'user-avatar-border border-8 rounded-full bg-gray-200 dark:bg-slate-800 border-gray-200 dark:border-slate-800':
+					'user-avatar-border border-8 rounded-full bg-zinc-200 dark:bg-zinc-800 border-gray-200 dark:border-slate-800':
 						backgroundBorder
 				}
 			]"
@@ -175,7 +175,7 @@ const uploadImage = async (event: Event) => {
 			</form>
 		</div>
 		<div v-if="showName" class="flex flex-col">
-			<span class="text-gray-700 dark:text-gray-200 font-bold">{{
+			<span class="text-primary-700 dark:text-primary-100 font-bold">{{
 				userAccount?.firstName
 			}}</span>
 		</div>

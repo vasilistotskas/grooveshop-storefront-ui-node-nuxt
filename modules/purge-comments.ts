@@ -3,7 +3,7 @@ import MagicString from 'magic-string'
 
 export default defineNuxtModule({
 	meta: {
-		name: 'purge-comments'
+		name: '@groove/purge-comments'
 	},
 	setup() {
 		addVitePlugin({

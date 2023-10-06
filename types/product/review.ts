@@ -35,7 +35,7 @@ export const ZodReviewQuery = z.object({
 	expand: z.string().nullish()
 })
 
-export const ZodReviewCreateRequest = z.object({
+export const ZodReviewCreateBody = z.object({
 	product: z.string(),
 	user: z.string(),
 	translations: ZodReviewTranslations,
@@ -47,7 +47,7 @@ export const ZodReviewCreateQuery = z.object({
 	expand: z.string().nullish()
 })
 
-export const ZodReviewPutRequest = z.object({
+export const ZodReviewPutBody = z.object({
 	product: z.string(),
 	user: z.string(),
 	translations: ZodReviewTranslations,
@@ -58,17 +58,17 @@ export const ZodReviewParams = z.object({
 	id: z.string()
 })
 
-export const ZodReviewUserHadReviewedRequest = z.object({
+export const ZodReviewUserHadReviewedBody = z.object({
 	product: z.string(),
 	user: z.string()
 })
 
 export type Review = z.infer<typeof ZodReview>
 export type ReviewParams = z.infer<typeof ZodReviewParams>
-export type ReviewUserHadReviewedRequest = z.infer<typeof ZodReviewUserHadReviewedRequest>
-export type ReviewCreateRequest = z.infer<typeof ZodReviewCreateRequest>
+export type ReviewUserHadReviewedBody = z.infer<typeof ZodReviewUserHadReviewedBody>
+export type ReviewCreateBody = z.infer<typeof ZodReviewCreateBody>
 export type ReviewCreateQuery = z.infer<typeof ZodReviewCreateQuery>
-export type ReviewPutRequest = z.infer<typeof ZodReviewPutRequest>
+export type ReviewPutBody = z.infer<typeof ZodReviewPutBody>
 export type ReviewOrderingField = 'id' | 'userId' | 'productId' | 'createdAt'
 export type ReviewQuery = PaginationQuery &
 	OrderingQuery & {

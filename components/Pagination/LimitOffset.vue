@@ -32,7 +32,6 @@ const props = defineProps({
 })
 
 const route = useRoute()
-const { t } = useLang()
 
 const firstPageNumber = computed(() => 1)
 const lastPageNumber = computed(() => props.totalPages)
@@ -83,6 +82,16 @@ const pages = computed(() => {
 	for (let i = startPageNumber; i <= lastPageNumber; i += 1) {
 		range.push(i)
 	}
+
+	if (props.maxVisibleButtons === range.length) {
+		if (isInFirstPage.value) {
+			range.pop()
+		}
+		if (isInLastPage.value) {
+			range.shift()
+		}
+	}
+
 	return range
 })
 
@@ -114,7 +123,9 @@ const link = computed(() => {
 					:title="$t('components.pagination.previous_page')"
 					:disabled="isInFirstPage"
 				>
-					<span class="text-gray-700 dark:text-gray-200"><IconFaSolid:angleLeft /></span>
+					<span class="text-primary-700 dark:text-primary-100"
+						><IconFaSolid:angleLeft
+					/></span>
 				</Anchor>
 			</li>
 
@@ -124,9 +135,10 @@ const link = computed(() => {
 						path: link,
 						query: { limit, offset: 0, ordering: route.query?.ordering }
 					}"
-					:class="{
+					:css-class="{
 						'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
-						disabled: isInFirstPage
+						disabled: isInFirstPage,
+						'bg-primary-400 dark:bg-primary-400': isInFirstPage
 					}"
 					:text="$t('components.pagination.first_page')"
 					:title="$t('components.pagination.first_page')"
@@ -134,37 +146,37 @@ const link = computed(() => {
 				>
 					<span
 						:class="{
-							'grid items-center justify-center w-full rounded bg-gray-200 dark:bg-gray-800 py-1 px-2 text-gray-700 dark:text-gray-200': true,
+							'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2 text-primary-700 dark:text-primary-100': true,
 							'bg-primary-400 dark:bg-primary-400': isInFirstPage
 						}"
 						>{{ firstPageNumber }}</span
 					>
 					<span
 						v-if="shouldDisplayPreviousTripleDots"
-						class="grid self-end justify-self-start text-sm text-gray-700 dark:text-gray-200"
+						class="grid self-end justify-self-start text-sm text-primary-700 dark:text-primary-100"
 						>...</span
 					>
 				</Anchor>
 			</li>
 
-			<li v-for="(pageNumber, index) in pages" :key="pageNumber">
+			<li v-for="(pageEntry, index) in pages" :key="pageEntry">
 				<Anchor
 					:to="{
 						path: link,
 						query: {
 							limit,
-							offset: (pageNumber - 1) * limit,
+							offset: (pageEntry - 1) * limit,
 							ordering: route.query?.ordering
 						}
 					}"
-					:class="{
-						'grid items-center justify-center w-full rounded bg-gray-200 dark:bg-gray-800 py-1 px-2': true,
-						'bg-primary-400 dark:bg-primary-400': pageNumber === page
+					:css-class="{
+						'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2': true,
+						'bg-primary-400 dark:bg-primary-400': pageEntry === page
 					}"
 					:text="String(index)"
-					:title="$t('components.pagination.go_to_page', { page: pageNumber })"
+					:title="$t('components.pagination.go_to_page', { page: pageEntry })"
 				>
-					<span class="text-gray-700 dark:text-gray-200">{{ pageNumber }}</span>
+					<span class="text-primary-700 dark:text-primary-100">{{ pageEntry }}</span>
 				</Anchor>
 			</li>
 
@@ -178,7 +190,7 @@ const link = computed(() => {
 							ordering: route.query?.ordering
 						}
 					}"
-					:class="{
+					:css-class="{
 						'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
 						disabled: isInLastPage
 					}"
@@ -187,12 +199,12 @@ const link = computed(() => {
 				>
 					<span
 						v-if="shouldDisplayNextTripleDots"
-						class="grid self-end justify-self-end text-sm text-gray-700 dark:text-gray-200"
+						class="grid self-end justify-self-end text-sm text-primary-700 dark:text-primary-100"
 						>...</span
 					>
 					<span
 						:class="{
-							'grid items-center justify-center w-full rounded bg-gray-200 dark:bg-gray-800 py-1 px-2 text-gray-700 dark:text-gray-200': true,
+							'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2 text-primary-700 dark:text-primary-100': true,
 							'bg-primary-400 dark:bg-primary-400': isInLastPage
 						}"
 						>{{ lastPageNumber }}</span
@@ -210,7 +222,7 @@ const link = computed(() => {
 							ordering: route.query?.ordering
 						}
 					}"
-					:class="{
+					:css-class="{
 						disabled: isInLastPage
 					}"
 					:text="$t('components.pagination.next_page')"
@@ -220,7 +232,9 @@ const link = computed(() => {
 							: $t('components.pagination.next_page')
 					"
 				>
-					<span class="text-gray-700 dark:text-gray-200"><IconFaSolid:angleRight /></span>
+					<span class="text-primary-700 dark:text-primary-100"
+						><IconFaSolid:angleRight
+					/></span>
 				</Anchor>
 			</li>
 		</ol>

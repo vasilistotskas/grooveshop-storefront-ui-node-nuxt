@@ -9,10 +9,14 @@ import { PayWay, PayWayEnum } from '~/types/pay-way/pay-way'
 import CreditCardJSON from '~/assets/lotties/credit_card.json'
 import PayOnDeliveryJSON from '~/assets/lotties/pay_on_delivery.json'
 
+const payWayStore = usePayWayStore()
+const { payWay, getActivePayWays, pending } = storeToRefs(payWayStore)
+const { fetchPayWays } = payWayStore
+
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
 
-const payWayStore = usePayWayStore()
+const emit = defineEmits(['update:model-value'])
 
 const payWayExtraCost = (payWay: PayWay): string => {
 	if (payWay.freeForOrderAmount < 10) {
@@ -21,15 +25,11 @@ const payWayExtraCost = (payWay: PayWay): string => {
 	return '(+' + payWay.cost + '€ per shipment)'
 }
 
-const emit = defineEmits(['update:model-value'])
-
-const { payWay, getActivePayWays, pending, error } = storeToRefs(payWayStore)
-
-await payWayStore.fetchPayWays()
+await fetchPayWays()
 
 const selectedPayWay = computed(() => {
-	if (getActivePayWays.value && !payWay.value) {
-		return getActivePayWays.value[0]
+	if (getActivePayWays && !payWay.value) {
+		return getActivePayWays.value ? getActivePayWays.value[0] : null
 	}
 	return payWay.value
 })
@@ -57,16 +57,11 @@ const updatePayWay = (value: PayWay) => {
 <template>
 	<div class="pay-ways">
 		<div class="pay-ways-title">
-			<h3 class="text-gray-700 dark:text-gray-200 text-md font-bold">
+			<h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
 				{{ t('components.checkout.pay_ways.title') }}
 			</h3>
 		</div>
 		<div class="pay-ways-list">
-			<Error
-				v-if="error.payWays"
-				:code="error.payWays?.statusCode"
-				:error="error.payWays"
-			/>
 			<template v-if="selectedPayWay && !pending.payWays && getActivePayWays?.length">
 				<RadioGroup
 					:model-value="selectedPayWay"
@@ -90,7 +85,7 @@ const updatePayWay = (value: PayWay) => {
 									active
 										? 'ring-1 ring-white ring-opacity-60 ring-offset-1 ring-offset-sky-300'
 										: '',
-									checked ? 'bg-sky-900 bg-opacity-75' : 'bg-gray-50 dark:bg-gray-900'
+									checked ? 'bg-sky-900 bg-opacity-75' : 'bg-zinc-50 dark:bg-zinc-900'
 								]"
 								class="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
 							>
@@ -99,7 +94,9 @@ const updatePayWay = (value: PayWay) => {
 										<div class="text-sm">
 											<RadioGroupLabel
 												:class="
-													checked ? 'text-white' : 'text-gray-700 dark:text-gray-200'
+													checked
+														? 'text-white'
+														: 'text-primary-700 dark:text-primary-100'
 												"
 												as="p"
 												class="font-medium"
@@ -108,7 +105,9 @@ const updatePayWay = (value: PayWay) => {
 											</RadioGroupLabel>
 											<RadioGroupDescription
 												:class="
-													checked ? 'text-sky-100' : 'text-gray-700 dark:text-gray-200'
+													checked
+														? 'text-sky-100'
+														: 'text-primary-700 dark:text-primary-100'
 												"
 												as="span"
 												class="inline"

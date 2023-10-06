@@ -1,24 +1,29 @@
 <script lang="ts" setup>
-import { FieldContext, useField, useForm } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { defaultSelectOptionChoose } from '~/types/global/general'
+
+const userStore = useUserStore()
+const { account } = storeToRefs(userStore)
+const { updateAccount } = userStore
+
+const countryStore = useCountryStore()
+const { countries } = storeToRefs(countryStore)
+const { fetchCountries } = countryStore
+
+const regionStore = useRegionStore()
+const { regions } = storeToRefs(regionStore)
+const { fetchRegions } = regionStore
 
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 
-const userStore = useUserStore()
-const countryStore = useCountryStore()
-const regionStore = useRegionStore()
-const { account } = storeToRefs(userStore)
-const { countries } = storeToRefs(countryStore)
-const { regions } = storeToRefs(regionStore)
-
 const userId = account.value?.id
 
-await countryStore.fetchCountries()
-await regionStore.fetchRegions({
+await fetchCountries()
+await fetchRegions({
 	alpha2: account.value?.country ?? ''
 })
 
@@ -60,29 +65,29 @@ const initialValues = ZodAccountSettings.parse({
 	region: account.value?.region || defaultSelectOptionChoose
 })
 
-const { handleSubmit, errors, isSubmitting } = useForm({
+const { defineInputBinds, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues
 })
 
-const { value: email }: FieldContext<string> = useField('email')
-const { value: firstName }: FieldContext<string> = useField('firstName')
-const { value: lastName }: FieldContext<string> = useField('lastName')
-const { value: phone }: FieldContext<string> = useField('phone')
-const { value: city }: FieldContext<string> = useField('city')
-const { value: zipcode }: FieldContext<string> = useField('zipcode')
-const { value: address }: FieldContext<string> = useField('address')
-const { value: place }: FieldContext<string> = useField('place')
-const { value: birthDate }: FieldContext<Date> = useField('birthDate')
-const { value: country }: FieldContext<string> = useField('country')
-const region = reactive(useField('region'))
+const email = defineInputBinds('email')
+const firstName = defineInputBinds('firstName')
+const lastName = defineInputBinds('lastName')
+const phone = defineInputBinds('phone')
+const city = defineInputBinds('city')
+const zipcode = defineInputBinds('zipcode')
+const address = defineInputBinds('address')
+const place = defineInputBinds('place')
+const birthDate = defineInputBinds('birthDate')
+const country = defineInputBinds('country')
+const region = defineInputBinds('region')
 
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	await regionStore.fetchRegions({
+	await fetchRegions({
 		alpha2: event.target.value
 	})
-	region.value = defaultSelectOptionChoose
+	region.value.value = defaultSelectOptionChoose
 }
 
 const onSubmit = handleSubmit((values) => {
@@ -95,20 +100,19 @@ const onSubmit = handleSubmit((values) => {
 	}
 
 	if (userId === undefined) return
-	userStore
-		.updateAccount(userId, {
-			email: values.email,
-			firstName: values.firstName,
-			lastName: values.lastName,
-			phone: values.phone,
-			city: values.city,
-			zipcode: values.zipcode,
-			address: values.address,
-			place: values.place,
-			birthDate: values.birthDate?.toISOString().slice(0, 10),
-			country: values.country,
-			region: values.region
-		})
+	updateAccount(userId, {
+		email: values.email,
+		firstName: values.firstName,
+		lastName: values.lastName,
+		phone: values.phone,
+		city: values.city,
+		zipcode: values.zipcode,
+		address: values.address,
+		place: values.place,
+		birthDate: values.birthDate?.toISOString().slice(0, 10),
+		country: values.country,
+		region: values.region
+	})
 		.then(() => {
 			toast.add({ title: t('pages.account.settings.form.success') })
 		})
@@ -122,7 +126,8 @@ const submitButtonDisabled = computed(() => {
 })
 
 definePageMeta({
-	layout: 'user'
+	layout: 'user',
+	middleware: 'auth'
 })
 
 const colorMode = useColorMode()
@@ -168,7 +173,7 @@ const date = ref(new Date())
 		</nav>
 		<div class="grid items-center justify-start pt-4">
 			<span
-				class="text-gray-500 dark:text-gray-400 cursor-not-allowed italic p-2 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
+				class="text-primary-500 dark:text-primary-400 cursor-not-allowed italic p-2 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
 				>{{ email }}</span
 			>
 		</div>
@@ -180,14 +185,14 @@ const date = ref(new Date())
 				@submit="onSubmit"
 			>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="firstName">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="firstName">{{
 						$t('pages.account.settings.form.first_name')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="firstName"
-							v-model="firstName"
-							class="text-gray-700 dark:text-gray-200 mb-2"
+							:bind="firstName"
+							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="firstName"
 							type="text"
 							:placeholder="$t('pages.account.settings.form.first_name')"
@@ -200,14 +205,14 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="lastName">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="lastName">{{
 						$t('pages.account.settings.form.last_name')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="lastName"
-							v-model="lastName"
-							class="text-gray-700 dark:text-gray-200 mb-2"
+							:bind="lastName"
+							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="lastName"
 							type="text"
 							:placeholder="$t('pages.account.settings.form.last_name')"
@@ -220,14 +225,14 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="phone">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="phone">{{
 						$t('pages.account.settings.form.phone')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="phone"
-							v-model="phone"
-							class="text-gray-700 dark:text-gray-200 mb-2"
+							:bind="phone"
+							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="phone"
 							type="text"
 							:placeholder="$t('pages.account.settings.form.phone')"
@@ -239,14 +244,14 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="city">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="city">{{
 						$t('pages.account.settings.form.city')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="city"
-							v-model="city"
-							class="text-gray-700 dark:text-gray-200 mb-2"
+							:bind="city"
+							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="city"
 							type="text"
 							:placeholder="$t('pages.account.settings.form.city')"
@@ -258,14 +263,14 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="zipcode">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="zipcode">{{
 						$t('pages.account.settings.form.zipcode')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="zipcode"
-							v-model="zipcode"
-							class="text-gray-700 dark:text-gray-200 mb-2"
+							:bind="zipcode"
+							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="zipcode"
 							type="text"
 							:placeholder="$t('pages.account.settings.form.zipcode')"
@@ -277,14 +282,14 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="address">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="address">{{
 						$t('pages.account.settings.form.address')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="address"
-							v-model="address"
-							class="text-gray-700 dark:text-gray-200 mb-2"
+							:bind="address"
+							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="address"
 							type="text"
 							:placeholder="$t('pages.account.settings.form.address')"
@@ -296,14 +301,14 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="place">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="place">{{
 						$t('pages.account.settings.form.place')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="place"
-							v-model="place"
-							class="text-gray-700 dark:text-gray-200 mb-2"
+							:bind="place"
+							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="place"
 							type="text"
 							:placeholder="$t('pages.account.settings.form.place')"
@@ -315,12 +320,12 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="birthDate">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="birthDate">{{
 						$t('pages.account.settings.form.birth_date')
 					}}</label>
 					<div class="grid">
 						<VueDatePicker
-							v-model="birthDate"
+							v-model="birthDate.value"
 							:locale="locale"
 							:cancel-text="$t('pages.account.settings.form.date_picker.cancel')"
 							:select-text="$t('pages.account.settings.form.date_picker.select')"
@@ -337,14 +342,14 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="country">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="country">{{
 						$t('pages.account.settings.form.country')
 					}}</label>
 					<div v-if="countries" class="grid">
 						<select
 							id="country"
-							v-model="country"
-							class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+							v-model="country.value"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							name="country"
 							@change="onCountryChange"
 						>
@@ -354,7 +359,7 @@ const date = ref(new Date())
 							<option
 								v-for="cntry in countries.results"
 								:key="cntry.alpha2"
-								class="text-gray-700 dark:text-gray-300"
+								class="text-primary-700 dark:text-primary-300"
 								:value="cntry.alpha2"
 							>
 								{{ extractTranslated(cntry, 'name', locale) }}
@@ -366,7 +371,7 @@ const date = ref(new Date())
 					}}</span>
 				</div>
 				<div class="grid">
-					<label class="text-gray-700 dark:text-gray-200 mb-2" for="region">{{
+					<label class="text-primary-700 dark:text-primary-100 mb-2" for="region">{{
 						$t('pages.account.settings.form.region')
 					}}</label>
 					<div v-if="regions" class="grid">
@@ -374,9 +379,9 @@ const date = ref(new Date())
 							id="region"
 							ref="regionSelectElement"
 							v-model="region.value"
-							class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							name="region"
-							:disabled="country === 'choose'"
+							:disabled="country.value === 'choose'"
 						>
 							<option disabled value="choose">
 								{{ $t('common.choose') }}
@@ -384,7 +389,7 @@ const date = ref(new Date())
 							<option
 								v-for="rgn in regions.results"
 								:key="rgn.alpha"
-								class="text-gray-700 dark:text-gray-300"
+								class="text-primary-700 dark:text-primary-300"
 								:value="rgn.alpha"
 							>
 								{{ extractTranslated(rgn, 'name', locale) }}

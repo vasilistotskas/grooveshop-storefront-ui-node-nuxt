@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
-import { FieldContext, useField, useForm } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import {
 	defaultSelectOptionChoose,
 	FloorChoicesEnum,
@@ -10,20 +10,27 @@ import {
 	locationChoicesList
 } from '~/types/global/general'
 
+const userStore = useUserStore()
+const { account } = storeToRefs(userStore)
+
+const userAddressStore = useUserAddressStore()
+const { createAddress } = userAddressStore
+
+const countryStore = useCountryStore()
+const { countries } = storeToRefs(countryStore)
+const { fetchCountries } = countryStore
+
+const regionStore = useRegionStore()
+const { regions } = storeToRefs(regionStore)
+const { fetchRegions } = regionStore
+
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 const router = useRouter()
-const userStore = useUserStore()
-const userAddressStore = useUserAddressStore()
-const countryStore = useCountryStore()
-const regionStore = useRegionStore()
-const { account } = storeToRefs(userStore)
-const { countries } = storeToRefs(countryStore)
-const { regions } = storeToRefs(regionStore)
 
-await countryStore.fetchCountries()
-await regionStore.fetchRegions({
+await fetchCountries()
+await fetchRegions({
 	alpha2: account.value?.country ?? ''
 })
 
@@ -56,7 +63,7 @@ const ZodAddress = z.object({
 		.nullish()
 })
 const validationSchema = toTypedSchema(ZodAddress)
-const { handleSubmit, errors, isSubmitting } = useForm({
+const { defineInputBinds, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues: {
 		isMain: false,
@@ -66,52 +73,52 @@ const { handleSubmit, errors, isSubmitting } = useForm({
 		locationType: defaultSelectOptionChoose
 	}
 })
-const { value: title }: FieldContext<string> = useField('title')
-const { value: firstName }: FieldContext<string> = useField('firstName')
-const { value: lastName }: FieldContext<string> = useField('lastName')
-const { value: street }: FieldContext<string> = useField('street')
-const { value: streetNumber }: FieldContext<string> = useField('streetNumber')
-const { value: city }: FieldContext<string> = useField('city')
-const { value: zipcode }: FieldContext<string> = useField('zipcode')
-const { value: floor }: FieldContext<string> = useField('floor')
-const { value: locationType }: FieldContext<string> = useField('locationType')
-const { value: phone }: FieldContext<string> = useField('phone')
-const { value: mobilePhone }: FieldContext<string> = useField('mobilePhone')
-const { value: notes }: FieldContext<string> = useField('notes')
-const { value: isMain }: FieldContext<boolean> = useField('isMain')
-const { value: country }: FieldContext<string> = useField('country')
-const region = reactive(useField('region'))
+
+const title = defineInputBinds('title')
+const firstName = defineInputBinds('firstName')
+const lastName = defineInputBinds('lastName')
+const street = defineInputBinds('street')
+const streetNumber = defineInputBinds('streetNumber')
+const city = defineInputBinds('city')
+const zipcode = defineInputBinds('zipcode')
+const floor = defineInputBinds('floor')
+const locationType = defineInputBinds('locationType')
+const phone = defineInputBinds('phone')
+const mobilePhone = defineInputBinds('mobilePhone')
+const notes = defineInputBinds('notes')
+const isMain = defineInputBinds('isMain')
+const country = defineInputBinds('country')
+const region = defineInputBinds('region')
 
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	await regionStore.fetchRegions({
+	await fetchRegions({
 		alpha2: event.target.value
 	})
-	region.value = defaultSelectOptionChoose
+	region.value.value = defaultSelectOptionChoose
 }
 
 const onSubmit = handleSubmit(async (values) => {
 	if (String(floor) === defaultSelectOptionChoose) values.floor = null
 	if (String(locationType) === defaultSelectOptionChoose) values.locationType = null
-	await userAddressStore
-		.createAddress({
-			title: values.title,
-			firstName: values.firstName,
-			lastName: values.lastName,
-			street: values.street,
-			streetNumber: values.streetNumber,
-			city: values.city,
-			zipcode: values.zipcode,
-			floor: Number(values.floor),
-			locationType: Number(values.locationType),
-			phone: values.phone,
-			mobilePhone: values.mobilePhone,
-			notes: values.notes,
-			isMain: values.isMain,
-			user: account.value?.id,
-			country: values.country,
-			region: values.region
-		})
+	await createAddress({
+		title: values.title,
+		firstName: values.firstName,
+		lastName: values.lastName,
+		street: values.street,
+		streetNumber: values.streetNumber,
+		city: values.city,
+		zipcode: values.zipcode,
+		floor: Number(values.floor),
+		locationType: Number(values.locationType),
+		phone: values.phone,
+		mobilePhone: values.mobilePhone,
+		notes: values.notes,
+		isMain: values.isMain,
+		user: account.value?.id,
+		country: values.country,
+		region: values.region
+	})
 		.then(() => {
 			toast.add({
 				title: t('pages.account.addresses.new.success')
@@ -130,7 +137,8 @@ const submitButtonDisabled = computed(() => {
 })
 
 definePageMeta({
-	layout: 'user'
+	layout: 'user',
+	middleware: 'auth'
 })
 </script>
 
@@ -154,19 +162,19 @@ definePageMeta({
 		<PageBody>
 			<form
 				id="AddressEditForm"
-				class="_form grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg"
+				class="_form grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-zinc-800 rounded-lg"
 				name="AddressEditForm"
 				@submit="onSubmit"
 			>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="title">{{
+					<label class="text-primary-700 dark:text-primary-100" for="title">{{
 						$t('pages.account.addresses.new.form.title')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="title"
-							v-model="title"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="title"
+							class="text-primary-700 dark:text-primary-100"
 							name="title"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.title')"
@@ -179,14 +187,14 @@ definePageMeta({
 					}}</span>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="firstName">{{
+					<label class="text-primary-700 dark:text-primary-100" for="firstName">{{
 						$t('pages.account.addresses.new.form.first_name')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="firstName"
-							v-model="firstName"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="firstName"
+							class="text-primary-700 dark:text-primary-100"
 							name="firstName"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.first_name')"
@@ -199,14 +207,14 @@ definePageMeta({
 					}}</span>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="lastName">{{
+					<label class="text-primary-700 dark:text-primary-100" for="lastName">{{
 						$t('pages.account.addresses.new.form.last_name')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="lastName"
-							v-model="lastName"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="lastName"
+							class="text-primary-700 dark:text-primary-100"
 							name="lastName"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.last_name')"
@@ -219,14 +227,14 @@ definePageMeta({
 					}}</span>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="street">{{
+					<label class="text-primary-700 dark:text-primary-100" for="street">{{
 						$t('pages.account.addresses.new.form.street')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="street"
-							v-model="street"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="street"
+							class="text-primary-700 dark:text-primary-100"
 							name="street"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.street')"
@@ -239,14 +247,14 @@ definePageMeta({
 					}}</span>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="streetNumber">{{
+					<label class="text-primary-700 dark:text-primary-100" for="streetNumber">{{
 						$t('pages.account.addresses.new.form.street_number')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="streetNumber"
-							v-model="streetNumber"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="streetNumber"
+							class="text-primary-700 dark:text-primary-100"
 							name="streetNumber"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.street_number')"
@@ -261,14 +269,14 @@ definePageMeta({
 					>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="city">{{
+					<label class="text-primary-700 dark:text-primary-100" for="city">{{
 						$t('pages.account.addresses.new.form.city')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="city"
-							v-model="city"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="city"
+							class="text-primary-700 dark:text-primary-100"
 							name="city"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.city')"
@@ -281,14 +289,14 @@ definePageMeta({
 					}}</span>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="zipcode">{{
+					<label class="text-primary-700 dark:text-primary-100" for="zipcode">{{
 						$t('pages.account.addresses.new.form.zipcode')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="zipcode"
-							v-model="zipcode"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="zipcode"
+							class="text-primary-700 dark:text-primary-100"
 							name="zipcode"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.zipcode')"
@@ -301,14 +309,14 @@ definePageMeta({
 					}}</span>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="phone">{{
+					<label class="text-primary-700 dark:text-primary-100" for="phone">{{
 						$t('pages.account.addresses.new.form.phone')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="phone"
-							v-model="phone"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="phone"
+							class="text-primary-700 dark:text-primary-100"
 							name="phone"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.phone')"
@@ -320,14 +328,14 @@ definePageMeta({
 					}}</span>
 				</div>
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="mobilePhone">{{
+					<label class="text-primary-700 dark:text-primary-100" for="mobilePhone">{{
 						$t('pages.account.addresses.new.form.mobile_phone')
 					}}</label>
 					<div class="grid">
 						<FormTextInput
 							id="mobilePhone"
-							v-model="mobilePhone"
-							class="text-gray-700 dark:text-gray-200"
+							:bind="mobilePhone"
+							class="text-primary-700 dark:text-primary-100"
 							name="mobilePhone"
 							type="text"
 							:placeholder="$t('pages.account.addresses.new.form.mobile_phone')"
@@ -343,14 +351,14 @@ definePageMeta({
 
 				<div class="grid content-evenly items-start gap-4">
 					<div class="grid">
-						<label class="text-gray-700 dark:text-gray-200" for="floor">{{
+						<label class="text-primary-700 dark:text-primary-100" for="floor">{{
 							$t('pages.account.addresses.new.form.floor')
 						}}</label>
 						<select
 							id="inputFloor"
-							v-model="floor"
+							v-bind="floor"
 							title="floor"
-							class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							name="floor"
 						>
 							<option disabled value="choose">
@@ -369,14 +377,14 @@ definePageMeta({
 						}}</span>
 					</div>
 					<div class="grid">
-						<label class="text-gray-700 dark:text-gray-200" for="locationType">{{
+						<label class="text-primary-700 dark:text-primary-100" for="locationType">{{
 							$t('pages.account.addresses.new.form.location_type')
 						}}</label>
 						<select
 							id="inputLocationType"
-							v-model="locationType"
+							v-bind="locationType"
 							title="locationType"
-							class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							name="locationType"
 						>
 							<option disabled value="choose">
@@ -400,15 +408,15 @@ definePageMeta({
 
 				<div class="grid content-evenly items-start gap-4">
 					<div class="grid">
-						<label class="text-gray-700 dark:text-gray-200" for="country">{{
+						<label class="text-primary-700 dark:text-primary-100" for="country">{{
 							$t('pages.account.addresses.new.form.country')
 						}}</label>
 						<div v-if="countries" class="grid">
 							<select
 								id="country"
-								v-model="country"
+								v-bind="country"
 								title="country"
-								class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 								name="country"
 								required
 								@change="onCountryChange"
@@ -419,7 +427,7 @@ definePageMeta({
 								<option
 									v-for="cntry in countries.results"
 									:key="cntry.alpha2"
-									class="text-gray-700 dark:text-gray-300"
+									class="text-primary-700 dark:text-primary-300"
 									:value="cntry.alpha2"
 								>
 									{{ extractTranslated(cntry, 'name', locale) }}
@@ -431,18 +439,18 @@ definePageMeta({
 						}}</span>
 					</div>
 					<div class="grid">
-						<label class="text-gray-700 dark:text-gray-200" for="region">{{
+						<label class="text-primary-700 dark:text-primary-100" for="region">{{
 							$t('pages.account.addresses.new.form.region')
 						}}</label>
 						<div v-if="regions" class="grid">
 							<select
 								id="region"
 								ref="regionSelectElement"
-								v-model="region.value"
+								v-bind="region.value"
 								title="region"
-								class="form-select text-gray-700 dark:text-gray-300 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 								name="region"
-								:disabled="country === 'choose'"
+								:disabled="country.value === 'choose'"
 								required
 							>
 								<option disabled value="choose">
@@ -451,7 +459,7 @@ definePageMeta({
 								<option
 									v-for="rgn in regions.results"
 									:key="rgn.alpha"
-									class="text-gray-700 dark:text-gray-300"
+									class="text-primary-700 dark:text-primary-300"
 									:value="rgn.alpha"
 								>
 									{{ extractTranslated(rgn, 'name', locale) }}
@@ -465,14 +473,14 @@ definePageMeta({
 				</div>
 
 				<div class="grid content-evenly items-start">
-					<label class="text-gray-700 dark:text-gray-200" for="notes">{{
+					<label class="text-primary-700 dark:text-primary-100" for="notes">{{
 						$t('pages.account.addresses.new.form.notes')
 					}}</label>
 					<div class="grid">
 						<textarea
 							id="notes"
-							v-model="notes"
-							class="w-full text-gray-700 dark:text-gray-200 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+							v-bind="notes.value"
+							class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							name="notes"
 							type="text"
 							rows="4"

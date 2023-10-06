@@ -42,16 +42,18 @@ const link = computed(() => {
 				<Listbox v-model="ordering" name="Ordering">
 					<div class="relative w-52">
 						<ListboxButton
-							class="cursor-pointer relative w-full rounded-lg bg-gray-200 dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+							class="cursor-pointer relative w-full rounded-lg bg-zinc-200 dark:bg-zinc-800 py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
 							@click="listBoxToggle"
 						>
-							<span class="block truncate text-gray-700 dark:text-gray-200">{{
+							<span class="block truncate text-primary-700 dark:text-primary-100">{{
 								selectedOrderingLabel ?? $t('components.ordering.title')
 							}}</span>
 							<span
-								class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-700 dark:text-gray-200"
+								class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-primary-700 dark:text-primary-100"
 							>
-								<span class="text-gray-700 dark:text-gray-200"><IconFaSolid:sort /></span>
+								<span class="text-primary-700 dark:text-primary-100"
+									><IconFaSolid:sort
+								/></span>
 							</span>
 						</ListboxButton>
 
@@ -60,7 +62,7 @@ const link = computed(() => {
 								<ListboxOptions
 									role="none"
 									static
-									class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-200 dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+									class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-200 dark:bg-zinc-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
 								>
 									<ListboxOption
 										v-for="(option, index) in orderingOptions"
@@ -72,7 +74,7 @@ const link = computed(() => {
 									>
 										<li
 											:class="[
-												active ? 'bg-primary-400 text-amber-900' : 'text-gray-900',
+												active ? 'bg-primary-400 text-amber-900' : 'text-primary-900',
 												'relative cursor-default select-none py-2 pl-10 pr-4'
 											]"
 										>
@@ -95,7 +97,7 @@ const link = computed(() => {
 												<span
 													:class="[
 														selected ? 'font-medium' : 'font-normal',
-														'block truncate text-gray-700 dark:text-gray-200'
+														'block truncate text-primary-700 dark:text-primary-100'
 													]"
 													>{{ option.label }}</span
 												>

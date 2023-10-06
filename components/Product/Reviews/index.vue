@@ -26,9 +26,14 @@ const props = defineProps({
 	}
 })
 
-const { productId, reviewsAverage, reviewsCount, displayImageOf } = toRefs(props)
+const productReviewStore = useProductReviewStore()
+const { reviews, pending } = storeToRefs(productReviewStore)
+const { fetchReviews } = productReviewStore
+
 const { t } = useLang()
 const route = useRoute()
+
+const { productId, reviewsAverage, reviewsCount, displayImageOf } = toRefs(props)
 
 const routePaginationParams = computed<ReviewQuery>(() => {
 	const id = String(productId.value)
@@ -44,10 +49,10 @@ const routePaginationParams = computed<ReviewQuery>(() => {
 	}
 })
 
-const reviewsStore = useReviewsStore()
-const { reviews, error, pending } = storeToRefs(reviewsStore)
-
-await reviewsStore.fetchReviews(routePaginationParams.value)
+await fetchReviews(routePaginationParams.value)
+const refreshReviews = async () => {
+	await fetchReviews(routePaginationParams.value)
+}
 
 const entityOrdering: EntityOrdering<ReviewOrderingField> = reactive([
 	{
@@ -76,26 +81,24 @@ const pagination = computed(() => {
 const ordering = computed(() => {
 	return useOrdering<ReviewOrderingField>(entityOrdering, orderingFields)
 })
+
+watch(
+	() => route.query,
+	() => refreshReviews(),
+	{ deep: true }
+)
 </script>
 
 <template>
 	<div
-		class="container-small reviews-list text-gray-700 dark:text-gray-200 p-6 border-t border-gray-900/10 dark:border-gray-50/[0.2]"
+		class="container-sm reviews-list text-primary-700 dark:text-primary-100 p-6 border-t border-gray-900/10 dark:border-gray-50/[0.2]"
 	>
-		<Error
-			v-if="error.reviews"
-			:code="error.reviews?.statusCode"
-			:error="error.reviews"
-		/>
-		<template v-else>
+		<template v-if="!pending.reviews && reviews?.results && reviews?.results?.length > 0">
 			<div class="reviews-list-header">
 				<h2 class="reviews-list-title">
 					{{ $t('components.product.reviews.title') }}
 				</h2>
-				<div
-					v-if="reviews?.results && reviews?.results?.length > 0"
-					class="reviews-list-actions"
-				>
+				<div class="reviews-list-actions">
 					<div class="reviews-list-pagination">
 						<PaginationPageNumber
 							:count="pagination.count"
@@ -117,7 +120,6 @@ const ordering = computed(() => {
 			<div class="reviews-list-body">
 				<div class="reviews-list-items">
 					<ProductReviewsList
-						v-if="!pending.reviews && reviews?.results?.length"
 						:reviews-average="reviewsAverage"
 						:reviews-count="reviewsCount"
 						:reviews="reviews.results"

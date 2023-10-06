@@ -2,12 +2,11 @@
 import { PropType } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
-import { FieldContext, useField, useForm } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { Review, ReviewQuery, StatusEnum } from '~/types/product/review'
 import { GlobalEvents } from '~/events/global'
 import { Product } from '~/types/product/product'
 import { Account } from '~/types/user/account'
-import { useReviewsStore } from '~/stores/product/reviews'
 
 const starSvg =
 	'<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
@@ -41,11 +40,16 @@ const props = defineProps({
 	}
 })
 
-const { existingReview, userHadReviewed, product, user, isAuthenticated } = toRefs(props)
+const productReviewStore = useProductReviewStore()
+const { fetchReviews, addReview, updateReview, deleteReview } = productReviewStore
+
+const { extractTranslated } = useTranslationExtractor()
 const { t, locale } = useLang()
 const route = useRoute()
 const toast = useToast()
 const swal = useSwal()
+
+const { existingReview, userHadReviewed, product, user, isAuthenticated } = toRefs(props)
 
 const routePaginationParams = computed<ReviewQuery>(() => {
 	const id = String(product.value?.id)
@@ -61,9 +65,7 @@ const routePaginationParams = computed<ReviewQuery>(() => {
 	}
 })
 
-const reviewsStore = useReviewsStore()
-const refreshReviews = async () =>
-	await reviewsStore.fetchReviews(routePaginationParams.value)
+const refreshReviews = async () => await fetchReviews(routePaginationParams.value)
 
 const editingLocked = ref(false)
 const reviewCountMax = ref(10)
@@ -72,8 +74,6 @@ const isEditable = ref(false)
 const newSelectionRatio = ref(0)
 const selectedRatio = ref(0)
 const ratingBoard = ref<HTMLElement | null>(null)
-
-const { extractTranslated } = useTranslationExtractor()
 
 const reviewButtonText = computed(() => {
 	if (!userHadReviewed.value) {
@@ -255,25 +255,26 @@ const ZodReviewSchema = z.object({
 })
 
 const validationSchema = toTypedSchema(ZodReviewSchema)
-const { values, setFieldValue, handleSubmit, errors, submitCount } = useForm({
-	validationSchema,
-	initialValues: {
-		comment: existingReview.value
-			? extractTranslated(existingReview.value, 'comment', locale.value)
-			: '',
-		rate: existingReview.value?.rate || 0
-	}
-})
+const { defineInputBinds, values, setFieldValue, handleSubmit, errors, submitCount } =
+	useForm({
+		validationSchema,
+		initialValues: {
+			comment: existingReview.value
+				? extractTranslated(existingReview.value, 'comment', locale.value)
+				: '',
+			rate: existingReview.value?.rate || 0
+		}
+	})
 
-const { value: comment }: FieldContext<string> = useField('comment')
-const { value: rate }: FieldContext<number> = useField('rate')
+const comment = defineInputBinds('comment')
+const rate = defineInputBinds('rate')
 
 const tooManyAttempts = computed(() => {
 	return submitCount.value >= 10
 })
 
 const addReviewEvent = async (event: { comment: string; rate: number }) => {
-	await reviewsStore.addReview(
+	await addReview(
 		{
 			product: String(product.value?.id),
 			user: String(user?.value?.id),
@@ -292,7 +293,7 @@ const addReviewEvent = async (event: { comment: string; rate: number }) => {
 
 const updateReviewEvent = async (event: { comment: string; rate: number }) => {
 	if (!existingReview.value) return
-	await reviewsStore.updateReview(existingReview?.value?.id, {
+	await updateReview(existingReview?.value?.id, {
 		product: String(product.value?.id),
 		user: String(user?.value?.id),
 		rate: String(event.rate),
@@ -323,7 +324,7 @@ const deleteReviewEvent = async () => {
 				if (!result.isConfirmed || !existingReview.value) {
 					return
 				}
-				await reviewsStore.deleteReview(existingReview.value.id)
+				await deleteReview(existingReview.value.id)
 				setFieldValue('rate', 0)
 				setFieldValue('comment', '')
 				await refreshReviews()
@@ -391,7 +392,6 @@ watch(
 						})
 					"
 				></span>
-				<!-- eslint-enable -->
 				<IconFaSolid:pen />
 			</div>
 		</template>
@@ -461,9 +461,9 @@ watch(
 					<div class="review_body-comment-content">
 						<textarea
 							id="comment"
-							v-model="comment"
+							v-bind="comment"
 							name="comment"
-							class="review_body-comment-content-textarea text-gray-700 dark:text-gray-200 bg-gray-100/[0.8] dark:bg-slate-800/[0.8] border border-gray-200"
+							class="review_body-comment-content-textarea text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							maxlength="10000"
 							:placeholder="$t('components.product.review.comment.placeholder')"
 							rows="6"
@@ -472,7 +472,7 @@ watch(
 					<span class="review_body-rating-error h-6">{{ errors.comment }}</span>
 				</div>
 
-				<input v-model="rate" type="hidden" name="rate" />
+				<input v-bind="rate" type="hidden" name="rate" />
 			</div>
 		</template>
 		<template #footer>

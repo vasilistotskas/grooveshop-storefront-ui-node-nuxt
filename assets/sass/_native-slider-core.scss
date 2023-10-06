@@ -40,7 +40,7 @@
 		border: 1px solid #ccc;
 
 		&-prev {
-			background: url('/assets/images/slick/prev.png') no-repeat 10px #fff;
+			background: url('/assets/images/slick/prev.png') no-repeat 10px #fff !important;
 			border-bottom-right-radius: 90px;
 			border-top-right-radius: 90px;
 			left: 0;
@@ -48,7 +48,7 @@
 		}
 
 		&-next {
-			background: url('/assets/images/slick/next.png') no-repeat 18px #fff;
+			background: url('/assets/images/slick/next.png') no-repeat 18px #fff !important;
 			border-bottom-left-radius: 90px;
 			border-top-left-radius: 90px;
 			right: 0;

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const props = defineProps({
+defineProps({
 	width: {
 		type: [Number, String],
 		default: 'auto'
@@ -7,15 +7,34 @@ const props = defineProps({
 	height: {
 		type: [Number, String],
 		default: 'auto'
+	},
+	borderRadius: {
+		type: String,
+		required: false,
+		default: '5px'
+	},
+	showAnimation: {
+		type: Boolean,
+		default: true
+	},
+	text: {
+		type: String,
+		default: 'Loading...'
+	},
+	textVisibility: {
+		type: String,
+		default: 'hidden'
+	},
+	textColor: {
+		type: String,
+		default: 'black'
 	}
 })
 </script>
 
 <template>
-	<div class="client-only-fallback skeleton">
-		<p class="client-only-fallback-text">
-			{{ $t('common.client.only.fallback') }}
-		</p>
+	<div class="client-only-fallback" :class="{ skeleton: showAnimation }">
+		<p class="client-only-fallback-text" v-text="text"></p>
 	</div>
 </template>
 
@@ -37,13 +56,19 @@ const props = defineProps({
 .client {
 	&-only {
 		&-fallback {
-			border-radius: 5px;
+			border-radius: v-bind(borderRadius);
 			display: grid;
 			width: v-bind(width);
 			height: v-bind(height);
 
 			&-text {
-				visibility: hidden;
+				display: grid;
+				align-items: center;
+				justify-items: center;
+				justify-content: center;
+				visibility: v-bind(textVisibility);
+				color: v-bind(textColor);
+				font-weight: 600;
 			}
 		}
 	}

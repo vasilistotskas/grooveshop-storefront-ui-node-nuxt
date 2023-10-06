@@ -23,63 +23,70 @@ const pendingFactory = (): PendingRecord => ({
 	category: false
 })
 
-export interface CategoryState {
-	categories: Pagination<Category> | null
-	category: Category | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useProductCategoryStore = defineStore('productCategory', () => {
+	const categories = ref<Pagination<Category> | null>(null)
+	const category = ref<Category | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useCategoryStore = defineStore({
-	id: 'product-category',
-	state: (): CategoryState => ({
-		categories: null,
-		category: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	getters: {
-		getCategoryById: (state) => (id: number) => {
-			return state.categories?.results?.find((category) => category.id === id)
-		}
-	},
-	actions: {
-		async fetchCategories({ offset, limit, ordering }: ProductQuery): Promise<void> {
-			try {
-				const {
-					data: categories,
-					error,
-					pending
-				} = await useFetch<Pagination<Category>>(`/api/product-categories`, {
-					method: 'get',
-					params: {
-						offset,
-						limit,
-						ordering
-					}
-				})
-				this.categories = categories.value
-				this.error.categories = error.value
-				this.pending.categories = pending.value
-			} catch (error) {
-				this.error.categories = error as IFetchError
+	const getCategoryById = (id: number): Category | null => {
+		return categories.value?.results?.find((category) => category.id === id) ?? null
+	}
+
+	async function fetchCategories({ offset, limit, ordering }: ProductQuery) {
+		const {
+			data,
+			error: categoriesError,
+			pending: categoriesPending,
+			refresh
+		} = await useFetch<Pagination<Category>>(`/api/product-categories`, {
+			method: 'get',
+			params: {
+				offset,
+				limit,
+				ordering
 			}
-		},
-		async fetchCategory(categoryId: string | number): Promise<void> {
-			try {
-				const {
-					data: category,
-					error,
-					pending
-				} = await useFetch<Category>(`/api/product-category/${categoryId}`, {
-					method: 'get'
-				})
-				this.category = category.value
-				this.error.category = error.value
-				this.pending.category = pending.value
-			} catch (error) {
-				this.error.category = error as IFetchError
-			}
+		})
+		categories.value = data.value
+		error.value.categories = categoriesError.value
+		pending.value.categories = categoriesPending.value
+
+		return {
+			data,
+			error: categoriesError,
+			pending: categoriesPending,
+			refresh
 		}
+	}
+
+	async function fetchCategory(categoryId: string | number) {
+		const {
+			data,
+			error: categoryError,
+			pending: categoryPending,
+			refresh
+		} = await useFetch<Category>(`/api/product-category/${categoryId}`, {
+			method: 'get'
+		})
+		category.value = data.value
+		error.value.category = categoryError.value
+		pending.value.category = categoryPending.value
+
+		return {
+			data,
+			error: categoryError,
+			pending: categoryPending,
+			refresh
+		}
+	}
+
+	return {
+		categories,
+		category,
+		pending,
+		error,
+		getCategoryById,
+		fetchCategories,
+		fetchCategory
 	}
 })

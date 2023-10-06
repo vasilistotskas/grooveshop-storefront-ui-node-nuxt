@@ -1,4 +1,7 @@
 import { useLogger } from '@nuxt/kit'
+import { createError, H3Error, H3Event, sendRedirect } from 'h3'
+import { ZodError } from 'zod'
+import { withQuery } from 'ufo'
 import { FetchError } from 'ofetch'
 
 type ErrorWithMessage = {
@@ -35,8 +38,35 @@ export function getErrorMessage(error: unknown) {
 	return toErrorWithMessage(error).message
 }
 
-export async function handleError(error: unknown) {
-	await reportError(toErrorWithMessage(error))
+export async function handleError(
+	error: unknown,
+	redirect?: { event: H3Event; url: string }
+) {
+	const h3Error = new H3Error('server-error')
+	h3Error.statusCode = 500
+	reportError(toErrorWithMessage(error))
+
+	if (redirect) {
+		await sendRedirect(
+			redirect.event,
+			withQuery(redirect.url, { error: h3Error.message })
+		)
+		return
+	}
+
+	if (error) {
+		if (error instanceof ZodError) {
+			h3Error.message = error.issues[0].path + ' | ' + error.issues[0].message
+			h3Error.statusCode = 400
+		} else if (isErrorWithMessage(error) && error.message === 'unauthorized') {
+			h3Error.message = 'unauthorized'
+			h3Error.statusCode = 401
+		} else if (isErrorWithMessage(error)) {
+			h3Error.message = error.message
+			h3Error.statusCode = 400
+		}
+	}
+
 	if (error instanceof FetchError) {
 		throw createError({
 			statusCode: error?.statusCode,
@@ -45,5 +75,15 @@ export async function handleError(error: unknown) {
 			message: error?.message
 		})
 	}
-	throw error
+
+	if (error instanceof H3Error) {
+		throw createError({
+			statusCode: error?.statusCode,
+			statusMessage: error?.statusMessage,
+			data: error?.data,
+			message: error?.message
+		})
+	}
+
+	throw createError(h3Error)
 }

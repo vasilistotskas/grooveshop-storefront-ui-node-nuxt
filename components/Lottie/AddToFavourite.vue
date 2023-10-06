@@ -35,22 +35,25 @@ const props = defineProps({
 	}
 })
 
-const { t } = useLang()
-const toast = useToast()
 const userStore = useUserStore()
 const { favourites } = storeToRefs(userStore)
+const { addFavourite, removeFavourite } = userStore
+
+const { t } = useLang()
+const toast = useToast()
+
 const lottie = ref<InstanceType<typeof LottieClient>>()
 
 const toggleFavourite = async () => {
-	if (!props.isAuthenticated || !props.userId || !favourites.value) {
+	if (!props.isAuthenticated || !props.userId || !favourites) {
 		toast.add({
 			title: t('components.add_to_favourite_button.not_authenticated')
 		})
 		return
 	}
-	const favouriteIndex = favourites.value.findIndex((f) => f.product === props.productId)
+	const favouriteIndex = favourites.value?.findIndex((f) => f.product === props.productId)
 	if (favouriteIndex === -1) {
-		await userStore.addFavourite({
+		await addFavourite({
 			user: String(props.userId),
 			product: String(props.productId)
 		})
@@ -58,8 +61,8 @@ const toggleFavourite = async () => {
 		toast.add({
 			title: t('components.add_to_favourite_button.added')
 		})
-	} else {
-		await userStore.removeFavourite(favourites.value[favouriteIndex].id)
+	} else if (favourites.value && favouriteIndex) {
+		await removeFavourite(favourites.value[favouriteIndex].id)
 		lottie.value?.goToAndStop(0)
 		toast.add({
 			title: t('components.add_to_favourite_button.removed')

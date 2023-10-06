@@ -22,40 +22,41 @@ const pendingFactory = (): PendingRecord => ({
 	region: false
 })
 
-export interface RegionState {
-	regions: Pagination<Region> | null
-	region: Region | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useRegionStore = defineStore('region', () => {
+	const regions = ref<Pagination<Region> | null>(null)
+	const region = ref<Region | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useRegionStore = defineStore({
-	id: 'region',
-	state: (): RegionState => ({
-		regions: null,
-		region: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	actions: {
-		async fetchRegions({ alpha2 }: RegionsQuery) {
-			try {
-				const {
-					data: regions,
-					error,
-					pending
-				} = await useFetch<Pagination<Region>>(`/api/regions`, {
-					method: 'get',
-					params: {
-						alpha2
-					}
-				})
-				this.regions = regions.value
-				this.error.regions = error.value
-				this.pending.regions = pending.value
-			} catch (error) {
-				this.error.regions = error as IFetchError
+	async function fetchRegions({ alpha2 }: RegionsQuery) {
+		const {
+			data,
+			error: regionError,
+			pending: regionPending,
+			refresh
+		} = await useFetch<Pagination<Region>>(`/api/regions`, {
+			method: 'get',
+			params: {
+				alpha2
 			}
+		})
+		regions.value = data.value
+		error.value.regions = regionError.value
+		pending.value.regions = regionPending.value
+
+		return {
+			data,
+			error: regionError,
+			pending: regionPending,
+			refresh
 		}
+	}
+
+	return {
+		regions,
+		region,
+		pending,
+		error,
+		fetchRegions
 	}
 })

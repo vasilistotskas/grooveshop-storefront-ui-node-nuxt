@@ -22,7 +22,7 @@ export const ZodFavouriteQuery = z.object({
 	expand: z.string().nullish()
 })
 
-export const ZodFavouriteCreateRequest = z.object({
+export const ZodFavouriteCreateBody = z.object({
 	user: z.string(),
 	product: z.string()
 })
@@ -33,7 +33,7 @@ export const ZodFavouriteParams = z.object({
 
 export type Favourite = z.infer<typeof ZodFavourite>
 export type FavouriteParams = z.infer<typeof ZodFavouriteParams>
-export type FavouriteCreateRequest = z.infer<typeof ZodFavouriteCreateRequest>
+export type FavouriteCreateBody = z.infer<typeof ZodFavouriteCreateBody>
 export type FavouriteOrderingField = 'createdAt'
 export type FavouriteQuery = PaginationQuery &
 	OrderingQuery & {

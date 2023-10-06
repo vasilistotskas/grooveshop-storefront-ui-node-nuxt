@@ -26,13 +26,13 @@ const alt = computed(() => {
 </script>
 
 <template>
-	<UCard>
+	<UCard class="bg-zinc-100 dark:bg-zinc-900">
 		<Anchor
 			:to="`/product${item.absoluteUrl}`"
 			class="pb-2"
 			:text="extractTranslated(item, 'name', locale)"
 		>
-			<div class="block bg-gray4:10 p-1 transition duration-400 hover:scale-105 z-10">
+			<div class="block bg-zinc4:10 p-1 transition duration-400 hover:scale-105 z-10">
 				<NuxtImg
 					v-if="src"
 					preload

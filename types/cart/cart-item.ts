@@ -18,12 +18,12 @@ export const ZodCartItemCreateResponse = z.object({
 	quantity: z.number()
 })
 
-export const ZodCartItemCreateRequest = z.object({
+export const ZodCartItemCreateBody = z.object({
 	product: z.string(),
 	quantity: z.string()
 })
 
-export const ZodCartItemPutRequest = z.object({
+export const ZodCartItemPutBody = z.object({
 	quantity: z.string()
 })
 
@@ -32,7 +32,7 @@ export const ZodCartItemParams = z.object({
 })
 
 export type CartItem = Readonly<z.infer<typeof ZodCartItem>>
-export type CartItemCreateRequest = z.infer<typeof ZodCartItemCreateRequest>
-export type CartItemPutRequest = z.infer<typeof ZodCartItemPutRequest>
+export type CartItemCreateBody = z.infer<typeof ZodCartItemCreateBody>
+export type CartItemPutBody = z.infer<typeof ZodCartItemPutBody>
 export type CartItemCreateResponse = z.infer<typeof ZodCartItemCreateResponse>
 export type CartItemParams = z.infer<typeof ZodCartItemParams>

@@ -17,6 +17,10 @@ const props = defineProps({
 		default: 'primary',
 		validator: (value: string) =>
 			['primary', 'success', 'warning', 'danger'].includes(value)
+	},
+	closeButton: {
+		type: Boolean,
+		default: true
 	}
 })
 
@@ -73,7 +77,7 @@ const close = () => {
 			leave-to="opacity-0"
 		>
 			<div
-				:class="`bg-gray-200 dark:bg-slate-800 bg-gradient-to-r shadow-white/50 dark:shadow-slate-900/50 px-6 py-6 rounded-md shadow-lg space-x-6 ${selectedStyle}`"
+				:class="`relative bg-zinc-200 dark:bg-zinc-800 bg-gradient-to-r shadow-white/50 dark:shadow-slate-900/50 px-6 py-6 rounded-md shadow-lg space-x-6 ${selectedStyle}`"
 			>
 				<div class="flex items-center justify-center">
 					<slot name="icon">
@@ -96,19 +100,19 @@ const close = () => {
 						<slot name="title">{{ title }}</slot>
 					</div>
 					<div>
-						<p class="text-gray-700 dark:text-gray-100">
+						<p class="text-primary-700 dark:text-primary-100">
 							<slot name="title">{{ text }}</slot>
 						</p>
 					</div>
 				</div>
-				<div>
+				<div v-if="props.closeButton" class="absolute top-0 right-0 p-4">
 					<button
 						type="button"
-						class="text-slate-600 hover:text-red-500 dark:text-gray-400 font-bold"
+						class="text-slate-600 dark:text-primary-400 font-bold :hover:font-bold transition-colors duration-300"
 						@click="close"
 					>
 						<span class="hidden">{{ title }}</span>
-						<IconClarity:timesLine />
+						<IconClarity:timesLine class="text-xl" />
 					</button>
 				</div>
 			</div>

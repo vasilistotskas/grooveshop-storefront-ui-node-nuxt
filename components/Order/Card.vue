@@ -43,12 +43,12 @@ const statusClass = computed(() => {
 		case 'PENDING':
 			return {
 				icon: PendingSentIcon,
-				color: 'text-gray-500'
+				color: 'text-primary-500'
 			}
 		default:
 			return {
 				icon: DefaultSentIcon,
-				color: 'text-gray-500'
+				color: 'text-primary-500'
 			}
 	}
 })
@@ -56,7 +56,7 @@ const statusClass = computed(() => {
 
 <template>
 	<div
-		class="order-card text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded"
+		class="order-card text-primary-700 dark:text-primary-100 bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded"
 	>
 		<div class="order-card-items">
 			<OrderCardItem

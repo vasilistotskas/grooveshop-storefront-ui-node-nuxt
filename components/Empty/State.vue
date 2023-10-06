@@ -23,7 +23,7 @@ defineSlots<{
 
 <template>
 	<div
-		class="empty-state flex flex-col gap-4 items-center justify-center border border-gray-900/10 dark:border-gray-50/[0.2] rounded-lg p-16 text-center text-gray-700 dark:text-gray-200"
+		class="empty-state flex flex-col gap-4 items-center justify-center border border-gray-900/10 dark:border-gray-50/[0.2] rounded-lg p-16 text-center text-primary-700 dark:text-primary-100"
 	>
 		<div class="empty-state-icon">
 			<component :is="icon" />

@@ -13,7 +13,6 @@ import { DEFAULTS, ModuleOptions } from '../runtime/cookies/types'
 import { replaceCodePlugin } from '../runtime/utils/replace'
 
 const resolver = createResolver(import.meta.url)
-const runtimeDir = resolver.resolve('../runtime')
 const cookiesDir = resolver.resolve('../runtime/cookies')
 
 export default defineNuxtModule<ModuleOptions>({

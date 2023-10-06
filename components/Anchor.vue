@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const props = defineProps({
+defineProps({
 	text: {
 		type: String,
 		default: ''
@@ -13,7 +13,7 @@ const props = defineProps({
 		default: ''
 	},
 	cssClass: {
-		type: String,
+		type: [String, Object],
 		default: ''
 	}
 })
@@ -31,7 +31,7 @@ const localePath = useLocalePath()
 		:aria-label="text"
 		:class="[
 			cssClass,
-			`transition-colors duration-300 dark:hover:text-white hover:text-gray-900`
+			`transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
 		]"
 	>
 		<slot>{{ text }}</slot>
@@ -39,7 +39,10 @@ const localePath = useLocalePath()
 	<a
 		v-else
 		:aria-label="text"
-		:class="`transition-colors duration-300 dark:hover:text-white hover:text-gray-900`"
+		:class="[
+			cssClass,
+			`transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
+		]"
 		:href="href"
 	>
 		<slot>{{ text }}</slot>

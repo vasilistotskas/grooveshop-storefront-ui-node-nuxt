@@ -3,14 +3,15 @@ import { Address, AddressOrderingField, AddressQuery } from '~/types/user/addres
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
-const { t } = useLang()
-const route = useRoute('account-addresses___en')
-
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
 
-const addressStore = useUserAddressStore()
-const { addresses, pending, error } = storeToRefs(addressStore)
+const userAddressStore = useUserAddressStore()
+const { addresses, pending } = storeToRefs(userAddressStore)
+const { fetchAddresses } = userAddressStore
+
+const { t } = useLang()
+const route = useRoute('account-addresses___en')
 
 const entityOrdering: EntityOrdering<AddressOrderingField> = reactive([
 	{
@@ -52,10 +53,9 @@ const routePaginationParams = computed<AddressQuery>(() => {
 	}
 })
 
-await addressStore.fetchAddresses(routePaginationParams.value)
+await fetchAddresses(routePaginationParams.value)
 
-const refreshAddresses = async () =>
-	await addressStore.fetchAddresses(routePaginationParams.value)
+const refreshAddresses = async () => await fetchAddresses(routePaginationParams.value)
 
 watch(
 	() => route.query,
@@ -63,7 +63,8 @@ watch(
 )
 
 definePageMeta({
-	layout: 'user'
+	layout: 'user',
+	middleware: 'auth'
 })
 </script>
 
@@ -90,11 +91,6 @@ definePageMeta({
 				</div>
 				<AddressList :addresses="addresses.results" />
 			</template>
-			<Error
-				v-else-if="error.addresses"
-				:code="error.addresses?.statusCode"
-				:error="error.addresses"
-			/>
 			<template v-else-if="!addresses?.results?.length">
 				<div class="flex gap-4">
 					<AddressAddNew />

@@ -1,8 +1,11 @@
+import { isCI } from 'std-env'
+
 export default defineAppConfig({
-	author: 'Groove',
-	version: '1.0.0',
 	ui: {
-		primary: 'green',
+		primary: 'blue',
 		gray: 'cool'
+	},
+	storage: {
+		driver: process.env.NUXT_STORAGE_DRIVER ?? (isCI ? 'cloudflare' : 'fs')
 	}
 })

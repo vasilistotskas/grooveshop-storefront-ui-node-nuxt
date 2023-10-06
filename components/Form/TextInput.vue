@@ -1,8 +1,14 @@
 <script lang="ts" setup>
+import { BaseInputBinds } from 'vee-validate'
+
 const props = defineProps({
 	modelValue: {
 		type: String,
 		default: ''
+	},
+	bind: {
+		type: Object as PropType<BaseInputBinds>,
+		default: undefined
 	},
 	placeholder: {
 		type: String,
@@ -84,7 +90,7 @@ const selectedFontSizeStyle = computed(
 	<div :class="`text-input-container relative flex`">
 		<div
 			v-if="slots['prefix-disabled']"
-			:class="`flex rounded-l bg-gray-100 dark:bg-slate-800 text-gray-500 border ${selectedBorderStyle}`"
+			:class="`flex rounded-l bg-zinc-100 dark:bg-zinc-800 text-primary-500 border ${selectedBorderStyle}`"
 		>
 			<slot name="prefix-disabled" />
 		</div>
@@ -94,10 +100,26 @@ const selectedFontSizeStyle = computed(
 		<div class="text-input-wrapper relative flex flex-1">
 			<label :for="id" class="hidden"> {{ name }}</label>
 			<input
+				v-if="modelValue"
 				:id="id"
 				v-model="modelValue"
 				:name="name"
-				:class="`text-input w-full flex-1 bg-transparent outline-none border text-gray-700 dark:text-gray-200 ${
+				:class="`text-input w-full flex-1 bg-transparent outline-none border text-primary-700 dark:text-primary-100 ${
+					havePreEl ? '' : 'rounded-l'
+				} ${
+					haveSuEl ? '' : 'rounded-r'
+				} ${selectedBorderStyle} ${selectedOnHoverBorderStyle} ${selectedPaddingStyle} ${selectedFontSizeStyle}`"
+				:type="type"
+				:placeholder="type === 'text' ? placeholder : ''"
+				:required="required"
+				:autocomplete="autocomplete"
+			/>
+			<input
+				v-if="bind"
+				v-bind="bind"
+				:id="id"
+				:name="name"
+				:class="`text-input w-full flex-1 bg-transparent outline-none border text-primary-700 dark:text-primary-100 ${
 					havePreEl ? '' : 'rounded-l'
 				} ${
 					haveSuEl ? '' : 'rounded-r'

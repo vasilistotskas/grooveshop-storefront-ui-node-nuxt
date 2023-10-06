@@ -5,7 +5,10 @@ import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const route = useRoute()
 const { t } = useLang()
-const store = useProductsStore()
+
+const productStore = useProductsStore()
+const { products, pending } = storeToRefs(productStore)
+const { fetchProducts } = productStore
 
 const routePaginationParams = computed<ProductQuery>(() => {
 	const limit = Number(route.query.limit) || undefined
@@ -37,11 +40,9 @@ const orderingFields: Partial<Record<ProductOrderingField, OrderingOption[]>> = 
 	createdAt: []
 })
 
-await store.fetchProducts(routePaginationParams.value)
+await fetchProducts(routePaginationParams.value)
 
-const refreshProducts = async () => await store.fetchProducts(routePaginationParams.value)
-
-const { products, pending, error } = storeToRefs(store)
+const refreshProducts = async () => await fetchProducts(routePaginationParams.value)
 
 const pagination = computed(() => {
 	return usePagination<Product>(products.value)
@@ -59,11 +60,6 @@ watch(
 
 <template>
 	<div class="products-list grid gap-4">
-		<Error
-			v-if="error.products"
-			:code="error.products?.statusCode"
-			:error="error.products"
-		/>
 		<template v-if="!pending.products && products?.results?.length">
 			<div class="grid gap-2 md:flex md:items-center">
 				<PaginationLimitOffset

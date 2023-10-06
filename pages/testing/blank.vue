@@ -11,7 +11,7 @@ definePageMeta({
 		<PageBody>
 			<PageSection>
 				<div v-for="i in 30" :key="i" class="text-6xl uppercase">
-					<p class="text-gray-700 dark:text-gray-200">
+					<p class="text-primary-700 dark:text-primary-100">
 						{{ $t('pages.testing.blank.just_blank_page_with_title') }}
 					</p>
 				</div>

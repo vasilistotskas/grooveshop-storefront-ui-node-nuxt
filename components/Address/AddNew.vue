@@ -1,6 +1,6 @@
 <template>
 	<li class="add-new">
-		<p class="text-gray-700 dark:text-gray-200">
+		<p class="text-primary-700 dark:text-primary-100">
 			{{ $t('components.address.add_new.title') }}
 		</p>
 		<div class="grid items-center justify-center">

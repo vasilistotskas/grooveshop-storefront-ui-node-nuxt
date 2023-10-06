@@ -24,7 +24,7 @@ export const ZodCategory = z.object({
 	uuid: z.string()
 })
 
-export const ZodCategoryCreateRequest = z.object({
+export const ZodCategoryCreateBody = z.object({
 	name: z.string(),
 	slug: z.string(),
 	description: z.string().nullish(),
@@ -41,4 +41,4 @@ export const ZodCategoryParams = z.object({
 
 export type Category = z.infer<typeof ZodCategory>
 export type CategoryParams = Readonly<z.infer<typeof ZodCategoryParams>>
-export type CategoryCreateRequest = Readonly<z.infer<typeof ZodCategoryCreateRequest>>
+export type CategoryCreateBody = Readonly<z.infer<typeof ZodCategoryCreateBody>>

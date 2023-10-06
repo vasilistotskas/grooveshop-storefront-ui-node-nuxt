@@ -188,7 +188,7 @@ img[alt] {
 }
 
 .card {
-	@apply bg-gray-50 dark:bg-gray-900;
+	@apply bg-zinc-50 dark:bg-zinc-900;
 
 	box-shadow:
 		0 0 transparent,

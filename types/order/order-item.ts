@@ -8,7 +8,7 @@ export const ZodOrderItem = z.object({
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string(),
-	sortOrder: z.number(),
+	sortOrder: z.number().nullish(),
 	totalPrice: z.number()
 })
 

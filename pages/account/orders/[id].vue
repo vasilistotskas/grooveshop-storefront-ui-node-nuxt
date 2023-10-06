@@ -1,8 +1,13 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+definePageMeta({
+	layout: 'user',
+	middleware: 'auth'
+})
+</script>
 
 <template>
 	<PageWrapper>
-		<PageHeader class="mb-4" />
+		<PageHeader />
 		<PageBody />
 	</PageWrapper>
 </template>

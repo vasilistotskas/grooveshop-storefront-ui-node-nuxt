@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const pwa = useNuxtApp().$pwa
 </script>
+
 <template>
 	<ClientOnly>
 		<div v-if="pwa" id="pwa">
@@ -12,20 +13,20 @@ const pwa = useNuxtApp().$pwa
 				<div class="message">
 					<span
 						v-if="pwa?.offlineReady"
-						class="text-gray-500 dark:text-gray-400 font-medium"
+						class="text-primary-500 dark:text-primary-400 font-medium"
 					>
 						{{ $t('components.pwa.ready_to_work_offline') }}
 					</span>
 					<span
 						v-if="pwa?.needRefresh"
-						class="text-gray-500 dark:text-gray-400 font-medium"
+						class="text-primary-500 dark:text-primary-400 font-medium"
 					>
 						{{ $t('components.pwa.new_content_available') }}
 					</span>
 				</div>
 				<button
 					v-if="pwa?.needRefresh"
-					class="text-gray-700 dark:text-gray-200"
+					class="text-primary-700 dark:text-primary-100"
 					type="button"
 					@click="pwa?.updateServiceWorker()"
 				>
@@ -33,7 +34,7 @@ const pwa = useNuxtApp().$pwa
 				</button>
 				<button
 					type="button"
-					class="text-gray-700 dark:text-gray-200"
+					class="text-primary-700 dark:text-primary-100"
 					@click="pwa?.cancelPrompt()"
 				>
 					{{ $t('components.pwa.close') }}
@@ -45,7 +46,7 @@ const pwa = useNuxtApp().$pwa
 				role="alert"
 			>
 				<div class="message">
-					<span class="text-gray-700 dark:text-gray-200">
+					<span class="text-primary-700 dark:text-primary-100">
 						{{ $t('components.pwa.install_pwa') }}
 					</span>
 				</div>
@@ -68,8 +69,8 @@ const pwa = useNuxtApp().$pwa
 <style lang="scss" scoped>
 .pwa-toast-control-bar {
 	@apply fixed bottom-0 left-0 right-0 z-50 mx-auto border px-6 py-4 shadow-xl sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-5xl sm:rounded-md;
-	@apply border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800;
-	@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
+	@apply border-gray-200 bg-zinc-50 dark:border-gray-700 dark:bg-zinc-800;
+	@apply text-primary-600 dark:border-gray-700 dark:text-primary-400;
 }
 
 .pwa-toast {
@@ -97,7 +98,7 @@ const pwa = useNuxtApp().$pwa
 
 	button {
 		@apply whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium  transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
-		@apply border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-100 hover:text-gray-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700;
+		@apply border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700;
 	}
 }
 </style>

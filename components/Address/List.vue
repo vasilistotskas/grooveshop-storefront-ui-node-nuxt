@@ -2,7 +2,7 @@
 import { PropType } from 'vue'
 import { Address } from '~/types/user/address'
 
-const props = defineProps({
+defineProps({
 	addresses: {
 		type: Array as PropType<Address[] | null>,
 		required: true

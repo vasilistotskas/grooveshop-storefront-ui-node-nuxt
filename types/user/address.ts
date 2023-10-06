@@ -34,7 +34,7 @@ export const ZodAddressQuery = z.object({
 	expand: z.string().nullish()
 })
 
-export const ZodAddressCreateRequest = z.object({
+export const ZodAddressCreateBody = z.object({
 	title: z.string(),
 	firstName: z.string(),
 	lastName: z.string(),
@@ -57,7 +57,7 @@ export const ZodAddressParams = z.object({
 	id: z.string()
 })
 
-export const ZodAddressPutRequest = z.object({
+export const ZodAddressPutBody = z.object({
 	title: z.string(),
 	firstName: z.string(),
 	lastName: z.string(),
@@ -78,8 +78,8 @@ export const ZodAddressPutRequest = z.object({
 
 export type Address = z.infer<typeof ZodAddress>
 export type AddressParams = z.infer<typeof ZodAddressParams>
-export type AddressPutRequest = z.infer<typeof ZodAddressPutRequest>
-export type AddressCreateRequest = z.infer<typeof ZodAddressCreateRequest>
+export type AddressPutBody = z.infer<typeof ZodAddressPutBody>
+export type AddressCreateBody = z.infer<typeof ZodAddressCreateBody>
 export type AddressQuery = PaginationQuery &
 	OrderingQuery & {
 		id?: string | undefined

@@ -3,14 +3,15 @@ import emptyIcon from '~icons/mdi/package-variant-remove'
 import { Order, OrderOrderingField, OrderQuery } from '~/types/order/order'
 import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 
-const { t } = useLang()
-const route = useRoute('account-orders___en')
-
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
 
 const orderStore = useOrderStore()
-const { orders, pending, error } = storeToRefs(orderStore)
+const { orders, pending } = storeToRefs(orderStore)
+const { fetchOrders } = orderStore
+
+const { t } = useLang()
+const route = useRoute('account-orders___en')
 
 const entityOrdering: EntityOrdering<OrderOrderingField> = reactive([
 	{
@@ -44,9 +45,8 @@ const routePaginationParams = computed<OrderQuery>(() => {
 	}
 })
 
-await orderStore.fetchOrders(routePaginationParams.value)
-const refreshOrders = async () =>
-	await orderStore.fetchOrders(routePaginationParams.value)
+await fetchOrders(routePaginationParams.value)
+const refreshOrders = async () => await fetchOrders(routePaginationParams.value)
 
 watch(
 	() => route.query,
@@ -54,7 +54,8 @@ watch(
 )
 
 definePageMeta({
-	layout: 'user'
+	layout: 'user',
+	middleware: 'auth'
 })
 </script>
 
@@ -64,7 +65,6 @@ definePageMeta({
 			<PageTitle :text="$t('pages.account.orders.title')" />
 		</PageHeader>
 		<PageBody>
-			<Error v-if="error.orders" :code="error.orders?.statusCode" :error="error.orders" />
 			<template v-if="orders && !pending.orders && orders?.results?.length">
 				<div class="grid gap-2 md:flex md:items-center">
 					<PaginationPageNumber

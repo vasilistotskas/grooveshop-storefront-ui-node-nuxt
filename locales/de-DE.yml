@@ -117,7 +117,7 @@ components:
       write_review: eine rezension schreiben
       edit_review: rezension bearbeiten
       update_review: update-überprüfung
-      delete_review: bewertung löschen
+      delete_review: rezension löschen
       must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
       write_review_for_product: schreiben sie eine bewertung für produkt %{product}
       confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
@@ -275,14 +275,20 @@ pages:
       nav: ws
   index:
     nav: heim
-    title: deep web
-    description: deep web
-    keywords: deep web
+    title: grooveshop
+    description: grooveshop
+    keywords: grooveshop
     add_to_cart: in den warenkorb legen
   error:
     title: hoppla! etwas ist schief gelaufen.
     clean: klarer fehler
-    home: nach hause navigieren
+    home: zurück nach hause
+    hmmm: hmmm
+    page:
+      not:
+        found: unser hund kann die von ihnen gesuchte seite nicht finden.
+    go:
+      home: es kann sie jedoch zur homepage führen!
   product:
     add_to_cart: in den warenkorb legen
     product_id: produkt id
@@ -607,9 +613,129 @@ pages:
     results: suchergebnis für
     start_searching: geben sie etwas zum suchen ein...
     back_to_home: zurück nach hause
+  auth:
+    login:
+      title: anmeldung
+      description: anmeldung
+      keywords: anmeldung
+      nav: anmeldung
+      form:
+        email:
+          label: email
+          validation:
+            email: e-mail muss eine gültige e-mail-adresse sein
+        password:
+          label: passwort
+          validation:
+            min: das passwort muss mindestens %{min} zeichen lang sein
+        remember: erinnere dich an mich
+        forgot:
+          password:
+            reset: haben sie ihr passwort vergessen?
+        submit: anmeldung
+        facebook: mit facebook einloggen
+        google: melden sie sich mit google an
+        or: oder
+        'no':
+          account: sie haben kein konto?
+    registration:
+      title: anmeldung
+      description: anmeldung
+      keywords: anmeldung
+      nav: anmeldung
+      form:
+        email:
+          label: email
+          validation:
+            email: e-mail muss eine gültige e-mail-adresse sein
+        password1:
+          label: passwort
+          validation:
+            min: das passwort muss mindestens %{min} zeichen lang sein
+        password2:
+          label: passwort bestätigung
+          validation:
+            min: die passwortbestätigung muss mindestens %{min} zeichen lang sein
+            match: die passwortbestätigung muss mit dem passwort übereinstimmen
+        password_confirmation:
+          label: passwort bestätigung
+          validation:
+            min: die passwortbestätigung muss mindestens %{min} zeichen lang sein
+        submit: registrieren
+        facebook: registrieren sie sich bei facebook
+        google: registrieren sie sich bei google
+        or: oder
+        already_have_account: sie haben bereits ein konto?
+      account-confirm-email:
+        title: e-mail bestätigen
+        description: e-mail bestätigen
+        keywords: e-mail bestätigen
+        loading: bestätigungs-e-mail wird gesendet...
+        success:
+          title: e-mail bestätigt
+          description: ihre e-mail-adresse wurde bestätigt. sie können sich jetzt anmelden.
+          button: anmeldung
+        error:
+          title: fehler bei der e-mail-bestätigung
+          description: möglicherweise ist der link abgelaufen oder ungültig.
+          button: bestätigungslink erneut senden
+        resend:
+          success:
+            title: e-mail-bestätigungslink gesendet
+            description: e-mail-bestätigungslink erfolgreich gesendet.
+          error:
+            title: fehler beim erneuten senden des e-mail-bestätigungslinks
+            description: fehler beim erneuten senden des e-mail-bestätigungslinks.
+          button: bestätigungslink erneut senden
+    password:
+      reset:
+        title: setze dein passwort zurück
+        description: >-
+          geben sie die verifizierte e-mail-adresse ihres benutzerkontos ein und
+          wir senden ihnen einen link zum zurücksetzen des passworts.
+        keywords: passwort zurücksetzen
+        form:
+          email:
+            label: email
+            placeholder: geben sie ihre e-mailadresse ein
+            validation:
+              email: e-mail muss eine gültige e-mail-adresse sein
+          submit: link zum zurücksetzen des passworts senden
+        success:
+          title: link zum zurücksetzen des passworts gesendet
+          description: der link zum zurücksetzen des passworts wurde erfolgreich gesendet.
+        error:
+          title: fehler beim senden des passwort-reset-links
+          description: fehler beim senden des passwort-reset-links.
+        button: senden sie eine e-mail zum zurücksetzen des passworts
+        confirm:
+          title: passwort zurücksetzen
+          description: gib dein neues passwort ein.
+          keywords: passwort zurücksetzen
+          form:
+            newPassword1:
+              label: passwort
+              validation:
+                min: das passwort muss mindestens %{min} zeichen lang sein
+            newPassword2:
+              label: passwort bestätigung
+              validation:
+                min: >-
+                  die passwortbestätigung muss mindestens %{min} zeichen lang
+                  sein
+                match: die passwortbestätigung muss mit dem passwort übereinstimmen
+              errors:
+                match: die passwortbestätigung muss mit dem passwort übereinstimmen
+            password_confirmation:
+              label: passwort bestätigung
+              validation:
+                min: >-
+                  die passwortbestätigung muss mindestens %{min} zeichen lang
+                  sein
+            submit: passwort zurücksetzen
 layouts:
-  title: deepweb %{title}
-  description: deepweb-beschreibung %{description}
+  title: grooveshop %{title}
+  description: grooveshop-beschreibung %{description}
 banners:
   welcome: willkommen bei %{app_name}!
 routes:
@@ -671,6 +797,13 @@ swal:
       html: adresse erfolgreich gelöscht
 common:
   home: heim
+  auth:
+    login:
+      success: anmeldung erfolgreich
+      error: login fehler
+    registration:
+      success: registrierung erfolgreich
+      error: registrierungsfehler
   learn_more: lern mehr
   copy: kopieren
   enabled: ermöglicht
@@ -692,11 +825,17 @@ common:
       fallback: nur für clientseite
   unknown:
     error: unbekannter fehler
+  error:
+    page:
+      not:
+        found: seite nicht gefunden
   errors:
     unknown_internal_api_error: unbekannter interner api-fehler
   shop: geschäft
   next: nächste
   previous: vorherige
+  login: anmeldung
+  logout: ausloggen
   empty:
     title: leer
     description: leer

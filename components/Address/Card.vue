@@ -9,14 +9,15 @@ const props = defineProps({
 	}
 })
 
+const userAddressStore = useUserAddressStore()
+const { deleteAddress } = userAddressStore
+
 const { t } = useLang()
 const swal = useSwal()
 const toast = useToast()
 const { contentShorten } = useText()
 
-const userAddressStore = useUserAddressStore()
-
-const deleteAddress = async (id: string) => {
+const deleteAddressEvent = async (id: string) => {
 	if (props.address && props.address.isMain) {
 		toast.add({
 			title: t('components.address.card.delete.cant_delete_main')
@@ -39,17 +40,10 @@ const deleteAddress = async (id: string) => {
 			if (!result.isConfirmed) {
 				return
 			}
-			userAddressStore
-				.deleteAddress(id)
-				.then(async () => {
+			deleteAddress(id)
+				.then(() => {
 					toast.add({
 						title: t('components.address.card.delete.success')
-					})
-					await swal.fire({
-						title: t('swal.delete_address.success.title'),
-						text: t('swal.delete_address.success.text'),
-						html: t('swal.delete_address.success.html'),
-						icon: 'success'
 					})
 				})
 				.catch(() => {
@@ -63,7 +57,7 @@ const deleteAddress = async (id: string) => {
 
 <template>
 	<li
-		class="address-card p-5 bg-white text-white dark:bg-slate-800 dark:text-black rounded-lg"
+		class="address-card p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
 	>
 		<div v-if="address.isMain" class="address-card-main">
 			<IconMdi:star></IconMdi:star>
@@ -71,7 +65,7 @@ const deleteAddress = async (id: string) => {
 		<div class="address-card-header">
 			<div class="address-card-header-title">
 				<h3
-					class="address-card-header-title-value font-bold text-gray-700 dark:text-gray-200"
+					class="address-card-header-title-value font-bold text-primary-700 dark:text-primary-100"
 				>
 					{{ contentShorten(address.title, 0, 25) }}
 				</h3>
@@ -92,7 +86,7 @@ const deleteAddress = async (id: string) => {
 					type="button"
 					size="sm"
 					:style="'secondary'"
-					@click="deleteAddress(String(address.id))"
+					@click="deleteAddressEvent(String(address.id))"
 				>
 					<span class="hidden">{{ t('pages.account.addresses.delete') }}</span>
 					<IconFa6Solid:trash class="text-red-600" />
@@ -101,31 +95,49 @@ const deleteAddress = async (id: string) => {
 		</div>
 		<div class="address-card-body">
 			<div class="address-card-body-address">
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ address.firstName }} {{ address.lastName }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ address.street }} {{ address.streetNumber }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ address.city }} {{ address.zipcode }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ address.country }} {{ address.region }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ $t('common.floor') }}: {{ address.floor }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ $t('common.location_type') }}: {{ address.locationType }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ $t('common.phone') }}: {{ address.phone }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ $t('common.mobile_phone') }}: {{ address.mobilePhone }}
 				</span>
-				<span class="address-card-body-address-value text-gray-700 dark:text-gray-200">
+				<span
+					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
+				>
 					{{ $t('common.notes') }}: {{ address.notes }}
 				</span>
 			</div>

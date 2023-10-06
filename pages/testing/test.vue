@@ -20,7 +20,9 @@ const identity = useIdentityStore()
 				<PageSectionTitle :text="$t('pages.testing.test.counter')" class="capitalize" />
 				<div class="">
 					<div class="mb-2">
-						<p class="text-gray-700 dark:text-gray-200">Counter : {{ counter.count }}</p>
+						<p class="text-primary-700 dark:text-primary-100">
+							Counter : {{ counter.count }}
+						</p>
 					</div>
 					<div
 						class="flex flex-col items-center justify-items-center space-y-2 md:space-y-0 md:flex-row md:space-x-2"
@@ -63,10 +65,12 @@ const identity = useIdentityStore()
 			<PageSection>
 				<PageSectionTitle :text="$t('pages.testing.test.identity')" class="capitalize" />
 				<div class="mb-2">
-					<span class="capitalize text-gray-700 dark:text-gray-200"
+					<span class="capitalize text-primary-700 dark:text-primary-100"
 						>{{ $t('pages.testing.test.full_name') }} :
 					</span>
-					<span class="text-gray-700 dark:text-gray-200">{{ identity.fullName }}</span>
+					<span class="text-primary-700 dark:text-primary-100">{{
+						identity.fullName
+					}}</span>
 				</div>
 				<div class="mb-2">
 					<div

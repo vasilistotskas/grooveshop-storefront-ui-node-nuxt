@@ -1,14 +1,19 @@
 <template :style="getCurrentStyle">
-	<Component
-		:is="componentElement"
-		:data-id="elementId"
-		class="lottie-animation-container circle"
-		v-bind="$attrs"
-		@mouseenter="hoverStarted"
-		@mouseleave="hoverEnded"
-	>
-		<span class="hidden"></span>
-	</Component>
+	<ClientOnly>
+		<Component
+			:is="componentElement"
+			:data-id="elementId"
+			class="lottie-animation-container circle"
+			v-bind="$attrs"
+			@mouseenter="hoverStarted"
+			@mouseleave="hoverEnded"
+		>
+			<span class="hidden"></span>
+		</Component>
+		<template #fallback>
+			<ClientOnlyFallback :width="width" :height="height" :show-animation="false" />
+		</template>
+	</ClientOnly>
 </template>
 
 <script lang="ts">
@@ -468,7 +473,5 @@ export default defineComponent({
 	height: v-bind(height);
 	background-color: v-bind(backgroundColor);
 	overflow: hidden;
-
-	@apply border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800;
 }
 </style>

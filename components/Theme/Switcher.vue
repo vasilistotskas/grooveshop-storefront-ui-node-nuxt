@@ -18,6 +18,8 @@ const isDark = computed({
 			color="gray"
 			variant="ghost"
 			aria-label="Theme"
+			size="xl"
+			class="p-0"
 			@click="isDark = !isDark"
 		/>
 
@@ -29,7 +31,7 @@ const isDark = computed({
 
 <style lang="scss" scoped>
 .theme-switcher-fallback {
-	max-width: 17px;
-	max-height: 17px;
+	max-width: 24px;
+	max-height: 24px;
 }
 </style>

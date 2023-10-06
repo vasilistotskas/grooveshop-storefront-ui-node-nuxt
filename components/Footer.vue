@@ -1,14 +1,16 @@
 <script lang="ts" setup></script>
 
 <template>
-	<footer class="bg-white dark:bg-gray-900 mt-6 w-full pt-2 border-t-2 border-gray-500">
+	<footer class="bg-white dark:bg-zinc-900 mt-6 w-full pt-2 border-t-2 border-gray-500">
 		<div class="mx-auto w-full container">
 			<div class="grid grid-cols-2 gap-8 px-6 py-8 md:grid-cols-4">
 				<div>
-					<h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
+					<h2
+						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
+					>
 						Company
 					</h2>
-					<ul class="text-gray-500 dark:text-gray-400 font-medium">
+					<ul class="text-primary-500 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<a href="#" class="hover:underline">About</a>
 						</li>
@@ -24,10 +26,12 @@
 					</ul>
 				</div>
 				<div>
-					<h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
+					<h2
+						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
+					>
 						Help center
 					</h2>
-					<ul class="text-gray-500 dark:text-gray-400 font-medium">
+					<ul class="text-primary-500 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<a href="#" class="hover:underline">Discord Server</a>
 						</li>
@@ -43,10 +47,12 @@
 					</ul>
 				</div>
 				<div>
-					<h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
+					<h2
+						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
+					>
 						Legal
 					</h2>
-					<ul class="text-gray-500 dark:text-gray-400 font-medium">
+					<ul class="text-primary-500 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<a href="#" class="hover:underline">Privacy Policy</a>
 						</li>
@@ -59,10 +65,12 @@
 					</ul>
 				</div>
 				<div>
-					<h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
+					<h2
+						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
+					>
 						Download
 					</h2>
-					<ul class="text-gray-500 dark:text-gray-400 font-medium">
+					<ul class="text-primary-500 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<a href="#" class="hover:underline">iOS</a>
 						</li>
@@ -79,14 +87,17 @@
 				</div>
 			</div>
 		</div>
-		<div class="w-full bg-gray-100 dark:bg-gray-700">
+		<div class="w-full bg-zinc-100 dark:bg-zinc-700">
 			<div class="mx-auto w-full container">
 				<div class="px-4 py-6 md:flex md:items-center md:justify-between">
-					<span class="text-sm text-gray-500 dark:text-gray-300 sm:text-center"
+					<span class="text-sm text-primary-500 dark:text-primary-300 sm:text-center"
 						>© 2023 <a href="https://flowbite.com/">Flowbite™</a>. All Rights Reserved.
 					</span>
 					<div class="flex mt-4 space-x-6 sm:justify-center md:mt-0">
-						<a href="#" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">
+						<a
+							href="#"
+							class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+						>
 							<svg
 								class="w-5 h-5"
 								fill="currentColor"
@@ -101,7 +112,10 @@
 							</svg>
 							<span class="sr-only">Facebook page</span>
 						</a>
-						<a href="#" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">
+						<a
+							href="#"
+							class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+						>
 							<svg
 								class="w-5 h-5"
 								fill="currentColor"
@@ -116,7 +130,10 @@
 							</svg>
 							<span class="sr-only">Instagram page</span>
 						</a>
-						<a href="#" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">
+						<a
+							href="#"
+							class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+						>
 							<svg
 								class="w-5 h-5"
 								fill="currentColor"
@@ -129,7 +146,10 @@
 							</svg>
 							<span class="sr-only">Twitter page</span>
 						</a>
-						<a href="#" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">
+						<a
+							href="#"
+							class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+						>
 							<svg
 								class="w-5 h-5"
 								fill="currentColor"
@@ -144,7 +164,10 @@
 							</svg>
 							<span class="sr-only">GitHub account</span>
 						</a>
-						<a href="#" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">
+						<a
+							href="#"
+							class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+						>
 							<svg
 								class="w-5 h-5"
 								fill="currentColor"

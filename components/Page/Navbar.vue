@@ -1,29 +1,22 @@
 <script lang="ts" setup>
-const config = useRuntimeConfig()
+const { isAuthenticated } = useAuthSession()
 
-const authStore = useAuthStore()
 const cartStore = useCartStore()
-
-const { isAuthenticated } = storeToRefs(authStore)
 const { cart } = storeToRefs(cartStore)
+
+const userStore = useUserStore()
+const { account } = storeToRefs(userStore)
 </script>
 
 <template>
 	<BuilderNavbar>
-		<template v-if="false" #banner>
-			<div class="text-white text-xs text-center py-1 px-4 lg:px-8 capitalize">
-				<span class="mr-1 text-gray-700 dark:text-gray-200">
-					{{ $t('banners.welcome', { app_name: config.public.appTitle }) }}
-				</span>
-			</div>
-		</template>
 		<template #menu>
 			<div class="relative hidden lg:flex items-center ml-auto">
 				<nav
-					class="flex items-center text-sm leading-6 font-semibold text-gray-700 dark:text-gray-200"
+					class="flex items-center text-lg leading-6 font-semibold text-primary-700 dark:text-primary-100"
 				>
 					<ul class="flex items-center space-x-8">
-						<li class="relative">
+						<li class="relative grid items-center justify-center justify-items-center">
 							<Anchor
 								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex gap-4 self-center items-center"
 								:to="'search'"
@@ -47,18 +40,18 @@ const { cart } = storeToRefs(cartStore)
 						</li>
 					</ul>
 					<ul
-						class="flex items-center gap-3 border-l ml-6 pl-6 border-gray-900/10 dark:border-gray-50/[0.2] text-gray-700 dark:text-gray-200"
+						class="flex items-center gap-3 border-l ml-6 pl-6 border-gray-900/10 dark:border-gray-50/[0.2] text-primary-700 dark:text-primary-100"
 					>
-						<li class="relative">
+						<li class="relative grid items-center justify-center justify-items-center">
 							<LanguageSwitcher />
 						</li>
-						<li class="relative">
+						<li class="relative grid items-center justify-center justify-items-center">
 							<ThemeSwitcher />
 						</li>
-						<li class="relative">
+						<li class="relative grid items-center justify-center justify-items-center">
 							<span class="cart-items-count" :data-count="cart?.totalItems"></span>
 							<Anchor
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
+								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 								:to="'cart'"
 								:title="$t('pages.cart.title')"
 								:text="$t('pages.cart.title')"
@@ -66,22 +59,22 @@ const { cart } = storeToRefs(cartStore)
 								<IconFa6Solid:cartShopping />
 							</Anchor>
 						</li>
-						<li class="relative">
+						<li class="relative grid items-center justify-center justify-items-center">
 							<Anchor
-								v-if="isAuthenticated"
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
+								v-if="isAuthenticated && account"
+								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 								:title="$t('pages.accounts.login.title')"
 								:text="$t('pages.accounts.login.title')"
 								:to="'account'"
 							>
-								<IconFa6Solid:circleUser />
+								<UserAvatar :user-account="account" :img-width="30" :img-height="30" />
 							</Anchor>
 							<Anchor
 								v-else
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center"
+								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 								:title="$t('pages.accounts.login.title')"
 								:text="$t('pages.accounts.login.title')"
-								:href="`${config.public.djangoUrl}/accounts/login/`"
+								:to="`/auth/login?redirect=${$route.path}`"
 							>
 								<IconFa6Solid:circleUser />
 							</Anchor>
@@ -94,7 +87,7 @@ const { cart } = storeToRefs(cartStore)
 			<ActionSheet @on-close="toggleOptions(false)">
 				<ActionSheetBody>
 					<ActionSheetHeader text="Menu" />
-					<nav class="leading-6 font-semibold text-gray-700 dark:text-gray-200">
+					<nav class="leading-6 font-semibold text-primary-700 dark:text-primary-100">
 						<ul class="flex flex-col">
 							<li
 								class="flex w-full pb-2 mb-2 border-b border-gray-900/10 dark:border-gray-50/[0.2] link"
@@ -109,26 +102,30 @@ const { cart } = storeToRefs(cartStore)
 							</li>
 						</ul>
 					</nav>
-					<div class="text-gray-700 dark:text-gray-200 mt-6 text-sm font-bold capitalize">
+					<div
+						class="text-primary-700 dark:text-primary-100 mt-6 text-lg font-bold capitalize"
+					>
 						{{ $t('components.theme.switcher.change.theme') }}
 					</div>
 					<div class="mt-2">
 						<ThemeSwitcher type="select-box" />
 					</div>
-					<div class="text-gray-700 dark:text-gray-200 mt-6 text-sm font-bold capitalize">
+					<div
+						class="text-primary-700 dark:text-primary-100 mt-6 text-lg font-bold capitalize"
+					>
 						{{ $t('components.language.switcher.change_language') }}
 					</div>
 					<div class="mt-2">
 						<LanguageSwitcher type="select-box" />
 					</div>
 					<Anchor
-						class="text-gray-700 dark:text-gray-200 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2 mt-4"
+						class="text-primary-700 dark:text-primary-100 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2 mt-4"
 						:to="'cart'"
 						:title="$t('pages.cart.title')"
 						:text="$t('pages.cart.title')"
 					>
 						<IconFa6Solid:cartShopping />
-						<span class="ml-1 text-gray-700 dark:text-gray-200">
+						<span class="ml-1 text-primary-700 dark:text-primary-100">
 							{{ $t('pages.cart.title') }}</span
 						>
 					</Anchor>

@@ -22,38 +22,61 @@ const pendingFactory = (): PendingRecord => ({
 	country: false
 })
 
-export interface CountryState {
-	countries: Pagination<Country> | null
-	country: Country | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const useCountryStore = defineStore('country', () => {
+	const countries = ref<Pagination<Country> | null>(null)
+	const country = ref<Country | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const useCountryStore = defineStore({
-	id: 'country',
-	state: (): CountryState => ({
-		countries: null,
-		country: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	actions: {
-		async fetchCountries(params?: CountriesQuery) {
-			try {
-				const {
-					data: countries,
-					error,
-					pending
-				} = await useFetch<Pagination<Country>>(`/api/countries`, {
-					method: 'get',
-					params
-				})
-				this.countries = countries.value
-				this.error.countries = error.value
-				this.pending.countries = pending.value
-			} catch (error) {
-				this.error.countries = error as IFetchError
-			}
+	async function fetchCountries(params?: CountriesQuery) {
+		const {
+			data,
+			error: countryError,
+			pending: countryPending,
+			refresh
+		} = await useFetch<Pagination<Country>>(`/api/countries`, {
+			method: 'get',
+			params
+		})
+		countries.value = data.value
+		error.value.countries = countryError.value
+		pending.value.countries = countryPending.value
+
+		return {
+			data,
+			error: countryError,
+			pending: countryPending,
+			refresh
 		}
+	}
+
+	async function fetchCountry(id: string) {
+		const {
+			data,
+			error: countryError,
+			pending: countryPending,
+			refresh
+		} = await useFetch<Country>(`/api/countries/${id}`, {
+			method: 'get'
+		})
+		country.value = data.value
+		error.value.country = countryError.value
+		pending.value.country = countryPending.value
+
+		return {
+			data,
+			error: countryError,
+			pending: countryPending,
+			refresh
+		}
+	}
+
+	return {
+		countries,
+		country,
+		pending,
+		error,
+		fetchCountries,
+		fetchCountry
 	}
 })

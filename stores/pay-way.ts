@@ -22,43 +22,66 @@ const pendingFactory = (): PendingRecord => ({
 	payWay: false
 })
 
-export interface PayWayState {
-	payWays: Pagination<PayWay> | null
-	payWay: PayWay | null
-	pending: PendingRecord
-	error: ErrorRecord
-}
+export const usePayWayStore = defineStore('payWay', () => {
+	const payWays = ref<Pagination<PayWay> | null>(null)
+	const payWay = ref<PayWay | null>(null)
+	const pending = ref<PendingRecord>(pendingFactory())
+	const error = ref<ErrorRecord>(errorsFactory())
 
-export const usePayWayStore = defineStore({
-	id: 'payWay',
-	state: (): PayWayState => ({
-		payWays: null,
-		payWay: null,
-		pending: pendingFactory(),
-		error: errorsFactory()
-	}),
-	getters: {
-		getActivePayWays: (state): PayWay[] | null => {
-			return state.payWays?.results?.filter((payWay) => payWay.active) ?? null
+	const getActivePayWays = computed(() => {
+		return payWays.value?.results?.filter((payWay) => payWay.active) ?? null
+	})
+
+	async function fetchPayWays(params?: PayWayQuery) {
+		const {
+			data,
+			error: payWayError,
+			pending: payWayPending,
+			refresh
+		} = await useFetch<Pagination<PayWay>>(`/api/pay-way`, {
+			method: 'get',
+			params
+		})
+		payWays.value = data.value
+		error.value.payWays = payWayError.value
+		pending.value.payWays = payWayPending.value
+
+		return {
+			data,
+			error: payWayError,
+			pending: payWayPending,
+			refresh
 		}
-	},
-	actions: {
-		async fetchPayWays(params?: PayWayQuery) {
-			try {
-				const {
-					data: payWays,
-					error,
-					pending
-				} = await useFetch<Pagination<PayWay>>(`/api/pay-way`, {
-					method: 'get',
-					params
-				})
-				this.payWays = payWays.value
-				this.error.payWays = error.value
-				this.pending.payWays = pending.value
-			} catch (error) {
-				this.error.payWays = error as IFetchError
-			}
+	}
+
+	async function fetchPayWay(id: string) {
+		const {
+			data,
+			error: payWayError,
+			pending: payWayPending,
+			refresh
+		} = await useFetch<PayWay>(`/api/pay-way/${id}`, {
+			method: 'get'
+		})
+		payWay.value = data.value
+		error.value.payWay = payWayError.value
+		pending.value.payWay = payWayPending.value
+
+		return {
+			data,
+			error: payWayError,
+			pending: payWayPending,
+			refresh
 		}
+	}
+
+	return {
+		payWays,
+		payWay,
+		pending,
+		error,
+		getActivePayWays,
+		fetchPayWays,
+		fetchPayWay
 	}
 })

@@ -57,12 +57,12 @@ const appTitle = computed(() => config.public.appTitle as string)
 <template>
 	<div
 		ref="navbar"
-		class="backdrop-filter backdrop-blur-md top-0 z-50 w-full flex-none transition-colors duration-300 lg:z-50 border-b border-gray-900/10 dark:border-gray-50/[0.2] bg-white/[0.5] dark:bg-slate-900/[0.5]"
+		class="backdrop-filter backdrop-blur-md top-0 z-50 w-full flex-none transition-colors duration-300 lg:z-50 border-b border-gray-900/10 dark:border-gray-50/[0.2] bg-white/[0.5] dark:bg-zinc-900/[0.5]"
 	>
 		<div id="navbar-banner" class="banner">
 			<slot name="banner" />
 		</div>
-		<div class="max-w-8xl w-full mx-auto">
+		<div class="bg-background-700 max-w-8xl w-full mx-auto">
 			<div class="py-3 md:py-4 lg:px-8 mx-4 lg:mx-0">
 				<div class="relative flex items-center gap-4">
 					<!-- drawer:toggle -->
@@ -80,7 +80,7 @@ const appTitle = computed(() => config.public.appTitle as string)
 								$t('components.builder.navbar.toggle_drawer_menu')
 							}}</span>
 							<span
-								class="flex items-center text-gray-700 dark:text-gray-200 text-lg"
+								class="flex items-center text-primary-700 dark:text-primary-100 text-lg"
 								aria-hidden="true"
 							>
 								<IconUil:bars v-if="!showDrawer" />
@@ -95,9 +95,11 @@ const appTitle = computed(() => config.public.appTitle as string)
 								<Anchor
 									:to="localePath('index')"
 									aria-label="index"
-									class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-gray-700 dark:text-gray-200"
+									class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold"
 								>
-									<span>{{ appTitle }}</span>
+									<span class="text-primary-700 dark:text-primary-100">{{
+										appTitle
+									}}</span>
 								</Anchor>
 							</strong>
 						</h1>
@@ -116,7 +118,7 @@ const appTitle = computed(() => config.public.appTitle as string)
 								$t('components.builder.navbar.toggle_options_menu')
 							}}</span>
 							<span
-								class="flex items-center text-gray-700 dark:text-gray-200 text-sm"
+								class="flex items-center text-primary-700 dark:text-primary-100 text-sm"
 								aria-hidden="true"
 							>
 								<IconFaSolid:ellipsisV />
@@ -132,7 +134,7 @@ const appTitle = computed(() => config.public.appTitle as string)
 				<Transition name="slide-fade-from-up" mode="out-in">
 					<div
 						v-if="showDrawer && $slots['drawer']"
-						class="fixed lg:hidden bg-gray-100 dark:bg-slate-800 pt-12 top-0 left-0 w-screen h-screen z-30 flex flex-col"
+						class="fixed lg:hidden bg-zinc-100 dark:bg-zinc-800 pt-12 top-0 left-0 w-screen h-screen z-30 flex flex-col"
 					>
 						<div class="flex-1 flex flex-col relative overflow-y-auto">
 							<slot name="drawer" :toggle-drawer="toggleDrawer" />
@@ -166,19 +168,5 @@ const appTitle = computed(() => config.public.appTitle as string)
 .slide-fade-from-up-leave-to {
 	transform: translateY(-20px);
 	opacity: 0;
-}
-
-a.router-link-active {
-	font-weight: bold;
-}
-
-a.router-link-exact-active {
-	color: theme('colors.slate.900');
-}
-
-html.dark {
-	a.router-link-exact-active {
-		color: theme('colors.white');
-	}
 }
 </style>

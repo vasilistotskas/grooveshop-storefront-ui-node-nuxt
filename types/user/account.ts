@@ -33,7 +33,7 @@ export const ZodAccountParams = z.object({
 	id: z.string()
 })
 
-export const ZodAccountPatchRequest = z.object({
+export const ZodAccountPatchBody = z.object({
 	email: z.string().nullish(),
 	image: z.string().nullish(),
 	firstName: z.string().nullish(),
@@ -50,7 +50,7 @@ export const ZodAccountPatchRequest = z.object({
 	birthDate: z.string().nullish()
 })
 
-export const ZodAccountPutRequest = z.object({
+export const ZodAccountPutBody = z.object({
 	email: z.string(),
 	image: z.string().nullish(),
 	firstName: z.string().nullish(),
@@ -68,9 +68,9 @@ export const ZodAccountPutRequest = z.object({
 })
 
 export type Account = z.infer<typeof ZodAccount>
-export type AccountPutRequest = z.infer<typeof ZodAccountPutRequest>
+export type AccountPutBody = z.infer<typeof ZodAccountPutBody>
 export type AccountParams = z.infer<typeof ZodAccountParams>
-export type AccountPatchRequest = z.infer<typeof ZodAccountPatchRequest>
+export type AccountPatchBody = z.infer<typeof ZodAccountPatchBody>
 
 export type UserAccountSession = {
 	account: Account | null
