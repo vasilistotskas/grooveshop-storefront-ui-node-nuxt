@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { z } from 'zod'
 import { WebsocketMessageData } from '~/types/websocket'
 
 definePageMeta({
@@ -6,6 +7,47 @@ definePageMeta({
 })
 
 const config = useRuntimeConfig()
+
+const formSchema = {
+	fields: [
+		{
+			label: 'Your Name',
+			name: 'name',
+			as: 'input',
+			rules: z.string().min(2),
+			autocomplete: 'given-name',
+			children: [
+				{
+					tag: 'span',
+					text: 'This is a span',
+					as: 'span'
+				}
+			]
+		},
+		{
+			label: 'Your Email',
+			name: 'email',
+			as: 'input',
+			rules: z.string().email(),
+			autocomplete: 'email',
+			children: [
+				{
+					tag: 'span',
+					text: 'This is a span',
+					as: 'span'
+				}
+			]
+		},
+		{
+			label: 'Your Password',
+			name: 'password',
+			as: 'input',
+			type: 'password',
+			rules: z.string().min(8),
+			autocomplete: 'new-password'
+		}
+	]
+}
 
 let ws: WebSocket
 onMounted(() => {
@@ -54,6 +96,7 @@ const sendMessage = () => {
 					consequuntur, atque impedit nihil totam illo odit?
 				</p>
 			</PageSection>
+			<DynamicForm :schema="formSchema" />
 		</PageBody>
 	</PageWrapper>
 </template>
