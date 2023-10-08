@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.11.0...v1.11.1) (2023-10-08)
+
+
+### Bug Fixes
+
+* form usage fixes (pending to replace forms with `DynamicForm` component) and style improvements. ([afb2d80](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/afb2d80e2cb1d30a88040201f1efb8512f49cee5))
+
 # [1.11.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.10.0...v1.11.0) (2023-10-08)
 
 
