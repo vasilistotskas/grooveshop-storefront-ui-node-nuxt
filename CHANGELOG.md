@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.10.0...v1.11.0) (2023-10-08)
+
+
+### Features
+
+* Dynamic Form, validate with zod, ui from Nuxt ui library, form managment using vee-validate. ([3f6722c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f6722cb00ba46ee083e89f69bf75843220c2c02))
+
 # [1.10.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.9.0...v1.10.0) (2023-10-06)
 
 
