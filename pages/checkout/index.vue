@@ -118,7 +118,7 @@ useServerSeoMeta({
 </script>
 
 <template>
-	<PageWrapper class="container-xs flex flex-col gap-4">
+	<PageWrapper class="container flex flex-col gap-4">
 		<PageTitle :text="$t('pages.checkout.title')" class="capitalize" />
 		<PageBody>
 			<template v-if="cart && getCartItems?.length">
@@ -253,7 +253,7 @@ useServerSeoMeta({
 										type="text"
 									/>
 								</div>
-								<span class="text-primary-700 dark:text-primary-100">{{
+								<span v-if="errors.city" class="text-primary-700 dark:text-primary-100">{{
 									errors.city
 								}}</span>
 							</div>
@@ -273,9 +273,11 @@ useServerSeoMeta({
 										type="text"
 									/>
 								</div>
-								<span class="text-primary-700 dark:text-primary-100">{{
-									errors.phone
-								}}</span>
+								<span
+									v-if="errors.phone"
+									class="text-primary-700 dark:text-primary-100"
+									>{{ errors.phone }}</span
+								>
 							</div>
 
 							<div class="grid">
@@ -293,9 +295,11 @@ useServerSeoMeta({
 										type="text"
 									/>
 								</div>
-								<span class="text-primary-700 dark:text-primary-100">{{
-									errors.place
-								}}</span>
+								<span
+									v-if="errors.place"
+									class="text-primary-700 dark:text-primary-100"
+									>{{ errors.place }}</span
+								>
 							</div>
 
 							<div class="grid content-evenly items-start">
@@ -315,9 +319,11 @@ useServerSeoMeta({
 										type="text"
 									/>
 								</div>
-								<span class="text-primary-700 dark:text-primary-100">{{
-									errors.zipcode
-								}}</span>
+								<span
+									v-if="errors.zipcode"
+									class="text-primary-700 dark:text-primary-100"
+									>{{ errors.zipcode }}</span
+								>
 							</div>
 
 							<div class="grid">
@@ -327,9 +333,10 @@ useServerSeoMeta({
 									>{{ $t('pages.checkout.form.customer_notes') }}</label
 								>
 								<div class="grid">
-									<textarea
+									<VeeField
 										id="customerNotes"
-										v-bind="customerNotes.value"
+										as="textarea"
+										v-bind="customerNotes"
 										:placeholder="$t('pages.checkout.form.customer_notes')"
 										class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 										name="customerNotes"
@@ -347,24 +354,27 @@ useServerSeoMeta({
 										for="floor"
 										>{{ $t('pages.checkout.form.floor') }}</label
 									>
-									<select
-										id="inputFloor"
-										v-bind="floor"
-										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+									<VeeField
+										id="floor"
+										v-slot="{ value }"
 										name="floor"
-										title="floor"
+										as="select"
+										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+										:disabled="floor.value === 'choose'"
 									>
-										<option disabled value="choose">
-											{{ $t('common.choose') }}
+										<option :value="defaultSelectOptionChoose" disabled>
+											{{ defaultSelectOptionChoose }}
 										</option>
 										<option
 											v-for="(floorChoice, index) in floorChoicesList"
 											:key="index"
 											:value="index"
+											:selected="value && value.includes(floorChoice)"
+											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ floorChoice }}
 										</option>
-									</select>
+									</VeeField>
 									<span
 										v-if="errors.floor"
 										class="text-sm text-red-600 px-4 py-3 relative"
@@ -377,24 +387,27 @@ useServerSeoMeta({
 										for="locationType"
 										>{{ $t('pages.checkout.form.location_type') }}</label
 									>
-									<select
-										id="inputLocationType"
-										v-bind="locationType"
-										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+									<VeeField
+										id="locationType"
+										v-slot="{ value }"
 										name="locationType"
-										title="locationType"
+										as="select"
+										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+										:disabled="locationType.value === 'choose'"
 									>
-										<option disabled value="choose">
-											{{ $t('common.choose') }}
+										<option :value="defaultSelectOptionChoose" disabled>
+											{{ defaultSelectOptionChoose }}
 										</option>
 										<option
 											v-for="(location, index) in locationChoicesList"
 											:key="index"
 											:value="index"
+											:selected="value && value.includes(location)"
+											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ location }}
 										</option>
-									</select>
+									</VeeField>
 									<span
 										v-if="errors.locationType"
 										class="text-sm text-red-600 px-4 py-3 relative"
@@ -410,27 +423,28 @@ useServerSeoMeta({
 										for="country"
 										>{{ $t('pages.checkout.form.country') }}</label
 									>
-									<div v-if="countries" class="grid">
-										<select
+									<div class="grid">
+										<VeeField
 											id="country"
-											v-bind="country"
-											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+											v-slot="{ value }"
 											name="country"
-											title="country"
+											as="select"
+											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 											@change="onCountryChange"
 										>
-											<option disabled value="choose">
-												{{ $t('common.choose') }}
+											<option :value="defaultSelectOptionChoose" disabled>
+												{{ defaultSelectOptionChoose }}
 											</option>
 											<option
-												v-for="cntry in countries.results"
+												v-for="cntry in countries?.results"
 												:key="cntry.alpha2"
 												:value="cntry.alpha2"
+												:selected="value && value.includes(cntry.alpha2)"
 												class="text-primary-700 dark:text-primary-300"
 											>
 												{{ extractTranslated(cntry, 'name', locale) }}
 											</option>
-										</select>
+										</VeeField>
 									</div>
 									<span
 										v-if="errors.country"
@@ -444,28 +458,28 @@ useServerSeoMeta({
 										for="region"
 										>{{ $t('pages.checkout.form.region') }}</label
 									>
-									<div v-if="regions" class="grid">
-										<select
+									<div class="grid">
+										<VeeField
 											id="region"
-											ref="regionSelectElement"
-											v-bind="region.value"
-											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+											v-slot="{ value }"
 											name="region"
+											as="select"
+											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 											:disabled="country.value === 'choose'"
-											title="region"
 										>
-											<option disabled value="choose">
-												{{ $t('common.choose') }}
+											<option :value="defaultSelectOptionChoose" disabled>
+												{{ defaultSelectOptionChoose }}
 											</option>
 											<option
-												v-for="rgn in regions.results"
+												v-for="rgn in regions?.results"
 												:key="rgn.alpha"
 												:value="rgn.alpha"
+												:selected="value && value.includes(rgn.alpha)"
 												class="text-primary-700 dark:text-primary-300"
 											>
 												{{ extractTranslated(rgn, 'name', locale) }}
 											</option>
-										</select>
+										</VeeField>
 									</div>
 									<span
 										v-if="errors.region"

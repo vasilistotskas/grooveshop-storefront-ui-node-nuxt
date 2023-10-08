@@ -58,6 +58,7 @@ useSeoMeta(seoMetaOptions)
 					:animation-data="Json404"
 					:width="'1500px'"
 					:height="'600px'"
+					:show-client-loading-animation="false"
 				/>
 			</div>
 		</div>

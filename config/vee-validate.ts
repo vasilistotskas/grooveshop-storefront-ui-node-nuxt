@@ -1,3 +1,9 @@
 export const veeValidate = {
-	autoImports: false
+	autoImports: true,
+	componentNames: {
+		Form: 'VeeForm',
+		Field: 'VeeField',
+		FieldArray: 'VeeFieldArray',
+		ErrorMessage: 'VeeErrorMessage'
+	}
 }

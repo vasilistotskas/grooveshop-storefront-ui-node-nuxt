@@ -2,6 +2,7 @@
 import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
 import { capitalize } from '~/utils/str'
+import { Review } from '~/types/product/review'
 
 const { isAuthenticated } = useAuthSession()
 
@@ -24,12 +25,35 @@ const { extractTranslated } = useTranslationExtractor()
 
 const fullPath = config.public.baseUrl + route.fullPath
 const productId = route.params.id
+const existingReview = ref<Review | null>(null)
 
 await fetchProduct(productId)
-const productRefresh = async () => await fetchProduct(productId)
 
 if (!product) {
 	throw createError({ statusCode: 404, statusMessage: t('common.error.page.not.found') })
+}
+
+const refreshProduct = async () => await fetchProduct(productId)
+const refreshUserHadReviewed = async () =>
+	await fetchUserHadReviewed({
+		product: String(productId),
+		user: String(account.value?.id)
+	})
+const refreshUserToProductReview = async () =>
+	await fetchUserToProductReview({
+		productId: String(productId),
+		userId: String(account.value?.id) || undefined,
+		expand: 'true'
+	})
+
+const { data } = await fetchUserToProductReview({
+	productId: String(productId),
+	userId: String(account.value?.id) || undefined,
+	expand: 'true'
+})
+
+if (data) {
+	existingReview.value = data
 }
 
 if (account.value?.id) {
@@ -37,6 +61,22 @@ if (account.value?.id) {
 		product: String(productId),
 		user: String(account.value?.id)
 	})
+}
+
+const onAddExistingReview = async () => {
+	await refreshUserHadReviewed()
+	const { data: refreshedExistingReview } = await refreshUserToProductReview()
+	existingReview.value = refreshedExistingReview
+}
+const onUpdateExistingReview = async () => {
+	await refreshUserHadReviewed()
+	const { data: refreshedExistingReview } = await refreshUserToProductReview()
+	existingReview.value = refreshedExistingReview
+}
+const onDeleteExistingReview = async () => {
+	await refreshUserHadReviewed()
+	const { data: refreshedExistingReview } = await refreshUserToProductReview()
+	existingReview.value = refreshedExistingReview
 }
 
 const productTitle = computed(() => {
@@ -63,14 +103,9 @@ const userToProductFavourite = computed(() => {
 	return getUserToProductFavourite(productId)
 })
 
-const { data: existingReview } = await fetchUserToProductReview({
-	productId: String(productId),
-	userId: String(account.value?.id) || undefined,
-	expand: 'true'
-})
 watch(
 	() => route.query,
-	() => productRefresh()
+	() => refreshProduct()
 )
 definePageMeta({
 	layout: 'page'
@@ -182,7 +217,7 @@ useServerHead(() => ({
 										@click="startShare"
 									/>
 									<template #fallback>
-										<ClientOnlyFallback />
+										<ClientOnlyFallback height="40px" width="92.5px" />
 									</template>
 								</ClientOnly>
 								<ProductReview
@@ -191,6 +226,9 @@ useServerHead(() => ({
 									:product="product"
 									:user="account || undefined"
 									:is-authenticated="isAuthenticated"
+									@add-existing-review="onAddExistingReview"
+									@update-existing-review="onUpdateExistingReview"
+									@delete-existing-review="onDeleteExistingReview"
 								/>
 								<LottieAddToFavourite
 									:product-id="product.id"

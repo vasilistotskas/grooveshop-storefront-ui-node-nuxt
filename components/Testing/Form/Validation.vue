@@ -42,7 +42,9 @@ const onSubmit = handleSubmit((values) => {
 					autocomplete="email"
 				/>
 			</div>
-			<span class="text-primary-700 dark:text-primary-100">{{ errors.email }}</span>
+			<span v-if="errors.email" class="text-primary-700 dark:text-primary-100">{{
+				errors.email
+			}}</span>
 		</div>
 		<div>
 			<label class="text-primary-700 dark:text-primary-100 mb-2" for="password">{{
@@ -59,7 +61,9 @@ const onSubmit = handleSubmit((values) => {
 					autocomplete="current-password"
 				/>
 			</div>
-			<span class="text-primary-700 dark:text-primary-100">{{ errors.password }}</span>
+			<span v-if="errors.password" class="text-primary-700 dark:text-primary-100">{{
+				errors.password
+			}}</span>
 		</div>
 		<MainButton v-if="!tooManyAttempts" type="button">
 			{{ $t('components.form.validation.submit') }}

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useForm } from 'vee-validate'
+import { FieldContext, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { defaultSelectOptionChoose } from '~/types/global/general'
@@ -78,9 +78,9 @@ const city = defineInputBinds('city')
 const zipcode = defineInputBinds('zipcode')
 const address = defineInputBinds('address')
 const place = defineInputBinds('place')
-const birthDate = defineInputBinds('birthDate')
 const country = defineInputBinds('country')
 const region = defineInputBinds('region')
+const { value: birthDate }: FieldContext<Date> = useField('birthDate')
 
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
@@ -174,7 +174,7 @@ const date = ref(new Date())
 		<div class="grid items-center justify-start pt-4">
 			<span
 				class="text-primary-500 dark:text-primary-400 cursor-not-allowed italic p-2 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
-				>{{ email }}</span
+				>{{ email.value }}</span
 			>
 		</div>
 		<PageBody>
@@ -325,7 +325,7 @@ const date = ref(new Date())
 					}}</label>
 					<div class="grid">
 						<VueDatePicker
-							v-model="birthDate.value"
+							v-model="birthDate"
 							:locale="locale"
 							:cancel-text="$t('pages.account.settings.form.date_picker.cancel')"
 							:select-text="$t('pages.account.settings.form.date_picker.select')"
@@ -345,26 +345,28 @@ const date = ref(new Date())
 					<label class="text-primary-700 dark:text-primary-100 mb-2" for="country">{{
 						$t('pages.account.settings.form.country')
 					}}</label>
-					<div v-if="countries" class="grid">
-						<select
+					<div class="grid">
+						<VeeField
 							id="country"
-							v-model="country.value"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							v-slot="{ value }"
 							name="country"
+							as="select"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							@change="onCountryChange"
 						>
-							<option disabled value="choose">
-								{{ $t('common.choose') }}
+							<option :value="defaultSelectOptionChoose" disabled>
+								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
-								v-for="cntry in countries.results"
+								v-for="cntry in countries?.results"
 								:key="cntry.alpha2"
-								class="text-primary-700 dark:text-primary-300"
 								:value="cntry.alpha2"
+								:selected="value && value.includes(cntry.alpha2)"
+								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(cntry, 'name', locale) }}
 							</option>
-						</select>
+						</VeeField>
 					</div>
 					<span v-if="errors.country" class="text-sm text-red-600 px-4 py-3 relative">{{
 						errors.country
@@ -374,27 +376,28 @@ const date = ref(new Date())
 					<label class="text-primary-700 dark:text-primary-100 mb-2" for="region">{{
 						$t('pages.account.settings.form.region')
 					}}</label>
-					<div v-if="regions" class="grid">
-						<select
+					<div class="grid">
+						<VeeField
 							id="region"
-							ref="regionSelectElement"
-							v-model="region.value"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							v-slot="{ value }"
 							name="region"
+							as="select"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							:disabled="country.value === 'choose'"
 						>
-							<option disabled value="choose">
-								{{ $t('common.choose') }}
+							<option :value="defaultSelectOptionChoose" disabled>
+								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
-								v-for="rgn in regions.results"
+								v-for="rgn in regions?.results"
 								:key="rgn.alpha"
-								class="text-primary-700 dark:text-primary-300"
 								:value="rgn.alpha"
+								:selected="value && value.includes(rgn.alpha)"
+								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(rgn, 'name', locale) }}
 							</option>
-						</select>
+						</VeeField>
 					</div>
 					<span v-if="errors.region" class="text-sm text-red-600 px-4 py-3 relative">{{
 						errors.region

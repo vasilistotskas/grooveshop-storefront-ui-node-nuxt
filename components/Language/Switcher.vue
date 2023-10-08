@@ -30,9 +30,6 @@ const navigateToLocale = (code: string) => {
 			as="div"
 			class="relative flex items-center"
 		>
-			<ListboxLabel class="sr-only">{{
-				$t('components.language.switcher.theme')
-			}}</ListboxLabel>
 			<ListboxButton
 				type="button"
 				title="Change Language"

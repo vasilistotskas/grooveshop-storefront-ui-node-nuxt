@@ -11,7 +11,11 @@
 			<span class="hidden"></span>
 		</Component>
 		<template #fallback>
-			<ClientOnlyFallback :width="width" :height="height" :show-animation="false" />
+			<ClientOnlyFallback
+				:width="width"
+				:height="height"
+				:show-animation="showClientLoadingAnimation"
+			/>
 		</template>
 	</ClientOnly>
 </template>
@@ -38,6 +42,7 @@ export interface LottieProps {
 	pauseAnimation: boolean
 	assetsPath: string
 	componentElement: string
+	showClientLoadingAnimation: boolean
 }
 
 export default defineComponent({
@@ -113,6 +118,10 @@ export default defineComponent({
 		componentElement: {
 			type: String as PropType<LottieProps['componentElement']>,
 			default: 'div'
+		},
+		showClientLoadingAnimation: {
+			type: Boolean as PropType<LottieProps['showClientLoadingAnimation']>,
+			default: true
 		}
 	},
 

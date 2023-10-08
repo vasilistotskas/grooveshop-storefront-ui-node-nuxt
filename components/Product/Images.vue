@@ -16,19 +16,24 @@ const { fetchImages } = productImageStore
 
 await fetchImages({ product: String(product.value.id) })
 
-const mainImage = computed(() => {
-	if (!images.value?.results) {
-		return null
-	}
-	return images.value.results.find((image) => image.isMain)
-})
+const mainImage = ref(images.value?.results?.find((image) => image.isMain) || null)
 
-const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
+const selectedImageId = useState<number>(`${product.value.uuid}-imageID`, () => {
 	if (!images.value?.results) {
 		return 0
 	}
 	return mainImage.value?.id || images.value?.results[0]?.id || 0
 })
+
+watch(
+	() => selectedImageId.value,
+	(value) => {
+		const image = images.value?.results?.find((image) => image.id === value)
+		if (image) {
+			mainImage.value = image
+		}
+	}
+)
 </script>
 
 <template>
@@ -50,11 +55,11 @@ const imageId = useState<number>(`${product.value.uuid}-imageID`, () => {
 				<div class="flex-1 px-2">
 					<button
 						:class="{
-							'ring-2 ring-indigo-300 ring-inset': imageId === productImage.id
+							'ring-2 ring-indigo-300 ring-inset': selectedImageId === productImage.id
 						}"
 						type="button"
 						class="focus:outline-none w-full rounded-lg h-24 md:h-32 bg-zinc-100 flex items-center justify-center"
-						@click="imageId = productImage.id"
+						@click="selectedImageId = productImage.id"
 					>
 						<ProductImage
 							:key="productImage.id"

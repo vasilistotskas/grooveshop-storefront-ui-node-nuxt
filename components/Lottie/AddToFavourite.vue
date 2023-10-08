@@ -4,6 +4,7 @@ import { Favourite } from '~/types/product/favourite'
 import { ButtonSize } from '~/types/global/button'
 import heartJSON from '~/assets/lotties/heart.json'
 import LottieClient from '~/components/global/Lottie/index.client.vue'
+import Lottie from '~/components/Lottie/index.vue'
 
 const props = defineProps({
 	productId: {
@@ -42,7 +43,7 @@ const { addFavourite, removeFavourite } = userStore
 const { t } = useLang()
 const toast = useToast()
 
-const lottie = ref<InstanceType<typeof LottieClient>>()
+const lottie = ref<InstanceType<typeof Lottie>>()
 
 const toggleFavourite = async () => {
 	if (!props.isAuthenticated || !props.userId || !favourites) {
@@ -93,6 +94,7 @@ const onAnimationLoaded = () => {
 		:size="size"
 		:animation-data="heartJSON"
 		:width="'40px'"
+		:height="'40px'"
 		:loop="false"
 		:auto-play="false"
 		@on-animation-loaded="onAnimationLoaded"

@@ -40,6 +40,10 @@ const props = defineProps({
 	autocomplete: {
 		type: String,
 		default: 'off'
+	},
+	as: {
+		type: String,
+		default: 'input'
 	}
 })
 const emit = defineEmits(['update:modelValue'])
@@ -114,10 +118,11 @@ const selectedFontSizeStyle = computed(
 				:required="required"
 				:autocomplete="autocomplete"
 			/>
-			<input
+			<VeeField
 				v-if="bind"
 				v-bind="bind"
 				:id="id"
+				:as="as"
 				:name="name"
 				:class="`text-input w-full flex-1 bg-transparent outline-none border text-primary-700 dark:text-primary-100 ${
 					havePreEl ? '' : 'rounded-l'

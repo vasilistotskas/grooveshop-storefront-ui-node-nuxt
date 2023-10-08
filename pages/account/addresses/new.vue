@@ -354,24 +354,27 @@ definePageMeta({
 						<label class="text-primary-700 dark:text-primary-100" for="floor">{{
 							$t('pages.account.addresses.new.form.floor')
 						}}</label>
-						<select
-							id="inputFloor"
-							v-bind="floor"
-							title="floor"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+						<VeeField
+							id="floor"
+							v-slot="{ value }"
 							name="floor"
+							as="select"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							:disabled="floor.value === 'choose'"
 						>
-							<option disabled value="choose">
-								{{ $t('common.choose') }}
+							<option :value="defaultSelectOptionChoose" disabled>
+								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
 								v-for="(floorChoice, index) in floorChoicesList"
 								:key="index"
 								:value="index"
+								:selected="value && value.includes(floorChoice)"
+								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ floorChoice }}
 							</option>
-						</select>
+						</VeeField>
 						<span v-if="errors.floor" class="text-sm text-red-600 px-4 py-3 relative">{{
 							errors.floor
 						}}</span>
@@ -380,24 +383,27 @@ definePageMeta({
 						<label class="text-primary-700 dark:text-primary-100" for="locationType">{{
 							$t('pages.account.addresses.new.form.location_type')
 						}}</label>
-						<select
-							id="inputLocationType"
-							v-bind="locationType"
-							title="locationType"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+						<VeeField
+							id="locationType"
+							v-slot="{ value }"
 							name="locationType"
+							as="select"
+							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							:disabled="locationType.value === 'choose'"
 						>
-							<option disabled value="choose">
-								{{ $t('common.choose') }}
+							<option :value="defaultSelectOptionChoose" disabled>
+								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
 								v-for="(location, index) in locationChoicesList"
 								:key="index"
 								:value="index"
+								:selected="value && value.includes(location)"
+								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ location }}
 							</option>
-						</select>
+						</VeeField>
 						<span
 							v-if="errors.locationType"
 							class="text-sm text-red-600 px-4 py-3 relative"
@@ -411,28 +417,28 @@ definePageMeta({
 						<label class="text-primary-700 dark:text-primary-100" for="country">{{
 							$t('pages.account.addresses.new.form.country')
 						}}</label>
-						<div v-if="countries" class="grid">
-							<select
+						<div class="grid">
+							<VeeField
 								id="country"
-								v-bind="country"
-								title="country"
-								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+								v-slot="{ value }"
 								name="country"
-								required
+								as="select"
+								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 								@change="onCountryChange"
 							>
-								<option disabled value="choose">
-									{{ $t('common.choose') }}
+								<option :value="defaultSelectOptionChoose" disabled>
+									{{ defaultSelectOptionChoose }}
 								</option>
 								<option
-									v-for="cntry in countries.results"
+									v-for="cntry in countries?.results"
 									:key="cntry.alpha2"
-									class="text-primary-700 dark:text-primary-300"
 									:value="cntry.alpha2"
+									:selected="value && value.includes(cntry.alpha2)"
+									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(cntry, 'name', locale) }}
 								</option>
-							</select>
+							</VeeField>
 						</div>
 						<span v-if="errors.country" class="text-sm text-red-600 px-4 py-3 relative">{{
 							errors.country
@@ -442,29 +448,28 @@ definePageMeta({
 						<label class="text-primary-700 dark:text-primary-100" for="region">{{
 							$t('pages.account.addresses.new.form.region')
 						}}</label>
-						<div v-if="regions" class="grid">
-							<select
+						<div class="grid">
+							<VeeField
 								id="region"
-								ref="regionSelectElement"
-								v-bind="region.value"
-								title="region"
-								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+								v-slot="{ value }"
 								name="region"
+								as="select"
+								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 								:disabled="country.value === 'choose'"
-								required
 							>
-								<option disabled value="choose">
-									{{ $t('common.choose') }}
+								<option :value="defaultSelectOptionChoose" disabled>
+									{{ defaultSelectOptionChoose }}
 								</option>
 								<option
-									v-for="rgn in regions.results"
+									v-for="rgn in regions?.results"
 									:key="rgn.alpha"
-									class="text-primary-700 dark:text-primary-300"
 									:value="rgn.alpha"
+									:selected="value && value.includes(rgn.alpha)"
+									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(rgn, 'name', locale) }}
 								</option>
-							</select>
+							</VeeField>
 						</div>
 						<span v-if="errors.region" class="text-sm text-red-600 px-4 py-3 relative">{{
 							errors.region
@@ -477,9 +482,10 @@ definePageMeta({
 						$t('pages.account.addresses.new.form.notes')
 					}}</label>
 					<div class="grid">
-						<textarea
+						<VeeField
 							id="notes"
-							v-bind="notes.value"
+							v-bind="notes"
+							as="textarea"
 							class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 							name="notes"
 							type="text"

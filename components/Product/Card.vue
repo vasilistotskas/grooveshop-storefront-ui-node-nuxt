@@ -112,7 +112,7 @@ const userToProductFavourite = computed(() => {
 								@click="startShare"
 							/>
 							<template #fallback>
-								<ClientOnlyFallback />
+								<ClientOnlyFallback height="24px" width="64px" />
 							</template>
 						</ClientOnly>
 						<ButtonAddToFavourite

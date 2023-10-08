@@ -122,7 +122,8 @@ const link = computed(() => {
 						}
 					}"
 					:class="{
-						disabled: isInFirstPage
+						disabled: isInFirstPage,
+						active: isInFirstPage
 					}"
 					:text="$t('components.pagination.previous_page')"
 					:title="$t('components.pagination.previous_page')"
@@ -177,7 +178,7 @@ const link = computed(() => {
 					}"
 					:class="{
 						'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2': true,
-						'bg-primary-400 dark:bg-primary-400': pageEntry === page
+						active: page === pageEntry
 					}"
 					:text="String(index)"
 					:title="$t('components.pagination.go_to_page', { page: pageEntry })"
@@ -197,7 +198,8 @@ const link = computed(() => {
 					}"
 					:class="{
 						'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
-						disabled: isInLastPage
+						disabled: isInLastPage,
+						active: isInLastPage
 					}"
 					:text="$t('components.pagination.last_page')"
 					:title="$t('components.pagination.go_to_page', { page: lastPageNumber })"
@@ -227,7 +229,8 @@ const link = computed(() => {
 						}
 					}"
 					:class="{
-						disabled: isInLastPage
+						disabled: isInLastPage,
+						active: isInLastPage
 					}"
 					:text="$t('components.pagination.next_page')"
 					:title="

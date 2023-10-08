@@ -90,3 +90,9 @@ img {
 	object-fit: contain;
 	content-visibility: auto;
 }
+
+a {
+	&.active {
+		@apply bg-primary-100 dark:bg-primary-900;
+	}
+}

@@ -33,26 +33,15 @@ defineProps({
 </script>
 
 <template>
-	<div class="client-only-fallback" :class="{ skeleton: showAnimation }">
+	<USkeleton
+		class="client-only-fallback"
+		:ui="{ background: showAnimation ? 'bg-gray-300 dark:bg-gray-600' : 'transparent' }"
+	>
 		<p class="client-only-fallback-text" v-text="text"></p>
-	</div>
+	</USkeleton>
 </template>
 
 <style lang="scss" scoped>
-.skeleton {
-	animation: skeleton-loading 1s linear infinite alternate;
-}
-
-@keyframes skeleton-loading {
-	0% {
-		background-color: hsl(200deg 20% 80%);
-	}
-
-	100% {
-		background-color: hsl(200deg 20% 95%);
-	}
-}
-
 .client {
 	&-only {
 		&-fallback {

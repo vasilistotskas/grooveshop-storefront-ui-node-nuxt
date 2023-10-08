@@ -40,6 +40,12 @@ const props = defineProps({
 	}
 })
 
+const emit = defineEmits([
+	'add-existing-review',
+	'update-existing-review',
+	'delete-existing-review'
+])
+
 const productReviewStore = useProductReviewStore()
 const { fetchReviews, addReview, updateReview, deleteReview } = productReviewStore
 
@@ -289,6 +295,7 @@ const addReviewEvent = async (event: { comment: string; rate: number }) => {
 		{ expand: 'true' }
 	)
 	await refreshReviews()
+	emit('add-existing-review', existingReview.value)
 }
 
 const updateReviewEvent = async (event: { comment: string; rate: number }) => {
@@ -304,6 +311,7 @@ const updateReviewEvent = async (event: { comment: string; rate: number }) => {
 		}
 	})
 	await refreshReviews()
+	emit('update-existing-review', existingReview.value)
 }
 
 const deleteReviewEvent = async () => {
@@ -327,6 +335,8 @@ const deleteReviewEvent = async () => {
 				await deleteReview(existingReview.value.id)
 				setFieldValue('rate', 0)
 				setFieldValue('comment', '')
+				modalBus.emit('modal-close-reviewModal')
+				emit('delete-existing-review', existingReview.value)
 				await refreshReviews()
 			})
 	} else {
