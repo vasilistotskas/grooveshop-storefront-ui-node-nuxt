@@ -8,11 +8,10 @@ RUN chmod -R 777 /app && \
 COPY ./ ./
 
 ENV GENERATE_SOURCEMAP=false
-ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 RUN rm -rf ./node_modules & \
-    rm -rf ./build & \
-    rm -rf ./dist
+    rm -rf ./nuxt & \
+    rm -rf ./output
 
 RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
@@ -27,12 +26,11 @@ ENV PNPM_HOME=/usr/local/bin
 
 WORKDIR /app
 
-COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=builder /app/.output /app/.output
-COPY --from=builder /app/.nuxt /app/.nuxt
-COPY --from=builder /app/package.json /app/package.json
-#COPY --from=builder /app/package-lock.json /app/package-lock.json
-COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.output ./output
+COPY --from=builder /app/.nuxt ./nuxt
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
 
 RUN npm install -g pnpm && \
     pnpm install -g pm2
