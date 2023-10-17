@@ -15,6 +15,7 @@ RUN rm -rf ./node_modules & \
     rm -rf ./output
 
 RUN apk add --no-cache git && \
+    git config --global --add safe.directory /app && \
     npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
     pnpm run build
