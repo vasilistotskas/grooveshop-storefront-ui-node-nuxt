@@ -3,7 +3,7 @@ export default defineNuxtPlugin(async (NuxtApp) => {
 		const initialized = useState('auth-initialized', () => false)
 
 		const idb = await useAsyncIDBKeyval('auth', false)
-		const { _loggedIn } = useAuthSession()
+		const { _loggedIn, _totpActive, _totpAuthenticated } = useAuthSession()
 
 		if (!initialized.value) {
 			const { fetchUser } = useAuth()
@@ -34,6 +34,8 @@ export default defineNuxtPlugin(async (NuxtApp) => {
 			idb.value = true
 		} else {
 			_loggedIn.set(false)
+			_totpActive.set('false')
+			_totpAuthenticated.set('false')
 			loggedIn.value = false
 			idb.value = false
 		}

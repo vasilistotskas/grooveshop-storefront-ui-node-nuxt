@@ -2,7 +2,14 @@
 	<UContainer class="mt-4">
 		<UForm class="space-y-4" :state="fields" autocomplete="on" @submit="onSubmit">
 			<UFormGroup
-				v-for="{ as, name, label, autocomplete, children = [] } in schema.fields"
+				v-for="{
+					as,
+					name,
+					label,
+					autocomplete = 'off',
+					readonly = false,
+					children = []
+				} in schema.fields"
 				:key="name"
 				:label="label"
 				:name="name"
@@ -14,6 +21,8 @@
 					:name="name"
 					v-bind="fields[name].value"
 					:autocomplete="autocomplete"
+					:aria-readonly="readonly"
+					:readonly="readonly"
 					class="grid gap-1"
 				>
 					<div v-if="children">
@@ -21,10 +30,15 @@
 					</div>
 				</UInput>
 			</UFormGroup>
-			<UButton :aria-busy="isSubmitting" :disabled="submitButtonDisabled" type="submit">{{
-				buttonLabel
-			}}</UButton>
 			<UButton
+				v-if="submitButton"
+				:aria-busy="isSubmitting"
+				:disabled="submitButtonDisabled"
+				type="submit"
+				>{{ buttonLabel }}</UButton
+			>
+			<UButton
+				v-if="resetButton"
 				class="ml-4"
 				color="white"
 				variant="outline"
@@ -58,6 +72,14 @@ const props = defineProps({
 	schema: {
 		type: Object as PropType<DynamicFormSchema>,
 		required: true
+	},
+	submitButton: {
+		type: Boolean,
+		default: true
+	},
+	resetButton: {
+		type: Boolean,
+		default: false
 	},
 	buttonLabel: {
 		type: String,

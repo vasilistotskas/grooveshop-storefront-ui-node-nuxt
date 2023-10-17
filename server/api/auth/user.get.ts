@@ -13,7 +13,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 
 	try {
-		const auth = event.context.auth
+		const auth = event.context.jwt_auth
 
 		if (!auth) {
 			throw createError({
@@ -25,7 +25,11 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		const response = await $api(`${config.public.apiBaseUrl}/auth/user/`, event, {
 			method: 'GET'
 		})
-		return parseDataAs(response, ZodUser)
+
+		const user = await parseDataAs(response, ZodUser)
+		event.context.user = user
+
+		return user
 	} catch (error) {
 		await handleError(error)
 	}

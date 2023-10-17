@@ -360,7 +360,6 @@ definePageMeta({
 							name="floor"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-							:disabled="floor.value === 'choose'"
 						>
 							<option :value="defaultSelectOptionChoose" disabled>
 								{{ defaultSelectOptionChoose }}
@@ -389,7 +388,6 @@ definePageMeta({
 							name="locationType"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-							:disabled="locationType.value === 'choose'"
 						>
 							<option :value="defaultSelectOptionChoose" disabled>
 								{{ defaultSelectOptionChoose }}

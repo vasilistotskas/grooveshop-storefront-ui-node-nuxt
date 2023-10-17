@@ -1,4 +1,4 @@
-FROM node:20.7.0-alpine as builder
+FROM node:20.8.1-alpine as builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ RUN NODE_OPTIONS="--max-old-space-size=8192" npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
     pnpm run build
 
-FROM node:20.7.0-alpine as production
+FROM node:20.8.1-alpine as production
 
 ENV NUXT_HOST 0.0.0.0
 ENV NUXT_PORT 3000

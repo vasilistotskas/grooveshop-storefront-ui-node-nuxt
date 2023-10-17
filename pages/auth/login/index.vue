@@ -34,7 +34,7 @@ useServerSeoMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-12">
-		<PageTitle :text="`${$t('pages.auth.login.title')}`" class="capitalize text-center" />
+		<PageTitle :text="$t('pages.auth.login.title')" class="capitalize text-center" />
 		<PageBody>
 			<AuthLoginForm />
 		</PageBody>

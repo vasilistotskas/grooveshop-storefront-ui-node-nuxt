@@ -6,7 +6,7 @@ export function getAccessTokenFromHeader(event: H3Event) {
 	if (authorization) {
 		const accessToken = authorization
 			.split('; ')
-			.find((c) => c.startsWith('jwt-auth='))
+			.find((c) => c.startsWith('jwt_auth='))
 			?.split('=')[1]
 		return accessToken
 	}

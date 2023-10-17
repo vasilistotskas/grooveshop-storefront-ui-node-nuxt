@@ -1,7 +1,4 @@
 import { resolveURL, withQuery } from 'ufo'
-import type { FetchError } from 'ofetch'
-import type { H3Error } from 'h3'
-import { AsyncData } from '#app'
 import type {
 	LoginResponse,
 	LogoutResponse,
@@ -9,7 +6,6 @@ import type {
 	PasswordChangeResponse,
 	PasswordResetConfirmResponse,
 	PasswordResetResponse,
-	Provider,
 	RegistrationResendEmailBody,
 	RegistrationResendEmailResponse,
 	RegistrationResponse,
@@ -107,6 +103,8 @@ export default function () {
 			user.value = response.data.value
 		} catch (e) {
 			user.value = null
+			// eslint-disable-next-line no-console
+			console.error('Error while fetching user', e)
 		}
 	}
 

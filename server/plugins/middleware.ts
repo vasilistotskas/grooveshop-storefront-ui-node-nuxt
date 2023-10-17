@@ -9,10 +9,10 @@ export default defineNitroPlugin((nitroApp) => {
 				method: 'POST'
 			})
 				.then(() => {
-					event.context.auth = true
+					event.context.jwt_auth = accessToken
 				})
 				.catch(() => {
-					event.context.auth = null
+					event.context.jwt_auth = null
 					deleteAccessTokenCookie(event)
 					deleteRefreshTokenCookie(event)
 				})

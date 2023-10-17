@@ -29,7 +29,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		if (loginResponse.refresh) {
 			setRefreshTokenCookie(event, loginResponse.refresh)
 		}
-		event.context.auth = true
+		event.context.jwt_auth = loginResponse.access
 		return loginResponse
 	} catch (error) {
 		await handleError(error)

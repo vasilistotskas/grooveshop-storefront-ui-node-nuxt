@@ -290,3 +290,46 @@ export type PublicConfig = {
 		callback?: string
 	}
 }
+
+// MFA
+export type MfaTotpAuthenticateBody = {
+	code: string
+}
+
+export type MfaTotpActiveResponse = {
+	active: boolean
+}
+
+export type MfaTotpAuthenticateResponse = {
+	success: boolean
+}
+
+export type MfaTotpActivatePostBody = {
+	code: string
+}
+
+export type MfaTotpActivatePostResponse = {
+	success: boolean
+}
+
+export type MfaTotpActivateGetResponse = {
+	totpSvg: string
+	secret: string
+}
+
+export type MfaTotpDeactivateBody = {}
+
+export type MfaTotpDeactivateResponse = {
+	success: boolean
+}
+
+export type MfaRecoveryCodesGenerateBody = {}
+
+export type MfaRecoveryCodesGenerateResponse = {
+	codes: string[]
+}
+
+export type MfaRecoveryCodesListResponse = {
+	unusedCodes: string[]
+	totalCount: number
+}

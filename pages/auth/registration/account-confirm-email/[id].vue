@@ -80,7 +80,7 @@ useServerSeoMeta({
 <template>
 	<PageWrapper class="container-xxs grid gap-12">
 		<PageTitle
-			:text="`${$t('pages.auth.registration.account-confirm-email.title')}`"
+			:text="$t('pages.auth.registration.account-confirm-email.title')"
 			class="capitalize text-center"
 		/>
 		<PageBody>
@@ -88,18 +88,14 @@ useServerSeoMeta({
 				<Alert
 					v-if="data"
 					:title="`${$t('pages.auth.registration.account-confirm-email.success.title')}`"
-					:text="`${$t(
-						'pages.auth.registration.account-confirm-email.success.description'
-					)}`"
+					:text="$t('pages.auth.registration.account-confirm-email.success.description')"
 					:type="`success`"
 					:close-button="false"
 				/>
 				<Alert
 					v-if="error"
 					:title="`${$t('pages.auth.registration.account-confirm-email.error.title')}`"
-					:text="`${$t(
-						'pages.auth.registration.account-confirm-email.error.description'
-					)}`"
+					:text="$t('pages.auth.registration.account-confirm-email.error.description')"
 					:type="`danger`"
 					:close-button="false"
 				/>

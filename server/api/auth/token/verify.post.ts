@@ -1,7 +1,7 @@
 import { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseBodyAs } from '~/types/parser'
-import { TokenVerifyResponse, TokenVerifyBody } from '~/types/auth'
+import { parseBodyAs, parseDataAs } from '~/types/parser'
+import { TokenVerifyBody, TokenVerifyResponse } from '~/types/auth'
 
 export const ZodTokenVerifyResponse = z.object(
 	{}
@@ -19,7 +19,6 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			body: JSON.stringify(body),
 			method: 'POST'
 		})
-		event.context.auth = true
 		return await parseDataAs(response, ZodTokenVerifyResponse)
 	} catch (error) {
 		await handleError(error)

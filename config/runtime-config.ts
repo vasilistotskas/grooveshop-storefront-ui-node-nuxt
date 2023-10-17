@@ -8,13 +8,24 @@ export const runtimeConfig = {
 	// Auth
 	auth: {
 		accessToken: {
-			cookieName: 'jwt-auth',
+			cookieName: 'jwt_auth',
 			jwtSecret: process.env.AUTH_ACCESS_TOKEN_SECRET!,
 			maxAge: 60 * 60 * 24 * 7 // 7 days
 		},
 
+		totp: {
+			authenticated: {
+				cookieName: 'totp_authenticated',
+				maxAge: 60 * 60 * 24 * 7 // 7 days
+			},
+			active: {
+				cookieName: 'totp_active',
+				maxAge: 60 * 60 * 24 * 7 // 7 days
+			}
+		},
+
 		refreshToken: {
-			cookieName: 'jwt-refresh-auth',
+			cookieName: 'jwt_refresh_auth',
 			jwtSecret: process.env.AUTH_REFRESH_TOKEN_SECRET!,
 			maxAge: 60 * 60 * 24 * 30 // 30 days
 		},
@@ -79,7 +90,14 @@ export const runtimeConfig = {
 				login: '/auth/login',
 				logout: '/',
 				home: '/',
-				callback: '/account'
+				callback: '/account',
+				account: '/account',
+				mfa: {
+					index: '/auth/mfa',
+					totp: {
+						activate: '/auth/mfa/totp/activate'
+					}
+				}
 			}
 		}
 	},

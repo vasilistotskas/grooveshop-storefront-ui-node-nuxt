@@ -41,9 +41,9 @@ const authLogoutEvent = async () => {
 
 const menus = computed((): IMenuItem[] => [
 	{
-		type: 'external-link',
+		type: 'link',
 		text: t('pages.accounts.security.title'),
-		href: `${config.public.djangoUrl}/accounts/email/`,
+		route: { name: 'auth-mfa', path: '/auth/mfa' },
 		icon: userShield,
 		cssClass:
 			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'

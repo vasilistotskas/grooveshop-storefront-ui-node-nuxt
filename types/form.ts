@@ -18,6 +18,7 @@ export const ZodDynamicFormSchema = z.object({
 			as: z.string(),
 			rules: z.any(),
 			autocomplete: z.string(),
+			readonly: z.boolean(),
 			children: ZodDynamicFormSchemaChildren.optional().nullish()
 		})
 	)

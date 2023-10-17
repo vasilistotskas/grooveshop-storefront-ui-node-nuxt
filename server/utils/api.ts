@@ -7,7 +7,7 @@ export function $api<T>(
 	event: H3Event,
 	options: NitroFetchOptions<NitroFetchRequest> = {}
 ): Promise<T> {
-	const jwtAuth = getCookie(event, 'jwt-auth') || ''
+	const jwtAuth = getCookie(event, 'jwt_auth') || ''
 
 	const method = options.method || event.method
 

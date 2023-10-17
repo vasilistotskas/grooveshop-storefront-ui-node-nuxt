@@ -117,7 +117,7 @@ components:
       write_review: eine rezension schreiben
       edit_review: rezension bearbeiten
       update_review: update-überprüfung
-      delete_review: rezension löschen
+      delete_review: bewertung löschen
       must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
       write_review_for_product: schreiben sie eine bewertung für produkt %{product}
       confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
@@ -733,6 +733,73 @@ pages:
                   die passwortbestätigung muss mindestens %{min} zeichen lang
                   sein
             submit: passwort zurücksetzen
+    mfa:
+      title: zwei-faktor-authentifizierung
+      description: zwei-faktor-authentifizierung
+      keywords: zwei-faktor-authentifizierung
+      recovery:
+        codes:
+          title: wiederherstellungscodes
+          description: >-
+            speichern sie diese wiederherstellungscodes in einem sicheren
+            passwort-manager. sie können verwendet werden, um den zugriff auf
+            ihr konto wiederherzustellen, wenn ihr
+            zwei-faktor-authentifizierungsgerät verloren geht.
+          keywords: wiederherstellungscodes
+          link: wiederherstellungscodes anzeigen
+          download: laden sie wiederherstellungscodes herunter
+          generate:
+            title: generieren sie neue codes
+            description: >-
+              wenn sie auf die schaltfläche unten klicken, werden ihre alten
+              wiederherstellungscodes ungültig und neue generiert. sie sollten
+              einen neuen satz codes herunterladen, nachdem sie neue generiert
+              haben.
+            keywords: generieren sie neue codes
+            button: generieren sie neue codes
+            link: generieren sie neue codes
+            success: wiederherstellungscodes erfolgreich generiert
+            error: fehler bei der generierung des wiederherstellungscodes
+            form:
+              code:
+                label: code
+              button: generieren sie neue codes
+      totp:
+        activate:
+          title: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
+          description: >-
+            wenn sie keinen qr-code verwenden können, können sie den code unten
+            manuell eingeben.
+          keywords: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
+          button: aktivieren sie
+          link: aktivieren sie
+          success: zwei-faktor-authentifizierung erfolgreich aktiviert!
+          error: fehler bei der aktivierung der zwei-faktor-authentifizierung
+          form:
+            code:
+              label: code
+        authenticate:
+          title: geben sie den code aus ihrer authentifizierungsanwendung ein.
+          description: >-
+            geben sie den aktuellen code ein, der in ihrer
+            authentifizierungsanwendung angezeigt wird.
+          keywords: geben sie den code aus ihrer authentifizierungsanwendung ein.
+          button: authentifizieren
+          link: authentifizieren
+          form:
+            code:
+              label: code
+        deactivate:
+          title: deaktivieren sie die zwei-faktor-authentifizierung
+          description: >-
+            durch die deaktivierung der zwei-faktor-authentifizierung wird ihr
+            zwei-faktor-authentifizierungsgerät entfernt und ihre
+            wiederherstellungscodes gelöscht.
+          keywords: deaktivieren sie die zwei-faktor-authentifizierung
+          button: deaktivieren
+          link: deaktivieren
+          success: zwei-faktor-authentifizierung erfolgreich deaktiviert
+          error: fehler bei der deaktivierung der zwei-faktor-authentifizierung
 layouts:
   title: grooveshop %{title}
   description: grooveshop-beschreibung %{description}

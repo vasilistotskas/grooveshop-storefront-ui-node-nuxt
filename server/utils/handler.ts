@@ -4,7 +4,7 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(
 	handler: EventHandler<T, D>
 ): EventHandler<T, D> =>
 	defineEventHandler<T>(async (event) => {
-		const jwtAuth = getCookie(event, 'jwt-auth') || ''
+		const jwtAuth = getCookie(event, 'jwt_auth') || ''
 
 		if (jwtAuth) {
 			appendResponseHeader(event, 'Authorization', 'Bearer ' + jwtAuth)

@@ -100,9 +100,9 @@ const reviewCount = computed(() => {
 
 const liveReviewCountRatio = computed(() => {
 	let reviewCount = 0
-	if (newSelectionRatio.value !== null) {
+	if (newSelectionRatio.value > 0) {
 		reviewCount = newSelectionRatio.value * reviewCountMax.value
-	} else if (reviewCount !== null) {
+	} else if (reviewCount > 0) {
 		reviewCount = reviewCount - 0.01
 	}
 	if (reviewCount > reviewCountMax.value) reviewCount = reviewCountMax.value

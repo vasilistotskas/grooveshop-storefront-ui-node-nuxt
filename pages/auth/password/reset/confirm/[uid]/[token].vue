@@ -35,7 +35,7 @@ useServerSeoMeta({
 <template>
 	<PageWrapper class="container flex flex-col gap-12">
 		<PageTitle
-			:text="`${$t('pages.auth.password.reset.confirm.title')}`"
+			:text="$t('pages.auth.password.reset.confirm.title')"
 			class="capitalize text-center"
 		/>
 		<PageBody>

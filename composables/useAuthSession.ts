@@ -1,13 +1,13 @@
 import {
+	appendResponseHeader,
 	deleteCookie,
 	getCookie,
 	setCookie,
-	splitCookiesString,
-	appendResponseHeader
+	splitCookiesString
 } from 'h3'
 import { decodeJwt } from 'jose'
 import type { Ref } from 'vue'
-import type { User, TokenRefreshResponse } from '~/types/auth'
+import type { TokenRefreshResponse, User } from '~/types/auth'
 
 export default function () {
 	const event = useRequestEvent()
@@ -15,20 +15,32 @@ export default function () {
 	const publicConfig = config.public
 	const privateConfig = config
 	const loggedInName = 'auth_logged_in'
+
 	const accessTokenCookieName = process.server
 		? privateConfig.auth.accessToken.cookieName!
-		: 'jwt-auth'
+		: 'jwt_auth'
 	const refreshTokenCookieName = process.server
 		? privateConfig.auth.refreshToken.cookieName!
-		: 'jwt-refresh-auth'
+		: 'jwt_refresh_auth'
+	const totpAuthenticatedCookieName = process.server
+		? privateConfig.auth.totp.authenticated.cookieName!
+		: 'totp_authenticated'
+	const totpActiveCookieName = process.server
+		? privateConfig.auth.totp.active.cookieName!
+		: 'totp_active'
 
 	const msRefreshBeforeExpires = 3000
 
 	const _accessToken = {
-		get: () =>
-			process.server
-				? event.context[accessTokenCookieName] || getCookie(event, accessTokenCookieName)
-				: useCookie(accessTokenCookieName).value,
+		get: () => {
+			if (process.server) {
+				return (
+					event.context[accessTokenCookieName] || getCookie(event, accessTokenCookieName)
+				)
+			} else {
+				return useCookie(accessTokenCookieName).value
+			}
+		},
 		set: (value: string) => {
 			if (process.server) {
 				event.context[accessTokenCookieName] = value
@@ -67,6 +79,87 @@ export default function () {
 				secure: true,
 				sameSite: 'lax'
 			})
+	}
+
+	const _totpAuthenticated = {
+		get: () => {
+			if (process.server) {
+				return (
+					event.context[totpAuthenticatedCookieName] ||
+					getCookie(event, totpAuthenticatedCookieName) === 'true'
+				)
+			} else {
+				return useCookie(totpAuthenticatedCookieName).value
+			}
+		},
+		set: (value: string) => {
+			if (process.server) {
+				event.context[totpAuthenticatedCookieName] = value
+				setCookie(event, totpAuthenticatedCookieName, value, {
+					httpOnly: false,
+					secure: true,
+					sameSite: 'lax'
+				})
+			} else {
+				useCookie(totpAuthenticatedCookieName, {
+					httpOnly: false,
+					secure: true,
+					sameSite: 'lax'
+				}).value = value
+			}
+		},
+		clear: () => {
+			if (process.server) {
+				deleteCookie(event, totpAuthenticatedCookieName, {
+					httpOnly: false,
+					secure: true,
+					sameSite: 'lax'
+				})
+			} else {
+				useCookie(totpAuthenticatedCookieName).value = null
+			}
+		}
+	}
+
+	const _totpActive = {
+		get: () => {
+			if (process.server) {
+				return (
+					event.context[totpActiveCookieName] ||
+					getCookie(event, totpActiveCookieName) === 'true'
+				)
+			} else {
+				return useCookie(totpActiveCookieName).value
+			}
+		},
+		set: (value: string) => {
+			if (process.server) {
+				event.context[totpActiveCookieName] = value
+				setCookie(event, totpActiveCookieName, value, {
+					httpOnly: false,
+					secure: true,
+					sameSite: 'lax'
+				})
+			} else {
+				const cookie = useCookie(totpActiveCookieName, {
+					httpOnly: false,
+					secure: true,
+					sameSite: 'lax'
+				})
+				cookie.value = value
+			}
+		},
+		clear: () => {
+			if (process.server) {
+				deleteCookie(event, totpActiveCookieName, {
+					httpOnly: false,
+					secure: true,
+					sameSite: 'lax'
+				})
+			} else {
+				useCookie(totpActiveCookieName).value = null
+			}
+		}
 	}
 
 	const _loggedIn = {
@@ -158,24 +251,15 @@ export default function () {
 		return _accessToken.get()
 	}
 
-	async function getRefreshToken() {
-		const refreshToken = _refreshToken.get()
-
-		if (refreshToken && isTokenExpired(refreshToken)) {
-			await _refresh()
-		}
-
-		return _refreshToken.get()
-	}
-
 	return {
 		_accessToken,
 		_refreshToken,
 		_loggedIn,
+		_totpAuthenticated,
+		_totpActive,
 		user,
 		isAuthenticated,
 		_refresh,
-		getAccessToken,
-		getRefreshToken
+		getAccessToken
 	}
 }

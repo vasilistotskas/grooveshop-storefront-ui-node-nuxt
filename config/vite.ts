@@ -22,7 +22,8 @@ export const vite = {
 						'la',
 						'mdi',
 						'uil',
-						'fluent'
+						'fluent',
+						'carbon'
 					]
 				})
 			]

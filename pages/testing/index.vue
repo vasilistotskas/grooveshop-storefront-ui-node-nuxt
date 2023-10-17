@@ -16,6 +16,7 @@ const formSchema = {
 			as: 'input',
 			rules: z.string().min(2),
 			autocomplete: 'given-name',
+			readonly: false,
 			children: [
 				{
 					tag: 'span',
@@ -30,6 +31,7 @@ const formSchema = {
 			as: 'input',
 			rules: z.string().email(),
 			autocomplete: 'email',
+			readonly: false,
 			children: [
 				{
 					tag: 'span',
@@ -44,7 +46,8 @@ const formSchema = {
 			as: 'input',
 			type: 'password',
 			rules: z.string().min(8),
-			autocomplete: 'new-password'
+			autocomplete: 'new-password',
+			readonly: false
 		}
 	]
 }
@@ -54,6 +57,8 @@ onMounted(() => {
 	const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
 	const djangoApiHost = config.public.djangoHost
 	const wsEndpoint = `${websocketProtocol}://${djangoApiHost}/ws/notifications/`
+
+	const { status, data, send, open, close } = useWebSocket(wsEndpoint)
 	ws = new WebSocket(wsEndpoint)
 	ws.onmessage = (event: MessageEvent<WebsocketMessageData>) => {
 		// eslint-disable-next-line no-console

@@ -17,8 +17,11 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			body: JSON.stringify(body),
 			method: 'POST'
 		})
+
 		deleteRefreshTokenCookie(event)
-		event.context.auth = null
+		event.context.jwt_auth = null
+		event.context.user = null
+
 		return await parseDataAs(response, ZodLogoutResponse)
 	} catch (error) {
 		deleteRefreshTokenCookie(event)
