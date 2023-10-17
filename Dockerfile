@@ -14,7 +14,7 @@ RUN rm -rf ./node_modules & \
     rm -rf ./build & \
     rm -rf ./dist
 
-RUN NODE_OPTIONS="--max-old-space-size=8192" npm install -g pnpm && \
+RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
     pnpm run build
 
