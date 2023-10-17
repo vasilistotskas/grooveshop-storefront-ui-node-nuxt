@@ -8,12 +8,14 @@ RUN chmod -R 777 /app && \
 COPY ./ ./
 
 ENV GENERATE_SOURCEMAP=false
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 RUN rm -rf ./node_modules & \
     rm -rf ./nuxt & \
     rm -rf ./output
 
-RUN npm install -g pnpm && \
+RUN apk add --no-cache git && \
+    npm install -g pnpm && \
     pnpm install --frozen-lockfile && \
     pnpm run build
 
