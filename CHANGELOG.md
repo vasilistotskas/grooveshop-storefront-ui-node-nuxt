@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.0...v1.12.1) (2023-10-17)
+
+
+### Bug Fixes
+
+* **Dockerfile:** remove `NODE_OPTIONS` flag. ([0db37e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0db37e4e85b9711b59671c9cd5202c09878df163))
+
 # [1.12.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.11.1...v1.12.0) (2023-10-17)
 
 
