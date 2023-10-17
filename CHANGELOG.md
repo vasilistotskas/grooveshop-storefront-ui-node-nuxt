@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.1...v1.12.2) (2023-10-17)
+
+
+### Bug Fixes
+
+* **Dockerfile:** pathing improvements. ([e86d8a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e86d8a905f5b42c6d85d1b0f19abd14edadb9ff3))
+
 ## [1.12.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.0...v1.12.1) (2023-10-17)
 
 
