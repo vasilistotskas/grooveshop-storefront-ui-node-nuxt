@@ -1,3 +1,10 @@
+## [1.12.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.2...v1.12.3) (2023-10-17)
+
+
+### Bug Fixes
+
+* **Dockerfile:** add `apk add --no-cache git` and `ENV NODE_OPTIONS` ([1260212](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/126021290db200127b6209eb1d7b0e5b8bc67e40))
+
 ## [1.12.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.1...v1.12.2) (2023-10-17)
 
 
