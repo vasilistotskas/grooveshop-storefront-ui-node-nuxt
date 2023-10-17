@@ -1,3 +1,10 @@
+## [1.12.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.3...v1.12.4) (2023-10-17)
+
+
+### Bug Fixes
+
+* **Dockerfile:** add safe dir. ([6fd4b1f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6fd4b1feaf9b73fc11500957345ca34625902d2e))
+
 ## [1.12.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.2...v1.12.3) (2023-10-17)
 
 
