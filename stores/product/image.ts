@@ -1,6 +1,6 @@
-import { IFetchError } from 'ofetch'
-import { Pagination } from '~/types/pagination/pagination'
-import { Image, ImageQuery } from '~/types/product/image'
+import type { IFetchError } from 'ofetch'
+import type { Pagination } from '~/types/pagination/pagination'
+import type { Image, ImageQuery } from '~/types/product/image'
 
 interface ErrorRecord {
 	images: IFetchError | null

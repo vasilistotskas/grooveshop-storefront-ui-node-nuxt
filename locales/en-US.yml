@@ -172,7 +172,7 @@ components:
     sidebar:
       title: Checkout
       items: Items
-      items_unique: Item
+      items_unique: Items
       shipping: Shipping
       discount: Discount
       vat: VAT
@@ -318,14 +318,36 @@ pages:
       mobile_phone: Mobile Phone
       floor: Floor
       location_type: Location Type
+      street: Street
+      street_number: Street Number
       customer_notes: Customer Notes
-      submit: Submit
+      submit:
+        title: Submit
+        success: Order created successfully
+        error: Order creation error
       too_many_attempts: Too many attempts, please try again later.
       choose:
         country: Choose Country
         region: Choose Region
     success:
-      title: Order created
+      title: Order successfully created
+      lottie: Order created
+      button: Navigate to home
+      main:
+        title: Thank You, %{customerName}!
+        text: Your order number is <strong>%{orderId}</strong>. A confirmation email has been sent to <strong>%{customerEmail}</strong>. We will notify you when your order has shipped.
+      order:
+        summary: Order Summary
+        details: Order Details
+      image: Image
+      product: Product
+      quantity: Quantity
+      price: Price
+      shippingPrice: Shipping Cost %{price}
+      totalPriceItems: Total Price Items %{price}
+      totalPriceExtra: Total Price Extra %{price}
+      payWayPrice: Pay Way Price %{price}
+      total: Total %{price}
     validation:
       email:
         required: Email is required
@@ -679,6 +701,8 @@ pages:
           description: Enter your new password.
           keywords: Reset Password
           form:
+            email:
+              label: Email
             newPassword1:
               label: Password
               validation:
@@ -695,58 +719,65 @@ pages:
               validation:
                 min: Password Confirmation must be at least %{min} characters
             submit: Reset Password
-    mfa:
-      title: Two Factor Authentication
-      description: Two Factor Authentication
-      keywords: Two Factor Authentication
-      recovery:
-        codes:
-          title: Recovery Codes
-          description: Store these recovery codes in a secure password manager. They can be used to recover access to your account if your two factor authentication device is lost.
-          keywords: Recovery Codes
-          link: Show Recovery Codes
-          download: Download Recovery Codes
-          generate:
-            title: Generate New Codes
-            description: Clicking the button below will invalidate your old recovery codes and generate new ones. You should download a new set of codes after generating new ones.
-            keywords: Generate New Codes
-            button: Generate New Codes
-            link: Generate New Codes
-            success: Recovery codes generated successfully
-            error: Recovery codes generation error
+    security:
+      title: Security
+      description: Security
+      general:
+        title: General
+        description: General
+        keywords: General
+      mfa:
+        title: Two Factor Authentication
+        description: Two Factor Authentication
+        keywords: Two Factor Authentication
+        recovery:
+          codes:
+            title: Recovery Codes
+            description: Store these recovery codes in a secure password manager. They can be used to recover access to your account if your two factor authentication device is lost.
+            keywords: Recovery Codes
+            link: Show Recovery Codes
+            download: Download Recovery Codes
+            generate:
+              title: Generate New Codes
+              description: Clicking the button below will invalidate your old recovery codes and generate new ones. You should download a new set of codes after generating new ones.
+              keywords: Generate New Codes
+              button: Generate New Codes
+              link: Generate New Codes
+              success: Recovery codes generated successfully
+              error: Recovery codes generation error
+              form:
+                code:
+                  label: Code
+                button: Generate New Codes
+        totp:
+          activate:
+            title: Scan this QR code with your authenticator application.
+            description: If you can't use a QR code, you can manually enter the code below.
+            keywords: Scan this QR code with your authenticator application.
+            button: Activate
+            link: Activate
+            success: Two Factor Authentication activated successfully!
+            error: Two Factor Authentication activation error
             form:
               code:
                 label: Code
-              button: Generate New Codes
-      totp:
-        activate:
-          title: Scan this QR code with your authenticator application.
-          description: If you can't use a QR code, you can manually enter the code below.
-          keywords: Scan this QR code with your authenticator application.
-          button: Activate
-          link: Activate
-          success: Two Factor Authentication activated successfully!
-          error: Two Factor Authentication activation error
-          form:
-            code:
-              label: Code
-        authenticate:
-          title: Enter the code from your authenticator application.
-          description: Enter the current code displayed in your authenticator application.
-          keywords: Enter the code from your authenticator application.
-          button: Authenticate
-          link: Authenticate
-          form:
-            code:
-              label: Code
-        deactivate:
-          title: Deactivate Two Factor Authentication
-          description: Deactivating two factor authentication will remove your two factor authentication device and delete your recovery codes.
-          keywords: Deactivate Two Factor Authentication
-          button: Deactivate
-          link: Deactivate
-          success: Two Factor Authentication deactivated successfully
-          error: Two Factor Authentication deactivation error
+          authenticate:
+            title: Enter the code from your authenticator application.
+            description: Enter the current code displayed in your authenticator application.
+            keywords: Enter the code from your authenticator application.
+            button: Authenticate
+            link: Authenticate
+            form:
+              code:
+                label: Code
+          deactivate:
+            title: Deactivate Two Factor Authentication
+            description: Deactivating two factor authentication will remove your two factor authentication device and delete your recovery codes.
+            keywords: Deactivate Two Factor Authentication
+            button: Deactivate
+            link: Deactivate
+            success: Two Factor Authentication deactivated successfully
+            error: Two Factor Authentication deactivation error
 layouts:
   title: GrooveShop %{title}
   description: GrooveShop-Description %{description}

@@ -1,5 +1,5 @@
 export const modules = [
-	'@nuxt/image-edge',
+	'@nuxt/image',
 	'@nuxt/ui',
 	'@nuxtjs/i18n',
 	'@nuxtjs/eslint-module',
@@ -11,6 +11,5 @@ export const modules = [
 	'nuxt-simple-sitemap',
 	'nuxt-simple-robots',
 	'nuxt-og-image',
-	'nuxt-schema-org',
-	'~/modules/build-env'
+	'nuxt-schema-org'
 ]

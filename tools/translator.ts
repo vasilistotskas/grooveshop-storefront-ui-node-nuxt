@@ -66,7 +66,7 @@ const translateFile = async (
 
 	// parse
 	const parseObjLevel: Record<string, unknown> = {}
-	let parsedObj
+	let parsedObj: Record<string, unknown> = {}
 	for (const key in translatedRes) {
 		let value = translatedRes[key]
 		const keySplit = key.split('.')

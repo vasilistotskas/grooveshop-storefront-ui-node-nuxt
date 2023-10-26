@@ -1,5 +1,4 @@
-import { H3Event } from 'h3'
-import { parseBodyAs, parseDataAs, parseParamsAs } from '~/types/parser'
+import type { H3Event } from 'h3'
 import { ZodAddress, ZodAddressParams, ZodAddressPutBody } from '~/types/user/address'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {

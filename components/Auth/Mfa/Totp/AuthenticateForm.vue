@@ -1,21 +1,19 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-import { MfaTotpAuthenticateBody } from '~/types/auth'
+import type { MfaTotpAuthenticateBody } from '~/types/auth'
 
 const { totpAuthenticate } = useAuthMfa()
 
 const { t } = useLang()
 
 async function onSubmit(values: MfaTotpAuthenticateBody) {
-	// eslint-disable-next-line no-console
-	console.log('===== values =====', values)
 	await totpAuthenticate(values)
 }
 
 const formSchema = {
 	fields: [
 		{
-			label: t('pages.auth.mfa.totp.authenticate.form.code.label'),
+			label: t('pages.auth.security.mfa.totp.authenticate.form.code.label'),
 			name: 'code',
 			as: 'input',
 			rules: z.string().min(6),

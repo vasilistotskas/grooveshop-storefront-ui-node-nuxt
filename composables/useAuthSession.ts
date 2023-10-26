@@ -1,13 +1,21 @@
-import {
-	appendResponseHeader,
-	deleteCookie,
-	getCookie,
-	setCookie,
-	splitCookiesString
-} from 'h3'
+import type { H3Event } from 'h3'
 import { decodeJwt } from 'jose'
 import type { Ref } from 'vue'
-import type { TokenRefreshResponse, User } from '~/types/auth'
+import type { CookieSerializeOptions } from 'cookie-es'
+import {
+	setCookie,
+	getCookie,
+	deleteCookie,
+	splitCookiesString,
+	appendResponseHeader
+} from 'h3'
+import type {
+	TokenRefreshResponse,
+	User,
+	Session,
+	SessionRevokeResponse
+} from '~/types/auth'
+import { defaultAuthCookieNames } from '~/types/auth'
 
 export default function () {
 	const event = useRequestEvent()
@@ -16,151 +24,125 @@ export default function () {
 	const privateConfig = config
 	const loggedInName = 'auth_logged_in'
 
+	const sessionCookieName = process.server
+		? privateConfig.auth.session.cookieName
+		: defaultAuthCookieNames.sessionCookieName
+	const csrftokenCookieName = process.server
+		? privateConfig.auth.csrftoken.cookieName
+		: defaultAuthCookieNames.csrftokenCookieName
 	const accessTokenCookieName = process.server
-		? privateConfig.auth.accessToken.cookieName!
-		: 'jwt_auth'
+		? privateConfig.auth.accessToken.cookieName
+		: defaultAuthCookieNames.accessTokenCookieName
 	const refreshTokenCookieName = process.server
-		? privateConfig.auth.refreshToken.cookieName!
-		: 'jwt_refresh_auth'
+		? privateConfig.auth.refreshToken.cookieName
+		: defaultAuthCookieNames.refreshTokenCookieName
 	const totpAuthenticatedCookieName = process.server
-		? privateConfig.auth.totp.authenticated.cookieName!
-		: 'totp_authenticated'
+		? privateConfig.auth.totp.authenticated.cookieName
+		: defaultAuthCookieNames.totpAuthenticatedCookieName
 	const totpActiveCookieName = process.server
-		? privateConfig.auth.totp.active.cookieName!
-		: 'totp_active'
+		? privateConfig.auth.totp.active.cookieName
+		: defaultAuthCookieNames.totpActiveCookieName
 
 	const msRefreshBeforeExpires = 3000
 
-	const _accessToken = {
-		get: () => {
-			if (process.server) {
-				return (
-					event.context[accessTokenCookieName] || getCookie(event, accessTokenCookieName)
-				)
-			} else {
-				return useCookie(accessTokenCookieName).value
-			}
-		},
-		set: (value: string) => {
-			if (process.server) {
-				event.context[accessTokenCookieName] = value
-				setCookie(event, accessTokenCookieName, value, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				})
-			} else {
-				useCookie(accessTokenCookieName, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				}).value = value
-			}
-		},
-		clear: () => {
-			if (process.server) {
-				deleteCookie(event, accessTokenCookieName, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				})
-			} else {
-				useCookie(accessTokenCookieName).value = null
-			}
-		}
-	}
-
-	const _refreshToken = {
-		get: () => process.server && getCookie(event, refreshTokenCookieName),
-		clear: () =>
-			process.server &&
-			deleteCookie(event, refreshTokenCookieName, {
-				httpOnly: true,
-				secure: true,
-				sameSite: 'lax'
-			})
-	}
-
-	const _totpAuthenticated = {
-		get: () => {
-			if (process.server) {
-				return (
-					event.context[totpAuthenticatedCookieName] ||
-					getCookie(event, totpAuthenticatedCookieName) === 'true'
-				)
-			} else {
-				return useCookie(totpAuthenticatedCookieName).value
-			}
-		},
-		set: (value: string) => {
-			if (process.server) {
-				event.context[totpAuthenticatedCookieName] = value
-				setCookie(event, totpAuthenticatedCookieName, value, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				})
-			} else {
-				useCookie(totpAuthenticatedCookieName, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				}).value = value
-			}
-		},
-		clear: () => {
-			if (process.server) {
-				deleteCookie(event, totpAuthenticatedCookieName, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				})
-			} else {
-				useCookie(totpAuthenticatedCookieName).value = null
+	const createCookieObject = (
+		event: H3Event,
+		cookieName: string,
+		httpOnly: boolean = false,
+		secure: boolean = true,
+		maxAge: number | undefined = undefined,
+		sameSite: CookieSerializeOptions['sameSite'] = 'lax'
+	) => {
+		return {
+			get: () => {
+				if (process.server) {
+					return event.context[cookieName] || getCookie(event, cookieName)
+				} else {
+					return useCookie(cookieName).value
+				}
+			},
+			set: (value: string) => {
+				if (process.server) {
+					event.context[cookieName] = value
+					setCookie(event, cookieName, value, {
+						httpOnly,
+						secure,
+						maxAge,
+						sameSite
+					})
+				} else {
+					useCookie(cookieName, {
+						httpOnly,
+						secure,
+						maxAge,
+						sameSite
+					}).value = value
+				}
+			},
+			clear: () => {
+				if (process.server) {
+					deleteCookie(event, cookieName)
+				} else {
+					useCookie(cookieName).value = null
+				}
 			}
 		}
 	}
 
-	const _totpActive = {
-		get: () => {
-			if (process.server) {
-				return (
-					event.context[totpActiveCookieName] ||
-					getCookie(event, totpActiveCookieName) === 'true'
-				)
-			} else {
-				return useCookie(totpActiveCookieName).value
-			}
-		},
-		set: (value: string) => {
-			if (process.server) {
-				event.context[totpActiveCookieName] = value
-				setCookie(event, totpActiveCookieName, value, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				})
-			} else {
-				const cookie = useCookie(totpActiveCookieName, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				})
-				cookie.value = value
-			}
-		},
-		clear: () => {
-			if (process.server) {
-				deleteCookie(event, totpActiveCookieName, {
-					httpOnly: false,
-					secure: true,
-					sameSite: 'lax'
-				})
-			} else {
-				useCookie(totpActiveCookieName).value = null
-			}
-		}
-	}
+	const _session = createCookieObject(
+		event,
+		sessionCookieName,
+		privateConfig?.auth?.session?.httpOnly || true,
+		privateConfig?.auth?.session?.secure || true,
+		privateConfig?.auth?.session?.maxAge || 60 * 60 * 24 * 7, // 7 days
+		(privateConfig?.auth?.session?.sameSite as CookieSerializeOptions['sameSite']) ||
+			'lax'
+	)
+	const _csrftoken = createCookieObject(
+		event,
+		csrftokenCookieName,
+		privateConfig?.auth?.csrftoken?.httpOnly || true,
+		privateConfig?.auth?.csrftoken?.secure || true,
+		privateConfig?.auth?.csrftoken?.maxAge || 60 * 60 * 24 * 7 * 52, // 1 year
+		(privateConfig?.auth?.csrftoken?.sameSite as CookieSerializeOptions['sameSite']) ||
+			'lax'
+	)
+	const _accessToken = createCookieObject(
+		event,
+		accessTokenCookieName,
+		privateConfig?.auth?.accessToken?.httpOnly || false,
+		privateConfig?.auth?.accessToken?.secure || true,
+		privateConfig?.auth?.accessToken?.maxAge || 60 * 60 * 24 * 7, // 7 days
+		(privateConfig?.auth?.accessToken?.sameSite as CookieSerializeOptions['sameSite']) ||
+			'lax'
+	)
+	const _refreshToken = createCookieObject(
+		event,
+		refreshTokenCookieName,
+		privateConfig?.auth?.refreshToken?.httpOnly || true,
+		privateConfig?.auth?.refreshToken?.secure || true,
+		privateConfig?.auth?.refreshToken?.maxAge || 60 * 60 * 24 * 30, // 30 days
+		(privateConfig?.auth?.refreshToken?.sameSite as CookieSerializeOptions['sameSite']) ||
+			'lax'
+	)
+	const _totpAuthenticated = createCookieObject(
+		event,
+		totpAuthenticatedCookieName,
+		privateConfig?.auth?.totp?.authenticated?.httpOnly || false,
+		privateConfig?.auth?.totp?.authenticated?.secure || true,
+		privateConfig?.auth?.totp?.authenticated?.maxAge || 60 * 60 * 24 * 7, // 7 days
+		(privateConfig?.auth?.totp?.authenticated
+			?.sameSite as CookieSerializeOptions['sameSite']) || 'lax'
+	)
+	const _totpActive = createCookieObject(
+		event,
+		totpActiveCookieName,
+		privateConfig?.auth?.totp?.active?.httpOnly || false,
+		privateConfig?.auth?.totp?.active?.secure || true,
+		privateConfig?.auth?.totp?.active?.maxAge || 60 * 60 * 24 * 7, // 7 days
+		(privateConfig?.auth?.totp?.active?.sameSite as CookieSerializeOptions['sameSite']) ||
+			'lax'
+	)
 
 	const _loggedIn = {
 		get: () => process.client && localStorage.getItem(loggedInName),
@@ -211,9 +193,9 @@ export default function () {
 				}
 			})
 			.then((res) => {
-				const setCookie = res.headers.get('set-cookie') || ''
+				const setCookies = res.headers.get('set-cookie') || ''
 
-				const cookies = splitCookiesString(setCookie)
+				const cookies = splitCookiesString(setCookies)
 
 				for (const cookie of cookies) {
 					appendResponseHeader(event, 'set-cookie', cookie)
@@ -237,6 +219,49 @@ export default function () {
 			})
 	}
 
+	async function _refreshSession() {
+		const cookie = useRequestHeaders(['cookie']).cookie || ''
+		await $fetch
+			.raw<Session>('/api/auth/session', {
+				method: 'GET',
+				headers: {
+					cookie
+				}
+			})
+			.then((res) => {
+				const setCookies = res.headers.get('set-cookie') || ''
+				const cookies = splitCookiesString(setCookies)
+				for (const cookie of cookies) {
+					appendResponseHeader(event, 'set-cookie', cookie)
+				}
+				if (res._data) {
+					if (res._data.sessionid) {
+						_session.set(res._data.sessionid)
+					}
+					if (res._data.CSRFToken) {
+						_csrftoken.set(res._data.CSRFToken)
+					}
+				}
+			})
+			.catch((reason) => {
+				// eslint-disable-next-line no-console
+				console.error('Failed to refresh session', reason)
+				_session.clear()
+				_csrftoken.clear()
+			})
+	}
+
+	async function _revokeSession() {
+		const cookie = useRequestHeaders(['cookie']).cookie || ''
+
+		await $fetch.raw<SessionRevokeResponse>('/api/auth/session/revoke/', {
+			method: 'DELETE',
+			headers: {
+				cookie
+			}
+		})
+	}
+
 	/**
 	 * Async get access token
 	 * @returns Fresh access token (refreshed if expired)
@@ -252,6 +277,8 @@ export default function () {
 	}
 
 	return {
+		_session,
+		_csrftoken,
 		_accessToken,
 		_refreshToken,
 		_loggedIn,
@@ -260,6 +287,8 @@ export default function () {
 		user,
 		isAuthenticated,
 		_refresh,
+		_refreshSession,
+		_revokeSession,
 		getAccessToken
 	}
 }

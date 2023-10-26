@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { IFetchError } from 'ofetch'
+import type { PropType } from 'vue'
+import type { IFetchError } from 'ofetch'
 
 const PageWrapper = resolveComponent('PageWrapper') as string
 

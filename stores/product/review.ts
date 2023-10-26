@@ -1,6 +1,6 @@
-import { IFetchError } from 'ofetch'
-import { Pagination } from '~/types/pagination/pagination'
-import {
+import type { IFetchError } from 'ofetch'
+import type { Pagination } from '~/types/pagination/pagination'
+import type {
 	Review,
 	ReviewCreateQuery,
 	ReviewCreateBody,

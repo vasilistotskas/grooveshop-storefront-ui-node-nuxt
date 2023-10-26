@@ -1,6 +1,6 @@
-import { IFetchError } from 'ofetch'
-import { Order, OrderCreateBody, OrderQuery } from '~/types/order/order'
-import { Pagination } from '~/types/pagination/pagination'
+import type { IFetchError } from 'ofetch'
+import type { Order, OrderCreateBody, OrderQuery } from '~/types/order/order'
+import type { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	orders: IFetchError | null
@@ -54,13 +54,34 @@ export const useOrderStore = defineStore('order', () => {
 		}
 	}
 
-	async function fetchOrder(id: string | number) {
+	async function fetchOrder(id: number) {
 		const {
 			data,
 			error: orderError,
 			pending: orderPending,
 			refresh
 		} = await useFetch<Order>(`/api/order/${id}`, {
+			method: 'get'
+		})
+		order.value = data.value
+		error.value.order = orderError.value
+		pending.value.order = orderPending.value
+
+		return {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
+		}
+	}
+
+	async function fetchOrderByUUID(uuid: string) {
+		const {
+			data,
+			error: orderError,
+			pending: orderPending,
+			refresh
+		} = await useFetch<Order>(`/api/order/uuid/${uuid}`, {
 			method: 'get'
 		})
 		order.value = data.value
@@ -82,6 +103,7 @@ export const useOrderStore = defineStore('order', () => {
 			pending: orderPending,
 			refresh
 		} = await useFetch<Order>(`/api/orders`, {
+			key: 'createOrder',
 			method: 'post',
 			body
 		})
@@ -104,6 +126,7 @@ export const useOrderStore = defineStore('order', () => {
 		error,
 		fetchOrders,
 		fetchOrder,
+		fetchOrderByUUID,
 		createOrder
 	}
 })

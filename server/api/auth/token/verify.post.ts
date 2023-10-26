@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseBodyAs, parseDataAs } from '~/types/parser'
-import { TokenVerifyBody, TokenVerifyResponse } from '~/types/auth'
+
+import type { TokenVerifyBody, TokenVerifyResponse } from '~/types/auth'
 
 export const ZodTokenVerifyResponse = z.object(
 	{}

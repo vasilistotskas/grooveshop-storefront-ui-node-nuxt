@@ -8,9 +8,6 @@ const { register } = useAuth()
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
 
-const userStore = useUserStore()
-const { fetchAccount } = userStore
-
 const { t } = useLang()
 const toast = useToast()
 
@@ -52,12 +49,17 @@ const onSubmit = handleSubmit(async (values) => {
 		password1: values.password1,
 		password2: values.password2
 	})
+	// eslint-disable-next-line no-console
+	console.log('======== data error ========', data.value, error.value)
 	if (data.value?.user) {
 		toast.add({
 			title: t('common.auth.registration.success')
 		})
-		await fetchAccount()
 		await fetchCart()
+	} else if (data.value?.detail) {
+		toast.add({
+			title: data.value?.detail
+		})
 	} else if (error.value) {
 		if (error.value?.data.data?.email) {
 			toast.add({
@@ -69,6 +71,7 @@ const onSubmit = handleSubmit(async (values) => {
 			title: t('common.auth.registration.error'),
 			color: 'red'
 		})
+		clearNuxtData('register')
 	}
 })
 </script>
@@ -79,7 +82,7 @@ const onSubmit = handleSubmit(async (values) => {
 			id="RegistrationForm"
 			class="container-xs p-0 md:px-6"
 			name="RegistrationForm"
-			@submit="onSubmit"
+			@submit.prevent="onSubmit"
 		>
 			<div
 				class="p-4 md:p-8 flex h-full flex-wrap items-center justify-center lg:justify-between bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded-[0.5rem] shadow-[0_4px_9px_-4px_#0000000d] dark:shadow-[0_4px_9px_-4px_#0000000d]"

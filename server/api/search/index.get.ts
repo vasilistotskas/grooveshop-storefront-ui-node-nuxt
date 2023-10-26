@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { H3Event } from 'h3'
-import { parseDataAs, parseQueryAs } from '~/types/parser'
+import type { H3Event } from 'h3'
+
 import { buildFullUrl } from '~/utils/api'
 import { ZodSearchProductResult, ZodSearchQuery, ZodSearchResults } from '~/types/search'
 

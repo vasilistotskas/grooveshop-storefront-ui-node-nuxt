@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { withQuery } from 'ufo'
-import { parseDataAs, parseParamsAs, parseQueryAs } from '~/types/parser'
-import {
+
+import type {
 	ProviderCallbackBody,
 	ProviderCallbackParams,
 	ProviderSettings

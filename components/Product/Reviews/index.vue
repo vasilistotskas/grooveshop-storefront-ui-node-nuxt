@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
-import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { PropType } from 'vue'
+import type { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const props = defineProps({

@@ -16,9 +16,7 @@ import type {
 	TokenRefreshBody,
 	TokenRefreshResponse,
 	TokenVerifyResponse,
-	User
-} from '~/types/auth'
-import {
+	User,
 	IsUserRegisteredBody,
 	LoginBody,
 	PasswordResetBody,
@@ -29,10 +27,18 @@ import {
 } from '~/types/auth'
 
 export default function () {
-	const { user } = useAuthSession()
+	const { user, _refreshSession, _revokeSession } = useAuthSession()
 	const config = useRuntimeConfig()
 	const publicConfig = config.public
-	const { _accessToken, _loggedIn } = useAuthSession()
+	const {
+		_accessToken,
+		_refreshToken,
+		_session,
+		_csrftoken,
+		_loggedIn,
+		_totpActive,
+		_totpAuthenticated
+	} = useAuthSession()
 
 	/**
 	 * Login with email/password
@@ -43,6 +49,7 @@ export default function () {
 		const { data, pending, error, refresh } = await useFetch<LoginResponse>(
 			'/api/auth/login',
 			{
+				key: 'login',
 				method: 'POST',
 				body
 			}
@@ -51,9 +58,13 @@ export default function () {
 			const returnToPath = route.query.redirect?.toString()
 			const redirectTo = returnToPath || publicConfig.auth.redirect.home
 
+			await _revokeSession()
+
 			// A workaround to insure access token cookie is set
 			_accessToken.set(data.value.access)
 			_loggedIn.set(true)
+
+			await _refreshSession()
 
 			setTimeout(async () => {
 				await fetchUser()
@@ -116,17 +127,25 @@ export default function () {
 			'/api/auth/logout',
 			{
 				method: 'POST',
-				body: {},
-				credentials: 'omit'
+				body: {}
 			}
-		).finally(async () => {
-			_accessToken.clear()
-			_loggedIn.set(false)
-			user.value = null
+		)
 
-			clearNuxtData()
-			await navigateTo(publicConfig.auth.redirect.logout)
-		})
+		await _revokeSession()
+
+		_accessToken.clear()
+		_refreshToken.clear()
+		_session.clear()
+		_csrftoken.clear()
+		_loggedIn.set(false)
+		_totpActive.set('false')
+		_totpAuthenticated.set('false')
+		user.value = null
+
+		await _refreshSession()
+
+		clearNuxtData()
+		await navigateTo(publicConfig.auth.redirect.logout)
 
 		return { data, pending, error, refresh }
 	}
@@ -137,18 +156,22 @@ export default function () {
 		const { data, pending, error, refresh } = await useFetch<RegistrationResponse>(
 			'/api/auth/registration',
 			{
+				key: 'register',
 				method: 'POST',
-				credentials: 'omit',
 				body
 			}
 		)
-		if (!error.value && data.value) {
+		if (!error.value && data.value && data.value.access) {
 			const returnToPath = route.query.redirect?.toString()
 			const redirectTo = returnToPath || publicConfig.auth.redirect.home
+
+			await _revokeSession()
 
 			// A workaround to insure access token cookie is set
 			_accessToken.set(data.value.access)
 			_loggedIn.set(true)
+
+			await _refreshSession()
 
 			setTimeout(async () => {
 				await fetchUser()
@@ -157,6 +180,8 @@ export default function () {
 				await navigateTo(redirectTo)
 			}, 100)
 		}
+		// eslint-disable-next-line no-console
+		console.log('======== response ========', data.value, pending.value, error.value)
 		return { data, pending, error, refresh }
 	}
 
@@ -165,7 +190,6 @@ export default function () {
 			'/api/auth/password/reset',
 			{
 				method: 'POST',
-				credentials: 'omit',
 				body
 			}
 		)
@@ -176,7 +200,6 @@ export default function () {
 		const { data, pending, error, refresh } =
 			await useFetch<PasswordResetConfirmResponse>('/api/auth/password/reset/confirm', {
 				method: 'POST',
-				credentials: 'omit',
 				body
 			})
 		return { data, pending, error, refresh }
@@ -187,7 +210,6 @@ export default function () {
 			'/api/auth/password/change',
 			{
 				method: 'POST',
-				credentials: 'omit',
 				body
 			}
 		)
@@ -200,7 +222,6 @@ export default function () {
 				'/api/auth/registration/resend-email/',
 				{
 					method: 'POST',
-					credentials: 'omit',
 					body
 				}
 			)
@@ -213,7 +234,6 @@ export default function () {
 				'/api/auth/registration/verify-email/',
 				{
 					method: 'POST',
-					credentials: 'omit',
 					body
 				}
 			)
@@ -225,7 +245,6 @@ export default function () {
 			'/api/auth/token/verify/',
 			{
 				method: 'POST',
-				credentials: 'omit',
 				body
 			}
 		)
@@ -237,7 +256,6 @@ export default function () {
 			'/api/auth/token/refresh/',
 			{
 				method: 'POST',
-				credentials: 'omit',
 				body
 			}
 		)
@@ -248,8 +266,7 @@ export default function () {
 		const { data, pending, error, refresh } = await useFetch<SocialAccountResponse>(
 			'/api/auth/social-accounts/',
 			{
-				method: 'GET',
-				credentials: 'omit'
+				method: 'GET'
 			}
 		)
 		return { data, pending, error, refresh }
@@ -261,7 +278,6 @@ export default function () {
 				`/api/auth/social-accounts/${id}/disconnect/`,
 				{
 					method: 'POST',
-					credentials: 'omit',
 					body
 				}
 			)
@@ -273,7 +289,6 @@ export default function () {
 			'/api/auth/is-user-registered/',
 			{
 				method: 'POST',
-				credentials: 'omit',
 				body
 			}
 		)

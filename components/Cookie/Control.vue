@@ -5,7 +5,8 @@ import {
 	getCookieIds,
 	removeCookie
 } from '#cookie-control/methods'
-import { Cookie, CookieTypeEnum } from '#cookie-control/types'
+import { CookieTypeEnum } from '#cookie-control/types'
+import type { Cookie } from '#cookie-control/types'
 
 defineSlots<{
 	bar(props: {}): any
@@ -198,7 +199,7 @@ defineExpose({
 
 <template>
 	<ClientOnly>
-		<section class="cookie-control">
+		<aside class="cookie-control">
 			<Transition :name="`cookie-control-Bar`">
 				<div
 					v-if="!isConsentGiven && !moduleOptions.isModalForced"
@@ -207,7 +208,7 @@ defineExpose({
 					<div class="cookie-control-BarContainer">
 						<div>
 							<slot name="bar">
-								<h3 v-text="$t('components.cookie.banner.title')" />
+								<h2 v-text="$t('components.cookie.banner.title')" />
 								<p v-text="$t('components.cookie.banner.description')" />
 							</slot>
 						</div>
@@ -260,7 +261,7 @@ defineExpose({
 					<div class="cookie-control-ModalContent">
 						<div class="cookie-control-ModalContentInner">
 							<slot name="modal">
-								<h3>{{ $t('components.cookie.modal.title') }}</h3>
+								<h2>{{ $t('components.cookie.modal.title') }}</h2>
 								<p>
 									{{ $t('components.cookie.modal.description') }}
 									<Anchor
@@ -280,7 +281,7 @@ defineExpose({
 							/>
 							<template v-for="cookieType in CookieTypeEnum.enum" :key="cookieType">
 								<template v-if="moduleOptions.cookies[cookieType].length">
-									<h3
+									<h2
 										v-text="
 											cookieType === CookieTypeEnum.enum.necessary
 												? $t('components.cookie.cookies.necessary')
@@ -394,7 +395,7 @@ defineExpose({
 					</div>
 				</div>
 			</Transition>
-		</section>
+		</aside>
 		<template #fallback>
 			<ClientOnlyFallback
 				class="cookie-control-ControlButton"

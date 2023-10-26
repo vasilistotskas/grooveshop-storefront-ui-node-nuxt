@@ -1,7 +1,6 @@
 import { resolveURL, withQuery } from 'ufo'
 import { z } from 'zod'
-import { ProviderParams, ProviderSettings } from '~/types/auth'
-import { parseParamsAs } from '~/types/parser'
+import type { ProviderParams, ProviderSettings } from '~/types/auth'
 
 export const ZodProviderParams = z.object({
 	provider: z.enum(['google'])

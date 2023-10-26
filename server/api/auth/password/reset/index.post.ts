@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseBodyAs } from '~/types/parser'
-import { PasswordResetResponse, PasswordResetBody } from '~/types/auth'
+
+import type { PasswordResetResponse, PasswordResetBody } from '~/types/auth'
 
 export const ZodPasswordResetResponse = z.object({
 	detail: z.string()

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Review } from '~/types/product/review'
+import type { PropType } from 'vue'
+import type { Review } from '~/types/product/review'
 
 const props = defineProps({
 	reviewsAverage: {

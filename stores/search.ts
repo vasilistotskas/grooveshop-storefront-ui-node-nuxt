@@ -1,5 +1,5 @@
-import { IFetchError } from 'ofetch'
-import { SearchProduct, SearchQuery, SearchResults } from '~/types/search'
+import type { IFetchError } from 'ofetch'
+import type { SearchQuery, SearchResults } from '~/types/search'
 
 interface ErrorRecord {
 	results: IFetchError | null

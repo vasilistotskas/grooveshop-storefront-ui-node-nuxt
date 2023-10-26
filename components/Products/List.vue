@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Product, ProductOrderingField, ProductQuery } from '~/types/product/product'
-import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { Product, ProductOrderingField, ProductQuery } from '~/types/product/product'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const route = useRoute()

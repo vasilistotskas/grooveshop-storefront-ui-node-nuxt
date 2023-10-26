@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { LocationQueryValue } from 'vue-router'
+import type { LocationQueryValue } from 'vue-router'
 
 export type Pagination<T> = {
 	links: {

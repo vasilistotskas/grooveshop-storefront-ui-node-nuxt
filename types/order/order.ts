@@ -1,7 +1,11 @@
 import { z } from 'zod'
-import { ZodOrderItem } from '~/types/order/order-item'
-import { PaginationQuery } from '~/types/pagination/pagination'
-import { OrderingQuery } from '~/types/ordering/ordering'
+import {
+	ZodOrderCreateItem,
+	ZodOrderItem,
+	ZodOrderCreateResponseItem
+} from '~/types/order/order-item'
+import type { PaginationQuery } from '~/types/pagination/pagination'
+import type { OrderingQuery } from '~/types/ordering/ordering'
 import { ZodCountry } from '~/types/country/country'
 import { ZodRegion } from '~/types/region/region'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
@@ -50,20 +54,66 @@ export const ZodOrderQuery = z.object({
 })
 
 export const ZodOrderCreateBody = z.object({
+	user: z.string().nullish(),
+	country: z.string(),
+	region: z.string(),
+	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
+	street: z.string(),
+	streetNumber: z.string(),
+	payWay: z.number(),
+	status: StatusEnum.nullish(),
 	firstName: z.string(),
 	lastName: z.string(),
-	email: z.string(),
-	address: z.string(),
+	email: z.string().email(),
 	zipcode: z.string(),
 	place: z.string().nullish(),
 	city: z.string(),
 	phone: z.string(),
+	mobilePhone: z.string().nullish(),
 	customerNotes: z.string().nullish(),
-	orderItemOrder: z.array(ZodOrderItem)
+	shippingPrice: z.number(),
+	documentType: documentTypeEnum,
+	orderItemOrder: z.array(ZodOrderCreateItem)
+})
+
+export const ZodOrderCreateResponse = z.object({
+	id: z.number(),
+	user: z.string().nullish(),
+	country: z.string(),
+	region: z.string(),
+	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
+	street: z.string(),
+	streetNumber: z.string(),
+	payWay: z.number(),
+	status: StatusEnum.nullish(),
+	firstName: z.string(),
+	lastName: z.string(),
+	email: z.string().email(),
+	zipcode: z.string(),
+	place: z.string().nullish(),
+	city: z.string(),
+	phone: z.string(),
+	mobilePhone: z.string().nullish(),
+	customerNotes: z.string().nullish(),
+	orderItemOrder: z.array(ZodOrderCreateResponseItem),
+	shippingPrice: z.number(),
+	documentType: documentTypeEnum,
+	createdAt: z.string().datetime({ offset: true }),
+	updatedAt: z.string().datetime({ offset: true }),
+	uuid: z.string().uuid(),
+	totalPriceItems: z.number(),
+	totalPriceExtra: z.number(),
+	fullAddress: z.string()
 })
 
 export const ZodOrderParams = z.object({
-	id: z.number()
+	id: z.string()
+})
+
+export const ZodOrderUUIDParams = z.object({
+	uuid: z.string()
 })
 
 export type Order = z.infer<typeof ZodOrder>

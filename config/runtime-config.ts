@@ -7,34 +7,60 @@ export const runtimeConfig = {
 
 	// Auth
 	auth: {
+		session: {
+			cookieName: process.env.AUTH_SESSION_NAME,
+			httpOnly: true,
+			secure: true,
+			maxAge: 60 * 60 * 24 * 7, // 7 days
+			sameSite: 'lax'
+		},
+
+		csrftoken: {
+			cookieName: process.env.AUTH_CSRFTOKEN_NAME,
+			httpOnly: true,
+			secure: true,
+			maxAge: 60 * 60 * 24 * 7 * 52, // 1 year
+			sameSite: 'lax'
+		},
+
 		accessToken: {
-			cookieName: 'jwt_auth',
-			jwtSecret: process.env.AUTH_ACCESS_TOKEN_SECRET!,
-			maxAge: 60 * 60 * 24 * 7 // 7 days
+			cookieName: process.env.AUTH_ACCESS_TOKEN_NAME,
+			httpOnly: false,
+			secure: true,
+			maxAge: 60 * 60 * 24 * 7, // 7 days
+			sameSite: 'lax'
+		},
+
+		refreshToken: {
+			cookieName: process.env.AUTH_REFRESH_TOKEN_SECRET,
+			httpOnly: true,
+			secure: true,
+			maxAge: 60 * 60 * 24 * 30, // 30 days
+			sameSite: 'lax'
 		},
 
 		totp: {
 			authenticated: {
-				cookieName: 'totp_authenticated',
-				maxAge: 60 * 60 * 24 * 7 // 7 days
+				cookieName: process.env.AUTH_TOTP_AUTHENTICATED_NAME,
+				httpOnly: false,
+				secure: true,
+				maxAge: 60 * 60 * 24 * 7, // 7 days
+				sameSite: 'lax'
 			},
 			active: {
-				cookieName: 'totp_active',
-				maxAge: 60 * 60 * 24 * 7 // 7 days
+				cookieName: process.env.AUTH_TOTP_ACTIVE_NAME,
+				httpOnly: false,
+				secure: true,
+				maxAge: 60 * 60 * 24 * 7, // 7 days
+				sameSite: 'lax'
 			}
-		},
-
-		refreshToken: {
-			cookieName: 'jwt_refresh_auth',
-			jwtSecret: process.env.AUTH_REFRESH_TOKEN_SECRET!,
-			maxAge: 60 * 60 * 24 * 30 // 30 days
 		},
 
 		oauth: {
 			google: {
-				clientId: process.env.AUTH_OAUTH_GOOGLE_CLIENT_ID!,
-				clientSecret: process.env.AUTH_OAUTH_GOOGLE_CLIENT_SECRET!,
-				scopes: process.env.AUTH_OAUTH_GOOGLE_SCOPES!,
+				clientId: process.env.AUTH_OAUTH_GOOGLE_CLIENT_ID,
+				clientSecret: process.env.AUTH_OAUTH_GOOGLE_CLIENT_SECRET,
+				scopes: process.env.AUTH_OAUTH_GOOGLE_SCOPES,
 				authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
 				tokenUrl: 'https://oauth2.googleapis.com/token',
 				userUrl: 'https://www.googleapis.com/oauth2/v3/userinfo'
@@ -42,10 +68,12 @@ export const runtimeConfig = {
 		},
 
 		email: {
-			from: process.env.AUTH_EMAIL_FROM!,
+			from: process.env.AUTH_EMAIL_FROM,
 			provider: {
 				name: 'sendgrid',
-				apiKey: process.env.AUTH_EMAIL_SENDGRID_API_KEY!
+				apiKey: process.env.AUTH_EMAIL_SENDGRID_API_KEY,
+				url: 'https://api.sendgrid.com/v3/mail/send',
+				authorization: `Bearer ${process.env.AUTH_EMAIL_SENDGRID_API_KEY}`
 			}
 		},
 

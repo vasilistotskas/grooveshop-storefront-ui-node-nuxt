@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Pagination } from '~/types/pagination/pagination'
+import type { PropType } from 'vue'
+import type { Pagination } from '~/types/pagination/pagination'
 
 const props = defineProps({
 	count: {

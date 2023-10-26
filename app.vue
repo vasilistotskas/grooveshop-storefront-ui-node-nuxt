@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { UseSeoMetaInput } from '@unhead/schema'
+import type { UseSeoMetaInput } from '@unhead/schema'
 import pkg from '~/package.json'
 
 const config = useRuntimeConfig()
@@ -30,6 +30,7 @@ const headOptions = {
 		class: () => themeClass.value,
 		dir: i18nHead.value.htmlAttrs?.dir
 	},
+	link: [{ rel: 'icon', type: 'image/png', href: '/assets/favicon/favicon.ico' }],
 	charset: 'utf-8',
 	title: () => config.public.appTitle,
 	meta: [

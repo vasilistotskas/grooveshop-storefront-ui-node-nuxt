@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Cookie } from '#cookie-control/types'
+import type { Cookie } from '#cookie-control/types'
 
 const { cookiesEnabled, isModalActive } = useCookieControl()
 

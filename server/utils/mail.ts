@@ -1,7 +1,7 @@
-import { MailMessage, PrivateConfig } from '~/types/auth'
+import type { MailMessage } from '~/types/auth'
 
 export async function sendMail(msg: MailMessage) {
-	const config = useRuntimeConfig().auth as unknown as PrivateConfig
+	const config = useRuntimeConfig().auth
 
 	if (!config.email) {
 		throw new Error('Please make sure to configure email option')

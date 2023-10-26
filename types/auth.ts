@@ -2,11 +2,11 @@
 export type Session = {
 	isSessionAuthenticated: boolean
 	CSRFToken: string
-	referer: string | null
+	referer?: string | null | undefined
 	userAgent: string | null
 	sessionid: string | null
 	role: string
-	lastActivity: string | null
+	lastActivity?: string | null | undefined
 }
 
 export type SessionRefreshBody = {}
@@ -102,12 +102,16 @@ export type RegistrationResendEmailBody = {
 }
 
 export type RegistrationResponse = {
-	access: string
-	refresh: string | null
-	user: {
-		id: number
-		email: string
-	}
+	detail?: string | null | undefined
+	access?: string | null | undefined
+	refresh?: string | null | undefined
+	user?:
+		| {
+				id: number
+				email: string
+		  }
+		| null
+		| undefined
 }
 
 export type RegistrationResendEmailResponse = {
@@ -161,6 +165,8 @@ export type ProviderLoginResponse = {
 		id: number
 		email: string
 	}
+	accessExpiration?: string | null | undefined
+	refreshExpiration?: string | null | undefined
 }
 
 export type ProviderConnectResponse = {
@@ -247,50 +253,6 @@ export type IsUserRegisteredResponse = {
 	registered: boolean
 }
 
-// Config
-export type PrivateConfig = {
-	accessToken: {
-		cookieName?: string
-		jwtSecret: string
-		maxAge?: number
-		customClaims?: Record<string, any>
-	}
-
-	refreshToken: {
-		cookieName?: string
-		jwtSecret: string
-		maxAge?: number
-	}
-
-	oauth?: Provider
-
-	email?: {
-		from: string
-		provider: MailCustomProvider | MailSendgridProvider | MailResendProvider
-		templates?: {
-			passwordReset?: string
-			emailVerify?: string
-		}
-	}
-
-	registration: {
-		enable?: boolean
-		requireEmailVerification?: boolean
-		defaultRole: UserRole
-	}
-}
-
-export type PublicConfig = {
-	baseUrl: string
-	enableGlobalAuthMiddleware?: boolean
-	redirect: {
-		login: string
-		logout: string
-		home: string
-		callback?: string
-	}
-}
-
 // MFA
 export type MfaTotpAuthenticateBody = {
 	code: string
@@ -332,4 +294,22 @@ export type MfaRecoveryCodesGenerateResponse = {
 export type MfaRecoveryCodesListResponse = {
 	unusedCodes: string[]
 	totalCount: number
+}
+
+export interface AuthCookieNames {
+	sessionCookieName: string
+	csrftokenCookieName: string
+	accessTokenCookieName: string
+	refreshTokenCookieName: string
+	totpAuthenticatedCookieName: string
+	totpActiveCookieName: string
+}
+
+export const defaultAuthCookieNames: AuthCookieNames = {
+	sessionCookieName: 'sessionid',
+	csrftokenCookieName: 'csrftoken',
+	accessTokenCookieName: 'jwt_auth',
+	refreshTokenCookieName: 'jwt_refresh_auth',
+	totpAuthenticatedCookieName: 'totp_authenticated',
+	totpActiveCookieName: 'totp_active'
 }

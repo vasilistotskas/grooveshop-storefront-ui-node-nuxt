@@ -1,6 +1,10 @@
-import { IFetchError } from 'ofetch'
-import { Cart } from '~/types/cart/cart'
-import { CartItem, CartItemCreateBody, CartItemPutBody } from '~/types/cart/cart-item'
+import type { IFetchError } from 'ofetch'
+import type { Cart } from '~/types/cart/cart'
+import type {
+	CartItem,
+	CartItemCreateBody,
+	CartItemPutBody
+} from '~/types/cart/cart-item'
 
 interface ErrorRecord {
 	cart: IFetchError | null
@@ -25,6 +29,10 @@ export const useCartStore = defineStore('cart', () => {
 
 	const getCartItems = computed(() => {
 		return cart.value?.cartItems ?? null
+	})
+
+	const getCartTotalItems = computed(() => {
+		return cart.value?.totalItems ?? 0
 	})
 
 	const getCartItemById = (id: number) => {
@@ -116,6 +124,7 @@ export const useCartStore = defineStore('cart', () => {
 		pending,
 		error,
 		getCartItems,
+		getCartTotalItems,
 		getCartItemById,
 		getCartItemByProductId,
 		fetchCart,

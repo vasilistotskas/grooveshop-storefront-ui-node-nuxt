@@ -1,4 +1,4 @@
-import {
+import type {
 	MfaRecoveryCodesGenerateBody,
 	MfaRecoveryCodesGenerateResponse,
 	MfaRecoveryCodesListResponse,
@@ -37,6 +37,7 @@ export default function () {
 		const { data, pending, error, refresh } = await useFetch<MfaTotpDeactivateResponse>(
 			'/api/auth/mfa/totp/deactivate',
 			{
+				key: 'totpDeactivate',
 				method: 'POST',
 				body
 			}
@@ -70,6 +71,7 @@ export default function () {
 		const { data, pending, error, refresh } = await useFetch<MfaTotpActivatePostResponse>(
 			'/api/auth/mfa/totp/activate',
 			{
+				key: 'totpActivatePost',
 				method: 'POST',
 				body
 			}
@@ -108,6 +110,7 @@ export default function () {
 			await useFetch<MfaRecoveryCodesGenerateResponse>(
 				'/api/auth/mfa/recovery-codes/generate',
 				{
+					key: 'recoveryCodesGenerate',
 					method: 'POST',
 					body
 				}

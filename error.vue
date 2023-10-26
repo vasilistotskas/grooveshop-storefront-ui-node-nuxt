@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { IFetchError } from 'ofetch'
-import { UseSeoMetaInput } from '@unhead/schema'
+import type { IFetchError } from 'ofetch'
+import type { UseSeoMetaInput } from '@unhead/schema'
 import Json404 from '~/assets/lotties/404.json'
 
 defineProps({

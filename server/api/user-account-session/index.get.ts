@@ -1,12 +1,16 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs } from '~/types/parser'
+
 import { ZodAccount } from '~/types/user/account'
 import { buildFullUrl } from '~/utils/api'
-import { FavouriteQuery, ZodFavourite } from '~/types/product/favourite'
-import { OrderQuery, ZodOrder } from '~/types/order/order'
-import { ReviewQuery, ZodReview } from '~/types/product/review'
-import { AddressQuery, ZodAddress } from '~/types/user/address'
+import { ZodFavourite } from '~/types/product/favourite'
+import { ZodOrder } from '~/types/order/order'
+import { ZodReview } from '~/types/product/review'
+import { ZodAddress } from '~/types/user/address'
+import type { FavouriteQuery } from '~/types/product/favourite'
+import type { OrderQuery } from '~/types/order/order'
+import type { ReviewQuery } from '~/types/product/review'
+import type { AddressQuery } from '~/types/user/address'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

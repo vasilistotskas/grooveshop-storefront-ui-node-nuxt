@@ -34,5 +34,8 @@ export const i18n = {
 			flag: '🇬🇷'
 		}
 	],
-	vueI18n: 'i18n.config.ts'
+	vueI18n: 'i18n.config.ts',
+	compilation: {
+		strictMessage: false
+	}
 }

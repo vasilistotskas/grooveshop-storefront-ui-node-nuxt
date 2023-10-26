@@ -1,4 +1,4 @@
-import { LocationQueryValue } from 'vue-router'
+import type { LocationQueryValue } from 'vue-router'
 
 export interface OrderingOption {
 	value: string

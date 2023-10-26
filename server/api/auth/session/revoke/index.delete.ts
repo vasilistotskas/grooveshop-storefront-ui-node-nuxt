@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs } from '~/types/parser'
-import { SessionRevokeResponse } from '~/types/auth'
+
+import type { SessionRevokeResponse } from '~/types/auth'
 
 export const ZodSessionRevokeResponse = z.object({
 	success: z.boolean()

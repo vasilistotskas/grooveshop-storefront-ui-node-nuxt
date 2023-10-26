@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { SearchProduct } from '~/types/search'
+import type { PropType } from 'vue'
+import type { SearchProduct } from '~/types/search'
 
 const props = defineProps({
 	item: {

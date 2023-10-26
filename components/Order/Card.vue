@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Order } from '~/types/order/order'
+import type { PropType } from 'vue'
+import type { Order } from '~/types/order/order'
 import SentIcon from '~icons/fa6-solid/paper-plane'
 import PaidSentIcon from '~icons/fa6-solid/circle-check'
 import CanceledSentIcon from '~icons/fa6-solid/circle-xmark'

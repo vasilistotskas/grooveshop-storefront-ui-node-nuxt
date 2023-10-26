@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { FunctionalComponent, SVGAttributes } from 'vue'
+import type { FunctionalComponent, SVGAttributes } from 'vue'
 import ordersIcon from '~icons/mdi/package-variant-closed'
 import favouritesIcon from '~icons/mdi/heart-outline'
 import reviewsIcon from '~icons/mdi/star-outline'

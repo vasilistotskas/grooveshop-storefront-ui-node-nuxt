@@ -2,7 +2,7 @@
 import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
 import { capitalize } from '~/utils/str'
-import { Review } from '~/types/product/review'
+import type { Review } from '~/types/product/review'
 
 const { isAuthenticated } = useAuthSession()
 
@@ -96,11 +96,11 @@ const shareOptions = ref({
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
 const productInUserFavourites = computed(() => {
-	return getIsProductInFavourites(productId)
+	return getIsProductInFavourites(Number(productId))
 })
 
 const userToProductFavourite = computed(() => {
-	return getUserToProductFavourite(productId)
+	return getUserToProductFavourite(Number(productId))
 })
 
 watch(

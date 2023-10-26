@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import {
+import type {
 	Favourite,
 	FavouriteOrderingField,
 	FavouriteQuery
 } from '~/types/product/favourite'
-import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const userStore = useUserStore()

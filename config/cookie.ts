@@ -1,4 +1,4 @@
-import { ModuleOptions } from '#cookie-control/types'
+import type { ModuleOptions } from '#cookie-control/types'
 
 export const cookieControl = {
 	cookies: {

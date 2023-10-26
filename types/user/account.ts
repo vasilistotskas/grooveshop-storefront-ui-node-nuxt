@@ -1,8 +1,8 @@
 import { z } from 'zod'
-import { Favourite } from '~/types/product/favourite'
-import { Review } from '~/types/product/review'
-import { Order } from '~/types/order/order'
-import { Address } from '~/types/user/address'
+import type { Favourite } from '~/types/product/favourite'
+import type { Review } from '~/types/product/review'
+import type { Order } from '~/types/order/order'
+import type { Address } from '~/types/user/address'
 
 export const ZodAccount = z.object({
 	id: z.number(),

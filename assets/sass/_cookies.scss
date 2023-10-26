@@ -102,6 +102,7 @@
 	@apply max-h-[90vh] md:max-h-[80vh] overflow-y-scroll;
 	@apply px-2 py-1 md:px-7 md:py-3;
 
+	h2,
 	h3 {
 		@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
 		@apply mt-3 text-sm;
@@ -135,6 +136,7 @@
 	@apply text-xs text-gray-700 dark:border-gray-700 dark:text-gray-400;
 
 	div {
+		h2,
 		h3 {
 			@apply mb-1 font-semibold;
 		}

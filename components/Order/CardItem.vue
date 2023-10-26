@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { OrderItem } from '~/types/order/order-item'
+import type { PropType } from 'vue'
+import type { OrderItem } from '~/types/order/order-item'
 
 const props = defineProps({
 	item: {

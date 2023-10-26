@@ -1,5 +1,5 @@
-import { H3Event } from 'h3'
-import { NitroFetchOptions, NitroFetchRequest } from 'nitropack'
+import type { H3Event } from 'h3'
+import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack'
 import { defu } from 'defu'
 
 export function $api<T>(
@@ -8,6 +8,7 @@ export function $api<T>(
 	options: NitroFetchOptions<NitroFetchRequest> = {}
 ): Promise<T> {
 	const jwtAuth = getCookie(event, 'jwt_auth') || ''
+	const cookie = getHeader(event, 'cookie') || ''
 
 	const method = options.method || event.method
 
@@ -18,6 +19,15 @@ export function $api<T>(
 		options.headers = defu(
 			{
 				Authorization: 'Bearer ' + jwtAuth
+			},
+			options.headers
+		)
+	}
+
+	if (cookie) {
+		options.headers = defu(
+			{
+				Cookie: cookie
 			},
 			options.headers
 		)

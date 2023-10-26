@@ -1,8 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import { parseDataAs } from '~/types/parser'
-import { MfaRecoveryCodesListResponse } from '~/types/auth'
+import type { MfaRecoveryCodesListResponse } from '~/types/auth'
 
 export const ZodMfaRecoveryCodesListResponse = z.object({
 	unusedCodes: z.array(z.string()).nonempty(),

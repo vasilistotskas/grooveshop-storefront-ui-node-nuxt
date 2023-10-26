@@ -1,6 +1,6 @@
-import { Plugin } from '#app'
+import type { Plugin } from '#app'
 import { ref } from 'vue'
-import { Cookie, State } from './types'
+import type { Cookie, State } from './types'
 import { getAllCookieIdsString, getCookieId } from './methods'
 import moduleOptions from '#build/cookie-control-options'
 

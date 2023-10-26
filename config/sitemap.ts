@@ -1,4 +1,4 @@
-import { ModuleOptions } from 'nuxt-simple-sitemap'
+import type { ModuleOptions } from 'nuxt-simple-sitemap'
 
 export const sitemap = {
 	// automatically chunk into multiple sitemaps

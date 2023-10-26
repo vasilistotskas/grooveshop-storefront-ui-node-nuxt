@@ -1,114 +1,98 @@
 ## [1.12.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.3...v1.12.4) (2023-10-17)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** add safe dir. ([6fd4b1f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6fd4b1feaf9b73fc11500957345ca34625902d2e))
+- **Dockerfile:** add safe dir. ([6fd4b1f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6fd4b1feaf9b73fc11500957345ca34625902d2e))
 
 ## [1.12.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.2...v1.12.3) (2023-10-17)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** add `apk add --no-cache git` and `ENV NODE_OPTIONS` ([1260212](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/126021290db200127b6209eb1d7b0e5b8bc67e40))
+- **Dockerfile:** add `apk add --no-cache git` and `ENV NODE_OPTIONS` ([1260212](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/126021290db200127b6209eb1d7b0e5b8bc67e40))
 
 ## [1.12.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.1...v1.12.2) (2023-10-17)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** pathing improvements. ([e86d8a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e86d8a905f5b42c6d85d1b0f19abd14edadb9ff3))
+- **Dockerfile:** pathing improvements. ([e86d8a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e86d8a905f5b42c6d85d1b0f19abd14edadb9ff3))
 
 ## [1.12.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.0...v1.12.1) (2023-10-17)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** remove `NODE_OPTIONS` flag. ([0db37e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0db37e4e85b9711b59671c9cd5202c09878df163))
+- **Dockerfile:** remove `NODE_OPTIONS` flag. ([0db37e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0db37e4e85b9711b59671c9cd5202c09878df163))
 
 # [1.12.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.11.1...v1.12.0) (2023-10-17)
 
-
 ### Features
 
-* More at `Description` ([649f08d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/649f08d29b25ab512301f6bb4862c4cbbe57800e))
+- More at `Description` ([649f08d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/649f08d29b25ab512301f6bb4862c4cbbe57800e))
 
 ## [1.11.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.11.0...v1.11.1) (2023-10-08)
 
-
 ### Bug Fixes
 
-* form usage fixes (pending to replace forms with `DynamicForm` component) and style improvements. ([afb2d80](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/afb2d80e2cb1d30a88040201f1efb8512f49cee5))
+- form usage fixes (pending to replace forms with `DynamicForm` component) and style improvements. ([afb2d80](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/afb2d80e2cb1d30a88040201f1efb8512f49cee5))
 
 # [1.11.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.10.0...v1.11.0) (2023-10-08)
 
-
 ### Features
 
-* Dynamic Form, validate with zod, ui from Nuxt ui library, form managment using vee-validate. ([3f6722c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f6722cb00ba46ee083e89f69bf75843220c2c02))
+- Dynamic Form, validate with zod, ui from Nuxt ui library, form managment using vee-validate. ([3f6722c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f6722cb00ba46ee083e89f69bf75843220c2c02))
 
 # [1.10.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.9.0...v1.10.0) (2023-10-06)
 
-
 ### Features
 
-* More at `Description` ([96a6b25](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96a6b25cd82b9973c3ecc3c0a75c82a929f45efa))
+- More at `Description` ([96a6b25](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96a6b25cd82b9973c3ecc3c0a75c82a929f45efa))
 
 # [1.9.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.6...v1.9.0) (2023-09-25)
 
-
 ### Features
 
-* **ci:** Use actions/checkout@v4 and versions bump ([8d3150a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8d3150a66c80bbba239948bc088d4d60f5dcb6ae))
+- **ci:** Use actions/checkout@v4 and versions bump ([8d3150a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8d3150a66c80bbba239948bc088d4d60f5dcb6ae))
 
 ## [1.8.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.5...v1.8.6) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** Add ENV PNPM_HOME ([57a64e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/57a64e1ab753078dcc2bf977356a633e184c4c7f))
+- **Dockerfile:** Add ENV PNPM_HOME ([57a64e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/57a64e1ab753078dcc2bf977356a633e184c4c7f))
 
 ## [1.8.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.4...v1.8.5) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** Run pnpm setup ([16d1f32](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/16d1f32a49eae7c99e5c23b1e3683f27d6d5aec8))
+- **Dockerfile:** Run pnpm setup ([16d1f32](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/16d1f32a49eae7c99e5c23b1e3683f27d6d5aec8))
 
 ## [1.8.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.3...v1.8.4) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** Update node version. ([be9e4ff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/be9e4ffc15d7eb5f1cc8ff1c9f4c46f292470ead))
+- **Dockerfile:** Update node version. ([be9e4ff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/be9e4ffc15d7eb5f1cc8ff1c9f4c46f292470ead))
 
 ## [1.8.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.2...v1.8.3) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** Fix flow. ([9dda436](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9dda436c2ca23532213dc49905c863f7d64c95f6))
+- **Dockerfile:** Fix flow. ([9dda436](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9dda436c2ca23532213dc49905c863f7d64c95f6))
 
 ## [1.8.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.1...v1.8.2) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **Dockerfile:** Fix flow. ([b5f8468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b5f8468b3f004505fb639fb04aeb3d3bf4fb8f37))
+- **Dockerfile:** Fix flow. ([b5f8468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b5f8468b3f004505fb639fb04aeb3d3bf4fb8f37))
 
 ## [1.8.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.8.0...v1.8.1) (2023-09-24)
 
-
 ### Bug Fixes
 
-* **server:** Error handler await error. ([b1602d1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1602d16d15e2b005d5528a7316d468b3f5308e8))
+- **server:** Error handler await error. ([b1602d1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1602d16d15e2b005d5528a7316d468b3f5308e8))
 
 # [1.8.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.7.1...v1.8.0) (2023-09-22)
 
-
 ### Features
 
-* Changes Below ([962ce21](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/962ce21eb0383aa3ffa39425f06f28f924ff0ce7))
+- Changes Below ([962ce21](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/962ce21eb0383aa3ffa39425f06f28f924ff0ce7))
 
 ## [1.7.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.7.0...v1.7.1) (2023-08-25)
 

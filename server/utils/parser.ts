@@ -1,5 +1,4 @@
 import type { H3Event } from 'h3'
-import { createError, getHeaders, getQuery, parseCookies, readBody } from 'h3'
 import { z } from 'zod'
 
 const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(
@@ -243,18 +242,13 @@ function makePromiseParser<ZodSchema extends z.ZodTypeAny>(
 }
 
 export {
-	// h3-focused helpers
 	parseBodyAs,
 	parseParamsAs,
 	parseQueryAs,
 	parseCookieAs,
 	parseHeaderAs,
 	parseDataAs,
-
-	// general utilities
 	makeParser,
 	makePromiseParser,
-
-	// `z` for better DX
 	z
 }

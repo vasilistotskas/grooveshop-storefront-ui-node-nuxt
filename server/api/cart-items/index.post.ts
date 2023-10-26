@@ -1,5 +1,5 @@
-import { H3Event } from 'h3'
-import { parseBodyAs, parseDataAs } from '~/types/parser'
+import type { H3Event } from 'h3'
+
 import { ZodCartItemCreateBody, ZodCartItemCreateResponse } from '~/types/cart/cart-item'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {

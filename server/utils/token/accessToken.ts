@@ -1,4 +1,3 @@
-import { getRequestHeader, deleteCookie } from 'h3'
 import type { H3Event } from 'h3'
 
 export function getAccessTokenFromHeader(event: H3Event) {
@@ -14,9 +13,5 @@ export function getAccessTokenFromHeader(event: H3Event) {
 
 export function deleteAccessTokenCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	deleteCookie(event, config.auth.accessToken.cookieName!, {
-		httpOnly: false,
-		secure: true,
-		sameSite: 'lax'
-	})
+	deleteCookie(event, config.auth.accessToken.cookieName)
 }

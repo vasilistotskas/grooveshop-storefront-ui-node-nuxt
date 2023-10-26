@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { PaginationQuery } from '~/types/pagination/pagination'
-import { OrderingQuery } from '~/types/ordering/ordering'
+import type { PaginationQuery } from '~/types/pagination/pagination'
+import type { OrderingQuery } from '~/types/ordering/ordering'
 
 const ZodImageTranslations = z.record(
 	z.object({

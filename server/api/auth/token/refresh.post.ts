@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseBodyAs } from '~/types/parser'
-import { TokenRefreshResponse, TokenRefreshBody } from '~/types/auth'
+
+import type { TokenRefreshResponse, TokenRefreshBody } from '~/types/auth'
 
 export const ZodTokenRefreshResponse = z.object({
 	access: z.string().min(1),

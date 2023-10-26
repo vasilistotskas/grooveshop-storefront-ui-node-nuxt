@@ -1,4 +1,4 @@
-import { NitroConfig } from 'nitropack'
+import type { NitroConfig } from 'nitropack'
 import { useNuxt } from '@nuxt/kit'
 import { isCI } from 'std-env'
 import { runtimeConfig } from './config/runtime-config'

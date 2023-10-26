@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { CartItem } from '~/types/cart/cart-item'
+import type { PropType } from 'vue'
+import type { CartItem } from '~/types/cart/cart-item'
 
-const props = defineProps({
+defineProps({
 	items: { type: Array as PropType<CartItem[] | null>, required: true },
 	shippingPrice: { type: Number, required: true },
 	totalDiscountValue: { type: Number, required: true },
@@ -32,24 +32,12 @@ defineSlots<{
 			<div class="sidebar-list">
 				<div class="sidebar-list-item">
 					<div class="sidebar-list-item-title">
-						<span class="text-primary-700 dark:text-primary-100">{{
-							$t('components.checkout.sidebar.items')
-						}}</span>
-					</div>
-					<div class="sidebar-list-item-value">
 						<span class="text-primary-700 dark:text-primary-100">
-							{{ totalItems }}
-						</span>
-					</div>
-				</div>
-				<div class="sidebar-list-item">
-					<div class="sidebar-list-item-title">
-						<span class="text-primary-700 dark:text-primary-100">
-							{{ $t('components.checkout.sidebar.items_unique') }}
+							{{ $t('components.checkout.sidebar.items_unique') }}:
 						</span>
 					</div>
 					<div class="sidebar-list-item-value">
-						<span class="text-primary-700 dark:text-primary-100">
+						<span class="text-primary-700 dark:text-primary-100 font-bold">
 							{{ totalItemsUnique }}
 						</span>
 					</div>
@@ -57,11 +45,11 @@ defineSlots<{
 				<div class="sidebar-list-item">
 					<div class="sidebar-list-item-title">
 						<span class="text-primary-700 dark:text-primary-100">
-							{{ $t('components.checkout.sidebar.shipping') }}
+							{{ $t('components.checkout.sidebar.shipping') }}:
 						</span>
 					</div>
 					<div class="sidebar-list-item-value">
-						<span class="text-primary-700 dark:text-primary-100"
+						<span class="text-primary-700 dark:text-primary-100 font-bold"
 							>{{ shippingPrice }}€
 						</span>
 					</div>
@@ -69,11 +57,11 @@ defineSlots<{
 				<div class="sidebar-list-item">
 					<div class="sidebar-list-item-title">
 						<span class="text-primary-700 dark:text-primary-100">
-							{{ $t('components.checkout.sidebar.discount') }}
+							{{ $t('components.checkout.sidebar.discount') }}:
 						</span>
 					</div>
 					<div class="sidebar-list-item-value">
-						<span class="text-primary-700 dark:text-primary-100"
+						<span class="text-primary-700 dark:text-primary-100 font-bold"
 							>{{ totalDiscountValue }}€</span
 						>
 					</div>
@@ -81,11 +69,11 @@ defineSlots<{
 				<div class="sidebar-list-item">
 					<div class="sidebar-list-item-title">
 						<span class="text-primary-700 dark:text-primary-100">
-							{{ $t('components.checkout.sidebar.vat') }}
+							{{ $t('components.checkout.sidebar.vat') }}:
 						</span>
 					</div>
 					<div class="sidebar-list-item-value">
-						<span class="text-primary-700 dark:text-primary-100"
+						<span class="text-primary-700 dark:text-primary-100 font-bold"
 							>{{ totalVatValue }}€</span
 						>
 					</div>
@@ -93,11 +81,13 @@ defineSlots<{
 				<div class="sidebar-list-item">
 					<div class="sidebar-list-item-title">
 						<span class="text-primary-700 dark:text-primary-100">
-							{{ $t('components.checkout.sidebar.total') }}
+							{{ $t('components.checkout.sidebar.total') }}:
 						</span>
 					</div>
 					<div class="sidebar-list-item-value">
-						<span class="text-primary-700 dark:text-primary-100">{{ totalPrice }}€</span>
+						<span class="text-primary-700 dark:text-primary-100 font-bold"
+							>{{ totalPrice }}€</span
+						>
 					</div>
 				</div>
 			</div>
@@ -108,7 +98,7 @@ defineSlots<{
 
 <style lang="scss" scoped>
 .sidebar {
-	grid-template-rows: 1fr auto auto;
+	grid-template-rows: auto auto auto;
 
 	&-list {
 		&-item {

@@ -54,9 +54,9 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 import { useForm } from 'vee-validate'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
-import { DynamicFormFields, DynamicFormSchema, DynamicFormState } from '~/types/form'
+import type { DynamicFormFields, DynamicFormSchema, DynamicFormState } from '~/types/form'
 
 // Define the UI configuration for Nuxt-UI
 const nuxtUiConfig = (state: DynamicFormState) => {

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
-import { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const userStore = useUserStore()

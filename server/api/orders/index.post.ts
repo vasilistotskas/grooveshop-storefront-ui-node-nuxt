@@ -1,6 +1,6 @@
-import { H3Event } from 'h3'
-import { parseBodyAs, parseDataAs } from '~/types/parser'
-import { ZodOrder, ZodOrderCreateBody } from '~/types/order/order'
+import type { H3Event } from 'h3'
+
+import { ZodOrderCreateBody, ZodOrderCreateResponse } from '~/types/order/order'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
@@ -8,5 +8,5 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const response = await $api(`${config.public.apiBaseUrl}/order/`, event, {
 		body: JSON.stringify(body)
 	})
-	return await parseDataAs(response, ZodOrder)
+	return await parseDataAs(response, ZodOrderCreateResponse)
 })

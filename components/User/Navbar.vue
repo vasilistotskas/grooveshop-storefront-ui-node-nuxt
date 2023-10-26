@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { FunctionalComponent, SVGAttributes } from 'vue'
+import type { FunctionalComponent, SVGAttributes } from 'vue'
 import userShield from '~icons/fa6-solid/user-shield'
-import doorArrowRight from '~icons/fluent/door-arrow-right-28-regular'
 
 interface IMenuItem {
 	type: 'link' | 'button' | 'external-link'
@@ -27,7 +26,7 @@ const userStore = useUserStore()
 const { cleanAccountState } = userStore
 
 const cartStore = useCartStore()
-const { cart } = storeToRefs(cartStore)
+const { getCartTotalItems } = storeToRefs(cartStore)
 const { cleanCartState, fetchCart } = cartStore
 
 const authLogoutEvent = async () => {
@@ -43,7 +42,7 @@ const menus = computed((): IMenuItem[] => [
 	{
 		type: 'link',
 		text: t('pages.accounts.security.title'),
-		route: { name: 'auth-mfa', path: '/auth/mfa' },
+		route: { name: 'auth-security', path: '/auth/security' },
 		icon: userShield,
 		cssClass:
 			'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700'
@@ -133,7 +132,7 @@ const menus = computed((): IMenuItem[] => [
 						<ThemeSwitcher />
 					</li>
 					<li class="relative grid items-center justify-center justify-items-center">
-						<span class="cart-items-count" :data-count="cart?.totalItems"></span>
+						<span class="cart-items-count" :data-count="getCartTotalItems"></span>
 						<Anchor
 							class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 							:to="'cart'"

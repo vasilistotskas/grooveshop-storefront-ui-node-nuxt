@@ -6,9 +6,18 @@ export const ZodCartItem = z.object({
 	cart: z.number(),
 	product: ZodProduct,
 	quantity: z.number(),
+	price: z.number().nullish(),
+	finalPrice: z.number().nullish(),
+	discountValue: z.number().nullish(),
+	priceSavePercent: z.number().nullish(),
+	discountPercent: z.number().nullish(),
+	vatPercent: z.number().nullish(),
+	vatValue: z.number().nullish(),
 	totalPrice: z.number().nullish(),
 	totalDiscountValue: z.number().nullish(),
-	productDiscountPercent: z.number().nullish()
+	createdAt: z.string().datetime({ offset: true }),
+	updatedAt: z.string().datetime({ offset: true }),
+	uuid: z.string().uuid()
 })
 
 export const ZodCartItemCreateResponse = z.object({

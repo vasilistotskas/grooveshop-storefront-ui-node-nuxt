@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { BaseInputBinds } from 'vee-validate'
+import type { BaseInputBinds } from 'vee-validate'
 
 const props = defineProps({
 	modelValue: {
@@ -114,7 +114,9 @@ const selectedFontSizeStyle = computed(
 					haveSuEl ? '' : 'rounded-r'
 				} ${selectedBorderStyle} ${selectedOnHoverBorderStyle} ${selectedPaddingStyle} ${selectedFontSizeStyle}`"
 				:type="type"
-				:placeholder="type === 'text' ? placeholder : ''"
+				:placeholder="
+					type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
+				"
 				:required="required"
 				:autocomplete="autocomplete"
 			/>
@@ -130,7 +132,9 @@ const selectedFontSizeStyle = computed(
 					haveSuEl ? '' : 'rounded-r'
 				} ${selectedBorderStyle} ${selectedOnHoverBorderStyle} ${selectedPaddingStyle} ${selectedFontSizeStyle}`"
 				:type="type"
-				:placeholder="type === 'text' ? placeholder : ''"
+				:placeholder="
+					type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
+				"
 				:required="required"
 				:autocomplete="autocomplete"
 			/>

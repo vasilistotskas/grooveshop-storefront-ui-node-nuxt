@@ -39,13 +39,19 @@ const envVariables = z.object({
 	NUXT_STORAGE_DRIVER: z.string(),
 	NUXT_STORAGE_FS_BASE: z.string(),
 
+	NUXT_PUBLIC_EXPERIMENTAL_WATCHER: z.string(),
+
 	WEB_SOCKET_SERVER_PORT: z.string(),
 
 	AUTH_EMAIL_FROM: z.string(),
 	AUTH_EMAIL_SENDGRID_API_KEY: z.string(),
 	AUTH_BASE_URL: z.string(),
-	AUTH_ACCESS_TOKEN_SECRET: z.string(),
+	AUTH_ACCESS_TOKEN_NAME: z.string(),
 	AUTH_REFRESH_TOKEN_SECRET: z.string(),
+	AUTH_SESSION_NAME: z.string(),
+	AUTH_CSRFTOKEN_NAME: z.string(),
+	AUTH_TOTP_AUTHENTICATED_NAME: z.string(),
+	AUTH_TOTP_ACTIVE_NAME: z.string(),
 	AUTH_OAUTH_GOOGLE_CLIENT_ID: z.string(),
 	AUTH_OAUTH_GOOGLE_CLIENT_SECRET: z.string(),
 	AUTH_OAUTH_GOOGLE_SCOPES: z.string()

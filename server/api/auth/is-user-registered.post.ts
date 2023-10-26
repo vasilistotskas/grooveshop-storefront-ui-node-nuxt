@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseBodyAs, parseDataAs } from '~/types/parser'
-import { IsUserRegisteredBody, IsUserRegisteredResponse } from '~/types/auth'
+
+import type { IsUserRegisteredBody, IsUserRegisteredResponse } from '~/types/auth'
 
 export const ZodIsUserRegisteredBody = z.object({
 	email: z.string()

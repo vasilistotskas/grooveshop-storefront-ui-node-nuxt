@@ -1,7 +1,7 @@
-import { IFetchError } from 'ofetch'
-import { Category } from '~/types/product/category'
-import { ProductQuery } from '~/types/product/product'
-import { Pagination } from '~/types/pagination/pagination'
+import type { IFetchError } from 'ofetch'
+import type { Category } from '~/types/product/category'
+import type { ProductQuery } from '~/types/product/product'
+import type { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	categories: IFetchError | null

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 
-const props = defineProps({
+defineProps({
 	rate: {
 		type: Number as PropType<number>,
 		required: true,

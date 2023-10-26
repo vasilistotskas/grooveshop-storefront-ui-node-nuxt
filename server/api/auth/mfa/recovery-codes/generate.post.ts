@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseBodyAs } from '~/types/parser'
-import {
+
+import type {
 	MfaRecoveryCodesGenerateBody,
 	MfaRecoveryCodesGenerateResponse
 } from '~/types/auth'

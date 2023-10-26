@@ -1,9 +1,9 @@
-import { IFetchError } from 'ofetch'
-import { Account, AccountPutBody, UserAccountSession } from '~/types/user/account'
-import { Favourite, FavouriteCreateBody } from '~/types/product/favourite'
-import { Review } from '~/types/product/review'
-import { Order } from '~/types/order/order'
-import { Address } from '~/types/user/address'
+import type { IFetchError } from 'ofetch'
+import type { Account, AccountPutBody, UserAccountSession } from '~/types/user/account'
+import type { Favourite, FavouriteCreateBody } from '~/types/product/favourite'
+import type { Review } from '~/types/product/review'
+import type { Order } from '~/types/order/order'
+import type { Address } from '~/types/user/address'
 
 interface ErrorRecord {
 	account: IFetchError | null

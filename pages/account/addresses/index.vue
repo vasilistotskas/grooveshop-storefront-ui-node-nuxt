@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
-import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const userStore = useUserStore()

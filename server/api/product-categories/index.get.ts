@@ -1,7 +1,6 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { ZodCategory } from '~/types/product/category'
 import { ZodPagination } from '~/types/pagination/pagination'
-import { parseDataAs } from '~/types/parser'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

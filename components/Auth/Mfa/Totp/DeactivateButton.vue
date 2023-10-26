@@ -16,6 +16,7 @@ async function onSubmit() {
 			title: t('pages.auth.mfa.totp.deactivate.error'),
 			color: 'red'
 		})
+		clearNuxtData('totpDeactivate')
 	}
 }
 </script>

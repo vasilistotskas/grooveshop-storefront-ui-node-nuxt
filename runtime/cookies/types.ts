@@ -1,6 +1,6 @@
-import { Ref } from 'vue'
+import type { Ref } from 'vue'
 import { z } from 'zod'
-import { CookieOptions } from '#app'
+import type { CookieOptions } from '#app'
 
 export const CookieTypeEnum = z.enum(['necessary', 'optional'])
 

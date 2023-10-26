@@ -15,7 +15,7 @@ const ZodPasswordResetConfirm = z
 	.object({
 		newPassword1: z.string().min(8).max(255),
 		newPassword2: z.string().min(8).max(255),
-		uid: z.string().uuid(),
+		uid: z.string(),
 		token: z.string()
 	})
 	.refine((data) => data.newPassword1 === data.newPassword2, {
@@ -76,6 +76,20 @@ const onSubmit = handleSubmit(async (values) => {
 				class="p-4 md:p-8 flex h-full flex-wrap items-center justify-center lg:justify-between bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded-[0.5rem] shadow-[0_4px_9px_-4px_#0000000d] dark:shadow-[0_4px_9px_-4px_#0000000d]"
 			>
 				<div class="relative grid w-full">
+					<div class="hidden">
+						<label for="email">{{
+							$t('pages.auth.password.reset.confirm.form.email.label')
+						}}</label>
+						<input
+							id="email"
+							type="text"
+							name="email"
+							value="..."
+							autocomplete="username email"
+							style="display: none"
+						/>
+					</div>
+
 					<div class="grid content-evenly items-start">
 						<label
 							class="text-primary-700 dark:text-primary-100 mb-2"

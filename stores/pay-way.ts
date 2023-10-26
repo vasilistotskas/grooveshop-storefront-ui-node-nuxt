@@ -1,6 +1,6 @@
-import { IFetchError } from 'ofetch'
-import { Pagination } from '~/types/pagination/pagination'
-import { PayWay, PayWayQuery } from '~/types/pay-way/pay-way'
+import type { IFetchError } from 'ofetch'
+import type { Pagination } from '~/types/pagination/pagination'
+import type { PayWay, PayWayQuery } from '~/types/pay-way/pay-way'
 
 interface ErrorRecord {
 	payWays: IFetchError | null
@@ -30,6 +30,10 @@ export const usePayWayStore = defineStore('payWay', () => {
 
 	const getActivePayWays = computed(() => {
 		return payWays.value?.results?.filter((payWay) => payWay.active) ?? null
+	})
+
+	const getSelectedPayWayId = computed(() => {
+		return payWay.value?.id ?? null
 	})
 
 	async function fetchPayWays(params?: PayWayQuery) {
@@ -81,6 +85,7 @@ export const usePayWayStore = defineStore('payWay', () => {
 		pending,
 		error,
 		getActivePayWays,
+		getSelectedPayWayId,
 		fetchPayWays,
 		fetchPayWay
 	}

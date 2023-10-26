@@ -9,7 +9,8 @@ import {
 } from '@nuxt/kit'
 
 import { version } from '../package.json'
-import { DEFAULTS, ModuleOptions } from '../runtime/cookies/types'
+import { DEFAULTS } from '../runtime/cookies/types'
+import type { ModuleOptions } from '../runtime/cookies/types'
 import { replaceCodePlugin } from '../runtime/utils/replace'
 
 const resolver = createResolver(import.meta.url)
@@ -35,7 +36,7 @@ export default defineNuxtModule<ModuleOptions>({
 			filename: 'cookie-control-options.ts',
 			write: true,
 			getContents: () =>
-				`import { ModuleOptions } from '../runtime/cookies/types'\n\nexport default ${JSON.stringify(
+				`import type { ModuleOptions } from '../runtime/cookies/types'\n\nexport default ${JSON.stringify(
 					moduleOptions,
 					undefined,
 					2

@@ -5,9 +5,6 @@ import { useForm } from 'vee-validate'
 
 const { login, loginWithProvider } = useAuth()
 
-const userStore = useUserStore()
-const { fetchAccount } = userStore
-
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
 
@@ -39,7 +36,6 @@ const onSubmit = handleSubmit(async (values) => {
 		toast.add({
 			title: t('common.auth.login.success')
 		})
-		await fetchAccount()
 		await fetchCart()
 		const idb = await useAsyncIDBKeyval('auth', true)
 		idb.value = true
@@ -55,6 +51,7 @@ const onSubmit = handleSubmit(async (values) => {
 				color: 'red'
 			})
 		}
+		clearNuxtData('login')
 	}
 })
 </script>

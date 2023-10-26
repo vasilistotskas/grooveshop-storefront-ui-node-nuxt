@@ -2,7 +2,7 @@
 const { isAuthenticated } = useAuthSession()
 
 const cartStore = useCartStore()
-const { cart } = storeToRefs(cartStore)
+const { getCartTotalItems } = storeToRefs(cartStore)
 
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
@@ -49,7 +49,7 @@ const { account } = storeToRefs(userStore)
 							<ThemeSwitcher />
 						</li>
 						<li class="relative grid items-center justify-center justify-items-center">
-							<span class="cart-items-count" :data-count="cart?.totalItems"></span>
+							<span class="cart-items-count" :data-count="getCartTotalItems"></span>
 							<Anchor
 								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 								:to="'cart'"

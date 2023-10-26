@@ -1,5 +1,5 @@
 import { config } from '@vue/test-utils'
-import { I18n } from 'vue-i18n'
+import type { I18n } from 'vue-i18n'
 
 try {
 	const nuxtApp = useNuxtApp()

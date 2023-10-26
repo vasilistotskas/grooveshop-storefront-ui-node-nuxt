@@ -1,5 +1,5 @@
-import { LocaleObject } from 'vue-i18n-routing'
-import { ComputedRef } from 'vue'
+import type { LocaleObject } from 'vue-i18n-routing'
+import type { ComputedRef } from 'vue'
 
 // and string | LocaleObject
 type Locale = LocaleObject & {

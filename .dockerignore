@@ -1,6 +1,15 @@
-/.nuxt
-/.output
-/node_modules
+# Docker
+dev.Dockerfile
+Dockerfile
 
+# Git files
+.git
 .gitignore
-README.md
+.gitattributes
+
+# macOS specific files
+.DS_Store
+
+# IDE / Editor directories
+.idea/
+.editorconfig

@@ -1,8 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import { parseDataAs } from '~/types/parser'
-import { User } from '~/types/auth'
+import type { User } from '~/types/auth'
 
 export const ZodUser = z.object({
 	id: z.number().int(),

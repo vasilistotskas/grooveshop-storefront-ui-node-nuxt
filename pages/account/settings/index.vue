@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { FieldContext, useForm } from 'vee-validate'
+import type { FieldContext } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { defaultSelectOptionChoose } from '~/types/global/general'
@@ -348,20 +349,24 @@ const date = ref(new Date())
 					<div class="grid">
 						<VeeField
 							id="country"
-							v-slot="{ value }"
+							v-bind="country"
 							name="country"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-							@change="onCountryChange"
+							@change.capture="onCountryChange"
 						>
-							<option :value="defaultSelectOptionChoose" disabled>
+							<option
+								:value="defaultSelectOptionChoose"
+								disabled
+								:selected="country.value === defaultSelectOptionChoose"
+							>
 								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
 								v-for="cntry in countries?.results"
 								:key="cntry.alpha2"
 								:value="cntry.alpha2"
-								:selected="value && value.includes(cntry.alpha2)"
+								:selected="country.value === cntry.alpha2"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(cntry, 'name', locale) }}
@@ -379,20 +384,24 @@ const date = ref(new Date())
 					<div class="grid">
 						<VeeField
 							id="region"
-							v-slot="{ value }"
+							v-bind="region"
 							name="region"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-							:disabled="country.value === 'choose'"
+							:disabled="country.value === defaultSelectOptionChoose"
 						>
-							<option :value="defaultSelectOptionChoose" disabled>
+							<option
+								:value="defaultSelectOptionChoose"
+								disabled
+								:selected="region.value === defaultSelectOptionChoose"
+							>
 								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
 								v-for="rgn in regions?.results"
 								:key="rgn.alpha"
 								:value="rgn.alpha"
-								:selected="value && value.includes(rgn.alpha)"
+								:selected="region.value === rgn.alpha"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(rgn, 'name', locale) }}
@@ -486,7 +495,9 @@ const date = ref(new Date())
 				}
 
 				&.router-link-active {
-					border-bottom: 1px solid black;
+					span {
+						@apply font-bold;
+					}
 				}
 			}
 		}

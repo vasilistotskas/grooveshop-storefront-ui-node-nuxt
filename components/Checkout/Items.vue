@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { CartItem } from '~/types/cart/cart-item'
+import type { PropType } from 'vue'
+import type { OrderItem } from '~/types/order/order-item'
 
 const props = defineProps({
-	items: { type: Array as PropType<CartItem[] | null>, required: true }
+	items: { type: Array as PropType<OrderItem[] | null>, required: true }
 })
 const { locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
@@ -36,7 +36,7 @@ const { extractTranslated } = useTranslationExtractor()
 					</div>
 					<div class="items-list-item-info-price">
 						<span class="text-primary-700 dark:text-primary-100 text-sm"
-							>{{ item.product.price }}€
+							>{{ item.totalPrice }}€
 						</span>
 					</div>
 				</div>

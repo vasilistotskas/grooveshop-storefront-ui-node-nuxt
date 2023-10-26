@@ -356,19 +356,23 @@ definePageMeta({
 						}}</label>
 						<VeeField
 							id="floor"
-							v-slot="{ value }"
+							v-bind="floor"
 							name="floor"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 						>
-							<option :value="defaultSelectOptionChoose" disabled>
+							<option
+								:value="defaultSelectOptionChoose"
+								disabled
+								:selected="floor.value === defaultSelectOptionChoose"
+							>
 								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
 								v-for="(floorChoice, index) in floorChoicesList"
 								:key="index"
 								:value="index"
-								:selected="value && value.includes(floorChoice)"
+								:selected="Number(floor.value) === index"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ floorChoice }}
@@ -384,19 +388,23 @@ definePageMeta({
 						}}</label>
 						<VeeField
 							id="locationType"
-							v-slot="{ value }"
+							v-bind="locationType"
 							name="locationType"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 						>
-							<option :value="defaultSelectOptionChoose" disabled>
+							<option
+								:value="defaultSelectOptionChoose"
+								disabled
+								:selected="locationType.value === defaultSelectOptionChoose"
+							>
 								{{ defaultSelectOptionChoose }}
 							</option>
 							<option
 								v-for="(location, index) in locationChoicesList"
 								:key="index"
 								:value="index"
-								:selected="value && value.includes(location)"
+								:selected="Number(locationType.value) === index"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ location }}
@@ -418,20 +426,24 @@ definePageMeta({
 						<div class="grid">
 							<VeeField
 								id="country"
-								v-slot="{ value }"
+								v-bind="country"
 								name="country"
 								as="select"
 								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-								@change="onCountryChange"
+								@change.capture="onCountryChange"
 							>
-								<option :value="defaultSelectOptionChoose" disabled>
+								<option
+									:value="defaultSelectOptionChoose"
+									disabled
+									:selected="country.value === defaultSelectOptionChoose"
+								>
 									{{ defaultSelectOptionChoose }}
 								</option>
 								<option
 									v-for="cntry in countries?.results"
 									:key="cntry.alpha2"
 									:value="cntry.alpha2"
-									:selected="value && value.includes(cntry.alpha2)"
+									:selected="country.value === cntry.alpha2"
 									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(cntry, 'name', locale) }}
@@ -449,20 +461,24 @@ definePageMeta({
 						<div class="grid">
 							<VeeField
 								id="region"
-								v-slot="{ value }"
+								v-bind="region"
 								name="region"
 								as="select"
 								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-								:disabled="country.value === 'choose'"
+								:disabled="country.value === defaultSelectOptionChoose"
 							>
-								<option :value="defaultSelectOptionChoose" disabled>
+								<option
+									:value="defaultSelectOptionChoose"
+									disabled
+									:selected="region.value === defaultSelectOptionChoose"
+								>
 									{{ defaultSelectOptionChoose }}
 								</option>
 								<option
 									v-for="rgn in regions?.results"
 									:key="rgn.alpha"
 									:value="rgn.alpha"
-									:selected="value && value.includes(rgn.alpha)"
+									:selected="region.value === rgn.alpha"
 									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(rgn, 'name', locale) }}

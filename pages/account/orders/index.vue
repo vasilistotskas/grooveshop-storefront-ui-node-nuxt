@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import { Order, OrderOrderingField, OrderQuery } from '~/types/order/order'
-import { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { Order, OrderOrderingField, OrderQuery } from '~/types/order/order'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
 
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)

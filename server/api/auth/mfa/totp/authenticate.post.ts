@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseBodyAs } from '~/types/parser'
-import { MfaTotpAuthenticateBody, MfaTotpAuthenticateResponse } from '~/types/auth'
+
+import type { MfaTotpAuthenticateBody, MfaTotpAuthenticateResponse } from '~/types/auth'
 
 export const ZodMfaTotpAuthenticateResponse = z.object({
 	success: z.boolean()

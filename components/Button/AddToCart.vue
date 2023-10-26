@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Product } from '~/types/product/product'
+import type { PropType } from 'vue'
+import type { Product } from '~/types/product/product'
 
 const props = defineProps({
 	product: { type: Object as PropType<Product>, required: true },

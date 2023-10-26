@@ -1,6 +1,6 @@
 import slugify from '@sindresorhus/slugify'
-import { type CookieSerializeOptions, serialize } from 'cookie-es'
-import { Cookie, ModuleOptions } from './types'
+import { serialize } from 'cookie-es'
+import type { Cookie, ModuleOptions } from './types'
 
 export const getAllCookieIdsString = (moduleOptions: ModuleOptions) =>
 	getCookieIds([

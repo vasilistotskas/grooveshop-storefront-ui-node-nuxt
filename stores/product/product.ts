@@ -1,5 +1,5 @@
-import { IFetchError } from 'ofetch'
-import { Product, ProductCreateBody } from '~/types/product/product'
+import type { IFetchError } from 'ofetch'
+import type { Product, ProductCreateBody } from '~/types/product/product'
 
 interface ErrorRecord {
 	product: IFetchError | null

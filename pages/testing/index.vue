@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-import { WebsocketMessageData } from '~/types/websocket'
+import type { WebsocketMessageData } from '~/types/websocket'
 
 definePageMeta({
 	layout: 'testing'

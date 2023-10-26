@@ -1,11 +1,11 @@
-import { IFetchError } from 'ofetch'
-import {
+import type { IFetchError } from 'ofetch'
+import type {
 	Address,
 	AddressCreateBody,
 	AddressPutBody,
 	AddressQuery
 } from '~/types/user/address'
-import { Pagination } from '~/types/pagination/pagination'
+import type { Pagination } from '~/types/pagination/pagination'
 
 interface ErrorRecord {
 	addresses: IFetchError | null

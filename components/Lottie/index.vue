@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import Lottie from 'lottie-web'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 
 export interface LottieProps {
 	animationData: any

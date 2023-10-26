@@ -1,5 +1,4 @@
-import { H3Event } from 'h3'
-import { parseBodyAs, parseDataAs, parseParamsAs } from '~/types/parser'
+import type { H3Event } from 'h3'
 import { ZodReview, ZodReviewParams, ZodReviewPutBody } from '~/types/product/review'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {

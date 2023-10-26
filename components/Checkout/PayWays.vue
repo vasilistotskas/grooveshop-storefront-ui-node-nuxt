@@ -5,9 +5,14 @@ import {
 	RadioGroupLabel,
 	RadioGroupOption
 } from '@headlessui/vue'
-import { PayWay, PayWayEnum } from '~/types/pay-way/pay-way'
+import { PayWayEnum } from '~/types/pay-way/pay-way'
+import type { PayWay } from '~/types/pay-way/pay-way'
 import CreditCardJSON from '~/assets/lotties/credit_card.json'
 import PayOnDeliveryJSON from '~/assets/lotties/pay_on_delivery.json'
+
+defineSlots<{
+	error(props: {}): any
+}>()
 
 const payWayStore = usePayWayStore()
 const { payWay, getActivePayWays, pending } = storeToRefs(payWayStore)
@@ -28,10 +33,7 @@ const payWayExtraCost = (payWay: PayWay): string => {
 await fetchPayWays()
 
 const selectedPayWay = computed(() => {
-	if (getActivePayWays && !payWay.value) {
-		return getActivePayWays.value ? getActivePayWays.value[0] : null
-	}
-	return payWay.value
+	return payWay.value || undefined
 })
 
 const getPayWayLottie = (name: string) => {
@@ -62,7 +64,7 @@ const updatePayWay = (value: PayWay) => {
 			</h3>
 		</div>
 		<div class="pay-ways-list">
-			<template v-if="selectedPayWay && !pending.payWays && getActivePayWays?.length">
+			<template v-if="!pending.payWays && getActivePayWays?.length">
 				<RadioGroup
 					:model-value="selectedPayWay"
 					by="id"
@@ -145,6 +147,7 @@ const updatePayWay = (value: PayWay) => {
 				</RadioGroup>
 			</template>
 		</div>
+		<slot name="error" />
 	</div>
 </template>
 

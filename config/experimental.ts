@@ -6,5 +6,9 @@ export const experimental = {
 	typedPages: true,
 	headNext: true,
 	asyncContext: true,
-	watcher: 'parcel' as 'chokidar' | 'chokidar-granular' | 'parcel' | undefined
+	watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
+		| 'chokidar'
+		| 'chokidar-granular'
+		| 'parcel'
+		| undefined
 }

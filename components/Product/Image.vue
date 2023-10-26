@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Image } from '~/types/product/image'
+import type { PropType } from 'vue'
+import type { Image } from '~/types/product/image'
 
 const props = defineProps({
 	image: {
@@ -37,7 +37,7 @@ const alt = computed(() => {
 <template>
 	<NuxtImg
 		preload
-		loading="auto"
+		loading="lazy"
 		provider="mediaStream"
 		class="rounded-full"
 		decoding="async"

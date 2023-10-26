@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Favourite } from '~/types/product/favourite'
+import type { PropType } from 'vue'
+import type { Favourite } from '~/types/product/favourite'
 
 defineProps({
 	favourites: {

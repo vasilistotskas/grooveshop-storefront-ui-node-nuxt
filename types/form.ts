@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { Ref } from 'vue'
-import { BaseComponentBinds } from 'vee-validate'
+import type { Ref } from 'vue'
+import type { BaseComponentBinds } from 'vee-validate'
 
 export const ZodDynamicFormSchemaChildren = z.array(
 	z.object({

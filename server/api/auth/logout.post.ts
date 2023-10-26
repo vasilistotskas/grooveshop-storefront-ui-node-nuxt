@@ -1,7 +1,6 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseBodyAs } from '~/types/parser'
-import { LogoutResponse, LogoutBody } from '~/types/auth'
+import type { LogoutResponse, LogoutBody } from '~/types/auth'
 
 export const ZodLogoutResponse = z.object({
 	detail: z.string().min(1)
@@ -19,12 +18,19 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		})
 
 		deleteRefreshTokenCookie(event)
+		deleteSessionIdCookie(event)
+		deleteCsrftokenCookie(event)
+
 		event.context.jwt_auth = null
 		event.context.user = null
+		event.context.sessionid = null
+		event.context.csrftoken = null
 
 		return await parseDataAs(response, ZodLogoutResponse)
 	} catch (error) {
 		deleteRefreshTokenCookie(event)
+		deleteSessionIdCookie(event)
+		deleteCsrftokenCookie(event)
 		await handleError(error)
 	}
 })

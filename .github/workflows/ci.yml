@@ -29,14 +29,13 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://npm.pkg.github.com'
+          cache: 'npm'
           # Defaults to the user or organization that owns the workflow file
           scope: '@vasilistotskas'
-      - name: Install pnpm
-        run: npm install -g pnpm
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm clean-install
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: pnpm audit signatures --audit-level=high
+        run: npm audit signatures
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}

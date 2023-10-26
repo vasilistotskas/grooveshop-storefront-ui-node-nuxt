@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { Account } from '~/types/user/account'
+import type { PropType } from 'vue'
+import type { Account } from '~/types/user/account'
 
 const props = defineProps({
 	userAccount: {
@@ -94,7 +94,7 @@ const uploadImage = async (event: Event) => {
 		>
 			<NuxtImg
 				preload
-				loading="auto"
+				loading="lazy"
 				provider="mediaStream"
 				class="rounded-full"
 				decoding="async"

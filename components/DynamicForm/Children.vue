@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { DynamicFormSchemaChildren } from '~/types/form'
+import type { PropType } from 'vue'
+import type { DynamicFormSchemaChildren } from '~/types/form'
 
 defineProps({
 	children: {

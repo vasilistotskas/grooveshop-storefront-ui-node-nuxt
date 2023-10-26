@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs, parseBodyAs } from '~/types/parser'
-import { ProviderConnectResponse, ProviderConnectBody } from '~/types/auth'
+
+import type { ProviderConnectResponse, ProviderConnectBody } from '~/types/auth'
 
 export const ZodProviderConnectResponse = z.object({
 	access: z.string(),

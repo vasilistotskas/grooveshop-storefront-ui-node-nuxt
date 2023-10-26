@@ -1,7 +1,7 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
-import { parseDataAs } from '~/types/parser'
-import { Provider, SocialAccount } from '~/types/auth'
+
+import type { Provider, SocialAccount } from '~/types/auth'
 
 export const ZodProvider = z.object({
 	google: z.object({

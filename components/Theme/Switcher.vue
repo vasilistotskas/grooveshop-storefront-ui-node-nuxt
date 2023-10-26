@@ -24,7 +24,7 @@ const isDark = computed({
 		/>
 
 		<template #fallback>
-			<ClientOnlyFallback class="theme-switcher-fallback" />
+			<ClientOnlyFallback class="theme-switcher-fallback" width="24px" height="24px" />
 		</template>
 	</ClientOnly>
 </template>

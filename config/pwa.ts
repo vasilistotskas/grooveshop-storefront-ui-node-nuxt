@@ -1,4 +1,4 @@
-import { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
+import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 
 export const pwa = {
 	registerType: 'autoUpdate',

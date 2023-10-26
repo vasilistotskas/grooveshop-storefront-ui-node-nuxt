@@ -28,7 +28,7 @@ const downloadCodes = () => {
 			size="sm"
 			color="primary"
 			variant="solid"
-			:label="$t('pages.auth.mfa.recovery.codes.download')"
+			:label="$t('pages.auth.security.mfa.recovery.codes.download')"
 			:trailing="false"
 			icon="i-heroicons-arrow-down-tray-20-solid"
 			@click="downloadCodes"

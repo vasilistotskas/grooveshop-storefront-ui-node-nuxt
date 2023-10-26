@@ -1,4 +1,4 @@
-import { QueryObject } from 'ufo'
+import type { QueryObject } from 'ufo'
 
 export function buildFullUrl(url: string, query: QueryObject): string {
 	const valuesToExclude: (QueryObject[keyof QueryObject] | undefined)[] = [

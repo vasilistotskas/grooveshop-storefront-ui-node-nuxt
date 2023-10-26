@@ -9,6 +9,8 @@ import {
 	LocationChoicesEnum,
 	locationChoicesList
 } from '~/types/global/general'
+import { documentTypeEnum, StatusEnum } from '~/types/order/order'
+import { ZodOrderCreateItem } from '~/types/order/order-item'
 
 const cartStore = useCartStore()
 const { cart, getCartItems } = storeToRefs(cartStore)
@@ -21,7 +23,15 @@ const regionStore = useRegionStore()
 const { regions } = storeToRefs(regionStore)
 const { fetchRegions } = regionStore
 
+const payWayStore = usePayWayStore()
+const { getSelectedPayWayId } = storeToRefs(payWayStore)
+
+const orderStore = useOrderStore()
+const { createOrder } = orderStore
+
 const { t, locale } = useLang()
+const router = useRouter()
+const toast = useToast()
 const { extractTranslated } = useTranslationExtractor()
 
 const shippingPrice = ref(3)
@@ -29,37 +39,49 @@ const shippingPrice = ref(3)
 await fetchCountries()
 
 const ZodCheckout = z.object({
-	email: z.string().email(t('pages.checkout.validation.email.email')),
-	firstName: z.string().min(3, t('pages.checkout.validation.first_name.min', { min: 3 })),
-	lastName: z.string().min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
+	country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
+		message: t('common.validation.region.required')
+	}),
+	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
+		message: t('common.validation.region.required')
+	}),
+	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
 	street: z.string().min(3, t('pages.checkout.validation.street.min', { min: 3 })),
 	streetNumber: z
 		.string()
-		.min(3, t('pages.checkout.validation.street_number.min', { min: 3 })),
+		.min(1, t('pages.checkout.validation.street_number.min', { min: 1 })),
+	status: StatusEnum.nullish(),
+	firstName: z.string().min(3, t('pages.checkout.validation.first_name.min', { min: 3 })),
+	lastName: z.string().min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
+	email: z.string().email(t('pages.checkout.validation.email.email')),
 	zipcode: z.string().min(3, t('pages.checkout.validation.zipcode.min', { min: 3 })),
 	place: z.string().min(3, t('pages.checkout.validation.place.min', { min: 3 })),
 	city: z.string().min(3, t('pages.checkout.validation.city.min', { min: 3 })),
 	phone: z.string().min(3, t('pages.checkout.validation.phone.min', { min: 3 })),
 	mobilePhone: z.string().nullish(),
 	customerNotes: z.string().nullish(),
-	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
-	country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	}),
-	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	})
+	shippingPrice: z.number(),
+	documentType: documentTypeEnum,
+	orderItemOrder: z.array(ZodOrderCreateItem),
+	payWay: z.number()
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)
-const { defineInputBinds, handleSubmit, errors, isSubmitting, submitCount } = useForm({
+const { defineInputBinds, setFieldValue, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues: {
 		country: defaultSelectOptionChoose,
 		region: defaultSelectOptionChoose,
 		floor: defaultSelectOptionChoose,
-		locationType: defaultSelectOptionChoose
+		locationType: defaultSelectOptionChoose,
+		orderItemOrder:
+			getCartItems.value?.map((item) => ({
+				...item,
+				product: item.product.id
+			})) || [],
+		shippingPrice: shippingPrice.value,
+		documentType: documentTypeEnum.enum.RECEIPT
 	}
 })
 
@@ -87,13 +109,33 @@ const onCountryChange = async (event: Event) => {
 	region.value.value = defaultSelectOptionChoose
 }
 
-const onSubmit = handleSubmit((values) => {
-	//
+const onSubmit = handleSubmit(async (values) => {
+	const { data, error } = await createOrder(values)
+	if (data.value?.id) {
+		toast.add({
+			title: t('pages.checkout.form.submit.success'),
+			color: 'green'
+		})
+		await router.push(`/checkout/success/${data.value.uuid}`)
+	} else if (error.value) {
+		toast.add({
+			title: t('pages.checkout.form.submit.error'),
+			color: 'red'
+		})
+		clearNuxtData('createOrder')
+	}
 })
 
 const submitButtonDisabled = computed(() => {
 	return isSubmitting.value || Object.keys(errors.value).length > 0
 })
+
+watch(
+	() => getSelectedPayWayId.value,
+	() => {
+		setFieldValue('payWay', getSelectedPayWayId.value || undefined)
+	}
+)
 
 definePageMeta({
 	layout: 'page'
@@ -253,31 +295,9 @@ useServerSeoMeta({
 										type="text"
 									/>
 								</div>
-								<span v-if="errors.city" class="text-primary-700 dark:text-primary-100">{{
+								<span v-if="errors.city" class="text-sm text-red-600">{{
 									errors.city
 								}}</span>
-							</div>
-
-							<div class="grid">
-								<label class="text-primary-700 dark:text-primary-100 mb-2" for="phone">{{
-									$t('pages.checkout.form.phone')
-								}}</label>
-								<div class="grid">
-									<FormTextInput
-										id="phone"
-										:bind="phone"
-										:placeholder="$t('pages.checkout.form.phone')"
-										autocomplete="phone"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="phone"
-										type="text"
-									/>
-								</div>
-								<span
-									v-if="errors.phone"
-									class="text-primary-700 dark:text-primary-100"
-									>{{ errors.phone }}</span
-								>
 							</div>
 
 							<div class="grid">
@@ -295,11 +315,9 @@ useServerSeoMeta({
 										type="text"
 									/>
 								</div>
-								<span
-									v-if="errors.place"
-									class="text-primary-700 dark:text-primary-100"
-									>{{ errors.place }}</span
-								>
+								<span v-if="errors.place" class="text-sm text-red-600">{{
+									errors.place
+								}}</span>
 							</div>
 
 							<div class="grid content-evenly items-start">
@@ -319,14 +337,54 @@ useServerSeoMeta({
 										type="text"
 									/>
 								</div>
-								<span
-									v-if="errors.zipcode"
-									class="text-primary-700 dark:text-primary-100"
-									>{{ errors.zipcode }}</span
-								>
+								<span v-if="errors.zipcode" class="text-sm text-red-600">{{
+									errors.zipcode
+								}}</span>
 							</div>
 
 							<div class="grid">
+								<label class="text-primary-700 dark:text-primary-100 mb-2" for="street">{{
+									$t('pages.checkout.form.street')
+								}}</label>
+								<div class="grid">
+									<FormTextInput
+										id="street"
+										:bind="street"
+										:placeholder="$t('pages.checkout.form.street')"
+										autocomplete="street"
+										class="text-primary-700 dark:text-primary-100 mb-2"
+										name="street"
+										type="text"
+									/>
+								</div>
+								<span v-if="errors.street" class="text-sm text-red-600">{{
+									errors.street
+								}}</span>
+							</div>
+
+							<div class="grid">
+								<label
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									for="streetNumber"
+									>{{ $t('pages.checkout.form.street_number') }}</label
+								>
+								<div class="grid">
+									<FormTextInput
+										id="streetNumber"
+										:bind="streetNumber"
+										:placeholder="$t('pages.checkout.form.street_number')"
+										autocomplete="streetNumber"
+										class="text-primary-700 dark:text-primary-100 mb-2"
+										name="streetNumber"
+										type="text"
+									/>
+								</div>
+								<span v-if="errors.streetNumber" class="text-sm text-red-600">{{
+									errors.streetNumber
+								}}</span>
+							</div>
+
+							<div class="grid col-span-2">
 								<label
 									class="text-primary-700 dark:text-primary-100 mb-2"
 									for="customerNotes"
@@ -356,29 +414,31 @@ useServerSeoMeta({
 									>
 									<VeeField
 										id="floor"
-										v-slot="{ value }"
+										v-bind="floor"
 										name="floor"
 										as="select"
 										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 									>
-										<option :value="defaultSelectOptionChoose" disabled>
+										<option
+											:value="defaultSelectOptionChoose"
+											disabled
+											:selected="floor.value === defaultSelectOptionChoose"
+										>
 											{{ defaultSelectOptionChoose }}
 										</option>
 										<option
 											v-for="(floorChoice, index) in floorChoicesList"
 											:key="index"
 											:value="index"
-											:selected="value && value.includes(floorChoice)"
+											:selected="Number(floor.value) === index"
 											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ floorChoice }}
 										</option>
 									</VeeField>
-									<span
-										v-if="errors.floor"
-										class="text-sm text-red-600 px-4 py-3 relative"
-										>{{ errors.floor }}</span
-									>
+									<span v-if="errors.floor" class="text-sm text-red-600">{{
+										errors.floor
+									}}</span>
 								</div>
 								<div class="grid">
 									<label
@@ -388,29 +448,31 @@ useServerSeoMeta({
 									>
 									<VeeField
 										id="locationType"
-										v-slot="{ value }"
+										v-bind="locationType"
 										name="locationType"
 										as="select"
 										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 									>
-										<option :value="defaultSelectOptionChoose" disabled>
+										<option
+											:value="defaultSelectOptionChoose"
+											disabled
+											:selected="locationType.value === defaultSelectOptionChoose"
+										>
 											{{ defaultSelectOptionChoose }}
 										</option>
 										<option
 											v-for="(location, index) in locationChoicesList"
 											:key="index"
 											:value="index"
-											:selected="value && value.includes(location)"
+											:selected="Number(locationType.value) === index"
 											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ location }}
 										</option>
 									</VeeField>
-									<span
-										v-if="errors.locationType"
-										class="text-sm text-red-600 px-4 py-3 relative"
-										>{{ errors.locationType }}</span
-									>
+									<span v-if="errors.locationType" class="text-sm text-red-600">{{
+										errors.locationType
+									}}</span>
 								</div>
 							</div>
 
@@ -424,31 +486,33 @@ useServerSeoMeta({
 									<div class="grid">
 										<VeeField
 											id="country"
-											v-slot="{ value }"
+											v-bind="country"
 											name="country"
 											as="select"
 											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-											@change="onCountryChange"
+											@change.capture="onCountryChange"
 										>
-											<option :value="defaultSelectOptionChoose" disabled>
+											<option
+												:value="defaultSelectOptionChoose"
+												disabled
+												:selected="country.value === defaultSelectOptionChoose"
+											>
 												{{ defaultSelectOptionChoose }}
 											</option>
 											<option
 												v-for="cntry in countries?.results"
 												:key="cntry.alpha2"
 												:value="cntry.alpha2"
-												:selected="value && value.includes(cntry.alpha2)"
+												:selected="country.value === cntry.alpha2"
 												class="text-primary-700 dark:text-primary-300"
 											>
 												{{ extractTranslated(cntry, 'name', locale) }}
 											</option>
 										</VeeField>
 									</div>
-									<span
-										v-if="errors.country"
-										class="text-sm text-red-600 px-4 py-3 relative"
-										>{{ errors.country }}</span
-									>
+									<span v-if="errors.country" class="text-sm text-red-600">{{
+										errors.country
+									}}</span>
 								</div>
 								<div class="grid">
 									<label
@@ -459,31 +523,33 @@ useServerSeoMeta({
 									<div class="grid">
 										<VeeField
 											id="region"
-											v-slot="{ value }"
+											v-bind="region"
 											name="region"
 											as="select"
 											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-											:disabled="country.value === 'choose'"
+											:disabled="country.value === defaultSelectOptionChoose"
 										>
-											<option :value="defaultSelectOptionChoose" disabled>
+											<option
+												:value="defaultSelectOptionChoose"
+												disabled
+												:selected="region.value === defaultSelectOptionChoose"
+											>
 												{{ defaultSelectOptionChoose }}
 											</option>
 											<option
 												v-for="rgn in regions?.results"
 												:key="rgn.alpha"
 												:value="rgn.alpha"
-												:selected="value && value.includes(rgn.alpha)"
+												:selected="region.value === rgn.alpha"
 												class="text-primary-700 dark:text-primary-300"
 											>
 												{{ extractTranslated(rgn, 'name', locale) }}
 											</option>
 										</VeeField>
 									</div>
-									<span
-										v-if="errors.region"
-										class="text-sm text-red-600 px-4 py-3 relative"
-										>{{ errors.region }}</span
-									>
+									<span v-if="errors.region" class="text-sm text-red-600">{{
+										errors.region
+									}}</span>
 								</div>
 							</div>
 						</div>
@@ -499,7 +565,13 @@ useServerSeoMeta({
 						class="container p-2 md:p-10 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
 					>
 						<template #pay-ways>
-							<CheckoutPayWays />
+							<CheckoutPayWays>
+								<template #error>
+									<span v-if="errors.payWay" class="text-sm text-red-600 text-center">{{
+										errors.payWay
+									}}</span>
+								</template>
+							</CheckoutPayWays>
 						</template>
 						<template #items>
 							<CheckoutItems :items="getCartItems"></CheckoutItems>
@@ -512,7 +584,7 @@ useServerSeoMeta({
 									class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
 									type="submit"
 								>
-									{{ $t('pages.checkout.form.submit') }}
+									{{ $t('pages.checkout.form.submit.title') }}
 								</button>
 							</div>
 						</template>
