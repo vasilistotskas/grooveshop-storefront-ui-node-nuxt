@@ -1,27 +1,21 @@
-FROM node:21.0.0-alpine as construction
+FROM node:21.0.0-alpine as development
 
-# Create user and group
-RUN addgroup groove && adduser -S -G groove groove
+COPY ./grooveshop-storefront-ui-node-nuxt/docker/docker_entrypoint.sh /app/docker_entrypoint.sh
+RUN sed -i 's/\r$//g' /app/docker_entrypoint.sh
+RUN chmod +x /app/docker_entrypoint.sh
 
-# Set working directory
-WORKDIR /frontend
+RUN mkdir -p /mnt/app && \
+    chmod 777 -R /mnt/app && \
+    chown -R node:node /mnt/app
 
-# Copy package files and the rest of the application
-COPY package*.json ./
-COPY . .
+VOLUME /mnt/app
 
-# Change ownership of /frontend and all its contents to groove user
-RUN chown -R groove:groove /frontend
+WORKDIR /mnt/app
 
-# Switch to non-root user
-USER groove
+USER node
 
-# Install dependencies
-RUN npm install && npm cache clean --force
+# Designated to tell Nuxt to resolve a host address (Nuxt3 Docs)
+ENV HOST 0.0.0.0
+ENV PORT 3000
 
-EXPOSE 3000
-
-ENV NUXT_HOST=0.0.0.0
-ENV NUXT_PORT=3000
-
-CMD [ "npm", "run", "dev" ]
+ENTRYPOINT ["/app/docker_entrypoint.sh"]

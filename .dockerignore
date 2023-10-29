@@ -13,3 +13,12 @@ Dockerfile
 # IDE / Editor directories
 .idea/
 .editorconfig
+
+# Nuxt dev/build outputs
+.output
+.nuxt
+.nitro
+.cache
+
+# Node dependencies
+node_modules
