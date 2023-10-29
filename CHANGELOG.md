@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.13.0...v1.13.1) (2023-10-29)
+
+
+### Bug Fixes
+
+* Docker fixes. ([96d1f68](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96d1f6810a3f0efb0bf8d57ba39986d88ff8cbe4))
+
 # [1.13.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.12.4...v1.13.0) (2023-10-26)
 
 
