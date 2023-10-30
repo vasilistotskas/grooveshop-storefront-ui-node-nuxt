@@ -1,4 +1,4 @@
-FROM node:21.0.0-alpine as builder
+FROM node:21.1.0-alpine as builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN apk add --no-cache git && \
     npm ci && \
     npm run build
 
-FROM node:21.0.0-alpine as production
+FROM node:21.1.0-alpine as production
 
 ENV NUXT_HOST 0.0.0.0
 ENV NUXT_PORT 3000

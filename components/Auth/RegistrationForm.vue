@@ -49,8 +49,6 @@ const onSubmit = handleSubmit(async (values) => {
 		password1: values.password1,
 		password2: values.password2
 	})
-	// eslint-disable-next-line no-console
-	console.log('======== data error ========', data.value, error.value)
 	if (data.value?.user) {
 		toast.add({
 			title: t('common.auth.registration.success')
