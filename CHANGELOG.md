@@ -1,3 +1,16 @@
+# [1.14.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.13.1...v1.14.0) (2023-10-31)
+
+
+### Bug Fixes
+
+* `docker.yml` Update dockerfile path, versions bump docker updates. ([6a9b255](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6a9b2550142bcdd1b7c386a6e98e793af7ab8414))
+* Versions bump and build. ([b762eb4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b762eb4af059963b161efccc75c0bbeb13e7b94b))
+
+
+### Features
+
+* **docker.yml:** add requirements for github actions cache. ([9ac56e9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9ac56e971fa70936e87aad9f12573cbdc20b357b))
+
 ## [1.13.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.13.0...v1.13.1) (2023-10-29)
 
 
