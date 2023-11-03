@@ -1,8 +1,10 @@
+import { useLogger } from '@nuxt/kit'
+
 export default defineEventHandler((event) => {
 	const requestUrl = getRequestURL(event)
+	const logger = useLogger()
 
 	if (process.env.NODE_ENV !== 'production') {
-		// eslint-disable-next-line no-console
-		console.info(`New request: ${requestUrl}`)
+		logger.info(`New request: ${requestUrl}`)
 	}
 })
