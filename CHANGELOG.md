@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.15.0...v1.15.1) (2023-11-03)
+
+
+### Bug Fixes
+
+* Reduce lottie bundle size. ([5e7c36e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5e7c36ebddf209a220f31931286ddec7e82540a5))
+
 # [1.15.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.14.0...v1.15.0) (2023-11-03)
 
 
