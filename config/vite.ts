@@ -40,7 +40,7 @@ export const vite = {
 		rollupOptions: {
 			output: {
 				manualChunks(id: string) {
-					const chunks = ['sweetalert2', 'vuepic', 'zod']
+					const chunks = ['sweetalert2', 'vuepic', 'zod', 'lottie']
 					if (id.includes('/node_modules/')) {
 						for (const chunkName of chunks) {
 							if (id.includes(chunkName)) {

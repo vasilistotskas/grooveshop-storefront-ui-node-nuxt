@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import Lottie from 'lottie-web'
+import Lottie from "lottie-web/build/player/lottie_light"
 import type { PropType } from 'vue'
 
 export interface LottieProps {
