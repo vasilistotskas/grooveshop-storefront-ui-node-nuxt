@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.15.1...v1.16.0) (2023-11-05)
+
+
+### Features
+
+* update ci `setup-node` to v4, versions bump, pagination vue components ui fix. ([a9fb662](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a9fb662fc75d914588ce29d714ebbd28eada2539))
+
 ## [1.15.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.15.0...v1.15.1) (2023-11-03)
 
 
