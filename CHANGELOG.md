@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.16.0...v1.16.1) (2023-11-05)
+
+
+### Bug Fixes
+
+* rebuild `package-json`. ([f724515](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f724515ee639c35446683f3fdd553778e667fcbe))
+
 # [1.16.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.15.1...v1.16.0) (2023-11-05)
 
 
