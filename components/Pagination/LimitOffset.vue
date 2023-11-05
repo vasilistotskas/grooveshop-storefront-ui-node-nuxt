@@ -106,7 +106,7 @@ const link = computed(() => {
 			v-if="totalPages > 1"
 			class="pagination-ordered-list w-full flex md:grid items-center gap-4"
 		>
-			<li>
+			<li class="previous-page">
 				<Anchor
 					:to="{
 						path: link,
@@ -117,7 +117,8 @@ const link = computed(() => {
 						}
 					}"
 					:class="{
-						disabled: isInFirstPage
+						disabled: isInFirstPage,
+						active: isInFirstPage
 					}"
 					:text="$t('components.pagination.previous_page')"
 					:title="$t('components.pagination.previous_page')"
@@ -129,7 +130,7 @@ const link = computed(() => {
 				</Anchor>
 			</li>
 
-			<li v-if="shouldDisplayFirstPage">
+			<li v-if="shouldDisplayFirstPage" class="first-page">
 				<Anchor
 					:to="{
 						path: link,
@@ -137,8 +138,7 @@ const link = computed(() => {
 					}"
 					:css-class="{
 						'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
-						disabled: isInFirstPage,
-						'bg-primary-400 dark:bg-primary-400': isInFirstPage
+						disabled: isInFirstPage
 					}"
 					:text="$t('components.pagination.first_page')"
 					:title="$t('components.pagination.first_page')"
@@ -159,7 +159,7 @@ const link = computed(() => {
 				</Anchor>
 			</li>
 
-			<li v-for="(pageEntry, index) in pages" :key="pageEntry">
+			<li v-for="(pageEntry, index) in pages" :key="pageEntry" class="page">
 				<Anchor
 					:to="{
 						path: link,
@@ -169,9 +169,9 @@ const link = computed(() => {
 							ordering: route.query?.ordering
 						}
 					}"
-					:css-class="{
+					:class="{
 						'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2': true,
-						'bg-primary-400 dark:bg-primary-400': pageEntry === page
+						active: pageEntry === page
 					}"
 					:text="String(index)"
 					:title="$t('components.pagination.go_to_page', { page: pageEntry })"
@@ -180,7 +180,7 @@ const link = computed(() => {
 				</Anchor>
 			</li>
 
-			<li v-if="shouldDisplayLastPage">
+			<li v-if="shouldDisplayLastPage" class="last-page">
 				<Anchor
 					:to="{
 						path: link,
@@ -190,9 +190,10 @@ const link = computed(() => {
 							ordering: route.query?.ordering
 						}
 					}"
-					:css-class="{
+					:class="{
 						'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
-						disabled: isInLastPage
+						disabled: isInLastPage,
+						active: isInLastPage
 					}"
 					:text="$t('components.pagination.last_page')"
 					:title="$t('components.pagination.go_to_page', { page: lastPageNumber })"
@@ -212,7 +213,7 @@ const link = computed(() => {
 				</Anchor>
 			</li>
 
-			<li>
+			<li class="next-page">
 				<Anchor
 					:to="{
 						path: link,
@@ -222,8 +223,9 @@ const link = computed(() => {
 							ordering: route.query?.ordering
 						}
 					}"
-					:css-class="{
-						disabled: isInLastPage
+					:class="{
+						disabled: isInLastPage,
+						active: isInLastPage
 					}"
 					:text="$t('components.pagination.next_page')"
 					:title="
