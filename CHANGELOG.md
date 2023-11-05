@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.16.1...v1.16.2) (2023-11-05)
+
+
+### Bug Fixes
+
+* revert `vue-datepicker` version to 7.2.0 ([0d12b6b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0d12b6b481a0ae1c176d2a0c1d7afb0dba803c41))
+
 ## [1.16.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.16.0...v1.16.1) (2023-11-05)
 
 
