@@ -70,7 +70,7 @@
     "@vee-validate/zod": "^4.11.8",
     "@vite-pwa/nuxt": "^0.1.1",
     "@vue/test-utils": "^2.4.1",
-    "@vuepic/vue-datepicker": "^7.2.1",
+    "@vuepic/vue-datepicker": "^7.2.0",
     "@vueuse/core": "^10.5.0",
     "@vueuse/integrations": "^10.5.0",
     "@vueuse/nuxt": "^10.5.0",
