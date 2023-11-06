@@ -1,3 +1,10 @@
+## [1.18.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.18.1...v1.18.2) (2023-11-06)
+
+
+### Bug Fixes
+
+* **Dockerfile:** Remove useless steps. ([82e627f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/82e627f5fd46f4de118c56d4d3bde70155684f0d))
+
 ## [1.18.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.18.0...v1.18.1) (2023-11-06)
 
 
