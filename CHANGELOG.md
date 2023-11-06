@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.18.0...v1.18.1) (2023-11-06)
+
+
+### Bug Fixes
+
+* **Dockerfile:** Remove `--prod` flag. ([37ab4cf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/37ab4cf77ad1a1631b25eef8c46130d98b0139cf))
+
 # [1.18.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.17.0...v1.18.0) (2023-11-06)
 
 
