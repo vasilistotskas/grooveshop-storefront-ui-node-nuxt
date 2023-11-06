@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.17.0...v1.18.0) (2023-11-06)
+
+
+### Features
+
+* include `@nuxtjs/tailwindcss` and `Dockerfile` use pnpm. ([1d0bb15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1d0bb15664eff31d2399cbddd6a035a97a706db0))
+
 # [1.17.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.16.2...v1.17.0) (2023-11-06)
 
 
