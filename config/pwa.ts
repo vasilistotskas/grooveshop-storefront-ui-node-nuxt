@@ -9,7 +9,46 @@ export const pwa = {
 		theme_color: '#ffffff',
 		background_color: '#ffffff',
 		display: 'standalone',
-		orientation: 'portrait',
+		orientation: 'any',
+		categories: ['ecommerce', 'technology'],
+		screenshots: [
+			{
+				src: '/assets/screenshots/540x720.png',
+				type: 'image/png',
+				sizes: '540x720',
+				form_factor: 'narrow'
+			},
+			{
+				src: '/assets/screenshots/540x720.png',
+				type: 'image/png',
+				sizes: '540x720',
+				form_factor: 'narrow'
+			},
+			{
+				src: '/assets/screenshots/540x720.png',
+				type: 'image/png',
+				sizes: '540x720',
+				form_factor: 'narrow'
+			},
+			{
+				src: '/assets/screenshots/1024x593.png',
+				type: 'image/png',
+				sizes: '1024x593',
+				form_factor: 'wide'
+			},
+			{
+				src: '/assets/screenshots/1024x593.png',
+				type: 'image/png',
+				sizes: '1024x593',
+				form_factor: 'wide'
+			},
+			{
+				src: '/assets/screenshots/1024x593.png',
+				type: 'image/png',
+				sizes: '1024x593',
+				form_factor: 'wide'
+			}
+		],
 		icons: [
 			{
 				src: '/assets/favicon/android-icon-144x144.png',

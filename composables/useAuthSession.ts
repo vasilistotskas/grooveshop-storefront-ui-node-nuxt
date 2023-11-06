@@ -55,35 +55,51 @@ export default function () {
 	) => {
 		return {
 			get: () => {
-				if (process.server) {
-					return event.context[cookieName] || getCookie(event, cookieName)
-				} else {
-					return useCookie(cookieName).value
+				try {
+					if (process.server) {
+						return event.context[cookieName] || getCookie(event, cookieName)
+					} else {
+						return useCookie(cookieName).value
+					}
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e)
+					return null
 				}
 			},
 			set: (value: string) => {
-				if (process.server) {
-					event.context[cookieName] = value
-					setCookie(event, cookieName, value, {
-						httpOnly,
-						secure,
-						maxAge,
-						sameSite
-					})
-				} else {
-					useCookie(cookieName, {
-						httpOnly,
-						secure,
-						maxAge,
-						sameSite
-					}).value = value
+				try {
+					if (process.server) {
+						event.context[cookieName] = value
+						setCookie(event, cookieName, value, {
+							httpOnly,
+							secure,
+							maxAge,
+							sameSite
+						})
+					} else {
+						useCookie(cookieName, {
+							httpOnly,
+							secure,
+							maxAge,
+							sameSite
+						}).value = value
+					}
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e)
 				}
 			},
 			clear: () => {
-				if (process.server) {
-					deleteCookie(event, cookieName)
-				} else {
-					useCookie(cookieName).value = null
+				try {
+					if (process.server) {
+						deleteCookie(event, cookieName)
+					} else {
+						useCookie(cookieName).value = null
+					}
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e)
 				}
 			}
 		}
