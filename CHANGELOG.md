@@ -1,3 +1,10 @@
+## [1.18.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.18.2...v1.18.3) (2023-11-06)
+
+
+### Bug Fixes
+
+* **Dockerfile:** pm2 fix. ([89b90d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/89b90d4bcd52e785fdc9659ad882eb25f352ddab))
+
 ## [1.18.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.18.1...v1.18.2) (2023-11-06)
 
 
