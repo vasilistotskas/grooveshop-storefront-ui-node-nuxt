@@ -36,10 +36,9 @@ FROM base AS build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Build the app and install pm2 globally
-RUN pnpm run build && \
-    pnpm install -g pm2
+RUN pnpm run build
 
-FROM base AS production
+FROM base
 
 # Set environment variables
 ENV NUXT_HOST 0.0.0.0
@@ -54,6 +53,9 @@ COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/.output ./.output
 COPY --from=build /app/.nuxt ./.nuxt
 COPY --from=build /app/package*.json ./
+
+# Install pm2 globally
+RUN pnpm install -g pm2
 
 # Adjust permissions
 RUN chmod -R 777 /app && \
