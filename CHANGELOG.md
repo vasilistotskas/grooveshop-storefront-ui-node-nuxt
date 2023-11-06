@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.18.3...v1.19.0) (2023-11-06)
+
+
+### Features
+
+* Add try catch in `useAuthSession.ts` method `createCookieObject`, pwa added screenshots. ([a625300](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a625300d94c7682b2f3f1d52d0490693c836cf31))
+
 ## [1.18.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.18.2...v1.18.3) (2023-11-06)
 
 
