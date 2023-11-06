@@ -47,7 +47,7 @@ jobs:
       - name: Run lint fix
         run: pnpm run lint:fix
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: pnpm audit signatures
+        run: pnpm audit signatures --audit-level=high
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}
