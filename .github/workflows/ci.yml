@@ -24,18 +24,30 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '21.x'
+      - name: Enable corepack
+        run: corepack enable
+      - name: Check pnpm version
+        run: pnpm --version
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '21.x'
           registry-url: 'https://npm.pkg.github.com'
-          cache: 'npm'
+          cache: 'pnpm'
+          cache-dependency-path: "**/pnpm-lock.yaml"
           # Defaults to the user or organization that owns the workflow file
           scope: '@vasilistotskas'
       - name: Install dependencies
-        run: npm clean-install
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Run format fix
+        run: pnpm run format:fix
+      - name: Run lint fix
+        run: pnpm run lint:fix
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: npm audit signatures
+        run: pnpm audit signatures
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}

@@ -40,7 +40,7 @@
     "@intlify/shared": "^9.6.5",
     "@intlify/vue-i18n-bridge": "^1.0.1",
     "@intlify/vue-router-bridge": "^1.0.1",
-    "@iconify/json": "^2.2.137",
+    "@iconify/json": "^2.2.138",
     "@nuxt/devtools": "^1.0.0",
     "@nuxt/image": "^1.0.0",
     "@nuxt/kit": "^3.8.0",
@@ -54,11 +54,11 @@
     "@parcel/watcher": "^2.3.0",
     "@pinia/nuxt": "^0.5.1",
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^11.0.0",
+    "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.1",
     "@semantic-release/npm": "^11.0.1",
-    "@semantic-release/release-notes-generator": "^12.0.1",
+    "@semantic-release/release-notes-generator": "^12.1.0",
     "@sindresorhus/slugify": "^2.2.1",
     "@tailwindcss/typography": "0.5.10",
     "@testing-library/jest-dom": "^6.1.4",
@@ -70,7 +70,7 @@
     "@vee-validate/zod": "^4.11.8",
     "@vite-pwa/nuxt": "^0.1.1",
     "@vue/test-utils": "^2.4.1",
-    "@vuepic/vue-datepicker": "^7.2.0",
+    "@vuepic/vue-datepicker": "7.2.0",
     "@vueuse/core": "^10.5.0",
     "@vueuse/integrations": "^10.5.0",
     "@vueuse/nuxt": "^10.5.0",
@@ -183,5 +183,6 @@
   "engines": {
     "node": ">=21.0.0",
     "npm": ">=10.2.0"
-  }
+  },
+  "packageManager": "^pnpm@8.10.2"
 }
