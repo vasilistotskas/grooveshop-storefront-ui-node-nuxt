@@ -1,3 +1,16 @@
+# [1.17.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.16.2...v1.17.0) (2023-11-06)
+
+
+### Bug Fixes
+
+* **ci.ym:** audit level adjust. ([a43a0a4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a43a0a4813fc006c396628f0550211bb03ed673a))
+* **package.json:** Update package manager and engines. ([f531bac](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f531bac7648a838291a82a07f40adf21ccd7058f))
+
+
+### Features
+
+* use pnpm. ([eee00d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eee00d9a49e4ee0eb755f2755472c7c816d4646e))
+
 ## [1.16.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.16.1...v1.16.2) (2023-11-05)
 
 
