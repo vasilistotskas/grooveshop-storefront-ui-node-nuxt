@@ -3,6 +3,7 @@ export const modules = [
 	'@nuxt/ui',
 	'@nuxtjs/i18n',
 	'@nuxtjs/eslint-module',
+	'@nuxtjs/tailwindcss',
 	'@pinia/nuxt',
 	'@vueuse/nuxt',
 	'@vite-pwa/nuxt',
