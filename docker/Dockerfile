@@ -30,20 +30,16 @@ RUN rm -rf ./node_modules && \
 RUN apk add --no-cache git && \
     git config --global --add safe.directory /app
 
-FROM base AS prod-deps
-
-# Install pnpm
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-
 FROM base AS build
 
 # Install pnpm
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Build the app
-RUN pnpm run build
+# Build the app and install pm2 globally
+RUN pnpm run build && \
+    pnpm install -g pm2
 
-FROM node:21.1.0-alpine as production
+FROM base AS production
 
 # Set environment variables
 ENV NUXT_HOST 0.0.0.0
@@ -54,13 +50,10 @@ ENV NODE_ENV production
 WORKDIR /app
 
 # Copy necessary files from the build stage
-COPY --from=prod-deps /app/node_modules /app/node_modules
+COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/.output ./.output
 COPY --from=build /app/.nuxt ./.nuxt
 COPY --from=build /app/package*.json ./
-
-# Install pm2 globally
-RUN pnpm install -g pm2
 
 # Adjust permissions
 RUN chmod -R 777 /app && \
