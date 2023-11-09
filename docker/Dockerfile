@@ -35,7 +35,7 @@ FROM base AS build
 # Install pnpm
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Build the app and install pm2 globally
+# Build the app
 RUN pnpm run build
 
 FROM base

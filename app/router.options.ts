@@ -8,6 +8,7 @@ export default <RouterConfig>{
 		if (nuxtApp.$18n && to.name !== from.name) {
 			// `$i18n` is injected in the `setup` of the nuxtjs/i18n module.
 			// `scrollBehavior` is guarded against being called even when it is not completed
+			// @ts-ignore
 			await nuxtApp.$i18n.waitForPendingLocaleChange()
 		}
 

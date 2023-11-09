@@ -1,4 +1,5 @@
 export function formatDate(string: string) {
+	// @ts-ignore
 	const locale = useNuxtApp().$i18n.locale
 	const date = new Date(string).toLocaleDateString(unref(locale))
 	return date
