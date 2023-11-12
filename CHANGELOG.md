@@ -1,3 +1,10 @@
+## [1.21.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.21.0...v1.21.1) (2023-11-12)
+
+
+### Bug Fixes
+
+* update `runtime-config.ts` remove defaults ([661049f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/661049ff8b5dbda7810469c1b52efd2cd51b8e97))
+
 # [1.21.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.20.0...v1.21.0) (2023-11-11)
 
 
