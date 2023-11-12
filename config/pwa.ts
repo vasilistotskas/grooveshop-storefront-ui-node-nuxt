@@ -133,7 +133,15 @@ export const pwa = {
 			},
 			{
 				urlPattern: ({ url }) => {
-					return url.origin === 'http://localhost:3003'
+					const mediaStreamOrigins = [
+						'http://localhost:3003',
+						'http://assets.grooveshop.localhost',
+						'http://service-media_stream'
+					]
+					return (
+						url.origin ===
+						mediaStreamOrigins.find((origin) => url.origin.startsWith(origin))
+					)
 				},
 				handler: 'StaleWhileRevalidate' as const,
 				options: {
