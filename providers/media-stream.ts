@@ -74,7 +74,7 @@ export const getImage: ProviderGetImage = (
 	{ modifiers = {}, baseURL: string = '/' } = {}
 ) => {
 	const config = useRuntimeConfig()
-	const baseURL = config.public.mediaStreamUrl as string
+	const baseURL = config.public.mediaStreamPath as string
 	const mergeModifiers = { ...defaultModifiers, ...modifiers }
 	const operations = operationsGenerator(mergeModifiers as any)
 

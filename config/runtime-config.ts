@@ -8,7 +8,7 @@ export const runtimeConfig = {
 	// Auth
 	auth: {
 		session: {
-			cookieName: process.env.AUTH_SESSION_NAME,
+			cookieName: process.env.AUTH_SESSION_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -16,7 +16,7 @@ export const runtimeConfig = {
 		},
 
 		csrftoken: {
-			cookieName: process.env.AUTH_CSRFTOKEN_NAME,
+			cookieName: process.env.AUTH_CSRFTOKEN_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7 * 52, // 1 year
@@ -24,7 +24,7 @@ export const runtimeConfig = {
 		},
 
 		accessToken: {
-			cookieName: process.env.AUTH_ACCESS_TOKEN_NAME,
+			cookieName: process.env.AUTH_ACCESS_TOKEN_COOKIE_NAME,
 			httpOnly: false,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -32,7 +32,7 @@ export const runtimeConfig = {
 		},
 
 		refreshToken: {
-			cookieName: process.env.AUTH_REFRESH_TOKEN_SECRET,
+			cookieName: process.env.AUTH_REFRESH_TOKEN_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -41,14 +41,14 @@ export const runtimeConfig = {
 
 		totp: {
 			authenticated: {
-				cookieName: process.env.AUTH_TOTP_AUTHENTICATED_NAME,
+				cookieName: process.env.AUTH_TOTP_AUTHENTICATED_COOKIE_NAME,
 				httpOnly: false,
 				secure: true,
 				maxAge: 60 * 60 * 24 * 7, // 7 days
 				sameSite: 'lax'
 			},
 			active: {
-				cookieName: process.env.AUTH_TOTP_ACTIVE_NAME,
+				cookieName: process.env.AUTH_TOTP_ACTIVE_COOKIE_NAME,
 				httpOnly: false,
 				secure: true,
 				maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -71,9 +71,9 @@ export const runtimeConfig = {
 			from: process.env.AUTH_EMAIL_FROM,
 			provider: {
 				name: 'sendgrid',
-				apiKey: process.env.AUTH_EMAIL_SENDGRID_API_KEY,
+				apiKey: process.env.AUTH_EMAIL_PROVIDER_API_KEY,
 				url: 'https://api.sendgrid.com/v3/mail/send',
-				authorization: `Bearer ${process.env.AUTH_EMAIL_SENDGRID_API_KEY}`
+				authorization: `Bearer ${process.env.AUTH_EMAIL_PROVIDER_API_KEY}`
 			}
 		},
 
@@ -90,12 +90,11 @@ export const runtimeConfig = {
 		titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR || '|',
 		siteName: process.env.NUXT_PUBLIC_SITE_NAME,
 		siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
-		siteDescription: process.env.NUXT_PUBLIC_DESCRIPTION,
+		siteDescription: process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
 		language: process.env.NUXT_PUBLIC_LANGUAGE,
-
-		appTitle: process.env.NUXT_PUBLIC_TITLE,
-		appDescription: process.env.NUXT_PUBLIC_DESCRIPTION,
-		appImage: process.env.NUXT_PUBLIC_IMAGE,
+		appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
+		appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION,
+		appImage: process.env.NUXT_PUBLIC_APP_IMAGE,
 		domainName: process.env.NUXT_PUBLIC_DOMAIN_NAME,
 		canonicalUrl: process.env.NUXT_PUBLIC_CANONICAL_URL,
 		baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
@@ -103,7 +102,8 @@ export const runtimeConfig = {
 		apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
 		djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST,
 		facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID,
-		mediaStreamUrl: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
+		mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
+		mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
 		author: {
 			name: process.env.NUXT_PUBLIC_AUTHOR_NAME,
 			github_url: process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL
