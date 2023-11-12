@@ -4,7 +4,7 @@ export const i18n = {
 	defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE || 'en',
 	debug: false,
 	langDir: 'locales/',
-	baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+	baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
 	detectBrowserLanguage: {
 		useCookie: true,
 		redirectOn: 'root',
