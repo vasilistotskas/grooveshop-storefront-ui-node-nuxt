@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.21.2...v1.22.0) (2023-11-12)
+
+
+### Features
+
+* update env and runtime-config ([9fda99c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9fda99cd9315b928a844c325803375860840ec85))
+
 ## [1.21.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.21.1...v1.21.2) (2023-11-12)
 
 
