@@ -3,9 +3,9 @@ import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 export const pwa = {
 	registerType: 'autoUpdate',
 	manifest: {
-		name: process.env.NUXT_PUBLIC_APP_TITLE,
-		short_name: process.env.NUXT_PUBLIC_APP_TITLE,
-		description: process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
+		name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
+		short_name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
+		description: process.env.NUXT_PUBLIC_SITE_DESCRIPTION || 'Grooveshop Description',
 		theme_color: '#ffffff',
 		background_color: '#ffffff',
 		display: 'standalone',

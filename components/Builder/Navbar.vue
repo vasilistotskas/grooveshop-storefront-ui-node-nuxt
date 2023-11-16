@@ -94,7 +94,7 @@ const appTitle = computed(() => config.public.appTitle as string)
 							<strong>
 								<Anchor
 									:to="localePath('index')"
-									aria-label="index"
+									:aria-label="appTitle"
 									class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold"
 								>
 									<span class="text-primary-700 dark:text-primary-100">{{
