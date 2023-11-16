@@ -10,7 +10,7 @@
   },
   "author": "vasilistotskas",
   "license": "MIT",
-  "homepage": "http://localhost:3000",
+  "homepage": "https://grooveshop.site",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",

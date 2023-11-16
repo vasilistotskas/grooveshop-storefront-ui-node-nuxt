@@ -4,7 +4,8 @@ import type { CookieSerializeOptions } from 'cookie-es'
 // Session
 export function setSessionIdCookie(event: H3Event, session: string) {
 	const config = useRuntimeConfig()
-	setCookie(event, config.auth.session.cookieName, session, {
+	const sessionCookieName = config.auth.session.cookieName || 'sessionid'
+	setCookie(event, sessionCookieName, session, {
 		httpOnly: config.auth.session.httpOnly,
 		secure: config.auth.session.secure,
 		maxAge: config.auth.session.maxAge,
@@ -14,7 +15,8 @@ export function setSessionIdCookie(event: H3Event, session: string) {
 
 export function getSessionIdFromCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	const session = getCookie(event, config.auth.session.cookieName!)
+	const sessionCookieName = config.auth.session.cookieName || 'sessionid'
+	const session = getCookie(event, sessionCookieName)
 	return session
 }
 
@@ -31,13 +33,15 @@ export function getSessionIdFromHeader(event: H3Event) {
 
 export function deleteSessionIdCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	deleteCookie(event, config.auth.session.cookieName)
+	const sessionCookieName = config.auth.session.cookieName || 'sessionid'
+	deleteCookie(event, sessionCookieName)
 }
 
 // CSRFToken
 export function setCsrftokenCookie(event: H3Event, csrftoken: string) {
 	const config = useRuntimeConfig()
-	setCookie(event, config.auth.csrftoken.cookieName, csrftoken, {
+	const csrfCookieName = config.auth.csrftoken.cookieName || 'csrftoken'
+	setCookie(event, csrfCookieName, csrftoken, {
 		httpOnly: config.auth.csrftoken.httpOnly,
 		secure: config.auth.csrftoken.secure,
 		maxAge: config.auth.csrftoken.maxAge,
@@ -47,7 +51,8 @@ export function setCsrftokenCookie(event: H3Event, csrftoken: string) {
 
 export function getCsrftokenFromCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	const csrftoken = getCookie(event, config.auth.csrftoken.cookieName!)
+	const csrfCookieName = config.auth.csrftoken.cookieName || 'csrftoken'
+	const csrftoken = getCookie(event, csrfCookieName)
 	return csrftoken
 }
 
@@ -64,5 +69,6 @@ export function getCsrftokenFromHeader(event: H3Event) {
 
 export function deleteCsrftokenCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	deleteCookie(event, config.auth.csrftoken.cookieName)
+	const csrfCookieName = config.auth.csrftoken.cookieName || 'csrftoken'
+	deleteCookie(event, csrfCookieName)
 }
