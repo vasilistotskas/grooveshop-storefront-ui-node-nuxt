@@ -44,7 +44,7 @@ export default function () {
 		)
 		if (!error.value && data.value) {
 			const returnToPath = route.query.redirect?.toString()
-			const redirectTo = returnToPath || publicConfig.auth.redirect.account
+			const redirectTo = returnToPath || publicConfig?.auth?.redirect?.account
 
 			setTimeout(async () => {
 				_totpActive.set('false')
@@ -79,7 +79,7 @@ export default function () {
 
 		if (!error.value && data.value?.success) {
 			const returnToPath = route.query.redirect?.toString()
-			const redirectTo = returnToPath || publicConfig.auth.redirect.mfa.index
+			const redirectTo = returnToPath || publicConfig?.auth?.redirect?.mfa?.index
 
 			setTimeout(async () => {
 				_totpActive.set('true')

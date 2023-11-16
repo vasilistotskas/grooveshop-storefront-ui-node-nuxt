@@ -56,7 +56,7 @@ export default function () {
 		)
 		if (!error.value && data.value) {
 			const returnToPath = route.query.redirect?.toString()
-			const redirectTo = returnToPath || publicConfig.auth.redirect.home
+			const redirectTo = returnToPath || publicConfig?.auth?.redirect?.home
 
 			await _revokeSession()
 
@@ -145,7 +145,7 @@ export default function () {
 		await _refreshSession()
 
 		clearNuxtData()
-		await navigateTo(publicConfig.auth.redirect.logout)
+		await navigateTo(publicConfig?.auth?.redirect?.logout)
 
 		return { data, pending, error, refresh }
 	}
@@ -163,7 +163,7 @@ export default function () {
 		)
 		if (!error.value && data.value && data.value.access) {
 			const returnToPath = route.query.redirect?.toString()
-			const redirectTo = returnToPath || publicConfig.auth.redirect.home
+			const redirectTo = returnToPath || publicConfig?.auth?.redirect?.home
 
 			await _revokeSession()
 

@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	if (!isTotpActive) {
 		return navigateTo({
-			path: publicConfig.auth.redirect.mfa.totp.activate,
+			path: publicConfig?.auth?.redirect?.mfa?.totp?.activate,
 			query: { redirect: to.path }
 		})
 	}

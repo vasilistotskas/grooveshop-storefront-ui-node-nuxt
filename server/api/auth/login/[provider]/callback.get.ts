@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 	const config = useRuntimeConfig()
 
 	try {
-		if (!config.public.auth.redirect.callback) {
+		if (!config?.public?.auth?.redirect?.callback) {
 			throw createError({
 				statusCode: 400,
 				statusMessage: 'Please make sure to set callback redirect path',
@@ -31,11 +31,11 @@ export default defineEventHandler(async (event) => {
 
 		const params = parseParamsAs(event, ZodProviderCallbackParams)
 		const provider = params.provider
-		const providerSettings = config.auth.oauth[provider] as unknown as ProviderSettings
+		const providerSettings = config?.auth?.oauth?.[provider] as unknown as ProviderSettings
 
 		const { state: returnToPath, code } = parseQueryAs(event, ZodProviderCallbackBody)
 
-		if (!config.auth.oauth || !providerSettings) {
+		if (!config?.auth?.oauth || !providerSettings) {
 			throw createError({
 				statusCode: 400,
 				statusMessage: 'oauth-not-configured',
@@ -64,12 +64,12 @@ export default defineEventHandler(async (event) => {
 
 		await sendRedirect(
 			event,
-			withQuery(config.public.auth.redirect.callback, { redirect: returnToPath })
+			withQuery(config?.public?.auth?.redirect?.callback, { redirect: returnToPath })
 		)
 	} catch (error) {
 		await handleError(error, {
 			event,
-			url: config.public.auth.redirect.callback
+			url: config?.public?.auth?.redirect?.callback
 		})
 	}
 })

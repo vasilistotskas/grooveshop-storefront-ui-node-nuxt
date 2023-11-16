@@ -13,5 +13,6 @@ export function getAccessTokenFromHeader(event: H3Event) {
 
 export function deleteAccessTokenCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	deleteCookie(event, config.auth.accessToken.cookieName)
+	const accessTokenCookieName = config?.auth?.accessToken?.cookieName || 'jwt_auth'
+	deleteCookie(event, accessTokenCookieName)
 }

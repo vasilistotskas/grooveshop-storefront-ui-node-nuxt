@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	if (!isTotpAuthenticated) {
 		return navigateTo({
-			path: publicConfig.auth.redirect.login,
+			path: publicConfig?.auth?.redirect?.login,
 			query: { redirect: to.path }
 		})
 	}

@@ -24,12 +24,12 @@ export default function () {
 	const privateConfig = config
 	const loggedInName = 'auth_logged_in'
 
-	const sessionCookieName = privateConfig.auth.session.cookieName || defaultAuthCookieNames.sessionCookieName
-	const csrftokenCookieName = privateConfig.auth.csrftoken.cookieName || defaultAuthCookieNames.csrftokenCookieName
-	const accessTokenCookieName = privateConfig.auth.accessToken.cookieName || defaultAuthCookieNames.accessTokenCookieName
-	const refreshTokenCookieName = privateConfig.auth.refreshToken.cookieName || defaultAuthCookieNames.refreshTokenCookieName
-	const totpAuthenticatedCookieName = privateConfig.auth.totp.authenticated.cookieName || defaultAuthCookieNames.totpAuthenticatedCookieName
-	const totpActiveCookieName = privateConfig.auth.totp.active.cookieName || defaultAuthCookieNames.totpActiveCookieName
+	const sessionCookieName = privateConfig?.auth?.session?.cookieName || defaultAuthCookieNames.sessionCookieName
+	const csrftokenCookieName = privateConfig?.auth?.csrftoken?.cookieName || defaultAuthCookieNames.csrftokenCookieName
+	const accessTokenCookieName = privateConfig?.auth?.accessToken?.cookieName || defaultAuthCookieNames.accessTokenCookieName
+	const refreshTokenCookieName = privateConfig?.auth?.refreshToken?.cookieName || defaultAuthCookieNames.refreshTokenCookieName
+	const totpAuthenticatedCookieName = privateConfig?.auth?.totp?.authenticated?.cookieName || defaultAuthCookieNames.totpAuthenticatedCookieName
+	const totpActiveCookieName = privateConfig?.auth?.totp?.active?.cookieName || defaultAuthCookieNames.totpActiveCookieName
 
 	const msRefreshBeforeExpires = 3000
 
@@ -218,7 +218,7 @@ export default function () {
 				_loggedIn.set(false)
 				user.value = null
 				if (process.client) {
-					await navigateTo(publicConfig.auth.redirect.logout)
+					await navigateTo(publicConfig?.auth?.redirect?.logout)
 				}
 			})
 	}

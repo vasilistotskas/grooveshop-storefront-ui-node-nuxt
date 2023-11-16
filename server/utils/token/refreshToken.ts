@@ -3,21 +3,24 @@ import type { CookieSerializeOptions } from 'cookie-es'
 
 export function setRefreshTokenCookie(event: H3Event, refreshToken: string) {
 	const config = useRuntimeConfig()
-	setCookie(event, config.auth.refreshToken.cookieName, refreshToken, {
-		httpOnly: config.auth.refreshToken.httpOnly,
-		secure: config.auth.refreshToken.secure,
-		maxAge: config.auth.refreshToken.maxAge,
-		sameSite: config.auth.refreshToken.sameSite as CookieSerializeOptions['sameSite']
+	const refreshTokenCookieName = config?.auth?.refreshToken?.cookieName || 'jwt_refresh_auth'
+	setCookie(event, refreshTokenCookieName, refreshToken, {
+		httpOnly: config?.auth?.refreshToken?.httpOnly,
+		secure: config?.auth?.refreshToken?.secure,
+		maxAge: config?.auth?.refreshToken?.maxAge,
+		sameSite: config?.auth?.refreshToken?.sameSite as CookieSerializeOptions['sameSite']
 	})
 }
 
 export function getRefreshTokenFromCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	const refreshToken = getCookie(event, config.auth.refreshToken.cookieName)
+	const refreshTokenCookieName = config?.auth?.refreshToken?.cookieName || 'jwt_refresh_auth'
+	const refreshToken = getCookie(event, refreshTokenCookieName)
 	return refreshToken
 }
 
 export function deleteRefreshTokenCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	deleteCookie(event, config.auth.refreshToken.cookieName)
+	const refreshTokenCookieName = config?.auth?.refreshToken?.cookieName || 'jwt_refresh_auth'
+	deleteCookie(event, refreshTokenCookieName)
 }

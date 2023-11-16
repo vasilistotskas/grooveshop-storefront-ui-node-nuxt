@@ -12,9 +12,9 @@ export default defineWrappedResponseHandler(async (event) => {
 	const params = parseParamsAs(event, ZodProviderParams)
 	const provider = params.provider
 
-	const providerSettings = config.auth.oauth[provider] as unknown as ProviderSettings
+	const providerSettings = config?.auth?.oauth?.[provider] as unknown as ProviderSettings
 
-	if (!config.auth.oauth || !providerSettings) {
+	if (!config?.auth?.oauth || !providerSettings) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'oauth-not-configured',
