@@ -1,3 +1,10 @@
+## [1.24.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.24.1...v1.24.2) (2023-11-16)
+
+
+### Bug Fixes
+
+* add fallback at config values ([e9c0fab](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e9c0fab7aee57c06f85cc26266fb767cc694436e))
+
 ## [1.24.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.24.0...v1.24.1) (2023-11-16)
 
 
