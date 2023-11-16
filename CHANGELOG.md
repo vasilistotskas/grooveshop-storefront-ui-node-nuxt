@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.24.0...v1.24.1) (2023-11-16)
+
+
+### Bug Fixes
+
+* cookie names fix ([04a142d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/04a142dc21b0cbfaf9ab44e813c6970bce7eb8bc))
+
 # [1.24.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.23.0...v1.24.0) (2023-11-16)
 
 
