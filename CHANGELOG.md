@@ -1,3 +1,10 @@
+## [1.25.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.25.0...v1.25.1) (2023-11-17)
+
+
+### Bug Fixes
+
+* remove prerender ([c13528e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c13528ebbe3dbc04a3fae74383c26b864437190f))
+
 # [1.25.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.24.2...v1.25.0) (2023-11-17)
 
 
