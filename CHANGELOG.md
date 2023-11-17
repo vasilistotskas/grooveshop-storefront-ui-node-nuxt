@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.24.2...v1.25.0) (2023-11-17)
+
+
+### Features
+
+* prerender home page and fix media stream url cache in pwa ([8e7a81d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8e7a81dd353c31ce9b188789a37dad2c5c6f4a05))
+
 ## [1.24.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.24.1...v1.24.2) (2023-11-16)
 
 
