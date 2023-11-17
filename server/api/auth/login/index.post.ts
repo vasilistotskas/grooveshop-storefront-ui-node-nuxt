@@ -21,7 +21,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
 		const body = await parseBodyAs(event, ZodLoginBody)
-		const response = await $api(`${config.public.apiBaseUrl}/auth/login/`, event, {
+		const response = await $api(`${config.public.apiBaseUrl}/auth/login`, event, {
 			body: JSON.stringify(body),
 			method: 'POST'
 		})

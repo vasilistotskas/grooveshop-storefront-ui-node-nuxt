@@ -5,6 +5,6 @@ import type { Cart } from '~/types/cart/cart'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const response = await $api<Cart>(`${config.public.apiBaseUrl}/cart/`, event)
+	const response = await $api<Cart>(`${config.public.apiBaseUrl}/cart`, event)
 	return await parseDataAs(response, ZodCart)
 })

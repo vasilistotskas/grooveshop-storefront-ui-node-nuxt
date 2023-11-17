@@ -16,7 +16,7 @@ export const ZodSession = z.object({
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
-		const response = await $api(`${config.public.apiBaseUrl}/auth/session/`, event, {
+		const response = await $api(`${config.public.apiBaseUrl}/auth/session`, event, {
 			method: 'GET'
 		})
 		const session = await parseDataAs(response, ZodSession)

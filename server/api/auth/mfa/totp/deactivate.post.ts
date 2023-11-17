@@ -16,7 +16,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	try {
 		const body = await parseBodyAs(event, ZodMfaTotpDeactivateBody)
 		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/mfa/totp/deactivate/`,
+			`${config.public.apiBaseUrl}/auth/mfa/totp/deactivate`,
 			event,
 			{
 				body: JSON.stringify(body),

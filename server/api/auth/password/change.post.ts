@@ -17,7 +17,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	try {
 		const body = await parseBodyAs(event, ZodPasswordChangeBody)
 		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/password/change/`,
+			`${config.public.apiBaseUrl}/auth/password/change`,
 			event,
 			{
 				body: JSON.stringify(body),

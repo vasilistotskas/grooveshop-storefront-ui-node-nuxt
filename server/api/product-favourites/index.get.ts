@@ -7,7 +7,7 @@ import { ZodFavourite, ZodFavouriteQuery } from '~/types/product/favourite'
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const query = parseQueryAs(event, ZodFavouriteQuery)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/favourite/`, query)
+	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/favourite`, query)
 	const response = await $api(url, event)
 	return await parseDataAs(response, ZodPagination(ZodFavourite))
 })

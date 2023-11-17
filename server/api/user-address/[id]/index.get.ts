@@ -7,7 +7,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const params = parseParamsAs(event, ZodAddressParams)
 	const response = await $api(
-		`${config.public.apiBaseUrl}/user/address/${params.id}/`,
+		`${config.public.apiBaseUrl}/user/address/${params.id}`,
 		event
 	)
 	return await parseDataAs(response, z.any())

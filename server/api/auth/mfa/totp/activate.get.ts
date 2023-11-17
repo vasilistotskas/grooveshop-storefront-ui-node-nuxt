@@ -12,7 +12,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
 		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/mfa/totp/activate/`,
+			`${config.public.apiBaseUrl}/auth/mfa/totp/activate`,
 			event,
 			{
 				method: 'GET'

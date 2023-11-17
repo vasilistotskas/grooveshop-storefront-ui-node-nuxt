@@ -19,7 +19,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	try {
 		const body = await parseBodyAs(event, ZodRegistrationResendEmailBody)
 		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/registration/resend-email/`,
+			`${config.public.apiBaseUrl}/auth/registration/resend-email`,
 			event,
 			{
 				body: JSON.stringify(body),

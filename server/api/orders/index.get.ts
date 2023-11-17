@@ -7,7 +7,7 @@ import { ZodOrder, ZodOrderQuery } from '~/types/order/order'
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const query = parseQueryAs(event, ZodOrderQuery)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/order/`, query)
+	const url = buildFullUrl(`${config.public.apiBaseUrl}/order`, query)
 
 	const response = await $api(url, event)
 	return await parseDataAs(response, ZodPagination(ZodOrder))

@@ -10,7 +10,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const body = await parseBodyAs(event, ZodReviewCreateBody)
 	const query = parseQueryAs(event, ZodReviewCreateQuery)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/review/`, query)
+	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/review`, query)
 	const response = await $api(url, event, {
 		body: JSON.stringify(body)
 	})

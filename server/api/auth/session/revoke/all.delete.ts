@@ -11,7 +11,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
 		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/session/revoke/all/`,
+			`${config.public.apiBaseUrl}/auth/session/revoke/all`,
 			event,
 			{
 				method: 'DELETE'

@@ -6,7 +6,7 @@ import { buildFullUrl } from '~/utils/api'
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const query = parseQueryAs(event, ZodProductQuery)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/`, query)
+	const url = buildFullUrl(`${config.public.apiBaseUrl}/product`, query)
 	const response = await $api(url, event)
 	return await parseDataAs(response, ZodPagination(ZodProduct))
 })

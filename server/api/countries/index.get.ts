@@ -7,7 +7,7 @@ import { ZodCountriesQuery, ZodCountry } from '~/types/country/country'
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const query = parseQueryAs(event, ZodCountriesQuery)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/country/`, query)
+	const url = buildFullUrl(`${config.public.apiBaseUrl}/country`, query)
 	const response = await $api(url, event)
 	return await parseDataAs(response, ZodPagination(ZodCountry))
 })

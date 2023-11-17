@@ -23,7 +23,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	try {
 		const body = await parseBodyAs(event, ZodProviderLoginBody)
 		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/${event.context.params?.provider}/connect/`,
+			`${config.public.apiBaseUrl}/auth/${event.context.params?.provider}/connect`,
 			event,
 			{
 				body: JSON.stringify(body),

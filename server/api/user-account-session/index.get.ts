@@ -17,7 +17,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 
 	// Account
 	const accountResponse = await $api(
-		`${config.public.apiBaseUrl}/user/account/session/`,
+		`${config.public.apiBaseUrl}/user/account/session`,
 		event
 	)
 	const accountParsedData = await parseDataAs(accountResponse, ZodAccount)
@@ -28,7 +28,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		pagination: 'false'
 	}
 	const favouritesUrl = buildFullUrl(
-		`${config.public.apiBaseUrl}/product/favourite/`,
+		`${config.public.apiBaseUrl}/product/favourite`,
 		favouritesQuery
 	)
 	const favouritesResponse = await $api(favouritesUrl, event)
@@ -39,7 +39,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		pagination: 'false'
 	}
 	const reviewsUrl = buildFullUrl(
-		`${config.public.apiBaseUrl}/product/review/`,
+		`${config.public.apiBaseUrl}/product/review`,
 		reviewsQuery
 	)
 	const reviewsResponse = await $api(reviewsUrl, event)
@@ -49,7 +49,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		userId: String(accountParsedData.id),
 		pagination: 'false'
 	}
-	const ordersUrl = buildFullUrl(`${config.public.apiBaseUrl}/order/`, ordersQuery)
+	const ordersUrl = buildFullUrl(`${config.public.apiBaseUrl}/order`, ordersQuery)
 	const ordersResponse = await $api(ordersUrl, event)
 
 	// Addresses
@@ -59,7 +59,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	}
 
 	const addressesUrl = buildFullUrl(
-		`${config.public.apiBaseUrl}/user/address/`,
+		`${config.public.apiBaseUrl}/user/address`,
 		addressesQuery
 	)
 	const addressesResponse = await $api(addressesUrl, event)

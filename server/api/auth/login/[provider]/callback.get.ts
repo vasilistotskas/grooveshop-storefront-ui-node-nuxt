@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 		}
 
 		const googleLoginResponse = await $api(
-			`${config.public.apiBaseUrl}/auth/google/login/`,
+			`${config.public.apiBaseUrl}/auth/google/login`,
 			event,
 			{
 				body: JSON.stringify({

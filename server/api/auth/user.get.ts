@@ -21,7 +21,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			})
 		}
 
-		const response = await $api(`${config.public.apiBaseUrl}/auth/user/`, event, {
+		const response = await $api(`${config.public.apiBaseUrl}/auth/user`, event, {
 			method: 'GET'
 		})
 

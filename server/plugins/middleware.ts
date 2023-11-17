@@ -4,7 +4,7 @@ export default defineNitroPlugin((nitroApp) => {
 		const accessToken = getAccessTokenFromHeader(event)
 
 		if (accessToken) {
-			await $api(`${config.public.apiBaseUrl}/auth/token/verify/`, event, {
+			await $api(`${config.public.apiBaseUrl}/auth/token/verify`, event, {
 				body: JSON.stringify({ token: accessToken }),
 				method: 'POST'
 			})

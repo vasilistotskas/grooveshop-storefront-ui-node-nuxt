@@ -7,7 +7,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const body = await parseBodyAs(event, ZodReviewUserHadReviewedBody)
 	const response = await $api(
-		`${config.public.apiBaseUrl}/product/review/user_had_reviewed/`,
+		`${config.public.apiBaseUrl}/product/review/user_had_reviewed`,
 		event,
 		{
 			body: JSON.stringify(body)

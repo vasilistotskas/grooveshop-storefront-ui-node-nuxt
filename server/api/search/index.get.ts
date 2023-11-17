@@ -8,7 +8,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const query = parseQueryAs(event, ZodSearchQuery)
 
-	const productUrl = buildFullUrl(`${config.public.apiBaseUrl}/search/product/`, query)
+	const productUrl = buildFullUrl(`${config.public.apiBaseUrl}/search/product`, query)
 	const productResponse = await $api(productUrl, event, {
 		timeout: 10000,
 		retry: 3,

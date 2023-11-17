@@ -6,7 +6,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const body = await parseBodyAs(event, ZodAccountPutBody)
 	const params = parseParamsAs(event, ZodAccountParams)
 	const response = await $api(
-		`${config.public.apiBaseUrl}/user/account/${params.id}/`,
+		`${config.public.apiBaseUrl}/user/account/${params.id}`,
 		event,
 		{
 			body: JSON.stringify(body)

@@ -8,7 +8,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const params = parseParamsAs(event, ZodFavouriteParams)
 
 	const response = await $api(
-		`${config.public.apiBaseUrl}/product/favourite/${params.id}/`,
+		`${config.public.apiBaseUrl}/product/favourite/${params.id}`,
 		event
 	)
 	return await parseDataAs(response, z.any())

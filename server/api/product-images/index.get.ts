@@ -7,7 +7,7 @@ import { ZodImage, ZodImageQuery } from '~/types/product/image'
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const query = parseQueryAs(event, ZodImageQuery)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/image/`, query)
+	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/image`, query)
 	const response = await $api(url, event)
 	return await parseDataAs(response, ZodPagination(ZodImage))
 })
