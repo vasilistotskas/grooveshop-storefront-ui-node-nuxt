@@ -2,7 +2,7 @@ export const routeRules = {
 	'/**': process.client
 		? {}
 		: { cache: { swr: true, maxAge: 120, staleMaxAge: 60, headersOnly: true } },
-	'/': { prerender: false },
+	'/': { prerender: true },
 	'/api/**': { cors: true },
 	'/manifest.webmanifest': {
 		headers: {

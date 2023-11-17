@@ -135,8 +135,7 @@ export const pwa = {
 				urlPattern: ({ url }) => {
 					const mediaStreamOrigins = [
 						'http://localhost:3003',
-						'http://assets.grooveshop.localhost',
-						'http://service-media_stream'
+						'https://assets.grooveshop.site/media_stream-image'
 					]
 					return (
 						url.origin ===
