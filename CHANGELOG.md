@@ -1,3 +1,10 @@
+## [1.25.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.25.1...v1.25.2) (2023-11-17)
+
+
+### Bug Fixes
+
+* remove slash from backend api calls ([3317723](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/331772318064cd2d8e615dab5020f11e76c36e77))
+
 ## [1.25.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.25.0...v1.25.1) (2023-11-17)
 
 
