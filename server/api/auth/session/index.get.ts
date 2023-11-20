@@ -15,21 +15,22 @@ export const ZodSession = z.object({
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	try {
-		const response = await $api(`${config.public.apiBaseUrl}/auth/session`, event, {
-			method: 'GET'
-		})
-		const session = await parseDataAs(response, ZodSession)
+  const response = await $api(`${config.public.apiBaseUrl}/auth/session`, event, {
+    method: 'GET'
+  })
 
-		setSessionIdCookie(event, session.sessionid)
-		setCsrftokenCookie(event, session.CSRFToken)
+  console.log('=========== response ===========', response)
+  // @ts-ignore
+  if (response.data) {
+    // @ts-ignore
+    console.log('=========== response.data ===========', response.data)
+  }
+  const session = await parseDataAs(response, ZodSession)
 
-		event.context.sessionid = session.sessionid
-		event.context.csrftoken = session.CSRFToken
-		return session
-	} catch (error) {
-		deleteSessionIdCookie(event)
-		deleteCsrftokenCookie(event)
-		await handleError(error)
-	}
+  setSessionIdCookie(event, session.sessionid)
+  setCsrftokenCookie(event, session.CSRFToken)
+
+  event.context.sessionid = session.sessionid
+  event.context.csrftoken = session.CSRFToken
+  return session
 })
