@@ -31,7 +31,9 @@ export default defineEventHandler(async (event) => {
 
 		const params = parseParamsAs(event, ZodProviderCallbackParams)
 		const provider = params.provider
-		const providerSettings = config?.auth?.oauth?.[provider] as unknown as ProviderSettings
+		const providerSettings = config?.auth?.oauth?.[
+			provider
+		] as unknown as ProviderSettings
 
 		const { state: returnToPath, code } = parseQueryAs(event, ZodProviderCallbackBody)
 

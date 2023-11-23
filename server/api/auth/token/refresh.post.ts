@@ -16,14 +16,10 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
 		const body = await parseBodyAs(event, ZodTokenRefreshBody)
-		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/token/refresh`,
-			event,
-			{
-				body: JSON.stringify(body),
-				method: 'POST'
-			}
-		)
+		const response = await $api(`${config.public.apiBaseUrl}/auth/token/refresh`, event, {
+			body: JSON.stringify(body),
+			method: 'POST'
+		})
 		return await parseDataAs(response, ZodTokenRefreshResponse)
 	} catch (error) {
 		deleteRefreshTokenCookie(event)

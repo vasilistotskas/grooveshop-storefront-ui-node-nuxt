@@ -3,9 +3,12 @@ import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 export const pwa = {
 	registerType: 'autoUpdate',
 	manifest: {
-		name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
-		short_name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
-		description: process.env.NUXT_PUBLIC_SITE_DESCRIPTION || 'Grooveshop Description',
+		name: process.env.NUXT_PUBLIC_APP_TITLE || import.meta.env.NUXT_PUBLIC_APP_TITLE,
+		short_name:
+			process.env.NUXT_PUBLIC_APP_TITLE || import.meta.env.NUXT_PUBLIC_APP_TITLE,
+		description:
+			process.env.NUXT_PUBLIC_SITE_DESCRIPTION ||
+			import.meta.env.NUXT_PUBLIC_SITE_DESCRIPTION,
 		theme_color: '#ffffff',
 		background_color: '#ffffff',
 		display: 'standalone',
@@ -106,11 +109,11 @@ export const pwa = {
 						'/api/user-account-session'
 					]
 					return (
-						url.pathname.startsWith('/api') &&
-						!pwaExcludedCachePaths.some((path) => url.pathname.startsWith(path))
+						url.pathname.includes('/api/') &&
+						!pwaExcludedCachePaths.find((path) => url.pathname.includes(path))
 					)
 				},
-				handler: 'CacheFirst' as const,
+				handler: 'NetworkFirst' as const,
 				options: {
 					cacheName: 'api-cache',
 					cacheableResponse: {
@@ -132,14 +135,15 @@ export const pwa = {
 				}
 			},
 			{
-				urlPattern: ({ url }) => {
+				urlPattern: ({ url, request }) => {
 					const mediaStreamOrigins = [
-						'http://localhost:3003',
-						'https://assets.grooveshop.site/media_stream-image'
+						process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN ||
+							import.meta.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN
 					]
 					return (
 						url.origin ===
-						mediaStreamOrigins.find((origin) => url.origin.startsWith(origin))
+							mediaStreamOrigins.find((origin) => url.origin.includes(origin)) ||
+						request.destination === 'image'
 					)
 				},
 				handler: 'StaleWhileRevalidate' as const,
@@ -157,13 +161,13 @@ export const pwa = {
 	},
 	devOptions: {
 		enabled: false, // process.env.NODE_ENV === 'development',
-		suppressWarnings: true,
+		suppressWarnings: false,
 		navigateFallbackAllowlist: [/^\/$/],
 		type: 'module'
 	},
 	client: {
 		installPrompt: true,
 		// if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
-		periodicSyncForUpdates: 5
+		periodicSyncForUpdates: 5 * 60
 	}
 } satisfies PWAModuleOptions

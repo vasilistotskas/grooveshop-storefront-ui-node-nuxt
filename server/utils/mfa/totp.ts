@@ -3,7 +3,8 @@ import type { CookieSerializeOptions } from 'cookie-es'
 
 export function setTotpAuthenticatedCookie(event: H3Event, authenticated: string) {
 	const config = useRuntimeConfig()
-	const toptAuthenticatedCookieName = config?.auth?.totp?.authenticated?.cookieName || 'totp_authenticated'
+	const toptAuthenticatedCookieName =
+		config?.auth?.totp?.authenticated?.cookieName || 'totp_authenticated'
 	setCookie(event, toptAuthenticatedCookieName, authenticated, {
 		httpOnly: config?.auth?.totp?.authenticated?.httpOnly,
 		secure: config?.auth?.totp?.authenticated?.secure,
@@ -15,14 +16,16 @@ export function setTotpAuthenticatedCookie(event: H3Event, authenticated: string
 
 export function getTotpAuthenticatedFromCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	const toptAuthenticatedCookieName = config?.auth?.totp?.authenticated?.cookieName || 'totp_authenticated'
+	const toptAuthenticatedCookieName =
+		config?.auth?.totp?.authenticated?.cookieName || 'totp_authenticated'
 	const totpAuthenticated = getCookie(event, toptAuthenticatedCookieName)
 	return totpAuthenticated
 }
 
 export function deleteTotpAuthenticatedCookie(event: H3Event) {
 	const config = useRuntimeConfig()
-	const toptAuthenticatedCookieName = config?.auth?.totp?.authenticated?.cookieName || 'totp_authenticated'
+	const toptAuthenticatedCookieName =
+		config?.auth?.totp?.authenticated?.cookieName || 'totp_authenticated'
 	deleteCookie(event, toptAuthenticatedCookieName)
 }
 
