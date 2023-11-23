@@ -1,3 +1,10 @@
+## [1.28.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.28.0...v1.28.1) (2023-11-23)
+
+
+### Bug Fixes
+
+* Add defaults at config `i18n` and `pwa` ([f8084a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f8084a955a5ae179aeb91c84f86292d44a874fe1))
+
 # [1.28.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.27.0...v1.28.0) (2023-11-23)
 
 
