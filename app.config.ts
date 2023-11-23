@@ -5,6 +5,7 @@ export default defineAppConfig({
 		primary: 'blue',
 		gray: 'cool'
 	},
+	nuxtIcon: {},
 	storage: {
 		driver: process.env.NUXT_STORAGE_DRIVER ?? (isCI ? 'cloudflare' : 'fs')
 	}
