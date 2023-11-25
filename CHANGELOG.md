@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.28.1...v1.29.0) (2023-11-25)
+
+
+### Features
+
+* add `nuxt-vitest` ([c7d07f7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c7d07f7d391b7866cb486d70520443cad6b3d03a))
+
 ## [1.28.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.28.0...v1.28.1) (2023-11-23)
 
 
