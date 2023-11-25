@@ -20,5 +20,8 @@ Dockerfile
 .nitro
 .cache
 
+# Tests
+coverage
+
 # Node dependencies
 node_modules

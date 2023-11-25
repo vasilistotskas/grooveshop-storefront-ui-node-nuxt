@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read # for checkout
 
+env:
+  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
 jobs:
   Release:
     name: GitHub Actions Release

@@ -4,6 +4,7 @@ export {}
 const envVariables = z.object({
   NODE_ENV: z.string(),
   NODE_AUTH_TOKEN: z.string(),
+  VITEST_DOM_ENV: z.string(),
 
   // Info
   NUXT_PUBLIC_APP_TITLE: z.string(),

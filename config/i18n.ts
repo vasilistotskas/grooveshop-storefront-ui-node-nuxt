@@ -1,7 +1,8 @@
 export const i18n = {
 	strategy: 'prefix_except_default',
 	lazy: true,
-	defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE || import.meta.env.NUXT_PUBLIC_LANGUAGE || 'en',
+	defaultLocale:
+		process.env.NUXT_PUBLIC_LANGUAGE || import.meta.env.NUXT_PUBLIC_LANGUAGE || 'en',
 	debug: false,
 	langDir: 'locales/',
 	baseUrl: process.env.NUXT_PUBLIC_BASE_URL || import.meta.env.NUXT_PUBLIC_BASE_URL,

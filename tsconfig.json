@@ -3,6 +3,7 @@
 	"extends": "./.nuxt/tsconfig.json",
 	"compilerOptions": {
 		"outDir": "./.output",
+    "moduleResolution": "bundler",
     "typeRoots": [
       "node_modules/@types",
       "index.d.ts",

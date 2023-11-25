@@ -12,5 +12,6 @@ export const modules = [
 	'nuxt-simple-sitemap',
 	'nuxt-simple-robots',
 	'nuxt-og-image',
-	'nuxt-schema-org'
+	'nuxt-schema-org',
+	'nuxt-vitest'
 ]

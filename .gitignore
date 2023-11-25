@@ -24,3 +24,6 @@ dist
 !.vscode/launch.json
 !.vscode/extensions.json
 .history
+
+# Tests
+coverage
