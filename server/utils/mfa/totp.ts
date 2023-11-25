@@ -6,6 +6,7 @@ export function setTotpAuthenticatedCookie(event: H3Event, authenticated: string
 	const toptAuthenticatedCookieName =
 		config?.auth?.totp?.authenticated?.cookieName || 'totp_authenticated'
 	setCookie(event, toptAuthenticatedCookieName, authenticated, {
+		domain: config?.auth?.totp?.authenticated?.domain,
 		httpOnly: config?.auth?.totp?.authenticated?.httpOnly,
 		secure: config?.auth?.totp?.authenticated?.secure,
 		maxAge: config?.auth?.totp?.authenticated?.maxAge,
@@ -33,6 +34,7 @@ export function setTotpActiveCookie(event: H3Event, active: boolean) {
 	const config = useRuntimeConfig()
 	const toptActiveCookieName = config?.auth?.totp?.active?.cookieName || 'totp_active'
 	setCookie(event, toptActiveCookieName, active.toString(), {
+		domain: config?.auth?.totp?.active?.domain,
 		httpOnly: config?.auth?.totp?.active?.httpOnly,
 		secure: config?.auth?.totp?.active?.secure,
 		maxAge: config?.auth?.totp?.active?.maxAge,

@@ -6,6 +6,7 @@ export function setSessionIdCookie(event: H3Event, session: string) {
 	const config = useRuntimeConfig()
 	const sessionCookieName = config?.auth?.session?.cookieName || 'sessionid'
 	setCookie(event, sessionCookieName, session, {
+		domain: config?.auth?.session?.domain,
 		httpOnly: config?.auth?.session?.httpOnly,
 		secure: config?.auth?.session?.secure,
 		maxAge: config?.auth?.session?.maxAge,
@@ -42,6 +43,7 @@ export function setCsrftokenCookie(event: H3Event, csrftoken: string) {
 	const config = useRuntimeConfig()
 	const csrfCookieName = config?.auth?.csrftoken?.cookieName || 'csrftoken'
 	setCookie(event, csrfCookieName, csrftoken, {
+		domain: config?.auth?.csrftoken?.domain,
 		httpOnly: config?.auth?.csrftoken?.httpOnly,
 		secure: config?.auth?.csrftoken?.secure,
 		maxAge: config?.auth?.csrftoken?.maxAge,

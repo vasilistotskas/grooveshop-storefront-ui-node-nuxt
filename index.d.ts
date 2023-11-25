@@ -70,6 +70,12 @@ const envVariables = z.object({
   AUTH_OAUTH_GOOGLE_CLIENT_ID: z.string(),
   AUTH_OAUTH_GOOGLE_CLIENT_SECRET: z.string(),
   AUTH_OAUTH_GOOGLE_SCOPES: z.string(),
+  AUTH_SESSION_COOKIE_DOMAIN: z.string(),
+  AUTH_CSRFTOKEN_COOKIE_DOMAIN: z.string(),
+  AUTH_ACCESS_TOKEN_COOKIE_DOMAIN: z.string(),
+  AUTH_REFRESH_TOKEN_COOKIE_DOMAIN: z.string(),
+  AUTH_TOTP_AUTHENTICATED_COOKIE_DOMAIN: z.string(),
+  AUTH_TOTP_ACTIVE_COOKIE_DOMAIN: z.string(),
 })
 
 declare global {

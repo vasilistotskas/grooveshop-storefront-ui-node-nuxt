@@ -8,6 +8,7 @@ export const runtimeConfig = {
 	// Auth
 	auth: {
 		session: {
+			domain: process.env.AUTH_SESSION_COOKIE_DOMAIN,
 			cookieName: process.env.AUTH_SESSION_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
@@ -16,6 +17,7 @@ export const runtimeConfig = {
 		},
 
 		csrftoken: {
+			domain: process.env.AUTH_CSRFTOKEN_COOKIE_DOMAIN,
 			cookieName: process.env.AUTH_CSRFTOKEN_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
@@ -24,6 +26,7 @@ export const runtimeConfig = {
 		},
 
 		accessToken: {
+			domain: process.env.AUTH_ACCESS_TOKEN_COOKIE_DOMAIN,
 			cookieName: process.env.AUTH_ACCESS_TOKEN_COOKIE_NAME,
 			httpOnly: false,
 			secure: true,
@@ -32,6 +35,7 @@ export const runtimeConfig = {
 		},
 
 		refreshToken: {
+			domain: process.env.AUTH_REFRESH_TOKEN_COOKIE_DOMAIN,
 			cookieName: process.env.AUTH_REFRESH_TOKEN_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
@@ -41,6 +45,7 @@ export const runtimeConfig = {
 
 		totp: {
 			authenticated: {
+				domain: process.env.AUTH_TOTP_AUTHENTICATED_COOKIE_DOMAIN,
 				cookieName: process.env.AUTH_TOTP_AUTHENTICATED_COOKIE_NAME,
 				httpOnly: false,
 				secure: true,
@@ -48,6 +53,7 @@ export const runtimeConfig = {
 				sameSite: 'lax'
 			},
 			active: {
+				domain: process.env.AUTH_TOTP_ACTIVE_COOKIE_DOMAIN,
 				cookieName: process.env.AUTH_TOTP_ACTIVE_COOKIE_NAME,
 				httpOnly: false,
 				secure: true,

@@ -6,6 +6,7 @@ export function setRefreshTokenCookie(event: H3Event, refreshToken: string) {
 	const refreshTokenCookieName =
 		config?.auth?.refreshToken?.cookieName || 'jwt_refresh_auth'
 	setCookie(event, refreshTokenCookieName, refreshToken, {
+		domain: config?.auth?.refreshToken?.domain,
 		httpOnly: config?.auth?.refreshToken?.httpOnly,
 		secure: config?.auth?.refreshToken?.secure,
 		maxAge: config?.auth?.refreshToken?.maxAge,

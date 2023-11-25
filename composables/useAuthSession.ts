@@ -47,6 +47,7 @@ export default function () {
 	const createCookieObject = (
 		event: H3Event,
 		cookieName: string,
+		domain: string | undefined = undefined,
 		httpOnly: boolean = false,
 		secure: boolean = true,
 		maxAge: number | undefined = undefined,
@@ -71,6 +72,7 @@ export default function () {
 					if (process.server) {
 						event.context[cookieName] = value
 						setCookie(event, cookieName, value, {
+							domain,
 							httpOnly,
 							secure,
 							maxAge,
@@ -78,6 +80,7 @@ export default function () {
 						})
 					} else {
 						useCookie(cookieName, {
+							domain,
 							httpOnly,
 							secure,
 							maxAge,
@@ -107,6 +110,7 @@ export default function () {
 	const _session = createCookieObject(
 		event,
 		sessionCookieName,
+		privateConfig?.auth?.session?.domain,
 		privateConfig?.auth?.session?.httpOnly || true,
 		privateConfig?.auth?.session?.secure || true,
 		privateConfig?.auth?.session?.maxAge || 60 * 60 * 24 * 7, // 7 days
@@ -116,6 +120,7 @@ export default function () {
 	const _csrftoken = createCookieObject(
 		event,
 		csrftokenCookieName,
+		privateConfig?.auth?.csrftoken?.domain,
 		privateConfig?.auth?.csrftoken?.httpOnly || true,
 		privateConfig?.auth?.csrftoken?.secure || true,
 		privateConfig?.auth?.csrftoken?.maxAge || 60 * 60 * 24 * 7 * 52, // 1 year
@@ -125,6 +130,7 @@ export default function () {
 	const _accessToken = createCookieObject(
 		event,
 		accessTokenCookieName,
+		privateConfig?.auth?.accessToken?.domain,
 		privateConfig?.auth?.accessToken?.httpOnly || false,
 		privateConfig?.auth?.accessToken?.secure || true,
 		privateConfig?.auth?.accessToken?.maxAge || 60 * 60 * 24 * 7, // 7 days
@@ -134,6 +140,7 @@ export default function () {
 	const _refreshToken = createCookieObject(
 		event,
 		refreshTokenCookieName,
+		privateConfig?.auth?.refreshToken?.domain,
 		privateConfig?.auth?.refreshToken?.httpOnly || true,
 		privateConfig?.auth?.refreshToken?.secure || true,
 		privateConfig?.auth?.refreshToken?.maxAge || 60 * 60 * 24 * 30, // 30 days
@@ -143,6 +150,7 @@ export default function () {
 	const _totpAuthenticated = createCookieObject(
 		event,
 		totpAuthenticatedCookieName,
+		privateConfig?.auth?.totp?.authenticated?.domain,
 		privateConfig?.auth?.totp?.authenticated?.httpOnly || false,
 		privateConfig?.auth?.totp?.authenticated?.secure || true,
 		privateConfig?.auth?.totp?.authenticated?.maxAge || 60 * 60 * 24 * 7, // 7 days
@@ -152,6 +160,7 @@ export default function () {
 	const _totpActive = createCookieObject(
 		event,
 		totpActiveCookieName,
+		privateConfig?.auth?.totp?.active?.domain,
 		privateConfig?.auth?.totp?.active?.httpOnly || false,
 		privateConfig?.auth?.totp?.active?.secure || true,
 		privateConfig?.auth?.totp?.active?.maxAge || 60 * 60 * 24 * 7, // 7 days
