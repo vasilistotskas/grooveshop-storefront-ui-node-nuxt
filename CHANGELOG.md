@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.29.0...v1.30.0) (2023-11-25)
+
+
+### Features
+
+* Add domain in cookies for auth ([a19d355](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a19d355cd9124746cfc36a30e887057f1af5f5eb))
+
 # [1.29.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.28.1...v1.29.0) (2023-11-25)
 
 
