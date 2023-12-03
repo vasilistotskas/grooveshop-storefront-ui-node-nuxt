@@ -1,6 +1,12 @@
 <template>
 	<UContainer class="mt-4">
-		<UForm class="space-y-4" :state="fields" autocomplete="on" @submit="onSubmit">
+		<UForm
+			:id="id"
+			class="space-y-4"
+			:state="fields"
+			autocomplete="on"
+			@submit="onSubmit"
+		>
 			<UFormGroup
 				v-for="{
 					as,
@@ -8,25 +14,35 @@
 					label,
 					autocomplete = 'off',
 					readonly = false,
+					required = false,
+					placeholder = '',
+					type = 'text',
 					children = []
 				} in schema.fields"
 				:key="name"
+				v-model="fields[name][0].value"
 				:label="label"
 				:name="name"
-				v-bind="fields[name].value"
+				v-bind="fields[name][1].value"
 			>
 				<UInput
+					v-bind="fields[name][1].value"
 					:id="name"
+					v-model="fields[name][0].value"
 					:as="as"
 					:name="name"
-					v-bind="fields[name].value"
 					:autocomplete="autocomplete"
 					:aria-readonly="readonly"
 					:readonly="readonly"
+					:required="required"
+					:placeholder="
+						type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
+					"
+					:type="type"
 					class="grid gap-1"
 				>
 					<div v-if="children">
-						<DynamicFormChildren :children="children" />
+						<LazyDynamicFormChildren :children="children" />
 					</div>
 				</UInput>
 			</UFormGroup>
@@ -53,10 +69,14 @@
 
 <script lang="ts" setup>
 import { z } from 'zod'
-import { useForm } from 'vee-validate'
+import { v4 as uuidv4 } from 'uuid'
 import type { PropType } from 'vue'
-import { toTypedSchema } from '@vee-validate/zod'
-import type { DynamicFormFields, DynamicFormSchema, DynamicFormState } from '~/types/form'
+import type {
+	DynamicFormFields,
+	DynamicFormSchema,
+	DynamicFormState,
+	FormValues
+} from '~/types/form'
 
 // Define the UI configuration for Nuxt-UI
 const nuxtUiConfig = (state: DynamicFormState) => {
@@ -69,6 +89,11 @@ const nuxtUiConfig = (state: DynamicFormState) => {
 
 // Define the props for the component
 const props = defineProps({
+	id: {
+		type: String,
+		required: false,
+		default: () => uuidv4()
+	},
 	schema: {
 		type: Object as PropType<DynamicFormSchema>,
 		required: true
@@ -106,16 +131,25 @@ const generatedSchema = z.object(
 // Convert the generated Zod schema object to a VeeValidate compatible schema object
 const validationSchema = toTypedSchema(generatedSchema)
 
+// Create an object of initial form values from the schema object
+const initialFormValues = props.schema.fields.reduce((acc: FormValues, field) => {
+	acc[field.name] = field.initialValue
+	return acc
+}, {})
+
 // Define the form bindings and validation rules using VeeValidate's useForm hook
-const { defineComponentBinds, handleSubmit, resetForm, errors, isSubmitting } = useForm({
-	validationSchema
+const { defineField, handleSubmit, resetForm, errors, isSubmitting } = useForm({
+	validationSchema,
+	initialValues: initialFormValues
 })
 
-// Create an object of field bindings using defineComponentBinds and nuxtUiConfig functions
+// Create an object of field bindings using defineField and nuxtUiConfig functions
 function createFields(keys: string[]) {
-	const fieldValues: DynamicFormFields<any, string, any> = {}
-	keys.forEach((fieldName) => {
-		fieldValues[fieldName] = defineComponentBinds(fieldName, nuxtUiConfig)
+	const fieldValues: DynamicFormFields = {}
+	keys.forEach((key) => {
+		// Use defineField for each key and store the result in fieldValues
+		const [field, fieldProps] = defineField(key, nuxtUiConfig)
+		fieldValues[key] = [field, fieldProps]
 	})
 	return fieldValues
 }
@@ -132,7 +166,7 @@ const onSubmit = handleSubmit((values) => {
 // Define the form state for Nuxt UI
 const state = computed(() => {
 	return Object.fromEntries(
-		Object.entries(fields).map(([key, value]) => [key, value.value.modelValue])
+		Object.entries(fields).map(([key, value]) => [key, value[0].value])
 	)
 })
 

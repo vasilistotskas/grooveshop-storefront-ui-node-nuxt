@@ -12,7 +12,7 @@ export default defineNuxtPlugin(async (NuxtApp) => {
 			if (_accessToken.get()) {
 				await fetchUser()
 			} else {
-				const isLoggedIn = _loggedIn.get() === 'true'
+				const isLoggedIn = _loggedIn.get()
 
 				if (isLoggedIn || _refreshToken.get()) {
 					await _refresh()

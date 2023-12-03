@@ -22,8 +22,8 @@ const refreshCart = async () => await fetchCart()
 
 const addToCartEvent = async () => {
 	await addCartItem({
-		product: String(product.value.id),
-		quantity: String(quantity.value)
+		product: product.value,
+		quantity: quantity.value
 	})
 	await refreshCart()
 	toast.add({

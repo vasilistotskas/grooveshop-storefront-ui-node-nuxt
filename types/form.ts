@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { Ref } from 'vue'
-import type { BaseComponentBinds } from 'vee-validate'
+import type { BaseFieldProps, GenericObject, PathValue } from 'vee-validate'
 
 export const ZodDynamicFormSchemaChildren = z.array(
 	z.object({
@@ -13,13 +13,17 @@ export const ZodDynamicFormSchemaChildren = z.array(
 export const ZodDynamicFormSchema = z.object({
 	fields: z.array(
 		z.object({
+			as: z.string(),
 			name: z.string(),
 			label: z.string(),
-			as: z.string(),
-			rules: z.any(),
-			autocomplete: z.string(),
-			readonly: z.boolean(),
-			children: ZodDynamicFormSchemaChildren.optional().nullish()
+			autocomplete: z.string().default('off'),
+			readonly: z.boolean().default(false),
+			required: z.boolean().default(false),
+			placeholder: z.string().default(''),
+			type: z.enum(['text', 'password', 'date', 'email', 'number']).default('text'),
+			initialValue: z.any().optional().nullish(),
+			children: ZodDynamicFormSchemaChildren.optional().nullish(),
+			rules: z.any()
 		})
 	)
 })
@@ -32,6 +36,13 @@ export type DynamicFormState = {
 	errors: string[]
 }
 
-export type DynamicFormFields<TValue, TModel extends string, TExtras> = {
-	[key: string]: Ref<BaseComponentBinds<TValue, TModel> & TExtras>
+export type DynamicFormFields<
+	TValue = any,
+	TExtras extends GenericObject = GenericObject
+> = {
+	[key: string]: [Ref<TValue>, Ref<BaseFieldProps & TExtras>]
+}
+
+export type FormValues = {
+	[key: string]: unknown
 }

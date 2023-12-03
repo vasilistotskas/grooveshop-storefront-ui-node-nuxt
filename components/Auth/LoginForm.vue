@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
 
 const { login, loginWithProvider } = useAuth()
+const { totpActive } = useAuthMfa()
 
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
@@ -18,12 +17,16 @@ const ZodLogin = z.object({
 
 const validationSchema = toTypedSchema(ZodLogin)
 
-const { defineInputBinds, handleSubmit, errors, isSubmitting } = useForm({
+const { defineField, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema
 })
 
-const email = defineInputBinds('email')
-const password = defineInputBinds('password')
+const [email, emailProps] = defineField('email', {
+	validateOnModelUpdate: true
+})
+const [password, passwordProps] = defineField('password', {
+	validateOnModelUpdate: true
+})
 
 const showPassword = ref(false)
 
@@ -39,6 +42,8 @@ const onSubmit = handleSubmit(async (values) => {
 		await fetchCart()
 		const idb = await useAsyncIDBKeyval('auth', true)
 		idb.value = true
+
+		await totpActive()
 	} else if (error.value) {
 		if (error.value?.data?.data?.nonFieldErrors) {
 			toast.add({
@@ -75,7 +80,8 @@ const onSubmit = handleSubmit(async (values) => {
 						}}</label>
 						<FormTextInput
 							id="email"
-							:bind="email"
+							v-model="email"
+							:bind="emailProps"
 							class="text-primary-700 dark:text-primary-100"
 							name="email"
 							type="email"
@@ -94,7 +100,8 @@ const onSubmit = handleSubmit(async (values) => {
 						<div class="relative grid gap-2 items-center">
 							<FormTextInput
 								id="password"
-								:bind="password"
+								v-model="password"
+								:bind="passwordProps"
 								class="text-primary-700 dark:text-primary-100"
 								name="password"
 								:type="showPassword ? 'text' : 'password'"

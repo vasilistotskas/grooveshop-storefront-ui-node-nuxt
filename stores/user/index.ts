@@ -55,6 +55,9 @@ export const useUserStore = defineStore('user', () => {
 	}
 
 	async function fetchAccount() {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: accountError,
@@ -83,6 +86,9 @@ export const useUserStore = defineStore('user', () => {
 	}
 
 	async function updateAccount(id: number, body: AccountPutBody) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: accountError,
@@ -105,6 +111,9 @@ export const useUserStore = defineStore('user', () => {
 	}
 
 	async function updateAccountImage(id: number, body: FormData) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: accountError,
@@ -127,6 +136,9 @@ export const useUserStore = defineStore('user', () => {
 	}
 
 	async function addFavourite(body: FavouriteCreateBody) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: favouriteError,
@@ -151,6 +163,9 @@ export const useUserStore = defineStore('user', () => {
 	}
 
 	async function removeFavourite(id: number) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			error: favouriteError,
 			pending: favouritePending,

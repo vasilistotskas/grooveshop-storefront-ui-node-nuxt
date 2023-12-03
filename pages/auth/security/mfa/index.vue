@@ -1,30 +1,44 @@
 <script lang="ts" setup>
-const { t } = useLang()
-
+const config = useRuntimeConfig()
+const { t, locale } = useLang()
+const breadcrumbUi = useBreadcrumbsUi()
 const { _totpActive } = useAuthSession()
-const isTotpActive = _totpActive.get() === 'true'
+
+const isTotpActive = _totpActive.get()
+
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/auth/security'
+				: `/${locale.value}/auth/security`,
+		label: t('seoUi.breadcrumb.items.auth.security.label'),
+		ariaLabel: t('seoUi.breadcrumb.items.auth.security.ariaLabel')
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/auth/security/mfa'
+				: `/${locale.value}/auth/security/mfa`,
+		label: t('seoUi.breadcrumb.items.auth.security.mfa.label'),
+		current: true
+	}
+])
 
 definePageMeta({
 	layout: 'user',
 	middleware: 'auth'
 })
-useServerHead(() => ({
-	title: t('pages.auth.security.mfa.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.auth.security.mfa.description')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.auth.security.mfa.title'),
-	description: t('pages.auth.security.mfa.description')
-})
 </script>
 
 <template>
 	<PageWrapper class="container flex flex-col gap-12">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageTitle
 			:text="$t('pages.auth.security.mfa.title')"
 			class="capitalize text-center"

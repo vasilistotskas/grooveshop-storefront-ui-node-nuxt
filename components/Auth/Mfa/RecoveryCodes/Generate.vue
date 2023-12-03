@@ -12,7 +12,7 @@ async function onSubmit() {
 			title: t('pages.auth.security.mfa.recovery.codes.generate.success'),
 			color: 'green'
 		})
-		await router.push('/auth/mfa/recovery-codes')
+		await router.push('/auth/security/mfa/recovery-codes')
 	} else if (error.value) {
 		toast.add({
 			title: t('pages.auth.security.mfa.recovery.codes.generate.error'),

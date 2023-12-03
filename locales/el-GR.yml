@@ -124,6 +124,17 @@ components:
       too_many_attempts: πάρα πολλές προσπάθειες, δοκιμάστε ξανά αργότερα.
       delete_review_confirm: διαγράφω
       delete_review_cancel: ματαίωση
+      add:
+        title: προσθήκη κριτικής
+        error: ελέγξτε το σφάλμα δημιουργίας
+        success: η κριτική δημιουργήθηκε με επιτυχία
+      update:
+        title: ενημέρωση κριτικής
+        error: ελέγξτε το σφάλμα ενημέρωσης
+        success: η κριτική ενημερώθηκε με επιτυχία
+      delete:
+        success: η κριτική διαγράφηκε με επιτυχία
+        error: ελέγξτε το σφάλμα διαγραφής
       rating:
         title: εκτίμηση
         bad: κακό
@@ -194,7 +205,7 @@ components:
     sidebar:
       title: ολοκλήρωση αγοράς
       items: είδη
-      items_unique: είδος
+      items_unique: είδη
       shipping: αποστολή
       discount: εκπτωση
       vat: δεξαμενη
@@ -209,14 +220,24 @@ pages:
     title: η σελίδα δεν βρέθηκε
     description: η σελίδα δεν βρέθηκε
     keywords: η σελίδα δεν βρέθηκε
+  about:
+    title: σχετικά με
+    nav: σχετικά με
+    description: σχετικά με
+    keywords: σχετικά με
+  blog:
+    title: ιστολόγιο
+    nav: blog
+    description: blog
+    keywords: blog
   testing:
-    nav: δοκιμές
-    title: δοκιμές
+    nav: δοκιμή
+    title: δοκιμή
     index:
-      nav: δοκιμές
-      title: δοκιμές
+      nav: δοκιμή
+      title: δοκιμή
       description: αυτή είναι μια δοκιμαστική σελίδα
-      keywords: δοκιμές
+      keywords: δοκιμή
     blank:
       nav: κενό
       title: κενή σελίδα
@@ -224,7 +245,7 @@ pages:
       just_blank_page_with_title: απλά κενή σελίδα με τίτλο
     test:
       nav: δοκιμή
-      title: δοκιμές
+      title: δοκιμή
       description: αυτή είναι μια δοκιμαστική σελίδα
       counter: μετρητής
       increment: αύξηση
@@ -348,14 +369,39 @@ pages:
       mobile_phone: κινητό τηλέφωνο
       floor: πάτωμα
       location_type: τύπος τοποθεσίας
+      street: δρόμος
+      street_number: αριθμός δρόμου
       customer_notes: σημειώσεις πελατών
-      submit: υποβάλλουν
+      submit:
+        title: υποβάλλουν
+        success: η παραγγελία δημιουργήθηκε με επιτυχία
+        error: σφάλμα δημιουργίας παραγγελίας
       too_many_attempts: πάρα πολλές προσπάθειες, δοκιμάστε ξανά αργότερα.
       choose:
         country: διάλεξε χώρα
         region: επιλέξτε περιοχή
     success:
-      title: η παραγγελία δημιουργήθηκε
+      title: η παραγγελία δημιουργήθηκε με επιτυχία
+      lottie: η παραγγελία δημιουργήθηκε
+      button: πλοηγηθείτε στο σπίτι
+      main:
+        title: σας ευχαριστούμε, %{customername}!
+        text: >-
+          ο αριθμός παραγγελίας σας είναι <strong>%{orderid}</strong>. ένα email
+          επιβεβαίωσης έχει σταλεί στο <strong>%{customeremail}</strong>. θα σας
+          ειδοποιήσουμε όταν η παραγγελία σας αποσταλεί.
+      order:
+        summary: σύνοψη παραγγελίας
+        details: λεπτομέρειες παραγγελίας
+      image: εικόνα
+      product: προϊόν
+      quantity: ποσότητα
+      price: τιμή
+      shippingPrice: κόστος αποστολής %{price}
+      totalPriceItems: στοιχεία συνολικής τιμής %{price}
+      totalPriceExtra: συνολική τιμή επιπλέον %{price}
+      payWayPrice: τιμή πληρωμής %{price}
+      total: συνολικό ποσό %{price}
     validation:
       email:
         required: απαιτείται email
@@ -381,11 +427,26 @@ pages:
         required: η θέση είναι απαραίτητη
         min: το μέρος πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
       city:
-        required: η πόλη είναι απαραίτητη
+        required: η πόλη απαιτείται
         min: η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
       phone:
         required: απαιτείται τηλέφωνο
         min: το τηλέφωνο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+  terms:
+    title: οροι
+    nav: όροι
+    description: όροι
+    keywords: όροι
+  privacy:
+    title: μυστικότητα
+    nav: μυστικότητα
+    description: μυστικότητα
+    keywords: μυστικότητα
+  contact:
+    title: επικοινωνία
+    nav: επικοινωνία
+    description: επικοινωνία
+    keywords: επικοινωνία
   accounts:
     login:
       title: λογαριασμός
@@ -727,6 +788,8 @@ pages:
           description: εισαγάγετε τον νέο σας κωδικό πρόσβασης.
           keywords: επαναφέρετε τον κωδικό πρόσβασης
           form:
+            email:
+              label: ηλεκτρονικη διευθυνση
             newPassword1:
               label: κωδικός πρόσβασης
               validation:
@@ -753,72 +816,79 @@ pages:
                   η επιβεβαίωση κωδικού πρόσβασης πρέπει να αποτελείται από
                   τουλάχιστον %{min} χαρακτήρες
             submit: επαναφέρετε τον κωδικό πρόσβασης
-    mfa:
-      title: έλεγχος ταυτότητας δύο παραγόντων
-      description: έλεγχος ταυτότητας δύο παραγόντων
-      keywords: έλεγχος ταυτότητας δύο παραγόντων
-      recovery:
-        codes:
-          title: κωδικοί ανάκτησης
-          description: >-
-            αποθηκεύστε αυτούς τους κωδικούς ανάκτησης σε έναν ασφαλή
-            διαχειριστή κωδικών πρόσβασης. μπορούν να χρησιμοποιηθούν για την
-            ανάκτηση της πρόσβασης στον λογαριασμό σας εάν χαθεί η συσκευή
-            ελέγχου ταυτότητας δύο παραγόντων.
-          keywords: κωδικοί ανάκτησης
-          link: εμφάνιση κωδικών ανάκτησης
-          download: λήψη κωδικών ανάκτησης
-          generate:
-            title: δημιουργήστε νέους κωδικούς
+    security:
+      title: ασφάλεια
+      description: ασφάλεια
+      general:
+        title: γενικός
+        description: γενικός
+        keywords: γενικός
+      mfa:
+        title: έλεγχος ταυτότητας δύο παραγόντων
+        description: έλεγχος ταυτότητας δύο παραγόντων
+        keywords: έλεγχος ταυτότητας δύο παραγόντων
+        recovery:
+          codes:
+            title: κωδικοί ανάκτησης
             description: >-
-              κάνοντας κλικ στο παρακάτω κουμπί θα ακυρωθούν οι παλιοί σας
-              κωδικοί ανάκτησης και θα δημιουργηθούν νέοι. θα πρέπει να κάνετε
-              λήψη ενός νέου συνόλου κωδικών αφού δημιουργήσετε νέους.
-            keywords: δημιουργήστε νέους κωδικούς
-            button: δημιουργήστε νέους κωδικούς
-            link: δημιουργήστε νέους κωδικούς
-            success: οι κωδικοί ανάκτησης δημιουργήθηκαν με επιτυχία
-            error: σφάλμα δημιουργίας κωδικών ανάκτησης
+              αποθηκεύστε αυτούς τους κωδικούς ανάκτησης σε έναν ασφαλή
+              διαχειριστή κωδικών πρόσβασης. μπορούν να χρησιμοποιηθούν για την
+              ανάκτηση της πρόσβασης στον λογαριασμό σας εάν χαθεί η συσκευή
+              ελέγχου ταυτότητας δύο παραγόντων.
+            keywords: κωδικοί ανάκτησης
+            link: εμφάνιση κωδικών ανάκτησης
+            download: κατεβάστε τους κωδικούς ανάκτησης
+            generate:
+              title: δημιουργήστε νέους κωδικούς
+              description: >-
+                κάνοντας κλικ στο παρακάτω κουμπί θα ακυρωθούν οι παλιοί σας
+                κωδικοί ανάκτησης και θα δημιουργηθούν νέοι. θα πρέπει να κάνετε
+                λήψη ενός νέου συνόλου κωδικών αφού δημιουργήσετε νέους.
+              keywords: δημιουργήστε νέους κωδικούς
+              button: δημιουργήστε νέους κωδικούς
+              link: δημιουργήστε νέους κωδικούς
+              success: οι κωδικοί ανάκτησης δημιουργήθηκαν με επιτυχία
+              error: σφάλμα δημιουργίας κωδικών ανάκτησης
+              form:
+                code:
+                  label: κώδικας
+                button: δημιουργήστε νέους κωδικούς
+        totp:
+          activate:
+            title: σαρώστε αυτόν τον κωδικό qr με την εφαρμογή ελέγχου ταυτότητας.
+            description: >-
+              εάν δεν μπορείτε να χρησιμοποιήσετε έναν κωδικό qr, μπορείτε να
+              εισαγάγετε χειροκίνητα τον παρακάτω κωδικό.
+            keywords: σαρώστε αυτόν τον κωδικό qr με την εφαρμογή ελέγχου ταυτότητας.
+            button: δραστηριοποιώ
+            link: δραστηριοποιώ
+            success: ο έλεγχος ταυτότητας δύο παραγόντων ενεργοποιήθηκε με επιτυχία!
+            error: σφάλμα ενεργοποίησης ελέγχου ταυτότητας δύο παραγόντων
             form:
               code:
                 label: κώδικας
-              button: δημιουργήστε νέους κωδικούς
-      totp:
-        activate:
-          title: σαρώστε αυτόν τον κωδικό qr με την εφαρμογή ελέγχου ταυτότητας.
-          description: >-
-            εάν δεν μπορείτε να χρησιμοποιήσετε έναν κωδικό qr, μπορείτε να
-            εισαγάγετε χειροκίνητα τον παρακάτω κωδικό.
-          keywords: σαρώστε αυτόν τον κωδικό qr με την εφαρμογή ελέγχου ταυτότητας.
-          button: δραστηριοποιώ
-          link: δραστηριοποιώ
-          success: ο έλεγχος ταυτότητας δύο παραγόντων ενεργοποιήθηκε με επιτυχία!
-          error: σφάλμα ενεργοποίησης ελέγχου ταυτότητας δύο παραγόντων
-          form:
-            code:
-              label: κώδικας
-        authenticate:
-          title: εισαγάγετε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας.
-          description: >-
-            εισαγάγετε τον τρέχοντα κωδικό που εμφανίζεται στην εφαρμογή ελέγχου
-            ταυτότητας.
-          keywords: εισαγάγετε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας.
-          button: πιστοποιώ την αυθεντικότητα
-          link: πιστοποιώ την αυθεντικότητα
-          form:
-            code:
-              label: κώδικας
-        deactivate:
-          title: απενεργοποιήστε τον έλεγχο ταυτότητας δύο παραγόντων
-          description: >-
-            η απενεργοποίηση του ελέγχου ταυτότητας δύο παραγόντων θα καταργήσει
-            τη συσκευή ελέγχου ταυτότητας δύο παραγόντων και θα διαγράψει τους
-            κωδικούς ανάκτησης.
-          keywords: απενεργοποιήστε τον έλεγχο ταυτότητας δύο παραγόντων
-          button: απενεργοποίηση
-          link: απενεργοποίηση
-          success: ο έλεγχος ταυτότητας δύο παραγόντων απενεργοποιήθηκε με επιτυχία
-          error: σφάλμα απενεργοποίησης ελέγχου ταυτότητας δύο παραγόντων
+          authenticate:
+            title: εισαγάγετε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας.
+            description: >-
+              εισαγάγετε τον τρέχοντα κωδικό που εμφανίζεται στην εφαρμογή
+              ελέγχου ταυτότητας.
+            keywords: εισαγάγετε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας.
+            button: πιστοποιώ την αυθεντικότητα
+            link: πιστοποιώ την αυθεντικότητα
+            form:
+              code:
+                label: κώδικας
+          deactivate:
+            title: απενεργοποιήστε τον έλεγχο ταυτότητας δύο παραγόντων
+            description: >-
+              η απενεργοποίηση του ελέγχου ταυτότητας δύο παραγόντων θα
+              καταργήσει τη συσκευή ελέγχου ταυτότητας δύο παραγόντων και θα
+              διαγράψει τους κωδικούς ανάκτησης.
+            keywords: απενεργοποιήστε τον έλεγχο ταυτότητας δύο παραγόντων
+            button: απενεργοποίηση
+            link: απενεργοποίηση
+            success: ο έλεγχος ταυτότητας δύο παραγόντων απενεργοποιήθηκε με επιτυχία
+            error: σφάλμα απενεργοποίησης ελέγχου ταυτότητας δύο παραγόντων
 layouts:
   title: grooveshop %{title}
   description: grooveshop-description %{description}
@@ -922,6 +992,18 @@ common:
   previous: προηγούμενος
   login: σύνδεση
   logout: αποσύνδεση
+  about: σχετικά με
+  blog: ιστολόγιο
+  company: εταιρία
+  help_center: κέντρο βοηθείας
+  terms_conditions: οροι
+  discord_server: διακομιστής discord
+  contact_us: επικοινωνήστε μαζί μας
+  twitter: κελάδημα
+  instagram: ίνσταγκραμ
+  facebook: facebook
+  all_rights_reserved: ολα τα δικαιώματα διατηρούνται
+  privacy_policy: πολιτική απορρήτου
   empty:
     title: αδειάζω
     description: αδειάζω
@@ -948,3 +1030,122 @@ common:
       required: απαιτείται χώρα
     region:
       required: απαιτείται περιοχή
+seoUi:
+  breadcrumb:
+    label: φρυγανιά
+    items:
+      index:
+        icon: heroicons-solid:home
+        ariaLabel: σπίτι
+      products:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: προϊόντα
+        label: προϊόντα
+      terms:
+        icon: heroicons-solid:document
+        ariaLabel: οροι
+        label: οροι
+      about:
+        icon: heroicons-solid:document
+        ariaLabel: σχετικά με
+        label: σχετικά με
+      contact:
+        icon: heroicons-solid:document
+        ariaLabel: επικοινωνία
+        label: επικοινωνία
+      privacy:
+        icon: heroicons-solid:document
+        ariaLabel: μυστικότητα
+        label: μυστικότητα
+      cart:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: καροτσάκι
+        label: καροτσάκι
+      blog:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: ιστολόγιο
+        label: ιστολόγιο
+      checkout:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: ολοκλήρωση αγοράς
+        label: ολοκλήρωση αγοράς
+        success:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: ολοκλήρωση αγοράς επιτυχία
+          label: ολοκλήρωση αγοράς επιτυχία
+      auth:
+        login:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: σύνδεση
+          label: σύνδεση
+        registration:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: εγγραφή
+          label: εγγραφή
+          account_confirm_email:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
+            label: επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
+        password:
+          reset:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: επαναφέρετε τον κωδικό πρόσβασης
+            label: επαναφέρετε τον κωδικό πρόσβασης
+            confirm:
+              icon: heroicons-solid:shopping-cart
+              ariaLabel: επιβεβαίωση κωδικού
+              label: επιβεβαίωση κωδικού
+        security:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: ασφάλεια
+          label: ασφάλεια
+          general:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: γενικός
+            label: γενικός
+          mfa:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: υπουργείο εξωτερικών
+            label: υπουργείο εξωτερικών
+            recovery:
+              codes:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: κωδικοί ανάκτησης
+                label: κωδικοί ανάκτησης
+                generate:
+                  icon: heroicons-solid:shopping-cart
+                  ariaLabel: δημιουργήστε νέους κωδικούς
+                  label: δημιουργήστε νέους κωδικούς
+            totp:
+              activate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: δραστηριοποιώ
+                label: δραστηριοποιώ
+              authenticate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: πιστοποιώ την αυθεντικότητα
+                label: πιστοποιώ την αυθεντικότητα
+              deactivate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: απενεργοποίηση
+                label: απενεργοποίηση
+      account:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: λογαριασμός
+        label: λογαριασμός
+        addresses:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: διευθύνσεις
+          label: διευθύνσεις
+          new:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: νέα διεύθυνση
+            label: νέα διεύθυνση
+          edit:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: επεξεργασία διεύθυνσης
+            label: επεξεργασία διεύθυνσης
+        favourites:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: αγαπημένα
+          label: αγαπημένα

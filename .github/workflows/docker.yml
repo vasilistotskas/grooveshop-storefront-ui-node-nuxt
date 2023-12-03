@@ -13,6 +13,9 @@ on:
   release:
     types: [published]
 
+env:
+  SYSTEM_ENV: ci
+
 jobs:
   push_to_registries:
     name: Push Docker image to multiple registries

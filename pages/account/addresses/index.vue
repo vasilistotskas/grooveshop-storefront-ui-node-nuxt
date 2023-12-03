@@ -73,6 +73,7 @@ definePageMeta({
 		<PageHeader class="mb-4">
 			<PageTitle :text="$t('pages.account.addresses.title')" />
 		</PageHeader>
+		<UserAccountNavbar />
 		<PageBody>
 			<template v-if="!pending.addresses && addresses?.results?.length">
 				<div class="grid gap-2 md:flex md:items-center">

@@ -12,5 +12,10 @@
       "global.d.ts",
       "auto-imports.d.ts"
     ]
-	}
+	},
+  "ts-node": {
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true,
+    "esm": true,
+  }
 }

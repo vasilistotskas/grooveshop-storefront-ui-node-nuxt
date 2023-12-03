@@ -1,28 +1,3 @@
-// Session
-export type Session = {
-	isSessionAuthenticated: boolean
-	CSRFToken: string
-	referer?: string | null | undefined
-	userAgent: string | null
-	sessionid: string | null
-	role: string
-	lastActivity?: string | null | undefined
-}
-
-export type SessionRefreshBody = {}
-
-export type SessionRefreshResponse = {
-	success: boolean
-}
-
-export type SessionRevokeAllResponse = {
-	success: boolean
-}
-
-export type SessionRevokeResponse = {
-	success: boolean
-}
-
 // User
 export type User = {
 	id: number

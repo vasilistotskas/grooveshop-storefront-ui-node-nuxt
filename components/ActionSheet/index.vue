@@ -17,6 +17,13 @@ const close = () => {
 onMounted(() => {
 	setTimeout(() => (show.value = true), 100)
 })
+
+watch(
+	() => useRoute().path,
+	() => {
+		if (show.value) close()
+	}
+)
 </script>
 
 <template>

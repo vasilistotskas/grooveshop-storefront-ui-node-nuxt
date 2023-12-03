@@ -4,6 +4,8 @@ import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
 const orderStore = useOrderStore()
 const { order } = storeToRefs(orderStore)
 const { fetchOrderByUUID } = orderStore
+const config = useRuntimeConfig()
+const breadcrumbUi = useBreadcrumbsUi()
 
 const route = useRoute('checkout-success-uuid___en')
 const orderUUID = route.params.uuid
@@ -62,19 +64,30 @@ const payWayPrice = computed(() => {
 	return payWayCost
 })
 
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? `/checkout/success/${orderUUID}`
+				: `/${locale.value}/checkout/success/${orderUUID}`,
+		label: t('seoUi.breadcrumb.items.checkout.success.label'),
+		current: true
+	}
+])
+
 definePageMeta({
 	layout: 'page'
-})
-useServerHead(() => ({
-	title: t('pages.checkout.success.title')
-}))
-useServerSeoMeta({
-	title: t('pages.checkout.success.title')
 })
 </script>
 
 <template>
 	<PageWrapper class="container flex flex-col gap-12">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageTitle
 			:text="$t('pages.checkout.success.title')"
 			class="capitalize text-center"

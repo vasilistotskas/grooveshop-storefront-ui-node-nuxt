@@ -51,9 +51,9 @@ const schemaOrgOptions = [
 		name: config.public.appTitle,
 		logo: config.public.appImage,
 		sameAs: [
-			'https://www.facebook.com/...',
-			'https://twitter.com/...',
-			'https://www.instagram.com/...'
+			config.public.socials.facebook,
+			config.public.socials.twitter,
+			config.public.socials.instagram
 		]
 	}),
 	defineWebSite({
@@ -101,16 +101,14 @@ const ogImageOptions = {
 	cacheTtl: 60 * 60 * 24 * 7
 }
 
-useServerHead(headOptions)
 useHead(headOptions)
 useSchemaOrg(schemaOrgOptions)
-useServerSeoMeta(seoMetaOptions)
 useSeoMeta(seoMetaOptions)
 defineOgImage(ogImageOptions)
 </script>
 
 <template>
-	<div class="app">
+	<div id="#app" class="app">
 		<VitePwaManifest />
 		<NuxtLoadingIndicator />
 		<NuxtLayout>

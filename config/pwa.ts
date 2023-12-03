@@ -1,6 +1,8 @@
 import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 
 export const pwa = {
+	strategies: 'generateSW',
+	injectRegister: 'script',
 	registerType: 'autoUpdate',
 	manifest: {
 		name:
@@ -99,29 +101,37 @@ export const pwa = {
 	},
 	workbox: {
 		navigateFallback: '/',
-		globPatterns: ['**/*.{js,css,scss,html,json,md,txt,svg,webp,ico,png,jpg}'],
+		globPatterns: ['**/*.{js,css,html,json,svg,webp,ico,png,jpg,webmanifest}'],
 		globIgnores: ['google*.html'],
+		navigateFallbackDenylist: [/^\/.*\\?api.*/, /^\/.*\\?admin.*/, /^\/.*\\?auth.*/],
 		cleanupOutdatedCaches: true,
 		sourcemap: process.env.NODE_ENV !== 'development',
 		runtimeCaching: [
 			{
-				urlPattern: ({ url }) => {
+				urlPattern: ({ url, sameOrigin }) => {
 					const pwaExcludedCachePaths = [
-						'/api/cart',
 						'/api/auth',
 						'/api/cart',
 						'/api/cart-items',
 						'/api/user-account',
 						'/api/user-account-session'
 					]
-					return (
-						url.pathname.includes('/api/') &&
-						!pwaExcludedCachePaths.find((path) => url.pathname.includes(path))
+					const isExcludedPath = pwaExcludedCachePaths.some((path) =>
+						url.pathname.startsWith(path)
 					)
+
+					if (isExcludedPath) {
+						return false
+					}
+
+					return sameOrigin && url.pathname.match(/^\/api\/.*/i)
 				},
 				handler: 'NetworkFirst' as const,
 				options: {
-					cacheName: 'api-cache',
+					cacheName: 'api',
+					expiration: {
+						maxEntries: 300
+					},
 					cacheableResponse: {
 						statuses: [0, 200]
 					}
@@ -142,15 +152,11 @@ export const pwa = {
 			},
 			{
 				urlPattern: ({ url, request }) => {
-					const mediaStreamOrigins = [
-						process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN ||
-							import.meta.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN
+					const allowedOrigins = [
+						'http://localhost:3003',
+						'https://assets.grooveshop.site'
 					]
-					return (
-						url.origin ===
-							mediaStreamOrigins.find((origin) => url.origin.includes(origin)) ||
-						request.destination === 'image'
-					)
+					return allowedOrigins.includes(url.origin) && request.destination === 'image'
 				},
 				handler: 'StaleWhileRevalidate' as const,
 				options: {
@@ -166,10 +172,11 @@ export const pwa = {
 		]
 	},
 	devOptions: {
-		enabled: false, // process.env.NODE_ENV === 'development',
-		suppressWarnings: false,
-		navigateFallbackAllowlist: [/^\/$/],
-		type: 'module'
+		enabled: process.env.NODE_ENV === 'development',
+		type: 'module',
+		suppressWarnings: true,
+		navigateFallback: '/',
+		navigateFallbackAllowlist: [/^\/$/]
 	},
 	client: {
 		installPrompt: true,

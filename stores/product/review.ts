@@ -46,6 +46,9 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		ordering,
 		expand
 	}: ReviewQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: reviewsError,
@@ -74,6 +77,9 @@ export const useProductReviewStore = defineStore('productReview', () => {
 	}
 
 	async function fetchUserToProductReview({ productId, userId, expand }: ReviewQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: reviewsError,
@@ -103,6 +109,9 @@ export const useProductReviewStore = defineStore('productReview', () => {
 	}
 
 	async function fetchUserHadReviewed({ product, user }: ReviewUserHadReviewedBody) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: userHadReviewedError,
@@ -128,6 +137,9 @@ export const useProductReviewStore = defineStore('productReview', () => {
 	}
 
 	async function addReview(body: ReviewCreateBody, params: ReviewCreateQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: reviewsError,
@@ -158,6 +170,9 @@ export const useProductReviewStore = defineStore('productReview', () => {
 	}
 
 	async function deleteReview(id: number) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			error: reviewsError,
 			pending: reviewsPending,
@@ -181,6 +196,9 @@ export const useProductReviewStore = defineStore('productReview', () => {
 	}
 
 	async function updateReview(id: number, body: ReviewPutBody) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: reviewsError,

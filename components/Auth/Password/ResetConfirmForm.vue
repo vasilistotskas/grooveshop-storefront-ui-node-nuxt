@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
 
 const { passwordResetConfirm } = useAuth()
 
@@ -32,13 +30,17 @@ const initialValues = {
 
 const validationSchema = toTypedSchema(ZodPasswordResetConfirm)
 
-const { defineInputBinds, handleSubmit, errors, isSubmitting } = useForm({
+const { defineField, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues
 })
 
-const newPassword1 = defineInputBinds('newPassword1')
-const newPassword2 = defineInputBinds('newPassword2')
+const [newPassword1, newPassword1Props] = defineField('newPassword1', {
+	validateOnModelUpdate: true
+})
+const [newPassword2, newPassword2Props] = defineField('newPassword2', {
+	validateOnModelUpdate: true
+})
 
 const onSubmit = handleSubmit(async (values) => {
 	const { data, error } = await passwordResetConfirm({
@@ -100,7 +102,8 @@ const onSubmit = handleSubmit(async (values) => {
 						>
 						<FormTextInput
 							id="newPassword1"
-							:bind="newPassword1"
+							v-model="newPassword1"
+							:bind="newPassword1Props"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="newPassword1"
 							type="password"
@@ -124,7 +127,8 @@ const onSubmit = handleSubmit(async (values) => {
 						>
 						<FormTextInput
 							id="newPassword2"
-							:bind="newPassword2"
+							v-model="newPassword2"
+							:bind="newPassword2Props"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="newPassword2"
 							type="password"

@@ -24,6 +24,9 @@ export const useProductsStore = defineStore('products', () => {
 	const error = ref<ErrorRecord>(errorsFactory())
 
 	async function fetchProducts({ offset, limit, ordering }: ProductQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: productError,

@@ -49,7 +49,15 @@ const { account } = storeToRefs(userStore)
 							<ThemeSwitcher />
 						</li>
 						<li class="relative grid items-center justify-center justify-items-center">
-							<span class="cart-items-count" :data-count="getCartTotalItems"></span>
+							<ClientOnly>
+								<span class="cart-items-count" :data-count="getCartTotalItems"></span>
+								<template #fallback>
+									<ClientOnlyFallback
+										class="cart-items-count"
+										:data-count="getCartTotalItems"
+									></ClientOnlyFallback>
+								</template>
+							</ClientOnly>
 							<Anchor
 								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
 								:to="'cart'"
@@ -85,41 +93,45 @@ const { account } = storeToRefs(userStore)
 		</template>
 		<template #options="{ toggleOptions }">
 			<ActionSheet @on-close="toggleOptions(false)">
-				<ActionSheetBody>
+				<ActionSheetBody class="grid gap-4">
 					<ActionSheetHeader text="Menu" />
 					<nav class="leading-6 font-semibold text-primary-700 dark:text-primary-100">
 						<ul class="flex flex-col">
 							<li
-								class="flex w-full pb-2 mb-2 border-b border-gray-900/10 dark:border-gray-50/[0.2] link"
+								class="flex w-full pb-2 border-b border-gray-900/10 dark:border-gray-50/[0.2] link"
 							>
 								<Anchor
 									:to="'products'"
 									:title="$t('common.shop')"
 									:text="$t('common.shop')"
-									class="flex-1 hover:no-underline capitalize"
+									class="flex-1 hover:no-underline capitalize text-center"
 									>{{ $t('common.shop') }}</Anchor
 								>
 							</li>
 						</ul>
 					</nav>
-					<div
-						class="text-primary-700 dark:text-primary-100 mt-6 text-lg font-bold capitalize"
-					>
-						{{ $t('components.theme.switcher.change.theme') }}
+					<div class="flex gap-3 items-center justify-start">
+						<div
+							class="text-primary-700 dark:text-primary-100 text-lg font-bold capitalize"
+						>
+							{{ $t('components.theme.switcher.change.theme') }}
+						</div>
+						<div class="grid items-center justify-center justify-items-center">
+							<ThemeSwitcher type="select-box" />
+						</div>
 					</div>
-					<div class="mt-2">
-						<ThemeSwitcher type="select-box" />
-					</div>
-					<div
-						class="text-primary-700 dark:text-primary-100 mt-6 text-lg font-bold capitalize"
-					>
-						{{ $t('components.language.switcher.change_language') }}
-					</div>
-					<div class="mt-2">
-						<LanguageSwitcher type="select-box" />
+					<div class="flex gap-3 items-center justify-start">
+						<div
+							class="text-primary-700 dark:text-primary-100 text-lg font-bold capitalize"
+						>
+							{{ $t('components.language.switcher.change_language') }}
+						</div>
+						<div class="grid items-center justify-center justify-items-center">
+							<LanguageSwitcher type="select-box" />
+						</div>
 					</div>
 					<Anchor
-						class="text-primary-700 dark:text-primary-100 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2 mt-4"
+						class="text-primary-700 dark:text-primary-100 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2"
 						:to="'cart'"
 						:title="$t('pages.cart.title')"
 						:text="$t('pages.cart.title')"

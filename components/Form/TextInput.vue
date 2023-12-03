@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import type { BaseInputBinds } from 'vee-validate'
+import type { BaseFieldProps, GenericObject } from 'vee-validate'
+import type { PropType } from 'vue'
 
 const props = defineProps({
-	modelValue: {
-		type: String,
-		default: ''
-	},
 	bind: {
-		type: Object as PropType<BaseInputBinds>,
+		type: Object as PropType<BaseFieldProps & GenericObject>,
 		default: undefined
 	},
 	placeholder: {
@@ -46,7 +43,9 @@ const props = defineProps({
 		default: 'input'
 	}
 })
-const emit = defineEmits(['update:modelValue'])
+
+const modelValue = defineModel<string | null>('modelValue', { default: '' })
+
 defineSlots<{
 	'prefix-disabled'(props: {}): any
 	prefix(props: {}): any
@@ -74,7 +73,6 @@ const fontSizeStyles = reactive<{
 })
 
 // states
-const modelValue = useSyncProps<string>(props, 'modelValue', emit)
 const havePreEl = computed(
 	() =>
 		typeof slots.prefix !== 'undefined' || typeof slots['prefix-disabled'] !== 'undefined'
@@ -104,27 +102,9 @@ const selectedFontSizeStyle = computed(
 		<div class="text-input-wrapper relative flex flex-1">
 			<label :for="id" class="hidden"> {{ name }}</label>
 			<input
-				v-if="modelValue"
 				:id="id"
 				v-model="modelValue"
-				:name="name"
-				:class="`text-input w-full flex-1 bg-transparent outline-none border text-primary-700 dark:text-primary-100 ${
-					havePreEl ? '' : 'rounded-l'
-				} ${
-					haveSuEl ? '' : 'rounded-r'
-				} ${selectedBorderStyle} ${selectedOnHoverBorderStyle} ${selectedPaddingStyle} ${selectedFontSizeStyle}`"
-				:type="type"
-				:placeholder="
-					type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
-				"
-				:required="required"
-				:autocomplete="autocomplete"
-			/>
-			<VeeField
-				v-if="bind"
 				v-bind="bind"
-				:id="id"
-				:as="as"
 				:name="name"
 				:class="`text-input w-full flex-1 bg-transparent outline-none border text-primary-700 dark:text-primary-100 ${
 					havePreEl ? '' : 'rounded-l'

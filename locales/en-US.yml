@@ -106,6 +106,17 @@ components:
       too_many_attempts: Too many attempts, please try again later.
       delete_review_confirm: Delete
       delete_review_cancel: Cancel
+      add:
+        title: Add Review
+        error: Review creation error
+        success: Review created successfully
+      update:
+        title: Update Review
+        error: Review update error
+        success: Review updated successfully
+      delete:
+        success: Review deleted successfully
+        error: Review delete error
       rating:
         title: Rating
         bad: Bad
@@ -183,6 +194,16 @@ components:
     items:
       title: Items
 pages:
+  about:
+    title: About
+    nav: about
+    description: about
+    keywords: about
+  blog:
+    title: Blog
+    nav: blog
+    description: blog
+    keywords: blog
   testing:
     nav: testing
     title: testing
@@ -376,6 +397,21 @@ pages:
       phone:
         required: Phone is required
         min: Phone must be at least %{min} characters long
+  terms:
+    title: Terms
+    nav: terms
+    description: terms
+    keywords: terms
+  privacy:
+    title: Privacy
+    nav: privacy
+    description: privacy
+    keywords: privacy
+  contact:
+    title: Contact
+    nav: contact
+    description: contact
+    keywords: contact
   accounts:
     login:
       title: Account
@@ -881,6 +917,18 @@ common:
   previous: Previous
   login: Login
   logout: Logout
+  about: About
+  blog: Blog
+  company: Company
+  help_center: Help Center
+  terms_conditions: Terms & Conditions
+  discord_server: Discord Server
+  contact_us: Contact Us
+  twitter: Twitter
+  instagram: Instagram
+  facebook: Facebook
+  all_rights_reserved: All rights reserved
+  privacy_policy: Privacy Policy
   empty:
     title: Empty
     description: Empty
@@ -907,3 +955,124 @@ common:
       required: Country is required
     region:
       required: Region is required
+seoUi:
+  breadcrumb:
+    label: Breadcrumb
+    items:
+      index:
+        icon: heroicons-solid:home
+        ariaLabel: Home
+      products:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: Products
+        label: Products
+      terms:
+        icon: heroicons-solid:document
+        ariaLabel: Terms
+        label: Terms
+      about:
+        icon: heroicons-solid:document
+        ariaLabel: About
+        label: About
+      contact:
+        icon: heroicons-solid:document
+        ariaLabel: Contact
+        label: Contact
+      privacy:
+        icon: heroicons-solid:document
+        ariaLabel: Privacy
+        label: Privacy
+      cart:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: Cart
+        label: Cart
+      blog:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: Blog
+        label: Blog
+      checkout:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: Checkout
+        label: Checkout
+        success:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: Checkout Success
+          label: Checkout Success
+      auth:
+        login:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: Login
+          label: Login
+        registration:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: Registration
+          label: Registration
+          account_confirm_email:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: Confirm Email
+            label: Confirm Email
+        password:
+          reset:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: Reset Password
+            label: Reset Password
+            confirm:
+              icon: heroicons-solid:shopping-cart
+              ariaLabel: Confirm Password
+              label: Confirm Password
+        security:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: Security
+          label: Security
+          general:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: General
+            label: General
+          mfa:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: MFA
+            label: MFA
+            recovery:
+              codes:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: Recovery Codes
+                label: Recovery Codes
+                generate:
+                  icon: heroicons-solid:shopping-cart
+                  ariaLabel: Generate New Codes
+                  label: Generate New Codes
+            totp:
+              activate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: Activate
+                label: Activate
+              authenticate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: Authenticate
+                label: Authenticate
+              deactivate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: Deactivate
+                label: Deactivate
+      account:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: Account
+        label: Account
+        addresses:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: Addresses
+          label: Addresses
+          new:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: New Address
+            label: New Address
+          edit:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: Edit Address
+            label: Edit Address
+        favourites:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: Favourites
+          label: Favourites
+
+

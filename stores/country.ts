@@ -29,6 +29,9 @@ export const useCountryStore = defineStore('country', () => {
 	const error = ref<ErrorRecord>(errorsFactory())
 
 	async function fetchCountries(params?: CountriesQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: countryError,
@@ -51,6 +54,9 @@ export const useCountryStore = defineStore('country', () => {
 	}
 
 	async function fetchCountry(id: string) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: countryError,

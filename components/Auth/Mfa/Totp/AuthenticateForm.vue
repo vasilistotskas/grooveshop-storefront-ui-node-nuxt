@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 import type { MfaTotpAuthenticateBody } from '~/types/auth'
+import type { DynamicFormSchema } from '~/types/form'
 
 const { totpAuthenticate } = useAuthMfa()
 
@@ -10,7 +11,7 @@ async function onSubmit(values: MfaTotpAuthenticateBody) {
 	await totpAuthenticate(values)
 }
 
-const formSchema = {
+const formSchema: DynamicFormSchema = {
 	fields: [
 		{
 			label: t('pages.auth.security.mfa.totp.authenticate.form.code.label'),
@@ -18,7 +19,10 @@ const formSchema = {
 			as: 'input',
 			rules: z.string().min(6),
 			autocomplete: 'one-time-code',
-			readonly: false
+			readonly: false,
+			required: true,
+			placeholder: '123456',
+			type: 'number'
 		}
 	]
 }

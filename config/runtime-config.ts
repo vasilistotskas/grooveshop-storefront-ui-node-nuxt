@@ -2,14 +2,14 @@ import { UserRole } from '~/types/auth'
 
 export const runtimeConfig = {
 	// The private keys which are only available server-side
-	apiSecret: process.env.NUXT_PRIVATE_API_SECRET || 'secret',
+	apiSecret: process.env.NUXT_API_SECRET || 'secret',
 	buildDate: new Date().toISOString(),
 
 	// Auth
 	auth: {
 		session: {
-			domain: process.env.AUTH_SESSION_COOKIE_DOMAIN,
-			cookieName: process.env.AUTH_SESSION_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_SESSION_DOMAIN,
+			cookieName: process.env.NUXT_AUTH_SESSION_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -17,8 +17,8 @@ export const runtimeConfig = {
 		},
 
 		csrftoken: {
-			domain: process.env.AUTH_CSRFTOKEN_COOKIE_DOMAIN,
-			cookieName: process.env.AUTH_CSRFTOKEN_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_CSRFTOKEN_DOMAIN,
+			cookieName: process.env.NUXT_AUTH_CSRFTOKEN_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7 * 52, // 1 year
@@ -26,8 +26,8 @@ export const runtimeConfig = {
 		},
 
 		accessToken: {
-			domain: process.env.AUTH_ACCESS_TOKEN_COOKIE_DOMAIN,
-			cookieName: process.env.AUTH_ACCESS_TOKEN_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_ACCESS_TOKEN_DOMAIN,
+			cookieName: process.env.NUXT_AUTH_ACCESS_TOKEN_COOKIE_NAME,
 			httpOnly: false,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -35,8 +35,8 @@ export const runtimeConfig = {
 		},
 
 		refreshToken: {
-			domain: process.env.AUTH_REFRESH_TOKEN_COOKIE_DOMAIN,
-			cookieName: process.env.AUTH_REFRESH_TOKEN_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_REFRESH_TOKEN_DOMAIN,
+			cookieName: process.env.NUXT_AUTH_REFRESH_TOKEN_COOKIE_NAME,
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -45,16 +45,16 @@ export const runtimeConfig = {
 
 		totp: {
 			authenticated: {
-				domain: process.env.AUTH_TOTP_AUTHENTICATED_COOKIE_DOMAIN,
-				cookieName: process.env.AUTH_TOTP_AUTHENTICATED_COOKIE_NAME,
+				domain: process.env.NUXT_AUTH_TOTP_AUTHENTICATED_DOMAIN,
+				cookieName: process.env.NUXT_AUTH_TOTP_AUTHENTICATED_COOKIE_NAME,
 				httpOnly: false,
 				secure: true,
 				maxAge: 60 * 60 * 24 * 7, // 7 days
 				sameSite: 'lax'
 			},
 			active: {
-				domain: process.env.AUTH_TOTP_ACTIVE_COOKIE_DOMAIN,
-				cookieName: process.env.AUTH_TOTP_ACTIVE_COOKIE_NAME,
+				domain: process.env.NUXT_AUTH_TOTP_ACTIVE_DOMAIN,
+				cookieName: process.env.NUXT_AUTH_TOTP_ACTIVE_COOKIE_NAME,
 				httpOnly: false,
 				secure: true,
 				maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -64,9 +64,9 @@ export const runtimeConfig = {
 
 		oauth: {
 			google: {
-				clientId: process.env.AUTH_OAUTH_GOOGLE_CLIENT_ID,
-				clientSecret: process.env.AUTH_OAUTH_GOOGLE_CLIENT_SECRET,
-				scopes: process.env.AUTH_OAUTH_GOOGLE_SCOPES,
+				clientId: process.env.NUXT_AUTH_OAUTH_GOOGLE_CLIENT_ID,
+				clientSecret: process.env.NUXT_AUTH_OAUTH_GOOGLE_CLIENT_SECRET,
+				scopes: process.env.NUXT_AUTH_OAUTH_GOOGLE_SCOPES,
 				authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
 				tokenUrl: 'https://oauth2.googleapis.com/token',
 				userUrl: 'https://www.googleapis.com/oauth2/v3/userinfo'
@@ -74,12 +74,12 @@ export const runtimeConfig = {
 		},
 
 		email: {
-			from: process.env.AUTH_EMAIL_FROM,
+			from: process.env.NUXT_AUTH_EMAIL_FROM,
 			provider: {
 				name: 'sendgrid',
-				apiKey: process.env.AUTH_EMAIL_PROVIDER_API_KEY,
+				apiKey: process.env.NUXT_AUTH_EMAIL_PROVIDER_API_KEY,
 				url: 'https://api.sendgrid.com/v3/mail/send',
-				authorization: `Bearer ${process.env.AUTH_EMAIL_PROVIDER_API_KEY}`
+				authorization: `Bearer ${process.env.NUXT_AUTH_EMAIL_PROVIDER_API_KEY}`
 			}
 		},
 
@@ -98,6 +98,7 @@ export const runtimeConfig = {
 		siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
 		siteDescription: process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
 		language: process.env.NUXT_PUBLIC_LANGUAGE,
+		defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE,
 		appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
 		appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION,
 		appImage: process.env.NUXT_PUBLIC_APP_IMAGE,
@@ -108,6 +109,7 @@ export const runtimeConfig = {
 		apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
 		djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST,
 		facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID,
+		mediaStreamDomain: process.env.NUXT_PUBLIC_MEDIA_STREAM_DOMAIN,
 		mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
 		mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
 		author: {
@@ -117,6 +119,7 @@ export const runtimeConfig = {
 
 		// Auth
 		auth: {
+			cookieDomain: process.env.NUXT_PUBLIC_AUTH_COOKIE_DOMAIN,
 			enableGlobalAuthMiddleware: false,
 			redirect: {
 				login: '/auth/login',
@@ -125,12 +128,20 @@ export const runtimeConfig = {
 				callback: '/account',
 				account: '/account',
 				mfa: {
-					index: '/auth/mfa',
+					index: '/auth/security/mfa',
 					totp: {
-						activate: '/auth/mfa/totp/activate'
+						activate: '/auth/security/mfa/totp/activate'
 					}
 				}
 			}
+		},
+
+		// Socials
+		socials: {
+			facebook: process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
+			twitter: process.env.NUXT_PUBLIC_SOCIALS_TWITTER,
+			instagram: process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM,
+			discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD
 		}
 	},
 

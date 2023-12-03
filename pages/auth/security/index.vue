@@ -1,27 +1,33 @@
 <script lang="ts" setup>
-const { t } = useLang()
+const config = useRuntimeConfig()
+const { t, locale } = useLang()
+const breadcrumbUi = useBreadcrumbsUi()
+
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/auth/security'
+				: `/${locale.value}/auth/security`,
+		label: t('seoUi.breadcrumb.items.auth.security.label'),
+		current: true
+	}
+])
 
 definePageMeta({
 	layout: 'user',
 	middleware: 'auth'
 })
-useServerHead(() => ({
-	title: t('pages.auth.security.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.auth.security.description')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.auth.security.title'),
-	description: t('pages.auth.security.description')
-})
 </script>
 
 <template>
 	<PageWrapper class="container flex flex-col gap-4">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageHeader class="pb-4">
 			<PageTitle :text="$t('pages.auth.security.title')" />
 		</PageHeader>

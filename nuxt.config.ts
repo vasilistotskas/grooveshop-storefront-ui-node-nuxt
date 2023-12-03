@@ -27,6 +27,8 @@ import { routeRules } from './config/route-rules'
 import { pwa } from './config/pwa'
 import { vue } from './config/vue'
 import { site } from './config/site'
+import { linkChecker } from './config/link-checker'
+import { robots } from './config/robots'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
@@ -45,6 +47,9 @@ export default defineNuxtConfig({
 				nuxt.options.appConfig.storage.driver
 			)}`
 		}
+	},
+	generate: {
+		exclude: [/^\/api\/.*/]
 	},
 	site,
 	modules,
@@ -72,5 +77,7 @@ export default defineNuxtConfig({
 	pwa,
 	schemaOrg,
 	sitemap,
+	linkChecker,
+	robots,
 	veeValidate
 })

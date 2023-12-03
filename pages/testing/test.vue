@@ -2,16 +2,16 @@
 import { useIdentityStore } from '~/stores/testing/identity'
 import { useCounterStore } from '~/stores/testing/counter'
 
+const counter = useCounterStore()
+const identity = useIdentityStore()
+
 definePageMeta({
 	layout: 'testing'
 })
-
-const counter = useCounterStore()
-const identity = useIdentityStore()
 </script>
 
 <template>
-	<PageWrapper class="container mt-1 min-h-full">
+	<PageWrapper class="container min-h-full">
 		<PageHeader>
 			<PageTitle :text="$t('pages.testing.test.title')" class="capitalize" />
 		</PageHeader>

@@ -18,8 +18,6 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		})
 
 		deleteRefreshTokenCookie(event)
-		deleteSessionIdCookie(event)
-		deleteCsrftokenCookie(event)
 
 		event.context.jwt_auth = null
 		event.context.user = null
@@ -29,8 +27,6 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		return await parseDataAs(response, ZodLogoutResponse)
 	} catch (error) {
 		deleteRefreshTokenCookie(event)
-		deleteSessionIdCookie(event)
-		deleteCsrftokenCookie(event)
 		await handleError(error)
 	}
 })

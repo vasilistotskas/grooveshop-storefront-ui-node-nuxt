@@ -21,6 +21,10 @@ const switchLocalePath = useSwitchLocalePath()
 const navigateToLocale = (code: string) => {
 	setLocale(code)
 }
+const onLocaleChange = (event: Event) => {
+	const target = event.target as HTMLSelectElement
+	navigateToLocale(target.value)
+}
 </script>
 
 <template>
@@ -56,7 +60,7 @@ const navigateToLocale = (code: string) => {
 						'text-sky-500 bg-zinc-100 dark:bg-zinc-600/30': locale === lang.code,
 						'hover:bg-zinc-50 dark:hover:bg-zinc-700/30': locale !== lang.code
 					}"
-					@click.prevent.stop="navigateToLocale(lang.code)"
+					@click="navigateToLocale(lang.code)"
 				>
 					<NuxtLink :to="switchLocalePath(lang.code)">
 						<span class="text-primary-700 dark:text-primary-100 text-lg mr-2">
@@ -75,13 +79,15 @@ const navigateToLocale = (code: string) => {
 		<select
 			v-if="currentStyle === 'select-box'"
 			class="w-full px-2 pr-3 py-1 outline-none rounded border bg-transparent text-primary-700 dark:text-primary-300 border-gray-900/10 dark:border-gray-50/[0.2]"
+			:value="locale"
+			@change="onLocaleChange"
 		>
 			<option
 				v-for="lang in locales"
 				:key="lang.code"
 				:value="lang.code"
 				class="flex items-center space-x-2"
-				@click.prevent.stop="navigateToLocale(lang.code)"
+				@click="navigateToLocale(lang.code)"
 			>
 				<NuxtLink :to="switchLocalePath(lang.code)">
 					{{ lang.flag }} {{ lang.name }} ({{ lang.code }})

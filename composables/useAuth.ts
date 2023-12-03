@@ -27,7 +27,7 @@ import type {
 } from '~/types/auth'
 
 export default function () {
-	const { user, _refreshSession, _revokeSession } = useAuthSession()
+	const { user } = useAuthSession()
 	const config = useRuntimeConfig()
 	const publicConfig = config.public
 	const {
@@ -58,13 +58,9 @@ export default function () {
 			const returnToPath = route.query.redirect?.toString()
 			const redirectTo = returnToPath || publicConfig?.auth?.redirect?.home
 
-			await _revokeSession()
-
 			// A workaround to insure access token cookie is set
 			_accessToken.set(data.value.access)
 			_loggedIn.set(true)
-
-			await _refreshSession()
 
 			setTimeout(async () => {
 				await fetchUser()
@@ -131,8 +127,6 @@ export default function () {
 			}
 		)
 
-		await _revokeSession()
-
 		_accessToken.clear()
 		_refreshToken.clear()
 		_session.clear()
@@ -141,8 +135,6 @@ export default function () {
 		_totpActive.set('false')
 		_totpAuthenticated.set('false')
 		user.value = null
-
-		await _refreshSession()
 
 		clearNuxtData()
 		await navigateTo(publicConfig?.auth?.redirect?.logout)
@@ -165,13 +157,9 @@ export default function () {
 			const returnToPath = route.query.redirect?.toString()
 			const redirectTo = returnToPath || publicConfig?.auth?.redirect?.home
 
-			await _revokeSession()
-
 			// A workaround to insure access token cookie is set
 			_accessToken.set(data.value.access)
 			_loggedIn.set(true)
-
-			await _refreshSession()
 
 			setTimeout(async () => {
 				await fetchUser()
@@ -180,8 +168,6 @@ export default function () {
 				await navigateTo(redirectTo)
 			}, 100)
 		}
-		// eslint-disable-next-line no-console
-		console.log('======== response ========', data.value, pending.value, error.value)
 		return { data, pending, error, refresh }
 	}
 

@@ -46,7 +46,7 @@ const pwa = useNuxtApp().$pwa
 				role="alert"
 			>
 				<div class="message">
-					<span class="text-primary-700 dark:text-primary-100">
+					<span class="text-primary-700 dark:text-primary-100 text-center capitalize">
 						{{ $t('components.pwa.install_pwa') }}
 					</span>
 				</div>
@@ -84,21 +84,44 @@ const pwa = useNuxtApp().$pwa
 	z-index: 10;
 	text-align: left;
 	box-shadow: 3px 4px 5px 0 #8885;
+	@apply bg-white dark:bg-zinc-800;
+	@media screen and (width <= 767px) {
+		display: flex;
+		gap: 1rem;
+	}
 }
 
 .pwa-toast .message {
 	margin-bottom: 8px;
+
+	@media screen and (width <= 767px) {
+		display: grid;
+		align-self: center;
+		width: 100%;
+		margin: 0;
+	}
 }
 
 .pwa-toast-bar-buttons {
-	@apply ml-auto flex flex-col space-y-3 md:space-x-3 md:space-y-0;
+	@apply ml-auto flex flex-col md:space-x-3;
 	@apply gap-2;
 	@apply mt-4 lg:mt-0;
 	@apply md:flex-row-reverse;
 
+	@media screen and (width <= 767px) {
+		display: flex;
+		width: 100%;
+		flex-direction: row;
+		margin: 0;
+	}
+
 	button {
-		@apply whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium  transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
+		@apply whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
 		@apply border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700;
+
+		@media screen and (width <= 767px) {
+			margin: 0;
+		}
 	}
 }
 </style>

@@ -37,6 +37,9 @@ export const usePayWayStore = defineStore('payWay', () => {
 	})
 
 	async function fetchPayWays(params?: PayWayQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: payWayError,
@@ -59,6 +62,9 @@ export const usePayWayStore = defineStore('payWay', () => {
 	}
 
 	async function fetchPayWay(id: string) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: payWayError,

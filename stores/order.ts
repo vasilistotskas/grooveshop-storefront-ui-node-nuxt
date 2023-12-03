@@ -29,6 +29,9 @@ export const useOrderStore = defineStore('order', () => {
 	const error = ref<ErrorRecord>(errorsFactory())
 
 	async function fetchOrders({ page, ordering, userId }: OrderQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: orderError,

@@ -8,10 +8,6 @@ import {
 } from '@headlessui/vue'
 import { Size } from '~/composables/useScreen'
 
-definePageMeta({
-	layout: 'testing'
-})
-
 const screen = useScreen()
 const config = useRuntimeConfig()
 const randomToken = () => {
@@ -44,10 +40,14 @@ const validate = async () => {
 		alert(err)
 	}
 }
+
+definePageMeta({
+	layout: 'testing'
+})
 </script>
 
 <template>
-	<PageWrapper class="container mt-1 min-h-full">
+	<PageWrapper class="container min-h-full">
 		<PageSection class="mb-0">
 			<Alert
 				type="success"

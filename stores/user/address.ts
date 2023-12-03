@@ -34,6 +34,9 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 	const error = ref<ErrorRecord>(errorsFactory())
 
 	async function fetchAddresses({ page, ordering, user }: AddressQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: addressesError,
@@ -60,6 +63,9 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 	}
 
 	async function fetchAddress(id: string | number) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: addressError,
@@ -81,6 +87,9 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 	}
 
 	async function createAddress(body: AddressCreateBody) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: addressError,
@@ -103,6 +112,9 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 	}
 
 	async function updateAddress(id: string | number, body: AddressPutBody) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: addressError,
@@ -125,6 +137,9 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 	}
 
 	async function deleteAddress(id: string | number) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			error: addressError,
 			pending: addressPending,
@@ -149,6 +164,9 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 	}
 
 	async function setMainAddress(id: string | number) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			error: addressError,
 			pending: addressPending,

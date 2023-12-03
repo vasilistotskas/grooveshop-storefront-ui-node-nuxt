@@ -24,6 +24,9 @@ export const useFavouriteStore = defineStore('favourite', () => {
 	const error = ref<ErrorRecord>(errorsFactory())
 
 	async function fetchFavourites({ page, ordering, userId, expand }: FavouriteQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: favouriteError,

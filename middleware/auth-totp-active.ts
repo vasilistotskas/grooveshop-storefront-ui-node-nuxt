@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	const { _totpActive } = useAuthSession()
 
-	const isTotpActive = _totpActive.get() === 'true'
+	const isTotpActive = _totpActive.get()
 
 	if (!isTotpActive) {
 		return navigateTo({

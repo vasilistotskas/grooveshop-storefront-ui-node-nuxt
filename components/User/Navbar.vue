@@ -178,7 +178,7 @@ const menus = computed((): IMenuItem[] => [
 									:to="'products'"
 									:title="$t('pages.products.title')"
 									:text="$t('pages.products.title')"
-									class="flex-1 hover:no-underline capitalize"
+									class="flex-1 hover:no-underline capitalize text-center"
 									>{{ $t('pages.products.title') }}</Anchor
 								>
 							</li>

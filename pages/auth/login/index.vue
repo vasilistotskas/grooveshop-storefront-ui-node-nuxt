@@ -1,39 +1,33 @@
 <script lang="ts" setup>
-const { t } = useLang()
-const route = useRoute()
+const config = useRuntimeConfig()
+const { t, locale } = useLang()
+const breadcrumbUi = useBreadcrumbsUi()
+
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/auth/login'
+				: `/${locale.value}/auth/login`,
+		label: t('seoUi.breadcrumb.items.auth.login.label'),
+		current: true
+	}
+])
 
 definePageMeta({
 	layout: 'page',
 	middleware: 'guest'
 })
-useServerHead(() => ({
-	title: t('pages.auth.login.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.auth.login.description')
-		},
-		{
-			name: 'keywords',
-			content: t('pages.auth.login.keywords')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.auth.login.title'),
-	description: t('pages.auth.login.description'),
-	ogTitle: t('pages.auth.login.title'),
-	ogDescription: t('pages.auth.login.description'),
-	ogImage: '',
-	ogUrl: route.path,
-	twitterTitle: t('pages.auth.login.title'),
-	twitterDescription: t('pages.auth.login.description'),
-	twitterImage: ''
-})
 </script>
 
 <template>
 	<PageWrapper class="container flex flex-col gap-12">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageTitle :text="$t('pages.auth.login.title')" class="capitalize text-center" />
 		<PageBody>
 			<AuthLoginForm />

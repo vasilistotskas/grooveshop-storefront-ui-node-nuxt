@@ -1,5 +1,8 @@
 <script lang="ts" setup>
+import { GlobalEvents } from '~/events/global'
+
 const colorMode = useColorMode()
+const bus = useEventBus<string>(GlobalEvents.ON_THEME_UPDATED)
 
 const isDark = computed({
 	get() {
@@ -7,6 +10,9 @@ const isDark = computed({
 	},
 	set() {
 		colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+		bus.emit(GlobalEvents.ON_THEME_UPDATED, {
+			isDark: colorMode.value === 'dark'
+		})
 	}
 })
 </script>

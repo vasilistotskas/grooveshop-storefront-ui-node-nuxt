@@ -24,9 +24,6 @@ export const ZodRegistrationBody = z.object({
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 
-	// eslint-disable-next-line no-console
-	console.log('======== registration api ========')
-
 	try {
 		const body = await parseBodyAs(event, ZodRegistrationBody)
 		const response = await $api(`${config.public.apiBaseUrl}/auth/registration`, event, {

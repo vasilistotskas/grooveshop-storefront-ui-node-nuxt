@@ -23,6 +23,9 @@ export const useProductStore = defineStore('product', () => {
 	const error = ref<ErrorRecord>(errorsFactory())
 
 	async function fetchProduct(id: string | number) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: productError,

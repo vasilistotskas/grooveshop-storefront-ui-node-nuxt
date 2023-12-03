@@ -21,22 +21,5 @@ export default defineNitroPlugin((nitroApp) => {
 			deleteAccessTokenCookie(event)
 			deleteRefreshTokenCookie(event)
 		}
-
-		const sessionid = getSessionIdFromHeader(event)
-		const csrftoken = getCsrftokenFromHeader(event)
-
-		if (sessionid) {
-			event.context.sessionid = sessionid
-		} else {
-			event.context.sessionid = null
-			deleteSessionIdCookie(event)
-		}
-
-		if (csrftoken) {
-			event.context.csrftoken = csrftoken
-		} else {
-			event.context.csrftoken = null
-			deleteCsrftokenCookie(event)
-		}
 	})
 })

@@ -117,13 +117,24 @@ components:
       write_review: eine rezension schreiben
       edit_review: rezension bearbeiten
       update_review: update-überprüfung
-      delete_review: bewertung löschen
+      delete_review: rezension löschen
       must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
       write_review_for_product: schreiben sie eine bewertung für produkt %{product}
       confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
       too_many_attempts: zu viele versuche. bitte später erneut versuchen.
       delete_review_confirm: löschen
       delete_review_cancel: stornieren
+      add:
+        title: bewertung hinzufügen
+        error: fehler bei der erstellung der rezension
+        success: bewertung erfolgreich erstellt
+      update:
+        title: update-überprüfung
+        error: überprüfen sie den aktualisierungsfehler
+        success: bewertung erfolgreich aktualisiert
+      delete:
+        success: bewertung erfolgreich gelöscht
+        error: fehler beim löschen der rezension
       rating:
         title: bewertung
         bad: schlecht
@@ -209,6 +220,16 @@ pages:
     title: seite nicht gefunden
     description: seite nicht gefunden
     keywords: seite nicht gefunden
+  about:
+    title: um
+    nav: um
+    description: um
+    keywords: um
+  blog:
+    title: blog
+    nav: blog
+    description: blog
+    keywords: blog
   testing:
     nav: testen
     title: testen
@@ -350,14 +371,40 @@ pages:
       mobile_phone: mobiltelefon
       floor: boden
       location_type: standorttyp
+      street: straße
+      street_number: hausnummer
       customer_notes: kundenhinweise
-      submit: einreichen
+      submit:
+        title: einreichen
+        success: bestellung erfolgreich erstellt
+        error: fehler bei der auftragserstellung
       too_many_attempts: zu viele versuche. bitte später erneut versuchen.
       choose:
         country: land auswählen
         region: wählen sie region
     success:
-      title: auftrag erstellt
+      title: bestellung erfolgreich erstellt
+      lottie: auftrag erstellt
+      button: navigieren sie zur startseite
+      main:
+        title: vielen dank, %{customername}!
+        text: >-
+          ihre bestellnummer ist <strong>%{orderid}</strong>. eine
+          bestätigungs-e-mail wurde an <strong>%{customeremail}</strong>
+          gesendet. wir benachrichtigen sie, wenn ihre bestellung versandt
+          wurde.
+      order:
+        summary: bestellübersicht
+        details: bestelldetails
+      image: bild
+      product: produkt
+      quantity: menge
+      price: preis
+      shippingPrice: versandkosten %{price}
+      totalPriceItems: gesamtpreis artikel %{price}
+      totalPriceExtra: gesamtpreis extra %{price}
+      payWayPrice: pay-way-preis %{price}
+      total: gesamt %{price}
     validation:
       email:
         required: e-mail ist erforderlich
@@ -386,6 +433,21 @@ pages:
       phone:
         required: telefon ist erforderlich
         min: das telefon muss mindestens %{min} zeichen lang sein
+  terms:
+    title: bedingungen
+    nav: bedingungen
+    description: bedingungen
+    keywords: bedingungen
+  privacy:
+    title: privatsphäre
+    nav: privatsphäre
+    description: privatsphäre
+    keywords: privatsphäre
+  contact:
+    title: kontakt
+    nav: kontakt
+    description: kontakt
+    keywords: kontakt
   accounts:
     login:
       title: konto
@@ -435,7 +497,7 @@ pages:
       description: bewertungen
       keywords: bewertungen
       updated: bewertungen aktualisiert
-      update_error: fehler bei der aktualisierung der bewertungen
+      update_error: fehler bei der aktualisierung der rezensionen
       deleted: bewertungen artikel gelöscht
       delete_error: fehler beim löschen des artikels
       ordering:
@@ -713,6 +775,8 @@ pages:
           description: gib dein neues passwort ein.
           keywords: passwort zurücksetzen
           form:
+            email:
+              label: email
             newPassword1:
               label: passwort
               validation:
@@ -733,73 +797,80 @@ pages:
                   die passwortbestätigung muss mindestens %{min} zeichen lang
                   sein
             submit: passwort zurücksetzen
-    mfa:
-      title: zwei-faktor-authentifizierung
-      description: zwei-faktor-authentifizierung
-      keywords: zwei-faktor-authentifizierung
-      recovery:
-        codes:
-          title: wiederherstellungscodes
-          description: >-
-            speichern sie diese wiederherstellungscodes in einem sicheren
-            passwort-manager. sie können verwendet werden, um den zugriff auf
-            ihr konto wiederherzustellen, wenn ihr
-            zwei-faktor-authentifizierungsgerät verloren geht.
-          keywords: wiederherstellungscodes
-          link: wiederherstellungscodes anzeigen
-          download: laden sie wiederherstellungscodes herunter
-          generate:
-            title: generieren sie neue codes
+    security:
+      title: sicherheit
+      description: sicherheit
+      general:
+        title: allgemein
+        description: allgemein
+        keywords: allgemein
+      mfa:
+        title: zwei-faktor-authentifizierung
+        description: zwei-faktor-authentifizierung
+        keywords: zwei-faktor-authentifizierung
+        recovery:
+          codes:
+            title: wiederherstellungscodes
             description: >-
-              wenn sie auf die schaltfläche unten klicken, werden ihre alten
-              wiederherstellungscodes ungültig und neue generiert. sie sollten
-              einen neuen satz codes herunterladen, nachdem sie neue generiert
-              haben.
-            keywords: generieren sie neue codes
-            button: generieren sie neue codes
-            link: generieren sie neue codes
-            success: wiederherstellungscodes erfolgreich generiert
-            error: fehler bei der generierung des wiederherstellungscodes
+              speichern sie diese wiederherstellungscodes in einem sicheren
+              passwort-manager. sie können verwendet werden, um den zugriff auf
+              ihr konto wiederherzustellen, wenn ihr
+              zwei-faktor-authentifizierungsgerät verloren geht.
+            keywords: wiederherstellungscodes
+            link: wiederherstellungscodes anzeigen
+            download: laden sie wiederherstellungscodes herunter
+            generate:
+              title: generieren sie neue codes
+              description: >-
+                wenn sie auf die schaltfläche unten klicken, werden ihre alten
+                wiederherstellungscodes ungültig und neue generiert. sie sollten
+                einen neuen satz codes herunterladen, nachdem sie neue generiert
+                haben.
+              keywords: generieren sie neue codes
+              button: generieren sie neue codes
+              link: generieren sie neue codes
+              success: wiederherstellungscodes erfolgreich generiert
+              error: fehler bei der generierung des wiederherstellungscodes
+              form:
+                code:
+                  label: code
+                button: generieren sie neue codes
+        totp:
+          activate:
+            title: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
+            description: >-
+              wenn sie keinen qr-code verwenden können, können sie den code
+              unten manuell eingeben.
+            keywords: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
+            button: aktivieren sie
+            link: aktivieren sie
+            success: zwei-faktor-authentifizierung erfolgreich aktiviert!
+            error: fehler bei der aktivierung der zwei-faktor-authentifizierung
             form:
               code:
                 label: code
-              button: generieren sie neue codes
-      totp:
-        activate:
-          title: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
-          description: >-
-            wenn sie keinen qr-code verwenden können, können sie den code unten
-            manuell eingeben.
-          keywords: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
-          button: aktivieren sie
-          link: aktivieren sie
-          success: zwei-faktor-authentifizierung erfolgreich aktiviert!
-          error: fehler bei der aktivierung der zwei-faktor-authentifizierung
-          form:
-            code:
-              label: code
-        authenticate:
-          title: geben sie den code aus ihrer authentifizierungsanwendung ein.
-          description: >-
-            geben sie den aktuellen code ein, der in ihrer
-            authentifizierungsanwendung angezeigt wird.
-          keywords: geben sie den code aus ihrer authentifizierungsanwendung ein.
-          button: authentifizieren
-          link: authentifizieren
-          form:
-            code:
-              label: code
-        deactivate:
-          title: deaktivieren sie die zwei-faktor-authentifizierung
-          description: >-
-            durch die deaktivierung der zwei-faktor-authentifizierung wird ihr
-            zwei-faktor-authentifizierungsgerät entfernt und ihre
-            wiederherstellungscodes gelöscht.
-          keywords: deaktivieren sie die zwei-faktor-authentifizierung
-          button: deaktivieren
-          link: deaktivieren
-          success: zwei-faktor-authentifizierung erfolgreich deaktiviert
-          error: fehler bei der deaktivierung der zwei-faktor-authentifizierung
+          authenticate:
+            title: geben sie den code aus ihrer authentifizierungsanwendung ein.
+            description: >-
+              geben sie den aktuellen code ein, der in ihrer
+              authentifizierungsanwendung angezeigt wird.
+            keywords: geben sie den code aus ihrer authentifizierungsanwendung ein.
+            button: authentifizieren
+            link: authentifizieren
+            form:
+              code:
+                label: code
+          deactivate:
+            title: deaktivieren sie die zwei-faktor-authentifizierung
+            description: >-
+              durch die deaktivierung der zwei-faktor-authentifizierung wird ihr
+              zwei-faktor-authentifizierungsgerät entfernt und ihre
+              wiederherstellungscodes gelöscht.
+            keywords: deaktivieren sie die zwei-faktor-authentifizierung
+            button: deaktivieren
+            link: deaktivieren
+            success: zwei-faktor-authentifizierung erfolgreich deaktiviert
+            error: fehler bei der deaktivierung der zwei-faktor-authentifizierung
 layouts:
   title: grooveshop %{title}
   description: grooveshop-beschreibung %{description}
@@ -903,6 +974,18 @@ common:
   previous: vorherige
   login: anmeldung
   logout: ausloggen
+  about: um
+  blog: blog
+  company: unternehmen
+  help_center: hilfezentrum
+  terms_conditions: bedingungen
+  discord_server: discord-server
+  contact_us: kontaktiere uns
+  twitter: twitter
+  instagram: instagram
+  facebook: facebook
+  all_rights_reserved: alle rechte vorbehalten
+  privacy_policy: datenschutzrichtlinie
   empty:
     title: leer
     description: leer
@@ -929,3 +1012,122 @@ common:
       required: land ist erforderlich
     region:
       required: region ist erforderlich
+seoUi:
+  breadcrumb:
+    label: semmelbrösel
+    items:
+      index:
+        icon: heroicons-solid:home
+        ariaLabel: heim
+      products:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: produkte
+        label: produkte
+      terms:
+        icon: heroicons-solid:document
+        ariaLabel: bedingungen
+        label: bedingungen
+      about:
+        icon: heroicons-solid:document
+        ariaLabel: um
+        label: um
+      contact:
+        icon: heroicons-solid:document
+        ariaLabel: kontakt
+        label: kontakt
+      privacy:
+        icon: heroicons-solid:document
+        ariaLabel: privatsphäre
+        label: privatsphäre
+      cart:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: wagen
+        label: wagen
+      blog:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: blog
+        label: blog
+      checkout:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: kasse
+        label: kasse
+        success:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: kassenerfolg
+          label: kassenerfolg
+      auth:
+        login:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: anmeldung
+          label: anmeldung
+        registration:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: anmeldung
+          label: anmeldung
+          account_confirm_email:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: e-mail bestätigen
+            label: e-mail bestätigen
+        password:
+          reset:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: passwort zurücksetzen
+            label: passwort zurücksetzen
+            confirm:
+              icon: heroicons-solid:shopping-cart
+              ariaLabel: bestätige das passwort
+              label: bestätige das passwort
+        security:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: sicherheit
+          label: sicherheit
+          general:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: allgemein
+            label: allgemein
+          mfa:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: mfa
+            label: mfa
+            recovery:
+              codes:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: wiederherstellungscodes
+                label: wiederherstellungscodes
+                generate:
+                  icon: heroicons-solid:shopping-cart
+                  ariaLabel: generieren sie neue codes
+                  label: generieren sie neue codes
+            totp:
+              activate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: aktivieren sie
+                label: aktivieren sie
+              authenticate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: authentifizieren
+                label: authentifizieren
+              deactivate:
+                icon: heroicons-solid:shopping-cart
+                ariaLabel: deaktivieren
+                label: deaktivieren
+      account:
+        icon: heroicons-solid:shopping-cart
+        ariaLabel: konto
+        label: konto
+        addresses:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: adressen
+          label: adressen
+          new:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: neue adresse
+            label: neue adresse
+          edit:
+            icon: heroicons-solid:shopping-cart
+            ariaLabel: adresse bearbeiten
+            label: adresse bearbeiten
+        favourites:
+          icon: heroicons-solid:shopping-cart
+          ariaLabel: favoriten
+          label: favoriten

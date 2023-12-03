@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import SearchingJson from '~/assets/lotties/searching.json'
 import SearchingNoResultsJson from '~/assets/lotties/search_no_results.json'
-definePageMeta({
-	pageTransition: false
-})
 
 const searchStore = useSearchStore()
 const { storage, pending, error, totalCount, productSearchItems, productHeadlines } =
@@ -113,6 +110,10 @@ onUnmounted(() => {
 
 onMounted(() => {
 	isSuggestionsOpen.value = false
+})
+
+definePageMeta({
+	pageTransition: false
 })
 </script>
 

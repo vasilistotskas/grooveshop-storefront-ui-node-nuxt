@@ -51,6 +51,9 @@ export const useSearchStore = defineStore('search', () => {
 	})
 
 	async function search(query: SearchQuery) {
+		if (process.prerender) {
+			return
+		}
 		pending.value.results = true
 
 		if (!query.query) {

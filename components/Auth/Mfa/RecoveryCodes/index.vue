@@ -34,7 +34,7 @@ const downloadCodes = () => {
 			@click="downloadCodes"
 		/>
 		<section class="grid">
-			<UTable v-if="data" :rows="rows" :columns="columns" />
+			<LazyUTable v-if="data" :rows="rows" :columns="columns" />
 		</section>
 	</div>
 </template>

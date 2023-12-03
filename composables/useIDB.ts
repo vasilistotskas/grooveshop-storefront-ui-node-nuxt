@@ -1,7 +1,6 @@
 import type { MaybeRefOrGetter, RemovableRef } from '@vueuse/core'
 import type { Ref } from 'vue'
 import type { UseIDBOptions } from '@vueuse/integrations/useIDBKeyval'
-import { del, get, set, update } from '~/utils/idb'
 
 const isIDBSupported = !process.test && typeof indexedDB !== 'undefined'
 

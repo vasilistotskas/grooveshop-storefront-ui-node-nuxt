@@ -4,7 +4,7 @@ definePageMeta({
 })
 </script>
 <template>
-	<PageWrapper class="container mt-1 min-h-full">
+	<PageWrapper class="container min-h-full">
 		<PageHeader>
 			<PageTitle :text="$t('pages.testing.blank.title')" class="capitalize" />
 		</PageHeader>

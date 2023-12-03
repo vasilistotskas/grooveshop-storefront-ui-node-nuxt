@@ -21,7 +21,7 @@ const { fetchPayWays } = payWayStore
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
 
-const emit = defineEmits(['update:model-value'])
+const emit = defineEmits(['updatev-model'])
 
 const payWayExtraCost = (payWay: PayWay): string => {
 	if (payWay.freeForOrderAmount < 10) {
@@ -51,7 +51,7 @@ const getPayWayLottie = (name: string) => {
 }
 
 const updatePayWay = (value: PayWay) => {
-	emit('update:model-value', payWay)
+	emit('updatev-model', payWay)
 	payWay.value = value
 }
 </script>
@@ -91,7 +91,10 @@ const updatePayWay = (value: PayWay) => {
 								]"
 								class="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
 							>
-								<div class="grid grid-cols-3 w-full items-center justify-between">
+								<div
+									class="grid w-full items-center justify-between justify-items-center"
+									:class="checked ? 'grid-cols-3' : 'grid-cols-2'"
+								>
 									<div class="grid items-center">
 										<div class="text-sm">
 											<RadioGroupLabel
@@ -126,7 +129,7 @@ const updatePayWay = (value: PayWay) => {
 										:width="'40px'"
 									/>
 									<div
-										v-show="checked"
+										v-if="checked"
 										class="grid w-full h-full items-center justify-items-end"
 									>
 										<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">

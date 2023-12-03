@@ -29,6 +29,9 @@ export const useRegionStore = defineStore('region', () => {
 	const error = ref<ErrorRecord>(errorsFactory())
 
 	async function fetchRegions({ alpha2 }: RegionsQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: regionError,

@@ -1,40 +1,41 @@
 <script lang="ts" setup>
-const { t } = useLang()
-const route = useRoute()
+const config = useRuntimeConfig()
+const { t, locale } = useLang()
+const breadcrumbUi = useBreadcrumbsUi()
 
 definePageMeta({
 	layout: 'user',
 	middleware: ['auth', 'auth-totp-active']
 })
 
-useServerHead(() => ({
-	title: t('pages.auth.security.mfa.totp.authenticate.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.auth.security.mfa.totp.authenticate.description')
-		},
-		{
-			name: 'keywords',
-			content: t('pages.auth.security.mfa.totp.authenticate.keywords')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.auth.security.mfa.totp.authenticate.title'),
-	description: t('pages.auth.security.mfa.totp.authenticate.description'),
-	ogTitle: t('pages.auth.security.mfa.totp.authenticate.title'),
-	ogDescription: t('pages.auth.security.mfa.totp.authenticate.description'),
-	ogImage: '',
-	ogUrl: route.path,
-	twitterTitle: t('pages.auth.security.mfa.totp.authenticate.title'),
-	twitterDescription: t('pages.auth.security.mfa.totp.authenticate.description'),
-	twitterImage: ''
-})
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/auth/security/mfa'
+				: `/${locale.value}/auth/security/mfa`,
+		label: t('seoUi.breadcrumb.items.auth.security.mfa.label'),
+		ariaLabel: t('seoUi.breadcrumb.items.auth.security.mfa.ariaLabel')
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/auth/security/mfa/totp/authenticate'
+				: `/${locale.value}/auth/security/mfa/totp/authenticate`,
+		label: t('seoUi.breadcrumb.items.auth.security.mfa.totp.authenticate.label'),
+		current: true
+	}
+])
 </script>
 
 <template>
 	<PageWrapper class="container flex flex-col gap-12">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageTitle
 			:text="$t('pages.auth.security.mfa.totp.authenticate.title')"
 			class="capitalize text-center"

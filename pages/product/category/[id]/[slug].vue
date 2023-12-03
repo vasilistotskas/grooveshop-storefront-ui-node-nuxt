@@ -12,19 +12,6 @@ await fetchCategory(categoryId)
 definePageMeta({
 	layout: 'page'
 })
-useServerHead(() => ({
-	title: capitalize(category.value?.seoTitle || ''),
-	meta: [
-		{
-			name: 'description',
-			content: category.value?.seoDescription || ''
-		},
-		{
-			name: 'keywords',
-			content: category.value?.seoKeywords || ''
-		}
-	]
-}))
 </script>
 
 <template>

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
 import { z } from 'zod'
 import {
 	defaultSelectOptionChoose,
@@ -13,7 +11,7 @@ import { documentTypeEnum, StatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
 
 const cartStore = useCartStore()
-const { cart, getCartItems } = storeToRefs(cartStore)
+const { getCartItems } = storeToRefs(cartStore)
 
 const countryStore = useCountryStore()
 const { countries } = storeToRefs(countryStore)
@@ -32,6 +30,8 @@ const { createOrder } = orderStore
 const { t, locale } = useLang()
 const router = useRouter()
 const toast = useToast()
+const config = useRuntimeConfig()
+const breadcrumbUi = useBreadcrumbsUi()
 const { extractTranslated } = useTranslationExtractor()
 
 const shippingPrice = ref(3)
@@ -130,6 +130,27 @@ const submitButtonDisabled = computed(() => {
 	return isSubmitting.value || Object.keys(errors.value).length > 0
 })
 
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{
+		to: locale.value === config.public.defaultLocale ? '/cart' : `/${locale.value}/cart`,
+		label: t('seoUi.breadcrumb.items.cart.label'),
+		ariaLabel: t('seoUi.breadcrumb.items.cart.ariaLabel')
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/checkout'
+				: `/${locale.value}/checkout`,
+		label: t('seoUi.breadcrumb.items.checkout.label'),
+		current: true
+	}
+])
+
 watch(
 	() => getSelectedPayWayId.value,
 	() => {
@@ -140,458 +161,425 @@ watch(
 definePageMeta({
 	layout: 'page'
 })
-useServerHead(() => ({
-	title: t('pages.checkout.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.checkout.description')
-		},
-		{
-			name: 'keywords',
-			content: t('pages.checkout.keywords')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.checkout.title'),
-	description: t('pages.checkout.description')
-})
 </script>
 
 <template>
 	<PageWrapper class="container flex flex-col gap-4">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageTitle :text="$t('pages.checkout.title')" class="capitalize" />
 		<PageBody>
-			<template v-if="cart && getCartItems?.length">
-				<form
-					id="checkoutForm"
-					class="_form grid gap-2 md:grid-cols-2fr-1fr md:gap-4"
-					name="checkoutForm"
-					@submit="onSubmit"
+			<form
+				id="checkoutForm"
+				class="_form grid gap-2 md:grid-cols-2fr-1fr md:gap-4"
+				name="checkoutForm"
+				@submit="onSubmit"
+			>
+				<div
+					class="container p-2 md:p-10 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
 				>
-					<div
-						class="container p-2 md:p-10 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
-					>
-						<div class="grid md:grid-cols-2 md:gap-4">
+					<div class="grid md:grid-cols-2 gap-4">
+						<div class="grid">
+							<label
+								class="text-primary-700 dark:text-primary-100 mb-2"
+								for="firstName"
+								>{{ $t('pages.checkout.form.first_name') }}</label
+							>
 							<div class="grid">
-								<label
+								<FormTextInput
+									id="firstName"
+									:bind="firstName"
+									:placeholder="$t('pages.checkout.form.first_name')"
+									autocomplete="firstName"
 									class="text-primary-700 dark:text-primary-100 mb-2"
-									for="firstName"
-									>{{ $t('pages.checkout.form.first_name') }}</label
-								>
-								<div class="grid">
-									<FormTextInput
-										id="firstName"
-										:bind="firstName"
-										:placeholder="$t('pages.checkout.form.first_name')"
-										autocomplete="firstName"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="firstName"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.firstName" class="text-sm text-red-600">{{
-									errors.firstName
-								}}</span>
+									name="firstName"
+									type="text"
+								/>
 							</div>
-
-							<div class="grid">
-								<label
-									class="text-primary-700 dark:text-primary-100 mb-2"
-									for="lastName"
-									>{{ $t('pages.checkout.form.last_name') }}</label
-								>
-								<div class="grid">
-									<FormTextInput
-										id="lastName"
-										:bind="lastName"
-										:placeholder="$t('pages.checkout.form.last_name')"
-										autocomplete="lastName"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="lastName"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.lastName" class="text-sm text-red-600">{{
-									errors.lastName
-								}}</span>
-							</div>
-
-							<div class="grid">
-								<label class="text-primary-700 dark:text-primary-100 mb-2" for="email">{{
-									$t('pages.checkout.form.email')
-								}}</label>
-								<div class="grid">
-									<FormTextInput
-										id="email"
-										:bind="email"
-										:placeholder="$t('pages.checkout.form.email')"
-										autocomplete="email"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="email"
-										type="email"
-									/>
-								</div>
-								<span v-if="errors.email" class="text-sm text-red-600">{{
-									errors.email
-								}}</span>
-							</div>
-
-							<div class="grid">
-								<label class="text-primary-700 dark:text-primary-100 mb-2" for="phone">{{
-									$t('pages.checkout.form.phone')
-								}}</label>
-								<div class="grid">
-									<FormTextInput
-										id="phone"
-										:bind="phone"
-										:placeholder="$t('pages.checkout.form.phone')"
-										autocomplete="phone"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="phone"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.phone" class="text-sm text-red-600">{{
-									errors.phone
-								}}</span>
-							</div>
-
-							<div class="grid">
-								<label
-									class="text-primary-700 dark:text-primary-100 mb-2"
-									for="mobilePhone"
-									>{{ $t('pages.checkout.form.mobile_phone') }}</label
-								>
-								<div class="grid">
-									<FormTextInput
-										id="mobilePhone"
-										:bind="mobilePhone"
-										:placeholder="$t('pages.checkout.form.mobile_phone')"
-										autocomplete="mobilePhone"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="mobilePhone"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.mobilePhone" class="text-sm text-red-600">{{
-									errors.mobilePhone
-								}}</span>
-							</div>
-
-							<div class="grid">
-								<label class="text-primary-700 dark:text-primary-100 mb-2" for="city">{{
-									$t('pages.checkout.form.city')
-								}}</label>
-								<div class="grid">
-									<FormTextInput
-										id="city"
-										:bind="city"
-										:placeholder="$t('pages.checkout.form.city')"
-										autocomplete="city"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="city"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.city" class="text-sm text-red-600">{{
-									errors.city
-								}}</span>
-							</div>
-
-							<div class="grid">
-								<label class="text-primary-700 dark:text-primary-100 mb-2" for="place">{{
-									$t('pages.checkout.form.place')
-								}}</label>
-								<div class="grid">
-									<FormTextInput
-										id="place"
-										:bind="place"
-										:placeholder="$t('pages.checkout.form.place')"
-										autocomplete="place"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="place"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.place" class="text-sm text-red-600">{{
-									errors.place
-								}}</span>
-							</div>
-
-							<div class="grid content-evenly items-start">
-								<label
-									class="text-primary-700 dark:text-primary-100 mb-2"
-									for="zipcode"
-									>{{ $t('pages.checkout.form.zipcode') }}</label
-								>
-								<div class="grid">
-									<FormTextInput
-										id="zipcode"
-										:bind="zipcode"
-										:placeholder="$t('pages.checkout.form.zipcode')"
-										autocomplete="zipcode"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="zipcode"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.zipcode" class="text-sm text-red-600">{{
-									errors.zipcode
-								}}</span>
-							</div>
-
-							<div class="grid">
-								<label class="text-primary-700 dark:text-primary-100 mb-2" for="street">{{
-									$t('pages.checkout.form.street')
-								}}</label>
-								<div class="grid">
-									<FormTextInput
-										id="street"
-										:bind="street"
-										:placeholder="$t('pages.checkout.form.street')"
-										autocomplete="street"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="street"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.street" class="text-sm text-red-600">{{
-									errors.street
-								}}</span>
-							</div>
-
-							<div class="grid">
-								<label
-									class="text-primary-700 dark:text-primary-100 mb-2"
-									for="streetNumber"
-									>{{ $t('pages.checkout.form.street_number') }}</label
-								>
-								<div class="grid">
-									<FormTextInput
-										id="streetNumber"
-										:bind="streetNumber"
-										:placeholder="$t('pages.checkout.form.street_number')"
-										autocomplete="streetNumber"
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										name="streetNumber"
-										type="text"
-									/>
-								</div>
-								<span v-if="errors.streetNumber" class="text-sm text-red-600">{{
-									errors.streetNumber
-								}}</span>
-							</div>
-
-							<div class="grid col-span-2">
-								<label
-									class="text-primary-700 dark:text-primary-100 mb-2"
-									for="customerNotes"
-									>{{ $t('pages.checkout.form.customer_notes') }}</label
-								>
-								<div class="grid">
-									<VeeField
-										id="customerNotes"
-										as="textarea"
-										v-bind="customerNotes"
-										:placeholder="$t('pages.checkout.form.customer_notes')"
-										class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-										name="customerNotes"
-										rows="4"
-										type="text"
-									/>
-								</div>
-							</div>
+							<span v-if="errors.firstName" class="text-sm text-red-600">{{
+								errors.firstName
+							}}</span>
 						</div>
-						<div class="grid md:grid-cols-2 md:gap-4">
-							<div class="grid content-evenly items-start gap-4">
-								<div class="grid">
-									<label
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										for="floor"
-										>{{ $t('pages.checkout.form.floor') }}</label
-									>
-									<VeeField
-										id="floor"
-										v-bind="floor"
-										name="floor"
-										as="select"
-										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-									>
-										<option
-											:value="defaultSelectOptionChoose"
-											disabled
-											:selected="floor.value === defaultSelectOptionChoose"
-										>
-											{{ defaultSelectOptionChoose }}
-										</option>
-										<option
-											v-for="(floorChoice, index) in floorChoicesList"
-											:key="index"
-											:value="index"
-											:selected="Number(floor.value) === index"
-											class="text-primary-700 dark:text-primary-300"
-										>
-											{{ floorChoice }}
-										</option>
-									</VeeField>
-									<span v-if="errors.floor" class="text-sm text-red-600">{{
-										errors.floor
-									}}</span>
-								</div>
-								<div class="grid">
-									<label
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										for="locationType"
-										>{{ $t('pages.checkout.form.location_type') }}</label
-									>
-									<VeeField
-										id="locationType"
-										v-bind="locationType"
-										name="locationType"
-										as="select"
-										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-									>
-										<option
-											:value="defaultSelectOptionChoose"
-											disabled
-											:selected="locationType.value === defaultSelectOptionChoose"
-										>
-											{{ defaultSelectOptionChoose }}
-										</option>
-										<option
-											v-for="(location, index) in locationChoicesList"
-											:key="index"
-											:value="index"
-											:selected="Number(locationType.value) === index"
-											class="text-primary-700 dark:text-primary-300"
-										>
-											{{ location }}
-										</option>
-									</VeeField>
-									<span v-if="errors.locationType" class="text-sm text-red-600">{{
-										errors.locationType
-									}}</span>
-								</div>
-							</div>
 
-							<div class="grid content-evenly items-start gap-4">
-								<div class="grid">
-									<label
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										for="country"
-										>{{ $t('pages.checkout.form.country') }}</label
-									>
-									<div class="grid">
-										<VeeField
-											id="country"
-											v-bind="country"
-											name="country"
-											as="select"
-											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-											@change.capture="onCountryChange"
-										>
-											<option
-												:value="defaultSelectOptionChoose"
-												disabled
-												:selected="country.value === defaultSelectOptionChoose"
-											>
-												{{ defaultSelectOptionChoose }}
-											</option>
-											<option
-												v-for="cntry in countries?.results"
-												:key="cntry.alpha2"
-												:value="cntry.alpha2"
-												:selected="country.value === cntry.alpha2"
-												class="text-primary-700 dark:text-primary-300"
-											>
-												{{ extractTranslated(cntry, 'name', locale) }}
-											</option>
-										</VeeField>
-									</div>
-									<span v-if="errors.country" class="text-sm text-red-600">{{
-										errors.country
-									}}</span>
-								</div>
-								<div class="grid">
-									<label
-										class="text-primary-700 dark:text-primary-100 mb-2"
-										for="region"
-										>{{ $t('pages.checkout.form.region') }}</label
-									>
-									<div class="grid">
-										<VeeField
-											id="region"
-											v-bind="region"
-											name="region"
-											as="select"
-											class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-											:disabled="country.value === defaultSelectOptionChoose"
-										>
-											<option
-												:value="defaultSelectOptionChoose"
-												disabled
-												:selected="region.value === defaultSelectOptionChoose"
-											>
-												{{ defaultSelectOptionChoose }}
-											</option>
-											<option
-												v-for="rgn in regions?.results"
-												:key="rgn.alpha"
-												:value="rgn.alpha"
-												:selected="region.value === rgn.alpha"
-												class="text-primary-700 dark:text-primary-300"
-											>
-												{{ extractTranslated(rgn, 'name', locale) }}
-											</option>
-										</VeeField>
-									</div>
-									<span v-if="errors.region" class="text-sm text-red-600">{{
-										errors.region
-									}}</span>
-								</div>
+						<div class="grid">
+							<label class="text-primary-700 dark:text-primary-100 mb-2" for="lastName">{{
+								$t('pages.checkout.form.last_name')
+							}}</label>
+							<div class="grid">
+								<FormTextInput
+									id="lastName"
+									:bind="lastName"
+									:placeholder="$t('pages.checkout.form.last_name')"
+									autocomplete="lastName"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="lastName"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.lastName" class="text-sm text-red-600">{{
+								errors.lastName
+							}}</span>
+						</div>
+
+						<div class="grid">
+							<label class="text-primary-700 dark:text-primary-100 mb-2" for="email">{{
+								$t('pages.checkout.form.email')
+							}}</label>
+							<div class="grid">
+								<FormTextInput
+									id="email"
+									:bind="email"
+									:placeholder="$t('pages.checkout.form.email')"
+									autocomplete="email"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="email"
+									type="email"
+								/>
+							</div>
+							<span v-if="errors.email" class="text-sm text-red-600">{{
+								errors.email
+							}}</span>
+						</div>
+
+						<div class="grid">
+							<label class="text-primary-700 dark:text-primary-100 mb-2" for="phone">{{
+								$t('pages.checkout.form.phone')
+							}}</label>
+							<div class="grid">
+								<FormTextInput
+									id="phone"
+									:bind="phone"
+									:placeholder="$t('pages.checkout.form.phone')"
+									autocomplete="phone"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="phone"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.phone" class="text-sm text-red-600">{{
+								errors.phone
+							}}</span>
+						</div>
+
+						<div class="grid">
+							<label
+								class="text-primary-700 dark:text-primary-100 mb-2"
+								for="mobilePhone"
+								>{{ $t('pages.checkout.form.mobile_phone') }}</label
+							>
+							<div class="grid">
+								<FormTextInput
+									id="mobilePhone"
+									:bind="mobilePhone"
+									:placeholder="$t('pages.checkout.form.mobile_phone')"
+									autocomplete="mobilePhone"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="mobilePhone"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.mobilePhone" class="text-sm text-red-600">{{
+								errors.mobilePhone
+							}}</span>
+						</div>
+
+						<div class="grid">
+							<label class="text-primary-700 dark:text-primary-100 mb-2" for="city">{{
+								$t('pages.checkout.form.city')
+							}}</label>
+							<div class="grid">
+								<FormTextInput
+									id="city"
+									:bind="city"
+									:placeholder="$t('pages.checkout.form.city')"
+									autocomplete="city"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="city"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.city" class="text-sm text-red-600">{{
+								errors.city
+							}}</span>
+						</div>
+
+						<div class="grid">
+							<label class="text-primary-700 dark:text-primary-100 mb-2" for="place">{{
+								$t('pages.checkout.form.place')
+							}}</label>
+							<div class="grid">
+								<FormTextInput
+									id="place"
+									:bind="place"
+									:placeholder="$t('pages.checkout.form.place')"
+									autocomplete="place"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="place"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.place" class="text-sm text-red-600">{{
+								errors.place
+							}}</span>
+						</div>
+
+						<div class="grid content-evenly items-start">
+							<label class="text-primary-700 dark:text-primary-100 mb-2" for="zipcode">{{
+								$t('pages.checkout.form.zipcode')
+							}}</label>
+							<div class="grid">
+								<FormTextInput
+									id="zipcode"
+									:bind="zipcode"
+									:placeholder="$t('pages.checkout.form.zipcode')"
+									autocomplete="zipcode"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="zipcode"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.zipcode" class="text-sm text-red-600">{{
+								errors.zipcode
+							}}</span>
+						</div>
+
+						<div class="grid">
+							<label class="text-primary-700 dark:text-primary-100 mb-2" for="street">{{
+								$t('pages.checkout.form.street')
+							}}</label>
+							<div class="grid">
+								<FormTextInput
+									id="street"
+									:bind="street"
+									:placeholder="$t('pages.checkout.form.street')"
+									autocomplete="street"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="street"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.street" class="text-sm text-red-600">{{
+								errors.street
+							}}</span>
+						</div>
+
+						<div class="grid">
+							<label
+								class="text-primary-700 dark:text-primary-100 mb-2"
+								for="streetNumber"
+								>{{ $t('pages.checkout.form.street_number') }}</label
+							>
+							<div class="grid">
+								<FormTextInput
+									id="streetNumber"
+									:bind="streetNumber"
+									:placeholder="$t('pages.checkout.form.street_number')"
+									autocomplete="streetNumber"
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									name="streetNumber"
+									type="text"
+								/>
+							</div>
+							<span v-if="errors.streetNumber" class="text-sm text-red-600">{{
+								errors.streetNumber
+							}}</span>
+						</div>
+
+						<div class="grid col-span-2">
+							<label
+								class="text-primary-700 dark:text-primary-100 mb-2"
+								for="customerNotes"
+								>{{ $t('pages.checkout.form.customer_notes') }}</label
+							>
+							<div class="grid">
+								<VeeField
+									id="customerNotes"
+									as="textarea"
+									v-bind="customerNotes"
+									:placeholder="$t('pages.checkout.form.customer_notes')"
+									class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+									name="customerNotes"
+									rows="4"
+									type="text"
+								/>
 							</div>
 						</div>
 					</div>
-					<CheckoutSidebar
-						:items="getCartItems"
-						:shipping-price="shippingPrice"
-						:total-discount-value="cart.totalDiscountValue"
-						:total-items="cart.totalItems"
-						:total-items-unique="cart.totalItemsUnique"
-						:total-price="cart.totalPrice"
-						:total-vat-value="cart.totalVatValue"
-						class="container p-2 md:p-10 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
-					>
-						<template #pay-ways>
-							<CheckoutPayWays>
-								<template #error>
-									<span v-if="errors.payWay" class="text-sm text-red-600 text-center">{{
-										errors.payWay
-									}}</span>
-								</template>
-							</CheckoutPayWays>
-						</template>
-						<template #items>
-							<CheckoutItems :items="getCartItems"></CheckoutItems>
-						</template>
-						<template #button>
-							<div class="grid items-center">
-								<button
-									:aria-busy="isSubmitting"
-									:disabled="submitButtonDisabled"
-									class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-									type="submit"
+					<div class="grid md:grid-cols-2 gap-4">
+						<div class="grid content-evenly items-start gap-4">
+							<div class="grid">
+								<label class="text-primary-700 dark:text-primary-100 mb-2" for="floor">{{
+									$t('pages.checkout.form.floor')
+								}}</label>
+								<VeeField
+									id="floor"
+									v-bind="floor"
+									name="floor"
+									as="select"
+									class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 								>
-									{{ $t('pages.checkout.form.submit.title') }}
-								</button>
+									<option
+										:value="defaultSelectOptionChoose"
+										disabled
+										:selected="floor.value === defaultSelectOptionChoose"
+									>
+										{{ defaultSelectOptionChoose }}
+									</option>
+									<option
+										v-for="(floorChoice, index) in floorChoicesList"
+										:key="index"
+										:value="index"
+										:selected="Number(floor.value) === index"
+										class="text-primary-700 dark:text-primary-300"
+									>
+										{{ floorChoice }}
+									</option>
+								</VeeField>
+								<span v-if="errors.floor" class="text-sm text-red-600">{{
+									errors.floor
+								}}</span>
 							</div>
-						</template>
-					</CheckoutSidebar>
-				</form>
-			</template>
-			<Empty v-else :text="$t('pages.checkout.empty')" />
+							<div class="grid">
+								<label
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									for="locationType"
+									>{{ $t('pages.checkout.form.location_type') }}</label
+								>
+								<VeeField
+									id="locationType"
+									v-bind="locationType"
+									name="locationType"
+									as="select"
+									class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+								>
+									<option
+										:value="defaultSelectOptionChoose"
+										disabled
+										:selected="locationType.value === defaultSelectOptionChoose"
+									>
+										{{ defaultSelectOptionChoose }}
+									</option>
+									<option
+										v-for="(location, index) in locationChoicesList"
+										:key="index"
+										:value="index"
+										:selected="Number(locationType.value) === index"
+										class="text-primary-700 dark:text-primary-300"
+									>
+										{{ location }}
+									</option>
+								</VeeField>
+								<span v-if="errors.locationType" class="text-sm text-red-600">{{
+									errors.locationType
+								}}</span>
+							</div>
+						</div>
+
+						<div class="grid content-evenly items-start gap-4">
+							<div class="grid">
+								<label
+									class="text-primary-700 dark:text-primary-100 mb-2"
+									for="country"
+									>{{ $t('pages.checkout.form.country') }}</label
+								>
+								<div class="grid">
+									<VeeField
+										id="country"
+										v-bind="country"
+										name="country"
+										as="select"
+										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+										@change.capture="onCountryChange"
+									>
+										<option
+											:value="defaultSelectOptionChoose"
+											disabled
+											:selected="country.value === defaultSelectOptionChoose"
+										>
+											{{ defaultSelectOptionChoose }}
+										</option>
+										<option
+											v-for="cntry in countries?.results"
+											:key="cntry.alpha2"
+											:value="cntry.alpha2"
+											:selected="country.value === cntry.alpha2"
+											class="text-primary-700 dark:text-primary-300"
+										>
+											{{ extractTranslated(cntry, 'name', locale) }}
+										</option>
+									</VeeField>
+								</div>
+								<span v-if="errors.country" class="text-sm text-red-600">{{
+									errors.country
+								}}</span>
+							</div>
+							<div class="grid">
+								<label class="text-primary-700 dark:text-primary-100 mb-2" for="region">{{
+									$t('pages.checkout.form.region')
+								}}</label>
+								<div class="grid">
+									<VeeField
+										id="region"
+										v-bind="region"
+										name="region"
+										as="select"
+										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+										:disabled="country.value === defaultSelectOptionChoose"
+									>
+										<option
+											:value="defaultSelectOptionChoose"
+											disabled
+											:selected="region.value === defaultSelectOptionChoose"
+										>
+											{{ defaultSelectOptionChoose }}
+										</option>
+										<option
+											v-for="rgn in regions?.results"
+											:key="rgn.alpha"
+											:value="rgn.alpha"
+											:selected="region.value === rgn.alpha"
+											class="text-primary-700 dark:text-primary-300"
+										>
+											{{ extractTranslated(rgn, 'name', locale) }}
+										</option>
+									</VeeField>
+								</div>
+								<span v-if="errors.region" class="text-sm text-red-600">{{
+									errors.region
+								}}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<CheckoutSidebar
+					:shipping-price="shippingPrice"
+					class="container p-2 md:p-10 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
+				>
+					<template #pay-ways>
+						<CheckoutPayWays>
+							<template #error>
+								<span v-if="errors.payWay" class="text-sm text-red-600 text-center">{{
+									errors.payWay
+								}}</span>
+							</template>
+						</CheckoutPayWays>
+					</template>
+					<template #items>
+						<CheckoutItems />
+					</template>
+					<template #button>
+						<div class="grid items-center">
+							<button
+								:aria-busy="isSubmitting"
+								:disabled="submitButtonDisabled"
+								class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+								type="submit"
+							>
+								{{ $t('pages.checkout.form.submit.title') }}
+							</button>
+						</div>
+					</template>
+				</CheckoutSidebar>
+			</form>
 		</PageBody>
 	</PageWrapper>
 </template>

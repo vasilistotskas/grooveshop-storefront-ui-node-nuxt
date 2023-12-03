@@ -28,6 +28,9 @@ export const useProductImageStore = defineStore('productImage', () => {
 	}
 
 	async function fetchImages({ product }: ImageQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: imagesError,

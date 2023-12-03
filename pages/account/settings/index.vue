@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import type { FieldContext } from 'vee-validate'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { defaultSelectOptionChoose } from '~/types/global/general'
 
@@ -66,29 +63,58 @@ const initialValues = ZodAccountSettings.parse({
 	region: account.value?.region || defaultSelectOptionChoose
 })
 
-const { defineInputBinds, handleSubmit, errors, isSubmitting } = useForm({
+const { defineField, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues
 })
 
-const email = defineInputBinds('email')
-const firstName = defineInputBinds('firstName')
-const lastName = defineInputBinds('lastName')
-const phone = defineInputBinds('phone')
-const city = defineInputBinds('city')
-const zipcode = defineInputBinds('zipcode')
-const address = defineInputBinds('address')
-const place = defineInputBinds('place')
-const country = defineInputBinds('country')
-const region = defineInputBinds('region')
-const { value: birthDate }: FieldContext<Date> = useField('birthDate')
+const [email] = defineField('email')
+const [firstName, firstNameProps] = defineField('firstName', {
+	validateOnModelUpdate: true
+})
+const [lastName, lastNameProps] = defineField('lastName', {
+	validateOnModelUpdate: true
+})
+const [phone, phoneProps] = defineField('phone', { validateOnModelUpdate: true })
+const [city, cityProps] = defineField('city', { validateOnModelUpdate: true })
+const [zipcode, zipcodeProps] = defineField('zipcode', {
+	validateOnModelUpdate: true
+})
+const [address, addressProps] = defineField('address', {
+	validateOnModelUpdate: true
+})
+const [place, placeProps] = defineField('place', { validateOnModelUpdate: true })
+const [country, countryProps] = defineField('country', {
+	validateOnModelUpdate: true
+})
+const [region, regionProps] = defineField('region', { validateOnModelUpdate: true })
+const [birthDate] = defineField('birthDate')
+
+const date = ref(new Date())
+
+const label = computed(() => {
+	if (birthDate.value) {
+		return birthDate.value.toLocaleDateString('en-us', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric'
+		})
+	}
+	return date.value.toLocaleDateString('en-us', {
+		weekday: 'long',
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric'
+	})
+})
 
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	await fetchRegions({
 		alpha2: event.target.value
 	})
-	region.value.value = defaultSelectOptionChoose
+	regionProps.value.value = defaultSelectOptionChoose
 }
 
 const onSubmit = handleSubmit((values) => {
@@ -130,13 +156,6 @@ definePageMeta({
 	layout: 'user',
 	middleware: 'auth'
 })
-
-const colorMode = useColorMode()
-const dark = computed(() => colorMode.value === 'dark')
-// Date picker
-const flow: ('month' | 'year' | 'calendar' | 'time' | 'minutes' | 'hours' | 'seconds')[] =
-	['year', 'month', 'calendar']
-const date = ref(new Date())
 </script>
 
 <template>
@@ -144,38 +163,11 @@ const date = ref(new Date())
 		<PageHeader class="pb-4">
 			<PageTitle :text="$t('pages.account.settings.title')" />
 		</PageHeader>
-		<nav class="user-account-navbar">
-			<ul role="tablist" class="user-account-navbar-list">
-				<li role="tab" class="user-account-navbar-list-item">
-					<Anchor
-						:to="`/account/settings`"
-						:aria-label="$t('pages.account.settings.title')"
-						:title="$t('pages.account.settings.title')"
-						class="user-account-navbar-list-item-link"
-					>
-						<span class="text-black dark:text-white">
-							{{ $t('pages.account.settings.title') }}
-						</span>
-					</Anchor>
-				</li>
-				<li role="tab" class="user-account-navbar-list-item">
-					<Anchor
-						:to="`/account/addresses`"
-						:aria-label="$t('pages.account.settings.title')"
-						:title="$t('pages.account.addresses.title')"
-						class="user-account-navbar-list-item-link"
-					>
-						<span class="text-black dark:text-white">
-							{{ $t('pages.account.addresses.title') }}
-						</span>
-					</Anchor>
-				</li>
-			</ul>
-		</nav>
+		<UserAccountNavbar />
 		<div class="grid items-center justify-start pt-4">
 			<span
 				class="text-primary-500 dark:text-primary-400 cursor-not-allowed italic p-2 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
-				>{{ email.value }}</span
+				>{{ email }}</span
 			>
 		</div>
 		<PageBody>
@@ -192,7 +184,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<FormTextInput
 							id="firstName"
-							:bind="firstName"
+							v-model="firstName"
+							:bind="firstNameProps"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="firstName"
 							type="text"
@@ -212,7 +205,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<FormTextInput
 							id="lastName"
-							:bind="lastName"
+							v-model="lastName"
+							:bind="lastNameProps"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="lastName"
 							type="text"
@@ -232,7 +226,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<FormTextInput
 							id="phone"
-							:bind="phone"
+							v-model="phone"
+							:bind="phoneProps"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="phone"
 							type="text"
@@ -251,7 +246,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<FormTextInput
 							id="city"
-							:bind="city"
+							v-model="city"
+							:bind="cityProps"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="city"
 							type="text"
@@ -270,7 +266,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<FormTextInput
 							id="zipcode"
-							:bind="zipcode"
+							v-model="zipcode"
+							:bind="zipcodeProps"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="zipcode"
 							type="text"
@@ -289,7 +286,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<FormTextInput
 							id="address"
-							:bind="address"
+							v-model="address"
+							:bind="addressProps"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="address"
 							type="text"
@@ -308,7 +306,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<FormTextInput
 							id="place"
-							:bind="place"
+							v-model="place"
+							:bind="placeProps"
 							class="text-primary-700 dark:text-primary-100 mb-2"
 							name="place"
 							type="text"
@@ -325,18 +324,12 @@ const date = ref(new Date())
 						$t('pages.account.settings.form.birth_date')
 					}}</label>
 					<div class="grid">
-						<VueDatePicker
-							v-model="birthDate"
-							:locale="locale"
-							:cancel-text="$t('pages.account.settings.form.date_picker.cancel')"
-							:select-text="$t('pages.account.settings.form.date_picker.select')"
-							:now-button-label="$t('pages.account.settings.form.date_picker.now')"
-							:flow="flow"
-							:dark="dark"
-							:auto-apply="true"
-							:max-date="date"
-							:enable-time-picker="false"
-						/>
+						<UPopover :popper="{ placement: 'bottom-start' }">
+							<UButton icon="i-heroicons-calendar-days-20-solid" :label="label" />
+							<template #panel="{ close }">
+								<LazyDatePicker v-model="birthDate" @close="close" />
+							</template>
+						</UPopover>
 					</div>
 					<span v-if="errors.birthDate" class="text-sm text-red-600 px-4 py-3 relative">{{
 						errors.birthDate
@@ -349,7 +342,8 @@ const date = ref(new Date())
 					<div class="grid">
 						<VeeField
 							id="country"
-							v-bind="country"
+							v-model="country"
+							v-bind="countryProps"
 							name="country"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
@@ -358,7 +352,7 @@ const date = ref(new Date())
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="country.value === defaultSelectOptionChoose"
+								:selected="countryProps.value === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -366,7 +360,7 @@ const date = ref(new Date())
 								v-for="cntry in countries?.results"
 								:key="cntry.alpha2"
 								:value="cntry.alpha2"
-								:selected="country.value === cntry.alpha2"
+								:selected="countryProps.value === cntry.alpha2"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(cntry, 'name', locale) }}
@@ -384,16 +378,17 @@ const date = ref(new Date())
 					<div class="grid">
 						<VeeField
 							id="region"
-							v-bind="region"
+							v-model="region"
+							v-bind="regionProps"
 							name="region"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-							:disabled="country.value === defaultSelectOptionChoose"
+							:disabled="countryProps.value === defaultSelectOptionChoose"
 						>
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="region.value === defaultSelectOptionChoose"
+								:selected="regionProps.value === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -401,7 +396,7 @@ const date = ref(new Date())
 								v-for="rgn in regions?.results"
 								:key="rgn.alpha"
 								:value="rgn.alpha"
-								:selected="region.value === rgn.alpha"
+								:selected="regionProps.value === rgn.alpha"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(rgn, 'name', locale) }}
@@ -440,67 +435,5 @@ const date = ref(new Date())
 	padding: 11px 12px;
 	transition: all 0.3s ease-in-out;
 	width: 100%;
-}
-
-.user-account-navbar {
-	position: fixed;
-	top: 56px;
-	left: 0;
-	z-index: 10;
-	width: 100%;
-	box-shadow: 0 2px 4px 0 #dcdcdc;
-	background-color: #fff;
-
-	@media screen and (width >= 1020px) {
-		position: static;
-		width: auto;
-		border-bottom: 1px solid #dcdcdc;
-		box-shadow: none;
-		background-color: transparent;
-	}
-
-	@media screen and (width <= 1020px) {
-		padding-left: 1rem;
-		padding-right: 1rem;
-	}
-
-	&-list {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-		display: -webkit-box;
-		display: flex;
-		gap: 1rem;
-		position: relative;
-		overflow-x: auto;
-		scroll-snap-type: x mandatory;
-
-		@media screen and (width >= 1020px) {
-			-webkit-box-pack: start;
-			-ms-flex-pack: start;
-			justify-content: flex-start;
-		}
-
-		&-item {
-			&-link {
-				font-size: 14px;
-				line-height: 18px;
-				display: block;
-				outline: 0;
-				padding: 16px 0;
-				white-space: nowrap;
-				color: #999;
-
-				@media screen and (width <= 1020px) {
-					padding: 8px 0;
-				}
-
-				&.router-link-active {
-					span {
-						@apply font-bold;
-					}
-				}
-			}
-		}
-	}
 }
 </style>

@@ -1,40 +1,24 @@
 <script lang="ts" setup>
 const { t } = useLang()
-const config = useRuntimeConfig()
-const route = useRoute('products___en')
+const breadcrumbUi = useBreadcrumbsUi()
+
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{ to: '/products', label: t('seoUi.breadcrumb.items.products.label'), current: true }
+])
 
 definePageMeta({
 	layout: 'page'
 })
-useServerHead(() => ({
-	title: t('pages.products.title'),
-	meta: [
-		{
-			name: 'description',
-			content: t('pages.products.description')
-		},
-		{
-			name: 'keywords',
-			content: t('pages.products.keywords')
-		}
-	]
-}))
-useServerSeoMeta({
-	title: t('pages.products.title'),
-	description: t('pages.products.description'),
-	ogTitle: t('pages.products.title'),
-	ogDescription: t('pages.products.description'),
-	ogImage: '',
-	ogUrl: config.public.baseUrl + route.path,
-	twitterTitle: t('pages.products.title'),
-	twitterDescription: t('pages.products.description'),
-	twitterImage: ''
-})
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-4 mt-4">
-		<PageTitle :text="$t('pages.products.title')" class="capitalize" />
+	<PageWrapper class="container flex flex-col gap-4">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageBody>
 			<ProductsList />
 		</PageBody>

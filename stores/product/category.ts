@@ -34,6 +34,9 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
 	}
 
 	async function fetchCategories({ offset, limit, ordering }: ProductQuery) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: categoriesError,
@@ -60,6 +63,9 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
 	}
 
 	async function fetchCategory(categoryId: string | number) {
+		if (process.prerender) {
+			return
+		}
 		const {
 			data,
 			error: categoryError,

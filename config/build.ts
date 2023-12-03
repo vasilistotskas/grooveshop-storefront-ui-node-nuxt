@@ -1,3 +1,3 @@
 export const build = {
-	transpile: ['@headlessui/vue', '@vuepic/vue-datepicker']
+	transpile: ['@headlessui/vue', 'v-calendar']
 }

@@ -52,5 +52,5 @@ export function getTotpActiveFromCookie(event: H3Event) {
 export function deleteTotpActiveCookie(event: H3Event) {
 	const config = useRuntimeConfig()
 	const toptActiveCookieName = config?.auth?.totp?.active?.cookieName || 'totp_active'
-	deleteCookie(event, config?.auth?.totp?.active?.cookieName)
+	deleteCookie(event, toptActiveCookieName)
 }

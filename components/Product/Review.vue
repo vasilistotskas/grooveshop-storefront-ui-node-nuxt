@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
-import { useForm } from 'vee-validate'
 import type { Review, ReviewQuery } from '~/types/product/review'
 import { StatusEnum } from '~/types/product/review'
 import { GlobalEvents } from '~/events/global'
@@ -54,7 +52,6 @@ const { extractTranslated } = useTranslationExtractor()
 const { t, locale } = useLang()
 const route = useRoute()
 const toast = useToast()
-const swal = useSwal()
 
 const { existingReview, userHadReviewed, product, user, isAuthenticated } = toRefs(props)
 
@@ -317,29 +314,15 @@ const updateReviewEvent = async (event: { comment: string; rate: number }) => {
 
 const deleteReviewEvent = async () => {
 	if (isAuthenticated.value && existingReview.value) {
-		await swal
-			.fire({
-				title: t('components.product.review.delete_review'),
-				text: t('components.product.review.delete_review_confirm'),
-				icon: 'warning',
-				showCancelButton: true,
-				confirmButtonText: t('components.product.review.delete_review_confirm'),
-				cancelButtonText: t('components.product.review.delete_review_cancel'),
-				customClass: {
-					container: 'z-40'
-				}
-			})
-			.then(async (result) => {
-				if (!result.isConfirmed || !existingReview.value) {
-					return
-				}
-				await deleteReview(existingReview.value.id)
-				setFieldValue('rate', 0)
-				setFieldValue('comment', '')
-				modalBus.emit('modal-close-reviewModal')
-				emit('delete-existing-review', existingReview.value)
-				await refreshReviews()
-			})
+		await deleteReview(existingReview.value.id)
+		setFieldValue('rate', 0)
+		setFieldValue('comment', '')
+		modalBus.emit('modal-close-reviewModal')
+		emit('delete-existing-review', existingReview.value)
+		await refreshReviews()
+		toast.add({
+			title: t('components.product.review.delete.success')
+		})
 	} else {
 		toast.add({
 			title: t('components.product.review.must_be_logged_in')
@@ -351,8 +334,14 @@ const onSubmit = handleSubmit(async (event) => {
 	if (user && isAuthenticated.value) {
 		if (!userHadReviewed.value) {
 			await addReviewEvent(event)
+			toast.add({
+				title: t('components.product.review.add.success')
+			})
 		} else {
 			await updateReviewEvent(event)
+			toast.add({
+				title: t('components.product.review.update.success')
+			})
 		}
 	} else {
 		toast.add({
@@ -494,8 +483,8 @@ watch(
 						class="review_footer-button"
 						:text="reviewButtonText"
 						type="input"
-						:style="'success'"
-					/>
+					>
+					</MainButton>
 					<MainButton v-else type="button" disabled>
 						{{ $t('components.product.review.too_many_attempts') }}
 					</MainButton>

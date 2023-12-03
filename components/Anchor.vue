@@ -39,14 +39,18 @@ const localePath = useLocalePath()
 	<ULink
 		v-else
 		:aria-label="text"
-		:active-class="[
-			cssClass,
-			`transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
-		]"
-		:inactive-class="[
-			cssClass,
-			`text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200`
-		]"
+		:active-class="
+			[
+				cssClass,
+				`transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
+			].join(' ')
+		"
+		:inactive-class="
+			[
+				cssClass,
+				`text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200`
+			].join(' ')
+		"
 		:to="href"
 	>
 		<slot>{{ text }}</slot>

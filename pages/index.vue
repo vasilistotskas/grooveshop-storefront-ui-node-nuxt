@@ -36,7 +36,7 @@ definePageMeta({
 						<NuxtImg
 							v-for="i in 6"
 							:key="i"
-							loading="lazy"
+							loading="eager"
 							provider="mediaStream"
 							class="w-full h-full object-cover"
 							:style="{ objectFit: 'contain' }"

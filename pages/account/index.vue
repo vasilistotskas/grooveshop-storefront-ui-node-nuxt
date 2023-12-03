@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+const userStore = useUserStore()
+await userStore.fetchAccount()
+
 definePageMeta({
 	layout: 'user',
 	middleware: 'auth'
 })
-
-const userStore = useUserStore()
-await userStore.fetchAccount()
 </script>
 
 <template>

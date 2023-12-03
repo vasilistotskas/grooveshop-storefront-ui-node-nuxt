@@ -22,6 +22,7 @@ const route = useRoute('product-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
+const breadcrumbUi = useBreadcrumbsUi()
 
 const fullPath = config.public.baseUrl + route.fullPath
 const productId = route.params.id
@@ -46,15 +47,13 @@ const refreshUserToProductReview = async () =>
 		expand: 'true'
 	})
 
-const { data } = await fetchUserToProductReview({
+await fetchUserToProductReview({
 	productId: String(productId),
 	userId: String(account.value?.id) || undefined,
 	expand: 'true'
+}).then((response) => {
+	existingReview.value = response?.data || null
 })
-
-if (data) {
-	existingReview.value = data
-}
 
 if (account.value?.id) {
 	await fetchUserHadReviewed({
@@ -65,18 +64,21 @@ if (account.value?.id) {
 
 const onAddExistingReview = async () => {
 	await refreshUserHadReviewed()
-	const { data: refreshedExistingReview } = await refreshUserToProductReview()
-	existingReview.value = refreshedExistingReview
+	await refreshUserToProductReview().then((response) => {
+		existingReview.value = response?.data || null
+	})
 }
 const onUpdateExistingReview = async () => {
 	await refreshUserHadReviewed()
-	const { data: refreshedExistingReview } = await refreshUserToProductReview()
-	existingReview.value = refreshedExistingReview
+	await refreshUserToProductReview().then((response) => {
+		existingReview.value = response?.data || null
+	})
 }
 const onDeleteExistingReview = async () => {
 	await refreshUserHadReviewed()
-	const { data: refreshedExistingReview } = await refreshUserToProductReview()
-	existingReview.value = refreshedExistingReview
+	await refreshUserToProductReview().then((response) => {
+		existingReview.value = response?.data || null
+	})
 }
 
 const productTitle = computed(() => {
@@ -103,18 +105,36 @@ const userToProductFavourite = computed(() => {
 	return getUserToProductFavourite(Number(productId))
 })
 
+const items = defineBreadcrumbItems([
+	{
+		to: '/',
+		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
+		icon: 'material-symbols:home-outline-rounded'
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/products'
+				: `/${locale.value}/products`,
+		label: t('seoUi.breadcrumb.items.products.label'),
+		ariaLabel: t('seoUi.breadcrumb.items.products.ariaLabel')
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? `/product/${productId}/${product.value?.slug}`
+				: `/${locale.value}/product/${productId}/${product.value?.slug}`,
+		label: productTitle.value,
+		current: true
+	}
+])
+
 watch(
 	() => route.query,
 	() => refreshProduct()
 )
 definePageMeta({
 	layout: 'page'
-})
-useServerSeoMeta({
-	title: () => productTitle.value,
-	description: () =>
-		product.value?.seoDescription || (config.public.appDescription as string),
-	ogImage: () => product.value?.mainImageAbsoluteUrl || ''
 })
 useSchemaOrg([
 	defineProduct({
@@ -128,71 +148,14 @@ useSchemaOrg([
 		}
 	})
 ])
-
-useServerHead(() => ({
-	title: productTitle.value,
-	meta: [
-		{
-			name: 'description',
-			content: product.value?.seoDescription || (config.public.appDescription as string)
-		},
-		{
-			name: 'keywords',
-			content: product.value?.seoKeywords || ''
-		},
-		{
-			property: 'og:title',
-			content: product.value?.seoTitle || ''
-		},
-		{
-			property: 'og:description',
-			content: product.value?.seoDescription || ''
-		},
-		{
-			property: 'og:image',
-			content: product.value?.mainImageAbsoluteUrl || ''
-		},
-		{
-			property: 'og:url',
-			content: fullPath
-		},
-		{
-			property: 'og:type',
-			content: 'website'
-		},
-		{
-			property: 'og:site_name',
-			content: 'Groove Shop'
-		},
-		{
-			property: 'twitter:card',
-			content: 'summary_large_image'
-		},
-		{
-			property: 'twitter:title',
-			content: product.value?.seoTitle || ''
-		},
-		{
-			property: 'twitter:description',
-			content: product.value?.seoDescription || ''
-		},
-		{
-			property: 'twitter:image',
-			content: product.value?.mainImageAbsoluteUrl || ''
-		},
-		{
-			property: 'twitter:url',
-			content: fullPath
-		}
-	]
-}))
 </script>
 
 <template>
-	<PageWrapper class="gap-16">
+	<PageWrapper class="container">
+		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageBody>
 			<div v-if="product" class="product mb-12 md:mb-24">
-				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">
 					<div class="grid md:grid-cols-2 gap-2">
 						<div class="overflow-hidden px-4">
 							<ProductImages :product="product" />

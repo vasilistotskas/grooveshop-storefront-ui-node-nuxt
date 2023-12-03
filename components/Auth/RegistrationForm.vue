@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
 
 const { register } = useAuth()
 
@@ -32,13 +30,19 @@ const ZodRegistration = z
 
 const validationSchema = toTypedSchema(ZodRegistration)
 
-const { defineInputBinds, handleSubmit, errors, isSubmitting } = useForm({
+const { defineField, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema
 })
 
-const email = defineInputBinds('email')
-const password1 = defineInputBinds('password1')
-const password2 = defineInputBinds('password2')
+const [email, emailProps] = defineField('email', {
+	validateOnModelUpdate: true
+})
+const [password1, password1Props] = defineField('password1', {
+	validateOnModelUpdate: true
+})
+const [password2, password2Props] = defineField('password2', {
+	validateOnModelUpdate: true
+})
 
 const showPassword1 = ref(false)
 const showPassword2 = ref(false)
@@ -92,7 +96,8 @@ const onSubmit = handleSubmit(async (values) => {
 						}}</label>
 						<FormTextInput
 							id="email"
-							:bind="email"
+							v-model="email"
+							:bind="emailProps"
 							class="text-primary-700 dark:text-primary-100"
 							name="email"
 							type="email"
@@ -111,7 +116,8 @@ const onSubmit = handleSubmit(async (values) => {
 						<div class="relative grid gap-2 items-center">
 							<FormTextInput
 								id="password1"
-								:bind="password1"
+								v-model="password1"
+								:bind="password1Props"
 								class="text-primary-700 dark:text-primary-100"
 								name="password1"
 								:type="showPassword1 ? 'text' : 'password'"
@@ -141,7 +147,8 @@ const onSubmit = handleSubmit(async (values) => {
 						<div class="relative grid gap-2 items-center">
 							<FormTextInput
 								id="password2"
-								:bind="password2"
+								v-model="password2"
+								:bind="password2Props"
 								class="text-primary-700 dark:text-primary-100"
 								name="password2"
 								:type="showPassword2 ? 'text' : 'password'"

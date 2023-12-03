@@ -13,7 +13,6 @@ const userAddressStore = useUserAddressStore()
 const { deleteAddress } = userAddressStore
 
 const { t } = useLang()
-const swal = useSwal()
 const toast = useToast()
 const { contentShorten } = useText()
 
@@ -24,33 +23,16 @@ const deleteAddressEvent = async (id: string) => {
 		})
 		return
 	}
-	await swal
-		.fire({
-			title: t('swal.delete_address.title'),
-			text: t('swal.delete_address.text'),
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#0891b2',
-			cancelButtonColor: '#ff2c2c',
-			width: 420,
-			confirmButtonText: t('swal.default.warning.confirm_button_text'),
-			cancelButtonText: t('swal.default.warning.cancel_button_text')
+	await deleteAddress(id)
+		.then(() => {
+			toast.add({
+				title: t('components.address.card.delete.success')
+			})
 		})
-		.then((result) => {
-			if (!result.isConfirmed) {
-				return
-			}
-			deleteAddress(id)
-				.then(() => {
-					toast.add({
-						title: t('components.address.card.delete.success')
-					})
-				})
-				.catch(() => {
-					toast.add({
-						title: t('components.address.card.delete.error')
-					})
-				})
+		.catch(() => {
+			toast.add({
+				title: t('components.address.card.delete.error')
+			})
 		})
 }
 </script>
