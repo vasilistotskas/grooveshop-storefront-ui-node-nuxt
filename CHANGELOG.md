@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.31.0...v1.32.0) (2023-12-3)
+
+
+### Features
+
+* update "packageManager" version and update env in `docker.yml` ci file. ([6974c81](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6974c8160367db8a9806da4bb2898f0f71a64afc))
+
 # [1.31.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.30.0...v1.31.0) (2023-12-3)
 
 
