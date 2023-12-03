@@ -1,3 +1,10 @@
+## [1.32.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.32.2...v1.32.3) (2023-12-3)
+
+
+### Bug Fixes
+
+* remove prereder homepage for now ([e37ed7f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e37ed7f2885d855923b5e3a8c2a920a710f846ef))
+
 ## [1.32.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.32.1...v1.32.2) (2023-12-3)
 
 
