@@ -1,3 +1,10 @@
+## [1.32.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.32.3...v1.32.4) (2023-12-3)
+
+
+### Bug Fixes
+
+* `env` var fix and enable prerender for home ([216ac5c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/216ac5c691beec85380ba2afd5ab7077d1a4d8ea))
+
 ## [1.32.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.32.2...v1.32.3) (2023-12-3)
 
 
