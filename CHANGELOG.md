@@ -1,3 +1,10 @@
+## [1.32.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.32.1...v1.32.2) (2023-12-3)
+
+
+### Bug Fixes
+
+* create .env ([63d44d6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/63d44d676c7659ee7009830f15bd12c4765fb752))
+
 ## [1.32.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.32.0...v1.32.1) (2023-12-3)
 
 
