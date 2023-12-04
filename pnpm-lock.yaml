@@ -12,8 +12,8 @@ devDependencies:
     specifier: ^1.7.16
     version: 1.7.16(vue@3.3.9)
   '@iconify/json':
-    specifier: ^2.2.151
-    version: 2.2.151
+    specifier: ^2.2.152
+    version: 2.2.152
   '@intlify/core-base':
     specifier: ^9.8.0
     version: 9.8.0
@@ -261,14 +261,14 @@ devDependencies:
     specifier: ^1.8.8
     version: 1.8.8
   unplugin-auto-import:
-    specifier: ^0.17.1
-    version: 0.17.1(@nuxt/kit@3.8.2)(@vueuse/core@10.6.1)(rollup@2.79.1)
+    specifier: ^0.17.2
+    version: 0.17.2(@nuxt/kit@3.8.2)(@vueuse/core@10.6.1)(rollup@2.79.1)
   unplugin-icons:
-    specifier: ^0.18.0
-    version: 0.18.0
+    specifier: ^0.18.1
+    version: 0.18.1
   unplugin-vue-components:
-    specifier: ^0.25.2
-    version: 0.25.2(@nuxt/kit@3.8.2)(rollup@2.79.1)(vue@3.3.9)
+    specifier: ^0.26.0
+    version: 0.26.0(@nuxt/kit@3.8.2)(rollup@2.79.1)(vue@3.3.9)
   unstorage:
     specifier: ^1.10.1
     version: 1.10.1(idb-keyval@6.2.1)
@@ -2194,8 +2194,8 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
-  /@iconify/json@2.2.151:
-    resolution: {integrity: sha512-Un9kUOTob8Q6yIYykWR6LlyR3gA65q+OZYi/h2mcg0lOwJnE4M8fvmUdherdQ74Jrhtspj1B6UyjskugRkjoXw==}
+  /@iconify/json@2.2.152:
+    resolution: {integrity: sha512-CV1qk51ydDJ+dooir8/OBOZw9/mfzTx7GY7U9OmnlH3r5+ErTdGjhQ1b+PrB8nX/RQ5AVkC9n/9l7yw1qJZqtw==}
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.1
@@ -14638,8 +14638,8 @@ packages:
       - rollup
     dev: true
 
-  /unplugin-auto-import@0.17.1(@nuxt/kit@3.8.2)(@vueuse/core@10.6.1)(rollup@2.79.1):
-    resolution: {integrity: sha512-QvdJKtFK0COSuRXzVnwjG3ir870zVhdMg6O8GKG3UO/O5W4fmJm5h71QvzI7Gp8Sx0qfCvC3f+2v0Vm489fnqQ==}
+  /unplugin-auto-import@0.17.2(@nuxt/kit@3.8.2)(@vueuse/core@10.6.1)(rollup@2.79.1):
+    resolution: {integrity: sha512-Eu/xWI6SH4jTWXvzOfXQWAxRtiz/gMObm7wXtgMj7wBjHQKLgHTmHd4R4oha87KYGah1aKMqiqDeAxiPmfSoTg==}
     engines: {node: '>=14'}
     peerDependencies:
       '@nuxt/kit': ^3.2.2
@@ -14664,8 +14664,8 @@ packages:
       - rollup
     dev: true
 
-  /unplugin-icons@0.18.0:
-    resolution: {integrity: sha512-/HEkomWitqf8QLY8FgUqNNjuM24kw+FS7YRGxHa5XyamboW+HnbvLU5ztIBOYY5rtBO1+cHPntzBsln2nX3f+A==}
+  /unplugin-icons@0.18.1:
+    resolution: {integrity: sha512-WzKu/eoq74YC7vyEAGsFebkRzsZrRkR4FUzLU6gbpfa7WRaVVpQS2n7LSxE1iRUN0scKL5b9bq+i0wucR+ttFQ==}
     peerDependencies:
       '@svgr/core': '>=7.0.0'
       '@svgx/core': ^1.0.1
@@ -14695,8 +14695,8 @@ packages:
       - supports-color
     dev: true
 
-  /unplugin-vue-components@0.25.2(@nuxt/kit@3.8.2)(rollup@2.79.1)(vue@3.3.9):
-    resolution: {integrity: sha512-OVmLFqILH6w+eM8fyt/d/eoJT9A6WO51NZLf1vC5c1FZ4rmq2bbGxTy8WP2Jm7xwFdukaIdv819+UI7RClPyCA==}
+  /unplugin-vue-components@0.26.0(@nuxt/kit@3.8.2)(rollup@2.79.1)(vue@3.3.9):
+    resolution: {integrity: sha512-s7IdPDlnOvPamjunVxw8kNgKNK8A5KM1YpK5j/p97jEKTjlPNrA0nZBiSfAKKlK1gWZuyWXlKL5dk3EDw874LQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@babel/parser': ^7.15.8
