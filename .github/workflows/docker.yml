@@ -53,9 +53,6 @@ jobs:
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5
-        env:
-          NODE_OPTIONS: '--max-old-space-size=8192'
-          NUXT_PUBLIC_SITE_URL: 'https://grooveshop.site'
         with:
           context: .
           file: ./docker/Dockerfile

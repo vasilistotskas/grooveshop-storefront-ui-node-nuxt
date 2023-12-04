@@ -8,8 +8,8 @@ export const runtimeConfig = {
 	// Auth
 	auth: {
 		session: {
-			domain: process.env.NUXT_AUTH_SESSION_DOMAIN,
-			cookieName: process.env.NUXT_AUTH_SESSION_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_SESSION_DOMAIN || '.grooveshop.site',
+			cookieName: process.env.NUXT_AUTH_SESSION_COOKIE_NAME || 'sessionid',
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -17,8 +17,8 @@ export const runtimeConfig = {
 		},
 
 		csrftoken: {
-			domain: process.env.NUXT_AUTH_CSRFTOKEN_DOMAIN,
-			cookieName: process.env.NUXT_AUTH_CSRFTOKEN_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_CSRFTOKEN_DOMAIN || '.grooveshop.site',
+			cookieName: process.env.NUXT_AUTH_CSRFTOKEN_COOKIE_NAME || 'csrftoken',
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7 * 52, // 1 year
@@ -26,8 +26,8 @@ export const runtimeConfig = {
 		},
 
 		accessToken: {
-			domain: process.env.NUXT_AUTH_ACCESS_TOKEN_DOMAIN,
-			cookieName: process.env.NUXT_AUTH_ACCESS_TOKEN_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_ACCESS_TOKEN_DOMAIN || '.grooveshop.site',
+			cookieName: process.env.NUXT_AUTH_ACCESS_TOKEN_COOKIE_NAME || 'jwt_auth',
 			httpOnly: false,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -35,8 +35,8 @@ export const runtimeConfig = {
 		},
 
 		refreshToken: {
-			domain: process.env.NUXT_AUTH_REFRESH_TOKEN_DOMAIN,
-			cookieName: process.env.NUXT_AUTH_REFRESH_TOKEN_COOKIE_NAME,
+			domain: process.env.NUXT_AUTH_REFRESH_TOKEN_DOMAIN || '.grooveshop.site',
+			cookieName: process.env.NUXT_AUTH_REFRESH_TOKEN_COOKIE_NAME || 'jwt_refresh_auth',
 			httpOnly: true,
 			secure: true,
 			maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -45,16 +45,16 @@ export const runtimeConfig = {
 
 		totp: {
 			authenticated: {
-				domain: process.env.NUXT_AUTH_TOTP_AUTHENTICATED_DOMAIN,
-				cookieName: process.env.NUXT_AUTH_TOTP_AUTHENTICATED_COOKIE_NAME,
+				domain: process.env.NUXT_AUTH_TOTP_AUTHENTICATED_DOMAIN || '.grooveshop.site',
+				cookieName: process.env.NUXT_AUTH_TOTP_AUTHENTICATED_COOKIE_NAME || 'totp_authenticated',
 				httpOnly: false,
 				secure: true,
 				maxAge: 60 * 60 * 24 * 7, // 7 days
 				sameSite: 'lax'
 			},
 			active: {
-				domain: process.env.NUXT_AUTH_TOTP_ACTIVE_DOMAIN,
-				cookieName: process.env.NUXT_AUTH_TOTP_ACTIVE_COOKIE_NAME,
+				domain: process.env.NUXT_AUTH_TOTP_ACTIVE_DOMAIN || '.grooveshop.site',
+				cookieName: process.env.NUXT_AUTH_TOTP_ACTIVE_COOKIE_NAME || 'totp_active',
 				httpOnly: false,
 				secure: true,
 				maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -66,7 +66,7 @@ export const runtimeConfig = {
 			google: {
 				clientId: process.env.NUXT_AUTH_OAUTH_GOOGLE_CLIENT_ID,
 				clientSecret: process.env.NUXT_AUTH_OAUTH_GOOGLE_CLIENT_SECRET,
-				scopes: process.env.NUXT_AUTH_OAUTH_GOOGLE_SCOPES,
+				scopes: process.env.NUXT_AUTH_OAUTH_GOOGLE_SCOPES || 'email profile',
 				authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
 				tokenUrl: 'https://oauth2.googleapis.com/token',
 				userUrl: 'https://www.googleapis.com/oauth2/v3/userinfo'
@@ -74,7 +74,7 @@ export const runtimeConfig = {
 		},
 
 		email: {
-			from: process.env.NUXT_AUTH_EMAIL_FROM,
+			from: process.env.NUXT_AUTH_EMAIL_FROM || 'vassilistotskas@msn.com',
 			provider: {
 				name: 'sendgrid',
 				apiKey: process.env.NUXT_AUTH_EMAIL_PROVIDER_API_KEY,
@@ -94,32 +94,32 @@ export const runtimeConfig = {
 	public: {
 		trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
 		titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR || '|',
-		siteName: process.env.NUXT_PUBLIC_SITE_NAME,
-		siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
-		siteDescription: process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
-		language: process.env.NUXT_PUBLIC_LANGUAGE,
-		defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE,
-		appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
-		appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION,
-		appImage: process.env.NUXT_PUBLIC_APP_IMAGE,
-		domainName: process.env.NUXT_PUBLIC_DOMAIN_NAME,
-		canonicalUrl: process.env.NUXT_PUBLIC_CANONICAL_URL,
-		baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-		djangoUrl: process.env.NUXT_PUBLIC_DJANGO_URL,
-		apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
-		djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST,
-		facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID,
-		mediaStreamDomain: process.env.NUXT_PUBLIC_MEDIA_STREAM_DOMAIN,
-		mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
-		mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
+		siteName: process.env.NUXT_PUBLIC_SITE_NAME || 'GrooveShop',
+		siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://grooveshop.site',
+		siteDescription: process.env.NUXT_PUBLIC_SITE_DESCRIPTION || 'GrooveShop Description',
+		language: process.env.NUXT_PUBLIC_LANGUAGE || 'en',
+		defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE || 'en',
+		appTitle: process.env.NUXT_PUBLIC_APP_TITLE || 'GrooveShop - env',
+		appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION || 'GrooveShop Description',
+		appImage: process.env.NUXT_PUBLIC_APP_IMAGE || 'https://grooveshop.site/assets/images/websiteLogo.png',
+		domainName: process.env.NUXT_PUBLIC_DOMAIN_NAME || 'grooveshop.site',
+		canonicalUrl: process.env.NUXT_PUBLIC_CANONICAL_URL || 'https://grooveshop.site',
+		baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'https://grooveshop.site',
+		djangoUrl: process.env.NUXT_PUBLIC_DJANGO_URL || 'http://backend-service:80',
+		apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://backend-service:80/api/v1',
+		djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST || 'backend-service:80',
+		facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID || 'facebook-app-id',
+		mediaStreamDomain: process.env.NUXT_PUBLIC_MEDIA_STREAM_DOMAIN || 'assets.grooveshop.site',
+		mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'https://assets.grooveshop.site',
+		mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH || 'https://assets.grooveshop.site/media_stream-image',
 		author: {
-			name: process.env.NUXT_PUBLIC_AUTHOR_NAME,
-			github_url: process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL
+			name: process.env.NUXT_PUBLIC_AUTHOR_NAME || 'vasilistotskas',
+			github_url: process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL || 'https://github.com/vasilistotskas',
 		},
 
 		// Auth
 		auth: {
-			cookieDomain: process.env.NUXT_PUBLIC_AUTH_COOKIE_DOMAIN,
+			cookieDomain: process.env.NUXT_PUBLIC_AUTH_COOKIE_DOMAIN || '.grooveshop.site',
 			enableGlobalAuthMiddleware: false,
 			redirect: {
 				login: '/auth/login',
@@ -138,10 +138,10 @@ export const runtimeConfig = {
 
 		// Socials
 		socials: {
-			facebook: process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
-			twitter: process.env.NUXT_PUBLIC_SOCIALS_TWITTER,
-			instagram: process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM,
-			discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD
+			facebook: process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK || 'https://www.facebook.com',
+			twitter: process.env.NUXT_PUBLIC_SOCIALS_TWITTER || 'https://twitter.com',
+			instagram: process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM || 'https://www.instagram.com',
+			discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD || 'https://discord.gg',
 		}
 	},
 
