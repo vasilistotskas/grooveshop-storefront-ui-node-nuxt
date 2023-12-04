@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.33.0...v1.34.0) (2023-12-4)
+
+
+### Features
+
+* add runtime config default fallbacks ([008b228](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/008b228da9572f1b07cb4dd327629a5934e3a0d3))
+
 # [1.33.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.32.4...v1.33.0) (2023-12-4)
 
 
