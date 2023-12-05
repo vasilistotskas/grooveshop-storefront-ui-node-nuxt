@@ -1,13 +1,19 @@
 export default defineNuxtPlugin(async (NuxtApp) => {
+	if (process.prerender) {
+		return
+	}
 	const initialized = useState('auth-initialized', () => false)
 
 	const idb = await useAsyncIDBKeyval('auth', false)
+
 	const { _loggedIn, _totpActive, _totpAuthenticated } = useAuthSession()
 
 	if (!initialized.value) {
 		const { fetchUser } = useAuth()
 		const { _refreshToken, _accessToken, _refresh } = useAuthSession()
 
+		// eslint-disable-next-line no-console
+		console.log('========= _accessToken.get() =========', _accessToken.get())
 		if (_accessToken.get()) {
 			try {
 				await fetchUser()

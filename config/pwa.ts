@@ -5,15 +5,9 @@ export const pwa = {
 	injectRegister: 'script',
 	registerType: 'autoUpdate',
 	manifest: {
-		name:
-			process.env.NUXT_PUBLIC_APP_TITLE ||
-			'Grooveshop',
-		short_name:
-			process.env.NUXT_PUBLIC_APP_TITLE ||
-			'Grooveshop',
-		description:
-			process.env.NUXT_PUBLIC_SITE_DESCRIPTION ||
-			'Grooveshop Demo Storefront',
+		name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
+		short_name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
+		description: process.env.NUXT_PUBLIC_SITE_DESCRIPTION || 'Grooveshop Demo Storefront',
 		theme_color: '#ffffff',
 		background_color: '#ffffff',
 		display: 'standalone',
@@ -100,9 +94,9 @@ export const pwa = {
 		navigateFallback: '/',
 		globPatterns: ['**/*.{js,css,html,json,svg,webp,ico,png,jpg,webmanifest}'],
 		globIgnores: ['google*.html'],
-		navigateFallbackDenylist: [/^\/.*\\?api.*/, /^\/.*\\?admin.*/, /^\/.*\\?auth.*/],
+		navigateFallbackDenylist: [/\/api\/.*/],
 		cleanupOutdatedCaches: true,
-		sourcemap: process.env.NODE_ENV !== 'development',
+		sourcemap: true,
 		runtimeCaching: [
 			{
 				urlPattern: ({ url, sameOrigin }) => {
@@ -169,7 +163,7 @@ export const pwa = {
 		]
 	},
 	devOptions: {
-		enabled: process.env.NODE_ENV === 'development',
+		enabled: true,
 		type: 'module',
 		suppressWarnings: true,
 		navigateFallback: '/',

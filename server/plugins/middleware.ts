@@ -1,6 +1,6 @@
 export default defineNitroPlugin((nitroApp) => {
 	const config = useRuntimeConfig()
-	nitroApp.hooks.hook('request', async (event: any) => {
+	nitroApp.hooks.hook('request', async (event) => {
 		const accessToken = getAccessTokenFromHeader(event)
 
 		if (accessToken) {

@@ -6,6 +6,7 @@ export const experimental = {
 	typedPages: true,
 	headNext: true,
 	asyncContext: true,
+	payloadExtraction: true,
 	watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
 		| 'chokidar'
 		| 'chokidar-granular'

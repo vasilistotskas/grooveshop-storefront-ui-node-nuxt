@@ -75,11 +75,16 @@ const { account } = storeToRefs(userStore)
 								:text="$t('pages.accounts.login.title')"
 								:to="'account'"
 							>
-								<UserAvatar :user-account="account" :img-width="30" :img-height="30" />
+								<UserAvatar
+									:user-account="account"
+									:img-width="30"
+									:img-height="30"
+									:show-name="false"
+								/>
 							</Anchor>
 							<Anchor
 								v-else
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
+								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center w-[30px] h-[30px]"
 								:title="$t('pages.accounts.login.title')"
 								:text="$t('pages.accounts.login.title')"
 								:to="`/auth/login?redirect=${$route.path}`"

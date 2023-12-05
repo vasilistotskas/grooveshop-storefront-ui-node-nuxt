@@ -1,4 +1,7 @@
 export default defineNuxtPlugin(async (NuxtApp) => {
+	if (process.prerender) {
+		return
+	}
 	try {
 		const totpInitialized = useState('auth-totp-initialized', () => false)
 
