@@ -12,8 +12,6 @@ export default defineNuxtPlugin(async (NuxtApp) => {
 		const { fetchUser } = useAuth()
 		const { _refreshToken, _accessToken, _refresh } = useAuthSession()
 
-		// eslint-disable-next-line no-console
-		console.log('========= _accessToken.get() =========', _accessToken.get())
 		if (_accessToken.get()) {
 			try {
 				await fetchUser()

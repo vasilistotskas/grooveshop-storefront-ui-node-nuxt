@@ -51,7 +51,7 @@ export const useCartStore = defineStore('cart', () => {
 		const cartFromIDB = await get<Cart>('cart')
 		if (!cartFromIDB) {
 			await set('cart', {
-				id: 0,
+				id: Date.now(),
 				user: null,
 				totalPrice: 0,
 				totalDiscountValue: 0,
@@ -179,8 +179,8 @@ export const useCartStore = defineStore('cart', () => {
 				reviewCounter: body.product.reviewCounter
 			}
 			const newCartItem = {
-				id: 0,
-				cart: 0,
+				id: Date.now(),
+				cart: Date.now(),
 				product: productData,
 				quantity: body.quantity,
 				createdAt: new Date().toISOString(),
@@ -217,7 +217,7 @@ export const useCartStore = defineStore('cart', () => {
 			return
 		}
 		const cartItems = cartFromIDB?.cartItems ?? []
-		const cartItem = cartItems.find((item) => item.product.id === Number(id))
+		const cartItem = cartItems.find((item) => item.id === id)
 		if (!cartItem) {
 			return
 		}
@@ -260,7 +260,7 @@ export const useCartStore = defineStore('cart', () => {
 			return
 		}
 		const cartItems = cartFromIDB?.cartItems ?? []
-		const cartItemIndex = cartItems.findIndex((item) => item.product.id === Number(id))
+		const cartItemIndex = cartItems.findIndex((item) => item.id === Number(id))
 		if (cartItemIndex !== -1) {
 			cartItems.splice(cartItemIndex, 1)
 		}
