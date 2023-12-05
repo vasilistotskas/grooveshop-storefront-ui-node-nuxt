@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.34.0...v1.35.0) (2023-12-5)
+
+
+### Features
+
+* Testing components and pages remove, pwa fixes and versions bump ([1ab0e1a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1ab0e1a6a5cdc222bdc7f6b86a6bd4db68bc6fba))
+
 # [1.34.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.33.0...v1.34.0) (2023-12-4)
 
 
