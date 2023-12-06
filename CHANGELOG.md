@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.38.0...v1.39.0) (2023-12-6)
+
+
+### Features
+
+* css size reduce and ui improvements ([6f3876a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6f3876abbd0951d59ebbf65692727bd85ae6eda9))
+
 # [1.38.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.37.1...v1.38.0) (2023-12-6)
 
 
