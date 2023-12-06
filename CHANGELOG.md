@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.35.1...v1.36.0) (2023-12-6)
+
+
+### Features
+
+* Bump versions. ([32befb9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/32befb94e4bd12ed1158d59ddd5039902dd4062e))
+
 ## [1.35.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.35.0...v1.35.1) (2023-12-5)
 
 
