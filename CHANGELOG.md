@@ -1,3 +1,11 @@
+## [1.37.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.37.0...v1.37.1) (2023-12-6)
+
+
+### Bug Fixes
+
+* seo ui fixes ([d54271b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d54271b6cd996639798fa49acb13dc9fea25598d))
+* unused var remove ([38266d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/38266d4d183694aa95bf3c77185e4ce8f4c5e746))
+
 # [1.37.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.36.0...v1.37.0) (2023-12-6)
 
 
