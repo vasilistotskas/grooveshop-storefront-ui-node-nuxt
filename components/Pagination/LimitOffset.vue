@@ -159,7 +159,7 @@ const link = computed(() => {
 				</Anchor>
 			</li>
 
-			<li v-for="(pageEntry, index) in pages" :key="pageEntry" class="page">
+			<li v-for="pageEntry in pages" :key="pageEntry" class="page">
 				<Anchor
 					:to="{
 						path: link,

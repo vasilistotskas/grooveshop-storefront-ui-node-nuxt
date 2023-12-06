@@ -167,7 +167,7 @@ const link = computed(() => {
 				</Anchor>
 			</li>
 
-			<li v-for="(pageEntry, index) in pages" :key="pageEntry" class="page">
+			<li v-for="pageEntry in pages" :key="pageEntry" class="page">
 				<Anchor
 					:to="{
 						path: link,
@@ -180,7 +180,7 @@ const link = computed(() => {
 						'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2': true,
 						active: page === pageEntry
 					}"
-					:text="String(index)"
+					:text="String(pageEntry)"
 					:title="$t('components.pagination.go_to_page', { page: pageEntry })"
 				>
 					<span class="text-primary-700 dark:text-primary-100">{{ pageEntry }}</span>
