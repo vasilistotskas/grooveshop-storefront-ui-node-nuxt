@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.37.1...v1.38.0) (2023-12-6)
+
+
+### Features
+
+* Add module `pinia-persistedstate` ([10c4865](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/10c4865343254ae03aef3fc5bd38b7a1539af8b1))
+
 ## [1.37.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.37.0...v1.37.1) (2023-12-6)
 
 
