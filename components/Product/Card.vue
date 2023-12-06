@@ -4,6 +4,8 @@ import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 import type { Product } from '~/types/product/product'
 
+type ImageLoading = 'lazy' | 'eager' | undefined
+
 const props = defineProps({
 	product: { type: Object as PropType<Product>, required: true },
 	showAddToFavouriteButton: { type: Boolean, required: false, default: true },
@@ -13,7 +15,13 @@ const props = defineProps({
 	imgHeight: { type: Number, required: false, default: 230 },
 	showVat: { type: Boolean, required: false, default: false },
 	showStartPrice: { type: Boolean, required: false, default: false },
-	showDescription: { type: Boolean, required: false, default: false }
+	showDescription: { type: Boolean, required: false, default: false },
+	imgLoading: {
+		type: String as PropType<ImageLoading>,
+		required: false,
+		default: 'lazy',
+		validator: (value: string) => ['lazy', 'eager'].includes(value)
+	}
 })
 
 const { isAuthenticated } = useAuthSession()
@@ -75,10 +83,9 @@ const userToProductFavourite = computed(() => {
 								<Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
 									<NuxtImg
 										preload
-										loading="lazy"
+										:loading="imgLoading"
 										provider="mediaStream"
 										class="product-img bg-transparent"
-										decoding="async"
 										:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 										:width="imgWidth || 100"
 										:height="imgHeight || 100"

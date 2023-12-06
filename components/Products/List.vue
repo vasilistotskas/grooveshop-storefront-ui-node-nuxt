@@ -78,7 +78,7 @@ watch(
 				class="grid items-center justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
 			>
 				<template v-for="(product, index) in products.results" :key="index">
-					<ProductCard :product="product" />
+					<ProductCard :product="product" :img-loading="index === 0 ? 'eager' : 'lazy'" />
 				</template>
 			</ol>
 		</template>

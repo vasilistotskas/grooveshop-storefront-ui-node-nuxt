@@ -4,6 +4,7 @@ export const modules = [
 	'@nuxtjs/i18n',
 	'@nuxtjs/eslint-module',
 	'@nuxtjs/tailwindcss',
+	'@nuxtjs/html-validator',
 	'@nuxtseo/module',
 	'@pinia/nuxt',
 	'@vueuse/nuxt',
