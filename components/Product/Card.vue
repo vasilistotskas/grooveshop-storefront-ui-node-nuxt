@@ -19,7 +19,7 @@ const props = defineProps({
 	imgLoading: {
 		type: String as PropType<ImageLoading>,
 		required: false,
-		default: 'lazy',
+		default: undefined,
 		validator: (value: string) => ['lazy', 'eager'].includes(value)
 	}
 })

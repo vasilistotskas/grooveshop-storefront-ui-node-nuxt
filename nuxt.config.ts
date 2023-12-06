@@ -30,6 +30,7 @@ import { site } from './config/site'
 import { linkChecker } from './config/link-checker'
 import { robots } from './config/robots'
 import { htmlValidator } from './config/html-validator'
+import { piniaPersistedstate } from './config/pinia-persistedstate'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
@@ -70,6 +71,7 @@ export default defineNuxtConfig({
 	cookieControl,
 	vue,
 	pinia,
+	piniaPersistedstate,
 	vite,
 	nitro,
 	app,
