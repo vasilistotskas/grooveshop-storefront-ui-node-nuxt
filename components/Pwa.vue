@@ -13,13 +13,13 @@ const pwa = useNuxtApp().$pwa
 				<div class="message">
 					<span
 						v-if="pwa?.offlineReady"
-						class="text-primary-500 dark:text-primary-400 font-medium"
+						class="text-primary-700 dark:text-primary-400 font-medium"
 					>
 						{{ $t('components.pwa.ready_to_work_offline') }}
 					</span>
 					<span
 						v-if="pwa?.needRefresh"
-						class="text-primary-500 dark:text-primary-400 font-medium"
+						class="text-primary-700 dark:text-primary-400 font-medium"
 					>
 						{{ $t('components.pwa.new_content_available') }}
 					</span>

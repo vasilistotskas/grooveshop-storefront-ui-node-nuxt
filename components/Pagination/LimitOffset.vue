@@ -173,7 +173,7 @@ const link = computed(() => {
 						'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2': true,
 						active: pageEntry === page
 					}"
-					:text="String(index)"
+					:text="String(pageEntry)"
 					:title="$t('components.pagination.go_to_page', { page: pageEntry })"
 				>
 					<span class="text-primary-700 dark:text-primary-100">{{ pageEntry }}</span>

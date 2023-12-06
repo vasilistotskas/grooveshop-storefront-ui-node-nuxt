@@ -12,7 +12,7 @@ const config = useRuntimeConfig()
 					>
 						{{ $t('common.company') }}
 					</h2>
-					<ul class="text-primary-500 dark:text-primary-400 font-medium">
+					<ul class="text-primary-700 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<Anchor
 								:to="'about'"
@@ -39,7 +39,16 @@ const config = useRuntimeConfig()
 					>
 						{{ $t('common.help_center') }}
 					</h2>
-					<ul class="text-primary-500 dark:text-primary-400 font-medium">
+					<ul class="text-primary-700 dark:text-primary-400 font-medium">
+						<li class="mb-4">
+							<Anchor
+								:to="'contact'"
+								:title="$t('common.contact_us')"
+								:text="$t('common.contact_us')"
+								class="flex-1 hover:no-underline capitalize"
+								>{{ $t('common.contact_us') }}</Anchor
+							>
+						</li>
 						<li class="mb-4">
 							<Anchor
 								:href="config.public.socials.discord"
@@ -67,15 +76,6 @@ const config = useRuntimeConfig()
 								>{{ $t('common.facebook') }}</Anchor
 							>
 						</li>
-						<li class="mb-4">
-							<Anchor
-								:to="'contact'"
-								:title="$t('common.contact_us')"
-								:text="$t('common.contact_us')"
-								class="flex-1 hover:no-underline capitalize"
-								>{{ $t('common.contact_us') }}</Anchor
-							>
-						</li>
 					</ul>
 				</div>
 				<div>
@@ -84,7 +84,7 @@ const config = useRuntimeConfig()
 					>
 						Legal
 					</h2>
-					<ul class="text-primary-500 dark:text-primary-400 font-medium">
+					<ul class="text-primary-700 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<Anchor
 								:to="'privacy'"
@@ -110,7 +110,7 @@ const config = useRuntimeConfig()
 		<div class="w-full bg-zinc-100 dark:bg-zinc-700">
 			<div class="mx-auto w-full container">
 				<div class="px-4 py-6 md:flex md:items-center md:justify-between">
-					<span class="text-sm text-primary-500 dark:text-primary-300 sm:text-center"
+					<span class="text-sm text-primary-700 dark:text-primary-300 sm:text-center"
 						>© 2023
 						<Anchor
 							:href="config.public.siteUrl"
