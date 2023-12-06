@@ -64,7 +64,7 @@ onMounted(() => {
 			/>
 			<label
 				:for="switchId"
-				class="switch-label block overflow-hidden h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 cursor-pointer border border-slate-300 dark:border-slate-500"
+				class="switch-label block overflow-hidden h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 cursor-pointer border border-slate-300 dark:border-slate-500"
 			/>
 		</label>
 		<slot />

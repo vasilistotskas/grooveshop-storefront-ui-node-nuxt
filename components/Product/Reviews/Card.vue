@@ -74,7 +74,6 @@ const alt = computed(() => {
 								loading="lazy"
 								provider="mediaStream"
 								class="product-img"
-								decoding="async"
 								:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 								:width="120"
 								:height="80"

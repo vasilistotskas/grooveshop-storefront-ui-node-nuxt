@@ -43,6 +43,7 @@ watch(
 				:image="mainImage"
 				:width="592"
 				:height="350"
+				img-loading="eager"
 				class="main-image product-images-main grid h-64 md:h-80 rounded-lg bg-zinc-100 mb-4 items-center justify-center"
 			/>
 		</div>
@@ -59,6 +60,7 @@ watch(
 						}"
 						type="button"
 						class="focus:outline-none w-full rounded-lg h-24 md:h-32 bg-zinc-100 flex items-center justify-center"
+						:aria-label="`Select image ${productImage.id}`"
 						@click="selectedImageId = productImage.id"
 					>
 						<ProductImage
@@ -66,6 +68,7 @@ watch(
 							:image="productImage"
 							:width="278"
 							:height="129"
+							img-loading="lazy"
 						/>
 					</button>
 				</div>

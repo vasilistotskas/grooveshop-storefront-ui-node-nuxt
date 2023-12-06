@@ -146,7 +146,6 @@ definePageMeta({
 											loading="lazy"
 											provider="mediaStream"
 											class="product-img bg-transparent"
-											decoding="async"
 											:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 											:width="100"
 											:height="100"

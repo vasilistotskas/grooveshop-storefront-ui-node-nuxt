@@ -9,7 +9,6 @@ import { nitro } from './config/nitro'
 import { app } from './config/app'
 import { image } from './config/image'
 import { eslint } from './config/eslint'
-import { postcss } from './config/postcss'
 import { schemaOrg } from './config/schema-org'
 import { css } from './config/css'
 import { i18n } from './config/i18n'
@@ -35,7 +34,7 @@ import { piniaPersistedstate } from './config/pinia-persistedstate'
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
 	ssr: true,
-	sourcemap: process.env.NODE_ENV !== 'production',
+	sourcemap: true,
 	appConfig: {
 		storage: {
 			driver: process.env.NUXT_STORAGE_DRIVER ?? (isCI ? 'cloudflare' : 'fs')
@@ -76,7 +75,6 @@ export default defineNuxtConfig({
 	nitro,
 	app,
 	image,
-	postcss,
 	pwa,
 	schemaOrg,
 	sitemap,

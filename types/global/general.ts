@@ -23,3 +23,4 @@ export const floorChoicesList = Object.keys(FloorChoicesEnum).filter((element) =
 })
 
 export const defaultSelectOptionChoose = 'choose'
+export type ImageLoading = 'lazy' | 'eager' | undefined

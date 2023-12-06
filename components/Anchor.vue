@@ -48,7 +48,7 @@ const localePath = useLocalePath()
 		:inactive-class="
 			[
 				cssClass,
-				`text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200`
+				`text-gray-700 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200`
 			].join(' ')
 		"
 		:to="href"

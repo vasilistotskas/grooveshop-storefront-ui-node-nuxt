@@ -7,11 +7,6 @@
 // native slider
 @import 'native-slider-core';
 
-// cookies
-@import 'cookies';
-
-// animations
-@import 'animations/transitions';
 
 // components
 ::-webkit-scrollbar {
@@ -62,23 +57,6 @@ body,
 }
 
 app {
-	view-transition-name: app;
-	transition-duration: 0s;
-	transition-property:
-		color,
-		background-color,
-		border-color,
-		outline-color,
-		text-decoration-color,
-		fill,
-		stroke,
-		opacity,
-		box-shadow,
-		transform,
-		filter,
-		backdrop-filter,
-		-webkit-backdrop-filter;
-	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	overflow: hidden;
 	width: 100%;
 	height: 100%;

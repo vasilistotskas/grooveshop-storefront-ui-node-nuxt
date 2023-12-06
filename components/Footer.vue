@@ -107,7 +107,7 @@ const config = useRuntimeConfig()
 				</div>
 			</div>
 		</div>
-		<div class="w-full bg-zinc-100 dark:bg-zinc-700">
+		<div class="w-full bg-zinc-100 dark:bg-zinc-800">
 			<div class="mx-auto w-full container">
 				<div class="px-4 py-6 md:flex md:items-center md:justify-between">
 					<span class="text-sm text-primary-700 dark:text-primary-300 sm:text-center"

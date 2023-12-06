@@ -39,7 +39,6 @@ const alt = computed(() => {
 					loading="lazy"
 					provider="mediaStream"
 					class="w-full h-full object-cover aspect-square"
-					decoding="async"
 					:style="{ 'view-transition-name': `item-${item.id}`, aspectRatio: '1/1' }"
 					:width="300"
 					:height="200"

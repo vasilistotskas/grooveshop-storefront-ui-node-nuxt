@@ -7,6 +7,7 @@ import {
 } from '#cookie-control/methods'
 import { CookieTypeEnum } from '#cookie-control/types'
 import type { Cookie } from '#cookie-control/types'
+import 'assets/sass/_cookies.scss'
 
 defineSlots<{
 	bar(props: {}): any

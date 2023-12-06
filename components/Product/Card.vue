@@ -3,8 +3,7 @@ import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 import type { Product } from '~/types/product/product'
-
-type ImageLoading = 'lazy' | 'eager' | undefined
+import type { ImageLoading } from '~/types/global/general'
 
 const props = defineProps({
 	product: { type: Object as PropType<Product>, required: true },

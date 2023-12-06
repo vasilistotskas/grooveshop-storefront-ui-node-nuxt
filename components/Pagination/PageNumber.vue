@@ -201,7 +201,7 @@ const link = computed(() => {
 						disabled: isInLastPage,
 						active: isInLastPage
 					}"
-					:text="$t('components.pagination.last_page')"
+					:text="String(lastPageNumber)"
 					:title="$t('components.pagination.go_to_page', { page: lastPageNumber })"
 				>
 					<span

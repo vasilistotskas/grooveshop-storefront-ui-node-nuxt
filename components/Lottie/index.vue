@@ -5,6 +5,7 @@
 			:data-id="elementId"
 			class="lottie-animation-container circle"
 			v-bind="$attrs"
+			aria-label="Lottie animation"
 			@mouseenter="hoverStarted"
 			@mouseleave="hoverEnded"
 		>

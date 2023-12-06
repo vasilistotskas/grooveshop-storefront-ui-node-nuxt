@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import type { Image } from '~/types/product/image'
+import type { ImageLoading } from '~/types/global/general'
 
 const props = defineProps({
 	image: {
@@ -15,6 +16,12 @@ const props = defineProps({
 	height: {
 		type: Number,
 		default: 350
+	},
+	imgLoading: {
+		type: String as PropType<ImageLoading>,
+		required: false,
+		default: undefined,
+		validator: (value: string) => ['lazy', 'eager'].includes(value)
 	}
 })
 
@@ -37,10 +44,9 @@ const alt = computed(() => {
 <template>
 	<NuxtImg
 		preload
-		loading="lazy"
+		:loading="imgLoading"
 		provider="mediaStream"
 		class="rounded-full"
-		decoding="async"
 		:style="{ objectFit: 'contain' }"
 		:width="width || 100"
 		:height="height || 100"

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import 'v-calendar/style.css'
+
 const modelValue = defineModel<Date | null>('modelValue', { default: null })
 
 const emit = defineEmits(['close'])

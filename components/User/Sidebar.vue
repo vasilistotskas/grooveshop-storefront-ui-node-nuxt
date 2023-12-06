@@ -93,7 +93,7 @@ onMounted(() => {
 				<li
 					v-for="(item, i) in menus"
 					:key="i"
-					class="p-2 md:p-0 bg-zinc-100 md:bg-transparent dark:bg-zinc-700 md:dark:bg-transparent border border-gray-700 md:border-transparent rounded"
+					class="p-2 md:p-0 bg-zinc-100 md:bg-transparent dark:bg-zinc-800 md:dark:bg-transparent border border-gray-700 md:border-transparent rounded"
 				>
 					<Anchor
 						v-if="item.type === 'link'"
@@ -106,7 +106,7 @@ onMounted(() => {
 							:class="{
 								'text-white dark:text-white group-hover:bg-sky-500 bg-sky-500':
 									route.path === item.route?.path,
-								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-700':
+								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-800':
 									route.path !== item.route?.path
 							}"
 						>
@@ -133,7 +133,7 @@ onMounted(() => {
 							:class="{
 								'text-white dark:text-white group-hover:bg-sky-500 bg-sky-500':
 									item.route?.path === route.path,
-								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-700':
+								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-800':
 									item.route?.path !== route.path
 							}"
 						>

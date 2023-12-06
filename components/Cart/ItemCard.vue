@@ -52,7 +52,6 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 					loading="lazy"
 					provider="mediaStream"
 					class="product-img"
-					decoding="async"
 					:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 					:width="237"
 					:height="90"

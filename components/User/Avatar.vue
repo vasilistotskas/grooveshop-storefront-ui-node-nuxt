@@ -97,7 +97,6 @@ const uploadImage = async (event: Event) => {
 				loading="lazy"
 				provider="mediaStream"
 				class="rounded-full"
-				decoding="async"
 				:style="{ objectFit: 'contain' }"
 				:width="imgWidth || 100"
 				:height="imgHeight || 100"
