@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.36.0...v1.37.0) (2023-12-6)
+
+
+### Features
+
+* product listing image optimize and add `html-validator` lib ([845a6c7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/845a6c7504b76a2be422bc3941db85a0ed0237a3))
+
 # [1.36.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.35.1...v1.36.0) (2023-12-6)
 
 
