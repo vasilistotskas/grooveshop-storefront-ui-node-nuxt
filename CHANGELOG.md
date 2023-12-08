@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.39.0...v1.40.0) (2023-12-8)
+
+
+### Features
+
+* Native slider performance improve and new features, ui updates and versions bump ([16d9c94](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/16d9c9468a16774b42d74d49d1ba1b28de73a0e9))
+
 # [1.39.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.38.0...v1.39.0) (2023-12-6)
 
 
