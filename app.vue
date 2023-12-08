@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
 import pkg from '~/package.json'
-import 'assets/sass/app.scss'
 
 const config = useRuntimeConfig()
 const route = useRoute()

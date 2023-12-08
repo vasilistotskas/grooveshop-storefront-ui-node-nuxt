@@ -12,6 +12,7 @@ interface RenderQueueEntry {
 
 interface NativeSliderInstance {
 	[key: string]: any
+	intersectionObserver: IntersectionObserver | null
 	pollingInterval: number
 	deltaPadding: number
 	diffThreshold: number
@@ -19,6 +20,8 @@ interface NativeSliderInstance {
 	renderQueue: Set<HTMLElement> | null
 	classList: {
 		draggable: string
+		visible: string
+		centered: string
 		listGroup: string
 		listItem: string
 		button: string
@@ -40,7 +43,11 @@ interface NativeSliderInstance {
 			}
 		}
 	}
-	dragDataLayer: any
+	dragDataLayer: Map<any, any> | null
+	visibleSlides: {
+		[key: string]: Element[]
+	}
+	initIntersectionObserver(): void
 	listenerSliderSlideButtonClick(event: Event | MouseEvent): void
 	getAxisAccessors(axis: string): {
 		offset: string
@@ -69,6 +76,7 @@ interface NativeSliderInstance {
 		{ direction }: { direction: number }
 	): void
 	slideNativeSliderBy(slider: HTMLElement | Element, scrollLeftBy: number): void
+	markVisibleSlides(slider: HTMLElement): void
 	update({ renderQueue }: { renderQueue: any }): void
 	dispatchNativeSliderPostUpdate(
 		slider: HTMLElement | Element,
@@ -86,11 +94,17 @@ interface NativeSliderInstance {
 	initSliders(target: Document | null): void
 	initRenderLoop(): void
 	initSlidersWithButtons(target?: Document | null): void
+	isInViewport(element: HTMLElement): boolean
+	disconnectIntersectionObserver(): void
+	cleanupListeners(nativeSlider: HTMLElement): void
+	cleanupButtons(nativeSliderButton: HTMLElement): void
+	cleanUpNativeSlider(): void
 	init(): void
 }
 
 export function NativeSlider() {
 	const nativeSliderInstance: NativeSliderInstance = {
+		intersectionObserver: null,
 		pollingInterval: 1000,
 		deltaPadding: 0.1,
 		diffThreshold: 1,
@@ -98,6 +112,8 @@ export function NativeSlider() {
 		renderQueue: null,
 		classList: {
 			draggable: 'native-slider-dragged',
+			visible: 'native-slider-visible',
+			centered: 'native-slider-centered',
 			listGroup: 'native-slider-lg',
 			listItem: 'native-slider-li',
 			button: 'native-slider-btn',
@@ -126,6 +142,63 @@ export function NativeSlider() {
 			}
 		},
 		dragDataLayer: null,
+		visibleSlides: {},
+
+		initIntersectionObserver() {
+			const options = {
+				root: null, // observing for visibility within the viewport
+				rootMargin: '0px',
+				threshold: 0.1 // 10% of the item's visible area
+			}
+
+			this.intersectionObserver = new IntersectionObserver((entries) => {
+				entries.forEach((entry) => {
+					const slider = entry.target.closest(`.${this.classList.listGroup}`)
+					const sliderUuid = (slider as HTMLElement).dataset.slider_uuid
+
+					if (sliderUuid) {
+						if (!this.visibleSlides[sliderUuid]) {
+							this.visibleSlides[sliderUuid] = []
+						}
+					}
+
+					if (entry.isIntersecting) {
+						entry.target.classList.add(this.classList.visible)
+						if (sliderUuid) {
+							if (!this.visibleSlides[sliderUuid].includes(entry.target)) {
+								this.visibleSlides[sliderUuid].push(entry.target)
+							}
+						}
+					} else {
+						entry.target.classList.remove(this.classList.visible)
+						if (sliderUuid) {
+							this.visibleSlides[sliderUuid] = this.visibleSlides[sliderUuid].filter(
+								(slide) => slide !== entry.target
+							)
+						}
+					}
+				})
+				this.updateCenteredSlide()
+			}, options)
+		},
+
+		updateCenteredSlide() {
+			Object.keys(this.visibleSlides).forEach((sliderUuid) => {
+				const visibleSlides = this.visibleSlides[sliderUuid]
+
+				visibleSlides.sort((a, b) => {
+					return a.getBoundingClientRect().left - b.getBoundingClientRect().left // Or 'top' for vertical sliders
+				})
+
+				visibleSlides.forEach((slide) => slide.classList.remove(this.classList.centered))
+
+				if (visibleSlides.length % 2 !== 0) {
+					const centerIndex = Math.floor(visibleSlides.length / 2)
+					visibleSlides[centerIndex].classList.add(this.classList.centered)
+				}
+			})
+		},
+
 		listenerSliderSlideButtonClick(e) {
 			if (!e.target || !('dataset' in e.target)) {
 				return
@@ -158,10 +231,9 @@ export function NativeSlider() {
 		},
 
 		listenerSliderXYDragMousedown(nativeSlider, e) {
-			useState<boolean>(
-				`Slider-${(nativeSlider as HTMLElement).dataset.slider_uuid}-Dragging`,
-				() => true
-			)
+			if (!this.dragDataLayer) {
+				return
+			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
 			const accessors = this.getAxisAccessors(dragData.scrollMode)
 			dragData.isDown = true
@@ -181,10 +253,9 @@ export function NativeSlider() {
 		},
 
 		listenerSliderXYDragMouseleave(nativeSlider, e) {
-			useState<boolean>(
-				`Slider-${(nativeSlider as HTMLElement).dataset.slider_uuid}-Dragging`,
-				() => false
-			)
+			if (!this.dragDataLayer) {
+				return
+			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
 			dragData.isDown = false
 			nativeSlider.classList.remove(this.classList.draggable)
@@ -197,10 +268,9 @@ export function NativeSlider() {
 		},
 
 		listenerSliderXYDragMouseup(nativeSlider, e) {
-			useState<boolean>(
-				`Slider-${(nativeSlider as HTMLElement).dataset.slider_uuid}-Dragging`,
-				() => false
-			)
+			if (!this.dragDataLayer) {
+				return
+			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
 			dragData.isDown = false
 			nativeSlider.classList.remove(this.classList.draggable)
@@ -213,10 +283,9 @@ export function NativeSlider() {
 		},
 
 		listenerSliderXYDragMousemove(nativeSlider, e) {
-			useState<boolean>(
-				`Slider-${(nativeSlider as HTMLElement).dataset.slider_uuid}-Dragging`,
-				() => false
-			)
+			if (!this.dragDataLayer) {
+				return
+			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
 			if (!dragData.isDown) {
 				return
@@ -267,6 +336,18 @@ export function NativeSlider() {
 				left: directionLeft,
 				behavior: 'smooth'
 			})
+		},
+
+		markVisibleSlides(slider: HTMLElement) {
+			const slides = slider.getElementsByClassName(this.classList.listItem)
+
+			for (const slide of slides) {
+				if (this.isInViewport(slide as HTMLElement)) {
+					slide.classList.add(this.classList.visible)
+				} else {
+					slide.classList.remove(this.classList.visible)
+				}
+			}
 		},
 
 		update({ renderQueue }: { renderQueue: RenderQueueEntry[] }) {
@@ -341,6 +422,10 @@ export function NativeSlider() {
 				target = document
 			}
 			const nativeSliderButtons = target.getElementsByClassName(this.classList.button)
+			if (nativeSliderButtons.length === 0) {
+				return
+			}
+
 			for (const nativeSliderButton of nativeSliderButtons) {
 				const slider = this.getSliderFromButton(nativeSliderButton)
 				if (slider === null) {
@@ -377,6 +462,10 @@ export function NativeSlider() {
 				target = document
 			}
 			const nativeSliders = target.getElementsByClassName(this.classList.listGroup)
+			if (nativeSliders.length === 0) {
+				return
+			}
+
 			for (const nativeSlider of nativeSliders) {
 				if (!('dataset' in nativeSlider)) {
 					continue
@@ -427,10 +516,22 @@ export function NativeSlider() {
 					}
 				}
 			}
+
+			if (this.intersectionObserver) {
+				for (const nativeSlider of nativeSliders) {
+					const slides = nativeSlider.getElementsByClassName(this.classList.listItem)
+					for (const slide of slides) {
+						this.intersectionObserver.observe(slide)
+					}
+				}
+			}
 		},
 
 		initRenderLoop() {
 			this.renderLoopTimingBelt = null
+			if (!document) {
+				return
+			}
 			document.addEventListener('nativeSliderRenderLoopPreUpdate', (e) => {
 				if (this.renderLoopTimingBelt !== null) {
 					clearInterval(Number(this.renderLoopTimingBelt))
@@ -455,6 +556,74 @@ export function NativeSlider() {
 			this.initSliders(target)
 		},
 
+		isInViewport(element: HTMLElement) {
+			const rect = element.getBoundingClientRect()
+			return (
+				rect.top >= 0 &&
+				rect.left >= 0 &&
+				rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+				rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+			)
+		},
+
+		disconnectIntersectionObserver() {
+			if (this.intersectionObserver) {
+				this.intersectionObserver.disconnect()
+			}
+		},
+
+		cleanupListeners(nativeSlider: HTMLElement) {
+			const eventMap = {
+				mousedown: this.listenerSliderXYDragMousedown,
+				mouseleave: this.listenerSliderXYDragMouseleave,
+				mouseup: this.listenerSliderXYDragMouseup,
+				mousemove: this.listenerSliderXYDragMousemove
+			}
+			for (const [event, listener] of Object.entries(eventMap)) {
+				nativeSlider.removeEventListener(
+					event,
+					listener.bind(this, nativeSlider as HTMLElement)
+				)
+			}
+		},
+
+		cleanupButtons(nativeSliderButton: HTMLElement) {
+			nativeSliderButton.removeEventListener(
+				'click',
+				this.listenerSliderSlideButtonClick.bind(this)
+			)
+		},
+
+		cleanUpNativeSlider() {
+			if (this.renderQueue) {
+				this.renderQueue.clear()
+			}
+			if (this.dragDataLayer) {
+				this.dragDataLayer.clear()
+			}
+			this.disconnectIntersectionObserver()
+			if (this.renderLoopTimingBelt !== null) {
+				clearInterval(Number(this.renderLoopTimingBelt))
+			}
+			if (!document) {
+				return
+			}
+			const nativeSliders = document.getElementsByClassName(this.classList.listGroup)
+			if (nativeSliders.length === 0) {
+				return
+			}
+			for (const nativeSlider of nativeSliders) {
+				this.cleanupListeners(nativeSlider as HTMLElement)
+			}
+			const nativeSliderButtons = document.getElementsByClassName(this.classList.button)
+			if (nativeSliderButtons.length === 0) {
+				return
+			}
+			for (const nativeSliderButton of nativeSliderButtons) {
+				this.cleanupButtons(nativeSliderButton as HTMLElement)
+			}
+		},
+
 		init() {
 			if (this.renderQueue === null) {
 				this.renderQueue = new Set()
@@ -463,6 +632,7 @@ export function NativeSlider() {
 				this.dragDataLayer = new Map()
 			}
 			this.initSlidersWithButtons()
+			this.initIntersectionObserver()
 			this.initRenderLoop()
 		}
 	}

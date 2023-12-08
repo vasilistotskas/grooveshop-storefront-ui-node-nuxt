@@ -49,6 +49,13 @@ export default {
 			},
 			gridColumn: {
 				'full-column': '1 / span 2'
+			},
+			gridAutoColumns: {
+				'2': '50%',
+				'3': '33.333333%',
+				'4': '25%',
+				'5': '20%',
+				'6': '16.666667%'
 			}
 		}
 	},

@@ -9,7 +9,7 @@ definePageMeta({
 		<PageBody>
 			<PageSection>
 				<NativeSlideShow>
-					<a v-for="i in 3" :key="i" href="/">
+					<a v-for="i in 3" :key="i" href="/" class="native-slider-li">
 						<NuxtPicture
 							loading="eager"
 							provider="mediaStream"
@@ -32,25 +32,79 @@ definePageMeta({
 				<div
 					class="usps container-sm flex flex-wrap items-center justify-center gap-8 my-16 text-center brand lg:justify-between"
 				>
-					<NativeSlideShow>
-						<NuxtImg
-							v-for="i in 6"
-							:key="i"
-							loading="eager"
-							provider="mediaStream"
-							class="w-full h-full object-cover"
-							:style="{ objectFit: 'contain' }"
-							:src="'/assets/images/black.png'"
-							:width="80"
-							:height="40"
-							:fit="'cover'"
-							:position="'entropy'"
-							:background="'transparent'"
-							:trim-threshold="5"
-							:format="'webp'"
-							:alt="'Usp'"
-							sizes="sm:100vw md:50vw lg:80px"
-						/>
+					<NativeSlideShow slider-class="auto-cols-1 md:auto-cols-2 lg:auto-cols-3">
+						<a href="/" class="native-slider-li">
+							<NuxtImg
+								loading="eager"
+								provider="mediaStream"
+								class="w-full h-full object-cover"
+								:style="{ objectFit: 'contain' }"
+								:src="'/assets/images/black.png'"
+								:width="80"
+								:height="40"
+								:fit="'cover'"
+								:position="'entropy'"
+								:background="'transparent'"
+								:trim-threshold="5"
+								:format="'webp'"
+								:alt="'Usp'"
+								sizes="sm:100vw md:50vw lg:80px"
+							/>
+						</a>
+						<a href="/" class="native-slider-li">
+							<NuxtImg
+								loading="eager"
+								provider="mediaStream"
+								class="w-full h-full object-cover"
+								:style="{ objectFit: 'contain' }"
+								:src="'/assets/images/white.png'"
+								:width="80"
+								:height="40"
+								:fit="'cover'"
+								:position="'entropy'"
+								:background="'transparent'"
+								:trim-threshold="5"
+								:format="'webp'"
+								:alt="'Usp'"
+								sizes="sm:100vw md:50vw lg:80px"
+							/>
+						</a>
+						<a href="/" class="native-slider-li">
+							<NuxtImg
+								loading="eager"
+								provider="mediaStream"
+								class="w-full h-full object-cover"
+								:style="{ objectFit: 'contain' }"
+								:src="'/assets/images/black.png'"
+								:width="80"
+								:height="40"
+								:fit="'cover'"
+								:position="'entropy'"
+								:background="'transparent'"
+								:trim-threshold="5"
+								:format="'webp'"
+								:alt="'Usp'"
+								sizes="sm:100vw md:50vw lg:80px"
+							/>
+						</a>
+						<a href="/" class="native-slider-li">
+							<NuxtImg
+								loading="eager"
+								provider="mediaStream"
+								class="w-full h-full object-cover"
+								:style="{ objectFit: 'contain' }"
+								:src="'/assets/images/white.png'"
+								:width="80"
+								:height="40"
+								:fit="'cover'"
+								:position="'entropy'"
+								:background="'transparent'"
+								:trim-threshold="5"
+								:format="'webp'"
+								:alt="'Usp'"
+								sizes="sm:100vw md:50vw lg:80px"
+							/>
+						</a>
 					</NativeSlideShow>
 				</div>
 			</PageSection>

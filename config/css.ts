@@ -1,1 +1,1 @@
-export const css = []
+export const css = ['~/assets/sass/app.scss']

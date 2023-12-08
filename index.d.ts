@@ -34,6 +34,7 @@ const envVariables = z.object({
 	NUXT_PUBLIC_LOCALES: z.string(),
 	NUXT_PUBLIC_LANGUAGE: z.string(),
 	NUXT_PUBLIC_DEFAULT_LOCALE: z.string(),
+	NUXT_PUBLIC_I18N_DEBUG: z.string(),
 
 	// Private
 	NUXT_API_SECRET: z.string(),

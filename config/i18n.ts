@@ -2,14 +2,17 @@ export const i18n = {
 	strategy: 'prefix_except_default',
 	lazy: true,
 	defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE || 'en',
-	debug: false,
+	debug: process.env.NUXT_PUBLIC_I18N_DEBUG === 'true',
 	langDir: 'locales/',
 	baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
+	dynamicRouteParams: true,
 	detectBrowserLanguage: {
 		useCookie: true,
 		redirectOn: 'root',
 		cookieKey: 'i18n_redirected',
-		alwaysRedirect: true
+		alwaysRedirect: true,
+		cookieCrossOrigin: true,
+		cookieSecure: true
 	},
 	locales: [
 		{
