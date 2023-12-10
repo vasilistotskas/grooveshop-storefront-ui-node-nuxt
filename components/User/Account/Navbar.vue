@@ -32,12 +32,11 @@
 <style lang="scss" scoped>
 .user-account-navbar {
 	position: fixed;
-	top: 56px;
+	top: 65px;
 	left: 0;
 	z-index: 10;
 	width: 100%;
-	box-shadow: 0 2px 4px 0 #dcdcdc;
-	background-color: #fff;
+	@apply bg-white dark:bg-zinc-800;
 
 	@media screen and (width >= 1020px) {
 		position: static;

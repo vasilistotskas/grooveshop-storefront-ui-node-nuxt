@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { ZodPagination } from '~/types/pagination/pagination'
+import { ZodPagination } from '~/types/pagination'
 import { buildFullUrl } from '~/utils/api'
 
 import { ZodOrder, ZodOrderQuery } from '~/types/order/order'

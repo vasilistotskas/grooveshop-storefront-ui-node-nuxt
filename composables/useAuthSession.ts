@@ -9,8 +9,16 @@ import {
 	splitCookiesString,
 	appendResponseHeader
 } from 'h3'
-import type { TokenRefreshResponse, User } from '~/types/auth'
-import { defaultAuthCookieNames } from '~/types/auth'
+import type { AuthCookieNames, TokenRefreshResponse, User } from '~/types/auth'
+
+const defaultAuthCookieNames: AuthCookieNames = {
+	sessionCookieName: 'sessionid',
+	csrftokenCookieName: 'csrftoken',
+	accessTokenCookieName: 'jwt_auth',
+	refreshTokenCookieName: 'jwt_refresh_auth',
+	totpAuthenticatedCookieName: 'totp_authenticated',
+	totpActiveCookieName: 'totp_active'
+}
 
 export default function () {
 	const event = useRequestEvent()

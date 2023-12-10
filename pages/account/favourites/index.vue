@@ -4,7 +4,7 @@ import type {
 	FavouriteOrderingField,
 	FavouriteQuery
 } from '~/types/product/favourite'
-import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const userStore = useUserStore()
@@ -75,7 +75,7 @@ definePageMeta({
 		</PageHeader>
 		<PageBody>
 			<template v-if="!pending.favourites && favourites?.results?.length">
-				<div class="grid gap-2 md:flex md:items-center">
+				<div class="flex gap-2 flex-row items-center">
 					<PaginationPageNumber
 						:count="pagination.count"
 						:total-pages="pagination.totalPages"

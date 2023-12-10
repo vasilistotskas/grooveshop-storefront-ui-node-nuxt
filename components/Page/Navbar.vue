@@ -101,35 +101,51 @@ const { account } = storeToRefs(userStore)
 				<ActionSheetBody class="grid gap-4">
 					<ActionSheetHeader text="Menu" />
 					<nav class="leading-6 font-semibold text-primary-700 dark:text-primary-100">
-						<ul class="flex flex-col">
-							<li
-								class="flex w-full pb-2 border-b border-gray-900/10 dark:border-gray-50/[0.2] link"
-							>
-								<Anchor
-									:to="'products'"
-									:title="$t('common.shop')"
-									:text="$t('common.shop')"
-									class="flex-1 hover:no-underline capitalize text-center"
-									>{{ $t('common.shop') }}</Anchor
+						<ul
+							class="flex items-center justify-center flex-row gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
+						>
+							<li class="grid pb-2 link">
+								<UButton
+									icon="i-heroicons-shopping-bag"
+									:to="'/products'"
+									size="md"
+									variant="solid"
+									color="white"
+									:label="$t('common.shop')"
+									>{{ $t('common.shop') }}</UButton
+								>
+							</li>
+							<li class="grid pb-2 link">
+								<UButton
+									icon="i-heroicons-user"
+									:to="
+										isAuthenticated ? '/account' : `/auth/login?redirect=${$route.path}`
+									"
+									size="md"
+									variant="solid"
+									color="white"
+									:label="isAuthenticated ? $t('common.account') : $t('common.login')"
+									>{{
+										isAuthenticated ? $t('common.account') : $t('common.login')
+									}}</UButton
+								>
+							</li>
+							<li class="grid pb-2 link">
+								<UButton
+									icon="i-heroicons-magnifying-glass"
+									:to="'/search'"
+									size="md"
+									variant="solid"
+									color="white"
+									:label="$t('common.search')"
+									>{{ $t('common.search') }}</UButton
 								>
 							</li>
 						</ul>
 					</nav>
-					<div class="flex gap-3 items-center justify-start">
-						<div
-							class="text-primary-700 dark:text-primary-100 text-lg font-bold capitalize"
-						>
-							{{ $t('components.theme.switcher.change.theme') }}
-						</div>
+					<div class="flex gap-3 items-center justify-center">
 						<div class="grid items-center justify-center justify-items-center">
 							<ThemeSwitcher type="select-box" />
-						</div>
-					</div>
-					<div class="flex gap-3 items-center justify-start">
-						<div
-							class="text-primary-700 dark:text-primary-100 text-lg font-bold capitalize"
-						>
-							{{ $t('components.language.switcher.change_language') }}
 						</div>
 						<div class="grid items-center justify-center justify-items-center">
 							<LanguageSwitcher type="select-box" />

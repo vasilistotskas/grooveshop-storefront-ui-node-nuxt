@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
-import type { Region, RegionsQuery } from '~/types/region/region'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { Region, RegionsQuery } from '~/types/region'
+import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
 	regions: IFetchError | null

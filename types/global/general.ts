@@ -1,3 +1,18 @@
+import { z } from 'zod'
+
+export const ZodFloorChoicesEnum = z.enum([
+	'BASEMENT',
+	'GROUND_FLOOR',
+	'FIRST_FLOOR',
+	'SECOND_FLOOR',
+	'THIRD_FLOOR',
+	'FOURTH_FLOOR',
+	'FIFTH_FLOOR',
+	'SIXTH_FLOOR_PLUS'
+])
+
+export const ZodLocationChoicesEnum = z.enum(['HOME', 'OFFICE', 'OTHER'])
+
 export enum FloorChoicesEnum {
 	BASEMENT = 0,
 	GROUND_FLOOR = 1,
@@ -15,12 +30,6 @@ export enum LocationChoicesEnum {
 	OTHER = 2
 }
 
-export const locationChoicesList = Object.keys(LocationChoicesEnum).filter((element) => {
-	return isNaN(Number(element))
-})
-export const floorChoicesList = Object.keys(FloorChoicesEnum).filter((element) => {
-	return isNaN(Number(element))
-})
-
-export const defaultSelectOptionChoose = 'choose'
 export type ImageLoading = 'lazy' | 'eager' | undefined
+export type FloorChoicesEnumType = z.infer<typeof ZodFloorChoicesEnum>
+export type LocationChoicesEnumType = z.infer<typeof ZodLocationChoicesEnum>

@@ -1,47 +1,48 @@
 <script lang="ts" setup>
-const pwa = useNuxtApp().$pwa
+const { $pwa } = useNuxtApp()
+const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
 </script>
 
 <template>
 	<ClientOnly>
-		<div v-if="pwa" id="pwa">
+		<div v-if="$pwa" id="pwa">
 			<div
-				v-if="pwa?.offlineReady || pwa?.needRefresh"
+				v-if="$pwa?.offlineReady || $pwa?.needRefresh"
 				class="pwa-toast-control-bar"
 				role="alert"
 			>
 				<div class="message">
 					<span
-						v-if="pwa?.offlineReady"
+						v-if="$pwa?.offlineReady"
 						class="text-primary-700 dark:text-primary-400 font-medium"
 					>
 						{{ $t('components.pwa.ready_to_work_offline') }}
 					</span>
 					<span
-						v-if="pwa?.needRefresh"
+						v-if="$pwa?.needRefresh"
 						class="text-primary-700 dark:text-primary-400 font-medium"
 					>
 						{{ $t('components.pwa.new_content_available') }}
 					</span>
 				</div>
 				<button
-					v-if="pwa?.needRefresh"
+					v-if="$pwa?.needRefresh"
 					class="text-primary-700 dark:text-primary-100"
 					type="button"
-					@click="pwa?.updateServiceWorker()"
+					@click="$pwa?.updateServiceWorker()"
 				>
 					{{ $t('components.pwa.reload') }}
 				</button>
 				<button
 					type="button"
 					class="text-primary-700 dark:text-primary-100"
-					@click="pwa?.cancelPrompt()"
+					@click="$pwa?.cancelPrompt()"
 				>
 					{{ $t('components.pwa.close') }}
 				</button>
 			</div>
 			<div
-				v-if="pwa?.showInstallPrompt && !pwa?.offlineReady && !pwa?.needRefresh"
+				v-if="$pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh"
 				class="pwa-toast"
 				role="alert"
 			>
@@ -51,15 +52,20 @@ const pwa = useNuxtApp().$pwa
 					</span>
 				</div>
 				<div class="pwa-toast-bar-buttons">
-					<button type="button" @click="pwa?.install()">
+					<button type="button" @click="$pwa?.install()">
 						{{ $t('components.pwa.install') }}
 					</button>
-					<button type="button" @click="pwa?.cancelInstall()">
+					<button type="button" @click="$pwa?.cancelInstall()">
 						{{ $t('components.pwa.cancel') }}
 					</button>
 				</div>
 			</div>
 		</div>
+		<UAlert
+			v-else-if="isPWAInstalled"
+			:description="$t('components.pwa.pwa_installed')"
+			:title="$t('components.pwa.pwa_installed_title')"
+		/>
 		<template #fallback>
 			<ClientOnlyFallback class="pwa-toast" />
 		</template>
@@ -87,7 +93,7 @@ const pwa = useNuxtApp().$pwa
 	@apply bg-white dark:bg-zinc-800;
 	@media screen and (width <= 767px) {
 		display: flex;
-		gap: 1rem;
+		gap: 0.5rem;
 	}
 }
 
@@ -116,7 +122,7 @@ const pwa = useNuxtApp().$pwa
 	}
 
 	button {
-		@apply whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
+		@apply whitespace-nowrap rounded-lg border px-3 py-2 md:px-5 md:py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
 		@apply border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700;
 
 		@media screen and (width <= 767px) {

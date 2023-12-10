@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { Pagination } from '~/types/pagination'
 
 const props = defineProps({
 	count: {
@@ -110,7 +110,7 @@ const link = computed(() => {
 	<div class="pagination relative">
 		<ol
 			v-if="totalPages > 1"
-			class="pagination-ordered-list w-full flex md:grid items-center gap-4"
+			class="pagination-ordered-list w-full flex md:grid items-center gap-1 md:gap-4"
 		>
 			<li class="previous-page">
 				<Anchor

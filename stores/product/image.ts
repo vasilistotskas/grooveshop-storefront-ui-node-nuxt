@@ -1,5 +1,5 @@
 import type { IFetchError } from 'ofetch'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { Pagination } from '~/types/pagination'
 import type { Image, ImageQuery } from '~/types/product/image'
 
 interface ErrorRecord {

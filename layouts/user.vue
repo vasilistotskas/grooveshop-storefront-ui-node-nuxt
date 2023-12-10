@@ -10,7 +10,7 @@ defineSlots<{
 
 const userStore = useUserStore()
 const { account, favourites, reviews, orders } = storeToRefs(userStore)
-
+const { isMobile } = useDevice()
 const route = useRoute()
 </script>
 
@@ -48,6 +48,7 @@ const route = useRoute()
 								]"
 							>
 								<div
+									v-if="!isMobile"
 									class="lg:pl-8 md:py-4 md:w-auto md:grid"
 									:class="[
 										{

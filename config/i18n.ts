@@ -5,7 +5,6 @@ export const i18n = {
 	debug: process.env.NUXT_PUBLIC_I18N_DEBUG === 'true',
 	langDir: 'locales/',
 	baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-	dynamicRouteParams: true,
 	detectBrowserLanguage: {
 		useCookie: true,
 		redirectOn: 'root',

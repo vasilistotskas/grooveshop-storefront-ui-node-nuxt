@@ -1,4 +1,4 @@
-import type { EntityOrdering, OrderingOption } from '~/types/ordering/ordering'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
 export const useOrdering = <T extends string>(
 	ordering: EntityOrdering<T>,

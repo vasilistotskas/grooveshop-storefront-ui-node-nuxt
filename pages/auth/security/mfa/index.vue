@@ -37,7 +37,7 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-12">
+	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
 		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
 		<PageTitle
 			:text="$t('pages.auth.security.mfa.title')"

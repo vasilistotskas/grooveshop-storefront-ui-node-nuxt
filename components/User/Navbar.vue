@@ -167,41 +167,61 @@ const menus = computed((): IMenuItem[] => [
 		</template>
 		<template #options="{ toggleOptions }">
 			<ActionSheet @on-close="toggleOptions(false)">
-				<ActionSheetBody>
+				<ActionSheetBody class="grid gap-4">
 					<ActionSheetHeader text="Menu" />
 					<nav class="leading-6 font-semibold text-primary-700 dark:text-primary-100">
-						<ul class="flex flex-col">
-							<li
-								class="flex w-full pb-2 mb-2 border-b border-gray-900/10 dark:border-gray-50/[0.2] link"
-							>
-								<Anchor
-									:to="'products'"
-									:title="$t('pages.products.title')"
-									:text="$t('pages.products.title')"
-									class="flex-1 hover:no-underline capitalize text-center"
-									>{{ $t('pages.products.title') }}</Anchor
+						<ul
+							class="flex items-center justify-center flex-row gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
+						>
+							<li class="grid pb-2 link">
+								<UButton
+									icon="i-heroicons-shopping-bag"
+									:to="'/products'"
+									size="md"
+									variant="solid"
+									color="white"
+									:label="$t('common.shop')"
+									>{{ $t('common.shop') }}</UButton
+								>
+							</li>
+							<li class="grid pb-2 link">
+								<UButton
+									icon="i-heroicons-user"
+									:to="
+										isAuthenticated ? '/account' : `/auth/login?redirect=${$route.path}`
+									"
+									size="md"
+									variant="solid"
+									color="white"
+									:label="isAuthenticated ? $t('common.account') : $t('common.login')"
+									>{{
+										isAuthenticated ? $t('common.account') : $t('common.login')
+									}}</UButton
+								>
+							</li>
+							<li class="grid pb-2 link">
+								<UButton
+									icon="i-heroicons-magnifying-glass"
+									:to="'/search'"
+									size="md"
+									variant="solid"
+									color="white"
+									:label="$t('common.search')"
+									>{{ $t('common.search') }}</UButton
 								>
 							</li>
 						</ul>
 					</nav>
-					<div
-						class="text-primary-700 dark:text-primary-100 mt-6 text-sm font-bold capitalize"
-					>
-						{{ $t('components.theme.switcher.change.theme') }}
-					</div>
-					<div class="mt-2">
-						<ThemeSwitcher type="select-box" />
-					</div>
-					<div
-						class="text-primary-700 dark:text-primary-100 mt-6 text-sm font-bold capitalize"
-					>
-						{{ $t('components.language.switcher.change_language') }}
-					</div>
-					<div class="mt-2">
-						<LanguageSwitcher type="select-box" />
+					<div class="flex gap-3 items-center justify-center">
+						<div class="grid items-center justify-center justify-items-center">
+							<ThemeSwitcher type="select-box" />
+						</div>
+						<div class="grid items-center justify-center justify-items-center">
+							<LanguageSwitcher type="select-box" />
+						</div>
 					</div>
 					<Anchor
-						class="text-primary-700 dark:text-primary-100 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2 mt-4"
+						class="text-primary-700 dark:text-primary-100 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2"
 						:to="'cart'"
 						:title="$t('pages.cart.title')"
 						:text="$t('pages.cart.title')"

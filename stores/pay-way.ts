@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
-import type { Pagination } from '~/types/pagination/pagination'
-import type { PayWay, PayWayQuery } from '~/types/pay-way/pay-way'
+import type { Pagination } from '~/types/pagination'
+import type { PayWay, PayWayQuery } from '~/types/pay-way'
 
 interface ErrorRecord {
 	payWays: IFetchError | null

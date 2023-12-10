@@ -1,7 +1,12 @@
 import { z } from 'zod'
-import type { PaginationQuery } from '~/types/pagination/pagination'
-import type { OrderingQuery } from '~/types/ordering/ordering'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import type { PaginationQuery } from '~/types/pagination'
+import type { OrderingQuery } from '~/types/ordering'
+import {
+	FloorChoicesEnum,
+	LocationChoicesEnum,
+	ZodFloorChoicesEnum,
+	ZodLocationChoicesEnum
+} from '~/types/global/general'
 
 export const ZodAddress = z.object({
 	id: z.number(),

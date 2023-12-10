@@ -125,7 +125,7 @@ const props = defineProps({
 				justify-items: center;
 				align-items: center;
 				justify-content: center;
-				padding-top: 1rem;
+				padding-top: 3rem;
 				padding-bottom: 1rem;
 				gap: 1rem;
 			}

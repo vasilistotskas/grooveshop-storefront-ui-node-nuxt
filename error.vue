@@ -16,6 +16,9 @@ const colorMode = useColorMode()
 const themeClass = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
 const themeColor = computed(() => (colorMode.value === 'dark' ? '#1a202c' : '#ffffff'))
 const handleError = () => clearError({ redirect: '/' })
+const { isMobile, isTablet } = useDevice()
+const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
+const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
 
 const headOptions = {
 	htmlAttrs: {
@@ -53,13 +56,15 @@ useSeoMeta(seoMetaOptions)
 				<NuxtLink to="/" class="text-blue-500 hover:underline block mt-2 font-bold">
 					{{ $t('pages.error.home') }}
 				</NuxtLink>
-				<Lottie
-					class="grid mt-6"
-					:animation-data="Json404"
-					:width="'1500px'"
-					:height="'600px'"
-					:show-client-loading-animation="false"
-				/>
+				<div class="grid items-center justify-center">
+					<Lottie
+						class="grid mt-6"
+						:animation-data="Json404"
+						:width="lottieWidth"
+						:height="lottieHeight"
+						:show-client-loading-animation="false"
+					/>
+				</div>
 			</div>
 		</div>
 		<div id="app-after">

@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
 import type { Product, ProductQuery } from '~/types/product/product'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
 	products: IFetchError | null

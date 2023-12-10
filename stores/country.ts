@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
-import type { CountriesQuery, Country } from '~/types/country/country'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { CountriesQuery, Country } from '~/types/country'
+import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
 	countries: IFetchError | null

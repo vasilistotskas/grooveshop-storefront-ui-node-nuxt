@@ -2,13 +2,12 @@
 import { z } from 'zod'
 import {
 	defaultSelectOptionChoose,
-	FloorChoicesEnum,
 	floorChoicesList,
-	LocationChoicesEnum,
 	locationChoicesList
-} from '~/types/global/general'
+} from '~/constants/general'
 import { documentTypeEnum, StatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
+import { ZodFloorChoicesEnum, ZodLocationChoicesEnum } from '~/types/global/general'
 
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
@@ -45,8 +44,8 @@ const ZodCheckout = z.object({
 	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
 		message: t('common.validation.region.required')
 	}),
-	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
+	floor: z.union([ZodFloorChoicesEnum, z.string()]).nullish(),
+	locationType: z.union([ZodLocationChoicesEnum, z.string()]).nullish(),
 	street: z.string().min(3, t('pages.checkout.validation.street.min', { min: 3 })),
 	streetNumber: z
 		.string()

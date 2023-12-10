@@ -5,7 +5,7 @@ import type {
 	AddressPutBody,
 	AddressQuery
 } from '~/types/user/address'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
 	addresses: IFetchError | null

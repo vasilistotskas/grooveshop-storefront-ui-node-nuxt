@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
 import type { Order, OrderCreateBody, OrderQuery } from '~/types/order/order'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
 	orders: IFetchError | null

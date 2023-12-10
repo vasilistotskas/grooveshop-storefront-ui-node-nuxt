@@ -5,6 +5,7 @@ export const modules = [
 	'@nuxtjs/eslint-module',
 	'@nuxtjs/tailwindcss',
 	'@nuxtjs/html-validator',
+	'@nuxtjs/device',
 	'@nuxtseo/module',
 	'@pinia/nuxt',
 	'@pinia-plugin-persistedstate/nuxt',

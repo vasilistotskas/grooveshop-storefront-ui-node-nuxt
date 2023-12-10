@@ -1,8 +1,8 @@
 import type { H3Event } from 'h3'
-import { ZodPagination } from '~/types/pagination/pagination'
+import { ZodPagination } from '~/types/pagination'
 import { buildFullUrl } from '~/utils/api'
 
-import { ZodCountriesQuery, ZodCountry } from '~/types/country/country'
+import { ZodCountriesQuery, ZodCountry } from '~/types/country'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

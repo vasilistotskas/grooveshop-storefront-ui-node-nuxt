@@ -2,11 +2,10 @@
 import { z } from 'zod'
 import {
 	defaultSelectOptionChoose,
-	FloorChoicesEnum,
 	floorChoicesList,
-	LocationChoicesEnum,
 	locationChoicesList
-} from '~/types/global/general'
+} from '~/constants/general'
+import { ZodFloorChoicesEnum, ZodLocationChoicesEnum } from '~/types/global/general'
 
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
@@ -46,8 +45,8 @@ const ZodAddress = z.object({
 	streetNumber: z.string(),
 	city: z.string(),
 	zipcode: z.string(),
-	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
+	floor: z.union([ZodFloorChoicesEnum, z.string()]).nullish(),
+	locationType: z.union([ZodLocationChoicesEnum, z.string()]).nullish(),
 	phone: z.string().nullish(),
 	mobilePhone: z.string().nullish(),
 	notes: z.string().nullish(),

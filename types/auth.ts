@@ -279,12 +279,3 @@ export interface AuthCookieNames {
 	totpAuthenticatedCookieName: string
 	totpActiveCookieName: string
 }
-
-export const defaultAuthCookieNames: AuthCookieNames = {
-	sessionCookieName: 'sessionid',
-	csrftokenCookieName: 'csrftoken',
-	accessTokenCookieName: 'jwt_auth',
-	refreshTokenCookieName: 'jwt_refresh_auth',
-	totpAuthenticatedCookieName: 'totp_authenticated',
-	totpActiveCookieName: 'totp_active'
-}

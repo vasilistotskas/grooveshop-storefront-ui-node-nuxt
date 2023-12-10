@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import type { PropType } from 'vue'
-import type { OrderingOption } from '~/types/ordering/ordering'
+import type { OrderingOption } from '~/types/ordering'
 
 const route = useRoute()
 
@@ -40,9 +40,9 @@ const link = computed(() => {
 		<div class="flex flex-row">
 			<div class="flex flex-col">
 				<Listbox v-model="ordering" name="Ordering">
-					<div class="relative w-52">
+					<div class="relative w-46 md:w-60">
 						<ListboxButton
-							class="cursor-pointer relative w-full rounded-lg bg-zinc-200 dark:bg-zinc-800 py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+							class="cursor-pointer relative w-full rounded-lg bg-zinc-200 dark:bg-zinc-800 py-2 pl-2 pr-6 md:pl-3 md:pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 text-sm"
 							@click="listBoxToggle"
 						>
 							<span class="block truncate text-primary-700 dark:text-primary-100">{{

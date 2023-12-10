@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 import { ZodProduct, ZodProductQuery } from '~/types/product/product'
-import { ZodPagination } from '~/types/pagination/pagination'
+import { ZodPagination } from '~/types/pagination'
 import { buildFullUrl } from '~/utils/api'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {

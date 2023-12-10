@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-import { defaultSelectOptionChoose } from '~/types/global/general'
+import { defaultSelectOptionChoose } from '~/constants/general'
 
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)

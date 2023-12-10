@@ -15,6 +15,16 @@ const config = useRuntimeConfig()
 const localePath = useLocalePath()
 
 let timer: NodeJS.Timer
+watch(
+	() => useRoute().path,
+	() => {
+		if (showDrawer.value) {
+			timer = setTimeout(() => {
+				showDrawer.value = false
+			}, 100)
+		}
+	}
+)
 onMounted(() => {
 	if (!navbar.value) return
 
@@ -134,7 +144,7 @@ const appTitle = computed(() => config.public.appTitle as string)
 				<Transition name="slide-fade-from-up" mode="out-in">
 					<div
 						v-if="showDrawer && $slots['drawer']"
-						class="fixed lg:hidden bg-zinc-100 dark:bg-zinc-800 pt-12 top-0 left-0 w-screen h-screen z-30 flex flex-col"
+						class="fixed lg:hidden bg-zinc-100 dark:bg-zinc-800 pt-16 md:pt-12 top-0 left-0 w-screen h-screen z-30 flex flex-col"
 					>
 						<div class="flex-1 flex flex-col relative overflow-y-auto">
 							<slot name="drawer" :toggle-drawer="toggleDrawer" />

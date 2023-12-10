@@ -134,7 +134,7 @@ const onSubmit = handleSubmit(async (values) => {
 								checked
 							/>
 							<label
-								class="inline-block pl-[0.15rem] hover:cursor-pointer"
+								class="inline-block pl-[0.15rem] hover:cursor-pointer text-sm md:text-base"
 								for="checkbox"
 							>
 								{{ $t('pages.auth.login.form.remember') }}
@@ -145,7 +145,7 @@ const onSubmit = handleSubmit(async (values) => {
 							:to="'/auth/password/reset'"
 							:title="$t('pages.auth.login.form.forgot.password.reset')"
 							:text="$t('pages.auth.login.form.forgot.password.reset')"
-							class="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+							class="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 text-sm md:text-base"
 						/>
 					</div>
 

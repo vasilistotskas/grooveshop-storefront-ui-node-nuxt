@@ -110,7 +110,7 @@ const setCookies = ({
 				...moduleOptions.cookies.optional.filter((cookieOptional: Cookie) =>
 					cookiesOptionalEnabledNew.includes(cookieOptional)
 				)
-		  ]
+			]
 		: []
 	cookiesEnabledIds.value = isConsentGivenNew ? getCookieIds(cookiesEnabled.value) : []
 }
@@ -203,7 +203,7 @@ defineExpose({
 		<Transition :name="`cookie-control-Bar`">
 			<div
 				v-if="!isConsentGiven && !moduleOptions.isModalForced"
-				:class="`cookie-control-Bar cookie-control-Bar`"
+				:class="`cookie-control-Bar`"
 			>
 				<div class="cookie-control-BarContainer">
 					<div>

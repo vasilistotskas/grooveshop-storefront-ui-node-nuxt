@@ -5,8 +5,8 @@ import {
 	RadioGroupLabel,
 	RadioGroupOption
 } from '@headlessui/vue'
-import { PayWayEnum } from '~/types/pay-way/pay-way'
-import type { PayWay } from '~/types/pay-way/pay-way'
+import { PayWayEnum } from '~/types/pay-way'
+import type { PayWay } from '~/types/pay-way'
 import CreditCardJSON from '~/assets/lotties/credit_card.json'
 import PayOnDeliveryJSON from '~/assets/lotties/pay_on_delivery.json'
 

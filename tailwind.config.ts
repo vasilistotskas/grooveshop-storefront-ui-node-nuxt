@@ -11,7 +11,8 @@ export default {
 		'./plugins/**/*.{js,ts}',
 		'./utils/**/*.{js,ts}',
 		'./config/**/*.{js,ts}',
-		'./app.vue'
+		'./app.vue',
+		'./error.vue'
 	],
 	future: {
 		hoverOnlyWhenSupported: true

@@ -29,7 +29,7 @@ const plugin: Plugin<{ cookies: State }> = defineNuxtPlugin((_nuxtApp) => {
 					...moduleOptions.cookies.optional.filter((cookieOptional: Cookie) =>
 						cookieCookiesEnabledIds.includes(getCookieId(cookieOptional))
 					)
-			  ]
+				]
 	)
 	const cookiesEnabledIds = ref<string[] | undefined>(cookieCookiesEnabledIds)
 	const isModalActive = ref<boolean>()

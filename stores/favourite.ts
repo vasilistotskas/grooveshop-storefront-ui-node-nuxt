@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
 import type { Favourite, FavouriteQuery } from '~/types/product/favourite'
-import type { Pagination } from '~/types/pagination/pagination'
+import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
 	favourites: IFetchError | null
