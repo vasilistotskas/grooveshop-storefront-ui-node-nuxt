@@ -104,7 +104,7 @@ const ogImageOptions = {
 useHead(headOptions)
 useSchemaOrg(schemaOrgOptions)
 useSeoMeta(seoMetaOptions)
-defineOgImage(ogImageOptions)
+defineOgImageComponent('NuxtSeo', ogImageOptions)
 </script>
 
 <template>

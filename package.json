@@ -38,7 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.23.5",
     "@headlessui/vue": "^1.7.16",
-    "@iconify/json": "^2.2.154",
+    "@iconify/json": "^2.2.155",
     "@intlify/core-base": "^9.8.0",
     "@intlify/message-compiler": "^9.8.0",
     "@intlify/shared": "^9.8.0",
@@ -57,7 +57,7 @@
     "@nuxtjs/html-validator": "^1.6.0",
     "@nuxtjs/i18n": "npm:@nuxtjs/i18n-edge@8.0.0-rc.9-28370094.38d234a",
     "@nuxtjs/tailwindcss": "^6.10.1",
-    "@nuxtseo/module": "2.0.0-beta.45",
+    "@nuxtseo/module": "2.0.0-beta.47",
     "@parcel/watcher": "^2.3.0",
     "@pinia-plugin-persistedstate/nuxt": "^1.2.0",
     "@pinia/nuxt": "^0.5.1",
