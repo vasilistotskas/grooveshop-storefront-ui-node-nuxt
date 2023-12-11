@@ -1,3 +1,10 @@
+# [1.43.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.42.0...v1.43.0) (2023-12-11)
+
+
+### Features
+
+* Bump versions, `inlineSSRStyles` enable and `idb.ts` check prerender ([59979b5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/59979b55fbd938850e7400a84cd44333c3945257))
+
 # [1.42.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.41.0...v1.42.0) (2023-12-11)
 
 
