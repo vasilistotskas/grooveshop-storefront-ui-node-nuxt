@@ -20,32 +20,50 @@ function createStore(): UseStore {
 }
 
 let defaultGetStoreFunc: UseStore | undefined
-function defaultGetStore() {
+function defaultGetStore(): UseStore | undefined {
+	if (process.prerender) {
+		return
+	}
 	if (!defaultGetStoreFunc) defaultGetStoreFunc = createStore()
 
 	return defaultGetStoreFunc
 }
 
-export function get<T = any>(key: IDBValidKey) {
+export function get<T = any>(key: IDBValidKey): Promise<T | undefined> | undefined {
+	if (process.prerender) {
+		return
+	}
 	return getIdb<T>(key, defaultGetStore())
 }
 
-export function set(key: IDBValidKey, value: any) {
+export function set(key: IDBValidKey, value: any): Promise<void> | undefined {
+	if (process.prerender) {
+		return
+	}
 	return setIdb(key, value, defaultGetStore())
 }
 
 export function update<T = any>(
 	key: IDBValidKey,
 	updater: (oldValue: T | undefined) => T
-) {
+): Promise<void> | undefined {
+	if (process.prerender) {
+		return
+	}
 	return updateIdb(key, updater, defaultGetStore())
 }
 
-export function del(key: IDBValidKey) {
+export function del(key: IDBValidKey): Promise<void> | undefined {
+	if (process.prerender) {
+		return
+	}
 	return delIdb(key, defaultGetStore())
 }
 
-export function closeDatabases() {
+export function closeDatabases(): void {
+	if (process.prerender) {
+		return
+	}
 	databases.forEach((db) => {
 		if (db.result) db.result.close()
 	})

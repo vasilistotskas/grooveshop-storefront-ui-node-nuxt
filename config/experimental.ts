@@ -1,5 +1,5 @@
 export const experimental = {
-	inlineSSRStyles: false,
+	inlineSSRStyles: true,
 	componentIslands: true,
 	viewTransition: true,
 	renderJsonPayloads: true,
