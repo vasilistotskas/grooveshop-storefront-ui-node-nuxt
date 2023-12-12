@@ -95,6 +95,7 @@ export const pwa = {
 		globPatterns: ['**/*.{js,css,html,json,svg,webp,ico,png,jpg,webmanifest}'],
 		globIgnores: ['google*.html'],
 		navigateFallbackDenylist: [/\/api\/.*/],
+		maximumFileSizeToCacheInBytes: 3000000,
 		cleanupOutdatedCaches: true,
 		sourcemap: true,
 		runtimeCaching: [

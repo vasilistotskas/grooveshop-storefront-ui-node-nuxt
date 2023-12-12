@@ -1,3 +1,5 @@
+import type { NitroConfig } from 'nitropack'
+
 export const nitro = {
 	routeRules: {
 		'/**': { isr: false }
@@ -15,4 +17,4 @@ export const nitro = {
 			maxAge: 60 * 60 * 24 * 7 // 7 days
 		}
 	]
-}
+} satisfies NitroConfig

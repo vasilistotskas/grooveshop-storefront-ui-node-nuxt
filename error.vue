@@ -57,7 +57,7 @@ useSeoMeta(seoMetaOptions)
 					{{ $t('pages.error.home') }}
 				</NuxtLink>
 				<div class="grid items-center justify-center">
-					<Lottie
+					<LazyLottie
 						class="grid mt-6"
 						:animation-data="Json404"
 						:width="lottieWidth"

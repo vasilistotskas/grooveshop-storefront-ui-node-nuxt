@@ -1,3 +1,5 @@
+import type { VeeValidateNuxtOptions } from '@vee-validate/nuxt'
+
 export const veeValidate = {
 	autoImports: true,
 	componentNames: {
@@ -6,4 +8,4 @@ export const veeValidate = {
 		FieldArray: 'VeeFieldArray',
 		ErrorMessage: 'VeeErrorMessage'
 	}
-}
+} satisfies VeeValidateNuxtOptions

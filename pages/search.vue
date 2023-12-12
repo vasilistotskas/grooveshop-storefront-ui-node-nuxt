@@ -218,7 +218,7 @@ definePageMeta({
 				v-if="showIsSearching"
 				class="animate-pulse grid items-center justify-center mt-40"
 			>
-				<Lottie
+				<LazyLottie
 					class="grid"
 					:animation-data="SearchingJson"
 					:width="'350px'"
@@ -226,7 +226,7 @@ definePageMeta({
 				/>
 			</div>
 			<div v-if="showNoResults" class="grid items-center justify-center mt-40">
-				<Lottie
+				<LazyLottie
 					class="grid"
 					:animation-data="SearchingNoResultsJson"
 					:width="'350px'"

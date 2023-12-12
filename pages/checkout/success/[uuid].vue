@@ -98,7 +98,7 @@ definePageMeta({
 			>
 				<div class="grid gap-16 items-center justify-center justify-items-center">
 					<div class="grid gap-4 items-center justify-center justify-items-center">
-						<Lottie
+						<LazyLottie
 							ref="lottie"
 							:text="$t('pages.checkout.success.lottie')"
 							:animation-data="checkoutSuccessJSON"

@@ -1,3 +1,5 @@
+import type { NuxtI18nOptions } from '@nuxtjs/i18n'
+
 export const i18n = {
 	strategy: 'prefix_except_default',
 	lazy: true,
@@ -40,4 +42,4 @@ export const i18n = {
 	compilation: {
 		strictMessage: false
 	}
-}
+} satisfies NuxtI18nOptions

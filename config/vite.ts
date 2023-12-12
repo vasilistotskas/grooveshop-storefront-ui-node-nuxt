@@ -2,6 +2,7 @@ import IconsResolver from 'unplugin-icons/resolver'
 import Icons from 'unplugin-icons/vite'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
+import type { ViteConfig } from '@nuxt/schema'
 
 export const vite = {
 	plugins: [
@@ -40,7 +41,7 @@ export const vite = {
 		rollupOptions: {
 			output: {
 				manualChunks(id: string) {
-					const chunks = ['vuepic', 'zod', 'lottie']
+					const chunks = ['v-calendar', 'zod', 'lottie']
 					if (id.includes('/node_modules/')) {
 						for (const chunkName of chunks) {
 							if (id.includes(chunkName)) {
@@ -58,4 +59,4 @@ export const vite = {
 			propsDestructure: true
 		}
 	}
-}
+} satisfies ViteConfig

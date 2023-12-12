@@ -121,7 +121,7 @@ const updatePayWay = (value: PayWay) => {
 											</RadioGroupDescription>
 										</div>
 									</div>
-									<Lottie
+									<LazyLottie
 										class="grid"
 										:animation-data="
 											getPayWayLottie(extractTranslated(option, 'name', locale))
