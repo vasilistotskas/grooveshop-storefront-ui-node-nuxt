@@ -1,3 +1,10 @@
+# [1.44.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.43.0...v1.44.0) (2023-12-12)
+
+
+### Features
+
+* Bump versions, add config types and lazy load lottie component usage ([098c2ae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/098c2ae449e028795ecf6e0a561b37d79b63c0ce))
+
 # [1.43.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.42.0...v1.43.0) (2023-12-11)
 
 
