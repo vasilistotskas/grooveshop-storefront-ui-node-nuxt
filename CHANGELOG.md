@@ -1,3 +1,10 @@
+## [1.45.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.45.0...v1.45.1) (2023-12-19)
+
+
+### Performance Improvements
+
+* `v-calendar` optimize ([9eeba12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9eeba1279388b84400a94f147a6741a3050158c9))
+
 # [1.45.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.44.0...v1.45.0) (2023-12-19)
 
 
