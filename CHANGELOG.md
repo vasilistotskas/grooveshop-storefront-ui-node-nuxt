@@ -1,3 +1,11 @@
+# [1.45.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.44.0...v1.45.0) (2023-12-19)
+
+
+### Features
+
+* Bump versions and install ([ed9a314](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ed9a3145e76469f14619283eb6e0632f9eff8d14))
+* i18n files split, translator rewrite and add tests, versions bump ([8fcd184](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8fcd1841971ca38ea3937bcb955bb1e77d7a0387))
+
 # [1.44.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.43.0...v1.44.0) (2023-12-12)
 
 
