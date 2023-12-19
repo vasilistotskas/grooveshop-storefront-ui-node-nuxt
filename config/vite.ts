@@ -60,6 +60,6 @@ export const vite = {
 		}
 	},
 	optimizeDeps: {
-		include: ['@headlessui/vue', 'lottie-web', 'zod']
+		include: ['@headlessui/vue', 'lottie-web', 'zod', 'v-calendar']
 	}
 } satisfies ViteConfig
