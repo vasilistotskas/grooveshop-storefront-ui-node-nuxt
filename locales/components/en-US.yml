@@ -1,0 +1,197 @@
+components:
+  generic_modal:
+    close: Close
+  pwa:
+    ready_to_work_offline: App ready to work offline
+    new_content_available: New content available, click on reload button to update.
+    reload: Reload
+    close: Close
+    install_pwa: Install PWA
+    install: Install
+    cancel: Cancel
+    pwa_installed: PWA installed
+    pwa_installed_description: PWA installed successfully
+  page:
+    footer:
+      copyright: Copyright © 2022
+      rights: All rights reserved . Made with
+      design_by: Design by
+  language:
+    switcher:
+      change_language: Change Language
+      theme: Theme
+  theme:
+    switcher:
+      theme: theme
+      change:
+        theme: change theme
+  ordering:
+    title: Ordering
+  breadcrumbs:
+    title: Breadcrumb
+  pagination:
+    title: Pagination
+    prev: previous
+    next: next
+    previous_page: Previous Page
+    next_page: Next Page
+    first_page: First Page
+    last_page: Last Page
+    go_to_page: Go to page %{page}
+    you_are_on_last_page: You are on the last page
+  builder:
+    navbar:
+      toggle_drawer_menu: Toggle Drawer Menu
+      toggle_options_menu: Toggle Options Menu
+  cookie:
+    accept: Accept
+    accept_all: Accept All
+    banner:
+      description: We use cookies and similar technologies to help personalize content and offer a better experience. You can opt to customize them by clicking the customize button.
+      title: 🍪 Hi. This site uses cookies
+    modal:
+      title: Customize
+      description: We use different types of cookies to optimize your experience on our website. Click on the categories below to learn more about their purposes. You can choose the types of cookies to be allowed and can change your preferences later. Remember that disabling cookies can affect your experience.
+      privacy-policy: Privacy Policy
+    close: Close
+    cookies:
+      functional: Functional cookies
+      functional_description: Functional cookies help to perform certain functionalities like sharing the content of the website on social media platforms, collect feedbacks, and other third-party features.
+      necessary: Necessary cookies
+      necessary_description: Necessary cookies help make a website usable by enabling basic functions like page navigation and access to secure areas of the website. The website cannot function properly without these cookies.
+      optional: Optional cookies
+      optional_links:
+        privacy_policy: Privacy Policy
+      google:
+        analytics: Google Analytics
+        analytics_description: Used for cookie control.
+    decline: Decline
+    decline_all: Decline All
+    here: here
+    iframe_blocked: To see this, please enable functional cookies.
+    manage_cookies: Cookies Settings
+    save: Save
+    settings:
+      unsaved: You have unsaved changes.
+  form:
+    validation:
+      email: Email
+      password: Password
+      submit: Submit
+      too_many_attempts: Too many attempts, please try again later.
+  product:
+    card:
+      price: Price
+      vat_percent: VAT Percent
+      total_price: Total Price
+      add_to_cart: Add to cart
+      share: Share
+      share_not_supported: Web share is not supported in your browser
+    reviews:
+      title: Reviews
+      empty: No reviews yet
+      ordering:
+        id: ID
+        user_id: User ID
+        product_id: Product ID
+        created_at: Created At
+      summary:
+        reviews: Reviews
+    review:
+      write_review: Write a review
+      edit_review: Edit review
+      update_review: Update review
+      delete_review: Delete review
+      must_be_logged_in: You must be logged in to write a review
+      write_review_for_product: Write a review for product %{product}
+      confirm_delete: Are you sure you want to delete this review?
+      too_many_attempts: Too many attempts, please try again later.
+      delete_review_confirm: Delete
+      delete_review_cancel: Cancel
+      add:
+        title: Add Review
+        error: Review creation error
+        success: Review created successfully
+      update:
+        title: Update Review
+        error: Review update error
+        success: Review updated successfully
+      delete:
+        success: Review deleted successfully
+        error: Review delete error
+      rating:
+        title: Rating
+        bad: Bad
+        not_that_good: Not that good
+        meh: Meh
+        its_ok: It's ok
+        good: Good
+        very_good: Very good
+        perfect: Perfect!
+      comment:
+        title: Comment
+        placeholder: Share your experience...
+        label: Comment
+      validation:
+        comment:
+          min: Comment must be at least %{min} characters long
+          max: Comment must be at most %{max} characters long
+        rate:
+          min: Rating must be at least %{min}
+          max: Rating must be at most %{max}
+  add_to_cart_button:
+    text: Add to cart
+    added_to_cart: Added to cart
+  add_to_favourite_button:
+    not_authenticated: You must be logged in to add to favourites
+    added: Added to favourites
+    removed: Removed from favourites
+    add: Add to favourites
+    remove: Remove from favourites
+  user:
+    avatar:
+      change: Change
+      no_file_selected: No file selected
+      file_extension_not_allowed: File extension not allowed
+      image:
+        updated: Image updated
+        not_updated: Image not updated
+  order:
+    list:
+      footer: Footer
+    card:
+      extra: + %{count} more products
+      extra_one: + 1 more product
+      id: ID
+      address: Address
+      pay_way: Pay Way
+      status: Status
+      total_price: Total Price
+      actions:
+        details: Details
+  cart:
+    item_card:
+      remove_from_cart: Remove from cart %{name}
+  address:
+    add_new:
+      title: You can add a new address and use it on all your next purchases.
+      button: Add
+    card:
+      delete:
+        success: Address deleted
+        error: Address not deleted
+        cant_delete_main: You can't delete your main address, please set another address as main and try again.
+  checkout:
+    sidebar:
+      title: Checkout
+      items: Items
+      items_unique: Items
+      shipping: Shipping
+      discount: Discount
+      vat: VAT
+      total: Total
+    pay_ways:
+      title: Choose the payment method
+      label: Pay Way
+    items:
+      title: Items

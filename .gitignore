@@ -27,3 +27,6 @@ dist
 
 # Tests
 coverage
+
+# Cache
+.translator_cache

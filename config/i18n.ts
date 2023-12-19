@@ -19,21 +19,39 @@ export const i18n = {
 		{
 			code: 'en',
 			name: 'English',
-			file: 'en-US.yml',
+			files: [
+				'en-US.yml',
+				'components/en-US.yml',
+				'pages/en-US.yml',
+				'routes/en-US.yml',
+				'seoUi/en-US.yml'
+			],
 			iso: 'en-US',
 			flag: '🇺🇸'
 		},
 		{
 			code: 'de',
 			name: 'Deutsch',
-			file: 'de-DE.yml',
+			files: [
+				'de-DE.yml',
+				'components/de-DE.yml',
+				'pages/de-DE.yml',
+				'routes/de-DE.yml',
+				'seoUi/de-DE.yml'
+			],
 			iso: 'de-DE',
 			flag: '🇩🇪'
 		},
 		{
 			code: 'el',
 			name: 'Ελληνικά',
-			file: 'el-GR.yml',
+			files: [
+				'el-GR.yml',
+				'components/el-GR.yml',
+				'pages/el-GR.yml',
+				'routes/el-GR.yml',
+				'seoUi/el-GR.yml'
+			],
 			iso: 'el-GR',
 			flag: '🇬🇷'
 		}

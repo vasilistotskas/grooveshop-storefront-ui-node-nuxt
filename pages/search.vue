@@ -201,7 +201,7 @@ definePageMeta({
 
 			<div v-if="showResults" class="min-h-screen mt-20">
 				<div v-if="showTotalCount" class="px-8 opacity-95 text-sm">
-					{{ $t('common.items.count') }} : {{ totalCount }}
+					{{ $t('common.items.count', totalCount) }}
 				</div>
 				<div class="grid grid-cols-repeat-auto-fill-mimax-200-auto gap-4 p-8">
 					<SearchProductCard

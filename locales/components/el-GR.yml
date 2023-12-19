@@ -1,0 +1,219 @@
+components:
+  generic_modal:
+    close: κλείσε
+  pwa:
+    ready_to_work_offline: εφαρμογή έτοιμη για εργασία εκτός σύνδεσης
+    new_content_available: >-
+      νέο διαθέσιμο περιεχόμενο, κάντε κλικ στο κουμπί επαναφόρτωσης για
+      ενημέρωση.
+    reload: γεμίζω πάλι
+    close: κλείσε
+    install_pwa: εγκαταστήστε το pwa
+    install: εγκαθιστώ
+    cancel: ματαίωση
+    pwa_installed: εγκατεστημένο pwa
+    pwa_installed_description: το pwa εγκαταστάθηκε με επιτυχία
+  page:
+    footer:
+      copyright: πνευματικά δικαιώματα © 2022
+      rights: ολα τα δικαιώματα διατηρούνται . φτιαγμένο με
+      design_by: σχεδιασμένο από
+  language:
+    switcher:
+      change_language: αλλαξε γλώσσα
+      theme: θέμα
+  theme:
+    switcher:
+      theme: θέμα
+      change:
+        theme: άλλαξε θέμα
+  ordering:
+    title: παραγγελία
+  breadcrumbs:
+    title: φρυγανιά
+  pagination:
+    title: σελιδοποίηση
+    prev: προηγούμενος
+    next: επόμενο
+    previous_page: προηγούμενη σελίδα
+    next_page: επόμενη σελίδα
+    first_page: πρώτη σελίδα
+    last_page: τελευταία σελίδα
+    go_to_page: μετάβαση στη σελίδα %{page}
+    you_are_on_last_page: είστε στην τελευταία σελίδα
+  builder:
+    navbar:
+      toggle_drawer_menu: εναλλαγή μενού συρταριού
+      toggle_options_menu: εναλλαγή μενού επιλογών
+  cookie:
+    accept: αποδέχομαι
+    accept_all: αποδοχή όλων
+    banner:
+      description: >-
+        χρησιμοποιούμε cookies και παρόμοιες τεχνολογίες για να εξατομικεύσουμε
+        το περιεχόμενο και να προσφέρουμε καλύτερη εμπειρία. μπορείτε να
+        επιλέξετε την προσαρμογή τους κάνοντας κλικ στο κουμπί προσαρμογής.
+      title: 🍪 γεια. αυτός ο ιστότοπος χρησιμοποιεί cookies
+    modal:
+      title: προσαρμογή
+      description: >-
+        χρησιμοποιούμε διαφορετικούς τύπους cookies για να βελτιστοποιήσουμε την
+        εμπειρία σας στον ιστότοπό μας. κάντε κλικ στις παρακάτω κατηγορίες για
+        να μάθετε περισσότερα σχετικά με τους σκοπούς τους. μπορείτε να
+        επιλέξετε τους τύπους cookies που θα επιτρέπονται και μπορείτε να
+        αλλάξετε τις προτιμήσεις σας αργότερα. να θυμάστε ότι η απενεργοποίηση
+        των cookies μπορεί να επηρεάσει την εμπειρία σας.
+      privacy-policy: πολιτική απορρήτου
+    close: κλείσε
+    cookies:
+      functional: λειτουργικά cookies
+      functional_description: >-
+        τα λειτουργικά cookies βοηθούν στην εκτέλεση ορισμένων λειτουργιών, όπως
+        η κοινή χρήση του περιεχομένου του ιστότοπου σε πλατφόρμες μέσων
+        κοινωνικής δικτύωσης, η συλλογή σχολίων και άλλες λειτουργίες τρίτων.
+      necessary: απαραίτητα μπισκότα
+      necessary_description: >-
+        τα απαραίτητα cookies βοηθούν να γίνει ένας ιστότοπος εύχρηστος,
+        ενεργοποιώντας βασικές λειτουργίες όπως η πλοήγηση στη σελίδα και η
+        πρόσβαση σε ασφαλείς περιοχές του ιστότοπου. ο ιστότοπος δεν μπορεί να
+        λειτουργήσει σωστά χωρίς αυτά τα cookies.
+      optional: προαιρετικά cookies
+      optional_links:
+        privacy_policy: πολιτική απορρήτου
+      google:
+        analytics: google analytics
+        analytics_description: χρησιμοποιείται για έλεγχο cookie.
+    decline: πτώση
+    decline_all: απόρριψη όλων
+    here: εδώ
+    iframe_blocked: για να το δείτε αυτό, ενεργοποιήστε τα λειτουργικά cookies.
+    manage_cookies: ρυθμίσεις cookies
+    save: αποθηκεύσετε
+    settings:
+      unsaved: έχετε μη αποθηκευμένες αλλαγές.
+  form:
+    validation:
+      email: ηλεκτρονικη διευθυνση
+      password: κωδικός πρόσβασης
+      submit: υποβάλλουν
+      too_many_attempts: πάρα πολλές προσπάθειες, δοκιμάστε ξανά αργότερα.
+  product:
+    card:
+      price: τιμή
+      vat_percent: ποσοστό φπα
+      total_price: συνολικό ποσό
+      add_to_cart: προσθήκη στο καλάθι
+      share: μερίδιο
+      share_not_supported: η κοινή χρήση ιστού δεν υποστηρίζεται στο πρόγραμμα περιήγησής σας
+    reviews:
+      title: κριτικές
+      empty: δεν υπάρχουν ακόμη κριτικές
+      ordering:
+        id: ταυτότητα
+        user_id: ταυτότητα χρήστη
+        product_id: αναγνωριστικό προϊόντος
+        created_at: δημιουργήθηκε στο
+      summary:
+        reviews: κριτικές
+    review:
+      write_review: γράψτε μια κριτική
+      edit_review: επεξεργασία κριτικής
+      update_review: ενημέρωση κριτικής
+      delete_review: διαγραφή κριτικής
+      must_be_logged_in: πρέπει να συνδεθείτε για να γράψετε μία κριτική
+      write_review_for_product: γράψτε μια κριτική για το προϊόν %{product}
+      confirm_delete: είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν την κριτική;
+      too_many_attempts: πάρα πολλές προσπάθειες, δοκιμάστε ξανά αργότερα.
+      delete_review_confirm: διαγράφω
+      delete_review_cancel: ματαίωση
+      add:
+        title: προσθήκη κριτικής
+        error: ελέγξτε το σφάλμα δημιουργίας
+        success: η κριτική δημιουργήθηκε με επιτυχία
+      update:
+        title: ενημέρωση κριτικής
+        error: ελέγξτε το σφάλμα ενημέρωσης
+        success: η κριτική ενημερώθηκε με επιτυχία
+      delete:
+        success: η κριτική διαγράφηκε με επιτυχία
+        error: ελέγξτε το σφάλμα διαγραφής
+      rating:
+        title: εκτίμηση
+        bad: κακό
+        not_that_good: όχι και τόσο καλό
+        meh: meh
+        its_ok: είναι εντάξει
+        good: καλός
+        very_good: πολύ καλά
+        perfect: τέλειος!
+      comment:
+        title: σχόλιο
+        placeholder: μοιραστείτε την εμπειρία σας...
+        label: σχόλιο
+      validation:
+        comment:
+          min: το σχόλιο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+          max: το σχόλιο πρέπει να έχει το πολύ %{max} χαρακτήρες
+        rate:
+          min: η βαθμολογία πρέπει να είναι τουλάχιστον %{min}
+          max: η βαθμολογία πρέπει να είναι το πολύ %{max}
+  add_to_cart_button:
+    text: προσθήκη στο καλάθι
+    added_to_cart: προστέθηκε στο καλάθι
+  add_to_favourite_button:
+    not_authenticated: πρέπει να είστε συνδεδεμένοι για να προσθέσετε στα αγαπημένα
+    added: προστέθηκε στα αγαπημένα
+    removed: καταργήθηκε από τα αγαπημένα
+    add: προσθήκη στα αγαπημένα
+    remove: αφαίρεση από τα αγαπημένα
+  user:
+    avatar:
+      change: αλλαγή
+      no_file_selected: κανένα επιλεγμένο αρχείο
+      file_extension_not_allowed: δεν επιτρέπεται η επέκταση αρχείου
+      image:
+        updated: η εικόνα ενημερώθηκε
+        not_updated: η εικόνα δεν ενημερώθηκε
+  order:
+    list:
+      footer: υποσέλιδο
+    card:
+      extra: '%{count} ακόμη προϊόντα'
+      extra_one: 1 ακόμη προϊόν
+      id: ταυτότητα
+      address: διεύθυνση
+      pay_way: τρόπος πληρωμής
+      status: κατάσταση
+      total_price: συνολικό ποσό
+      actions:
+        details: λεπτομέριες
+  cart:
+    item_card:
+      remove_from_cart: αφαίρεση από το καλάθι %{name}
+  address:
+    add_new:
+      title: >-
+        μπορείτε να προσθέσετε μια νέα διεύθυνση και να τη χρησιμοποιήσετε σε
+        όλες τις επόμενες αγορές σας.
+      button: προσθήκη
+    card:
+      delete:
+        success: η διεύθυνση διαγράφηκε
+        error: η διεύθυνση δεν διαγράφηκε
+        cant_delete_main: >-
+          δεν μπορείτε να διαγράψετε την κύρια διεύθυνσή σας, ορίστε μια άλλη
+          διεύθυνση ως κύρια και δοκιμάστε ξανά.
+  checkout:
+    sidebar:
+      title: ολοκλήρωση αγοράς
+      items: είδη
+      items_unique: είδη
+      shipping: αποστολή
+      discount: εκπτωση
+      vat: δεξαμενη
+      total: σύνολο
+    pay_ways:
+      title: επιλέξτε τον τρόπο πληρωμής
+      label: τρόπος πληρωμής
+    items:
+      title: είδη

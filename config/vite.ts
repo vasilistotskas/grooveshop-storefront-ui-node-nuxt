@@ -58,5 +58,8 @@ export const vite = {
 			defineModel: true,
 			propsDestructure: true
 		}
+	},
+	optimizeDeps: {
+		include: ['@headlessui/vue', 'lottie-web', 'zod']
 	}
 } satisfies ViteConfig

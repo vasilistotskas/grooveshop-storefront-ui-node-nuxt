@@ -1,0 +1,23 @@
+routes:
+  el: ελληνικά
+  en: αγγλικά
+  de: γερμανός
+  id: ινδονησιακά
+  ja: ιαπωνικά
+  ko: κορεάτης
+  zh: κινέζικα
+  setting: σύνθεση
+  test: δοκιμή
+  blank: κενό
+  testing: δοκιμές
+  products: προϊόντα
+  product: προϊόν
+  home: σπίτι
+  cart: καροτσάκι
+  checkout: ολοκλήρωση αγοράς
+  account: λογαριασμός
+  orders: παραγγελίες
+  favourites: αγαπημένα
+  reviews: κριτικές
+  settings: ρυθμίσεις
+  help: βοήθεια

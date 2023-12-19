@@ -1,0 +1,219 @@
+components:
+  generic_modal:
+    close: schließen
+  pwa:
+    ready_to_work_offline: app bereit, offline zu arbeiten
+    new_content_available: >-
+      neue inhalte verfügbar. klicken sie zum aktualisieren auf die schaltfläche
+      „neu laden“.
+    reload: neu laden
+    close: schließen
+    install_pwa: installieren sie pwa
+    install: installieren
+    cancel: stornieren
+    pwa_installed: pwa installiert
+    pwa_installed_description: pwa erfolgreich installiert
+  page:
+    footer:
+      copyright: urheberrecht © 2022
+      rights: alle rechte vorbehalten . gemacht mit
+      design_by: design von
+  language:
+    switcher:
+      change_language: sprache ändern
+      theme: thema
+  theme:
+    switcher:
+      theme: thema
+      change:
+        theme: thema ändern
+  ordering:
+    title: bestellung
+  breadcrumbs:
+    title: semmelbrösel
+  pagination:
+    title: seitennummerierung
+    prev: vorherige
+    next: nächste
+    previous_page: vorherige seite
+    next_page: nächste seite
+    first_page: erste seite
+    last_page: letzte seite
+    go_to_page: gehe zur seite %{page}
+    you_are_on_last_page: sie befinden sich auf der letzten seite
+  builder:
+    navbar:
+      toggle_drawer_menu: schubladenmenü umschalten
+      toggle_options_menu: optionsmenü umschalten
+  cookie:
+    accept: akzeptieren
+    accept_all: akzeptiere alle
+    banner:
+      description: >-
+        wir verwenden cookies und ähnliche technologien, um inhalte zu
+        personalisieren und ein besseres erlebnis zu bieten. sie können sie
+        individuell anpassen, indem sie auf die schaltfläche „anpassen“ klicken.
+      title: 🍪 hallo. diese seite verwendet cookies
+    modal:
+      title: anpassen
+      description: >-
+        wir verwenden verschiedene arten von cookies, um ihr erlebnis auf
+        unserer website zu optimieren. klicken sie auf die kategorien unten, um
+        mehr über deren zweck zu erfahren. sie können die arten von cookies
+        auswählen, die zugelassen werden sollen, und ihre einstellungen später
+        ändern. denken sie daran, dass die deaktivierung von cookies ihr
+        erlebnis beeinträchtigen kann.
+      privacy-policy: datenschutzrichtlinie
+    close: schließen
+    cookies:
+      functional: funktionelle cookies
+      functional_description: >-
+        funktionale cookies helfen dabei, bestimmte funktionen auszuführen, wie
+        das teilen des inhalts der website auf social-media-plattformen, das
+        sammeln von feedback und andere funktionen von drittanbietern.
+      necessary: notwendige cookies
+      necessary_description: >-
+        notwendige cookies tragen dazu bei, eine website nutzbar zu machen,
+        indem sie grundfunktionen wie seitennavigation und zugriff auf sichere
+        bereiche der website ermöglichen. ohne diese cookies kann die website
+        nicht ordnungsgemäß funktionieren.
+      optional: optionale cookies
+      optional_links:
+        privacy_policy: datenschutzrichtlinie
+      google:
+        analytics: google analytics
+        analytics_description: wird zur cookie-kontrolle verwendet.
+    decline: abfall
+    decline_all: alle ablehnen
+    here: hier
+    iframe_blocked: um dies zu sehen, aktivieren sie bitte funktionale cookies.
+    manage_cookies: cookie-einstellungen
+    save: speichern
+    settings:
+      unsaved: du hast nicht gespeicherte änderungen.
+  form:
+    validation:
+      email: email
+      password: passwort
+      submit: einreichen
+      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
+  product:
+    card:
+      price: preis
+      vat_percent: mehrwertsteuer-prozent
+      total_price: gesamtpreis
+      add_to_cart: in den warenkorb legen
+      share: aktie
+      share_not_supported: web share wird in ihrem browser nicht unterstützt
+    reviews:
+      title: rezensionen
+      empty: noch keine bewertungen
+      ordering:
+        id: ausweis
+        user_id: benutzer-id
+        product_id: produkt id
+        created_at: hergestellt in
+      summary:
+        reviews: rezensionen
+    review:
+      write_review: eine rezension schreiben
+      edit_review: rezension bearbeiten
+      update_review: update-überprüfung
+      delete_review: bewertung löschen
+      must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
+      write_review_for_product: schreiben sie eine bewertung für produkt %{product}
+      confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
+      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
+      delete_review_confirm: löschen
+      delete_review_cancel: stornieren
+      add:
+        title: bewertung hinzufügen
+        error: fehler bei der erstellung der rezension
+        success: bewertung erfolgreich erstellt
+      update:
+        title: update-überprüfung
+        error: überprüfen sie den aktualisierungsfehler
+        success: bewertung erfolgreich aktualisiert
+      delete:
+        success: bewertung erfolgreich gelöscht
+        error: fehler beim löschen der rezension
+      rating:
+        title: bewertung
+        bad: schlecht
+        not_that_good: nicht so gut
+        meh: meh
+        its_ok: es ist in ordnung
+        good: gut
+        very_good: sehr gut
+        perfect: perfekt!
+      comment:
+        title: kommentar
+        placeholder: teile deine erfahrung...
+        label: kommentar
+      validation:
+        comment:
+          min: der kommentar muss mindestens %{min} zeichen lang sein
+          max: der kommentar darf höchstens %{max} zeichen lang sein
+        rate:
+          min: die bewertung muss mindestens %{min} betragen
+          max: die bewertung darf höchstens %{max} betragen
+  add_to_cart_button:
+    text: in den warenkorb legen
+    added_to_cart: zum warenkorb hinzugefügt
+  add_to_favourite_button:
+    not_authenticated: sie müssen angemeldet sein, um favoriten hinzuzufügen
+    added: zu den favoriten hinzugefügt
+    removed: aus den favoriten entfernt
+    add: zu favoriten hinzufügen
+    remove: von den favoriten entfernen
+  user:
+    avatar:
+      change: ändern
+      no_file_selected: keine datei ausgewählt
+      file_extension_not_allowed: dateierweiterung nicht zulässig
+      image:
+        updated: bild aktualisiert
+        not_updated: bild nicht aktualisiert
+  order:
+    list:
+      footer: fusszeile
+    card:
+      extra: '%{count} weitere produkte'
+      extra_one: 1 weiteres produkt
+      id: ausweis
+      address: adresse
+      pay_way: bezahlungsweise
+      status: status
+      total_price: gesamtpreis
+      actions:
+        details: einzelheiten
+  cart:
+    item_card:
+      remove_from_cart: aus dem warenkorb entfernen %{name}
+  address:
+    add_new:
+      title: >-
+        sie können eine neue adresse hinzufügen und diese für alle ihre nächsten
+        einkäufe verwenden.
+      button: hinzufügen
+    card:
+      delete:
+        success: adresse gelöscht
+        error: adresse nicht gelöscht
+        cant_delete_main: >-
+          sie können ihre hauptadresse nicht löschen. legen sie bitte eine
+          andere adresse als hauptadresse fest und versuchen sie es erneut.
+  checkout:
+    sidebar:
+      title: kasse
+      items: artikel
+      items_unique: artikel
+      shipping: versand
+      discount: rabatt
+      vat: mwst
+      total: gesamt
+    pay_ways:
+      title: wählen sie die zahlungsmethode
+      label: bezahlungsweise
+    items:
+      title: artikel

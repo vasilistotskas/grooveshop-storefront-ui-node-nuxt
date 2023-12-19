@@ -10,7 +10,7 @@ type Locale = LocaleObject & {
 
 export const useLang = () => {
 	const { t, locale, setLocale } = useI18n()
-	const locales = useI18n().locales as unknown as ComputedRef<Array<Locale>>
+	const locales = useI18n().locales as unknown as ComputedRef<Locale[]>
 	return {
 		t,
 		locale,

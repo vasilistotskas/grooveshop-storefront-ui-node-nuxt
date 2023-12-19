@@ -1,0 +1,16 @@
+{
+  "localePath": "./locales",
+  "sourceFileName": "en-US",
+  "translate": {
+    "engine": "google",
+    "bundleDelay": 500,
+    "bundleMaxRetries": 3
+  },
+  "logger": {
+    "type": "pretty",
+    "minLevel": 0
+  },
+  "debug": {
+    "mode": "logger"
+  }
+}

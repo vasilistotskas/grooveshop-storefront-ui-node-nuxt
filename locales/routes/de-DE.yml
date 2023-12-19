@@ -1,0 +1,23 @@
+routes:
+  el: griechisch
+  en: englisch
+  de: deutsch
+  id: indonesisch
+  ja: japanisch
+  ko: koreanisch
+  zh: chinesisch
+  setting: einstellung
+  test: prüfen
+  blank: leer
+  testing: testen
+  products: produkte
+  product: produkt
+  home: heim
+  cart: wagen
+  checkout: kasse
+  account: konto
+  orders: aufträge
+  favourites: favoriten
+  reviews: rezensionen
+  settings: einstellungen
+  help: helfen

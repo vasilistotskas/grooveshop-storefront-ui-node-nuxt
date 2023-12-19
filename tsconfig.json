@@ -3,7 +3,8 @@
 	"extends": "./.nuxt/tsconfig.json",
 	"compilerOptions": {
 		"outDir": "./.output",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
+    "inlineSourceMap": true,
     "typeRoots": [
       "node_modules/@types",
       "index.d.ts",
@@ -16,6 +17,6 @@
   "ts-node": {
     "experimentalSpecifierResolution": "node",
     "transpileOnly": true,
-    "esm": true,
+    "esm": true
   }
 }

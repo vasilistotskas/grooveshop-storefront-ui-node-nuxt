@@ -48,8 +48,8 @@ html.dark {
 }
 
 html,
-body,
-#__nuxt {
+body
+{
 	@apply bg-zinc-100 text-primary-900 dark:bg-zinc-900 dark:text-primary-100;
 	height: 100vh;
 	margin: 0;
