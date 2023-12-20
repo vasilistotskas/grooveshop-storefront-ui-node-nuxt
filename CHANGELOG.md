@@ -1,3 +1,10 @@
+# [1.46.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.45.1...v1.46.0) (2023-12-20)
+
+
+### Features
+
+* Add `nuxt-delay-hydration` and versions bumps ([925bb02](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/925bb0278d04b43329d2316cb5ae503da4d8c1a2))
+
 ## [1.45.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.45.0...v1.45.1) (2023-12-19)
 
 
