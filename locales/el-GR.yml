@@ -79,3 +79,4 @@ common:
       required: απαιτείται χώρα
     region:
       required: απαιτείται περιοχή
+  version: εκδοχή

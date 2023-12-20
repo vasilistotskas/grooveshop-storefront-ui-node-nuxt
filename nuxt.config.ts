@@ -30,6 +30,7 @@ import { linkChecker } from './config/link-checker'
 import { robots } from './config/robots'
 import { htmlValidator } from './config/html-validator'
 import { piniaPersistedstate } from './config/pinia-persistedstate'
+import { delayHydration } from './config/delay-hydration'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
@@ -62,7 +63,6 @@ export default defineNuxtConfig({
 	devtools,
 	typescript,
 	tailwindcss,
-	// @ts-ignore
 	i18n,
 	css,
 	eslint,
@@ -81,5 +81,6 @@ export default defineNuxtConfig({
 	linkChecker,
 	robots,
 	htmlValidator,
-	veeValidate
+	veeValidate,
+	delayHydration
 })

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
-import pkg from '~/package.json'
 
 const config = useRuntimeConfig()
 const route = useRoute()
@@ -74,11 +73,11 @@ const seoMetaOptions = {
 	author: config.public.author.name,
 	creator: config.public.author.name,
 	publisher: config.public.author.name,
-	ogTitle: `${config.public.appTitle} - v${pkg.version}`,
+	ogTitle: `${config.public.appTitle}`,
 	ogType: 'website',
-	ogUrl: pkg.homepage,
+	ogUrl: config.public.baseUrl,
 	ogImage: config.public.appImage,
-	ogImageAlt: pkg.name,
+	ogImageAlt: config.public.appTitle,
 	ogSiteName: config.public.appTitle,
 	ogLocale: locale.value,
 	ogLocaleAlternate: locales.value.map((l: any) => l.iso),
@@ -109,7 +108,7 @@ defineOgImageComponent('NuxtSeo', ogImageOptions)
 
 <template>
 	<div id="#app" class="app">
-		<VitePwaManifest />
+		<NuxtPwaManifest />
 		<NuxtLoadingIndicator />
 		<NuxtLayout>
 			<NuxtPage />
@@ -117,5 +116,6 @@ defineOgImageComponent('NuxtSeo', ogImageOptions)
 		<Pwa />
 		<CookieControl />
 		<UNotifications />
+		<DebugTools />
 	</div>
 </template>

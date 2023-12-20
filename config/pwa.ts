@@ -1,9 +1,8 @@
 import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 
 export const pwa = {
-	strategies: 'generateSW',
-	injectRegister: 'script',
 	registerType: 'autoUpdate',
+	minify: true,
 	manifest: {
 		name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
 		short_name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
@@ -91,7 +90,6 @@ export const pwa = {
 		]
 	},
 	workbox: {
-		navigateFallback: '/',
 		globPatterns: ['**/*.{js,css,html,json,svg,webp,ico,png,jpg,webmanifest}'],
 		globIgnores: ['google*.html'],
 		navigateFallbackDenylist: [/\/api\/.*/],
@@ -165,14 +163,13 @@ export const pwa = {
 	},
 	devOptions: {
 		enabled: true,
-		type: 'module',
 		suppressWarnings: true,
-		navigateFallback: '/',
-		navigateFallbackAllowlist: [/^\/$/]
+		navigateFallbackAllowlist: [/^\/$/],
+		type: 'module'
 	},
 	client: {
 		installPrompt: true,
 		// if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
-		periodicSyncForUpdates: 5 * 60
+		periodicSyncForUpdates: 60 * 60
 	}
 } satisfies PWAModuleOptions

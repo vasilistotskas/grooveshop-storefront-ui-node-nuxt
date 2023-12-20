@@ -79,5 +79,5 @@ common:
       required: Country is required
     region:
       required: Region is required
-
+  version: Version
 

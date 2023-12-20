@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const modelValue = defineModel<Date | null>('modelValue', { default: null })
 
 const emit = defineEmits(['close'])
