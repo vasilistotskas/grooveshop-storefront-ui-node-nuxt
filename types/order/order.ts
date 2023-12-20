@@ -8,12 +8,7 @@ import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
 import { ZodCountry } from '~/types/country'
 import { ZodRegion } from '~/types/region'
-import {
-	FloorChoicesEnum,
-	LocationChoicesEnum,
-	ZodFloorChoicesEnum,
-	ZodLocationChoicesEnum
-} from '~/types/global/general'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 import { ZodPayWay } from '~/types/pay-way'
 
 export const StatusEnum = z.enum(['SENT', 'PAID_AND_SENT', 'CANCELED', 'PENDING'])
@@ -62,8 +57,8 @@ export const ZodOrderCreateBody = z.object({
 	user: z.string().nullish(),
 	country: z.string(),
 	region: z.string(),
-	floor: z.union([ZodFloorChoicesEnum, z.string()]).nullish(),
-	locationType: z.union([ZodLocationChoicesEnum, z.string()]).nullish(),
+	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
 	street: z.string(),
 	streetNumber: z.string(),
 	payWay: z.number(),
@@ -87,8 +82,8 @@ export const ZodOrderCreateResponse = z.object({
 	user: z.string().nullish(),
 	country: z.string(),
 	region: z.string(),
-	floor: z.union([ZodFloorChoicesEnum, z.string()]).nullish(),
-	locationType: z.union([ZodLocationChoicesEnum, z.string()]).nullish(),
+	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
 	street: z.string(),
 	streetNumber: z.string(),
 	payWay: z.number(),

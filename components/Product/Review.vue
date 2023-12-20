@@ -259,8 +259,8 @@ const ZodReviewSchema = z.object({
 })
 
 const validationSchema = toTypedSchema(ZodReviewSchema)
-const { defineInputBinds, values, setFieldValue, handleSubmit, errors, submitCount } =
-	useForm({
+const { defineField, values, setFieldValue, handleSubmit, errors, submitCount } = useForm(
+	{
 		validationSchema,
 		initialValues: {
 			comment: existingReview.value
@@ -268,10 +268,15 @@ const { defineInputBinds, values, setFieldValue, handleSubmit, errors, submitCou
 				: '',
 			rate: existingReview.value?.rate || 0
 		}
-	})
+	}
+)
 
-const comment = defineInputBinds('comment')
-const rate = defineInputBinds('rate')
+const [comment, commentProps] = defineField('comment', {
+	validateOnModelUpdate: true
+})
+const [rate, rateProps] = defineField('rate', {
+	validateOnModelUpdate: true
+})
 
 const tooManyAttempts = computed(() => {
 	return submitCount.value >= 10
@@ -459,20 +464,23 @@ watch(
 						</p>
 					</div>
 					<div class="review_body-comment-content">
-						<textarea
+						<VeeField
 							id="comment"
-							v-bind="comment"
-							name="comment"
-							class="review_body-comment-content-textarea text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-							maxlength="10000"
+							v-model="comment"
+							as="textarea"
+							v-bind="commentProps"
 							:placeholder="$t('components.product.review.comment.placeholder')"
+							class="review_body-comment-content-textarea text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							name="comment"
+							maxlength="10000"
 							rows="6"
+							type="text"
 						/>
 					</div>
 					<span class="review_body-rating-error h-6">{{ errors.comment }}</span>
 				</div>
 
-				<input v-bind="rate" type="hidden" name="rate" />
+				<input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
 			</div>
 		</template>
 		<template #footer>

@@ -7,7 +7,7 @@ import {
 } from '~/constants/general'
 import { documentTypeEnum, StatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
-import { ZodFloorChoicesEnum, ZodLocationChoicesEnum } from '~/types/global/general'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
@@ -44,8 +44,8 @@ const ZodCheckout = z.object({
 	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
 		message: t('common.validation.region.required')
 	}),
-	floor: z.union([ZodFloorChoicesEnum, z.string()]).nullish(),
-	locationType: z.union([ZodLocationChoicesEnum, z.string()]).nullish(),
+	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
 	street: z.string().min(3, t('pages.checkout.validation.street.min', { min: 3 })),
 	streetNumber: z
 		.string()
@@ -67,7 +67,7 @@ const ZodCheckout = z.object({
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)
-const { defineInputBinds, setFieldValue, handleSubmit, errors, isSubmitting } = useForm({
+const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues: {
 		country: defaultSelectOptionChoose,
@@ -84,28 +84,58 @@ const { defineInputBinds, setFieldValue, handleSubmit, errors, isSubmitting } = 
 	}
 })
 
-const email = defineInputBinds('email')
-const firstName = defineInputBinds('firstName')
-const lastName = defineInputBinds('lastName')
-const street = defineInputBinds('street')
-const streetNumber = defineInputBinds('streetNumber')
-const zipcode = defineInputBinds('zipcode')
-const place = defineInputBinds('place')
-const city = defineInputBinds('city')
-const phone = defineInputBinds('phone')
-const mobilePhone = defineInputBinds('mobilePhone')
-const customerNotes = defineInputBinds('customerNotes')
-const floor = defineInputBinds('floor')
-const locationType = defineInputBinds('locationType')
-const country = defineInputBinds('country')
-const region = defineInputBinds('region')
+const [email, emailProps] = defineField('email', {
+	validateOnModelUpdate: true
+})
+const [firstName, firstNameProps] = defineField('firstName', {
+	validateOnModelUpdate: true
+})
+const [lastName, lastNameProps] = defineField('lastName', {
+	validateOnModelUpdate: true
+})
+const [street, streetProps] = defineField('street', {
+	validateOnModelUpdate: true
+})
+const [streetNumber, streetNumberProps] = defineField('streetNumber', {
+	validateOnModelUpdate: true
+})
+const [zipcode, zipcodeProps] = defineField('zipcode', {
+	validateOnModelUpdate: true
+})
+const [place, placeProps] = defineField('place', {
+	validateOnModelUpdate: true
+})
+const [city, cityProps] = defineField('city', {
+	validateOnModelUpdate: true
+})
+const [phone, phoneProps] = defineField('phone', {
+	validateOnModelUpdate: true
+})
+const [mobilePhone, mobilePhoneProps] = defineField('mobilePhone', {
+	validateOnModelUpdate: true
+})
+const [customerNotes, customerNotesProps] = defineField('customerNotes', {
+	validateOnModelUpdate: true
+})
+const [floor, floorProps] = defineField('floor', {
+	validateOnModelUpdate: true
+})
+const [locationType, locationTypeProps] = defineField('locationType', {
+	validateOnModelUpdate: true
+})
+const [country, countryProps] = defineField('country', {
+	validateOnModelUpdate: true
+})
+const [region, regionProps] = defineField('region', {
+	validateOnModelUpdate: true
+})
 
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	await fetchRegions({
 		alpha2: event.target.value
 	})
-	region.value.value = defaultSelectOptionChoose
+	region.value = defaultSelectOptionChoose
 }
 
 const onSubmit = handleSubmit(async (values) => {
@@ -186,7 +216,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="firstName"
-									:bind="firstName"
+									v-model="firstName"
+									:bind="firstNameProps"
 									:placeholder="$t('pages.checkout.form.first_name')"
 									autocomplete="firstName"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -206,7 +237,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="lastName"
-									:bind="lastName"
+									v-model="lastName"
+									:bind="lastNameProps"
 									:placeholder="$t('pages.checkout.form.last_name')"
 									autocomplete="lastName"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -226,7 +258,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="email"
-									:bind="email"
+									v-model="email"
+									:bind="emailProps"
 									:placeholder="$t('pages.checkout.form.email')"
 									autocomplete="email"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -246,7 +279,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="phone"
-									:bind="phone"
+									v-model="phone"
+									:bind="phoneProps"
 									:placeholder="$t('pages.checkout.form.phone')"
 									autocomplete="phone"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -268,7 +302,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="mobilePhone"
-									:bind="mobilePhone"
+									v-model="mobilePhone"
+									:bind="mobilePhoneProps"
 									:placeholder="$t('pages.checkout.form.mobile_phone')"
 									autocomplete="mobilePhone"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -288,7 +323,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="city"
-									:bind="city"
+									v-model="city"
+									:bind="cityProps"
 									:placeholder="$t('pages.checkout.form.city')"
 									autocomplete="city"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -308,7 +344,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="place"
-									:bind="place"
+									v-model="place"
+									:bind="placeProps"
 									:placeholder="$t('pages.checkout.form.place')"
 									autocomplete="place"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -328,7 +365,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="zipcode"
-									:bind="zipcode"
+									v-model="zipcode"
+									:bind="zipcodeProps"
 									:placeholder="$t('pages.checkout.form.zipcode')"
 									autocomplete="zipcode"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -348,7 +386,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="street"
-									:bind="street"
+									v-model="street"
+									:bind="streetProps"
 									:placeholder="$t('pages.checkout.form.street')"
 									autocomplete="street"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -370,7 +409,8 @@ definePageMeta({
 							<div class="grid">
 								<FormTextInput
 									id="streetNumber"
-									:bind="streetNumber"
+									v-model="streetNumber"
+									:bind="streetNumberProps"
 									:placeholder="$t('pages.checkout.form.street_number')"
 									autocomplete="streetNumber"
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -392,8 +432,9 @@ definePageMeta({
 							<div class="grid">
 								<VeeField
 									id="customerNotes"
+									v-model="customerNotes"
 									as="textarea"
-									v-bind="customerNotes"
+									v-bind="customerNotesProps"
 									:placeholder="$t('pages.checkout.form.customer_notes')"
 									class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
 									name="customerNotes"
@@ -410,8 +451,8 @@ definePageMeta({
 									$t('pages.checkout.form.floor')
 								}}</label>
 								<VeeField
-									id="floor"
-									v-bind="floor"
+									v-model="floor"
+									:bind="floorProps"
 									name="floor"
 									as="select"
 									class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
@@ -419,7 +460,7 @@ definePageMeta({
 									<option
 										:value="defaultSelectOptionChoose"
 										disabled
-										:selected="floor.value === defaultSelectOptionChoose"
+										:selected="floorProps.value === defaultSelectOptionChoose"
 									>
 										{{ defaultSelectOptionChoose }}
 									</option>
@@ -427,7 +468,7 @@ definePageMeta({
 										v-for="(floorChoice, index) in floorChoicesList"
 										:key="index"
 										:value="index"
-										:selected="Number(floor.value) === index"
+										:selected="Number(floorProps.value) === index"
 										class="text-primary-700 dark:text-primary-300"
 									>
 										{{ floorChoice }}
@@ -445,7 +486,8 @@ definePageMeta({
 								>
 								<VeeField
 									id="locationType"
-									v-bind="locationType"
+									v-model="locationType"
+									v-bind="locationTypeProps"
 									name="locationType"
 									as="select"
 									class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
@@ -453,7 +495,7 @@ definePageMeta({
 									<option
 										:value="defaultSelectOptionChoose"
 										disabled
-										:selected="locationType.value === defaultSelectOptionChoose"
+										:selected="locationTypeProps.value === defaultSelectOptionChoose"
 									>
 										{{ defaultSelectOptionChoose }}
 									</option>
@@ -461,7 +503,7 @@ definePageMeta({
 										v-for="(location, index) in locationChoicesList"
 										:key="index"
 										:value="index"
-										:selected="Number(locationType.value) === index"
+										:selected="Number(locationTypeProps.value) === index"
 										class="text-primary-700 dark:text-primary-300"
 									>
 										{{ location }}
@@ -483,7 +525,8 @@ definePageMeta({
 								<div class="grid">
 									<VeeField
 										id="country"
-										v-bind="country"
+										v-model="country"
+										v-bind="countryProps"
 										name="country"
 										as="select"
 										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
@@ -492,7 +535,7 @@ definePageMeta({
 										<option
 											:value="defaultSelectOptionChoose"
 											disabled
-											:selected="country.value === defaultSelectOptionChoose"
+											:selected="countryProps.value === defaultSelectOptionChoose"
 										>
 											{{ defaultSelectOptionChoose }}
 										</option>
@@ -500,7 +543,7 @@ definePageMeta({
 											v-for="cntry in countries?.results"
 											:key="cntry.alpha2"
 											:value="cntry.alpha2"
-											:selected="country.value === cntry.alpha2"
+											:selected="countryProps.value === cntry.alpha2"
 											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ extractTranslated(cntry, 'name', locale) }}
@@ -518,16 +561,17 @@ definePageMeta({
 								<div class="grid">
 									<VeeField
 										id="region"
-										v-bind="region"
+										v-model="region"
+										v-bind="regionProps"
 										name="region"
 										as="select"
 										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
-										:disabled="country.value === defaultSelectOptionChoose"
+										:disabled="countryProps.value === defaultSelectOptionChoose"
 									>
 										<option
 											:value="defaultSelectOptionChoose"
 											disabled
-											:selected="region.value === defaultSelectOptionChoose"
+											:selected="regionProps.value === defaultSelectOptionChoose"
 										>
 											{{ defaultSelectOptionChoose }}
 										</option>
@@ -535,7 +579,7 @@ definePageMeta({
 											v-for="rgn in regions?.results"
 											:key="rgn.alpha"
 											:value="rgn.alpha"
-											:selected="region.value === rgn.alpha"
+											:selected="regionProps.value === rgn.alpha"
 											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ extractTranslated(rgn, 'name', locale) }}
