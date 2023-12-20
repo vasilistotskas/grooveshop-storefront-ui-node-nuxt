@@ -1,3 +1,10 @@
+## [1.46.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.46.0...v1.46.1) (2023-12-20)
+
+
+### Bug Fixes
+
+* `floor` and `locationType` type fixing and vee-validate `defineInputBinds` replace with `defineField` ([f7b91a0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f7b91a0696dd6bd492ae6ef7532f7e0bc91c6a64))
+
 # [1.46.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.45.1...v1.46.0) (2023-12-20)
 
 
