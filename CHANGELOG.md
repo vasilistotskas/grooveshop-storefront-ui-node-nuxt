@@ -1,3 +1,10 @@
+## [1.47.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.47.0...v1.47.1) (2023-12-21)
+
+
+### Bug Fixes
+
+* temporary remove breadcrumbs and minor ui fixes ([b399369](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b399369c663e2fc47f4cf28ceccc56af27ab32e6))
+
 # [1.47.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.46.1...v1.47.0) (2023-12-21)
 
 
