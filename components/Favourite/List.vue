@@ -25,7 +25,7 @@ defineProps({
 				{{ $t('components.product.reviews.summary.reviews') }}
 			</span>
 		</div>
-		<ul class="grid gap-4 grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-1">
+		<ul class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 			<template v-for="favourite in favourites" :key="favourite.id">
 				<ProductCard
 					v-if="typeof favourite.product !== 'number'"

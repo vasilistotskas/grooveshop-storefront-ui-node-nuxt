@@ -46,7 +46,9 @@ const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
 				class="fixed right-16 bottom-0 mb-4 p-3 border border-gray-200 bg-white dark:bg-zinc-800 shadow-md rounded sm:flex sm:gap-2 sm:text-center"
 				role="alert"
 			>
-				<div class="mb-2 sm:grid sm:align-center sm:w-full sm:mb-0">
+				<div
+					class="mb-2 sm:grid sm:align-center sm:items-center sm:justify-center sm:w-full sm:mb-0"
+				>
 					<span class="text-primary-700 dark:text-primary-100 text-center capitalize">
 						{{ $t('components.pwa.install_pwa') }}
 					</span>

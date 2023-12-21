@@ -3,8 +3,6 @@ const { _totpActive } = useAuthSession()
 
 const isTotpActive = _totpActive.get()
 
-const links = useBreadcrumbItems()
-
 definePageMeta({
 	layout: 'user',
 	middleware: 'auth'
@@ -13,7 +11,6 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
-		<UBreadcrumb :links="links" />
 		<PageTitle
 			:text="$t('pages.auth.security.mfa.title')"
 			class="capitalize text-center"

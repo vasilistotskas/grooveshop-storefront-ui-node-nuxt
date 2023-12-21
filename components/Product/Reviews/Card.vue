@@ -55,7 +55,7 @@ const alt = computed(() => {
 <template>
 	<div class="card">
 		<div class="grid justify-between items-center mb-4 md:flex">
-			<div class="grid items-center gap-4 mr-4">
+			<div class="grid items-center gap-4 mr-4 md:grid-cols-2">
 				<div class="w-auto h-auto">
 					<UserAvatar
 						v-if="userAccount && displayImageOf === 'user'"

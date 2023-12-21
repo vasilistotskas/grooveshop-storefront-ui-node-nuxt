@@ -55,7 +55,6 @@ const backgroundStars = (productRate: number): string[] => {
 				xmlns="http://www.w3.org/2000/svg"
 				v-html="star"
 			/>
-			<!-- eslint-enable -->
 		</div>
 		<div class="flex items-center justify-center">
 			<span class="text-sm">({{ rate }}/{{ maxRate }})</span>

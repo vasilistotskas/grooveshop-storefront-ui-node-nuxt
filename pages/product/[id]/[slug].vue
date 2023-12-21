@@ -104,8 +104,6 @@ const userToProductFavourite = computed(() => {
 	return getUserToProductFavourite(Number(productId))
 })
 
-const links = useBreadcrumbItems()
-
 watch(
 	() => route.query,
 	() => refreshProduct()
@@ -129,7 +127,6 @@ useSchemaOrg([
 
 <template>
 	<PageWrapper class="container">
-		<UBreadcrumb :links="links" />
 		<PageBody>
 			<div v-if="product" class="product mb-12 md:mb-24">
 				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">

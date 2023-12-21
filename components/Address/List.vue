@@ -27,7 +27,7 @@ const { t } = useLang()
 				{{ t('pages.account.addresses.total') }}
 			</span>
 		</div>
-		<ul class="grid gap-4 grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-1">
+		<ul class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 			<AddressAddNew />
 			<template v-for="address in addresses" :key="address.id">
 				<AddressCard :address="address" />

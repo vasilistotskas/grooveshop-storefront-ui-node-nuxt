@@ -157,8 +157,6 @@ const submitButtonDisabled = computed(() => {
 	return isSubmitting.value || Object.keys(errors.value).length > 0
 })
 
-const links = useBreadcrumbItems()
-
 watch(
 	() => getSelectedPayWayId.value,
 	() => {
@@ -173,7 +171,6 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-4">
-		<UBreadcrumb :links="links" />
 		<PageTitle :text="$t('pages.checkout.title')" class="capitalize" />
 		<PageBody>
 			<form

@@ -178,6 +178,7 @@ definePageMeta({
 								@click="currentSearch = cleanHtml(headline)"
 							>
 								<IconFa6Solid:magnifyingGlass />
+								<!-- eslint-disable vue/no-v-html -->
 								<span
 									class="text-primary-700 dark:text-primary-100 font-bold truncate"
 									v-html="headline"
@@ -202,7 +203,9 @@ definePageMeta({
 				<div v-if="showTotalCount" class="px-8 text-sm opacity-95">
 					{{ $t('common.items.count', totalCount) }}
 				</div>
-				<div class="grid grid-cols-repeat-auto-fill-minmax-200-auto gap-4 p-8">
+				<div
+					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-8"
+				>
 					<SearchProductCard
 						v-for="(item, index) of productSearchItems"
 						:key="index"

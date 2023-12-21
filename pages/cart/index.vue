@@ -4,8 +4,6 @@ import emptyIcon from '~icons/mdi/package-variant-remove'
 const cartStore = useCartStore()
 const { cart, pending } = storeToRefs(cartStore)
 
-const links = useBreadcrumbItems()
-
 definePageMeta({
 	layout: 'page'
 })
@@ -13,7 +11,6 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container grid gap-4 grid-rows-auto-1fr">
-		<UBreadcrumb :links="links" />
 		<PageBody>
 			<ClientOnly>
 				<template v-if="!pending.cart && cart?.cartItems?.length">

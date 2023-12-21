@@ -52,8 +52,6 @@ const formSchema: DynamicFormSchema = {
 	]
 }
 
-const links = useBreadcrumbItems()
-
 definePageMeta({
 	layout: 'page',
 	middleware: 'guest'
@@ -62,7 +60,6 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container-xxs grid gap-12">
-		<UBreadcrumb :links="links" />
 		<PageTitle
 			:text="$t('pages.auth.registration.account-confirm-email.title')"
 			class="capitalize text-center"

@@ -397,7 +397,6 @@ watch(
 						})
 					"
 				></span>
-				<!-- eslint-enable -->
 				<IconFaSolid:pen />
 			</div>
 		</template>
@@ -434,7 +433,6 @@ watch(
 								xmlns="http://www.w3.org/2000/svg"
 								v-html="star"
 							/>
-							<!-- eslint-enable -->
 						</div>
 						<div class="absolute z-20">
 							<!-- eslint-disable vue/no-v-html -->
@@ -449,7 +447,6 @@ watch(
 								xmlns="http://www.w3.org/2000/svg"
 								v-html="star"
 							/>
-							<!-- eslint-enable -->
 						</div>
 						<span class="px-2">{{ reviewScoreText }}</span>
 					</div>
