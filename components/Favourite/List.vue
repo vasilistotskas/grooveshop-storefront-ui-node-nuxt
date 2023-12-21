@@ -16,16 +16,16 @@ defineProps({
 </script>
 
 <template>
-	<div class="favourite-list gap-4">
-		<div class="favourite-list-header">
-			<div v-if="displayTotal" class="favourite-list-header-total">
-				<span class="favourite-list-header-total-value">{{ favourites?.length }}</span>
-				<span class="favourite-list-header-total-label">
-					{{ $t('components.product.reviews.summary.reviews') }}</span
-				>
-			</div>
+	<div class="w-full grid items-start gap-4">
+		<div v-if="displayTotal" class="flex items-center justify-center gap-1">
+			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">{{
+				favourites?.length
+			}}</span>
+			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">
+				{{ $t('components.product.reviews.summary.reviews') }}
+			</span>
 		</div>
-		<ul class="favourite-list-body">
+		<ul class="grid gap-4 grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-1">
 			<template v-for="favourite in favourites" :key="favourite.id">
 				<ProductCard
 					v-if="typeof favourite.product !== 'number'"
@@ -38,45 +38,3 @@ defineProps({
 		</ul>
 	</div>
 </template>
-
-<style lang="scss" scoped>
-.favourite-list {
-	width: 100%;
-	display: grid;
-	align-items: start;
-
-	&-header {
-		&-total {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 0.25rem;
-
-			&-value,
-			&-label {
-				font-size: 0.75rem;
-				font-weight: 600;
-				color: #f0c14b;
-			}
-		}
-	}
-
-	&-body {
-		display: grid;
-		gap: 1rem;
-		grid-template-columns: repeat(4, 1fr);
-
-		@media screen and (width <= 1199px) {
-			grid-template-columns: repeat(3, 1fr);
-		}
-
-		@media screen and (width <= 991px) {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		@media screen and (width <= 767px) {
-			grid-template-columns: repeat(1, 1fr);
-		}
-	}
-}
-</style>

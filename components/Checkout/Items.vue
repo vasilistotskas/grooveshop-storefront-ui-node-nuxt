@@ -8,33 +8,36 @@ const { extractTranslated } = useTranslationExtractor()
 
 <template>
 	<div class="items">
-		<div class="items-title hidden">
+		<div class="hidden items-center justify-center">
 			<h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
 				{{ $t('components.checkout.items.title') }}
 			</h3>
 		</div>
 		<ClientOnly>
-			<div v-if="getCartItems?.length" class="items-list">
-				<div v-for="item in getCartItems" :key="item.id" class="items-list-item">
-					<div class="items-list-item-info">
-						<div class="items-list-item-info-name">
+			<div
+				v-if="getCartItems?.length"
+				class="border-t border-b border-gray-200 py-4 max-h-[185px] overflow-auto"
+			>
+				<div v-for="item in getCartItems" :key="item.id" class="grid gap-4 p-4">
+					<div class="grid grid-cols-[1fr_auto_auto] gap-4">
+						<div class="flex items-center">
 							<Anchor
 								:title="extractTranslated(item.product, 'name', locale)"
 								:to="`/product${item.product.absoluteUrl}`"
 							>
-								<span class="text-primary-700 dark:text-primary-100 text-sm font-bold"
-									>{{ extractTranslated(item.product, 'name', locale) }}
+								<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+									{{ extractTranslated(item.product, 'name', locale) }}
 								</span>
 							</Anchor>
 						</div>
-						<div class="items-list-item-info-quantity">
-							<span class="text-primary-700 dark:text-primary-100 text-sm"
-								>{{ item.quantity }}x
+						<div class="flex items-center">
+							<span class="text-primary-700 dark:text-primary-100 text-sm">
+								{{ item.quantity }}x
 							</span>
 						</div>
-						<div class="items-list-item-info-price">
-							<span class="text-primary-700 dark:text-primary-100 text-sm"
-								>{{ item.totalPrice }}€
+						<div class="flex items-center">
+							<span class="text-primary-700 dark:text-primary-100 text-sm">
+								{{ item.totalPrice }}€
 							</span>
 						</div>
 					</div>
@@ -46,50 +49,3 @@ const { extractTranslated } = useTranslationExtractor()
 		</ClientOnly>
 	</div>
 </template>
-
-<style lang="scss" scoped>
-.items {
-	&-title {
-		align-items: center;
-		justify-content: center;
-		justify-items: center;
-	}
-
-	&-list {
-		display: grid;
-		border-bottom: solid 1px #e8e8e8;
-		border-top: solid 1px #e8e8e8;
-		padding-bottom: 1rem;
-		padding-top: 1rem;
-		max-height: 185px;
-		overflow: auto;
-
-		&-item {
-			display: grid;
-			gap: 1rem;
-			padding: 1rem;
-
-			&-info {
-				display: grid;
-				grid-template-columns: 1fr auto auto;
-				gap: 1rem;
-
-				&-name {
-					display: flex;
-					align-items: center;
-				}
-
-				&-price {
-					display: flex;
-					align-items: center;
-				}
-
-				&-quantity {
-					display: flex;
-					align-items: center;
-				}
-			}
-		}
-	}
-}
-</style>

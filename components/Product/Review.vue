@@ -387,30 +387,31 @@ watch(
 		@submit-form="onSubmit"
 	>
 		<template #header>
-			<div class="review_header">
+			<div class="flex justify-between items-center gap-4">
 				<!-- eslint-disable vue/no-v-html -->
 				<span
-					class="review_header-title"
+					class="text-lg font-medium leading-snug"
 					v-html="
 						$t('components.product.review.write_review_for_product', {
 							product: extractTranslated(product, 'name', locale)
 						})
 					"
 				></span>
+				<!-- eslint-enable -->
 				<IconFaSolid:pen />
 			</div>
 		</template>
 
 		<template #body>
-			<div class="review_body">
-				<div class="review_body-rating">
-					<div class="review_body-rating-title">
+			<div class="relative grid">
+				<div class="grid gap-2">
+					<div class="text-lg font-medium leading-snug">
 						<p>{{ $t('components.product.review.rating.title') }}</p>
 					</div>
-					<div class="review_body-rating-content">
+					<div class="relative grid grid-cols-auto-1fr items-center">
 						<div
 							ref="ratingBoard"
-							class="rating-board rating-background"
+							class="inline-flex flex-row items-center justify-start h-6 relative z-10"
 							@click="lockSelection($event)"
 							@mouseenter.passive="unlockSelection()"
 							@mouseleave.passive="reLockSelection()"
@@ -424,7 +425,7 @@ watch(
 								v-for="(star, i) of backgroundStars"
 								:key="i"
 								aria-hidden="true"
-								class="star star-background"
+								class="cursor-pointer height-[26px] width-[26px] text-[#e2e8f0]"
 								data-icon="star"
 								data-prefix="fas"
 								focusable="false"
@@ -435,13 +436,13 @@ watch(
 							/>
 							<!-- eslint-enable -->
 						</div>
-						<div class="rating-board rating-foreground">
+						<div class="absolute z-20">
 							<!-- eslint-disable vue/no-v-html -->
 							<svg
 								v-for="(star, i) of foregroundStars"
 								:key="i"
 								aria-hidden="true"
-								class="star star-foreground"
+								class="cursor-pointer height-[26px] width-[26px] text-[#f68b24]"
 								focusable="false"
 								role="img"
 								viewBox="0 0 576 512"
@@ -452,43 +453,43 @@ watch(
 						</div>
 						<span class="px-2">{{ reviewScoreText }}</span>
 					</div>
-					<span class="review_body-rating-error h-6">{{ errors.rate }}</span>
+					<span class="h-6 text-red-600 text-sm font-normal">{{ errors.rate }}</span>
 				</div>
 
-				<div class="review_body-comment">
-					<div class="review_body-comment-title">
+				<div class="grid gap-2">
+					<div class="text-lg font-medium leading-snug">
 						<p class="review_body-comment-title-text">
 							<label for="comment">{{
 								$t('components.product.review.comment.label')
 							}}</label>
 						</p>
 					</div>
-					<div class="review_body-comment-content">
+					<div class="relative">
 						<VeeField
 							id="comment"
 							v-model="comment"
 							as="textarea"
 							v-bind="commentProps"
 							:placeholder="$t('components.product.review.comment.placeholder')"
-							class="review_body-comment-content-textarea text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/80 dark:bg-zinc-800/80 border border-gray-200"
 							name="comment"
 							maxlength="10000"
 							rows="6"
 							type="text"
 						/>
 					</div>
-					<span class="review_body-rating-error h-6">{{ errors.comment }}</span>
+					<span class="h-6 text-red-600 text-sm font-normal">{{ errors.comment }}</span>
 				</div>
 
 				<input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
 			</div>
 		</template>
 		<template #footer>
-			<div class="review_footer">
-				<div class="review_footer-content">
+			<div class="flex justify-between items-center gap-4">
+				<div class="grid w-full">
 					<MainButton
 						v-if="!tooManyAttempts"
-						class="review_footer-button"
+						class="w-full"
 						:text="reviewButtonText"
 						type="input"
 					>
@@ -497,9 +498,9 @@ watch(
 						{{ $t('components.product.review.too_many_attempts') }}
 					</MainButton>
 				</div>
-				<div v-if="existingReview" class="review_footer-content">
+				<div v-if="existingReview" class="grid w-full">
 					<MainButton
-						class="review_footer-button gap-2"
+						class="gap-2 w-full"
 						:text="$t('components.product.review.delete_review')"
 						type="button"
 						:style="'danger'"
@@ -522,130 +523,3 @@ watch(
 	>
 	</MainButton>
 </template>
-
-<style lang="scss" scoped>
-.review {
-	&_header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 1rem;
-
-		&-title {
-			font-size: 1.25rem;
-			font-weight: 500;
-			line-height: 1.2;
-			margin-bottom: 0;
-		}
-	}
-
-	&_body {
-		position: relative;
-		display: grid;
-
-		&-rating {
-			display: grid;
-			gap: 0.5rem;
-
-			&-title {
-				font-size: 1.25rem;
-				font-weight: 500;
-				line-height: 1.2;
-				margin-bottom: 0;
-			}
-
-			&-content {
-				position: relative;
-				display: grid;
-				grid-template-columns: auto 1fr;
-				align-items: center;
-			}
-
-			&-error {
-				color: #f56565;
-				font-size: 0.875rem;
-				font-weight: 400;
-			}
-		}
-
-		&-comment {
-			display: grid;
-			gap: 0.5rem;
-
-			&-title {
-				font-size: 1.25rem;
-				font-weight: 500;
-				line-height: 1.2;
-				margin-bottom: 0;
-			}
-
-			&-content {
-				position: relative;
-
-				&-textarea {
-					width: 100%;
-				}
-			}
-		}
-	}
-
-	&_footer {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 1rem;
-
-		&-content {
-			display: grid;
-			width: 100%;
-		}
-
-		&-button {
-			width: 100%;
-		}
-	}
-}
-
-.rating {
-	align-items: center;
-	display: flex;
-	height: 26px;
-	position: relative;
-
-	&-background {
-		position: relative;
-		z-index: 1;
-	}
-
-	&-foreground {
-		pointer-events: none;
-		position: absolute;
-		z-index: 2;
-	}
-
-	&-board {
-		align-content: center;
-		align-items: center;
-		display: inline-flex;
-		flex-flow: row nowrap;
-		height: 26px;
-		justify-content: flex-start;
-		left: 0;
-		top: 0;
-	}
-}
-
-.star {
-	cursor: pointer;
-	height: 26px;
-	width: 26px;
-
-	&-foreground {
-		color: #f68b24;
-	}
-
-	&-background {
-		color: #e2e8f0;
-	}
-}
-</style>

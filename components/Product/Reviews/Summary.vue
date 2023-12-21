@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const props = defineProps({
+defineProps({
 	reviewsAverage: {
 		type: Number,
 		required: false,
@@ -9,72 +9,28 @@ const props = defineProps({
 		type: Number,
 		required: false,
 		default: 0
+	},
+	maxRate: {
+		type: Number,
+		required: false,
+		default: 10
 	}
 })
-
-const { t } = useLang()
-
-const maxRate = 10
 </script>
 
 <template>
-	<div class="summary">
-		<div v-if="reviewsAverage > 0" class="summary-average">
-			<span class="summary-average-value">{{ reviewsAverage.toFixed(1) }}</span>
-			<span class="summary-average-label">/{{ maxRate }}</span>
+	<div class="flex items-center justify-center gap-8">
+		<div v-if="reviewsAverage > 0" class="flex items-center gap-1">
+			<span class="text-3xl font-semibold text-yellow-600">{{
+				reviewsAverage.toFixed(1)
+			}}</span>
+			<span class="text-sm font-semibold text-yellow-600">/{{ maxRate }}</span>
 		</div>
-		<div class="summary-count">
-			<span class="summary-count-value">{{ reviewsCount }}</span>
-			<span class="summary-count-label">
-				{{ $t('components.product.reviews.summary.reviews') }}</span
-			>
+		<div class="flex items-center gap-1">
+			<span class="text-sm font-semibold text-yellow-600">{{ reviewsCount }}</span>
+			<span class="text-sm font-semibold text-yellow-600">
+				{{ $t('components.product.reviews.summary.reviews') }}
+			</span>
 		</div>
 	</div>
 </template>
-
-<style lang="scss" scoped>
-$color-primary: #f0c14b;
-
-.summary {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 2rem;
-
-	&-average {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-
-		&-value {
-			font-size: 1.5rem;
-			font-weight: 600;
-			color: $color-primary;
-		}
-
-		&-label {
-			font-size: 0.75rem;
-			font-weight: 600;
-			color: $color-primary;
-		}
-	}
-
-	&-count {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-
-		&-value {
-			font-size: 0.75rem;
-			font-weight: 600;
-			color: $color-primary;
-		}
-
-		&-label {
-			font-size: 0.75rem;
-			font-weight: 600;
-			color: $color-primary;
-		}
-	}
-}
-</style>

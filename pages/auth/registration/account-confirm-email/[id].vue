@@ -4,10 +4,7 @@ import type { RegistrationResendEmailBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
 const { registrationVerifyEmail, registrationResendEmail } = useAuth()
-
-const config = useRuntimeConfig()
-const { t, locale } = useLang()
-const breadcrumbUi = useBreadcrumbsUi()
+const { t } = useLang()
 const toast = useToast()
 const route = useRoute('auth-registration-account-confirm-email-id___en')
 const id = route.params.id
@@ -55,29 +52,7 @@ const formSchema: DynamicFormSchema = {
 	]
 }
 
-const items = defineBreadcrumbItems([
-	{
-		to: '/',
-		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
-		icon: 'material-symbols:home-outline-rounded'
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? '/registration'
-				: `/${locale.value}/registration`,
-		label: t('seoUi.breadcrumb.items.auth.registration.label'),
-		ariaLabel: t('seoUi.breadcrumb.items.auth.registration.ariaLabel')
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? `/registration/account-confirm-email/${id}`
-				: `/${locale.value}/registration/account-confirm-email/${id}`,
-		label: t('seoUi.breadcrumb.items.auth.registration.account_confirm_email.label'),
-		current: true
-	}
-])
+const links = useBreadcrumbItems()
 
 definePageMeta({
 	layout: 'page',
@@ -87,7 +62,7 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container-xxs grid gap-12">
-		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
+		<UBreadcrumb :links="links" />
 		<PageTitle
 			:text="$t('pages.auth.registration.account-confirm-email.title')"
 			class="capitalize text-center"

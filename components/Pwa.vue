@@ -8,7 +8,7 @@ const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
 		<div v-if="$pwa" id="pwa">
 			<div
 				v-if="$pwa?.offlineReady || $pwa?.needRefresh"
-				class="pwa-toast-control-bar"
+				class="fixed bottom-0 left-0 right-0 z-50 mx-auto px-6 py-4 shadow-xl border border-gray-200 bg-zinc-50 dark:border-gray-700 dark:bg-zinc-800 text-primary-600 dark:text-primary-400 sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-5xl sm:rounded-md"
 				role="alert"
 			>
 				<div class="message">
@@ -43,19 +43,29 @@ const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
 			</div>
 			<div
 				v-if="$pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh"
-				class="pwa-toast"
+				class="fixed right-16 bottom-0 mb-4 p-3 border border-gray-200 bg-white dark:bg-zinc-800 shadow-md rounded sm:flex sm:gap-2 sm:text-center"
 				role="alert"
 			>
-				<div class="message">
+				<div class="mb-2 sm:grid sm:align-center sm:w-full sm:mb-0">
 					<span class="text-primary-700 dark:text-primary-100 text-center capitalize">
 						{{ $t('components.pwa.install_pwa') }}
 					</span>
 				</div>
-				<div class="pwa-toast-bar-buttons">
-					<button type="button" @click="$pwa?.install()">
+				<div
+					class="ml-auto flex flex-col gap-2 mt-4 lg:mt-0 md:flex-row-reverse sm:flex sm:w-full sm:flex-row sm:m-0"
+				>
+					<button
+						type="button"
+						class="whitespace-nowrap rounded-lg border px-3 py-2 md:px-5 md:py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700 sm:m-0"
+						@click="$pwa?.install()"
+					>
 						{{ $t('components.pwa.install') }}
 					</button>
-					<button type="button" @click="$pwa?.cancelInstall()">
+					<button
+						type="button"
+						class="whitespace-nowrap rounded-lg border px-3 py-2 md:px-5 md:py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700 sm:m-0"
+						@click="$pwa?.cancelInstall()"
+					>
 						{{ $t('components.pwa.cancel') }}
 					</button>
 				</div>
@@ -71,63 +81,3 @@ const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
 		</template>
 	</ClientOnly>
 </template>
-
-<style lang="scss" scoped>
-.pwa-toast-control-bar {
-	@apply fixed bottom-0 left-0 right-0 z-50 mx-auto border px-6 py-4 shadow-xl sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-5xl sm:rounded-md;
-	@apply border-gray-200 bg-zinc-50 dark:border-gray-700 dark:bg-zinc-800;
-	@apply text-primary-600 dark:border-gray-700 dark:text-primary-400;
-}
-
-.pwa-toast {
-	position: fixed;
-	right: 4rem;
-	bottom: 0;
-	margin: 16px;
-	padding: 12px;
-	border: 1px solid #8885;
-	border-radius: 4px;
-	z-index: 10;
-	text-align: left;
-	box-shadow: 3px 4px 5px 0 #8885;
-	@apply bg-white dark:bg-zinc-800;
-	@media screen and (width <= 767px) {
-		display: flex;
-		gap: 0.5rem;
-	}
-}
-
-.pwa-toast .message {
-	margin-bottom: 8px;
-
-	@media screen and (width <= 767px) {
-		display: grid;
-		align-self: center;
-		width: 100%;
-		margin: 0;
-	}
-}
-
-.pwa-toast-bar-buttons {
-	@apply ml-auto flex flex-col md:space-x-3;
-	@apply gap-2;
-	@apply mt-4 lg:mt-0;
-	@apply md:flex-row-reverse;
-
-	@media screen and (width <= 767px) {
-		display: flex;
-		width: 100%;
-		flex-direction: row;
-		margin: 0;
-	}
-
-	button {
-		@apply whitespace-nowrap rounded-lg border px-3 py-2 md:px-5 md:py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
-		@apply border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700;
-
-		@media screen and (width <= 767px) {
-			margin: 0;
-		}
-	}
-}
-</style>

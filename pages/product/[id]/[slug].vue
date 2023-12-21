@@ -22,7 +22,6 @@ const route = useRoute('product-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useLang()
 const { extractTranslated } = useTranslationExtractor()
-const breadcrumbUi = useBreadcrumbsUi()
 
 const fullPath = config.public.baseUrl + route.fullPath
 const productId = route.params.id
@@ -105,29 +104,7 @@ const userToProductFavourite = computed(() => {
 	return getUserToProductFavourite(Number(productId))
 })
 
-const items = defineBreadcrumbItems([
-	{
-		to: '/',
-		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
-		icon: 'material-symbols:home-outline-rounded'
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? '/products'
-				: `/${locale.value}/products`,
-		label: t('seoUi.breadcrumb.items.products.label'),
-		ariaLabel: t('seoUi.breadcrumb.items.products.ariaLabel')
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? `/product/${productId}/${product.value?.slug}`
-				: `/${locale.value}/product/${productId}/${product.value?.slug}`,
-		label: productTitle.value,
-		current: true
-	}
-])
+const links = useBreadcrumbItems()
 
 watch(
 	() => route.query,
@@ -152,7 +129,7 @@ useSchemaOrg([
 
 <template>
 	<PageWrapper class="container">
-		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
+		<UBreadcrumb :links="links" />
 		<PageBody>
 			<div v-if="product" class="product mb-12 md:mb-24">
 				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">

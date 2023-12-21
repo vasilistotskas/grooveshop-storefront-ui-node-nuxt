@@ -29,8 +29,6 @@ const { createOrder } = orderStore
 const { t, locale } = useLang()
 const router = useRouter()
 const toast = useToast()
-const config = useRuntimeConfig()
-const breadcrumbUi = useBreadcrumbsUi()
 const { extractTranslated } = useTranslationExtractor()
 
 const shippingPrice = ref(3)
@@ -159,26 +157,7 @@ const submitButtonDisabled = computed(() => {
 	return isSubmitting.value || Object.keys(errors.value).length > 0
 })
 
-const items = defineBreadcrumbItems([
-	{
-		to: '/',
-		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
-		icon: 'material-symbols:home-outline-rounded'
-	},
-	{
-		to: locale.value === config.public.defaultLocale ? '/cart' : `/${locale.value}/cart`,
-		label: t('seoUi.breadcrumb.items.cart.label'),
-		ariaLabel: t('seoUi.breadcrumb.items.cart.ariaLabel')
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? '/checkout'
-				: `/${locale.value}/checkout`,
-		label: t('seoUi.breadcrumb.items.checkout.label'),
-		current: true
-	}
-])
+const links = useBreadcrumbItems()
 
 watch(
 	() => getSelectedPayWayId.value,
@@ -194,7 +173,7 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-4">
-		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
+		<UBreadcrumb :links="links" />
 		<PageTitle :text="$t('pages.checkout.title')" class="capitalize" />
 		<PageBody>
 			<form
@@ -626,19 +605,3 @@ definePageMeta({
 		</PageBody>
 	</PageWrapper>
 </template>
-
-<style lang="scss" scoped>
-.form-select {
-	background-image: none;
-	border-radius: 4px;
-	box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
-	display: block;
-	font-size: 14px;
-	height: 43px;
-	line-height: 1.4286;
-	padding: 11px 12px;
-	transition: all 0.3s ease-in-out;
-	vertical-align: middle;
-	width: 100%;
-}
-</style>

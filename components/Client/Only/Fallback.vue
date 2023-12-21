@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { PropType } from 'vue'
+
 defineProps({
 	width: {
 		type: [Number, String],
@@ -22,7 +24,7 @@ defineProps({
 		default: 'Loading...'
 	},
 	textVisibility: {
-		type: String,
+		type: String as PropType<'hidden' | 'visible'>,
 		default: 'hidden'
 	},
 	textColor: {
@@ -34,32 +36,18 @@ defineProps({
 
 <template>
 	<USkeleton
-		class="client-only-fallback"
+		class="grid"
+		:style="{
+			width: width,
+			height: height,
+			borderRadius: borderRadius
+		}"
 		:ui="{ background: showAnimation ? 'bg-gray-300 dark:bg-gray-600' : 'transparent' }"
 	>
-		<p class="client-only-fallback-text" v-text="text"></p>
-	</USkeleton>
+		<p
+			class="grid place-items-center font-semibold"
+			:style="{ color: textColor, visibility: textVisibility }"
+			v-text="text"
+		></p
+	></USkeleton>
 </template>
-
-<style lang="scss" scoped>
-.client {
-	&-only {
-		&-fallback {
-			border-radius: v-bind(borderRadius);
-			display: grid;
-			width: v-bind(width);
-			height: v-bind(height);
-
-			&-text {
-				display: grid;
-				align-items: center;
-				justify-items: center;
-				justify-content: center;
-				visibility: v-bind(textVisibility);
-				color: v-bind(textColor);
-				font-weight: 600;
-			}
-		}
-	}
-}
-</style>

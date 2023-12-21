@@ -164,19 +164,3 @@ const appTitle = computed(() => config.public.appTitle as string)
 		</ClientOnly>
 	</div>
 </template>
-
-<style lang="scss">
-.slide-fade-from-up-enter-active {
-	transition: all 0.3s ease-out;
-}
-
-.slide-fade-from-up-leave-active {
-	transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
-}
-
-.slide-fade-from-up-enter-from,
-.slide-fade-from-up-leave-to {
-	transform: translateY(-20px);
-	opacity: 0;
-}
-</style>

@@ -91,15 +91,15 @@ watch(
 
 <template>
 	<div
-		class="container-sm reviews-list text-primary-700 dark:text-primary-100 p-6 border-t border-gray-900/10 dark:border-gray-50/[0.2]"
+		class="container-sm text-primary-700 dark:text-primary-100 p-6 border-t border-gray-900/10 dark:border-gray-50/20"
 	>
 		<template v-if="!pending.reviews && reviews?.results && reviews?.results?.length > 0">
-			<div class="reviews-list-header">
-				<h2 class="reviews-list-title">
+			<div class="grid gap-4">
+				<h2 class="text-2xl font-semibold">
 					{{ $t('components.product.reviews.title') }}
 				</h2>
-				<div class="reviews-list-actions">
-					<div class="reviews-list-pagination">
+				<div class="grid gap-4 md:flex md:items-center justify-start">
+					<div class="grid">
 						<PaginationPageNumber
 							:count="pagination.count"
 							:total-pages="pagination.totalPages"
@@ -109,7 +109,7 @@ watch(
 							:links="pagination.links"
 						/>
 					</div>
-					<div class="reviews-list-ordering">
+					<div class="grid">
 						<Ordering
 							:ordering="String(routePaginationParams.ordering)"
 							:ordering-options="ordering.orderingOptionsArray.value"
@@ -117,8 +117,8 @@ watch(
 					</div>
 				</div>
 			</div>
-			<div class="reviews-list-body">
-				<div class="reviews-list-items">
+			<div class="grid">
+				<div class="grid gap-4">
 					<ProductReviewsList
 						:reviews-average="reviewsAverage"
 						:reviews-count="reviewsCount"
@@ -138,72 +138,7 @@ watch(
 					</template>
 				</div>
 			</div>
-			<div class="reviews-list-footer"></div>
+			<div class="flex items-center justify-center"></div>
 		</template>
 	</div>
 </template>
-
-<style lang="scss" scoped>
-.reviews-list {
-	width: 100%;
-	display: grid;
-
-	&-header {
-		display: grid;
-		gap: 1rem;
-	}
-
-	&-title {
-		font-size: 1.5rem;
-		font-weight: 600;
-	}
-
-	&-actions {
-		display: grid;
-		justify-items: start;
-		gap: 1rem;
-
-		@media screen and (width >= 768px) {
-			display: flex;
-			align-items: center;
-		}
-	}
-
-	&-pagination {
-		display: grid;
-	}
-
-	&-ordering {
-		display: grid;
-	}
-
-	&-body {
-		display: grid;
-	}
-
-	&-items {
-		display: grid;
-		gap: 1rem;
-	}
-
-	&-item {
-		padding: 1rem;
-
-		&-content {
-			display: grid;
-			gap: 1rem;
-
-			&-header {
-				display: grid;
-				gap: 0.5rem;
-			}
-		}
-	}
-
-	&-footer {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-}
-</style>

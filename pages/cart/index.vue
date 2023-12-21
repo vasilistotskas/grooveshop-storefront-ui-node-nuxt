@@ -4,22 +4,7 @@ import emptyIcon from '~icons/mdi/package-variant-remove'
 const cartStore = useCartStore()
 const { cart, pending } = storeToRefs(cartStore)
 
-const config = useRuntimeConfig()
-const { t, locale } = useLang()
-const breadcrumbUi = useBreadcrumbsUi()
-
-const items = defineBreadcrumbItems([
-	{
-		to: '/',
-		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
-		icon: 'material-symbols:home-outline-rounded'
-	},
-	{
-		to: locale.value === config.public.defaultLocale ? '/cart' : `/${locale.value}/cart`,
-		label: t('seoUi.breadcrumb.items.cart.label'),
-		current: true
-	}
-])
+const links = useBreadcrumbItems()
 
 definePageMeta({
 	layout: 'page'
@@ -28,7 +13,7 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container grid gap-4 grid-rows-auto-1fr">
-		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
+		<UBreadcrumb :links="links" />
 		<PageBody>
 			<ClientOnly>
 				<template v-if="!pending.cart && cart?.cartItems?.length">

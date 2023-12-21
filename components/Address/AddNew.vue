@@ -1,5 +1,7 @@
 <template>
-	<li class="add-new">
+	<li
+		class="relative font-normal text-base leading-6 min-h-[305px] grid place-content-center place-items-center gap-8 border-2 border-dashed border-gray-300 bg-transparent text-left text-gray-600"
+	>
 		<p class="text-primary-700 dark:text-primary-100">
 			{{ $t('components.address.add_new.title') }}
 		</p>
@@ -14,30 +16,3 @@
 		</div>
 	</li>
 </template>
-
-<style lang="scss" scoped>
-.add-new {
-	position: relative;
-	font-size: 16px;
-	line-height: 21px;
-	min-height: 305px;
-	display: grid;
-	justify-content: center;
-	align-content: center;
-	align-items: center;
-	justify-items: center;
-	gap: 2rem;
-	border: 2px dashed #dcdcdc;
-	background: none;
-	text-align: left;
-	color: #707070;
-
-	@media screen and (width >= 961px) {
-		overflow-y: hidden;
-	}
-
-	@media screen and (width >= 634px) {
-		padding: 40px 16px 16px;
-	}
-}
-</style>

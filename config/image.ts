@@ -5,8 +5,8 @@ export const image = {
 	staticFilename: '[publicPath]/assets/images/[name]-[hash][ext]',
 	providers: {
 		mediaStream: {
-			name: 'mediaStream', // optional value to overrider provider name
-			provider: '~/providers/media-stream', // Path to custom provider
+			name: 'mediaStream',
+			provider: '~/providers/media-stream',
 			options: {
 				format: 'webp',
 				width: 100,

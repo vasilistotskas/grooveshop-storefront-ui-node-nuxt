@@ -1,34 +1,9 @@
 <script lang="ts" setup>
-const config = useRuntimeConfig()
-const { t, locale } = useLang()
-const breadcrumbUi = useBreadcrumbsUi()
 const { _totpActive } = useAuthSession()
 
 const isTotpActive = _totpActive.get()
 
-const items = defineBreadcrumbItems([
-	{
-		to: '/',
-		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
-		icon: 'material-symbols:home-outline-rounded'
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? '/auth/security'
-				: `/${locale.value}/auth/security`,
-		label: t('seoUi.breadcrumb.items.auth.security.label'),
-		ariaLabel: t('seoUi.breadcrumb.items.auth.security.ariaLabel')
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? '/auth/security/mfa'
-				: `/${locale.value}/auth/security/mfa`,
-		label: t('seoUi.breadcrumb.items.auth.security.mfa.label'),
-		current: true
-	}
-])
+const links = useBreadcrumbItems()
 
 definePageMeta({
 	layout: 'user',
@@ -38,7 +13,7 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
-		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
+		<UBreadcrumb :links="links" />
 		<PageTitle
 			:text="$t('pages.auth.security.mfa.title')"
 			class="capitalize text-center"

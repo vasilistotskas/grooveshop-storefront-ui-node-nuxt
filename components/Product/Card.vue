@@ -10,7 +10,7 @@ const props = defineProps({
 	showAddToFavouriteButton: { type: Boolean, required: false, default: true },
 	showShareButton: { type: Boolean, required: false, default: true },
 	showAddToCartButton: { type: Boolean, required: false, default: true },
-	imgWidth: { type: Number, required: false, default: 250 },
+	imgWidth: { type: Number, required: false, default: 324 },
 	imgHeight: { type: Number, required: false, default: 230 },
 	showVat: { type: Boolean, required: false, default: false },
 	showStartPrice: { type: Boolean, required: false, default: false },
@@ -74,36 +74,32 @@ const userToProductFavourite = computed(() => {
 		<div
 			class="container p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
 		>
-			<div class="card grid gap-2">
-				<div class="card-head">
-					<div class="card-thumb">
-						<div class="card-thumb-container">
-							<div class="card-thumb-image">
-								<Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
-									<NuxtImg
-										preload
-										:loading="imgLoading"
-										provider="mediaStream"
-										class="product-img bg-transparent"
-										:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-										:width="imgWidth || 100"
-										:height="imgHeight || 100"
-										:fit="'contain'"
-										:position="'entropy'"
-										:background="'transparent'"
-										:trim-threshold="5"
-										:format="'webp'"
-										sizes="`sm:100vw md:50vw lg:auto`"
-										:src="src"
-										:alt="alt"
-									/>
-								</Anchor>
-							</div>
-						</div>
+			<div class="grid gap-4">
+				<div class="max-w-full">
+					<div class="grid">
+						<Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
+							<NuxtImg
+								preload
+								:loading="imgLoading"
+								provider="mediaStream"
+								class="w-full h-auto bg-transparent object-cover"
+								:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+								:src="src"
+								:width="imgWidth"
+								:height="imgHeight"
+								:fit="'contain'"
+								:position="'entropy'"
+								:background="'transparent'"
+								:trim-threshold="5"
+								sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:324px 2xl:324px`"
+								:alt="alt"
+								densities="x1"
+							/>
+						</Anchor>
 					</div>
 				</div>
-				<div class="card-body gap-2">
-					<div class="card-actions h-6 flex gap-4">
+				<div class="flex flex-col justify-end flex-1 relative gap-2">
+					<div class="h-6 flex gap-4">
 						<ClientOnly>
 							<MainButton
 								v-if="isSupported && showShareButton"
@@ -131,26 +127,26 @@ const userToProductFavourite = computed(() => {
 							size="xs"
 						/>
 					</div>
-					<h2 class="card-title text-primary-700 dark:text-primary-100">
+					<h2 class="text-lg font-semibold leading-6">
 						<Anchor
 							:to="`/product${product.absoluteUrl}`"
 							:text="alt"
-							css-class="card-title-text"
+							class="text-primary-700 dark:text-primary-100"
 						>
 							{{ extractTranslated(product, 'name', locale) }}
 						</Anchor>
 					</h2>
 					<p
 						v-if="showDescription"
-						class="card-description text-primary-700 dark:text-primary-100 text-muted"
+						class="text-sm leading-6 min-h-[3.75rem] text-primary-700 dark:text-primary-100 text-muted"
 					>
 						{{
 							contentShorten(extractTranslated(product, 'description', locale), 0, 100)
 						}}
 					</p>
-					<div class="card-prices">
-						<div v-if="showStartPrice" class="card-price d-flex justify-content-between">
-							<p class="card-prices-start-price">
+					<div class="grid">
+						<div v-if="showStartPrice" class="d-flex justify-content-between">
+							<p>
 								<span class="text-primary-700 dark:text-primary-100">{{
 									$t('components.product.card.price')
 								}}</span
@@ -170,21 +166,18 @@ const userToProductFavourite = computed(() => {
 							</p>
 						</div>
 					</div>
-					<div
-						class="card-final-price d-flex justify-content-between total font-weight-bold mt-4"
-					>
-						<p class="card-final-price-total">
-							<span
-								class="card-final-price-total-text text-primary-700 dark:text-primary-100"
-								>{{ $t('components.product.card.total_price') }}</span
-							><span
-								class="card-final-price-total-price text-primary-700 dark:text-primary-100"
-								>{{ product.finalPrice }}</span
-							>
+					<div class="flex justify-between font-bold mt-4">
+						<p class="grid grid-cols-[1fr_auto] gap-2 items-center">
+							<span class="text-sm leading-6 text-primary-700 dark:text-primary-100">
+								{{ $t('components.product.card.total_price') }}
+							</span>
+							<span class="text-lg leading-6 text-primary-700 dark:text-primary-100">
+								{{ product.finalPrice }}
+							</span>
 						</p>
 					</div>
 				</div>
-				<div class="card-footer">
+				<div class="grid items-center">
 					<ButtonAddToCart
 						v-if="showAddToCartButton"
 						:product="product"
@@ -196,102 +189,3 @@ const userToProductFavourite = computed(() => {
 		</div>
 	</li>
 </template>
-
-<style lang="scss" scoped>
-.product-card {
-	display: flex;
-	flex-direction: column;
-	min-height: 380px;
-
-	.card-title {
-		display: grid;
-		align-items: center;
-
-		&-text {
-			font-size: 1.125rem;
-			line-height: 1.5;
-			font-weight: 600;
-		}
-	}
-
-	.card-body {
-		transition:
-			transform 0.3s ease,
-			-webkit-transform 0.3s ease;
-		will-change: transform;
-		display: flex;
-		position: relative;
-		flex: 1;
-		flex-direction: column;
-		align-items: flex-start;
-		justify-content: flex-end;
-	}
-
-	.card-head {
-		flex: 0 0 100%;
-		max-width: 100%;
-	}
-
-	.card-footer {
-		display: grid;
-		align-items: center;
-	}
-
-	.card-description {
-		font-size: 0.875rem;
-		line-height: 1.5;
-		min-height: 3.75rem;
-	}
-
-	.card-thumb {
-		display: block;
-		width: 100%;
-	}
-
-	.card-thumb-container {
-		position: relative;
-		width: 100%;
-		padding-bottom: 100%;
-	}
-
-	.card-thumb-image {
-		display: grid;
-		position: absolute;
-		border: 0;
-		width: 100%;
-		height: 100%;
-		background: transparent;
-
-		::v-deep(.product-img) {
-			transition: all 300ms ease-in-out;
-			font-size: 9px;
-			line-height: 1.2;
-			position: absolute;
-			inset: 0;
-			margin: auto;
-			max-height: 100%;
-			max-width: 100%;
-		}
-	}
-
-	.card-final-price {
-		&-total {
-			display: grid;
-			grid-template-columns: 1fr auto;
-			align-items: center;
-			gap: 0.5rem;
-
-			&-text {
-				font-size: 0.875rem;
-				line-height: 1.5;
-			}
-
-			&-price {
-				font-size: 1.125rem;
-				line-height: 1.5;
-				font-weight: 700;
-			}
-		}
-	}
-}
-</style>

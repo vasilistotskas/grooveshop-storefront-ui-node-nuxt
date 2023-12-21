@@ -118,7 +118,7 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-40 p-0">
+	<PageWrapper class="container flex flex-col gap-10 p-0">
 		<PageBody>
 			<div
 				id="search"
@@ -129,7 +129,7 @@ definePageMeta({
 					<Anchor
 						:to="'index'"
 						aria-label="index"
-						class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-primary-700 dark:text-primary-100 border-r-2 border-gray-900/10 dark:border-gray-50/[0.2] close"
+						class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-primary-700 dark:text-primary-100 border-r-2 border-gray-900/10 dark:border-gray-50/20 pr-8"
 					>
 						<span class="hidden">{{ $t('pages.search.back_to_home') }}</span>
 						<IconEntypo:arrowLeft></IconEntypo:arrowLeft>
@@ -148,21 +148,21 @@ definePageMeta({
 				<div
 					v-if="showSuggestions"
 					ref="suggestions"
-					class="suggestions bg-zinc-50/50 dark:bg-zinc-800/90"
+					class="absolute top-15 w-full mt-1 list-none max-h-36 overflow-y-auto z-10 rounded-md shadow-md bg-zinc-50 dark:bg-zinc-800"
 				>
 					<TransitionGroup name="list" tag="ul" class="grid">
 						<li
 							v-for="suggestion in storageSearchHistory"
 							:key="suggestion"
-							class="suggestions-link hover:bg-zinc-100 dark:hover:bg-zinc-700"
+							class="py-2 px-4 hover:bg-zinc-100 dark:hover:bg-zinc-700"
 						>
 							<Anchor
 								:to="`/search?query=${suggestion}`"
-								class="suggestions-link-anchor flex items-center gap-3"
+								class="flex items-center gap-3"
 								@click="currentSearch = suggestion"
 							>
 								<IconFa6Solid:clockRotateLeft />
-								<span class="text-primary-700 dark:text-primary-100">
+								<span class="text-primary-700 dark:text-primary-100 font-bold truncate">
 									{{ suggestion }}
 								</span>
 							</Anchor>
@@ -170,17 +170,16 @@ definePageMeta({
 						<li
 							v-for="(headline, productId) in productHeadlines"
 							:key="productId"
-							class="suggestions-link hover:bg-zinc-100 dark:hover:bg-zinc-700"
+							class="py-2 px-4 hover:bg-zinc-100 dark:hover:bg-zinc-700"
 						>
 							<Anchor
 								:to="`/search?query=${cleanHtml(headline)}`"
-								class="suggestions-link-anchor flex items-center gap-3"
+								class="flex items-center gap-3"
 								@click="currentSearch = cleanHtml(headline)"
 							>
 								<IconFa6Solid:magnifyingGlass />
-								<!-- eslint-disable vue/no-v-html -->
 								<span
-									class="text-primary-700 dark:text-primary-100 headline"
+									class="text-primary-700 dark:text-primary-100 font-bold truncate"
 									v-html="headline"
 								/>
 							</Anchor>
@@ -200,10 +199,10 @@ definePageMeta({
 			</PageTitle>
 
 			<div v-if="showResults" class="min-h-screen mt-20">
-				<div v-if="showTotalCount" class="px-8 opacity-95 text-sm">
+				<div v-if="showTotalCount" class="px-8 text-sm opacity-95">
 					{{ $t('common.items.count', totalCount) }}
 				</div>
-				<div class="grid grid-cols-repeat-auto-fill-mimax-200-auto gap-4 p-8">
+				<div class="grid grid-cols-repeat-auto-fill-minmax-200-auto gap-4 p-8">
 					<SearchProductCard
 						v-for="(item, index) of productSearchItems"
 						:key="index"
@@ -211,7 +210,10 @@ definePageMeta({
 					/>
 				</div>
 			</div>
-			<div v-if="showStartSearching" class="text-4xl p10 font-100 op50 text-center">
+			<div
+				v-if="showStartSearching"
+				class="text-4xl p-10 font-light opacity-50 text-center"
+			>
 				{{ $t('pages.search.start_searching') }}
 			</div>
 			<div
@@ -234,7 +236,7 @@ definePageMeta({
 				/>
 			</div>
 			<div v-if="showErrors" class="p-8 flex flex-col gap-3 items-start mt-40">
-				<h1 class="text-4xl text-red">
+				<h1 class="text-4xl text-red-600">
 					{{ $t('pages.search.error') }}
 				</h1>
 				<pre class="py-2">{{ error.results }}</pre>
@@ -242,70 +244,3 @@ definePageMeta({
 		</PageBody>
 	</PageWrapper>
 </template>
-
-<style lang="scss" scoped>
-$transitional-profile-1: all 0.2s ease-out;
-
-.close {
-	margin-right: 2rem;
-	z-index: 33;
-	transition: $transitional-profile-1;
-
-	span {
-		i {
-			font-weight: 900;
-		}
-	}
-}
-.suggestions {
-	position: absolute;
-	top: 3.75rem;
-	list-style-type: none;
-	max-height: 150px;
-	overflow-y: auto;
-	width: 100%;
-	margin: 0;
-	padding: 0;
-	z-index: 10;
-	border-radius: 4px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-	&-link {
-		min-height: 0;
-		padding: 0;
-		&-anchor {
-			padding: 8px 16px;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-			color: inherit;
-			font-weight: bold;
-		}
-	}
-}
-.headline {
-	font-weight: 300;
-	::v-deep(span) {
-		font-weight: 900;
-	}
-}
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
-}
-
-.list-enter-active,
-.list-leave-active {
-	transition: all 0.5s ease;
-}
-.list-enter-from,
-.list-leave-to {
-	opacity: 0;
-	transform: translateX(30px);
-}
-</style>

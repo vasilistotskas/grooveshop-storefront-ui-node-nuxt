@@ -16,26 +16,13 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="order-list">
+	<div class="w-full grid items-start">
 		<slot class="header"></slot>
 		<slot>
-			<div class="order-list-body">
+			<div class="grid gap-4">
 				<OrderCard v-for="order in orders" :key="order.id" :order="order" />
 			</div>
 		</slot>
 		<slot class="footer"></slot>
 	</div>
 </template>
-
-<style lang="scss" scoped>
-.order-list {
-	width: 100%;
-	display: grid;
-	align-items: start;
-
-	&-body {
-		display: grid;
-		gap: 1rem;
-	}
-}
-</style>

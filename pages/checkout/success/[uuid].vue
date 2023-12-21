@@ -4,8 +4,6 @@ import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
 const orderStore = useOrderStore()
 const { order } = storeToRefs(orderStore)
 const { fetchOrderByUUID } = orderStore
-const config = useRuntimeConfig()
-const breadcrumbUi = useBreadcrumbsUi()
 
 const route = useRoute('checkout-success-uuid___en')
 const orderUUID = route.params.uuid
@@ -64,21 +62,7 @@ const payWayPrice = computed(() => {
 	return payWayCost
 })
 
-const items = defineBreadcrumbItems([
-	{
-		to: '/',
-		ariaLabel: t('seoUi.breadcrumb.items.index.ariaLabel'),
-		icon: 'material-symbols:home-outline-rounded'
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? `/checkout/success/${orderUUID}`
-				: `/${locale.value}/checkout/success/${orderUUID}`,
-		label: t('seoUi.breadcrumb.items.checkout.success.label'),
-		current: true
-	}
-])
+const links = useBreadcrumbItems()
 
 definePageMeta({
 	layout: 'page'
@@ -87,7 +71,7 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
-		<SBreadcrumb id="sub" :items="items" :ui="breadcrumbUi" />
+		<UBreadcrumb :links="links" />
 		<PageTitle
 			:text="$t('pages.checkout.success.title')"
 			class="capitalize text-center"
@@ -153,7 +137,6 @@ definePageMeta({
 											:position="'entropy'"
 											:background="'transparent'"
 											:trim-threshold="5"
-											:format="'webp'"
 											sizes="`sm:100vw md:50vw lg:auto`"
 											:src="
 												resolveImageSrc(

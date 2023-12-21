@@ -80,13 +80,11 @@ const uploadImage = async (event: Event) => {
 <template>
 	<div class="flex items-center" :class="[showName ? 'gap-2' : 'gap-0']">
 		<div
-			:class="[
-				'user-avatar',
-				{
-					'user-avatar-border border-8 rounded-full bg-zinc-200 dark:bg-zinc-800 border-gray-200 dark:border-slate-800':
-						backgroundBorder
-				}
-			]"
+			class="user-avatar relative"
+			:class="{
+				'inline-block relative shrink-0 w-[135px] h-[135px] text-center align-middle':
+					backgroundBorder
+			}"
 			:style="{
 				width: typeof imgWidth === 'number' ? imgWidth + 'px' : imgWidth,
 				height: typeof imgHeight === 'number' ? imgHeight + 'px' : imgHeight
@@ -104,7 +102,6 @@ const uploadImage = async (event: Event) => {
 				:position="'entropy'"
 				:background="'transparent'"
 				:trim-threshold="5"
-				:format="'webp'"
 				sizes="`sm:100vw md:50vw lg:auto`"
 				:src="src"
 				:alt="alt"
@@ -113,7 +110,7 @@ const uploadImage = async (event: Event) => {
 			<form
 				v-if="changeAvatar"
 				enctype="multipart/form-data"
-				class="user-avatar-change"
+				class="user-avatar-change absolute inset-0 z-10"
 				name="uploadImageForm"
 				:title="$t('components.user.avatar.change')"
 			>
@@ -174,59 +171,39 @@ const uploadImage = async (event: Event) => {
 			</form>
 		</div>
 		<div v-if="showName" class="flex flex-col">
-			<span class="text-primary-700 dark:text-primary-100 font-bold">{{
-				userAccount?.firstName
-			}}</span>
+			<span class="text-primary-700 dark:text-primary-100 font-bold">
+				{{ userAccount?.firstName }}
+			</span>
 		</div>
 	</div>
 </template>
 
 <style lang="scss" scoped>
-.user-avatar {
-	position: relative;
-
-	&-border {
-		display: inline-block;
-		position: relative;
-		flex-shrink: 0;
-		width: 135px;
-		height: 135px;
-		text-align: center;
-		line-height: 110px;
-	}
-
-	&-change {
+.user-avatar-change {
+	svg {
+		display: none;
 		position: absolute;
-		inset: 0;
-		z-index: 1;
+		top: 18px;
+		left: 1px;
+		transform: scale(0.4);
+		cursor: pointer;
 
-		svg {
-			display: none;
-			position: absolute;
-			top: 18px;
-			left: 1px;
-			transform: scale(0.4);
-			cursor: pointer;
-
-			@media screen and (width >= 768px) {
-				display: block;
-				top: 21px;
-				transform: scale(0.5);
-				transition: all 0.5s linear;
-				stroke-dashoffset: 75px;
-				stroke-dasharray: 75px;
-			}
-		}
-
-		&:hover {
-			background-color: transparent;
+		@media screen and (min-width: 768px) {
+			display: block;
+			top: 21px;
+			transform: scale(0.5);
+			transition: all 0.5s linear;
+			stroke-dashoffset: 75px;
+			stroke-dasharray: 75px;
 		}
 	}
 
 	&:hover {
-		svg {
-			stroke-dashoffset: 0;
-		}
+		background-color: transparent;
+	}
+
+	.user-avatar:hover & svg {
+		stroke-dashoffset: 0;
 	}
 }
 </style>

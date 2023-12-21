@@ -1,6 +1,10 @@
 import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 
 export const pwa = {
+	scope: '/',
+	base: '/',
+	strategies: 'generateSW',
+	injectRegister: 'auto',
 	registerType: 'autoUpdate',
 	minify: true,
 	manifest: {
@@ -90,6 +94,7 @@ export const pwa = {
 		]
 	},
 	workbox: {
+		navigateFallback: undefined,
 		globPatterns: ['**/*.{js,css,html,json,svg,webp,ico,png,jpg,webmanifest}'],
 		globIgnores: ['google*.html'],
 		navigateFallbackDenylist: [/\/api\/.*/],

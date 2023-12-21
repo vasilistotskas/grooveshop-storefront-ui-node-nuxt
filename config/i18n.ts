@@ -24,7 +24,7 @@ export const i18n = {
 				'components/en-US.yml',
 				'pages/en-US.yml',
 				'routes/en-US.yml',
-				'seoUi/en-US.yml'
+				'breadcrumb/en-US.yml'
 			],
 			iso: 'en-US',
 			flag: '🇺🇸'
@@ -37,7 +37,7 @@ export const i18n = {
 				'components/de-DE.yml',
 				'pages/de-DE.yml',
 				'routes/de-DE.yml',
-				'seoUi/de-DE.yml'
+				'breadcrumb/de-DE.yml'
 			],
 			iso: 'de-DE',
 			flag: '🇩🇪'
@@ -50,7 +50,7 @@ export const i18n = {
 				'components/el-GR.yml',
 				'pages/el-GR.yml',
 				'routes/el-GR.yml',
-				'seoUi/el-GR.yml'
+				'breadcrumb/el-GR.yml'
 			],
 			iso: 'el-GR',
 			flag: '🇬🇷'

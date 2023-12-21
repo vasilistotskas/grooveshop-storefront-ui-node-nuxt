@@ -57,13 +57,13 @@ const updatePayWay = (value: PayWay) => {
 </script>
 
 <template>
-	<div class="pay-ways">
-		<div class="pay-ways-title">
+	<div class="grid gap-4">
+		<div class="grid place-items-center">
 			<h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
 				{{ t('components.checkout.pay_ways.title') }}
 			</h3>
 		</div>
-		<div class="pay-ways-list">
+		<div>
 			<template v-if="!pending.payWays && getActivePayWays?.length">
 				<RadioGroup
 					:model-value="selectedPayWay"
@@ -71,8 +71,8 @@ const updatePayWay = (value: PayWay) => {
 					name="pay-way"
 					@update:model-value="(value) => updatePayWay(value)"
 				>
-					<RadioGroupLabel class="sr-only"
-						>{{ t('components.checkout.pay_ways.label') }}
+					<RadioGroupLabel class="sr-only">
+						{{ t('components.checkout.pay_ways.label') }}
 					</RadioGroupLabel>
 					<div class="space-y-2">
 						<RadioGroupOption
@@ -92,7 +92,7 @@ const updatePayWay = (value: PayWay) => {
 								class="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
 							>
 								<div
-									class="grid w-full items-center justify-between justify-items-center"
+									class="grid w-full items-center justify-between"
 									:class="checked ? 'grid-cols-3' : 'grid-cols-2'"
 								>
 									<div class="grid items-center">
@@ -130,7 +130,7 @@ const updatePayWay = (value: PayWay) => {
 									/>
 									<div
 										v-if="checked"
-										class="grid w-full h-full items-center justify-items-end"
+										class="grid w-full h-full justify-items-end items-center"
 									>
 										<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
 											<circle cx="12" cy="12" fill="#fff" fill-opacity="0.2" r="12" />
@@ -153,17 +153,3 @@ const updatePayWay = (value: PayWay) => {
 		<slot name="error" />
 	</div>
 </template>
-
-<style lang="scss" scoped>
-.pay-ways {
-	display: grid;
-	gap: 1rem;
-
-	&-title {
-		display: grid;
-		align-items: center;
-		justify-content: center;
-		justify-items: center;
-	}
-}
-</style>

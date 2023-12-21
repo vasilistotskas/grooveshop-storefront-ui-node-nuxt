@@ -14,72 +14,72 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="sidebar grid gap-2 md:gap-4 relative">
+	<div class="grid gap-2 md:gap-4 relative grid-rows-auto">
 		<slot name="pay-ways"></slot>
 		<slot name="items"></slot>
 		<ClientOnly>
-			<div class="sidebar-container">
-				<div class="sidebar-title hidden">
+			<div class="grid">
+				<div class="hidden">
 					<h3 class="text-primary-700 dark:text-primary-100">
 						{{ $t('components.checkout.sidebar.title') }}
 					</h3>
 				</div>
-				<div v-if="cart && getCartItems?.length" class="sidebar-list">
-					<div class="sidebar-list-item">
-						<div class="sidebar-list-item-title">
+				<div v-if="cart && getCartItems?.length">
+					<div class="flex gap-1">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100">
 								{{ $t('components.checkout.sidebar.items_unique') }}:
 							</span>
 						</div>
-						<div class="sidebar-list-item-value">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100 font-bold">
 								{{ cart.totalItemsUnique }}
 							</span>
 						</div>
 					</div>
-					<div class="sidebar-list-item">
-						<div class="sidebar-list-item-title">
+					<div class="flex gap-1">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100">
 								{{ $t('components.checkout.sidebar.shipping') }}:
 							</span>
 						</div>
-						<div class="sidebar-list-item-value">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100 font-bold"
 								>{{ shippingPrice }}€
 							</span>
 						</div>
 					</div>
-					<div class="sidebar-list-item">
-						<div class="sidebar-list-item-title">
+					<div class="flex gap-1">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100">
 								{{ $t('components.checkout.sidebar.discount') }}:
 							</span>
 						</div>
-						<div class="sidebar-list-item-value">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100 font-bold"
 								>{{ cart.totalDiscountValue }}€</span
 							>
 						</div>
 					</div>
-					<div class="sidebar-list-item">
-						<div class="sidebar-list-item-title">
+					<div class="flex gap-1">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100">
 								{{ $t('components.checkout.sidebar.vat') }}:
 							</span>
 						</div>
-						<div class="sidebar-list-item-value">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100 font-bold"
 								>{{ cart.totalVatValue }}€</span
 							>
 						</div>
 					</div>
-					<div class="sidebar-list-item">
-						<div class="sidebar-list-item-title">
+					<div class="flex gap-1">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100">
 								{{ $t('components.checkout.sidebar.total') }}:
 							</span>
 						</div>
-						<div class="sidebar-list-item-value">
+						<div class="grid">
 							<span class="text-primary-700 dark:text-primary-100 font-bold"
 								>{{ cart.totalPrice }}€</span
 							>
@@ -94,16 +94,3 @@ defineSlots<{
 		<slot name="button"></slot>
 	</div>
 </template>
-
-<style lang="scss" scoped>
-.sidebar {
-	grid-template-rows: auto auto auto;
-
-	&-list {
-		&-item {
-			display: flex;
-			gap: 5px;
-		}
-	}
-}
-</style>

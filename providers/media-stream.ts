@@ -1,6 +1,7 @@
 import { joinURL } from 'ufo'
 import type { ProviderGetImage } from '@nuxt/image'
 import { createOperationsGenerator } from '#image'
+import { defu } from 'defu'
 
 const operationsGenerator = createOperationsGenerator({
 	keyMap: {
@@ -66,7 +67,8 @@ const defaultModifiers = {
 	position: 'entropy',
 	background: 'transparent',
 	trimThreshold: 5,
-	format: 'webp'
+	format: 'webp',
+	quality: 100
 }
 
 export const getImage: ProviderGetImage = (
@@ -75,14 +77,17 @@ export const getImage: ProviderGetImage = (
 ) => {
 	const config = useRuntimeConfig()
 	const baseURL = config.public.mediaStreamPath as string
-	const mergeModifiers = { ...defaultModifiers, ...modifiers }
-	const operations = operationsGenerator(mergeModifiers as any)
+
+	const mergeModifiers = defu(modifiers, defaultModifiers)
+
+	const operations = operationsGenerator(mergeModifiers)
 
 	if (src.startsWith('/assets/images/')) {
 		src = src.replace('/assets/images/', '/nuxt/images/')
 	}
 
 	const url = joinURL(baseURL, src, operations)
+
 	return {
 		url
 	}

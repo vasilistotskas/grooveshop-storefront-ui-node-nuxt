@@ -18,16 +18,16 @@ const { t } = useLang()
 </script>
 
 <template>
-	<div class="address-list gap-4">
-		<div class="address-list-header">
-			<div v-if="displayTotal" class="address-list-header-total">
-				<span class="address-list-header-total-value">{{ addresses?.length }}</span>
-				<span class="address-list-header-total-label">
-					{{ t('pages.account.addresses.total') }}
-				</span>
-			</div>
+	<div class="w-full grid items-start gap-4">
+		<div v-if="displayTotal" class="flex items-center justify-center gap-1">
+			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">{{
+				addresses?.length
+			}}</span>
+			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">
+				{{ t('pages.account.addresses.total') }}
+			</span>
 		</div>
-		<ul class="address-list-body">
+		<ul class="grid gap-4 grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-1">
 			<AddressAddNew />
 			<template v-for="address in addresses" :key="address.id">
 				<AddressCard :address="address" />
@@ -35,45 +35,3 @@ const { t } = useLang()
 		</ul>
 	</div>
 </template>
-
-<style lang="scss" scoped>
-.address-list {
-	width: 100%;
-	display: grid;
-	align-items: start;
-
-	&-header {
-		&-total {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 0.25rem;
-
-			&-value,
-			&-label {
-				font-size: 0.75rem;
-				font-weight: 600;
-				color: #f0c14b;
-			}
-		}
-	}
-
-	&-body {
-		display: grid;
-		gap: 1rem;
-		grid-template-columns: repeat(4, 1fr);
-
-		@media screen and (width <= 1199px) {
-			grid-template-columns: repeat(3, 1fr);
-		}
-
-		@media screen and (width <= 991px) {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		@media screen and (width <= 767px) {
-			grid-template-columns: repeat(1, 1fr);
-		}
-	}
-}
-</style>

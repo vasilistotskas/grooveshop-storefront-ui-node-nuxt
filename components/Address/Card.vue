@@ -39,22 +39,20 @@ const deleteAddressEvent = async (id: string) => {
 
 <template>
 	<li
-		class="address-card p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
+		class="relative w-full grid items-start gap-8 p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg sm:py-10 sm:px-4"
 	>
-		<div v-if="address.isMain" class="address-card-main">
+		<div v-if="address.isMain" class="absolute top-3 right-3 text-[#f0c14b]">
 			<IconMdi:star></IconMdi:star>
 		</div>
-		<div class="address-card-header">
-			<div class="address-card-header-title">
-				<h3
-					class="address-card-header-title-value font-bold text-primary-700 dark:text-primary-100"
-				>
+		<div class="grid grid-cols-[1fr_auto] items-center justify-center gap-2">
+			<div class="grid items-center gap-2">
+				<h3 class="font-bold text-primary-700 dark:text-primary-100">
 					{{ contentShorten(address.title, 0, 25) }}
 				</h3>
 			</div>
-			<div class="address-card-header-actions">
+			<div class="grid grid-cols-[auto_auto] items-center gap-2">
 				<MainButton
-					class="address-card-header-actions-button"
+					class="w-[2rem] h-[2rem] grid place-items-center rounded-full"
 					type="link"
 					:to="`/account/addresses/${address.id}/edit`"
 					size="sm"
@@ -64,7 +62,7 @@ const deleteAddressEvent = async (id: string) => {
 					<IconFa6Solid:pencil class="text-cyan-600" />
 				</MainButton>
 				<MainButton
-					class="address-card-header-actions-button"
+					class="w-[2rem] h-[2rem] grid place-items-center rounded-full"
 					type="button"
 					size="sm"
 					:style="'secondary'"
@@ -75,134 +73,36 @@ const deleteAddressEvent = async (id: string) => {
 				</MainButton>
 			</div>
 		</div>
-		<div class="address-card-body">
-			<div class="address-card-body-address">
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+		<div class="grid justify-center items-center gap-4">
+			<div class="grid items-center gap-2 w-full h-full">
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ address.firstName }} {{ address.lastName }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ address.street }} {{ address.streetNumber }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ address.city }} {{ address.zipcode }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ address.country }} {{ address.region }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ $t('common.floor') }}: {{ address.floor }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ $t('common.location_type') }}: {{ address.locationType }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ $t('common.phone') }}: {{ address.phone }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ $t('common.mobile_phone') }}: {{ address.mobilePhone }}
 				</span>
-				<span
-					class="address-card-body-address-value text-primary-700 dark:text-primary-100"
-				>
+				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ $t('common.notes') }}: {{ address.notes }}
 				</span>
 			</div>
 		</div>
 	</li>
 </template>
-
-<style lang="scss" scoped>
-.address-card {
-	position: relative;
-	width: 100%;
-	display: grid;
-	align-items: start;
-	gap: 2rem;
-
-	@media screen and (width >= 961px) {
-		overflow-y: hidden;
-	}
-
-	@media screen and (width >= 634px) {
-		padding: 40px 16px 16px;
-	}
-
-	&-header {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		align-items: center;
-		justify-items: center;
-		gap: 0.5rem;
-
-		&-title {
-			display: grid;
-			align-items: center;
-			gap: 0.5rem;
-
-			&-value,
-			&-label {
-				font-size: 1.3rem;
-			}
-		}
-
-		&-actions {
-			display: grid;
-			grid-template-columns: auto auto;
-			align-items: center;
-			gap: 0.5rem;
-
-			&-button {
-				width: 2rem;
-				height: 2rem;
-				border-radius: 50%;
-				display: grid;
-				place-items: center;
-				cursor: pointer;
-			}
-		}
-	}
-
-	&-body {
-		display: grid;
-		justify-items: center;
-		align-items: center;
-		gap: 1rem;
-
-		&-address {
-			display: grid;
-			align-items: center;
-			gap: 0.5rem;
-			width: 100%;
-			height: 100%;
-
-			&-value {
-				font-size: 0.875rem;
-				font-weight: 400;
-			}
-		}
-	}
-
-	&-main {
-		position: absolute;
-		top: 0.75rem;
-		right: 0.75rem;
-		color: #f0c14b;
-	}
-}
-</style>

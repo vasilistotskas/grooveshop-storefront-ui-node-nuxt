@@ -424,18 +424,3 @@ definePageMeta({
 		</PageBody>
 	</PageWrapper>
 </template>
-
-<style lang="scss" scoped>
-.form-select {
-	background-image: none;
-	border-radius: 4px;
-	box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
-	display: block;
-	font-size: 14px;
-	height: 43px;
-	line-height: 1.4286;
-	padding: 11px 12px;
-	transition: all 0.3s ease-in-out;
-	width: 100%;
-}
-</style>
