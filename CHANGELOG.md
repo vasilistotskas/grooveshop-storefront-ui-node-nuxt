@@ -1,3 +1,10 @@
+# [1.47.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.46.1...v1.47.0) (2023-12-21)
+
+
+### Features
+
+* Bump versions, replace hardcoded scss with tailwind ([ac9bea7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ac9bea70fd49a1be2f2a71500c35bbf98cbe54cc))
+
 ## [1.46.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.46.0...v1.46.1) (2023-12-20)
 
 
