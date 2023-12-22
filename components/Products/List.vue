@@ -4,7 +4,7 @@ import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const route = useRoute()
-const { t } = useLang()
+const { t } = useI18n()
 
 const productStore = useProductsStore()
 const { products, pending } = storeToRefs(productStore)

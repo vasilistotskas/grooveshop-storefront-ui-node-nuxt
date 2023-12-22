@@ -10,7 +10,7 @@ const userAddressStore = useUserAddressStore()
 const { addresses, pending } = storeToRefs(userAddressStore)
 const { fetchAddresses } = userAddressStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const route = useRoute('account-addresses___en')
 
 const entityOrdering: EntityOrdering<AddressOrderingField> = reactive([

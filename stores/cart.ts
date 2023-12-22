@@ -182,6 +182,7 @@ export const useCartStore = defineStore('cart', () => {
 				id: Date.now(),
 				cart: Date.now(),
 				product: productData,
+				price: body.product.price,
 				quantity: body.quantity,
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),

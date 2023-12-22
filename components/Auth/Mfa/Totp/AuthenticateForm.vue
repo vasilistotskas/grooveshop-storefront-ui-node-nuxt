@@ -5,7 +5,7 @@ import type { DynamicFormSchema } from '~/types/form'
 
 const { totpAuthenticate } = useAuthMfa()
 
-const { t } = useLang()
+const { t } = useI18n()
 
 async function onSubmit(values: MfaTotpAuthenticateBody) {
 	await totpAuthenticate(values)

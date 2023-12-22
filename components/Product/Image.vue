@@ -11,11 +11,11 @@ const props = defineProps({
 	},
 	width: {
 		type: Number,
-		default: 592
+		default: 572
 	},
 	height: {
 		type: Number,
-		default: 350
+		default: 320
 	},
 	imgLoading: {
 		type: String as PropType<ImageLoading>,
@@ -25,7 +25,7 @@ const props = defineProps({
 	}
 })
 
-const { locale } = useLang()
+const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
 
@@ -42,20 +42,20 @@ const alt = computed(() => {
 </script>
 
 <template>
-	<NuxtImg
-		preload
+	<NuxtPicture
 		:loading="imgLoading"
 		provider="mediaStream"
-		class="rounded-full"
-		:style="{ objectFit: 'contain' }"
-		:width="width || 100"
-		:height="height || 100"
+		:width="width"
+		:height="height"
 		:fit="'contain'"
 		:position="'entropy'"
 		:background="'transparent'"
 		:trim-threshold="5"
-		sizes="`sm:100vw md:50vw lg:auto`"
+		:sizes="`xs:${width}px sm:${width}px md:${
+			width / 2
+		}px lg:${width}px xl:${width}px xxl:${width}px 2xl:${width}px`"
 		:src="src"
 		:alt="alt"
+		densities="x1"
 	/>
 </template>

@@ -14,7 +14,7 @@ defineSlots<{
 	modal(props: {}): any
 }>()
 
-const { t } = useLang()
+const { t } = useI18n()
 
 const {
 	cookiesEnabled,

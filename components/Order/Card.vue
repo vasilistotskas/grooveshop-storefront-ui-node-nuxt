@@ -19,7 +19,7 @@ const props = defineProps({
 	}
 })
 
-const { locale } = useLang()
+const { locale } = useI18n()
 const { contentShorten } = useText()
 const { extractTranslated } = useTranslationExtractor()
 

@@ -14,7 +14,7 @@ const favouriteStore = useFavouriteStore()
 const { favourites, pending } = storeToRefs(favouriteStore)
 const { fetchFavourites } = favouriteStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const route = useRoute('account-favourites___en')
 
 const entityOrdering: EntityOrdering<FavouriteOrderingField> = reactive([

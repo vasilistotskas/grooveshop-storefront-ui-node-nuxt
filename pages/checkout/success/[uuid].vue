@@ -8,7 +8,7 @@ const { fetchOrderByUUID } = orderStore
 const route = useRoute('checkout-success-uuid___en')
 const orderUUID = route.params.uuid
 
-const { t, locale } = useLang()
+const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 const { resolveImageSrc } = useImageResolver()
 
@@ -88,11 +88,11 @@ definePageMeta({
 							:loop="true"
 							:auto-play="true"
 						/>
-						<h1 class="text-4xl font-bold">
+						<h2 class="text-4xl font-bold">
 							{{
 								$t('pages.checkout.success.main.title', { customerName: customerName })
 							}}
-						</h1>
+						</h2>
 						<!-- eslint-disable vue/no-v-html -->
 						<p
 							class="text-center text-primary-700 dark:text-primary-100"
@@ -113,17 +113,24 @@ definePageMeta({
 						<table class="min-w-full table-auto text-center">
 							<thead>
 								<tr>
-									<th class="px-4 py-2">{{ $t('pages.checkout.success.image') }}</th>
-									<th class="px-4 py-2">{{ $t('pages.checkout.success.product') }}</th>
-									<th class="px-4 py-2">{{ $t('pages.checkout.success.quantity') }}</th>
-									<th class="px-4 py-2">{{ $t('pages.checkout.success.price') }}</th>
+									<th scope="col" class="px-4 py-2">
+										{{ $t('pages.checkout.success.image') }}
+									</th>
+									<th scope="col" class="px-4 py-2">
+										{{ $t('pages.checkout.success.product') }}
+									</th>
+									<th scope="col" class="px-4 py-2">
+										{{ $t('pages.checkout.success.quantity') }}
+									</th>
+									<th scope="col" class="px-4 py-2">
+										{{ $t('pages.checkout.success.price') }}
+									</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr v-for="(item, index) in orderItems" :key="index">
 									<td class="border px-4 py-2">
 										<NuxtImg
-											preload
 											loading="lazy"
 											provider="mediaStream"
 											class="product-img bg-transparent"

@@ -8,7 +8,7 @@ const props = defineProps({
 		required: true
 	}
 })
-const { locale } = useLang()
+const { locale } = useI18n()
 const { item } = toRefs(props)
 const { extractTranslated } = useTranslationExtractor()
 const { resolveImageSrc } = useImageResolver()
@@ -35,7 +35,6 @@ const alt = computed(() => {
 			<div class="block bg-zinc4:10 p-1 transition duration-400 hover:scale-105 z-10">
 				<NuxtImg
 					v-if="src"
-					preload
 					loading="lazy"
 					provider="mediaStream"
 					class="w-full h-full object-cover aspect-square"

@@ -49,7 +49,7 @@ const productReviewStore = useProductReviewStore()
 const { fetchReviews, addReview, updateReview, deleteReview } = productReviewStore
 
 const { extractTranslated } = useTranslationExtractor()
-const { t, locale } = useLang()
+const { t, locale } = useI18n()
 const route = useRoute()
 const toast = useToast()
 
@@ -424,7 +424,7 @@ watch(
 								v-for="(star, i) of backgroundStars"
 								:key="i"
 								aria-hidden="true"
-								class="cursor-pointer height-[26px] width-[26px] text-[#e2e8f0]"
+								class="cursor-pointer h-[26px] w-[26px] text-[#e2e8f0] hover:text-[#f68b24]"
 								data-icon="star"
 								data-prefix="fas"
 								focusable="false"
@@ -440,7 +440,7 @@ watch(
 								v-for="(star, i) of foregroundStars"
 								:key="i"
 								aria-hidden="true"
-								class="cursor-pointer height-[26px] width-[26px] text-[#f68b24]"
+								class="cursor-pointer height-[26px] width-[26px] text-[#f68b24] hover:text-[#f68b24]"
 								focusable="false"
 								role="img"
 								viewBox="0 0 576 512"

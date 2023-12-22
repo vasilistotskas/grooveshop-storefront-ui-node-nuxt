@@ -5,7 +5,7 @@ import type { DynamicFormSchema } from '~/types/form'
 
 const { passwordReset } = useAuth()
 
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 
 async function onSubmit(values: PasswordResetBody) {

@@ -3,10 +3,13 @@ import { z } from 'zod'
 
 const { register } = useAuth()
 
+const userStore = useUserStore()
 const cartStore = useCartStore()
+
+const { fetchAccount } = userStore
 const { fetchCart } = cartStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 
 const ZodRegistration = z
@@ -57,6 +60,7 @@ const onSubmit = handleSubmit(async (values) => {
 		toast.add({
 			title: t('common.auth.registration.success')
 		})
+		await fetchAccount()
 		await fetchCart()
 	} else if (data.value?.detail) {
 		toast.add({

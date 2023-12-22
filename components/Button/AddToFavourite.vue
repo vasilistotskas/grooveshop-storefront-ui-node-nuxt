@@ -37,7 +37,7 @@ const userStore = useUserStore()
 const { favourites } = storeToRefs(userStore)
 const { addFavourite, removeFavourite } = userStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 
 const toggleFavourite = async () => {

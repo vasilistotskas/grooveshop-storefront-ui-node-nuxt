@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const { passwordResetConfirm } = useAuth()
 
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 const route = useRoute('auth-password-reset-confirm-uid-token___en')
 const uid = route.params.uid

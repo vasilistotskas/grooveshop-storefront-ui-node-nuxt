@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import {
-	Listbox,
-	ListboxButton,
-	ListboxLabel,
-	ListboxOption,
-	ListboxOptions
-} from '@headlessui/vue'
+import type { LocaleObject } from 'vue-i18n-routing'
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+
+type Locale = LocaleObject & {
+	flag: string
+}
 
 const props = defineProps({
 	type: {
@@ -16,8 +15,14 @@ const props = defineProps({
 
 const currentStyle = toRef(props, 'type')
 
-const { locale, locales, setLocale } = useLang()
+const { locale, locales, setLocale } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
+
+const availableLocales = computed(() => {
+	const l = locales.value as Locale[]
+	return l.filter((i) => i.code !== locale.value)
+})
+
 const navigateToLocale = (code: string) => {
 	setLocale(code)
 }
@@ -52,7 +57,7 @@ const onLocaleChange = (event: Event) => {
 				class="p-1 absolute z-50 top-full right-0 outline-none bg-white rounded-lg ring-1 ring-gray-900/10 shadow-lg overflow-hidden w-36 py-1 text-lg text-primary-700 font-semibold dark:bg-zinc-800 dark:ring-0 dark:highlight-white/5 dark:text-primary-300"
 			>
 				<ListboxOption
-					v-for="lang in locales"
+					v-for="lang in availableLocales"
 					:key="lang.code"
 					:value="lang.code"
 					:class="{
@@ -83,7 +88,7 @@ const onLocaleChange = (event: Event) => {
 			@change="onLocaleChange"
 		>
 			<option
-				v-for="lang in locales"
+				v-for="lang in availableLocales"
 				:key="lang.code"
 				:value="lang.code"
 				class="flex items-center space-x-2"

@@ -4,7 +4,7 @@ const modelValue = defineModel<Date | null>('modelValue', { default: null })
 const emit = defineEmits(['close'])
 
 const colorMode = useColorMode()
-const { locale } = useLang()
+const { locale } = useI18n()
 
 const isDark = computed(() => colorMode.value === 'dark')
 

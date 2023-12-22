@@ -14,7 +14,7 @@ defineProps({
 	}
 })
 
-const { t } = useLang()
+const { t } = useI18n()
 </script>
 
 <template>

@@ -12,7 +12,6 @@ const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
 const showOptions = useState<boolean>('navbar.showOptions', () => false)
 
 const config = useRuntimeConfig()
-const localePath = useLocalePath()
 
 let timer: NodeJS.Timer
 watch(
@@ -103,7 +102,7 @@ const appTitle = computed(() => config.public.appTitle as string)
 						<h1>
 							<strong>
 								<Anchor
-									:to="localePath('index')"
+									to="/"
 									:aria-label="appTitle"
 									class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold"
 								>

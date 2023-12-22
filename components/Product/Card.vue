@@ -29,7 +29,7 @@ const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
 const { getIsProductInFavourites, getUserToProductFavourite } = userStore
 
-const { locale } = useLang()
+const { locale } = useI18n()
 const { contentShorten } = useText()
 const { resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
@@ -79,7 +79,6 @@ const userToProductFavourite = computed(() => {
 					<div class="grid">
 						<Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
 							<NuxtImg
-								preload
 								:loading="imgLoading"
 								provider="mediaStream"
 								class="w-full h-auto bg-transparent object-cover"

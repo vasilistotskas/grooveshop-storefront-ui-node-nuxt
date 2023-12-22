@@ -22,7 +22,7 @@ defineProps({
 	}
 })
 
-const { t } = useLang()
+const { t } = useI18n()
 const route = useRoute()
 
 const menus = computed((): IMenuItem[] => [

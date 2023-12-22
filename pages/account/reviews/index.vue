@@ -10,7 +10,7 @@ const productReviewStore = useProductReviewStore()
 const { reviews, pending } = storeToRefs(productReviewStore)
 const { fetchReviews } = productReviewStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const route = useRoute('account-reviews___en')
 
 const entityOrdering: EntityOrdering<ReviewOrderingField> = reactive([

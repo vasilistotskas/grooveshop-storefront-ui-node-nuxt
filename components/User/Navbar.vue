@@ -16,7 +16,7 @@ defineSlots<{
 	drawer(props: {}): any
 }>()
 
-const { t } = useLang()
+const { t } = useI18n()
 const config = useRuntimeConfig()
 
 const { isAuthenticated } = useAuthSession()

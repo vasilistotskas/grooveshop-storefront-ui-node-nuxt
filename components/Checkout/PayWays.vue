@@ -18,7 +18,7 @@ const payWayStore = usePayWayStore()
 const { payWay, getActivePayWays, pending } = storeToRefs(payWayStore)
 const { fetchPayWays } = payWayStore
 
-const { t, locale } = useLang()
+const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 
 const emit = defineEmits(['updatev-model'])

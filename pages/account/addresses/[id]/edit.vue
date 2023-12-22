@@ -23,7 +23,7 @@ const { fetchRegions } = regionStore
 const { regions } = storeToRefs(regionStore)
 
 const { extractTranslated } = useTranslationExtractor()
-const { t, locale } = useLang()
+const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute('account-addresses-id-edit___en')
 const router = useRouter()

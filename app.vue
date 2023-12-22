@@ -4,7 +4,7 @@ import type { UseSeoMetaInput } from '@unhead/schema'
 const config = useRuntimeConfig()
 const route = useRoute()
 const router = useRouter()
-const { locale, locales } = useLang()
+const { locale, locales } = useI18n()
 const colorMode = useColorMode()
 
 const cartStore = useCartStore()

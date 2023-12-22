@@ -13,7 +13,7 @@ const props = defineProps({
 })
 
 const uuid = uuidv4()
-const { t } = useLang()
+const { t } = useI18n()
 const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
 
 const toggleFullText = () => {

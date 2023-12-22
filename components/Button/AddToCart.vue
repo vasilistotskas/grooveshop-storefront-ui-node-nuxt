@@ -15,7 +15,7 @@ const cartStore = useCartStore()
 const { fetchCart, addCartItem } = cartStore
 
 const { product, quantity, text } = toRefs(props)
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 
 const refreshCart = async () => await fetchCart()

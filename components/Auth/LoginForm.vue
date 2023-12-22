@@ -4,10 +4,13 @@ import { z } from 'zod'
 const { login, loginWithProvider } = useAuth()
 const { totpActive } = useAuthMfa()
 
+const userStore = useUserStore()
 const cartStore = useCartStore()
+
+const { fetchAccount } = userStore
 const { fetchCart } = cartStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 
 const ZodLogin = z.object({
@@ -39,6 +42,7 @@ const onSubmit = handleSubmit(async (values) => {
 		toast.add({
 			title: t('common.auth.login.success')
 		})
+		await fetchAccount()
 		await fetchCart()
 		const idb = await useAsyncIDBKeyval('auth', true)
 		idb.value = true
@@ -111,6 +115,7 @@ const onSubmit = handleSubmit(async (values) => {
 							<button
 								type="button"
 								class="absolute right-2 top-1/2 transform -translate-y-1/2"
+								:aria-label="$t('pages.auth.login.form.password.toggle')"
 								@click="showPassword = !showPassword"
 							>
 								<IconFa6Solid:eye v-if="!showPassword" />

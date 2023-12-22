@@ -26,7 +26,7 @@ const { getSelectedPayWayId } = storeToRefs(payWayStore)
 const orderStore = useOrderStore()
 const { createOrder } = orderStore
 
-const { t, locale } = useLang()
+const { t, locale } = useI18n()
 const router = useRouter()
 const toast = useToast()
 const { extractTranslated } = useTranslationExtractor()
@@ -427,6 +427,7 @@ definePageMeta({
 									$t('pages.checkout.form.floor')
 								}}</label>
 								<VeeField
+									id="floor"
 									v-model="floor"
 									:bind="floorProps"
 									name="floor"

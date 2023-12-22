@@ -3,7 +3,7 @@ const { recoveryCodesGenerate } = useAuthMfa()
 
 const router = useRouter()
 const toast = useToast()
-const { t } = useLang()
+const { t } = useI18n()
 
 async function onSubmit() {
 	const { data, error } = await recoveryCodesGenerate({})

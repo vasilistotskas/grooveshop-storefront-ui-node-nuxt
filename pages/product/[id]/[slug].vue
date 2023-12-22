@@ -20,7 +20,7 @@ const { fetchUserHadReviewed, fetchUserToProductReview } = productReviewStore
 
 const route = useRoute('product-id-slug___en')
 const config = useRuntimeConfig()
-const { t, locale } = useLang()
+const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 
 const fullPath = config.public.baseUrl + route.fullPath

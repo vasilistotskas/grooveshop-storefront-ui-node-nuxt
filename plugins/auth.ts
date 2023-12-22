@@ -10,11 +10,14 @@ export default defineNuxtPlugin(async (NuxtApp) => {
 
 	if (!initialized.value) {
 		const { fetchUser } = useAuth()
+		const userStore = useUserStore()
+		const { fetchAccount } = userStore
 		const { _refreshToken, _accessToken, _refresh } = useAuthSession()
 
 		if (_accessToken.get()) {
 			try {
 				await fetchUser()
+				await fetchAccount()
 			} catch (e) {
 				// eslint-disable-next-line no-console
 				console.error(e)

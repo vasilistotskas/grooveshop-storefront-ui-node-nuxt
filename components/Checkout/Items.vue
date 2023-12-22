@@ -2,7 +2,7 @@
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 
-const { locale } = useLang()
+const { locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 </script>
 

@@ -2,7 +2,7 @@
 const { totpDeactivate } = useAuthMfa()
 
 const toast = useToast()
-const { t } = useLang()
+const { t } = useI18n()
 
 async function onSubmit() {
 	const { data, error } = await totpDeactivate({})

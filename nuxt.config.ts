@@ -31,6 +31,7 @@ import { robots } from './config/robots'
 import { htmlValidator } from './config/html-validator'
 import { piniaPersistedstate } from './config/pinia-persistedstate'
 import { delayHydration } from './config/delay-hydration'
+import { device } from './config/device'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
@@ -82,5 +83,6 @@ export default defineNuxtConfig({
 	robots,
 	htmlValidator,
 	veeValidate,
-	delayHydration
+	delayHydration,
+	device
 })

@@ -12,7 +12,7 @@ const props = defineProps({
 const userAddressStore = useUserAddressStore()
 const { deleteAddress } = userAddressStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
 

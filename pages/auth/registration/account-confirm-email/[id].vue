@@ -4,7 +4,7 @@ import type { RegistrationResendEmailBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
 const { registrationVerifyEmail, registrationResendEmail } = useAuth()
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 const route = useRoute('auth-registration-account-confirm-email-id___en')
 const id = route.params.id

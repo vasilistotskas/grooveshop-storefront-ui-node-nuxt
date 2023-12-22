@@ -10,7 +10,7 @@ const cartStore = useCartStore()
 const { fetchCart, deleteCartItem } = cartStore
 
 const { extractTranslated } = useTranslationExtractor()
-const { locale } = useLang()
+const { locale } = useI18n()
 const { contentShorten } = useText()
 const { resolveImageSrc } = useImageResolver()
 
@@ -48,7 +48,6 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 		<div class="image">
 			<Anchor :to="`/product${cartItem.product.absoluteUrl}`" :title="alt">
 				<NuxtImg
-					preload
 					loading="lazy"
 					provider="mediaStream"
 					class="product-img"
@@ -59,9 +58,10 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 					:position="'entropy'"
 					:background="'transparent'"
 					:trim-threshold="5"
-					sizes="`sm:100vw md:50vw lg:auto`"
+					sizes="`xs:237px sm:237px md:109px lg:152px xl:195px xxl:237px 2xl:237px`"
 					:src="src"
 					:alt="alt"
+					densities="x1"
 				/>
 			</Anchor>
 		</div>

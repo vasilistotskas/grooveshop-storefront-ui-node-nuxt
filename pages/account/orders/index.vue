@@ -10,7 +10,7 @@ const orderStore = useOrderStore()
 const { orders, pending } = storeToRefs(orderStore)
 const { fetchOrders } = orderStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const route = useRoute('account-orders___en')
 
 const entityOrdering: EntityOrdering<OrderOrderingField> = reactive([

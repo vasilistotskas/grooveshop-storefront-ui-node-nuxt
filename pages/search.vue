@@ -9,7 +9,7 @@ const { search, reset } = searchStore
 
 const route = useRoute()
 const router = useRouter()
-const { locale } = useLang()
+const { locale } = useI18n()
 const { cleanHtml } = useText()
 
 const currentSearch = ref((route.query.query || '').toString())
@@ -115,6 +115,10 @@ onMounted(() => {
 definePageMeta({
 	pageTransition: false
 })
+
+definePageMeta({
+	layout: 'page'
+})
 </script>
 
 <template>
@@ -123,7 +127,7 @@ definePageMeta({
 			<div
 				id="search"
 				v-focus
-				class="grid bg-zinc-50 dark:bg-zinc-800 items-center p-4 gap-4 w-full fixed top-0 z-10 left-0"
+				class="grid bg-zinc-50 dark:bg-zinc-800 items-center gap-4 w-full fixed top-0 z-20 left-0 p-[17px]"
 			>
 				<div class="flex items-center gap-4 w-full">
 					<Anchor
@@ -135,7 +139,9 @@ definePageMeta({
 						<IconEntypo:arrowLeft></IconEntypo:arrowLeft>
 					</Anchor>
 					<IconFa6Solid:magnifyingGlass />
+					<label for="search" class="hidden">{{ $t('pages.search.placeholder') }}</label>
 					<input
+						id="search"
 						v-model="currentSearch"
 						v-focus
 						type="text"
@@ -148,7 +154,7 @@ definePageMeta({
 				<div
 					v-if="showSuggestions"
 					ref="suggestions"
-					class="absolute top-15 w-full mt-1 list-none max-h-36 overflow-y-auto z-10 rounded-md shadow-md bg-zinc-50 dark:bg-zinc-800"
+					class="absolute top-14 w-full mt-1 list-none max-h-36 overflow-y-auto z-10 rounded-md shadow-md bg-zinc-50 dark:bg-zinc-800"
 				>
 					<TransitionGroup name="list" tag="ul" class="grid">
 						<li
@@ -221,21 +227,21 @@ definePageMeta({
 			</div>
 			<div
 				v-if="showIsSearching"
-				class="animate-pulse grid items-center justify-center mt-40"
+				class="animate-pulse grid items-center justify-center mt-20 mb-20"
 			>
 				<LazyLottie
 					class="grid"
 					:animation-data="SearchingJson"
-					:width="'350px'"
-					:height="'350px'"
+					:width="'254px'"
+					:height="'254px'"
 				/>
 			</div>
 			<div v-if="showNoResults" class="grid items-center justify-center mt-40">
 				<LazyLottie
 					class="grid"
 					:animation-data="SearchingNoResultsJson"
-					:width="'350px'"
-					:height="'350px'"
+					:width="'254px'"
+					:height="'254px'"
 				/>
 			</div>
 			<div v-if="showErrors" class="p-8 flex flex-col gap-3 items-start mt-40">

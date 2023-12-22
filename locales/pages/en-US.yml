@@ -457,6 +457,7 @@ pages:
             email: Email must be a valid email address
         password:
           label: Password
+          toggle: Show password
           validation:
             min: Password must be at least %{min} characters
         remember: Remember me

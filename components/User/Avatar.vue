@@ -37,7 +37,7 @@ const props = defineProps({
 const userStore = useUserStore()
 const { updateAccountImage } = userStore
 
-const { t } = useLang()
+const { t } = useI18n()
 const toast = useToast()
 const { resolveImageSrc } = useImageResolver()
 
@@ -78,9 +78,9 @@ const uploadImage = async (event: Event) => {
 </script>
 
 <template>
-	<div class="flex items-center" :class="[showName ? 'gap-2' : 'gap-0']">
+	<div class="flex flex-col items-center" :class="[showName ? 'gap-2' : 'gap-0']">
 		<div
-			class="user-avatar relative"
+			class="user-avatar relative grid items-center justify-center justify-items-center"
 			:class="{
 				'inline-block relative shrink-0 w-[135px] h-[135px] text-center align-middle':
 					backgroundBorder
@@ -91,20 +91,20 @@ const uploadImage = async (event: Event) => {
 			}"
 		>
 			<NuxtImg
-				preload
 				loading="lazy"
 				provider="mediaStream"
 				class="rounded-full"
 				:style="{ objectFit: 'contain' }"
-				:width="imgWidth || 100"
-				:height="imgHeight || 100"
+				:width="imgWidth"
+				:height="imgHeight"
 				:fit="'contain'"
 				:position="'entropy'"
 				:background="'transparent'"
 				:trim-threshold="5"
-				sizes="`sm:100vw md:50vw lg:auto`"
+				:sizes="`xs:${imgWidth}px sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px`"
 				:src="src"
 				:alt="alt"
+				densities="x1"
 			/>
 
 			<form

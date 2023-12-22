@@ -21,7 +21,7 @@ const regionStore = useRegionStore()
 const { regions } = storeToRefs(regionStore)
 const { fetchRegions } = regionStore
 
-const { t, locale } = useLang()
+const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 const router = useRouter()

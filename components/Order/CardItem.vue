@@ -10,7 +10,7 @@ const props = defineProps({
 })
 
 const { item } = toRefs(props)
-const { locale } = useLang()
+const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 const { extractTranslated } = useTranslationExtractor()
 
@@ -29,7 +29,6 @@ const alt = computed(() => {
 <template>
 	<div class="order-card-items-image">
 		<NuxtImg
-			preload
 			loading="lazy"
 			provider="mediaStream"
 			class="product-img"

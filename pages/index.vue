@@ -9,11 +9,10 @@ definePageMeta({
 		<PageBody>
 			<PageSection>
 				<NativeSlideShow>
-					<a v-for="i in 3" :key="i" href="/" class="native-slider-li">
+					<a v-for="(i, index) in 3" :key="i" href="/" class="native-slider-li">
 						<NuxtPicture
-							loading="eager"
+							:loading="index === 0 ? 'eager' : 'lazy'"
 							provider="mediaStream"
-							placeholder
 							class="w-full h-full object-cover"
 							:style="{ objectFit: 'contain' }"
 							:src="'/assets/images/black.png'"
@@ -25,7 +24,6 @@ definePageMeta({
 							:trim-threshold="5"
 							:format="'webp'"
 							:alt="'Main Banner'"
-							sizes="100vw sm:50vw md:960px"
 						/>
 					</a>
 				</NativeSlideShow>
@@ -53,7 +51,7 @@ definePageMeta({
 						</a>
 						<a href="/" class="native-slider-li">
 							<NuxtImg
-								loading="eager"
+								loading="lazy"
 								provider="mediaStream"
 								class="w-full h-full object-cover"
 								:style="{ objectFit: 'contain' }"
@@ -71,7 +69,7 @@ definePageMeta({
 						</a>
 						<a href="/" class="native-slider-li">
 							<NuxtImg
-								loading="eager"
+								loading="lazy"
 								provider="mediaStream"
 								class="w-full h-full object-cover"
 								:style="{ objectFit: 'contain' }"
@@ -89,7 +87,7 @@ definePageMeta({
 						</a>
 						<a href="/" class="native-slider-li">
 							<NuxtImg
-								loading="eager"
+								loading="lazy"
 								provider="mediaStream"
 								class="w-full h-full object-cover"
 								:style="{ objectFit: 'contain' }"

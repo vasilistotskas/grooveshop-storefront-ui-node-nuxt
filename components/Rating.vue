@@ -39,7 +39,7 @@ const backgroundStars = (productRate: number): string[] => {
 </script>
 
 <template>
-	<div class="flex items-center gap-1">
+	<div class="flex flex-col items-center gap-1">
 		<div class="flex max-w-[130px]">
 			<!-- eslint-disable vue/no-v-html -->
 			<svg

@@ -25,7 +25,7 @@ const userAccount = computed(() => {
 })
 
 const { resolveImageSrc } = useImageResolver()
-const { locale } = useLang()
+const { locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 
 const src = computed(() => {
@@ -54,8 +54,10 @@ const alt = computed(() => {
 
 <template>
 	<div class="card">
-		<div class="grid justify-between items-center mb-4 md:flex">
-			<div class="grid items-center gap-4 mr-4 md:grid-cols-2">
+		<div
+			class="grid items-center justify-center justify-items-center gap-2 md:flex md:justify-between"
+		>
+			<div class="grid items-center gap-4 md:grid-cols-2">
 				<div class="w-auto h-auto">
 					<UserAvatar
 						v-if="userAccount && displayImageOf === 'user'"
@@ -67,7 +69,6 @@ const alt = computed(() => {
 							:text="extractTranslated(product, 'name', locale)"
 						>
 							<NuxtImg
-								preload
 								loading="lazy"
 								provider="mediaStream"
 								class="product-img w-30 h-20 object-contain"
@@ -90,7 +91,7 @@ const alt = computed(() => {
 					<Rating :rate="review.rate" />
 				</div>
 			</div>
-			<div class="text-lg">
+			<div class="grid">
 				<span>{{ extractTranslated(review, 'comment', locale) }}</span>
 			</div>
 			<div class="flex justify-end">
