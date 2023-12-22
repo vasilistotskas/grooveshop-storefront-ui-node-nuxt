@@ -131,6 +131,7 @@ const onSubmit = handleSubmit(async (values) => {
 							<button
 								type="button"
 								class="absolute right-2 top-1/2 transform -translate-y-1/2"
+								:aria-label="$t('pages.auth.registration.form.password1.show')"
 								@click="showPassword1 = !showPassword1"
 							>
 								<IconFa6Solid:eye v-if="!showPassword1" />
@@ -162,6 +163,7 @@ const onSubmit = handleSubmit(async (values) => {
 							<button
 								type="button"
 								class="absolute right-2 top-1/2 transform -translate-y-1/2"
+								:aria-label="$t('pages.auth.registration.form.password2.show')"
 								@click="showPassword2 = !showPassword2"
 							>
 								<IconFa6Solid:eye v-if="!showPassword2" />

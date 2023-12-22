@@ -9,7 +9,7 @@
 			@mouseenter="hoverStarted"
 			@mouseleave="hoverEnded"
 		>
-			<span class="hidden"></span>
+			<span class="sr-only"></span>
 		</Component>
 		<template #fallback>
 			<ClientOnlyFallback

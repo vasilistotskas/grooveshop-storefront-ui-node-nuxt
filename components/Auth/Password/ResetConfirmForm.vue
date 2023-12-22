@@ -6,6 +6,7 @@ const { passwordResetConfirm } = useAuth()
 const { t } = useI18n()
 const toast = useToast()
 const route = useRoute('auth-password-reset-confirm-uid-token___en')
+const router = useRouter()
 const uid = route.params.uid
 const token = route.params.token
 
@@ -54,6 +55,7 @@ const onSubmit = handleSubmit(async (values) => {
 		toast.add({
 			title: data.value?.detail ?? t('pages.auth.password.reset.confirm.success.title')
 		})
+		await router.push('auth/login')
 	}
 
 	if (error.value) {
@@ -78,7 +80,7 @@ const onSubmit = handleSubmit(async (values) => {
 				class="p-4 md:p-8 flex h-full flex-wrap items-center justify-center lg:justify-between bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded-[0.5rem] shadow-[0_4px_9px_-4px_#0000000d] dark:shadow-[0_4px_9px_-4px_#0000000d]"
 			>
 				<div class="relative grid w-full">
-					<div class="hidden">
+					<div class="sr-only">
 						<label for="email">{{
 							$t('pages.auth.password.reset.confirm.form.email.label')
 						}}</label>

@@ -19,7 +19,7 @@ defineSlots<{
 		<slot name="items"></slot>
 		<ClientOnly>
 			<div class="grid">
-				<div class="hidden">
+				<div class="sr-only">
 					<h3 class="text-primary-700 dark:text-primary-100">
 						{{ $t('components.checkout.sidebar.title') }}
 					</h3>

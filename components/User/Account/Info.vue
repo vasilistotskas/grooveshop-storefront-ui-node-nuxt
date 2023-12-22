@@ -39,9 +39,12 @@ const props = defineProps({
 				/>
 			</div>
 			<div class="user-info-name">
-				<h1 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
+				<h2
+					v-if="account?.firstName || account?.lastName"
+					class="text-2xl font-bold text-primary-900 dark:text-primary-100"
+				>
 					{{ account.firstName }} {{ account.lastName }}
-				</h1>
+				</h2>
 			</div>
 			<div class="user-info-stats">
 				<div class="user-info-stats-item">

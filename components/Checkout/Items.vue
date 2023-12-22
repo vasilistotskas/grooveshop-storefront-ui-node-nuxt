@@ -8,7 +8,7 @@ const { extractTranslated } = useTranslationExtractor()
 
 <template>
 	<div class="items">
-		<div class="hidden items-center justify-center">
+		<div class="sr-only items-center justify-center">
 			<h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
 				{{ $t('components.checkout.items.title') }}
 			</h3>

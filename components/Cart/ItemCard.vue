@@ -43,7 +43,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 <template>
 	<div
 		v-if="cartItem"
-		class="grid items-center justify-center justify-items-center md:grid-cols-6 gap-4 py-4 bg-white dark:bg-zinc-800 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
+		class="grid items-center justify-center justify-items-center md:grid-cols-6 gap-4 p-6 md:p-4 bg-white dark:bg-zinc-800 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
 	>
 		<div class="image">
 			<Anchor :to="`/product${cartItem.product.absoluteUrl}`" :title="alt">

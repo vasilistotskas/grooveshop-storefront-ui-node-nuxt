@@ -66,7 +66,7 @@ const menus = computed((): IMenuItem[] => [
 							v-if="item.type === 'link'"
 							:to="item.route ? item.route : undefined"
 							:text="item.text"
-							class="flex md:grid py-1 px-2 md:py-2 md:px-4 items-center border rounded transition-color duration-300 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:dark:ring-offset-gray-50 focus:dark:ring-gray-400 focus:ring-gray-600/[0.6] focus:ring-offset-gray-800/[0.6]"
+							class="flex md:block py-1 px-2 md:py-2 md:px-4 items-center border rounded transition-color focus:outline-none focus:ring-1 focus:ring-offset-1 focus:dark:ring-offset-gray-50 focus:dark:ring-gray-400 focus:ring-gray-600/[0.6] focus:ring-offset-gray-800/[0.6]"
 							:class="[
 								{
 									'grid-cols-auto-1fr gap-2': item.icon !== undefined
@@ -74,7 +74,7 @@ const menus = computed((): IMenuItem[] => [
 								item.cssClass
 							]"
 						>
-							<span class="hidden md:grid">{{ item.text }}</span>
+							<span class="sr-only md:grid">{{ item.text }}</span>
 							<Component :is="item.icon" />
 						</Anchor>
 						<Anchor
@@ -89,7 +89,7 @@ const menus = computed((): IMenuItem[] => [
 								item.cssClass
 							]"
 						>
-							<span class="hidden md:grid">{{ item.text }}</span>
+							<span class="sr-only md:grid">{{ item.text }}</span>
 							<Component :is="item.icon" />
 						</Anchor>
 						<MainButton
@@ -118,7 +118,7 @@ const menus = computed((): IMenuItem[] => [
 					</li>
 				</ul>
 			</nav>
-			<div class="relative hidden lg:flex items-center ml-auto">
+			<div class="relative sr-only lg:flex items-center ml-auto">
 				<div class="flex items-center justify-center">
 					<slot name="image" />
 				</div>

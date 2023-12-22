@@ -21,7 +21,7 @@ const src = computed(() => {
 })
 
 const alt = computed(() => {
-	return extractTranslated(item.value, 'title', locale.value)
+	return extractTranslated(item.value, 'name', locale.value)
 })
 </script>
 
@@ -40,14 +40,15 @@ const alt = computed(() => {
 					class="w-full h-full object-cover aspect-square"
 					:style="{ 'view-transition-name': `item-${item.id}`, aspectRatio: '1/1' }"
 					:width="300"
-					:height="200"
+					:height="300"
 					:fit="'contain'"
 					:position="'entropy'"
 					:background="'ffffff'"
 					:trim-threshold="5"
-					sizes="`sm:100vw md:50vw lg:auto`"
+					:sizes="`xs:532px sm:520px md:288px lg:253px xl:236px xxl:300px 2xl:300px`"
 					:src="src"
 					:alt="alt"
+					densities="x1"
 				/>
 				<div v-else class="h-full op10 flex">
 					<div class="text-4xl">

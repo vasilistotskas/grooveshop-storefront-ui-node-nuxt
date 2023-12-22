@@ -125,7 +125,6 @@ definePageMeta({
 	<PageWrapper class="container flex flex-col gap-10 p-0">
 		<PageBody>
 			<div
-				id="search"
 				v-focus
 				class="grid bg-zinc-50 dark:bg-zinc-800 items-center gap-4 w-full fixed top-0 z-20 left-0 p-[17px]"
 			>
@@ -135,11 +134,11 @@ definePageMeta({
 						aria-label="index"
 						class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-primary-700 dark:text-primary-100 border-r-2 border-gray-900/10 dark:border-gray-50/20 pr-8"
 					>
-						<span class="hidden">{{ $t('pages.search.back_to_home') }}</span>
+						<span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
 						<IconEntypo:arrowLeft></IconEntypo:arrowLeft>
 					</Anchor>
 					<IconFa6Solid:magnifyingGlass />
-					<label for="search" class="hidden">{{ $t('pages.search.placeholder') }}</label>
+					<label for="search" class="sr-only">{{ $t('pages.search.placeholder') }}</label>
 					<input
 						id="search"
 						v-model="currentSearch"
@@ -194,7 +193,7 @@ definePageMeta({
 					</TransitionGroup>
 				</div>
 			</div>
-			<PageTitle class="hidden">
+			<PageTitle class="sr-only">
 				<span
 					:class="{
 						'opacity-0': !currentSearch

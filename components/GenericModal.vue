@@ -240,7 +240,7 @@ onMounted(() => {
 				aria-label="Close"
 				@click="closeModal"
 			>
-				<span class="hidden">{{ $t('components.generic_modal.close') }}</span>
+				<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
 				<IconEntypo:circleWithCross></IconEntypo:circleWithCross>
 			</button>
 			<template v-if="isForm">
@@ -267,7 +267,7 @@ onMounted(() => {
 						aria-label="Close"
 						@click="closeModal"
 					>
-						<span class="hidden">{{ $t('components.generic_modal.close') }}</span>
+						<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
 						<IconEntypo:circleWithCross></IconEntypo:circleWithCross>
 					</button>
 				</form>
@@ -291,7 +291,7 @@ onMounted(() => {
 						aria-label="Close"
 						@click="closeModal"
 					>
-						<span class="hidden">{{ $t('components.generic_modal.close') }}</span>
+						<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
 						<IconEntypo:circleWithCross></IconEntypo:circleWithCross>
 					</button>
 				</div>

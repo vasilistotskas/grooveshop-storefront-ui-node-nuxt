@@ -100,7 +100,7 @@ const selectedFontSizeStyle = computed(
 			<slot name="prefix" />
 		</div>
 		<div class="text-input-wrapper relative flex flex-1">
-			<label :for="id" class="hidden"> {{ name }}</label>
+			<label :for="id" class="sr-only"> {{ name }}</label>
 			<input
 				:id="id"
 				v-model="modelValue"

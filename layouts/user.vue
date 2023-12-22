@@ -43,8 +43,7 @@ const route = useRoute()
 						<div class="flex-1 w-full flex flex-col md:gap-4">
 							<div
 								:class="[
-									'relative flex-1 flex flex-col lg:flex-row mx-auto w-full h-full',
-									{ 'flex-col': route.path === '/account' }
+									'relative flex-1 flex flex-col lg:flex-row mx-auto w-full h-full'
 								]"
 							>
 								<div

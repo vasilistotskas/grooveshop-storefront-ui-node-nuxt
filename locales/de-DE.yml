@@ -80,3 +80,4 @@ common:
     region:
       required: region ist erforderlich
   version: ausführung
+  upload: hochladen

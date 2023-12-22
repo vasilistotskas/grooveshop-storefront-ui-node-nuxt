@@ -83,8 +83,8 @@ watch(
 					<ProductImage
 						:key="productImage.id"
 						:image="productImage"
-						:width="86"
-						:height="42"
+						:width="159"
+						:height="116"
 						img-loading="lazy"
 					/>
 				</button>

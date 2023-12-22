@@ -82,7 +82,7 @@ const uploadImage = async (event: Event) => {
 		<div
 			class="user-avatar relative grid items-center justify-center justify-items-center"
 			:class="{
-				'inline-block relative shrink-0 w-[135px] h-[135px] text-center align-middle':
+				'inline-block shrink-0 w-[135px] h-[135px] text-center align-middle':
 					backgroundBorder
 			}"
 			:style="{
@@ -113,9 +113,10 @@ const uploadImage = async (event: Event) => {
 				class="user-avatar-change absolute inset-0 z-10"
 				name="uploadImageForm"
 				:title="$t('components.user.avatar.change')"
+				@submit.prevent="uploadImage"
 			>
-				<label for="image"
-					><svg
+				<label for="image">
+					<svg
 						id="camera"
 						class="hide-small-viewport hide-medium-viewport"
 						xmlns="http://www.w3.org/2000/svg"
@@ -157,17 +158,19 @@ const uploadImage = async (event: Event) => {
 								stroke-miterlimit="10"
 								d="M18.7,4.6h4.4"
 							></path>
-						</g></svg
-				></label>
+						</g>
+					</svg>
+					<span class="sr-only">{{ $t('components.user.avatar.change') }}</span>
+				</label>
 				<input
 					id="image"
 					type="file"
 					name="image"
-					placeholder="image"
 					accept="image/*"
-					class="hidden"
+					class="sr-only"
 					@change="uploadImage"
 				/>
+				<button type="submit" class="sr-only">{{ $t('common.upload') }}</button>
 			</form>
 		</div>
 		<div v-if="showName" class="flex flex-col">

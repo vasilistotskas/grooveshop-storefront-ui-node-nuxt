@@ -115,7 +115,7 @@
     "sass": "^1.69.5",
     "sass-loader": "^13.3.2",
     "semantic-release": "^22.0.12",
-    "std-env": "^3.6.0",
+    "std-env": "^3.7.0",
     "string-replace-loader": "3.1.0",
     "sweetalert2": "^11.10.1",
     "tailwindcss": "^3.4.0",

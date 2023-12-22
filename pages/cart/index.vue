@@ -14,7 +14,7 @@ definePageMeta({
 		<PageBody>
 			<ClientOnly>
 				<template v-if="!pending.cart && cart?.cartItems?.length">
-					<div class="grid md:grid-rows-repeat-auto-fill-mimax-100-130 gap-4">
+					<div class="grid md:grid-rows-1 gap-4">
 						<CartItemCard
 							v-for="(cartItem, index) in cart.cartItems"
 							:key="index"

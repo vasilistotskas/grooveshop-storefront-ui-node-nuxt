@@ -326,11 +326,9 @@ definePageMeta({
 					<div class="grid">
 						<UPopover :popper="{ placement: 'bottom-start' }">
 							<UButton icon="i-heroicons-calendar-days-20-solid" :label="label" />
-							<DelayHydration>
-								<template #panel="{ close }">
-									<LazyDatePicker v-model="birthDate" @close="close" />
-								</template>
-							</DelayHydration>
+							<template #panel="{ close }">
+								<LazyDatePicker id="birthDate" v-model="birthDate" @close="close" />
+							</template>
 						</UPopover>
 					</div>
 					<span v-if="errors.birthDate" class="text-sm text-red-600 px-4 py-3 relative">{{

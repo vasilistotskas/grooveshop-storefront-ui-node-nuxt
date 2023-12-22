@@ -58,7 +58,7 @@ const deleteAddressEvent = async (id: string) => {
 					size="sm"
 					:style="'secondary'"
 				>
-					<span class="hidden">{{ t('pages.account.addresses.edit.title') }}</span>
+					<span class="sr-only">{{ t('pages.account.addresses.edit.title') }}</span>
 					<IconFa6Solid:pencil class="text-cyan-600" />
 				</MainButton>
 				<MainButton
@@ -68,7 +68,7 @@ const deleteAddressEvent = async (id: string) => {
 					:style="'secondary'"
 					@click="deleteAddressEvent(String(address.id))"
 				>
-					<span class="hidden">{{ t('pages.account.addresses.delete') }}</span>
+					<span class="sr-only">{{ t('pages.account.addresses.delete') }}</span>
 					<IconFa6Solid:trash class="text-red-600" />
 				</MainButton>
 			</div>

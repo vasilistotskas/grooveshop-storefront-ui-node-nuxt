@@ -471,6 +471,7 @@ pages:
             email: e-mail muss eine gültige e-mail-adresse sein
         password:
           label: passwort
+          toggle: passwort anzeigen
           validation:
             min: das passwort muss mindestens %{min} zeichen lang sein
         remember: erinnere dich an mich
@@ -495,10 +496,12 @@ pages:
             email: e-mail muss eine gültige e-mail-adresse sein
         password1:
           label: passwort
+          show: passwort anzeigen
           validation:
             min: das passwort muss mindestens %{min} zeichen lang sein
         password2:
           label: passwort bestätigung
+          show: passwort anzeigen
           validation:
             min: die passwortbestätigung muss mindestens %{min} zeichen lang sein
             match: die passwortbestätigung muss mit dem passwort übereinstimmen

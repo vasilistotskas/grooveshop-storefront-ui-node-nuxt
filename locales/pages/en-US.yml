@@ -482,10 +482,12 @@ pages:
             email: Email must be a valid email address
         password1:
           label: Password
+          show: Show password
           validation:
             min: Password must be at least %{min} characters
         password2:
           label: Password Confirmation
+          show: Show password
           validation:
             min: Password Confirmation must be at least %{min} characters
             match: Password Confirmation must match Password

@@ -18,6 +18,8 @@ const currentStyle = toRef(props, 'type')
 const { locale, locales, setLocale } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
 
+const allLocales = locales as unknown as Locale[]
+
 const availableLocales = computed(() => {
 	const l = locales.value as Locale[]
 	return l.filter((i) => i.code !== locale.value)
@@ -44,7 +46,7 @@ const onLocaleChange = (event: Event) => {
 				title="Change Language"
 				class="text-[1.5rem] transition-colors duration-300"
 			>
-				<span class="hidden">{{
+				<span class="sr-only">{{
 					$t('components.language.switcher.change_language')
 				}}</span>
 				<span
@@ -88,7 +90,7 @@ const onLocaleChange = (event: Event) => {
 			@change="onLocaleChange"
 		>
 			<option
-				v-for="lang in availableLocales"
+				v-for="lang in allLocales"
 				:key="lang.code"
 				:value="lang.code"
 				class="flex items-center space-x-2"

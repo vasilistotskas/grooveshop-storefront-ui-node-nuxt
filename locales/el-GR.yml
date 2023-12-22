@@ -80,3 +80,4 @@ common:
     region:
       required: απαιτείται περιοχή
   version: εκδοχή
+  upload: μεταφόρτωση

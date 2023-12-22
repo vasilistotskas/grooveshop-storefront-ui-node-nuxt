@@ -1,3 +1,94 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'variables';
+
+@layer utilities{
+  .container-sm {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 100%;
+
+    @media (min-width: map-get($grid-breakpoints, 'sm')) {
+      max-width: 540px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'md')) {
+      max-width: 720px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'lg')) {
+      max-width: 960px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'xl')) {
+      max-width: 1140px;
+    }
+
+    @media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
+      max-width: 1320px;
+    }
+  }
+
+  .container-xs {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 100%;
+
+    @media (min-width: map-get($grid-breakpoints, 'md')) {
+      max-width: 480px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'lg')) {
+      max-width: 540px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'xl')) {
+      max-width: 720px;
+    }
+
+    @media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
+      max-width: 960px;
+    }
+  }
+
+  .container-xxs {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 100%;
+
+    @media (min-width: map-get($grid-breakpoints, 'sm')) {
+      max-width: 240px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'md')) {
+      max-width: 360px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'lg')) {
+      max-width: 480px;
+    }
+
+    @media (min-width: map-get($grid-breakpoints, 'xl')) {
+      max-width: 640px;
+    }
+
+    @media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
+      max-width: 800px;
+    }
+  }
+
+  .circle {
+    @apply w-8 h-8 rounded-full;
+  }
+
+  .form-select {
+    @apply block w-full text-base px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500;
+  }
+}

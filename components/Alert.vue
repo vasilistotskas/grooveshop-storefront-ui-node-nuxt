@@ -111,7 +111,7 @@ const close = () => {
 						class="text-slate-600 dark:text-primary-400 font-bold :hover:font-bold transition-colors duration-300"
 						@click="close"
 					>
-						<span class="hidden">{{ title }}</span>
+						<span class="sr-only">{{ title }}</span>
 						<IconClarity:timesLine class="text-xl" />
 					</button>
 				</div>

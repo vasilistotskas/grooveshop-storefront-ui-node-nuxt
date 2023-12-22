@@ -25,6 +25,7 @@
 				:name="name"
 				v-bind="fields[name][1].value"
 			>
+				<label v-if="as === 'input'" :for="name" class="sr-only">{{ label }}</label>
 				<UInput
 					v-bind="fields[name][1].value"
 					:id="name"
