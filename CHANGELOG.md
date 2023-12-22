@@ -1,3 +1,10 @@
+## [1.49.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.49.0...v1.49.1) (2023-12-22)
+
+
+### Bug Fixes
+
+* remove container from tailwindcss ([251ac3b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/251ac3b2cd748cd0422c9260131ad254a3d4764a))
+
 # [1.49.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.48.0...v1.49.0) (2023-12-22)
 
 
