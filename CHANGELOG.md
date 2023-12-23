@@ -1,3 +1,10 @@
+## [1.49.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.49.1...v1.49.2) (2023-12-23)
+
+
+### Bug Fixes
+
+* `container` css class improved and ui fixes ([e6c165e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e6c165e9822fe55877c7f0971337612821ea0b57))
+
 ## [1.49.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.49.0...v1.49.1) (2023-12-22)
 
 
