@@ -1,87 +1,55 @@
+@import 'variables';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'variables';
 
-@layer utilities{
-  .container-sm {
+@layer utilities {
+  .base-container {
     margin-left: auto;
     margin-right: auto;
     padding-left: 15px;
     padding-right: 15px;
     width: 100%;
+  }
 
-    @media (min-width: map-get($grid-breakpoints, 'sm')) {
-      max-width: 540px;
-    }
+  .container {
+    @apply base-container;
+  }
 
-    @media (min-width: map-get($grid-breakpoints, 'md')) {
-      max-width: 720px;
-    }
+  .container-sm {
+    @apply base-container;
 
-    @media (min-width: map-get($grid-breakpoints, 'lg')) {
-      max-width: 960px;
-    }
-
-    @media (min-width: map-get($grid-breakpoints, 'xl')) {
-      max-width: 1140px;
-    }
-
-    @media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
-      max-width: 1320px;
-    }
+    @include responsive-width((
+      'sm': 540px,
+      'md': 720px,
+      'lg': 960px,
+      'xl': 1140px,
+      'xlplus': 1320px,
+    ));
   }
 
   .container-xs {
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 15px;
-    padding-right: 15px;
-    width: 100%;
+    @apply base-container;
 
-    @media (min-width: map-get($grid-breakpoints, 'md')) {
-      max-width: 480px;
-    }
-
-    @media (min-width: map-get($grid-breakpoints, 'lg')) {
-      max-width: 540px;
-    }
-
-    @media (min-width: map-get($grid-breakpoints, 'xl')) {
-      max-width: 720px;
-    }
-
-    @media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
-      max-width: 960px;
-    }
+    @include responsive-width((
+      'md': 480px,
+      'lg': 540px,
+      'xl': 720px,
+      'xlplus': 960px,
+    ));
   }
 
   .container-xxs {
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 15px;
-    padding-right: 15px;
-    width: 100%;
+    @apply base-container;
 
-    @media (min-width: map-get($grid-breakpoints, 'sm')) {
-      max-width: 240px;
-    }
-
-    @media (min-width: map-get($grid-breakpoints, 'md')) {
-      max-width: 360px;
-    }
-
-    @media (min-width: map-get($grid-breakpoints, 'lg')) {
-      max-width: 480px;
-    }
-
-    @media (min-width: map-get($grid-breakpoints, 'xl')) {
-      max-width: 640px;
-    }
-
-    @media screen and (min-width: map-get($grid-breakpoints, 'xlplus')) {
-      max-width: 800px;
-    }
+    @include responsive-width((
+      'sm': 240px,
+      'md': 360px,
+      'lg': 480px,
+      'xl': 640px,
+      'xlplus': 800px,
+    ));
   }
 
   .circle {

@@ -20,6 +20,10 @@ export default {
 	attributify: false,
 	darkMode: 'class',
 	theme: {
+		container: {
+			center: true,
+			padding: '1rem'
+		},
 		extend: {
 			maxWidth: {
 				'8xl': '90rem'

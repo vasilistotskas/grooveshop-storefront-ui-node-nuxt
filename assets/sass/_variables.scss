@@ -29,3 +29,11 @@ $container-sizes: (
 		max-width: map.get($container-sizes, 'sm');
 	}
 }
+
+@mixin responsive-width($breakpoints-map) {
+  @each $breakpoint, $width in $breakpoints-map {
+    @media (min-width: map-get($grid-breakpoints, $breakpoint)) {
+      max-width: $width;
+    }
+  }
+}
