@@ -42,7 +42,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressesError,
 			pending: addressesPending,
 			refresh
-		} = await useFetch<Pagination<Address>>(`/api/user-address`, {
+		} = await useFetch<Pagination<Address>>(`/api/user/addresses`, {
 			method: 'get',
 			params: {
 				page,
@@ -71,7 +71,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch<Address>(`/api/user-address/${id}`, {
+		} = await useFetch<Address>(`/api/user/addresses/${id}`, {
 			method: 'get'
 		})
 		address.value = data.value
@@ -95,7 +95,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch<Address>(`/api/user-address`, {
+		} = await useFetch<Address>(`/api/user/addresses`, {
 			method: 'post',
 			body
 		})
@@ -120,7 +120,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch<Address>(`/api/user-address/${id}`, {
+		} = await useFetch<Address>(`/api/user/addresses/${id}`, {
 			method: 'put',
 			body
 		})
@@ -144,7 +144,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch(`/api/user-address/${id}`, {
+		} = await useFetch(`/api/user/addresses/${id}`, {
 			method: 'delete'
 		})
 		error.value.address = addressError.value
@@ -171,7 +171,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch(`/api/user-address/${id}/set-main`, {
+		} = await useFetch(`/api/user/addresses/${id}/set-main`, {
 			method: 'post'
 		})
 		error.value.address = addressError.value

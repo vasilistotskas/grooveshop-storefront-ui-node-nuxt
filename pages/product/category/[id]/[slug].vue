@@ -10,7 +10,7 @@ const categoryId = route.params.id
 await fetchCategory(categoryId)
 
 definePageMeta({
-	layout: 'page'
+	layout: 'default'
 })
 </script>
 

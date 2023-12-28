@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { Ref } from 'vue'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 import type { Order, OrderOrderingField, OrderQuery } from '~/types/order/order'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
@@ -13,7 +14,7 @@ const { fetchOrders } = orderStore
 const { t } = useI18n()
 const route = useRoute('account-orders___en')
 
-const entityOrdering: EntityOrdering<OrderOrderingField> = reactive([
+const entityOrdering: Ref<EntityOrdering<OrderOrderingField>> = ref([
 	{
 		value: 'createdAt',
 		label: t('pages.account.orders.ordering.created_at'),
@@ -30,7 +31,7 @@ const pagination = computed(() => {
 })
 
 const ordering = computed(() => {
-	return useOrdering<OrderOrderingField>(entityOrdering, orderingFields)
+	return useOrdering<OrderOrderingField>(entityOrdering.value, orderingFields)
 })
 
 const routePaginationParams = computed<OrderQuery>(() => {

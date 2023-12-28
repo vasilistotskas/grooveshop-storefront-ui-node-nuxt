@@ -10,11 +10,11 @@ const packageVersion = pkg.version
 		<div class="mx-auto w-full container">
 			<div class="grid grid-cols-2 gap-8 px-6 py-8 md:grid-cols-3">
 				<div>
-					<h2
+					<span
 						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
 					>
 						{{ $t('common.company') }}
-					</h2>
+					</span>
 					<ul class="text-primary-700 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<Anchor
@@ -37,11 +37,11 @@ const packageVersion = pkg.version
 					</ul>
 				</div>
 				<div>
-					<h2
+					<span
 						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
 					>
 						{{ $t('common.help_center') }}
-					</h2>
+					</span>
 					<ul class="text-primary-700 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<Anchor
@@ -82,11 +82,11 @@ const packageVersion = pkg.version
 					</ul>
 				</div>
 				<div>
-					<h2
+					<span
 						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
 					>
 						Legal
-					</h2>
+					</span>
 					<ul class="text-primary-700 dark:text-primary-400 font-medium">
 						<li class="mb-4">
 							<Anchor

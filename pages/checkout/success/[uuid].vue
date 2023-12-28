@@ -63,7 +63,7 @@ const payWayPrice = computed(() => {
 })
 
 definePageMeta({
-	layout: 'page'
+	layout: 'default'
 })
 </script>
 

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { Ref } from 'vue'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import type { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
 import emptyIcon from '~icons/mdi/package-variant-remove'
@@ -13,7 +14,7 @@ const { fetchReviews } = productReviewStore
 const { t } = useI18n()
 const route = useRoute('account-reviews___en')
 
-const entityOrdering: EntityOrdering<ReviewOrderingField> = reactive([
+const entityOrdering: Ref<EntityOrdering<ReviewOrderingField>> = ref([
 	{
 		value: 'createdAt',
 		label: t('pages.account.reviews.ordering.created_at'),
@@ -30,7 +31,7 @@ const pagination = computed(() => {
 })
 
 const ordering = computed(() => {
-	return useOrdering<ReviewOrderingField>(entityOrdering, orderingFields)
+	return useOrdering<ReviewOrderingField>(entityOrdering.value, orderingFields)
 })
 
 const routePaginationParams = computed<ReviewQuery>(() => {

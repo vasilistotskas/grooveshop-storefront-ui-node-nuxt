@@ -42,7 +42,7 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
 			error: categoriesError,
 			pending: categoriesPending,
 			refresh
-		} = await useFetch<Pagination<Category>>(`/api/product-categories`, {
+		} = await useFetch<Pagination<Category>>(`/api/products/categories`, {
 			method: 'get',
 			params: {
 				offset,
@@ -71,7 +71,7 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
 			error: categoryError,
 			pending: categoryPending,
 			refresh
-		} = await useFetch<Category>(`/api/product-category/${categoryId}`, {
+		} = await useFetch<Category>(`/api/products/categories/${categoryId}`, {
 			method: 'get'
 		})
 		category.value = data.value

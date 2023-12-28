@@ -236,6 +236,11 @@ export function NativeSlider() {
 			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
 			const accessors = this.getAxisAccessors(dragData.scrollMode)
+
+			if (!dragData) {
+				return
+			}
+
 			dragData.isDown = true
 			nativeSlider.classList.add(this.classList.draggable)
 			dragData.startXY =
@@ -257,6 +262,11 @@ export function NativeSlider() {
 				return
 			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
+
+			if (!dragData) {
+				return
+			}
+
 			dragData.isDown = false
 			nativeSlider.classList.remove(this.classList.draggable)
 			this.dispatchNativeSliderPostUpdate(
@@ -272,6 +282,11 @@ export function NativeSlider() {
 				return
 			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
+
+			if (!dragData) {
+				return
+			}
+
 			dragData.isDown = false
 			nativeSlider.classList.remove(this.classList.draggable)
 			this.dispatchNativeSliderPostUpdate(
@@ -287,9 +302,11 @@ export function NativeSlider() {
 				return
 			}
 			const dragData = this.dragDataLayer.get(nativeSlider)
+
 			if (!dragData.isDown) {
 				return
 			}
+
 			const accessors = this.getAxisAccessors(dragData.scrollMode)
 			e.preventDefault()
 			const xy =

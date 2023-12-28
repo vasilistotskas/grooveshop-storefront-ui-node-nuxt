@@ -10,7 +10,7 @@ export const ZodFavourite = z.object({
 	user: z.union([z.number(), ZodAccount]),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
-	uuid: z.string()
+	uuid: z.string().uuid()
 })
 
 export const ZodFavouriteQuery = z.object({

@@ -1,11 +1,13 @@
 <script lang="ts" setup>
+import type { RouteLocationRaw } from 'vue-router'
+
 defineProps({
 	text: {
 		type: String,
 		default: ''
 	},
 	to: {
-		type: [String, Object],
+		type: [String, Object] as PropType<string | RouteLocationRaw>,
 		default: undefined
 	},
 	href: {
@@ -20,14 +22,13 @@ defineProps({
 defineSlots<{
 	default(props: {}): any
 }>()
-const localePath = useLocalePath()
 </script>
 
 <template>
-	<NuxtLink
+	<NuxtLinkLocale
 		v-if="to"
 		tag="a"
-		:to="localePath(to)"
+		:to="to"
 		:aria-label="text"
 		:class="[
 			cssClass,
@@ -35,7 +36,7 @@ const localePath = useLocalePath()
 		]"
 	>
 		<slot>{{ text }}</slot>
-	</NuxtLink>
+	</NuxtLinkLocale>
 	<ULink
 		v-else
 		:aria-label="text"

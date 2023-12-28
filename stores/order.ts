@@ -63,7 +63,7 @@ export const useOrderStore = defineStore('order', () => {
 			error: orderError,
 			pending: orderPending,
 			refresh
-		} = await useFetch<Order>(`/api/order/${id}`, {
+		} = await useFetch<Order>(`/api/orders/${id}`, {
 			method: 'get'
 		})
 		order.value = data.value
@@ -84,7 +84,7 @@ export const useOrderStore = defineStore('order', () => {
 			error: orderError,
 			pending: orderPending,
 			refresh
-		} = await useFetch<Order>(`/api/order/uuid/${uuid}`, {
+		} = await useFetch<Order>(`/api/orders/uuid/${uuid}`, {
 			method: 'get'
 		})
 		order.value = data.value

@@ -63,7 +63,7 @@ export const useUserStore = defineStore('user', () => {
 			error: accountError,
 			pending: accountPending,
 			refresh
-		} = await useFetch<UserAccountSession>(`/api/user-account-session`, {
+		} = await useFetch<UserAccountSession>(`/api/user/account/session`, {
 			method: 'get'
 		})
 
@@ -94,7 +94,7 @@ export const useUserStore = defineStore('user', () => {
 			error: accountError,
 			pending: accountPending,
 			refresh
-		} = await useFetch<Account>(`/api/user-account/${id}`, {
+		} = await useFetch<Account>(`/api/user/account/${id}`, {
 			method: 'put',
 			body
 		})
@@ -119,7 +119,7 @@ export const useUserStore = defineStore('user', () => {
 			error: accountError,
 			pending: accountPending,
 			refresh
-		} = await useFetch<Account>(`/api/user-account/${id}`, {
+		} = await useFetch<Account>(`/api/user/account/${id}`, {
 			method: 'patch',
 			body
 		})
@@ -144,7 +144,7 @@ export const useUserStore = defineStore('user', () => {
 			error: favouriteError,
 			pending: favouritePending,
 			refresh
-		} = await useFetch<Favourite>(`/api/product-favourites`, {
+		} = await useFetch<Favourite>(`/api/products/favourites`, {
 			method: 'post',
 			body
 		})
@@ -170,7 +170,7 @@ export const useUserStore = defineStore('user', () => {
 			error: favouriteError,
 			pending: favouritePending,
 			refresh
-		} = await useFetch(`/api/product-favourites/${id}`, {
+		} = await useFetch(`/api/products/favourites/${id}`, {
 			method: 'delete'
 		})
 		favourites.value =

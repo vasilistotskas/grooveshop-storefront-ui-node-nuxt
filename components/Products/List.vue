@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { Ref } from 'vue'
 import type { Product, ProductOrderingField, ProductQuery } from '~/types/product/product'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
@@ -22,7 +23,7 @@ const routePaginationParams = computed<ProductQuery>(() => {
 	}
 })
 
-const entityOrdering: EntityOrdering<ProductOrderingField> = reactive([
+const entityOrdering: Ref<EntityOrdering<ProductOrderingField>> = ref([
 	{
 		value: 'price',
 		label: t('pages.product.ordering.price'),
@@ -49,7 +50,7 @@ const pagination = computed(() => {
 })
 
 const ordering = computed(() => {
-	return useOrdering<ProductOrderingField>(entityOrdering, orderingFields)
+	return useOrdering<ProductOrderingField>(entityOrdering.value, orderingFields)
 })
 
 watch(

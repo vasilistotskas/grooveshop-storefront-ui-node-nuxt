@@ -81,4 +81,4 @@ common:
       required: Region is required
   version: Version
   upload: Upload
-
+  tags: Tags

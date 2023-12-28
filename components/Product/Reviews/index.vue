@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
+import type { PropType, Ref } from 'vue'
 import type { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
@@ -54,7 +54,7 @@ const refreshReviews = async () => {
 	await fetchReviews(routePaginationParams.value)
 }
 
-const entityOrdering: EntityOrdering<ReviewOrderingField> = reactive([
+const entityOrdering: Ref<EntityOrdering<ReviewOrderingField>> = ref([
 	{
 		value: 'id',
 		label: t('components.product.reviews.ordering.id'),
@@ -79,7 +79,7 @@ const pagination = computed(() => {
 })
 
 const ordering = computed(() => {
-	return useOrdering<ReviewOrderingField>(entityOrdering, orderingFields)
+	return useOrdering<ReviewOrderingField>(entityOrdering.value, orderingFields)
 })
 
 watch(

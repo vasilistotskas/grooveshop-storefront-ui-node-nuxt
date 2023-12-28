@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { Ref } from 'vue'
 import type { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
@@ -13,7 +14,7 @@ const { fetchAddresses } = userAddressStore
 const { t } = useI18n()
 const route = useRoute('account-addresses___en')
 
-const entityOrdering: EntityOrdering<AddressOrderingField> = reactive([
+const entityOrdering: Ref<EntityOrdering<AddressOrderingField>> = ref([
 	{
 		value: 'createdAt',
 		label: t('pages.account.addresses.ordering.created_at'),
@@ -36,7 +37,7 @@ const pagination = computed(() => {
 })
 
 const ordering = computed(() => {
-	return useOrdering<AddressOrderingField>(entityOrdering, orderingFields)
+	return useOrdering<AddressOrderingField>(entityOrdering.value, orderingFields)
 })
 
 const routePaginationParams = computed<AddressQuery>(() => {

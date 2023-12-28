@@ -22,7 +22,7 @@ export interface ModuleOptions {
 		necessary: Cookie[]
 		optional: Cookie[]
 	}
-	cookieOptions: CookieOptions
+	cookieOptions: (CookieOptions<any> & { readonly?: false | undefined }) | undefined
 	isAcceptNecessaryButtonEnabled: boolean
 	isControlButtonEnabled: boolean
 	isCookieIdVisible: boolean
@@ -42,7 +42,8 @@ export const DEFAULTS: Required<ModuleOptions> = {
 	cookieNameIsConsentGiven: 'ncc_c',
 	cookieNameCookiesEnabledIds: 'ncc_e',
 	cookieOptions: {
-		path: '/'
+		path: '/',
+		readonly: false
 	},
 	isAcceptNecessaryButtonEnabled: true,
 	isControlButtonEnabled: true,

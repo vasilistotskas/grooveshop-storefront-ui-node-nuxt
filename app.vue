@@ -109,7 +109,7 @@ defineOgImageComponent('NuxtSeo', ogImageOptions)
 <template>
 	<div id="#app" class="app">
 		<NuxtPwaManifest />
-		<NuxtLoadingIndicator />
+		<LoadingIndicator />
 		<NuxtLayout>
 			<NuxtPage />
 		</NuxtLayout>

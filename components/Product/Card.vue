@@ -70,7 +70,7 @@ const userToProductFavourite = computed(() => {
 </script>
 
 <template>
-	<li v-if="product" class="product-card">
+	<li class="product-card">
 		<div
 			class="container p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
 		>

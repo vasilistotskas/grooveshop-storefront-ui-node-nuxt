@@ -23,7 +23,7 @@ export const ZodReview = z.object({
 	updatedAt: z.string().datetime({ offset: true }),
 	publishedAt: z.string().datetime({ offset: true }).nullish(),
 	isPublished: z.boolean(),
-	uuid: z.string()
+	uuid: z.string().uuid()
 })
 
 export const ZodReviewQuery = z.object({

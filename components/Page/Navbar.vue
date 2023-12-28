@@ -38,6 +38,17 @@ const { account } = storeToRefs(userStore)
 								>
 							</h2>
 						</li>
+						<li class="flex w-full gap-4">
+							<h2>
+								<Anchor
+									:to="'blog'"
+									:title="$t('common.blog')"
+									:text="$t('common.blog')"
+									class="text-lg hover:no-underline hover:text-slate-900 hover:dark:text-white capitalize"
+									>{{ $t('common.blog') }}</Anchor
+								>
+							</h2>
+						</li>
 					</ul>
 					<ul
 						class="flex items-center gap-3 border-l ml-6 pl-6 border-gray-900/10 dark:border-gray-50/[0.2] text-primary-700 dark:text-primary-100"

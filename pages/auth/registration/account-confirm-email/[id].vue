@@ -53,7 +53,7 @@ const formSchema: DynamicFormSchema = {
 }
 
 definePageMeta({
-	layout: 'page',
+	layout: 'default',
 	middleware: 'guest'
 })
 </script>

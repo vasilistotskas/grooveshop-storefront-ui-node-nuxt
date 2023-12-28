@@ -9,6 +9,10 @@ pages:
     nav: blog
     description: blog
     keywords: blog
+    ordering:
+      created_at: Created At
+      title: Title
+      published_at: Published At
   testing:
     nav: testing
     title: testing

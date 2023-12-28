@@ -33,6 +33,17 @@ const { listBoxOpen, listBoxToggle } = useListBox(listBox)
 const link = computed(() => {
 	return route.path
 })
+
+const onOptionClick = async (option: OrderingOption) => {
+	if (!props.applyOrderingQuery) return
+	listBoxToggle()
+	await navigateTo({
+		path: link.value,
+		query: {
+			ordering: option.value
+		}
+	})
+}
 </script>
 
 <template>
@@ -92,7 +103,7 @@ const link = computed(() => {
 												:text="option.label"
 												:title="option.label"
 												:disabled="ordering === option.value"
-												@click="listBoxToggle"
+												@click="onOptionClick(option)"
 											>
 												<span
 													:class="[

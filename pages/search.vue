@@ -25,11 +25,18 @@ await search({
 	language: locale.value
 })
 
-const refreshSearch = async () =>
+const refreshSearch = async () => {
 	await search({
 		query: currentSearch.value,
 		language: locale.value
 	})
+	await navigateTo({
+		path: '/search',
+		query: {
+			query: currentSearch.value
+		}
+	})
+}
 
 const throttledSearch = useDebounceFn(refreshSearch, 250)
 
@@ -92,7 +99,6 @@ watch(
 		pending.value.results = true
 		isSuggestionsOpen.value = false
 		throttledSearch()
-		// 	replace router params
 		router.replace({
 			query: {
 				...route.query,
@@ -117,7 +123,7 @@ definePageMeta({
 })
 
 definePageMeta({
-	layout: 'page'
+	layout: 'default'
 })
 </script>
 

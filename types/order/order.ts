@@ -40,7 +40,7 @@ export const ZodOrder = z.object({
 	orderItemOrder: z.array(ZodOrderItem),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
-	uuid: z.string(),
+	uuid: z.string().uuid(),
 	totalPriceItems: z.number(),
 	totalPriceExtra: z.number(),
 	fullAddress: z.string()

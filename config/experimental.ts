@@ -1,6 +1,8 @@
 export const experimental = {
 	inlineSSRStyles: true,
-	componentIslands: true,
+	componentIslands: {
+		selectiveClient: true
+	},
 	viewTransition: true,
 	renderJsonPayloads: true,
 	typedPages: true,

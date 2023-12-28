@@ -195,3 +195,7 @@ components:
       label: Pay Way
     items:
       title: Items
+  blog:
+    post:
+      card:
+        share: Share

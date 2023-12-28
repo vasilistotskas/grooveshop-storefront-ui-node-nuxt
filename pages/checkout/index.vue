@@ -165,7 +165,7 @@ watch(
 )
 
 definePageMeta({
-	layout: 'page'
+	layout: 'default'
 })
 </script>
 

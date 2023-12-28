@@ -5,7 +5,7 @@ const cartStore = useCartStore()
 const { cart, pending } = storeToRefs(cartStore)
 
 definePageMeta({
-	layout: 'page'
+	layout: 'default'
 })
 </script>
 

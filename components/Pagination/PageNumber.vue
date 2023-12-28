@@ -128,6 +128,16 @@ const link = computed(() => {
 					:text="$t('components.pagination.previous_page')"
 					:title="$t('components.pagination.previous_page')"
 					:disabled="isInFirstPage"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									page: page - 1,
+									ordering: route.query?.ordering
+								}
+							})
+					"
 				>
 					<span class="text-primary-700 dark:text-primary-100"
 						><IconFaSolid:angleLeft
@@ -151,6 +161,16 @@ const link = computed(() => {
 					:text="$t('components.pagination.first_page')"
 					:title="$t('components.pagination.first_page')"
 					:disabled="isInFirstPage"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									page: firstPageNumber,
+									ordering: route.query?.ordering
+								}
+							})
+					"
 				>
 					<span
 						:class="{
@@ -182,6 +202,16 @@ const link = computed(() => {
 					}"
 					:text="String(pageEntry)"
 					:title="$t('components.pagination.go_to_page', { page: pageEntry })"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									page: pageEntry,
+									ordering: route.query?.ordering
+								}
+							})
+					"
 				>
 					<span class="text-primary-700 dark:text-primary-100">{{ pageEntry }}</span>
 				</Anchor>
@@ -203,6 +233,16 @@ const link = computed(() => {
 					}"
 					:text="String(lastPageNumber)"
 					:title="$t('components.pagination.go_to_page', { page: lastPageNumber })"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									page: lastPageNumber,
+									ordering: route.query?.ordering
+								}
+							})
+					"
 				>
 					<span
 						v-if="shouldDisplayNextTripleDots"
@@ -237,6 +277,16 @@ const link = computed(() => {
 						isInLastPage
 							? $t('components.pagination.you_are_on_last_page')
 							: $t('components.pagination.next_page')
+					"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									page: page + 1,
+									ordering: route.query?.ordering
+								}
+							})
 					"
 				>
 					<span class="text-primary-700 dark:text-primary-100"

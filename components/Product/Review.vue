@@ -46,7 +46,7 @@ const emit = defineEmits([
 ])
 
 const productReviewStore = useProductReviewStore()
-const { fetchReviews, addReview, updateReview, deleteReview } = productReviewStore
+const { fetchReviews, createReview, updateReview, deleteReview } = productReviewStore
 
 const { extractTranslated } = useTranslationExtractor()
 const { t, locale } = useI18n()
@@ -283,7 +283,7 @@ const tooManyAttempts = computed(() => {
 })
 
 const addReviewEvent = async (event: { comment: string; rate: number }) => {
-	await addReview(
+	await createReview(
 		{
 			product: String(product.value?.id),
 			user: String(user?.value?.id),

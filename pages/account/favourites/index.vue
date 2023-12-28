@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { Ref } from 'vue'
 import type {
 	Favourite,
 	FavouriteOrderingField,
@@ -17,7 +18,7 @@ const { fetchFavourites } = favouriteStore
 const { t } = useI18n()
 const route = useRoute('account-favourites___en')
 
-const entityOrdering: EntityOrdering<FavouriteOrderingField> = reactive([
+const entityOrdering: Ref<EntityOrdering<FavouriteOrderingField>> = ref([
 	{
 		value: 'createdAt',
 		label: t('pages.account.favourites.ordering.created_at'),
@@ -35,7 +36,7 @@ const pagination = computed(() => {
 })
 
 const ordering = computed(() => {
-	return useOrdering<FavouriteOrderingField>(entityOrdering, orderingFields)
+	return useOrdering<FavouriteOrderingField>(entityOrdering.value, orderingFields)
 })
 
 const routePaginationParams = computed<FavouriteQuery>(() => {

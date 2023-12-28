@@ -108,9 +108,7 @@ watch(
 	() => route.query,
 	() => refreshProduct()
 )
-definePageMeta({
-	layout: 'page'
-})
+
 useSchemaOrg([
 	defineProduct({
 		name: () => extractTranslated(product.value, 'name', locale.value) || '',
@@ -123,6 +121,10 @@ useSchemaOrg([
 		}
 	})
 ])
+
+definePageMeta({
+	layout: 'default'
+})
 </script>
 
 <template>

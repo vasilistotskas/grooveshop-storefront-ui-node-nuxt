@@ -17,7 +17,7 @@ export const ZodCountry = z.object({
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	sortOrder: z.number().nullish(),
-	uuid: z.string()
+	uuid: z.string().uuid()
 })
 
 export const ZodCountriesQuery = z.object({

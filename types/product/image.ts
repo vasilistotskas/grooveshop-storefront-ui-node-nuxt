@@ -19,7 +19,7 @@ export const ZodImage = z.object({
 	mainImageFilename: z.string().nullish(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
-	uuid: z.string(),
+	uuid: z.string().uuid(),
 	sortOrder: z.number().nullish()
 })
 

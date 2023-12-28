@@ -36,7 +36,7 @@ export const useProductImageStore = defineStore('productImage', () => {
 			error: imagesError,
 			pending: imagesPending,
 			refresh
-		} = await useFetch<Pagination<Image>>(`/api/product-images`, {
+		} = await useFetch<Pagination<Image>>(`/api/products/images`, {
 			method: 'get',
 			params: {
 				product

@@ -119,7 +119,7 @@ export const useCartStore = defineStore('cart', () => {
 		}))
 	}
 
-	async function addCartItemToIDB(cartItem: CartItem) {
+	async function createCartItemToIDB(cartItem: CartItem) {
 		const cartFromIDB = await get<Cart>('cart')
 		if (!cartFromIDB) {
 			// eslint-disable-next-line no-console
@@ -142,7 +142,7 @@ export const useCartStore = defineStore('cart', () => {
 		await updateIdbCartTotals(cartFromIDB, cartItems)
 	}
 
-	async function addCartItem(body: CartItemAddBody) {
+	async function createCartItem(body: CartItemAddBody) {
 		if (process.prerender) {
 			return
 		}
@@ -188,7 +188,7 @@ export const useCartStore = defineStore('cart', () => {
 				updatedAt: new Date().toISOString(),
 				uuid: uuidv4()
 			}
-			await addCartItemToIDB(newCartItem)
+			await createCartItemToIDB(newCartItem)
 			return
 		}
 
@@ -197,7 +197,7 @@ export const useCartStore = defineStore('cart', () => {
 			quantity: body.quantity.toString()
 		}
 
-		const { error: cartError, pending: cartPending } = await useFetch(`/api/cart-items`, {
+		const { error: cartError, pending: cartPending } = await useFetch(`/api/cart/items`, {
 			method: 'post',
 			body: requestBody
 		})
@@ -238,7 +238,7 @@ export const useCartStore = defineStore('cart', () => {
 		}
 
 		const { error: cartError, pending: cartPending } = await useFetch(
-			`/api/cart-items/${id}`,
+			`/api/cart/items/${id}`,
 			{
 				method: 'put',
 				body
@@ -280,7 +280,7 @@ export const useCartStore = defineStore('cart', () => {
 		}
 
 		const { error: cartError, pending: cartPending } = await useFetch(
-			`/api/cart-items/${id}`,
+			`/api/cart/items/${id}`,
 			{
 				method: 'delete'
 			}
@@ -309,7 +309,7 @@ export const useCartStore = defineStore('cart', () => {
 		getCartItemById,
 		getCartItemByProductId,
 		fetchCart,
-		addCartItem,
+		createCartItem,
 		updateCartItem,
 		deleteCartItem,
 		cleanCartState

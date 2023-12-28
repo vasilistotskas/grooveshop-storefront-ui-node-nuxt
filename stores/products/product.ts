@@ -31,7 +31,7 @@ export const useProductStore = defineStore('product', () => {
 			error: productError,
 			pending: productPending,
 			refresh
-		} = await useFetch<Product>(`/api/product/${id}`, {
+		} = await useFetch<Product>(`/api/products/${id}`, {
 			method: 'get'
 		})
 		product.value = data.value
@@ -73,7 +73,7 @@ export const useProductStore = defineStore('product', () => {
 			error: productError,
 			pending: productPending,
 			refresh
-		} = await useFetch(`/api/product/${id}/update-product-hits`, {
+		} = await useFetch(`/api/products/${id}/update-product-hits`, {
 			method: 'post'
 		})
 		error.value.product = productError.value

@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
+import { ZodVat } from '~/types/vat'
+import { ZodCategory } from '~/types/product/category'
 
 const ZodProductTranslations = z.record(
 	z.object({
@@ -13,10 +15,10 @@ export const ZodProduct = z.object({
 	translations: ZodProductTranslations,
 	id: z.number().int(),
 	slug: z.string(),
-	category: z.number().int(),
+	category: z.union([z.number(), ZodCategory]),
 	absoluteUrl: z.string(),
 	price: z.number(),
-	vat: z.number(),
+	vat: z.union([z.number(), ZodVat]),
 	vatPercent: z.number(),
 	vatValue: z.number(),
 	finalPrice: z.number(),

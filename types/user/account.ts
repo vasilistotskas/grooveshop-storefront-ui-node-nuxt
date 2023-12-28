@@ -26,7 +26,7 @@ export const ZodAccount = z.object({
 	lastLogin: z.string().nullish(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
-	uuid: z.string()
+	uuid: z.string().uuid()
 })
 
 export const ZodAccountParams = z.object({

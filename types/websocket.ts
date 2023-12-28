@@ -1,15 +1,15 @@
-export type WebsocketMessageDataKind = 'error' | 'success' | 'info' | 'warning' | 'danger'
-export type WebsocketMessageDataTranslation = Record<
+export type WebsocketMessageKind = 'error' | 'success' | 'info' | 'warning' | 'danger'
+export type WebsocketMessageTranslation = Record<
 	string,
 	{
 		message: string | null | undefined
 	}
 >
 
-export type WebsocketMessageData = {
+export type WebsocketMessage = {
 	users: string[]
 	isRead: boolean
 	link: string
-	kind: WebsocketMessageDataKind
-	translations: WebsocketMessageDataTranslation
+	kind: WebsocketMessageKind
+	translations: WebsocketMessageTranslation
 }

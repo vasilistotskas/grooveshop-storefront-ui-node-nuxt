@@ -34,7 +34,7 @@ export const useFavouriteStore = defineStore(
 				error: favouriteError,
 				pending: favouritePending,
 				refresh
-			} = await useFetch<Pagination<Favourite>>(`/api/product-favourites`, {
+			} = await useFetch<Pagination<Favourite>>(`/api/products/favourites`, {
 				method: 'get',
 				params: {
 					page,

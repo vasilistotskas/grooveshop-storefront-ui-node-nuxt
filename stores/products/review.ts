@@ -54,7 +54,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch<Pagination<Review>>(`/api/product-reviews`, {
+		} = await useFetch<Pagination<Review>>(`/api/products/reviews`, {
 			method: 'get',
 			params: {
 				productId,
@@ -85,7 +85,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch<Pagination<Review>>(`/api/product-reviews`, {
+		} = await useFetch<Pagination<Review>>(`/api/products/reviews`, {
 			method: 'get',
 			params: {
 				productId,
@@ -117,7 +117,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: userHadReviewedError,
 			pending: userHadReviewedPending,
 			refresh
-		} = await useFetch<boolean>(`/api/product-reviews/user-had-reviewed`, {
+		} = await useFetch<boolean>(`/api/products/reviews/user-had-reviewed`, {
 			method: 'post',
 			body: {
 				product,
@@ -136,7 +136,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		}
 	}
 
-	async function addReview(body: ReviewCreateBody, params: ReviewCreateQuery) {
+	async function createReview(body: ReviewCreateBody, params: ReviewCreateQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -145,11 +145,12 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch<Review>(`/api/product-reviews`, {
+		} = await useFetch<Review>(`/api/products/reviews`, {
 			method: 'post',
 			body,
 			params
 		})
+
 		if (
 			data.value &&
 			reviews.value &&
@@ -157,6 +158,41 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			reviews.value?.results?.length < reviews.value?.pageSize
 		) {
 			reviews?.value?.results?.push(data.value)
+		}
+
+		error.value.reviews = reviewsError.value
+		pending.value.reviews = reviewsPending.value
+
+		return {
+			data,
+			error: reviewsError,
+			pending: reviewsPending,
+			refresh
+		}
+	}
+
+	async function updateReview(id: number, body: ReviewPutBody) {
+		if (process.prerender) {
+			return
+		}
+		const {
+			data,
+			error: reviewsError,
+			pending: reviewsPending,
+			refresh
+		} = await useFetch<Review>(`/api/products/reviews/${id}`, {
+			method: 'put',
+			body
+		})
+		if (data.value && reviews.value?.results) {
+			const index = reviews.value?.results?.findIndex((review) => review.id === id)
+			if (index !== -1) {
+				reviews.value.results[index] = {
+					...data.value,
+					product: reviews.value?.results[index].product,
+					user: reviews.value?.results[index].user
+				}
+			}
 		}
 		error.value.reviews = reviewsError.value
 		pending.value.reviews = reviewsPending.value
@@ -177,11 +213,11 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch(`/api/product-reviews/${id}`, {
+		} = await useFetch(`/api/products/reviews/${id}`, {
 			method: 'delete'
 		})
+
 		const index = reviews.value?.results?.findIndex((review) => review.id === id)
-		// If current review in results listing delete it
 		if (index !== undefined && index !== -1) {
 			reviews.value?.results?.splice(index, 1)
 		}
@@ -189,49 +225,6 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		pending.value.reviews = reviewsPending.value
 
 		return {
-			error: reviewsError,
-			pending: reviewsPending,
-			refresh
-		}
-	}
-
-	async function updateReview(id: number, body: ReviewPutBody) {
-		if (process.prerender) {
-			return
-		}
-		const {
-			data,
-			error: reviewsError,
-			pending: reviewsPending,
-			refresh
-		} = await useFetch<Review>(`/api/product-reviews/${id}`, {
-			method: 'put',
-			body
-		})
-		if (data.value && reviews.value?.results) {
-			const index = reviews.value?.results?.findIndex((review) => review.id === id)
-			// If current review in results listing update it
-			if (index !== -1) {
-				reviews.value.results[index] = {
-					translations: data.value.translations,
-					createdAt: data.value.createdAt,
-					id: data.value.id,
-					isPublished: data.value.isPublished,
-					publishedAt: data.value.publishedAt,
-					rate: data.value.rate,
-					status: data.value.status,
-					updatedAt: data.value.updatedAt,
-					uuid: data.value.uuid,
-					product: reviews.value?.results[index].product,
-					user: reviews.value?.results[index].user
-				}
-			}
-		}
-		error.value.reviews = reviewsError.value
-		pending.value.reviews = reviewsPending.value
-
-		return {
-			data,
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
@@ -247,7 +240,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		fetchReviews,
 		fetchUserToProductReview,
 		fetchUserHadReviewed,
-		addReview,
+		createReview,
 		deleteReview,
 		updateReview
 	}

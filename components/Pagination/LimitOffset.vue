@@ -123,6 +123,17 @@ const link = computed(() => {
 					:text="$t('components.pagination.previous_page')"
 					:title="$t('components.pagination.previous_page')"
 					:disabled="isInFirstPage"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									limit,
+									offset: isInFirstPage ? offset : offset - limit,
+									ordering: route.query?.ordering
+								}
+							})
+					"
 				>
 					<span class="text-primary-700 dark:text-primary-100"
 						><IconFaSolid:angleLeft
@@ -143,6 +154,13 @@ const link = computed(() => {
 					:text="$t('components.pagination.first_page')"
 					:title="$t('components.pagination.first_page')"
 					:disabled="isInFirstPage"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: { limit, offset: 0, ordering: route.query?.ordering }
+							})
+					"
 				>
 					<span
 						:class="{
@@ -175,6 +193,17 @@ const link = computed(() => {
 					}"
 					:text="String(pageEntry)"
 					:title="$t('components.pagination.go_to_page', { page: pageEntry })"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									limit,
+									offset: (pageEntry - 1) * limit,
+									ordering: route.query?.ordering
+								}
+							})
+					"
 				>
 					<span class="text-primary-700 dark:text-primary-100">{{ pageEntry }}</span>
 				</Anchor>
@@ -197,6 +226,17 @@ const link = computed(() => {
 					}"
 					:text="String(lastPageNumber)"
 					:title="$t('components.pagination.go_to_page', { page: lastPageNumber })"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									limit,
+									offset: (totalPages - 1) * limit,
+									ordering: route.query?.ordering
+								}
+							})
+					"
 				>
 					<span
 						v-if="shouldDisplayNextTripleDots"
@@ -232,6 +272,17 @@ const link = computed(() => {
 						isInLastPage
 							? $t('components.pagination.you_are_on_last_page')
 							: $t('components.pagination.next_page')
+					"
+					@click="
+						async () =>
+							await navigateTo({
+								path: link,
+								query: {
+									limit,
+									offset: offset + limit,
+									ordering: route.query?.ordering
+								}
+							})
 					"
 				>
 					<span class="text-primary-700 dark:text-primary-100"

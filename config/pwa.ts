@@ -104,13 +104,7 @@ export const pwa = {
 		runtimeCaching: [
 			{
 				urlPattern: ({ url, sameOrigin }) => {
-					const pwaExcludedCachePaths = [
-						'/api/auth',
-						'/api/cart',
-						'/api/cart-items',
-						'/api/user-account',
-						'/api/user-account-session'
-					]
+					const pwaExcludedCachePaths = ['/api/auth', '/api/cart', '/api/user']
 					const isExcludedPath = pwaExcludedCachePaths.some((path) =>
 						url.pathname.startsWith(path)
 					)
