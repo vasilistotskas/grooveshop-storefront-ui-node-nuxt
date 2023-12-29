@@ -1,3 +1,10 @@
+# [1.51.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.50.0...v1.51.0) (2023-12-29)
+
+
+### Features
+
+* New component for demo mode ([a6c1594](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a6c1594e3b2f4033ecb9dfc63773e23242e19773))
+
 # [1.50.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.49.2...v1.50.0) (2023-12-28)
 
 
