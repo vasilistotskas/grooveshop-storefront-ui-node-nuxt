@@ -61,6 +61,7 @@ const toggleOptions = (show?: boolean) => {
 	}
 }
 const appTitle = computed(() => config.public.appTitle as string)
+const environment = computed(() => config.public.environment)
 </script>
 
 <template>
@@ -113,6 +114,7 @@ const appTitle = computed(() => config.public.appTitle as string)
 							</strong>
 						</h1>
 					</slot>
+					<LazyDemoModeMessage v-if="environment === 'demo'" />
 					<!-- menu -->
 					<slot name="menu" />
 					<!-- options:toggle -->

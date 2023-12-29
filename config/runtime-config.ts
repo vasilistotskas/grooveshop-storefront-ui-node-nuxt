@@ -93,6 +93,7 @@ export const runtimeConfig = {
 
 	// Keys within public are also exposed client-side
 	public: {
+		environment: process.env.NUXT_PUBLIC_ENVIRONMENT || 'development',
 		trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
 		titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR || '|',
 		siteName: process.env.NUXT_PUBLIC_SITE_NAME || 'GrooveShop',

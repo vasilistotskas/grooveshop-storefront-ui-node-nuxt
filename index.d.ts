@@ -7,6 +7,7 @@ const envVariables = z.object({
 	VITEST_DOM_ENV: z.string(),
 
 	// Info
+	NUXT_PUBLIC_ENVIRONMENT: z.enum(['development', 'production', 'demo']),
 	NUXT_PUBLIC_APP_TITLE: z.string(),
 	NUXT_PUBLIC_APP_DESCRIPTION: z.string(),
 	NUXT_PUBLIC_SITE_DESCRIPTION: z.string(),

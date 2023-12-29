@@ -217,3 +217,7 @@ components:
       label: bezahlungsweise
     items:
       title: artikel
+  blog:
+    post:
+      card:
+        share: aktie

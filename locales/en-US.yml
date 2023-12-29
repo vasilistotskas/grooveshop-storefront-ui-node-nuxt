@@ -82,3 +82,5 @@ common:
   version: Version
   upload: Upload
   tags: Tags
+  demo:
+    message: This is a Demo Website for Display Purposes Only.

@@ -217,3 +217,7 @@ components:
       label: τρόπος πληρωμής
     items:
       title: είδη
+  blog:
+    post:
+      card:
+        share: μερίδιο

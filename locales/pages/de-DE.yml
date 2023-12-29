@@ -13,6 +13,10 @@ pages:
     nav: blog
     description: blog
     keywords: blog
+    ordering:
+      created_at: hergestellt in
+      title: titel
+      published_at: veröffentlicht unter
   testing:
     nav: testen
     title: testen
