@@ -53,6 +53,7 @@ const onOptionClick = async (option: OrderingOption) => {
 				<Listbox v-model="ordering" name="Ordering">
 					<div class="relative w-46 md:w-60">
 						<ListboxButton
+							:id="`ordering-button-${ordering}`"
 							class="cursor-pointer relative w-full rounded-lg bg-zinc-200 dark:bg-zinc-800 py-2 pl-2 pr-6 md:pl-3 md:pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 text-sm"
 							@click="listBoxToggle"
 						>
@@ -71,12 +72,14 @@ const onOptionClick = async (option: OrderingOption) => {
 						<div v-show="listBoxOpen">
 							<Transition>
 								<ListboxOptions
+									:id="`ordering-options-${ordering}`"
 									role="none"
 									static
 									class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-200 dark:bg-zinc-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
 								>
 									<ListboxOption
 										v-for="(option, index) in orderingOptions"
+										:id="`ordering-${option.value}`"
 										v-slot="{ active, selected }"
 										:key="index"
 										:value="option.value"

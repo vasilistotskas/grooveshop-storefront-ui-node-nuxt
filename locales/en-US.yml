@@ -84,3 +84,5 @@ common:
   tags: Tags
   demo:
     message: This is a Demo Website for Display Purposes Only.
+  change:
+    language: Change Language

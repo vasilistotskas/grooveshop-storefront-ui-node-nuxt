@@ -104,6 +104,28 @@ const userToProductFavourite = computed(() => {
 	return getUserToProductFavourite(Number(productId))
 })
 
+const links = [
+	{
+		to: '/',
+		label: t('breadcrumb.items.index.ariaLabel'),
+		icon: 'i-heroicons-home'
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? '/products'
+				: `/${locale.value}/products`,
+		label: t('breadcrumb.items.products.label')
+	},
+	{
+		to:
+			locale.value === config.public.defaultLocale
+				? `/product/${productId}/${product.value?.slug}`
+				: `/${locale.value}/product/${productId}/${product.value?.slug}`,
+		label: productTitle.value
+	}
+]
+
 watch(
 	() => route.query,
 	() => refreshProduct()
@@ -131,9 +153,10 @@ definePageMeta({
 	<PageWrapper class="container">
 		<PageBody>
 			<div v-if="product" class="product mb-12 md:mb-24">
-				<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-6">
+				<div class="max-w-7xl mx-auto md:px-4 sm:px-6 lg:px-8 pb-6">
+					<UBreadcrumb :links="links" class="mb-5 pl-4" />
 					<div class="grid md:grid-cols-2 gap-2">
-						<div class="overflow-hidden px-4">
+						<div class="overflow-hidden md:px-4">
 							<ProductImages :product="product" />
 						</div>
 						<div class="grid gap-6 px-4 items-center content-center">

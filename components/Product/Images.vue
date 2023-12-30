@@ -28,7 +28,7 @@ const selectedImageId = useState<number>(`${product.value.uuid}-imageID`, () => 
 
 const gridAutoColumns = computed(() => {
 	if (isMobile) {
-		return '100%'
+		return '50%'
 	}
 	if (isTablet) {
 		return '50%'

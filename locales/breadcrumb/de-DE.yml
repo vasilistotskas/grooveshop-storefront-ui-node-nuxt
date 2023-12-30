@@ -4,6 +4,7 @@ breadcrumb:
     index:
       icon: heroicons-solid:home
       ariaLabel: heim
+      label: heim
     products:
       icon: heroicons-solid:shopping-cart
       ariaLabel: produkte

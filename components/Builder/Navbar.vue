@@ -74,7 +74,7 @@ const environment = computed(() => config.public.environment)
 		</div>
 		<div class="bg-background-700 max-w-8xl w-full mx-auto">
 			<div class="py-3 md:py-4 lg:px-8 mx-4 lg:mx-0">
-				<div class="relative flex items-center gap-4">
+				<div class="relative grid grid-cols-1fr-auto md:flex items-center gap-4">
 					<!-- drawer:toggle -->
 					<div
 						v-if="$slots['drawer']"

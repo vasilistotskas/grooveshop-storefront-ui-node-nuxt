@@ -84,3 +84,5 @@ common:
   tags: stichworte
   demo:
     message: dies ist eine demo-website, die ausschließlich zu anzeigezwecken dient.
+  change:
+    language: sprache ändern

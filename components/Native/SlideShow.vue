@@ -145,6 +145,10 @@ defineSlots<{
 			right: 0;
 			box-shadow: 3px 3px 15px -5px rgb(0 0 0 / 35%);
 		}
+
+		@media screen and (max-width: 768px) {
+			display: none;
+		}
 	}
 }
 </style>

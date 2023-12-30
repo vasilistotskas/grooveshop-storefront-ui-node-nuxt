@@ -42,8 +42,9 @@ const onLocaleChange = (event: Event) => {
 			class="relative flex items-center"
 		>
 			<ListboxButton
+				id="language-switcher"
 				type="button"
-				title="Change Language"
+				:title="$t('common.change.language')"
 				class="text-[1.5rem] transition-colors duration-300"
 			>
 				<span class="sr-only">{{
@@ -56,10 +57,13 @@ const onLocaleChange = (event: Event) => {
 				</span>
 			</ListboxButton>
 			<ListboxOptions
+				v-if="availableLocales.length > 0"
+				id="language-switcher-options"
 				class="p-1 absolute z-50 top-full right-0 outline-none bg-white rounded-lg ring-1 ring-gray-900/10 shadow-lg overflow-hidden w-36 py-1 text-lg text-primary-700 font-semibold dark:bg-zinc-800 dark:ring-0 dark:highlight-white/5 dark:text-primary-300"
 			>
 				<ListboxOption
 					v-for="lang in availableLocales"
+					:id="`language-switcher-${lang.code}`"
 					:key="lang.code"
 					:value="lang.code"
 					:class="{
@@ -84,7 +88,7 @@ const onLocaleChange = (event: Event) => {
 			</ListboxOptions>
 		</Listbox>
 		<select
-			v-if="currentStyle === 'select-box'"
+			v-if="currentStyle === 'select-box' && availableLocales.length > 0"
 			class="w-full px-2 pr-3 py-1 outline-none rounded border bg-transparent text-primary-700 dark:text-primary-300 border-gray-900/10 dark:border-gray-50/[0.2]"
 			:value="locale"
 			@change="onLocaleChange"
