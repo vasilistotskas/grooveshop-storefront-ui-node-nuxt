@@ -1,3 +1,10 @@
+# [1.52.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.51.0...v1.52.0) (2023-12-30)
+
+
+### Features
+
+* Bump versions and add breadcrumbs at product page ([b941bca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b941bca94a50fd3bf7c86b8664d2e5b288424f05))
+
 # [1.51.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.50.0...v1.51.0) (2023-12-29)
 
 
