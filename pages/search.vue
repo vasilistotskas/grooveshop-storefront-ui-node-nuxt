@@ -141,7 +141,7 @@ definePageMeta({
 						class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-primary-700 dark:text-primary-100 border-r-2 border-gray-900/10 dark:border-gray-50/20 pr-8"
 					>
 						<span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
-						<IconEntypo:arrowLeft />
+						<UIcon name="i-heroicons-arrow-left" />
 					</Anchor>
 					<IconFa6Solid:magnifyingGlass />
 					<label for="search" class="sr-only">{{ $t('pages.search.placeholder') }}</label>

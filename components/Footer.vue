@@ -113,13 +113,13 @@ const packageVersion = pkg.version
 		<div class="w-full bg-zinc-100 dark:bg-zinc-800">
 			<div class="mx-auto w-full container">
 				<div class="px-4 py-6 md:flex md:items-center md:justify-between">
-					<span class="text-sm text-primary-800 dark:text-primary-300 sm:text-center"
+					<span class="text-sm text-primary-900 dark:text-primary-300 sm:text-center"
 						>© 2023
 						<Anchor
 							:href="config.public.siteUrl"
 							:title="config.public.siteName"
 							:text="config.public.siteName"
-							css-class="flex-1 hover:no-underline capitalize text-gray-800"
+							css-class="flex-1 hover:no-underline capitalize text-gray-900"
 							>{{ config.public.siteName }}™</Anchor
 						>. {{ $t('common.all_rights_reserved') }}.
 					</span>

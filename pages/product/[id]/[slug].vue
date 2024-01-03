@@ -106,8 +106,8 @@ const userToProductFavourite = computed(() => {
 
 const links = [
 	{
-		to: '/',
-		label: t('breadcrumb.items.index.ariaLabel'),
+		to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
+		label: t('breadcrumb.items.index.label'),
 		icon: 'i-heroicons-home'
 	},
 	{

@@ -53,7 +53,7 @@ const onLocaleChange = (event: Event) => {
 				<span
 					class="text-primary-700 dark:text-primary-100 justify-center items-center flex"
 				>
-					<IconLa:language />
+					<UIcon name="i-heroicons-language" />
 				</span>
 			</ListboxButton>
 			<ListboxOptions

@@ -38,7 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.23.7",
     "@headlessui/vue": "^1.7.16",
-    "@iconify/json": "^2.2.163",
+    "@iconify/json": "^2.2.164",
     "@intlify/core-base": "^9.8.0",
     "@intlify/message-compiler": "^9.8.0",
     "@intlify/shared": "^9.8.0",
@@ -79,7 +79,7 @@
     "@vee-validate/nuxt": "^4.12.4",
     "@vee-validate/zod": "^4.12.4",
     "@vite-pwa/nuxt": "^0.4.0",
-    "@vitest/coverage-v8": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.1",
     "@vue/test-utils": "^2.4.3",
     "@vueuse/core": "^10.7.1",
     "@vueuse/integrations": "^10.7.1",
@@ -109,10 +109,10 @@
     "playwright": "^1.40.1",
     "postcss": "8.4.32",
     "postcss-html": "^1.5.0",
-    "postcss-import": "15.1.0",
+    "postcss-import": "16.0.0",
     "postcss-loader": "^7.3.4",
     "prettier": "^3.1.1",
-    "sass": "^1.69.6",
+    "sass": "^1.69.7",
     "sass-loader": "^13.3.3",
     "semantic-release": "^22.0.12",
     "std-env": "^3.7.0",
@@ -133,9 +133,9 @@
     "v-calendar": "^3.1.2",
     "vee-validate": "^4.12.4",
     "vite": "^5.0.10",
-    "vitest": "^1.1.0",
+    "vitest": "^1.1.1",
     "vitest-environment-nuxt": "^1.0.0",
-    "vue": "^3.4.3",
+    "vue": "^3.4.4",
     "vue-i18n": "^9.8.0",
     "vue-i18n-routing": "^1.2.0",
     "vue-router": "^4.2.5",
@@ -196,9 +196,9 @@
   "engines": {
     "node": ">=21.0.0",
     "npm": ">=10.2.5",
-    "pnpm": "^8.12.0"
+    "pnpm": "^8.14.0"
   },
-  "packageManager": "pnpm@8.12.0",
+  "packageManager": "pnpm@8.14.0",
   "dependencies": {
     "commander": "^11.1.0"
   }

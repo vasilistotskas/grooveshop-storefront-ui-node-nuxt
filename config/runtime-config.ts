@@ -152,6 +152,10 @@ export const runtimeConfig = {
 			twitter: process.env.NUXT_PUBLIC_SOCIALS_TWITTER || 'https://twitter.com',
 			instagram: process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM || 'https://www.instagram.com',
 			discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD || 'https://discord.gg'
+		},
+
+		device: {
+			refreshOnResize: true
 		}
 	},
 

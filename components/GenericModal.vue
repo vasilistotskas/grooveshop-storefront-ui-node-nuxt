@@ -241,7 +241,7 @@ onMounted(() => {
 				@click="closeModal"
 			>
 				<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
-				<IconEntypo:circleWithCross></IconEntypo:circleWithCross>
+				<UIcon name="i-heroicons-x-circle" />
 			</button>
 			<template v-if="isForm">
 				<form
@@ -268,7 +268,7 @@ onMounted(() => {
 						@click="closeModal"
 					>
 						<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
-						<IconEntypo:circleWithCross></IconEntypo:circleWithCross>
+						<UIcon name="i-heroicons-x-circle" />
 					</button>
 				</form>
 			</template>
@@ -292,7 +292,7 @@ onMounted(() => {
 						@click="closeModal"
 					>
 						<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
-						<IconEntypo:circleWithCross></IconEntypo:circleWithCross>
+						<UIcon name="i-heroicons-x-circle" />
 					</button>
 				</div>
 			</template>

@@ -13,19 +13,7 @@ export const vite = {
 			resolvers: [
 				IconsResolver({
 					prefix: 'Icon',
-					enabledCollections: [
-						'bi',
-						'clarity',
-						'entypo',
-						'fa6-solid',
-						'fa-solid',
-						'ic',
-						'la',
-						'mdi',
-						'uil',
-						'fluent',
-						'carbon'
-					]
+					enabledCollections: ['fa6-solid', 'fa-solid', 'mdi']
 				})
 			]
 		}),

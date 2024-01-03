@@ -81,16 +81,19 @@ const close = () => {
 			>
 				<div class="flex items-center justify-center">
 					<slot name="icon">
-						<IconMdi:checkCircle
+						<UIcon
 							v-if="selectedType === 'success'"
+							name="i-heroicons-check-circle"
 							:class="`text-2xl ${selectedTextStyle}`"
 						/>
-						<IconClarity:timesCircleSolid
+						<UIcon
 							v-if="selectedType === 'danger'"
+							name="i-heroicons-exclamation-circle"
 							:class="`text-2xl ${selectedTextStyle}`"
 						/>
-						<IconBi:exclamationCircleFill
+						<UIcon
 							v-if="selectedType === 'warning'"
+							name="i-heroicons-exclamation-triangle"
 							:class="`text-2xl ${selectedTextStyle}`"
 						/>
 					</slot>
@@ -112,7 +115,7 @@ const close = () => {
 						@click="close"
 					>
 						<span class="sr-only">{{ title }}</span>
-						<IconClarity:timesLine class="text-xl" />
+						<UIcon name="i-heroicons-x-circle" class="text-xl" />
 					</button>
 				</div>
 			</div>

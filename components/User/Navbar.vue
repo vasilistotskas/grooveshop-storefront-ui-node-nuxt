@@ -113,7 +113,7 @@ const menus = computed((): IMenuItem[] => [
 							<span class="hidden md:grid">
 								{{ $t('common.logout') }}
 							</span>
-							<IconFluent:doorArrowRight28Regular />
+							<UIcon name="i-heroicons-arrow-left-start-on-rectangle" />
 						</MainButton>
 					</li>
 				</ul>

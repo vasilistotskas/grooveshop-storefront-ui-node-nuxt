@@ -7,12 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    'IconBi:exclamationCircleFill': typeof import('~icons/bi/exclamation-circle-fill')['default']
-    'IconCarbon:twoFactorAuthentication': typeof import('~icons/carbon/two-factor-authentication')['default']
-    'IconClarity:timesCircleSolid': typeof import('~icons/clarity/times-circle-solid')['default']
-    'IconClarity:timesLine': typeof import('~icons/clarity/times-line')['default']
-    'IconEntypo:arrowLeft': typeof import('~icons/entypo/arrow-left')['default']
-    'IconEntypo:circleWithCross': typeof import('~icons/entypo/circle-with-cross')['default']
     'IconFa6Solid:arrowLeft': typeof import('~icons/fa6-solid/arrow-left')['default']
     'IconFa6Solid:cartShopping': typeof import('~icons/fa6-solid/cart-shopping')['default']
     'IconFa6Solid:circleCheck': typeof import('~icons/fa6-solid/circle-check')['default']
@@ -33,16 +27,11 @@ declare module 'vue' {
     'IconFaSolid:plus': typeof import('~icons/fa-solid/plus')['default']
     'IconFaSolid:sort': typeof import('~icons/fa-solid/sort')['default']
     'IconFaSolid:trash': typeof import('~icons/fa-solid/trash')['default']
-    'IconFluent:doorArrowRight28Regular': typeof import('~icons/fluent/door-arrow-right28-regular')['default']
-    'IconLa:language': typeof import('~icons/la/language')['default']
-    'IconMdi:checkCircle': typeof import('~icons/mdi/check-circle')['default']
     'IconMdi:heart': typeof import('~icons/mdi/heart')['default']
     'IconMdi:heartOutline': typeof import('~icons/mdi/heart-outline')['default']
     'IconMdi:packageVariantClosed': typeof import('~icons/mdi/package-variant-closed')['default']
     'IconMdi:star': typeof import('~icons/mdi/star')['default']
     'IconMdi:starOutline': typeof import('~icons/mdi/star-outline')['default']
-    'IconUil:bars': typeof import('~icons/uil/bars')['default']
-    'IconUil:times': typeof import('~icons/uil/times')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

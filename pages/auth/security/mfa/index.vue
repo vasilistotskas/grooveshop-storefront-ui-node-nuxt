@@ -15,7 +15,7 @@ definePageMeta({
 			:text="$t('pages.auth.security.mfa.title')"
 			class="capitalize text-center"
 		/>
-		<IconCarbon:twoFactorAuthentication class="w-24 h-24 mx-auto text-primary-500" />
+		<UIcon name="i-heroicons-shield-check" class="w-24 h-24 mx-auto text-primary-500" />
 		<PageBody>
 			<div
 				class="container-xxs relative grid items-center justify-center justify-items-center gap-4 p-0 md:px-6"

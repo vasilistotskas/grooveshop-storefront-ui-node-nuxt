@@ -91,9 +91,9 @@ watch(
 					:ordering-options="ordering.orderingOptionsArray.value"
 				/>
 			</div>
-			<section class="flex gap-4 md:gap-8">
+			<section class="grid md:flex gap-4 md:gap-8">
 				<ol
-					class="w-full grid items-center justify-center grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4"
+					class="row-start-2 md:row-start-1 w-full grid items-center justify-center grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4"
 				>
 					<template v-for="(post, index) in posts.results" :key="index">
 						<BlogPostCard :post="post" :img-loading="index > 7 ? 'lazy' : 'eager'" />

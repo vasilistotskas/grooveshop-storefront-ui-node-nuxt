@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
-
-defineProps({
+const props = defineProps({
 	leftButtonScrollLeftBy: {
 		type: Number,
 		required: false,
@@ -47,19 +45,52 @@ defineProps({
 		required: false,
 		default: '100%'
 	},
+	paddingBottom: {
+		type: String,
+		required: false,
+		default: '30px'
+	},
+	marginBottom: {
+		type: String,
+		required: false,
+		default: '-30px'
+	},
 	componentElement: {
 		type: String,
 		default: 'div'
+	},
+	mobileOnly: {
+		type: Boolean,
+		required: false,
+		default: false
+	},
+	desktopOnly: {
+		type: Boolean,
+		required: false,
+		default: false
 	}
 })
 defineSlots<{
 	default(props: {}): any
 }>()
+
+const { isMobile, isDesktop } = useDevice()
+
+const isSliderActive = computed(() => {
+	if (props.mobileOnly && isMobile) {
+		return true
+	}
+	if (props.desktopOnly && isDesktop) {
+		return true
+	}
+	return !props.mobileOnly && !props.desktopOnly
+})
 </script>
 
 <template>
 	<div :class="['native-slider', parentClass]">
 		<button
+			v-if="isSliderActive"
 			type="button"
 			:data-scroll_left_by="leftButtonScrollLeftBy"
 			:data-always_show="buttonAlwaysShow"
@@ -70,13 +101,16 @@ defineSlots<{
 		</button>
 		<Component
 			:is="componentElement"
-			:class="['native-slider-lg', sliderClass]"
-			:data-drag_speed="dragSpeed"
-			:data-autoplay_interval="autoplayInterval > 0 ? autoplayInterval : null"
+			:class="[sliderClass, { 'native-slider-lg': isSliderActive }]"
+			:data-drag_speed="isSliderActive ? dragSpeed : null"
+			:data-autoplay_interval="
+				isSliderActive && autoplayInterval > 0 ? autoplayInterval : null
+			"
 		>
 			<slot />
 		</Component>
 		<button
+			v-if="isSliderActive"
 			type="button"
 			:data-scroll_left_by="rightButtonScrollLeftBy"
 			:aria-label="$t('common.next')"
@@ -95,7 +129,6 @@ defineSlots<{
 
 	&-lg {
 		display: grid;
-		grid-gap: 0;
 		grid-auto-flow: column;
 		grid-auto-columns: v-bind(gridAutoColumns);
 		overflow-x: auto;
@@ -105,8 +138,8 @@ defineSlots<{
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
 		-ms-overflow-style: none;
-		padding-bottom: 30px;
-		margin-bottom: -30px;
+		padding-bottom: v-bind(paddingBottom);
+		margin-bottom: v-bind(marginBottom);
 		clip-path: inset(0 0 30px 0);
 
 		&.native-slider-dragged {

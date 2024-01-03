@@ -93,8 +93,8 @@ const environment = computed(() => config.public.environment)
 								class="flex items-center text-primary-700 dark:text-primary-100 text-lg"
 								aria-hidden="true"
 							>
-								<IconUil:bars v-if="!showDrawer" />
-								<IconUil:times v-else />
+								<UIcon v-if="!showDrawer" name="i-heroicons-bars-3" />
+								<UIcon v-else name="i-heroicons-x-circle" />
 							</span>
 						</button>
 					</div>
