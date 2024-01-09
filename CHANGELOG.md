@@ -1,3 +1,10 @@
+# [1.54.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.53.0...v1.54.0) (2024-1-9)
+
+
+### Features
+
+* Dynamic form improvements and multistep support, button component replaces and versions bump ([29635eb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/29635ebaa26bce52b1390f5c56ffaf803bd7ce47))
+
 # [1.53.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.52.0...v1.53.0) (2024-1-3)
 
 
