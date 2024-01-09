@@ -1,5 +1,6 @@
 common:
   home: home
+  close: close
   auth:
     login:
       success: Login successfully

@@ -98,43 +98,44 @@ const userToProductFavourite = computed(() => {
 					</div>
 				</div>
 				<div class="flex flex-col justify-end flex-1 relative gap-2">
-					<div class="h-6 flex gap-4">
-						<ClientOnly>
-							<MainButton
-								v-if="isSupported && showShareButton"
-								:disabled="!isSupported"
-								:text="
-									isSupported
-										? $t('components.product.card.share')
-										: $t('components.product.card.share_not_supported')
-								"
-								size="xs"
-								class="font-extrabold capitalize"
-								@click="startShare"
+					<div class="flex gap-4 justify-between">
+						<h2 class="text-lg font-semibold leading-6">
+							<Anchor
+								:to="`/product${product.absoluteUrl}`"
+								:text="alt"
+								class="text-primary-700 dark:text-primary-100"
+							>
+								{{ extractTranslated(product, 'name', locale) }}
+							</Anchor>
+						</h2>
+						<div class="h-6 flex gap-4">
+							<ClientOnly>
+								<UButton
+									v-if="isSupported && showShareButton"
+									:disabled="!isSupported"
+									icon="i-heroicons-share"
+									size="lg"
+									color="primary"
+									square
+									variant="solid"
+									class="font-extrabold capitalize"
+									@click="startShare"
+								/>
+								<template #fallback>
+									<ClientOnlyFallback height="24px" width="40px" />
+								</template>
+							</ClientOnly>
+							<ButtonAddToFavourite
+								v-if="showAddToFavouriteButton"
+								:product-id="product.id"
+								:user-id="account?.id"
+								:is-favourite="productInUserFavourites"
+								:favourite="userToProductFavourite"
+								:is-authenticated="isAuthenticated"
+								size="lg"
 							/>
-							<template #fallback>
-								<ClientOnlyFallback height="24px" width="64px" />
-							</template>
-						</ClientOnly>
-						<ButtonAddToFavourite
-							v-if="showAddToFavouriteButton"
-							:product-id="product.id"
-							:user-id="account?.id"
-							:is-favourite="productInUserFavourites"
-							:favourite="userToProductFavourite"
-							:is-authenticated="isAuthenticated"
-							size="xs"
-						/>
+						</div>
 					</div>
-					<h2 class="text-lg font-semibold leading-6">
-						<Anchor
-							:to="`/product${product.absoluteUrl}`"
-							:text="alt"
-							class="text-primary-700 dark:text-primary-100"
-						>
-							{{ extractTranslated(product, 'name', locale) }}
-						</Anchor>
-					</h2>
 					<p
 						v-if="showDescription"
 						class="text-sm leading-6 min-h-[3.75rem] text-primary-700 dark:text-primary-100 text-muted"
@@ -143,7 +144,7 @@ const userToProductFavourite = computed(() => {
 							contentShorten(extractTranslated(product, 'description', locale), 0, 100)
 						}}
 					</p>
-					<div class="grid">
+					<div v-if="showStartPrice || showVat" class="grid">
 						<div v-if="showStartPrice" class="d-flex justify-content-between">
 							<p>
 								<span class="text-primary-700 dark:text-primary-100">{{
@@ -165,7 +166,7 @@ const userToProductFavourite = computed(() => {
 							</p>
 						</div>
 					</div>
-					<div class="flex justify-between font-bold mt-4">
+					<div class="flex justify-between font-bold">
 						<p class="grid grid-cols-[1fr_auto] gap-2 items-center">
 							<span class="text-sm leading-6 text-primary-700 dark:text-primary-100">
 								{{ $t('components.product.card.total_price') }}

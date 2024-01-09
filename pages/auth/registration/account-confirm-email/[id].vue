@@ -90,16 +90,12 @@ definePageMeta({
 			</ClientOnly>
 
 			<div class="flex justify-center">
-				<MainButton
+				<UButton
 					v-if="data"
-					class="address-card-header-actions-button"
-					type="link"
-					:to="`/auth/login`"
 					size="sm"
-					:style="'secondary'"
-				>
-					{{ $t('pages.auth.registration.account-confirm-email.success.button') }}
-				</MainButton>
+					:label="$t('pages.auth.registration.account-confirm-email.success.button')"
+					:to="`/auth/login`"
+				/>
 				<LazyDynamicForm v-if="error" :schema="formSchema" @submit="onSubmit" />
 			</div>
 		</PageBody>

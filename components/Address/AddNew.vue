@@ -6,12 +6,11 @@
 			{{ $t('components.address.add_new.title') }}
 		</p>
 		<div class="grid items-center justify-center">
-			<MainButton
-				:text="$t('components.address.add_new.button')"
-				type="link"
-				to="/account/addresses/new"
-				size="lg"
+			<UButton
 				class="w-full"
+				:label="$t('components.address.add_new.button')"
+				:to="'/account/addresses/new'"
+				size="lg"
 			/>
 		</div>
 	</li>

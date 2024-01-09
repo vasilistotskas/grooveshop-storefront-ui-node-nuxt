@@ -7,7 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    'IconFa6Solid:arrowLeft': typeof import('~icons/fa6-solid/arrow-left')['default']
     'IconFa6Solid:cartShopping': typeof import('~icons/fa6-solid/cart-shopping')['default']
     'IconFa6Solid:circleCheck': typeof import('~icons/fa6-solid/circle-check')['default']
     'IconFa6Solid:circleQuestion': typeof import('~icons/fa6-solid/circle-question')['default']
@@ -16,8 +15,6 @@ declare module 'vue' {
     'IconFa6Solid:eye': typeof import('~icons/fa6-solid/eye')['default']
     'IconFa6Solid:eyeSlash': typeof import('~icons/fa6-solid/eye-slash')['default']
     'IconFa6Solid:magnifyingGlass': typeof import('~icons/fa6-solid/magnifying-glass')['default']
-    'IconFa6Solid:pencil': typeof import('~icons/fa6-solid/pencil')['default']
-    'IconFa6Solid:trash': typeof import('~icons/fa6-solid/trash')['default']
     'IconFaSolid:angleLeft': typeof import('~icons/fa-solid/angle-left')['default']
     'IconFaSolid:angleRight': typeof import('~icons/fa-solid/angle-right')['default']
     'IconFaSolid:check': typeof import('~icons/fa-solid/check')['default']
@@ -27,7 +24,6 @@ declare module 'vue' {
     'IconFaSolid:plus': typeof import('~icons/fa-solid/plus')['default']
     'IconFaSolid:sort': typeof import('~icons/fa-solid/sort')['default']
     'IconFaSolid:trash': typeof import('~icons/fa-solid/trash')['default']
-    'IconMdi:heart': typeof import('~icons/mdi/heart')['default']
     'IconMdi:heartOutline': typeof import('~icons/mdi/heart-outline')['default']
     'IconMdi:packageVariantClosed': typeof import('~icons/mdi/package-variant-closed')['default']
     'IconMdi:star': typeof import('~icons/mdi/star')['default']

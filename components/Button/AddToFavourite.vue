@@ -30,6 +30,10 @@ const props = defineProps({
 		type: String as PropType<ButtonSize>,
 		default: 'md',
 		validator: (value: string) => ['lg', 'md', 'sm', 'xs'].includes(value)
+	},
+	showLabel: {
+		type: Boolean,
+		default: false
 	}
 })
 
@@ -79,6 +83,7 @@ const toggleFavourite = async () => {
 }
 
 const buttonLabel = computed(() => {
+	if (!props.showLabel) return ''
 	return props.isFavourite
 		? t('components.add_to_favourite_button.remove')
 		: t('components.add_to_favourite_button.add')
@@ -90,8 +95,10 @@ const buttonColor = computed(() => {
 </script>
 
 <template>
-	<MainButton type="button" :text="buttonLabel" :size="size" @click="toggleFavourite">
-		<IconMdi:heart v-if="isFavourite" :style="{ color: buttonColor }" />
-		<IconMdi:heartOutline v-else :style="{ color: buttonColor }" />
-	</MainButton>
+	<UButton
+		:size="size"
+		:label="buttonLabel"
+		icon="i-heroicons-heart"
+		@click="toggleFavourite"
+	/>
 </template>

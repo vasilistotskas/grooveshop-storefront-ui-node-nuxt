@@ -51,26 +51,21 @@ const deleteAddressEvent = async (id: string) => {
 				</h3>
 			</div>
 			<div class="grid grid-cols-[auto_auto] items-center gap-2">
-				<MainButton
+				<UButton
 					class="w-[2rem] h-[2rem] grid place-items-center rounded-full"
-					type="link"
+					icon="i-heroicons-pencil"
 					:to="`/account/addresses/${address.id}/edit`"
 					size="sm"
-					:style="'secondary'"
-				>
-					<span class="sr-only">{{ t('pages.account.addresses.edit.title') }}</span>
-					<IconFa6Solid:pencil class="text-cyan-600" />
-				</MainButton>
-				<MainButton
+					:trailing="true"
+				/>
+				<UButton
 					class="w-[2rem] h-[2rem] grid place-items-center rounded-full"
-					type="button"
+					icon="i-heroicons-trash"
 					size="sm"
-					:style="'secondary'"
+					:trailing="true"
+					color="rose"
 					@click="deleteAddressEvent(String(address.id))"
-				>
-					<span class="sr-only">{{ t('pages.account.addresses.delete') }}</span>
-					<IconFa6Solid:trash class="text-red-600" />
-				</MainButton>
+				/>
 			</div>
 		</div>
 		<div class="grid justify-center items-center gap-4">

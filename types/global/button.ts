@@ -6,4 +6,4 @@ export type ButtonStyle =
 	| 'success'
 	| 'danger'
 	| 'info'
-export type ButtonSize = 'lg' | 'md' | 'sm' | 'xs'
+export type ButtonSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'

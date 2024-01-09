@@ -92,29 +92,23 @@ const menus = computed((): IMenuItem[] => [
 							<span class="sr-only md:grid">{{ item.text }}</span>
 							<Component :is="item.icon" />
 						</Anchor>
-						<MainButton
+						<UButton
 							v-else-if="item.type === 'button'"
-							:text="item.text"
 							size="xs"
 							class="font-extrabold capitalize"
+							:label="item.text"
 							:to="item.route ? item.route : undefined"
-							:href="item.href ? item.href : undefined"
 						/>
 					</li>
 					<li class="relative grid items-center justify-center justify-items-center">
-						<MainButton
+						<UButton
 							size="md"
-							type="button"
-							:style="'danger'"
-							:text="$t('pages.accounts.logout.title')"
+							:label="$t('pages.accounts.logout.title')"
 							class="gap-2 text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+							:trailing="false"
+							icon="i-heroicons-arrow-left-start-on-rectangle"
 							@click="authLogoutEvent"
-						>
-							<span class="hidden md:grid">
-								{{ $t('common.logout') }}
-							</span>
-							<UIcon name="i-heroicons-arrow-left-start-on-rectangle" />
-						</MainButton>
+						/>
 					</li>
 				</ul>
 			</nav>
@@ -232,12 +226,7 @@ const menus = computed((): IMenuItem[] => [
 						>
 					</Anchor>
 				</ActionSheetBody>
-				<MainButton
-					text="Close"
-					type="button"
-					:style="'secondary'"
-					@click.prevent="toggleOptions(false)"
-				/>
+				<UButton :label="$t('common.close')" @click.prevent="toggleOptions(false)" />
 			</ActionSheet>
 		</template>
 		<template #drawer>

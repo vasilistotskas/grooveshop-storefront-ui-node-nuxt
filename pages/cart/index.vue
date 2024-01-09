@@ -25,11 +25,7 @@ definePageMeta({
 				<template v-if="!pending.cart && !cart?.cartItems?.length">
 					<EmptyState :icon="emptyIcon">
 						<template #actions>
-							<MainButton
-								:text="$t('common.empty.button')"
-								:type="'link'"
-								:to="'index'"
-							></MainButton>
+							<UButton :label="$t('common.empty.button')" :to="'index'" />
 						</template>
 					</EmptyState>
 				</template>
@@ -40,9 +36,8 @@ definePageMeta({
 		</PageBody>
 		<div class="grid items-center">
 			<h2 class="grid justify-items-center justify-self-end">
-				<MainButton
-					:text="$t('pages.cart.checkout')"
-					:type="'link'"
+				<UButton
+					:label="$t('pages.cart.checkout')"
 					class="font-extrabold capitalize"
 					:to="'checkout'"
 				/>

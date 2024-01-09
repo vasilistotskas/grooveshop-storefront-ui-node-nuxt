@@ -193,14 +193,12 @@ definePageMeta({
 			]"
 		>
 			<div class="grid grid-cols-auto-1fr gap-4 items-center">
-				<MainButton
-					:type="'link'"
-					:text="$t('common.back')"
-					:to="{ name: 'account-addresses' }"
+				<UButton
+					icon="i-heroicons-arrow-left"
 					size="sm"
-				>
-					<IconFa6Solid:arrowLeft />
-				</MainButton>
+					:to="'/account/addresses'"
+					:trailing="true"
+				/>
 				<PageTitle :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`" />
 			</div>
 			<template v-if="address?.isMain">
@@ -214,16 +212,13 @@ definePageMeta({
 				</div>
 			</template>
 			<template v-else>
-				<MainButton
+				<UButton
+					icon="i-heroicons-check-circle"
+					:label="$t('pages.account.addresses.edit.main.button')"
 					class="gap-4"
-					:text="$t('pages.account.addresses.edit.main.button')"
+					:trailing="true"
 					@click="onSetMain"
-				>
-					<span class="text-primary-700 dark:text-primary-100">{{
-						$t('pages.account.addresses.edit.main.button')
-					}}</span>
-					<IconFa6Solid:circleCheck />
-				</MainButton>
+				/>
 			</template>
 		</PageHeader>
 		<PageBody>

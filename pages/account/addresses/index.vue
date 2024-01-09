@@ -98,11 +98,7 @@ definePageMeta({
 					<AddressAddNew />
 					<EmptyState :icon="emptyIcon">
 						<template #actions>
-							<MainButton
-								:text="$t('common.empty.button')"
-								:type="'link'"
-								:to="'index'"
-							></MainButton>
+							<UButton :label="$t('common.empty.button')" :to="'index'" />
 						</template>
 					</EmptyState>
 				</div>

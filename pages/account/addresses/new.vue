@@ -173,14 +173,12 @@ definePageMeta({
 	<PageWrapper class="grid gap-4">
 		<PageHeader>
 			<div class="grid grid-cols-auto-1fr gap-4 items-center justify-items">
-				<MainButton
-					:type="'link'"
-					:text="$t('common.back')"
-					:to="{ name: 'account-addresses' }"
+				<UButton
+					icon="i-heroicons-arrow-left"
 					size="sm"
-				>
-					<IconFa6Solid:arrowLeft />
-				</MainButton>
+					:to="'account/addresses'"
+					:trailing="true"
+				/>
 				<PageTitle class="text-center">{{
 					$t('pages.account.addresses.new.title')
 				}}</PageTitle>

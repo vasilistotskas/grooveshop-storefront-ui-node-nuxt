@@ -75,20 +75,19 @@ const startShare = () => share().catch((err) => err)
 			</Anchor>
 		</div>
 		<ClientOnly>
-			<MainButton
+			<UButton
 				v-if="isSupported && showShareButton"
 				:disabled="!isSupported"
-				:text="
-					isSupported
-						? $t('components.blog.post.card.share')
-						: $t('components.blog.post.card.share_not_supported')
-				"
-				size="xs"
-				class="font-extrabold capitalize grid justify-self-start"
+				icon="i-heroicons-share"
+				size="lg"
+				color="primary"
+				square
+				variant="solid"
+				class="font-extrabold capitalize justify-self-start"
 				@click="startShare"
 			/>
 			<template #fallback>
-				<ClientOnlyFallback height="24px" width="64px" />
+				<ClientOnlyFallback height="40px" width="40px" />
 			</template>
 		</ClientOnly>
 		<div class="gap-4 md:grid md:gap-x-12 lg:gap-x-6">
@@ -97,7 +96,7 @@ const startShare = () => share().catch((err) => err)
 					<Anchor
 						:to="`/blog/post${post.absoluteUrl}`"
 						:text="alt"
-						class="mb-4 text-2xl font-bold tracking-tight text-black dark:text-white md:text-4xl"
+						class="text-2xl font-bold tracking-tight text-black dark:text-white md:text-4xl"
 					>
 						{{ extractTranslated(post, 'title', locale) }}
 					</Anchor>

@@ -33,11 +33,12 @@ const addToCartEvent = async () => {
 </script>
 
 <template>
-	<MainButton
-		class="w-full md:w-auto"
-		type="button"
-		size="lg"
-		:text="text"
+	<UButton
+		block
+		icon="i-heroicons-shopping-cart"
+		:label="text"
+		size="xl"
+		:trailing="true"
 		@click.prevent="addToCartEvent"
 	/>
 </template>

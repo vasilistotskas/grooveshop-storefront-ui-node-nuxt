@@ -45,6 +45,10 @@ const formSchema: DynamicFormSchema = {
 
 <template>
 	<section class="grid">
-		<DynamicForm :schema="formSchema" @submit="onSubmit" />
+		<DynamicForm
+			class="container-xxs md:px-6 p-4 md:p-8 flex h-full flex-wrap items-center justify-center lg:justify-between bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded-[0.5rem] shadow-[0_4px_9px_-4px_#0000000d] dark:shadow-[0_4px_9px_-4px_#0000000d]"
+			:schema="formSchema"
+			@submit="onSubmit"
+		/>
 	</section>
 </template>

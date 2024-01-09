@@ -52,7 +52,6 @@ await fetchBlogTags({
 				component-element="ul"
 				:mobile-only="true"
 				slider-class="md:grid gap-4"
-				padding-bottom="15px"
 			>
 				<li v-for="tag in filteredTags" :key="tag.id">
 					<UButton color="white" variant="solid" class="w-full flex items-center"

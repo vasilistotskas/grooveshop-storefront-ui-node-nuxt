@@ -167,19 +167,19 @@ definePageMeta({
 							</h2>
 							<PageSection class="actions flex gap-4 items-center">
 								<ClientOnly>
-									<MainButton
+									<UButton
 										v-if="isSupported"
 										:disabled="!isSupported"
-										type="button"
-										:text="
-											isSupported
-												? $t('pages.product.share')
-												: $t('pages.product.share_not_supported')
-										"
+										icon="i-heroicons-share"
+										size="lg"
+										color="primary"
+										square
+										variant="solid"
+										class="font-extrabold capitalize"
 										@click="startShare"
 									/>
 									<template #fallback>
-										<ClientOnlyFallback height="40px" width="92.5px" />
+										<ClientOnlyFallback height="40px" width="40px" />
 									</template>
 								</ClientOnly>
 								<ProductReview

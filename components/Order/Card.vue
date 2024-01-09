@@ -122,15 +122,11 @@ const statusClass = computed(() => {
 
 		<div class="order-card-footer col-span-1 md:col-span-3 grid gap-4">
 			<div class="order-card-footer-item">
-				<MainButton
-					:to="{
-						name: 'account-order',
-						params: { id: order.id }
-					}"
-					:text="$t('components.order.card.actions.details')"
-					:style="'info'"
-					size="lg"
+				<UButton
 					class="text-sm py-1.25 md:py-2.5 w-full"
+					:label="$t('components.order.card.actions.details')"
+					:to="`/account/orders/${order.id}`"
+					size="lg"
 				/>
 			</div>
 		</div>

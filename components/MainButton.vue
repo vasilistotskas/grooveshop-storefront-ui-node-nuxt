@@ -22,7 +22,7 @@ const props = defineProps({
 	size: {
 		type: String as PropType<ButtonSize>,
 		default: 'md',
-		validator: (value: string) => ['lg', 'md', 'sm', 'xs'].includes(value)
+		validator: (value: string) => ['2xs', 'xs', 'sm', 'md', 'lg', 'xl'].includes(value)
 	},
 	to: {
 		type: [String, Object],
