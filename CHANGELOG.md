@@ -1,3 +1,10 @@
+# [1.56.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.55.0...v1.56.0) (2024-1-15)
+
+
+### Features
+
+* Bump Versions and add `prettier-plugin-tailwindcss` ([d329988](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d3299884a68ee94196dc84084796739a77585348))
+
 # [1.55.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.54.0...v1.55.0) (2024-1-12)
 
 
