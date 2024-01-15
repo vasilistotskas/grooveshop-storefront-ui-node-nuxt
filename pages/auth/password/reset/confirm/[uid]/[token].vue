@@ -9,7 +9,7 @@ definePageMeta({
 	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
 		<PageTitle
 			:text="$t('pages.auth.password.reset.confirm.title')"
-			class="capitalize text-center"
+			class="text-center capitalize"
 		/>
 		<PageBody>
 			<AuthPasswordResetConfirmForm />

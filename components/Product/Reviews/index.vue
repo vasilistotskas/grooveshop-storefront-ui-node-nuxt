@@ -91,14 +91,14 @@ watch(
 
 <template>
 	<div
-		class="container-sm text-primary-700 dark:text-primary-100 p-6 border-t border-gray-900/10 dark:border-gray-50/20"
+		class="container-sm text-primary-700 dark:text-primary-100 border-t border-gray-900/10 p-6 dark:border-gray-50/20"
 	>
 		<template v-if="!pending.reviews && reviews?.results && reviews?.results?.length > 0">
 			<div class="grid gap-4">
 				<h2 class="text-2xl font-semibold">
 					{{ $t('components.product.reviews.title') }}
 				</h2>
-				<div class="grid gap-4 md:flex md:items-center justify-start">
+				<div class="grid justify-start gap-4 md:flex md:items-center">
 					<div class="grid">
 						<PaginationPageNumber
 							:count="pagination.count"

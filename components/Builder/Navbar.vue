@@ -67,18 +67,18 @@ const environment = computed(() => config.public.environment)
 <template>
 	<div
 		ref="navbar"
-		class="backdrop-filter backdrop-blur-md top-0 z-50 w-full flex-none transition-colors duration-300 lg:z-50 border-b border-gray-900/10 dark:border-gray-50/[0.2] bg-white/[0.5] dark:bg-zinc-900/[0.5]"
+		class="top-0 z-50 w-full flex-none border-b border-gray-900/10 bg-white/[0.5] backdrop-blur-md backdrop-filter transition-colors duration-300 dark:border-gray-50/[0.2] dark:bg-zinc-900/[0.5] lg:z-50"
 	>
 		<div id="navbar-banner" class="banner">
 			<slot name="banner" />
 		</div>
-		<div class="bg-background-700 max-w-8xl w-full mx-auto">
-			<div class="py-3 md:py-4 lg:px-8 mx-4 lg:mx-0">
-				<div class="relative grid grid-cols-1fr-auto md:flex items-center gap-4">
+		<div class="bg-background-700 mx-auto w-full max-w-8xl">
+			<div class="mx-4 py-3 md:py-4 lg:mx-0 lg:px-8">
+				<div class="relative grid grid-cols-1fr-auto items-center gap-4 md:flex">
 					<!-- drawer:toggle -->
 					<div
 						v-if="$slots['drawer']"
-						class="lg:sr-only flex items-center self-center justify-center"
+						class="flex items-center justify-center self-center lg:sr-only"
 					>
 						<button
 							type="button"
@@ -90,7 +90,7 @@ const environment = computed(() => config.public.environment)
 								$t('components.builder.navbar.toggle_drawer_menu')
 							}}</span>
 							<span
-								class="flex items-center text-primary-700 dark:text-primary-100 text-lg"
+								class="text-primary-700 dark:text-primary-100 flex items-center text-lg"
 								aria-hidden="true"
 							>
 								<UIcon v-if="!showDrawer" name="i-heroicons-bars-3" />
@@ -105,7 +105,7 @@ const environment = computed(() => config.public.environment)
 								<Anchor
 									to="/"
 									:aria-label="appTitle"
-									class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold"
+									class="text-md flex items-center gap-3 overflow-hidden font-bold md:w-auto"
 								>
 									<span class="text-primary-700 dark:text-primary-100">{{
 										appTitle
@@ -118,7 +118,7 @@ const environment = computed(() => config.public.environment)
 					<!-- menu -->
 					<slot name="menu" />
 					<!-- options:toggle -->
-					<div v-if="$slots['options']" class="flex-1 flex justify-end lg:sr-only">
+					<div v-if="$slots['options']" class="flex flex-1 justify-end lg:sr-only">
 						<button
 							type="button"
 							class="flex items-center focus:outline-none"
@@ -129,7 +129,7 @@ const environment = computed(() => config.public.environment)
 								$t('components.builder.navbar.toggle_options_menu')
 							}}</span>
 							<span
-								class="flex items-center text-primary-700 dark:text-primary-100 text-sm"
+								class="text-primary-700 dark:text-primary-100 flex items-center text-sm"
 								aria-hidden="true"
 							>
 								<IconFaSolid:ellipsisV />
@@ -145,9 +145,9 @@ const environment = computed(() => config.public.environment)
 				<Transition name="slide-fade-from-up" mode="out-in">
 					<div
 						v-if="showDrawer && $slots['drawer']"
-						class="fixed lg:sr-only bg-zinc-100 dark:bg-zinc-800 pt-16 md:pt-12 top-0 left-0 w-screen h-screen z-30 flex flex-col"
+						class="fixed left-0 top-0 z-30 flex h-screen w-screen flex-col bg-zinc-100 pt-16 dark:bg-zinc-800 md:pt-12 lg:sr-only"
 					>
-						<div class="flex-1 flex flex-col relative overflow-y-auto">
+						<div class="relative flex flex-1 flex-col overflow-y-auto">
 							<slot name="drawer" :toggle-drawer="toggleDrawer" />
 						</div>
 					</div>

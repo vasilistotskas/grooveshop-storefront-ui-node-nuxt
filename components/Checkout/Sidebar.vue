@@ -14,7 +14,7 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="grid gap-2 md:gap-4 relative grid-rows-auto">
+	<div class="grid-rows-auto relative grid gap-2 md:gap-4">
 		<slot name="pay-ways"></slot>
 		<slot name="items"></slot>
 		<ClientOnly>

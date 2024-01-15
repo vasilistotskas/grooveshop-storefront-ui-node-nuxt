@@ -58,7 +58,7 @@ const alt = computed(() => {
 			class="grid items-center justify-center justify-items-center gap-2 md:flex md:justify-between"
 		>
 			<div class="grid items-center gap-4 md:grid-cols-2">
-				<div class="w-auto h-auto">
+				<div class="h-auto w-auto">
 					<UserAvatar
 						v-if="userAccount && displayImageOf === 'user'"
 						:user-account="userAccount"

@@ -32,12 +32,12 @@ const alt = computed(() => {
 			class="pb-2"
 			:text="extractTranslated(item, 'name', locale)"
 		>
-			<div class="block bg-zinc4:10 p-1 transition duration-400 hover:scale-105 z-10">
+			<div class="bg-zinc4:10 duration-400 z-10 block p-1 transition hover:scale-105">
 				<NuxtImg
 					v-if="src"
 					loading="lazy"
 					provider="mediaStream"
-					class="w-full h-full object-cover aspect-square"
+					class="aspect-square h-full w-full object-cover"
 					:style="{ 'view-transition-name': `item-${item.id}`, aspectRatio: '1/1' }"
 					:width="300"
 					:height="300"
@@ -50,7 +50,7 @@ const alt = computed(() => {
 					:alt="alt"
 					densities="x1"
 				/>
-				<div v-else class="h-full op10 flex">
+				<div v-else class="op10 flex h-full">
 					<div class="text-4xl">
 						<IconFa6Solid:circleQuestion />
 					</div>

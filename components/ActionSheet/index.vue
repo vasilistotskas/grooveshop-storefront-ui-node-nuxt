@@ -40,9 +40,9 @@ watch(
 					leave-from="opacity-100"
 					leave-to="opacity-0"
 				>
-					<div class="fixed top-60 w-screen z-50 flex" style="max-height: 66.6667%">
+					<div class="fixed top-60 z-50 flex w-screen" style="max-height: 66.6667%">
 						<div
-							class="relative max-w-8xl px-4 pb-4 w-full mx-auto flex flex-col flex-1 space-y-1 overflow-y-auto justify-end"
+							class="relative mx-auto flex w-full max-w-8xl flex-1 flex-col justify-end space-y-1 overflow-y-auto px-4 pb-4"
 						>
 							<slot />
 						</div>

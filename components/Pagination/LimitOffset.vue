@@ -104,7 +104,7 @@ const link = computed(() => {
 	<div class="pagination relative">
 		<ol
 			v-if="totalPages > 1"
-			class="pagination-ordered-list w-full flex md:grid items-center gap-1 md:gap-4"
+			class="pagination-ordered-list flex w-full items-center gap-1 md:grid md:gap-4"
 		>
 			<li class="previous-page">
 				<Anchor
@@ -164,14 +164,14 @@ const link = computed(() => {
 				>
 					<span
 						:class="{
-							'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2 text-primary-700 dark:text-primary-100': true,
+							'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
 							'bg-primary-400 dark:bg-primary-400': isInFirstPage
 						}"
 						>{{ firstPageNumber }}</span
 					>
 					<span
 						v-if="shouldDisplayPreviousTripleDots"
-						class="grid self-end justify-self-start text-sm text-primary-700 dark:text-primary-100"
+						class="text-primary-700 dark:text-primary-100 grid self-end justify-self-start text-sm"
 						>...</span
 					>
 				</Anchor>
@@ -188,7 +188,7 @@ const link = computed(() => {
 						}
 					}"
 					:class="{
-						'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2': true,
+						'grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
 						active: pageEntry === page
 					}"
 					:text="String(pageEntry)"
@@ -240,12 +240,12 @@ const link = computed(() => {
 				>
 					<span
 						v-if="shouldDisplayNextTripleDots"
-						class="grid self-end justify-self-end text-sm text-primary-700 dark:text-primary-100"
+						class="text-primary-700 dark:text-primary-100 grid self-end justify-self-end text-sm"
 						>...</span
 					>
 					<span
 						:class="{
-							'grid items-center justify-center w-full rounded bg-zinc-200 dark:bg-zinc-800 py-1 px-2 text-primary-700 dark:text-primary-100': true,
+							'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
 							'bg-primary-400 dark:bg-primary-400': isInLastPage
 						}"
 						>{{ lastPageNumber }}</span

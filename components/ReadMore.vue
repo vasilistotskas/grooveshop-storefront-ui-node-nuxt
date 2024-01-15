@@ -25,17 +25,17 @@ const toggleFullText = () => {
 	<div v-if="text && text.length > maxChars" class="relative">
 		<div
 			v-if="!showFullText"
-			class="overflow-hidden text-primary-700 dark:text-primary-100"
+			class="text-primary-700 dark:text-primary-100 overflow-hidden"
 		>
 			{{ text.substring(0, maxChars) }} {{ text.length > maxChars ? '...' : '' }}
 		</div>
-		<div v-else class="overflow-hidden text-primary-700 dark:text-primary-100">
+		<div v-else class="text-primary-700 dark:text-primary-100 overflow-hidden">
 			{{ text }}
 		</div>
 		<div class="absolute bottom-0 right-0">
 			<button
 				type="button"
-				class="text-sm font-semibold text-primary-700 dark:text-primary-100 hover:text-primary-800 dark:hover:text-primary-100"
+				class="text-primary-700 dark:text-primary-100 hover:text-primary-800 dark:hover:text-primary-100 text-sm font-semibold"
 				@click="toggleFullText"
 			>
 				{{ showFullText ? $t('common.read_less') : $t('common.read_more') }}

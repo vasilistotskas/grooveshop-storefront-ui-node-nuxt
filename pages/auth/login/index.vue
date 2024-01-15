@@ -7,7 +7,7 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
-		<PageTitle :text="$t('pages.auth.login.title')" class="capitalize text-center" />
+		<PageTitle :text="$t('pages.auth.login.title')" class="text-center capitalize" />
 		<PageBody>
 			<AuthLoginForm />
 		</PageBody>

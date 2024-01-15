@@ -16,7 +16,7 @@ const { extractTranslated } = useTranslationExtractor()
 		<ClientOnly>
 			<div
 				v-if="getCartItems?.length"
-				class="border-t border-b border-gray-200 py-4 max-h-[185px] overflow-auto"
+				class="max-h-[185px] overflow-auto border-b border-t border-gray-200 py-4"
 			>
 				<div v-for="item in getCartItems" :key="item.id" class="grid gap-4 p-4">
 					<div class="grid grid-cols-[1fr_auto_auto] gap-4">

@@ -77,7 +77,7 @@ watch(
 <template>
 	<div class="posts-list grid gap-4">
 		<template v-if="!pending.posts && posts?.results?.length">
-			<div class="flex gap-2 flex-row items-center">
+			<div class="flex flex-row items-center gap-2">
 				<PaginationPageNumber
 					:count="pagination.count"
 					:total-pages="pagination.totalPages"
@@ -91,9 +91,9 @@ watch(
 					:ordering-options="ordering.orderingOptionsArray.value"
 				/>
 			</div>
-			<section class="grid md:flex gap-4 md:gap-8">
+			<section class="grid gap-4 md:flex md:gap-8">
 				<ol
-					class="row-start-2 md:row-start-1 w-full grid items-center justify-center grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4"
+					class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-1 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
 				>
 					<template v-for="(post, index) in posts.results" :key="index">
 						<BlogPostCard :post="post" :img-loading="index > 7 ? 'lazy' : 'eager'" />

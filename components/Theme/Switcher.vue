@@ -30,7 +30,7 @@ const isDark = computed({
 		/>
 
 		<template #fallback>
-			<ClientOnlyFallback class="max-w-[24px] max-h-[24px]" width="24px" height="24px" />
+			<ClientOnlyFallback class="max-h-[24px] max-w-[24px]" width="24px" height="24px" />
 		</template>
 	</ClientOnly>
 </template>

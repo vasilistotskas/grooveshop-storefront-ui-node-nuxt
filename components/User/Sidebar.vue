@@ -82,38 +82,38 @@ onMounted(() => {
 		:class="[
 			{
 				'transition-all duration-300 ease-in-out': true,
-				'sidebar md:hidden lg:flex lg:w-30 xl:w-60 md:h-fit': mode === 'normal',
-				'relative flex-1 flex flex-col w-full': mode === 'mobile',
-				'grid relative w-full': route.path === '/account'
+				'sidebar lg:w-30 md:hidden md:h-fit lg:flex xl:w-60': mode === 'normal',
+				'relative flex w-full flex-1 flex-col': mode === 'mobile',
+				'relative grid w-full': route.path === '/account'
 			}
 		]"
 	>
-		<div class="flex-1 overflow-y-auto pl-4 lg:pl-0 pr-4 py-2">
+		<div class="flex-1 overflow-y-auto py-2 pl-4 pr-4 lg:pl-0">
 			<ul class="grid gap-2 md:gap-4">
 				<li
 					v-for="(item, i) in menus"
 					:key="i"
-					class="p-2 md:p-0 bg-zinc-100 md:bg-transparent dark:bg-zinc-800 md:dark:bg-transparent border border-gray-700 md:border-transparent rounded"
+					class="rounded border border-gray-700 bg-zinc-100 p-2 dark:bg-zinc-800 md:border-transparent md:bg-transparent md:p-0 md:dark:bg-transparent"
 				>
 					<Anchor
 						v-if="item.type === 'link'"
 						:to="item.route ? item.route : undefined"
 						:text="item.text"
-						class="group grid p-2 grid-cols-auto-1fr gap-4 items-center hover:no-underline"
+						class="group grid grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
 					>
 						<div
-							class="flex items-center px-2 py-2 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-sky-200 dark:highlight-white/10"
+							class="dark:group-hover:highlight-white/10 dark:highlight-white/10 flex items-center rounded-md px-2 py-2 shadow-sm ring-1 ring-slate-900/5 group-hover:shadow group-hover:shadow-sky-200 group-hover:ring-slate-900/10 dark:shadow-none dark:ring-0 dark:group-hover:shadow-none"
 							:class="{
-								'text-white dark:text-white group-hover:bg-sky-500 bg-sky-500':
+								'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
 									route.path === item.route?.path,
-								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-800':
+								'dark:text-primary-100 bg-zinc-100 text-slate-500 group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-600':
 									route.path !== item.route?.path
 							}"
 						>
 							<Component :is="item.icon" class="text-2xl md:text-xl" />
 						</div>
 						<span
-							class="text-2xl md:text-xl font-semibold capitalize text-primary-700 dark:text-primary-100"
+							class="text-primary-700 dark:text-primary-100 text-2xl font-semibold capitalize md:text-xl"
 							:class="{
 								'font-extrabold text-sky-500 dark:text-sky-400':
 									route.path === item.route?.path
@@ -126,21 +126,21 @@ onMounted(() => {
 						v-else-if="item.type === 'external-link'"
 						:href="item.href"
 						:text="item.text"
-						class="group grid p-2 grid-cols-auto-1fr gap-4 items-center hover:no-underline"
+						class="group grid grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
 					>
 						<div
-							class="flex items-center px-2 py-2 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-sky-200 dark:highlight-white/10"
+							class="dark:group-hover:highlight-white/10 dark:highlight-white/10 flex items-center rounded-md px-2 py-2 shadow-sm ring-1 ring-slate-900/5 group-hover:shadow group-hover:shadow-sky-200 group-hover:ring-slate-900/10 dark:shadow-none dark:ring-0 dark:group-hover:shadow-none"
 							:class="{
-								'text-white dark:text-white group-hover:bg-sky-500 bg-sky-500':
+								'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
 									item.route?.path === route.path,
-								'text-slate-500 dark:text-primary-100 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-600 bg-zinc-100 dark:bg-zinc-800':
+								'dark:text-primary-100 bg-zinc-100 text-slate-500 group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-600':
 									item.route?.path !== route.path
 							}"
 						>
 							<Component :is="item.icon" class="text-2xl md:text-xl" />
 						</div>
 						<span
-							class="text-2xl md:text-xl font-semibold capitalize text-primary-700 dark:text-primary-100"
+							class="text-primary-700 dark:text-primary-100 text-2xl font-semibold capitalize md:text-xl"
 							:class="{
 								'font-extrabold text-sky-500 dark:text-sky-400':
 									item.route?.path === route.path

@@ -62,7 +62,7 @@ watch(
 <template>
 	<div class="products-list grid gap-4">
 		<template v-if="!pending.products && products?.results?.length">
-			<div class="flex gap-2 flex-row items-center">
+			<div class="flex flex-row items-center gap-2">
 				<PaginationLimitOffset
 					:page="pagination.page"
 					:limit="pagination.limit"
@@ -76,7 +76,7 @@ watch(
 				/>
 			</div>
 			<ol
-				class="grid items-center justify-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+				class="grid grid-cols-1 items-center justify-center gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
 			>
 				<template v-for="(product, index) in products.results" :key="index">
 					<ProductCard :product="product" :img-loading="index > 7 ? 'lazy' : 'eager'" />

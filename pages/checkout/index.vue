@@ -180,9 +180,9 @@ definePageMeta({
 				@submit="onSubmit"
 			>
 				<div
-					class="container p-2 md:p-10 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
+					class="container rounded-lg bg-white p-2 text-white dark:bg-zinc-800 dark:text-black md:p-10"
 				>
-					<div class="grid md:grid-cols-2 gap-4">
+					<div class="grid gap-4 md:grid-cols-2">
 						<div class="grid">
 							<label
 								class="text-primary-700 dark:text-primary-100 mb-2"
@@ -399,7 +399,7 @@ definePageMeta({
 							}}</span>
 						</div>
 
-						<div class="grid col-span-2">
+						<div class="col-span-2 grid">
 							<label
 								class="text-primary-700 dark:text-primary-100 mb-2"
 								for="customerNotes"
@@ -412,7 +412,7 @@ definePageMeta({
 									as="textarea"
 									v-bind="customerNotesProps"
 									:placeholder="$t('pages.checkout.form.customer_notes')"
-									class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+									class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 									name="customerNotes"
 									rows="4"
 									type="text"
@@ -420,7 +420,7 @@ definePageMeta({
 							</div>
 						</div>
 					</div>
-					<div class="grid md:grid-cols-2 gap-4">
+					<div class="grid gap-4 md:grid-cols-2">
 						<div class="grid content-evenly items-start gap-4">
 							<div class="grid">
 								<label class="text-primary-700 dark:text-primary-100 mb-2" for="floor">{{
@@ -432,7 +432,7 @@ definePageMeta({
 									:bind="floorProps"
 									name="floor"
 									as="select"
-									class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+									class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 								>
 									<option
 										:value="defaultSelectOptionChoose"
@@ -467,7 +467,7 @@ definePageMeta({
 									v-bind="locationTypeProps"
 									name="locationType"
 									as="select"
-									class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+									class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 								>
 									<option
 										:value="defaultSelectOptionChoose"
@@ -506,7 +506,7 @@ definePageMeta({
 										v-bind="countryProps"
 										name="country"
 										as="select"
-										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+										class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 										@change.capture="onCountryChange"
 									>
 										<option
@@ -542,7 +542,7 @@ definePageMeta({
 										v-bind="regionProps"
 										name="region"
 										as="select"
-										class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+										class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 										:disabled="countryProps.value === defaultSelectOptionChoose"
 									>
 										<option
@@ -572,12 +572,12 @@ definePageMeta({
 				</div>
 				<CheckoutSidebar
 					:shipping-price="shippingPrice"
-					class="container p-2 md:p-10 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
+					class="container rounded-lg bg-white p-2 text-white dark:bg-zinc-800 dark:text-black md:p-10"
 				>
 					<template #pay-ways>
 						<CheckoutPayWays>
 							<template #error>
-								<span v-if="errors.payWay" class="text-sm text-red-600 text-center">{{
+								<span v-if="errors.payWay" class="text-center text-sm text-red-600">{{
 									errors.payWay
 								}}</span>
 							</template>
@@ -591,7 +591,7 @@ definePageMeta({
 							<button
 								:aria-busy="isSubmitting"
 								:disabled="submitButtonDisabled"
-								class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+								class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 								type="submit"
 							>
 								{{ $t('pages.checkout.form.submit.title') }}

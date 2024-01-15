@@ -13,9 +13,9 @@ definePageMeta({
 	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
 		<PageTitle
 			:text="$t('pages.auth.security.mfa.title')"
-			class="capitalize text-center"
+			class="text-center capitalize"
 		/>
-		<UIcon name="i-heroicons-shield-check" class="w-24 h-24 mx-auto text-primary-500" />
+		<UIcon name="i-heroicons-shield-check" class="text-primary-500 mx-auto h-24 w-24" />
 		<PageBody>
 			<div
 				class="container-xxs relative grid items-center justify-center justify-items-center gap-4 p-0 md:px-6"

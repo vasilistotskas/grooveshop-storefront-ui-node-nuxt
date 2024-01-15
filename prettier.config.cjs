@@ -7,6 +7,7 @@ const config = {
 	semi: false,
 	singleQuote: true,
 	bracketSameLine: false,
-	printWidth: 90
+	printWidth: 90,
+  plugins: ["prettier-plugin-tailwindcss"],
 }
 module.exports = config

@@ -56,10 +56,10 @@ const statusClass = computed(() => {
 
 <template>
 	<div
-		class="order-card text-primary-700 dark:text-primary-100 bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded p-4 md:p-10 gap-4 md:gap-10 grid grid-cols-3 md:grid-cols-1 md:grid-rows-3 items-center"
+		class="order-card text-primary-700 dark:text-primary-100 grid grid-cols-3 items-center gap-4 rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800 md:grid-cols-1 md:grid-rows-3 md:gap-10 md:p-10"
 	>
 		<div
-			class="order-card-items col-span-1 md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-4"
+			class="order-card-items col-span-1 grid grid-cols-2 gap-4 md:col-span-3 md:grid-cols-3"
 		>
 			<OrderCardItem
 				v-for="item in order.orderItemOrder.slice(0, maxItems)"
@@ -68,7 +68,7 @@ const statusClass = computed(() => {
 			/>
 			<div
 				v-if="order.orderItemOrder.length > maxItems"
-				class="col-span-2 md:col-span-3 text-sm text-gray-600"
+				class="col-span-2 text-sm text-gray-600 md:col-span-3"
 			>
 				<span v-if="order.orderItemOrder.length - maxItems === 1">
 					{{ $t('components.order.card.extra_one') }}
@@ -84,7 +84,7 @@ const statusClass = computed(() => {
 		</div>
 
 		<div
-			class="order-card-body col-span-2 row-span-2 md:col-span-3 grid gap-4 md:grid-cols-3 md:grid-rows-2"
+			class="order-card-body col-span-2 row-span-2 grid gap-4 md:col-span-3 md:grid-cols-3 md:grid-rows-2"
 		>
 			<div class="order-card-body-status flex items-center gap-2.5">
 				<span :class="statusClass.color">
@@ -93,26 +93,26 @@ const statusClass = computed(() => {
 				<Component :is="statusClass.icon" :class="statusClass.color" />
 			</div>
 
-			<div class="order-card-body-id grid gap-1.25">
+			<div class="order-card-body-id gap-1.25 grid">
 				<span class="text-xs text-gray-600">{{ $t('components.order.card.id') }}</span>
 				<span class="font-semibold">{{ order.id }}</span>
 			</div>
 
-			<div class="order-card-body-address grid gap-1.25">
+			<div class="order-card-body-address gap-1.25 grid">
 				<span class="text-xs text-gray-600">{{
 					$t('components.order.card.address')
 				}}</span>
 				<span>{{ contentShorten(order.fullAddress, 0, 45) }}</span>
 			</div>
 
-			<div class="order-card-body-pay_way grid gap-1.25">
+			<div class="order-card-body-pay_way gap-1.25 grid">
 				<span class="text-xs text-gray-600">{{
 					$t('components.order.card.pay_way')
 				}}</span>
 				<span>{{ extractTranslated(order.payWay, 'name', locale) }}</span>
 			</div>
 
-			<div class="order-card-body-total_price grid gap-1.25">
+			<div class="order-card-body-total_price gap-1.25 grid">
 				<span class="text-xs text-gray-600">{{
 					$t('components.order.card.total_price')
 				}}</span>
@@ -120,10 +120,10 @@ const statusClass = computed(() => {
 			</div>
 		</div>
 
-		<div class="order-card-footer col-span-1 md:col-span-3 grid gap-4">
+		<div class="order-card-footer col-span-1 grid gap-4 md:col-span-3">
 			<div class="order-card-footer-item">
 				<UButton
-					class="text-sm py-1.25 md:py-2.5 w-full"
+					class="py-1.25 w-full text-sm md:py-2.5"
 					:label="$t('components.order.card.actions.details')"
 					:to="`/account/orders/${order.id}`"
 					size="lg"

@@ -11,7 +11,7 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="text-xl font-semibold mb-2">
+	<div class="mb-2 text-xl font-semibold">
 		<p class="text-primary-700 dark:text-primary-100">
 			<slot>
 				{{ text }}

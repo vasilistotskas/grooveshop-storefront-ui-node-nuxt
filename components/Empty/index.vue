@@ -9,9 +9,9 @@ const props = defineProps({
 
 <template>
 	<div
-		class="flex flex-col items-center justify-center border border-gray-900/10 dark:border-gray-50/[0.2] rounded-lg p-16"
+		class="flex flex-col items-center justify-center rounded-lg border border-gray-900/10 p-16 dark:border-gray-50/[0.2]"
 	>
-		<p class="text-center text-primary-700 dark:text-primary-100">
+		<p class="text-primary-700 dark:text-primary-100 text-center">
 			{{ text }}
 		</p>
 	</div>

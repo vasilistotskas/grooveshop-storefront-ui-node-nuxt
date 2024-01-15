@@ -77,7 +77,7 @@ const close = () => {
 			leave-to="opacity-0"
 		>
 			<div
-				:class="`relative bg-zinc-200 dark:bg-zinc-800 bg-gradient-to-r shadow-white/50 dark:shadow-slate-900/50 px-6 py-6 rounded-md shadow-lg space-x-6 ${selectedStyle}`"
+				:class="`relative space-x-6 rounded-md bg-zinc-200 bg-gradient-to-r px-6 py-6 shadow-lg shadow-white/50 dark:bg-zinc-800 dark:shadow-slate-900/50 ${selectedStyle}`"
 			>
 				<div class="flex items-center justify-center">
 					<slot name="icon">
@@ -99,7 +99,7 @@ const close = () => {
 					</slot>
 				</div>
 				<div class="flex-1">
-					<div :class="`font-bold text-lg mb-0.5 ${selectedTextStyle}`">
+					<div :class="`mb-0.5 text-lg font-bold ${selectedTextStyle}`">
 						<slot name="title">{{ title }}</slot>
 					</div>
 					<div>
@@ -108,10 +108,10 @@ const close = () => {
 						</p>
 					</div>
 				</div>
-				<div v-if="props.closeButton" class="absolute top-0 right-0 p-4">
+				<div v-if="props.closeButton" class="absolute right-0 top-0 p-4">
 					<button
 						type="button"
-						class="text-slate-600 dark:text-primary-400 font-bold :hover:font-bold transition-colors duration-300"
+						class="dark:text-primary-400 :hover:font-bold font-bold text-slate-600 transition-colors duration-300"
 						@click="close"
 					>
 						<span class="sr-only">{{ title }}</span>

@@ -41,9 +41,9 @@ useSeoMeta(seoMetaOptions)
 			<PageNavbar />
 		</PageHeader>
 		<div class="grid min-h-screen">
-			<div class="flex flex-col gap-2 items-center justify-center p-6">
+			<div class="flex flex-col items-center justify-center gap-2 p-6">
 				<h1
-					class="grid gap-4 items-center justify-center justify-items-center text-xl text-primary-700 dark:text-primary-100 mb-2"
+					class="text-primary-700 dark:text-primary-100 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
 				>
 					<strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
 					<span>
@@ -53,12 +53,12 @@ useSeoMeta(seoMetaOptions)
 				<p class="text-primary-700 dark:text-primary-100">
 					{{ $t('pages.error.go.home') }}
 				</p>
-				<NuxtLink to="/" class="text-blue-500 hover:underline block mt-2 font-bold">
+				<NuxtLink to="/" class="mt-2 block font-bold text-blue-500 hover:underline">
 					{{ $t('pages.error.home') }}
 				</NuxtLink>
 				<div class="grid items-center justify-center">
 					<LazyLottie
-						class="grid mt-6"
+						class="mt-6 grid"
 						:animation-data="Json404"
 						:width="lottieWidth"
 						:height="lottieHeight"

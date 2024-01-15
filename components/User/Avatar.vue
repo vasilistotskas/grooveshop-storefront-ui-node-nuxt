@@ -82,7 +82,7 @@ const uploadImage = async (event: Event) => {
 		<div
 			class="user-avatar relative grid items-center justify-center justify-items-center"
 			:class="{
-				'inline-block shrink-0 w-[135px] h-[135px] text-center align-middle':
+				'inline-block h-[135px] w-[135px] shrink-0 text-center align-middle':
 					backgroundBorder
 			}"
 			:style="{

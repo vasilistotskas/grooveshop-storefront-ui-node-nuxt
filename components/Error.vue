@@ -29,7 +29,7 @@ const divTag = ref('div')
 		:class="
 			wrap
 				? 'flex flex-col items-center justify-center'
-				: 'grid items-center justify-center gap-4 bg-zinc-100 dark:bg-zinc-800 p-4 md:p-8 rounded-lg'
+				: 'grid items-center justify-center gap-4 rounded-lg bg-zinc-100 p-4 dark:bg-zinc-800 md:p-8'
 		"
 	>
 		<h1 v-if="!error">
@@ -37,9 +37,9 @@ const divTag = ref('div')
 		</h1>
 		<h1
 			v-else
-			class="grid gap-4 text-center leading-3 text-primary-700 dark:text-primary-100"
+			class="text-primary-700 dark:text-primary-100 grid gap-4 text-center leading-3"
 		>
-			<span class="text-primary-700 dark:text-primary-100 font-bold text-8xl block">{{
+			<span class="text-primary-700 dark:text-primary-100 block text-8xl font-bold">{{
 				error.statusCode
 			}}</span>
 			<span class="text-primary-700 dark:text-primary-100 block italic">{{
@@ -48,7 +48,7 @@ const divTag = ref('div')
 		</h1>
 		<h2
 			v-if="error?.data.detail"
-			class="text-center text-sm text-primary-700 dark:text-primary-100"
+			class="text-primary-700 dark:text-primary-100 text-center text-sm"
 		>
 			( {{ error?.data.detail }} )
 		</h2>

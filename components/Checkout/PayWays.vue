@@ -130,7 +130,7 @@ const updatePayWay = (value: PayWay) => {
 									/>
 									<div
 										v-if="checked"
-										class="grid w-full h-full justify-items-end items-center"
+										class="grid h-full w-full items-center justify-items-end"
 									>
 										<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
 											<circle cx="12" cy="12" fill="#fff" fill-opacity="0.2" r="12" />

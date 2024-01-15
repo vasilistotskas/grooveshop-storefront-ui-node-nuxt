@@ -62,7 +62,7 @@ definePageMeta({
 	<PageWrapper class="container-xxs grid gap-12">
 		<PageTitle
 			:text="$t('pages.auth.registration.account-confirm-email.title')"
-			class="capitalize text-center"
+			class="text-center capitalize"
 		/>
 		<PageBody>
 			<ClientOnly>

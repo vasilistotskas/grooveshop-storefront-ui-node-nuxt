@@ -47,21 +47,21 @@ const onOptionClick = async (option: OrderingOption) => {
 </script>
 
 <template>
-	<div ref="listBox" class="grid md:flex md:flex-col md:items-center z-10">
+	<div ref="listBox" class="z-10 grid md:flex md:flex-col md:items-center">
 		<div class="flex flex-row">
 			<div class="flex flex-col">
 				<Listbox v-model="ordering" name="Ordering">
-					<div class="relative w-46 md:w-60">
+					<div class="w-46 relative md:w-60">
 						<ListboxButton
 							:id="`ordering-button-${ordering}`"
-							class="cursor-pointer relative w-full rounded-lg bg-zinc-200 dark:bg-zinc-800 py-2 pl-2 pr-6 md:pl-3 md:pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 text-sm"
+							class="relative w-full cursor-pointer rounded-lg bg-zinc-200 py-2 pl-2 pr-6 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 dark:bg-zinc-800 md:pl-3 md:pr-10"
 							@click="listBoxToggle"
 						>
-							<span class="block truncate text-primary-700 dark:text-primary-100">{{
+							<span class="text-primary-700 dark:text-primary-100 block truncate">{{
 								selectedOrderingLabel ?? $t('components.ordering.title')
 							}}</span>
 							<span
-								class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-primary-700 dark:text-primary-100"
+								class="text-primary-700 dark:text-primary-100 pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
 							>
 								<span class="text-primary-700 dark:text-primary-100"
 									><IconFaSolid:sort
@@ -75,7 +75,7 @@ const onOptionClick = async (option: OrderingOption) => {
 									:id="`ordering-options-${ordering}`"
 									role="none"
 									static
-									class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-200 dark:bg-zinc-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+									class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-200 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-zinc-800 sm:text-sm"
 								>
 									<ListboxOption
 										v-for="(option, index) in orderingOptions"
@@ -111,13 +111,13 @@ const onOptionClick = async (option: OrderingOption) => {
 												<span
 													:class="[
 														selected ? 'font-medium' : 'font-normal',
-														'block truncate text-primary-700 dark:text-primary-100'
+														'text-primary-700 dark:text-primary-100 block truncate'
 													]"
 													>{{ option.label }}</span
 												>
 												<span
 													v-if="selected"
-													class="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-400"
+													class="text-primary-400 absolute inset-y-0 left-0 flex items-center pl-3"
 												>
 													<IconFaSolid:check />
 												</span>

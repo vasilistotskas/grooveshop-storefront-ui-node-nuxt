@@ -72,7 +72,7 @@ const userToProductFavourite = computed(() => {
 <template>
 	<li class="product-card">
 		<div
-			class="container p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
+			class="container rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black"
 		>
 			<div class="grid gap-4">
 				<div class="max-w-full">
@@ -81,7 +81,7 @@ const userToProductFavourite = computed(() => {
 							<NuxtImg
 								:loading="imgLoading"
 								provider="mediaStream"
-								class="w-full h-auto bg-transparent object-cover"
+								class="h-auto w-full bg-transparent object-cover"
 								:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 								:src="src"
 								:width="imgWidth"
@@ -97,8 +97,8 @@ const userToProductFavourite = computed(() => {
 						</Anchor>
 					</div>
 				</div>
-				<div class="flex flex-col justify-end flex-1 relative gap-2">
-					<div class="flex gap-4 justify-between">
+				<div class="relative flex flex-1 flex-col justify-end gap-2">
+					<div class="flex justify-between gap-4">
 						<h2 class="text-lg font-semibold leading-6">
 							<Anchor
 								:to="`/product${product.absoluteUrl}`"
@@ -108,7 +108,7 @@ const userToProductFavourite = computed(() => {
 								{{ extractTranslated(product, 'name', locale) }}
 							</Anchor>
 						</h2>
-						<div class="h-6 flex gap-4">
+						<div class="flex h-6 gap-4">
 							<ClientOnly>
 								<UButton
 									v-if="isSupported && showShareButton"
@@ -138,7 +138,7 @@ const userToProductFavourite = computed(() => {
 					</div>
 					<p
 						v-if="showDescription"
-						class="text-sm leading-6 min-h-[3.75rem] text-primary-700 dark:text-primary-100 text-muted"
+						class="text-primary-700 dark:text-primary-100 text-muted min-h-[3.75rem] text-sm leading-6"
 					>
 						{{
 							contentShorten(extractTranslated(product, 'description', locale), 0, 100)
@@ -167,11 +167,11 @@ const userToProductFavourite = computed(() => {
 						</div>
 					</div>
 					<div class="flex justify-between font-bold">
-						<p class="grid grid-cols-[1fr_auto] gap-2 items-center">
-							<span class="text-sm leading-6 text-primary-700 dark:text-primary-100">
+						<p class="grid grid-cols-[1fr_auto] items-center gap-2">
+							<span class="text-primary-700 dark:text-primary-100 text-sm leading-6">
 								{{ $t('components.product.card.total_price') }}
 							</span>
-							<span class="text-lg leading-6 text-primary-700 dark:text-primary-100">
+							<span class="text-primary-700 dark:text-primary-100 text-lg leading-6">
 								{{ product.finalPrice }}
 							</span>
 						</p>

@@ -166,7 +166,7 @@ definePageMeta({
 		<UserAccountNavbar />
 		<div class="grid items-center justify-start pt-4">
 			<span
-				class="text-primary-500 dark:text-primary-400 cursor-not-allowed italic p-2 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
+				class="text-primary-500 dark:text-primary-400 cursor-not-allowed rounded-md border border-gray-900/10 p-2 italic dark:border-gray-50/[0.2]"
 				>{{ email }}</span
 			>
 		</div>
@@ -194,7 +194,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.firstName" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.firstName" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.firstName
 					}}</span>
 				</div>
@@ -215,7 +215,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.lastName" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.lastName" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.lastName
 					}}</span>
 				</div>
@@ -235,7 +235,7 @@ definePageMeta({
 							autocomplete="tel"
 						/>
 					</div>
-					<span v-if="errors.phone" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.phone" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.phone
 					}}</span>
 				</div>
@@ -255,7 +255,7 @@ definePageMeta({
 							autocomplete="address-level2"
 						/>
 					</div>
-					<span v-if="errors.city" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.city" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.city
 					}}</span>
 				</div>
@@ -275,7 +275,7 @@ definePageMeta({
 							autocomplete="postal-code"
 						/>
 					</div>
-					<span v-if="errors.zipcode" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.zipcode" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.zipcode
 					}}</span>
 				</div>
@@ -295,7 +295,7 @@ definePageMeta({
 							autocomplete="street-address"
 						/>
 					</div>
-					<span v-if="errors.address" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.address" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.address
 					}}</span>
 				</div>
@@ -315,7 +315,7 @@ definePageMeta({
 							autocomplete="address-level3"
 						/>
 					</div>
-					<span v-if="errors.place" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.place" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.place
 					}}</span>
 				</div>
@@ -331,7 +331,7 @@ definePageMeta({
 							</template>
 						</UPopover>
 					</div>
-					<span v-if="errors.birthDate" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.birthDate" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.birthDate
 					}}</span>
 				</div>
@@ -346,7 +346,7 @@ definePageMeta({
 							v-bind="countryProps"
 							name="country"
 							as="select"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 							@change.capture="onCountryChange"
 						>
 							<option
@@ -367,7 +367,7 @@ definePageMeta({
 							</option>
 						</VeeField>
 					</div>
-					<span v-if="errors.country" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.country" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.country
 					}}</span>
 				</div>
@@ -382,7 +382,7 @@ definePageMeta({
 							v-bind="regionProps"
 							name="region"
 							as="select"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 							:disabled="countryProps.value === defaultSelectOptionChoose"
 						>
 							<option
@@ -403,7 +403,7 @@ definePageMeta({
 							</option>
 						</VeeField>
 					</div>
-					<span v-if="errors.region" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.region" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.region
 					}}</span>
 				</div>
@@ -411,7 +411,7 @@ definePageMeta({
 				<div class="grid items-end justify-end">
 					<button
 						type="submit"
-						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+						class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 						:disabled="submitButtonDisabled"
 						:aria-busy="isSubmitting"
 					>

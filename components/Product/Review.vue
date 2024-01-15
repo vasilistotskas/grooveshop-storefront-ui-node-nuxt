@@ -471,7 +471,7 @@ watch(
 								as="textarea"
 								v-bind="commentProps"
 								:placeholder="$t('components.product.review.comment.placeholder')"
-								class="review_body-comment-content-textarea text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+								class="review_body-comment-content-textarea text-primary-700 dark:text-primary-100 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 								name="comment"
 								maxlength="10000"
 								rows="6"
@@ -520,7 +520,7 @@ watch(
 		</template>
 	</GenericModal>
 	<UButton
-		class="hover:no-underline hover:text-slate-900 hover:dark:text-white capitalize"
+		class="capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
 		:label="reviewButtonText"
 		size="lg"
 		@click="openModal"

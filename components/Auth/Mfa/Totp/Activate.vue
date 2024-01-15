@@ -12,7 +12,7 @@ const { data } = await totpActivateGet()
 			<!-- eslint-disable vue/no-v-html -->
 			<p v-html="data.totpSvg"></p>
 			<p
-				class="text-primary-500 dark:text-primary-400 italic p-2 border rounded-md border-gray-900/10 dark:border-gray-50/[0.2]"
+				class="text-primary-500 dark:text-primary-400 rounded-md border border-gray-900/10 p-2 italic dark:border-gray-50/[0.2]"
 			>
 				{{ data.secret }}
 			</p>

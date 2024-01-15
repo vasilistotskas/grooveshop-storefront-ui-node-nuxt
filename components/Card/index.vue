@@ -12,11 +12,11 @@ defineSlots<{
 
 <template>
 	<div
-		class="card duration-300 transition-colors w-full relative rounded overflow-hidden bg-white dark:bg-zinc-900 border border-gray-900/10 dark:border-gray-50/[0.2]"
+		class="card relative w-full overflow-hidden rounded border border-gray-900/10 bg-white transition-colors duration-300 dark:border-gray-50/[0.2] dark:bg-zinc-900"
 	>
 		<div
 			v-if="disabled"
-			class="absolute z-10 top-0 left-0 w-full h-full bg-zinc-800/[0.75] cursor-not-allowed"
+			class="absolute left-0 top-0 z-10 h-full w-full cursor-not-allowed bg-zinc-800/[0.75]"
 		/>
 		<slot />
 	</div>

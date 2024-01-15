@@ -13,7 +13,7 @@ definePageMeta({
 						<NuxtPicture
 							:loading="index === 0 ? 'eager' : 'lazy'"
 							provider="mediaStream"
-							class="w-full h-full object-cover"
+							class="h-full w-full object-cover"
 							:style="{ objectFit: 'contain' }"
 							:src="'/assets/images/black.png'"
 							:width="1920"
@@ -28,14 +28,14 @@ definePageMeta({
 					</a>
 				</NativeSlideShow>
 				<div
-					class="usps container-sm flex flex-wrap items-center justify-center gap-8 my-16 text-center brand lg:justify-between"
+					class="usps container-sm brand my-16 flex flex-wrap items-center justify-center gap-8 text-center lg:justify-between"
 				>
 					<NativeSlideShow slider-class="auto-cols-1 md:auto-cols-2 lg:auto-cols-3">
 						<a href="/" class="native-slider-li">
 							<NuxtImg
 								loading="eager"
 								provider="mediaStream"
-								class="w-full h-full object-cover"
+								class="h-full w-full object-cover"
 								:style="{ objectFit: 'contain' }"
 								:src="'/assets/images/black.png'"
 								:width="80"
@@ -53,7 +53,7 @@ definePageMeta({
 							<NuxtImg
 								loading="lazy"
 								provider="mediaStream"
-								class="w-full h-full object-cover"
+								class="h-full w-full object-cover"
 								:style="{ objectFit: 'contain' }"
 								:src="'/assets/images/white.png'"
 								:width="80"
@@ -71,7 +71,7 @@ definePageMeta({
 							<NuxtImg
 								loading="lazy"
 								provider="mediaStream"
-								class="w-full h-full object-cover"
+								class="h-full w-full object-cover"
 								:style="{ objectFit: 'contain' }"
 								:src="'/assets/images/black.png'"
 								:width="80"
@@ -89,7 +89,7 @@ definePageMeta({
 							<NuxtImg
 								loading="lazy"
 								provider="mediaStream"
-								class="w-full h-full object-cover"
+								class="h-full w-full object-cover"
 								:style="{ objectFit: 'contain' }"
 								:src="'/assets/images/white.png'"
 								:width="80"

@@ -23,10 +23,10 @@ await fetchBlogTags({
 </script>
 
 <template>
-	<aside class="grid row-start-1 md:row-start-2">
-		<div class="flex md:flex-col gap-4">
+	<aside class="row-start-1 grid md:row-start-2">
+		<div class="flex gap-4 md:flex-col">
 			<div class="grid items-center md:justify-center">
-				<h3 class="flex gap-2 items-center text-2xl font-bold text-center">
+				<h3 class="flex items-center gap-2 text-center text-2xl font-bold">
 					<UIcon name="i-heroicons-tag" />
 					{{ $t('common.tags') }}
 				</h3>
@@ -47,14 +47,14 @@ await fetchBlogTags({
 			/>
 			<LazyNativeSlideShow
 				v-if="filteredTags && filteredTags.length > 0"
-				class="grid items-center md:gap-4 scrollable-tags"
+				class="scrollable-tags grid items-center md:gap-4"
 				:grid-auto-columns="'25%'"
 				component-element="ul"
 				:mobile-only="true"
 				slider-class="md:grid gap-4"
 			>
 				<li v-for="tag in filteredTags" :key="tag.id">
-					<UButton color="white" variant="solid" class="w-full flex items-center"
+					<UButton color="white" variant="solid" class="flex w-full items-center"
 						><UIcon name="i-heroicons-hashtag" />{{
 							extractTranslated(tag, 'name', locale)
 						}}</UButton

@@ -41,7 +41,7 @@ const props = defineProps({
 			<div class="user-info-name">
 				<h2
 					v-if="account?.firstName || account?.lastName"
-					class="text-2xl font-bold text-primary-900 dark:text-primary-100"
+					class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
 				>
 					{{ account.firstName }} {{ account.lastName }}
 				</h2>
@@ -59,7 +59,7 @@ const props = defineProps({
 						<span class="text-primary-500 dark:text-primary-400">{{
 							$t('pages.account.orders.title')
 						}}</span>
-						<span class="text-primary-900 dark:text-primary-100 font-bold text-2xl">{{
+						<span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
 							ordersCount
 						}}</span>
 					</Anchor>
@@ -76,7 +76,7 @@ const props = defineProps({
 						<span class="text-primary-500 dark:text-primary-400">{{
 							$t('pages.account.favourites.title')
 						}}</span>
-						<span class="text-primary-900 dark:text-primary-100 font-bold text-2xl">{{
+						<span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
 							favouritesCount
 						}}</span>
 					</Anchor>
@@ -93,7 +93,7 @@ const props = defineProps({
 						<span class="text-primary-500 dark:text-primary-400">{{
 							$t('pages.account.reviews.title')
 						}}</span>
-						<span class="text-primary-900 dark:text-primary-100 font-bold text-2xl">{{
+						<span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
 							reviewsCount
 						}}</span>
 					</Anchor>

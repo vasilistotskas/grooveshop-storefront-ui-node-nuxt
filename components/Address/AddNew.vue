@@ -1,6 +1,6 @@
 <template>
 	<li
-		class="relative font-normal text-base leading-6 min-h-[305px] grid place-content-center place-items-center gap-8 border-2 border-dashed border-gray-300 bg-transparent text-left text-gray-600"
+		class="relative grid min-h-[305px] place-content-center place-items-center gap-8 border-2 border-dashed border-gray-300 bg-transparent text-left text-base font-normal leading-6 text-gray-600"
 	>
 		<p class="text-primary-700 dark:text-primary-100 p-4">
 			{{ $t('components.address.add_new.title') }}

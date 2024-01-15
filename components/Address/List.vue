@@ -18,7 +18,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-	<div class="w-full grid items-start gap-4">
+	<div class="grid w-full items-start gap-4">
 		<div v-if="displayTotal" class="flex items-center justify-center gap-1">
 			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">{{
 				addresses?.length
@@ -27,7 +27,7 @@ const { t } = useI18n()
 				{{ t('pages.account.addresses.total') }}
 			</span>
 		</div>
-		<ul class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+		<ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 			<AddressAddNew />
 			<template v-for="address in addresses" :key="address.id">
 				<AddressCard :address="address" />

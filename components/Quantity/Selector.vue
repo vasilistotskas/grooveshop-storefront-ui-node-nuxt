@@ -52,7 +52,7 @@ const changeQuantityEvent = async (event: Event) => {
 			<IconFaSolid:minus />
 		</button>
 		<select
-			class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+			class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 			:value="cartItemQuantity"
 			:aria-label="'quantity'"
 			@change="changeQuantityEvent"

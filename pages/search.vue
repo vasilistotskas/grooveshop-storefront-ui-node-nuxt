@@ -132,13 +132,13 @@ definePageMeta({
 		<PageBody>
 			<div
 				v-focus
-				class="grid bg-zinc-50 dark:bg-zinc-800 items-center gap-4 w-full fixed top-0 z-20 left-0 p-[17px]"
+				class="fixed left-0 top-0 z-20 grid w-full items-center gap-4 bg-zinc-50 p-[17px] dark:bg-zinc-800"
 			>
-				<div class="flex items-center gap-4 w-full">
+				<div class="flex w-full items-center gap-4">
 					<Anchor
 						:to="'index'"
 						aria-label="index"
-						class="flex items-center gap-3 overflow-hidden md:w-auto text-md font-bold text-primary-700 dark:text-primary-100 border-r-2 border-gray-900/10 dark:border-gray-50/20 pr-8"
+						class="text-md text-primary-700 dark:text-primary-100 flex items-center gap-3 overflow-hidden border-r-2 border-gray-900/10 pr-8 font-bold dark:border-gray-50/20 md:w-auto"
 					>
 						<span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
 						<UIcon name="i-heroicons-arrow-left" />
@@ -150,7 +150,7 @@ definePageMeta({
 						v-model="currentSearch"
 						v-focus
 						type="text"
-						class="text-xl bg-transparent outline-none w-full"
+						class="w-full bg-transparent text-xl outline-none"
 						:placeholder="$t('pages.search.placeholder')"
 						@keyup.enter="refreshSearch"
 						@click="isSuggestionsOpen = true"
@@ -159,13 +159,13 @@ definePageMeta({
 				<div
 					v-if="showSuggestions"
 					ref="suggestions"
-					class="absolute top-14 w-full mt-1 list-none max-h-36 overflow-y-auto z-10 rounded-md shadow-md bg-zinc-50 dark:bg-zinc-800"
+					class="absolute top-14 z-10 mt-1 max-h-36 w-full list-none overflow-y-auto rounded-md bg-zinc-50 shadow-md dark:bg-zinc-800"
 				>
 					<TransitionGroup name="list" tag="ul" class="grid">
 						<li
 							v-for="suggestion in storageSearchHistory"
 							:key="suggestion"
-							class="py-2 px-4 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+							class="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700"
 						>
 							<Anchor
 								:to="`/search?query=${suggestion}`"
@@ -173,7 +173,7 @@ definePageMeta({
 								@click="currentSearch = suggestion"
 							>
 								<IconFa6Solid:clockRotateLeft />
-								<span class="text-primary-700 dark:text-primary-100 font-bold truncate">
+								<span class="text-primary-700 dark:text-primary-100 truncate font-bold">
 									{{ suggestion }}
 								</span>
 							</Anchor>
@@ -181,7 +181,7 @@ definePageMeta({
 						<li
 							v-for="(headline, productId) in productHeadlines"
 							:key="productId"
-							class="py-2 px-4 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+							class="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700"
 						>
 							<Anchor
 								:to="`/search?query=${cleanHtml(headline)}`"
@@ -191,7 +191,7 @@ definePageMeta({
 								<IconFa6Solid:magnifyingGlass />
 								<!-- eslint-disable vue/no-v-html -->
 								<span
-									class="text-primary-700 dark:text-primary-100 font-bold truncate"
+									class="text-primary-700 dark:text-primary-100 truncate font-bold"
 									v-html="headline"
 								/>
 							</Anchor>
@@ -210,12 +210,12 @@ definePageMeta({
 				</span>
 			</PageTitle>
 
-			<div v-if="showResults" class="min-h-screen mt-20">
+			<div v-if="showResults" class="mt-20 min-h-screen">
 				<div v-if="showTotalCount" class="px-8 text-sm opacity-95">
 					{{ $t('common.items.count', totalCount) }}
 				</div>
 				<div
-					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-8"
+					class="grid grid-cols-1 gap-4 p-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 				>
 					<SearchProductCard
 						v-for="(item, index) of productSearchItems"
@@ -226,13 +226,13 @@ definePageMeta({
 			</div>
 			<div
 				v-if="showStartSearching"
-				class="text-4xl p-10 font-light opacity-50 text-center"
+				class="p-10 text-center text-4xl font-light opacity-50"
 			>
 				{{ $t('pages.search.start_searching') }}
 			</div>
 			<div
 				v-if="showIsSearching"
-				class="animate-pulse grid items-center justify-center mt-20 mb-20"
+				class="mb-20 mt-20 grid animate-pulse items-center justify-center"
 			>
 				<LazyLottie
 					class="grid"
@@ -241,7 +241,7 @@ definePageMeta({
 					:height="'254px'"
 				/>
 			</div>
-			<div v-if="showNoResults" class="grid items-center justify-center mt-40">
+			<div v-if="showNoResults" class="mt-40 grid items-center justify-center">
 				<LazyLottie
 					class="grid"
 					:animation-data="SearchingNoResultsJson"
@@ -249,7 +249,7 @@ definePageMeta({
 					:height="'254px'"
 				/>
 			</div>
-			<div v-if="showErrors" class="p-8 flex flex-col gap-3 items-start mt-40">
+			<div v-if="showErrors" class="mt-40 flex flex-col items-start gap-3 p-8">
 				<h1 class="text-4xl text-red-600">
 					{{ $t('pages.search.error') }}
 				</h1>

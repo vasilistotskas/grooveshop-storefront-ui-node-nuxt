@@ -10,11 +10,11 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container grid gap-4 grid-rows-auto-1fr">
+	<PageWrapper class="container grid grid-rows-auto-1fr gap-4">
 		<PageBody>
 			<ClientOnly>
 				<template v-if="!pending.cart && cart?.cartItems?.length">
-					<div class="grid md:grid-rows-1 gap-4">
+					<div class="grid gap-4 md:grid-rows-1">
 						<CartItemCard
 							v-for="(cartItem, index) in cart.cartItems"
 							:key="index"

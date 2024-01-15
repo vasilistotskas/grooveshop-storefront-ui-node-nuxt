@@ -71,14 +71,14 @@ definePageMeta({
 	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
 		<PageTitle
 			:text="$t('pages.checkout.success.title')"
-			class="capitalize text-center"
+			class="text-center capitalize"
 		/>
 		<PageBody>
 			<div
-				class="container-xxs p-0 md:px-6 bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] shadow-md rounded p-4"
+				class="container-xxs rounded border border-gray-900/10 bg-white p-0 p-4 shadow-md dark:border-gray-50/[0.2] dark:bg-zinc-800 md:px-6"
 			>
-				<div class="grid gap-16 items-center justify-center justify-items-center">
-					<div class="grid gap-4 items-center justify-center justify-items-center">
+				<div class="grid items-center justify-center justify-items-center gap-16">
+					<div class="grid items-center justify-center justify-items-center gap-4">
 						<LazyLottie
 							ref="lottie"
 							:text="$t('pages.checkout.success.lottie')"
@@ -95,7 +95,7 @@ definePageMeta({
 						</h2>
 						<!-- eslint-disable vue/no-v-html -->
 						<p
-							class="text-center text-primary-700 dark:text-primary-100"
+							class="text-primary-700 dark:text-primary-100 text-center"
 							v-html="
 								$t('pages.checkout.success.main.text', {
 									orderId: orderNumber,
@@ -105,8 +105,8 @@ definePageMeta({
 						></p>
 					</div>
 
-					<div class="grid gap-4 items-center justify-center justify-items-center">
-						<h2 class="text-2xl font-semibold w-full text-center">
+					<div class="grid items-center justify-center justify-items-center gap-4">
+						<h2 class="w-full text-center text-2xl font-semibold">
 							{{ $t('pages.checkout.success.order.summary') }}
 						</h2>
 
@@ -161,7 +161,7 @@ definePageMeta({
 						</table>
 
 						<div
-							class="w-full grid gap-2 items-center justify-center justify-items-center"
+							class="grid w-full items-center justify-center justify-items-center gap-2"
 						>
 							<h3 class="text-xl font-semibold">
 								{{ $t('pages.checkout.success.order.details') }}

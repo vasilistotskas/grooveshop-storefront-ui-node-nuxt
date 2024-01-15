@@ -32,7 +32,7 @@ defineSlots<{
 		:aria-label="text"
 		:class="[
 			cssClass,
-			`transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
+			`hover:text-primary-900 transition-colors duration-300 dark:hover:text-white`
 		]"
 	>
 		<slot>{{ text }}</slot>

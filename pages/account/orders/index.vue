@@ -67,7 +67,7 @@ definePageMeta({
 		</PageHeader>
 		<PageBody>
 			<template v-if="orders && !pending.orders && orders?.results?.length">
-				<div class="flex gap-2 flex-row items-center">
+				<div class="flex flex-row items-center gap-2">
 					<PaginationPageNumber
 						:count="pagination.count"
 						:total-pages="pagination.totalPages"

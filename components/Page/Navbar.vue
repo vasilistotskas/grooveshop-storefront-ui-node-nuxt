@@ -11,14 +11,14 @@ const { account } = storeToRefs(userStore)
 <template>
 	<BuilderNavbar>
 		<template #menu>
-			<div class="relative hidden lg:flex items-center ml-auto">
+			<div class="relative ml-auto hidden items-center lg:flex">
 				<nav
-					class="flex items-center text-lg leading-6 font-semibold text-primary-700 dark:text-primary-100"
+					class="text-primary-700 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
 				>
 					<ul class="flex items-center space-x-8">
 						<li class="relative grid items-center justify-center justify-items-center">
 							<Anchor
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex gap-4 self-center items-center"
+								class="flex items-center gap-4 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
 								:to="'search'"
 								:title="$t('pages.search.title')"
 								:text="$t('pages.search.title')"
@@ -33,7 +33,7 @@ const { account } = storeToRefs(userStore)
 									:to="'products'"
 									:title="$t('common.shop')"
 									:text="$t('common.shop')"
-									class="text-lg hover:no-underline hover:text-slate-900 hover:dark:text-white capitalize"
+									class="text-lg capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
 									>{{ $t('common.shop') }}</Anchor
 								>
 							</h2>
@@ -44,14 +44,14 @@ const { account } = storeToRefs(userStore)
 									:to="'blog'"
 									:title="$t('common.blog')"
 									:text="$t('common.blog')"
-									class="text-lg hover:no-underline hover:text-slate-900 hover:dark:text-white capitalize"
+									class="text-lg capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
 									>{{ $t('common.blog') }}</Anchor
 								>
 							</h2>
 						</li>
 					</ul>
 					<ul
-						class="flex items-center gap-3 border-l ml-6 pl-6 border-gray-900/10 dark:border-gray-50/[0.2] text-primary-700 dark:text-primary-100"
+						class="text-primary-700 dark:text-primary-100 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
 					>
 						<li class="relative grid items-center justify-center justify-items-center">
 							<LanguageSwitcher />
@@ -70,7 +70,7 @@ const { account } = storeToRefs(userStore)
 								</template>
 							</ClientOnly>
 							<Anchor
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
+								class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
 								:to="'cart'"
 								:title="$t('pages.cart.title')"
 								:text="$t('pages.cart.title')"
@@ -81,7 +81,7 @@ const { account } = storeToRefs(userStore)
 						<li class="relative grid items-center justify-center justify-items-center">
 							<Anchor
 								v-if="isAuthenticated && account"
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
+								class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
 								:title="$t('pages.accounts.login.title')"
 								:text="$t('pages.accounts.login.title')"
 								:to="'account'"
@@ -95,7 +95,7 @@ const { account } = storeToRefs(userStore)
 							</Anchor>
 							<Anchor
 								v-else
-								class="hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center w-[30px] h-[30px]"
+								class="flex h-[30px] w-[30px] items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
 								:title="$t('pages.accounts.login.title')"
 								:text="$t('pages.accounts.login.title')"
 								:to="`/auth/login?redirect=${$route.path}`"
@@ -111,11 +111,11 @@ const { account } = storeToRefs(userStore)
 			<ActionSheet @on-close="toggleOptions(false)">
 				<ActionSheetBody class="grid gap-4">
 					<ActionSheetHeader text="Menu" />
-					<nav class="leading-6 font-semibold text-primary-700 dark:text-primary-100">
+					<nav class="text-primary-700 dark:text-primary-100 font-semibold leading-6">
 						<ul
-							class="flex items-center justify-center flex-row gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
+							class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
 						>
-							<li class="grid pb-2 link">
+							<li class="link grid pb-2">
 								<UButton
 									icon="i-heroicons-shopping-bag"
 									:to="'/products'"
@@ -126,7 +126,7 @@ const { account } = storeToRefs(userStore)
 									>{{ $t('common.shop') }}</UButton
 								>
 							</li>
-							<li class="grid pb-2 link">
+							<li class="link grid pb-2">
 								<UButton
 									icon="i-heroicons-user"
 									:to="
@@ -141,7 +141,7 @@ const { account } = storeToRefs(userStore)
 									}}</UButton
 								>
 							</li>
-							<li class="grid pb-2 link">
+							<li class="link grid pb-2">
 								<UButton
 									icon="i-heroicons-magnifying-glass"
 									:to="'/search'"
@@ -154,7 +154,7 @@ const { account } = storeToRefs(userStore)
 							</li>
 						</ul>
 					</nav>
-					<div class="flex gap-3 items-center justify-center">
+					<div class="flex items-center justify-center gap-3">
 						<div class="grid items-center justify-center justify-items-center">
 							<ThemeSwitcher type="select-box" />
 						</div>
@@ -163,13 +163,13 @@ const { account } = storeToRefs(userStore)
 						</div>
 					</div>
 					<Anchor
-						class="text-primary-700 dark:text-primary-100 hover:no-underline hover:text-slate-900 hover:dark:text-white text-lg flex self-center items-center justify-center gap-2"
+						class="text-primary-700 dark:text-primary-100 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
 						:to="'cart'"
 						:title="$t('pages.cart.title')"
 						:text="$t('pages.cart.title')"
 					>
 						<IconFa6Solid:cartShopping />
-						<span class="ml-1 text-primary-700 dark:text-primary-100">
+						<span class="text-primary-700 dark:text-primary-100 ml-1">
 							{{ $t('pages.cart.title') }}</span
 						>
 					</Anchor>

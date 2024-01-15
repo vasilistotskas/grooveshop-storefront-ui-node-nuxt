@@ -52,14 +52,14 @@ const startShare = () => share().catch((err) => err)
 
 <template>
 	<li
-		class="w-full grid gap-4 container p-5 bg-white text-white dark:bg-zinc-800 dark:text-black rounded-lg"
+		class="container grid w-full gap-4 rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black"
 	>
 		<div class="mb-3 md:mb-6">
 			<Anchor :to="`/blog/post${post.absoluteUrl}`" :text="alt">
 				<NuxtImg
 					:loading="imgLoading"
 					provider="mediaStream"
-					class="w-full h-auto bg-transparent object-cover"
+					class="h-auto w-full bg-transparent object-cover"
 					:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 					:src="src"
 					:width="imgWidth"
@@ -83,7 +83,7 @@ const startShare = () => share().catch((err) => err)
 				color="primary"
 				square
 				variant="solid"
-				class="font-extrabold capitalize justify-self-start"
+				class="justify-self-start font-extrabold capitalize"
 				@click="startShare"
 			/>
 			<template #fallback>
@@ -102,14 +102,14 @@ const startShare = () => share().catch((err) => err)
 					</Anchor>
 				</h3>
 				<div class="grid">
-					<span class="text-sm text-primary-700 dark:text-primary-100">
+					<span class="text-primary-700 dark:text-primary-100 text-sm">
 						{{ post.publishedAt }}
 					</span>
 				</div>
 			</div>
 			<div class="grid gap-2 md:gap-4">
 				<div class="grid h-20">
-					<p class="text-sm text-primary-700 dark:text-primary-100">
+					<p class="text-primary-700 dark:text-primary-100 text-sm">
 						{{ contentShorten(extractTranslated(post, 'subtitle', locale), 100) }}
 					</p>
 				</div>
@@ -135,7 +135,7 @@ const startShare = () => share().catch((err) => err)
 					<div v-if="typeof post.author !== 'number'" class="grid">
 						<span
 							v-if="typeof post.author.user !== 'number'"
-							class="text-sm font-bold text-primary-700 dark:text-primary-100"
+							class="text-primary-700 dark:text-primary-100 text-sm font-bold"
 						>
 							{{ post.author.user.firstName }} {{ post.author.user.lastName }}
 						</span>

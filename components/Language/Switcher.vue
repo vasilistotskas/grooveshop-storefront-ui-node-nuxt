@@ -51,7 +51,7 @@ const onLocaleChange = (event: Event) => {
 					$t('components.language.switcher.change_language')
 				}}</span>
 				<span
-					class="text-primary-700 dark:text-primary-100 justify-center items-center flex"
+					class="text-primary-700 dark:text-primary-100 flex items-center justify-center"
 				>
 					<UIcon name="i-heroicons-language" />
 				</span>
@@ -59,7 +59,7 @@ const onLocaleChange = (event: Event) => {
 			<ListboxOptions
 				v-if="availableLocales.length > 0"
 				id="language-switcher-options"
-				class="p-1 absolute z-50 top-full right-0 outline-none bg-white rounded-lg ring-1 ring-gray-900/10 shadow-lg overflow-hidden w-36 py-1 text-lg text-primary-700 font-semibold dark:bg-zinc-800 dark:ring-0 dark:highlight-white/5 dark:text-primary-300"
+				class="text-primary-700 dark:highlight-white/5 dark:text-primary-300 absolute right-0 top-full z-50 w-36 overflow-hidden rounded-lg bg-white p-1 py-1 text-lg font-semibold shadow-lg outline-none ring-1 ring-gray-900/10 dark:bg-zinc-800 dark:ring-0"
 			>
 				<ListboxOption
 					v-for="lang in availableLocales"
@@ -67,14 +67,14 @@ const onLocaleChange = (event: Event) => {
 					:key="lang.code"
 					:value="lang.code"
 					:class="{
-						'py-2 px-2 flex items-center cursor-pointer': true,
-						'text-sky-500 bg-zinc-100 dark:bg-zinc-600/30': locale === lang.code,
+						'flex cursor-pointer items-center px-2 py-2': true,
+						'bg-zinc-100 text-sky-500 dark:bg-zinc-600/30': locale === lang.code,
 						'hover:bg-zinc-50 dark:hover:bg-zinc-700/30': locale !== lang.code
 					}"
 					@click="navigateToLocale(lang.code)"
 				>
 					<NuxtLink :to="switchLocalePath(lang.code)">
-						<span class="text-primary-700 dark:text-primary-100 text-lg mr-2">
+						<span class="text-primary-700 dark:text-primary-100 mr-2 text-lg">
 							{{ lang.flag }}
 						</span>
 						<span class="text-primary-700 dark:text-primary-100 flex-1 truncate text-sm">
@@ -89,7 +89,7 @@ const onLocaleChange = (event: Event) => {
 		</Listbox>
 		<select
 			v-if="currentStyle === 'select-box' && availableLocales.length > 0"
-			class="w-full px-2 pr-3 py-1 outline-none rounded border bg-transparent text-primary-700 dark:text-primary-300 border-gray-900/10 dark:border-gray-50/[0.2]"
+			class="text-primary-700 dark:text-primary-300 w-full rounded border border-gray-900/10 bg-transparent px-2 py-1 pr-3 outline-none dark:border-gray-50/[0.2]"
 			:value="locale"
 			@change="onLocaleChange"
 		>

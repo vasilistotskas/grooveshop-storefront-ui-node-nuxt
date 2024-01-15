@@ -20,9 +20,9 @@ defineSlots<{
 			</PageHeader>
 		</slot>
 		<slot name="main">
-			<Main class="relative flex-1 flex flex-col w-full h-full">
+			<Main>
 				<PageSection class="flex flex-col">
-					<div class="flex-1 w-full flex flex-col">
+					<div class="flex w-full flex-1 flex-col">
 						<slot />
 					</div>
 				</PageSection>

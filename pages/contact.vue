@@ -7,7 +7,7 @@ definePageMeta({
 <template>
 	<PageWrapper class="container flex flex-col">
 		<PageHeader>
-			<PageTitle :text="$t('pages.contact.title')" class="capitalize text-center" />
+			<PageTitle :text="$t('pages.contact.title')" class="text-center capitalize" />
 		</PageHeader>
 		<PageBody>
 			<div></div>

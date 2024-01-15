@@ -8,7 +8,7 @@ const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
 		<div v-if="$pwa" id="pwa">
 			<div
 				v-if="$pwa?.offlineReady || $pwa?.needRefresh"
-				class="fixed bottom-0 left-0 right-0 z-50 mx-auto px-6 py-4 shadow-xl border border-gray-200 bg-zinc-50 dark:border-gray-700 dark:bg-zinc-800 text-primary-600 dark:text-primary-400 sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-5xl sm:rounded-md"
+				class="text-primary-600 dark:text-primary-400 fixed bottom-0 left-0 right-0 z-50 mx-auto border border-gray-200 bg-zinc-50 px-6 py-4 shadow-xl dark:border-gray-700 dark:bg-zinc-800 sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-5xl sm:rounded-md"
 				role="alert"
 			>
 				<div class="message">
@@ -43,29 +43,29 @@ const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
 			</div>
 			<div
 				v-if="$pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh"
-				class="fixed right-16 bottom-0 mb-4 p-3 border border-gray-200 bg-white dark:bg-zinc-800 shadow-md rounded sm:flex sm:gap-2 sm:text-center"
+				class="fixed bottom-0 right-16 mb-4 rounded border border-gray-200 bg-white p-3 shadow-md dark:bg-zinc-800 sm:flex sm:gap-2 sm:text-center"
 				role="alert"
 			>
 				<div
-					class="mb-2 sm:grid sm:align-center sm:items-center sm:justify-center sm:w-full sm:mb-0"
+					class="sm:align-center mb-2 sm:mb-0 sm:grid sm:w-full sm:items-center sm:justify-center"
 				>
 					<span class="text-primary-700 dark:text-primary-100 text-center capitalize">
 						{{ $t('components.pwa.install_pwa') }}
 					</span>
 				</div>
 				<div
-					class="ml-auto flex flex-col gap-2 mt-4 lg:mt-0 md:flex-row-reverse sm:flex sm:w-full sm:flex-row sm:m-0"
+					class="ml-auto mt-4 flex flex-col gap-2 sm:m-0 sm:flex sm:w-full sm:flex-row md:flex-row-reverse lg:mt-0"
 				>
 					<button
 						type="button"
-						class="whitespace-nowrap rounded-lg border px-3 py-2 md:px-5 md:py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700 sm:m-0"
+						class="text-primary-900 hover:text-primary-700 dark:text-primary-400 whitespace-nowrap rounded-lg border border-gray-200 bg-zinc-50 px-3 py-2 text-sm font-medium transition duration-150 ease-in-out hover:bg-zinc-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700 sm:m-0 md:px-5 md:py-2.5"
 						@click="$pwa?.install()"
 					>
 						{{ $t('components.pwa.install') }}
 					</button>
 					<button
 						type="button"
-						class="whitespace-nowrap rounded-lg border px-3 py-2 md:px-5 md:py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-gray-200 bg-zinc-50 text-primary-900 hover:bg-zinc-100 hover:text-primary-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:text-primary-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700 sm:m-0"
+						class="text-primary-900 hover:text-primary-700 dark:text-primary-400 whitespace-nowrap rounded-lg border border-gray-200 bg-zinc-50 px-3 py-2 text-sm font-medium transition duration-150 ease-in-out hover:bg-zinc-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-gray-700 sm:m-0 md:px-5 md:py-2.5"
 						@click="$pwa?.cancelInstall()"
 					>
 						{{ $t('components.pwa.cancel') }}

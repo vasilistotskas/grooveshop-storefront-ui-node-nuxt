@@ -8,7 +8,7 @@
 			@submit="onSubmit"
 		>
 			<div v-if="isMultiStep" class="grid items-center justify-center">
-				<span class="font-semibold text-xl">{{ schema.steps?.[currentStep].title }}</span>
+				<span class="text-xl font-semibold">{{ schema.steps?.[currentStep].title }}</span>
 			</div>
 
 			<UFormGroup

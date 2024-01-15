@@ -6,12 +6,12 @@ const packageVersion = pkg.version
 </script>
 
 <template>
-	<footer class="bg-white dark:bg-zinc-900 mt-6 w-full pt-2 border-t-2 border-gray-500">
-		<div class="mx-auto w-full container">
+	<footer class="mt-6 w-full border-t-2 border-gray-500 bg-white pt-2 dark:bg-zinc-900">
+		<div class="container mx-auto w-full">
 			<div class="grid grid-cols-2 gap-8 px-6 py-8 md:grid-cols-3">
 				<div>
 					<span
-						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
+						class="text-primary-900 mb-6 text-sm font-semibold uppercase dark:text-white"
 					>
 						{{ $t('common.company') }}
 					</span>
@@ -21,7 +21,7 @@ const packageVersion = pkg.version
 								:to="'about'"
 								:title="$t('common.about')"
 								:text="$t('common.about')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.about') }}</Anchor
 							>
 						</li>
@@ -30,7 +30,7 @@ const packageVersion = pkg.version
 								:to="'blog'"
 								:title="$t('common.blog')"
 								:text="$t('common.blog')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.blog') }}</Anchor
 							>
 						</li>
@@ -38,7 +38,7 @@ const packageVersion = pkg.version
 				</div>
 				<div>
 					<span
-						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
+						class="text-primary-900 mb-6 text-sm font-semibold uppercase dark:text-white"
 					>
 						{{ $t('common.help_center') }}
 					</span>
@@ -48,7 +48,7 @@ const packageVersion = pkg.version
 								:to="'contact'"
 								:title="$t('common.contact_us')"
 								:text="$t('common.contact_us')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.contact_us') }}</Anchor
 							>
 						</li>
@@ -57,7 +57,7 @@ const packageVersion = pkg.version
 								:href="config.public.socials.discord"
 								:title="$t('common.discord_server')"
 								:text="$t('common.discord_server')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.discord_server') }}</Anchor
 							>
 						</li>
@@ -66,7 +66,7 @@ const packageVersion = pkg.version
 								:href="config.public.socials.twitter"
 								:title="$t('common.twitter')"
 								:text="$t('common.twitter')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.twitter') }}</Anchor
 							>
 						</li>
@@ -75,7 +75,7 @@ const packageVersion = pkg.version
 								:href="config.public.socials.facebook"
 								:title="$t('common.facebook')"
 								:text="$t('common.facebook')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.facebook') }}</Anchor
 							>
 						</li>
@@ -83,7 +83,7 @@ const packageVersion = pkg.version
 				</div>
 				<div>
 					<span
-						class="mb-6 text-sm font-semibold text-primary-900 uppercase dark:text-white"
+						class="text-primary-900 mb-6 text-sm font-semibold uppercase dark:text-white"
 					>
 						Legal
 					</span>
@@ -93,7 +93,7 @@ const packageVersion = pkg.version
 								:to="'privacy'"
 								:title="$t('common.privacy_policy')"
 								:text="$t('common.privacy_policy')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.privacy_policy') }}</Anchor
 							>
 						</li>
@@ -102,7 +102,7 @@ const packageVersion = pkg.version
 								:to="'terms'"
 								:title="$t('common.terms_conditions')"
 								:text="$t('common.terms_conditions')"
-								class="flex-1 hover:no-underline capitalize"
+								class="flex-1 capitalize hover:no-underline"
 								>{{ $t('common.terms_conditions') }}</Anchor
 							>
 						</li>
@@ -111,9 +111,9 @@ const packageVersion = pkg.version
 			</div>
 		</div>
 		<div class="w-full bg-zinc-100 dark:bg-zinc-800">
-			<div class="mx-auto w-full container">
+			<div class="container mx-auto w-full">
 				<div class="px-4 py-6 md:flex md:items-center md:justify-between">
-					<span class="text-sm text-primary-900 dark:text-primary-300 sm:text-center"
+					<span class="text-primary-900 dark:text-primary-300 text-sm sm:text-center"
 						>© 2023
 						<Anchor
 							:href="config.public.siteUrl"
@@ -123,8 +123,8 @@ const packageVersion = pkg.version
 							>{{ config.public.siteName }}™</Anchor
 						>. {{ $t('common.all_rights_reserved') }}.
 					</span>
-					<div class="flex gap-12 items-center mt-4 md:mt-0">
-						<div class="flex mt-4 space-x-6 sm:justify-center md:mt-0">
+					<div class="mt-4 flex items-center gap-12 md:mt-0">
+						<div class="mt-4 flex space-x-6 sm:justify-center md:mt-0">
 							<Anchor
 								:href="config.public.socials.facebook"
 								:title="$t('common.facebook')"
@@ -132,7 +132,7 @@ const packageVersion = pkg.version
 								class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
 							>
 								<svg
-									class="w-5 h-5"
+									class="h-5 w-5"
 									fill="currentColor"
 									viewBox="0 0 24 24"
 									aria-hidden="true"
@@ -152,7 +152,7 @@ const packageVersion = pkg.version
 								class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
 							>
 								<svg
-									class="w-5 h-5"
+									class="h-5 w-5"
 									fill="currentColor"
 									viewBox="0 0 24 24"
 									aria-hidden="true"
@@ -172,7 +172,7 @@ const packageVersion = pkg.version
 								class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
 							>
 								<svg
-									class="w-5 h-5"
+									class="h-5 w-5"
 									fill="currentColor"
 									viewBox="0 0 24 24"
 									aria-hidden="true"
@@ -184,7 +184,7 @@ const packageVersion = pkg.version
 								<span class="sr-only">{{ $t('common.twitter') }}</span>
 							</Anchor>
 						</div>
-						<span class="text-xs text-primary-700 dark:text-primary-300 sm:text-center"
+						<span class="text-primary-700 dark:text-primary-300 text-xs sm:text-center"
 							>Version: {{ packageVersion }}</span
 						>
 					</div>

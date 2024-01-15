@@ -11,15 +11,15 @@ definePageMeta({
 			<PageTitle :text="$t('pages.auth.security.title')" />
 		</PageHeader>
 		<nav
-			class="fixed top-16 left-0 z-10 w-full bg-transparent lg:static lg:w-auto lg:border-b lg:border-gray-300 lg:shadow-none lg:bg-transparent px-4 lg:px-0"
+			class="fixed left-0 top-16 z-10 w-full bg-transparent px-4 lg:static lg:w-auto lg:border-b lg:border-gray-300 lg:bg-transparent lg:px-0 lg:shadow-none"
 		>
-			<ul role="tablist" class="flex gap-4 overflow-x-auto snap-x">
+			<ul role="tablist" class="flex snap-x gap-4 overflow-x-auto">
 				<li role="tab" class="shrink-0">
 					<Anchor
 						:to="`/auth/security/general`"
 						:aria-label="$t('pages.auth.security.general.title')"
 						:title="$t('pages.auth.security.general.title')"
-						class="block outline-none py-4 whitespace-nowrap text-gray-600 text-sm"
+						class="block whitespace-nowrap py-4 text-sm text-gray-600 outline-none"
 					>
 						<span class="text-black dark:text-white">
 							{{ $t('pages.auth.security.general.title') }}
@@ -31,7 +31,7 @@ definePageMeta({
 						:to="`/auth/security/mfa`"
 						:aria-label="$t('pages.auth.security.mfa.title')"
 						:title="$t('pages.auth.security.mfa.title')"
-						class="block outline-none py-4 whitespace-nowrap text-gray-600 text-sm"
+						class="block whitespace-nowrap py-4 text-sm text-gray-600 outline-none"
 					>
 						<span class="text-black dark:text-white">
 							{{ $t('pages.auth.security.mfa.title') }}

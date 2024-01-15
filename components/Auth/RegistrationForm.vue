@@ -91,9 +91,9 @@ const onSubmit = handleSubmit(async (values) => {
 			@submit.prevent="onSubmit"
 		>
 			<div
-				class="p-4 md:p-8 flex h-full flex-wrap items-center justify-center lg:justify-between bg-white dark:bg-zinc-800 border border-gray-900/10 dark:border-gray-50/[0.2] rounded-[0.5rem] shadow-[0_4px_9px_-4px_#0000000d] dark:shadow-[0_4px_9px_-4px_#0000000d]"
+				class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-800 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
 			>
-				<div class="relative grid gap-4 w-full">
+				<div class="relative grid w-full gap-4">
 					<div class="grid content-evenly items-start">
 						<label class="text-primary-700 dark:text-primary-100" for="email">{{
 							$t('pages.auth.registration.form.email.label')
@@ -108,7 +108,7 @@ const onSubmit = handleSubmit(async (values) => {
 							autocomplete="email"
 							:required="true"
 						/>
-						<span v-if="errors.email" class="text-sm text-red-600 px-4 py-3 relative">{{
+						<span v-if="errors.email" class="relative px-4 py-3 text-sm text-red-600">{{
 							errors.email
 						}}</span>
 					</div>
@@ -117,7 +117,7 @@ const onSubmit = handleSubmit(async (values) => {
 						<label class="text-primary-700 dark:text-primary-100" for="password1">{{
 							$t('pages.auth.registration.form.password1.label')
 						}}</label>
-						<div class="relative grid gap-2 items-center">
+						<div class="relative grid items-center gap-2">
 							<FormTextInput
 								id="password1"
 								v-model="password1"
@@ -130,7 +130,7 @@ const onSubmit = handleSubmit(async (values) => {
 							/>
 							<button
 								type="button"
-								class="absolute right-2 top-1/2 transform -translate-y-1/2"
+								class="absolute right-2 top-1/2 -translate-y-1/2 transform"
 								:aria-label="$t('pages.auth.registration.form.password1.show')"
 								@click="showPassword1 = !showPassword1"
 							>
@@ -140,7 +140,7 @@ const onSubmit = handleSubmit(async (values) => {
 						</div>
 						<span
 							v-if="errors.password1"
-							class="text-sm text-red-600 px-4 py-3 relative"
+							class="relative px-4 py-3 text-sm text-red-600"
 							>{{ errors.password1 }}</span
 						>
 					</div>
@@ -149,7 +149,7 @@ const onSubmit = handleSubmit(async (values) => {
 						<label class="text-primary-700 dark:text-primary-100" for="password2">{{
 							$t('pages.auth.registration.form.password2.label')
 						}}</label>
-						<div class="relative grid gap-2 items-center">
+						<div class="relative grid items-center gap-2">
 							<FormTextInput
 								id="password2"
 								v-model="password2"
@@ -162,7 +162,7 @@ const onSubmit = handleSubmit(async (values) => {
 							/>
 							<button
 								type="button"
-								class="absolute right-2 top-1/2 transform -translate-y-1/2"
+								class="absolute right-2 top-1/2 -translate-y-1/2 transform"
 								:aria-label="$t('pages.auth.registration.form.password2.show')"
 								@click="showPassword2 = !showPassword2"
 							>
@@ -172,26 +172,26 @@ const onSubmit = handleSubmit(async (values) => {
 						</div>
 						<span
 							v-if="errors.password2"
-							class="text-sm text-red-600 px-4 py-3 relative"
+							class="relative px-4 py-3 text-sm text-red-600"
 							>{{ errors.password2 }}</span
 						>
 					</div>
 
 					<button
 						type="submit"
-						class="inline-block w-full rounded bg-primary px-7 pb-2.5 pt-3 text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
+						class="bg-primary hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded px-7 pb-2.5 pt-3 text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
 						:disabled="isSubmitting"
 						:aria-busy="isSubmitting"
 					>
 						{{ $t('pages.auth.registration.form.submit') }}
 					</button>
 
-					<div class="flex gap-2 items-center justify-end">
-						<span class="text-sm text-primary-700 dark:text-primary-100">{{
+					<div class="flex items-center justify-end gap-2">
+						<span class="text-primary-700 dark:text-primary-100 text-sm">{{
 							$t('pages.auth.registration.form.already_have_account')
 						}}</span>
 						<Anchor
-							class="text-base hover:no-underline hover:text-slate-900 hover:dark:text-white text-[1.5rem] flex self-center items-center"
+							class="flex items-center self-center text-[1.5rem] text-base hover:text-slate-900 hover:no-underline hover:dark:text-white"
 							:title="$t('pages.auth.login.title')"
 							:text="$t('pages.auth.login.title')"
 							:to="'/auth/login'"

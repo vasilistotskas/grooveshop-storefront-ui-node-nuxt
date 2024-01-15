@@ -172,7 +172,7 @@ definePageMeta({
 <template>
 	<PageWrapper class="grid gap-4">
 		<PageHeader>
-			<div class="grid grid-cols-auto-1fr gap-4 items-center justify-items">
+			<div class="justify-items grid grid-cols-auto-1fr items-center gap-4">
 				<UButton
 					icon="i-heroicons-arrow-left"
 					size="sm"
@@ -187,7 +187,7 @@ definePageMeta({
 		<PageBody>
 			<form
 				id="AddressEditForm"
-				class="_form grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-zinc-800 rounded-lg"
+				class="_form grid grid-cols-1 gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800 md:grid-cols-3"
 				name="AddressEditForm"
 				@submit="onSubmit"
 			>
@@ -208,7 +208,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.title" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.title" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.title
 					}}</span>
 				</div>
@@ -229,7 +229,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.firstName" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.firstName" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.firstName
 					}}</span>
 				</div>
@@ -250,7 +250,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.lastName" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.lastName" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.lastName
 					}}</span>
 				</div>
@@ -271,7 +271,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.street" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.street" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.street
 					}}</span>
 				</div>
@@ -294,7 +294,7 @@ definePageMeta({
 					</div>
 					<span
 						v-if="errors.streetNumber"
-						class="text-sm text-red-600 px-4 py-3 relative"
+						class="relative px-4 py-3 text-sm text-red-600"
 						>{{ errors.streetNumber }}</span
 					>
 				</div>
@@ -315,7 +315,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.city" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.city" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.city
 					}}</span>
 				</div>
@@ -336,7 +336,7 @@ definePageMeta({
 							:required="true"
 						/>
 					</div>
-					<span v-if="errors.zipcode" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.zipcode" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.zipcode
 					}}</span>
 				</div>
@@ -356,7 +356,7 @@ definePageMeta({
 							autocomplete="tel"
 						/>
 					</div>
-					<span v-if="errors.phone" class="text-sm text-red-600 px-4 py-3 relative">{{
+					<span v-if="errors.phone" class="relative px-4 py-3 text-sm text-red-600">{{
 						errors.phone
 					}}</span>
 				</div>
@@ -378,7 +378,7 @@ definePageMeta({
 					</div>
 					<span
 						v-if="errors.mobilePhone"
-						class="text-sm text-red-600 px-4 py-3 relative"
+						class="relative px-4 py-3 text-sm text-red-600"
 						>{{ errors.mobilePhone }}</span
 					>
 				</div>
@@ -394,7 +394,7 @@ definePageMeta({
 							:bind="floorProps"
 							name="floor"
 							as="select"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 						>
 							<option
 								:value="defaultSelectOptionChoose"
@@ -413,7 +413,7 @@ definePageMeta({
 								{{ floorChoice }}
 							</option>
 						</VeeField>
-						<span v-if="errors.floor" class="text-sm text-red-600 px-4 py-3 relative">{{
+						<span v-if="errors.floor" class="relative px-4 py-3 text-sm text-red-600">{{
 							errors.floor
 						}}</span>
 					</div>
@@ -427,7 +427,7 @@ definePageMeta({
 							v-bind="locationTypeProps"
 							name="locationType"
 							as="select"
-							class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 						>
 							<option
 								:value="defaultSelectOptionChoose"
@@ -448,7 +448,7 @@ definePageMeta({
 						</VeeField>
 						<span
 							v-if="errors.locationType"
-							class="text-sm text-red-600 px-4 py-3 relative"
+							class="relative px-4 py-3 text-sm text-red-600"
 							>{{ errors.locationType }}</span
 						>
 					</div>
@@ -466,7 +466,7 @@ definePageMeta({
 								v-bind="countryProps"
 								name="country"
 								as="select"
-								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+								class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 								@change.capture="onCountryChange"
 							>
 								<option
@@ -487,7 +487,7 @@ definePageMeta({
 								</option>
 							</VeeField>
 						</div>
-						<span v-if="errors.country" class="text-sm text-red-600 px-4 py-3 relative">{{
+						<span v-if="errors.country" class="relative px-4 py-3 text-sm text-red-600">{{
 							errors.country
 						}}</span>
 					</div>
@@ -502,7 +502,7 @@ definePageMeta({
 								v-bind="regionProps"
 								name="region"
 								as="select"
-								class="form-select text-primary-700 dark:text-primary-300 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+								class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 								:disabled="countryProps.value === defaultSelectOptionChoose"
 							>
 								<option
@@ -523,7 +523,7 @@ definePageMeta({
 								</option>
 							</VeeField>
 						</div>
-						<span v-if="errors.region" class="text-sm text-red-600 px-4 py-3 relative">{{
+						<span v-if="errors.region" class="relative px-4 py-3 text-sm text-red-600">{{
 							errors.region
 						}}</span>
 					</div>
@@ -539,7 +539,7 @@ definePageMeta({
 							v-model="notes"
 							v-bind="notesProps"
 							as="textarea"
-							class="w-full text-primary-700 dark:text-primary-100 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8] border border-gray-200"
+							class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
 							name="notes"
 							type="text"
 							rows="4"
@@ -548,10 +548,10 @@ definePageMeta({
 					</div>
 				</div>
 
-				<div class="grid items-end justify-end col-start-3">
+				<div class="col-start-3 grid items-end justify-end">
 					<button
 						type="submit"
-						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+						class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 						:disabled="submitButtonDisabled"
 						:aria-busy="isSubmitting"
 					>

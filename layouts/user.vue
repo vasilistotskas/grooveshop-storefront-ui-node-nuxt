@@ -19,7 +19,7 @@ const route = useRoute()
 		<div id="app-before">
 			<slot name="app-before" />
 		</div>
-		<div class="flex flex-col min-h-screen">
+		<div class="flex min-h-screen flex-col">
 			<slot name="header">
 				<UserNavbar>
 					<template #drawer>
@@ -40,15 +40,15 @@ const route = useRoute()
 						:reviews-count="reviews?.length"
 					/>
 					<div class="relative mb-12 md:mb-20">
-						<div class="flex-1 w-full flex flex-col md:gap-4">
+						<div class="flex w-full flex-1 flex-col md:gap-4">
 							<div
 								:class="[
-									'relative flex-1 flex flex-col lg:flex-row mx-auto w-full h-full'
+									'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row'
 								]"
 							>
 								<div
 									v-if="!isMobile"
-									class="lg:pl-8 md:py-4 md:w-auto md:grid"
+									class="md:grid md:w-auto md:py-4 lg:pl-8"
 									:class="[
 										{
 											'grid w-full': route.path === '/account',
@@ -58,7 +58,7 @@ const route = useRoute()
 								>
 									<UserSidebar />
 								</div>
-								<div class="flex flex-col w-full">
+								<div class="flex w-full flex-col">
 									<slot />
 								</div>
 							</div>

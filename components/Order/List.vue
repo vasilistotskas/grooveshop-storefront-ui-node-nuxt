@@ -16,7 +16,7 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="w-full grid items-start">
+	<div class="grid w-full items-start">
 		<slot class="header"></slot>
 		<slot>
 			<div class="grid gap-4">
