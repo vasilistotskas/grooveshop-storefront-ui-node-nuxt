@@ -1,3 +1,10 @@
+## [1.57.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.57.0...v1.57.1) (2024-1-18)
+
+
+### Bug Fixes
+
+* remove `useLogger` usage ([78e1769](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/78e1769786ff937e9f870e95d5c41cf2ac302e96))
+
 # [1.57.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.56.0...v1.57.0) (2024-1-18)
 
 
