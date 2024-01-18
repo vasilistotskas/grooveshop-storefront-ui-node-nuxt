@@ -1,4 +1,3 @@
-import { useLogger } from '@nuxt/kit'
 import { createError, H3Error, H3Event, sendRedirect } from 'h3'
 import { ZodError } from 'zod'
 import { withQuery } from 'ufo'
@@ -9,8 +8,7 @@ type ErrorWithMessage = {
 }
 
 export const reportError = ({ message }: { message: string }) => {
-	const logger = useLogger('error')
-	logger.error(message)
+	console.error(message)
 }
 
 export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
