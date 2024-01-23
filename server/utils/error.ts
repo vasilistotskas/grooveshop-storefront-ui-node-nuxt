@@ -8,6 +8,7 @@ type ErrorWithMessage = {
 }
 
 export const reportError = ({ message }: { message: string }) => {
+	// eslint-disable-next-line no-console
 	console.error(message)
 }
 
