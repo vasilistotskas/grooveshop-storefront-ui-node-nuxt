@@ -1,3 +1,15 @@
+# [1.58.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.57.1...v1.58.0) (2024-1-23)
+
+
+### Bug Fixes
+
+* **ci.yml:** set pnpm audit level to `critical` and lint fix ([60625fa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/60625fa777b8e097c847d75a07b3472a303f5c07))
+
+
+### Features
+
+* Bump Versions ([5f88afe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5f88afecabddca4c22a6a26641da405ca902617b))
+
 ## [1.57.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.57.0...v1.57.1) (2024-1-18)
 
 
