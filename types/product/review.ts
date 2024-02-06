@@ -32,7 +32,8 @@ export const ZodReviewQuery = z.object({
 	id: z.string().nullish(),
 	productId: z.string().nullish(),
 	userId: z.string().nullish(),
-	expand: z.string().nullish()
+	expand: z.string().nullish(),
+	status: StatusEnum.optional()
 })
 
 export const ZodReviewCreateBody = z.object({
@@ -76,6 +77,7 @@ export type ReviewQuery = PaginationQuery &
 		productId?: string | undefined
 		userId?: string | undefined
 		expand?: string | undefined
+		status?: 'NEW' | 'TRUE' | 'FALSE' | undefined
 	}
 export type ReviewActionPayload = {
 	id: number

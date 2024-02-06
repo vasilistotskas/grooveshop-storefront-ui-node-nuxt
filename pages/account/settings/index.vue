@@ -22,7 +22,7 @@ const userId = account.value?.id
 
 await fetchCountries()
 await fetchRegions({
-	alpha2: account.value?.country ?? ''
+	country: account.value?.country ?? ''
 })
 
 const ZodAccountSettings = z.object({
@@ -112,7 +112,7 @@ const label = computed(() => {
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	await fetchRegions({
-		alpha2: event.target.value
+		country: event.target.value
 	})
 	regionProps.value.value = defaultSelectOptionChoose
 }
@@ -325,7 +325,11 @@ definePageMeta({
 					}}</label>
 					<div class="grid">
 						<UPopover :popper="{ placement: 'bottom-start' }">
-							<UButton icon="i-heroicons-calendar-days-20-solid" :label="label" />
+							<UButton
+								icon="i-heroicons-calendar-days-20-solid"
+								:label="label"
+								color="white"
+							/>
 							<template #panel="{ close }">
 								<LazyDatePicker id="birthDate" v-model="birthDate" @close="close" />
 							</template>

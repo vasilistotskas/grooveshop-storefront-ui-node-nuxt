@@ -62,6 +62,36 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 		}
 	}
 
+	async function fetchUserAddresses({ page, ordering, user, pagination }: AddressQuery) {
+		if (process.prerender) {
+			return
+		}
+		const {
+			data,
+			error: addressesError,
+			pending: addressesPending,
+			refresh
+		} = await useFetch<Pagination<Address>>(`/api/user/addresses/get-user-addresses`, {
+			method: 'get',
+			params: {
+				page,
+				ordering,
+				user,
+				pagination
+			}
+		})
+		addresses.value = data.value
+		error.value.addresses = addressesError.value
+		pending.value.addresses = addressesPending.value
+
+		return {
+			data,
+			error: addressesError,
+			pending: addressesPending,
+			refresh
+		}
+	}
+
 	async function fetchAddress(id: string | number) {
 		if (process.prerender) {
 			return
@@ -193,6 +223,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 		pending,
 		error,
 		fetchAddresses,
+		fetchUserAddresses,
 		fetchAddress,
 		createAddress,
 		updateAddress,

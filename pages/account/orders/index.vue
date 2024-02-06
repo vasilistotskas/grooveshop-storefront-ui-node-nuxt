@@ -86,7 +86,7 @@ definePageMeta({
 			<template v-if="!pending.orders && !orders?.results?.length">
 				<EmptyState :icon="emptyIcon">
 					<template #actions>
-						<UButton :label="$t('common.empty.button')" :to="'index'" />
+						<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
 					</template>
 				</EmptyState>
 			</template>

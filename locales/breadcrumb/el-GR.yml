@@ -3,117 +3,89 @@ breadcrumb:
   items:
     index:
       icon: heroicons-solid:home
-      ariaLabel: σπίτι
       label: σπίτι
     products:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: προϊόντα
       label: προϊόντα
     terms:
       icon: heroicons-solid:document
-      ariaLabel: οροι
       label: οροι
     about:
       icon: heroicons-solid:document
-      ariaLabel: σχετικά με
       label: σχετικά με
     contact:
       icon: heroicons-solid:document
-      ariaLabel: επικοινωνία
       label: επικοινωνία
     privacy:
       icon: heroicons-solid:document
-      ariaLabel: μυστικότητα
       label: μυστικότητα
     cart:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: καροτσάκι
       label: καροτσάκι
     blog:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: ιστολόγιο
       label: ιστολόγιο
     checkout:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: ολοκλήρωση αγοράς
       label: ολοκλήρωση αγοράς
       success:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: ολοκλήρωση αγοράς επιτυχία
         label: ολοκλήρωση αγοράς επιτυχία
     auth:
       login:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: σύνδεση
         label: σύνδεση
       registration:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: εγγραφή
         label: εγγραφή
         account_confirm_email:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
           label: επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
       password:
         reset:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: επαναφέρετε τον κωδικό πρόσβασης
           label: επαναφέρετε τον κωδικό πρόσβασης
           confirm:
             icon: heroicons-solid:shopping-cart
-            ariaLabel: επιβεβαίωση κωδικού
             label: επιβεβαίωση κωδικού
       security:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: ασφάλεια
         label: ασφάλεια
         general:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: γενικός
           label: γενικός
         mfa:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: υπουργείο εξωτερικών
           label: υπουργείο εξωτερικών
           recovery:
             codes:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: κωδικοί ανάκτησης
               label: κωδικοί ανάκτησης
               generate:
                 icon: heroicons-solid:shopping-cart
-                ariaLabel: δημιουργήστε νέους κωδικούς
                 label: δημιουργήστε νέους κωδικούς
           totp:
             activate:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: δραστηριοποιώ
               label: δραστηριοποιώ
             authenticate:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: πιστοποιώ την αυθεντικότητα
               label: πιστοποιώ την αυθεντικότητα
             deactivate:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: απενεργοποίηση
               label: απενεργοποίηση
     account:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: λογαριασμός
       label: λογαριασμός
       addresses:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: διευθύνσεις
         label: διευθύνσεις
         new:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: νέα διεύθυνση
           label: νέα διεύθυνση
         edit:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: επεξεργασία διεύθυνσης
           label: επεξεργασία διεύθυνσης
       favourites:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: αγαπημένα
         label: αγαπημένα

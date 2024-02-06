@@ -1,7 +1,7 @@
 <template>
 	<UContainer>
 		<UForm
-			:id="id"
+			:id="finalID"
 			class="w-full space-y-4"
 			:state="fields"
 			autocomplete="on"
@@ -60,6 +60,7 @@
 				<UButton
 					v-if="currentStep > 0"
 					icon="i-heroicons-arrow-long-left"
+					color="white"
 					@click="goToPreviousStep"
 					>{{ $t('common.previous') }}</UButton
 				>
@@ -67,10 +68,13 @@
 					v-if="currentStep < lastStep"
 					icon="i-heroicons-arrow-long-right"
 					:disabled="nextStepButtonDisabled"
+					color="white"
 					@click="goToNextStep"
 					>{{ $t('common.next') }}</UButton
 				>
-				<UButton v-if="currentStep === lastStep" type="submit">{{ buttonLabel }}</UButton>
+				<UButton v-if="currentStep === lastStep" type="submit" color="white">{{
+					buttonLabel
+				}}</UButton>
 			</div>
 
 			<UButton
@@ -78,6 +82,7 @@
 				:aria-busy="isSubmitting"
 				:disabled="submitButtonDisabled"
 				type="submit"
+				color="white"
 				>{{ buttonLabel }}</UButton
 			>
 			<UButton
@@ -96,7 +101,6 @@
 
 <script lang="ts" setup>
 import { z } from 'zod'
-import { v4 as uuidv4 } from 'uuid'
 import type { ValidationOptions } from 'vee-validate'
 import type {
 	DisabledFields,
@@ -105,6 +109,7 @@ import type {
 	DynamicFormState,
 	FormValues
 } from '~/types/form'
+import { mergeWithEffect, mergeWithEffects } from '~/types/zod'
 
 // Define the UI configuration for Nuxt-UI
 const nuxtUiConfig = (state: DynamicFormState) => {
@@ -127,7 +132,7 @@ const props = withDefaults(
 		disableSubmitUntilValid?: boolean
 	}>(),
 	{
-		id: uuidv4(),
+		id: undefined,
 		submitButton: true,
 		resetButton: false,
 		buttonLabel: 'Submit',
@@ -136,19 +141,31 @@ const props = withDefaults(
 	}
 )
 
+const {
+	id,
+	schema,
+	submitButton,
+	resetButton,
+	buttonLabel,
+	resetLabel,
+	disableSubmitUntilValid
+} = toRefs(props)
+
+const finalID = id ?? useId()
+
 const isMultiStep = computed(
-	() => Array.isArray(props.schema.steps) && props.schema.steps.length > 0
+	() => Array.isArray(schema.value.steps) && schema.value.steps.length > 0
 )
 
 const currentStep = ref(0)
-const lastStep = props.schema.steps?.length ? props.schema.steps?.length - 1 : 0
+const lastStep = schema.value.steps?.length ? schema.value.steps?.length - 1 : 0
 
 // Filter the schema fields based on the current step
 const formFields = computed(() => {
 	return (
 		(isMultiStep.value
-			? props.schema.steps?.[currentStep.value].fields
-			: props.schema.fields) ?? []
+			? schema.value.steps?.[currentStep.value].fields
+			: schema.value.fields) ?? []
 	)
 })
 
@@ -187,8 +204,26 @@ const generatedSchema = z.object(
 	Object.fromEntries(formFields.value.map((field) => [field.name, field.rules]))
 )
 
+// Use schema.extraValidation to generate a Zod schema object
+const extraValidationSchema = schema.value.extraValidation
+	? schema.value.extraValidation
+	: z.object({})
+
+// Merge the generated Zod schema object with the extraValidationSchema
+const merged = computed(() => {
+	if (extraValidationSchema instanceof z.ZodEffects) {
+		return mergeWithEffect(extraValidationSchema, generatedSchema)
+	} else if (extraValidationSchema instanceof z.ZodObject) {
+		return generatedSchema.merge(extraValidationSchema)
+	}
+
+	// eslint-disable-next-line no-console
+	console.warn('extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject')
+	return generatedSchema
+})
+
 // Convert the generated Zod schema object to a VeeValidate compatible schema object
-const validationSchema = toTypedSchema(generatedSchema)
+const validationSchema = toTypedSchema(merged.value)
 
 // Create an object of initial form values from the schema object
 const initialFormValues = formFields.value.reduce((acc: FormValues, field) => {
@@ -205,7 +240,7 @@ const { defineField, handleSubmit, resetForm, errors, isSubmitting, validate, va
 	})
 
 const goToNextStep = async () => {
-	const currentStepFields = props.schema.steps?.[currentStep.value].fields ?? []
+	const currentStepFields = schema.value.steps?.[currentStep.value].fields ?? []
 	const fieldsToValidate = currentStepFields.map(
 		(field) => field.name
 	) as Partial<ValidationOptions>
@@ -264,20 +299,20 @@ const submitButtonDisabled = computedAsync(async () => {
 			const liveResultValid = result.errors.length === 0
 			return isSubmitting.value ||
 				Object.keys(errors.value).length > 0 ||
-				props.disableSubmitUntilValid
+				disableSubmitUntilValid.value
 				? !liveResultValid
 				: false
 		})
 		.catch(() => {
 			return true
 		})
-}, props.disableSubmitUntilValid)
+}, disableSubmitUntilValid.value)
 
 const nextStepButtonDisabled = computed(() => {
 	return (
 		isSubmitting.value ||
 		Object.keys(errors.value).length > 0 ||
-		props.disableSubmitUntilValid
+		disableSubmitUntilValid.value
 	)
 })
 

@@ -539,6 +539,10 @@ pages:
             title: fehler beim erneuten senden des e-mail-bestätigungslinks
             description: fehler beim erneuten senden des e-mail-bestätigungslinks.
           button: bestätigungslink erneut senden
+          form:
+            email:
+              label: email
+            submit: bestätigungslink erneut senden
     password:
       reset:
         title: setze dein passwort zurück
@@ -590,10 +594,10 @@ pages:
     security:
       title: sicherheit
       description: sicherheit
-      general:
-        title: allgemein
-        description: allgemein
-        keywords: allgemein
+      password:
+        title: kennwort ändern
+        description: kennwort ändern
+        keywords: kennwort ändern
       mfa:
         title: zwei-faktor-authentifizierung
         description: zwei-faktor-authentifizierung

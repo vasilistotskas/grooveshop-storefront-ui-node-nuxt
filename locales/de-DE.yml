@@ -1,5 +1,6 @@
 common:
   home: heim
+  close: schließen
   auth:
     login:
       success: anmeldung erfolgreich

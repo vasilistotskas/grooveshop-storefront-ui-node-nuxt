@@ -131,7 +131,7 @@ const [region, regionProps] = defineField('region', {
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	await fetchRegions({
-		alpha2: event.target.value
+		country: event.target.value
 	})
 	region.value = defaultSelectOptionChoose
 }

@@ -9,7 +9,7 @@ export interface Cookie {
 	id?: string
 	name: string
 	links?: Record<string, string | null>
-	src?: string
+	src?: string | string[]
 	targetCookieIds?: string[]
 }
 

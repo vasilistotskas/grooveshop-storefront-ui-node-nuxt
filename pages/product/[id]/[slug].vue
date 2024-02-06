@@ -172,7 +172,7 @@ definePageMeta({
 										:disabled="!isSupported"
 										icon="i-heroicons-share"
 										size="lg"
-										color="primary"
+										color="white"
 										square
 										variant="solid"
 										class="font-extrabold capitalize"
@@ -210,10 +210,12 @@ definePageMeta({
 							<div class="flex items-center gap-4">
 								<div>
 									<div class="flex rounded-lg bg-zinc-100 px-3 py-2">
-										<span class="mr-1 mt-1 text-indigo-400">$</span>
-										<span class="text-3xl font-bold text-indigo-600">{{
-											product.finalPrice
-										}}</span>
+										<I18nN
+											tag="span"
+											class="text-3xl font-bold text-indigo-600"
+											format="currency"
+											:value="product.finalPrice"
+										/>
 									</div>
 								</div>
 								<div class="flex-1">
@@ -230,17 +232,17 @@ definePageMeta({
 								:text="extractTranslated(product, 'description', locale) || ''"
 								:max-chars="100"
 							/>
-							<div class="flex space-x-4">
+							<div class="flex flex-col gap-4 md:flex-row md:gap-0">
 								<div class="relative">
 									<div
-										class="text-primary-700 dark:text-primary-100 absolute left-0 right-0 block pt-2 text-center text-xs font-semibold uppercase tracking-wide"
+										class="text-primary-700 dark:text-primary-100 absolute left-0 right-0 block hidden pt-2 text-center text-xs font-semibold uppercase tracking-wide md:grid"
 									>
 										<label for="quantity">{{ $t('pages.product.qty') }}</label>
 									</div>
 									<select
 										id="quantity"
 										v-model="selectorQuantity"
-										class="text-primary-700 dark:text-primary-100 flex h-14 cursor-pointer appearance-none items-end rounded-xl border border-gray-200 bg-zinc-100/[0.8] pb-1 pl-4 pr-8 dark:bg-zinc-800/[0.8]"
+										class="text-primary-700 dark:text-primary-100 flex h-8 w-full cursor-pointer appearance-none items-end rounded-xl border border-gray-200 bg-zinc-100/[0.8] pb-1 pl-4 pr-8 dark:bg-zinc-800/[0.8] md:h-14"
 									>
 										<option
 											v-for="i in product.stock"
@@ -254,7 +256,7 @@ definePageMeta({
 									</select>
 
 									<svg
-										class="text-primary-700 dark:text-primary-100 absolute bottom-0 right-0 mb-2 mr-2 h-5 w-5"
+										class="text-primary-700 dark:text-primary-100 absolute bottom-0 right-0 mb-2 mr-2 h-4 w-4"
 										xmlns="http://www.w3.org/2000/svg"
 										fill="none"
 										viewBox="0 0 24 24"

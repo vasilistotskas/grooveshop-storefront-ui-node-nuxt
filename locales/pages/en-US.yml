@@ -525,6 +525,10 @@ pages:
             title: Email confirmation link resend error
             description: Email confirmation link resend error.
           button: Resend confirmation link
+          form:
+            email:
+              label: Email
+            submit: Resend confirmation link
     password:
       reset:
         title: Reset your password
@@ -570,10 +574,10 @@ pages:
     security:
       title: Security
       description: Security
-      general:
-        title: General
-        description: General
-        keywords: General
+      password:
+        title: Change Password
+        description: Change Password
+        keywords: Change Password
       mfa:
         title: Two Factor Authentication
         description: Two Factor Authentication

@@ -34,7 +34,7 @@ await fetchAddress(addressId)
 
 await fetchCountries()
 await fetchRegions({
-	alpha2: account?.value?.country || ''
+	country: account?.value?.country || ''
 })
 
 const ZodAddress = z.object({
@@ -128,7 +128,7 @@ const [region, regionProps] = defineField('region', {
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	await fetchRegions({
-		alpha2: event.target.value
+		country: event.target.value
 	})
 	region.value = defaultSelectOptionChoose
 }
@@ -198,6 +198,7 @@ definePageMeta({
 					size="sm"
 					:to="'/account/addresses'"
 					:trailing="true"
+					color="white"
 				/>
 				<PageTitle :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`" />
 			</div>
@@ -217,6 +218,7 @@ definePageMeta({
 					:label="$t('pages.account.addresses.edit.main.button')"
 					class="gap-4"
 					:trailing="true"
+					color="white"
 					@click="onSetMain"
 				/>
 			</template>

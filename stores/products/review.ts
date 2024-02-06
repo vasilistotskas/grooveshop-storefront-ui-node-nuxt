@@ -44,7 +44,8 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		userId,
 		page,
 		ordering,
-		expand
+		expand,
+		status
 	}: ReviewQuery) {
 		if (process.prerender) {
 			return
@@ -61,7 +62,8 @@ export const useProductReviewStore = defineStore('productReview', () => {
 				userId,
 				page,
 				ordering,
-				expand
+				expand,
+				status
 			}
 		})
 		reviews.value = data.value

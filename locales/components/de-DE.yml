@@ -66,23 +66,38 @@ components:
       privacy-policy: datenschutzrichtlinie
     close: schließen
     cookies:
-      functional: funktionelle cookies
-      functional_description: >-
-        funktionale cookies helfen dabei, bestimmte funktionen auszuführen, wie
-        das teilen des inhalts der website auf social-media-plattformen, das
-        sammeln von feedback und andere funktionen von drittanbietern.
+      optional: optionale cookies
+      optional_links:
+        privacy_policy: datenschutzrichtlinie
       necessary: notwendige cookies
       necessary_description: >-
         notwendige cookies tragen dazu bei, eine website nutzbar zu machen,
         indem sie grundfunktionen wie seitennavigation und zugriff auf sichere
         bereiche der website ermöglichen. ohne diese cookies kann die website
         nicht ordnungsgemäß funktionieren.
-      optional: optionale cookies
-      optional_links:
-        privacy_policy: datenschutzrichtlinie
-      google:
-        analytics: google analytics
-        analytics_description: wird zur cookie-kontrolle verwendet.
+      analytics: analyse-cookies
+      analytics_description: >-
+        durch die nutzung dieser website erklären sie sich mit der erhebung,
+        nutzung und weitergabe ihrer daten zu analysezwecken einverstanden. wir
+        können cookies verwenden, um informationen über ihre nutzung der website
+        zu sammeln und zu analysieren. diese informationen helfen uns zu
+        verstehen, wie benutzer mit der website interagieren, und ermöglichen es
+        uns, das benutzererlebnis zu verbessern.
+      advertising: werbe-cookies
+      advertising_description: >-
+        unsere website und werbepartner (einschließlich social-media-plattformen
+        wie google, facebook und instagram) nutzen tracking, um personalisierte
+        angebote bereitzustellen, die darauf abzielen, ihnen das volle
+        smile-pharmacy-erlebnis zu bieten. dazu gehört auch das versenden von
+        „gezielten nachrichten auf werbeplattformen dritter“, wie in der
+        datenschutzerklärung beschrieben. wenn sie dieses tracking nicht
+        akzeptieren, werden ihnen weiterhin zufällig smile-pharmacy-anzeigen auf
+        anderen plattformen angezeigt.
+      functional: funktionelle cookies
+      functional_description: >-
+        funktionale cookies helfen dabei, bestimmte funktionen auszuführen, wie
+        das teilen des inhalts der website auf social-media-plattformen, das
+        sammeln von feedback und andere funktionen von drittanbietern.
     decline: abfall
     decline_all: alle ablehnen
     here: hier
@@ -221,3 +236,20 @@ components:
     post:
       card:
         share: aktie
+  favourite:
+    list:
+      favourites: favoriten
+  auth:
+    security:
+      password:
+        change:
+          form:
+            newPassword1:
+              label: neues kennwort
+              placeholder: neues kennwort
+            newPassword2:
+              label: bestätige neues passwort
+              placeholder: bestätige neues passwort
+            password2:
+              validation:
+                mismatch: passwörter stimmen nicht überein

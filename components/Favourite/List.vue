@@ -22,7 +22,7 @@ defineProps({
 				favourites?.length
 			}}</span>
 			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">
-				{{ $t('components.product.reviews.summary.reviews') }}
+				{{ $t('components.favourite.list.favourites') }}
 			</span>
 		</div>
 		<ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

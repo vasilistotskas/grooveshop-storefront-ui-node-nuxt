@@ -1,0 +1,87 @@
+<script lang="ts" setup>
+import { z } from 'zod'
+import type { PasswordChangeBody } from '~/types/auth'
+import type { DynamicFormSchema } from '~/types/form'
+
+const { passwordChange } = useAuth()
+
+const { t } = useI18n()
+const toast = useToast()
+const router = useRouter()
+
+async function onSubmit(values: PasswordChangeBody) {
+	const { data, error } = await passwordChange(values)
+	if (data.value) {
+		toast.add({
+			title: t('components.auth.security.password.change.form.success.title')
+		})
+		await router.push('/account')
+	}
+
+	if (error.value) {
+		const newPassword1Error = error.value.data?.data?.newPassword1 as string[]
+		const newPassword2Error = error.value.data?.data?.newPassword2 as string[]
+
+		const toastTitle =
+			newPassword1Error?.join(' ') ??
+			newPassword2Error?.join(' ') ??
+			error.value?.message ??
+			t('components.auth.security.password.change.form.error.title')
+
+		toast.add({
+			title: toastTitle,
+			color: 'red'
+		})
+	}
+}
+
+const formSchema: DynamicFormSchema = {
+	fields: [
+		{
+			label: t('components.auth.security.password.change.form.newPassword1.label'),
+			name: 'newPassword1',
+			as: 'input',
+			rules: z.string().min(8).max(255),
+			autocomplete: 'new-password',
+			readonly: false,
+			required: true,
+			placeholder: t(
+				'components.auth.security.password.change.form.newPassword1.placeholder'
+			),
+			type: 'password'
+		},
+		{
+			label: t('components.auth.security.password.change.form.newPassword2.label'),
+			name: 'newPassword2',
+			as: 'input',
+			rules: z.string().min(8).max(255),
+			autocomplete: 'new-password',
+			readonly: false,
+			required: true,
+			placeholder: t(
+				'components.auth.security.password.change.form.newPassword2.placeholder'
+			),
+			type: 'password'
+		}
+	],
+	extraValidation: z
+		.object({
+			newPassword1: z.string(),
+			newPassword2: z.string()
+		})
+		.refine((data) => data.newPassword1 === data.newPassword2, {
+			message: t(
+				'components.auth.security.password.change.form.password2.validation.mismatch'
+			),
+			path: ['newPassword2']
+		})
+}
+</script>
+
+<template>
+	<div class="container-xxs p-0 md:px-6">
+		<section class="grid items-center">
+			<DynamicForm :schema="formSchema" @submit="onSubmit" />
+		</section>
+	</div>
+</template>

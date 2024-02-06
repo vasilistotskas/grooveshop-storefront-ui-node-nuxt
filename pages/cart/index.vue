@@ -25,7 +25,7 @@ definePageMeta({
 				<template v-if="!pending.cart && !cart?.cartItems?.length">
 					<EmptyState :icon="emptyIcon">
 						<template #actions>
-							<UButton :label="$t('common.empty.button')" :to="'index'" />
+							<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
 						</template>
 					</EmptyState>
 				</template>
@@ -39,6 +39,7 @@ definePageMeta({
 				<UButton
 					:label="$t('pages.cart.checkout')"
 					class="font-extrabold capitalize"
+					color="white"
 					:to="'checkout'"
 				/>
 			</h2>

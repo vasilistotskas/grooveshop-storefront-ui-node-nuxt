@@ -1,12 +1,7 @@
 import { z } from 'zod'
 import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
-import {
-	FloorChoicesEnum,
-	LocationChoicesEnum,
-	ZodFloorChoicesEnum,
-	ZodLocationChoicesEnum
-} from '~/types/global/general'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 
 export const ZodAddress = z.object({
 	id: z.number(),
@@ -36,7 +31,8 @@ export const ZodAddressQuery = z.object({
 	ordering: z.string().nullish(),
 	id: z.string().nullish(),
 	user: z.string().nullish(),
-	expand: z.string().nullish()
+	expand: z.string().nullish(),
+	pagination: z.string().nullish()
 })
 
 export const ZodAddressCreateBody = z.object({

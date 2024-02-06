@@ -8,8 +8,11 @@ definePageMeta({
 <template>
 	<PageWrapper class="container flex flex-col gap-4">
 		<PageHeader class="pb-4">
-			<PageTitle :text="$t('pages.auth.security.general.title')" />
+			<PageTitle :text="$t('pages.auth.security.password.title')" />
 		</PageHeader>
-		<PageBody> </PageBody>
+		<AuthSecurityNavbar />
+		<PageBody>
+			<AuthSecurityPasswordChangeForm />
+		</PageBody>
 	</PageWrapper>
 </template>

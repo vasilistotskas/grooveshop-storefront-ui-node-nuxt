@@ -90,7 +90,7 @@ const buttonLabel = computed(() => {
 })
 
 const buttonColor = computed(() => {
-	return !props.isFavourite || props.isFavourite ? 'red' : 'grey'
+	return props.isFavourite ? 'rose' : 'white'
 })
 </script>
 
@@ -98,7 +98,8 @@ const buttonColor = computed(() => {
 	<UButton
 		:size="size"
 		:label="buttonLabel"
-		icon="i-heroicons-heart"
+		:icon="!isFavourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
+		:color="buttonColor"
 		@click="toggleFavourite"
 	/>
 </template>

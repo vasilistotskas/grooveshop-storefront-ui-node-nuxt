@@ -98,6 +98,7 @@ const menus = computed((): IMenuItem[] => [
 							class="font-extrabold capitalize"
 							:label="item.text"
 							:to="item.route ? item.route : undefined"
+							color="white"
 						/>
 					</li>
 					<li class="relative grid items-center justify-center justify-items-center">
@@ -107,6 +108,7 @@ const menus = computed((): IMenuItem[] => [
 							class="text-primary-700 dark:text-primary-100 gap-2 border-gray-200 bg-zinc-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
 							:trailing="false"
 							icon="i-heroicons-arrow-left-start-on-rectangle"
+							color="white"
 							@click="authLogoutEvent"
 						/>
 					</li>
@@ -226,7 +228,11 @@ const menus = computed((): IMenuItem[] => [
 						>
 					</Anchor>
 				</ActionSheetBody>
-				<UButton :label="$t('common.close')" @click.prevent="toggleOptions(false)" />
+				<UButton
+					:label="$t('common.close')"
+					color="white"
+					@click.prevent="toggleOptions(false)"
+				/>
 			</ActionSheet>
 		</template>
 		<template #drawer>

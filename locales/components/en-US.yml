@@ -55,16 +55,17 @@ components:
       privacy-policy: Privacy Policy
     close: Close
     cookies:
-      functional: Functional cookies
-      functional_description: Functional cookies help to perform certain functionalities like sharing the content of the website on social media platforms, collect feedbacks, and other third-party features.
-      necessary: Necessary cookies
-      necessary_description: Necessary cookies help make a website usable by enabling basic functions like page navigation and access to secure areas of the website. The website cannot function properly without these cookies.
       optional: Optional cookies
       optional_links:
         privacy_policy: Privacy Policy
-      google:
-        analytics: Google Analytics
-        analytics_description: Used for cookie control.
+      necessary: Necessary cookies
+      necessary_description: Necessary cookies help make a website usable by enabling basic functions like page navigation and access to secure areas of the website. The website cannot function properly without these cookies.
+      analytics: Analytics cookies
+      analytics_description: By using this website, you consent to the collection, use and sharing of your data for analysis purposes. We may use cookies to collect and analyze information about your use of the website. This information helps us understand how users interact with the website and enables us to improve the user experience.
+      advertising: Advertising cookies
+      advertising_description: Our website and advertising partners (including social media platforms such as Google, Facebook and Instagram) use tracking to provide personalized offers aimed at giving you the full Smile-Pharmacy experience. This includes sending you “Targeted Messages on Third Party Advertising Platforms” as described in the Privacy Statement. If you do not accept this tracking, you will continue to randomly see Smile-Pharmacy ads on other platforms.
+      functional: Functional cookies
+      functional_description: Functional cookies help to perform certain functionalities like sharing the content of the website on social media platforms, collect feedbacks, and other third-party features.
     decline: Decline
     decline_all: Decline All
     here: here
@@ -199,3 +200,26 @@ components:
     post:
       card:
         share: Share
+  favourite:
+    list:
+      favourites: Favourites
+  auth:
+    security:
+      password:
+        change:
+          form:
+            newPassword1:
+              label: New password
+              placeholder: New password
+            newPassword2:
+              label: Confirm new password
+              placeholder: Confirm new password
+            password2:
+              validation:
+                mismatch: Passwords do not match
+            success:
+              title: Password changed
+              description: Your password has been changed successfully
+            error:
+              title: Password change error
+              description: Your password has not been changed

@@ -80,7 +80,7 @@ const startShare = () => share().catch((err) => err)
 				:disabled="!isSupported"
 				icon="i-heroicons-share"
 				size="lg"
-				color="primary"
+				color="white"
 				square
 				variant="solid"
 				class="justify-self-start font-extrabold capitalize"

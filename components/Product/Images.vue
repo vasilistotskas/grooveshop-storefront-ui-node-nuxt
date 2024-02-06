@@ -26,17 +26,12 @@ const selectedImageId = useState<number>(`${product.value.uuid}-imageID`, () => 
 	return mainImage.value?.id || images.value?.results[0]?.id || 0
 })
 
-const gridAutoColumns = computed(() => {
-	if (isMobile) {
-		return '50%'
+//
+const productImages = computed(() => {
+	if (!images.value?.results) {
+		return []
 	}
-	if (isTablet) {
-		return '50%'
-	}
-	if (isDesktop) {
-		return '33.333333%'
-	}
-	return '100%'
+	return images.value?.results?.filter((image) => image.id !== selectedImageId.value)
 })
 
 watch(
@@ -61,34 +56,33 @@ watch(
 			<ProductImage :image="mainImage" :width="572" :height="320" img-loading="eager" />
 		</div>
 
-		<LazyNativeSlideShow
+		<UCarousel
 			v-if="images?.results && images?.results?.length > 1"
-			:grid-auto-columns="gridAutoColumns"
-			:component-element="'ol'"
+			v-slot="{ item }"
+			:items="images?.results"
+			:ui="{ item: 'basis-full md:basis-1/2 lg:basis-1/3' }"
+			class="overflow-hidden rounded-lg"
+			arrows
 		>
-			<li
-				v-for="productImage in images?.results"
-				:key="productImage.id"
-				class="flex-1 px-2"
-			>
+			<div class="flex-1 px-2">
 				<button
 					:class="{
-						'ring-2 ring-inset ring-indigo-300': selectedImageId === productImage.id
+						'ring-2 ring-inset ring-indigo-300': selectedImageId === item.id
 					}"
 					type="button"
 					class="flex h-24 w-full items-center justify-center rounded-lg bg-zinc-100 p-2 focus:outline-none md:h-32"
-					:aria-label="`Select image ${productImage.id}`"
-					@click="selectedImageId = productImage.id"
+					:aria-label="`Select image ${item.id}`"
+					@click="selectedImageId = item.id"
 				>
 					<ProductImage
-						:key="productImage.id"
-						:image="productImage"
+						:key="item.id"
+						:image="item"
 						:width="159"
 						:height="116"
 						img-loading="lazy"
 					/>
 				</button>
-			</li>
-		</LazyNativeSlideShow>
+			</div>
+		</UCarousel>
 	</div>
 </template>

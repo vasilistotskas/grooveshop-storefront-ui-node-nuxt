@@ -17,12 +17,12 @@ const formSchema: DynamicFormSchema = {
 			label: t('pages.auth.security.mfa.totp.authenticate.form.code.label'),
 			name: 'code',
 			as: 'input',
-			rules: z.string().min(6),
+			rules: z.string().min(6).max(6),
 			autocomplete: 'one-time-code',
 			readonly: false,
 			required: true,
 			placeholder: '123456',
-			type: 'number'
+			type: 'text'
 		}
 	]
 }

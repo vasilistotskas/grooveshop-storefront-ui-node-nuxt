@@ -4,7 +4,7 @@ type TranslationObject =
 	  } & Record<string, unknown>)
 	| null
 
-export const useTranslationExtractor = <T extends TranslationObject>() => {
+export const useTranslationExtractor = <T extends TranslationObject | undefined>() => {
 	const extractTranslated = (object: T, field: string, locale: string) => {
 		if (!object) {
 			return ''

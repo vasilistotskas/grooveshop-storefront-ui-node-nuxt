@@ -148,15 +148,19 @@ watch(
 			for (const cookieEnabled of current || []) {
 				if (!cookieEnabled.src) continue
 
-				const script = document.createElement('script')
-				script.src = cookieEnabled.src
-				document.getElementsByTagName('head')[0].appendChild(script)
+				const srcs = Array.isArray(cookieEnabled.src)
+					? cookieEnabled.src
+					: [cookieEnabled.src]
+				srcs.forEach((src) => {
+					const script = document.createElement('script')
+					script.src = src
+					document.getElementsByTagName('head')[0].appendChild(script)
+				})
 			}
 		} else {
 			cookieCookiesEnabledIds.value = undefined
 		}
 
-		// delete formerly enabled cookies that are now disabled
 		const cookiesOptionalDisabled = moduleOptions.cookies.optional.filter(
 			(cookieOptional) => !(current || []).includes(cookieOptional)
 		)
@@ -169,11 +173,14 @@ watch(
 			}
 
 			if (cookieOptionalDisabled.src) {
-				for (const script of [
-					...document.head.querySelectorAll(`script[src="${cookieOptionalDisabled.src}"]`)
-				]) {
-					script.parentNode?.removeChild(script)
-				}
+				const srcs = Array.isArray(cookieOptionalDisabled.src)
+					? cookieOptionalDisabled.src
+					: [cookieOptionalDisabled.src]
+				srcs.forEach((src) => {
+					document.head.querySelectorAll(`script[src="${src}"]`).forEach((script) => {
+						script.parentNode?.removeChild(script)
+					})
+				})
 			}
 		}
 	},
@@ -264,12 +271,6 @@ defineExpose({
 							<h2>{{ $t('components.cookie.modal.title') }}</h2>
 							<p>
 								{{ $t('components.cookie.modal.description') }}
-								<Anchor
-									:to="'privacy-policy'"
-									:title="$t('components.cookie.modal.privacy-policy')"
-									:text="$t('components.cookie.modal.privacy-policy')"
-									>{{ $t('components.cookie.modal.privacy-policy') }}</Anchor
-								>
 							</p>
 						</slot>
 						<button
@@ -320,7 +321,7 @@ defineExpose({
 											</button>
 											<label
 												class="cookie-control-ModalCookieName"
-												:for="cookie.name"
+												:for="getName(cookie.name)"
 												tabindex="0"
 												@keydown="toggleLabel($event)"
 											>

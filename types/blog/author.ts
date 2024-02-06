@@ -12,6 +12,8 @@ export const ZodBlogAuthor = z.object({
 	id: z.number().int(),
 	user: z.union([z.number(), ZodAccount]),
 	website: z.string().nullish(),
+	numberOfPosts: z.number().int(),
+	totalLikesReceived: z.number().int(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid()

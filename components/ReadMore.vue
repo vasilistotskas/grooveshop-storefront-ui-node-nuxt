@@ -19,18 +19,25 @@ const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
 const toggleFullText = () => {
 	showFullText.value = !showFullText.value
 }
+
+const trimmedText = computed(() => {
+	return props.text && props.text.length > props.maxChars
+		? props.text.substring(0, props.maxChars) + '...'
+		: props.text
+})
 </script>
 
 <template>
 	<div v-if="text && text.length > maxChars" class="relative">
+		<!-- eslint-disable vue/no-v-html -->
 		<div
 			v-if="!showFullText"
 			class="text-primary-700 dark:text-primary-100 overflow-hidden"
 		>
-			{{ text.substring(0, maxChars) }} {{ text.length > maxChars ? '...' : '' }}
+			<span v-html="trimmedText" />
 		</div>
 		<div v-else class="text-primary-700 dark:text-primary-100 overflow-hidden">
-			{{ text }}
+			<span v-html="text" />
 		</div>
 		<div class="absolute bottom-0 right-0">
 			<button

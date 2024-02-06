@@ -56,11 +56,9 @@ const statusClass = computed(() => {
 
 <template>
 	<div
-		class="order-card text-primary-700 dark:text-primary-100 grid grid-cols-3 items-center gap-4 rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800 md:grid-cols-1 md:grid-rows-3 md:gap-10 md:p-10"
+		class="order-card text-primary-700 dark:text-primary-100 flex items-center justify-between gap-4 rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800 md:grid-cols-1 md:grid-rows-3 md:gap-10 md:p-10"
 	>
-		<div
-			class="order-card-items col-span-1 grid grid-cols-2 gap-4 md:col-span-3 md:grid-cols-3"
-		>
+		<div class="order-card-items col-span-1 grid gap-4 md:col-span-3">
 			<OrderCardItem
 				v-for="item in order.orderItemOrder.slice(0, maxItems)"
 				:key="item.product.id"
@@ -94,29 +92,34 @@ const statusClass = computed(() => {
 			</div>
 
 			<div class="order-card-body-id gap-1.25 grid">
-				<span class="text-xs text-gray-600">{{ $t('components.order.card.id') }}</span>
+				<span class="text-xs text-gray-400">{{ $t('components.order.card.id') }}</span>
 				<span class="font-semibold">{{ order.id }}</span>
 			</div>
 
 			<div class="order-card-body-address gap-1.25 grid">
-				<span class="text-xs text-gray-600">{{
+				<span class="text-xs text-gray-400">{{
 					$t('components.order.card.address')
 				}}</span>
 				<span>{{ contentShorten(order.fullAddress, 0, 45) }}</span>
 			</div>
 
 			<div class="order-card-body-pay_way gap-1.25 grid">
-				<span class="text-xs text-gray-600">{{
+				<span class="text-xs text-gray-400">{{
 					$t('components.order.card.pay_way')
 				}}</span>
 				<span>{{ extractTranslated(order.payWay, 'name', locale) }}</span>
 			</div>
 
 			<div class="order-card-body-total_price gap-1.25 grid">
-				<span class="text-xs text-gray-600">{{
+				<span class="text-xs text-gray-400">{{
 					$t('components.order.card.total_price')
 				}}</span>
-				<span class="font-semibold">{{ order.paidAmount }}</span>
+				<I18nN
+					tag="span"
+					class="font-semibold"
+					format="currency"
+					:value="order.paidAmount"
+				/>
 			</div>
 		</div>
 
@@ -126,6 +129,7 @@ const statusClass = computed(() => {
 					class="py-1.25 w-full text-sm md:py-2.5"
 					:label="$t('components.order.card.actions.details')"
 					:to="`/account/orders/${order.id}`"
+					color="white"
 					size="lg"
 				/>
 			</div>

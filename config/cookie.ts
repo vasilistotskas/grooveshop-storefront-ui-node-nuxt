@@ -5,34 +5,34 @@ export const cookieControl = {
 		necessary: [
 			{
 				id: 'NEC',
-				description: 'components.cookie.cookies.necessary_description',
 				name: 'components.cookie.cookies.necessary',
+				description: 'components.cookie.cookies.necessary_description',
 				targetCookieIds: ['NEC']
 			}
 		],
 		optional: [
 			{
-				id: 'op',
-				name: 'components.cookie.cookies.optional',
-				links: {
-					'https://example.com':
-						'components.cookie.cookies.optional_links.privacy_policy',
-					'https://example.cop': null
-				},
-				targetCookieIds: ['_o', '_p', '_t']
-			},
-			{
-				id: 'functional',
-				name: 'components.cookie.cookies.functional',
-				description: 'components.cookie.cookies.functional_description',
-				targetCookieIds: ['functional']
-			},
-			{
-				id: 'ga',
-				name: 'components.cookie.cookies.google.analytics',
-				description: 'components.cookie.cookies.google.analytics_description',
+				id: 'ANALYTICS',
+				name: 'components.cookie.cookies.analytics',
+				description: 'components.cookie.cookies.analytics_description',
 				src: `https://www.googletagmanager.com/gtag/js?id=${process.env.NUXT_PUBLIC_GOOGLE_TAG_ID}`,
 				targetCookieIds: ['_ga', '_gat', '_gid']
+			},
+			{
+				id: 'ADVERTISING',
+				name: 'components.cookie.cookies.advertising',
+				description: 'components.cookie.cookies.advertising_description',
+				links: {
+					[`${process.env.NUXT_PUBLIC_SITE_URL}/privacy`]:
+						'components.cookie.cookies.optional_links.privacy_policy'
+				},
+				targetCookieIds: ['_fbp', 'fr', 'tr']
+			},
+			{
+				id: 'FUNCTIONAL',
+				name: 'components.cookie.cookies.functional',
+				description: 'components.cookie.cookies.functional_description',
+				targetCookieIds: ['_fbc', 'fbsr_']
 			}
 		]
 	}

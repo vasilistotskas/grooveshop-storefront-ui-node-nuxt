@@ -60,12 +60,14 @@ const routePaginationParams = computed<ReviewQuery>(() => {
 	const page = Number(route.query.page) || undefined
 	const ordering = route.query.ordering || '-createdAt'
 	const expand = 'true'
+	const status = 'TRUE'
 
 	return {
 		productId: id,
 		page,
 		ordering,
-		expand
+		expand,
+		status
 	}
 })
 
@@ -494,6 +496,7 @@ watch(
 						:label="reviewButtonText"
 						size="lg"
 						class="review_footer-button"
+						color="white"
 						@click.prevent="onSubmit"
 					/>
 					<UButton
@@ -501,6 +504,7 @@ watch(
 						block
 						size="lg"
 						:label="$t('components.product.review.too_many_attempts')"
+						color="white"
 						disabled
 					/>
 				</div>
@@ -523,6 +527,7 @@ watch(
 		class="capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
 		:label="reviewButtonText"
 		size="lg"
+		color="white"
 		@click="openModal"
 	/>
 </template>

@@ -3,16 +3,19 @@ import type { Ref } from 'vue'
 import type { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import { GlobalEvents } from '~/events/global'
+import type { UserAddressAction } from '~/events/user/address'
 
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
 
 const userAddressStore = useUserAddressStore()
 const { addresses, pending } = storeToRefs(userAddressStore)
-const { fetchAddresses } = userAddressStore
+const { fetchUserAddresses } = userAddressStore
 
 const { t } = useI18n()
 const route = useRoute('account-addresses___en')
+const bus = useEventBus<string, UserAddressAction>(GlobalEvents.USER_ADDRESS)
 
 const entityOrdering: Ref<EntityOrdering<AddressOrderingField>> = ref([
 	{
@@ -54,9 +57,15 @@ const routePaginationParams = computed<AddressQuery>(() => {
 	}
 })
 
-await fetchAddresses(routePaginationParams.value)
+await fetchUserAddresses(routePaginationParams.value)
 
-const refreshAddresses = async () => await fetchAddresses(routePaginationParams.value)
+const refreshAddresses = async () => await fetchUserAddresses(routePaginationParams.value)
+
+bus.on((event: string, payload) => {
+	if (payload === 'delete') {
+		refreshAddresses()
+	}
+})
 
 watch(
 	() => route.query,
@@ -91,14 +100,14 @@ definePageMeta({
 						:ordering-options="ordering.orderingOptionsArray.value"
 					/>
 				</div>
-				<AddressList :addresses="addresses.results" />
+				<AddressList :addresses="addresses.results" :addresses-total="addresses.count" />
 			</template>
 			<template v-else-if="!addresses?.results?.length">
 				<div class="flex gap-4">
 					<AddressAddNew />
 					<EmptyState :icon="emptyIcon">
 						<template #actions>
-							<UButton :label="$t('common.empty.button')" :to="'index'" />
+							<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
 						</template>
 					</EmptyState>
 				</div>

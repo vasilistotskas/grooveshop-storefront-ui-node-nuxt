@@ -40,12 +40,14 @@ const routePaginationParams = computed<ReviewQuery>(() => {
 	const page = Number(route.query.page) || undefined
 	const ordering = route.query.ordering || '-createdAt'
 	const expand = 'true'
+	const status = 'TRUE'
 
 	return {
 		productId: id,
 		page,
 		ordering,
-		expand
+		expand,
+		status
 	}
 })
 
@@ -128,7 +130,7 @@ watch(
 					<template v-if="!pending.reviews && !reviews?.results?.length">
 						<EmptyState :icon="emptyIcon">
 							<template #actions>
-								<UButton :label="$t('common.empty.button')" :to="'index'" />
+								<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
 							</template>
 						</EmptyState>
 					</template>

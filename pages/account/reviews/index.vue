@@ -39,12 +39,14 @@ const routePaginationParams = computed<ReviewQuery>(() => {
 	const ordering = route.query.ordering || '-createdAt'
 	const userId = String(account.value?.id)
 	const expand = 'true'
+	const status = 'TRUE'
 
 	return {
 		page,
 		ordering,
 		userId,
-		expand
+		expand,
+		status
 	}
 })
 
@@ -92,7 +94,7 @@ definePageMeta({
 			<template v-if="!pending.reviews && !reviews?.results?.length">
 				<EmptyState :icon="emptyIcon">
 					<template #actions>
-						<UButton :label="$t('common.empty.button')" :to="'index'" />
+						<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
 					</template>
 				</EmptyState>
 			</template>

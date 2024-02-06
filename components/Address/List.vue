@@ -7,6 +7,11 @@ defineProps({
 		type: Array as PropType<Address[] | null>,
 		required: true
 	},
+	addressesTotal: {
+		type: Number,
+		required: false,
+		default: 0
+	},
 	displayTotal: {
 		type: Boolean,
 		required: false,
@@ -21,7 +26,7 @@ const { t } = useI18n()
 	<div class="grid w-full items-start gap-4">
 		<div v-if="displayTotal" class="flex items-center justify-center gap-1">
 			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">{{
-				addresses?.length
+				addressesTotal
 			}}</span>
 			<span class="text-[0.75rem] font-semibold text-[#f0c14b]">
 				{{ t('pages.account.addresses.total') }}

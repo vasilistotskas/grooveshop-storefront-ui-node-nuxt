@@ -115,7 +115,7 @@ const userToProductFavourite = computed(() => {
 									:disabled="!isSupported"
 									icon="i-heroicons-share"
 									size="lg"
-									color="primary"
+									color="white"
 									square
 									variant="solid"
 									class="font-extrabold capitalize"
@@ -171,9 +171,12 @@ const userToProductFavourite = computed(() => {
 							<span class="text-primary-700 dark:text-primary-100 text-sm leading-6">
 								{{ $t('components.product.card.total_price') }}
 							</span>
-							<span class="text-primary-700 dark:text-primary-100 text-lg leading-6">
-								{{ product.finalPrice }}
-							</span>
+							<I18nN
+								tag="span"
+								class="text-primary-700 dark:text-primary-100 text-lg leading-6"
+								format="currency"
+								:value="product.finalPrice"
+							/>
 						</p>
 					</div>
 				</div>

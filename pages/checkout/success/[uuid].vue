@@ -191,7 +191,7 @@ definePageMeta({
 					<UButton
 						icon="i-heroicons-home"
 						size="xl"
-						color="primary"
+						color="white"
 						variant="solid"
 						:label="$t('pages.checkout.success.button')"
 						:trailing="false"

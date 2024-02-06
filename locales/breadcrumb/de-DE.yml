@@ -3,117 +3,89 @@ breadcrumb:
   items:
     index:
       icon: heroicons-solid:home
-      ariaLabel: heim
       label: heim
     products:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: produkte
       label: produkte
     terms:
       icon: heroicons-solid:document
-      ariaLabel: bedingungen
       label: bedingungen
     about:
       icon: heroicons-solid:document
-      ariaLabel: um
       label: um
     contact:
       icon: heroicons-solid:document
-      ariaLabel: kontakt
       label: kontakt
     privacy:
       icon: heroicons-solid:document
-      ariaLabel: privatsphäre
       label: privatsphäre
     cart:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: wagen
       label: wagen
     blog:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: blog
       label: blog
     checkout:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: kasse
       label: kasse
       success:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: kassenerfolg
         label: kassenerfolg
     auth:
       login:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: anmeldung
         label: anmeldung
       registration:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: anmeldung
         label: anmeldung
         account_confirm_email:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: e-mail bestätigen
           label: e-mail bestätigen
       password:
         reset:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: passwort zurücksetzen
           label: passwort zurücksetzen
           confirm:
             icon: heroicons-solid:shopping-cart
-            ariaLabel: bestätige das passwort
             label: bestätige das passwort
       security:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: sicherheit
         label: sicherheit
         general:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: allgemein
           label: allgemein
         mfa:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: mfa
           label: mfa
           recovery:
             codes:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: wiederherstellungscodes
               label: wiederherstellungscodes
               generate:
                 icon: heroicons-solid:shopping-cart
-                ariaLabel: generieren sie neue codes
                 label: generieren sie neue codes
           totp:
             activate:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: aktivieren sie
               label: aktivieren sie
             authenticate:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: authentifizieren
               label: authentifizieren
             deactivate:
               icon: heroicons-solid:shopping-cart
-              ariaLabel: deaktivieren
               label: deaktivieren
     account:
       icon: heroicons-solid:shopping-cart
-      ariaLabel: konto
       label: konto
       addresses:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: adressen
         label: adressen
         new:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: neue adresse
           label: neue adresse
         edit:
           icon: heroicons-solid:shopping-cart
-          ariaLabel: adresse bearbeiten
           label: adresse bearbeiten
       favourites:
         icon: heroicons-solid:shopping-cart
-        ariaLabel: favoriten
         label: favoriten

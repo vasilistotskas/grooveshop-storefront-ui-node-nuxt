@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RouteLocationRaw } from 'vue-router'
+import type { NuxtLinkProps } from '#app'
 
 defineProps({
 	text: {
@@ -7,7 +7,7 @@ defineProps({
 		default: ''
 	},
 	to: {
-		type: [String, Object] as PropType<string | RouteLocationRaw>,
+		type: [String, Object] as PropType<NuxtLinkProps['to']>,
 		default: undefined
 	},
 	href: {

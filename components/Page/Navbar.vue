@@ -174,7 +174,11 @@ const { account } = storeToRefs(userStore)
 						>
 					</Anchor>
 				</ActionSheetBody>
-				<UButton :label="$t('common.close')" @click.prevent="toggleOptions(false)" />
+				<UButton
+					:label="$t('common.close')"
+					color="white"
+					@click.prevent="toggleOptions(false)"
+				/>
 			</ActionSheet>
 		</template>
 	</BuilderNavbar>

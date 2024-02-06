@@ -2,20 +2,38 @@
 definePageMeta({
 	layout: 'default'
 })
+
+const mainSliderItems = [
+	'/assets/images/black.png',
+	'/assets/images/black.png',
+	'/assets/images/black.png'
+]
+
+const secondarySliderItems = [
+	'/assets/images/black.png',
+	'/assets/images/white.png',
+	'/assets/images/black.png',
+	'/assets/images/white.png'
+]
 </script>
 
 <template>
 	<div class="relative">
 		<PageBody>
 			<PageSection>
-				<NativeSlideShow>
-					<a v-for="(i, index) in 3" :key="i" href="/" class="native-slider-li">
+				<UCarousel
+					v-slot="{ item }"
+					:items="mainSliderItems"
+					:ui="{ item: 'basis-full' }"
+					class="overflow-hidden rounded-lg"
+					arrows
+				>
+					<a href="/">
 						<NuxtPicture
-							:loading="index === 0 ? 'eager' : 'lazy'"
 							provider="mediaStream"
 							class="h-full w-full object-cover"
 							:style="{ objectFit: 'contain' }"
-							:src="'/assets/images/black.png'"
+							:src="item"
 							:width="1920"
 							:height="640"
 							:fit="'cover'"
@@ -26,84 +44,36 @@ definePageMeta({
 							:alt="'Main Banner'"
 						/>
 					</a>
-				</NativeSlideShow>
+				</UCarousel>
 				<div
 					class="usps container-sm brand my-16 flex flex-wrap items-center justify-center gap-8 text-center lg:justify-between"
 				>
-					<NativeSlideShow slider-class="auto-cols-1 md:auto-cols-2 lg:auto-cols-3">
-						<a href="/" class="native-slider-li">
+					<UCarousel
+						v-slot="{ item }"
+						:items="secondarySliderItems"
+						:ui="{ item: 'basis-full' }"
+						class="overflow-hidden rounded-lg"
+						arrows
+					>
+						<a href="/">
 							<NuxtImg
 								loading="eager"
 								provider="mediaStream"
 								class="h-full w-full object-cover"
 								:style="{ objectFit: 'contain' }"
-								:src="'/assets/images/black.png'"
-								:width="80"
-								:height="40"
+								:src="item"
+								:width="1290"
+								:height="645"
 								:fit="'cover'"
 								:position="'entropy'"
 								:background="'transparent'"
 								:trim-threshold="5"
 								:format="'webp'"
 								:alt="'Usp'"
-								sizes="sm:100vw md:50vw lg:80px"
+								sizes="sm:100vw md:50vw lg:1290px"
 							/>
 						</a>
-						<a href="/" class="native-slider-li">
-							<NuxtImg
-								loading="lazy"
-								provider="mediaStream"
-								class="h-full w-full object-cover"
-								:style="{ objectFit: 'contain' }"
-								:src="'/assets/images/white.png'"
-								:width="80"
-								:height="40"
-								:fit="'cover'"
-								:position="'entropy'"
-								:background="'transparent'"
-								:trim-threshold="5"
-								:format="'webp'"
-								:alt="'Usp'"
-								sizes="sm:100vw md:50vw lg:80px"
-							/>
-						</a>
-						<a href="/" class="native-slider-li">
-							<NuxtImg
-								loading="lazy"
-								provider="mediaStream"
-								class="h-full w-full object-cover"
-								:style="{ objectFit: 'contain' }"
-								:src="'/assets/images/black.png'"
-								:width="80"
-								:height="40"
-								:fit="'cover'"
-								:position="'entropy'"
-								:background="'transparent'"
-								:trim-threshold="5"
-								:format="'webp'"
-								:alt="'Usp'"
-								sizes="sm:100vw md:50vw lg:80px"
-							/>
-						</a>
-						<a href="/" class="native-slider-li">
-							<NuxtImg
-								loading="lazy"
-								provider="mediaStream"
-								class="h-full w-full object-cover"
-								:style="{ objectFit: 'contain' }"
-								:src="'/assets/images/white.png'"
-								:width="80"
-								:height="40"
-								:fit="'cover'"
-								:position="'entropy'"
-								:background="'transparent'"
-								:trim-threshold="5"
-								:format="'webp'"
-								:alt="'Usp'"
-								sizes="sm:100vw md:50vw lg:80px"
-							/>
-						</a>
-					</NativeSlideShow>
+					</UCarousel>
 				</div>
 			</PageSection>
 		</PageBody>

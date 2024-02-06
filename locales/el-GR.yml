@@ -1,5 +1,6 @@
 common:
   home: σπίτι
+  close: κλείσε
   auth:
     login:
       success: συνδεθείτε με επιτυχία

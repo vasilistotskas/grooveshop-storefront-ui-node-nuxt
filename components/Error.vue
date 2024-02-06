@@ -52,6 +52,6 @@ const divTag = ref('div')
 		>
 			( {{ error?.data.detail }} )
 		</h2>
-		<UButton class="mt-4" :label="$t('common.home')" :to="'/'" size="sm" />
+		<UButton class="mt-4" :label="$t('common.home')" :to="'/'" size="sm" color="white" />
 	</Component>
 </template>

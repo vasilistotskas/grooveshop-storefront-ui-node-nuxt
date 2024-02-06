@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import type { Address } from '~/types/user/address'
+import { GlobalEvents } from '~/events/global'
+import type { UserAddressAction } from '~/events/user/address'
 
 const props = defineProps({
 	address: {
@@ -15,6 +17,7 @@ const { deleteAddress } = userAddressStore
 const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
+const bus = useEventBus<string, UserAddressAction>(GlobalEvents.USER_ADDRESS)
 
 const deleteAddressEvent = async (id: string) => {
 	if (props.address && props.address.isMain) {
@@ -25,6 +28,7 @@ const deleteAddressEvent = async (id: string) => {
 	}
 	await deleteAddress(id)
 		.then(() => {
+			bus.emit(GlobalEvents.USER_ADDRESS, 'delete')
 			toast.add({
 				title: t('components.address.card.delete.success')
 			})
@@ -57,6 +61,7 @@ const deleteAddressEvent = async (id: string) => {
 					:to="`/account/addresses/${address.id}/edit`"
 					size="sm"
 					:trailing="true"
+					color="white"
 				/>
 				<UButton
 					class="grid h-[2rem] w-[2rem] place-items-center rounded-full"

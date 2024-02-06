@@ -552,6 +552,10 @@ pages:
             title: σφάλμα επαναποστολής συνδέσμου επιβεβαίωσης email
             description: σφάλμα επαναποστολής συνδέσμου επιβεβαίωσης email.
           button: επανάληψη αποστολής συνδέσμου επιβεβαίωσης
+          form:
+            email:
+              label: ηλεκτρονικη διευθυνση
+            submit: επανάληψη αποστολής συνδέσμου επιβεβαίωσης
     password:
       reset:
         title: επαναφορά του κωδικού πρόσβασής σας
@@ -609,10 +613,10 @@ pages:
     security:
       title: ασφάλεια
       description: ασφάλεια
-      general:
-        title: γενικός
-        description: γενικός
-        keywords: γενικός
+      password:
+        title: άλλαξε κωδικό
+        description: άλλαξε κωδικό
+        keywords: άλλαξε κωδικό
       mfa:
         title: έλεγχος ταυτότητας δύο παραγόντων
         description: έλεγχος ταυτότητας δύο παραγόντων

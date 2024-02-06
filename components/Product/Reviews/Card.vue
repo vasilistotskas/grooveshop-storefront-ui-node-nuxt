@@ -15,13 +15,11 @@ const props = defineProps({
 })
 
 const product = computed(() => {
-	if (typeof props.review?.product === 'number') return undefined
-	return props.review?.product
+	return typeof props.review?.product !== 'number' ? props.review?.product : undefined
 })
 
 const userAccount = computed(() => {
-	if (typeof props.review?.user === 'number') return undefined
-	return props.review?.user
+	return typeof props.review?.user !== 'number' ? props.review?.user : undefined
 })
 
 const { resolveImageSrc } = useImageResolver()
@@ -29,27 +27,28 @@ const { locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 
 const src = computed(() => {
-	if (props.displayImageOf === 'user') {
-		return resolveImageSrc(
-			userAccount.value?.mainImageFilename,
-			`media/uploads/users/${userAccount.value?.mainImageFilename}`
-		)
-	} else {
-		return resolveImageSrc(
-			product.value?.mainImageFilename,
-			`media/uploads/products/${product.value?.mainImageFilename}`
-		)
-	}
+	const path =
+		props.displayImageOf === 'user' ? `media/uploads/users/` : `media/uploads/products/`
+	return resolveImageSrc(
+		props.displayImageOf === 'user'
+			? userAccount.value?.mainImageFilename
+			: product.value?.mainImageFilename,
+		path +
+			(props.displayImageOf === 'user'
+				? userAccount.value?.mainImageFilename
+				: product.value?.mainImageFilename)
+	)
 })
 
 const alt = computed(() => {
-	if (props.displayImageOf === 'user' && userAccount && userAccount?.value) {
-		return userAccount.value?.firstName + ' ' + userAccount.value?.lastName
-	} else if (props.displayImageOf === 'product' && product && product?.value) {
-		return extractTranslated(product?.value, 'name', locale.value)
-	}
-	return ''
+	return props.displayImageOf === 'user'
+		? userAccount.value?.firstName + ' ' + userAccount.value?.lastName
+		: extractTranslated(product?.value, 'name', locale.value)
 })
+
+const productName = computed(() =>
+	extractTranslated(product?.value, 'name', locale.value)
+)
 </script>
 
 <template>
@@ -57,33 +56,25 @@ const alt = computed(() => {
 		<div
 			class="grid items-center justify-center justify-items-center gap-2 md:flex md:justify-between"
 		>
-			<div class="grid items-center gap-4 md:grid-cols-2">
+			<div class="grid items-center gap-4">
 				<div class="h-auto w-auto">
 					<UserAvatar
 						v-if="userAccount && displayImageOf === 'user'"
 						:user-account="userAccount"
 					/>
 					<div v-if="displayImageOf === 'product' && product" class="grid gap-2">
-						<Anchor
-							:to="`/product${product.absoluteUrl}`"
-							:text="extractTranslated(product, 'name', locale)"
-						>
+						<Anchor :to="`/product${product.absoluteUrl}`" :text="productName">
 							<NuxtImg
 								loading="lazy"
 								provider="mediaStream"
-								class="product-img w-30 h-20 object-contain"
+								class="product-img w-30 h-20 object-cover"
 								sizes="sm:100vw md:50vw lg:auto"
 								:src="src"
 								:alt="alt"
 							/>
 						</Anchor>
-						<Anchor
-							:to="`/product${product.absoluteUrl}`"
-							:text="extractTranslated(product, 'name', locale)"
-						>
-							<span class="text-lg font-medium">
-								{{ extractTranslated(product, 'name', locale) }}
-							</span>
+						<Anchor :to="`/product${product.absoluteUrl}`" :text="productName">
+							<span class="text-lg font-medium">{{ productName }}</span>
 						</Anchor>
 					</div>
 				</div>

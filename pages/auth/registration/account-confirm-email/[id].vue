@@ -20,9 +20,7 @@ async function onSubmit(values: RegistrationResendEmailBody) {
 
 	if (data.value) {
 		toast.add({
-			title:
-				data.value?.detail ??
-				t('pages.auth.registration.account-confirm-email.resend.success.title')
+			title: t('pages.auth.registration.account-confirm-email.resend.success.title')
 		})
 	}
 
@@ -92,6 +90,7 @@ definePageMeta({
 			<div class="flex justify-center">
 				<UButton
 					v-if="data"
+					color="white"
 					size="sm"
 					:label="$t('pages.auth.registration.account-confirm-email.success.button')"
 					:to="`/auth/login`"

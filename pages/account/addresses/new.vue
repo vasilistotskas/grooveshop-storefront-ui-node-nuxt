@@ -28,7 +28,7 @@ const router = useRouter()
 
 await fetchCountries()
 await fetchRegions({
-	alpha2: account.value?.country ?? ''
+	country: account.value?.country ?? ''
 })
 
 const ZodAddress = z.object({
@@ -120,7 +120,7 @@ const [region, regionProps] = defineField('region', {
 const onCountryChange = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	await fetchRegions({
-		alpha2: event.target.value
+		country: event.target.value
 	})
 	region.value = defaultSelectOptionChoose
 }
@@ -176,7 +176,8 @@ definePageMeta({
 				<UButton
 					icon="i-heroicons-arrow-left"
 					size="sm"
-					:to="'account/addresses'"
+					:to="'/account/addresses'"
+					color="white"
 					:trailing="true"
 				/>
 				<PageTitle class="text-center">{{

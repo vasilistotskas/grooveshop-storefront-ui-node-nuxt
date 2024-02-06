@@ -36,6 +36,7 @@ export const ZodDynamicFormSchemaField = z.array(
 
 export const ZodDynamicFormSchema = z.object({
 	fields: ZodDynamicFormSchemaField.optional(),
+	extraValidation: z.any().optional(),
 	steps: z
 		.array(
 			z.object({

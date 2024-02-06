@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { LocationQueryValue } from 'vue-router'
 import { ZodAccount } from '~/types/user/account'
 import { ZodBlogCategory } from '~/types/blog/category'
 import { ZodBlogTag } from '~/types/blog/tag'
@@ -57,10 +58,10 @@ export const ZodBlogPostParams = z.object({
 export type BlogPost = z.infer<typeof ZodBlogPost>
 export type BlogPostQuery = PaginationQuery &
 	OrderingQuery & {
-		id?: string | undefined
-		author?: string | undefined
-		slug?: string | undefined
-		tags?: string | undefined
+		id?: string | LocationQueryValue[] | undefined
+		author?: string | LocationQueryValue[] | undefined
+		slug?: string | LocationQueryValue[] | undefined
+		tags?: string | LocationQueryValue[] | undefined
 		expand?: string | undefined
 	}
 export type BlogPostParams = z.infer<typeof ZodBlogPostParams>

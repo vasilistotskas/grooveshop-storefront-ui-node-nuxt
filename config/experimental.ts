@@ -10,6 +10,7 @@ export const experimental = {
 	asyncContext: true,
 	payloadExtraction: true,
 	typescriptBundlerResolution: true,
+	sharedPrerenderData: true,
 	watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
 		| 'chokidar'
 		| 'chokidar-granular'

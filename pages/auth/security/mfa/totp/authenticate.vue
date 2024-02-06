@@ -11,6 +11,7 @@ definePageMeta({
 			:text="$t('pages.auth.security.mfa.totp.authenticate.title')"
 			class="text-center capitalize"
 		/>
+		<AuthSecurityNavbar />
 		<PageBody>
 			<AuthMfaTotpAuthenticateForm />
 		</PageBody>

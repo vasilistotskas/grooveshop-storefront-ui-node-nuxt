@@ -44,7 +44,7 @@ export default function () {
 	const msRefreshBeforeExpires = 3000
 
 	const createCookieObject = (
-		event: H3Event,
+		event: H3Event | undefined,
 		cookieName: string,
 		domain: string | undefined = undefined,
 		httpOnly: boolean = false,
@@ -55,7 +55,7 @@ export default function () {
 		return {
 			get: () => {
 				try {
-					if (process.server) {
+					if (process.server && event) {
 						return event.context[cookieName] || getCookie(event, cookieName)
 					} else {
 						return useCookie(cookieName).value
@@ -68,7 +68,7 @@ export default function () {
 			},
 			set: (value: string) => {
 				try {
-					if (process.server) {
+					if (process.server && event) {
 						event.context[cookieName] = value
 						setCookie(event, cookieName, value, {
 							domain,
@@ -93,7 +93,7 @@ export default function () {
 			},
 			clear: () => {
 				try {
-					if (process.server) {
+					if (process.server && event) {
 						deleteCookie(event, cookieName)
 					} else {
 						useCookie(cookieName).value = null
@@ -217,7 +217,9 @@ export default function () {
 				const cookies = splitCookiesString(setCookies)
 
 				for (const cookie of cookies) {
-					appendResponseHeader(event, 'set-cookie', cookie)
+					if (event) {
+						appendResponseHeader(event, 'set-cookie', cookie)
+					}
 				}
 
 				if (res._data) {

@@ -29,6 +29,7 @@ async function onSubmit() {
 			<UButton
 				:label="$t('pages.auth.security.mfa.recovery.codes.generate.form.button')"
 				size="xl"
+				color="white"
 				@click="onSubmit"
 			/>
 		</section>

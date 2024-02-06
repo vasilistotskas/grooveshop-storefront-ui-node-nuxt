@@ -28,7 +28,7 @@ export const useRegionStore = defineStore('region', () => {
 	const pending = ref<PendingRecord>(pendingFactory())
 	const error = ref<ErrorRecord>(errorsFactory())
 
-	async function fetchRegions({ alpha2 }: RegionsQuery) {
+	async function fetchRegions({ country }: RegionsQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -40,7 +40,7 @@ export const useRegionStore = defineStore('region', () => {
 		} = await useFetch<Pagination<Region>>(`/api/regions`, {
 			method: 'get',
 			params: {
-				alpha2
+				country
 			}
 		})
 		regions.value = data.value

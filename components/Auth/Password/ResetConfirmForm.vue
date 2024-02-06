@@ -55,7 +55,7 @@ const onSubmit = handleSubmit(async (values) => {
 		toast.add({
 			title: data.value?.detail ?? t('pages.auth.password.reset.confirm.success.title')
 		})
-		await router.push('auth/login')
+		await router.push('/auth/login')
 	}
 
 	if (error.value) {

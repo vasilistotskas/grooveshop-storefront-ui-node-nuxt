@@ -8,6 +8,7 @@
 		<div class="grid items-center justify-center">
 			<UButton
 				class="w-full"
+				color="white"
 				:label="$t('components.address.add_new.button')"
 				:to="'/account/addresses/new'"
 				size="lg"
