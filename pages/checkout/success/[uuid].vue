@@ -133,7 +133,8 @@ definePageMeta({
 										<NuxtImg
 											loading="lazy"
 											provider="mediaStream"
-											class="product-img bg-transparent"
+											class="product-img bg-white"
+											placeholder="/assets/images/placeholder.png"
 											:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 											:width="100"
 											:height="100"
@@ -155,7 +156,9 @@ definePageMeta({
 										{{ extractTranslated(item.product, 'name', locale) }}
 									</td>
 									<td class="border px-4 py-2">{{ item.quantity }}</td>
-									<td class="border px-4 py-2">{{ item.totalPrice }}</td>
+									<td v-if="item.totalPrice" class="border px-4 py-2">
+										<I18nN tag="span" format="currency" :value="item.totalPrice" />
+									</td>
 								</tr>
 							</tbody>
 						</table>
@@ -166,28 +169,28 @@ definePageMeta({
 							<h3 class="text-xl font-semibold">
 								{{ $t('pages.checkout.success.order.details') }}
 							</h3>
-							<p class="text-primary-700 dark:text-primary-100">
-								{{ $t('pages.checkout.success.shippingPrice', { price: shippingPrice }) }}
+							<p v-if="shippingPrice" class="text-primary-700 dark:text-primary-100">
+								{{ $t('pages.checkout.success.shippingPrice') }}:
+								<I18nN tag="span" format="currency" :value="shippingPrice" />
 							</p>
-							<p class="text-primary-700 dark:text-primary-100">
-								{{
-									$t('pages.checkout.success.totalPriceItems', { price: totalPriceItems })
-								}}
+							<p v-if="totalPriceItems" class="text-primary-700 dark:text-primary-100">
+								{{ $t('pages.checkout.success.totalPriceItems') }}:
+								<I18nN tag="span" format="currency" :value="totalPriceItems" />
 							</p>
-							<p class="text-primary-700 dark:text-primary-100">
-								{{
-									$t('pages.checkout.success.totalPriceExtra', { price: totalPriceExtra })
-								}}
+							<p v-if="totalPriceExtra" class="text-primary-700 dark:text-primary-100">
+								{{ $t('pages.checkout.success.totalPriceExtra') }}:
+								<I18nN tag="span" format="currency" :value="totalPriceExtra" />
 							</p>
-							<p class="text-primary-700 dark:text-primary-100">
-								{{ $t('pages.checkout.success.payWayPrice', { price: payWayPrice }) }}
+							<p v-if="payWayPrice" class="text-primary-700 dark:text-primary-100">
+								{{ $t('pages.checkout.success.payWayPrice') }}:
+								<I18nN tag="span" format="currency" :value="payWayPrice" />
 							</p>
 						</div>
-						<p class="text-primary-700 dark:text-primary-100 font-bold">
-							{{ $t('pages.checkout.success.total', { price: paidAmount }) }}
+						<p v-if="paidAmount" class="text-primary-700 dark:text-primary-100 font-bold">
+							{{ $t('pages.checkout.success.total') }}:
+							<I18nN tag="span" format="currency" :value="paidAmount" />
 						</p>
 					</div>
-
 					<UButton
 						icon="i-heroicons-home"
 						size="xl"

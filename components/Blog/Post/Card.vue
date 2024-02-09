@@ -59,7 +59,8 @@ const startShare = () => share().catch((err) => err)
 				<NuxtImg
 					:loading="imgLoading"
 					provider="mediaStream"
-					class="h-auto w-full bg-transparent object-cover"
+					class="h-auto w-full bg-white object-cover"
+					placeholder="/assets/images/placeholder.png"
 					:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 					:src="src"
 					:width="imgWidth"
@@ -118,7 +119,8 @@ const startShare = () => share().catch((err) => err)
 						<NuxtImg
 							loading="lazy"
 							provider="mediaStream"
-							class="rounded-full"
+							class="rounded-full bg-white"
+							placeholder="/assets/images/placeholder.png"
 							:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 							:src="src"
 							:width="90"

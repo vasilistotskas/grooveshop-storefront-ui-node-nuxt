@@ -253,3 +253,9 @@ components:
             password2:
               validation:
                 mismatch: passwörter stimmen nicht überein
+            success:
+              title: passwort geändert
+              description: ihr passwort wurde erfolgreich geändert
+            error:
+              title: fehler bei der passwortänderung
+              description: ihr passwort wurde nicht geändert

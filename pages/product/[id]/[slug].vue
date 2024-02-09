@@ -154,7 +154,7 @@ definePageMeta({
 		<PageBody>
 			<div v-if="product" class="product mb-12 md:mb-24">
 				<div class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
-					<UBreadcrumb :links="links" class="mb-5 pl-4" />
+					<UBreadcrumb :links="links" class="mb-5 md:pl-4" />
 					<div class="grid gap-2 md:grid-cols-2">
 						<div class="overflow-hidden md:px-4">
 							<ProductImages :product="product" />

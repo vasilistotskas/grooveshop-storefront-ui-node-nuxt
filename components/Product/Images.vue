@@ -10,7 +10,6 @@ const props = defineProps({
 })
 const { product } = toRefs(props)
 
-const { isMobile, isTablet, isDesktop } = useDevice()
 const productImageStore = useProductImageStore()
 const { images } = storeToRefs(productImageStore)
 const { fetchImages } = productImageStore
@@ -24,14 +23,6 @@ const selectedImageId = useState<number>(`${product.value.uuid}-imageID`, () => 
 		return 0
 	}
 	return mainImage.value?.id || images.value?.results[0]?.id || 0
-})
-
-//
-const productImages = computed(() => {
-	if (!images.value?.results) {
-		return []
-	}
-	return images.value?.results?.filter((image) => image.id !== selectedImageId.value)
 })
 
 watch(

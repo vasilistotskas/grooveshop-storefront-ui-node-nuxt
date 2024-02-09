@@ -11,6 +11,7 @@ import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
+const { cleanCartState } = cartStore
 
 const countryStore = useCountryStore()
 const { countries } = storeToRefs(countryStore)
@@ -137,12 +138,15 @@ const onCountryChange = async (event: Event) => {
 }
 
 const onSubmit = handleSubmit(async (values) => {
+	// eslint-disable-next-line no-console
+	console.log('----- values -----', values)
 	const { data, error } = await createOrder(values)
 	if (data.value?.id) {
 		toast.add({
 			title: t('pages.checkout.form.submit.success'),
 			color: 'green'
 		})
+		cleanCartState()
 		await router.push(`/checkout/success/${data.value.uuid}`)
 	} else if (error.value) {
 		toast.add({
@@ -171,7 +175,6 @@ definePageMeta({
 
 <template>
 	<PageWrapper class="container flex flex-col gap-4">
-		<PageTitle :text="$t('pages.checkout.title')" class="capitalize" />
 		<PageBody>
 			<form
 				id="checkoutForm"

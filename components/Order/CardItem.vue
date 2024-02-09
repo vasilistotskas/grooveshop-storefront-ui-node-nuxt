@@ -31,7 +31,8 @@ const alt = computed(() => {
 		<NuxtImg
 			loading="lazy"
 			provider="mediaStream"
-			class="product-img"
+			class="product-img bg-white"
+			placeholder="/assets/images/placeholder.png"
 			:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 			:width="80"
 			:height="80"

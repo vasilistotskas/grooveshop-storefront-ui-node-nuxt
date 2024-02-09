@@ -253,3 +253,9 @@ components:
             password2:
               validation:
                 mismatch: οι κωδικοί πρόσβασης δεν ταιριάζουν
+            success:
+              title: ο κωδικός άλλαξε
+              description: ο κωδικός πρόσβασής σας άλλαξε με επιτυχία
+            error:
+              title: σφάλμα αλλαγής κωδικού πρόσβασης
+              description: ο κωδικός πρόσβασής σας δεν έχει αλλάξει

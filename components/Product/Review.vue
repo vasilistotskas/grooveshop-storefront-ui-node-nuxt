@@ -369,104 +369,105 @@ watch(
 </script>
 
 <template>
-	<GenericModal
-		ref="reviewModal"
-		unique-id="reviewModal"
-		exit-modal-icon-class="fa fa-times"
-		modal-open-trigger-handler-id="modal-open-reviewModal"
-		modal-close-trigger-handler-id="modal-close-reviewModal"
-		modal-opened-trigger-handler-id="modal-opened-reviewModal"
-		modal-closed-trigger-handler-id="modal-closed-reviewModal"
-		max-width="700px"
-		max-height="100%"
-		gap="1rem"
-		padding="2rem"
-		width="auto"
-		height="auto"
-		:is-form="true"
-		form-id="reviewForm"
-		form-name="reviewForm"
-		@submit-form="onSubmit"
-	>
-		<template #header>
-			<div class="review_header">
-				<!-- eslint-disable vue/no-v-html -->
-				<span
-					class="review_header-title"
-					v-html="
-						$t('components.product.review.write_review_for_product', {
-							product: extractTranslated(product, 'name', locale)
-						})
-					"
-				></span>
-				<IconFaSolid:pen />
-			</div>
-		</template>
-
-		<template #body>
-			<div class="review_body">
-				<div class="review_body-rating">
-					<div class="review_body-rating-title">
-						<p>{{ $t('components.product.review.rating.title') }}</p>
-					</div>
-					<div class="review_body-rating-content">
-						<div
-							ref="ratingBoard"
-							class="rating-board rating-background"
-							@click="lockSelection($event)"
-							@mouseenter.passive="unlockSelection()"
-							@mouseleave.passive="reLockSelection()"
-							@mousemove.passive="updateNewSelectionRatio($event)"
-							@touchend.passive="reLockSelection()"
-							@touchmove.passive="updateNewSelectionRatio($event)"
-							@touchstart.passive="unlockSelection()"
-						>
-							<!-- eslint-disable vue/no-v-html -->
-							<svg
-								v-for="(star, i) of backgroundStars"
-								:key="i"
-								aria-hidden="true"
-								class="star star-background"
-								data-icon="star"
-								data-prefix="fas"
-								focusable="false"
-								role="img"
-								viewBox="0 0 576 512"
-								xmlns="http://www.w3.org/2000/svg"
-								v-html="star"
-							/>
-							<!-- eslint-enable -->
-						</div>
-						<div class="rating-board rating-foreground">
-							<!-- eslint-disable vue/no-v-html -->
-							<svg
-								v-for="(star, i) of foregroundStars"
-								:key="i"
-								aria-hidden="true"
-								class="star star-foreground"
-								focusable="false"
-								role="img"
-								viewBox="0 0 576 512"
-								xmlns="http://www.w3.org/2000/svg"
-								v-html="star"
-							/>
-							<!-- eslint-enable -->
-						</div>
-						<span class="px-2">{{ reviewScoreText }}</span>
-					</div>
-					<span class="review_body-rating-error h-6">{{ errors.rate }}</span>
+	<ClientOnly>
+		<GenericModal
+			v-if="user && isAuthenticated"
+			ref="reviewModal"
+			unique-id="reviewModal"
+			exit-modal-icon-class="fa fa-times"
+			modal-open-trigger-handler-id="modal-open-reviewModal"
+			modal-close-trigger-handler-id="modal-close-reviewModal"
+			modal-opened-trigger-handler-id="modal-opened-reviewModal"
+			modal-closed-trigger-handler-id="modal-closed-reviewModal"
+			max-width="700px"
+			max-height="100%"
+			gap="1rem"
+			padding="2rem"
+			width="auto"
+			height="auto"
+			:is-form="true"
+			form-id="reviewForm"
+			form-name="reviewForm"
+			@submit-form="onSubmit"
+		>
+			<template #header>
+				<div class="review_header">
+					<!-- eslint-disable vue/no-v-html -->
+					<span
+						class="review_header-title"
+						v-html="
+							$t('components.product.review.write_review_for_product', {
+								product: extractTranslated(product, 'name', locale)
+							})
+						"
+					></span>
+					<IconFaSolid:pen />
 				</div>
+			</template>
 
-				<div class="review_body-comment">
-					<div class="review_body-comment-title">
-						<p class="review_body-comment-title-text">
-							<label for="comment">{{
-								$t('components.product.review.comment.label')
-							}}</label>
-						</p>
+			<template #body>
+				<div class="review_body">
+					<div class="review_body-rating">
+						<div class="review_body-rating-title">
+							<p>{{ $t('components.product.review.rating.title') }}</p>
+						</div>
+						<div class="review_body-rating-content">
+							<div
+								ref="ratingBoard"
+								class="rating-board rating-background"
+								@click="lockSelection($event)"
+								@mouseenter.passive="unlockSelection()"
+								@mouseleave.passive="reLockSelection()"
+								@mousemove.passive="updateNewSelectionRatio($event)"
+								@touchend.passive="reLockSelection()"
+								@touchmove.passive="updateNewSelectionRatio($event)"
+								@touchstart.passive="unlockSelection()"
+							>
+								<!-- eslint-disable vue/no-v-html -->
+								<svg
+									v-for="(star, i) of backgroundStars"
+									:key="i"
+									aria-hidden="true"
+									class="star star-background"
+									data-icon="star"
+									data-prefix="fas"
+									focusable="false"
+									role="img"
+									viewBox="0 0 576 512"
+									xmlns="http://www.w3.org/2000/svg"
+									v-html="star"
+								/>
+								<!-- eslint-enable -->
+							</div>
+							<div class="rating-board rating-foreground">
+								<!-- eslint-disable vue/no-v-html -->
+								<svg
+									v-for="(star, i) of foregroundStars"
+									:key="i"
+									aria-hidden="true"
+									class="star star-foreground"
+									focusable="false"
+									role="img"
+									viewBox="0 0 576 512"
+									xmlns="http://www.w3.org/2000/svg"
+									v-html="star"
+								/>
+								<!-- eslint-enable -->
+							</div>
+							<span class="px-2">{{ reviewScoreText }}</span>
+						</div>
+						<span class="review_body-rating-error h-6">{{ errors.rate }}</span>
 					</div>
-					<div class="review_body-comment-content">
-						<ClientOnly>
+
+					<div class="review_body-comment">
+						<div class="review_body-comment-title">
+							<p class="review_body-comment-title-text">
+								<label for="comment">{{
+									$t('components.product.review.comment.label')
+								}}</label>
+							</p>
+						</div>
+						<div class="review_body-comment-content">
 							<VeeField
 								id="comment"
 								v-model="comment"
@@ -479,57 +480,57 @@ watch(
 								rows="6"
 								type="text"
 							/>
-						</ClientOnly>
+						</div>
+						<span class="review_body-rating-error h-6">{{ errors.comment }}</span>
 					</div>
-					<span class="review_body-rating-error h-6">{{ errors.comment }}</span>
-				</div>
 
-				<input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
-			</div>
-		</template>
-		<template #footer>
-			<div class="review_footer">
-				<div class="review_footer-content">
-					<UButton
-						v-if="!tooManyAttempts"
-						block
-						:label="reviewButtonText"
-						size="lg"
-						class="review_footer-button"
-						color="white"
-						@click.prevent="onSubmit"
-					/>
-					<UButton
-						v-else
-						block
-						size="lg"
-						:label="$t('components.product.review.too_many_attempts')"
-						color="white"
-						disabled
-					/>
+					<input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
 				</div>
-				<div v-if="existingReview" class="review_footer-content">
-					<UButton
-						block
-						:label="$t('components.product.review.delete_review')"
-						class="review_footer-button gap-2"
-						size="lg"
-						icon="i-heroicons-trash"
-						color="rose"
-						:trailing="true"
-						@click.prevent="deleteReviewEvent()"
-					/>
+			</template>
+			<template #footer>
+				<div class="review_footer">
+					<div class="review_footer-content">
+						<UButton
+							v-if="!tooManyAttempts"
+							block
+							:label="reviewButtonText"
+							size="lg"
+							class="review_footer-button"
+							color="white"
+							@click.prevent="onSubmit"
+						/>
+						<UButton
+							v-else
+							block
+							size="lg"
+							:label="$t('components.product.review.too_many_attempts')"
+							color="white"
+							disabled
+						/>
+					</div>
+					<div v-if="existingReview" class="review_footer-content">
+						<UButton
+							block
+							:label="$t('components.product.review.delete_review')"
+							class="review_footer-button gap-2"
+							size="lg"
+							icon="i-heroicons-trash"
+							color="rose"
+							:trailing="true"
+							@click.prevent="deleteReviewEvent()"
+						/>
+					</div>
 				</div>
-			</div>
-		</template>
-	</GenericModal>
-	<UButton
-		class="capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
-		:label="reviewButtonText"
-		size="lg"
-		color="white"
-		@click="openModal"
-	/>
+			</template>
+		</GenericModal>
+		<UButton
+			class="capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
+			:label="reviewButtonText"
+			size="lg"
+			color="white"
+			@click="openModal"
+		/>
+	</ClientOnly>
 </template>
 
 <style lang="scss" scoped>

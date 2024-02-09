@@ -36,8 +36,16 @@ const { extractTranslated } = useTranslationExtractor()
 							</span>
 						</div>
 						<div class="flex items-center">
-							<span class="text-primary-700 dark:text-primary-100 text-sm">
-								{{ item.totalPrice }}€
+							<span
+								v-if="item.price"
+								class="text-primary-700 dark:text-primary-100 text-sm"
+							>
+								<I18nN
+									tag="span"
+									class="text-primary-700 dark:text-primary-100 text-sm"
+									format="currency"
+									:value="item.price * item.quantity"
+								/>
 							</span>
 						</div>
 					</div>

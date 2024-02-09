@@ -44,9 +44,12 @@ defineSlots<{
 							</span>
 						</div>
 						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100 font-bold"
-								>{{ shippingPrice }}€
-							</span>
+							<I18nN
+								tag="span"
+								class="text-primary-700 dark:text-primary-100 font-bold"
+								format="currency"
+								:value="shippingPrice"
+							/>
 						</div>
 					</div>
 					<div class="flex gap-1">
@@ -56,9 +59,12 @@ defineSlots<{
 							</span>
 						</div>
 						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100 font-bold"
-								>{{ cart.totalDiscountValue }}€</span
-							>
+							<I18nN
+								tag="span"
+								class="text-primary-700 dark:text-primary-100 font-bold"
+								format="currency"
+								:value="cart.totalDiscountValue"
+							/>
 						</div>
 					</div>
 					<div class="flex gap-1">
@@ -68,9 +74,12 @@ defineSlots<{
 							</span>
 						</div>
 						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100 font-bold"
-								>{{ cart.totalVatValue }}€</span
-							>
+							<I18nN
+								tag="span"
+								class="text-primary-700 dark:text-primary-100 font-bold"
+								format="currency"
+								:value="cart.totalVatValue"
+							/>
 						</div>
 					</div>
 					<div class="flex gap-1">
@@ -80,9 +89,12 @@ defineSlots<{
 							</span>
 						</div>
 						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100 font-bold"
-								>{{ cart.totalPrice }}€</span
-							>
+							<I18nN
+								tag="span"
+								class="text-primary-700 dark:text-primary-100 font-bold"
+								format="currency"
+								:value="cart.totalPrice"
+							/>
 						</div>
 					</div>
 				</div>

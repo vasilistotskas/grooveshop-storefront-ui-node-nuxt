@@ -14,5 +14,6 @@ export const modules = [
 	'@vite-pwa/nuxt',
 	'@vee-validate/nuxt',
 	'unplugin-icons/nuxt',
-	'nuxt-delay-hydration'
+	'nuxt-delay-hydration',
+	'nuxt-build-cache'
 ]

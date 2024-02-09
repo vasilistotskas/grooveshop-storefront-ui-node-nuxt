@@ -173,11 +173,11 @@ pages:
       product: Product
       quantity: Quantity
       price: Price
-      shippingPrice: Shipping Cost %{price}
-      totalPriceItems: Total Price Items %{price}
-      totalPriceExtra: Total Price Extra %{price}
-      payWayPrice: Pay Way Price %{price}
-      total: Total %{price}
+      shippingPrice: Shipping Cost
+      totalPriceItems: Total Price Items
+      totalPriceExtra: Total Price Extra
+      payWayPrice: Pay Way Price
+      total: Total
     validation:
       email:
         required: Email is required

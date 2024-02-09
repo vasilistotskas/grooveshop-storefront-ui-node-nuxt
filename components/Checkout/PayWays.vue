@@ -66,6 +66,7 @@ const updatePayWay = (value: PayWay) => {
 		<div>
 			<template v-if="!pending.payWays && getActivePayWays?.length">
 				<RadioGroup
+					id="pay-way"
 					:model-value="selectedPayWay"
 					by="id"
 					name="pay-way"
@@ -77,6 +78,7 @@ const updatePayWay = (value: PayWay) => {
 					<div class="space-y-2">
 						<RadioGroupOption
 							v-for="option in getActivePayWays"
+							:id="`pay-way-${option.id}`"
 							:key="option.id"
 							v-slot="{ active, checked }"
 							:value="option"
@@ -98,6 +100,7 @@ const updatePayWay = (value: PayWay) => {
 									<div class="grid items-center">
 										<div class="text-sm">
 											<RadioGroupLabel
+												:id="`pay-way-${option.id}-label`"
 												:class="
 													checked
 														? 'text-white'
@@ -109,6 +112,7 @@ const updatePayWay = (value: PayWay) => {
 												{{ extractTranslated(option, 'name', locale) }}
 											</RadioGroupLabel>
 											<RadioGroupDescription
+												:id="`pay-way-${option.id}-description`"
 												:class="
 													checked
 														? 'text-sky-100'

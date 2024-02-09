@@ -81,7 +81,8 @@ const userToProductFavourite = computed(() => {
 							<NuxtImg
 								:loading="imgLoading"
 								provider="mediaStream"
-								class="h-auto w-full bg-transparent object-cover"
+								class="h-auto w-full bg-transparent bg-white object-cover"
+								placeholder="/assets/images/placeholder.png"
 								:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 								:src="src"
 								:width="imgWidth"

@@ -61,7 +61,7 @@ export const useBlogPostStore = defineStore('blogPost', () => {
 		}
 	}
 
-	async function fetchBlogPost(postId: string | number) {
+	async function fetchBlogPost(postId: string | number, expand?: string) {
 		if (process.prerender) {
 			return
 		}
@@ -71,7 +71,10 @@ export const useBlogPostStore = defineStore('blogPost', () => {
 			pending: postPending,
 			refresh
 		} = await useFetch<BlogPost>(`/api/blog/posts/${postId}`, {
-			method: 'get'
+			method: 'get',
+			params: {
+				expand
+			}
 		})
 		post.value = data.value
 		error.value.post = postError.value
