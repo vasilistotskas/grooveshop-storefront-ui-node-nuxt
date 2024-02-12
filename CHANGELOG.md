@@ -1,3 +1,10 @@
+# [1.61.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.60.0...v1.61.0) (2024-2-12)
+
+
+### Features
+
+* Ui Updates, remove ` JSON.stringify` from server api body and Bump Versions ([e131bae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e131baec165f18d53186405ebf4bd5d98e25fdce))
+
 # [1.60.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.59.0...v1.60.0) (2024-2-9)
 
 
