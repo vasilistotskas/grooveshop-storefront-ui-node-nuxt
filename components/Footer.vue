@@ -8,7 +8,7 @@ const packageVersion = pkg.version
 <template>
 	<footer class="mt-6 w-full border-t-2 border-gray-500 bg-white pt-2 dark:bg-zinc-900">
 		<div class="container mx-auto w-full">
-			<div class="grid grid-cols-2 gap-8 px-6 py-8 md:grid-cols-3">
+			<div class="grid grid-cols-1 gap-8 px-6 py-8 md:grid-cols-3">
 				<div>
 					<span
 						class="text-primary-900 mb-6 text-sm font-semibold uppercase dark:text-white"
@@ -123,8 +123,8 @@ const packageVersion = pkg.version
 							>{{ config.public.siteName }}™</Anchor
 						>. {{ $t('common.all_rights_reserved') }}.
 					</span>
-					<div class="mt-4 flex items-center gap-12 md:mt-0">
-						<div class="mt-4 flex space-x-6 sm:justify-center md:mt-0">
+					<div class="mt-4 flex items-center justify-between gap-12 md:mt-0">
+						<div class="flex space-x-6 sm:justify-center">
 							<Anchor
 								:href="config.public.socials.facebook"
 								:title="$t('common.facebook')"

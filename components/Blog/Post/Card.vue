@@ -91,9 +91,9 @@ const startShare = () => share().catch((err) => err)
 				<ClientOnlyFallback height="40px" width="40px" />
 			</template>
 		</ClientOnly>
-		<div class="gap-4 md:grid md:gap-x-12 lg:gap-x-6">
+		<div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
 			<div class="grid">
-				<h3 class="grid h-20">
+				<h3 class="grid h-28">
 					<Anchor
 						:to="`/blog/post${post.absoluteUrl}`"
 						:text="alt"

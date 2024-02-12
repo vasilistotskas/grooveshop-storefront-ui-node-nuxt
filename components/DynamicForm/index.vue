@@ -1,102 +1,100 @@
 <template>
-	<UContainer>
-		<UForm
-			:id="finalID"
-			class="w-full space-y-4"
-			:state="fields"
-			autocomplete="on"
-			@submit="onSubmit"
+	<UForm
+		:id="finalID"
+		class="w-full space-y-4"
+		:state="fields"
+		autocomplete="on"
+		@submit="onSubmit"
+	>
+		<div v-if="isMultiStep" class="grid items-center justify-center">
+			<span class="text-xl font-semibold">{{ schema.steps?.[currentStep].title }}</span>
+		</div>
+
+		<UFormGroup
+			v-for="{
+				as,
+				name,
+				label,
+				autocomplete = 'off',
+				readonly = false,
+				required = false,
+				placeholder = '',
+				type = 'text',
+				children = []
+			} in filteredFields"
+			:key="name"
+			v-model="fields[name][0].value"
+			:label="label"
+			:name="name"
+			v-bind="fields[name][1].value"
 		>
-			<div v-if="isMultiStep" class="grid items-center justify-center">
-				<span class="text-xl font-semibold">{{ schema.steps?.[currentStep].title }}</span>
-			</div>
-
-			<UFormGroup
-				v-for="{
-					as,
-					name,
-					label,
-					autocomplete = 'off',
-					readonly = false,
-					required = false,
-					placeholder = '',
-					type = 'text',
-					children = []
-				} in filteredFields"
-				:key="name"
-				v-model="fields[name][0].value"
-				:label="label"
-				:name="name"
+			<label v-if="as === 'input'" :for="name" class="sr-only">{{ label }}</label>
+			<UInput
 				v-bind="fields[name][1].value"
+				:id="name"
+				v-model="fields[name][0].value"
+				:as="as"
+				:name="name"
+				:autocomplete="autocomplete"
+				:aria-readonly="readonly"
+				:readonly="readonly"
+				:required="required"
+				:placeholder="
+					type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
+				"
+				:type="type"
+				:disabled="disabledFields[name]"
+				class="grid gap-1"
 			>
-				<label v-if="as === 'input'" :for="name" class="sr-only">{{ label }}</label>
-				<UInput
-					v-bind="fields[name][1].value"
-					:id="name"
-					v-model="fields[name][0].value"
-					:as="as"
-					:name="name"
-					:autocomplete="autocomplete"
-					:aria-readonly="readonly"
-					:readonly="readonly"
-					:required="required"
-					:placeholder="
-						type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
-					"
-					:type="type"
-					:disabled="disabledFields[name]"
-					class="grid gap-1"
-				>
-					<div v-if="children">
-						<LazyDynamicFormChildren :children="children" />
-					</div>
-				</UInput>
-			</UFormGroup>
+				<div v-if="children">
+					<LazyDynamicFormChildren :children="children" />
+				</div>
+			</UInput>
+		</UFormGroup>
 
-			<div
-				v-if="isMultiStep"
-				:class="[currentStep === lastStep ? 'justify-between' : 'justify-end', 'flex']"
-			>
-				<UButton
-					v-if="currentStep > 0"
-					icon="i-heroicons-arrow-long-left"
-					color="white"
-					@click="goToPreviousStep"
-					>{{ $t('common.previous') }}</UButton
-				>
-				<UButton
-					v-if="currentStep < lastStep"
-					icon="i-heroicons-arrow-long-right"
-					:disabled="nextStepButtonDisabled"
-					color="white"
-					@click="goToNextStep"
-					>{{ $t('common.next') }}</UButton
-				>
-				<UButton v-if="currentStep === lastStep" type="submit" color="white">{{
-					buttonLabel
-				}}</UButton>
-			</div>
-
+		<div
+			v-if="isMultiStep"
+			:class="[currentStep === lastStep ? 'justify-between' : 'justify-end', 'flex']"
+		>
 			<UButton
-				v-else-if="submitButton"
-				:aria-busy="isSubmitting"
-				:disabled="submitButtonDisabled"
-				type="submit"
+				v-if="currentStep > 0"
+				icon="i-heroicons-arrow-long-left"
 				color="white"
-				>{{ buttonLabel }}</UButton
+				@click="goToPreviousStep"
+				>{{ $t('common.previous') }}</UButton
 			>
 			<UButton
-				v-else-if="resetButton"
-				class="ml-4"
+				v-if="currentStep < lastStep"
+				icon="i-heroicons-arrow-long-right"
+				:disabled="nextStepButtonDisabled"
 				color="white"
-				variant="outline"
-				type="button"
-				@click="resetForm()"
+				@click="goToNextStep"
+				>{{ $t('common.next') }}</UButton
 			>
-				{{ resetLabel }}
-			</UButton>
-		</UForm>
-	</UContainer>
+			<UButton v-if="currentStep === lastStep" type="submit" color="white">{{
+				buttonLabel
+			}}</UButton>
+		</div>
+
+		<UButton
+			v-else-if="submitButton"
+			:aria-busy="isSubmitting"
+			:disabled="submitButtonDisabled"
+			type="submit"
+			color="white"
+			>{{ buttonLabel }}</UButton
+		>
+		<UButton
+			v-else-if="resetButton"
+			class="ml-4"
+			color="white"
+			variant="outline"
+			type="button"
+			@click="resetForm()"
+		>
+			{{ resetLabel }}
+		</UButton>
+	</UForm>
 </template>
 
 <script lang="ts" setup>

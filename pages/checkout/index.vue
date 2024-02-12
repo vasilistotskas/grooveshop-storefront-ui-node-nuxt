@@ -9,6 +9,9 @@ import { documentTypeEnum, StatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 
+const userStore = useUserStore()
+const { account } = storeToRefs(userStore)
+
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 const { cleanCartState } = cartStore
@@ -32,13 +35,15 @@ const router = useRouter()
 const toast = useToast()
 const { extractTranslated } = useTranslationExtractor()
 
-const shippingPrice = ref(3)
-
 await fetchCountries()
 
+const shippingPrice = ref(3)
+const userId = computed(() => (account.value?.id ? String(account.value.id) : null))
+
 const ZodCheckout = z.object({
+	user: z.string().nullish(),
 	country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
+		message: t('common.validation.country.required')
 	}),
 	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
 		message: t('common.validation.region.required')
@@ -69,6 +74,7 @@ const validationSchema = toTypedSchema(ZodCheckout)
 const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues: {
+		user: userId.value || null,
 		country: defaultSelectOptionChoose,
 		region: defaultSelectOptionChoose,
 		floor: defaultSelectOptionChoose,
@@ -138,9 +144,20 @@ const onCountryChange = async (event: Event) => {
 }
 
 const onSubmit = handleSubmit(async (values) => {
-	// eslint-disable-next-line no-console
-	console.log('----- values -----', values)
-	const { data, error } = await createOrder(values)
+	const updatedValues = Object.keys(values).reduce(
+		(acc, key) => {
+			const validKey = key as keyof typeof values
+			if (String(values[validKey]) === defaultSelectOptionChoose) {
+				acc[validKey] = null as never
+			} else {
+				acc[validKey] = values[validKey] as never
+			}
+			return acc
+		},
+		{} as typeof values
+	)
+
+	const { data, error } = await createOrder(updatedValues)
 	if (data.value?.id) {
 		toast.add({
 			title: t('pages.checkout.form.submit.success'),
@@ -174,7 +191,7 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-4">
+	<PageWrapper class="container flex flex-col gap-4 md:gap-8">
 		<PageBody>
 			<form
 				id="checkoutForm"
@@ -183,12 +200,12 @@ definePageMeta({
 				@submit="onSubmit"
 			>
 				<div
-					class="container rounded-lg bg-white p-2 text-white dark:bg-zinc-800 dark:text-black md:p-10"
+					class="container grid gap-4 rounded-lg bg-white p-6 text-white dark:bg-zinc-800 dark:text-black md:p-10"
 				>
-					<div class="grid gap-4 md:grid-cols-2">
+					<div class="flex flex-col gap-4 md:grid md:grid-cols-2">
 						<div class="grid">
 							<label
-								class="text-primary-700 dark:text-primary-100 mb-2"
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
 								for="firstName"
 								>{{ $t('pages.checkout.form.first_name') }}</label
 							>
@@ -210,9 +227,11 @@ definePageMeta({
 						</div>
 
 						<div class="grid">
-							<label class="text-primary-700 dark:text-primary-100 mb-2" for="lastName">{{
-								$t('pages.checkout.form.last_name')
-							}}</label>
+							<label
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
+								for="lastName"
+								>{{ $t('pages.checkout.form.last_name') }}</label
+							>
 							<div class="grid">
 								<FormTextInput
 									id="lastName"
@@ -231,9 +250,11 @@ definePageMeta({
 						</div>
 
 						<div class="grid">
-							<label class="text-primary-700 dark:text-primary-100 mb-2" for="email">{{
-								$t('pages.checkout.form.email')
-							}}</label>
+							<label
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
+								for="email"
+								>{{ $t('pages.checkout.form.email') }}</label
+							>
 							<div class="grid">
 								<FormTextInput
 									id="email"
@@ -252,9 +273,11 @@ definePageMeta({
 						</div>
 
 						<div class="grid">
-							<label class="text-primary-700 dark:text-primary-100 mb-2" for="phone">{{
-								$t('pages.checkout.form.phone')
-							}}</label>
+							<label
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
+								for="phone"
+								>{{ $t('pages.checkout.form.phone') }}</label
+							>
 							<div class="grid">
 								<FormTextInput
 									id="phone"
@@ -274,7 +297,7 @@ definePageMeta({
 
 						<div class="grid">
 							<label
-								class="text-primary-700 dark:text-primary-100 mb-2"
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
 								for="mobilePhone"
 								>{{ $t('pages.checkout.form.mobile_phone') }}</label
 							>
@@ -296,9 +319,11 @@ definePageMeta({
 						</div>
 
 						<div class="grid">
-							<label class="text-primary-700 dark:text-primary-100 mb-2" for="city">{{
-								$t('pages.checkout.form.city')
-							}}</label>
+							<label
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
+								for="city"
+								>{{ $t('pages.checkout.form.city') }}</label
+							>
 							<div class="grid">
 								<FormTextInput
 									id="city"
@@ -317,9 +342,11 @@ definePageMeta({
 						</div>
 
 						<div class="grid">
-							<label class="text-primary-700 dark:text-primary-100 mb-2" for="place">{{
-								$t('pages.checkout.form.place')
-							}}</label>
+							<label
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
+								for="place"
+								>{{ $t('pages.checkout.form.place') }}</label
+							>
 							<div class="grid">
 								<FormTextInput
 									id="place"
@@ -338,9 +365,11 @@ definePageMeta({
 						</div>
 
 						<div class="grid content-evenly items-start">
-							<label class="text-primary-700 dark:text-primary-100 mb-2" for="zipcode">{{
-								$t('pages.checkout.form.zipcode')
-							}}</label>
+							<label
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
+								for="zipcode"
+								>{{ $t('pages.checkout.form.zipcode') }}</label
+							>
 							<div class="grid">
 								<FormTextInput
 									id="zipcode"
@@ -359,9 +388,11 @@ definePageMeta({
 						</div>
 
 						<div class="grid">
-							<label class="text-primary-700 dark:text-primary-100 mb-2" for="street">{{
-								$t('pages.checkout.form.street')
-							}}</label>
+							<label
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
+								for="street"
+								>{{ $t('pages.checkout.form.street') }}</label
+							>
 							<div class="grid">
 								<FormTextInput
 									id="street"
@@ -381,7 +412,7 @@ definePageMeta({
 
 						<div class="grid">
 							<label
-								class="text-primary-700 dark:text-primary-100 mb-2"
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
 								for="streetNumber"
 								>{{ $t('pages.checkout.form.street_number') }}</label
 							>
@@ -404,7 +435,7 @@ definePageMeta({
 
 						<div class="col-span-2 grid">
 							<label
-								class="text-primary-700 dark:text-primary-100 mb-2"
+								class="text-primary-700 dark:text-primary-100 sr-only mb-2"
 								for="customerNotes"
 								>{{ $t('pages.checkout.form.customer_notes') }}</label
 							>
@@ -415,7 +446,7 @@ definePageMeta({
 									as="textarea"
 									v-bind="customerNotesProps"
 									:placeholder="$t('pages.checkout.form.customer_notes')"
-									class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
+									class="text-input text-primary-700 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
 									name="customerNotes"
 									rows="4"
 									type="text"
@@ -575,7 +606,7 @@ definePageMeta({
 				</div>
 				<CheckoutSidebar
 					:shipping-price="shippingPrice"
-					class="container rounded-lg bg-white p-2 text-white dark:bg-zinc-800 dark:text-black md:p-10"
+					class="container rounded-lg bg-white p-6 text-white dark:bg-zinc-800 dark:text-black md:p-10"
 				>
 					<template #pay-ways>
 						<CheckoutPayWays>

@@ -12,7 +12,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const query = parseQueryAs(event, ZodReviewCreateQuery)
 	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/review`, query)
 	const response = await $api(url, event, {
-		body: JSON.stringify(body)
+		body
 	})
 	return await parseDataAs(response, ZodReview)
 })

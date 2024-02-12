@@ -26,7 +26,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			`${config.public.apiBaseUrl}/auth/${event.context.params?.provider}/connect`,
 			event,
 			{
-				body: JSON.stringify(body),
+				body,
 				method: 'POST'
 			}
 		)

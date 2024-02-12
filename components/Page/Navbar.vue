@@ -9,7 +9,7 @@ const { account } = storeToRefs(userStore)
 </script>
 
 <template>
-	<BuilderNavbar>
+	<BuilderNavbar class="bg-white/[0.5] dark:bg-zinc-900/[0.5]">
 		<template #menu>
 			<div class="relative ml-auto hidden items-center lg:flex">
 				<nav

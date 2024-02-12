@@ -19,7 +19,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			`${config.public.apiBaseUrl}/auth/mfa/totp/activate`,
 			event,
 			{
-				body: JSON.stringify(body),
+				body,
 				method: 'POST'
 			}
 		)

@@ -6,7 +6,7 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-6 md:gap-12">
+	<PageWrapper class="container flex flex-col gap-4 md:gap-8">
 		<PageTitle
 			:text="$t('pages.auth.security.mfa.totp.authenticate.title')"
 			class="text-center capitalize"

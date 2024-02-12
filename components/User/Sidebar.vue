@@ -102,7 +102,7 @@ onMounted(() => {
 						class="group grid grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
 					>
 						<div
-							class="dark:group-hover:highlight-white/10 dark:highlight-white/10 flex items-center rounded-md px-2 py-2 shadow-sm ring-1 ring-slate-900/5 group-hover:shadow group-hover:shadow-sky-200 group-hover:ring-slate-900/10 dark:shadow-none dark:ring-0 dark:group-hover:shadow-none"
+							class="dark:group-hover:highlight-white/10 dark:highlight-white/10 flex items-center rounded-md px-1 py-1 shadow-sm ring-1 ring-slate-900/5 group-hover:shadow group-hover:shadow-sky-200 group-hover:ring-slate-900/10 dark:shadow-none dark:ring-0 dark:group-hover:shadow-none"
 							:class="{
 								'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
 									route.path === item.route?.path,
@@ -113,7 +113,7 @@ onMounted(() => {
 							<Component :is="item.icon" class="text-2xl md:text-xl" />
 						</div>
 						<span
-							class="text-primary-700 dark:text-primary-100 text-2xl font-semibold capitalize md:text-xl"
+							class="text-primary-700 dark:text-primary-100 text-xl font-semibold capitalize md:text-lg"
 							:class="{
 								'font-extrabold text-sky-500 dark:text-sky-400':
 									route.path === item.route?.path
@@ -129,7 +129,7 @@ onMounted(() => {
 						class="group grid grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
 					>
 						<div
-							class="dark:group-hover:highlight-white/10 dark:highlight-white/10 flex items-center rounded-md px-2 py-2 shadow-sm ring-1 ring-slate-900/5 group-hover:shadow group-hover:shadow-sky-200 group-hover:ring-slate-900/10 dark:shadow-none dark:ring-0 dark:group-hover:shadow-none"
+							class="dark:group-hover:highlight-white/10 dark:highlight-white/10 flex items-center rounded-md px-1 py-1 shadow-sm ring-1 ring-slate-900/5 group-hover:shadow group-hover:shadow-sky-200 group-hover:ring-slate-900/10 dark:shadow-none dark:ring-0 dark:group-hover:shadow-none"
 							:class="{
 								'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
 									item.route?.path === route.path,
@@ -140,7 +140,7 @@ onMounted(() => {
 							<Component :is="item.icon" class="text-2xl md:text-xl" />
 						</div>
 						<span
-							class="text-primary-700 dark:text-primary-100 text-2xl font-semibold capitalize md:text-xl"
+							class="text-primary-700 dark:text-primary-100 text-xl font-semibold capitalize md:text-lg"
 							:class="{
 								'font-extrabold text-sky-500 dark:text-sky-400':
 									item.route?.path === route.path
@@ -158,7 +158,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .sidebar {
 	&.sticky {
-		top: 7rem;
+		top: 4.5rem;
 	}
 }
 </style>

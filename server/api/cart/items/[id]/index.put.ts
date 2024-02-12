@@ -13,7 +13,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		`${config.public.apiBaseUrl}/cart/item/${params.id}`,
 		event,
 		{
-			body: JSON.stringify(body)
+			body
 		}
 	)
 	return await parseDataAs(response, ZodCartItem)

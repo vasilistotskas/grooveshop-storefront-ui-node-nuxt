@@ -78,7 +78,12 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		}
 	}
 
-	async function fetchUserToProductReview({ productId, userId, expand }: ReviewQuery) {
+	async function fetchUserToProductReview({
+		productId,
+		userId,
+		expand,
+		status
+	}: ReviewQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -92,7 +97,8 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			params: {
 				productId,
 				userId,
-				expand
+				expand,
+				status
 			}
 		})
 		let userToProductReview = null

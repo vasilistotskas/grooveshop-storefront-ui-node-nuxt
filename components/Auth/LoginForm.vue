@@ -70,7 +70,7 @@ const onSubmit = handleSubmit(async (values) => {
 		<form
 			id="loginForm"
 			ref="loginForm"
-			class="container-xxs p-0 md:px-6"
+			class="container-xs p-0 md:px-6"
 			name="loginForm"
 			@submit="onSubmit"
 		>

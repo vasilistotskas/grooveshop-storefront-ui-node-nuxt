@@ -21,7 +21,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			event,
 			{
 				method: 'POST',
-				body: JSON.stringify(body)
+				body
 			}
 		)
 		return parseDataAs(response, ZodIsUserRegisteredResponse)

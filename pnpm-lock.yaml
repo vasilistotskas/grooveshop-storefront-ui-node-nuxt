@@ -12,8 +12,8 @@ devDependencies:
     specifier: ^1.7.19
     version: 1.7.19(vue@3.4.18)
   '@iconify/json':
-    specifier: ^2.2.181
-    version: 2.2.181
+    specifier: ^2.2.182
+    version: 2.2.182
   '@intlify/core-base':
     specifier: ^9.9.1
     version: 9.9.1
@@ -69,8 +69,8 @@ devDependencies:
     specifier: ^8.1.0
     version: 8.1.0(rollup@4.9.6)(vue@3.4.18)
   '@nuxtjs/tailwindcss':
-    specifier: ^6.11.3
-    version: 6.11.3(rollup@4.9.6)(ts-node@10.9.2)
+    specifier: ^6.11.4
+    version: 6.11.4(rollup@4.9.6)(ts-node@10.9.2)
   '@nuxtseo/module':
     specifier: 2.0.0-beta.55
     version: 2.0.0-beta.55(@lezer/common@1.2.1)(@nuxt/devtools@1.0.8)(@unhead/shared@1.8.10)(@vue/compiler-core@3.4.18)(h3@1.10.1)(idb-keyval@6.2.1)(nuxt@3.10.1)(postcss@8.4.35)(rollup@4.9.6)(unhead@1.8.10)(vite@5.1.1)(vue@3.4.18)(webpack@5.90.1)
@@ -132,8 +132,8 @@ devDependencies:
     specifier: ^4.12.5
     version: 4.12.5(vue@3.4.18)
   '@vite-pwa/nuxt':
-    specifier: ^0.4.0
-    version: 0.4.0(rollup@4.9.6)(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0)
+    specifier: ^0.5.0
+    version: 0.5.0(rollup@4.9.6)(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0)
   '@vitest/coverage-v8':
     specifier: ^1.2.2
     version: 1.2.2(vitest@1.2.2)
@@ -192,8 +192,8 @@ devDependencies:
     specifier: ^6.2.1
     version: 6.2.1
   jose:
-    specifier: ^5.2.1
-    version: 5.2.1
+    specifier: ^5.2.2
+    version: 5.2.2
   js-yaml:
     specifier: ^4.1.0
     version: 4.1.0
@@ -2460,8 +2460,8 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
-  /@iconify/json@2.2.181:
-    resolution: {integrity: sha512-G7fQeyYVgnSDzPAftOkBH/mFjVXEGVRLMV21L8ilNuc/9HCVmqH+Nh0QMa5hV2Jl8UjTLBJ/B1rKCH8V1LdADg==}
+  /@iconify/json@2.2.182:
+    resolution: {integrity: sha512-XlVgdHTuz83XOMSScIWFiQN1t/Vl00+JuOLLeY/vuTHu0UkmDYrujO4VwvrRMRsksCo70g6TZNiczHtqP958IA==}
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
@@ -3462,7 +3462,7 @@ packages:
       '@iconify-json/heroicons': 1.1.19
       '@nuxt/kit': 3.10.1(rollup@4.9.6)
       '@nuxtjs/color-mode': 3.3.2(rollup@4.9.6)
-      '@nuxtjs/tailwindcss': 6.11.3(rollup@4.9.6)(ts-node@10.9.2)
+      '@nuxtjs/tailwindcss': 6.11.4(rollup@4.9.6)(ts-node@10.9.2)
       '@popperjs/core': 2.11.8
       '@tailwindcss/aspect-ratio': 0.4.2(tailwindcss@3.4.1)
       '@tailwindcss/container-queries': 0.1.1(tailwindcss@3.4.1)
@@ -3691,14 +3691,13 @@ packages:
       - vue-i18n-bridge
     dev: true
 
-  /@nuxtjs/tailwindcss@6.11.3(rollup@4.9.6)(ts-node@10.9.2):
-    resolution: {integrity: sha512-l2iww/zOiHMuNERo6XB9MTJ8MEcq3NHFW/TPWmwPLGdOobV9zYUZ75otqi+mTK+/vgzQTtNXpIe2V0DLuTeb4A==}
+  /@nuxtjs/tailwindcss@6.11.4(rollup@4.9.6)(ts-node@10.9.2):
+    resolution: {integrity: sha512-09cksgZD4seQj054Z/BeiwFg1bzQTol8KPulLDLGnmMTkEi21vj/z+WlXQRpVbN1GS9+oU9tcSsu2ufXCM3DBg==}
     dependencies:
       '@nuxt/kit': 3.10.1(rollup@4.9.6)
       autoprefixer: 10.4.17(postcss@8.4.35)
       chokidar: 3.5.3
       clear-module: 4.1.2
-      colorette: 2.0.20
       consola: 3.2.3
       defu: 6.1.4
       h3: 1.10.1
@@ -5709,13 +5708,13 @@ packages:
       - supports-color
     dev: true
 
-  /@vite-pwa/nuxt@0.4.0(rollup@4.9.6)(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0):
-    resolution: {integrity: sha512-/8Nb/XI/lcCR8jmsbLmzheiMWJeOzHUMIWmcwsyQB8DtqjB5NaRAz8QBwSs1sx/sALJmKCYrbpMWppItYYYrBA==}
+  /@vite-pwa/nuxt@0.5.0(rollup@4.9.6)(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0):
+    resolution: {integrity: sha512-5Si0Qpj9FGYmgrX52HJtY1OZKNDXJVmx17yULk0Karb7+6GKXhRcWP3DnFTEG7zkctXuzBli5sXjQaEEbEgy6w==}
     dependencies:
       '@nuxt/kit': 3.10.1(rollup@4.9.6)
       pathe: 1.1.2
       ufo: 1.4.0
-      vite-plugin-pwa: 0.17.5(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0)
+      vite-plugin-pwa: 0.18.1(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0)
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -10345,8 +10344,8 @@ packages:
     engines: {node: '>= 0.6.0'}
     dev: true
 
-  /jose@5.2.1:
-    resolution: {integrity: sha512-qiaQhtQRw6YrOaOj0v59h3R6hUY9NvxBmmnMfKemkqYmBB0tEc97NbLP7ix44VP5p9/0YHG8Vyhzuo5YBNwviA==}
+  /jose@5.2.2:
+    resolution: {integrity: sha512-/WByRr4jDcsKlvMd1dRJnPfS1GVO3WuKyaurJ/vvXcOaUQO8rnNObCQMlv/5uCceVQIq5Q4WLF44ohsdiTohdg==}
     dev: true
 
   /js-beautify@1.14.11:
@@ -15885,8 +15884,8 @@ packages:
       - supports-color
     dev: true
 
-  /vite-plugin-pwa@0.17.5(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0):
-    resolution: {integrity: sha512-UxRNPiJBzh4tqU/vc8G2TxmrUTzT6BqvSzhszLk62uKsf+npXdvLxGDz9C675f4BJi6MbD2tPnJhi5txlMzxbQ==}
+  /vite-plugin-pwa@0.18.1(vite@5.1.1)(workbox-build@7.0.0)(workbox-window@7.0.0):
+    resolution: {integrity: sha512-2A3BF52l9F8hCkdPy/VP2C+hA+fmBvzJGynCZc9XS6mHTcMvo9046FKc2NqlnkKwTOGtQEwXLEIduML/+eYtdw==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       vite: ^3.1.0 || ^4.0.0 || ^5.0.0

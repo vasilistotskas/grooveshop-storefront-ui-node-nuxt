@@ -22,7 +22,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			`${config.public.apiBaseUrl}/auth/registration/resend-email`,
 			event,
 			{
-				body: JSON.stringify(body),
+				body,
 				method: 'POST'
 			}
 		)

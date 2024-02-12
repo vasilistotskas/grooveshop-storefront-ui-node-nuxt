@@ -168,6 +168,7 @@ components:
       pay_way: Pay Way
       status: Status
       total_price: Total Price
+      created_at: Created At
       actions:
         details: Details
   cart:

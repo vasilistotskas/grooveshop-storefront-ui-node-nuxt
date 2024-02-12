@@ -54,7 +54,7 @@ export const ZodOrderQuery = z.object({
 })
 
 export const ZodOrderCreateBody = z.object({
-	user: z.string().nullish(),
+	user: z.union([z.number(), z.string()]).nullish(),
 	country: z.string(),
 	region: z.string(),
 	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
@@ -79,7 +79,7 @@ export const ZodOrderCreateBody = z.object({
 
 export const ZodOrderCreateResponse = z.object({
 	id: z.number(),
-	user: z.string().nullish(),
+	user: z.union([z.number(), z.string()]).nullish(),
 	country: z.string(),
 	region: z.string(),
 	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),

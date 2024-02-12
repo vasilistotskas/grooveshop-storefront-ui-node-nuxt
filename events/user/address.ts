@@ -1,1 +1,1 @@
-export type UserAddressAction = 'add' | 'delete' | 'update'
+export type UserAddressAction = 'add' | 'delete' | 'update' | 'set-main'

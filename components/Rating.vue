@@ -39,7 +39,7 @@ const backgroundStars = (productRate: number): string[] => {
 </script>
 
 <template>
-	<div class="flex flex-col items-center gap-1">
+	<div class="flex flex-col gap-1">
 		<div class="flex max-w-[130px]">
 			<!-- eslint-disable vue/no-v-html -->
 			<svg
@@ -56,7 +56,7 @@ const backgroundStars = (productRate: number): string[] => {
 				v-html="star"
 			/>
 		</div>
-		<div class="flex items-center justify-center">
+		<div class="flex">
 			<span class="text-sm">({{ rate }}/{{ maxRate }})</span>
 		</div>
 	</div>

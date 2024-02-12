@@ -46,7 +46,7 @@ const formSchema: DynamicFormSchema = {
 <template>
 	<section class="grid">
 		<DynamicForm
-			class="container-xxs flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-800 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 md:px-6 lg:justify-between"
+			class="container-xxs grid h-full items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-800 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 md:px-6"
 			:schema="formSchema"
 			@submit="onSubmit"
 		/>

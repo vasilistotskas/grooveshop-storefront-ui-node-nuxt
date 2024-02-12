@@ -43,6 +43,6 @@ const formSchema: DynamicFormSchema = {
 
 <template>
 	<section class="grid items-center justify-center justify-items-center">
-		<DynamicForm :schema="formSchema" @submit="onSubmit" />
+		<DynamicForm :schema="formSchema" class="grid" @submit="onSubmit" />
 	</section>
 </template>

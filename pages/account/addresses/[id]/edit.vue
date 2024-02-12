@@ -6,6 +6,8 @@ import {
 	locationChoicesList
 } from '~/constants/general'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import { GlobalEvents } from '~/events/global'
+import type { UserAddressAction } from '~/events/user/address'
 
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
@@ -27,6 +29,7 @@ const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute('account-addresses-id-edit___en')
 const router = useRouter()
+const bus = useEventBus<string, UserAddressAction>(GlobalEvents.USER_ADDRESS)
 
 const addressId = route.params.id
 
@@ -133,25 +136,36 @@ const onCountryChange = async (event: Event) => {
 	region.value = defaultSelectOptionChoose
 }
 const onSubmit = handleSubmit(async (values) => {
-	if (String(floor) === defaultSelectOptionChoose) values.floor = null
-	if (String(locationType) === defaultSelectOptionChoose) values.locationType = null
+	const updatedValues = Object.keys(values).reduce(
+		(acc, key) => {
+			const validKey = key as keyof typeof values
+			if (String(values[validKey]) === defaultSelectOptionChoose) {
+				acc[validKey] = null as never
+			} else {
+				acc[validKey] = values[validKey] as never
+			}
+			return acc
+		},
+		{} as typeof values
+	)
+
 	await updateAddress(addressId, {
-		title: values.title,
-		firstName: values.firstName,
-		lastName: values.lastName,
-		street: values.street,
-		streetNumber: values.streetNumber,
-		city: values.city,
-		zipcode: values.zipcode,
-		floor: Number(values.floor),
-		locationType: Number(values.locationType),
-		phone: values.phone,
-		mobilePhone: values.mobilePhone,
-		notes: values.notes,
-		isMain: values.isMain,
-		user: values.user,
-		country: values.country,
-		region: values.region
+		title: updatedValues.title,
+		firstName: updatedValues.firstName,
+		lastName: updatedValues.lastName,
+		street: updatedValues.street,
+		streetNumber: updatedValues.streetNumber,
+		city: updatedValues.city,
+		zipcode: updatedValues.zipcode,
+		floor: Number(updatedValues.floor),
+		locationType: Number(updatedValues.locationType),
+		phone: updatedValues.phone,
+		mobilePhone: updatedValues.mobilePhone,
+		notes: updatedValues.notes,
+		isMain: updatedValues.isMain,
+		user: updatedValues.user,
+		country: updatedValues.country,
+		region: updatedValues.region
 	})
 	toast.add({
 		title: t('pages.account.addresses.edit.success')
@@ -165,6 +179,7 @@ const onSetMain = async () => {
 			toast.add({
 				title: t('pages.account.addresses.edit.main.success')
 			})
+			bus.emit(GlobalEvents.USER_ADDRESS, 'set-main')
 			router.push('/account/addresses')
 		})
 		.catch(() => {
@@ -583,7 +598,7 @@ definePageMeta({
 							v-model="notes"
 							as="textarea"
 							v-bind="notesProps"
-							class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
+							class="text-input text-primary-700 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
 							name="notes"
 							type="text"
 							rows="4"

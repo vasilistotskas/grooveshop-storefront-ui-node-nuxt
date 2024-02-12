@@ -21,14 +21,7 @@ const { fetchPayWays } = payWayStore
 const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 
-const emit = defineEmits(['updatev-model'])
-
-const payWayExtraCost = (payWay: PayWay): string => {
-	if (payWay.freeForOrderAmount < 10) {
-		return '(<span class="checkout-pay_way-cost-free green">Free</span>)'
-	}
-	return '(+' + payWay.cost + '€ per shipment)'
-}
+const emit = defineEmits(['update-model'])
 
 await fetchPayWays()
 
@@ -51,7 +44,7 @@ const getPayWayLottie = (name: string) => {
 }
 
 const updatePayWay = (value: PayWay) => {
-	emit('updatev-model', payWay)
+	emit('update-model', payWay)
 	payWay.value = value
 }
 </script>
@@ -72,7 +65,7 @@ const updatePayWay = (value: PayWay) => {
 					name="pay-way"
 					@update:model-value="(value) => updatePayWay(value)"
 				>
-					<RadioGroupLabel class="sr-only">
+					<RadioGroupLabel id="pay-way-label" class="sr-only">
 						{{ t('components.checkout.pay_ways.label') }}
 					</RadioGroupLabel>
 					<div class="space-y-2">
@@ -94,7 +87,7 @@ const updatePayWay = (value: PayWay) => {
 								class="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
 							>
 								<div
-									class="grid w-full items-center justify-between"
+									class="flex w-full items-center justify-between md:grid"
 									:class="checked ? 'grid-cols-3' : 'grid-cols-2'"
 								>
 									<div class="grid items-center">

@@ -19,7 +19,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 			`${config.public.apiBaseUrl}/auth/password/reset`,
 			event,
 			{
-				body: JSON.stringify(body),
+				body,
 				method: 'POST'
 			}
 		)

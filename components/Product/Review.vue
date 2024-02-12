@@ -474,7 +474,7 @@ watch(
 								as="textarea"
 								v-bind="commentProps"
 								:placeholder="$t('components.product.review.comment.placeholder')"
-								class="review_body-comment-content-textarea text-primary-700 dark:text-primary-100 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
+								class="review_body-comment-content-textarea text-input text-primary-700 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
 								name="comment"
 								maxlength="10000"
 								rows="6"

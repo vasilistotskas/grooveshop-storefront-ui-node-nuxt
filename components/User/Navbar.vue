@@ -51,10 +51,10 @@ const menus = computed((): IMenuItem[] => [
 </script>
 
 <template>
-	<BuilderNavbar>
+	<BuilderNavbar class="bg-zinc-200 dark:bg-zinc-800">
 		<template #menu>
 			<nav
-				class="text-primary-700 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
+				class="text-primary-700 dark:text-primary-100 hidden items-center text-lg font-semibold leading-6 md:flex"
 			>
 				<ul class="flex items-center gap-4">
 					<li

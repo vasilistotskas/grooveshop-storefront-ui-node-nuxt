@@ -44,58 +44,34 @@ const route = useRoute()
 const firstPageNumber = computed(() => 1)
 const lastPageNumber = computed(() => props.totalPages)
 const startPage = computed(() => {
-	if (props.page === 1) {
-		return 1
-	}
-	if (props.page === props.totalPages) {
-		if (props.totalPages - props.maxVisibleButtons + 1 === 0) {
-			return 1
-		}
+	const halfMaxVisible = Math.floor(props.maxVisibleButtons / 2)
+	if (props.totalPages <= props.maxVisibleButtons) return 1
+	if (props.page <= halfMaxVisible) return 1
+	if (props.page + halfMaxVisible >= props.totalPages)
 		return props.totalPages - props.maxVisibleButtons + 1
-	}
-	return props.page - 1
+	return props.page - halfMaxVisible
 })
 
 const isInFirstPage = computed(() => props.page === 1)
 const isInLastPage = computed(() => props.page === props.totalPages)
 
-const shouldDisplayFirstPage = computed(() => {
-	return !isInFirstPage.value && props.page > firstPageNumber.value + 1
-})
-const shouldDisplayLastPage = computed(() => {
-	return !isInLastPage.value && props.page < lastPageNumber.value - 1
-})
-const shouldDisplayPreviousTripleDots = computed(() => {
-	return props.page > props.maxVisibleButtons
-})
-const shouldDisplayNextTripleDots = computed(() => {
-	return props.page < props.totalPages - props.maxVisibleButtons + 1
-})
+const shouldDisplayFirstPage = computed(() => props.page > 2)
+const shouldDisplayLastPage = computed(() => props.page < props.totalPages - 1)
+const shouldDisplayPreviousTripleDots = computed(() => startPage.value > 2)
+const shouldDisplayNextTripleDots = computed(
+	() => startPage.value + props.maxVisibleButtons < props.totalPages
+)
 
 const pages = computed(() => {
 	const range = []
-	let lastPageNumber: number
-	if (props.totalPages < props.maxVisibleButtons) {
-		lastPageNumber = props.totalPages || 1
-	} else {
-		lastPageNumber = Math.min(
-			startPage.value + props.maxVisibleButtons - 1,
-			props.totalPages || 1
-		)
-	}
-	const startPageNumber = isInLastPage.value ? startPage.value - 1 : startPage.value
-	for (let i = startPageNumber; i <= lastPageNumber; i += 1) {
-		if (i === 0) continue
-		range.push(i)
-	}
+	const adjustedStartPage = startPage.value
+	const endPage = Math.min(
+		adjustedStartPage + props.maxVisibleButtons - 1,
+		props.totalPages
+	)
 
-	if (props.maxVisibleButtons === range.length) {
-		if (isInFirstPage.value) {
-			range.pop()
-		}
-		if (isInLastPage.value) {
-			range.shift()
-		}
+	for (let i = adjustedStartPage; i <= endPage; i++) {
+		range.push(i)
 	}
 
 	return range

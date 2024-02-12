@@ -7,6 +7,8 @@ defineSlots<{
 	options(props: { toggleOptions: (show?: boolean) => void; showOptions: boolean }): any
 }>()
 
+const { isAuthenticated } = useAuthSession()
+
 const navbar = ref(null)
 const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
 const showOptions = useState<boolean>('navbar.showOptions', () => false)
@@ -67,14 +69,14 @@ const environment = computed(() => config.public.environment)
 <template>
 	<div
 		ref="navbar"
-		class="top-0 z-50 w-full flex-none border-b border-gray-900/10 bg-white/[0.5] backdrop-blur-md backdrop-filter transition-colors duration-300 dark:border-gray-50/[0.2] dark:bg-zinc-900/[0.5] lg:z-50"
+		class="top-0 z-50 w-full flex-none border-b border-gray-900/10 backdrop-blur-md backdrop-filter transition-colors duration-300 dark:border-gray-50/[0.2] lg:z-50"
 	>
 		<div id="navbar-banner" class="banner">
 			<slot name="banner" />
 		</div>
 		<div class="bg-background-700 mx-auto w-full max-w-8xl">
 			<div class="mx-4 py-3 md:py-4 lg:mx-0 lg:px-8">
-				<div class="relative grid grid-cols-1fr-auto items-center gap-4 md:flex">
+				<div class="relative flex items-center gap-4">
 					<!-- drawer:toggle -->
 					<div
 						v-if="$slots['drawer']"
@@ -114,7 +116,7 @@ const environment = computed(() => config.public.environment)
 							</strong>
 						</h1>
 					</slot>
-					<LazyDemoModeMessage v-if="environment === 'demo'" />
+					<LazyDemoModeMessage v-if="environment === 'demo' && !isAuthenticated" />
 					<!-- menu -->
 					<slot name="menu" />
 					<!-- options:toggle -->
@@ -145,7 +147,7 @@ const environment = computed(() => config.public.environment)
 				<Transition name="slide-fade-from-up" mode="out-in">
 					<div
 						v-if="showDrawer && $slots['drawer']"
-						class="fixed left-0 top-0 z-30 flex h-screen w-screen flex-col bg-zinc-100 pt-16 dark:bg-zinc-800 md:pt-12 lg:sr-only"
+						class="fixed left-0 top-0 z-30 flex h-full w-screen flex-col bg-zinc-100 pt-[75px] dark:bg-zinc-800 md:pt-12 lg:sr-only"
 					>
 						<div class="relative flex flex-1 flex-col overflow-y-auto">
 							<slot name="drawer" :toggle-drawer="toggleDrawer" />

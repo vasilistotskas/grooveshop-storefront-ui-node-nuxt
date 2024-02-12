@@ -6,8 +6,8 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-4">
-		<PageHeader class="pb-4">
+	<PageWrapper class="container flex flex-col gap-4 md:gap-8">
+		<PageHeader>
 			<PageTitle :text="$t('pages.auth.security.title')" />
 		</PageHeader>
 		<AuthSecurityNavbar />

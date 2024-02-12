@@ -6,7 +6,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const body = await parseBodyAs(event, ZodCartItemCreateBody)
 	const response = await $api(`${config.public.apiBaseUrl}/cart/item`, event, {
-		body: JSON.stringify(body)
+		body
 	})
 	return await parseDataAs(response, ZodCartItemCreateResponse)
 })

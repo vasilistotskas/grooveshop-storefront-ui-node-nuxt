@@ -36,7 +36,8 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	// Reviews
 	const reviewsQuery: ReviewQuery = {
 		userId: String(accountParsedData.id),
-		pagination: 'false'
+		pagination: 'false',
+		status: 'TRUE'
 	}
 	const reviewsUrl = buildFullUrl(
 		`${config.public.apiBaseUrl}/product/review`,

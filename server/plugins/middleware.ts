@@ -11,10 +11,11 @@ export default defineNitroPlugin((nitroApp) => {
 				.then(() => {
 					event.context.jwt_auth = accessToken
 				})
-				.catch(() => {
+				.catch(async () => {
 					event.context.jwt_auth = null
 					deleteAccessTokenCookie(event)
 					deleteRefreshTokenCookie(event)
+					await sendRedirect(event, '/auth/login')
 				})
 		} else {
 			event.context.jwt_auth = null

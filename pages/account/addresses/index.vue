@@ -62,7 +62,7 @@ await fetchUserAddresses(routePaginationParams.value)
 const refreshAddresses = async () => await fetchUserAddresses(routePaginationParams.value)
 
 bus.on((event: string, payload) => {
-	if (payload === 'delete') {
+	if (payload === 'delete' || payload === 'set-main') {
 		refreshAddresses()
 	}
 })
@@ -79,8 +79,8 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-4">
-		<PageHeader class="mb-4">
+	<PageWrapper class="container flex flex-col gap-4 md:gap-8">
+		<PageHeader>
 			<PageTitle :text="$t('pages.account.addresses.title')" />
 		</PageHeader>
 		<UserAccountNavbar />

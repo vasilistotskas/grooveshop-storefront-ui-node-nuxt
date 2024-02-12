@@ -153,7 +153,8 @@ const props = defineProps({
 
 			@media screen and (width <= 767px) {
 				width: 100%;
-				grid-template-columns: repeat(3, 1fr);
+				display: flex;
+				flex-wrap: wrap;
 				grid-row: 2 / span 1;
 				grid-column: 1 / span 2;
 			}
