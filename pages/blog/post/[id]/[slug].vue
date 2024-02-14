@@ -152,11 +152,10 @@ definePageMeta({
 								class="flex items-center justify-start border-r-2 border-gray-400 pr-2"
 							>
 								<div class="relative mr-4 flex h-12 w-12 items-center">
-									<NuxtImg
+									<ImgWithFallback
 										loading="lazy"
 										provider="mediaStream"
 										class="rounded-full bg-white"
-										placeholder="/assets/images/placeholder.png"
 										:style="{ objectFit: 'contain' }"
 										:width="48"
 										:height="48"
@@ -209,7 +208,6 @@ definePageMeta({
 										loading="lazy"
 										provider="mediaStream"
 										class="rounded-lg bg-white"
-										placeholder="/assets/images/placeholder.png"
 										:style="{ objectFit: 'contain' }"
 										:width="675"
 										:height="340"
@@ -226,13 +224,9 @@ definePageMeta({
 							</div>
 						</div>
 						<div class="grid">
-							<LazyNativeSlideShow
+							<ul
 								v-if="blogPostTags && blogPostTags.length > 0"
-								class="scrollable-tags grid items-center md:gap-4"
-								:grid-auto-columns="'25%'"
-								component-element="ul"
-								:mobile-only="true"
-								slider-class="md:grid gap-4"
+								class="scrollable-tags flex flex-wrap items-center md:gap-4"
 							>
 								<li v-for="tag in blogPostTags" :key="tag.id">
 									<span class="flex w-full items-center text-sm"
@@ -241,7 +235,7 @@ definePageMeta({
 										}}</span
 									>
 								</li>
-							</LazyNativeSlideShow>
+							</ul>
 						</div>
 						<div class="text-primary-700 dark:text-primary-100 mx-auto max-w-2xl">
 							<!-- eslint-disable vue/no-v-html -->

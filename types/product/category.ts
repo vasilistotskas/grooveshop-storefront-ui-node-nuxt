@@ -1,14 +1,16 @@
 import { z } from 'zod'
+import { type PaginationQuery, ZodPaginationQuery } from '~/types/pagination'
+import { type OrderingQuery, ZodOrderingQuery } from '~/types/ordering'
 
-const ZodCategoryTranslations = z.record(
+const ZodProductCategoryTranslations = z.record(
 	z.object({
 		name: z.string().nullish(),
 		description: z.string().nullish()
 	})
 )
 
-export const ZodCategory = z.object({
-	translations: ZodCategoryTranslations,
+export const ZodProductCategoryBase = z.object({
+	translations: ZodProductCategoryTranslations,
 	id: z.number(),
 	slug: z.string(),
 	categoryMenuImageOneAbsoluteUrl: z.string().nullish(),
@@ -30,9 +32,23 @@ export const ZodCategory = z.object({
 	uuid: z.string().uuid()
 })
 
-export const ZodCategoryParams = z.object({
+export type ProductCategory = z.infer<typeof ZodProductCategoryBase> & {
+	children?: ProductCategory[] | null
+}
+
+export const ZodProductCategory: z.ZodType<ProductCategory> =
+	ZodProductCategoryBase.extend({
+		children: z.lazy(() => ZodProductCategory.array().nullish())
+	})
+
+export const ZodProductCategoryParams = z.object({
 	id: z.string()
 })
 
-export type Category = z.infer<typeof ZodCategory>
-export type CategoryParams = Readonly<z.infer<typeof ZodCategoryParams>>
+export const ZodProductCategoryQuery = z
+	.object({})
+	.merge(ZodOrderingQuery)
+	.merge(ZodPaginationQuery)
+
+export type ProductCategoryParams = Readonly<z.infer<typeof ZodProductCategoryParams>>
+export type ProductCategoryQuery = z.infer<typeof ZodProductCategoryQuery>

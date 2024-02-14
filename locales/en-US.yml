@@ -83,6 +83,8 @@ common:
   version: Version
   upload: Upload
   tags: Tags
+  categories: Categories
+  no_categories_found: No Categories Found
   demo:
     message: This is a Demo Website for Display Purposes Only.
   change:

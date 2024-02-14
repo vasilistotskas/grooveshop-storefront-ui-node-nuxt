@@ -78,11 +78,10 @@ const userToProductFavourite = computed(() => {
 				<div class="max-w-full">
 					<div class="grid">
 						<Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
-							<NuxtImg
+							<ImgWithFallback
 								:loading="imgLoading"
 								provider="mediaStream"
-								class="h-auto w-full bg-transparent bg-white object-cover"
-								placeholder="/assets/images/placeholder.png"
+								class="bg-transparent bg-white object-cover"
 								:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 								:src="src"
 								:width="imgWidth"
@@ -114,6 +113,7 @@ const userToProductFavourite = computed(() => {
 								<UButton
 									v-if="isSupported && showShareButton"
 									:disabled="!isSupported"
+									:aria-label="$t('components.product.card.share')"
 									icon="i-heroicons-share"
 									size="lg"
 									color="white"

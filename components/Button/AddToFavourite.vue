@@ -100,6 +100,7 @@ const buttonColor = computed(() => {
 		:label="buttonLabel"
 		:icon="!isFavourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
 		:color="buttonColor"
+		:aria-label="buttonLabel || $t('components.add_to_favourite_button.add')"
 		@click="toggleFavourite"
 	/>
 </template>

@@ -94,7 +94,6 @@ const uploadImage = async (event: Event) => {
 				loading="lazy"
 				provider="mediaStream"
 				class="rounded-full bg-white"
-				placeholder="/assets/images/placeholder.png"
 				:style="{ objectFit: 'contain' }"
 				:width="imgWidth"
 				:height="imgHeight"

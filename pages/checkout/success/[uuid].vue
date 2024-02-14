@@ -134,7 +134,6 @@ definePageMeta({
 											loading="lazy"
 											provider="mediaStream"
 											class="product-img bg-white"
-											placeholder="/assets/images/placeholder.png"
 											:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 											:width="100"
 											:height="100"

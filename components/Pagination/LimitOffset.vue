@@ -113,7 +113,8 @@ const link = computed(() => {
 						query: {
 							limit,
 							offset: isInFirstPage ? offset : offset - limit,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -130,7 +131,8 @@ const link = computed(() => {
 								query: {
 									limit,
 									offset: isInFirstPage ? offset : offset - limit,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"
@@ -145,7 +147,12 @@ const link = computed(() => {
 				<Anchor
 					:to="{
 						path: link,
-						query: { limit, offset: 0, ordering: route.query?.ordering }
+						query: {
+							limit,
+							offset: 0,
+							ordering: route.query?.ordering,
+							category: route.query?.category
+						}
 					}"
 					:css-class="{
 						'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
@@ -158,7 +165,12 @@ const link = computed(() => {
 						async () =>
 							await navigateTo({
 								path: link,
-								query: { limit, offset: 0, ordering: route.query?.ordering }
+								query: {
+									limit,
+									offset: 0,
+									ordering: route.query?.ordering,
+									category: route.query?.category
+								}
 							})
 					"
 				>
@@ -184,7 +196,8 @@ const link = computed(() => {
 						query: {
 							limit,
 							offset: (pageEntry - 1) * limit,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -200,7 +213,8 @@ const link = computed(() => {
 								query: {
 									limit,
 									offset: (pageEntry - 1) * limit,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"
@@ -216,7 +230,8 @@ const link = computed(() => {
 						query: {
 							limit,
 							offset: (totalPages - 1) * limit,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -233,7 +248,8 @@ const link = computed(() => {
 								query: {
 									limit,
 									offset: (totalPages - 1) * limit,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"
@@ -260,7 +276,8 @@ const link = computed(() => {
 						query: {
 							limit,
 							offset: offset + limit,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -280,7 +297,8 @@ const link = computed(() => {
 								query: {
 									limit,
 									offset: offset + limit,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"

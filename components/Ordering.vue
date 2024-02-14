@@ -40,7 +40,8 @@ const onOptionClick = async (option: OrderingOption) => {
 	await navigateTo({
 		path: link.value,
 		query: {
-			ordering: option.value
+			ordering: option.value,
+			category: route.query?.category
 		}
 	})
 }
@@ -96,7 +97,8 @@ const onOptionClick = async (option: OrderingOption) => {
 												:to="{
 													path: link,
 													query: {
-														ordering: option.value
+														ordering: option.value,
+														category: route.query?.category
 													}
 												}"
 												:class="{

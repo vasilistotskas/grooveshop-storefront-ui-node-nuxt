@@ -38,7 +38,6 @@ const alt = computed(() => {
 					loading="lazy"
 					provider="mediaStream"
 					class="aspect-square h-full w-full bg-white object-cover"
-					placeholder="/assets/images/placeholder.png"
 					:style="{ 'view-transition-name': `item-${item.id}`, aspectRatio: '1/1' }"
 					:width="300"
 					:height="300"

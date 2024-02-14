@@ -94,7 +94,8 @@ const link = computed(() => {
 						path: link,
 						query: {
 							page: page - 1,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -110,7 +111,8 @@ const link = computed(() => {
 								path: link,
 								query: {
 									page: page - 1,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"
@@ -127,7 +129,8 @@ const link = computed(() => {
 						path: link,
 						query: {
 							page: firstPageNumber,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -143,7 +146,8 @@ const link = computed(() => {
 								path: link,
 								query: {
 									page: firstPageNumber,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"
@@ -169,7 +173,8 @@ const link = computed(() => {
 						path: link,
 						query: {
 							page: pageEntry,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -184,7 +189,8 @@ const link = computed(() => {
 								path: link,
 								query: {
 									page: pageEntry,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"
@@ -199,7 +205,8 @@ const link = computed(() => {
 						path: link,
 						query: {
 							page: lastPageNumber,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -215,7 +222,8 @@ const link = computed(() => {
 								path: link,
 								query: {
 									page: lastPageNumber,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"
@@ -241,7 +249,8 @@ const link = computed(() => {
 						path: link,
 						query: {
 							page: page + 1,
-							ordering: route.query?.ordering
+							ordering: route.query?.ordering,
+							category: route.query?.category
 						}
 					}"
 					:class="{
@@ -260,7 +269,8 @@ const link = computed(() => {
 								path: link,
 								query: {
 									page: page + 1,
-									ordering: route.query?.ordering
+									ordering: route.query?.ordering,
+									category: route.query?.category
 								}
 							})
 					"

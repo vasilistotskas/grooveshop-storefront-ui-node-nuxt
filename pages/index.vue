@@ -60,7 +60,6 @@ const secondarySliderItems = [
 								loading="eager"
 								provider="mediaStream"
 								class="h-full w-full bg-white object-cover"
-								placeholder="/assets/images/placeholder.png"
 								:style="{ objectFit: 'contain' }"
 								:src="item"
 								:width="1290"

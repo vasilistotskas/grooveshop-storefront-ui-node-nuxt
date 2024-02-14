@@ -75,7 +75,6 @@ const reviewComment = computed(() => {
 								loading="lazy"
 								provider="mediaStream"
 								class="product-img w-30 h-20 bg-white object-cover"
-								placeholder="/assets/images/placeholder.png"
 								sizes="sm:100vw md:50vw lg:auto"
 								:src="src"
 								:alt="alt"

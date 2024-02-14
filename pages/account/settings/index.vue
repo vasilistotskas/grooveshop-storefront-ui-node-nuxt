@@ -173,7 +173,7 @@ definePageMeta({
 		<PageBody>
 			<form
 				id="accountSettingsForm"
-				class="_form grid grid-cols-2 gap-4"
+				class="_form grid grid-cols-2 gap-4 rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800"
 				name="accountSettingsForm"
 				@submit="onSubmit"
 			>

@@ -23,7 +23,7 @@ await fetchBlogTags({
 </script>
 
 <template>
-	<aside class="row-start-1 grid md:row-start-2">
+	<aside class="row-start-1 hidden md:row-start-2 lg:grid">
 		<div class="flex gap-4 md:flex-col">
 			<div class="grid items-center md:justify-center">
 				<h3 class="flex items-center gap-2 text-center text-2xl font-bold">
@@ -45,13 +45,9 @@ await fetchBlogTags({
 				variant="outline"
 				:placeholder="`${$t('common.search')}...`"
 			/>
-			<LazyNativeSlideShow
+			<ul
 				v-if="filteredTags && filteredTags.length > 0"
 				class="scrollable-tags grid items-center md:gap-4"
-				:grid-auto-columns="'25%'"
-				component-element="ul"
-				:mobile-only="true"
-				slider-class="md:grid gap-4"
 			>
 				<li v-for="tag in filteredTags" :key="tag.id">
 					<UButton color="white" variant="solid" class="flex w-full items-center"
@@ -60,7 +56,7 @@ await fetchBlogTags({
 						}}</UButton
 					>
 				</li>
-			</LazyNativeSlideShow>
+			</ul>
 		</div>
 	</aside>
 </template>

@@ -7,7 +7,7 @@ import emptyIcon from '~icons/mdi/package-variant-remove'
 const route = useRoute()
 const { t } = useI18n()
 
-const productStore = useProductsStore()
+const productStore = useProductStore()
 const { products, pending } = storeToRefs(productStore)
 const { fetchProducts } = productStore
 
@@ -15,17 +15,19 @@ const routePaginationParams = computed<ProductQuery>(() => {
 	const limit = Number(route.query.limit) || undefined
 	const offset = Number(route.query.offset) || undefined
 	const ordering = route.query.ordering || '-createdAt'
+	const category = route.query.category || undefined
 
 	return {
 		limit,
 		offset,
-		ordering
+		ordering,
+		category
 	}
 })
 
 const entityOrdering: Ref<EntityOrdering<ProductOrderingField>> = ref([
 	{
-		value: 'price',
+		value: 'finalPrice',
 		label: t('pages.product.ordering.price'),
 		options: ['ascending', 'descending']
 	},
@@ -37,7 +39,7 @@ const entityOrdering: Ref<EntityOrdering<ProductOrderingField>> = ref([
 ])
 
 const orderingFields: Partial<Record<ProductOrderingField, OrderingOption[]>> = reactive({
-	price: [],
+	finalPrice: [],
 	createdAt: []
 })
 

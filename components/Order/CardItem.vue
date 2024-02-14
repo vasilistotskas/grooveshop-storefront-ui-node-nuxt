@@ -32,7 +32,6 @@ const alt = computed(() => {
 			loading="lazy"
 			provider="mediaStream"
 			class="product-img bg-white"
-			placeholder="/assets/images/placeholder.png"
 			:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
 			:width="120"
 			:height="120"

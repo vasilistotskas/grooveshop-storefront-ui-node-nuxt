@@ -1,6 +1,5 @@
 import type { IFetchError } from 'ofetch'
-import type { Category } from '~/types/product/category'
-import type { ProductQuery } from '~/types/product/product'
+import type { ProductCategory, ProductCategoryQuery } from '~/types/product/category'
 import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
@@ -24,16 +23,16 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useProductCategoryStore = defineStore('productCategory', () => {
-	const categories = ref<Pagination<Category> | null>(null)
-	const category = ref<Category | null>(null)
+	const categories = ref<Pagination<ProductCategory> | null>(null)
+	const category = ref<ProductCategory | null>(null)
 	const pending = ref<PendingRecord>(pendingFactory())
 	const error = ref<ErrorRecord>(errorsFactory())
 
-	const getCategoryById = (id: number): Category | null => {
+	const getCategoryById = (id: number): ProductCategory | null => {
 		return categories.value?.results?.find((category) => category.id === id) ?? null
 	}
 
-	async function fetchCategories({ offset, limit, ordering }: ProductQuery) {
+	async function fetchCategories({ offset, limit, ordering }: ProductCategoryQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -42,7 +41,7 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
 			error: categoriesError,
 			pending: categoriesPending,
 			refresh
-		} = await useFetch<Pagination<Category>>(`/api/products/categories`, {
+		} = await useFetch<Pagination<ProductCategory>>(`/api/products/categories`, {
 			method: 'get',
 			params: {
 				offset,
@@ -71,7 +70,7 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
 			error: categoryError,
 			pending: categoryPending,
 			refresh
-		} = await useFetch<Category>(`/api/products/categories/${categoryId}`, {
+		} = await useFetch<ProductCategory>(`/api/products/categories/${categoryId}`, {
 			method: 'get'
 		})
 		category.value = data.value

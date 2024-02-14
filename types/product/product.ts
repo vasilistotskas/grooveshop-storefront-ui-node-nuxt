@@ -1,8 +1,8 @@
 import { z } from 'zod'
-import type { PaginationQuery } from '~/types/pagination'
-import type { OrderingQuery } from '~/types/ordering'
 import { ZodVat } from '~/types/vat'
-import { ZodCategory } from '~/types/product/category'
+import { ZodProductCategory } from '~/types/product/category'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 const ZodProductTranslations = z.record(
 	z.object({
@@ -15,7 +15,7 @@ export const ZodProduct = z.object({
 	translations: ZodProductTranslations,
 	id: z.number().int(),
 	slug: z.string(),
-	category: z.union([z.number(), ZodCategory]),
+	category: z.union([z.number(), ZodProductCategory]),
 	absoluteUrl: z.string(),
 	price: z.number(),
 	vat: z.union([z.number(), ZodVat]),
@@ -63,14 +63,22 @@ export const ZodProductParams = z.object({
 	id: z.string()
 })
 
-export const ZodProductQuery = z.object({
-	offset: z.string().nullish(),
-	limit: z.string().nullish(),
-	ordering: z.string().nullish()
-})
+export const ZodProductQuery = z
+	.object({
+		category: z.union([z.number(), z.string()]).nullish()
+	})
+	.merge(ZodOrderingQuery)
+	.merge(ZodPaginationQuery)
 
 export type Product = Readonly<z.infer<typeof ZodProduct>>
 export type ProductParams = z.infer<typeof ZodProductParams>
 export type ProductCreateBody = z.infer<typeof ZodProductCreateBody>
-export type ProductQuery = PaginationQuery & OrderingQuery
-export type ProductOrderingField = 'price' | 'createdAt'
+export type ProductQuery = z.infer<typeof ZodProductQuery>
+export type ProductOrderingField =
+	| 'price'
+	| 'createdAt'
+	| 'discountValue'
+	| 'finalPrice'
+	| 'priceSavePercent'
+	| 'reviewAverage'
+	| 'likesCounter'

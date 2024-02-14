@@ -38,3 +38,10 @@ export type PaginationQuery = {
 	limit?: number | LocationQueryValue[] | undefined
 	pagination?: string | LocationQueryValue[] | undefined
 }
+
+export const ZodPaginationQuery = z.object({
+	page: z.union([z.number(), z.string()]).nullish(),
+	offset: z.union([z.number(), z.string()]).nullish(),
+	limit: z.union([z.number(), z.string()]).nullish(),
+	pagination: z.union([z.number(), z.string()]).nullish()
+})
