@@ -1,3 +1,10 @@
+# [1.62.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.61.0...v1.62.0) (2024-2-14)
+
+
+### Features
+
+* Remove `native-slider` and use `NuxtUI` carousel, product page category filtering, new component `ImgWithFallback` and UI Improvements ([2bd6823](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2bd682387193341961bea7bf5afd1a416e452ef6))
+
 # [1.61.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.60.0...v1.61.0) (2024-2-12)
 
 
