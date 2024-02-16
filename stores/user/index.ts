@@ -1,9 +1,16 @@
 import type { IFetchError } from 'ofetch'
-import type { Account, AccountPutBody, UserAccountSession } from '~/types/user/account'
-import type { Favourite, FavouriteCreateBody } from '~/types/product/favourite'
-import type { Review } from '~/types/product/review'
+import type {
+	UserAccount,
+	UserAccountPutBody,
+	UserAccountSession
+} from '~/types/user/account'
+import type {
+	ProductFavourite,
+	ProductFavouriteCreateBody
+} from '~/types/product/favourite'
+import type { ProductReview } from '~/types/product/review'
 import type { Order } from '~/types/order/order'
-import type { Address } from '~/types/user/address'
+import type { UserAddress } from '~/types/user/address'
 
 interface ErrorRecord {
 	account: IFetchError | null
@@ -38,11 +45,11 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useUserStore = defineStore('user', () => {
-	const account = ref<Account | null>(null)
-	const favourites = ref<Favourite[] | null>(null)
-	const reviews = ref<Review[] | null>(null)
+	const account = ref<UserAccount | null>(null)
+	const favourites = ref<ProductFavourite[] | null>(null)
+	const reviews = ref<ProductReview[] | null>(null)
 	const orders = ref<Order[] | null>(null)
-	const addresses = ref<Address[] | null>(null)
+	const addresses = ref<UserAddress[] | null>(null)
 	const pending = ref<PendingRecord>(pendingFactory())
 	const error = ref<ErrorRecord>(errorsFactory())
 
@@ -50,7 +57,7 @@ export const useUserStore = defineStore('user', () => {
 		return favourites.value?.some((favourite) => favourite.product === id) || false
 	}
 
-	const getUserToProductFavourite = (id: number): Favourite | null => {
+	const getUserToProductFavourite = (id: number): ProductFavourite | null => {
 		return favourites.value?.find((favourite) => favourite.product === id) || null
 	}
 
@@ -85,7 +92,7 @@ export const useUserStore = defineStore('user', () => {
 		}
 	}
 
-	async function updateAccount(id: number, body: AccountPutBody) {
+	async function updateAccount(id: number, body: UserAccountPutBody) {
 		if (process.prerender) {
 			return
 		}
@@ -94,7 +101,7 @@ export const useUserStore = defineStore('user', () => {
 			error: accountError,
 			pending: accountPending,
 			refresh
-		} = await useFetch<Account>(`/api/user/account/${id}`, {
+		} = await useFetch<UserAccount>(`/api/user/account/${id}`, {
 			method: 'put',
 			body
 		})
@@ -119,7 +126,7 @@ export const useUserStore = defineStore('user', () => {
 			error: accountError,
 			pending: accountPending,
 			refresh
-		} = await useFetch<Account>(`/api/user/account/${id}`, {
+		} = await useFetch<UserAccount>(`/api/user/account/${id}`, {
 			method: 'patch',
 			body
 		})
@@ -135,7 +142,7 @@ export const useUserStore = defineStore('user', () => {
 		}
 	}
 
-	async function addFavourite(body: FavouriteCreateBody) {
+	async function addFavourite(body: ProductFavouriteCreateBody) {
 		if (process.prerender) {
 			return
 		}
@@ -144,7 +151,7 @@ export const useUserStore = defineStore('user', () => {
 			error: favouriteError,
 			pending: favouritePending,
 			refresh
-		} = await useFetch<Favourite>(`/api/products/favourites`, {
+		} = await useFetch<ProductFavourite>(`/api/products/favourites`, {
 			method: 'post',
 			body
 		})

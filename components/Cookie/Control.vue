@@ -5,7 +5,7 @@ import {
 	getCookieIds,
 	removeCookie
 } from '#cookie-control/methods'
-import { CookieTypeEnum } from '#cookie-control/types'
+import { ZodCookieTypeEnum } from '#cookie-control/types'
 import type { Cookie } from '#cookie-control/types'
 import 'assets/sass/_cookies.scss'
 
@@ -280,11 +280,11 @@ defineExpose({
 							@click="isModalActive = false"
 							v-text="$t('components.cookie.close')"
 						/>
-						<template v-for="cookieType in CookieTypeEnum.enum" :key="cookieType">
+						<template v-for="cookieType in ZodCookieTypeEnum.enum" :key="cookieType">
 							<template v-if="moduleOptions.cookies[cookieType].length">
 								<h2
 									v-text="
-										cookieType === CookieTypeEnum.enum.necessary
+										cookieType === ZodCookieTypeEnum.enum.necessary
 											? $t('components.cookie.cookies.necessary')
 											: $t('components.cookie.cookies.optional')
 									"
@@ -297,7 +297,7 @@ defineExpose({
 										<div class="cookie-control-ModalInputWrapper">
 											<input
 												v-if="
-													cookieType === CookieTypeEnum.enum.necessary &&
+													cookieType === ZodCookieTypeEnum.enum.necessary &&
 													cookie.name !== 'functional'
 												"
 												:id="cookie.name"

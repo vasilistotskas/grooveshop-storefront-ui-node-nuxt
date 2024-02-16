@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Review } from '~/types/product/review'
+import type { ProductReview } from '~/types/product/review'
 
 const props = defineProps({
 	reviewsAverage: {
@@ -14,7 +14,7 @@ const props = defineProps({
 		default: 0
 	},
 	reviews: {
-		type: Array as PropType<Review[] | null>,
+		type: Array as PropType<ProductReview[] | null>,
 		required: true
 	},
 	displayImageOf: {

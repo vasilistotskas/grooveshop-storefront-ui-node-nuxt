@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import { z } from 'zod'
-import type { Review, ReviewQuery } from '~/types/product/review'
-import { StatusEnum } from '~/types/product/review'
+import type { ProductReview, ProductReviewQuery } from '~/types/product/review'
+import { ZodProductReviewStatusEnum } from '~/types/product/review'
 import { GlobalEvents } from '~/events/global'
 import type { Product } from '~/types/product/product'
-import type { Account } from '~/types/user/account'
+import type { UserAccount } from '~/types/user/account'
 
 const starSvg =
 	'<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
@@ -14,7 +14,7 @@ const starHalfSvg =
 
 const props = defineProps({
 	existingReview: {
-		type: Object as PropType<Review | null>,
+		type: Object as PropType<ProductReview | null>,
 		required: false,
 		default: null
 	},
@@ -28,7 +28,7 @@ const props = defineProps({
 		required: true
 	},
 	user: {
-		type: Object as PropType<Account>,
+		type: Object as PropType<UserAccount>,
 		required: false,
 		default: undefined
 	},
@@ -55,7 +55,7 @@ const toast = useToast()
 
 const { existingReview, userHadReviewed, product, user, isAuthenticated } = toRefs(props)
 
-const routePaginationParams = computed<ReviewQuery>(() => {
+const routePaginationParams = computed<ProductReviewQuery>(() => {
 	const id = String(product.value?.id)
 	const page = Number(route.query.page) || undefined
 	const ordering = route.query.ordering || '-createdAt'
@@ -295,7 +295,7 @@ const createReviewEvent = async (event: { comment: string; rate: number }) => {
 				}
 			},
 			rate: String(event.rate),
-			status: StatusEnum.enum.TRUE
+			status: ZodProductReviewStatusEnum.enum.TRUE
 		},
 		{ expand: 'true' }
 	)

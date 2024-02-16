@@ -1,5 +1,5 @@
 import type { IFetchError } from 'ofetch'
-import type { Favourite, FavouriteQuery } from '~/types/product/favourite'
+import type { ProductFavourite, ProductFavouriteQuery } from '~/types/product/favourite'
 import type { Pagination } from '~/types/pagination'
 
 interface ErrorRecord {
@@ -21,11 +21,16 @@ const pendingFactory = (): PendingRecord => ({
 export const useFavouriteStore = defineStore(
 	'favourite',
 	() => {
-		const favourites = ref<Pagination<Favourite> | null>(null)
+		const favourites = ref<Pagination<ProductFavourite> | null>(null)
 		const pending = ref<PendingRecord>(pendingFactory())
 		const error = ref<ErrorRecord>(errorsFactory())
 
-		async function fetchFavourites({ page, ordering, userId, expand }: FavouriteQuery) {
+		async function fetchFavourites({
+			page,
+			ordering,
+			userId,
+			expand
+		}: ProductFavouriteQuery) {
 			if (process.prerender) {
 				return
 			}
@@ -34,7 +39,7 @@ export const useFavouriteStore = defineStore(
 				error: favouriteError,
 				pending: favouritePending,
 				refresh
-			} = await useFetch<Pagination<Favourite>>(`/api/products/favourites`, {
+			} = await useFetch<Pagination<ProductFavourite>>(`/api/products/favourites`, {
 				method: 'get',
 				params: {
 					page,

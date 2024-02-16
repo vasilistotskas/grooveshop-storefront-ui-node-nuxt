@@ -47,7 +47,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 	>
 		<div class="image">
 			<Anchor :to="`/product${cartItem.product.absoluteUrl}`" :title="alt">
-				<NuxtImg
+				<ImgWithFallback
 					loading="lazy"
 					provider="mediaStream"
 					class="product-img bg-white"

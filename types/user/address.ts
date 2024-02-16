@@ -3,7 +3,7 @@ import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 
-export const ZodAddress = z.object({
+export const ZodUserAddress = z.object({
 	id: z.number(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
@@ -26,7 +26,7 @@ export const ZodAddress = z.object({
 	region: z.string().nullish()
 })
 
-export const ZodAddressQuery = z.object({
+export const ZodUserAddressQuery = z.object({
 	page: z.string().nullish(),
 	ordering: z.string().nullish(),
 	id: z.string().nullish(),
@@ -35,7 +35,7 @@ export const ZodAddressQuery = z.object({
 	pagination: z.string().nullish()
 })
 
-export const ZodAddressCreateBody = z.object({
+export const ZodUserAddressCreateBody = z.object({
 	title: z.string(),
 	firstName: z.string(),
 	lastName: z.string(),
@@ -54,11 +54,11 @@ export const ZodAddressCreateBody = z.object({
 	region: z.string().nullish()
 })
 
-export const ZodAddressParams = z.object({
+export const ZodUserAddressParams = z.object({
 	id: z.string()
 })
 
-export const ZodAddressPutBody = z.object({
+export const ZodUserAddressPutBody = z.object({
 	title: z.string(),
 	firstName: z.string(),
 	lastName: z.string(),
@@ -77,17 +77,17 @@ export const ZodAddressPutBody = z.object({
 	region: z.string().nullish()
 })
 
-export type Address = z.infer<typeof ZodAddress>
-export type AddressParams = z.infer<typeof ZodAddressParams>
-export type AddressPutBody = z.infer<typeof ZodAddressPutBody>
-export type AddressCreateBody = z.infer<typeof ZodAddressCreateBody>
-export type AddressQuery = PaginationQuery &
+export type UserAddress = z.infer<typeof ZodUserAddress>
+export type UserAddressParams = z.infer<typeof ZodUserAddressParams>
+export type UserAddressPutBody = z.infer<typeof ZodUserAddressPutBody>
+export type UserAddressCreateBody = z.infer<typeof ZodUserAddressCreateBody>
+export type UserAddressQuery = PaginationQuery &
 	OrderingQuery & {
 		id?: string | undefined
 		user?: string | undefined
 		expand?: string | undefined
 	}
-export type AddressOrderingField =
+export type UserAddressOrderingField =
 	| 'id'
 	| 'user'
 	| 'country'

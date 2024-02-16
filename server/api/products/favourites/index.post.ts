@@ -1,12 +1,15 @@
 import type { H3Event } from 'h3'
 
-import { ZodFavourite, ZodFavouriteCreateBody } from '~/types/product/favourite'
+import {
+	ZodProductFavourite,
+	ZodProductFavouriteCreateBody
+} from '~/types/product/favourite'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const body = await parseBodyAs(event, ZodFavouriteCreateBody)
+	const body = await parseBodyAs(event, ZodProductFavouriteCreateBody)
 	const response = await $api(`${config.public.apiBaseUrl}/product/favourite`, event, {
 		body
 	})
-	return await parseDataAs(response, ZodFavourite)
+	return await parseDataAs(response, ZodProductFavourite)
 })

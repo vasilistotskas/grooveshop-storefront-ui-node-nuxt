@@ -33,7 +33,7 @@ const alt = computed(() => {
 			:text="extractTranslated(item, 'name', locale)"
 		>
 			<div class="bg-zinc4:10 duration-400 z-10 block p-1 transition hover:scale-105">
-				<NuxtImg
+				<ImgWithFallback
 					v-if="src"
 					loading="lazy"
 					provider="mediaStream"

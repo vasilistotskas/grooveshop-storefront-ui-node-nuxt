@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Image } from '~/types/product/image'
+import type { ProductImage } from '~/types/product/image'
 import type { ImageLoading } from '~/types/global/general'
 
 const props = defineProps({
 	image: {
-		type: Object as PropType<Image | null>,
+		type: Object as PropType<ProductImage | null>,
 		required: false,
 		default: null
 	},

@@ -1,12 +1,12 @@
 import type { IFetchError } from 'ofetch'
 import type { Pagination } from '~/types/pagination'
 import type {
-	Review,
-	ReviewCreateQuery,
-	ReviewCreateBody,
-	ReviewPutBody,
-	ReviewQuery,
-	ReviewUserHadReviewedBody
+	ProductReview,
+	ProductReviewCreateQuery,
+	ProductReviewCreateBody,
+	ProductReviewPutBody,
+	ProductReviewQuery,
+	ProductReviewUserHadReviewedBody
 } from '~/types/product/review'
 
 interface ErrorRecord {
@@ -30,12 +30,12 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useProductReviewStore = defineStore('productReview', () => {
-	const reviews = ref<Pagination<Review> | null>(null)
+	const reviews = ref<Pagination<ProductReview> | null>(null)
 	const userHadReviewed = ref<boolean | null>(null)
 	const pending = ref<PendingRecord>(pendingFactory())
 	const error = ref<ErrorRecord>(errorsFactory())
 
-	const getReviewById = (id: number): Review | null => {
+	const getReviewById = (id: number): ProductReview | null => {
 		return reviews.value?.results?.find((review) => review.id === id) ?? null
 	}
 
@@ -46,7 +46,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		ordering,
 		expand,
 		status
-	}: ReviewQuery) {
+	}: ProductReviewQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -55,7 +55,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch<Pagination<Review>>(`/api/products/reviews`, {
+		} = await useFetch<Pagination<ProductReview>>(`/api/products/reviews`, {
 			method: 'get',
 			params: {
 				productId,
@@ -83,7 +83,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		userId,
 		expand,
 		status
-	}: ReviewQuery) {
+	}: ProductReviewQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -92,7 +92,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch<Pagination<Review>>(`/api/products/reviews`, {
+		} = await useFetch<Pagination<ProductReview>>(`/api/products/reviews`, {
 			method: 'get',
 			params: {
 				productId,
@@ -116,7 +116,10 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		}
 	}
 
-	async function fetchUserHadReviewed({ product, user }: ReviewUserHadReviewedBody) {
+	async function fetchUserHadReviewed({
+		product,
+		user
+	}: ProductReviewUserHadReviewedBody) {
 		if (process.prerender) {
 			return
 		}
@@ -144,7 +147,10 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		}
 	}
 
-	async function createReview(body: ReviewCreateBody, params: ReviewCreateQuery) {
+	async function createReview(
+		body: ProductReviewCreateBody,
+		params: ProductReviewCreateQuery
+	) {
 		if (process.prerender) {
 			return
 		}
@@ -153,7 +159,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch<Review>(`/api/products/reviews`, {
+		} = await useFetch<ProductReview>(`/api/products/reviews`, {
 			method: 'post',
 			body,
 			params
@@ -179,7 +185,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 		}
 	}
 
-	async function updateReview(id: number, body: ReviewPutBody) {
+	async function updateReview(id: number, body: ProductReviewPutBody) {
 		if (process.prerender) {
 			return
 		}
@@ -188,7 +194,7 @@ export const useProductReviewStore = defineStore('productReview', () => {
 			error: reviewsError,
 			pending: reviewsPending,
 			refresh
-		} = await useFetch<Review>(`/api/products/reviews/${id}`, {
+		} = await useFetch<ProductReview>(`/api/products/reviews/${id}`, {
 			method: 'put',
 			body
 		})

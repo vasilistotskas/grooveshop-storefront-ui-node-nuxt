@@ -5,7 +5,7 @@ import {
 	floorChoicesList,
 	locationChoicesList
 } from '~/constants/general'
-import { documentTypeEnum, StatusEnum } from '~/types/order/order'
+import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 
@@ -54,7 +54,7 @@ const ZodCheckout = z.object({
 	streetNumber: z
 		.string()
 		.min(1, t('pages.checkout.validation.street_number.min', { min: 1 })),
-	status: StatusEnum.nullish(),
+	status: ZodOrderStatusEnum.nullish(),
 	firstName: z.string().min(3, t('pages.checkout.validation.first_name.min', { min: 3 })),
 	lastName: z.string().min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
 	email: z.string().email(t('pages.checkout.validation.email.email')),
@@ -65,7 +65,7 @@ const ZodCheckout = z.object({
 	mobilePhone: z.string().nullish(),
 	customerNotes: z.string().nullish(),
 	shippingPrice: z.number(),
-	documentType: documentTypeEnum,
+	documentType: ZodDocumentTypeEnum,
 	orderItemOrder: z.array(ZodOrderCreateItem),
 	payWay: z.number()
 })
@@ -85,7 +85,7 @@ const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } = useFo
 				product: item.product.id
 			})) || [],
 		shippingPrice: shippingPrice.value,
-		documentType: documentTypeEnum.enum.RECEIPT
+		documentType: ZodDocumentTypeEnum.enum.RECEIPT
 	}
 })
 

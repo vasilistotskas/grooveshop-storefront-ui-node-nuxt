@@ -31,7 +31,7 @@ await fetchRegions({
 	country: account.value?.country ?? ''
 })
 
-const ZodAddress = z.object({
+const ZodUserAddress = z.object({
 	title: z.string(),
 	firstName: z.string(),
 	lastName: z.string(),
@@ -59,7 +59,7 @@ const ZodAddress = z.object({
 		})
 		.nullish()
 })
-const validationSchema = toTypedSchema(ZodAddress)
+const validationSchema = toTypedSchema(ZodUserAddress)
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues: {

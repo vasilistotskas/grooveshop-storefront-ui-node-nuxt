@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import type { PropType, Ref } from 'vue'
-import type { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
+import type {
+	ProductReview,
+	ProductReviewOrderingField,
+	ProductReviewQuery
+} from '~/types/product/review'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
@@ -35,7 +39,7 @@ const route = useRoute()
 
 const { productId, reviewsAverage, reviewsCount, displayImageOf } = toRefs(props)
 
-const routePaginationParams = computed<ReviewQuery>(() => {
+const routePaginationParams = computed<ProductReviewQuery>(() => {
 	const id = String(productId.value)
 	const page = Number(route.query.page) || undefined
 	const ordering = route.query.ordering || '-createdAt'
@@ -56,7 +60,7 @@ const refreshReviews = async () => {
 	await fetchReviews(routePaginationParams.value)
 }
 
-const entityOrdering: Ref<EntityOrdering<ReviewOrderingField>> = ref([
+const entityOrdering: Ref<EntityOrdering<ProductReviewOrderingField>> = ref([
 	{
 		value: 'id',
 		label: t('components.product.reviews.ordering.id'),
@@ -69,19 +73,20 @@ const entityOrdering: Ref<EntityOrdering<ReviewOrderingField>> = ref([
 	}
 ])
 
-const orderingFields: Partial<Record<ReviewOrderingField, OrderingOption[]>> = reactive({
-	id: [],
-	userId: [],
-	productId: [],
-	createdAt: []
-})
+const orderingFields: Partial<Record<ProductReviewOrderingField, OrderingOption[]>> =
+	reactive({
+		id: [],
+		userId: [],
+		productId: [],
+		createdAt: []
+	})
 
 const pagination = computed(() => {
-	return usePagination<Review>(reviews.value)
+	return usePagination<ProductReview>(reviews.value)
 })
 
 const ordering = computed(() => {
-	return useOrdering<ReviewOrderingField>(entityOrdering.value, orderingFields)
+	return useOrdering<ProductReviewOrderingField>(entityOrdering.value, orderingFields)
 })
 
 watch(
@@ -136,7 +141,6 @@ watch(
 					</template>
 				</div>
 			</div>
-			<div class="flex items-center justify-center"></div>
 		</template>
 	</div>
 </template>

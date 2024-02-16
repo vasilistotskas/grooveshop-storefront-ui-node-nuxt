@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import type { Ref } from 'vue'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
-import type { Review, ReviewOrderingField, ReviewQuery } from '~/types/product/review'
+import type {
+	ProductReview,
+	ProductReviewOrderingField,
+	ProductReviewQuery
+} from '~/types/product/review'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const userStore = useUserStore()
@@ -14,7 +18,7 @@ const { fetchReviews } = productReviewStore
 const { t } = useI18n()
 const route = useRoute('account-reviews___en')
 
-const entityOrdering: Ref<EntityOrdering<ReviewOrderingField>> = ref([
+const entityOrdering: Ref<EntityOrdering<ProductReviewOrderingField>> = ref([
 	{
 		value: 'createdAt',
 		label: t('pages.account.reviews.ordering.created_at'),
@@ -22,19 +26,20 @@ const entityOrdering: Ref<EntityOrdering<ReviewOrderingField>> = ref([
 	}
 ])
 
-const orderingFields: Partial<Record<ReviewOrderingField, OrderingOption[]>> = reactive({
-	createdAt: []
-})
+const orderingFields: Partial<Record<ProductReviewOrderingField, OrderingOption[]>> =
+	reactive({
+		createdAt: []
+	})
 
 const pagination = computed(() => {
-	return usePagination<Review>(reviews.value)
+	return usePagination<ProductReview>(reviews.value)
 })
 
 const ordering = computed(() => {
-	return useOrdering<ReviewOrderingField>(entityOrdering.value, orderingFields)
+	return useOrdering<ProductReviewOrderingField>(entityOrdering.value, orderingFields)
 })
 
-const routePaginationParams = computed<ReviewQuery>(() => {
+const routePaginationParams = computed<ProductReviewQuery>(() => {
 	const page = Number(route.query.page) || undefined
 	const ordering = route.query.ordering || '-createdAt'
 	const userId = String(account.value?.id)

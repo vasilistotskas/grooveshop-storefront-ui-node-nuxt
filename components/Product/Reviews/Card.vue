@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Review } from '~/types/product/review'
+import type { ProductReview } from '~/types/product/review'
 
 const props = defineProps({
 	review: {
-		type: Object as PropType<Review>,
+		type: Object as PropType<ProductReview>,
 		required: true
 	},
 	displayImageOf: {
@@ -71,7 +71,7 @@ const reviewComment = computed(() => {
 					/>
 					<div v-if="displayImageOf === 'product' && product" class="grid gap-2">
 						<Anchor :to="`/product${product.absoluteUrl}`" :text="productName">
-							<NuxtImg
+							<ImgWithFallback
 								loading="lazy"
 								provider="mediaStream"
 								class="product-img w-30 h-20 bg-white object-cover"

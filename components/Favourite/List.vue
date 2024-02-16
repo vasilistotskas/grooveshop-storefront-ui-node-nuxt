@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Favourite } from '~/types/product/favourite'
+import type { ProductFavourite } from '~/types/product/favourite'
 
 defineProps({
 	favourites: {
-		type: Array as PropType<Favourite[] | null>,
+		type: Array as PropType<ProductFavourite[] | null>,
 		required: true
 	},
 	displayTotal: {

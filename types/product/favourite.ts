@@ -2,18 +2,18 @@ import { z } from 'zod'
 import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
 import { ZodProduct } from '~/types/product/product'
-import { ZodAccount } from '~/types/user/account'
+import { ZodUserAccount } from '~/types/user/account'
 
-export const ZodFavourite = z.object({
+export const ZodProductFavourite = z.object({
 	id: z.number(),
 	product: z.union([z.number(), ZodProduct]),
-	user: z.union([z.number(), ZodAccount]),
+	user: z.union([z.number(), ZodUserAccount]),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid()
 })
 
-export const ZodFavouriteQuery = z.object({
+export const ZodProductFavouriteQuery = z.object({
 	page: z.string().nullish(),
 	ordering: z.string().nullish(),
 	id: z.string().nullish(),
@@ -22,20 +22,20 @@ export const ZodFavouriteQuery = z.object({
 	expand: z.string().nullish()
 })
 
-export const ZodFavouriteCreateBody = z.object({
+export const ZodProductFavouriteCreateBody = z.object({
 	user: z.string(),
 	product: z.string()
 })
 
-export const ZodFavouriteParams = z.object({
+export const ZodProductFavouriteParams = z.object({
 	id: z.string()
 })
 
-export type Favourite = z.infer<typeof ZodFavourite>
-export type FavouriteParams = z.infer<typeof ZodFavouriteParams>
-export type FavouriteCreateBody = z.infer<typeof ZodFavouriteCreateBody>
-export type FavouriteOrderingField = 'createdAt'
-export type FavouriteQuery = PaginationQuery &
+export type ProductFavourite = z.infer<typeof ZodProductFavourite>
+export type ProductFavouriteParams = z.infer<typeof ZodProductFavouriteParams>
+export type ProductFavouriteCreateBody = z.infer<typeof ZodProductFavouriteCreateBody>
+export type ProductFavouriteOrderingField = 'createdAt'
+export type ProductFavouriteQuery = PaginationQuery &
 	OrderingQuery & {
 		id?: string | undefined
 		userId?: string | undefined

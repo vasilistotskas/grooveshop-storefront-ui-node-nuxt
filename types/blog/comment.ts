@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZodAccount } from '~/types/user/account'
+import { ZodUserAccount } from '~/types/user/account'
 import { ZodBlogPost } from '~/types/blog/post'
 import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
@@ -14,8 +14,11 @@ export const ZodBlogComment = z.object({
 	translations: ZodBlogCommentTranslations,
 	id: z.number().int(),
 	isApproved: z.boolean(),
-	likes: z.union([z.array(z.number()), z.array(ZodAccount)]),
-	user: z.union([z.number(), ZodAccount]),
+	parent: z.number().nullish(),
+	level: z.number().nullish(),
+	treeId: z.number().nullish(),
+	likes: z.union([z.array(z.number()), z.array(ZodUserAccount)]),
+	user: z.union([z.number(), ZodUserAccount]),
 	post: z.union([z.number(), ZodBlogPost]),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),

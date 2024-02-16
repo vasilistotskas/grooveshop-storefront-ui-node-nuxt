@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { Ref } from 'vue'
 import type {
-	Favourite,
-	FavouriteOrderingField,
-	FavouriteQuery
+	ProductFavourite,
+	ProductFavouriteOrderingField,
+	ProductFavouriteQuery
 } from '~/types/product/favourite'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
@@ -18,7 +18,7 @@ const { fetchFavourites } = favouriteStore
 const { t } = useI18n()
 const route = useRoute('account-favourites___en')
 
-const entityOrdering: Ref<EntityOrdering<FavouriteOrderingField>> = ref([
+const entityOrdering: Ref<EntityOrdering<ProductFavouriteOrderingField>> = ref([
 	{
 		value: 'createdAt',
 		label: t('pages.account.favourites.ordering.created_at'),
@@ -26,20 +26,20 @@ const entityOrdering: Ref<EntityOrdering<FavouriteOrderingField>> = ref([
 	}
 ])
 
-const orderingFields: Partial<Record<FavouriteOrderingField, OrderingOption[]>> =
+const orderingFields: Partial<Record<ProductFavouriteOrderingField, OrderingOption[]>> =
 	reactive({
 		createdAt: []
 	})
 
 const pagination = computed(() => {
-	return usePagination<Favourite>(favourites.value)
+	return usePagination<ProductFavourite>(favourites.value)
 })
 
 const ordering = computed(() => {
-	return useOrdering<FavouriteOrderingField>(entityOrdering.value, orderingFields)
+	return useOrdering<ProductFavouriteOrderingField>(entityOrdering.value, orderingFields)
 })
 
-const routePaginationParams = computed<FavouriteQuery>(() => {
+const routePaginationParams = computed<ProductFavouriteQuery>(() => {
 	const page = Number(route.query.page) || undefined
 	const ordering = route.query.ordering || '-createdAt'
 	const userId = String(account.value?.id)

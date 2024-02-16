@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Address } from '~/types/user/address'
+import type { UserAddress } from '~/types/user/address'
 
 defineProps({
 	addresses: {
-		type: Array as PropType<Address[] | null>,
+		type: Array as PropType<UserAddress[] | null>,
 		required: true
 	},
 	addressesTotal: {

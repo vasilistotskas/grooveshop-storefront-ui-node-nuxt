@@ -90,7 +90,7 @@ const categoryImageSource = computed(() => {
 			<div
 				class="flex h-[48px] w-[48px] items-center rounded-full bg-zinc-100 dark:bg-zinc-900"
 			>
-				<NuxtImg
+				<ImgWithFallback
 					provider="mediaStream"
 					class="h-auto w-full rounded-full bg-zinc-100 object-cover dark:bg-zinc-900"
 					:style="{ contentVisibility: 'auto' }"

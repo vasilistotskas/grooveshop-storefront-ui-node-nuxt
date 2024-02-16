@@ -11,8 +11,8 @@ import { ZodRegion } from '~/types/region'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 import { ZodPayWay } from '~/types/pay-way'
 
-export const StatusEnum = z.enum(['SENT', 'PAID_AND_SENT', 'CANCELED', 'PENDING'])
-export const documentTypeEnum = z.enum(['RECEIPT', 'INVOICE'])
+export const ZodOrderStatusEnum = z.enum(['SENT', 'PAID_AND_SENT', 'CANCELED', 'PENDING'])
+export const ZodDocumentTypeEnum = z.enum(['RECEIPT', 'INVOICE'])
 
 export const ZodOrder = z.object({
 	id: z.number(),
@@ -32,11 +32,11 @@ export const ZodOrder = z.object({
 	city: z.string(),
 	phone: z.string(),
 	mobilePhone: z.string().nullish(),
-	status: StatusEnum,
+	status: ZodOrderStatusEnum,
 	customerNotes: z.string().nullish(),
 	shippingPrice: z.number(),
 	paidAmount: z.number(),
-	documentType: documentTypeEnum,
+	documentType: ZodDocumentTypeEnum,
 	orderItemOrder: z.array(ZodOrderItem),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
@@ -62,7 +62,7 @@ export const ZodOrderCreateBody = z.object({
 	street: z.string(),
 	streetNumber: z.string(),
 	payWay: z.number(),
-	status: StatusEnum.nullish(),
+	status: ZodOrderStatusEnum.nullish(),
 	firstName: z.string(),
 	lastName: z.string(),
 	email: z.string().email(),
@@ -73,7 +73,7 @@ export const ZodOrderCreateBody = z.object({
 	mobilePhone: z.string().nullish(),
 	customerNotes: z.string().nullish(),
 	shippingPrice: z.number(),
-	documentType: documentTypeEnum,
+	documentType: ZodDocumentTypeEnum,
 	orderItemOrder: z.array(ZodOrderCreateItem)
 })
 
@@ -87,7 +87,7 @@ export const ZodOrderCreateResponse = z.object({
 	street: z.string(),
 	streetNumber: z.string(),
 	payWay: z.number(),
-	status: StatusEnum.nullish(),
+	status: ZodOrderStatusEnum.nullish(),
 	firstName: z.string(),
 	lastName: z.string(),
 	email: z.string().email(),
@@ -99,7 +99,7 @@ export const ZodOrderCreateResponse = z.object({
 	customerNotes: z.string().nullish(),
 	orderItemOrder: z.array(ZodOrderCreateResponseItem),
 	shippingPrice: z.number(),
-	documentType: documentTypeEnum,
+	documentType: ZodDocumentTypeEnum,
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid(),

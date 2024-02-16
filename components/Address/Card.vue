@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Address } from '~/types/user/address'
+import type { UserAddress } from '~/types/user/address'
 import { GlobalEvents } from '~/events/global'
 import type { UserAddressAction } from '~/events/user/address'
 
 const props = defineProps({
 	address: {
-		type: Object as PropType<Address>,
+		type: Object as PropType<UserAddress>,
 		required: true
 	}
 })

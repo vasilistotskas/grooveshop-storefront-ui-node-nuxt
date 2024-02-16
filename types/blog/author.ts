@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZodAccount } from '~/types/user/account'
+import { ZodUserAccount } from '~/types/user/account'
 
 const ZodBlogAuthorTranslations = z.record(
 	z.object({
@@ -10,7 +10,7 @@ const ZodBlogAuthorTranslations = z.record(
 export const ZodBlogAuthor = z.object({
 	translations: ZodBlogAuthorTranslations,
 	id: z.number().int(),
-	user: z.union([z.number(), ZodAccount]),
+	user: z.union([z.number(), ZodUserAccount]),
 	website: z.string().nullish(),
 	numberOfPosts: z.number().int(),
 	totalLikesReceived: z.number().int(),

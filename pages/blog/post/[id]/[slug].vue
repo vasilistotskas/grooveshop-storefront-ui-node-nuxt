@@ -3,7 +3,7 @@ import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
 import type { BlogTag } from '~/types/blog/tag'
 import type { BlogAuthor } from '~/types/blog/author'
-import type { Account } from '~/types/user/account'
+import type { UserAccount } from '~/types/user/account'
 
 const blogPostStore = useBlogPostStore()
 const { post } = storeToRefs(blogPostStore)
@@ -36,7 +36,7 @@ const blogPostAuthor = computed(() => {
 })
 const blogPostAuthorUser = computed(() => {
 	if (typeof blogPostAuthor.value?.user !== 'number') {
-		return blogPostAuthor.value?.user as Account
+		return blogPostAuthor.value?.user as UserAccount
 	}
 	return null
 })
@@ -204,7 +204,7 @@ definePageMeta({
 						<div class="w-full sm:mx-0">
 							<div class="sm:mx-0">
 								<div class="shadow-small">
-									<NuxtImg
+									<ImgWithFallback
 										loading="lazy"
 										provider="mediaStream"
 										class="rounded-lg bg-white"

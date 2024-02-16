@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Favourite } from '~/types/product/favourite'
+import type { ProductFavourite } from '~/types/product/favourite'
 import type { ButtonSize } from '~/types/global/button'
 import heartJSON from '~/assets/lotties/heart.json'
 import Lottie from '~/components/Lottie/index.vue'
@@ -20,7 +20,7 @@ const props = defineProps({
 		required: true
 	},
 	favourite: {
-		type: Object as PropType<Favourite | null>,
+		type: Object as PropType<ProductFavourite | null>,
 		required: false,
 		default: null
 	},

@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import type { Ref } from 'vue'
-import type { Address, AddressOrderingField, AddressQuery } from '~/types/user/address'
+import type {
+	UserAddress,
+	UserAddressOrderingField,
+	UserAddressQuery
+} from '~/types/user/address'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
 import { GlobalEvents } from '~/events/global'
@@ -17,7 +21,7 @@ const { t } = useI18n()
 const route = useRoute('account-addresses___en')
 const bus = useEventBus<string, UserAddressAction>(GlobalEvents.USER_ADDRESS)
 
-const entityOrdering: Ref<EntityOrdering<AddressOrderingField>> = ref([
+const entityOrdering: Ref<EntityOrdering<UserAddressOrderingField>> = ref([
 	{
 		value: 'createdAt',
 		label: t('pages.account.addresses.ordering.created_at'),
@@ -30,20 +34,21 @@ const entityOrdering: Ref<EntityOrdering<AddressOrderingField>> = ref([
 	}
 ])
 
-const orderingFields: Partial<Record<AddressOrderingField, OrderingOption[]>> = reactive({
-	createdAt: [],
-	isMain: []
-})
+const orderingFields: Partial<Record<UserAddressOrderingField, OrderingOption[]>> =
+	reactive({
+		createdAt: [],
+		isMain: []
+	})
 
 const pagination = computed(() => {
-	return usePagination<Address>(addresses.value)
+	return usePagination<UserAddress>(addresses.value)
 })
 
 const ordering = computed(() => {
-	return useOrdering<AddressOrderingField>(entityOrdering.value, orderingFields)
+	return useOrdering<UserAddressOrderingField>(entityOrdering.value, orderingFields)
 })
 
-const routePaginationParams = computed<AddressQuery>(() => {
+const routePaginationParams = computed<UserAddressQuery>(() => {
 	const page = Number(route.query.page) || 1
 	const ordering = route.query.ordering || '-isMain'
 	const user = String(account.value?.id)

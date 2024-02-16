@@ -1,9 +1,9 @@
 import type { IFetchError } from 'ofetch'
 import type {
-	Address,
-	AddressCreateBody,
-	AddressPutBody,
-	AddressQuery
+	UserAddress,
+	UserAddressCreateBody,
+	UserAddressPutBody,
+	UserAddressQuery
 } from '~/types/user/address'
 import type { Pagination } from '~/types/pagination'
 
@@ -28,12 +28,12 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useUserAddressStore = defineStore('userAddress', () => {
-	const addresses = ref<Pagination<Address> | null>(null)
-	const address = ref<Address | null>(null)
+	const addresses = ref<Pagination<UserAddress> | null>(null)
+	const address = ref<UserAddress | null>(null)
 	const pending = ref<PendingRecord>(pendingFactory())
 	const error = ref<ErrorRecord>(errorsFactory())
 
-	async function fetchAddresses({ page, ordering, user }: AddressQuery) {
+	async function fetchAddresses({ page, ordering, user }: UserAddressQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -42,7 +42,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressesError,
 			pending: addressesPending,
 			refresh
-		} = await useFetch<Pagination<Address>>(`/api/user/addresses`, {
+		} = await useFetch<Pagination<UserAddress>>(`/api/user/addresses`, {
 			method: 'get',
 			params: {
 				page,
@@ -62,7 +62,12 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 		}
 	}
 
-	async function fetchUserAddresses({ page, ordering, user, pagination }: AddressQuery) {
+	async function fetchUserAddresses({
+		page,
+		ordering,
+		user,
+		pagination
+	}: UserAddressQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -71,15 +76,18 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressesError,
 			pending: addressesPending,
 			refresh
-		} = await useFetch<Pagination<Address>>(`/api/user/addresses/get-user-addresses`, {
-			method: 'get',
-			params: {
-				page,
-				ordering,
-				user,
-				pagination
+		} = await useFetch<Pagination<UserAddress>>(
+			`/api/user/addresses/get-user-addresses`,
+			{
+				method: 'get',
+				params: {
+					page,
+					ordering,
+					user,
+					pagination
+				}
 			}
-		})
+		)
 		addresses.value = data.value
 		error.value.addresses = addressesError.value
 		pending.value.addresses = addressesPending.value
@@ -101,7 +109,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch<Address>(`/api/user/addresses/${id}`, {
+		} = await useFetch<UserAddress>(`/api/user/addresses/${id}`, {
 			method: 'get'
 		})
 		address.value = data.value
@@ -116,7 +124,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 		}
 	}
 
-	async function createAddress(body: AddressCreateBody) {
+	async function createAddress(body: UserAddressCreateBody) {
 		if (process.prerender) {
 			return
 		}
@@ -125,7 +133,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch<Address>(`/api/user/addresses`, {
+		} = await useFetch<UserAddress>(`/api/user/addresses`, {
 			method: 'post',
 			body
 		})
@@ -141,7 +149,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 		}
 	}
 
-	async function updateAddress(id: string | number, body: AddressPutBody) {
+	async function updateAddress(id: string | number, body: UserAddressPutBody) {
 		if (process.prerender) {
 			return
 		}
@@ -150,7 +158,7 @@ export const useUserAddressStore = defineStore('userAddress', () => {
 			error: addressError,
 			pending: addressPending,
 			refresh
-		} = await useFetch<Address>(`/api/user/addresses/${id}`, {
+		} = await useFetch<UserAddress>(`/api/user/addresses/${id}`, {
 			method: 'put',
 			body
 		})

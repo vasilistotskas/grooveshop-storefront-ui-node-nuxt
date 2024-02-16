@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Account } from '~/types/user/account'
+import type { UserAccount } from '~/types/user/account'
 
 const props = defineProps({
 	userAccount: {
-		type: Object as PropType<Account>,
+		type: Object as PropType<UserAccount>,
 		required: true
 	},
 	showName: {
@@ -90,7 +90,7 @@ const uploadImage = async (event: Event) => {
 				height: typeof imgHeight === 'number' ? imgHeight + 'px' : imgHeight
 			}"
 		>
-			<NuxtImg
+			<ImgWithFallback
 				loading="lazy"
 				provider="mediaStream"
 				class="rounded-full bg-white"

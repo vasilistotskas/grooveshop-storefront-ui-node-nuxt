@@ -56,7 +56,7 @@ const startShare = () => share().catch((err) => err)
 	>
 		<div class="mb-3 md:mb-6">
 			<Anchor :to="`/blog/post${post.absoluteUrl}`" :text="alt">
-				<NuxtImg
+				<ImgWithFallback
 					:loading="imgLoading"
 					provider="mediaStream"
 					class="h-auto w-full bg-white object-cover"
@@ -115,7 +115,7 @@ const startShare = () => share().catch((err) => err)
 				</div>
 				<div class="flex items-center justify-end">
 					<div class="relative mr-4 h-12 w-12">
-						<NuxtImg
+						<ImgWithFallback
 							loading="lazy"
 							provider="mediaStream"
 							class="rounded-full bg-white"

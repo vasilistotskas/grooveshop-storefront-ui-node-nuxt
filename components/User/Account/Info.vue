@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { Account } from '~/types/user/account'
+import type { UserAccount } from '~/types/user/account'
 
 const props = defineProps({
 	account: {
-		type: Object as PropType<Account>,
+		type: Object as PropType<UserAccount>,
 		required: true
 	},
 	ordersCount: {

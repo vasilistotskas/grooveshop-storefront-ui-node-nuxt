@@ -1,13 +1,13 @@
 import { z } from 'zod'
 import type { LocationQueryValue } from 'vue-router'
-import { ZodAccount } from '~/types/user/account'
+import { ZodUserAccount } from '~/types/user/account'
 import { ZodBlogCategory } from '~/types/blog/category'
 import { ZodBlogTag } from '~/types/blog/tag'
 import { ZodBlogAuthor } from '~/types/blog/author'
 import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
 
-export const StatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
+export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 
 const ZodBlogPostTranslations = z.record(
 	z.object({
@@ -21,11 +21,11 @@ export const ZodBlogPost = z.object({
 	translations: ZodBlogPostTranslations,
 	id: z.number().int(),
 	slug: z.string().nullish(),
-	likes: z.union([z.array(z.number()), z.array(ZodAccount)]),
+	likes: z.union([z.array(z.number()), z.array(ZodUserAccount)]),
 	category: z.union([z.number(), ZodBlogCategory]),
 	tags: z.union([z.array(z.number()), z.array(ZodBlogTag)]),
 	author: z.union([z.number(), ZodBlogAuthor]),
-	status: StatusEnum,
+	status: ZodBlogPostStatusEnum,
 	featured: z.boolean(),
 	viewCount: z.number().int(),
 	createdAt: z.string().datetime({ offset: true }),

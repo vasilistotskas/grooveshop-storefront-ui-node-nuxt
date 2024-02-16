@@ -1,16 +1,16 @@
 import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import { ZodAccount } from '~/types/user/account'
+import { ZodUserAccount } from '~/types/user/account'
 import { buildFullUrl } from '~/utils/api'
-import { ZodFavourite } from '~/types/product/favourite'
+import { ZodProductFavourite } from '~/types/product/favourite'
 import { ZodOrder } from '~/types/order/order'
-import { ZodReview } from '~/types/product/review'
-import { ZodAddress } from '~/types/user/address'
-import type { FavouriteQuery } from '~/types/product/favourite'
+import { ZodProductReview } from '~/types/product/review'
+import { ZodUserAddress } from '~/types/user/address'
+import type { ProductFavouriteQuery } from '~/types/product/favourite'
 import type { OrderQuery } from '~/types/order/order'
-import type { ReviewQuery } from '~/types/product/review'
-import type { AddressQuery } from '~/types/user/address'
+import type { ProductReviewQuery } from '~/types/product/review'
+import type { UserAddressQuery } from '~/types/user/address'
 
 export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
@@ -20,10 +20,10 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 		`${config.public.apiBaseUrl}/user/account/session`,
 		event
 	)
-	const accountParsedData = await parseDataAs(accountResponse, ZodAccount)
+	const accountParsedData = await parseDataAs(accountResponse, ZodUserAccount)
 
 	// Favourites
-	const favouritesQuery: FavouriteQuery = {
+	const favouritesQuery: ProductFavouriteQuery = {
 		userId: String(accountParsedData.id),
 		pagination: 'false'
 	}
@@ -34,7 +34,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const favouritesResponse = await $api(favouritesUrl, event)
 
 	// Reviews
-	const reviewsQuery: ReviewQuery = {
+	const reviewsQuery: ProductReviewQuery = {
 		userId: String(accountParsedData.id),
 		pagination: 'false',
 		status: 'TRUE'
@@ -54,7 +54,7 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	const ordersResponse = await $api(ordersUrl, event)
 
 	// Addresses
-	const addressesQuery: AddressQuery = {
+	const addressesQuery: UserAddressQuery = {
 		user: String(accountParsedData.id),
 		pagination: 'false'
 	}
@@ -68,11 +68,14 @@ export default defineWrappedResponseHandler(async (event: H3Event) => {
 	// Parse data
 	const favouritesParsedData = await parseDataAs(
 		favouritesResponse,
-		z.array(ZodFavourite)
+		z.array(ZodProductFavourite)
 	)
-	const reviewsParsedData = await parseDataAs(reviewsResponse, z.array(ZodReview))
+	const reviewsParsedData = await parseDataAs(reviewsResponse, z.array(ZodProductReview))
 	const ordersParsedData = await parseDataAs(ordersResponse, z.array(ZodOrder))
-	const addressesParsedData = await parseDataAs(addressesResponse, z.array(ZodAddress))
+	const addressesParsedData = await parseDataAs(
+		addressesResponse,
+		z.array(ZodUserAddress)
+	)
 
 	return {
 		account: accountParsedData,

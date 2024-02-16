@@ -2,15 +2,15 @@ import { z } from 'zod'
 import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
 
-const ZodImageTranslations = z.record(
+const ZodProductImageTranslations = z.record(
 	z.object({
 		title: z.string().nullish()
 	})
 )
 
-export const ZodImage = z.object({
+export const ZodProductImage = z.object({
 	id: z.number(),
-	translations: ZodImageTranslations,
+	translations: ZodProductImageTranslations,
 	product: z.number(),
 	image: z.string(),
 	thumbnail: z.string().nullish(),
@@ -23,14 +23,14 @@ export const ZodImage = z.object({
 	sortOrder: z.number().nullish()
 })
 
-export const ZodImageQuery = z.object({
+export const ZodProductImageQuery = z.object({
 	id: z.string().nullish(),
 	product: z.string().nullish(),
 	isMain: z.string().nullish()
 })
 
-export type Image = z.infer<typeof ZodImage>
-export type ImageQuery = PaginationQuery &
+export type ProductImage = z.infer<typeof ZodProductImage>
+export type ProductImageQuery = PaginationQuery &
 	OrderingQuery & {
 		id?: string | undefined
 		product?: string | undefined

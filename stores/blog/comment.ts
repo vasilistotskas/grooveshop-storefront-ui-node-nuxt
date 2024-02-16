@@ -249,6 +249,7 @@ export const useBlogCommentStore = defineStore('blogComment', () => {
 		pending,
 		error,
 		getBlogCommentById,
+		fetchBlogComments,
 		fetchUserToBlogPostComment,
 		fetchBlogUserHadCommented,
 		createBlogComment,

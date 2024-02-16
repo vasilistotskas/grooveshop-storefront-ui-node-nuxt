@@ -56,7 +56,7 @@ const secondarySliderItems = [
 						arrows
 					>
 						<a href="/">
-							<NuxtImg
+							<ImgWithFallback
 								loading="eager"
 								provider="mediaStream"
 								class="h-full w-full bg-white object-cover"

@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
 import type { Pagination } from '~/types/pagination'
-import type { Image, ImageQuery } from '~/types/product/image'
+import type { ProductImage, ProductImageQuery } from '~/types/product/image'
 
 interface ErrorRecord {
 	images: IFetchError | null
@@ -19,15 +19,15 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useProductImageStore = defineStore('productImage', () => {
-	const images = ref<Pagination<Image> | null>(null)
+	const images = ref<Pagination<ProductImage> | null>(null)
 	const pending = ref<PendingRecord>(pendingFactory())
 	const error = ref<ErrorRecord>(errorsFactory())
 
-	const getImageById = (id: number): Image | null => {
+	const getImageById = (id: number): ProductImage | null => {
 		return images.value?.results?.find((image) => image.id === id) ?? null
 	}
 
-	async function fetchImages({ product }: ImageQuery) {
+	async function fetchImages({ product }: ProductImageQuery) {
 		if (process.prerender) {
 			return
 		}
@@ -36,7 +36,7 @@ export const useProductImageStore = defineStore('productImage', () => {
 			error: imagesError,
 			pending: imagesPending,
 			refresh
-		} = await useFetch<Pagination<Image>>(`/api/products/images`, {
+		} = await useFetch<Pagination<ProductImage>>(`/api/products/images`, {
 			method: 'get',
 			params: {
 				product

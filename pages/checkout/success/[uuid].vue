@@ -130,7 +130,7 @@ definePageMeta({
 							<tbody>
 								<tr v-for="(item, index) in orderItems" :key="index">
 									<td class="border px-4 py-2">
-										<NuxtImg
+										<ImgWithFallback
 											loading="lazy"
 											provider="mediaStream"
 											class="product-img bg-white"

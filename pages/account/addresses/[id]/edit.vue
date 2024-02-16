@@ -40,7 +40,7 @@ await fetchRegions({
 	country: account?.value?.country || ''
 })
 
-const ZodAddress = z.object({
+const ZodUserAddress = z.object({
 	title: z.string(),
 	firstName: z.string(),
 	lastName: z.string(),
@@ -58,8 +58,8 @@ const ZodAddress = z.object({
 	country: z.string().nullish(),
 	region: z.string().nullish()
 })
-const validationSchema = toTypedSchema(ZodAddress)
-const initialValues = ZodAddress.parse({
+const validationSchema = toTypedSchema(ZodUserAddress)
+const initialValues = ZodUserAddress.parse({
 	title: address.value?.title || '',
 	firstName: address.value?.firstName || '',
 	lastName: address.value?.lastName || '',

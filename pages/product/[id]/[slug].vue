@@ -2,7 +2,7 @@
 import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
 import { capitalize } from '~/utils/str'
-import type { Review } from '~/types/product/review'
+import type { ProductReview } from '~/types/product/review'
 
 const { isAuthenticated } = useAuthSession()
 
@@ -25,7 +25,7 @@ const { extractTranslated } = useTranslationExtractor()
 
 const fullPath = config.public.baseUrl + route.fullPath
 const productId = route.params.id
-const existingReview = ref<Review | null>(null)
+const existingReview = ref<ProductReview | null>(null)
 
 await fetchProduct(productId)
 

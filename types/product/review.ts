@@ -2,23 +2,23 @@ import { z } from 'zod'
 import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
 import { ZodProduct } from '~/types/product/product'
-import { ZodAccount } from '~/types/user/account'
+import { ZodUserAccount } from '~/types/user/account'
 
-export const StatusEnum = z.enum(['NEW', 'TRUE', 'FALSE'])
+export const ZodProductReviewStatusEnum = z.enum(['NEW', 'TRUE', 'FALSE'])
 
-const ZodReviewTranslations = z.record(
+const ZodProductReviewTranslations = z.record(
 	z.object({
 		comment: z.string().nullish()
 	})
 )
 
-export const ZodReview = z.object({
-	translations: ZodReviewTranslations,
+export const ZodProductReview = z.object({
+	translations: ZodProductReviewTranslations,
 	id: z.number(),
 	product: z.union([z.number(), ZodProduct]),
-	user: z.union([z.number(), ZodAccount]),
+	user: z.union([z.number(), ZodUserAccount]),
 	rate: z.number(),
-	status: StatusEnum,
+	status: ZodProductReviewStatusEnum,
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	publishedAt: z.string().datetime({ offset: true }).nullish(),
@@ -26,32 +26,32 @@ export const ZodReview = z.object({
 	uuid: z.string().uuid()
 })
 
-export const ZodReviewQuery = z.object({
+export const ZodProductReviewQuery = z.object({
 	page: z.string().nullish(),
 	ordering: z.string().nullish(),
 	id: z.string().nullish(),
 	productId: z.string().nullish(),
 	userId: z.string().nullish(),
 	expand: z.string().nullish(),
-	status: StatusEnum.optional()
+	status: ZodProductReviewStatusEnum.optional()
 })
 
-export const ZodReviewCreateBody = z.object({
+export const ZodProductReviewCreateBody = z.object({
 	product: z.string(),
 	user: z.string(),
-	translations: ZodReviewTranslations,
+	translations: ZodProductReviewTranslations,
 	rate: z.string(),
 	status: z.string()
 })
 
-export const ZodReviewCreateQuery = z.object({
+export const ZodProductReviewCreateQuery = z.object({
 	expand: z.string().nullish()
 })
 
-export const ZodReviewPutBody = z.object({
+export const ZodProductReviewPutBody = z.object({
 	product: z.string(),
 	user: z.string(),
-	translations: ZodReviewTranslations,
+	translations: ZodProductReviewTranslations,
 	rate: z.string()
 })
 
@@ -64,14 +64,16 @@ export const ZodReviewUserHadReviewedBody = z.object({
 	user: z.string()
 })
 
-export type Review = z.infer<typeof ZodReview>
-export type ReviewParams = z.infer<typeof ZodReviewParams>
-export type ReviewUserHadReviewedBody = z.infer<typeof ZodReviewUserHadReviewedBody>
-export type ReviewCreateBody = z.infer<typeof ZodReviewCreateBody>
-export type ReviewCreateQuery = z.infer<typeof ZodReviewCreateQuery>
-export type ReviewPutBody = z.infer<typeof ZodReviewPutBody>
-export type ReviewOrderingField = 'id' | 'userId' | 'productId' | 'createdAt'
-export type ReviewQuery = PaginationQuery &
+export type ProductReview = z.infer<typeof ZodProductReview>
+export type ProductReviewParams = z.infer<typeof ZodReviewParams>
+export type ProductReviewUserHadReviewedBody = z.infer<
+	typeof ZodReviewUserHadReviewedBody
+>
+export type ProductReviewCreateBody = z.infer<typeof ZodProductReviewCreateBody>
+export type ProductReviewCreateQuery = z.infer<typeof ZodProductReviewCreateQuery>
+export type ProductReviewPutBody = z.infer<typeof ZodProductReviewPutBody>
+export type ProductReviewOrderingField = 'id' | 'userId' | 'productId' | 'createdAt'
+export type ProductReviewQuery = PaginationQuery &
 	OrderingQuery & {
 		id?: string | undefined
 		productId?: string | undefined
@@ -79,10 +81,3 @@ export type ReviewQuery = PaginationQuery &
 		expand?: string | undefined
 		status?: 'NEW' | 'TRUE' | 'FALSE' | undefined
 	}
-export type ReviewActionPayload = {
-	id: number
-	comment: string
-	productId: number
-	rate: number
-	userId: number
-}

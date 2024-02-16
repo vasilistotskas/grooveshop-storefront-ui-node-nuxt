@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import type { Favourite } from '~/types/product/favourite'
-import type { Review } from '~/types/product/review'
+import type { ProductFavourite } from '~/types/product/favourite'
+import type { ProductReview } from '~/types/product/review'
 import type { Order } from '~/types/order/order'
-import type { Address } from '~/types/user/address'
+import type { UserAddress } from '~/types/user/address'
 
-export const ZodAccount = z.object({
+export const ZodUserAccount = z.object({
 	id: z.number(),
 	email: z.string(),
 	image: z.string().nullish(),
@@ -37,11 +37,11 @@ export const ZodAccount = z.object({
 	uuid: z.string().uuid()
 })
 
-export const ZodAccountParams = z.object({
+export const ZodUserAccountParams = z.object({
 	id: z.string()
 })
 
-export const ZodAccountPatchBody = z.object({
+export const ZodUserAccountPatchBody = z.object({
 	email: z.string().nullish(),
 	image: z.string().nullish(),
 	firstName: z.string().nullish(),
@@ -58,7 +58,7 @@ export const ZodAccountPatchBody = z.object({
 	birthDate: z.string().nullish()
 })
 
-export const ZodAccountPutBody = z.object({
+export const ZodUserAccountPutBody = z.object({
 	email: z.string(),
 	image: z.string().nullish(),
 	firstName: z.string().nullish(),
@@ -75,15 +75,15 @@ export const ZodAccountPutBody = z.object({
 	birthDate: z.string().nullish()
 })
 
-export type Account = z.infer<typeof ZodAccount>
-export type AccountPutBody = z.infer<typeof ZodAccountPutBody>
-export type AccountParams = z.infer<typeof ZodAccountParams>
-export type AccountPatchBody = z.infer<typeof ZodAccountPatchBody>
+export type UserAccount = z.infer<typeof ZodUserAccount>
+export type UserAccountPutBody = z.infer<typeof ZodUserAccountPutBody>
+export type UserAccountParams = z.infer<typeof ZodUserAccountParams>
+export type UserAccountPatchBody = z.infer<typeof ZodUserAccountPatchBody>
 
 export type UserAccountSession = {
-	account: Account | null
-	favourites: Favourite[] | null
-	reviews: Review[] | null
+	account: UserAccount | null
+	favourites: ProductFavourite[] | null
+	reviews: ProductReview[] | null
 	orders: Order[] | null
-	addresses: Address[] | null
+	addresses: UserAddress[] | null
 }
