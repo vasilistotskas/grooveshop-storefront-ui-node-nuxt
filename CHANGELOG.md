@@ -1,3 +1,10 @@
+# [1.63.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.62.0...v1.63.0) (2024-2-16)
+
+
+### Features
+
+* replace `NuxtImg` usage with `ImgWithFallback`, minor naming improvements for types and Bump Versions ([8b8854c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b8854cd930400e322a63d498e00538b0d6ab52a))
+
 # [1.62.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.61.0...v1.62.0) (2024-2-14)
 
 
