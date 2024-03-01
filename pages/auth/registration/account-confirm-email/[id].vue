@@ -1,37 +1,22 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import type { RegistrationResendEmailBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
 const { registrationVerifyEmail, registrationResendEmail } = useAuth()
 const { t } = useI18n()
-const toast = useToast()
 const route = useRoute('auth-registration-account-confirm-email-id___en')
 const id = route.params.id
 
-const { data, error } = await registrationVerifyEmail({
+const data = await registrationVerifyEmail({
 	key: id
 })
 
 async function onSubmit(values: RegistrationResendEmailBody) {
-	const { data, error } = await registrationResendEmail({
+	await registrationResendEmail({
 		email: values.email
 	})
-
-	if (data.value) {
-		toast.add({
-			title: t('pages.auth.registration.account-confirm-email.resend.success.title')
-		})
-	}
-
-	if (error.value) {
-		toast.add({
-			title:
-				error.value?.message ??
-				t('pages.auth.registration.account-confirm-email.resend.error.title'),
-			color: 'red'
-		})
-	}
 }
 
 const formSchema: DynamicFormSchema = {
@@ -72,7 +57,7 @@ definePageMeta({
 					:close-button="false"
 				/>
 				<LazyAlert
-					v-if="error"
+					v-else
 					:title="`${$t('pages.auth.registration.account-confirm-email.error.title')}`"
 					:text="$t('pages.auth.registration.account-confirm-email.error.description')"
 					:type="`danger`"
@@ -95,7 +80,7 @@ definePageMeta({
 					:label="$t('pages.auth.registration.account-confirm-email.success.button')"
 					:to="`/auth/login`"
 				/>
-				<LazyDynamicForm v-if="error" :schema="formSchema" @submit="onSubmit" />
+				<LazyDynamicForm v-else :schema="formSchema" @submit="onSubmit" />
 			</div>
 		</PageBody>
 	</PageWrapper>

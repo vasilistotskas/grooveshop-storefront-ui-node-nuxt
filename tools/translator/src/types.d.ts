@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-import type { ISettingsParam } from 'tslog'
-import type { ILogObj } from 'tslog'
+import type { ILogObj, ISettingsParam } from 'tslog'
 
 export type debugMode = 'progress-bar' | 'logger' | 'hidden'
 export type translateEngine = 'google' | 'deepl' | 'libre' | 'yandex'

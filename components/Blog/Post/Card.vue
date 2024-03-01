@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
+import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
-import type { ImageLoading } from '~/types/global/general'
+
 import type { BlogPost } from '~/types/blog/post'
+import type { ImageLoading } from '~/types/global/general'
 
 const props = defineProps({
 	post: { type: Object as PropType<BlogPost>, required: true },
@@ -41,7 +42,7 @@ const alt = computed(() => {
 	return extractTranslated(post.value, 'title', locale.value)
 })
 
-const shareOptions = ref({
+const shareOptions = reactive({
 	title: extractTranslated(post.value, 'title', locale.value),
 	text: extractTranslated(post.value, 'subtitle', locale.value) || '',
 	url: isClient ? postUrl : ''

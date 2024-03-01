@@ -1,5 +1,6 @@
 import type { IFetchError } from 'ofetch'
-import type { SearchQuery, SearchResults } from '~/types/search'
+
+import type { SearchResults } from '~/types/search'
 
 interface ErrorRecord {
 	results: IFetchError | null
@@ -50,47 +51,6 @@ export const useSearchStore = defineStore('search', () => {
 		return results.value?.productCategories?.results || []
 	})
 
-	async function search(query: SearchQuery) {
-		if (process.prerender) {
-			return
-		}
-		pending.value.results = true
-
-		if (!query.query) {
-			return
-		}
-
-		const {
-			data,
-			error: searchError,
-			pending: searchPending,
-			refresh
-		} = await useFetch<SearchResults>(`/api/search`, {
-			method: 'get',
-			params: {
-				query: query.query
-			}
-		})
-
-		results.value = data.value
-		error.value.results = searchError.value
-		pending.value.results = searchPending.value
-
-		if (process.client && !resultsEmpty.value) {
-			const value = useLocalStorage(`$search:${query.query}`, query.query).value
-			if (!storage.value.includes(value)) {
-				storage.value.push(value)
-			}
-		}
-
-		return {
-			data,
-			error: searchError,
-			pending: searchPending,
-			refresh
-		}
-	}
-
 	function reset() {
 		results.value = null
 		pending.value = pendingFactory()
@@ -107,7 +67,6 @@ export const useSearchStore = defineStore('search', () => {
 		productSearchItems,
 		productHeadlines,
 		productCategorySearchItems,
-		search,
 		reset
 	}
 })

@@ -23,7 +23,7 @@ definePageMeta({
 <template>
 	<PageWrapper class="container flex flex-col">
 		<PageBody>
-			<UBreadcrumb :links="links" class="mb-5 md:pl-4" />
+			<UBreadcrumb :links="links" class="mb-5" />
 			<BlogPostsList />
 		</PageBody>
 	</PageWrapper>

@@ -3,10 +3,16 @@ import { z } from 'zod'
 
 import { ZodCartItemParams } from '~/types/cart/cart-item'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const params = parseParamsAs(event, ZodCartItemParams)
+	const session = await getUserSession(event)
+	const params = await getValidatedRouterParams(event, ZodCartItemParams.parse)
 
-	const response = await $api(`${config.public.apiBaseUrl}/cart/item/${params.id}`, event)
+	const response = await $fetch(`${config.public.apiBaseUrl}/cart/item/${params.id}`, {
+		method: 'DELETE',
+		headers: {
+			Authorization: `Bearer ${session?.token}`
+		}
+	})
 	return await parseDataAs(response, z.any())
 })

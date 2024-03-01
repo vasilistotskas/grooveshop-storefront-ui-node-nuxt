@@ -31,6 +31,8 @@ const increaseQuantityEvent = async () => {
 const changeQuantityEvent = async (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	const value = parseInt(event.target.value)
+	if (value < 1 || value > props.max) return
+	cartItemQuantity.value = value
 	await updateCartItem(props.cartItemId, {
 		quantity: String(value)
 	})

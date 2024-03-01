@@ -1,15 +1,16 @@
 import { z } from 'zod'
+
+import { ZodCountry } from '~/types/country'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 import {
 	ZodOrderCreateItem,
-	ZodOrderItem,
-	ZodOrderCreateResponseItem
+	ZodOrderCreateResponseItem,
+	ZodOrderItem
 } from '~/types/order/order-item'
-import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
-import { ZodCountry } from '~/types/country'
-import { ZodRegion } from '~/types/region'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import type { PaginationQuery } from '~/types/pagination'
 import { ZodPayWay } from '~/types/pay-way'
+import { ZodRegion } from '~/types/region'
 
 export const ZodOrderStatusEnum = z.enum(['SENT', 'PAID_AND_SENT', 'CANCELED', 'PENDING'])
 export const ZodDocumentTypeEnum = z.enum(['RECEIPT', 'INVOICE'])
@@ -17,9 +18,9 @@ export const ZodDocumentTypeEnum = z.enum(['RECEIPT', 'INVOICE'])
 export const ZodOrder = z.object({
 	id: z.number(),
 	user: z.number().nullish(),
-	payWay: ZodPayWay,
-	country: ZodCountry,
-	region: ZodRegion,
+	payWay: z.lazy(() => ZodPayWay),
+	country: z.lazy(() => ZodCountry),
+	region: z.lazy(() => ZodRegion),
 	floor: z.nativeEnum(FloorChoicesEnum).nullish(),
 	locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
 	email: z.string(),
@@ -32,12 +33,12 @@ export const ZodOrder = z.object({
 	city: z.string(),
 	phone: z.string(),
 	mobilePhone: z.string().nullish(),
-	status: ZodOrderStatusEnum,
+	status: z.lazy(() => ZodOrderStatusEnum),
 	customerNotes: z.string().nullish(),
 	shippingPrice: z.number(),
 	paidAmount: z.number(),
-	documentType: ZodDocumentTypeEnum,
-	orderItemOrder: z.array(ZodOrderItem),
+	documentType: z.lazy(() => ZodDocumentTypeEnum),
+	orderItemOrder: z.array(z.lazy(() => ZodOrderItem)),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid(),
@@ -62,7 +63,7 @@ export const ZodOrderCreateBody = z.object({
 	street: z.string(),
 	streetNumber: z.string(),
 	payWay: z.number(),
-	status: ZodOrderStatusEnum.nullish(),
+	status: z.lazy(() => ZodOrderStatusEnum).nullish(),
 	firstName: z.string(),
 	lastName: z.string(),
 	email: z.string().email(),
@@ -73,8 +74,8 @@ export const ZodOrderCreateBody = z.object({
 	mobilePhone: z.string().nullish(),
 	customerNotes: z.string().nullish(),
 	shippingPrice: z.number(),
-	documentType: ZodDocumentTypeEnum,
-	orderItemOrder: z.array(ZodOrderCreateItem)
+	documentType: z.lazy(() => ZodDocumentTypeEnum),
+	orderItemOrder: z.array(z.lazy(() => ZodOrderCreateItem))
 })
 
 export const ZodOrderCreateResponse = z.object({
@@ -87,7 +88,7 @@ export const ZodOrderCreateResponse = z.object({
 	street: z.string(),
 	streetNumber: z.string(),
 	payWay: z.number(),
-	status: ZodOrderStatusEnum.nullish(),
+	status: z.lazy(() => ZodOrderStatusEnum).nullish(),
 	firstName: z.string(),
 	lastName: z.string(),
 	email: z.string().email(),
@@ -97,9 +98,9 @@ export const ZodOrderCreateResponse = z.object({
 	phone: z.string(),
 	mobilePhone: z.string().nullish(),
 	customerNotes: z.string().nullish(),
-	orderItemOrder: z.array(ZodOrderCreateResponseItem),
+	orderItemOrder: z.array(z.lazy(() => ZodOrderCreateResponseItem)),
 	shippingPrice: z.number(),
-	documentType: ZodDocumentTypeEnum,
+	documentType: z.lazy(() => ZodDocumentTypeEnum),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid(),

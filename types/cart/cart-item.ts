@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { ZodProduct } from '~/types/product/product'
 
 export const ZodCartItem = z.object({
@@ -21,7 +22,7 @@ export const ZodCartItem = z.object({
 })
 
 export const ZodCartItemAddBody = z.object({
-	product: ZodProduct,
+	product: z.lazy(() => ZodProduct),
 	quantity: z.number()
 })
 

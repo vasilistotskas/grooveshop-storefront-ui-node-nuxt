@@ -1,27 +1,30 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import type { MfaTotpActivatePostBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
 const { totpActivatePost } = useAuthMfa()
-
-const toast = useToast()
+const { fetch } = useUserSession()
 const { t } = useI18n()
+const toast = useToast()
 
-async function onSubmit(values: MfaTotpActivatePostBody) {
-	const { data, error } = await totpActivatePost(values)
-	if (data.value?.success) {
-		toast.add({
-			title: t('pages.auth.security.mfa.totp.activate.success'),
-			color: 'green'
+function onSubmit(values: MfaTotpActivatePostBody) {
+	totpActivatePost(values)
+		.then(async () => {
+			toast.add({
+				title: t('pages.auth.security.mfa.totp.activate.success'),
+				color: 'green'
+			})
+			await fetch()
+			await navigateTo('/account')
 		})
-	} else if (error.value) {
-		toast.add({
-			title: t('pages.auth.security.mfa.totp.activate.error'),
-			color: 'red'
+		.catch(() => {
+			toast.add({
+				title: t('pages.auth.security.mfa.totp.activate.error'),
+				color: 'red'
+			})
 		})
-		clearNuxtData('totpActivatePost')
-	}
 }
 
 const formSchema: DynamicFormSchema = {

@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
-import path from 'path'
 import * as fs from 'fs'
+import path from 'path'
+
 import yaml from 'js-yaml'
+
+import { configFileName } from './constants'
 import type { Config } from './types'
 import { validateConfig } from './validator'
-import { configFileName } from './constants'
 
 const getConfigFilePath = async (
 	rootDir = process.cwd(),
@@ -76,4 +78,4 @@ const loadConfig = async (): Promise<Config> => {
 	return config
 }
 
-export { getConfigFilePath, getConfig, validateConfig, loadConfig }
+export { getConfig, getConfigFilePath, loadConfig, validateConfig }

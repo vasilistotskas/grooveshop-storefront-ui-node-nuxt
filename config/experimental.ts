@@ -1,16 +1,14 @@
 export const experimental = {
 	inlineSSRStyles: true,
-	componentIslands: {
-		selectiveClient: true
-	},
-	viewTransition: true,
-	renderJsonPayloads: true,
 	typedPages: true,
+	viewTransition: true,
 	headNext: true,
+	typescriptBundlerResolution: true,
+	renderJsonPayloads: true,
 	asyncContext: true,
 	payloadExtraction: true,
-	typescriptBundlerResolution: true,
-	sharedPrerenderData: true,
+	cookieStore: true,
+	restoreState: true,
 	watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
 		| 'chokidar'
 		| 'chokidar-granular'

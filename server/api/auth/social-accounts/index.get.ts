@@ -24,16 +24,16 @@ export const ZodSocialAccountResponse = z.array(
 	})
 ) satisfies z.ZodType<SocialAccount[]>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
+	const session = await getUserSession(event)
 	try {
-		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/socialaccounts`,
-			event,
-			{
-				method: 'GET'
+		const response = await $fetch(`${config.public.apiBaseUrl}/auth/socialaccounts`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${session?.token}`
 			}
-		)
+		})
 		return await parseDataAs(response, ZodSocialAccountResponse)
 	} catch (error) {
 		await handleError(error)

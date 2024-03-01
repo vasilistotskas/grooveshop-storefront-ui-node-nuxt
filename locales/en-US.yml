@@ -5,6 +5,7 @@ common:
     login:
       success: Login successfully
       error: Login error
+      loading: Loading...
     registration:
       success: Registration successfully
       error: Registration error
@@ -89,3 +90,7 @@ common:
     message: This is a Demo Website for Display Purposes Only.
   change:
     language: Change Language
+  filters:
+    title: Filters
+    clear: Clear
+    apply: Apply

@@ -1,8 +1,8 @@
+import type { ViteConfig } from '@nuxt/schema'
+import AutoImport from 'unplugin-auto-import/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import Icons from 'unplugin-icons/vite'
 import Components from 'unplugin-vue-components/vite'
-import AutoImport from 'unplugin-auto-import/vite'
-import type { ViteConfig } from '@nuxt/schema'
 
 export const vite = {
 	plugins: [

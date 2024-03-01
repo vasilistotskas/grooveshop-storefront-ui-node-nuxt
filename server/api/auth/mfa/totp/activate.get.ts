@@ -8,16 +8,16 @@ export const ZodMfaTotpActivateGetResponse = z.object({
 	secret: z.string()
 }) satisfies z.ZodType<MfaTotpActivateGetResponse>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
+	const session = await requireUserSession(event)
 	try {
-		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/mfa/totp/activate`,
-			event,
-			{
-				method: 'GET'
+		const response = await $fetch(`${config.public.apiBaseUrl}/auth/mfa/totp/activate`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${session?.token}`
 			}
-		)
+		})
 		return parseDataAs(response, ZodMfaTotpActivateGetResponse)
 	} catch (error) {
 		await handleError(error)

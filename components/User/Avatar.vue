@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { UserAccount } from '~/types/user/account'
+import type { UserAddress } from '~/types/user/address'
 
 const props = defineProps({
 	userAccount: {
@@ -34,22 +36,24 @@ const props = defineProps({
 	}
 })
 
-const userStore = useUserStore()
-const { updateAccountImage } = userStore
+const { userAccount, showName, imgWidth, imgHeight, backgroundBorder, changeAvatar } =
+	toRefs(props)
 
 const { t } = useI18n()
 const toast = useToast()
 const { resolveImageSrc } = useImageResolver()
+const { fetch } = useUserSession()
+const { fetchUser } = useAuth()
 
 const src = computed(() => {
 	return resolveImageSrc(
-		props.userAccount?.mainImageFilename,
-		`media/uploads/users/${props.userAccount?.mainImageFilename}`
+		userAccount.value?.mainImageFilename,
+		`media/uploads/users/${userAccount.value?.mainImageFilename}`
 	)
 })
 
 const alt = computed(() => {
-	return props.userAccount?.firstName + ' ' + props.userAccount?.lastName
+	return userAccount.value?.firstName + ' ' + userAccount.value?.lastName
 })
 
 const uploadImage = async (event: Event) => {
@@ -69,10 +73,30 @@ const uploadImage = async (event: Event) => {
 		})
 	const formData = new FormData()
 	formData.append('image', file)
-	if (!props.userAccount) return
-	await updateAccountImage(props.userAccount.id, formData)
-	toast.add({
-		title: t('components.user.avatar.image.updated')
+	if (!userAccount.value) return
+
+	await useFetch<UserAccount>(`/api/user/account/${userAccount.value.id}`, {
+		method: 'PATCH',
+		body: formData,
+		onRequestError() {
+			toast.add({
+				title: t('components.user.avatar.image.upload.error'),
+				color: 'red'
+			})
+		},
+		async onResponse() {
+			toast.add({
+				title: t('components.user.avatar.image.updated')
+			})
+			await fetchUser()
+			await fetch()
+		},
+		onResponseError() {
+			toast.add({
+				title: t('components.user.avatar.image.upload.error'),
+				color: 'red'
+			})
+		}
 	})
 }
 </script>

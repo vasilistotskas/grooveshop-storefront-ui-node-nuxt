@@ -1,24 +1,26 @@
 <script lang="ts" setup>
-const blogTagStore = useBlogTagStore()
+import type { BlogTag } from '~/types/blog/tag'
 
-const { tags } = storeToRefs(blogTagStore)
-const { fetchBlogTags } = blogTagStore
+const { data } = await useLazyAsyncData('blogTags', () =>
+	$fetch<BlogTag[]>('/api/blog/tags', {
+		method: 'GET',
+		params: {
+			active: 'true',
+			pagination: 'false'
+		}
+	})
+)
 
 const { locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 
 const searchQuery = ref('')
 const filteredTags = computed(() => {
-	return tags?.value?.filter((tag) => {
+	return data?.value?.filter((tag) => {
 		return extractTranslated(tag, 'name', locale.value)
 			.toLowerCase()
 			.includes(searchQuery.value.toLowerCase())
 	})
-})
-
-await fetchBlogTags({
-	active: 'true',
-	pagination: 'false'
 })
 </script>
 

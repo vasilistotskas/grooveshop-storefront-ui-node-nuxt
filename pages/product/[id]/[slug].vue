@@ -1,83 +1,55 @@
 <script lang="ts" setup>
-import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
-import { capitalize } from '~/utils/str'
+import { isClient } from '@vueuse/shared'
+
+import { GlobalEvents } from '~/events/global'
+import type { Product } from '~/types/product/product'
 import type { ProductReview } from '~/types/product/review'
+import { capitalize } from '~/utils/str'
 
-const { isAuthenticated } = useAuthSession()
-
-const productStore = useProductStore()
-const { product } = storeToRefs(productStore)
-const { fetchProduct } = productStore
+const { user, loggedIn } = useUserSession()
 
 const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
 const { getIsProductInFavourites, getUserToProductFavourite } = userStore
-
-const productReviewStore = useProductReviewStore()
-const { userHadReviewed } = storeToRefs(productReviewStore)
-const { fetchUserHadReviewed, fetchUserToProductReview } = productReviewStore
 
 const route = useRoute('product-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
+const toast = useToast()
 const { extractTranslated } = useTranslationExtractor()
+const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
-const fullPath = config.public.baseUrl + route.fullPath
 const productId = route.params.id
-const existingReview = ref<ProductReview | null>(null)
 
-await fetchProduct(productId)
+const { data: product, refresh: refreshProduct } = await useFetch<Product>(
+	`/api/products/${productId}`,
+	{
+		key: `product${productId}`,
+		method: 'GET'
+	}
+)
 
-if (!product) {
-	throw createError({ statusCode: 404, statusMessage: t('common.error.page.not.found') })
-}
-
-const refreshProduct = async () => await fetchProduct(productId)
-const refreshUserHadReviewed = async () =>
-	await fetchUserHadReviewed({
-		product: String(productId),
-		user: String(account.value?.id)
+const { data: userToProductReview, refresh: refreshUserToProductReview } =
+	await useFetch<ProductReview>(`/api/products/reviews/user-to-product-review`, {
+		key: `productReviews${productId}${user.value?.id}`,
+		method: 'POST',
+		body: {
+			product: String(productId),
+			user: String(user.value?.id)
+		}
 	})
-const refreshUserToProductReview = async () =>
-	await fetchUserToProductReview({
-		productId: String(productId),
-		userId: String(account.value?.id) || undefined,
-		expand: 'true'
-	})
-
-await fetchUserToProductReview({
-	productId: String(productId),
-	userId: String(account.value?.id) || undefined,
-	expand: 'true'
-}).then((response) => {
-	existingReview.value = response?.data || null
-})
-
-if (account.value?.id) {
-	await fetchUserHadReviewed({
-		product: String(productId),
-		user: String(account.value?.id)
-	})
-}
 
 const onAddExistingReview = async () => {
-	await refreshUserHadReviewed()
-	await refreshUserToProductReview().then((response) => {
-		existingReview.value = response?.data || null
-	})
+	await refreshProduct()
+	await refreshUserToProductReview()
 }
 const onUpdateExistingReview = async () => {
-	await refreshUserHadReviewed()
-	await refreshUserToProductReview().then((response) => {
-		existingReview.value = response?.data || null
-	})
+	await refreshProduct()
+	await refreshUserToProductReview()
 }
 const onDeleteExistingReview = async () => {
-	await refreshUserHadReviewed()
-	await refreshUserToProductReview().then((response) => {
-		existingReview.value = response?.data || null
-	})
+	await refreshProduct()
+	await refreshUserToProductReview()
 }
 
 const productTitle = computed(() => {
@@ -89,7 +61,7 @@ const productTitle = computed(() => {
 })
 const selectorQuantity = ref(1)
 
-const shareOptions = ref({
+const shareOptions = reactive({
 	title: extractTranslated(product.value, 'name', locale.value),
 	text: extractTranslated(product.value, 'description', locale.value) || '',
 	url: isClient ? `/product/${product.value?.id}/${product.value?.slug}` : ''
@@ -102,6 +74,23 @@ const productInUserFavourites = computed(() => {
 
 const userToProductFavourite = computed(() => {
 	return getUserToProductFavourite(Number(productId))
+})
+
+const openModal = () => {
+	if (user?.value) {
+		modalBus.emit(`modal-open-reviewModal-${user?.value?.id}-${product?.value?.id}`)
+	} else {
+		toast.add({
+			title: t('components.product.review.must_be_logged_in')
+		})
+	}
+}
+
+const reviewButtonText = computed(() => {
+	if (user.value && userToProductReview.value) {
+		return t('components.product.review.update_review')
+	}
+	return t('components.product.review.write_review')
 })
 
 const links = [
@@ -128,7 +117,8 @@ const links = [
 
 watch(
 	() => route.query,
-	() => refreshProduct()
+	() => refreshProduct(),
+	{ deep: true }
 )
 
 useSchemaOrg([
@@ -145,7 +135,8 @@ useSchemaOrg([
 ])
 
 definePageMeta({
-	layout: 'default'
+	layout: 'default',
+	keepalive: false
 })
 </script>
 
@@ -154,9 +145,9 @@ definePageMeta({
 		<PageBody>
 			<div v-if="product" class="product mb-12 md:mb-24">
 				<div class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
-					<UBreadcrumb :links="links" class="mb-5 md:pl-4" />
+					<UBreadcrumb :links="links" class="mb-5" />
 					<div class="grid gap-2 md:grid-cols-2">
-						<div class="overflow-hidden md:px-4">
+						<div class="overflow-hidden">
 							<ProductImages :product="product" />
 						</div>
 						<div class="grid content-center items-center gap-6 px-4">
@@ -182,22 +173,34 @@ definePageMeta({
 										<ClientOnlyFallback height="40px" width="40px" />
 									</template>
 								</ClientOnly>
+								<ClientOnly>
+									<UButton
+										class="capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
+										:label="reviewButtonText"
+										size="lg"
+										color="white"
+										@click="openModal"
+									/>
+									<template #fallback>
+										<ClientOnlyFallback width="122px" height="40px" />
+									</template>
+								</ClientOnly>
 								<ProductReview
-									:existing-review="existingReview"
-									:user-had-reviewed="userHadReviewed"
+									v-if="user"
+									:user-to-product-review="userToProductReview"
+									:user-had-reviewed="!!userToProductReview"
 									:product="product"
-									:user="account || undefined"
-									:is-authenticated="isAuthenticated"
+									:user="user"
 									@add-existing-review="onAddExistingReview"
 									@update-existing-review="onUpdateExistingReview"
 									@delete-existing-review="onDeleteExistingReview"
 								/>
 								<LottieAddToFavourite
 									:product-id="product.id"
-									:user-id="account?.id"
+									:user-id="user?.id"
 									:is-favourite="productInUserFavourites"
 									:favourite="userToProductFavourite"
-									:is-authenticated="isAuthenticated"
+									:is-authenticated="loggedIn"
 								/>
 							</PageSection>
 							<h3 class="text-primary-700 dark:text-primary-100 text-sm">
@@ -273,7 +276,7 @@ definePageMeta({
 
 								<ButtonAddToCart
 									:product="product"
-									:quantity="(selectorQuantity as number) || 1"
+									:quantity="selectorQuantity || 1"
 									:text="$t('pages.product.add_to_cart')"
 								/>
 							</div>

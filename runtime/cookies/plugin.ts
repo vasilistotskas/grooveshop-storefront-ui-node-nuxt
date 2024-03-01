@@ -1,8 +1,9 @@
 import type { Plugin } from '#app'
-import { ref } from 'vue'
-import type { Cookie, State } from './types'
-import { getAllCookieIdsString, getCookieId } from './methods'
+
 import moduleOptions from '#build/cookie-control-options'
+
+import { getAllCookieIdsString, getCookieId } from './methods'
+import type { Cookie, State } from './types'
 
 const plugin: Plugin<{ cookies: State }> = defineNuxtPlugin((_nuxtApp) => {
 	const cookieIsConsentGiven = useCookie(

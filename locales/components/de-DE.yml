@@ -200,6 +200,7 @@ components:
       pay_way: bezahlungsweise
       status: status
       total_price: gesamtpreis
+      created_at: hergestellt in
       actions:
         details: einzelheiten
   cart:

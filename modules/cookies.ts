@@ -1,4 +1,5 @@
 import { resolve } from 'node:path'
+
 import {
 	addPlugin,
 	addTemplate,
@@ -9,8 +10,8 @@ import {
 } from '@nuxt/kit'
 
 import { version } from '../package.json'
-import { DEFAULTS } from '../runtime/cookies/types'
 import type { ModuleOptions } from '../runtime/cookies/types'
+import { DEFAULTS } from '../runtime/cookies/types'
 import { replaceCodePlugin } from '../runtime/utils/replace'
 
 const resolver = createResolver(import.meta.url)

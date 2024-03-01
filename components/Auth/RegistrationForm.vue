@@ -1,16 +1,10 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
+const { fetch } = useUserSession()
 const { register } = useAuth()
 
-const userStore = useUserStore()
-const cartStore = useCartStore()
-
-const { fetchAccount } = userStore
-const { fetchCart } = cartStore
-
 const { t } = useI18n()
-const toast = useToast()
 
 const ZodRegistration = z
 	.object({
@@ -51,34 +45,12 @@ const showPassword1 = ref(false)
 const showPassword2 = ref(false)
 
 const onSubmit = handleSubmit(async (values) => {
-	const { data, error } = await register({
+	await register({
 		email: values.email,
 		password1: values.password1,
 		password2: values.password2
 	})
-	if (data.value?.user) {
-		toast.add({
-			title: t('common.auth.registration.success')
-		})
-		await fetchAccount()
-		await fetchCart()
-	} else if (data.value?.detail) {
-		toast.add({
-			title: data.value?.detail
-		})
-	} else if (error.value) {
-		if (error.value?.data.data?.email) {
-			toast.add({
-				title: error.value?.data.data?.email[0],
-				color: 'red'
-			})
-		}
-		toast.add({
-			title: t('common.auth.registration.error'),
-			color: 'red'
-		})
-		clearNuxtData('register')
-	}
+	await fetch()
 })
 </script>
 

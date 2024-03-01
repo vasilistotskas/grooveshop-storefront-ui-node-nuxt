@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { ProductFavourite } from '~/types/product/favourite'
 
 defineProps({
@@ -31,7 +32,7 @@ defineProps({
 					v-if="typeof favourite.product !== 'number'"
 					:product="favourite.product"
 					:show-add-to-cart-button="false"
-					:img-width="120"
+					:img-width="260"
 					:img-height="150"
 				/>
 			</template>

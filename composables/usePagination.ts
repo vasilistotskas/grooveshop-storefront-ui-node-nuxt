@@ -1,20 +1,6 @@
 import type { Pagination } from '~/types/pagination'
 
-export const usePagination = <T>(results: Pagination<T> | null) => {
-	if (!results)
-		return {
-			count: 0,
-			totalPages: 0,
-			pageTotalResults: 0,
-			pageSize: 0,
-			page: 0,
-			links: {
-				next: null,
-				prev: null
-			},
-			offset: 0,
-			limit: 0
-		}
+export const usePagination = <T>(results: Pagination<T>) => {
 	const count = results.count
 
 	const totalPages = results.totalPages
@@ -40,5 +26,5 @@ export const usePagination = <T>(results: Pagination<T> | null) => {
 		results: pageResults,
 		offset,
 		limit
-	} satisfies Pagination<T>
+	}
 }

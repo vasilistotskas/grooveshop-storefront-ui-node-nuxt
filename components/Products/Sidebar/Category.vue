@@ -9,9 +9,6 @@ const emit = defineEmits<{
 	categoryClick: [category: ProductCategory]
 }>()
 
-const productStore = useProductStore()
-const { pending } = storeToRefs(productStore)
-
 const { category } = toRefs(props)
 const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
@@ -75,7 +72,6 @@ const categoryImageSource = computed(() => {
 
 <template>
 	<li
-		v-if="!pending.products"
 		:class="{
 			'grid w-full rounded border border-gray-700 p-2 md:border-transparent md:p-0': true,
 			'bg-white dark:bg-zinc-800': isCategorySelected

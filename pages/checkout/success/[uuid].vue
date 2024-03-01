@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
-
-const orderStore = useOrderStore()
-const { order } = storeToRefs(orderStore)
-const { fetchOrderByUUID } = orderStore
+import type { Order } from '~/types/order/order'
 
 const route = useRoute('checkout-success-uuid___en')
 const orderUUID = route.params.uuid
@@ -12,50 +9,53 @@ const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 const { resolveImageSrc } = useImageResolver()
 
-await fetchOrderByUUID(orderUUID)
+const { data, error } = await useFetch<Order>(`/api/orders/uuid/${orderUUID}`, {
+	key: `order${orderUUID}`,
+	method: 'GET'
+})
 
-if (!order) {
+if (!data.value || error.value) {
 	throw createError({ statusCode: 404, statusMessage: t('common.error.page.not.found') })
 }
 
 const customerName = computed(() => {
-	const firstName = order.value?.firstName
-	const lastName = order.value?.lastName
+	const firstName = data.value?.firstName
+	const lastName = data.value?.lastName
 	return `${firstName} ${lastName}`
 })
 
 const customerEmail = computed(() => {
-	return order.value?.email
+	return data.value?.email
 })
 
 const orderNumber = computed(() => {
-	return order.value?.id
+	return data.value?.id
 })
 
 const orderItems = computed(() => {
-	return order.value?.orderItemOrder
+	return data.value?.orderItemOrder
 })
 
 const paidAmount = computed(() => {
-	return order.value?.paidAmount
+	return data.value?.paidAmount
 })
 
 const shippingPrice = computed(() => {
-	return order.value?.shippingPrice
+	return data.value?.shippingPrice
 })
 
 const totalPriceItems = computed(() => {
-	return order.value?.totalPriceItems
+	return data.value?.totalPriceItems
 })
 
 const totalPriceExtra = computed(() => {
-	return order.value?.totalPriceExtra
+	return data.value?.totalPriceExtra
 })
 
 const payWayPrice = computed(() => {
-	const payWayCost = order.value?.payWay.cost
-	const payWayFreeForOrderAmount = order.value?.payWay.freeForOrderAmount ?? 0
-	const totalPriceItems = order.value?.totalPriceItems ?? 0
+	const payWayCost = data.value?.payWay.cost
+	const payWayFreeForOrderAmount = data.value?.payWay.freeForOrderAmount ?? 0
+	const totalPriceItems = data.value?.totalPriceItems ?? 0
 	if (totalPriceItems >= payWayFreeForOrderAmount) {
 		return 0
 	}
@@ -79,7 +79,7 @@ definePageMeta({
 			>
 				<div class="grid items-center justify-center justify-items-center gap-16">
 					<div class="grid items-center justify-center justify-items-center gap-4">
-						<LazyLottie
+						<Lottie
 							ref="lottie"
 							:text="$t('pages.checkout.success.lottie')"
 							:animation-data="checkoutSuccessJSON"
@@ -110,7 +110,7 @@ definePageMeta({
 							{{ $t('pages.checkout.success.order.summary') }}
 						</h2>
 
-						<table class="min-w-full table-auto text-center">
+						<table v-if="orderItems" class="min-w-full table-auto text-center">
 							<thead>
 								<tr>
 									<th scope="col" class="px-4 py-2">

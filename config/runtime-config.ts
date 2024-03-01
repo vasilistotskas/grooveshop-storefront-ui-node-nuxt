@@ -1,68 +1,9 @@
-import { UserRole } from '~/types/auth'
-
 export const runtimeConfig = {
-	// The private keys which are only available server-side
-	apiSecret: process.env.NUXT_API_SECRET || 'secret',
 	buildDate: new Date().toISOString(),
 
 	// Auth
 	auth: {
-		session: {
-			domain: process.env.NUXT_AUTH_SESSION_DOMAIN || '.grooveshop.site',
-			cookieName: process.env.NUXT_AUTH_SESSION_COOKIE_NAME || 'sessionid',
-			httpOnly: true,
-			secure: true,
-			maxAge: 60 * 60 * 24 * 7, // 7 days
-			sameSite: 'lax'
-		},
-
-		csrftoken: {
-			domain: process.env.NUXT_AUTH_CSRFTOKEN_DOMAIN || '.grooveshop.site',
-			cookieName: process.env.NUXT_AUTH_CSRFTOKEN_COOKIE_NAME || 'csrftoken',
-			httpOnly: true,
-			secure: true,
-			maxAge: 60 * 60 * 24 * 7 * 52, // 1 year
-			sameSite: 'lax'
-		},
-
-		accessToken: {
-			domain: process.env.NUXT_AUTH_ACCESS_TOKEN_DOMAIN || '.grooveshop.site',
-			cookieName: process.env.NUXT_AUTH_ACCESS_TOKEN_COOKIE_NAME || 'jwt_auth',
-			httpOnly: false,
-			secure: true,
-			maxAge: 60 * 60 * 24 * 7, // 7 days
-			sameSite: 'lax'
-		},
-
-		refreshToken: {
-			domain: process.env.NUXT_AUTH_REFRESH_TOKEN_DOMAIN || '.grooveshop.site',
-			cookieName: process.env.NUXT_AUTH_REFRESH_TOKEN_COOKIE_NAME || 'jwt_refresh_auth',
-			httpOnly: true,
-			secure: true,
-			maxAge: 60 * 60 * 24 * 30, // 30 days
-			sameSite: 'lax'
-		},
-
-		totp: {
-			authenticated: {
-				domain: process.env.NUXT_AUTH_TOTP_AUTHENTICATED_DOMAIN || '.grooveshop.site',
-				cookieName:
-					process.env.NUXT_AUTH_TOTP_AUTHENTICATED_COOKIE_NAME || 'totp_authenticated',
-				httpOnly: false,
-				secure: true,
-				maxAge: 60 * 60 * 24 * 7, // 7 days
-				sameSite: 'lax'
-			},
-			active: {
-				domain: process.env.NUXT_AUTH_TOTP_ACTIVE_DOMAIN || '.grooveshop.site',
-				cookieName: process.env.NUXT_AUTH_TOTP_ACTIVE_COOKIE_NAME || 'totp_active',
-				httpOnly: false,
-				secure: true,
-				maxAge: 60 * 60 * 24 * 7, // 7 days
-				sameSite: 'lax'
-			}
-		},
-
+		cookieDomain: process.env.NUXT_PUBLIC_AUTH_COOKIE_DOMAIN || '.grooveshop.site',
 		oauth: {
 			google: {
 				clientId: process.env.NUXT_AUTH_OAUTH_GOOGLE_CLIENT_ID,
@@ -82,12 +23,6 @@ export const runtimeConfig = {
 				url: 'https://api.sendgrid.com/v3/mail/send',
 				authorization: `Bearer ${process.env.NUXT_AUTH_EMAIL_PROVIDER_API_KEY}`
 			}
-		},
-
-		registration: {
-			enable: true,
-			defaultRole: 'user' as UserRole,
-			requireEmailVerification: false
 		}
 	},
 
@@ -127,25 +62,6 @@ export const runtimeConfig = {
 				process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL || 'https://github.com/vasilistotskas'
 		},
 
-		// Auth
-		auth: {
-			cookieDomain: process.env.NUXT_PUBLIC_AUTH_COOKIE_DOMAIN || '.grooveshop.site',
-			enableGlobalAuthMiddleware: false,
-			redirect: {
-				login: '/auth/login',
-				logout: '/',
-				home: '/',
-				callback: '/account',
-				account: '/account',
-				mfa: {
-					index: '/auth/security/mfa',
-					totp: {
-						activate: '/auth/security/mfa/totp/activate'
-					}
-				}
-			}
-		},
-
 		// Socials
 		socials: {
 			facebook: process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK || 'https://www.facebook.com',
@@ -159,15 +75,11 @@ export const runtimeConfig = {
 		}
 	},
 
-	// Cloudflare
-	cloudflare: {
-		accountId: '',
-		namespaceId: '',
-		apiToken: ''
-	},
-
-	// Storage
-	storage: {
-		fsBase: 'node_modules/.cache/app'
+	redis: {
+		enabled: true,
+		host: 'localhost',
+		port: 6379,
+		username: '',
+		password: ''
 	}
 }

@@ -1,7 +1,8 @@
-import path from 'path'
 import { promises as fsPromises } from 'fs'
-import type { LocaleFile } from './types'
+import path from 'path'
+
 import useLogger from './logger'
+import type { LocaleFile } from './types'
 
 const logger = useLogger()
 

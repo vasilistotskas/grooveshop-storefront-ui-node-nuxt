@@ -6,7 +6,6 @@ const { passwordResetConfirm } = useAuth()
 const { t } = useI18n()
 const toast = useToast()
 const route = useRoute('auth-password-reset-confirm-uid-token___en')
-const router = useRouter()
 const uid = route.params.uid
 const token = route.params.token
 
@@ -44,26 +43,12 @@ const [newPassword2, newPassword2Props] = defineField('newPassword2', {
 })
 
 const onSubmit = handleSubmit(async (values) => {
-	const { data, error } = await passwordResetConfirm({
+	await passwordResetConfirm({
 		newPassword1: values.newPassword1,
 		newPassword2: values.newPassword2,
 		uid: values.uid,
 		token: values.token
 	})
-
-	if (data.value) {
-		toast.add({
-			title: data.value?.detail ?? t('pages.auth.password.reset.confirm.success.title')
-		})
-		await router.push('/auth/login')
-	}
-
-	if (error.value) {
-		toast.add({
-			title: error.value?.message ?? t('pages.auth.password.reset.confirm.error.title'),
-			color: 'red'
-		})
-	}
 })
 </script>
 

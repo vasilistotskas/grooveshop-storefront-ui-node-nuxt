@@ -5,6 +5,7 @@ common:
     login:
       success: συνδεθείτε με επιτυχία
       error: σφάλμα σύνδεσης
+      loading: φόρτωση...
     registration:
       success: η εγγραφή ολοκληρώθηκε με επιτυχία
       error: σφάλμα εγγραφής
@@ -83,7 +84,13 @@ common:
   version: εκδοχή
   upload: μεταφόρτωση
   tags: ετικέτες
+  categories: κατηγορίες
+  no_categories_found: δεν βρέθηκαν κατηγορίες
   demo:
     message: αυτός είναι ένας επίδειξης ιστότοπος μόνο για σκοπούς προβολής.
   change:
     language: αλλαξε γλώσσα
+  filters:
+    title: φίλτρα
+    clear: σαφή
+    apply: ισχύουν

@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+
 import { cacheDir, cacheFile } from './constants'
 
 const cacheFilePath = path.join(cacheDir, cacheFile)
@@ -40,4 +41,4 @@ const getCacheKeyVal = (key: string, to: string): string | undefined => {
 
 const translationCache = loadCacheFromFile()
 
-export { saveCacheKeyVal, getCacheKeyVal, saveCacheToFile, loadCacheFromFile }
+export { getCacheKeyVal, loadCacheFromFile, saveCacheKeyVal, saveCacheToFile }

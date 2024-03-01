@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { UserAddress } from '~/types/user/address'
-import { GlobalEvents } from '~/events/global'
-import type { UserAddressAction } from '~/events/user/address'
 
 const props = defineProps({
 	address: {
@@ -11,38 +10,50 @@ const props = defineProps({
 	}
 })
 
-const userAddressStore = useUserAddressStore()
-const { deleteAddress } = userAddressStore
+const { address } = toRefs(props)
+
+const userStore = useUserStore()
+const { deleteAddress } = userStore
 
 const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
-const bus = useEventBus<string, UserAddressAction>(GlobalEvents.USER_ADDRESS)
 
-const deleteAddressEvent = async (id: string) => {
-	if (props.address && props.address.isMain) {
+const submit = async () => {
+	if (address?.value && address?.value.isMain) {
 		toast.add({
 			title: t('components.address.card.delete.cant_delete_main')
 		})
 		return
 	}
-	await deleteAddress(id)
-		.then(() => {
-			bus.emit(GlobalEvents.USER_ADDRESS, 'delete')
+
+	await useFetch(`/api/user/addresses/${address?.value.id}`, {
+		method: 'DELETE',
+		onRequestError() {
+			toast.add({
+				title: t('components.address.card.delete.error'),
+				color: 'red'
+			})
+		},
+		onResponse() {
+			deleteAddress(address?.value.id)
 			toast.add({
 				title: t('components.address.card.delete.success')
 			})
-		})
-		.catch(() => {
+		},
+		onResponseError() {
 			toast.add({
-				title: t('components.address.card.delete.error')
+				title: t('components.address.card.delete.error'),
+				color: 'red'
 			})
-		})
+		}
+	})
 }
 </script>
 
 <template>
 	<li
+		v-if="address"
 		class="relative grid w-full items-start gap-8 rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black sm:px-4 sm:py-10"
 	>
 		<div v-if="address.isMain" class="absolute right-3 top-3 text-[#f0c14b]">
@@ -69,12 +80,12 @@ const deleteAddressEvent = async (id: string) => {
 					size="sm"
 					:trailing="true"
 					color="rose"
-					@click="deleteAddressEvent(String(address.id))"
+					@click="submit"
 				/>
 			</div>
 		</div>
 		<div class="grid items-center justify-center gap-4">
-			<div class="grid h-full w-full items-center gap-2">
+			<div class="grid h-64 w-full items-center gap-2 overflow-hidden">
 				<span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
 					{{ address.firstName }} {{ address.lastName }}
 				</span>

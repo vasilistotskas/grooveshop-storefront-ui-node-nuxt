@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { UserAccount } from '~/types/user/account'
 
-const props = defineProps({
+defineProps({
 	account: {
 		type: Object as PropType<UserAccount>,
 		required: true
@@ -47,7 +48,7 @@ const props = defineProps({
 				</h2>
 			</div>
 			<div class="user-info-stats">
-				<div class="user-info-stats-item">
+				<div v-if="ordersCount" class="user-info-stats-item">
 					<Anchor
 						class="user-info-stats-item-link"
 						:to="`/account/orders`"
@@ -64,7 +65,7 @@ const props = defineProps({
 						}}</span>
 					</Anchor>
 				</div>
-				<div class="user-info-stats-item">
+				<div v-if="favouritesCount" class="user-info-stats-item">
 					<Anchor
 						class="user-info-stats-item-link"
 						:to="`/account/favourites`"
@@ -81,7 +82,7 @@ const props = defineProps({
 						}}</span>
 					</Anchor>
 				</div>
-				<div class="user-info-stats-item">
+				<div v-if="reviewsCount" class="user-info-stats-item">
 					<Anchor
 						class="user-info-stats-item-link"
 						:to="`/account/reviews`"

@@ -7,7 +7,7 @@ defineSlots<{
 	options(props: { toggleOptions: (show?: boolean) => void; showOptions: boolean }): any
 }>()
 
-const { isAuthenticated } = useAuthSession()
+const { loggedIn } = useUserSession()
 
 const navbar = ref(null)
 const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
@@ -116,7 +116,7 @@ const environment = computed(() => config.public.environment)
 							</strong>
 						</h1>
 					</slot>
-					<LazyDemoModeMessage v-if="environment === 'demo' && !isAuthenticated" />
+					<LazyDemoModeMessage v-if="environment === 'demo' && !loggedIn" />
 					<!-- menu -->
 					<slot name="menu" />
 					<!-- options:toggle -->

@@ -1,15 +1,18 @@
+import { StorageSerializers } from '@vueuse/core'
 import type { IFetchError } from 'ofetch'
 import { v4 as uuidv4 } from 'uuid'
+
 import type { Cart } from '~/types/cart/cart'
 import type {
 	CartItem,
 	CartItemAddBody,
 	CartItemCreateBody,
+	CartItemCreateResponse,
 	CartItemPutBody
 } from '~/types/cart/cart-item'
 
 interface ErrorRecord {
-	cart: IFetchError | null
+	cart: IFetchError | null | undefined
 }
 
 interface PendingRecord {
@@ -28,6 +31,12 @@ export const useCartStore = defineStore('cart', () => {
 	const cart = ref<Cart | null>(null)
 	const pending = ref<PendingRecord>(pendingFactory())
 	const error = ref<ErrorRecord>(errorsFactory())
+	const { loggedIn } = useUserSession()
+	const storage = useLocalStorage<Cart>('cart', null, {
+		deep: true,
+		listenToStorageChanges: true,
+		serializer: StorageSerializers.object
+	})
 
 	const getCartItems = computed(() => {
 		return cart.value?.cartItems ?? null
@@ -47,23 +56,26 @@ export const useCartStore = defineStore('cart', () => {
 			.find((product) => product.id === productId) ?? null) as CartItem | null
 	}
 
-	async function fetchCartFromIDB() {
-		const cartFromIDB = await get<Cart>('cart')
-		if (!cartFromIDB) {
-			await set('cart', {
-				id: Date.now(),
-				user: null,
-				totalPrice: 0,
-				totalDiscountValue: 0,
-				totalVatValue: 0,
-				totalItems: 0,
-				totalItemsUnique: 0,
-				cartItems: [],
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString()
-			})
+	function fetchCartFromLocalStorage() {
+		if (process.client) {
+			const cartFromLocalStorage = storage.value
+			if (!cartFromLocalStorage) {
+				storage.value = {
+					id: Date.now(),
+					uuid: uuidv4(),
+					user: null,
+					totalPrice: 0,
+					totalDiscountValue: 0,
+					totalVatValue: 0,
+					totalItems: 0,
+					totalItemsUnique: 0,
+					cartItems: [],
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString()
+				}
+			}
+			cart.value = cartFromLocalStorage ?? null
 		}
-		cart.value = cartFromIDB ?? null
 	}
 
 	async function fetchCart() {
@@ -71,63 +83,69 @@ export const useCartStore = defineStore('cart', () => {
 			return
 		}
 
-		const authenticated = await useAsyncIDBKeyval('auth', false)
-		if (!authenticated.value && process.client) {
-			await fetchCartFromIDB()
+		if (!loggedIn.value) {
+			fetchCartFromLocalStorage()
 			return
 		}
 
-		const {
-			data,
-			error: cartError,
-			pending: cartPending,
-			refresh
-		} = await useFetch<Cart>(`/api/cart`, {
-			method: 'get'
+		await useFetch<Cart>('/api/cart', {
+			method: 'GET',
+			onRequest() {
+				pending.value.cart = true
+			},
+			onRequestError({ error: requestError }) {
+				error.value.cart = requestError
+			},
+			onResponse({ response }) {
+				cart.value = response._data
+				pending.value.cart = false
+			},
+			onResponseError({ error: responseError }) {
+				error.value.cart = responseError
+			}
 		})
-		cart.value = data.value
-		error.value.cart = cartError.value
-		pending.value.cart = cartPending.value
-
-		return {
-			data,
-			error: cartError,
-			pending: cartPending,
-			refresh
-		}
 	}
 
-	async function updateIdbCartTotals(cartFromIDB: Cart, cartItems: CartItem[]) {
-		await update('cart', () => ({
-			...cartFromIDB,
-			totalPrice: cartItems.reduce(
-				(acc, item) => acc + item.quantity * item.product.finalPrice,
-				0
-			),
-			totalDiscountValue: cartItems.reduce(
-				(acc, item) => acc + item.quantity * item.product.discountValue,
-				0
-			),
-			totalVatValue: cartItems.reduce(
-				(acc, item) => acc + item.quantity * item.product.vatValue,
-				0
-			),
-			totalItems: cartItems.reduce((acc, item) => acc + item.quantity, 0),
-			totalItemsUnique: cartItems.length,
+	function updateLocalStorageCartTotals(
+		cartFromLocalStorage: Cart,
+		cartItems: CartItem[]
+	) {
+		const totalPrice = cartItems.reduce(
+			(acc, item) => acc + (item?.price ?? 0) * (item?.quantity ?? 0),
+			0
+		)
+		const totalDiscountValue = cartItems.reduce(
+			(acc, item) => acc + (item?.discountValue ?? 0) * (item?.quantity ?? 0),
+			0
+		)
+		const totalVatValue = cartItems.reduce(
+			(acc, item) => acc + (item?.vatValue ?? 0) * (item?.quantity ?? 0),
+			0
+		)
+		const totalItems = cartItems.reduce((acc, item) => acc + (item?.quantity ?? 0), 0)
+		const totalItemsUnique = cartItems.length
+
+		storage.value = {
+			...cartFromLocalStorage,
+			totalPrice,
+			totalDiscountValue,
+			totalVatValue,
+			totalItems,
+			totalItemsUnique,
 			cartItems,
 			updatedAt: new Date().toISOString()
-		}))
+		}
 	}
 
-	async function createCartItemToIDB(cartItem: CartItem) {
-		const cartFromIDB = await get<Cart>('cart')
-		if (!cartFromIDB) {
+	function createCartItemToLocalStorage(cartItem: CartItem) {
+		const cartFromLocalStorage = storage.value
+		if (!cartFromLocalStorage) {
 			// eslint-disable-next-line no-console
-			console.error('Cart not found in IDB')
+			console.error('Cart not found in Local Storage')
 			return
 		}
 
-		const cartItems = cartFromIDB?.cartItems ?? []
+		const cartItems = cartFromLocalStorage?.cartItems ?? []
 		const existingCartItem = cartItems.find(
 			(item) => item.product.id === cartItem.product.id
 		)
@@ -139,15 +157,14 @@ export const useCartStore = defineStore('cart', () => {
 			cartItems.push(cartItem)
 		}
 
-		await updateIdbCartTotals(cartFromIDB, cartItems)
+		updateLocalStorageCartTotals(cartFromLocalStorage, cartItems)
 	}
 
 	async function createCartItem(body: CartItemAddBody) {
 		if (process.prerender) {
 			return
 		}
-		const authenticated = await useAsyncIDBKeyval('auth', false)
-		if (!authenticated.value) {
+		if (!loggedIn.value) {
 			const productData = {
 				translations: JSON.parse(JSON.stringify(body.product.translations)),
 				id: body.product.id,
@@ -188,7 +205,7 @@ export const useCartStore = defineStore('cart', () => {
 				updatedAt: new Date().toISOString(),
 				uuid: uuidv4()
 			}
-			await createCartItemToIDB(newCartItem)
+			createCartItemToLocalStorage(newCartItem)
 			return
 		}
 
@@ -197,101 +214,113 @@ export const useCartStore = defineStore('cart', () => {
 			quantity: body.quantity.toString()
 		}
 
-		const { error: cartError, pending: cartPending } = await useFetch(`/api/cart/items`, {
-			method: 'post',
-			body: requestBody
+		await useFetch<CartItemCreateResponse>('/api/cart/items', {
+			method: 'POST',
+			body: requestBody,
+			onRequest() {
+				pending.value.cart = true
+			},
+			onRequestError({ error: requestError }) {
+				error.value.cart = requestError
+			},
+			onResponse({ response }) {
+				cart.value = response._data
+				pending.value.cart = false
+			},
+			onResponseError({ error: responseError }) {
+				error.value.cart = responseError
+			}
 		})
-		error.value.cart = cartError.value
-		pending.value.cart = cartPending.value
-
-		return {
-			error: cartError,
-			pending: cartPending
-		}
 	}
 
-	async function updateCartItemInIDB(id: number, body: CartItemPutBody) {
-		const cartFromIDB = await get<Cart>('cart')
-		if (!cartFromIDB) {
+	function updateCartItemInLocalStorage(id: number, body: CartItemPutBody) {
+		const cartFromLocalStorage = storage.value
+		if (!cartFromLocalStorage) {
 			// eslint-disable-next-line no-console
-			console.error('Cart not found in IDB')
+			console.error('Cart not found in Local Storage')
 			return
 		}
-		const cartItems = cartFromIDB?.cartItems ?? []
+		const cartItems = cartFromLocalStorage?.cartItems ?? []
 		const cartItem = cartItems.find((item) => item.id === id)
 		if (!cartItem) {
 			return
 		}
 		cartItem.quantity = Number(body.quantity)
 
-		await updateIdbCartTotals(cartFromIDB, cartItems)
+		updateLocalStorageCartTotals(cartFromLocalStorage, cartItems)
 	}
 
 	async function updateCartItem(id: number, body: CartItemPutBody) {
 		if (process.prerender) {
 			return
 		}
-		const authenticated = await useAsyncIDBKeyval('auth', false)
-		if (!authenticated.value) {
-			await updateCartItemInIDB(id, body)
+
+		if (!loggedIn.value) {
+			updateCartItemInLocalStorage(id, body)
 			return
 		}
 
-		const { error: cartError, pending: cartPending } = await useFetch(
-			`/api/cart/items/${id}`,
-			{
-				method: 'put',
-				body
+		await useFetch<CartItem>(`/api/cart/items/${id}`, {
+			method: 'PUT',
+			body,
+			onRequest() {
+				pending.value.cart = true
+			},
+			onRequestError({ error: requestError }) {
+				error.value.cart = requestError
+			},
+			onResponse({ response }) {
+				cart.value = response._data
+				pending.value.cart = false
+			},
+			onResponseError({ error: responseError }) {
+				error.value.cart = responseError
 			}
-		)
-		error.value.cart = cartError.value
-		pending.value.cart = cartPending.value
-
-		return {
-			error: cartError,
-			pending: cartPending
-		}
+		})
 	}
 
-	async function deleteCartItemFromIDB(id: number) {
-		const cartFromIDB = await get<Cart>('cart')
-		if (!cartFromIDB) {
+	function deleteCartItemFromLocalStorage(id: number) {
+		const cartFromLocalStorage = storage.value
+		if (!cartFromLocalStorage) {
 			// eslint-disable-next-line no-console
-			console.error('Cart not found in IDB')
+			console.error('Cart not found in Local Storage')
 			return
 		}
-		const cartItems = cartFromIDB?.cartItems ?? []
+		const cartItems = cartFromLocalStorage?.cartItems ?? []
 		const cartItemIndex = cartItems.findIndex((item) => item.id === Number(id))
 		if (cartItemIndex !== -1) {
 			cartItems.splice(cartItemIndex, 1)
 		}
 
-		await updateIdbCartTotals(cartFromIDB, cartItems)
+		updateLocalStorageCartTotals(cartFromLocalStorage, cartItems)
 	}
 
 	async function deleteCartItem(id: number) {
 		if (process.prerender) {
 			return
 		}
-		const authenticated = await useAsyncIDBKeyval('auth', false)
-		if (!authenticated.value) {
-			await deleteCartItemFromIDB(id)
+
+		if (!loggedIn.value) {
+			deleteCartItemFromLocalStorage(id)
 			return
 		}
 
-		const { error: cartError, pending: cartPending } = await useFetch(
-			`/api/cart/items/${id}`,
-			{
-				method: 'delete'
+		await useFetch(`/api/cart/items/${id}`, {
+			method: 'DELETE',
+			onRequest() {
+				pending.value.cart = true
+			},
+			onRequestError({ error: requestError }) {
+				error.value.cart = requestError
+			},
+			onResponse({ response }) {
+				cart.value = response._data
+				pending.value.cart = false
+			},
+			onResponseError({ error: responseError }) {
+				error.value.cart = responseError
 			}
-		)
-		error.value.cart = cartError.value
-		pending.value.cart = cartPending.value
-
-		return {
-			error: cartError,
-			pending: cartPending
-		}
+		})
 	}
 
 	function cleanCartState() {

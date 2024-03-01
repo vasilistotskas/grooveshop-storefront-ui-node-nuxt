@@ -6,7 +6,6 @@ export const pwa = {
 	strategies: 'generateSW',
 	injectRegister: 'auto',
 	registerType: 'autoUpdate',
-	minify: true,
 	manifest: {
 		name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
 		short_name: process.env.NUXT_PUBLIC_APP_TITLE || 'Grooveshop',
@@ -95,16 +94,21 @@ export const pwa = {
 	},
 	workbox: {
 		navigateFallback: undefined,
-		globPatterns: ['**/*.{js,css,html,json,svg,webp,ico,png,jpg,webmanifest}'],
+		globPatterns: ['**/*.{js,css,html,json,webp,png,jpg,svg,ico}'],
 		globIgnores: ['google*.html'],
-		navigateFallbackDenylist: [/\/api\/.*/],
+		navigateFallbackDenylist: [/^\/api(?:\/.*)?$/],
 		maximumFileSizeToCacheInBytes: 3000000,
 		cleanupOutdatedCaches: true,
 		sourcemap: true,
 		runtimeCaching: [
 			{
 				urlPattern: ({ url, sameOrigin }) => {
-					const pwaExcludedCachePaths = ['/api/auth', '/api/cart', '/api/user']
+					const pwaExcludedCachePaths = [
+						'/api/auth',
+						'/api/_auth',
+						'/api/cart',
+						'/api/user'
+					]
 					const isExcludedPath = pwaExcludedCachePaths.some((path) =>
 						url.pathname.startsWith(path)
 					)
@@ -113,9 +117,9 @@ export const pwa = {
 						return false
 					}
 
-					return sameOrigin && url.pathname.match(/^\/api\/.*/i)
+					return sameOrigin && url.pathname.match(/^\/api\//)
 				},
-				handler: 'NetworkFirst' as const,
+				handler: 'NetworkOnly',
 				options: {
 					cacheName: 'api',
 					expiration: {
@@ -123,19 +127,16 @@ export const pwa = {
 					},
 					cacheableResponse: {
 						statuses: [0, 200]
-					}
-				}
-			},
-			{
-				handler: 'NetworkOnly',
-				urlPattern: /\/api\/.*\/*.json/,
-				method: 'POST',
-				options: {
+					},
 					backgroundSync: {
-						name: 'backgroundsync',
+						name: 'api-queue',
 						options: {
 							maxRetentionTime: 24 * 60
 						}
+					},
+					matchOptions: {
+						ignoreVary: true,
+						ignoreSearch: true
 					}
 				}
 			},
@@ -147,7 +148,7 @@ export const pwa = {
 					]
 					return allowedOrigins.includes(url.origin) && request.destination === 'image'
 				},
-				handler: 'StaleWhileRevalidate' as const,
+				handler: 'StaleWhileRevalidate',
 				options: {
 					cacheName: 'media-stream-cache',
 					expiration: {
@@ -160,15 +161,18 @@ export const pwa = {
 			}
 		]
 	},
+	injectManifest: {
+		globPatterns: ['**/*.{js,css,html,png,svg,ico}']
+	},
 	devOptions: {
-		enabled: true,
+		enabled: false,
 		suppressWarnings: true,
+		navigateFallback: undefined,
 		navigateFallbackAllowlist: [/^\/$/],
 		type: 'module'
 	},
 	client: {
 		installPrompt: true,
-		// if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
 		periodicSyncForUpdates: 60 * 60
 	}
 } satisfies PWAModuleOptions

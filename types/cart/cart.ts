@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { ZodCartItem } from '~/types/cart/cart-item'
 
 export const ZodCart = z.object({
@@ -9,7 +10,7 @@ export const ZodCart = z.object({
 	totalVatValue: z.number(),
 	totalItems: z.number(),
 	totalItemsUnique: z.number(),
-	cartItems: z.array(ZodCartItem),
+	cartItems: z.array(z.lazy(() => ZodCartItem)),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid()

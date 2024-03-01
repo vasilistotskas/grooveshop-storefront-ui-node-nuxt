@@ -1,11 +1,12 @@
-import { z } from 'zod'
 import type { LocationQueryValue } from 'vue-router'
-import { ZodUserAccount } from '~/types/user/account'
+import { z } from 'zod'
+
+import { ZodBlogAuthor } from '~/types/blog/author'
 import { ZodBlogCategory } from '~/types/blog/category'
 import { ZodBlogTag } from '~/types/blog/tag'
-import { ZodBlogAuthor } from '~/types/blog/author'
-import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
+import type { PaginationQuery } from '~/types/pagination'
+import { ZodUserAccount } from '~/types/user/account'
 
 export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 
@@ -21,11 +22,11 @@ export const ZodBlogPost = z.object({
 	translations: ZodBlogPostTranslations,
 	id: z.number().int(),
 	slug: z.string().nullish(),
-	likes: z.union([z.array(z.number()), z.array(ZodUserAccount)]),
-	category: z.union([z.number(), ZodBlogCategory]),
-	tags: z.union([z.array(z.number()), z.array(ZodBlogTag)]),
-	author: z.union([z.number(), ZodBlogAuthor]),
-	status: ZodBlogPostStatusEnum,
+	likes: z.union([z.array(z.number()), z.array(z.lazy(() => ZodUserAccount))]),
+	category: z.union([z.number(), z.lazy(() => ZodBlogCategory)]),
+	tags: z.union([z.array(z.number()), z.array(z.lazy(() => ZodBlogTag))]),
+	author: z.union([z.number(), z.lazy(() => ZodBlogAuthor)]),
+	status: z.lazy(() => ZodBlogPostStatusEnum),
 	featured: z.boolean(),
 	viewCount: z.number().int(),
 	createdAt: z.string().datetime({ offset: true }),
@@ -48,7 +49,7 @@ export const ZodBlogPostQuery = z.object({
 	author: z.string().nullish(),
 	slug: z.string().nullish(),
 	tags: z.string().nullish(),
-	expand: z.string().nullish()
+	expand: z.union([z.literal('true'), z.literal('false')]).nullish()
 })
 
 export const ZodBlogPostParams = z.object({

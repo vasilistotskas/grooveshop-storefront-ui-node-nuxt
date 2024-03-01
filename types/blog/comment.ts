@@ -1,8 +1,9 @@
 import { z } from 'zod'
-import { ZodUserAccount } from '~/types/user/account'
+
 import { ZodBlogPost } from '~/types/blog/post'
-import type { PaginationQuery } from '~/types/pagination'
 import type { OrderingQuery } from '~/types/ordering'
+import type { PaginationQuery } from '~/types/pagination'
+import { ZodUserAccount } from '~/types/user/account'
 
 const ZodBlogCommentTranslations = z.record(
 	z.object({
@@ -17,9 +18,9 @@ export const ZodBlogComment = z.object({
 	parent: z.number().nullish(),
 	level: z.number().nullish(),
 	treeId: z.number().nullish(),
-	likes: z.union([z.array(z.number()), z.array(ZodUserAccount)]),
-	user: z.union([z.number(), ZodUserAccount]),
-	post: z.union([z.number(), ZodBlogPost]),
+	likes: z.union([z.array(z.number()), z.array(z.lazy(() => ZodUserAccount))]),
+	user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
+	post: z.union([z.number(), z.lazy(() => ZodBlogPost)]),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid(),
@@ -45,7 +46,7 @@ export const ZodBlogCommentCreateBody = z.object({
 })
 
 export const ZodBlogCommentCreateQuery = z.object({
-	expand: z.string().nullish()
+	expand: z.union([z.literal('true'), z.literal('false')]).nullish()
 })
 
 export const ZodBlogCommentPutBody = z.object({

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import type { PasswordResetBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
@@ -9,21 +10,9 @@ const { t } = useI18n()
 const toast = useToast()
 
 async function onSubmit(values: PasswordResetBody) {
-	const { data, error } = await passwordReset({
+	await passwordReset({
 		email: values.email
 	})
-	if (data.value) {
-		toast.add({
-			title: data.value?.detail ?? t('pages.auth.password.reset.success.title')
-		})
-	}
-
-	if (error.value) {
-		toast.add({
-			title: error.value?.message ?? t('pages.auth.password.reset.error.title'),
-			color: 'red'
-		})
-	}
 }
 
 const formSchema: DynamicFormSchema = {

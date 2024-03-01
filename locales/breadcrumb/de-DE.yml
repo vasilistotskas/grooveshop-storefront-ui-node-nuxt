@@ -2,7 +2,7 @@ breadcrumb:
   label: semmelbrösel
   items:
     index:
-      icon: heroicons-solid:home
+      icon: i-heroicons-home
       label: heim
     products:
       icon: heroicons-solid:shopping-cart

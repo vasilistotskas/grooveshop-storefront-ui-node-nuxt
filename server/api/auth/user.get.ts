@@ -1,34 +1,22 @@
 import type { H3Event } from 'h3'
-import { z } from 'zod'
 
-import type { User } from '~/types/auth'
+import { ZodUserAccount } from '~/types/user/account'
 
-export const ZodUser = z.object({
-	id: z.number().int(),
-	email: z.string().email()
-}) satisfies z.ZodType<User>
-
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-
+	const session = await requireUserSession(event)
 	try {
-		const auth = event.context.jwt_auth
-
-		if (!auth) {
-			throw createError({
-				statusCode: 401,
-				message: 'Unauthorized'
-			})
-		}
-
-		const response = await $api(`${config.public.apiBaseUrl}/auth/user`, event, {
-			method: 'GET'
+		const response = await $fetch(`${config.public.apiBaseUrl}/auth/user`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${session?.token}`
+			}
 		})
-
-		const user = await parseDataAs(response, ZodUser)
-		event.context.user = user
-
-		return user
+		const userResponse = await parseDataAs(response, ZodUserAccount)
+		await setUserSession(event, {
+			user: userResponse
+		})
+		return userResponse
 	} catch (error) {
 		await handleError(error)
 	}

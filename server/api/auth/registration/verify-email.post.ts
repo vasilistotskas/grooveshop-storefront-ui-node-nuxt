@@ -2,8 +2,8 @@ import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type {
-	RegistrationVerifyEmailResponse,
-	RegistrationVerifyEmailBody
+	RegistrationVerifyEmailBody,
+	RegistrationVerifyEmailResponse
 } from '~/types/auth'
 
 export const ZodRegistrationVerifyEmailResponse = z.object({
@@ -14,13 +14,12 @@ export const ZodRegistrationVerifyEmailBody = z.object({
 	key: z.string().min(1)
 }) satisfies z.ZodType<RegistrationVerifyEmailBody>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
-		const body = await parseBodyAs(event, ZodRegistrationVerifyEmailBody)
-		const response = await $api(
+		const body = await readValidatedBody(event, ZodRegistrationVerifyEmailBody.parse)
+		const response = await $fetch(
 			`${config.public.apiBaseUrl}/auth/registration/verify-email`,
-			event,
 			{
 				body,
 				method: 'POST'

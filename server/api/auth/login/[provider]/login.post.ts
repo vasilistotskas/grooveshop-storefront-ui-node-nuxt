@@ -1,15 +1,13 @@
 import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import type { ProviderLoginResponse, ProviderLoginBody } from '~/types/auth'
+import type { ProviderLoginBody, ProviderLoginResponse } from '~/types/auth'
+import { ZodUserAccount } from '~/types/user/account'
 
 export const ZodProviderLoginResponse = z.object({
 	access: z.string(),
 	refresh: z.string().nullish(),
-	user: z.object({
-		id: z.number(),
-		email: z.string()
-	})
+	user: ZodUserAccount
 }) satisfies z.ZodType<ProviderLoginResponse>
 
 export const ZodProviderLoginBody = z.object({
@@ -18,19 +16,25 @@ export const ZodProviderLoginBody = z.object({
 	idToken: z.string().nullish()
 }) satisfies z.ZodType<ProviderLoginBody>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
-		const body = await parseBodyAs(event, ZodProviderLoginBody)
-		const response = await $api(
+		const body = await readValidatedBody(event, ZodProviderLoginBody.parse)
+		const response = await $fetch(
 			`${config.public.apiBaseUrl}/auth/${event.context.params?.provider}/connect`,
-			event,
 			{
 				body,
 				method: 'POST'
 			}
 		)
-		return await parseDataAs(response, ZodProviderLoginResponse)
+		const loginResponse = await parseDataAs(response, ZodProviderLoginResponse)
+		await setUserSession(event, {
+			user: loginResponse.user,
+			token: loginResponse.access,
+			refreshToken: loginResponse.refresh,
+			loggedInAt: new Date()
+		})
+		return loginResponse
 	} catch (error) {
 		await handleError(error)
 	}

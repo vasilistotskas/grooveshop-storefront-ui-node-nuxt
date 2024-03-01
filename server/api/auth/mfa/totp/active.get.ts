@@ -7,22 +7,25 @@ export const ZodMfaTotpActiveResponse = z.object({
 	active: z.boolean()
 }) satisfies z.ZodType<MfaTotpActiveResponse>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
+	const session = await requireUserSession(event)
 	try {
-		const response = await $api(
-			`${config.public.apiBaseUrl}/auth/mfa/totp/active`,
-			event,
-			{
-				method: 'GET'
+		const response = await $fetch(`${config.public.apiBaseUrl}/auth/mfa/totp/active`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${session?.token}`
 			}
-		)
+		})
 		const activeResponse = await parseDataAs(response, ZodMfaTotpActiveResponse)
-		event.context.totp_active = activeResponse.active
-		setTotpActiveCookie(event, activeResponse.active)
+		await setUserSession(event, {
+			totpActive: activeResponse.active
+		})
 		return activeResponse
 	} catch (error) {
-		setTotpActiveCookie(event, false)
+		await setUserSession(event, {
+			totpActive: false
+		})
 		await handleError(error)
 	}
 })

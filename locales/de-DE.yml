@@ -5,6 +5,7 @@ common:
     login:
       success: anmeldung erfolgreich
       error: login fehler
+      loading: wird geladen...
     registration:
       success: registrierung erfolgreich
       error: registrierungsfehler
@@ -83,7 +84,13 @@ common:
   version: ausführung
   upload: hochladen
   tags: stichworte
+  categories: kategorien
+  no_categories_found: keine kategorien gefunden
   demo:
     message: dies ist eine demo-website, die ausschließlich zu anzeigezwecken dient.
   change:
     language: sprache ändern
+  filters:
+    title: filter
+    clear: klar
+    apply: anwenden

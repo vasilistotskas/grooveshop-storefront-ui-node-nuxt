@@ -1,15 +1,15 @@
-import { z } from 'zod'
 import type { H3Event } from 'h3'
+import { z } from 'zod'
 
-import { buildFullUrl } from '~/utils/api'
 import { ZodSearchProductResult, ZodSearchQuery, ZodSearchResults } from '~/types/search'
+import { buildFullUrl } from '~/utils/api'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const query = parseQueryAs(event, ZodSearchQuery)
-
+	const query = await getValidatedQuery(event, ZodSearchQuery.parse)
 	const productUrl = buildFullUrl(`${config.public.apiBaseUrl}/search/product`, query)
-	const productResponse = await $api(productUrl, event, {
+	const productResponse = await $fetch(productUrl, {
+		method: 'GET',
 		timeout: 10000,
 		retry: 3,
 		retryDelay: 1000

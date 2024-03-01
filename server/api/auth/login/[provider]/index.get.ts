@@ -1,15 +1,16 @@
 import { resolveURL, withQuery } from 'ufo'
 import { z } from 'zod'
+
 import type { ProviderParams, ProviderSettings } from '~/types/auth'
 
 export const ZodProviderParams = z.object({
 	provider: z.enum(['google'])
 }) satisfies z.ZodType<ProviderParams>
 
-export default defineWrappedResponseHandler(async (event) => {
+export default defineEventHandler(async (event) => {
 	const config = useRuntimeConfig()
 
-	const params = parseParamsAs(event, ZodProviderParams)
+	const params = await getValidatedRouterParams(event, ZodProviderParams.parse)
 	const provider = params.provider
 
 	const providerSettings = config?.auth?.oauth?.[provider] as unknown as ProviderSettings
@@ -24,9 +25,6 @@ export default defineWrappedResponseHandler(async (event) => {
 			message: `OAuth provider "${provider}" is not configured`
 		})
 	}
-
-	// The protected page the user has visited before redirect to login page
-	const returnToPath = getQuery(event)?.redirect
 
 	try {
 		const redirectUri = resolveURL(

@@ -1,16 +1,17 @@
 <template>
-	<component
+	<Component
 		:is="tag"
 		v-for="({ tag, text, ...childAttrs }, idx) in children"
 		:key="idx"
 		v-bind="childAttrs"
 	>
 		{{ text }}
-	</component>
+	</Component>
 </template>
 
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { DynamicFormSchemaChildren } from '~/types/form'
 
 defineProps({

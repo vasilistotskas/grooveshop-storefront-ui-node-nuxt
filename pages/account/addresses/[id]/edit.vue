@@ -1,44 +1,38 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import {
 	defaultSelectOptionChoose,
 	floorChoicesList,
 	locationChoicesList
 } from '~/constants/general'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
 import { GlobalEvents } from '~/events/global'
-import type { UserAddressAction } from '~/events/user/address'
-
-const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
-
-const userAddressStore = useUserAddressStore()
-const { address, pending } = storeToRefs(userAddressStore)
-const { fetchAddress, setMainAddress, updateAddress } = userAddressStore
-
-const countryStore = useCountryStore()
-const { countries } = storeToRefs(countryStore)
-const { fetchCountries } = countryStore
-
-const regionStore = useRegionStore()
-const { fetchRegions } = regionStore
-const { regions } = storeToRefs(regionStore)
+import type { UserAddressPayload } from '~/events/user/address'
+import type { Country } from '~/types/country'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import type { Pagination } from '~/types/pagination'
+import type { Region } from '~/types/region'
+import { ZodUserAccount } from '~/types/user/account'
+import type { UserAddress } from '~/types/user/address'
 
 const { extractTranslated } = useTranslationExtractor()
 const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute('account-addresses-id-edit___en')
-const router = useRouter()
-const bus = useEventBus<string, UserAddressAction>(GlobalEvents.USER_ADDRESS)
+const bus = useEventBus<string, UserAddressPayload>(GlobalEvents.USER_ADDRESS)
 
-const addressId = route.params.id
+const addressId = Number(route.params.id)
 
-await fetchAddress(addressId)
+const userStore = useUserStore()
+const { setMainAddress } = userStore
 
-await fetchCountries()
-await fetchRegions({
-	country: account?.value?.country || ''
-})
+const { data: address } = await useFetch<UserAddress>(
+	`/api/user/addresses/${addressId}`,
+	{
+		key: `address${addressId}`,
+		method: 'GET'
+	}
+)
 
 const ZodUserAddress = z.object({
 	title: z.string(),
@@ -54,7 +48,7 @@ const ZodUserAddress = z.object({
 	mobilePhone: z.string().nullish(),
 	notes: z.string().nullish(),
 	isMain: z.boolean().nullish(),
-	user: z.number().nullish(),
+	user: z.union([z.number(), ZodUserAccount]),
 	country: z.string().nullish(),
 	region: z.string().nullish()
 })
@@ -74,7 +68,7 @@ const initialValues = ZodUserAddress.parse({
 	notes: address.value?.notes || '',
 	isMain: address.value?.isMain || false,
 	user: address.value?.user || null,
-	country: address.value?.country || '',
+	country: address.value?.country || defaultSelectOptionChoose,
 	region: address.value?.region || defaultSelectOptionChoose
 })
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
@@ -128,11 +122,29 @@ const [region, regionProps] = defineField('region', {
 	validateOnModelUpdate: true
 })
 
-const onCountryChange = async (event: Event) => {
-	if (!(event.target instanceof HTMLSelectElement)) return
-	await fetchRegions({
-		country: event.target.value
+const { data: countries } = await useLazyAsyncData('countries', () =>
+	$fetch<Pagination<Country>>('/api/countries', {
+		method: 'GET'
 	})
+)
+
+const { data: regions } = await useLazyAsyncData(
+	'regions',
+	() =>
+		$fetch<Pagination<Region>>('/api/regions', {
+			method: 'GET',
+			params: {
+				country: country.value
+			}
+		}),
+	{
+		watch: [country]
+	}
+)
+
+const onCountryChange = (event: Event) => {
+	if (!(event.target instanceof HTMLSelectElement)) return
+	country.value = event.target.value
 	region.value = defaultSelectOptionChoose
 }
 const onSubmit = handleSubmit(async (values) => {
@@ -149,44 +161,70 @@ const onSubmit = handleSubmit(async (values) => {
 		{} as typeof values
 	)
 
-	await updateAddress(addressId, {
-		title: updatedValues.title,
-		firstName: updatedValues.firstName,
-		lastName: updatedValues.lastName,
-		street: updatedValues.street,
-		streetNumber: updatedValues.streetNumber,
-		city: updatedValues.city,
-		zipcode: updatedValues.zipcode,
-		floor: Number(updatedValues.floor),
-		locationType: Number(updatedValues.locationType),
-		phone: updatedValues.phone,
-		mobilePhone: updatedValues.mobilePhone,
-		notes: updatedValues.notes,
-		isMain: updatedValues.isMain,
-		user: updatedValues.user,
-		country: updatedValues.country,
-		region: updatedValues.region
+	await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
+		method: 'PUT',
+		body: {
+			title: updatedValues.title,
+			firstName: updatedValues.firstName,
+			lastName: updatedValues.lastName,
+			street: updatedValues.street,
+			streetNumber: updatedValues.streetNumber,
+			city: updatedValues.city,
+			zipcode: updatedValues.zipcode,
+			floor: Number(updatedValues.floor),
+			locationType: Number(updatedValues.locationType),
+			phone: updatedValues.phone,
+			mobilePhone: updatedValues.mobilePhone,
+			notes: updatedValues.notes,
+			isMain: updatedValues.isMain,
+			user: updatedValues.user,
+			country: updatedValues.country,
+			region: updatedValues.region
+		},
+		onRequestError() {
+			toast.add({
+				title: t('pages.account.addresses.edit.error'),
+				color: 'red'
+			})
+		},
+		async onResponse() {
+			toast.add({
+				title: t('pages.account.addresses.edit.success')
+			})
+			await navigateTo('/account/addresses')
+		},
+		onResponseError() {
+			toast.add({
+				title: t('pages.account.addresses.edit.error'),
+				color: 'red'
+			})
+		}
 	})
-	toast.add({
-		title: t('pages.account.addresses.edit.success')
-	})
-	await router.push('/account/addresses')
 })
 
 const onSetMain = async () => {
-	await setMainAddress(addressId)
-		.then(() => {
+	await useFetch(`/api/user/addresses/${addressId}/set-main`, {
+		method: 'POST',
+		onRequestError() {
+			toast.add({
+				title: t('pages.account.addresses.edit.main.error'),
+				color: 'red'
+			})
+		},
+		async onResponse() {
 			toast.add({
 				title: t('pages.account.addresses.edit.main.success')
 			})
-			bus.emit(GlobalEvents.USER_ADDRESS, 'set-main')
-			router.push('/account/addresses')
-		})
-		.catch(() => {
+			setMainAddress(addressId)
+			await navigateTo('/account/addresses')
+		},
+		onResponseError() {
 			toast.add({
-				title: t('pages.account.addresses.edit.main.error')
+				title: t('pages.account.addresses.edit.main.error'),
+				color: 'red'
 			})
-		})
+		}
+	})
 }
 
 const submitButtonDisabled = computed(() => {
@@ -195,7 +233,7 @@ const submitButtonDisabled = computed(() => {
 
 definePageMeta({
 	layout: 'user',
-	middleware: 'auth'
+	keepalive: false
 })
 </script>
 
@@ -214,33 +252,32 @@ definePageMeta({
 					:to="'/account/addresses'"
 					:trailing="true"
 					color="white"
-				/>
+				>
+					<span class="sr-only">{{ $t('pages.account.addresses.edit.back') }}</span>
+				</UButton>
 				<PageTitle :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`" />
 			</div>
-			<template v-if="address?.isMain">
-				<div class="flex items-center">
-					<span class="mr-2 text-green-500 dark:text-green-400">
-						<IconFa6Solid:circleCheck />
-					</span>
-					<span class="text-green-500 dark:text-green-400">
-						{{ $t('pages.account.addresses.edit.main.title') }}
-					</span>
-				</div>
-			</template>
-			<template v-else>
-				<UButton
-					icon="i-heroicons-check-circle"
-					:label="$t('pages.account.addresses.edit.main.button')"
-					class="gap-4"
-					:trailing="true"
-					color="white"
-					@click="onSetMain"
-				/>
-			</template>
+			<div v-if="address?.isMain" class="flex items-center">
+				<span class="mr-2 text-green-500 dark:text-green-400">
+					<IconFa6Solid:circleCheck />
+				</span>
+				<span class="text-green-500 dark:text-green-400">
+					{{ $t('pages.account.addresses.edit.main.title') }}
+				</span>
+			</div>
+			<UButton
+				v-else
+				icon="i-heroicons-check-circle"
+				:label="$t('pages.account.addresses.edit.main.button')"
+				class="gap-4"
+				:trailing="true"
+				color="white"
+				@click="onSetMain"
+			/>
 		</PageHeader>
 		<PageBody>
 			<form
-				v-if="!pending.address && address"
+				v-if="address"
 				id="AddressEditForm"
 				class="_form grid grid-cols-1 gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800 md:grid-cols-3"
 				name="AddressEditForm"
@@ -440,7 +477,7 @@ definePageMeta({
 					>
 				</div>
 
-				<div class="grid content-evenly items-start gap-4">
+				<div class="grid content-evenly items-start gap-2">
 					<div class="grid">
 						<label class="text-primary-700 dark:text-primary-100 mb-2" for="floor">{{
 							$t('pages.account.addresses.edit.form.floor')
@@ -456,7 +493,7 @@ definePageMeta({
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="floorProps.value === defaultSelectOptionChoose"
+								:selected="floor === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -464,7 +501,7 @@ definePageMeta({
 								v-for="(floorChoice, index) in floorChoicesList"
 								:key="index"
 								:value="index"
-								:selected="Number(floorProps.value) === index"
+								:selected="Number(floor) === index"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ floorChoice }}
@@ -491,7 +528,7 @@ definePageMeta({
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="locationTypeProps.value === defaultSelectOptionChoose"
+								:selected="locationType === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -499,7 +536,7 @@ definePageMeta({
 								v-for="(location, index) in locationChoicesList"
 								:key="index"
 								:value="index"
-								:selected="Number(locationTypeProps.value) === index"
+								:selected="Number(locationType) === index"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ location }}
@@ -513,7 +550,7 @@ definePageMeta({
 					</div>
 				</div>
 
-				<div class="grid content-evenly items-start gap-4">
+				<div class="grid content-evenly items-start gap-2">
 					<div class="grid">
 						<label class="text-primary-700 dark:text-primary-100 mb-2" for="country">{{
 							$t('pages.account.addresses.edit.form.country')
@@ -531,7 +568,7 @@ definePageMeta({
 								<option
 									:value="defaultSelectOptionChoose"
 									disabled
-									:selected="countryProps.value === defaultSelectOptionChoose"
+									:selected="country === defaultSelectOptionChoose"
 								>
 									{{ defaultSelectOptionChoose }}
 								</option>
@@ -539,7 +576,7 @@ definePageMeta({
 									v-for="cntry in countries?.results"
 									:key="cntry.alpha2"
 									:value="cntry.alpha2"
-									:selected="countryProps.value === cntry.alpha2"
+									:selected="country === cntry.alpha2"
 									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(cntry, 'name', locale) }}
@@ -562,12 +599,12 @@ definePageMeta({
 								name="region"
 								as="select"
 								class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
-								:disabled="countryProps.value === defaultSelectOptionChoose"
+								:disabled="country === defaultSelectOptionChoose"
 							>
 								<option
 									:value="defaultSelectOptionChoose"
 									disabled
-									:selected="regionProps.value === defaultSelectOptionChoose"
+									:selected="region === defaultSelectOptionChoose"
 								>
 									{{ defaultSelectOptionChoose }}
 								</option>
@@ -575,7 +612,7 @@ definePageMeta({
 									v-for="rgn in regions?.results"
 									:key="rgn.alpha"
 									:value="rgn.alpha"
-									:selected="regionProps.value === rgn.alpha"
+									:selected="region === rgn.alpha"
 									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(rgn, 'name', locale) }}

@@ -425,6 +425,33 @@ pages:
             min: Zipcode must be at least %{min} characters
           region:
             required: Region is required
+    order:
+      title: Order
+      nav: order
+      description: order
+      keywords: order
+      updated: Order updated
+      update_error: Order update error
+      deleted: Order Item deleted
+      delete_error: Order Item delete error
+      back: Back to orders
+      number: Order Number
+      details: Order Details
+      address: Shipping Address
+      document_type: Document Type
+      pay_way: Pay Way
+      synopsis: Summary
+      total: Total
+      product:
+        value: Product value
+      shipping:
+        value: Shipping value
+      ordering:
+          created_at: Created At
+      empty:
+          title: Your orders is empty
+          description: You have not placed any orders yet.
+          button: Go to shop
     help:
       title: Help
       nav: help

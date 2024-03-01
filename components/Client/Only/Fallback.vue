@@ -1,53 +1,111 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
+import { defu } from 'defu'
 
-defineProps({
-	width: {
-		type: [Number, String],
-		default: 'auto'
-	},
-	height: {
-		type: [Number, String],
-		default: 'auto'
-	},
-	borderRadius: {
-		type: String,
-		required: false,
-		default: '5px'
-	},
-	showAnimation: {
-		type: Boolean,
-		default: true
-	},
-	text: {
-		type: String,
-		default: 'Loading...'
-	},
-	textVisibility: {
-		type: String as PropType<'hidden' | 'visible'>,
-		default: 'hidden'
-	},
-	textColor: {
-		type: String,
-		default: 'black'
+type SpinnerPosition =
+	| 'top-left'
+	| 'top-right'
+	| 'bottom-left'
+	| 'bottom-right'
+	| 'center'
+
+type Spinner = {
+	enabled: boolean
+	fontSize?: string
+	icon?: string
+	position?: SpinnerPosition
+}
+
+const defaultSpinner = {
+	enabled: false,
+	fontSize: 'text-3xl',
+	icon: 'i-heroicons-arrow-path',
+	position: 'center'
+}
+
+const props = withDefaults(
+	defineProps<{
+		width?: number | string
+		height?: number | string
+		borderRadius?: string
+		showAnimation?: boolean
+		text?: string
+		textColor?: string
+		spinner?: Spinner
+		modal?: boolean
+	}>(),
+	{
+		width: 'auto',
+		height: 'auto',
+		borderRadius: '5px',
+		showAnimation: true,
+		text: undefined,
+		textColor: 'black',
+		spinner: undefined,
+		modal: false
+	}
+)
+
+const spinnerWithDefaults = defu(props.spinner, defaultSpinner)
+
+const spinnerPositionClass = computed(() => {
+	switch (spinnerWithDefaults.position) {
+		case 'top-left':
+			return 'top-0 left-0'
+		case 'top-right':
+			return 'top-0 right-0'
+		case 'bottom-left':
+			return 'bottom-0 left-0'
+		case 'bottom-right':
+			return 'bottom-0 right-0'
+		case 'center':
+		default:
+			return 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
 	}
 })
+
+const GenericModal = resolveComponent('GenericModal')
 </script>
 
 <template>
-	<USkeleton
-		class="grid"
-		:style="{
-			width: width,
-			height: height,
-			borderRadius: borderRadius
-		}"
-		:ui="{ background: showAnimation ? 'bg-gray-300 dark:bg-gray-600' : 'transparent' }"
+	<Component
+		:is="modal ? GenericModal : 'div'"
+		:ref="modal ? 'fallbackModal' : undefined"
+		:class="modal ? undefined : 'relative grid'"
+		:unique-id="modal ? 'fallbackModal' : undefined"
+		:should-modal-start-in-open-state="modal ? true : undefined"
+		:has-header="modal ? false : undefined"
+		:has-footer="modal ? false : undefined"
+		:close-btn="modal ? false : undefined"
+		:close-on-click-outside="modal ? false : undefined"
+		:modal-open-trigger-handler-id="modal ? 'fallbackModalOpen' : undefined"
+		:modal-close-trigger-handler-id="modal ? 'fallbackModalClose' : undefined"
 	>
+		<USkeleton
+			class="grid"
+			:style="{
+				width: width,
+				height: height,
+				borderRadius: borderRadius
+			}"
+			:ui="{
+				background: showAnimation
+					? 'bg-gray-300 dark:bg-gray-600'
+					: 'bg-transparent dark:bg-transparent'
+			}"
+		>
+		</USkeleton>
 		<p
-			class="grid place-items-center font-semibold"
-			:style="{ color: textColor, visibility: textVisibility }"
+			v-if="text"
+			class="text-primary-700 dark:text-primary-100 absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2 transform place-items-center font-semibold"
+			:style="{ color: textColor }"
 			v-text="text"
-		></p
-	></USkeleton>
+		></p>
+		<div v-if="spinnerWithDefaults?.enabled" :class="['absolute', spinnerPositionClass]">
+			<UIcon
+				:name="spinnerWithDefaults?.icon"
+				class="animate-spin"
+				:style="{ fontSize: spinnerWithDefaults?.fontSize }"
+			/>
+		</div>
+	</Component>
 </template>

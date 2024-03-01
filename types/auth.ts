@@ -1,32 +1,21 @@
-// User
-export type User = {
-	id: number
-	email: string
-}
-
-export enum UserRole {
-	SUPERUSER = 'admin',
-	STAFF = 'staff',
-	USER = 'user',
-	GUEST = 'guest'
-}
+import type { UserAccount } from '~/types/user/account'
 
 // Login
 export type LoginBody = {
 	email: string
 	password: string
+	rememberMe?: boolean
 }
 export type LoginResponse = {
 	access: string
 	refresh?: string | null | undefined
-	user: {
-		id: number
-		email: string
-	}
+	user: UserAccount
 }
 
 // Logout
-export type LogoutBody = {}
+export type LogoutBody = {
+	refresh?: string | null | undefined
+}
 
 export type LogoutResponse = {
 	detail: string
@@ -80,13 +69,7 @@ export type RegistrationResponse = {
 	detail?: string | null | undefined
 	access?: string | null | undefined
 	refresh?: string | null | undefined
-	user?:
-		| {
-				id: number
-				email: string
-		  }
-		| null
-		| undefined
+	user?: UserAccount | null | undefined
 }
 
 export type RegistrationResendEmailResponse = {
@@ -136,10 +119,7 @@ export type ProviderCallbackParams = {
 export type ProviderLoginResponse = {
 	access: string
 	refresh?: string | null | undefined
-	user: {
-		id: number
-		email: string
-	}
+	user: UserAccount
 	accessExpiration?: string | null | undefined
 	refreshExpiration?: string | null | undefined
 }
@@ -147,10 +127,7 @@ export type ProviderLoginResponse = {
 export type ProviderConnectResponse = {
 	access: string
 	refresh: string | null
-	user: {
-		id: number
-		email: string
-	}
+	user: UserAccount
 }
 
 // Social Accounts
@@ -193,7 +170,9 @@ export type TokenVerifyResponse = {}
 
 export type TokenRefreshResponse = {
 	access: string
+	refresh?: string | null | undefined
 	accessExpiration: string
+	refreshExpiration?: string | null | undefined
 }
 
 // Mail
@@ -269,13 +248,4 @@ export type MfaRecoveryCodesGenerateResponse = {
 export type MfaRecoveryCodesListResponse = {
 	unusedCodes: string[]
 	totalCount: number
-}
-
-export interface AuthCookieNames {
-	sessionCookieName: string
-	csrftokenCookieName: string
-	accessTokenCookieName: string
-	refreshTokenCookieName: string
-	totpAuthenticatedCookieName: string
-	totpActiveCookieName: string
 }

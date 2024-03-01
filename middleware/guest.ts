@@ -1,14 +1,7 @@
-export default defineNuxtRouteMiddleware((to) => {
-	const config = useRuntimeConfig()
-	const publicConfig = config.public.auth
+export default defineNuxtRouteMiddleware(() => {
+	const { loggedIn } = useUserSession()
 
-	if (to.path === publicConfig.redirect.login) {
-		return
-	}
-
-	const { user } = useAuthSession()
-
-	if (user.value) {
-		return navigateTo(publicConfig.redirect.home)
+	if (loggedIn.value) {
+		return navigateTo('/')
 	}
 })

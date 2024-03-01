@@ -1,13 +1,9 @@
 <script lang="ts" setup>
-import { parseBoolean } from '~/utils/boolean'
-
-const { _totpActive } = useAuthSession()
-
-const isTotpActive = computed(() => parseBoolean(_totpActive.get()))
+const { session } = useUserSession()
+const isTotpActive = session.value?.totpActive
 
 definePageMeta({
-	layout: 'user',
-	middleware: 'auth'
+	layout: 'user'
 })
 </script>
 

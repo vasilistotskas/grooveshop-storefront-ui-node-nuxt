@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { CartItem } from '~/types/cart/cart-item'
 
 const props = defineProps({
@@ -20,18 +21,18 @@ const refreshCart = async () => await fetchCart()
 
 const src = computed(() => {
 	return resolveImageSrc(
-		cartItem.value.product?.mainImageFilename,
-		`media/uploads/products/${cartItem.value.product.mainImageFilename}`
+		cartItem?.value?.product?.mainImageFilename,
+		`media/uploads/products/${cartItem?.value?.product.mainImageFilename}`
 	)
 })
 
 const alt = computed(() => {
-	return extractTranslated(cartItem.value.product, 'name', locale.value)
+	return extractTranslated(cartItem?.value?.product, 'name', locale.value)
 })
 
 const cartItemQuantity = useState<number>(
-	`${cartItem.value.id}-quantity`,
-	() => cartItem.value.quantity || 0
+	`${cartItem?.value?.id}-quantity`,
+	() => cartItem?.value?.quantity || 0
 )
 
 const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {

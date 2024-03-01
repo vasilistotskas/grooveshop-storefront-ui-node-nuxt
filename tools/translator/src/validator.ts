@@ -1,4 +1,5 @@
 import type { ISettingsParam } from 'tslog'
+
 import type { Config } from './types'
 
 type ValidatorFn<T> = (v: T) => boolean
@@ -321,20 +322,20 @@ const validateISettingsParam = <LogObj>(
 }
 
 export {
-	isRequired,
-	isString,
+	configValidationRules,
+	createRule,
+	getValue,
 	isBoolean,
-	isObject,
-	isStringArray,
 	isNonNegativeNumber,
+	isObject,
 	isOneOf,
 	isRegExpArray,
-	createRule,
+	isRequired,
+	isString,
+	isStringArray,
 	matchesPattern,
-	getValue,
-	validateRules,
-	configValidationRules,
 	settingsParamValidationRules,
 	validateConfig,
-	validateISettingsParam
+	validateISettingsParam,
+	validateRules
 }

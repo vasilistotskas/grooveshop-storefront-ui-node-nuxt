@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { FunctionalComponent, SVGAttributes } from 'vue'
+
 import userShield from '~icons/fa6-solid/user-shield'
 
 interface IMenuItem {
@@ -16,10 +17,9 @@ defineSlots<{
 	drawer(props: {}): any
 }>()
 
-const { t } = useI18n()
-const config = useRuntimeConfig()
+const { session, loggedIn, clear } = useUserSession()
 
-const { isAuthenticated } = useAuthSession()
+const { t } = useI18n()
 const { logout } = useAuth()
 
 const userStore = useUserStore()
@@ -30,12 +30,14 @@ const { getCartTotalItems } = storeToRefs(cartStore)
 const { cleanCartState, fetchCart } = cartStore
 
 const authLogoutEvent = async () => {
-	await logout()
-	cleanAccountState()
+	await navigateTo('/')
+	await logout({
+		refresh: session.value?.refreshToken
+	})
 	cleanCartState()
+	cleanAccountState()
+	await clear()
 	await fetchCart()
-	const idb = await useAsyncIDBKeyval('auth', false)
-	idb.value = false
 }
 
 const menus = computed((): IMenuItem[] => [
@@ -135,28 +137,20 @@ const menus = computed((): IMenuItem[] => [
 							:title="$t('pages.cart.title')"
 							:text="$t('pages.cart.title')"
 						>
+							<span class="sr-only">{{ $t('pages.cart.title') }}</span>
 							<IconFa6Solid:cartShopping />
 						</Anchor>
 					</li>
 					<li class="relative grid items-center justify-center justify-items-center">
-						<Anchor
-							v-if="isAuthenticated"
-							class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
-							:title="$t('pages.accounts.login.title')"
-							:text="$t('pages.accounts.login.title')"
-							:to="'account'"
+						<UButton
+							icon="i-heroicons-user"
+							:to="loggedIn ? '/account' : `/auth/login?redirect=${$route.path}`"
+							size="md"
+							variant="solid"
+							color="white"
+							:label="loggedIn ? $t('common.account') : $t('common.login')"
+							>{{ loggedIn ? $t('common.account') : $t('common.login') }}</UButton
 						>
-							<IconFa6Solid:circleUser />
-						</Anchor>
-						<Anchor
-							v-else
-							class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
-							:title="$t('pages.accounts.login.title')"
-							:text="$t('pages.accounts.login.title')"
-							:href="`${config.public.djangoUrl}/accounts/login/`"
-						>
-							<IconFa6Solid:circleUser />
-						</Anchor>
 					</li>
 				</ul>
 			</div>
@@ -183,16 +177,12 @@ const menus = computed((): IMenuItem[] => [
 							<li class="link grid pb-2">
 								<UButton
 									icon="i-heroicons-user"
-									:to="
-										isAuthenticated ? '/account' : `/auth/login?redirect=${$route.path}`
-									"
+									:to="loggedIn ? '/account' : `/auth/login?redirect=${$route.path}`"
 									size="md"
 									variant="solid"
 									color="white"
-									:label="isAuthenticated ? $t('common.account') : $t('common.login')"
-									>{{
-										isAuthenticated ? $t('common.account') : $t('common.login')
-									}}</UButton
+									:label="loggedIn ? $t('common.account') : $t('common.login')"
+									>{{ loggedIn ? $t('common.account') : $t('common.login') }}</UButton
 								>
 							</li>
 							<li class="link grid pb-2">

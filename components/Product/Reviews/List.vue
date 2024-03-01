@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { ProductReview } from '~/types/product/review'
 
 const props = defineProps({

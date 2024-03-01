@@ -1,17 +1,18 @@
-import { describe, it, expect } from 'vitest'
 import type { ISettingsParam } from 'tslog'
+import { describe, expect, it } from 'vitest'
+
+import type { Config } from '~/tools/translator/src/types'
 import {
-	isString,
-	isStringArray,
-	isRegExpArray,
+	configValidationRules,
 	createRule,
 	getValue,
-	validateRules,
+	isRegExpArray,
+	isString,
+	isStringArray,
 	validateConfig,
 	validateISettingsParam,
-	configValidationRules
+	validateRules
 } from '~/tools/translator/src/validator'
-import type { Config } from '~/tools/translator/src/types'
 
 describe('translator validator tests', () => {
 	const sampleConfig = {

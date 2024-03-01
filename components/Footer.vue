@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import pkg from '~/package.json'
+
 const config = useRuntimeConfig()
 
 const packageVersion = pkg.version

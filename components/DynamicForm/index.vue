@@ -52,54 +52,41 @@
 			</UInput>
 		</UFormGroup>
 
-		<div
+		<LazyDynamicFormNavigation
 			v-if="isMultiStep"
-			:class="[currentStep === lastStep ? 'justify-between' : 'justify-end', 'flex']"
-		>
-			<UButton
-				v-if="currentStep > 0"
-				icon="i-heroicons-arrow-long-left"
-				color="white"
-				@click="goToPreviousStep"
-				>{{ $t('common.previous') }}</UButton
-			>
-			<UButton
-				v-if="currentStep < lastStep"
-				icon="i-heroicons-arrow-long-right"
-				:disabled="nextStepButtonDisabled"
-				color="white"
-				@click="goToNextStep"
-				>{{ $t('common.next') }}</UButton
-			>
-			<UButton v-if="currentStep === lastStep" type="submit" color="white">{{
-				buttonLabel
-			}}</UButton>
-		</div>
+			:current-step="currentStep"
+			:last-step="lastStep"
+			:next-step-button-disabled="nextStepButtonDisabled"
+			:submit-label="buttonLabel"
+			@go-to-next-step="goToNextStep"
+			@go-to-previous-step="goToPreviousStep"
+		/>
 
-		<UButton
-			v-else-if="submitButton"
+		<LazyUButton
+			v-if="!isMultiStep && submitButton"
 			:aria-busy="isSubmitting"
 			:disabled="submitButtonDisabled"
 			type="submit"
 			color="white"
-			>{{ buttonLabel }}</UButton
+			>{{ buttonLabel }}</LazyUButton
 		>
-		<UButton
-			v-else-if="resetButton"
+
+		<LazyUButton
+			v-if="!isMultiStep && resetButton"
 			class="ml-4"
 			color="white"
 			variant="outline"
 			type="button"
-			@click="resetForm()"
+			@click="resetForm"
+			>{{ resetLabel }}</LazyUButton
 		>
-			{{ resetLabel }}
-		</UButton>
 	</UForm>
 </template>
 
 <script lang="ts" setup>
-import { z } from 'zod'
 import type { ValidationOptions } from 'vee-validate'
+import { z } from 'zod'
+
 import type {
 	DisabledFields,
 	DynamicFormFields,
@@ -150,41 +137,31 @@ const {
 } = toRefs(props)
 
 const finalID = id ?? useId()
-
-const isMultiStep = computed(
-	() => Array.isArray(schema.value.steps) && schema.value.steps.length > 0
-)
-
 const currentStep = ref(0)
-const lastStep = schema.value.steps?.length ? schema.value.steps?.length - 1 : 0
+const isMultiStep = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
+const lastStep = schema.value.steps?.length ? schema.value.steps.length - 1 : 0
 
 // Filter the schema fields based on the current step
-const formFields = computed(() => {
-	return (
-		(isMultiStep.value
-			? schema.value.steps?.[currentStep.value].fields
-			: schema.value.fields) ?? []
-	)
-})
+const formFields =
+	(isMultiStep ? schema.value.steps?.[currentStep.value].fields : schema.value.fields) ??
+	[]
 
 // Filter the schema fields based on the condition function
-const filteredFields = computed(() => {
-	return formFields.value.filter((field) => {
-		// If no condition is specified, always show the field
-		if (!field.condition) {
-			return true
-		}
-		// Otherwise, evaluate the condition function with the current form state
-		return field.condition(formState.value)
-	})
+const filteredFields = formFields.filter((field) => {
+	// If no condition is specified, always show the field
+	if (!field.condition) {
+		return true
+	}
+	// Otherwise, evaluate the condition function with the current form state
+	return field.condition(formState.value)
 })
 
 // Create an object of disabled fields based on the disabledCondition function
 const disabledFields = computed<DisabledFields>(() => {
-	if (!formFields.value) {
+	if (!formFields) {
 		return {}
 	}
-	return formFields.value.reduce((acc: DisabledFields, field) => {
+	return formFields.reduce((acc: DisabledFields, field) => {
 		acc[field.name] = field.disabledCondition
 			? field.disabledCondition(formState.value)
 			: false
@@ -193,13 +170,11 @@ const disabledFields = computed<DisabledFields>(() => {
 })
 
 // Create an array of field names from the schema object
-const schemaFieldNames = computed(() => {
-	return formFields.value.map((field) => field.name)
-})
+const schemaFieldNames = formFields.map((field) => field.name)
 
 // Use schema.fields to generate a Zod schema object
 const generatedSchema = z.object(
-	Object.fromEntries(formFields.value.map((field) => [field.name, field.rules]))
+	Object.fromEntries(formFields.map((field) => [field.name, field.rules]))
 )
 
 // Use schema.extraValidation to generate a Zod schema object
@@ -224,7 +199,7 @@ const merged = computed(() => {
 const validationSchema = toTypedSchema(merged.value)
 
 // Create an object of initial form values from the schema object
-const initialFormValues = formFields.value.reduce((acc: FormValues, field) => {
+const initialFormValues = formFields.reduce((acc: FormValues, field) => {
 	acc[field.name] = field.initialValue
 	return acc
 }, {})
@@ -234,7 +209,7 @@ const { defineField, handleSubmit, resetForm, errors, isSubmitting, validate, va
 	useForm({
 		validationSchema,
 		initialValues: initialFormValues,
-		keepValuesOnUnmount: isMultiStep.value
+		keepValuesOnUnmount: isMultiStep
 	})
 
 const goToNextStep = async () => {
@@ -270,9 +245,7 @@ function createFields(keys: string[] | undefined): DynamicFormFields {
 	return fieldValues
 }
 
-const fields = computed(() => {
-	return createFields(schemaFieldNames.value)
-})
+const fields = createFields(schemaFieldNames)
 
 // Define the submit event emitter using defineEmits function
 const emit = defineEmits(['submit'])
@@ -285,7 +258,7 @@ const onSubmit = handleSubmit(() => {
 // Define the form state for Nuxt UI
 const formState = computed(() => {
 	return Object.fromEntries(
-		Object.entries(fields.value).map(([key, value]) => [key, value[0].value])
+		Object.entries(fields).map(([key, value]) => [key, value[0].value])
 	)
 })
 
@@ -315,12 +288,12 @@ const nextStepButtonDisabled = computed(() => {
 })
 
 // Watch for changes to the disabledFields object
-formFields.value.forEach((field) => {
+formFields.forEach((field) => {
 	watch(
 		() => disabledFields.value?.[field.name],
 		(newVal, oldVal) => {
 			if (newVal && !oldVal) {
-				fields.value[field.name][0].value = ''
+				fields[field.name][0].value = ''
 			}
 		}
 	)

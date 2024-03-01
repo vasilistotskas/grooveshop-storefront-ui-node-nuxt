@@ -1,11 +1,13 @@
 import * as fs from 'fs'
 import * as path from 'path'
+
 import { describe, expect, it } from 'vitest'
+
 import {
-	saveCacheKeyVal,
 	getCacheKeyVal,
-	saveCacheToFile,
-	loadCacheFromFile
+	loadCacheFromFile,
+	saveCacheKeyVal,
+	saveCacheToFile
 } from '~/tools/translator/src/cache'
 
 vi.mock('fs')

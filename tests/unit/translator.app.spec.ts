@@ -1,5 +1,7 @@
 import * as path from 'path'
-import { describe, it, expect, vi } from 'vitest'
+
+import { describe, expect, it, vi } from 'vitest'
+
 import { main } from '~/tools/translator/src/app'
 import * as configModule from '~/tools/translator/src/config'
 import * as fileOpsModule from '~/tools/translator/src/file-ops'

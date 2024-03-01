@@ -1,10 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
 import {
+	delay,
 	extractDynamicKeys,
 	getISO6391Code,
 	retry,
-	validateDynamicKeys,
-	delay
+	validateDynamicKeys
 } from '~/tools/translator/src/helpers'
 
 describe('translator helpers retry tests', () => {

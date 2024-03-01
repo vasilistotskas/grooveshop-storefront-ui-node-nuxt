@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import type { IFetchError } from 'ofetch'
 import type { UseSeoMetaInput } from '@unhead/schema'
+import type { IFetchError } from 'ofetch'
+
 import Json404 from '~/assets/lotties/404.json'
 
 defineProps({
@@ -42,14 +43,14 @@ useSeoMeta(seoMetaOptions)
 		</PageHeader>
 		<div class="grid min-h-screen">
 			<div class="flex flex-col items-center justify-center gap-2 p-6">
-				<h1
+				<h2
 					class="text-primary-700 dark:text-primary-100 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
 				>
 					<strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
 					<span>
 						{{ $t('pages.error.page.not.found') }}
 					</span>
-				</h1>
+				</h2>
 				<p class="text-primary-700 dark:text-primary-100">
 					{{ $t('pages.error.go.home') }}
 				</p>

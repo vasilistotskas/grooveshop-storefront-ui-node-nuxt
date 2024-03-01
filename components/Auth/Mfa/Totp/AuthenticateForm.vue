@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import type { MfaTotpAuthenticateBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 

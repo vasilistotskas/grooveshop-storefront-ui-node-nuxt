@@ -1,29 +1,20 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import { defaultSelectOptionChoose } from '~/constants/general'
+import type { Country } from '~/types/country'
+import type { Pagination } from '~/types/pagination'
+import type { Region } from '~/types/region'
+import type { UserAccount } from '~/types/user/account'
 
-const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
-const { updateAccount } = userStore
-
-const countryStore = useCountryStore()
-const { countries } = storeToRefs(countryStore)
-const { fetchCountries } = countryStore
-
-const regionStore = useRegionStore()
-const { regions } = storeToRefs(regionStore)
-const { fetchRegions } = regionStore
+const { user, fetch } = useUserSession()
+const { fetchUser } = useAuth()
 
 const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 
-const userId = account.value?.id
-
-await fetchCountries()
-await fetchRegions({
-	country: account.value?.country ?? ''
-})
+const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
 	email: z.string().email({
@@ -49,18 +40,17 @@ const ZodAccountSettings = z.object({
 const validationSchema = toTypedSchema(ZodAccountSettings)
 
 const initialValues = ZodAccountSettings.parse({
-	email: account.value?.email || '',
-	firstName: account.value?.firstName || '',
-	lastName: account.value?.lastName || '',
-	phone: account.value?.phone || '',
-	city: account.value?.city || '',
-	zipcode: account.value?.zipcode || '',
-	address: account.value?.address || '',
-	place: account.value?.place || '',
-	birthDate:
-		account.value?.birthDate || new Date('2000-01-01').toISOString().slice(0, 10),
-	country: account.value?.country || defaultSelectOptionChoose,
-	region: account.value?.region || defaultSelectOptionChoose
+	email: user.value?.email || '',
+	firstName: user.value?.firstName || '',
+	lastName: user.value?.lastName || '',
+	phone: user.value?.phone || '',
+	city: user.value?.city || '',
+	zipcode: user.value?.zipcode || '',
+	address: user.value?.address || '',
+	place: user.value?.place || '',
+	birthDate: user.value?.birthDate || new Date('2000-01-01').toISOString().slice(0, 10),
+	country: user.value?.country || defaultSelectOptionChoose,
+	region: user.value?.region || defaultSelectOptionChoose
 })
 
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
@@ -92,6 +82,26 @@ const [birthDate] = defineField('birthDate')
 
 const date = ref(new Date())
 
+const { data: countries } = await useLazyAsyncData('countries', () =>
+	$fetch<Pagination<Country>>('/api/countries', {
+		method: 'GET'
+	})
+)
+
+const { data: regions } = await useLazyAsyncData(
+	'regions',
+	() =>
+		$fetch<Pagination<Region>>('/api/regions', {
+			method: 'GET',
+			params: {
+				country: country.value
+			}
+		}),
+	{
+		watch: [country]
+	}
+)
+
 const label = computed(() => {
 	if (birthDate.value) {
 		return birthDate.value.toLocaleDateString('en-us', {
@@ -109,15 +119,13 @@ const label = computed(() => {
 	})
 })
 
-const onCountryChange = async (event: Event) => {
+const onCountryChange = (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	await fetchRegions({
-		country: event.target.value
-	})
-	regionProps.value.value = defaultSelectOptionChoose
+	country.value = event.target.value
+	region.value = defaultSelectOptionChoose
 }
 
-const onSubmit = handleSubmit((values) => {
+const onSubmit = handleSubmit(async (values) => {
 	if (
 		values.region === defaultSelectOptionChoose ||
 		values.country === defaultSelectOptionChoose
@@ -126,26 +134,35 @@ const onSubmit = handleSubmit((values) => {
 		values.country = null
 	}
 
-	if (userId === undefined) return
-	updateAccount(userId, {
-		email: values.email,
-		firstName: values.firstName,
-		lastName: values.lastName,
-		phone: values.phone,
-		city: values.city,
-		zipcode: values.zipcode,
-		address: values.address,
-		place: values.place,
-		birthDate: values.birthDate?.toISOString().slice(0, 10),
-		country: values.country,
-		region: values.region
-	})
-		.then(() => {
+	if (!userId) return
+
+	await useFetch<UserAccount>(`/api/user/account/${userId}`, {
+		method: 'PUT',
+		body: {
+			email: values.email,
+			firstName: values.firstName,
+			lastName: values.lastName,
+			phone: values.phone,
+			city: values.city,
+			zipcode: values.zipcode,
+			address: values.address,
+			place: values.place,
+			birthDate: values.birthDate?.toISOString().slice(0, 10),
+			country: values.country,
+			region: values.region
+		},
+		onRequestError() {
+			toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
+		},
+		async onResponse() {
+			await fetchUser()
+			await fetch()
 			toast.add({ title: t('pages.account.settings.form.success') })
-		})
-		.catch(() => {
-			toast.add({ title: t('pages.account.settings.form.error') })
-		})
+		},
+		onResponseError() {
+			toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
+		}
+	})
 })
 
 const submitButtonDisabled = computed(() => {
@@ -154,7 +171,7 @@ const submitButtonDisabled = computed(() => {
 
 definePageMeta({
 	layout: 'user',
-	middleware: 'auth'
+	keepalive: false
 })
 </script>
 
@@ -356,7 +373,7 @@ definePageMeta({
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="countryProps.value === defaultSelectOptionChoose"
+								:selected="country === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -364,7 +381,7 @@ definePageMeta({
 								v-for="cntry in countries?.results"
 								:key="cntry.alpha2"
 								:value="cntry.alpha2"
-								:selected="countryProps.value === cntry.alpha2"
+								:selected="country === cntry.alpha2"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(cntry, 'name', locale) }}
@@ -387,12 +404,12 @@ definePageMeta({
 							name="region"
 							as="select"
 							class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
-							:disabled="countryProps.value === defaultSelectOptionChoose"
+							:disabled="country === defaultSelectOptionChoose"
 						>
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="regionProps.value === defaultSelectOptionChoose"
+								:selected="region === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -400,7 +417,7 @@ definePageMeta({
 								v-for="rgn in regions?.results"
 								:key="rgn.alpha"
 								:value="rgn.alpha"
-								:selected="regionProps.value === rgn.alpha"
+								:selected="region === rgn.alpha"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ extractTranslated(rgn, 'name', locale) }}

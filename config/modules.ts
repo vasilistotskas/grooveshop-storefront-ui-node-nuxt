@@ -15,5 +15,7 @@ export const modules = [
 	'@vee-validate/nuxt',
 	'unplugin-icons/nuxt',
 	'nuxt-delay-hydration',
-	'nuxt-build-cache'
+	'nuxt-build-cache',
+	'nuxt-auth-utils',
+	'nuxt-time'
 ]

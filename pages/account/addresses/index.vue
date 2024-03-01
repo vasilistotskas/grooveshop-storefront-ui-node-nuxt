@@ -1,85 +1,11 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
-import type {
-	UserAddress,
-	UserAddressOrderingField,
-	UserAddressQuery
-} from '~/types/user/address'
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import { GlobalEvents } from '~/events/global'
-import type { UserAddressAction } from '~/events/user/address'
 
 const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
-
-const userAddressStore = useUserAddressStore()
-const { addresses, pending } = storeToRefs(userAddressStore)
-const { fetchUserAddresses } = userAddressStore
-
-const { t } = useI18n()
-const route = useRoute('account-addresses___en')
-const bus = useEventBus<string, UserAddressAction>(GlobalEvents.USER_ADDRESS)
-
-const entityOrdering: Ref<EntityOrdering<UserAddressOrderingField>> = ref([
-	{
-		value: 'createdAt',
-		label: t('pages.account.addresses.ordering.created_at'),
-		options: ['ascending', 'descending']
-	},
-	{
-		value: 'isMain',
-		label: t('pages.account.addresses.ordering.is_main'),
-		options: ['ascending', 'descending']
-	}
-])
-
-const orderingFields: Partial<Record<UserAddressOrderingField, OrderingOption[]>> =
-	reactive({
-		createdAt: [],
-		isMain: []
-	})
-
-const pagination = computed(() => {
-	return usePagination<UserAddress>(addresses.value)
-})
-
-const ordering = computed(() => {
-	return useOrdering<UserAddressOrderingField>(entityOrdering.value, orderingFields)
-})
-
-const routePaginationParams = computed<UserAddressQuery>(() => {
-	const page = Number(route.query.page) || 1
-	const ordering = route.query.ordering || '-isMain'
-	const user = String(account.value?.id)
-	const expand = 'true'
-
-	return {
-		page,
-		ordering,
-		user,
-		expand
-	}
-})
-
-await fetchUserAddresses(routePaginationParams.value)
-
-const refreshAddresses = async () => await fetchUserAddresses(routePaginationParams.value)
-
-bus.on((event: string, payload) => {
-	if (payload === 'delete' || payload === 'set-main') {
-		refreshAddresses()
-	}
-})
-
-watch(
-	() => route.query,
-	() => refreshAddresses()
-)
+const { userAddresses } = storeToRefs(userStore)
 
 definePageMeta({
-	layout: 'user',
-	middleware: 'auth'
+	layout: 'user'
 })
 </script>
 
@@ -90,33 +16,21 @@ definePageMeta({
 		</PageHeader>
 		<UserAccountNavbar />
 		<PageBody>
-			<template v-if="!pending.addresses && addresses?.results?.length">
-				<div class="flex flex-row items-center gap-2">
-					<PaginationPageNumber
-						:count="pagination.count"
-						:total-pages="pagination.totalPages"
-						:page-total-results="pagination.pageTotalResults"
-						:page-size="pagination.pageSize"
-						:page="pagination.page"
-						:links="pagination.links"
-					/>
-					<Ordering
-						:ordering="String(routePaginationParams.ordering)"
-						:ordering-options="ordering.orderingOptionsArray.value"
-					/>
-				</div>
-				<AddressList :addresses="addresses.results" :addresses-total="addresses.count" />
-			</template>
-			<template v-else-if="!addresses?.results?.length">
-				<div class="flex gap-4">
-					<AddressAddNew />
+			<AddressList
+				v-if="userAddresses && userAddresses.length"
+				:addresses="userAddresses"
+				:addresses-total="userAddresses.length"
+			/>
+			<ul v-if="!userAddresses" class="flex gap-4">
+				<AddressAddNew />
+				<li>
 					<EmptyState :icon="emptyIcon">
 						<template #actions>
 							<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
 						</template>
 					</EmptyState>
-				</div>
-			</template>
+				</li>
+			</ul>
 		</PageBody>
 	</PageWrapper>
 </template>

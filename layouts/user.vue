@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 defineSlots<{
 	default(props: {}): any
-	main(props: {}): any
 	header(props: {}): any
 	footer(props: {}): any
 	'app-before'(props: {}): any
@@ -9,7 +8,8 @@ defineSlots<{
 }>()
 
 const userStore = useUserStore()
-const { account, favourites, reviews, orders } = storeToRefs(userStore)
+const { favouriteProducts, productReviews, orders } = storeToRefs(userStore)
+const { user } = useUserSession()
 const { isMobile } = useDevice()
 const route = useRoute()
 </script>
@@ -25,51 +25,49 @@ const route = useRoute()
 					<template #drawer>
 						<UserSidebar mode="mobile" />
 					</template>
-					<template v-if="account" #image>
-						<UserAvatar :user-account="account" :img-width="40" :img-height="40" />
+					<template v-if="user" #image>
+						<LazyUserAvatar :user-account="user" :img-width="40" :img-height="40" />
 					</template>
 				</UserNavbar>
 			</slot>
 			<div class="grid gap-6">
 				<div class="bg-zinc-200 dark:bg-zinc-800 md:rounded-b-[94px]">
 					<UserAccountInfo
-						v-if="account"
+						v-if="user"
 						class="container mx-auto w-full"
-						:account="account"
+						:account="user"
 						:orders-count="orders?.length"
-						:favourites-count="favourites?.length"
-						:reviews-count="reviews?.length"
+						:favourites-count="favouriteProducts?.length"
+						:reviews-count="productReviews?.length"
 					/>
 				</div>
-				<slot name="main">
-					<Main :main-class="'mx-auto w-full container'">
-						<div class="relative mb-12 md:mb-20">
-							<div class="flex w-full flex-1 flex-col md:gap-4">
+				<main class="container mx-auto w-full">
+					<div class="relative mb-12 md:mb-20">
+						<div class="flex w-full flex-1 flex-col md:gap-4">
+							<div
+								:class="[
+									'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row'
+								]"
+							>
 								<div
+									v-if="!isMobile"
+									class="md:grid md:w-auto md:py-4 lg:pl-8"
 									:class="[
-										'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row'
+										{
+											'grid w-full': route.path === '/account',
+											hidden: route.path !== '/account'
+										}
 									]"
 								>
-									<div
-										v-if="!isMobile"
-										class="md:grid md:w-auto md:py-4 lg:pl-8"
-										:class="[
-											{
-												'grid w-full': route.path === '/account',
-												hidden: route.path !== '/account'
-											}
-										]"
-									>
-										<UserSidebar />
-									</div>
-									<div class="flex w-full flex-col">
-										<slot />
-									</div>
+									<UserSidebar />
+								</div>
+								<div class="flex w-full flex-col">
+									<slot />
 								</div>
 							</div>
 						</div>
-					</Main>
-				</slot>
+					</div>
+				</main>
 			</div>
 
 			<slot name="footer">

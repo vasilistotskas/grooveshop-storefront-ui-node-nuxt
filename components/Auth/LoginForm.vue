@@ -1,17 +1,19 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-const { login, loginWithProvider } = useAuth()
-const { totpActive } = useAuthMfa()
-
-const userStore = useUserStore()
-const cartStore = useCartStore()
-
-const { fetchAccount } = userStore
-const { fetchCart } = cartStore
+import { GlobalEvents } from '~/events/global'
 
 const { t } = useI18n()
 const toast = useToast()
+const route = useRoute()
+const { fetch } = useUserSession()
+const { login, loginWithProvider, userAccountDetails } = useAuth()
+const { totpActive } = useAuthMfa()
+const userStore = useUserStore()
+const cartStore = useCartStore()
+const { fetchCart } = cartStore
+
+const { setAccountState } = userStore
 
 const ZodLogin = z.object({
 	email: z.string().email(),
@@ -32,49 +34,68 @@ const [password, passwordProps] = defineField('password', {
 })
 
 const showPassword = ref(false)
+const rememberMe = ref(false)
+const loading = ref(false)
 
-const onSubmit = handleSubmit(async (values) => {
-	const { data, error } = await login({
+const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
+
+const onSubmit = handleSubmit((values) => {
+	loading.value = true
+	login({
 		email: values.email,
-		password: values.password
+		password: values.password,
+		rememberMe: rememberMe.value
 	})
-	if (data.value?.user) {
-		toast.add({
-			title: t('common.auth.login.success')
+		.then(async () => {
+			await fetch()
+			const { data } = await userAccountDetails()
+			if (data.value) {
+				setAccountState(data.value)
+			}
+			await Promise.all([totpActive(), fetchCart()])
+			const to = route.query.redirect?.toString() || '/account'
+			await navigateTo(to)
 		})
-		await fetchAccount()
-		await fetchCart()
-		const idb = await useAsyncIDBKeyval('auth', true)
-		idb.value = true
-
-		await totpActive()
-	} else if (error.value) {
-		if (error.value?.data?.data?.nonFieldErrors) {
+		.catch((error) => {
 			toast.add({
-				title: error.value?.data.data?.nonFieldErrors[0],
+				title: error.data.data?.nonFieldErrors[0] || t('common.auth.login.error'),
 				color: 'red'
 			})
-		} else {
-			toast.add({
-				title: t('common.auth.login.error'),
-				color: 'red'
-			})
-		}
-		clearNuxtData('login')
-	}
+		})
+		.finally(async () => {
+			loading.value = false
+			bus.emit('fallbackModalClose')
+			await fetch()
+		})
 })
+
+const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
 </script>
 
 <template>
 	<section class="grid">
-		<form
-			id="loginForm"
+		<Component
+			:is="loading ? ClientOnlyFallback : 'form'"
+			:id="loading ? undefined : 'loginForm'"
 			ref="loginForm"
 			class="container-xs p-0 md:px-6"
-			name="loginForm"
+			:height="loading ? '484px' : undefined"
+			:width="loading ? '100%' : undefined"
+			:show-animation="loading ? false : undefined"
+			:spinner="
+				loading
+					? {
+							enabled: true,
+							fontSize: '5rem'
+						}
+					: undefined
+			"
+			:modal="loading"
+			:name="loading ? undefined : 'loginForm'"
 			@submit="onSubmit"
 		>
 			<div
+				v-if="!loading"
 				class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-800 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
 			>
 				<div class="relative grid w-full gap-4">
@@ -133,10 +154,9 @@ const onSubmit = handleSubmit(async (values) => {
 						<div class="0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
 							<input
 								id="checkbox"
+								v-model="rememberMe"
 								class="checked:border-primary checked:bg-primary dark:checked:border-primary dark:checked:bg-primary relative float-left -ml-[1.5rem] mr-[6px] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-neutral-600 dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
 								type="checkbox"
-								value=""
-								checked
 							/>
 							<label
 								class="inline-block pl-[0.15rem] text-sm hover:cursor-pointer md:text-base"
@@ -205,6 +225,6 @@ const onSubmit = handleSubmit(async (values) => {
 					</div>
 				</div>
 			</div>
-		</form>
+		</Component>
 	</section>
 </template>

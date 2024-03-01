@@ -1,23 +1,25 @@
 <script lang="ts" setup>
 const { totpDeactivate } = useAuthMfa()
-
-const toast = useToast()
+const { fetch } = useUserSession()
 const { t } = useI18n()
+const toast = useToast()
 
-async function onSubmit() {
-	const { data, error } = await totpDeactivate({})
-	if (data.value?.success) {
-		toast.add({
-			title: t('pages.auth.security.mfa.totp.deactivate.success'),
-			color: 'green'
+function onSubmit() {
+	totpDeactivate({})
+		.then(async () => {
+			toast.add({
+				title: t('pages.auth.security.mfa.totp.deactivate.success'),
+				color: 'green'
+			})
+			await fetch()
+			await navigateTo('/account')
 		})
-	} else if (error.value) {
-		toast.add({
-			title: t('pages.auth.security.mfa.totp.deactivate.error'),
-			color: 'red'
+		.catch(() => {
+			toast.add({
+				title: t('pages.auth.security.mfa.totp.deactivate.error'),
+				color: 'red'
+			})
 		})
-		clearNuxtData('totpDeactivate')
-	}
 }
 </script>
 

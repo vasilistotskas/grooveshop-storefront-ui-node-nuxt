@@ -1,25 +1,23 @@
 <script lang="ts" setup>
 const { recoveryCodesGenerate } = useAuthMfa()
-
-const router = useRouter()
-const toast = useToast()
 const { t } = useI18n()
+const toast = useToast()
 
-async function onSubmit() {
-	const { data, error } = await recoveryCodesGenerate({})
-	if (data.value?.codes) {
-		toast.add({
-			title: t('pages.auth.security.mfa.recovery.codes.generate.success'),
-			color: 'green'
+function onSubmit() {
+	recoveryCodesGenerate({})
+		.then(async () => {
+			toast.add({
+				title: t('pages.auth.security.mfa.recovery.codes.generate.success'),
+				color: 'green'
+			})
+			await navigateTo('/auth/security/mfa/recovery-codes')
 		})
-		await router.push('/auth/security/mfa/recovery-codes')
-	} else if (error.value) {
-		toast.add({
-			title: t('pages.auth.security.mfa.recovery.codes.generate.error'),
-			color: 'red'
+		.catch(() => {
+			toast.add({
+				title: t('pages.auth.security.mfa.recovery.codes.generate.error'),
+				color: 'red'
+			})
 		})
-		clearNuxtData('recoveryCodesGenerate')
-	}
 }
 </script>
 

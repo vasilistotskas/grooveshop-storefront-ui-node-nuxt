@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
-import type { BlogTag } from '~/types/blog/tag'
-import type { BlogAuthor } from '~/types/blog/author'
-import type { UserAccount } from '~/types/user/account'
 
-const blogPostStore = useBlogPostStore()
-const { post } = storeToRefs(blogPostStore)
-const { fetchBlogPost } = blogPostStore
+import type { BlogAuthor } from '~/types/blog/author'
+import type { BlogPost } from '~/types/blog/post'
+import type { BlogTag } from '~/types/blog/tag'
+import type { UserAccount } from '~/types/user/account'
 
 const route = useRoute('blog-post-id-slug___en')
 const config = useRuntimeConfig()
@@ -17,20 +15,40 @@ const { resolveImageSrc } = useImageResolver()
 
 const blogPostId = route.params.id
 
-await fetchBlogPost(blogPostId, 'true')
+const { data } = await useFetch<BlogPost>(`/api/blog/posts/${blogPostId}`, {
+	key: `blogPost${blogPostId}`,
+	method: 'GET',
+	params: {
+		expand: 'true'
+	}
+})
+
+if (!data.value) {
+	throw createError({
+		statusCode: 404,
+		statusMessage: t('common.error.page.not.found')
+	})
+}
+
+if (!data.value) {
+	throw createError({
+		statusCode: 404,
+		statusMessage: t('common.error.page.not.found')
+	})
+}
 
 const blogPostBody = computed(() => {
-	return extractTranslated(post.value, 'body', locale.value)
+	return extractTranslated(data.value, 'body', locale.value)
 })
 const blogPostSubtitle = computed(() => {
-	return extractTranslated(post.value, 'subtitle', locale.value)
+	return extractTranslated(data.value, 'subtitle', locale.value)
 })
 const blogPostTitle = computed(() => {
-	return extractTranslated(post.value, 'title', locale.value)
+	return extractTranslated(data.value, 'title', locale.value)
 })
 const blogPostAuthor = computed(() => {
-	if (typeof post.value?.author !== 'number') {
-		return post.value?.author as BlogAuthor
+	if (typeof data.value?.author !== 'number') {
+		return data.value?.author as BlogAuthor
 	}
 	return null
 })
@@ -41,15 +59,12 @@ const blogPostAuthorUser = computed(() => {
 	return null
 })
 const blogPostTags = computed(() => {
-	if (typeof post.value?.tags !== 'number') {
-		return post.value?.tags as BlogTag[]
-	}
-	return null
+	return data.value?.tags as BlogTag[]
 })
 const blogPostImageSrc = computed(() => {
 	return resolveImageSrc(
-		post.value?.mainImageFilename,
-		`media/uploads/blog/${post.value?.mainImageFilename}`
+		data.value?.mainImageFilename,
+		`media/uploads/blog/${data.value?.mainImageFilename}`
 	)
 })
 const blogPostAuthorUserImgSrc = computed(() => {
@@ -72,8 +87,8 @@ const links = [
 	{
 		to:
 			locale.value === config.public.defaultLocale
-				? `/blog/post/${blogPostId}/${post.value?.slug}`
-				: `/${locale.value}/blog/post/${blogPostId}/${post.value?.slug}`,
+				? `/blog/post/${blogPostId}/${data.value?.slug}`
+				: `/${locale.value}/blog/post/${blogPostId}/${data.value?.slug}`,
 		label: blogPostTitle.value
 	}
 ]
@@ -82,7 +97,7 @@ const routeFullPath = computed(() => {
 	return route.fullPath
 })
 
-const shareOptions = ref({
+const shareOptions = reactive({
 	title: blogPostTitle.value,
 	text: blogPostSubtitle.value || '',
 	url: isClient ? routeFullPath : ''
@@ -96,20 +111,20 @@ const seoMetaOptions = {
 	ogTitle: blogPostTitle.value,
 	ogType: 'article',
 	ogUrl: config.public.baseUrl + routeFullPath.value,
-	ogImage: post.value?.mainImageAbsoluteUrl,
+	ogImage: data.value?.mainImageAbsoluteUrl,
 	ogImageAlt: blogPostTitle.value,
 	twitterTitle: blogPostTitle.value,
 	twitterDescription: blogPostSubtitle.value,
-	twitterImage: post.value?.mainImageAbsoluteUrl,
-	msapplicationTileImage: post.value?.mainImageAbsoluteUrl
+	twitterImage: data.value?.mainImageAbsoluteUrl,
+	msapplicationTileImage: data.value?.mainImageAbsoluteUrl
 } satisfies UseSeoMetaInput
 useSchemaOrg([
 	defineArticle({
 		headline: blogPostTitle.value,
 		description: blogPostSubtitle.value,
-		image: post.value?.mainImageAbsoluteUrl,
-		datePublished: post.value?.createdAt,
-		dateModified: post.value?.updatedAt,
+		image: data.value?.mainImageAbsoluteUrl,
+		datePublished: data.value?.createdAt,
+		dateModified: data.value?.updatedAt,
 		author: {
 			name:
 				blogPostAuthorUser.value?.firstName + ' ' + blogPostAuthorUser.value?.lastName,
@@ -122,7 +137,7 @@ const ogImageOptions = {
 	title: blogPostTitle.value,
 	description: blogPostSubtitle.value,
 	alt: blogPostTitle.value,
-	url: post.value?.mainImageAbsoluteUrl || '',
+	url: data.value?.mainImageAbsoluteUrl || '',
 	cache: true,
 	cacheKey: `og-image-blog-post-${blogPostId}`,
 	cacheTtl: 60 * 60 * 24 * 7
@@ -136,8 +151,8 @@ definePageMeta({
 <template>
 	<PageWrapper class="container">
 		<PageBody>
-			<div v-if="post" class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
-				<UBreadcrumb :links="links" class="mb-5 md:pl-4" />
+			<div v-if="data" class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
+				<UBreadcrumb :links="links" class="mb-5" />
 				<article
 					class="mx-auto flex max-w-2xl flex-col items-start justify-center border-gray-200 dark:border-gray-700"
 				>
@@ -178,9 +193,7 @@ definePageMeta({
 							<div
 								class="text-primary-700 dark:text-primary-100 grid h-full items-center justify-center border-r-2 border-gray-400 pr-2 text-sm"
 							>
-								<time :datetime="post?.createdAt">
-									{{ new Date(post?.createdAt).toLocaleString() }}
-								</time>
+								<NuxtTime :datetime="data?.createdAt" />
 							</div>
 							<div class="flex justify-end">
 								<ClientOnly>

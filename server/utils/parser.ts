@@ -242,13 +242,13 @@ function makePromiseParser<ZodSchema extends z.ZodTypeAny>(
 }
 
 export {
-	parseBodyAs,
-	parseParamsAs,
-	parseQueryAs,
-	parseCookieAs,
-	parseHeaderAs,
-	parseDataAs,
 	makeParser,
 	makePromiseParser,
+	parseBodyAs,
+	parseCookieAs,
+	parseDataAs,
+	parseHeaderAs,
+	parseParamsAs,
+	parseQueryAs,
 	z
 }

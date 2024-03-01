@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { ProductFavourite } from '~/types/product/favourite'
-import type { ButtonSize } from '~/types/global/button'
+
 import heartJSON from '~/assets/lotties/heart.json'
 import Lottie from '~/components/Lottie/index.vue'
+import type { ButtonSize } from '~/types/global/button'
+import type { ProductFavourite } from '~/types/product/favourite'
 
 const props = defineProps({
 	productId: {
@@ -36,8 +37,8 @@ const props = defineProps({
 })
 
 const userStore = useUserStore()
-const { favourites } = storeToRefs(userStore)
-const { addFavourite, removeFavourite } = userStore
+const { favouriteProducts } = storeToRefs(userStore)
+const { getIsProductInFavourites } = userStore
 
 const { t } = useI18n()
 const toast = useToast()
@@ -45,27 +46,67 @@ const toast = useToast()
 const lottie = ref<InstanceType<typeof Lottie>>()
 
 const toggleFavourite = async () => {
-	if (!props.isAuthenticated || !props.userId || !favourites) {
+	if (!props.isAuthenticated || !props.userId || !favouriteProducts) {
 		toast.add({
 			title: t('components.add_to_favourite_button.not_authenticated')
 		})
 		return
 	}
-	const favouriteIndex = favourites.value?.findIndex((f) => f.product === props.productId)
-	if (favouriteIndex === -1) {
-		await addFavourite({
-			user: String(props.userId),
-			product: String(props.productId)
+	const isProductInFavorites = getIsProductInFavourites(props.productId)
+	if (!isProductInFavorites) {
+		await useFetch<ProductFavourite>(`/api/products/favourites`, {
+			method: 'POST',
+			body: {
+				product: String(props.productId),
+				user: String(props.userId)
+			},
+			query: {
+				expand: 'true'
+			},
+			onRequestError({ error }) {
+				toast.add({
+					title: error.message,
+					color: 'red'
+				})
+			},
+			onResponse({ response }) {
+				favouriteProducts.value?.push(response._data)
+				lottie.value?.play()
+				toast.add({
+					title: t('components.add_to_favourite_button.added')
+				})
+			},
+			onResponseError({ error }) {
+				toast.add({
+					title: error?.message,
+					color: 'red'
+				})
+			}
 		})
-		lottie.value?.play()
-		toast.add({
-			title: t('components.add_to_favourite_button.added')
-		})
-	} else if (favourites.value && favouriteIndex) {
-		await removeFavourite(favourites.value[favouriteIndex].id)
-		lottie.value?.goToAndStop(0)
-		toast.add({
-			title: t('components.add_to_favourite_button.removed')
+	} else {
+		const id = props.favourite?.id
+		await useFetch(`/api/products/favourites/${id}`, {
+			method: 'DELETE',
+			onRequestError({ error }) {
+				toast.add({
+					title: error.message,
+					color: 'red'
+				})
+			},
+			onResponse() {
+				favouriteProducts.value =
+					favouriteProducts.value?.filter((favourite) => favourite.id !== id) || []
+				lottie.value?.goToAndStop(0)
+				toast.add({
+					title: t('components.add_to_favourite_button.removed')
+				})
+			},
+			onResponseError({ error }) {
+				toast.add({
+					title: error?.message,
+					color: 'red'
+				})
+			}
 		})
 	}
 }

@@ -1,18 +1,24 @@
 import type { H3Event } from 'h3'
+
 import {
 	ZodProductReview,
-	ZodProductReviewCreateQuery,
-	ZodProductReviewCreateBody
+	ZodProductReviewCreateBody,
+	ZodProductReviewCreateQuery
 } from '~/types/product/review'
 import { buildFullUrl } from '~/utils/api'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const body = await parseBodyAs(event, ZodProductReviewCreateBody)
-	const query = parseQueryAs(event, ZodProductReviewCreateQuery)
+	const session = await getUserSession(event)
+	const body = await readValidatedBody(event, ZodProductReviewCreateBody.parse)
+	const query = await getValidatedQuery(event, ZodProductReviewCreateQuery.parse)
 	const url = buildFullUrl(`${config.public.apiBaseUrl}/product/review`, query)
-	const response = await $api(url, event, {
-		body
+	const response = await $fetch(url, {
+		method: 'POST',
+		body,
+		headers: {
+			Authorization: `Bearer ${session?.token}`
+		}
 	})
 	return await parseDataAs(response, ZodProductReview)
 })

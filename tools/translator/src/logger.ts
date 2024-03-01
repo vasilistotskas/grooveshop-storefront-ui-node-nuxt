@@ -1,4 +1,5 @@
-import { type ILogObj, Logger } from 'tslog'
+import { Logger, type ILogObj } from 'tslog'
+
 import { loadConfig } from './config'
 import { loggerName } from './constants'
 

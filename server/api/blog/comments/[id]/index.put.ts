@@ -1,19 +1,24 @@
 import type { H3Event } from 'h3'
+
 import {
 	ZodBlogComment,
 	ZodBlogCommentParams,
 	ZodBlogCommentPutBody
 } from '~/types/blog/comment'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const body = await parseBodyAs(event, ZodBlogCommentPutBody)
-	const params = parseParamsAs(event, ZodBlogCommentParams)
-	const response = await $api(
+	const session = await getUserSession(event)
+	const body = await readValidatedBody(event, ZodBlogCommentPutBody.parse)
+	const params = await getValidatedRouterParams(event, ZodBlogCommentParams.parse)
+	const response = await $fetch(
 		`${config.public.apiBaseUrl}/product/review/${params.id}`,
-		event,
 		{
-			body
+			method: 'PUT',
+			body,
+			headers: {
+				Authorization: `Bearer ${session?.token}`
+			}
 		}
 	)
 	return await parseDataAs(response, ZodBlogComment)

@@ -1,13 +1,16 @@
 <script lang="ts" setup>
-const productCategoryStore = useProductCategoryStore()
-const { categories } = storeToRefs(productCategoryStore)
-const { fetchCategories } = productCategoryStore
+import type { Pagination } from '~/types/pagination'
+import type { ProductCategory } from '~/types/product/category'
 
 const { locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 const route = useRoute()
 
-await fetchCategories({})
+const { data, pending } = await useLazyAsyncData('productCategories', () =>
+	$fetch<Pagination<ProductCategory>>('/api/products/categories', {
+		method: 'GET'
+	})
+)
 
 const sidebar = ref(null)
 const searchQuery = ref('')
@@ -16,7 +19,7 @@ const selectedCategoryIds = computed(() => {
 })
 
 const filteredCategories = computed(() => {
-	return categories.value?.results
+	return data.value?.results
 		?.slice()
 		.sort((a, b) => {
 			const aIsSelected = selectedCategoryIds.value.includes(a.id.toString())
@@ -43,19 +46,21 @@ onMounted(() => {
 </script>
 
 <template>
-	<div
-		v-if="categories && categories.count > 0"
+	<aside
 		ref="sidebar"
 		class="sidebar relative hidden h-fit w-60 transition-all duration-300 ease-in-out lg:flex"
 	>
-		<div class="grid w-full flex-1 gap-4 overflow-y-auto pl-4 pr-4 lg:pl-0">
-			<div class="sidebar-header-sticky grid gap-4 bg-zinc-100 dark:bg-zinc-900">
-				<h2 class="flex items-center gap-2 p-2 text-center text-2xl font-bold">
+		<div class="grid w-full flex-1 gap-2 overflow-y-auto pl-4 pr-4 lg:pl-0">
+			<h2 class="flex items-center gap-2 p-2 text-center text-2xl font-bold">
+				{{ $t('common.filters.title') }}
+			</h2>
+			<div class="sidebar-header-sticky grid bg-zinc-100 dark:bg-zinc-900">
+				<h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
 					{{ $t('common.categories') }}
 					<span class="text-primary-700 dark:text-primary-100 text-sm font-normal">
-						({{ categories.count }})
+						({{ data?.count ?? 0 }})
 					</span>
-				</h2>
+				</h3>
 				<label class="sr-only" for="search">
 					{{ $t('common.search') }}
 				</label>
@@ -71,23 +76,29 @@ onMounted(() => {
 					:placeholder="`${$t('common.search')}...`"
 				/>
 			</div>
-			<ul
-				v-if="filteredCategories && filteredCategories.length > 0"
-				class="grid max-h-96 gap-2 md:gap-4"
-			>
-				<ProductsSidebarCategory
-					v-for="category in filteredCategories"
-					:key="category.id"
-					:category="category"
-				/>
+			<ul class="grid max-h-96 gap-2 md:gap-4">
+				<template v-if="!pending && filteredCategories?.length">
+					<ProductsSidebarCategory
+						v-for="category in filteredCategories"
+						:key="category.id"
+						:category="category"
+					/>
+				</template>
+
+				<template v-if="pending">
+					<li v-for="index in 8" :key="index" class="flex items-center space-x-4 p-2">
+						<USkeleton class="h-12 w-20" :ui="{ rounded: 'rounded-full' }" />
+						<USkeleton class="h-[30px] w-full" />
+					</li>
+				</template>
 			</ul>
-			<div v-else>
+			<div v-if="!pending && !filteredCategories?.length" class="grid gap-4">
 				<p class="text-primary-700 dark:text-primary-100 p-2 text-center">
 					{{ $t('common.no_categories_found') }}
 				</p>
 			</div>
 		</div>
-	</div>
+	</aside>
 </template>
 
 <style lang="scss" scoped>

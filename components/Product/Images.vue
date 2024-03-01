@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
+import type { Pagination } from '~/types/pagination'
+import type { ProductImage } from '~/types/product/image'
 import type { Product } from '~/types/product/product'
 
 const props = defineProps({
@@ -10,25 +13,27 @@ const props = defineProps({
 })
 const { product } = toRefs(props)
 
-const productImageStore = useProductImageStore()
-const { images } = storeToRefs(productImageStore)
-const { fetchImages } = productImageStore
+const { data } = await useFetch<Pagination<ProductImage>>(`/api/products/images`, {
+	key: `productImages${product.value.id}`,
+	method: 'GET',
+	params: {
+		product: product.value.id
+	}
+})
 
-await fetchImages({ product: String(product.value.id) })
-
-const mainImage = ref(images.value?.results?.find((image) => image.isMain) || null)
+const mainImage = ref(data.value?.results?.find((image) => image.isMain))
 
 const selectedImageId = useState<number>(`${product.value.uuid}-imageID`, () => {
-	if (!images.value?.results) {
+	if (!data.value?.results) {
 		return 0
 	}
-	return mainImage.value?.id || images.value?.results[0]?.id || 0
+	return mainImage.value?.id || data.value?.results[0]?.id || 0
 })
 
 watch(
 	() => selectedImageId.value,
 	(value) => {
-		const image = images.value?.results?.find((image) => image.id === value)
+		const image = data.value?.results?.find((image) => image.id === value)
 		if (image) {
 			mainImage.value = image
 		}
@@ -37,10 +42,7 @@ watch(
 </script>
 
 <template>
-	<div
-		class="grid"
-		:class="[images?.results && images?.results?.length > 1 ? 'gap-4' : '']"
-	>
+	<div class="grid" :class="[data?.results && data?.results?.length > 1 ? 'gap-4' : '']">
 		<div
 			class="inline-table h-64 items-center justify-center justify-items-center rounded-lg bg-zinc-100 md:grid md:h-80"
 		>
@@ -48,9 +50,9 @@ watch(
 		</div>
 
 		<UCarousel
-			v-if="images?.results && images?.results?.length > 1"
+			v-if="data?.results && data?.results?.length > 1"
 			v-slot="{ item }"
-			:items="images?.results"
+			:items="data?.results"
 			:ui="{ item: 'basis-full md:basis-1/2 lg:basis-1/3' }"
 			class="overflow-hidden rounded-lg"
 			arrows

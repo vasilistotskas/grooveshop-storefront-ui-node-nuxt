@@ -11,25 +11,27 @@ export const ZodMfaTotpDeactivateBody = z.object(
 	{}
 ) satisfies z.ZodType<MfaTotpDeactivateBody>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
+	const session = await requireUserSession(event)
 	try {
-		const body = await parseBodyAs(event, ZodMfaTotpDeactivateBody)
-		const response = await $api(
+		const body = await readValidatedBody(event, ZodMfaTotpDeactivateBody.parse)
+		const response = await $fetch(
 			`${config.public.apiBaseUrl}/auth/mfa/totp/deactivate`,
-			event,
 			{
+				method: 'POST',
 				body,
-				method: 'POST'
+				headers: {
+					Authorization: `Bearer ${session?.token}`
+				}
 			}
 		)
 		const deactivateResponse = await parseDataAs(response, ZodMfaTotpDeactivateResponse)
-		deleteTotpActiveCookie(event)
-		event.context.totp_active = false
+		await setUserSession(event, {
+			totpActive: false
+		})
 		return deactivateResponse
 	} catch (error) {
-		deleteTotpActiveCookie(event)
-		event.context.totp_active = false
 		await handleError(error)
 	}
 })

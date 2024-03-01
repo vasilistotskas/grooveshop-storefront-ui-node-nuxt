@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { LocaleObject } from 'vue-i18n-routing'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import type { LocaleObject } from 'vue-i18n-routing'
 
 type Locale = LocaleObject & {
 	flag: string

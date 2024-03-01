@@ -1,7 +1,7 @@
-import { createError, H3Error, H3Event, sendRedirect } from 'h3'
-import { ZodError } from 'zod'
-import { withQuery } from 'ufo'
+import { H3Error, H3Event, createError, sendRedirect } from 'h3'
 import { FetchError } from 'ofetch'
+import { withQuery } from 'ufo'
+import { ZodError } from 'zod'
 
 type ErrorWithMessage = {
 	message: string
@@ -57,6 +57,9 @@ export async function handleError(
 		if (error instanceof ZodError) {
 			h3Error.message = error.issues[0].path + ' | ' + error.issues[0].message
 			h3Error.statusCode = 400
+			h3Error.cause = error.cause
+			h3Error.name = error.name
+			h3Error.stack = error.stack
 		} else if (isErrorWithMessage(error) && error.message === 'unauthorized') {
 			h3Error.message = 'unauthorized'
 			h3Error.statusCode = 401

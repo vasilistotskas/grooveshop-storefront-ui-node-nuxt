@@ -1,5 +1,4 @@
 import { z } from 'zod'
-export {}
 
 const envVariables = z.object({
 	NODE_ENV: z.string(),
@@ -38,7 +37,7 @@ const envVariables = z.object({
 	NUXT_PUBLIC_I18N_DEBUG: z.string(),
 
 	// Private
-	NUXT_API_SECRET: z.string(),
+	NUXT_SESSION_PASSWORD: z.string(),
 
 	// Author
 	NUXT_PUBLIC_AUTHOR_NAME: z.string(),
@@ -94,3 +93,5 @@ declare global {
 		interface ProcessEnv extends z.infer<typeof envVariables> {}
 	}
 }
+
+export {}

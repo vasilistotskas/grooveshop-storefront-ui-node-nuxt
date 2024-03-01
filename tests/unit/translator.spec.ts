@@ -1,8 +1,10 @@
 import path from 'path'
-import { describe, it, expect, vi } from 'vitest'
-import { translateBundle } from '~/tools/translator/src/translator'
-import * as helpersModule from '~/tools/translator/src/helpers'
+
+import { describe, expect, it, vi } from 'vitest'
+
 import * as cacheModule from '~/tools/translator/src/cache'
+import * as helpersModule from '~/tools/translator/src/helpers'
+import { translateBundle } from '~/tools/translator/src/translator'
 
 vi.mock('translate', () => ({
 	default: vi.fn((text, options) => `translated-${text}`)

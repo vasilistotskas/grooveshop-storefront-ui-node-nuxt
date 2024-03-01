@@ -5,8 +5,8 @@ import {
 	getCookieIds,
 	removeCookie
 } from '#cookie-control/methods'
-import { ZodCookieTypeEnum } from '#cookie-control/types'
 import type { Cookie } from '#cookie-control/types'
+import { ZodCookieTypeEnum } from '#cookie-control/types'
 import 'assets/sass/_cookies.scss'
 
 defineSlots<{

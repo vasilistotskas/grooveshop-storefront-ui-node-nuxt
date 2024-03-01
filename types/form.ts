@@ -1,14 +1,16 @@
-import { z } from 'zod'
+import type { BaseFieldProps, GenericObject } from 'vee-validate'
 import type { Ref } from 'vue'
-import type { BaseFieldProps, GenericObject, PathValue } from 'vee-validate'
+import { z } from 'zod'
 
-export const ZodDynamicFormSchemaChildren = z.array(
-	z.object({
-		tag: z.string(),
-		text: z.string(),
-		as: z.string()
-	})
-)
+export const ZodDynamicFormSchemaChildren = z
+	.array(
+		z.object({
+			tag: z.string(),
+			text: z.string(),
+			as: z.string()
+		})
+	)
+	.optional()
 
 export const ZodDynamicFormSchemaField = z.array(
 	z.object({

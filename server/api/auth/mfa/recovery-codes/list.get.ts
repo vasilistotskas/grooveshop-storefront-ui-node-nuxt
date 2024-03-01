@@ -8,14 +8,17 @@ export const ZodMfaRecoveryCodesListResponse = z.object({
 	totalCount: z.number().int().positive()
 }) satisfies z.ZodType<MfaRecoveryCodesListResponse>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
+	const session = await getUserSession(event)
 	try {
-		const response = await $api(
+		const response = await $fetch(
 			`${config.public.apiBaseUrl}/auth/mfa/recovery-codes/list`,
-			event,
 			{
-				method: 'GET'
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${session?.token}`
+				}
 			}
 		)
 		return parseDataAs(response, ZodMfaRecoveryCodesListResponse)

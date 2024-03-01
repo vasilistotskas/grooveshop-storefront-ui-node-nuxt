@@ -200,6 +200,7 @@ components:
       pay_way: τρόπος πληρωμής
       status: κατάσταση
       total_price: συνολικό ποσό
+      created_at: δημιουργήθηκε στο
       actions:
         details: λεπτομέριες
   cart:

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { UserAddress } from '~/types/user/address'
 
 defineProps({
@@ -34,9 +35,7 @@ const { t } = useI18n()
 		</div>
 		<ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 			<AddressAddNew />
-			<template v-for="address in addresses" :key="address.id">
-				<AddressCard :address="address" />
-			</template>
+			<AddressCard v-for="address in addresses" :key="address.id" :address="address" />
 		</ul>
 	</div>
 </template>

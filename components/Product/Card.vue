@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { isClient } from '@vueuse/shared'
 import { useShare } from '@vueuse/core'
+import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
-import type { Product } from '~/types/product/product'
+
 import type { ImageLoading } from '~/types/global/general'
+import type { Product } from '~/types/product/product'
 
 const props = defineProps({
 	product: { type: Object as PropType<Product>, required: true },
@@ -23,10 +24,8 @@ const props = defineProps({
 	}
 })
 
-const { isAuthenticated } = useAuthSession()
-
 const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
+const { user, loggedIn } = useUserSession()
 const { getIsProductInFavourites, getUserToProductFavourite } = userStore
 
 const { locale } = useI18n()
@@ -52,7 +51,7 @@ const alt = computed(() => {
 	return extractTranslated(product.value, 'name', locale.value)
 })
 
-const shareOptions = ref({
+const shareOptions = reactive({
 	title: extractTranslated(product.value, 'name', locale.value),
 	text: extractTranslated(product.value, 'description', locale.value) || '',
 	url: isClient ? productUrl : ''
@@ -129,10 +128,10 @@ const userToProductFavourite = computed(() => {
 							<ButtonAddToFavourite
 								v-if="showAddToFavouriteButton"
 								:product-id="product.id"
-								:user-id="account?.id"
+								:user-id="user?.id"
 								:is-favourite="productInUserFavourites"
 								:favourite="userToProductFavourite"
-								:is-authenticated="isAuthenticated"
+								:is-authenticated="loggedIn"
 								size="lg"
 							/>
 						</div>

@@ -7,9 +7,29 @@ const props = defineProps({
 		required: false,
 		default: false
 	},
+	id: {
+		type: String,
+		required: false,
+		default: 'generic-modal'
+	},
+	name: {
+		type: String,
+		required: false,
+		default: 'generic-modal'
+	},
+	class: {
+		type: String,
+		required: false,
+		default: 'generic-modal'
+	},
 	uniqueId: {
 		type: String,
 		required: true
+	},
+	closeBtn: {
+		type: Boolean,
+		required: false,
+		default: true
 	},
 	closeBtnColor: {
 		type: String,
@@ -135,20 +155,28 @@ const props = defineProps({
 		type: String,
 		required: false,
 		default: ''
+	},
+	closeOnClickOutside: {
+		type: Boolean,
+		default: true
 	}
 })
 
 defineSlots<{
 	header(props: {}): any
-	body(props: {}): any
+	default(props: {}): any
 	footer(props: {}): any
 }>()
 
-defineEmits(['submitForm'])
+defineEmits(['submit'])
 
 const {
+	id,
+	name,
+	class: className,
 	shouldModalStartInOpenState,
 	uniqueId,
+	closeBtn,
 	closeBtnColor,
 	closeBtnPosition,
 	hasHeader,
@@ -173,7 +201,8 @@ const {
 	border,
 	isForm,
 	formId,
-	formName
+	formName,
+	closeOnClickOutside
 } = toRefs(props)
 
 const isModalCurrentlyOpen = ref(shouldModalStartInOpenState.value)
@@ -200,6 +229,12 @@ bus.on((event: string) => {
 	}
 })
 
+const handleOverlayClick = () => {
+	if (closeOnClickOutside.value) {
+		closeModal()
+	}
+}
+
 onMounted(() => {
 	isModalCurrentlyOpen.value = shouldModalStartInOpenState.value
 })
@@ -215,7 +250,7 @@ onMounted(() => {
 			<div
 				class="cp-utilities-generic-modal-overlay"
 				:style="`backdrop-filter:${backgroundBlur};`"
-				@click="closeModal"
+				@click="handleOverlayClick"
 			>
 				<svg
 					class="cp-utilities-generic-modal-overlay-static"
@@ -233,7 +268,7 @@ onMounted(() => {
 				</svg>
 			</div>
 			<button
-				v-if="closeBtnPosition === 'out'"
+				v-if="closeBtn && closeBtnPosition === 'out'"
 				:style="`color: ${closeBtnColor}`"
 				class="cp-utilities-generic-modal-overlay-close"
 				type="button"
@@ -246,21 +281,22 @@ onMounted(() => {
 			<template v-if="isForm">
 				<form
 					:id="formId"
-					class="cp-utilities-generic-modal bg-white dark:bg-zinc-900"
+					class="cp-utilities-generic-modal"
+					:class="className"
 					:name="formName"
-					@submit="$emit('submitForm', $event)"
+					@submit="$emit('submit', $event)"
 				>
 					<div v-if="hasHeader" class="cp-utilities-generic-modal-header">
 						<slot name="header" />
 					</div>
 					<div class="cp-utilities-generic-modal-body">
-						<slot name="body" />
+						<slot />
 					</div>
 					<div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
 						<slot name="footer" />
 					</div>
 					<button
-						v-if="closeBtnPosition === 'in'"
+						v-if="closeBtn && closeBtnPosition === 'in'"
 						:style="`color: ${closeBtnColor}`"
 						class="cp-utilities-generic-modal-overlay-close"
 						type="button"
@@ -273,18 +309,18 @@ onMounted(() => {
 				</form>
 			</template>
 			<template v-else>
-				<div class="cp-utilities-generic-modal bg-white dark:bg-zinc-900">
+				<div class="cp-utilities-generic-modal" :class="className">
 					<div v-if="hasHeader" class="cp-utilities-generic-modal-header">
 						<slot name="header" />
 					</div>
 					<div class="cp-utilities-generic-modal-body">
-						<slot name="body" />
+						<slot />
 					</div>
 					<div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
 						<slot name="footer" />
 					</div>
 					<button
-						v-if="closeBtnPosition === 'in'"
+						v-if="closeBtn && closeBtnPosition === 'in'"
 						:style="`color: ${closeBtnColor}`"
 						class="cp-utilities-generic-modal-overlay-close"
 						type="button"

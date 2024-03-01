@@ -14,16 +14,19 @@ export const ZodMfaRecoveryCodesGenerateBody = z.object(
 	{}
 ) satisfies z.ZodType<MfaRecoveryCodesGenerateBody>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
+	const session = await getUserSession(event)
 	try {
-		const body = await parseBodyAs(event, ZodMfaRecoveryCodesGenerateBody)
-		const response = await $api(
+		const body = await readValidatedBody(event, ZodMfaRecoveryCodesGenerateBody.parse)
+		const response = await $fetch(
 			`${config.public.apiBaseUrl}/auth/mfa/recovery-codes/generate`,
-			event,
 			{
+				method: 'POST',
 				body,
-				method: 'POST'
+				headers: {
+					Authorization: `Bearer ${session?.token}`
+				}
 			}
 		)
 		return await parseDataAs(response, ZodMfaRecoveryCodesGenerateResponse)

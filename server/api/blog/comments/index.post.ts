@@ -1,18 +1,24 @@
 import type { H3Event } from 'h3'
-import { buildFullUrl } from '~/utils/api'
+
 import {
 	ZodBlogComment,
 	ZodBlogCommentCreateBody,
 	ZodBlogCommentCreateQuery
 } from '~/types/blog/comment'
+import { buildFullUrl } from '~/utils/api'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const body = await parseBodyAs(event, ZodBlogCommentCreateBody)
-	const query = parseQueryAs(event, ZodBlogCommentCreateQuery)
+	const session = await getUserSession(event)
+	const body = await readValidatedBody(event, ZodBlogCommentCreateBody.parse)
+	const query = await getValidatedQuery(event, ZodBlogCommentCreateQuery.parse)
 	const url = buildFullUrl(`${config.public.apiBaseUrl}/blog/comment`, query)
-	const response = await $api(url, event, {
-		body
+	const response = await $fetch(url, {
+		method: 'POST',
+		body,
+		headers: {
+			Authorization: `Bearer ${session?.token}`
+		}
 	})
 	return await parseDataAs(response, ZodBlogComment)
 })

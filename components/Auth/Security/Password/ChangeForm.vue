@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import type { PasswordChangeBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
@@ -7,32 +8,30 @@ const { passwordChange } = useAuth()
 
 const { t } = useI18n()
 const toast = useToast()
-const router = useRouter()
 
-async function onSubmit(values: PasswordChangeBody) {
-	const { data, error } = await passwordChange(values)
-	if (data.value) {
-		toast.add({
-			title: t('components.auth.security.password.change.form.success.title')
+function onSubmit(values: PasswordChangeBody) {
+	passwordChange(values)
+		.then(async () => {
+			toast.add({
+				title: t('components.auth.security.password.change.form.success.title')
+			})
+			await navigateTo('/account')
 		})
-		await router.push('/account')
-	}
+		.catch((error) => {
+			const newPassword1Error = error.value.data?.data?.newPassword1 as string[]
+			const newPassword2Error = error.value.data?.data?.newPassword2 as string[]
 
-	if (error.value) {
-		const newPassword1Error = error.value.data?.data?.newPassword1 as string[]
-		const newPassword2Error = error.value.data?.data?.newPassword2 as string[]
+			const toastTitle =
+				newPassword1Error?.join(' ') ??
+				newPassword2Error?.join(' ') ??
+				error.value?.message ??
+				t('components.auth.security.password.change.form.error.title')
 
-		const toastTitle =
-			newPassword1Error?.join(' ') ??
-			newPassword2Error?.join(' ') ??
-			error.value?.message ??
-			t('components.auth.security.password.change.form.error.title')
-
-		toast.add({
-			title: toastTitle,
-			color: 'red'
+			toast.add({
+				title: toastTitle,
+				color: 'red'
+			})
 		})
-	}
 }
 
 const formSchema: DynamicFormSchema = {

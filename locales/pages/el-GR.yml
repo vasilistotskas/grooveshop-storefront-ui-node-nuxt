@@ -16,15 +16,15 @@ pages:
     ordering:
       created_at: δημιουργήθηκε στο
       title: τίτλος
-      published_at: δημοσιεύθηκε στο
+      published_at: δημοσιεύτηκε στο
   testing:
-    nav: δοκιμή
-    title: δοκιμή
+    nav: δοκιμές
+    title: δοκιμές
     index:
-      nav: δοκιμή
-      title: δοκιμή
+      nav: δοκιμές
+      title: δοκιμές
       description: αυτή είναι μια δοκιμαστική σελίδα
-      keywords: δοκιμή
+      keywords: δοκιμές
     blank:
       nav: κενό
       title: κενή σελίδα
@@ -32,7 +32,7 @@ pages:
       just_blank_page_with_title: απλά κενή σελίδα με τίτλο
     test:
       nav: δοκιμή
-      title: δοκιμή
+      title: δοκιμές
       description: αυτή είναι μια δοκιμαστική σελίδα
       counter: μετρητής
       increment: αύξηση
@@ -55,7 +55,7 @@ pages:
           footer_link: api χρηστών github
         bot_id:
           title: αναγνωριστικό ρομπότ
-          description: αυτό είναι το αναγνωριστικό ρομπότ σας.
+          description: αυτό είναι το αναγνωριστικό του bot σας.
           footer: χρησιμοποιείται κατά την αλληλεπίδραση με το bot.
         protection_spam:
           title: προστασία ανεπιθύμητων
@@ -184,11 +184,11 @@ pages:
       product: προϊόν
       quantity: ποσότητα
       price: τιμή
-      shippingPrice: κόστος αποστολής %{price}
-      totalPriceItems: στοιχεία συνολικής τιμής %{price}
-      totalPriceExtra: συνολική τιμή επιπλέον %{price}
-      payWayPrice: τιμή πληρωμής %{price}
-      total: συνολικό ποσό
+      shippingPrice: κόστος αποστολής
+      totalPriceItems: είδη συνολικής τιμής
+      totalPriceExtra: συνολική τιμή επιπλέον
+      payWayPrice: τιμή τρόπου πληρωμής
+      total: σύνολο
     validation:
       email:
         required: απαιτείται email
@@ -299,7 +299,7 @@ pages:
       keywords: ρυθμίσεις
       updated: οι ρυθμίσεις ενημερώθηκαν
       update_error: σφάλμα ενημέρωσης ρυθμίσεων
-      deleted: το στοιχείο ρυθμίσεων διαγράφηκε
+      deleted: ρυθμίσεις το στοιχείο διαγράφηκε
       delete_error: σφάλμα διαγραφής στοιχείου ρυθμίσεων
       validation:
         email:
@@ -442,6 +442,33 @@ pages:
               χαρακτήρες
           region:
             required: απαιτείται περιοχή
+    order:
+      title: σειρά
+      nav: σειρά
+      description: σειρά
+      keywords: σειρά
+      updated: η παραγγελία ενημερώθηκε
+      update_error: σφάλμα ενημέρωσης παραγγελίας
+      deleted: το αντικείμενο παραγγελίας διαγράφηκε
+      delete_error: σφάλμα διαγραφής στοιχείου παραγγελίας
+      back: επιστροφή στις παραγγελίες
+      number: αριθμός παραγγελίας
+      details: λεπτομέρειες παραγγελίας
+      address: διεύθυνση αποστολής
+      document_type: είδος αρχείου
+      pay_way: τρόπος πληρωμής
+      synopsis: περίληψη
+      total: σύνολο
+      product:
+        value: αξία προϊόντος
+      shipping:
+        value: αξία αποστολής
+      ordering:
+        created_at: δημιουργήθηκε στο
+      empty:
+        title: οι παραγγελίες σας είναι κενές
+        description: δεν έχετε κάνει ακόμη παραγγελίες.
+        button: πηγαίνετε στο κατάστημα
     help:
       title: βοήθεια
       nav: βοήθεια
@@ -633,20 +660,20 @@ pages:
             link: εμφάνιση κωδικών ανάκτησης
             download: λήψη κωδικών ανάκτησης
             generate:
-              title: δημιουργία νέων κωδικών
+              title: δημιουργήστε νέους κωδικούς
               description: >-
                 κάνοντας κλικ στο παρακάτω κουμπί θα ακυρωθούν οι παλιοί σας
                 κωδικοί ανάκτησης και θα δημιουργηθούν νέοι. θα πρέπει να κάνετε
                 λήψη ενός νέου συνόλου κωδικών αφού δημιουργήσετε νέους.
-              keywords: δημιουργία νέων κωδικών
-              button: δημιουργία νέων κωδικών
-              link: δημιουργία νέων κωδικών
+              keywords: δημιουργήστε νέους κωδικούς
+              button: δημιουργήστε νέους κωδικούς
+              link: δημιουργήστε νέους κωδικούς
               success: οι κωδικοί ανάκτησης δημιουργήθηκαν με επιτυχία
               error: σφάλμα δημιουργίας κωδικών ανάκτησης
               form:
                 code:
                   label: κώδικας
-                button: δημιουργία νέων κωδικών
+                button: δημιουργήστε νέους κωδικούς
         totp:
           activate:
             title: σαρώστε αυτόν τον κωδικό qr με την εφαρμογή ελέγχου ταυτότητας.

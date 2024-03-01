@@ -1,8 +1,10 @@
-import path from 'path'
 import { promises as fsPromises } from 'fs'
-import { describe, it, expect, vi } from 'vitest'
-import { getFiles } from '~/tools/translator/src/file-ops'
+import path from 'path'
+
+import { describe, expect, it, vi } from 'vitest'
+
 import * as configModule from '~/tools/translator/src/config'
+import { getFiles } from '~/tools/translator/src/file-ops'
 import type { Config } from '~/tools/translator/src/types'
 
 vi.mock('fs')

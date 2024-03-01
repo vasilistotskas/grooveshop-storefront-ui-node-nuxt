@@ -1,44 +1,42 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import {
 	defaultSelectOptionChoose,
 	floorChoicesList,
 	locationChoicesList
 } from '~/constants/general'
-import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
-import { ZodOrderCreateItem } from '~/types/order/order-item'
+import type { Country } from '~/types/country'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import { type Order, ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
+import { ZodOrderCreateItem } from '~/types/order/order-item'
+import type { Pagination } from '~/types/pagination'
+import type { PayWay } from '~/types/pay-way'
+import type { Region } from '~/types/region'
+
+const { user, fetch } = useUserSession()
 
 const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
+const { addOrder } = userStore
 
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 const { cleanCartState } = cartStore
 
-const countryStore = useCountryStore()
-const { countries } = storeToRefs(countryStore)
-const { fetchCountries } = countryStore
-
-const regionStore = useRegionStore()
-const { regions } = storeToRefs(regionStore)
-const { fetchRegions } = regionStore
-
-const payWayStore = usePayWayStore()
-const { getSelectedPayWayId } = storeToRefs(payWayStore)
-
-const orderStore = useOrderStore()
-const { createOrder } = orderStore
-
 const { t, locale } = useI18n()
-const router = useRouter()
 const toast = useToast()
 const { extractTranslated } = useTranslationExtractor()
 
-await fetchCountries()
+const payWay = useState<PayWay | null>('selectedPayWay', () => null)
+
+const { data: countries } = await useLazyAsyncData('countries', () =>
+	$fetch<Pagination<Country>>('/api/countries', {
+		method: 'GET'
+	})
+)
 
 const shippingPrice = ref(3)
-const userId = computed(() => (account.value?.id ? String(account.value.id) : null))
+const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
 const ZodCheckout = z.object({
 	user: z.string().nullish(),
@@ -135,11 +133,23 @@ const [region, regionProps] = defineField('region', {
 	validateOnModelUpdate: true
 })
 
-const onCountryChange = async (event: Event) => {
+const { data: regions } = await useLazyAsyncData(
+	'regions',
+	() =>
+		$fetch<Pagination<Region>>('/api/regions', {
+			method: 'GET',
+			params: {
+				country: country.value
+			}
+		}),
+	{
+		watch: [country]
+	}
+)
+
+const onCountryChange = (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
-	await fetchRegions({
-		country: event.target.value
-	})
+	country.value = event.target.value
 	region.value = defaultSelectOptionChoose
 }
 
@@ -157,21 +167,32 @@ const onSubmit = handleSubmit(async (values) => {
 		{} as typeof values
 	)
 
-	const { data, error } = await createOrder(updatedValues)
-	if (data.value?.id) {
-		toast.add({
-			title: t('pages.checkout.form.submit.success'),
-			color: 'green'
-		})
-		cleanCartState()
-		await router.push(`/checkout/success/${data.value.uuid}`)
-	} else if (error.value) {
-		toast.add({
-			title: t('pages.checkout.form.submit.error'),
-			color: 'red'
-		})
-		clearNuxtData('createOrder')
-	}
+	await useFetch<Order>('/api/orders', {
+		method: 'POST',
+		body: updatedValues,
+		onRequestError() {
+			toast.add({
+				title: t('pages.checkout.form.submit.error'),
+				color: 'red'
+			})
+		},
+		async onResponse({ response }) {
+			toast.add({
+				title: t('pages.checkout.form.submit.success'),
+				color: 'green'
+			})
+			addOrder(response._data)
+			cleanCartState()
+			await fetch()
+			await navigateTo(`/checkout/success/${response._data.uuid}`)
+		},
+		onResponseError({ error }) {
+			toast.add({
+				title: error?.message,
+				color: 'red'
+			})
+		}
+	})
 })
 
 const submitButtonDisabled = computed(() => {
@@ -179,9 +200,9 @@ const submitButtonDisabled = computed(() => {
 })
 
 watch(
-	() => getSelectedPayWayId.value,
+	() => payWay.value,
 	() => {
-		setFieldValue('payWay', getSelectedPayWayId.value || undefined)
+		setFieldValue('payWay', payWay.value?.id || undefined)
 	}
 )
 
@@ -455,7 +476,7 @@ definePageMeta({
 						</div>
 					</div>
 					<div class="grid gap-4 md:grid-cols-2">
-						<div class="grid content-evenly items-start gap-4">
+						<div class="grid content-evenly items-start gap-2">
 							<div class="grid">
 								<label class="text-primary-700 dark:text-primary-100 mb-2" for="floor">{{
 									$t('pages.checkout.form.floor')
@@ -471,7 +492,7 @@ definePageMeta({
 									<option
 										:value="defaultSelectOptionChoose"
 										disabled
-										:selected="floorProps.value === defaultSelectOptionChoose"
+										:selected="floor === defaultSelectOptionChoose"
 									>
 										{{ defaultSelectOptionChoose }}
 									</option>
@@ -479,7 +500,7 @@ definePageMeta({
 										v-for="(floorChoice, index) in floorChoicesList"
 										:key="index"
 										:value="index"
-										:selected="Number(floorProps.value) === index"
+										:selected="Number(floor) === index"
 										class="text-primary-700 dark:text-primary-300"
 									>
 										{{ floorChoice }}
@@ -506,7 +527,7 @@ definePageMeta({
 									<option
 										:value="defaultSelectOptionChoose"
 										disabled
-										:selected="locationTypeProps.value === defaultSelectOptionChoose"
+										:selected="locationType === defaultSelectOptionChoose"
 									>
 										{{ defaultSelectOptionChoose }}
 									</option>
@@ -514,7 +535,7 @@ definePageMeta({
 										v-for="(location, index) in locationChoicesList"
 										:key="index"
 										:value="index"
-										:selected="Number(locationTypeProps.value) === index"
+										:selected="Number(locationType) === index"
 										class="text-primary-700 dark:text-primary-300"
 									>
 										{{ location }}
@@ -526,7 +547,7 @@ definePageMeta({
 							</div>
 						</div>
 
-						<div class="grid content-evenly items-start gap-4">
+						<div class="grid content-evenly items-start gap-2">
 							<div class="grid">
 								<label
 									class="text-primary-700 dark:text-primary-100 mb-2"
@@ -546,7 +567,7 @@ definePageMeta({
 										<option
 											:value="defaultSelectOptionChoose"
 											disabled
-											:selected="countryProps.value === defaultSelectOptionChoose"
+											:selected="country === defaultSelectOptionChoose"
 										>
 											{{ defaultSelectOptionChoose }}
 										</option>
@@ -554,7 +575,7 @@ definePageMeta({
 											v-for="cntry in countries?.results"
 											:key="cntry.alpha2"
 											:value="cntry.alpha2"
-											:selected="countryProps.value === cntry.alpha2"
+											:selected="country === cntry.alpha2"
 											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ extractTranslated(cntry, 'name', locale) }}
@@ -577,12 +598,12 @@ definePageMeta({
 										name="region"
 										as="select"
 										class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
-										:disabled="countryProps.value === defaultSelectOptionChoose"
+										:disabled="country === defaultSelectOptionChoose"
 									>
 										<option
 											:value="defaultSelectOptionChoose"
 											disabled
-											:selected="regionProps.value === defaultSelectOptionChoose"
+											:selected="region === defaultSelectOptionChoose"
 										>
 											{{ defaultSelectOptionChoose }}
 										</option>
@@ -590,7 +611,7 @@ definePageMeta({
 											v-for="rgn in regions?.results"
 											:key="rgn.alpha"
 											:value="rgn.alpha"
-											:selected="regionProps.value === rgn.alpha"
+											:selected="region === rgn.alpha"
 											class="text-primary-700 dark:text-primary-300"
 										>
 											{{ extractTranslated(rgn, 'name', locale) }}

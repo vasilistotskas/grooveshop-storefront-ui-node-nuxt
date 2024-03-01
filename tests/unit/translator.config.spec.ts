@@ -1,7 +1,9 @@
 import * as fs from 'fs'
 import path from 'path'
-import { describe, it, expect, vi } from 'vitest'
+
 import yaml from 'js-yaml'
+import { describe, expect, it, vi } from 'vitest'
+
 import { getConfig, getConfigFilePath } from '~/tools/translator/src/config'
 
 vi.mock('fs')

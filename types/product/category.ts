@@ -1,6 +1,7 @@
 import { z } from 'zod'
-import { type PaginationQuery, ZodPaginationQuery } from '~/types/pagination'
-import { type OrderingQuery, ZodOrderingQuery } from '~/types/ordering'
+
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 const ZodProductCategoryTranslations = z.record(
 	z.object({

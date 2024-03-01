@@ -9,6 +9,7 @@ const colorMode = useColorMode()
 
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
+
 await fetchCart()
 
 const themeClass = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))

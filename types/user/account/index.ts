@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import type { ProductFavourite } from '~/types/product/favourite'
-import type { ProductReview } from '~/types/product/review'
-import type { Order } from '~/types/order/order'
-import type { UserAddress } from '~/types/user/address'
+
+import { ZodCountry } from '~/types/country'
+import { ZodRegion } from '~/types/region'
 
 export const ZodUserAccount = z.object({
+	pk: z.number().nullish(),
 	id: z.number(),
 	email: z.string(),
 	image: z.string().nullish(),
@@ -15,8 +15,8 @@ export const ZodUserAccount = z.object({
 	zipcode: z.string().nullish(),
 	address: z.string().nullish(),
 	place: z.string().nullish(),
-	country: z.string().nullish(),
-	region: z.string().nullish(),
+	country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
+	region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
 	isActive: z.boolean(),
 	isStaff: z.boolean(),
 	birthDate: z.string().nullish(),
@@ -31,7 +31,6 @@ export const ZodUserAccount = z.object({
 	mainImageAbsoluteUrl: z.string().nullish(),
 	mainImageFilename: z.string().nullish(),
 	isSuperuser: z.boolean(),
-	lastLogin: z.string().nullish(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid()
@@ -79,11 +78,3 @@ export type UserAccount = z.infer<typeof ZodUserAccount>
 export type UserAccountPutBody = z.infer<typeof ZodUserAccountPutBody>
 export type UserAccountParams = z.infer<typeof ZodUserAccountParams>
 export type UserAccountPatchBody = z.infer<typeof ZodUserAccountPatchBody>
-
-export type UserAccountSession = {
-	account: UserAccount | null
-	favourites: ProductFavourite[] | null
-	reviews: ProductReview[] | null
-	orders: Order[] | null
-	addresses: UserAddress[] | null
-}

@@ -52,4 +52,4 @@ function validateDynamicKeys(original: string, translated: string) {
 	return true
 }
 
-export { getISO6391Code, delay, retry, extractDynamicKeys, validateDynamicKeys }
+export { delay, extractDynamicKeys, getISO6391Code, retry, validateDynamicKeys }

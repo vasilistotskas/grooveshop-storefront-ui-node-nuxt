@@ -1,18 +1,14 @@
 import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import type { RegistrationResponse, RegistrationBody } from '~/types/auth'
+import type { RegistrationBody, RegistrationResponse } from '~/types/auth'
+import { ZodUserAccount } from '~/types/user/account'
 
 export const ZodRegistrationResponse = z.object({
 	detail: z.string().nullish(),
 	access: z.string().nullish(),
 	refresh: z.string().nullish(),
-	user: z
-		.object({
-			id: z.number().int(),
-			email: z.string().email()
-		})
-		.nullish()
+	user: ZodUserAccount.nullish()
 }) satisfies z.ZodType<RegistrationResponse>
 
 export const ZodRegistrationBody = z.object({
@@ -21,22 +17,20 @@ export const ZodRegistrationBody = z.object({
 	password2: z.string().min(1)
 }) satisfies z.ZodType<RegistrationBody>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-
 	try {
-		const body = await parseBodyAs(event, ZodRegistrationBody)
-		const response = await $api(`${config.public.apiBaseUrl}/auth/registration`, event, {
+		const body = await readValidatedBody(event, ZodRegistrationBody.parse)
+		const response = await $fetch(`${config.public.apiBaseUrl}/auth/registration`, {
 			body,
 			method: 'POST'
 		})
 		const registrationResponse = await parseDataAs(response, ZodRegistrationResponse)
-		if (registrationResponse.refresh) {
-			setRefreshTokenCookie(event, registrationResponse.refresh)
-		}
-		if (registrationResponse.access) {
-			event.context.jwt_auth = registrationResponse.access
-		}
+		await setUserSession(event, {
+			user: registrationResponse.user ?? undefined,
+			token: registrationResponse.access,
+			refreshToken: registrationResponse.refresh
+		})
 		return registrationResponse
 	} catch (error) {
 		await handleError(error)

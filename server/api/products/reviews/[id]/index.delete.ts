@@ -3,13 +3,19 @@ import { z } from 'zod'
 
 import { ZodReviewParams } from '~/types/product/review'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const params = parseParamsAs(event, ZodReviewParams)
+	const session = await getUserSession(event)
+	const params = await getValidatedRouterParams(event, ZodReviewParams.parse)
 
-	const response = await $api(
+	const response = await $fetch(
 		`${config.public.apiBaseUrl}/product/review/${params.id}`,
-		event
+		{
+			method: 'DELETE',
+			headers: {
+				Authorization: `Bearer ${session?.token}`
+			}
+		}
 	)
 	return parseDataAs(response, z.any())
 })

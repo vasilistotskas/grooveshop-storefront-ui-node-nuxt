@@ -187,11 +187,11 @@ pages:
       product: produkt
       quantity: menge
       price: preis
-      shippingPrice: versandkosten %{price}
-      totalPriceItems: gesamtpreis artikel %{price}
-      totalPriceExtra: gesamtpreis extra %{price}
-      payWayPrice: pay-way-preis %{price}
-      total: gesamt %{price}
+      shippingPrice: versandkosten
+      totalPriceItems: gesamtpreis der artikel
+      totalPriceExtra: gesamtpreis extra
+      payWayPrice: pay-way-preis
+      total: gesamt
     validation:
       email:
         required: e-mail ist erforderlich
@@ -284,7 +284,7 @@ pages:
       description: bewertungen
       keywords: bewertungen
       updated: bewertungen aktualisiert
-      update_error: fehler bei der aktualisierung der rezensionen
+      update_error: fehler bei der aktualisierung der bewertungen
       deleted: bewertungen artikel gelöscht
       delete_error: fehler beim löschen des artikels
       ordering:
@@ -439,6 +439,33 @@ pages:
             min: die postleitzahl muss mindestens %{min} zeichen lang sein
           region:
             required: region ist erforderlich
+    order:
+      title: befehl
+      nav: befehl
+      description: befehl
+      keywords: befehl
+      updated: bestellung aktualisiert
+      update_error: fehler bei der auftragsaktualisierung
+      deleted: bestellartikel gelöscht
+      delete_error: fehler beim löschen des bestellartikels
+      back: zurück zu bestellungen
+      number: bestellnummer
+      details: bestelldetails
+      address: lieferanschrift
+      document_type: art des dokuments
+      pay_way: bezahlungsweise
+      synopsis: zusammenfassung
+      total: gesamt
+      product:
+        value: produktwert
+      shipping:
+        value: versandwert
+      ordering:
+        created_at: hergestellt in
+      empty:
+        title: ihre bestellungen sind leer
+        description: sie haben noch keine bestellungen aufgegeben.
+        button: zum laden gehen
     help:
       title: helfen
       nav: helfen

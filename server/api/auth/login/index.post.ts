@@ -1,37 +1,47 @@
 import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import type { LoginResponse, LoginBody } from '~/types/auth'
+import type { LoginBody, LoginResponse } from '~/types/auth'
+import { ZodUserAccount } from '~/types/user/account'
 
 export const ZodLoginResponse = z.object({
 	access: z.string(),
 	refresh: z.string().nullish(),
-	user: z.object({
-		id: z.number(),
-		email: z.string()
-	})
+	accessExpiration: z.string(),
+	refreshExpiration: z.string().nullish(),
+	user: ZodUserAccount
 }) satisfies z.ZodType<LoginResponse>
 
 export const ZodLoginBody = z.object({
 	email: z.string(),
-	password: z.string()
+	password: z.string(),
+	rememberMe: z.boolean().optional()
 }) satisfies z.ZodType<LoginBody>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	try {
-		const body = await parseBodyAs(event, ZodLoginBody)
-		const response = await $api(`${config.public.apiBaseUrl}/auth/login`, event, {
-			body,
+		const validatedBody = await readValidatedBody(event, ZodLoginBody.parse)
+		const { rememberMe, ...bodyWithoutRememberMe } = validatedBody
+		const response = await $fetch(`${config.public.apiBaseUrl}/auth/login`, {
+			body: bodyWithoutRememberMe,
 			method: 'POST'
 		})
 		const loginResponse = await parseDataAs(response, ZodLoginResponse)
-		if (loginResponse.refresh) {
-			setRefreshTokenCookie(event, loginResponse.refresh)
-		}
-		event.context.jwt_auth = loginResponse.access
+
+		await setUserSession(event, {
+			user: loginResponse.user,
+			token: loginResponse.access,
+			refreshToken: loginResponse.refresh,
+			tokenExpiration: loginResponse.accessExpiration,
+			refreshTokenExpiration: loginResponse.refreshExpiration,
+			loggedInAt: new Date(),
+			rememberMe: rememberMe ?? false
+		})
+
 		return loginResponse
 	} catch (error) {
+		await clearUserSession(event)
 		await handleError(error)
 	}
 })

@@ -1,35 +1,23 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+
 import {
 	defaultSelectOptionChoose,
 	floorChoicesList,
 	locationChoicesList
 } from '~/constants/general'
+import type { Country } from '~/types/country'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import type { Pagination } from '~/types/pagination'
+import type { Region } from '~/types/region'
+import { ZodUserAccount } from '~/types/user/account'
+import type { UserAddress } from '~/types/user/address'
 
-const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
-
-const userAddressStore = useUserAddressStore()
-const { createAddress } = userAddressStore
-
-const countryStore = useCountryStore()
-const { countries } = storeToRefs(countryStore)
-const { fetchCountries } = countryStore
-
-const regionStore = useRegionStore()
-const { regions } = storeToRefs(regionStore)
-const { fetchRegions } = regionStore
+const { user } = useUserSession()
 
 const { t, locale } = useI18n()
 const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
-const router = useRouter()
-
-await fetchCountries()
-await fetchRegions({
-	country: account.value?.country ?? ''
-})
 
 const ZodUserAddress = z.object({
 	title: z.string(),
@@ -45,7 +33,7 @@ const ZodUserAddress = z.object({
 	mobilePhone: z.string().nullish(),
 	notes: z.string().nullish(),
 	isMain: z.boolean().nullish(),
-	user: z.number().nullish(),
+	user: z.union([z.number(), ZodUserAccount]),
 	country: z
 		.string()
 		.refine((value) => value !== defaultSelectOptionChoose, {
@@ -64,6 +52,7 @@ const { defineField, handleSubmit, errors, isSubmitting } = useForm({
 	validationSchema,
 	initialValues: {
 		isMain: false,
+		user: user.value?.id,
 		country: defaultSelectOptionChoose,
 		region: defaultSelectOptionChoose,
 		floor: defaultSelectOptionChoose,
@@ -117,16 +106,36 @@ const [region, regionProps] = defineField('region', {
 	validateOnModelUpdate: true
 })
 
-const onCountryChange = async (event: Event) => {
-	if (!(event.target instanceof HTMLSelectElement)) return
-	await fetchRegions({
-		country: event.target.value
+const { data: countries } = await useLazyAsyncData('countries', () =>
+	$fetch<Pagination<Country>>('/api/countries', {
+		method: 'GET'
 	})
+)
+
+const { data: regions } = await useLazyAsyncData(
+	'regions',
+	() =>
+		$fetch<Pagination<Region>>('/api/regions', {
+			method: 'GET',
+			params: {
+				country: country.value
+			}
+		}),
+	{
+		watch: [country]
+	}
+)
+
+const updatedValues = ref<Partial<UserAddress>>({})
+
+const onCountryChange = (event: Event) => {
+	if (!(event.target instanceof HTMLSelectElement)) return
+	country.value = event.target.value
 	region.value = defaultSelectOptionChoose
 }
 
 const onSubmit = handleSubmit(async (values) => {
-	const updatedValues = Object.keys(values).reduce(
+	updatedValues.value = Object.keys(values).reduce(
 		(acc, key) => {
 			const validKey = key as keyof typeof values
 			if (String(values[validKey]) === defaultSelectOptionChoose) {
@@ -139,35 +148,45 @@ const onSubmit = handleSubmit(async (values) => {
 		{} as typeof values
 	)
 
-	await createAddress({
-		title: updatedValues.title,
-		firstName: updatedValues.firstName,
-		lastName: updatedValues.lastName,
-		street: updatedValues.street,
-		streetNumber: updatedValues.streetNumber,
-		city: updatedValues.city,
-		zipcode: updatedValues.zipcode,
-		floor: Number(updatedValues.floor),
-		locationType: Number(updatedValues.locationType),
-		phone: updatedValues.phone,
-		mobilePhone: updatedValues.mobilePhone,
-		notes: updatedValues.notes,
-		isMain: updatedValues.isMain,
-		user: account.value?.id,
-		country: updatedValues.country,
-		region: updatedValues.region
-	})
-		.then(() => {
+	await useFetch<UserAddress>(`/api/user/addresses`, {
+		method: 'POST',
+		body: {
+			title: updatedValues.value.title,
+			firstName: updatedValues.value.firstName,
+			lastName: updatedValues.value.lastName,
+			street: updatedValues.value.street,
+			streetNumber: updatedValues.value.streetNumber,
+			city: updatedValues.value.city,
+			zipcode: updatedValues.value.zipcode,
+			floor: updatedValues.value.floor,
+			locationType: updatedValues.value.locationType,
+			phone: updatedValues.value.phone,
+			mobilePhone: updatedValues.value.mobilePhone,
+			notes: updatedValues.value.notes,
+			isMain: updatedValues.value.isMain,
+			user: user.value?.id,
+			country: updatedValues.value.country,
+			region: updatedValues.value.region
+		},
+		onRequestError() {
+			toast.add({
+				title: t('pages.account.addresses.new.error'),
+				color: 'red'
+			})
+		},
+		async onResponse() {
 			toast.add({
 				title: t('pages.account.addresses.new.success')
 			})
-			router.push('/account/addresses')
-		})
-		.catch(() => {
+			await navigateTo('/account/addresses')
+		},
+		onResponseError() {
 			toast.add({
-				title: t('pages.account.addresses.new.error')
+				title: t('pages.account.addresses.new.error'),
+				color: 'red'
 			})
-		})
+		}
+	})
 })
 
 const submitButtonDisabled = computed(() => {
@@ -175,8 +194,7 @@ const submitButtonDisabled = computed(() => {
 })
 
 definePageMeta({
-	layout: 'user',
-	middleware: 'auth'
+	layout: 'user'
 })
 </script>
 
@@ -395,7 +413,7 @@ definePageMeta({
 					>
 				</div>
 
-				<div class="grid content-evenly items-start gap-4">
+				<div class="grid content-evenly items-start gap-2">
 					<div class="grid">
 						<label class="text-primary-700 dark:text-primary-100" for="floor">{{
 							$t('pages.account.addresses.new.form.floor')
@@ -411,7 +429,7 @@ definePageMeta({
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="floorProps.value === defaultSelectOptionChoose"
+								:selected="floor === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -419,7 +437,7 @@ definePageMeta({
 								v-for="(floorChoice, index) in floorChoicesList"
 								:key="index"
 								:value="index"
-								:selected="Number(floorProps.value) === index"
+								:selected="Number(floor) === index"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ floorChoice }}
@@ -444,7 +462,7 @@ definePageMeta({
 							<option
 								:value="defaultSelectOptionChoose"
 								disabled
-								:selected="locationTypeProps.value === defaultSelectOptionChoose"
+								:selected="locationType === defaultSelectOptionChoose"
 							>
 								{{ defaultSelectOptionChoose }}
 							</option>
@@ -452,7 +470,7 @@ definePageMeta({
 								v-for="(location, index) in locationChoicesList"
 								:key="index"
 								:value="index"
-								:selected="Number(locationTypeProps.value) === index"
+								:selected="Number(locationType) === index"
 								class="text-primary-700 dark:text-primary-300"
 							>
 								{{ location }}
@@ -466,7 +484,7 @@ definePageMeta({
 					</div>
 				</div>
 
-				<div class="grid content-evenly items-start gap-4">
+				<div class="grid content-evenly items-start gap-2">
 					<div class="grid">
 						<label class="text-primary-700 dark:text-primary-100" for="country">{{
 							$t('pages.account.addresses.new.form.country')
@@ -484,7 +502,7 @@ definePageMeta({
 								<option
 									:value="defaultSelectOptionChoose"
 									disabled
-									:selected="countryProps.value === defaultSelectOptionChoose"
+									:selected="country === defaultSelectOptionChoose"
 								>
 									{{ defaultSelectOptionChoose }}
 								</option>
@@ -492,7 +510,7 @@ definePageMeta({
 									v-for="cntry in countries?.results"
 									:key="cntry.alpha2"
 									:value="cntry.alpha2"
-									:selected="countryProps.value === cntry.alpha2"
+									:selected="country === cntry.alpha2"
 									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(cntry, 'name', locale) }}
@@ -515,12 +533,12 @@ definePageMeta({
 								name="region"
 								as="select"
 								class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
-								:disabled="countryProps.value === defaultSelectOptionChoose"
+								:disabled="country === defaultSelectOptionChoose"
 							>
 								<option
 									:value="defaultSelectOptionChoose"
 									disabled
-									:selected="regionProps.value === defaultSelectOptionChoose"
+									:selected="region === defaultSelectOptionChoose"
 								>
 									{{ defaultSelectOptionChoose }}
 								</option>
@@ -528,7 +546,7 @@ definePageMeta({
 									v-for="rgn in regions?.results"
 									:key="rgn.alpha"
 									:value="rgn.alpha"
-									:selected="regionProps.value === rgn.alpha"
+									:selected="region === rgn.alpha"
 									class="text-primary-700 dark:text-primary-300"
 								>
 									{{ extractTranslated(rgn, 'name', locale) }}

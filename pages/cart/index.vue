@@ -13,22 +13,31 @@ definePageMeta({
 	<PageWrapper class="container grid grid-rows-auto-1fr gap-4">
 		<PageBody>
 			<ClientOnly>
-				<template v-if="!pending.cart && cart?.cartItems?.length">
-					<div class="grid gap-4 md:grid-rows-1">
-						<CartItemCard
-							v-for="(cartItem, index) in cart.cartItems"
+				<div
+					v-if="!pending.cart && cart?.cartItems?.length"
+					class="products grid gap-4 md:grid-rows-1"
+				>
+					<CartItemCard
+						v-for="(cartItem, index) in cart.cartItems"
+						:key="index"
+						:cart-item="cartItem"
+					/>
+				</div>
+				<template v-if="pending.cart">
+					<div class="no-products grid gap-4 md:grid-rows-1">
+						<ClientOnlyFallback
+							v-for="index in 3"
 							:key="index"
-							:cart-item="cartItem"
+							height="122px"
+							width="100%"
 						/>
 					</div>
 				</template>
-				<template v-if="!pending.cart && !cart?.cartItems?.length">
-					<EmptyState :icon="emptyIcon">
-						<template #actions>
-							<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
-						</template>
-					</EmptyState>
-				</template>
+				<EmptyState v-if="!pending.cart && !cart?.cartItems?.length" :icon="emptyIcon">
+					<template #actions>
+						<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+					</template>
+				</EmptyState>
 				<template #fallback>
 					<ClientOnlyFallback width="100%" height="320px" />
 				</template>

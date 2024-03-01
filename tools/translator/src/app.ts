@@ -1,13 +1,15 @@
 /* eslint-disable no-console */
-import path from 'path'
 import * as fs from 'fs'
+import path from 'path'
+
 import yaml from 'js-yaml'
+
 import cliProgress from './cli-progress.mjs'
-import type { LocaleFile } from './types'
-import { translateBundle } from './translator'
 import { loadConfig } from './config'
 import { getFiles } from './file-ops'
 import useLogger from './logger'
+import { translateBundle } from './translator'
+import type { LocaleFile } from './types'
 
 const cwd = process.cwd()
 

@@ -1,1 +1,4 @@
-export type UserAddressAction = 'add' | 'delete' | 'update' | 'set-main'
+export type UserAddressPayload = {
+	action: 'create' | 'delete' | 'update' | 'set-main'
+	addressId: number
+}

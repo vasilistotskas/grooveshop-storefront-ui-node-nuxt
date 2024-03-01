@@ -1,4 +1,4 @@
-import { ZodLocationChoicesEnum, ZodFloorChoicesEnum } from '~/types/global/general'
+import { ZodFloorChoicesEnum, ZodLocationChoicesEnum } from '~/types/global/general'
 
 export const locationChoicesList = Object.keys(ZodLocationChoicesEnum.Values).filter(
 	(element) => {
@@ -11,4 +11,6 @@ export const floorChoicesList = Object.keys(ZodFloorChoicesEnum.Values).filter(
 	}
 )
 
-export const defaultSelectOptionChoose = 'choose'
+export const defaultSelectOptionChoose = 'choose' as const
+
+export const AuthenticatedRoutePrefixes = ['/auth/security', '/account'] as const

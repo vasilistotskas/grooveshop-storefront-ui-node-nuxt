@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-const { isAuthenticated } = useAuthSession()
+const { user, loggedIn } = useUserSession()
 
 const cartStore = useCartStore()
-const { getCartTotalItems } = storeToRefs(cartStore)
-
-const userStore = useUserStore()
-const { account } = storeToRefs(userStore)
+const { getCartTotalItems, pending } = storeToRefs(cartStore)
 </script>
 
 <template>
@@ -61,12 +58,15 @@ const { account } = storeToRefs(userStore)
 						</li>
 						<li class="relative grid items-center justify-center justify-items-center">
 							<ClientOnly>
-								<span class="cart-items-count" :data-count="getCartTotalItems"></span>
+								<span
+									v-if="!pending.cart"
+									class="cart-items-count"
+									:data-count="getCartTotalItems"
+								></span>
+								<span v-if="pending.cart" class="cart-items-count"></span>
+
 								<template #fallback>
-									<ClientOnlyFallback
-										class="cart-items-count"
-										:data-count="getCartTotalItems"
-									></ClientOnlyFallback>
+									<span class="cart-items-count"></span>
 								</template>
 							</ClientOnly>
 							<Anchor
@@ -80,14 +80,14 @@ const { account } = storeToRefs(userStore)
 						</li>
 						<li class="relative grid items-center justify-center justify-items-center">
 							<Anchor
-								v-if="isAuthenticated && account"
+								v-if="loggedIn && user"
 								class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
 								:title="$t('pages.accounts.login.title')"
 								:text="$t('pages.accounts.login.title')"
 								:to="'account'"
 							>
 								<UserAvatar
-									:user-account="account"
+									:user-account="user"
 									:img-width="30"
 									:img-height="30"
 									:show-name="false"
@@ -129,16 +129,12 @@ const { account } = storeToRefs(userStore)
 							<li class="link grid pb-2">
 								<UButton
 									icon="i-heroicons-user"
-									:to="
-										isAuthenticated ? '/account' : `/auth/login?redirect=${$route.path}`
-									"
+									:to="loggedIn ? '/account' : `/auth/login?redirect=${$route.path}`"
 									size="md"
 									variant="solid"
 									color="white"
-									:label="isAuthenticated ? $t('common.account') : $t('common.login')"
-									>{{
-										isAuthenticated ? $t('common.account') : $t('common.login')
-									}}</UButton
+									:label="loggedIn ? $t('common.account') : $t('common.login')"
+									>{{ loggedIn ? $t('common.account') : $t('common.login') }}</UButton
 								>
 							</li>
 							<li class="link grid pb-2">

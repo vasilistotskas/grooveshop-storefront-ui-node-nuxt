@@ -1,15 +1,37 @@
 <script lang="ts" setup>
 import type { Ref } from 'vue'
-import emptyIcon from '~icons/mdi/package-variant-remove'
+
+import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
-import type { BlogPost, BlogPostOrderingField, BlogPostQuery } from '~/types/blog/post'
+import type { Pagination } from '~/types/pagination'
+
+import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const route = useRoute()
 const { t } = useI18n()
 
-const blogPostStore = useBlogPostStore()
-const { posts, pending } = storeToRefs(blogPostStore)
-const { fetchBlogPosts } = blogPostStore
+const page = computed(() => route.query.page)
+const ordering = computed(() => route.query.ordering || '-createdAt')
+const id = computed(() => route.query.id)
+const author = computed(() => route.query.author)
+const slug = computed(() => route.query.slug)
+const tags = computed(() => route.query.tags)
+const expand = computed(() => 'true')
+
+const { data, pending, refresh } = await useLazyAsyncData('blogPosts', () =>
+	$fetch<Pagination<BlogPost>>('/api/blog/posts', {
+		method: 'GET',
+		params: {
+			page: page.value,
+			ordering: ordering.value,
+			id: id.value,
+			author: author.value,
+			slug: slug.value,
+			tags: tags.value,
+			expand: expand.value
+		}
+	})
+)
 
 const entityOrdering: Ref<EntityOrdering<BlogPostOrderingField>> = ref([
 	{
@@ -38,76 +60,65 @@ const orderingFields: Partial<Record<BlogPostOrderingField, OrderingOption[]>> =
 )
 
 const pagination = computed(() => {
-	return usePagination<BlogPost>(posts.value)
+	if (!data.value) return
+	return usePagination<BlogPost>(data.value)
 })
 
-const ordering = computed(() => {
+const orderingOptions = computed(() => {
 	return useOrdering<BlogPostOrderingField>(entityOrdering.value, orderingFields)
 })
 
-const routePaginationParams = computed<BlogPostQuery>(() => {
-	const page = Number(route.query.page) || 1
-	const ordering = route.query.ordering || '-createdAt'
-	const id = route.query.id || undefined
-	const author = route.query.author || undefined
-	const slug = route.query.slug || undefined
-	const tags = route.query.tags || undefined
-	const expand = 'true'
-
-	return {
-		page,
-		ordering,
-		id,
-		author,
-		slug,
-		tags,
-		expand
-	}
-})
-
-await fetchBlogPosts(routePaginationParams.value)
-const refreshBlogPosts = async () => await fetchBlogPosts(routePaginationParams.value)
-
 watch(
 	() => route.query,
-	() => refreshBlogPosts()
+	() => refresh(),
+	{ deep: true }
 )
 </script>
 
 <template>
 	<div class="posts-list grid gap-4">
-		<template v-if="!pending.posts && posts?.results?.length">
-			<div class="flex flex-row items-center gap-2">
-				<PaginationPageNumber
-					:count="pagination.count"
-					:total-pages="pagination.totalPages"
-					:page-total-results="pagination.pageTotalResults"
-					:page-size="pagination.pageSize"
-					:page="pagination.page"
-					:links="pagination.links"
-				/>
-				<Ordering
-					:ordering="String(routePaginationParams.ordering)"
-					:ordering-options="ordering.orderingOptionsArray.value"
-				/>
-			</div>
-			<section class="grid gap-4 md:flex md:gap-8">
-				<ol
-					class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-1 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-				>
-					<template v-for="(post, index) in posts.results" :key="index">
-						<BlogPostCard :post="post" :img-loading="index > 7 ? 'lazy' : 'eager'" />
-					</template>
-				</ol>
-				<BlogTagsList />
-			</section>
-		</template>
-		<template v-if="!pending.posts && !posts?.results?.length">
-			<EmptyState :icon="emptyIcon">
-				<template #actions>
-					<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+		<div class="flex flex-row items-center gap-2">
+			<PaginationPageNumber
+				v-if="pagination"
+				:count="pagination.count"
+				:total-pages="pagination.totalPages"
+				:page-total-results="pagination.pageTotalResults"
+				:page-size="pagination.pageSize"
+				:page="pagination.page"
+				:links="pagination.links"
+			/>
+			<Ordering
+				:ordering="String(ordering)"
+				:ordering-options="orderingOptions.orderingOptionsArray.value"
+			/>
+		</div>
+		<section class="grid gap-4 md:flex md:gap-8">
+			<ol
+				class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-1 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+			>
+				<template v-if="!pending && data?.results?.length">
+					<BlogPostCard
+						v-for="(post, index) in data.results"
+						:key="index"
+						:post="post"
+						:img-loading="index > 7 ? 'lazy' : 'eager'"
+					/>
 				</template>
-			</EmptyState>
-		</template>
+				<template v-if="pending">
+					<ClientOnlyFallback
+						v-for="index in 8"
+						:key="index"
+						height="684px"
+						width="100%"
+					/>
+				</template>
+			</ol>
+			<BlogTagsList />
+		</section>
+		<EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
+			<template #actions>
+				<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+			</template>
+		</EmptyState>
 	</div>
 </template>

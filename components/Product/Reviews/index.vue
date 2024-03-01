@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import type { PropType, Ref } from 'vue'
-import type {
-	ProductReview,
-	ProductReviewOrderingField,
-	ProductReviewQuery
-} from '~/types/product/review'
+
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
+import type { Pagination } from '~/types/pagination'
+import type { ProductReview, ProductReviewOrderingField } from '~/types/product/review'
+
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const props = defineProps({
@@ -30,35 +29,30 @@ const props = defineProps({
 	}
 })
 
-const productReviewStore = useProductReviewStore()
-const { reviews, pending } = storeToRefs(productReviewStore)
-const { fetchReviews } = productReviewStore
+const { productId, reviewsAverage, reviewsCount, displayImageOf } = toRefs(props)
 
 const { t } = useI18n()
 const route = useRoute()
 
-const { productId, reviewsAverage, reviewsCount, displayImageOf } = toRefs(props)
+const page = computed(() => route.query.page)
+const ordering = computed(() => route.query.ordering || '-createdAt')
+const expand = computed(() => 'true')
+const status = computed(() => 'TRUE')
 
-const routePaginationParams = computed<ProductReviewQuery>(() => {
-	const id = String(productId.value)
-	const page = Number(route.query.page) || undefined
-	const ordering = route.query.ordering || '-createdAt'
-	const expand = 'true'
-	const status = 'TRUE'
-
-	return {
-		productId: id,
-		page,
-		ordering,
-		expand,
-		status
-	}
-})
-
-await fetchReviews(routePaginationParams.value)
-const refreshReviews = async () => {
-	await fetchReviews(routePaginationParams.value)
-}
+const { data, pending, refresh } = await useLazyAsyncData(
+	`productReviews${productId.value}`,
+	() =>
+		$fetch<Pagination<ProductReview>>('/api/products/reviews', {
+			method: 'GET',
+			params: {
+				page: page.value,
+				ordering: ordering.value,
+				productId: productId.value,
+				expand: expand.value,
+				status: status.value
+			}
+		})
+)
 
 const entityOrdering: Ref<EntityOrdering<ProductReviewOrderingField>> = ref([
 	{
@@ -82,16 +76,17 @@ const orderingFields: Partial<Record<ProductReviewOrderingField, OrderingOption[
 	})
 
 const pagination = computed(() => {
-	return usePagination<ProductReview>(reviews.value)
+	if (!data.value) return
+	return usePagination<ProductReview>(data.value)
 })
 
-const ordering = computed(() => {
+const orderingOptions = computed(() => {
 	return useOrdering<ProductReviewOrderingField>(entityOrdering.value, orderingFields)
 })
 
 watch(
 	() => route.query,
-	() => refreshReviews(),
+	() => refresh(),
 	{ deep: true }
 )
 </script>
@@ -100,7 +95,7 @@ watch(
 	<div
 		class="container-sm text-primary-700 dark:text-primary-100 border-t border-gray-900/10 p-6 dark:border-gray-50/20"
 	>
-		<template v-if="!pending.reviews && reviews?.results && reviews?.results?.length > 0">
+		<template v-if="!pending && data?.results && data?.results?.length > 0">
 			<div class="grid gap-4">
 				<h2 class="text-2xl font-semibold">
 					{{ $t('components.product.reviews.title') }}
@@ -108,6 +103,7 @@ watch(
 				<div class="grid justify-start gap-4 md:flex md:items-center">
 					<div class="grid">
 						<PaginationPageNumber
+							v-if="pagination"
 							:count="pagination.count"
 							:total-pages="pagination.totalPages"
 							:page-total-results="pagination.pageTotalResults"
@@ -118,8 +114,8 @@ watch(
 					</div>
 					<div class="grid">
 						<Ordering
-							:ordering="String(routePaginationParams.ordering)"
-							:ordering-options="ordering.orderingOptionsArray.value"
+							:ordering="String(ordering)"
+							:ordering-options="orderingOptions.orderingOptionsArray.value"
 						></Ordering>
 					</div>
 				</div>
@@ -129,16 +125,14 @@ watch(
 					<ProductReviewsList
 						:reviews-average="reviewsAverage"
 						:reviews-count="reviewsCount"
-						:reviews="reviews.results"
+						:reviews="data.results"
 						:display-image-of="displayImageOf"
 					/>
-					<template v-if="!pending.reviews && !reviews?.results?.length">
-						<EmptyState :icon="emptyIcon">
-							<template #actions>
-								<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
-							</template>
-						</EmptyState>
-					</template>
+					<EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
+						<template #actions>
+							<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+						</template>
+					</EmptyState>
 				</div>
 			</div>
 		</template>

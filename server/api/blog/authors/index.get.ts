@@ -1,12 +1,15 @@
 import type { H3Event } from 'h3'
+
+import { ZodBlogAuthor, ZodBlogAuthorQuery } from '~/types/blog/author'
 import { ZodPagination } from '~/types/pagination'
 import { buildFullUrl } from '~/utils/api'
-import { ZodBlogAuthor, ZodBlogAuthorQuery } from '~/types/blog/author'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const query = parseQueryAs(event, ZodBlogAuthorQuery)
+	const query = await getValidatedQuery(event, ZodBlogAuthorQuery.parse)
 	const url = buildFullUrl(`${config.public.apiBaseUrl}/blog/author`, query)
-	const response = await $api(url, event)
+	const response = await $fetch(url, {
+		method: 'GET'
+	})
 	return await parseDataAs(response, ZodPagination(ZodBlogAuthor))
 })

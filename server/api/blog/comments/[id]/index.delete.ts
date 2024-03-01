@@ -1,14 +1,17 @@
 import type { H3Event } from 'h3'
 import { z } from 'zod'
+
 import { ZodBlogCommentParams } from '~/types/blog/comment'
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const params = parseParamsAs(event, ZodBlogCommentParams)
-
-	const response = await $api(
-		`${config.public.apiBaseUrl}/blog/comment/${params.id}`,
-		event
-	)
+	const session = await getUserSession(event)
+	const params = await getValidatedRouterParams(event, ZodBlogCommentParams.parse)
+	const response = await $fetch(`${config.public.apiBaseUrl}/blog/comment/${params.id}`, {
+		method: 'DELETE',
+		headers: {
+			Authorization: `Bearer ${session?.token}`
+		}
+	})
 	return parseDataAs(response, z.any())
 })

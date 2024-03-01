@@ -23,14 +23,14 @@ export const ZodSearchQuery = z.object({
 	language: z.string().nullish()
 })
 
-export const ZodSearchProductTranslations = z.record(
+const ZodSearchProductTranslations = z.record(
 	z.object({
 		name: z.string().nullish(),
 		description: z.string().nullish()
 	})
 )
 
-export const ZodSearchProductCategoryTranslations = z.record(
+const ZodSearchProductCategoryTranslations = z.record(
 	z.object({
 		name: z.string().nullish(),
 		description: z.string().nullish()

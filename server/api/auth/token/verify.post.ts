@@ -11,16 +11,21 @@ export const ZodTokenVerifyBody = z.object({
 	token: z.string().min(1)
 }) satisfies z.ZodType<TokenVerifyBody>
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
+	const session = await getUserSession(event)
 	try {
-		const body = await parseBodyAs(event, ZodTokenVerifyBody)
-		const response = await $api(`${config.public.apiBaseUrl}/auth/token/verify`, event, {
+		const body = await readValidatedBody(event, ZodTokenVerifyBody.parse)
+		const response = await $fetch(`${config.public.apiBaseUrl}/auth/token/verify`, {
+			method: 'POST',
 			body,
-			method: 'POST'
+			headers: {
+				Authorization: `Bearer ${session?.token}`
+			}
 		})
 		return await parseDataAs(response, ZodTokenVerifyResponse)
 	} catch (error) {
+		await clearUserSession(event)
 		await handleError(error)
 	}
 })

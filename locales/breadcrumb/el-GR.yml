@@ -2,7 +2,7 @@ breadcrumb:
   label: φρυγανιά
   items:
     index:
-      icon: heroicons-solid:home
+      icon: i-heroicons-home
       label: σπίτι
     products:
       icon: heroicons-solid:shopping-cart

@@ -1,5 +1,6 @@
 import slugify from '@sindresorhus/slugify'
 import { serialize } from 'cookie-es'
+
 import type { Cookie, ModuleOptions } from './types'
 
 export const getAllCookieIdsString = (moduleOptions: ModuleOptions) =>

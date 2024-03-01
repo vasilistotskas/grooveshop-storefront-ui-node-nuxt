@@ -1,6 +1,8 @@
 import { z } from 'zod'
-import type { PaginationQuery } from '~/types/pagination'
+
+import { ZodCountry } from '~/types/country'
 import type { OrderingQuery } from '~/types/ordering'
+import type { PaginationQuery } from '~/types/pagination'
 
 const ZodRegionTranslations = z.record(
 	z.object({
@@ -11,7 +13,7 @@ const ZodRegionTranslations = z.record(
 export const ZodRegion = z.object({
 	translations: ZodRegionTranslations,
 	alpha: z.string().min(3),
-	country: z.string().min(2),
+	country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	sortOrder: z.number().nullish(),

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 defineSlots<{
 	default(props: {}): any
-	main(props: {}): any
 	header(props: {}): any
 	footer(props: {}): any
 	'app-before'(props: {}): any
@@ -19,15 +18,13 @@ defineSlots<{
 				<PageNavbar />
 			</PageHeader>
 		</slot>
-		<slot name="main">
-			<Main>
-				<PageSection class="flex flex-col">
-					<div class="flex w-full flex-1 flex-col">
-						<slot />
-					</div>
-				</PageSection>
-			</Main>
-		</slot>
+		<main>
+			<PageSection class="flex flex-col">
+				<div class="flex w-full flex-1 flex-col">
+					<slot />
+				</div>
+			</PageSection>
+		</main>
 		<slot name="footer">
 			<Footer />
 		</slot>

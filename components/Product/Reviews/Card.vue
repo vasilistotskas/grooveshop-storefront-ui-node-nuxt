@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { ProductReview } from '~/types/product/review'
 
 const props = defineProps({
@@ -17,11 +18,11 @@ const props = defineProps({
 const { review, displayImageOf } = toRefs(props)
 
 const product = computed(() => {
-	return typeof review.value?.product !== 'number' ? review.value?.product : undefined
+	return typeof review?.value?.product !== 'number' ? review?.value?.product : undefined
 })
 
 const userAccount = computed(() => {
-	return typeof review.value?.user !== 'number' ? review.value?.user : undefined
+	return typeof review?.value?.user !== 'number' ? review?.value?.user : undefined
 })
 
 const { resolveImageSrc } = useImageResolver()
@@ -54,7 +55,7 @@ const productName = computed(() =>
 )
 
 const reviewComment = computed(() => {
-	return contentShorten(extractTranslated(review.value, 'comment', locale.value), 0, 120)
+	return contentShorten(extractTranslated(review?.value, 'comment', locale.value), 0, 120)
 })
 </script>
 
@@ -94,13 +95,11 @@ const reviewComment = computed(() => {
 				</div>
 			</div>
 			<div class="grid h-full w-full">
-				<ClientOnly>
-					<span>{{ reviewComment }}</span>
-				</ClientOnly>
+				<span>{{ reviewComment }}</span>
 			</div>
 			<div class="flex justify-end">
 				<div class="text-xs">
-					<span>{{ review.createdAt }}</span>
+					<NuxtTime :datetime="review.createdAt" />
 				</div>
 			</div>
 		</div>

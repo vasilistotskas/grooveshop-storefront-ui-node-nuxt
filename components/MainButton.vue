@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { ButtonSize, ButtonStyle, ButtonType } from '~/types/global/button'
 
 const props = defineProps({
@@ -80,10 +81,9 @@ const selectedStyle = computed(() =>
 const selectedSize = computed(() => sizes[props.size] || sizes.lg)
 
 // methods
-const onClick = (event: MouseEvent) => {
-	const router = useRouter()
+const onClick = async (event: MouseEvent) => {
 	if (props.to) {
-		router.push(props.to)
+		await navigateTo(props.to)
 	}
 	if (!props.href) {
 		event.preventDefault()

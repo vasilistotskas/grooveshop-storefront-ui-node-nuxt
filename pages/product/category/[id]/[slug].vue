@@ -1,13 +1,27 @@
 <script lang="ts" setup>
-const productCategoryStore = useProductCategoryStore()
-const { category } = storeToRefs(productCategoryStore)
-const { fetchCategory } = productCategoryStore
+import type { Pagination } from '~/types/pagination'
+import type { ProductCategory } from '~/types/product/category'
 
 const route = useRoute('product-category-id-slug___en')
 
 const categoryId = route.params.id
 
-await fetchCategory(categoryId)
+const { data: categories } = useNuxtData<Pagination<ProductCategory>>('productCategories')
+
+const { data } = await useLazyAsyncData(
+	`category${categoryId}`,
+	() =>
+		$fetch<ProductCategory>(`/api/products/categories/${categoryId}`, {
+			method: 'GET'
+		}),
+	{
+		default() {
+			return categories.value?.results?.find(
+				(category) => category.id === Number(categoryId)
+			)
+		}
+	}
+)
 
 definePageMeta({
 	layout: 'default'

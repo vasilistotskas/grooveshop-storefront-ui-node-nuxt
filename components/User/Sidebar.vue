@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import type { FunctionalComponent, SVGAttributes } from 'vue'
-import ordersIcon from '~icons/mdi/package-variant-closed'
-import favouritesIcon from '~icons/mdi/heart-outline'
-import reviewsIcon from '~icons/mdi/star-outline'
+
 import settingsIcon from '~icons/mdi/cog-outline'
+import favouritesIcon from '~icons/mdi/heart-outline'
 import helpIcon from '~icons/mdi/help-circle-outline'
+import ordersIcon from '~icons/mdi/package-variant-closed'
+import reviewsIcon from '~icons/mdi/star-outline'
 
 interface IMenuItem {
 	type: 'link' | 'button' | 'external-link'
@@ -88,7 +89,7 @@ onMounted(() => {
 			}
 		]"
 	>
-		<div class="flex-1 overflow-y-auto py-2 pl-4 pr-4 lg:pl-0">
+		<div class="flex-1 overflow-y-auto">
 			<ul class="grid gap-2 md:gap-4">
 				<li
 					v-for="(item, i) in menus"

@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import SearchingJson from '~/assets/lotties/searching.json'
 import SearchingNoResultsJson from '~/assets/lotties/search_no_results.json'
+import SearchingJson from '~/assets/lotties/searching.json'
+import type { SearchResults } from '~/types/search'
 
 const searchStore = useSearchStore()
-const { storage, pending, error, totalCount, productSearchItems, productHeadlines } =
+const { results, storage, totalCount, productSearchItems, productHeadlines } =
 	storeToRefs(searchStore)
-const { search, reset } = searchStore
+const { reset } = searchStore
 
 const route = useRoute()
 const router = useRouter()
@@ -16,29 +17,27 @@ const currentSearch = ref((route.query.query || '').toString())
 const suggestions = ref(null)
 const isSuggestionsOpen = ref(false)
 
+const { pending, error, refresh } = await useAsyncData('search', () =>
+	$fetch<SearchResults>('/api/search', {
+		method: 'GET',
+		params: {
+			query: currentSearch.value,
+			language: locale.value
+		},
+		onResponse({ response }) {
+			results.value = response._data
+			isSuggestionsOpen.value = false
+		}
+	})
+)
+
 onClickOutside(suggestions, () => {
 	isSuggestionsOpen.value = false
 })
 
-await search({
-	query: currentSearch.value,
-	language: locale.value
-})
-
-const refreshSearch = async () => {
-	await search({
-		query: currentSearch.value,
-		language: locale.value
-	})
-	await navigateTo({
-		path: '/search',
-		query: {
-			query: currentSearch.value
-		}
-	})
-}
-
-const throttledSearch = useDebounceFn(refreshSearch, 250)
+const throttledSearch = useDebounceFn(async () => {
+	await refresh()
+}, 250)
 
 const vFocus = {
 	mounted: (el: HTMLElement) => el.focus()
@@ -64,39 +63,33 @@ const showSuggestions = computed(() => {
 })
 
 const showResults = computed(() => {
-	return (
-		productSearchItems.value.length > 0 && !pending.value.results && !error.value.results
-	)
+	return productSearchItems.value.length > 0 && !pending.value && !error.value
 })
 
 const showStartSearching = computed(() => {
-	return !currentSearch.value && !pending.value.results
+	return !currentSearch.value && !pending.value
 })
 
 const showTotalCount = computed(() => {
-	return totalCount.value > 0 && !pending.value.results
+	return totalCount.value > 0 && !pending.value
 })
 
 const showIsSearching = computed(() => {
-	return pending.value.results && !error.value.results
+	return pending.value && !error.value
 })
 
 const showNoResults = computed(() => {
-	return (
-		!showIsSearching.value &&
-		productSearchItems.value.length === 0 &&
-		!error.value.results
-	)
+	return !showIsSearching.value && productSearchItems.value.length === 0 && !error.value
 })
 
 const showErrors = computed(() => {
-	return error.value.results
+	return error.value
 })
 
 watch(
 	() => currentSearch.value,
 	() => {
-		pending.value.results = true
+		pending.value = true
 		isSuggestionsOpen.value = false
 		throttledSearch()
 		router.replace({
@@ -152,7 +145,7 @@ definePageMeta({
 						type="text"
 						class="w-full bg-transparent text-xl outline-none"
 						:placeholder="$t('pages.search.placeholder')"
-						@keyup.enter="refreshSearch"
+						@keyup.enter="refresh()"
 						@click="isSuggestionsOpen = true"
 					/>
 				</div>
@@ -253,7 +246,7 @@ definePageMeta({
 				<h1 class="text-4xl text-red-600">
 					{{ $t('pages.search.error') }}
 				</h1>
-				<pre class="py-2">{{ error.results }}</pre>
+				<pre class="py-2">{{ error }}</pre>
 			</div>
 		</PageBody>
 	</PageWrapper>

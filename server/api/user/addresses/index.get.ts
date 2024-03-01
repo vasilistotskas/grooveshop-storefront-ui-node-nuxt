@@ -1,13 +1,19 @@
 import type { H3Event } from 'h3'
+
 import { ZodPagination } from '~/types/pagination'
+import { ZodUserAddress, ZodUserAddressQuery } from '~/types/user/address'
 import { buildFullUrl } from '~/utils/api'
 
-import { ZodUserAddress, ZodUserAddressQuery } from '~/types/user/address'
-
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
-	const query = parseQueryAs(event, ZodUserAddressQuery)
+	const session = await getUserSession(event)
+	const query = await getValidatedQuery(event, ZodUserAddressQuery.parse)
 	const url = buildFullUrl(`${config.public.apiBaseUrl}/user/address`, query)
-	const response = await $api(url, event)
+	const response = await $fetch(url, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${session?.token}`
+		}
+	})
 	return await parseDataAs(response, ZodPagination(ZodUserAddress))
 })

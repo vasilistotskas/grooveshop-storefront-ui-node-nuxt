@@ -42,14 +42,19 @@ export type RealTimeResponse = {
 	theme: ITheme
 }
 
-export default defineWrappedResponseHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
 	const defaultTheme = (process.env.NUXT_PUBLIC_DEFAULT_THEME || 'light') as ITheme
 	try {
-		const ipApiResponse = await $fetch<IPAPIResponse>('http://ip-api.com/json')
+		const ipApiResponse = await $fetch<IPAPIResponse>('http://ip-api.com/json', {
+			method: 'GET'
+		})
 
 		const timezone = ipApiResponse.timezone
 		const timeZoneApiResponse = await $fetch<ITimeZoneApiResponse>(
-			`http://worldtimeapi.org/api/timezone/${timezone}`
+			`http://worldtimeapi.org/api/timezone/${timezone}`,
+			{
+				method: 'GET'
+			}
 		)
 
 		const currentTime = new Date(timeZoneApiResponse.datetime)

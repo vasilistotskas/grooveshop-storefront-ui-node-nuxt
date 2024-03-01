@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+
 import type { Product } from '~/types/product/product'
 
 const props = defineProps({

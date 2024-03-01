@@ -1,12 +1,12 @@
-import { z } from 'zod'
 import { withQuery } from 'ufo'
+import { z } from 'zod'
 
+import { ZodProviderLoginResponse } from '~/server/api/auth/login/[provider]/login.post'
 import type {
 	ProviderCallbackBody,
 	ProviderCallbackParams,
 	ProviderSettings
 } from '~/types/auth'
-import { ZodProviderLoginResponse } from '~/server/api/auth/login/[provider]/login.post'
 
 export const ZodProviderCallbackBody = z.object({
 	code: z.string(),
@@ -21,21 +21,16 @@ export default defineEventHandler(async (event) => {
 	const config = useRuntimeConfig()
 
 	try {
-		if (!config?.public?.auth?.redirect?.callback) {
-			throw createError({
-				statusCode: 400,
-				statusMessage: 'Please make sure to set callback redirect path',
-				message: 'Please make sure to set callback redirect path'
-			})
-		}
-
-		const params = parseParamsAs(event, ZodProviderCallbackParams)
+		const params = await getValidatedRouterParams(event, ZodProviderCallbackParams.parse)
 		const provider = params.provider
 		const providerSettings = config?.auth?.oauth?.[
 			provider
 		] as unknown as ProviderSettings
 
-		const { state: returnToPath, code } = parseQueryAs(event, ZodProviderCallbackBody)
+		const { state: returnToPath, code } = await getValidatedQuery(
+			event,
+			ZodProviderCallbackBody.parse
+		)
 
 		if (!config?.auth?.oauth || !providerSettings) {
 			throw createError({
@@ -48,9 +43,8 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		const googleLoginResponse = await $api(
+		const googleLoginResponse = await $fetch(
 			`${config.public.apiBaseUrl}/auth/google/login`,
-			event,
 			{
 				body: JSON.stringify({
 					code
@@ -61,17 +55,17 @@ export default defineEventHandler(async (event) => {
 		const auth = await parseDataAs(googleLoginResponse, ZodProviderLoginResponse)
 
 		if (auth.refresh) {
-			setRefreshTokenCookie(event, auth.refresh)
+			await setUserSession(event, {
+				refreshToken: auth.refresh,
+				loggedInAt: new Date()
+			})
 		}
 
-		await sendRedirect(
-			event,
-			withQuery(config?.public?.auth?.redirect?.callback, { redirect: returnToPath })
-		)
+		await sendRedirect(event, withQuery('/account', { redirect: returnToPath }))
 	} catch (error) {
 		await handleError(error, {
 			event,
-			url: config?.public?.auth?.redirect?.callback
+			url: '/auth/login'
 		})
 	}
 })
