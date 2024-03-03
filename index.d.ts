@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 const envVariables = z.object({
 	NODE_ENV: z.string(),
+	SW: z.string(),
 	NODE_AUTH_TOKEN: z.string(),
 	VITEST_DOM_ENV: z.string(),
 

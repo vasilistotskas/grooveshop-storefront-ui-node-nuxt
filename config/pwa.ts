@@ -1,9 +1,11 @@
 import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 
+const sw = process.env.SW === 'true'
+
 export const pwa = {
-	scope: '/',
-	base: '/',
-	strategies: 'generateSW',
+	strategies: sw ? 'injectManifest' : 'generateSW',
+	srcDir: sw ? 'service-worker' : undefined,
+	filename: sw ? 'sw.ts' : undefined,
 	injectRegister: 'auto',
 	registerType: 'autoUpdate',
 	manifest: {
@@ -99,76 +101,15 @@ export const pwa = {
 		navigateFallbackDenylist: [/^\/api(?:\/.*)?$/],
 		maximumFileSizeToCacheInBytes: 3000000,
 		cleanupOutdatedCaches: true,
-		sourcemap: true,
-		runtimeCaching: [
-			{
-				urlPattern: ({ url, sameOrigin }) => {
-					const pwaExcludedCachePaths = [
-						'/api/auth',
-						'/api/_auth',
-						'/api/cart',
-						'/api/user'
-					]
-					const isExcludedPath = pwaExcludedCachePaths.some((path) =>
-						url.pathname.startsWith(path)
-					)
-
-					if (isExcludedPath) {
-						return false
-					}
-
-					return sameOrigin && url.pathname.match(/^\/api\//)
-				},
-				handler: 'NetworkOnly',
-				options: {
-					cacheName: 'api',
-					expiration: {
-						maxEntries: 300
-					},
-					cacheableResponse: {
-						statuses: [0, 200]
-					},
-					backgroundSync: {
-						name: 'api-queue',
-						options: {
-							maxRetentionTime: 24 * 60
-						}
-					},
-					matchOptions: {
-						ignoreVary: true,
-						ignoreSearch: true
-					}
-				}
-			},
-			{
-				urlPattern: ({ url, request }) => {
-					const allowedOrigins = [
-						'http://localhost:3003',
-						'https://assets.grooveshop.site'
-					]
-					return allowedOrigins.includes(url.origin) && request.destination === 'image'
-				},
-				handler: 'StaleWhileRevalidate',
-				options: {
-					cacheName: 'media-stream-cache',
-					expiration: {
-						maxEntries: 100
-					},
-					cacheableResponse: {
-						statuses: [0, 200]
-					}
-				}
-			}
-		]
+		sourcemap: true
 	},
 	injectManifest: {
 		globPatterns: ['**/*.{js,css,html,png,svg,ico}']
 	},
 	devOptions: {
-		enabled: false,
+		enabled: true,
 		suppressWarnings: true,
 		navigateFallback: undefined,
-		navigateFallbackAllowlist: [/^\/$/],
 		type: 'module'
 	},
 	client: {

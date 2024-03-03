@@ -5,7 +5,7 @@ export const nitro = {
 	compressPublicAssets: { gzip: true },
 	prerender: {
 		crawlLinks: false,
-		routes: ['/'],
+		routes: [],
 		ignore: ['/api', '/account', '/auth', '/checkout', '/cart']
 	},
 	experimental: {
