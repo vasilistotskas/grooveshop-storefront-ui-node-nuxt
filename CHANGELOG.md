@@ -1,3 +1,10 @@
+# [1.65.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.64.0...v1.65.0) (2024-3-3)
+
+
+### Features
+
+* service worker pwa `injectManifest` option ([0f35d30](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0f35d30aaddbbb9bbb9393e2b8beccfbc0234e95))
+
 # [1.64.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.63.0...v1.64.0) (2024-3-1)
 
 
