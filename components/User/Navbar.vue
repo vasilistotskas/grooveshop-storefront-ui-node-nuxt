@@ -163,7 +163,7 @@ const menus = computed((): IMenuItem[] => [
 						<ul
 							class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
 						>
-							<li class="link grid pb-2">
+							<li class="link grid gap-2 pb-2">
 								<UButton
 									icon="i-heroicons-shopping-bag"
 									:to="'/products'"
@@ -173,8 +173,17 @@ const menus = computed((): IMenuItem[] => [
 									:label="$t('common.shop')"
 									>{{ $t('common.shop') }}</UButton
 								>
+								<UButton
+									icon="i-heroicons-magnifying-glass"
+									:to="'/search'"
+									size="md"
+									variant="solid"
+									color="white"
+									:label="$t('common.search')"
+									>{{ $t('common.search') }}</UButton
+								>
 							</li>
-							<li class="link grid pb-2">
+							<li class="link grid gap-2 pb-2">
 								<UButton
 									icon="i-heroicons-user"
 									:to="loggedIn ? '/account' : `/auth/login?redirect=${$route.path}`"
@@ -184,16 +193,15 @@ const menus = computed((): IMenuItem[] => [
 									:label="loggedIn ? $t('common.account') : $t('common.login')"
 									>{{ loggedIn ? $t('common.account') : $t('common.login') }}</UButton
 								>
-							</li>
-							<li class="link grid pb-2">
 								<UButton
-									icon="i-heroicons-magnifying-glass"
-									:to="'/search'"
+									v-if="loggedIn"
+									icon="i-heroicons-shield-check"
+									to="/auth/security"
 									size="md"
 									variant="solid"
 									color="white"
-									:label="$t('common.search')"
-									>{{ $t('common.search') }}</UButton
+									:label="$t('pages.accounts.security.title')"
+									>{{ $t('pages.accounts.security.title') }}</UButton
 								>
 							</li>
 						</ul>
@@ -217,6 +225,15 @@ const menus = computed((): IMenuItem[] => [
 							{{ $t('pages.cart.title') }}</span
 						>
 					</Anchor>
+					<UButton
+						size="md"
+						:label="$t('pages.accounts.logout.title')"
+						class="text-primary-700 dark:text-primary-100"
+						:trailing="false"
+						icon="i-heroicons-arrow-left-start-on-rectangle"
+						color="red"
+						@click="authLogoutEvent"
+					/>
 				</ActionSheetBody>
 				<UButton
 					:label="$t('common.close')"

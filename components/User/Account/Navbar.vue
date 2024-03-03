@@ -1,6 +1,6 @@
 <template>
 	<nav
-		class="fixed left-0 top-16 z-10 w-full bg-transparent px-4 lg:static lg:w-auto lg:border-b lg:border-gray-300 lg:bg-transparent lg:px-0 lg:shadow-none"
+		class="static z-10 w-auto border-b border-gray-300 bg-transparent px-0 shadow-none"
 	>
 		<ul role="tablist" class="flex snap-x gap-4 overflow-x-auto">
 			<li role="tab" class="shrink-0">

@@ -101,7 +101,7 @@ const onLocaleChange = (event: Event) => {
 				@click="navigateToLocale(lang.code)"
 			>
 				<NuxtLink :to="switchLocalePath(lang.code)">
-					{{ lang.flag }} {{ lang.name }} ({{ lang.code }})
+					{{ lang.name }} ({{ lang.code }})
 				</NuxtLink>
 			</option>
 		</select>

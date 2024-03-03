@@ -54,14 +54,14 @@ const submit = async () => {
 <template>
 	<li
 		v-if="address"
-		class="relative grid w-full items-start gap-8 rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black sm:px-4 sm:py-10"
+		class="relative grid w-full items-start gap-8 rounded-lg bg-white p-2 text-white dark:bg-zinc-800 dark:text-black sm:px-4 sm:py-10 md:p-5"
 	>
-		<div v-if="address.isMain" class="absolute right-3 top-3 text-[#f0c14b]">
+		<div v-if="address.isMain" class="absolute right-24 top-3 text-[#f0c14b] md:right-3">
 			<IconMdi:star></IconMdi:star>
 		</div>
 		<div class="grid grid-cols-[1fr_auto] items-center justify-center gap-2">
 			<div class="grid items-center gap-2">
-				<h3 class="text-primary-700 dark:text-primary-100 font-bold">
+				<h3 class="text-primary-700 dark:text-primary-100 text-center text-xl font-bold">
 					{{ contentShorten(address.title, 0, 25) }}
 				</h3>
 			</div>
