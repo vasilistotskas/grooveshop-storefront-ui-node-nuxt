@@ -1,3 +1,10 @@
+## [1.65.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.65.0...v1.65.1) (2024-3-3)
+
+
+### Bug Fixes
+
+* response ui improvements ([d152cf1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d152cf135b53e0b856e0911620d969570a85161d))
+
 # [1.65.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.64.0...v1.65.0) (2024-3-3)
 
 
