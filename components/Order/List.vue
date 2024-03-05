@@ -17,13 +17,13 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="grid w-full items-start">
-		<slot class="header"></slot>
-		<slot>
-			<div class="grid gap-4">
-				<OrderCard v-for="order in orders" :key="order.id" :order="order" />
-			</div>
-		</slot>
-		<slot class="footer"></slot>
-	</div>
+  <div class="grid w-full items-start">
+    <slot class="header" />
+    <slot>
+      <div class="grid gap-4">
+        <OrderCard v-for="order in orders" :key="order.id" :order="order" />
+      </div>
+    </slot>
+    <slot class="footer" />
+  </div>
 </template>

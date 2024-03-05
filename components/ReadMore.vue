@@ -13,7 +13,6 @@ const props = defineProps({
 })
 
 const uuid = uuidv4()
-const { t } = useI18n()
 const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
 
 const toggleFullText = () => {
@@ -28,28 +27,28 @@ const trimmedText = computed(() => {
 </script>
 
 <template>
-	<div v-if="text && text.length > maxChars" class="relative">
-		<!-- eslint-disable vue/no-v-html -->
-		<div
-			v-if="!showFullText"
-			class="text-primary-700 dark:text-primary-100 overflow-hidden"
-		>
-			<span v-html="trimmedText" />
-		</div>
-		<div v-else class="text-primary-700 dark:text-primary-100 overflow-hidden">
-			<span v-html="text" />
-		</div>
-		<div class="absolute bottom-0 right-0">
-			<button
-				type="button"
-				class="text-primary-700 dark:text-primary-100 hover:text-primary-800 dark:hover:text-primary-100 text-sm font-semibold"
-				@click="toggleFullText"
-			>
-				{{ showFullText ? $t('common.read_less') : $t('common.read_more') }}
-			</button>
-		</div>
-	</div>
-	<div v-else class="text-primary-700 dark:text-primary-100">
-		{{ text }}
-	</div>
+  <div v-if="text && text.length > maxChars" class="relative">
+    <!-- eslint-disable vue/no-v-html -->
+    <div
+      v-if="!showFullText"
+      class="text-primary-700 dark:text-primary-100 overflow-hidden"
+    >
+      <span v-html="trimmedText" />
+    </div>
+    <div v-else class="text-primary-700 dark:text-primary-100 overflow-hidden">
+      <span v-html="text" />
+    </div>
+    <div class="absolute bottom-0 right-0">
+      <button
+        type="button"
+        class="text-primary-700 dark:text-primary-100 hover:text-primary-800 dark:hover:text-primary-100 text-sm font-semibold"
+        @click="toggleFullText"
+      >
+        {{ showFullText ? $t('common.read_less') : $t('common.read_more') }}
+      </button>
+    </div>
+  </div>
+  <div v-else class="text-primary-700 dark:text-primary-100">
+    {{ text }}
+  </div>
 </template>

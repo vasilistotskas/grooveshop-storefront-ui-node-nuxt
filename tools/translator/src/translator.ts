@@ -9,9 +9,9 @@ const translateBundle = async (
 	inputBundle: Record<string, unknown>,
 	locale: LocaleFile,
 	engine: translateEngine = 'google',
-	maxRetries: number = 3,
-	delayTime: number = 1000,
-	useRetry: boolean = true
+	maxRetries = 3,
+	delayTime = 1000,
+	useRetry = true
 ): Promise<Record<string, unknown>> => {
 	const outputBundle: Record<string, unknown> = {}
 	const translateFunction = (await import('translate')).default

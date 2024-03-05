@@ -1,19 +1,19 @@
 module.exports = {
 	root: true,
 	env: {
-		browser: true,
-		node: true
+    browser: true,
+    es6: true,
+    node: true,
 	},
 	extends: [
-		'@nuxtjs/eslint-config-typescript',
-		'plugin:nuxt/recommended',
-		'plugin:prettier/recommended'
+    '@nuxt/eslint-config'
 	],
 	plugins: ["@typescript-eslint", "import"],
 	rules: {
-		'vue/multi-word-component-names': 'off',
+		'vue/multi-word-component-names': 0,
 		'vue/no-multiple-template-root': 'off',
-		'@typescript-eslint/no-unused-vars': 'off',
+    'vue/max-attributes-per-line': 'off',
+    'vue/no-v-html': 0,
     "import/order": [
       "error",
       {
@@ -21,6 +21,10 @@ module.exports = {
         "pathGroups": [
           {
             "pattern": "@/**",
+            "group": "internal"
+          },
+          {
+            "pattern": "~/**",
             "group": "internal"
           }
         ],

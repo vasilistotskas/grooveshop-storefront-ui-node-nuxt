@@ -5,7 +5,7 @@ defineSlots<{
 </script>
 
 <template>
-	<header class="relative z-20">
-		<slot />
-	</header>
+  <header class="relative z-20">
+    <slot />
+  </header>
 </template>

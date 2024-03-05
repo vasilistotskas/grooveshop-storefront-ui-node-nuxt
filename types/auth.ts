@@ -182,17 +182,20 @@ export type MailMessage = {
 	html: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface MailCustomProvider {
 	name: 'custom'
 	url: string
 	authorization: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface MailSendgridProvider {
 	name: 'sendgrid'
 	apiKey: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface MailResendProvider {
 	name: 'resend'
 	apiKey: string

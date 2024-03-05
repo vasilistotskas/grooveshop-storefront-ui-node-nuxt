@@ -5,7 +5,7 @@ defineSlots<{
 </script>
 
 <template>
-	<section>
-		<slot />
-	</section>
+  <section>
+    <slot />
+  </section>
 </template>

@@ -27,39 +27,39 @@ const alt = computed(() => {
 </script>
 
 <template>
-	<UCard class="bg-zinc-100 dark:bg-zinc-900">
-		<Anchor
-			:to="`/product${item.absoluteUrl}`"
-			class="pb-2"
-			:text="extractTranslated(item, 'name', locale)"
-		>
-			<div class="bg-zinc4:10 duration-400 z-10 block p-1 transition hover:scale-105">
-				<ImgWithFallback
-					v-if="src"
-					loading="lazy"
-					provider="mediaStream"
-					class="aspect-square h-full w-full bg-white object-cover"
-					:style="{ 'view-transition-name': `item-${item.id}`, aspectRatio: '1/1' }"
-					:width="300"
-					:height="300"
-					:fit="'contain'"
-					:position="'entropy'"
-					:background="'ffffff'"
-					:trim-threshold="5"
-					:sizes="`xs:532px sm:520px md:288px lg:253px xl:236px xxl:300px 2xl:300px`"
-					:src="src"
-					:alt="alt"
-					densities="x1"
-				/>
-				<div v-else class="op10 flex h-full">
-					<div class="text-4xl">
-						<IconFa6Solid:circleQuestion />
-					</div>
-				</div>
-			</div>
-			<div class="mt-2">
-				{{ extractTranslated(item, 'name', locale) }}
-			</div>
-		</Anchor>
-	</UCard>
+  <UCard class="bg-zinc-100 dark:bg-zinc-900">
+    <Anchor
+      :to="`/product${item.absoluteUrl}`"
+      class="pb-2"
+      :text="extractTranslated(item, 'name', locale)"
+    >
+      <div class="bg-zinc4:10 duration-400 z-10 block p-1 transition hover:scale-105">
+        <ImgWithFallback
+          v-if="src"
+          loading="lazy"
+          provider="mediaStream"
+          class="aspect-square h-full w-full bg-white object-cover"
+          :style="{ 'view-transition-name': `item-${item.id}`, aspectRatio: '1/1' }"
+          :width="300"
+          :height="300"
+          :fit="'contain'"
+          :position="'entropy'"
+          :background="'ffffff'"
+          :trim-threshold="5"
+          :sizes="`xs:532px sm:520px md:288px lg:253px xl:236px xxl:300px 2xl:300px`"
+          :src="src"
+          :alt="alt"
+          densities="x1"
+        />
+        <div v-else class="op10 flex h-full">
+          <div class="text-4xl">
+            <IconFa6Solid:circleQuestion />
+          </div>
+        </div>
+      </div>
+      <div class="mt-2">
+        {{ extractTranslated(item, 'name', locale) }}
+      </div>
+    </Anchor>
+  </UCard>
 </template>

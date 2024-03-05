@@ -108,15 +108,15 @@ defineOgImageComponent('NuxtSeo', ogImageOptions)
 </script>
 
 <template>
-	<div id="#app" class="app">
-		<NuxtPwaManifest />
-		<LoadingIndicator />
-		<NuxtLayout>
-			<NuxtPage />
-		</NuxtLayout>
-		<Pwa />
-		<CookieControl />
-		<UNotifications />
-		<DebugTools />
-	</div>
+  <div id="#app" class="app">
+    <NuxtPwaManifest />
+    <LoadingIndicator />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+    <Pwa />
+    <CookieControl />
+    <UNotifications />
+    <DebugTools />
+  </div>
 </template>

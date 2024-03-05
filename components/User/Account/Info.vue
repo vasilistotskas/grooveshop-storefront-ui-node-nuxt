@@ -27,81 +27,81 @@ defineProps({
 </script>
 
 <template>
-	<div class="user-info">
-		<div class="user-info-container">
-			<div class="user-info-avatar">
-				<UserAvatar
-					:user-account="account"
-					:img-width="135"
-					:img-height="135"
-					:show-name="false"
-					:background-border="true"
-					:change-avatar="true"
-				/>
-			</div>
-			<div class="user-info-name">
-				<h2
-					v-if="account?.firstName || account?.lastName"
-					class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
-				>
-					{{ account.firstName }} {{ account.lastName }}
-				</h2>
-			</div>
-			<div class="user-info-stats">
-				<div v-if="ordersCount" class="user-info-stats-item">
-					<Anchor
-						class="user-info-stats-item-link"
-						:to="`/account/orders`"
-						:title="$t('pages.account.orders.title')"
-					>
-						<IconMdi:packageVariantClosed
-							class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
-						/>
-						<span class="text-primary-500 dark:text-primary-400">{{
-							$t('pages.account.orders.title')
-						}}</span>
-						<span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
-							ordersCount
-						}}</span>
-					</Anchor>
-				</div>
-				<div v-if="favouritesCount" class="user-info-stats-item">
-					<Anchor
-						class="user-info-stats-item-link"
-						:to="`/account/favourites`"
-						:title="$t('pages.account.favourites.title')"
-					>
-						<IconMdi:heartOutline
-							class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
-						/>
-						<span class="text-primary-500 dark:text-primary-400">{{
-							$t('pages.account.favourites.title')
-						}}</span>
-						<span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
-							favouritesCount
-						}}</span>
-					</Anchor>
-				</div>
-				<div v-if="reviewsCount" class="user-info-stats-item">
-					<Anchor
-						class="user-info-stats-item-link"
-						:to="`/account/reviews`"
-						:title="$t('pages.account.reviews.title')"
-					>
-						<IconMdi:starOutline
-							class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
-						/>
-						<span class="text-primary-500 dark:text-primary-400">{{
-							$t('pages.account.reviews.title')
-						}}</span>
-						<span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
-							reviewsCount
-						}}</span>
-					</Anchor>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="user-info">
+    <div class="user-info-container">
+      <div class="user-info-avatar">
+        <UserAvatar
+          :user-account="account"
+          :img-width="135"
+          :img-height="135"
+          :show-name="false"
+          :background-border="true"
+          :change-avatar="true"
+        />
+      </div>
+      <div class="user-info-name">
+        <h2
+          v-if="account?.firstName || account?.lastName"
+          class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+        >
+          {{ account.firstName }} {{ account.lastName }}
+        </h2>
+      </div>
+      <div class="user-info-stats">
+        <div v-if="ordersCount" class="user-info-stats-item">
+          <Anchor
+            class="user-info-stats-item-link"
+            :to="`/account/orders`"
+            :title="$t('pages.account.orders.title')"
+          >
+            <IconMdi:packageVariantClosed
+              class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
+            />
+            <span class="text-primary-500 dark:text-primary-400">{{
+              $t('pages.account.orders.title')
+            }}</span>
+            <span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
+              ordersCount
+            }}</span>
+          </Anchor>
+        </div>
+        <div v-if="favouritesCount" class="user-info-stats-item">
+          <Anchor
+            class="user-info-stats-item-link"
+            :to="`/account/favourites`"
+            :title="$t('pages.account.favourites.title')"
+          >
+            <IconMdi:heartOutline
+              class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
+            />
+            <span class="text-primary-500 dark:text-primary-400">{{
+              $t('pages.account.favourites.title')
+            }}</span>
+            <span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
+              favouritesCount
+            }}</span>
+          </Anchor>
+        </div>
+        <div v-if="reviewsCount" class="user-info-stats-item">
+          <Anchor
+            class="user-info-stats-item-link"
+            :to="`/account/reviews`"
+            :title="$t('pages.account.reviews.title')"
+          >
+            <IconMdi:starOutline
+              class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
+            />
+            <span class="text-primary-500 dark:text-primary-400">{{
+              $t('pages.account.reviews.title')
+            }}</span>
+            <span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
+              reviewsCount
+            }}</span>
+          </Anchor>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>

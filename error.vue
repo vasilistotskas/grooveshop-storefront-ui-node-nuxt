@@ -16,7 +16,6 @@ const colorMode = useColorMode()
 
 const themeClass = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
 const themeColor = computed(() => (colorMode.value === 'dark' ? '#1a202c' : '#ffffff'))
-const handleError = () => clearError({ redirect: '/' })
 const { isMobile, isTablet } = useDevice()
 const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
 const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
@@ -37,39 +36,39 @@ useSeoMeta(seoMetaOptions)
 </script>
 
 <template>
-	<div class="grid bg-zinc-100 dark:bg-zinc-900">
-		<PageHeader>
-			<PageNavbar />
-		</PageHeader>
-		<div class="grid min-h-screen">
-			<div class="flex flex-col items-center justify-center gap-2 p-6">
-				<h2
-					class="text-primary-700 dark:text-primary-100 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
-				>
-					<strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
-					<span>
-						{{ $t('pages.error.page.not.found') }}
-					</span>
-				</h2>
-				<p class="text-primary-700 dark:text-primary-100">
-					{{ $t('pages.error.go.home') }}
-				</p>
-				<NuxtLink to="/" class="mt-2 block font-bold text-blue-500 hover:underline">
-					{{ $t('pages.error.home') }}
-				</NuxtLink>
-				<div class="grid items-center justify-center">
-					<LazyLottie
-						class="mt-6 grid"
-						:animation-data="Json404"
-						:width="lottieWidth"
-						:height="lottieHeight"
-						:show-client-loading-animation="false"
-					/>
-				</div>
-			</div>
-		</div>
-		<div id="app-after">
-			<slot name="app-after" />
-		</div>
-	</div>
+  <div class="grid bg-zinc-100 dark:bg-zinc-900">
+    <PageHeader>
+      <PageNavbar />
+    </PageHeader>
+    <div class="grid min-h-screen">
+      <div class="flex flex-col items-center justify-center gap-2 p-6">
+        <h2
+          class="text-primary-700 dark:text-primary-100 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
+        >
+          <strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
+          <span>
+            {{ $t('pages.error.page.not.found') }}
+          </span>
+        </h2>
+        <p class="text-primary-700 dark:text-primary-100">
+          {{ $t('pages.error.go.home') }}
+        </p>
+        <NuxtLink to="/" class="mt-2 block font-bold text-blue-500 hover:underline">
+          {{ $t('pages.error.home') }}
+        </NuxtLink>
+        <div class="grid items-center justify-center">
+          <LazyLottie
+            class="mt-6 grid"
+            :animation-data="Json404"
+            :width="lottieWidth"
+            :height="lottieHeight"
+            :show-client-loading-animation="false"
+          />
+        </div>
+      </div>
+    </div>
+    <div id="app-after">
+      <slot name="app-after" />
+    </div>
+  </div>
 </template>

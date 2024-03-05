@@ -34,7 +34,7 @@ const isRegExpArray = (v: any): v is RegExp[] =>
 function createRule<T>(
 	propertyPath: keyof T | string,
 	validators: Validator<any>[],
-	optional: boolean = false
+	optional = false
 ): Rule<T> {
 	return { property: propertyPath, validators, optional }
 }

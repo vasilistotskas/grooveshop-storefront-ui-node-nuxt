@@ -71,48 +71,48 @@ const categoryImageSource = computed(() => {
 </script>
 
 <template>
-	<li
-		:class="{
-			'grid w-full rounded border border-gray-700 p-2 md:border-transparent md:p-0': true,
-			'bg-white dark:bg-zinc-800': isCategorySelected
-		}"
-	>
-		<Anchor
-			:to="toUrl"
-			:text="categoryName"
-			class="group grid w-full grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
-			@click.prevent="() => emit('categoryClick', category)"
-		>
-			<div
-				class="flex h-[48px] w-[48px] items-center rounded-full bg-zinc-100 dark:bg-zinc-900"
-			>
-				<ImgWithFallback
-					provider="mediaStream"
-					class="h-auto w-full rounded-full bg-zinc-100 object-cover dark:bg-zinc-900"
-					:style="{ contentVisibility: 'auto' }"
-					:src="categoryImageSource"
-					:width="48"
-					:height="48"
-					:fit="'contain'"
-					:position="'entropy'"
-					:background="'transparent'"
-					:trim-threshold="5"
-					sizes="`xs:48px sm:48px md:48px lg:48px xl:48px xxl:48px 2xl:48px`"
-					:alt="categoryName"
-					densities="x1"
-				/>
-			</div>
-			<div class="flex items-center">
-				<span
-					class="text-primary-700 dark:text-primary-100 w-full text-xl capitalize md:text-lg"
-				>
-					{{ categoryName }}
-				</span>
-				<IconFa6Solid:circleCheck
-					v-if="isCategorySelected"
-					class="text-green-500 dark:text-green-400"
-				/>
-			</div>
-		</Anchor>
-	</li>
+  <li
+    :class="{
+      'grid w-full rounded border border-gray-700 p-2 md:border-transparent md:p-0': true,
+      'bg-white dark:bg-zinc-800': isCategorySelected
+    }"
+  >
+    <Anchor
+      :to="toUrl"
+      :text="categoryName"
+      class="group grid w-full grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
+      @click.prevent="() => emit('categoryClick', category)"
+    >
+      <div
+        class="flex h-[48px] w-[48px] items-center rounded-full bg-zinc-100 dark:bg-zinc-900"
+      >
+        <ImgWithFallback
+          provider="mediaStream"
+          class="h-auto w-full rounded-full bg-zinc-100 object-cover dark:bg-zinc-900"
+          :style="{ contentVisibility: 'auto' }"
+          :src="categoryImageSource"
+          :width="48"
+          :height="48"
+          :fit="'contain'"
+          :position="'entropy'"
+          :background="'transparent'"
+          :trim-threshold="5"
+          sizes="`xs:48px sm:48px md:48px lg:48px xl:48px xxl:48px 2xl:48px`"
+          :alt="categoryName"
+          densities="x1"
+        />
+      </div>
+      <div class="flex items-center">
+        <span
+          class="text-primary-700 dark:text-primary-100 w-full text-xl capitalize md:text-lg"
+        >
+          {{ categoryName }}
+        </span>
+        <IconFa6Solid:circleCheck
+          v-if="isCategorySelected"
+          class="text-green-500 dark:text-green-400"
+        />
+      </div>
+    </Anchor>
+  </li>
 </template>

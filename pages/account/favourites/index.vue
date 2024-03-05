@@ -10,20 +10,20 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-4 md:gap-8">
-		<PageHeader>
-			<PageTitle :text="$t('pages.account.favourites.title')" />
-		</PageHeader>
-		<PageBody>
-			<FavouriteList
-				v-if="favouriteProducts && favouriteProducts.length"
-				:favourites="favouriteProducts"
-			/>
-			<EmptyState v-if="!favouriteProducts" :icon="emptyIcon">
-				<template #actions>
-					<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
-				</template>
-			</EmptyState>
-		</PageBody>
-	</PageWrapper>
+  <PageWrapper class="container flex flex-col gap-4 md:gap-8">
+    <PageHeader>
+      <PageTitle :text="$t('pages.account.favourites.title')" />
+    </PageHeader>
+    <PageBody>
+      <FavouriteList
+        v-if="favouriteProducts && favouriteProducts.length"
+        :favourites="favouriteProducts"
+      />
+      <EmptyState v-if="!favouriteProducts" :icon="emptyIcon">
+        <template #actions>
+          <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+        </template>
+      </EmptyState>
+    </PageBody>
+  </PageWrapper>
 </template>

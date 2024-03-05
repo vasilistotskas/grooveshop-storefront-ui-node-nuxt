@@ -1,86 +1,88 @@
 <template>
-	<UForm
-		:id="finalID"
-		class="w-full space-y-4"
-		:state="fields"
-		autocomplete="on"
-		@submit="onSubmit"
-	>
-		<div v-if="isMultiStep" class="grid items-center justify-center">
-			<span class="text-xl font-semibold">{{ schema.steps?.[currentStep].title }}</span>
-		</div>
+  <UForm
+    :id="finalID"
+    class="w-full space-y-4"
+    :state="fields"
+    autocomplete="on"
+    @submit="onSubmit"
+  >
+    <div v-if="isMultiStep" class="grid items-center justify-center">
+      <span class="text-xl font-semibold">{{ schema.steps?.[currentStep].title }}</span>
+    </div>
 
-		<UFormGroup
-			v-for="{
-				as,
-				name,
-				label,
-				autocomplete = 'off',
-				readonly = false,
-				required = false,
-				placeholder = '',
-				type = 'text',
-				children = []
-			} in filteredFields"
-			:key="name"
-			v-model="fields[name][0].value"
-			:label="label"
-			:name="name"
-			v-bind="fields[name][1].value"
-		>
-			<label v-if="as === 'input'" :for="name" class="sr-only">{{ label }}</label>
-			<UInput
-				v-bind="fields[name][1].value"
-				:id="name"
-				v-model="fields[name][0].value"
-				:as="as"
-				:name="name"
-				:autocomplete="autocomplete"
-				:aria-readonly="readonly"
-				:readonly="readonly"
-				:required="required"
-				:placeholder="
-					type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
-				"
-				:type="type"
-				:disabled="disabledFields[name]"
-				class="grid gap-1"
-			>
-				<div v-if="children">
-					<LazyDynamicFormChildren :children="children" />
-				</div>
-			</UInput>
-		</UFormGroup>
+    <UFormGroup
+      v-for="{
+        as,
+        name,
+        label,
+        autocomplete = 'off',
+        readonly = false,
+        required = false,
+        placeholder = '',
+        type = 'text',
+        children = []
+      } in filteredFields"
+      :key="name"
+      v-model="fields[name][0].value"
+      :label="label"
+      :name="name"
+      v-bind="fields[name][1].value"
+    >
+      <label v-if="as === 'input'" :for="name" class="sr-only">{{ label }}</label>
+      <UInput
+        v-bind="fields[name][1].value"
+        :id="name"
+        v-model="fields[name][0].value"
+        :as="as"
+        :name="name"
+        :autocomplete="autocomplete"
+        :aria-readonly="readonly"
+        :readonly="readonly"
+        :required="required"
+        :placeholder="
+          type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
+        "
+        :type="type"
+        :disabled="disabledFields[name]"
+        class="grid gap-1"
+      >
+        <div v-if="children">
+          <LazyDynamicFormChildren :children="children" />
+        </div>
+      </UInput>
+    </UFormGroup>
 
-		<LazyDynamicFormNavigation
-			v-if="isMultiStep"
-			:current-step="currentStep"
-			:last-step="lastStep"
-			:next-step-button-disabled="nextStepButtonDisabled"
-			:submit-label="buttonLabel"
-			@go-to-next-step="goToNextStep"
-			@go-to-previous-step="goToPreviousStep"
-		/>
+    <LazyDynamicFormNavigation
+      v-if="isMultiStep"
+      :current-step="currentStep"
+      :last-step="lastStep"
+      :next-step-button-disabled="nextStepButtonDisabled"
+      :submit-label="buttonLabel"
+      @go-to-next-step="goToNextStep"
+      @go-to-previous-step="goToPreviousStep"
+    />
 
-		<LazyUButton
-			v-if="!isMultiStep && submitButton"
-			:aria-busy="isSubmitting"
-			:disabled="submitButtonDisabled"
-			type="submit"
-			color="white"
-			>{{ buttonLabel }}</LazyUButton
-		>
+    <LazyUButton
+      v-if="!isMultiStep && submitButton"
+      :aria-busy="isSubmitting"
+      :disabled="submitButtonDisabled"
+      type="submit"
+      color="white"
+    >
+      {{ buttonLabel }}
+    </LazyUButton>
 
-		<LazyUButton
-			v-if="!isMultiStep && resetButton"
-			class="ml-4"
-			color="white"
-			variant="outline"
-			type="button"
-			@click="resetForm"
-			>{{ resetLabel }}</LazyUButton
-		>
-	</UForm>
+    <LazyUButton
+      v-if="!isMultiStep && resetButton"
+      class="ml-4"
+      color="white"
+      variant="outline"
+      type="button"
+      @click="resetForm"
+    >
+      {{ resetLabel }}
+    </LazyUButton>
+  </UForm>
 </template>
 
 <script lang="ts" setup>
@@ -94,7 +96,7 @@ import type {
 	DynamicFormState,
 	FormValues
 } from '~/types/form'
-import { mergeWithEffect, mergeWithEffects } from '~/types/zod'
+import { mergeWithEffect } from '~/types/zod'
 
 // Define the UI configuration for Nuxt-UI
 const nuxtUiConfig = (state: DynamicFormState) => {

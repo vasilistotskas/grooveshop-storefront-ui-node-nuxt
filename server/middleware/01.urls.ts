@@ -5,6 +5,7 @@ export default defineEventHandler((event) => {
 	const query = urlQuery
 		?.split('&')
 		.filter((param) => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const [key, value] = param.split('=')
 			return value !== 'undefined' && value !== 'null'
 		})

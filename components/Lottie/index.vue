@@ -1,24 +1,24 @@
 <template :style="getCurrentStyle">
-	<ClientOnly>
-		<Component
-			:is="componentElement"
-			:data-id="elementId"
-			class="lottie-animation-container circle"
-			v-bind="$attrs"
-			aria-label="Lottie animation"
-			@mouseenter="hoverStarted"
-			@mouseleave="hoverEnded"
-		>
-			<span class="sr-only"></span>
-		</Component>
-		<template #fallback>
-			<ClientOnlyFallback
-				:width="width"
-				:height="height"
-				:show-animation="showClientLoadingAnimation"
-			/>
-		</template>
-	</ClientOnly>
+  <ClientOnly>
+    <Component
+      :is="componentElement"
+      :data-id="elementId"
+      class="lottie-animation-container circle"
+      v-bind="$attrs"
+      aria-label="Lottie animation"
+      @mouseenter="hoverStarted"
+      @mouseleave="hoverEnded"
+    >
+      <span class="sr-only" />
+    </Component>
+    <template #fallback>
+      <ClientOnlyFallback
+        :width="width"
+        :height="height"
+        :show-animation="showClientLoadingAnimation"
+      />
+    </template>
+  </ClientOnly>
 </template>
 
 <script lang="ts">

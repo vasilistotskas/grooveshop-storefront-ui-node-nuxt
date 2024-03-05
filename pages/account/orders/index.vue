@@ -10,17 +10,17 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-4 md:gap-8">
-		<PageHeader>
-			<PageTitle :text="$t('pages.account.orders.title')" />
-		</PageHeader>
-		<PageBody>
-			<OrderList v-if="orders && orders.length" :orders="orders" />
-			<EmptyState v-if="!orders" :icon="emptyIcon">
-				<template #actions>
-					<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
-				</template>
-			</EmptyState>
-		</PageBody>
-	</PageWrapper>
+  <PageWrapper class="container flex flex-col gap-4 md:gap-8">
+    <PageHeader>
+      <PageTitle :text="$t('pages.account.orders.title')" />
+    </PageHeader>
+    <PageBody>
+      <OrderList v-if="orders && orders.length" :orders="orders" />
+      <EmptyState v-if="!orders" :icon="emptyIcon">
+        <template #actions>
+          <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+        </template>
+      </EmptyState>
+    </PageBody>
+  </PageWrapper>
 </template>

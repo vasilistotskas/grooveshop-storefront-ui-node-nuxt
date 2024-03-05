@@ -5,5 +5,5 @@ defineSlots<{
 </script>
 
 <template>
-	<slot />
+  <slot />
 </template>

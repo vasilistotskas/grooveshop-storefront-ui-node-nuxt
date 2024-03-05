@@ -171,8 +171,6 @@ defineSlots<{
 defineEmits(['submit'])
 
 const {
-	id,
-	name,
 	class: className,
 	shouldModalStartInOpenState,
 	uniqueId,
@@ -181,8 +179,6 @@ const {
 	closeBtnPosition,
 	hasHeader,
 	hasFooter,
-	openDispatchEvent,
-	closeDispatchEvent,
 	width,
 	height,
 	maxWidth,
@@ -194,7 +190,6 @@ const {
 	modalCloseTriggerHandlerId,
 	modalOpenedTriggerHandlerId,
 	modalClosedTriggerHandlerId,
-	exitModalIconClass,
 	position,
 	backgroundBlur,
 	borderRadius,
@@ -241,99 +236,99 @@ onMounted(() => {
 </script>
 
 <template>
-	<Teleport to="body">
-		<div
-			:class="`cp-utilities-generic-modal-wrapper ${
-				isModalCurrentlyOpen ? 'open' : 'closed'
-			}`"
-		>
-			<div
-				class="cp-utilities-generic-modal-overlay"
-				:style="`backdrop-filter:${backgroundBlur};`"
-				@click="handleOverlayClick"
-			>
-				<svg
-					class="cp-utilities-generic-modal-overlay-static"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<filter :id="getMyId">
-						<feTurbulence
-							type="fractalNoise"
-							baseFrequency="0.68"
-							numOctaves="1"
-							stitchTiles="stitch"
-						/>
-					</filter>
-					<rect width="100%" height="100%" :filter="`url(#${getMyId})`" />
-				</svg>
-			</div>
-			<button
-				v-if="closeBtn && closeBtnPosition === 'out'"
-				:style="`color: ${closeBtnColor}`"
-				class="cp-utilities-generic-modal-overlay-close"
-				type="button"
-				aria-label="Close"
-				@click="closeModal"
-			>
-				<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
-				<UIcon name="i-heroicons-x-circle" />
-			</button>
-			<template v-if="isForm">
-				<form
-					:id="formId"
-					class="cp-utilities-generic-modal"
-					:class="className"
-					:name="formName"
-					@submit="$emit('submit', $event)"
-				>
-					<div v-if="hasHeader" class="cp-utilities-generic-modal-header">
-						<slot name="header" />
-					</div>
-					<div class="cp-utilities-generic-modal-body">
-						<slot />
-					</div>
-					<div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
-						<slot name="footer" />
-					</div>
-					<button
-						v-if="closeBtn && closeBtnPosition === 'in'"
-						:style="`color: ${closeBtnColor}`"
-						class="cp-utilities-generic-modal-overlay-close"
-						type="button"
-						aria-label="Close"
-						@click="closeModal"
-					>
-						<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
-						<UIcon name="i-heroicons-x-circle" />
-					</button>
-				</form>
-			</template>
-			<template v-else>
-				<div class="cp-utilities-generic-modal" :class="className">
-					<div v-if="hasHeader" class="cp-utilities-generic-modal-header">
-						<slot name="header" />
-					</div>
-					<div class="cp-utilities-generic-modal-body">
-						<slot />
-					</div>
-					<div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
-						<slot name="footer" />
-					</div>
-					<button
-						v-if="closeBtn && closeBtnPosition === 'in'"
-						:style="`color: ${closeBtnColor}`"
-						class="cp-utilities-generic-modal-overlay-close"
-						type="button"
-						aria-label="Close"
-						@click="closeModal"
-					>
-						<span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
-						<UIcon name="i-heroicons-x-circle" />
-					</button>
-				</div>
-			</template>
-		</div>
-	</Teleport>
+  <Teleport to="body">
+    <div
+      :class="`cp-utilities-generic-modal-wrapper ${
+        isModalCurrentlyOpen ? 'open' : 'closed'
+      }`"
+    >
+      <div
+        class="cp-utilities-generic-modal-overlay"
+        :style="`backdrop-filter:${backgroundBlur};`"
+        @click="handleOverlayClick"
+      >
+        <svg
+          class="cp-utilities-generic-modal-overlay-static"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <filter :id="getMyId">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.68"
+              numOctaves="1"
+              stitchTiles="stitch"
+            />
+          </filter>
+          <rect width="100%" height="100%" :filter="`url(#${getMyId})`" />
+        </svg>
+      </div>
+      <button
+        v-if="closeBtn && closeBtnPosition === 'out'"
+        :style="`color: ${closeBtnColor}`"
+        class="cp-utilities-generic-modal-overlay-close"
+        type="button"
+        aria-label="Close"
+        @click="closeModal"
+      >
+        <span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
+        <UIcon name="i-heroicons-x-circle" />
+      </button>
+      <template v-if="isForm">
+        <form
+          :id="formId"
+          class="cp-utilities-generic-modal"
+          :class="className"
+          :name="formName"
+          @submit="$emit('submit', $event)"
+        >
+          <div v-if="hasHeader" class="cp-utilities-generic-modal-header">
+            <slot name="header" />
+          </div>
+          <div class="cp-utilities-generic-modal-body">
+            <slot />
+          </div>
+          <div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
+            <slot name="footer" />
+          </div>
+          <button
+            v-if="closeBtn && closeBtnPosition === 'in'"
+            :style="`color: ${closeBtnColor}`"
+            class="cp-utilities-generic-modal-overlay-close"
+            type="button"
+            aria-label="Close"
+            @click="closeModal"
+          >
+            <span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
+            <UIcon name="i-heroicons-x-circle" />
+          </button>
+        </form>
+      </template>
+      <template v-else>
+        <div class="cp-utilities-generic-modal" :class="className">
+          <div v-if="hasHeader" class="cp-utilities-generic-modal-header">
+            <slot name="header" />
+          </div>
+          <div class="cp-utilities-generic-modal-body">
+            <slot />
+          </div>
+          <div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
+            <slot name="footer" />
+          </div>
+          <button
+            v-if="closeBtn && closeBtnPosition === 'in'"
+            :style="`color: ${closeBtnColor}`"
+            class="cp-utilities-generic-modal-overlay-close"
+            type="button"
+            aria-label="Close"
+            @click="closeModal"
+          >
+            <span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
+            <UIcon name="i-heroicons-x-circle" />
+          </button>
+        </div>
+      </template>
+    </div>
+  </Teleport>
 </template>
 
 <style lang="scss" scoped>

@@ -25,37 +25,37 @@ defineSlots<{
 </script>
 
 <template>
-	<NuxtLinkLocale
-		v-if="to"
-		tag="a"
-		:to="to"
-		:aria-label="text"
-		:class="[
-			cssClass,
-			`hover:text-primary-900 transition-colors duration-300 dark:hover:text-white`
-		]"
-	>
-		<slot>{{ text }}</slot>
-	</NuxtLinkLocale>
-	<ULink
-		v-else
-		:aria-label="text"
-		:active-class="
-			[
-				cssClass,
-				`transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
-			].join(' ')
-		"
-		:inactive-class="
-			[
-				cssClass,
-				`text-gray-700 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200`
-			].join(' ')
-		"
-		:to="href"
-	>
-		<slot>{{ text }}</slot>
-	</ULink>
+  <NuxtLinkLocale
+    v-if="to"
+    tag="a"
+    :to="to"
+    :aria-label="text"
+    :class="[
+      cssClass,
+      `hover:text-primary-900 transition-colors duration-300 dark:hover:text-white`
+    ]"
+  >
+    <slot>{{ text }}</slot>
+  </NuxtLinkLocale>
+  <ULink
+    v-else
+    :aria-label="text"
+    :active-class="
+      [
+        cssClass,
+        `transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
+      ].join(' ')
+    "
+    :inactive-class="
+      [
+        cssClass,
+        `text-gray-700 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200`
+      ].join(' ')
+    "
+    :to="href"
+  >
+    <slot>{{ text }}</slot>
+  </ULink>
 </template>
 
 <style lang="scss" scoped>

@@ -55,7 +55,7 @@ export const ZodBlogCommentPutBody = z.object({
 	translations: ZodBlogCommentTranslations
 })
 
-export const ZodBlogCommentUserHadCommentedBody = z.object({
+export const ZodBlogCommentUserBlogCommentBody = z.object({
 	post: z.string(),
 	user: z.string()
 })
@@ -73,6 +73,6 @@ export type BlogCommentCreateBody = z.infer<typeof ZodBlogCommentCreateBody>
 export type BlogCommentCreateQuery = z.infer<typeof ZodBlogCommentCreateQuery>
 export type BlogCommentPutBody = z.infer<typeof ZodBlogCommentPutBody>
 export type BlogCommentOrderingField = 'id' | 'userId' | 'postId' | 'createdAt'
-export type BlogCommentUserHadCommentedBody = z.infer<
-	typeof ZodBlogCommentUserHadCommentedBody
+export type BlogCommentUserBlogCommentBody = z.infer<
+	typeof ZodBlogCommentUserBlogCommentBody
 >

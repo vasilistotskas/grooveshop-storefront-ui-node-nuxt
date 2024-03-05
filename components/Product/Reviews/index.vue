@@ -92,49 +92,49 @@ watch(
 </script>
 
 <template>
-	<div
-		class="container-sm text-primary-700 dark:text-primary-100 border-t border-gray-900/10 p-6 dark:border-gray-50/20"
-	>
-		<template v-if="!pending && data?.results && data?.results?.length > 0">
-			<div class="grid gap-4">
-				<h2 class="text-2xl font-semibold">
-					{{ $t('components.product.reviews.title') }}
-				</h2>
-				<div class="grid justify-start gap-4 md:flex md:items-center">
-					<div class="grid">
-						<PaginationPageNumber
-							v-if="pagination"
-							:count="pagination.count"
-							:total-pages="pagination.totalPages"
-							:page-total-results="pagination.pageTotalResults"
-							:page-size="pagination.pageSize"
-							:page="pagination.page"
-							:links="pagination.links"
-						/>
-					</div>
-					<div class="grid">
-						<Ordering
-							:ordering="String(ordering)"
-							:ordering-options="orderingOptions.orderingOptionsArray.value"
-						></Ordering>
-					</div>
-				</div>
-			</div>
-			<div class="grid">
-				<div class="grid gap-4">
-					<ProductReviewsList
-						:reviews-average="reviewsAverage"
-						:reviews-count="reviewsCount"
-						:reviews="data.results"
-						:display-image-of="displayImageOf"
-					/>
-					<EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
-						<template #actions>
-							<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
-						</template>
-					</EmptyState>
-				</div>
-			</div>
-		</template>
-	</div>
+  <div
+    class="container-sm text-primary-700 dark:text-primary-100 border-t border-gray-900/10 p-6 dark:border-gray-50/20"
+  >
+    <template v-if="!pending && data?.results && data?.results?.length > 0">
+      <div class="grid gap-4">
+        <h2 class="text-2xl font-semibold">
+          {{ $t('components.product.reviews.title') }}
+        </h2>
+        <div class="grid justify-start gap-4 md:flex md:items-center">
+          <div class="grid">
+            <PaginationPageNumber
+              v-if="pagination"
+              :count="pagination.count"
+              :total-pages="pagination.totalPages"
+              :page-total-results="pagination.pageTotalResults"
+              :page-size="pagination.pageSize"
+              :page="pagination.page"
+              :links="pagination.links"
+            />
+          </div>
+          <div class="grid">
+            <Ordering
+              :ordering="String(ordering)"
+              :ordering-options="orderingOptions.orderingOptionsArray.value"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="grid gap-4">
+          <ProductReviewsList
+            :reviews-average="reviewsAverage"
+            :reviews-count="reviewsCount"
+            :reviews="data.results"
+            :display-image-of="displayImageOf"
+          />
+          <EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
+            <template #actions>
+              <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+            </template>
+          </EmptyState>
+        </div>
+      </div>
+    </template>
+  </div>
 </template>

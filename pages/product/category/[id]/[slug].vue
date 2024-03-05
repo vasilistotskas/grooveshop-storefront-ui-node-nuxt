@@ -8,7 +8,7 @@ const categoryId = route.params.id
 
 const { data: categories } = useNuxtData<Pagination<ProductCategory>>('productCategories')
 
-const { data } = await useLazyAsyncData(
+await useLazyAsyncData(
 	`category${categoryId}`,
 	() =>
 		$fetch<ProductCategory>(`/api/products/categories/${categoryId}`, {
@@ -29,12 +29,12 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="flex flex-col">
-		<PageHeader>
-			<PageTitle :text="$t('pages.category.title')" class="capitalize" />
-		</PageHeader>
-		<PageBody>
-			<div></div>
-		</PageBody>
-	</PageWrapper>
+  <PageWrapper class="flex flex-col">
+    <PageHeader>
+      <PageTitle :text="$t('pages.category.title')" class="capitalize" />
+    </PageHeader>
+    <PageBody>
+      <div />
+    </PageBody>
+  </PageWrapper>
 </template>

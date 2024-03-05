@@ -11,9 +11,9 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="text-2xl font-bold md:text-4xl">
-		<h2 class="text-primary-700 dark:text-primary-100">
-			<slot>{{ text }}</slot>
-		</h2>
-	</div>
+  <div class="text-2xl font-bold md:text-4xl">
+    <h2 class="text-primary-700 dark:text-primary-100">
+      <slot>{{ text }}</slot>
+    </h2>
+  </div>
 </template>

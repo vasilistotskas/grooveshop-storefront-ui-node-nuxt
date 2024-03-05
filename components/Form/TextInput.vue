@@ -89,38 +89,38 @@ const selectedFontSizeStyle = computed(
 </script>
 
 <template>
-	<div :class="`text-input-container relative flex`">
-		<div
-			v-if="slots['prefix-disabled']"
-			:class="`text-primary-500 flex rounded-l border bg-zinc-100 dark:bg-zinc-800 ${selectedBorderStyle}`"
-		>
-			<slot name="prefix-disabled" />
-		</div>
-		<div v-if="slots.prefix" :class="`flex rounded-l border ${selectedBorderStyle}`">
-			<slot name="prefix" />
-		</div>
-		<div class="text-input-wrapper relative flex flex-1">
-			<label :for="id" class="sr-only"> {{ name }}</label>
-			<input
-				:id="id"
-				v-model="modelValue"
-				v-bind="bind"
-				:name="name"
-				:class="`text-input text-primary-700 dark:text-primary-100 w-full flex-1 border bg-transparent outline-none ${
-					havePreEl ? '' : 'rounded-l'
-				} ${
-					haveSuEl ? '' : 'rounded-r'
-				} ${selectedBorderStyle} ${selectedOnHoverBorderStyle} ${selectedPaddingStyle} ${selectedFontSizeStyle}`"
-				:type="type"
-				:placeholder="
-					type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
-				"
-				:required="required"
-				:autocomplete="autocomplete"
-			/>
-		</div>
-		<div v-if="slots.suffix" :class="`flex rounded-r border ${selectedBorderStyle}`">
-			<slot name="suffix" />
-		</div>
-	</div>
+  <div :class="`text-input-container relative flex`">
+    <div
+      v-if="slots['prefix-disabled']"
+      :class="`text-primary-500 flex rounded-l border bg-zinc-100 dark:bg-zinc-800 ${selectedBorderStyle}`"
+    >
+      <slot name="prefix-disabled" />
+    </div>
+    <div v-if="slots.prefix" :class="`flex rounded-l border ${selectedBorderStyle}`">
+      <slot name="prefix" />
+    </div>
+    <div class="text-input-wrapper relative flex flex-1">
+      <label :for="id" class="sr-only"> {{ name }}</label>
+      <input
+        :id="id"
+        v-model="modelValue"
+        v-bind="bind"
+        :name="name"
+        :class="`text-input text-primary-700 dark:text-primary-100 w-full flex-1 border bg-transparent outline-none ${
+          havePreEl ? '' : 'rounded-l'
+        } ${
+          haveSuEl ? '' : 'rounded-r'
+        } ${selectedBorderStyle} ${selectedOnHoverBorderStyle} ${selectedPaddingStyle} ${selectedFontSizeStyle}`"
+        :type="type"
+        :placeholder="
+          type === 'text' || type === 'password' || type === 'email' ? placeholder : ''
+        "
+        :required="required"
+        :autocomplete="autocomplete"
+      >
+    </div>
+    <div v-if="slots.suffix" :class="`flex rounded-r border ${selectedBorderStyle}`">
+      <slot name="suffix" />
+    </div>
+  </div>
 </template>

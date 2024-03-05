@@ -7,7 +7,7 @@ import * as helpersModule from '~/tools/translator/src/helpers'
 import { translateBundle } from '~/tools/translator/src/translator'
 
 vi.mock('translate', () => ({
-	default: vi.fn((text, options) => `translated-${text}`)
+	default: vi.fn((text) => `translated-${text}`)
 }))
 vi.mock('~/tools/translator/src/helpers')
 vi.mock('~/tools/translator/src/cache')
@@ -35,7 +35,7 @@ describe('translator tests', () => {
 	})
 	it('translate should return a correctly translated object', async () => {
 		vi.mock('translate', () => ({
-			default: vi.fn().mockImplementation((text, options) => `translated-${text}`)
+			default: vi.fn().mockImplementation((text) => `translated-${text}`)
 		}))
 
 		const testFile = { hello: 'Hello' }

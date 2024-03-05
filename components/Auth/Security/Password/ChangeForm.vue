@@ -78,9 +78,9 @@ const formSchema: DynamicFormSchema = {
 </script>
 
 <template>
-	<section
-		class="container-xxs rounded border border-gray-900/10 bg-white p-0 p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800 md:px-6"
-	>
-		<DynamicForm :schema="formSchema" @submit="onSubmit" />
-	</section>
+  <section
+    class="container-xxs rounded border border-gray-900/10 bg-white p-0 p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800 md:px-6"
+  >
+    <DynamicForm :schema="formSchema" @submit="onSubmit" />
+  </section>
 </template>

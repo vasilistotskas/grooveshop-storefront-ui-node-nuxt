@@ -5,12 +5,12 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col">
-		<PageHeader>
-			<PageTitle :text="$t('pages.contact.title')" class="text-center capitalize" />
-		</PageHeader>
-		<PageBody>
-			<div></div>
-		</PageBody>
-	</PageWrapper>
+  <PageWrapper class="container flex flex-col">
+    <PageHeader>
+      <PageTitle :text="$t('pages.contact.title')" class="text-center capitalize" />
+    </PageHeader>
+    <PageBody>
+      <div />
+    </PageBody>
+  </PageWrapper>
 </template>

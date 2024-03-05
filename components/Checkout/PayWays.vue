@@ -53,96 +53,96 @@ const updatePayWay = (value: PayWay) => {
 </script>
 
 <template>
-	<div class="grid gap-4">
-		<div class="grid place-items-center">
-			<h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
-				{{ t('components.checkout.pay_ways.title') }}
-			</h3>
-		</div>
-		<RadioGroup
-			v-if="!pending && data?.results?.length"
-			id="pay-way"
-			:model-value="selectedPayWay"
-			by="id"
-			name="pay-way"
-			@update:model-value="(value) => updatePayWay(value)"
-		>
-			<RadioGroupLabel id="pay-way-label" class="sr-only">
-				{{ t('components.checkout.pay_ways.label') }}
-			</RadioGroupLabel>
-			<div class="space-y-2">
-				<RadioGroupOption
-					v-for="option in data.results"
-					:id="`pay-way-${option.id}`"
-					:key="option.id"
-					v-slot="{ active, checked }"
-					:value="option"
-					as="template"
-				>
-					<div
-						:class="[
-							active
-								? 'ring-1 ring-white ring-opacity-60 ring-offset-1 ring-offset-sky-300'
-								: '',
-							checked ? 'bg-sky-900 bg-opacity-75' : 'bg-zinc-50 dark:bg-zinc-900'
-						]"
-						class="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
-					>
-						<div
-							class="flex w-full items-center justify-between md:grid"
-							:class="checked ? 'grid-cols-3' : 'grid-cols-2'"
-						>
-							<div class="grid items-center">
-								<div class="text-sm">
-									<RadioGroupLabel
-										:id="`pay-way-${option.id}-label`"
-										:class="
-											checked ? 'text-white' : 'text-primary-700 dark:text-primary-100'
-										"
-										as="p"
-										class="font-medium"
-									>
-										{{ extractTranslated(option, 'name', locale) }}
-									</RadioGroupLabel>
-									<RadioGroupDescription
-										:id="`pay-way-${option.id}-description`"
-										:class="
-											checked ? 'text-sky-100' : 'text-primary-700 dark:text-primary-100'
-										"
-										as="span"
-										class="inline"
-									>
-										<span>{{ option.cost }}</span>
-									</RadioGroupDescription>
-								</div>
-							</div>
-							<LazyLottie
-								class="grid"
-								:animation-data="
-									getPayWayLottie(extractTranslated(option, 'name', locale))
-								"
-								:width="'40px'"
-							/>
-							<div
-								v-if="checked"
-								class="grid h-full w-full items-center justify-items-end"
-							>
-								<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
-									<circle cx="12" cy="12" fill="#fff" fill-opacity="0.2" r="12" />
-									<path
-										d="M7 13l3 3 7-7"
-										stroke="#fff"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="1.5"
-									/>
-								</svg>
-							</div>
-						</div>
-					</div>
-				</RadioGroupOption>
-			</div>
-		</RadioGroup>
-		<slot name="error" />
-	</div>
+  <div class="grid gap-4">
+    <div class="grid place-items-center">
+      <h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
+        {{ t('components.checkout.pay_ways.title') }}
+      </h3>
+    </div>
+    <RadioGroup
+      v-if="!pending && data?.results?.length"
+      id="pay-way"
+      :model-value="selectedPayWay"
+      by="id"
+      name="pay-way"
+      @update:model-value="(value) => updatePayWay(value)"
+    >
+      <RadioGroupLabel id="pay-way-label" class="sr-only">
+        {{ t('components.checkout.pay_ways.label') }}
+      </RadioGroupLabel>
+      <div class="space-y-2">
+        <RadioGroupOption
+          v-for="option in data.results"
+          :id="`pay-way-${option.id}`"
+          :key="option.id"
+          v-slot="{ active, checked }"
+          :value="option"
+          as="template"
+        >
+          <div
+            :class="[
+              active
+                ? 'ring-1 ring-white ring-opacity-60 ring-offset-1 ring-offset-sky-300'
+                : '',
+              checked ? 'bg-sky-900 bg-opacity-75' : 'bg-zinc-50 dark:bg-zinc-900'
+            ]"
+            class="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
+          >
+            <div
+              class="flex w-full items-center justify-between md:grid"
+              :class="checked ? 'grid-cols-3' : 'grid-cols-2'"
+            >
+              <div class="grid items-center">
+                <div class="text-sm">
+                  <RadioGroupLabel
+                    :id="`pay-way-${option.id}-label`"
+                    :class="
+                      checked ? 'text-white' : 'text-primary-700 dark:text-primary-100'
+                    "
+                    as="p"
+                    class="font-medium"
+                  >
+                    {{ extractTranslated(option, 'name', locale) }}
+                  </RadioGroupLabel>
+                  <RadioGroupDescription
+                    :id="`pay-way-${option.id}-description`"
+                    :class="
+                      checked ? 'text-sky-100' : 'text-primary-700 dark:text-primary-100'
+                    "
+                    as="span"
+                    class="inline"
+                  >
+                    <span>{{ option.cost }}</span>
+                  </RadioGroupDescription>
+                </div>
+              </div>
+              <LazyLottie
+                class="grid"
+                :animation-data="
+                  getPayWayLottie(extractTranslated(option, 'name', locale))
+                "
+                :width="'40px'"
+              />
+              <div
+                v-if="checked"
+                class="grid h-full w-full items-center justify-items-end"
+              >
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" fill="#fff" fill-opacity="0.2" r="12" />
+                  <path
+                    d="M7 13l3 3 7-7"
+                    stroke="#fff"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </RadioGroupOption>
+      </div>
+    </RadioGroup>
+    <slot name="error" />
+  </div>
 </template>

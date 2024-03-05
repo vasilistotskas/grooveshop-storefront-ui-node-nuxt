@@ -1,6 +1,7 @@
 type TranslationObject =
 	| ({
 			translations: Record<string, Record<string, unknown>>
+			// eslint-disable-next-line no-mixed-spaces-and-tabs
 	  } & Record<string, unknown>)
 	| null
 

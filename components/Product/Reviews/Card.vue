@@ -60,48 +60,48 @@ const reviewComment = computed(() => {
 </script>
 
 <template>
-	<div class="card">
-		<div
-			class="grid items-center justify-center justify-items-center gap-2 md:grid-cols-3 md:justify-between md:gap-14"
-		>
-			<div class="flex items-center gap-6">
-				<div class="h-auto w-auto">
-					<UserAvatar
-						v-if="userAccount && displayImageOf === 'user'"
-						:user-account="userAccount"
-					/>
-					<div v-if="displayImageOf === 'product' && product" class="grid gap-2">
-						<Anchor :to="`/product${product.absoluteUrl}`" :text="productName">
-							<ImgWithFallback
-								loading="lazy"
-								provider="mediaStream"
-								class="product-img w-30 h-20 bg-white object-cover"
-								sizes="sm:100vw md:50vw lg:auto"
-								:src="src"
-								:alt="alt"
-							/>
-						</Anchor>
-					</div>
-				</div>
-				<div class="grid gap-4 text-2xl">
-					<Anchor
-						v-if="displayImageOf === 'product' && product"
-						:to="`/product${product.absoluteUrl}`"
-						:text="productName"
-					>
-						<span class="text-lg font-medium">{{ productName }}</span>
-					</Anchor>
-					<Rating :rate="review.rate" />
-				</div>
-			</div>
-			<div class="grid h-full w-full">
-				<span>{{ reviewComment }}</span>
-			</div>
-			<div class="flex justify-end">
-				<div class="text-xs">
-					<NuxtTime :datetime="review.createdAt" />
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="card">
+    <div
+      class="grid items-center justify-center justify-items-center gap-2 md:grid-cols-3 md:justify-between md:gap-14"
+    >
+      <div class="flex items-center gap-6">
+        <div class="h-auto w-auto">
+          <UserAvatar
+            v-if="userAccount && displayImageOf === 'user'"
+            :user-account="userAccount"
+          />
+          <div v-if="displayImageOf === 'product' && product" class="grid gap-2">
+            <Anchor :to="`/product${product.absoluteUrl}`" :text="productName">
+              <ImgWithFallback
+                loading="lazy"
+                provider="mediaStream"
+                class="product-img w-30 h-20 bg-white object-cover"
+                sizes="sm:100vw md:50vw lg:auto"
+                :src="src"
+                :alt="alt"
+              />
+            </Anchor>
+          </div>
+        </div>
+        <div class="grid gap-4 text-2xl">
+          <Anchor
+            v-if="displayImageOf === 'product' && product"
+            :to="`/product${product.absoluteUrl}`"
+            :text="productName"
+          >
+            <span class="text-lg font-medium">{{ productName }}</span>
+          </Anchor>
+          <Rating :rate="review.rate" />
+        </div>
+      </div>
+      <div class="grid h-full w-full">
+        <span>{{ reviewComment }}</span>
+      </div>
+      <div class="flex justify-end">
+        <div class="text-xs">
+          <NuxtTime :datetime="review.createdAt" />
+        </div>
+      </div>
+    </div>
+  </div>
 </template>

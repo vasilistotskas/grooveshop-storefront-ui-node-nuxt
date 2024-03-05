@@ -11,11 +11,11 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="mb-2 text-xl font-semibold">
-		<p class="text-primary-700 dark:text-primary-100">
-			<slot>
-				{{ text }}
-			</slot>
-		</p>
-	</div>
+  <div class="mb-2 text-xl font-semibold">
+    <p class="text-primary-700 dark:text-primary-100">
+      <slot>
+        {{ text }}
+      </slot>
+    </p>
+  </div>
 </template>

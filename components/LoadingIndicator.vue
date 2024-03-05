@@ -35,25 +35,25 @@ defineExpose({
 </script>
 
 <template>
-	<div
-		class="nuxt-loading-indicator"
-		:style="{
-			position: 'fixed',
-			top: 0,
-			right: 0,
-			left: 0,
-			pointerEvents: 'none',
-			width: 'auto',
-			height: `${height}px`,
-			opacity: isLoading ? 1 : 0,
-			background: color || undefined,
-			backgroundSize: `${(100 / progress) * 100}% auto`,
-			transform: `scaleX(${progress}%)`,
-			transformOrigin: 'left',
-			transition: 'transform 0.1s, height 0.4s, opacity 0.4s',
-			zIndex: 999999
-		}"
-	>
-		<slot></slot>
-	</div>
+  <div
+    class="nuxt-loading-indicator"
+    :style="{
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      left: 0,
+      pointerEvents: 'none',
+      width: 'auto',
+      height: `${height}px`,
+      opacity: isLoading ? 1 : 0,
+      background: color || undefined,
+      backgroundSize: `${(100 / progress) * 100}% auto`,
+      transform: `scaleX(${progress}%)`,
+      transformOrigin: 'left',
+      transition: 'transform 0.1s, height 0.4s, opacity 0.4s',
+      zIndex: 999999
+    }"
+  >
+    <slot />
+  </div>
 </template>

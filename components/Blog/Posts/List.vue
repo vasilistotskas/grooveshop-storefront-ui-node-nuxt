@@ -76,49 +76,49 @@ watch(
 </script>
 
 <template>
-	<div class="posts-list grid gap-4">
-		<div class="flex flex-row items-center gap-2">
-			<PaginationPageNumber
-				v-if="pagination"
-				:count="pagination.count"
-				:total-pages="pagination.totalPages"
-				:page-total-results="pagination.pageTotalResults"
-				:page-size="pagination.pageSize"
-				:page="pagination.page"
-				:links="pagination.links"
-			/>
-			<Ordering
-				:ordering="String(ordering)"
-				:ordering-options="orderingOptions.orderingOptionsArray.value"
-			/>
-		</div>
-		<section class="grid gap-4 md:flex md:gap-8">
-			<ol
-				class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-1 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-			>
-				<template v-if="!pending && data?.results?.length">
-					<BlogPostCard
-						v-for="(post, index) in data.results"
-						:key="index"
-						:post="post"
-						:img-loading="index > 7 ? 'lazy' : 'eager'"
-					/>
-				</template>
-				<template v-if="pending">
-					<ClientOnlyFallback
-						v-for="index in 8"
-						:key="index"
-						height="684px"
-						width="100%"
-					/>
-				</template>
-			</ol>
-			<BlogTagsList />
-		</section>
-		<EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
-			<template #actions>
-				<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
-			</template>
-		</EmptyState>
-	</div>
+  <div class="posts-list grid gap-4">
+    <div class="flex flex-row items-center gap-2">
+      <PaginationPageNumber
+        v-if="pagination"
+        :count="pagination.count"
+        :total-pages="pagination.totalPages"
+        :page-total-results="pagination.pageTotalResults"
+        :page-size="pagination.pageSize"
+        :page="pagination.page"
+        :links="pagination.links"
+      />
+      <Ordering
+        :ordering="String(ordering)"
+        :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+    </div>
+    <section class="grid gap-4 md:flex md:gap-8">
+      <ol
+        class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-1 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+      >
+        <template v-if="!pending && data?.results?.length">
+          <BlogPostCard
+            v-for="(post, index) in data.results"
+            :key="index"
+            :post="post"
+            :img-loading="index > 7 ? 'lazy' : 'eager'"
+          />
+        </template>
+        <template v-if="pending">
+          <ClientOnlyFallback
+            v-for="index in 8"
+            :key="index"
+            height="684px"
+            width="100%"
+          />
+        </template>
+      </ol>
+      <BlogTagsList />
+    </section>
+    <EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
+      <template #actions>
+        <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+      </template>
+    </EmptyState>
+  </div>
 </template>

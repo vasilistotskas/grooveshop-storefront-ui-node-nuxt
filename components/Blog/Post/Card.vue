@@ -52,97 +52,97 @@ const startShare = () => share().catch((err) => err)
 </script>
 
 <template>
-	<li
-		class="container grid w-full gap-4 rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black"
-	>
-		<div class="mb-3 md:mb-6">
-			<Anchor :to="`/blog/post${post.absoluteUrl}`" :text="alt">
-				<ImgWithFallback
-					:loading="imgLoading"
-					provider="mediaStream"
-					class="h-auto w-full bg-white object-cover"
-					:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-					:src="src"
-					:width="imgWidth"
-					:height="imgHeight"
-					:fit="'contain'"
-					:position="'entropy'"
-					:background="'transparent'"
-					:trim-threshold="5"
-					sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:324px 2xl:324px`"
-					:alt="alt"
-					densities="x1"
-				/>
-			</Anchor>
-		</div>
-		<ClientOnly>
-			<UButton
-				v-if="isSupported && showShareButton"
-				:disabled="!isSupported"
-				icon="i-heroicons-share"
-				size="lg"
-				color="white"
-				square
-				variant="solid"
-				class="justify-self-start font-extrabold capitalize"
-				@click="startShare"
-			/>
-			<template #fallback>
-				<ClientOnlyFallback height="40px" width="40px" />
-			</template>
-		</ClientOnly>
-		<div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
-			<div class="grid">
-				<h3 class="grid h-28">
-					<Anchor
-						:to="`/blog/post${post.absoluteUrl}`"
-						:text="alt"
-						class="text-2xl font-bold tracking-tight text-black dark:text-white md:text-4xl"
-					>
-						{{ extractTranslated(post, 'title', locale) }}
-					</Anchor>
-				</h3>
-				<div class="grid">
-					<span class="text-primary-700 dark:text-primary-100 text-sm">
-						{{ post.publishedAt }}
-					</span>
-				</div>
-			</div>
-			<div class="grid gap-2 md:gap-4">
-				<div class="grid h-20">
-					<p class="text-primary-700 dark:text-primary-100 text-sm">
-						{{ contentShorten(extractTranslated(post, 'subtitle', locale), 100) }}
-					</p>
-				</div>
-				<div class="flex items-center justify-end">
-					<div class="relative mr-4 h-12 w-12">
-						<ImgWithFallback
-							loading="lazy"
-							provider="mediaStream"
-							class="rounded-full bg-white"
-							:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-							:src="src"
-							:width="90"
-							:height="90"
-							:fit="'contain'"
-							:position="'entropy'"
-							:background="'transparent'"
-							:trim-threshold="5"
-							sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:90px 2xl:90px`"
-							:alt="alt"
-							densities="x1"
-						/>
-					</div>
-					<div v-if="typeof post.author !== 'number'" class="grid">
-						<span
-							v-if="typeof post.author.user !== 'number'"
-							class="text-primary-700 dark:text-primary-100 text-sm font-bold"
-						>
-							{{ post.author.user.firstName }} {{ post.author.user.lastName }}
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</li>
+  <li
+    class="container grid w-full gap-4 rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black"
+  >
+    <div class="mb-3 md:mb-6">
+      <Anchor :to="`/blog/post${post.absoluteUrl}`" :text="alt">
+        <ImgWithFallback
+          :loading="imgLoading"
+          provider="mediaStream"
+          class="h-auto w-full bg-white object-cover"
+          :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+          :src="src"
+          :width="imgWidth"
+          :height="imgHeight"
+          :fit="'contain'"
+          :position="'entropy'"
+          :background="'transparent'"
+          :trim-threshold="5"
+          sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:324px 2xl:324px`"
+          :alt="alt"
+          densities="x1"
+        />
+      </Anchor>
+    </div>
+    <ClientOnly>
+      <UButton
+        v-if="isSupported && showShareButton"
+        :disabled="!isSupported"
+        icon="i-heroicons-share"
+        size="lg"
+        color="white"
+        square
+        variant="solid"
+        class="justify-self-start font-extrabold capitalize"
+        @click="startShare"
+      />
+      <template #fallback>
+        <ClientOnlyFallback height="40px" width="40px" />
+      </template>
+    </ClientOnly>
+    <div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
+      <div class="grid">
+        <h3 class="grid h-28">
+          <Anchor
+            :to="`/blog/post${post.absoluteUrl}`"
+            :text="alt"
+            class="text-2xl font-bold tracking-tight text-black dark:text-white md:text-4xl"
+          >
+            {{ extractTranslated(post, 'title', locale) }}
+          </Anchor>
+        </h3>
+        <div class="grid">
+          <span class="text-primary-700 dark:text-primary-100 text-sm">
+            {{ post.publishedAt }}
+          </span>
+        </div>
+      </div>
+      <div class="grid gap-2 md:gap-4">
+        <div class="grid h-20">
+          <p class="text-primary-700 dark:text-primary-100 text-sm">
+            {{ contentShorten(extractTranslated(post, 'subtitle', locale), 100) }}
+          </p>
+        </div>
+        <div class="flex items-center justify-end">
+          <div class="relative mr-4 h-12 w-12">
+            <ImgWithFallback
+              loading="lazy"
+              provider="mediaStream"
+              class="rounded-full bg-white"
+              :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+              :src="src"
+              :width="90"
+              :height="90"
+              :fit="'contain'"
+              :position="'entropy'"
+              :background="'transparent'"
+              :trim-threshold="5"
+              sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:90px 2xl:90px`"
+              :alt="alt"
+              densities="x1"
+            />
+          </div>
+          <div v-if="typeof post.author !== 'number'" class="grid">
+            <span
+              v-if="typeof post.author.user !== 'number'"
+              class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+            >
+              {{ post.author.user.firstName }} {{ post.author.user.lastName }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
 </template>

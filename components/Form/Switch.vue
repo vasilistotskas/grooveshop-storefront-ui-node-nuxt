@@ -18,7 +18,7 @@ defineSlots<{
 }>()
 
 const emit = defineEmits(['update:modelValue'])
-const { modelValue, on, id } = toRefs(props)
+const { on, id } = toRefs(props)
 
 const randomId = () =>
 	Math.random().toString(36).substring(2, 15) +
@@ -35,7 +35,7 @@ const onInputChange = (e: Event) => {
 }
 
 onMounted(() => {
-	if (props.on) {
+	if (on.value) {
 		checked.value = true
 		emit('update:modelValue', true)
 		if (input.value)
@@ -47,28 +47,28 @@ onMounted(() => {
 </script>
 
 <template>
-	<label :for="switchId" class="flex cursor-pointer">
-		<label
-			:for="switchId"
-			class="relative mr-2 inline-block w-10 select-none align-middle transition duration-200 ease-in"
-		>
-			<input
-				:id="switchId"
-				ref="input"
-				type="checkbox"
-				class="switch-checkbox absolute block h-6 w-6 cursor-pointer appearance-none rounded-full border-2 border-slate-300 bg-white dark:border-slate-600 dark:bg-zinc-900"
-				:checked="checked"
-				name="switch"
-				placeholder="Switch"
-				@change="onInputChange"
-			/>
-			<label
-				:for="switchId"
-				class="switch-label block h-6 cursor-pointer overflow-hidden rounded-full border border-slate-300 bg-zinc-200 dark:border-slate-500 dark:bg-zinc-800"
-			/>
-		</label>
-		<slot />
-	</label>
+  <label :for="switchId" class="flex cursor-pointer">
+    <label
+      :for="switchId"
+      class="relative mr-2 inline-block w-10 select-none align-middle transition duration-200 ease-in"
+    >
+      <input
+        :id="switchId"
+        ref="input"
+        type="checkbox"
+        class="switch-checkbox absolute block h-6 w-6 cursor-pointer appearance-none rounded-full border-2 border-slate-300 bg-white dark:border-slate-600 dark:bg-zinc-900"
+        :checked="checked"
+        name="switch"
+        placeholder="Switch"
+        @change="onInputChange"
+      >
+      <label
+        :for="switchId"
+        class="switch-label block h-6 cursor-pointer overflow-hidden rounded-full border border-slate-300 bg-zinc-200 dark:border-slate-500 dark:bg-zinc-800"
+      />
+    </label>
+    <slot />
+  </label>
 </template>
 
 <style>

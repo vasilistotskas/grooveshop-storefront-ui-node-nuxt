@@ -3,7 +3,6 @@ export const modules = [
 	'@nuxt/ui',
 	'@nuxt/test-utils/module',
 	'@nuxtjs/i18n',
-	'@nuxtjs/eslint-module',
 	'@nuxtjs/tailwindcss',
 	'@nuxtjs/html-validator',
 	'@nuxtjs/device',

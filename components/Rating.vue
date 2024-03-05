@@ -39,25 +39,25 @@ const backgroundStars = (productRate: number): string[] => {
 </script>
 
 <template>
-	<div class="flex flex-col gap-1">
-		<div class="flex max-w-[130px]">
-			<!-- eslint-disable vue/no-v-html -->
-			<svg
-				v-for="(star, i) of backgroundStars(rate)"
-				:key="i"
-				aria-hidden="true"
-				class="star h-5 w-5 text-[#f68b24]"
-				data-icon="star"
-				data-prefix="fas"
-				focusable="false"
-				role="img"
-				viewBox="0 0 576 512"
-				xmlns="http://www.w3.org/2000/svg"
-				v-html="star"
-			/>
-		</div>
-		<div class="flex">
-			<span class="text-sm">({{ rate }}/{{ maxRate }})</span>
-		</div>
-	</div>
+  <div class="flex flex-col gap-1">
+    <div class="flex max-w-[130px]">
+      <!-- eslint-disable vue/no-v-html -->
+      <svg
+        v-for="(star, i) of backgroundStars(rate)"
+        :key="i"
+        aria-hidden="true"
+        class="star h-5 w-5 text-[#f68b24]"
+        data-icon="star"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 576 512"
+        xmlns="http://www.w3.org/2000/svg"
+        v-html="star"
+      />
+    </div>
+    <div class="flex">
+      <span class="text-sm">({{ rate }}/{{ maxRate }})</span>
+    </div>
+  </div>
 </template>

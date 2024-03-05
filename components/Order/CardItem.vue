@@ -28,21 +28,21 @@ const alt = computed(() => {
 </script>
 
 <template>
-	<div class="order-card-items-image">
-		<ImgWithFallback
-			loading="lazy"
-			provider="mediaStream"
-			class="product-img bg-white"
-			:style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-			:width="120"
-			:height="120"
-			:fit="'contain'"
-			:position="'entropy'"
-			:background="'transparent'"
-			:trim-threshold="5"
-			sizes="`sm:100vw md:50vw lg:auto`"
-			:src="src"
-			:alt="alt"
-		/>
-	</div>
+  <div class="order-card-items-image">
+    <ImgWithFallback
+      loading="lazy"
+      provider="mediaStream"
+      class="product-img bg-white"
+      :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+      :width="120"
+      :height="120"
+      :fit="'contain'"
+      :position="'entropy'"
+      :background="'transparent'"
+      :trim-threshold="5"
+      sizes="`sm:100vw md:50vw lg:auto`"
+      :src="src"
+      :alt="alt"
+    />
+  </div>
 </template>

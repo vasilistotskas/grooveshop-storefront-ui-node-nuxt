@@ -121,133 +121,133 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col gap-10 p-0">
-		<PageBody>
-			<div
-				v-focus
-				class="fixed left-0 top-0 z-20 grid w-full items-center gap-4 bg-zinc-50 p-[17px] dark:bg-zinc-800"
-			>
-				<div class="flex w-full items-center gap-4">
-					<Anchor
-						:to="'index'"
-						aria-label="index"
-						class="text-md text-primary-700 dark:text-primary-100 flex items-center gap-3 overflow-hidden border-r-2 border-gray-900/10 pr-8 font-bold dark:border-gray-50/20 md:w-auto"
-					>
-						<span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
-						<UIcon name="i-heroicons-arrow-left" />
-					</Anchor>
-					<IconFa6Solid:magnifyingGlass />
-					<label for="search" class="sr-only">{{ $t('pages.search.placeholder') }}</label>
-					<input
-						id="search"
-						v-model="currentSearch"
-						v-focus
-						type="text"
-						class="w-full bg-transparent text-xl outline-none"
-						:placeholder="$t('pages.search.placeholder')"
-						@keyup.enter="refresh()"
-						@click="isSuggestionsOpen = true"
-					/>
-				</div>
-				<div
-					v-if="showSuggestions"
-					ref="suggestions"
-					class="absolute top-14 z-10 mt-1 max-h-36 w-full list-none overflow-y-auto rounded-md bg-zinc-50 shadow-md dark:bg-zinc-800"
-				>
-					<TransitionGroup name="list" tag="ul" class="grid">
-						<li
-							v-for="suggestion in storageSearchHistory"
-							:key="suggestion"
-							class="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-						>
-							<Anchor
-								:to="`/search?query=${suggestion}`"
-								class="flex items-center gap-3"
-								@click="currentSearch = suggestion"
-							>
-								<IconFa6Solid:clockRotateLeft />
-								<span class="text-primary-700 dark:text-primary-100 truncate font-bold">
-									{{ suggestion }}
-								</span>
-							</Anchor>
-						</li>
-						<li
-							v-for="(headline, productId) in productHeadlines"
-							:key="productId"
-							class="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-						>
-							<Anchor
-								:to="`/search?query=${cleanHtml(headline)}`"
-								class="flex items-center gap-3"
-								@click="currentSearch = cleanHtml(headline)"
-							>
-								<IconFa6Solid:magnifyingGlass />
-								<!-- eslint-disable vue/no-v-html -->
-								<span
-									class="text-primary-700 dark:text-primary-100 truncate font-bold"
-									v-html="headline"
-								/>
-							</Anchor>
-						</li>
-					</TransitionGroup>
-				</div>
-			</div>
-			<PageTitle class="sr-only">
-				<span
-					:class="{
-						'opacity-0': !currentSearch
-					}"
-				>
-					<span>{{ $t('pages.search.results') }}:</span>
-					<span v-if="currentSearch" class="font-bold"> {{ currentSearch }}</span>
-				</span>
-			</PageTitle>
+  <PageWrapper class="container flex flex-col gap-10 p-0">
+    <PageBody>
+      <div
+        v-focus
+        class="fixed left-0 top-0 z-20 grid w-full items-center gap-4 bg-zinc-50 p-[17px] dark:bg-zinc-800"
+      >
+        <div class="flex w-full items-center gap-4">
+          <Anchor
+            :to="'index'"
+            aria-label="index"
+            class="text-md text-primary-700 dark:text-primary-100 flex items-center gap-3 overflow-hidden border-r-2 border-gray-900/10 pr-8 font-bold dark:border-gray-50/20 md:w-auto"
+          >
+            <span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
+            <UIcon name="i-heroicons-arrow-left" />
+          </Anchor>
+          <IconFa6Solid:magnifyingGlass />
+          <label for="search" class="sr-only">{{ $t('pages.search.placeholder') }}</label>
+          <input
+            id="search"
+            v-model="currentSearch"
+            v-focus
+            type="text"
+            class="w-full bg-transparent text-xl outline-none"
+            :placeholder="$t('pages.search.placeholder')"
+            @keyup.enter="refresh()"
+            @click="isSuggestionsOpen = true"
+          >
+        </div>
+        <div
+          v-if="showSuggestions"
+          ref="suggestions"
+          class="absolute top-14 z-10 mt-1 max-h-36 w-full list-none overflow-y-auto rounded-md bg-zinc-50 shadow-md dark:bg-zinc-800"
+        >
+          <TransitionGroup name="list" tag="ul" class="grid">
+            <li
+              v-for="suggestion in storageSearchHistory"
+              :key="suggestion"
+              class="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+            >
+              <Anchor
+                :to="`/search?query=${suggestion}`"
+                class="flex items-center gap-3"
+                @click="currentSearch = suggestion"
+              >
+                <IconFa6Solid:clockRotateLeft />
+                <span class="text-primary-700 dark:text-primary-100 truncate font-bold">
+                  {{ suggestion }}
+                </span>
+              </Anchor>
+            </li>
+            <li
+              v-for="(headline, productId) in productHeadlines"
+              :key="productId"
+              class="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+            >
+              <Anchor
+                :to="`/search?query=${cleanHtml(headline)}`"
+                class="flex items-center gap-3"
+                @click="currentSearch = cleanHtml(headline)"
+              >
+                <IconFa6Solid:magnifyingGlass />
+                <!-- eslint-disable vue/no-v-html -->
+                <span
+                  class="text-primary-700 dark:text-primary-100 truncate font-bold"
+                  v-html="headline"
+                />
+              </Anchor>
+            </li>
+          </TransitionGroup>
+        </div>
+      </div>
+      <PageTitle class="sr-only">
+        <span
+          :class="{
+            'opacity-0': !currentSearch
+          }"
+        >
+          <span>{{ $t('pages.search.results') }}:</span>
+          <span v-if="currentSearch" class="font-bold"> {{ currentSearch }}</span>
+        </span>
+      </PageTitle>
 
-			<div v-if="showResults" class="mt-20 min-h-screen">
-				<div v-if="showTotalCount" class="px-8 text-sm opacity-95">
-					{{ $t('common.items.count', totalCount) }}
-				</div>
-				<div
-					class="grid grid-cols-1 gap-4 p-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-				>
-					<SearchProductCard
-						v-for="(item, index) of productSearchItems"
-						:key="index"
-						:item="item"
-					/>
-				</div>
-			</div>
-			<div
-				v-if="showStartSearching"
-				class="p-10 text-center text-4xl font-light opacity-50"
-			>
-				{{ $t('pages.search.start_searching') }}
-			</div>
-			<div
-				v-if="showIsSearching"
-				class="mb-20 mt-20 grid animate-pulse items-center justify-center"
-			>
-				<LazyLottie
-					class="grid"
-					:animation-data="SearchingJson"
-					:width="'254px'"
-					:height="'254px'"
-				/>
-			</div>
-			<div v-if="showNoResults" class="mt-40 grid items-center justify-center">
-				<LazyLottie
-					class="grid"
-					:animation-data="SearchingNoResultsJson"
-					:width="'254px'"
-					:height="'254px'"
-				/>
-			</div>
-			<div v-if="showErrors" class="mt-40 flex flex-col items-start gap-3 p-8">
-				<h1 class="text-4xl text-red-600">
-					{{ $t('pages.search.error') }}
-				</h1>
-				<pre class="py-2">{{ error }}</pre>
-			</div>
-		</PageBody>
-	</PageWrapper>
+      <div v-if="showResults" class="mt-20 min-h-screen">
+        <div v-if="showTotalCount" class="px-8 text-sm opacity-95">
+          {{ $t('common.items.count', totalCount) }}
+        </div>
+        <div
+          class="grid grid-cols-1 gap-4 p-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          <SearchProductCard
+            v-for="(item, index) of productSearchItems"
+            :key="index"
+            :item="item"
+          />
+        </div>
+      </div>
+      <div
+        v-if="showStartSearching"
+        class="p-10 text-center text-4xl font-light opacity-50"
+      >
+        {{ $t('pages.search.start_searching') }}
+      </div>
+      <div
+        v-if="showIsSearching"
+        class="mb-20 mt-20 grid animate-pulse items-center justify-center"
+      >
+        <LazyLottie
+          class="grid"
+          :animation-data="SearchingJson"
+          :width="'254px'"
+          :height="'254px'"
+        />
+      </div>
+      <div v-if="showNoResults" class="mt-40 grid items-center justify-center">
+        <LazyLottie
+          class="grid"
+          :animation-data="SearchingNoResultsJson"
+          :width="'254px'"
+          :height="'254px'"
+        />
+      </div>
+      <div v-if="showErrors" class="mt-40 flex flex-col items-start gap-3 p-8">
+        <h1 class="text-4xl text-red-600">
+          {{ $t('pages.search.error') }}
+        </h1>
+        <pre class="py-2">{{ error }}</pre>
+      </div>
+    </PageBody>
+  </PageWrapper>
 </template>

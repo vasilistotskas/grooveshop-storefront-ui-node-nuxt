@@ -92,45 +92,45 @@ const onClick = async (event: MouseEvent) => {
 </script>
 
 <template>
-	<NuxtLink
-		v-if="to && type === 'link'"
-		tag="a"
-		:aria-label="text"
-		:to="localePath(to)"
-		:class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
-		:title="text"
-	>
-		<slot>{{ text }}</slot>
-		<slot name="icon"></slot>
-	</NuxtLink>
-	<button
-		v-else-if="type === 'button' || type === 'submit' || type === 'reset'"
-		:type="type"
-		:class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
-		:aria-label="text"
-		:title="text"
-		@click="onClick"
-	>
-		<slot>{{ text }}</slot>
-		<slot name="icon"></slot>
-	</button>
-	<input
-		v-else-if="type === 'input'"
-		type="submit"
-		:value="text"
-		:name="text"
-		:class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
-		:title="text"
-	/>
-	<a
-		v-else
-		:class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
-		:href="href"
-		:aria-label="text"
-		:title="text"
-		@click="onClick"
-	>
-		<slot>{{ text }}</slot>
-		<slot name="icon"></slot>
-	</a>
+  <NuxtLink
+    v-if="to && type === 'link'"
+    tag="a"
+    :aria-label="text"
+    :to="localePath(to)"
+    :class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
+    :title="text"
+  >
+    <slot>{{ text }}</slot>
+    <slot name="icon" />
+  </NuxtLink>
+  <button
+    v-else-if="type === 'button' || type === 'submit' || type === 'reset'"
+    :type="type"
+    :class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
+    :aria-label="text"
+    :title="text"
+    @click="onClick"
+  >
+    <slot>{{ text }}</slot>
+    <slot name="icon" />
+  </button>
+  <input
+    v-else-if="type === 'input'"
+    type="submit"
+    :value="text"
+    :name="text"
+    :class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
+    :title="text"
+  >
+  <a
+    v-else
+    :class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
+    :href="href"
+    :aria-label="text"
+    :title="text"
+    @click="onClick"
+  >
+    <slot>{{ text }}</slot>
+    <slot name="icon" />
+  </a>
 </template>

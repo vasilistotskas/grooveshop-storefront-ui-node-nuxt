@@ -19,6 +19,7 @@ export const useOrdering = <T extends string>(
 
 	const orderingOptionsArray = computed(() => {
 		const options: OrderingOption[] = []
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		Object.entries(orderingOptions.value).forEach(([key, value]) => {
 			const orderingOptionsForKey = value as OrderingOption[]
 			orderingOptionsForKey.forEach((option) => {

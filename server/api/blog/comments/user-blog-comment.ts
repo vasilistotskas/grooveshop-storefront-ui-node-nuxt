@@ -1,16 +1,13 @@
 import type { H3Event } from 'h3'
 
-import {
-	ZodProductReview,
-	ZodReviewUserToProductReviewBody
-} from '~/types/product/review'
+import { ZodBlogComment, ZodBlogCommentUserBlogCommentBody } from '~/types/blog/comment'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()
 	const session = await getUserSession(event)
-	const body = await readValidatedBody(event, ZodReviewUserToProductReviewBody.parse)
+	const body = await readValidatedBody(event, ZodBlogCommentUserBlogCommentBody.parse)
 	const response = await $fetch(
-		`${config.public.apiBaseUrl}/product/review/user_to_product_review`,
+		`${config.public.apiBaseUrl}/blog/comment/user_blog_comment`,
 		{
 			method: 'POST',
 			body,
@@ -19,5 +16,5 @@ export default defineEventHandler(async (event: H3Event) => {
 			}
 		}
 	)
-	return await parseDataAs(response, ZodProductReview)
+	return await parseDataAs(response, ZodBlogComment)
 })

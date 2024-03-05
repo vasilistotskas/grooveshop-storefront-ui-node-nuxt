@@ -15,7 +15,7 @@ const starHalfSvg =
 	'<path fill="currentColor" d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" class=""></path>'
 
 const props = defineProps({
-	userToProductReview: {
+	userProductReview: {
 		type: Object as PropType<ProductReview | null>,
 		required: false,
 		default: null
@@ -35,10 +35,9 @@ const props = defineProps({
 	}
 })
 
-const { userToProductReview, userHadReviewed, product, user } = toRefs(props)
+const { userProductReview, userHadReviewed, product, user } = toRefs(props)
 
 const userStore = useUserStore()
-const { productReviews } = storeToRefs(userStore)
 const { addReview, updateReview, deleteReview } = userStore
 
 const emit = defineEmits([
@@ -87,10 +86,10 @@ const reviewButtonText = computed(() => {
 
 const reviewCount = computed(() => {
 	if (
-		userToProductReview?.value?.rate !== null &&
-		!isNaN(userToProductReview?.value?.rate as unknown as number)
+		userProductReview?.value?.rate !== null &&
+		!isNaN(userProductReview?.value?.rate as unknown as number)
 	) {
-		return Number(userToProductReview?.value?.rate).toFixed(1)
+		return Number(userProductReview?.value?.rate).toFixed(1)
 	}
 	return null
 })
@@ -146,7 +145,7 @@ const reviewScoreText = computed(() => {
 	if (
 		liveReviewCountRatio.value < 0.01 ||
 		(newSelectionRatio === null &&
-			(reviewCount.value === null || userToProductReview?.value?.rate === 0))
+			(reviewCount.value === null || userProductReview?.value?.rate === 0))
 	) {
 		return ''
 	}
@@ -253,10 +252,10 @@ const { defineField, values, setFieldValue, handleSubmit, errors, submitCount } 
 	{
 		validationSchema,
 		initialValues: {
-			comment: userToProductReview?.value
-				? extractTranslated(userToProductReview?.value, 'comment', locale.value)
+			comment: userProductReview?.value
+				? extractTranslated(userProductReview?.value, 'comment', locale.value)
 				: '',
-			rate: userToProductReview?.value?.rate || 0
+			rate: userProductReview?.value?.rate || 0
 		}
 	}
 )
@@ -298,7 +297,7 @@ const createReviewEvent = async (event: { comment: string; rate: number }) => {
 		async onResponse({ response }) {
 			addReview(response._data)
 			await refresh()
-			emit('add-existing-review', userToProductReview?.value)
+			emit('add-existing-review', userProductReview?.value)
 			toast.add({
 				title: t('components.product.review.add.success')
 			})
@@ -313,52 +312,49 @@ const createReviewEvent = async (event: { comment: string; rate: number }) => {
 }
 
 const updateReviewEvent = async (event: { comment: string; rate: number }) => {
-	if (!userToProductReview?.value) return
-	await useFetch<ProductReview>(
-		`/api/products/reviews/${userToProductReview?.value.id}`,
-		{
-			method: 'PUT',
-			body: {
-				product: String(product.value?.id),
-				user: String(user?.value?.id),
-				rate: String(event.rate),
-				translations: {
-					[locale.value]: {
-						comment: event.comment
-					}
+	if (!userProductReview?.value) return
+	await useFetch<ProductReview>(`/api/products/reviews/${userProductReview?.value.id}`, {
+		method: 'PUT',
+		body: {
+			product: String(product.value?.id),
+			user: String(user?.value?.id),
+			rate: String(event.rate),
+			translations: {
+				[locale.value]: {
+					comment: event.comment
 				}
-			},
-			query: {
-				expand: 'true'
-			},
-			onRequestError() {
-				toast.add({
-					title: t('components.product.review.update.error'),
-					color: 'red'
-				})
-			},
-			async onResponse({ response }) {
-				if (!userToProductReview?.value) return
-				updateReview(userToProductReview?.value?.id, response._data)
-				await refresh()
-				emit('update-existing-review', userToProductReview?.value)
-				toast.add({
-					title: t('components.product.review.update.success')
-				})
-			},
-			onResponseError() {
-				toast.add({
-					title: t('components.product.review.update.error'),
-					color: 'red'
-				})
 			}
+		},
+		query: {
+			expand: 'true'
+		},
+		onRequestError() {
+			toast.add({
+				title: t('components.product.review.update.error'),
+				color: 'red'
+			})
+		},
+		async onResponse({ response }) {
+			if (!userProductReview?.value) return
+			updateReview(userProductReview?.value?.id, response._data)
+			await refresh()
+			emit('update-existing-review', userProductReview?.value)
+			toast.add({
+				title: t('components.product.review.update.success')
+			})
+		},
+		onResponseError() {
+			toast.add({
+				title: t('components.product.review.update.error'),
+				color: 'red'
+			})
 		}
-	)
+	})
 }
 
 const deleteReviewEvent = async () => {
-	if (user?.value && userToProductReview?.value) {
-		await useFetch(`/api/products/reviews/${userToProductReview?.value.id}`, {
+	if (user?.value && userProductReview?.value) {
+		await useFetch(`/api/products/reviews/${userProductReview?.value.id}`, {
 			method: 'DELETE',
 			onRequestError() {
 				toast.add({
@@ -367,12 +363,12 @@ const deleteReviewEvent = async () => {
 				})
 			},
 			async onResponse() {
-				if (!userToProductReview?.value) return
-				deleteReview(userToProductReview?.value?.id)
+				if (!userProductReview?.value) return
+				deleteReview(userProductReview?.value?.id)
 				setFieldValue('rate', 0)
 				setFieldValue('comment', '')
 				modalBus.emit(`modal-close-reviewModal-${user?.value?.id}-${product?.value?.id}`)
-				emit('delete-existing-review', userToProductReview?.value)
+				emit('delete-existing-review', userProductReview?.value)
 				await refresh()
 				toast.add({
 					title: t('components.product.review.delete.success')
@@ -418,161 +414,161 @@ watch(
 </script>
 
 <template>
-	<GenericModal
-		v-if="user"
-		ref="reviewModal"
-		:key="`reviewModal-${user?.id}-${product?.id}`"
-		class="bg-white dark:bg-zinc-800"
-		unique-id="reviewModal"
-		exit-modal-icon-class="fa fa-times"
-		:modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
-		:modal-close-trigger-handler-id="`modal-close-reviewModal-${user?.id}-${product?.id}`"
-		:modal-opened-trigger-handler-id="`modal-opened-reviewModal-${user?.id}-${product?.id}`"
-		:modal-closed-trigger-handler-id="`modal-closed-reviewModal-${user?.id}-${product?.id}`"
-		max-width="700px"
-		max-height="100%"
-		gap="1rem"
-		padding="2rem"
-		width="auto"
-		height="auto"
-		:is-form="true"
-		form-id="reviewForm"
-		form-name="reviewForm"
-		@submit="onSubmit"
-	>
-		<template #header>
-			<div class="review_header">
-				<!-- eslint-disable vue/no-v-html -->
-				<span
-					class="review_header-title"
-					v-html="
-						$t('components.product.review.write_review_for_product', {
-							product: extractTranslated(product, 'name', locale)
-						})
-					"
-				></span>
-				<IconFaSolid:pen />
-			</div>
-		</template>
+  <GenericModal
+    v-if="user"
+    ref="reviewModal"
+    :key="`reviewModal-${user?.id}-${product?.id}`"
+    class="bg-white p-4 dark:bg-zinc-800 md:p-0"
+    unique-id="reviewModal"
+    exit-modal-icon-class="fa fa-times"
+    :modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
+    :modal-close-trigger-handler-id="`modal-close-reviewModal-${user?.id}-${product?.id}`"
+    :modal-opened-trigger-handler-id="`modal-opened-reviewModal-${user?.id}-${product?.id}`"
+    :modal-closed-trigger-handler-id="`modal-closed-reviewModal-${user?.id}-${product?.id}`"
+    max-width="700px"
+    max-height="100%"
+    gap="1rem"
+    padding="2rem"
+    width="auto"
+    height="auto"
+    :is-form="true"
+    form-id="reviewForm"
+    form-name="reviewForm"
+    @submit="onSubmit"
+  >
+    <template #header>
+      <div class="review_header">
+        <!-- eslint-disable vue/no-v-html -->
+        <span
+          class="review_header-title"
+          v-html="
+            $t('components.product.review.write_review_for_product', {
+              product: extractTranslated(product, 'name', locale)
+            })
+          "
+        />
+        <IconFaSolid:pen />
+      </div>
+    </template>
 
-		<template #default>
-			<div class="review_body">
-				<div class="review_body-rating">
-					<div class="review_body-rating-title">
-						<p>{{ $t('components.product.review.rating.title') }}</p>
-					</div>
-					<div class="review_body-rating-content">
-						<div
-							ref="ratingBoard"
-							class="rating-board rating-background"
-							@click="lockSelection($event)"
-							@mouseenter.passive="unlockSelection()"
-							@mouseleave.passive="reLockSelection()"
-							@mousemove.passive="updateNewSelectionRatio($event)"
-							@touchend.passive="reLockSelection()"
-							@touchmove.passive="updateNewSelectionRatio($event)"
-							@touchstart.passive="unlockSelection()"
-						>
-							<!-- eslint-disable vue/no-v-html -->
-							<svg
-								v-for="(star, i) of backgroundStars"
-								:key="i"
-								aria-hidden="true"
-								class="star star-background"
-								data-icon="star"
-								data-prefix="fas"
-								focusable="false"
-								role="img"
-								viewBox="0 0 576 512"
-								xmlns="http://www.w3.org/2000/svg"
-								v-html="star"
-							/>
-							<!-- eslint-enable -->
-						</div>
-						<div class="rating-board rating-foreground">
-							<!-- eslint-disable vue/no-v-html -->
-							<svg
-								v-for="(star, i) of foregroundStars"
-								:key="i"
-								aria-hidden="true"
-								class="star star-foreground"
-								focusable="false"
-								role="img"
-								viewBox="0 0 576 512"
-								xmlns="http://www.w3.org/2000/svg"
-								v-html="star"
-							/>
-							<!-- eslint-enable -->
-						</div>
-						<span class="px-2">{{ reviewScoreText }}</span>
-					</div>
-					<span class="review_body-rating-error h-6">{{ errors.rate }}</span>
-				</div>
+    <template #default>
+      <div class="review_body">
+        <div class="review_body-rating">
+          <div class="review_body-rating-title">
+            <p>{{ $t('components.product.review.rating.title') }}</p>
+          </div>
+          <div class="review_body-rating-content">
+            <div
+              ref="ratingBoard"
+              class="rating-board rating-background"
+              @click="lockSelection($event)"
+              @mouseenter.passive="unlockSelection()"
+              @mouseleave.passive="reLockSelection()"
+              @mousemove.passive="updateNewSelectionRatio($event)"
+              @touchend.passive="reLockSelection()"
+              @touchmove.passive="updateNewSelectionRatio($event)"
+              @touchstart.passive="unlockSelection()"
+            >
+              <!-- eslint-disable vue/no-v-html -->
+              <svg
+                v-for="(star, i) of backgroundStars"
+                :key="i"
+                aria-hidden="true"
+                class="star star-background"
+                data-icon="star"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 576 512"
+                xmlns="http://www.w3.org/2000/svg"
+                v-html="star"
+              />
+              <!-- eslint-enable -->
+            </div>
+            <div class="rating-board rating-foreground">
+              <!-- eslint-disable vue/no-v-html -->
+              <svg
+                v-for="(star, i) of foregroundStars"
+                :key="i"
+                aria-hidden="true"
+                class="star star-foreground"
+                focusable="false"
+                role="img"
+                viewBox="0 0 576 512"
+                xmlns="http://www.w3.org/2000/svg"
+                v-html="star"
+              />
+              <!-- eslint-enable -->
+            </div>
+            <span class="px-2">{{ reviewScoreText }}</span>
+          </div>
+          <span class="review_body-rating-error h-6">{{ errors.rate }}</span>
+        </div>
 
-				<div class="review_body-comment">
-					<div class="review_body-comment-title">
-						<p class="review_body-comment-title-text">
-							<label for="comment">{{
-								$t('components.product.review.comment.label')
-							}}</label>
-						</p>
-					</div>
-					<div class="review_body-comment-content">
-						<VeeField
-							id="comment"
-							v-model="comment"
-							as="textarea"
-							v-bind="commentProps"
-							:placeholder="$t('components.product.review.comment.placeholder')"
-							class="review_body-comment-content-textarea text-input text-primary-700 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
-							name="comment"
-							maxlength="10000"
-							rows="6"
-							type="text"
-						/>
-					</div>
-					<span class="review_body-rating-error h-6">{{ errors.comment }}</span>
-				</div>
+        <div class="review_body-comment">
+          <div class="review_body-comment-title">
+            <p class="review_body-comment-title-text">
+              <label for="comment">{{
+                $t('components.product.review.comment.label')
+              }}</label>
+            </p>
+          </div>
+          <div class="review_body-comment-content">
+            <VeeField
+              id="comment"
+              v-model="comment"
+              as="textarea"
+              v-bind="commentProps"
+              :placeholder="$t('components.product.review.comment.placeholder')"
+              class="review_body-comment-content-textarea text-input text-primary-700 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
+              name="comment"
+              maxlength="10000"
+              rows="6"
+              type="text"
+            />
+          </div>
+          <span class="review_body-rating-error h-6">{{ errors.comment }}</span>
+        </div>
 
-				<input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
-			</div>
-		</template>
-		<template #footer>
-			<div class="review_footer">
-				<div class="review_footer-content">
-					<UButton
-						v-if="!tooManyAttempts"
-						block
-						:label="reviewButtonText"
-						size="lg"
-						class="review_footer-button"
-						color="white"
-						@click.prevent="onSubmit"
-					/>
-					<UButton
-						v-else
-						block
-						size="lg"
-						:label="$t('components.product.review.too_many_attempts')"
-						color="white"
-						disabled
-					/>
-				</div>
-				<div v-if="userToProductReview" class="review_footer-content">
-					<UButton
-						block
-						:label="$t('components.product.review.delete_review')"
-						class="review_footer-button gap-2"
-						size="lg"
-						icon="i-heroicons-trash"
-						color="rose"
-						:trailing="true"
-						@click.prevent="deleteReviewEvent()"
-					/>
-				</div>
-			</div>
-		</template>
-	</GenericModal>
+        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate">
+      </div>
+    </template>
+    <template #footer>
+      <div class="review_footer">
+        <div class="review_footer-content">
+          <UButton
+            v-if="!tooManyAttempts"
+            block
+            :label="reviewButtonText"
+            size="lg"
+            class="review_footer-button"
+            color="white"
+            @click.prevent="onSubmit"
+          />
+          <UButton
+            v-else
+            block
+            size="lg"
+            :label="$t('components.product.review.too_many_attempts')"
+            color="white"
+            disabled
+          />
+        </div>
+        <div v-if="userProductReview" class="review_footer-content">
+          <UButton
+            block
+            :label="$t('components.product.review.delete_review')"
+            class="review_footer-button gap-2"
+            size="lg"
+            icon="i-heroicons-trash"
+            color="rose"
+            :trailing="true"
+            @click.prevent="deleteReviewEvent()"
+          />
+        </div>
+      </div>
+    </template>
+  </GenericModal>
 </template>
 
 <style lang="scss" scoped>

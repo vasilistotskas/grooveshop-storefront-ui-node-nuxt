@@ -1,7 +1,8 @@
-import { createOperationsGenerator } from '#image'
 import type { ProviderGetImage } from '@nuxt/image'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
+
+import { createOperationsGenerator } from '#image'
 
 const operationsGenerator = createOperationsGenerator({
 	keyMap: {
@@ -71,10 +72,7 @@ const defaultModifiers = {
 	quality: 100
 }
 
-export const getImage: ProviderGetImage = (
-	src: string,
-	{ modifiers = {}, baseURL: string = '/' } = {}
-) => {
+export const getImage: ProviderGetImage = (src: string, { modifiers = {} } = {}) => {
 	const config = useRuntimeConfig()
 	const baseURL = config.public.mediaStreamPath as string
 

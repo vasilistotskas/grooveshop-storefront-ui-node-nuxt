@@ -21,10 +21,10 @@ definePageMeta({
 </script>
 
 <template>
-	<PageWrapper class="container flex flex-col">
-		<PageBody>
-			<UBreadcrumb :links="links" class="mb-5" />
-			<BlogPostsList />
-		</PageBody>
-	</PageWrapper>
+  <PageWrapper class="container flex flex-col">
+    <PageBody>
+      <UBreadcrumb :links="links" class="mb-5" />
+      <BlogPostsList />
+    </PageBody>
+  </PageWrapper>
 </template>

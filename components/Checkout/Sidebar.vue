@@ -14,95 +14,95 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="grid-rows-auto relative grid gap-2 md:gap-4">
-		<slot name="pay-ways"></slot>
-		<slot name="items"></slot>
-		<ClientOnly>
-			<div class="grid">
-				<div class="sr-only">
-					<h3 class="text-primary-700 dark:text-primary-100">
-						{{ $t('components.checkout.sidebar.title') }}
-					</h3>
-				</div>
-				<div v-if="cart && getCartItems?.length">
-					<div class="flex gap-1">
-						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100">
-								{{ $t('components.checkout.sidebar.items_unique') }}:
-							</span>
-						</div>
-						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100 font-bold">
-								{{ cart.totalItemsUnique }}
-							</span>
-						</div>
-					</div>
-					<div class="flex gap-1">
-						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100">
-								{{ $t('components.checkout.sidebar.shipping') }}:
-							</span>
-						</div>
-						<div class="grid">
-							<I18nN
-								tag="span"
-								class="text-primary-700 dark:text-primary-100 font-bold"
-								format="currency"
-								:value="shippingPrice"
-							/>
-						</div>
-					</div>
-					<div class="flex gap-1">
-						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100">
-								{{ $t('components.checkout.sidebar.discount') }}:
-							</span>
-						</div>
-						<div class="grid">
-							<I18nN
-								tag="span"
-								class="text-primary-700 dark:text-primary-100 font-bold"
-								format="currency"
-								:value="cart.totalDiscountValue"
-							/>
-						</div>
-					</div>
-					<div class="flex gap-1">
-						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100">
-								{{ $t('components.checkout.sidebar.vat') }}:
-							</span>
-						</div>
-						<div class="grid">
-							<I18nN
-								tag="span"
-								class="text-primary-700 dark:text-primary-100 font-bold"
-								format="currency"
-								:value="cart.totalVatValue"
-							/>
-						</div>
-					</div>
-					<div class="flex gap-1">
-						<div class="grid">
-							<span class="text-primary-700 dark:text-primary-100">
-								{{ $t('components.checkout.sidebar.total') }}:
-							</span>
-						</div>
-						<div class="grid">
-							<I18nN
-								tag="span"
-								class="text-primary-700 dark:text-primary-100 font-bold"
-								format="currency"
-								:value="cart.totalPrice"
-							/>
-						</div>
-					</div>
-				</div>
-			</div>
-			<template #fallback>
-				<ClientOnlyFallback height="121px" width="416px" />
-			</template>
-		</ClientOnly>
-		<slot name="button"></slot>
-	</div>
+  <div class="grid-rows-auto relative grid gap-2 md:gap-4">
+    <slot name="pay-ways" />
+    <slot name="items" />
+    <ClientOnly>
+      <div class="grid">
+        <div class="sr-only">
+          <h3 class="text-primary-700 dark:text-primary-100">
+            {{ $t('components.checkout.sidebar.title') }}
+          </h3>
+        </div>
+        <div v-if="cart && getCartItems?.length">
+          <div class="flex gap-1">
+            <div class="grid">
+              <span class="text-primary-700 dark:text-primary-100">
+                {{ $t('components.checkout.sidebar.items_unique') }}:
+              </span>
+            </div>
+            <div class="grid">
+              <span class="text-primary-700 dark:text-primary-100 font-bold">
+                {{ cart.totalItemsUnique }}
+              </span>
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <div class="grid">
+              <span class="text-primary-700 dark:text-primary-100">
+                {{ $t('components.checkout.sidebar.shipping') }}:
+              </span>
+            </div>
+            <div class="grid">
+              <I18nN
+                tag="span"
+                class="text-primary-700 dark:text-primary-100 font-bold"
+                format="currency"
+                :value="shippingPrice"
+              />
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <div class="grid">
+              <span class="text-primary-700 dark:text-primary-100">
+                {{ $t('components.checkout.sidebar.discount') }}:
+              </span>
+            </div>
+            <div class="grid">
+              <I18nN
+                tag="span"
+                class="text-primary-700 dark:text-primary-100 font-bold"
+                format="currency"
+                :value="cart.totalDiscountValue"
+              />
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <div class="grid">
+              <span class="text-primary-700 dark:text-primary-100">
+                {{ $t('components.checkout.sidebar.vat') }}:
+              </span>
+            </div>
+            <div class="grid">
+              <I18nN
+                tag="span"
+                class="text-primary-700 dark:text-primary-100 font-bold"
+                format="currency"
+                :value="cart.totalVatValue"
+              />
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <div class="grid">
+              <span class="text-primary-700 dark:text-primary-100">
+                {{ $t('components.checkout.sidebar.total') }}:
+              </span>
+            </div>
+            <div class="grid">
+              <I18nN
+                tag="span"
+                class="text-primary-700 dark:text-primary-100 font-bold"
+                format="currency"
+                :value="cart.totalPrice"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <template #fallback>
+        <ClientOnlyFallback height="121px" width="416px" />
+      </template>
+    </ClientOnly>
+    <slot name="button" />
+  </div>
 </template>

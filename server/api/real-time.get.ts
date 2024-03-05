@@ -1,5 +1,3 @@
-import type { H3Event } from 'h3'
-
 type ITheme = 'dark' | 'light'
 type IPAPIResponse = {
 	status: string
@@ -42,8 +40,8 @@ export type RealTimeResponse = {
 	theme: ITheme
 }
 
-export default defineEventHandler(async (event: H3Event) => {
-	const defaultTheme = (process.env.NUXT_PUBLIC_DEFAULT_THEME || 'light') as ITheme
+export default defineEventHandler(async () => {
+	const defaultTheme = 'light' as ITheme
 	try {
 		const ipApiResponse = await $fetch<IPAPIResponse>('http://ip-api.com/json', {
 			method: 'GET'

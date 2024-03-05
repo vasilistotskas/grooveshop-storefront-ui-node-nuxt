@@ -18,19 +18,19 @@ const isDark = computed({
 </script>
 
 <template>
-	<ClientOnly>
-		<UButton
-			:icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
-			color="gray"
-			variant="ghost"
-			aria-label="Theme"
-			size="xl"
-			class="p-0"
-			@click="isDark = !isDark"
-		/>
+  <ClientOnly>
+    <UButton
+      :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
+      color="gray"
+      variant="ghost"
+      aria-label="Theme"
+      size="xl"
+      class="p-0"
+      @click="isDark = !isDark"
+    />
 
-		<template #fallback>
-			<ClientOnlyFallback class="max-h-[24px] max-w-[24px]" width="24px" height="24px" />
-		</template>
-	</ClientOnly>
+    <template #fallback>
+      <ClientOnlyFallback class="max-h-[24px] max-w-[24px]" width="24px" height="24px" />
+    </template>
+  </ClientOnly>
 </template>

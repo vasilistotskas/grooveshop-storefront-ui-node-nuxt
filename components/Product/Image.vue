@@ -43,20 +43,20 @@ const alt = computed(() => {
 </script>
 
 <template>
-	<NuxtPicture
-		:loading="imgLoading"
-		provider="mediaStream"
-		:width="width"
-		:height="height"
-		:fit="'contain'"
-		:position="'entropy'"
-		:background="'transparent'"
-		:trim-threshold="5"
-		:sizes="`xs:${width}px sm:${width}px md:${
-			width / 2
-		}px lg:${width}px xl:${width}px xxl:${width}px 2xl:${width}px`"
-		:src="src"
-		:alt="alt"
-		densities="x1"
-	/>
+  <NuxtPicture
+    :loading="imgLoading"
+    provider="mediaStream"
+    :width="width"
+    :height="height"
+    :fit="'contain'"
+    :position="'entropy'"
+    :background="'transparent'"
+    :trim-threshold="5"
+    :sizes="`xs:${width}px sm:${width}px md:${
+      width / 2
+    }px lg:${width}px xl:${width}px xxl:${width}px 2xl:${width}px`"
+    :src="src"
+    :alt="alt"
+    densities="x1"
+  />
 </template>

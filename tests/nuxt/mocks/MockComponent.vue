@@ -4,5 +4,5 @@ const doubled = computed(() => counter.value * 2)
 </script>
 
 <template>
-	<div>Mocked {{ counter }} * 2 = {{ doubled }}</div>
+  <div>Mocked {{ counter }} * 2 = {{ doubled }}</div>
 </template>

@@ -64,16 +64,14 @@ export const ZodReviewParams = z.object({
 	id: z.string()
 })
 
-export const ZodReviewUserToProductReviewBody = z.object({
+export const ZodReviewUserProductReviewBody = z.object({
 	product: z.string(),
 	user: z.string()
 })
 
 export type ProductReview = z.infer<typeof ZodProductReview>
 export type ProductReviewParams = z.infer<typeof ZodReviewParams>
-export type ReviewUserToProductReviewBody = z.infer<
-	typeof ZodReviewUserToProductReviewBody
->
+export type ReviewUserProductReviewBody = z.infer<typeof ZodReviewUserProductReviewBody>
 export type ProductReviewCreateBody = z.infer<typeof ZodProductReviewCreateBody>
 export type ProductReviewCreateQuery = z.infer<typeof ZodProductReviewCreateQuery>
 export type ProductReviewPutBody = z.infer<typeof ZodProductReviewPutBody>

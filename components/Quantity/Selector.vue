@@ -41,37 +41,37 @@ const changeQuantityEvent = async (event: Event) => {
 </script>
 
 <template>
-	<div
-		class="quantity-selector grid grid-cols-3 items-center justify-center justify-items-center"
-	>
-		<button
-			class="text-primary-700 dark:text-primary-100"
-			:disabled="cartItemQuantity <= 1"
-			:aria-label="'decrease'"
-			type="button"
-			@click="decreaseQuantityEvent"
-		>
-			<IconFaSolid:minus />
-		</button>
-		<select
-			class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
-			:value="cartItemQuantity"
-			:aria-label="'quantity'"
-			@change="changeQuantityEvent"
-		>
-			<option v-for="i in max" :key="i" :value="i" :selected="i === cartItemQuantity">
-				{{ i }}
-			</option>
-		</select>
+  <div
+    class="quantity-selector grid grid-cols-3 items-center justify-center justify-items-center"
+  >
+    <button
+      class="text-primary-700 dark:text-primary-100"
+      :disabled="cartItemQuantity <= 1"
+      :aria-label="'decrease'"
+      type="button"
+      @click="decreaseQuantityEvent"
+    >
+      <IconFaSolid:minus />
+    </button>
+    <select
+      class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
+      :value="cartItemQuantity"
+      :aria-label="'quantity'"
+      @change="changeQuantityEvent"
+    >
+      <option v-for="i in max" :key="i" :value="i" :selected="i === cartItemQuantity">
+        {{ i }}
+      </option>
+    </select>
 
-		<button
-			class="text-primary-700 dark:text-primary-100"
-			:disabled="cartItemQuantity >= max"
-			:aria-label="'increase'"
-			type="button"
-			@click="increaseQuantityEvent"
-		>
-			<IconFaSolid:plus />
-		</button>
-	</div>
+    <button
+      class="text-primary-700 dark:text-primary-100"
+      :disabled="cartItemQuantity >= max"
+      :aria-label="'increase'"
+      type="button"
+      @click="increaseQuantityEvent"
+    >
+      <IconFaSolid:plus />
+    </button>
+  </div>
 </template>

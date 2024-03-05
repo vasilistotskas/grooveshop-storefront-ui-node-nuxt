@@ -5,7 +5,6 @@ import { css } from './config/css'
 import { delayHydration } from './config/delay-hydration'
 import { device } from './config/device'
 import { devtools } from './config/devtools'
-import { eslint } from './config/eslint'
 import { experimental } from './config/experimental'
 import { htmlValidator } from './config/html-validator'
 import { i18n } from './config/i18n'
@@ -49,7 +48,6 @@ export default defineNuxtConfig({
 	tailwindcss,
 	i18n,
 	css,
-	eslint,
 	runtimeConfig,
 	cookieControl,
 	vue,

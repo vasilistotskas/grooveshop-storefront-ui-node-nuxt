@@ -22,14 +22,14 @@ function onSubmit() {
 </script>
 
 <template>
-	<div class="container-xxs p-0 md:px-6">
-		<section class="grid items-center justify-center justify-items-center">
-			<UButton
-				:label="$t('pages.auth.security.mfa.recovery.codes.generate.form.button')"
-				size="xl"
-				color="white"
-				@click="onSubmit"
-			/>
-		</section>
-	</div>
+  <div class="container-xxs p-0 md:px-6">
+    <section class="grid items-center justify-center justify-items-center">
+      <UButton
+        :label="$t('pages.auth.security.mfa.recovery.codes.generate.form.button')"
+        size="xl"
+        color="white"
+        @click="onSubmit"
+      />
+    </section>
+  </div>
 </template>

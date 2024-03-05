@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { baseImageProps } from '#image/components/_base'
 import type { ExtractPropTypes } from 'vue'
+
+import { baseImageProps } from '#image/components/_base'
 
 interface Emits {
 	(e: 'error', data: any): void
@@ -23,6 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 const attrs = useAttrs()
 
 const propsWithoutFallbackAndSrc = computed(() => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { fallback, src, ...restProps } = props
 
 	return { ...attrs, ...restProps }
@@ -37,12 +39,12 @@ const handleError = (data: any) => {
 </script>
 
 <template>
-	<NuxtImg
-		v-if="!hasError || !fallback"
-		v-bind="propsWithoutFallbackAndSrc"
-		:src="src"
-		@error="handleError"
-		@load="emit('load', $event)"
-	/>
-	<NuxtImg v-else v-bind="propsWithoutFallbackAndSrc" :src="fallback" alt="fallback" />
+  <NuxtImg
+    v-if="!hasError || !fallback"
+    v-bind="propsWithoutFallbackAndSrc"
+    :src="src"
+    @error="handleError"
+    @load="emit('load', $event)"
+  />
+  <NuxtImg v-else v-bind="propsWithoutFallbackAndSrc" :src="fallback" alt="fallback" />
 </template>

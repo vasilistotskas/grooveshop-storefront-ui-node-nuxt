@@ -62,44 +62,45 @@ watch(
 </script>
 
 <template>
-	<div class="products-list grid w-full gap-4">
-		<div class="flex flex-row items-center gap-2">
-			<PaginationLimitOffset
-				v-if="pagination"
-				:page="pagination.page"
-				:limit="pagination.limit"
-				:offset="pagination.offset"
-				:total-pages="pagination.totalPages"
-				:page-total-results="pagination.pageTotalResults"
-			/>
-			<Ordering
-				:ordering="String(ordering)"
-				:ordering-options="orderingOptions.orderingOptionsArray.value"
-			/>
-		</div>
-		<ol
-			class="grid grid-cols-1 justify-center gap-4"
-			:class="{
-				'items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4':
-					pending || data?.results?.length,
-				'items-start': !pending && !data?.results?.length
-			}"
-		>
-			<template v-if="!pending && data?.results?.length">
-				<ProductCard
-					v-for="(product, index) in data?.results"
-					:key="index"
-					:product="product"
-					:img-loading="index > 7 ? 'lazy' : 'eager'"
-			/></template>
-			<template v-if="pending">
-				<ClientOnlyFallback v-for="index in 8" :key="index" height="402px" width="100%" />
-			</template>
-			<EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
-				<template #actions>
-					<UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
-				</template>
-			</EmptyState>
-		</ol>
-	</div>
+  <div class="products-list grid w-full gap-4">
+    <div class="flex flex-row items-center gap-2">
+      <PaginationLimitOffset
+        v-if="pagination"
+        :page="pagination.page"
+        :limit="pagination.limit"
+        :offset="pagination.offset"
+        :total-pages="pagination.totalPages"
+        :page-total-results="pagination.pageTotalResults"
+      />
+      <Ordering
+        :ordering="String(ordering)"
+        :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+    </div>
+    <ol
+      class="grid grid-cols-1 justify-center gap-4"
+      :class="{
+        'items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4':
+          pending || data?.results?.length,
+        'items-start': !pending && !data?.results?.length
+      }"
+    >
+      <template v-if="!pending && data?.results?.length">
+        <ProductCard
+          v-for="(product, index) in data?.results"
+          :key="index"
+          :product="product"
+          :img-loading="index > 7 ? 'lazy' : 'eager'"
+        />
+      </template>
+      <template v-if="pending">
+        <ClientOnlyFallback v-for="index in 8" :key="index" height="402px" width="100%" />
+      </template>
+      <EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
+        <template #actions>
+          <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+        </template>
+      </EmptyState>
+    </ol>
+  </div>
 </template>

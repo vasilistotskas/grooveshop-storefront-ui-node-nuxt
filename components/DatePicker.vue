@@ -30,15 +30,15 @@ const attrs = [
 </script>
 
 <template>
-	<VDatePicker
-		v-model="date"
-		transparent
-		borderless
-		:attributes="attrs"
-		:is-dark="isDark"
-		:locale="locale"
-		title-position="left"
-		trim-weeks
-		:first-day-of-week="2"
-	/>
+  <VDatePicker
+    v-model="date"
+    transparent
+    borderless
+    :attributes="attrs"
+    :is-dark="isDark"
+    :locale="locale"
+    title-position="left"
+    trim-weeks
+    :first-day-of-week="2"
+  />
 </template>

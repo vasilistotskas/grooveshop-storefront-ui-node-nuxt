@@ -127,17 +127,17 @@ const onAnimationLoaded = () => {
 </script>
 
 <template>
-	<LazyLottie
-		ref="lottie"
-		:text="buttonLabel"
-		:component-element="'button'"
-		:size="size"
-		:animation-data="heartJSON"
-		:width="'40px'"
-		:height="'40px'"
-		:loop="false"
-		:auto-play="false"
-		@on-animation-loaded="onAnimationLoaded"
-		@click="toggleFavourite"
-	/>
+  <LazyLottie
+    ref="lottie"
+    :text="buttonLabel"
+    :component-element="'button'"
+    :size="size"
+    :animation-data="heartJSON"
+    :width="'40px'"
+    :height="'40px'"
+    :loop="false"
+    :auto-play="false"
+    @on-animation-loaded="onAnimationLoaded"
+    @click="toggleFavourite"
+  />
 </template>
