@@ -1,3 +1,10 @@
+# [1.66.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.65.1...v1.66.0) (2024-3-5)
+
+
+### Features
+
+* eslint use official nuxt3 module and Bump Versions ([27b9490](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27b94903c6a145a8abc73593d18bab2a84aa9a9e))
+
 ## [1.65.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.65.0...v1.65.1) (2024-3-3)
 
 
