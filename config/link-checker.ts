@@ -4,7 +4,7 @@ export const linkChecker = {
 		markdown: true
 	},
 	debug: process.env.NODE_ENV !== 'production',
-	enabled: false,
+	enabled: true,
 	excludeLinks: [
 		process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
 		process.env.NUXT_PUBLIC_SOCIALS_TWITTER,
