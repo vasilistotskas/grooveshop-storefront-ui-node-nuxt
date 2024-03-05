@@ -1,3 +1,10 @@
+## [1.66.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.66.0...v1.66.1) (2024-3-5)
+
+
+### Bug Fixes
+
+* **sw:** registerRoute for media stream images cache ([eb76925](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eb76925baa547d9ec891c9c165a0469cc4ceb679))
+
 # [1.66.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.65.1...v1.66.0) (2024-3-5)
 
 
