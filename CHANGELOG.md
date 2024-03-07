@@ -1,3 +1,10 @@
+# [1.67.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.66.1...v1.67.0) (2024-03-07)
+
+
+### Features
+
+* Blog comments and likes prototype, new utils for translation objects and Bump Versions ([3e41931](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3e419319a41114acf3ca6a1a1b567709770153c2))
+
 ## [1.66.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.66.0...v1.66.1) (2024-3-5)
 
 
