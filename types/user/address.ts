@@ -36,7 +36,7 @@ export const ZodUserAddressQuery = z.object({
 	id: z.string().nullish(),
 	user: z.string().nullish(),
 	expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-	pagination: z.string().nullish()
+	pagination: z.union([z.literal('true'), z.literal('false')]).nullish()
 })
 
 export const ZodUserAddressCreateBody = z.object({

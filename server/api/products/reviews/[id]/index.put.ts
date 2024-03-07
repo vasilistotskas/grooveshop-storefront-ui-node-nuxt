@@ -6,7 +6,6 @@ import {
 	ZodProductReviewPutBody,
 	ZodReviewParams
 } from '~/types/product/review'
-import { buildFullUrl } from '~/utils/api'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

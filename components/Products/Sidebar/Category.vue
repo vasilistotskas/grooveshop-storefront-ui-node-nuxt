@@ -12,7 +12,6 @@ const emit = defineEmits<{
 const { category } = toRefs(props)
 const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
-const { extractTranslated } = useTranslationExtractor()
 
 const route = useRoute()
 

@@ -7,7 +7,6 @@ const route = useRoute('checkout-success-uuid___en')
 const orderUUID = route.params.uuid
 
 const { t, locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 const { resolveImageSrc } = useImageResolver()
 
 const { data, error } = await useFetch<Order>(`/api/orders/uuid/${orderUUID}`, {
@@ -94,7 +93,6 @@ definePageMeta({
                 $t('pages.checkout.success.main.title', { customerName: customerName })
               }}
             </h2>
-            <!-- eslint-disable vue/no-v-html -->
             <p
               class="text-primary-700 dark:text-primary-100 text-center"
               v-html="

@@ -24,7 +24,7 @@ export const ZodBlogTagQuery = z.object({
 	ordering: z.string().nullish(),
 	id: z.string().nullish(),
 	active: z.string().nullish(),
-	pagination: z.string().nullish()
+	pagination: z.union([z.literal('true'), z.literal('false')]).nullish()
 })
 
 export const ZodBlogTagParams = z.object({

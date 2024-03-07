@@ -10,13 +10,12 @@ import { capitalize } from '~/utils/str'
 const { user, loggedIn } = useUserSession()
 
 const userStore = useUserStore()
-const { getIsProductInFavourites, getUserToProductFavourite } = userStore
+const { getUserProductFavourite } = userStore
 
 const route = useRoute('product-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
 const toast = useToast()
-const { extractTranslated } = useTranslationExtractor()
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
 const productId = route.params.id
@@ -68,12 +67,8 @@ const shareOptions = reactive({
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
-const productInUserFavourites = computed(() => {
-	return getIsProductInFavourites(Number(productId))
-})
-
-const userToProductFavourite = computed(() => {
-	return getUserToProductFavourite(Number(productId))
+const userProductFavourite = computed(() => {
+	return getUserProductFavourite(Number(productId))
 })
 
 const openModal = () => {
@@ -198,8 +193,8 @@ definePageMeta({
                 <LottieAddToFavourite
                   :product-id="product.id"
                   :user-id="user?.id"
-                  :is-favourite="productInUserFavourites"
-                  :favourite="userToProductFavourite"
+                  :is-favourite="userProductFavourite !== null"
+                  :favourite="userProductFavourite"
                   :is-authenticated="loggedIn"
                 />
               </PageSection>
@@ -286,7 +281,7 @@ definePageMeta({
         <ProductReviews
           :product-id="String(product.id)"
           :reviews-average="product.reviewAverage"
-          :reviews-count="product.reviewCounter"
+          :reviews-count="product.reviewCount"
           display-image-of="user"
         />
       </div>

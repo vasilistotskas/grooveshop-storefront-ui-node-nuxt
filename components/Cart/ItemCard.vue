@@ -10,7 +10,6 @@ const props = defineProps({
 const cartStore = useCartStore()
 const { fetchCart, deleteCartItem } = cartStore
 
-const { extractTranslated } = useTranslationExtractor()
 const { locale } = useI18n()
 const { contentShorten } = useText()
 const { resolveImageSrc } = useImageResolver()

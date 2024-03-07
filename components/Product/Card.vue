@@ -26,12 +26,11 @@ const props = defineProps({
 
 const userStore = useUserStore()
 const { user, loggedIn } = useUserSession()
-const { getIsProductInFavourites, getUserToProductFavourite } = userStore
+const { getUserProductFavourite } = userStore
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
 const { resolveImageSrc } = useImageResolver()
-const { extractTranslated } = useTranslationExtractor()
 
 const { product } = toRefs(props)
 
@@ -48,7 +47,7 @@ const src = computed(() => {
 })
 
 const alt = computed(() => {
-	return extractTranslated(product.value, 'name', locale.value)
+	return extractTranslated(product?.value, 'name', locale.value)
 })
 
 const shareOptions = reactive({
@@ -59,12 +58,8 @@ const shareOptions = reactive({
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
 
-const productInUserFavourites = computed(() => {
-	return getIsProductInFavourites(product.value?.id)
-})
-
-const userToProductFavourite = computed(() => {
-	return getUserToProductFavourite(product.value?.id)
+const userProductFavourite = computed(() => {
+	return getUserProductFavourite(product.value?.id)
 })
 </script>
 
@@ -129,8 +124,8 @@ const userToProductFavourite = computed(() => {
                 v-if="showAddToFavouriteButton"
                 :product-id="product.id"
                 :user-id="user?.id"
-                :is-favourite="productInUserFavourites"
-                :favourite="userToProductFavourite"
+                :is-favourite="userProductFavourite !== null"
+                :favourite="userProductFavourite"
                 :is-authenticated="loggedIn"
                 size="lg"
               />

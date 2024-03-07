@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const { recoveryCodesList } = useAuthMfa()
 
-const { data } = await recoveryCodesList()
-const codes = data.value?.unusedCodes
+const { data: recoveryCodes } = await recoveryCodesList()
+const codes = recoveryCodes.value?.unusedCodes
 const rows = codes?.map((code: string) => ({ code })) ?? []
 const columns = [
 	{
@@ -34,7 +34,7 @@ const downloadCodes = () => {
       @click="downloadCodes"
     />
     <section class="grid">
-      <LazyUTable v-if="data" :rows="rows" :columns="columns" />
+      <LazyUTable v-if="recoveryCodes" :rows="rows" :columns="columns" />
     </section>
   </div>
 </template>

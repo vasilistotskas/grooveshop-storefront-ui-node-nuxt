@@ -97,7 +97,7 @@ components:
         product_id: Product ID
         created_at: Created At
       summary:
-        reviews: Reviews
+        reviews: No Reviews | 1 Review | %{count} Reviews
     review:
       write_review: Write a review
       edit_review: Edit review
@@ -201,6 +201,10 @@ components:
     post:
       card:
         share: Share
+      comments:
+        title: Comments
+        summary:
+          comments: No Comments | 1 Comment | %{count} Comments
   favourite:
     list:
       favourites: Favourites

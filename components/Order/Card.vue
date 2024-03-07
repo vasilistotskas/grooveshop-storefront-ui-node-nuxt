@@ -19,7 +19,6 @@ const { order, maxItems } = toRefs(props)
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
-const { extractTranslated } = useTranslationExtractor()
 const { statusClass } = useOrder()
 </script>
 

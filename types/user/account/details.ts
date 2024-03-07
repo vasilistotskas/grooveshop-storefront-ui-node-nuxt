@@ -11,7 +11,9 @@ export const ZodUserAccountDetails = z.object({
 	orders: z.array(z.lazy(() => ZodOrder)).nullish(),
 	productReviews: z.array(z.lazy(() => ZodProductReview)).nullish(),
 	userAddresses: z.array(z.lazy(() => ZodUserAddress)).nullish(),
-	blogComments: z.array(z.lazy(() => ZodBlogComment)).nullish()
+	blogPostComments: z.array(z.lazy(() => ZodBlogComment)).nullish(),
+	blogLikedPosts: z.array(z.number()).nullish(),
+	blogLikedComments: z.array(z.number()).nullish()
 })
 
 export const ZodUserAccountDetailsQuery = z.object({

@@ -10,7 +10,7 @@ export const useImageResolver = () => {
 	}
 
 	const resolveImageSrc = (
-		filename: string | null | undefined,
+		filename: string | null | undefined | unknown,
 		source: string | undefined
 	) => {
 		if (!source || !filename) return 'static/images/default.png'

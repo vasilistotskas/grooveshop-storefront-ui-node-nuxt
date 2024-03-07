@@ -3,7 +3,6 @@ import type { Pagination } from '~/types/pagination'
 import type { ProductCategory } from '~/types/product/category'
 
 const { locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 const route = useRoute()
 
 const { data, pending } = await useLazyAsyncData('productCategories', () =>
@@ -33,7 +32,7 @@ const filteredCategories = computed(() => {
 		})
 		.filter((category) => {
 			return extractTranslated(category, 'name', locale.value)
-				.toLowerCase()
+				?.toLowerCase()
 				.includes(searchQuery.value.toLowerCase())
 		})
 })

@@ -24,7 +24,7 @@ export const ZodProduct = z.object({
 	vatValue: z.number(),
 	finalPrice: z.number(),
 	hits: z.number().int(),
-	likesCounter: z.number().int(),
+	likesCount: z.number().int(),
 	stock: z.number().int(),
 	active: z.boolean(),
 	weight: z.number(),
@@ -40,7 +40,7 @@ export const ZodProduct = z.object({
 	mainImageAbsoluteUrl: z.string().nullish(),
 	mainImageFilename: z.string().nullish(),
 	reviewAverage: z.number(),
-	reviewCounter: z.number().int()
+	reviewCount: z.number().int()
 })
 
 export const ZodProductCreateBody = z.object({
@@ -82,4 +82,4 @@ export type ProductOrderingField =
 	| 'finalPrice'
 	| 'priceSavePercent'
 	| 'reviewAverage'
-	| 'likesCounter'
+	| 'likesCount'

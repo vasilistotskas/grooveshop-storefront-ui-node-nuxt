@@ -48,9 +48,9 @@ const onSubmit = handleSubmit((values) => {
 	})
 		.then(async () => {
 			await fetch()
-			const { data } = await userAccountDetails()
-			if (data.value) {
-				setAccountState(data.value)
+			const { data: accountDetails } = await userAccountDetails()
+			if (accountDetails.value) {
+				setAccountState(accountDetails.value)
 			}
 			await Promise.all([totpActive(), fetchCart()])
 			const to = route.query.redirect?.toString() || '/account'

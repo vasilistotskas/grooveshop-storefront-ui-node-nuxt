@@ -94,3 +94,9 @@ common:
     title: Filters
     clear: Clear
     apply: Apply
+  ordering:
+    id: ID
+    created_at: Created At
+  like: Like
+  unlike: Unlike
+  reply: Reply

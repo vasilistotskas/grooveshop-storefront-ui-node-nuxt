@@ -17,7 +17,6 @@ defineSlots<{
 }>()
 
 const { t, locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 const payWay = useState<PayWay | null>('selectedPayWay', () => null)
 
 const emit = defineEmits(['update-model'])
@@ -32,7 +31,10 @@ const selectedPayWay = computed(() => {
 	return payWay.value || undefined
 })
 
-const getPayWayLottie = (name: string) => {
+const getPayWayLottie = (name: string | undefined) => {
+	if (!name) {
+		return CreditCardJSON
+	}
 	switch (name) {
 		case PayWayEnum.CREDIT_CARD: {
 			return CreditCardJSON

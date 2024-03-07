@@ -8,12 +8,16 @@ import { configFileName } from './constants'
 import type { Config } from './types'
 import { validateConfig } from './validator'
 
+const configExtensions = ['.json', '.yaml', '.yml'] as const
+
 const getConfigFilePath = async (
 	rootDir = process.cwd(),
-	configExtensions = ['.json', '.yaml', '.yml']
+	extensions = configExtensions
 ): Promise<string> => {
-	const buildConfigFilePaths = (configFileName: string, extensions: string[]) =>
-		extensions.map((ext) => path.join(rootDir, `${configFileName}${ext}`))
+	const buildConfigFilePaths = (
+		configFileName: string,
+		extensions: typeof configExtensions
+	) => extensions.map((ext) => path.join(rootDir, `${configFileName}${ext}`))
 
 	const findExistingConfigFiles = async (
 		filePaths: string[]
@@ -31,7 +35,7 @@ const getConfigFilePath = async (
 		return existingFiles
 	}
 
-	const filePaths = buildConfigFilePaths(configFileName, configExtensions)
+	const filePaths = buildConfigFilePaths(configFileName, extensions)
 	const foundConfigs = await findExistingConfigFiles(filePaths)
 
 	if (foundConfigs.length > 1) {

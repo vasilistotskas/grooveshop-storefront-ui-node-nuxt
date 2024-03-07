@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BlogTag } from '~/types/blog/tag'
 
-const { data } = await useLazyAsyncData('blogTags', () =>
+const { data: blogTags } = await useLazyAsyncData('blogTags', () =>
 	$fetch<BlogTag[]>('/api/blog/tags', {
 		method: 'GET',
 		params: {
@@ -12,13 +12,12 @@ const { data } = await useLazyAsyncData('blogTags', () =>
 )
 
 const { locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 
 const searchQuery = ref('')
 const filteredTags = computed(() => {
-	return data?.value?.filter((tag) => {
+	return blogTags?.value?.filter((tag) => {
 		return extractTranslated(tag, 'name', locale.value)
-			.toLowerCase()
+			?.toLowerCase()
 			.includes(searchQuery.value.toLowerCase())
 	})
 })

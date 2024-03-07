@@ -27,9 +27,8 @@ defineProps({
       <span class="text-sm font-semibold text-yellow-600">/{{ maxRate }}</span>
     </div>
     <div class="flex items-center gap-1">
-      <span class="text-sm font-semibold text-yellow-600">{{ reviewsCount }}</span>
       <span class="text-sm font-semibold text-yellow-600">
-        {{ $t('components.product.reviews.summary.reviews') }}
+        {{ $t('components.product.reviews.summary.reviews', reviewsCount) }}
       </span>
     </div>
   </div>

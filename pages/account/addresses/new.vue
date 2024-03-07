@@ -16,7 +16,6 @@ import type { UserAddress } from '~/types/user/address'
 const { user } = useUserSession()
 
 const { t, locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 
 const ZodUserAddress = z.object({
@@ -126,8 +125,6 @@ const { data: regions } = await useLazyAsyncData(
 	}
 )
 
-const updatedValues = ref<Partial<UserAddress>>({})
-
 const onCountryChange = (event: Event) => {
 	if (!(event.target instanceof HTMLSelectElement)) return
 	country.value = event.target.value
@@ -135,18 +132,7 @@ const onCountryChange = (event: Event) => {
 }
 
 const onSubmit = handleSubmit(async (values) => {
-	updatedValues.value = Object.keys(values).reduce(
-		(acc, key) => {
-			const validKey = key as keyof typeof values
-			if (String(values[validKey]) === defaultSelectOptionChoose) {
-				acc[validKey] = null as never
-			} else {
-				acc[validKey] = values[validKey] as never
-			}
-			return acc
-		},
-		{} as typeof values
-	)
+	const updatedValues = processValues(values)
 
 	await useFetch<UserAddress>(`/api/user/addresses`, {
 		method: 'POST',

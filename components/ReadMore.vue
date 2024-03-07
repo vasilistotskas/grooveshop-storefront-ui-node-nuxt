@@ -28,7 +28,6 @@ const trimmedText = computed(() => {
 
 <template>
   <div v-if="text && text.length > maxChars" class="relative">
-    <!-- eslint-disable vue/no-v-html -->
     <div
       v-if="!showFullText"
       class="text-primary-700 dark:text-primary-100 overflow-hidden"

@@ -41,7 +41,6 @@ const backgroundStars = (productRate: number): string[] => {
 <template>
   <div class="flex flex-col gap-1">
     <div class="flex max-w-[130px]">
-      <!-- eslint-disable vue/no-v-html -->
       <svg
         v-for="(star, i) of backgroundStars(rate)"
         :key="i"

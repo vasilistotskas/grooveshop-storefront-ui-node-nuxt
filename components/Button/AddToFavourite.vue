@@ -40,7 +40,9 @@ const props = defineProps({
 
 const userStore = useUserStore()
 const { favouriteProducts } = storeToRefs(userStore)
-const { getIsProductInFavourites } = userStore
+const { getUserProductFavourite } = userStore
+const colorMode = useColorMode()
+const isDark = computed(() => colorMode.value === 'dark')
 
 const { t } = useI18n()
 const toast = useToast()
@@ -52,7 +54,7 @@ const toggleFavourite = async () => {
 		})
 		return
 	}
-	const isProductInFavorites = getIsProductInFavourites(props.productId)
+	const isProductInFavorites = getUserProductFavourite(props.productId)
 	if (!isProductInFavorites) {
 		await useFetch<ProductFavourite>(`/api/products/favourites`, {
 			method: 'POST',
@@ -116,18 +118,25 @@ const buttonLabel = computed(() => {
 		: t('components.add_to_favourite_button.add')
 })
 
-const buttonColor = computed(() => {
-	return props.isFavourite ? 'rose' : 'white'
+const backgroundColor = computed(() => {
+	return props.isFavourite ? 'rgb(239 68 68)' : isDark.value ? 'white' : 'black'
 })
 </script>
 
 <template>
   <UButton
+    class="add-to-favourite-btn"
     :size="size"
     :label="buttonLabel"
     :icon="!isFavourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
-    :color="buttonColor"
+    :color="'white'"
     :aria-label="buttonLabel || $t('components.add_to_favourite_button.add')"
     @click="toggleFavourite"
   />
 </template>
+
+<style lang="scss" scoped>
+:deep(.i-heroicons-heart) {
+	background-color: v-bind(backgroundColor);
+}
+</style>

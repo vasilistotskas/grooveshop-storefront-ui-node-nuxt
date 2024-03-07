@@ -29,7 +29,7 @@ defineProps({
     <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <template v-for="favourite in favourites" :key="favourite.id">
         <ProductCard
-          v-if="typeof favourite.product !== 'number'"
+          v-if="!isEntityId(favourite.product)"
           :product="favourite.product"
           :show-add-to-cart-button="false"
           :img-width="260"

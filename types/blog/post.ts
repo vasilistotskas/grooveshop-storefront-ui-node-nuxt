@@ -36,9 +36,9 @@ export const ZodBlogPost = z.object({
 	uuid: z.string().uuid(),
 	mainImageAbsoluteUrl: z.string().nullish(),
 	mainImageFilename: z.string().nullish(),
-	numberOfLikes: z.number().int(),
-	numberOfComments: z.number().int(),
-	postTagsCount: z.number().int(),
+	likesCount: z.number().int(),
+	commentsCount: z.number().int(),
+	tagsCount: z.number().int(),
 	absoluteUrl: z.string()
 })
 

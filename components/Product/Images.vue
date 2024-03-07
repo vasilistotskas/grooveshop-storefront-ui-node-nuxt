@@ -13,27 +13,30 @@ const props = defineProps({
 })
 const { product } = toRefs(props)
 
-const { data } = await useFetch<Pagination<ProductImage>>(`/api/products/images`, {
-	key: `productImages${product.value.id}`,
-	method: 'GET',
-	params: {
-		product: product.value.id
+const { data: productImages } = await useFetch<Pagination<ProductImage>>(
+	`/api/products/images`,
+	{
+		key: `productImages${product.value.id}`,
+		method: 'GET',
+		params: {
+			product: product.value.id
+		}
 	}
-})
+)
 
-const mainImage = ref(data.value?.results?.find((image) => image.isMain))
+const mainImage = ref(productImages.value?.results?.find((image) => image.isMain))
 
 const selectedImageId = useState<number>(`${product.value.uuid}-imageID`, () => {
-	if (!data.value?.results) {
+	if (!productImages.value?.results) {
 		return 0
 	}
-	return mainImage.value?.id || data.value?.results[0]?.id || 0
+	return mainImage.value?.id || productImages.value?.results[0]?.id || 0
 })
 
 watch(
 	() => selectedImageId.value,
 	(value) => {
-		const image = data.value?.results?.find((image) => image.id === value)
+		const image = productImages.value?.results?.find((image) => image.id === value)
 		if (image) {
 			mainImage.value = image
 		}
@@ -42,7 +45,10 @@ watch(
 </script>
 
 <template>
-  <div class="grid" :class="[data?.results && data?.results?.length > 1 ? 'gap-4' : '']">
+  <div
+    class="grid"
+    :class="[productImages?.results && productImages?.results?.length > 1 ? 'gap-4' : '']"
+  >
     <div
       class="inline-table h-64 items-center justify-center justify-items-center rounded-lg bg-zinc-100 md:grid md:h-80"
     >
@@ -50,9 +56,9 @@ watch(
     </div>
 
     <UCarousel
-      v-if="data?.results && data?.results?.length > 1"
+      v-if="productImages?.results && productImages?.results?.length > 1"
       v-slot="{ item }"
-      :items="data?.results"
+      :items="productImages?.results"
       :ui="{ item: 'basis-full md:basis-1/2 lg:basis-1/3' }"
       class="overflow-hidden rounded-lg"
       arrows

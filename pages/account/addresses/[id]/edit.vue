@@ -13,7 +13,6 @@ import type { Region } from '~/types/region'
 import { ZodUserAccount } from '~/types/user/account'
 import type { UserAddress } from '~/types/user/address'
 
-const { extractTranslated } = useTranslationExtractor()
 const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute('account-addresses-id-edit___en')
@@ -145,18 +144,7 @@ const onCountryChange = (event: Event) => {
 	region.value = defaultSelectOptionChoose
 }
 const onSubmit = handleSubmit(async (values) => {
-	const updatedValues = Object.keys(values).reduce(
-		(acc, key) => {
-			const validKey = key as keyof typeof values
-			if (String(values[validKey]) === defaultSelectOptionChoose) {
-				acc[validKey] = null as never
-			} else {
-				acc[validKey] = values[validKey] as never
-			}
-			return acc
-		},
-		{} as typeof values
-	)
+	const updatedValues = processValues(values)
 
 	await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
 		method: 'PUT',

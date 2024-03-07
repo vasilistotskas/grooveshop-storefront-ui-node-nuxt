@@ -21,7 +21,6 @@ const props = defineProps({
 
 const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
-const { extractTranslated } = useTranslationExtractor()
 const { contentShorten } = useText()
 
 const { post } = toRefs(props)
@@ -133,9 +132,9 @@ const startShare = () => share().catch((err) => err)
               densities="x1"
             />
           </div>
-          <div v-if="typeof post.author !== 'number'" class="grid">
+          <div v-if="!isEntityId(post.author)" class="grid">
             <span
-              v-if="typeof post.author.user !== 'number'"
+              v-if="!isEntityId(post.author.user)"
               class="text-primary-700 dark:text-primary-100 text-sm font-bold"
             >
               {{ post.author.user.firstName }} {{ post.author.user.lastName }}

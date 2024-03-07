@@ -12,7 +12,6 @@ const { data: order } = await useFetch<Order>(`/api/orders/${orderId}`, {
 const { locale } = useI18n()
 const { statusClass } = useOrder()
 const { resolveImageSrc } = useImageResolver()
-const { extractTranslated } = useTranslationExtractor()
 
 definePageMeta({
 	layout: 'user'

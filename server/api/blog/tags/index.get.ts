@@ -1,7 +1,6 @@
 import type { H3Event } from 'h3'
 
 import { ZodBlogTag, ZodBlogTagQuery } from '~/types/blog/tag'
-import { buildFullUrl } from '~/utils/api'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

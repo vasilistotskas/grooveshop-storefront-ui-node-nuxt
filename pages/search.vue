@@ -182,7 +182,6 @@ definePageMeta({
                 @click="currentSearch = cleanHtml(headline)"
               >
                 <IconFa6Solid:magnifyingGlass />
-                <!-- eslint-disable vue/no-v-html -->
                 <span
                   class="text-primary-700 dark:text-primary-100 truncate font-bold"
                   v-html="headline"

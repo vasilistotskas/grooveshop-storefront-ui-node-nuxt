@@ -17,17 +17,11 @@ const props = defineProps({
 
 const { review, displayImageOf } = toRefs(props)
 
-const product = computed(() => {
-	return typeof review?.value?.product !== 'number' ? review?.value?.product : undefined
-})
-
-const userAccount = computed(() => {
-	return typeof review?.value?.user !== 'number' ? review?.value?.user : undefined
-})
+const product = computed(() => getEntityObject(review?.value?.product))
+const userAccount = computed(() => getEntityObject(review?.value?.user))
 
 const { resolveImageSrc } = useImageResolver()
 const { locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 const { contentShorten } = useText()
 
 const src = computed(() => {

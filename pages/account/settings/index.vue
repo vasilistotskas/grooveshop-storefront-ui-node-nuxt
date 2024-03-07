@@ -11,7 +11,6 @@ const { user, fetch } = useUserSession()
 const { fetchUser } = useAuth()
 
 const { t, locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 const toast = useToast()
 
 const userId = user.value?.id

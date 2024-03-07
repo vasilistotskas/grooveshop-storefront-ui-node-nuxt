@@ -46,7 +46,6 @@ const emit = defineEmits([
 	'delete-existing-review'
 ])
 
-const { extractTranslated } = useTranslationExtractor()
 const { t, locale } = useI18n()
 const route = useRoute()
 const toast = useToast()
@@ -438,7 +437,6 @@ watch(
   >
     <template #header>
       <div class="review_header">
-        <!-- eslint-disable vue/no-v-html -->
         <span
           class="review_header-title"
           v-html="
@@ -469,7 +467,6 @@ watch(
               @touchmove.passive="updateNewSelectionRatio($event)"
               @touchstart.passive="unlockSelection()"
             >
-              <!-- eslint-disable vue/no-v-html -->
               <svg
                 v-for="(star, i) of backgroundStars"
                 :key="i"
@@ -483,10 +480,8 @@ watch(
                 xmlns="http://www.w3.org/2000/svg"
                 v-html="star"
               />
-              <!-- eslint-enable -->
             </div>
             <div class="rating-board rating-foreground">
-              <!-- eslint-disable vue/no-v-html -->
               <svg
                 v-for="(star, i) of foregroundStars"
                 :key="i"
@@ -498,7 +493,6 @@ watch(
                 xmlns="http://www.w3.org/2000/svg"
                 v-html="star"
               />
-              <!-- eslint-enable -->
             </div>
             <span class="px-2">{{ reviewScoreText }}</span>
           </div>

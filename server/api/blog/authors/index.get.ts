@@ -2,7 +2,6 @@ import type { H3Event } from 'h3'
 
 import { ZodBlogAuthor, ZodBlogAuthorQuery } from '~/types/blog/author'
 import { ZodPagination } from '~/types/pagination'
-import { buildFullUrl } from '~/utils/api'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

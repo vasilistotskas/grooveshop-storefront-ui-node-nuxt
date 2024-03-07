@@ -177,7 +177,7 @@ export const useCartStore = defineStore('cart', () => {
 				vatValue: body.product.vatValue,
 				finalPrice: body.product.finalPrice,
 				hits: body.product.hits,
-				likesCounter: body.product.likesCounter,
+				likesCount: body.product.likesCount,
 				stock: body.product.stock,
 				active: body.product.active,
 				weight: body.product.weight,
@@ -193,7 +193,7 @@ export const useCartStore = defineStore('cart', () => {
 				mainImageAbsoluteUrl: body.product.mainImageAbsoluteUrl,
 				mainImageFilename: body.product.mainImageFilename,
 				reviewAverage: body.product.reviewAverage,
-				reviewCounter: body.product.reviewCounter
+				reviewCount: body.product.reviewCount
 			}
 			const newCartItem = {
 				id: Date.now(),

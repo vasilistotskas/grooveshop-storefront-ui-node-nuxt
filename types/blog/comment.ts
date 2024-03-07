@@ -24,7 +24,8 @@ export const ZodBlogComment = z.object({
 	createdAt: z.string().datetime({ offset: true }),
 	updatedAt: z.string().datetime({ offset: true }),
 	uuid: z.string().uuid(),
-	numberOfLikes: z.number().int()
+	likesCount: z.number().int(),
+	repliesCount: z.number().int()
 })
 
 export const ZodBlogCommentQuery = z.object({
@@ -32,7 +33,9 @@ export const ZodBlogCommentQuery = z.object({
 	ordering: z.string().nullish(),
 	id: z.string().nullish(),
 	user: z.string().nullish(),
-	post: z.string().nullish()
+	post: z.string().nullish(),
+	pagination: z.union([z.literal('true'), z.literal('false')]).nullish(),
+	expand: z.union([z.literal('true'), z.literal('false')]).nullish()
 })
 
 export const ZodBlogCommentParams = z.object({

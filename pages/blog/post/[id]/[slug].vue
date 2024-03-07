@@ -2,35 +2,24 @@
 import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
 
-import type { BlogAuthor } from '~/types/blog/author'
 import type { BlogPost } from '~/types/blog/post'
-import type { BlogTag } from '~/types/blog/tag'
-import type { UserAccount } from '~/types/user/account'
 
 const route = useRoute('blog-post-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 const { resolveImageSrc } = useImageResolver()
 
 const blogPostId = route.params.id
 
-const { data } = await useFetch<BlogPost>(`/api/blog/posts/${blogPostId}`, {
+const { data: blogPost } = await useFetch<BlogPost>(`/api/blog/posts/${blogPostId}`, {
 	key: `blogPost${blogPostId}`,
 	method: 'GET',
-	params: {
+	query: {
 		expand: 'true'
 	}
 })
 
-if (!data.value) {
-	throw createError({
-		statusCode: 404,
-		statusMessage: t('common.error.page.not.found')
-	})
-}
-
-if (!data.value) {
+if (!blogPost.value) {
 	throw createError({
 		statusCode: 404,
 		statusMessage: t('common.error.page.not.found')
@@ -38,33 +27,21 @@ if (!data.value) {
 }
 
 const blogPostBody = computed(() => {
-	return extractTranslated(data.value, 'body', locale.value)
+	return extractTranslated(blogPost.value, 'body', locale.value)
 })
 const blogPostSubtitle = computed(() => {
-	return extractTranslated(data.value, 'subtitle', locale.value)
+	return extractTranslated(blogPost.value, 'subtitle', locale.value)
 })
 const blogPostTitle = computed(() => {
-	return extractTranslated(data.value, 'title', locale.value)
+	return extractTranslated(blogPost.value, 'title', locale.value)
 })
-const blogPostAuthor = computed(() => {
-	if (typeof data.value?.author !== 'number') {
-		return data.value?.author as BlogAuthor
-	}
-	return null
-})
-const blogPostAuthorUser = computed(() => {
-	if (typeof blogPostAuthor.value?.user !== 'number') {
-		return blogPostAuthor.value?.user as UserAccount
-	}
-	return null
-})
-const blogPostTags = computed(() => {
-	return data.value?.tags as BlogTag[]
-})
+const blogPostAuthor = computed(() => getEntityObject(blogPost?.value?.author))
+const blogPostAuthorUser = computed(() => getEntityObject(blogPostAuthor?.value?.user))
+const blogPostTags = computed(() => getEntityObjectsFromArray(blogPost.value?.tags))
 const blogPostImageSrc = computed(() => {
 	return resolveImageSrc(
-		data.value?.mainImageFilename,
-		`media/uploads/blog/${data.value?.mainImageFilename}`
+		blogPost.value?.mainImageFilename,
+		`media/uploads/blog/${blogPost.value?.mainImageFilename}`
 	)
 })
 const blogPostAuthorUserImgSrc = computed(() => {
@@ -87,9 +64,9 @@ const links = [
 	{
 		to:
 			locale.value === config.public.defaultLocale
-				? `/blog/post/${blogPostId}/${data.value?.slug}`
-				: `/${locale.value}/blog/post/${blogPostId}/${data.value?.slug}`,
-		label: blogPostTitle.value
+				? `/blog/post/${blogPostId}/${blogPost.value?.slug}`
+				: `/${locale.value}/blog/post/${blogPostId}/${blogPost.value?.slug}`,
+		label: blogPostTitle.value || ''
 	}
 ]
 
@@ -111,20 +88,20 @@ const seoMetaOptions = {
 	ogTitle: blogPostTitle.value,
 	ogType: 'article',
 	ogUrl: config.public.baseUrl + routeFullPath.value,
-	ogImage: data.value?.mainImageAbsoluteUrl,
+	ogImage: blogPost.value?.mainImageAbsoluteUrl,
 	ogImageAlt: blogPostTitle.value,
 	twitterTitle: blogPostTitle.value,
 	twitterDescription: blogPostSubtitle.value,
-	twitterImage: data.value?.mainImageAbsoluteUrl,
-	msapplicationTileImage: data.value?.mainImageAbsoluteUrl
+	twitterImage: blogPost.value?.mainImageAbsoluteUrl,
+	msapplicationTileImage: blogPost.value?.mainImageAbsoluteUrl
 } satisfies UseSeoMetaInput
 useSchemaOrg([
 	defineArticle({
 		headline: blogPostTitle.value,
 		description: blogPostSubtitle.value,
-		image: data.value?.mainImageAbsoluteUrl,
-		datePublished: data.value?.createdAt,
-		dateModified: data.value?.updatedAt,
+		image: blogPost.value?.mainImageAbsoluteUrl,
+		datePublished: blogPost.value?.createdAt,
+		dateModified: blogPost.value?.updatedAt,
 		author: {
 			name:
 				blogPostAuthorUser.value?.firstName + ' ' + blogPostAuthorUser.value?.lastName,
@@ -137,7 +114,7 @@ const ogImageOptions = {
 	title: blogPostTitle.value,
 	description: blogPostSubtitle.value,
 	alt: blogPostTitle.value,
-	url: data.value?.mainImageAbsoluteUrl || '',
+	url: blogPost.value?.mainImageAbsoluteUrl || '',
 	cache: true,
 	cacheKey: `og-image-blog-post-${blogPostId}`,
 	cacheTtl: 60 * 60 * 24 * 7
@@ -151,10 +128,10 @@ definePageMeta({
 <template>
   <PageWrapper class="container">
     <PageBody>
-      <div v-if="data" class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
+      <div v-if="blogPost" class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
         <UBreadcrumb :links="links" class="mb-5" />
         <article
-          class="mx-auto flex max-w-2xl flex-col items-start justify-center border-gray-200 dark:border-gray-700"
+          class="mx-auto flex max-w-2xl flex-col items-start justify-center border-gray-200 pb-6 dark:border-gray-700"
         >
           <div class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4">
             <h2
@@ -193,9 +170,27 @@ definePageMeta({
               <div
                 class="text-primary-700 dark:text-primary-100 grid h-full items-center justify-center border-r-2 border-gray-400 pr-2 text-sm"
               >
-                <NuxtTime :datetime="data?.createdAt" />
+                <NuxtTime :datetime="blogPost?.createdAt" />
               </div>
-              <div class="flex justify-end">
+              <div class="flex justify-end gap-4">
+                <UButton
+                  icon="i-heroicons-heart"
+                  size="lg"
+                  color="white"
+                  square
+                  variant="solid"
+                  class="justify-self-start font-extrabold capitalize"
+                  :label="String(blogPost.likesCount)"
+                />
+                <UButton
+                  icon="i-heroicons-chat-bubble-oval-left"
+                  size="lg"
+                  color="white"
+                  square
+                  variant="solid"
+                  class="justify-self-start font-extrabold capitalize"
+                  :label="String(blogPost.commentsCount)"
+                />
                 <ClientOnly>
                   <UButton
                     v-if="isSupported"
@@ -241,7 +236,7 @@ definePageMeta({
                 v-if="blogPostTags && blogPostTags.length > 0"
                 class="scrollable-tags flex flex-wrap items-center md:gap-4"
               >
-                <li v-for="tag in blogPostTags" :key="tag.id">
+                <li v-for="tag in blogPostTags" :key="tag?.id">
                   <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
                     extractTranslated(tag, 'name', locale)
                   }}</span>
@@ -249,11 +244,15 @@ definePageMeta({
               </ul>
             </div>
             <div class="text-primary-700 dark:text-primary-100 mx-auto max-w-2xl">
-              <!-- eslint-disable vue/no-v-html -->
               <div v-html="blogPostBody" />
             </div>
           </div>
         </article>
+        <BlogPostComments
+          :blog-post-id="String(blogPost.id)"
+          :comments-count="blogPost.commentsCount"
+          display-image-of="user"
+        />
       </div>
     </PageBody>
   </PageWrapper>

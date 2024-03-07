@@ -5,7 +5,6 @@ import {
 	ZodUserAccountDetailsParams,
 	ZodUserAccountDetailsQuery
 } from '~/types/user/account/details'
-import { buildFullUrl } from '~/utils/api'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

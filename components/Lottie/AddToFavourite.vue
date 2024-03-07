@@ -38,7 +38,7 @@ const props = defineProps({
 
 const userStore = useUserStore()
 const { favouriteProducts } = storeToRefs(userStore)
-const { getIsProductInFavourites } = userStore
+const { getUserProductFavourite } = userStore
 
 const { t } = useI18n()
 const toast = useToast()
@@ -52,7 +52,7 @@ const toggleFavourite = async () => {
 		})
 		return
 	}
-	const isProductInFavorites = getIsProductInFavourites(props.productId)
+	const isProductInFavorites = getUserProductFavourite(props.productId)
 	if (!isProductInFavorites) {
 		await useFetch<ProductFavourite>(`/api/products/favourites`, {
 			method: 'POST',

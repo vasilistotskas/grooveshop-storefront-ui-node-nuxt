@@ -25,7 +25,6 @@ const { cleanCartState } = cartStore
 
 const { t, locale } = useI18n()
 const toast = useToast()
-const { extractTranslated } = useTranslationExtractor()
 
 const payWay = useState<PayWay | null>('selectedPayWay', () => null)
 
@@ -154,18 +153,7 @@ const onCountryChange = (event: Event) => {
 }
 
 const onSubmit = handleSubmit(async (values) => {
-	const updatedValues = Object.keys(values).reduce(
-		(acc, key) => {
-			const validKey = key as keyof typeof values
-			if (String(values[validKey]) === defaultSelectOptionChoose) {
-				acc[validKey] = null as never
-			} else {
-				acc[validKey] = values[validKey] as never
-			}
-			return acc
-		},
-		{} as typeof values
-	)
+	const updatedValues = processValues(values)
 
 	await useFetch<Order>('/api/orders', {
 		method: 'POST',

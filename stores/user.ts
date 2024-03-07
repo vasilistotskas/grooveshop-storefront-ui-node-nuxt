@@ -10,29 +10,39 @@ export const useUserStore = defineStore('user', () => {
 	const productReviews = ref<ProductReview[]>([])
 	const orders = ref<Order[]>([])
 	const userAddresses = ref<UserAddress[]>([])
-	const blogComments = ref<BlogComment[]>([])
+	const blogPostComments = ref<BlogComment[]>([])
+	const blogLikedPosts = ref<number[]>([])
+	const blogLikedComments = ref<number[]>([])
 
-	const getIsProductInFavourites = (id: number): boolean => {
-		return (
-			favouriteProducts.value?.some((favourite) => {
-				if (typeof favourite.product === 'number') {
-					return favourite.product === id
-				} else {
-					return favourite.product.id === id
-				}
-			}) || false
-		)
-	}
-
-	const getUserToProductFavourite = (id: number): ProductFavourite | null => {
+	const getUserProductFavourite = (productId: number): ProductFavourite | null => {
 		return (
 			favouriteProducts.value?.find((favourite) => {
 				if (typeof favourite.product === 'number') {
-					return favourite.product === id
+					return favourite.product === productId
 				} else {
-					return favourite.product.id === id
+					return favourite.product.id === productId
 				}
 			}) || null
+		)
+	}
+
+	const getBlogPostLiked = (id: number): boolean => {
+		return blogLikedPosts.value?.includes(id) || false
+	}
+
+	const getBlogCommentLiked = (id: number): boolean => {
+		return blogLikedComments.value?.includes(id) || false
+	}
+
+	const getUserHasCommentedBlogPost = (postId: number): boolean => {
+		return (
+			blogPostComments.value?.some((comment) => {
+				if (typeof comment.post === 'number') {
+					return comment.post === postId
+				} else {
+					return comment.post.id === postId
+				}
+			}) || false
 		)
 	}
 
@@ -41,7 +51,9 @@ export const useUserStore = defineStore('user', () => {
 		productReviews.value = data.productReviews || []
 		orders.value = data.orders || []
 		userAddresses.value = data.userAddresses || []
-		blogComments.value = data.blogComments || []
+		blogPostComments.value = data.blogPostComments || []
+		blogLikedPosts.value = data.blogLikedPosts || []
+		blogLikedComments.value = data.blogLikedComments || []
 	}
 
 	function cleanAccountState() {
@@ -49,7 +61,9 @@ export const useUserStore = defineStore('user', () => {
 		productReviews.value = []
 		orders.value = []
 		userAddresses.value = []
-		blogComments.value = []
+		blogPostComments.value = []
+		blogLikedPosts.value = []
+		blogLikedComments.value = []
 	}
 
 	function deleteAddress(id: number) {
@@ -106,7 +120,9 @@ export const useUserStore = defineStore('user', () => {
 		productReviews,
 		orders,
 		userAddresses,
-		blogComments,
+		blogPostComments,
+		blogLikedPosts,
+		blogLikedComments,
 		addReview,
 		updateReview,
 		deleteReview,
@@ -115,7 +131,9 @@ export const useUserStore = defineStore('user', () => {
 		addOrder,
 		setAccountState,
 		cleanAccountState,
-		getIsProductInFavourites,
-		getUserToProductFavourite
+		getUserProductFavourite,
+		getUserHasCommentedBlogPost,
+		getBlogPostLiked,
+		getBlogCommentLiked
 	}
 })

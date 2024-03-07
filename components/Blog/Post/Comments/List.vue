@@ -1,0 +1,62 @@
+<script lang="ts" setup>
+import type { PropType } from 'vue'
+
+import type { BlogComment } from '~/types/blog/comment'
+
+const props = defineProps({
+	commentsCount: {
+		type: Number,
+		required: false,
+		default: 0
+	},
+	comments: {
+		type: Array as PropType<BlogComment[] | null>,
+		required: true
+	},
+	displayImageOf: {
+		type: String as PropType<'user' | 'blogPost'>,
+		required: true,
+		validator: (value: string) => ['user', 'blogPost'].includes(value)
+	}
+})
+
+const { comments } = toRefs(props)
+const { loggedIn, user } = useUserSession()
+
+const userHasCommented = (comment: BlogComment) => {
+	if (loggedIn.value && user.value) {
+		const userId = isEntityId(comment.user) ? comment.user : comment.user.id
+		return userId === user.value.id
+	}
+	return false
+}
+
+comments?.value?.sort((a) => {
+	if (loggedIn.value && user.value) {
+		const userId = isEntityId(a.user) ? a.user : a.user.id
+		if (userId === user.value.id) {
+			return -1
+		}
+	}
+	return 0
+})
+</script>
+
+<template>
+  <div class="comments-list grid gap-4">
+    <BlogPostCommentsSummary
+      :comments-count="commentsCount"
+      class="comments-list-summary"
+    />
+    <div class="comments-list-items grid gap-4">
+      <BlogPostCommentsCard
+        v-for="comment in comments"
+        :key="comment.id"
+        :comment="comment"
+        :display-image-of="displayImageOf"
+        :class="userHasCommented(comment) ? 'user-commented' : ''"
+        class="comments-list-item rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800"
+      />
+    </div>
+  </div>
+</template>

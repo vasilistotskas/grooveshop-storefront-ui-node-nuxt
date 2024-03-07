@@ -5,7 +5,6 @@ import {
 	ZodBlogCommentCreateBody,
 	ZodBlogCommentCreateQuery
 } from '~/types/blog/comment'
-import { buildFullUrl } from '~/utils/api'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

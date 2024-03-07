@@ -1,6 +1,5 @@
 import { H3Event, sendRedirect } from 'h3'
 
-import { isTokenExpired } from '~/server/utils/jwt'
 import type { TokenVerifyResponse } from '~/types/auth'
 
 export default defineNitroPlugin(() => {

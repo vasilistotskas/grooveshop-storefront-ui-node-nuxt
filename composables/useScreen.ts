@@ -16,7 +16,7 @@ export const defaultScreenConfig = {
 	[Size.MEDIUM]: 768,
 	[Size.LARGE]: 992,
 	[Size.EXTRA_LARGE]: 1200
-}
+} as const
 
 export const useScreen = () => {
 	const screenSize = reactive({

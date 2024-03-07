@@ -11,7 +11,6 @@ const props = defineProps({
 })
 const { locale } = useI18n()
 const { item } = toRefs(props)
-const { extractTranslated } = useTranslationExtractor()
 const { resolveImageSrc } = useImageResolver()
 
 const src = computed(() => {

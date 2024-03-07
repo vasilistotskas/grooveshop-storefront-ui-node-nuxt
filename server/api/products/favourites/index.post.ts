@@ -5,7 +5,6 @@ import {
 	ZodProductFavouriteCreateBody,
 	ZodProductFavouriteQuery
 } from '~/types/product/favourite'
-import { buildFullUrl } from '~/utils/api'
 
 export default defineEventHandler(async (event: H3Event) => {
 	const config = useRuntimeConfig()

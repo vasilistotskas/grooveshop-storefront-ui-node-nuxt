@@ -3,7 +3,6 @@ const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 
 const { locale } = useI18n()
-const { extractTranslated } = useTranslationExtractor()
 </script>
 
 <template>
