@@ -5,7 +5,7 @@ const cartStore = useCartStore()
 const { cart, pending } = storeToRefs(cartStore)
 
 definePageMeta({
-	layout: 'default'
+  layout: 'default',
 })
 </script>
 
@@ -33,9 +33,16 @@ definePageMeta({
             />
           </div>
         </template>
-        <EmptyState v-if="!pending.cart && !cart?.cartItems?.length" :icon="emptyIcon">
+        <EmptyState
+          v-if="!pending.cart && !cart?.cartItems?.length"
+          :icon="emptyIcon"
+        >
           <template #actions>
-            <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+            <UButton
+              :label="$t('common.empty.button')"
+              :to="'index'"
+              color="white"
+            />
           </template>
         </EmptyState>
         <template #fallback>

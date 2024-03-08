@@ -4,11 +4,11 @@ import { ZodCountriesQuery, ZodCountry } from '~/types/country'
 import { ZodPagination } from '~/types/pagination'
 
 export default defineEventHandler(async (event: H3Event) => {
-	const config = useRuntimeConfig()
-	const query = await getValidatedQuery(event, ZodCountriesQuery.parse)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/country`, query)
-	const response = await $fetch(url, {
-		method: 'GET'
-	})
-	return await parseDataAs(response, ZodPagination(ZodCountry))
+  const config = useRuntimeConfig()
+  const query = await getValidatedQuery(event, ZodCountriesQuery.parse)
+  const url = buildFullUrl(`${config.public.apiBaseUrl}/country`, query)
+  const response = await $fetch(url, {
+    method: 'GET',
+  })
+  return await parseDataAs(response, ZodPagination(ZodCountry))
 })

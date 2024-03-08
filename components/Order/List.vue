@@ -4,15 +4,15 @@ import type { PropType } from 'vue'
 import type { Order } from '~/types/order/order'
 
 defineProps({
-	orders: {
-		type: Array as PropType<Order[] | null>,
-		required: true
-	}
+  orders: {
+    type: Array as PropType<Order[] | null>,
+    required: true,
+  },
 })
 defineSlots<{
-	default(props: {}): any
-	header(props: {}): any
-	footer(props: {}): any
+  default(props: {}): any
+  header(props: {}): any
+  footer(props: {}): any
 }>()
 </script>
 

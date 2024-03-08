@@ -1,25 +1,23 @@
 <script lang="ts" setup>
-import type { BlogTag } from '~/types/blog/tag'
-
 const { data: blogTags } = await useLazyAsyncData('blogTags', () =>
-	$fetch<BlogTag[]>('/api/blog/tags', {
-		method: 'GET',
-		params: {
-			active: 'true',
-			pagination: 'false'
-		}
-	})
+  $fetch('/api/blog/tags', {
+    method: 'GET',
+    query: {
+      active: 'true',
+      pagination: 'false',
+    },
+  }),
 )
 
 const { locale } = useI18n()
 
 const searchQuery = ref('')
 const filteredTags = computed(() => {
-	return blogTags?.value?.filter((tag) => {
-		return extractTranslated(tag, 'name', locale.value)
-			?.toLowerCase()
-			.includes(searchQuery.value.toLowerCase())
-	})
+  return blogTags?.value?.filter((tag) => {
+    return extractTranslated(tag, 'name', locale.value)
+      ?.toLowerCase()
+      .includes(searchQuery.value.toLowerCase())
+  })
 })
 </script>
 
@@ -51,7 +49,11 @@ const filteredTags = computed(() => {
         class="scrollable-tags grid items-center md:gap-4"
       >
         <li v-for="tag in filteredTags" :key="tag.id">
-          <UButton color="white" variant="solid" class="flex w-full items-center">
+          <UButton
+            color="white"
+            variant="solid"
+            class="flex w-full items-center"
+          >
             <UIcon name="i-heroicons-hashtag" />{{
               extractTranslated(tag, 'name', locale)
             }}
@@ -64,9 +66,9 @@ const filteredTags = computed(() => {
 
 <style lang="scss" scoped>
 .scrollable-tags {
-	@media screen and (min-width: 768px) {
-		max-height: 300px;
-		overflow-y: auto;
-	}
+  @media screen and (min-width: 768px) {
+    max-height: 300px;
+    overflow-y: auto;
+  }
 }
 </style>

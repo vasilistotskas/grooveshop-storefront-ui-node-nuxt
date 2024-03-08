@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 defineProps({
-	disabled: {
-		type: Boolean,
-		required: false
-	}
+  disabled: {
+    type: Boolean,
+    required: false,
+  },
 })
 defineSlots<{
-	default(props: {}): any
+  default(props: {}): any
 }>()
 </script>
 

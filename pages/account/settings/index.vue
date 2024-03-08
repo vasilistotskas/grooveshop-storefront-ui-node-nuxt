@@ -2,10 +2,6 @@
 import { z } from 'zod'
 
 import { defaultSelectOptionChoose } from '~/constants/general'
-import type { Country } from '~/types/country'
-import type { Pagination } from '~/types/pagination'
-import type { Region } from '~/types/region'
-import type { UserAccount } from '~/types/user/account'
 
 const { user, fetch } = useUserSession()
 const { fetchUser } = useAuth()
@@ -16,161 +12,162 @@ const toast = useToast()
 const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
-	email: z.string().email({
-		message: t('pages.account.settings.validation.email.invalid')
-	}),
-	firstName: z.string(),
-	lastName: z.string(),
-	phone: z.string(),
-	city: z.string(),
-	zipcode: z.string(),
-	address: z.string(),
-	place: z.string(),
-	birthDate: z.coerce
-		.date({
-			required_error: t('common.validation.date.required_error'),
-			invalid_type_error: t('common.validation.date.invalid_type_error')
-		})
-		.nullish(),
-	country: z.string().default(defaultSelectOptionChoose).nullish(),
-	region: z.string().default(defaultSelectOptionChoose).nullish()
+  email: z.string().email({
+    message: t('pages.account.settings.validation.email.invalid'),
+  }),
+  firstName: z.string(),
+  lastName: z.string(),
+  phone: z.string(),
+  city: z.string(),
+  zipcode: z.string(),
+  address: z.string(),
+  place: z.string(),
+  birthDate: z.coerce
+    .date({
+      required_error: t('common.validation.date.required_error'),
+      invalid_type_error: t('common.validation.date.invalid_type_error'),
+    })
+    .nullish(),
+  country: z.string().default(defaultSelectOptionChoose).nullish(),
+  region: z.string().default(defaultSelectOptionChoose).nullish(),
 })
 
 const validationSchema = toTypedSchema(ZodAccountSettings)
 
 const initialValues = ZodAccountSettings.parse({
-	email: user.value?.email || '',
-	firstName: user.value?.firstName || '',
-	lastName: user.value?.lastName || '',
-	phone: user.value?.phone || '',
-	city: user.value?.city || '',
-	zipcode: user.value?.zipcode || '',
-	address: user.value?.address || '',
-	place: user.value?.place || '',
-	birthDate: user.value?.birthDate || new Date('2000-01-01').toISOString().slice(0, 10),
-	country: user.value?.country || defaultSelectOptionChoose,
-	region: user.value?.region || defaultSelectOptionChoose
+  email: user.value?.email || '',
+  firstName: user.value?.firstName || '',
+  lastName: user.value?.lastName || '',
+  phone: user.value?.phone || '',
+  city: user.value?.city || '',
+  zipcode: user.value?.zipcode || '',
+  address: user.value?.address || '',
+  place: user.value?.place || '',
+  birthDate:
+    user.value?.birthDate || new Date('2000-01-01').toISOString().slice(0, 10),
+  country: user.value?.country || defaultSelectOptionChoose,
+  region: user.value?.region || defaultSelectOptionChoose,
 })
 
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
-	validationSchema,
-	initialValues
+  validationSchema,
+  initialValues,
 })
 
 const [email] = defineField('email')
 const [firstName, firstNameProps] = defineField('firstName', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [lastName, lastNameProps] = defineField('lastName', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
-const [phone, phoneProps] = defineField('phone', { validateOnModelUpdate: true })
+const [phone, phoneProps] = defineField('phone', {
+  validateOnModelUpdate: true,
+})
 const [city, cityProps] = defineField('city', { validateOnModelUpdate: true })
 const [zipcode, zipcodeProps] = defineField('zipcode', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [address, addressProps] = defineField('address', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
-const [place, placeProps] = defineField('place', { validateOnModelUpdate: true })
+const [place, placeProps] = defineField('place', {
+  validateOnModelUpdate: true,
+})
 const [country, countryProps] = defineField('country', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
-const [region, regionProps] = defineField('region', { validateOnModelUpdate: true })
+const [region, regionProps] = defineField('region', {
+  validateOnModelUpdate: true,
+})
 const [birthDate] = defineField('birthDate')
 
 const date = ref(new Date())
 
-const { data: countries } = await useLazyAsyncData('countries', () =>
-	$fetch<Pagination<Country>>('/api/countries', {
-		method: 'GET'
-	})
-)
+const { data: countries } = await useLazyFetch('/api/countries', {
+  key: 'countries',
+  method: 'GET',
+})
 
-const { data: regions } = await useLazyAsyncData(
-	'regions',
-	() =>
-		$fetch<Pagination<Region>>('/api/regions', {
-			method: 'GET',
-			params: {
-				country: country.value
-			}
-		}),
-	{
-		watch: [country]
-	}
-)
+const { data: regions } = await useLazyFetch('/api/regions', {
+  key: 'regions',
+  method: 'GET',
+  query: {
+    country: country.value,
+  },
+  watch: [country],
+})
 
 const label = computed(() => {
-	if (birthDate.value) {
-		return birthDate.value.toLocaleDateString('en-us', {
-			weekday: 'long',
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		})
-	}
-	return date.value.toLocaleDateString('en-us', {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric'
-	})
+  if (birthDate.value) {
+    return birthDate.value.toLocaleDateString('en-us', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+  return date.value.toLocaleDateString('en-us', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
 })
 
 const onCountryChange = (event: Event) => {
-	if (!(event.target instanceof HTMLSelectElement)) return
-	country.value = event.target.value
-	region.value = defaultSelectOptionChoose
+  if (!(event.target instanceof HTMLSelectElement)) return
+  country.value = event.target.value
+  region.value = defaultSelectOptionChoose
 }
 
 const onSubmit = handleSubmit(async (values) => {
-	if (
-		values.region === defaultSelectOptionChoose ||
-		values.country === defaultSelectOptionChoose
-	) {
-		values.region = null
-		values.country = null
-	}
+  if (
+    values.region === defaultSelectOptionChoose ||
+    values.country === defaultSelectOptionChoose
+  ) {
+    values.region = null
+    values.country = null
+  }
 
-	if (!userId) return
+  if (!userId) return
 
-	await useFetch<UserAccount>(`/api/user/account/${userId}`, {
-		method: 'PUT',
-		body: {
-			email: values.email,
-			firstName: values.firstName,
-			lastName: values.lastName,
-			phone: values.phone,
-			city: values.city,
-			zipcode: values.zipcode,
-			address: values.address,
-			place: values.place,
-			birthDate: values.birthDate?.toISOString().slice(0, 10),
-			country: values.country,
-			region: values.region
-		},
-		onRequestError() {
-			toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
-		},
-		async onResponse() {
-			await fetchUser()
-			await fetch()
-			toast.add({ title: t('pages.account.settings.form.success') })
-		},
-		onResponseError() {
-			toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
-		}
-	})
+  await useFetch(`/api/user/account/${userId}`, {
+    method: 'PUT',
+    body: {
+      email: values.email,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      phone: values.phone,
+      city: values.city,
+      zipcode: values.zipcode,
+      address: values.address,
+      place: values.place,
+      birthDate: values.birthDate?.toISOString().slice(0, 10),
+      country: values.country,
+      region: values.region,
+    },
+    onRequestError() {
+      toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
+    },
+    async onResponse() {
+      await fetchUser()
+      await fetch()
+      toast.add({ title: t('pages.account.settings.form.success') })
+    },
+    onResponseError() {
+      toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
+    },
+  })
 })
 
 const submitButtonDisabled = computed(() => {
-	return isSubmitting.value || Object.keys(errors.value).length > 0
+  return isSubmitting.value || Object.keys(errors.value).length > 0
 })
 
 definePageMeta({
-	layout: 'user',
-	keepalive: false
+  layout: 'user',
+  keepalive: false,
 })
 </script>
 
@@ -193,9 +190,10 @@ definePageMeta({
         @submit="onSubmit"
       >
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="firstName">{{
-            $t('pages.account.settings.form.first_name')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="firstName"
+          >{{ $t('pages.account.settings.form.first_name') }}</label>
           <div class="grid">
             <FormTextInput
               id="firstName"
@@ -209,14 +207,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.firstName" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.firstName
-          }}</span>
+          <span
+            v-if="errors.firstName"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.firstName }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="lastName">{{
-            $t('pages.account.settings.form.last_name')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="lastName"
+          >{{ $t('pages.account.settings.form.last_name') }}</label>
           <div class="grid">
             <FormTextInput
               id="lastName"
@@ -230,14 +230,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.lastName" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.lastName
-          }}</span>
+          <span
+            v-if="errors.lastName"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.lastName }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="phone">{{
-            $t('pages.account.settings.form.phone')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="phone"
+          >{{ $t('pages.account.settings.form.phone') }}</label>
           <div class="grid">
             <FormTextInput
               id="phone"
@@ -250,14 +252,16 @@ definePageMeta({
               autocomplete="tel"
             />
           </div>
-          <span v-if="errors.phone" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.phone
-          }}</span>
+          <span
+            v-if="errors.phone"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.phone }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="city">{{
-            $t('pages.account.settings.form.city')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="city"
+          >{{ $t('pages.account.settings.form.city') }}</label>
           <div class="grid">
             <FormTextInput
               id="city"
@@ -270,14 +274,16 @@ definePageMeta({
               autocomplete="address-level2"
             />
           </div>
-          <span v-if="errors.city" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.city
-          }}</span>
+          <span
+            v-if="errors.city"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.city }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="zipcode">{{
-            $t('pages.account.settings.form.zipcode')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="zipcode"
+          >{{ $t('pages.account.settings.form.zipcode') }}</label>
           <div class="grid">
             <FormTextInput
               id="zipcode"
@@ -290,14 +296,16 @@ definePageMeta({
               autocomplete="postal-code"
             />
           </div>
-          <span v-if="errors.zipcode" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.zipcode
-          }}</span>
+          <span
+            v-if="errors.zipcode"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.zipcode }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="address">{{
-            $t('pages.account.settings.form.address')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="address"
+          >{{ $t('pages.account.settings.form.address') }}</label>
           <div class="grid">
             <FormTextInput
               id="address"
@@ -310,14 +318,16 @@ definePageMeta({
               autocomplete="street-address"
             />
           </div>
-          <span v-if="errors.address" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.address
-          }}</span>
+          <span
+            v-if="errors.address"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.address }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="place">{{
-            $t('pages.account.settings.form.place')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="place"
+          >{{ $t('pages.account.settings.form.place') }}</label>
           <div class="grid">
             <FormTextInput
               id="place"
@@ -330,14 +340,16 @@ definePageMeta({
               autocomplete="address-level3"
             />
           </div>
-          <span v-if="errors.place" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.place
-          }}</span>
+          <span
+            v-if="errors.place"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.place }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="birthDate">{{
-            $t('pages.account.settings.form.birth_date')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="birthDate"
+          >{{ $t('pages.account.settings.form.birth_date') }}</label>
           <div class="grid">
             <UPopover :popper="{ placement: 'bottom-start' }">
               <UButton
@@ -346,18 +358,24 @@ definePageMeta({
                 color="white"
               />
               <template #panel="{ close }">
-                <LazyDatePicker id="birthDate" v-model="birthDate" @close="close" />
+                <LazyDatePicker
+                  id="birthDate"
+                  v-model="birthDate"
+                  @close="close"
+                />
               </template>
             </UPopover>
           </div>
-          <span v-if="errors.birthDate" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.birthDate
-          }}</span>
+          <span
+            v-if="errors.birthDate"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.birthDate }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="country">{{
-            $t('pages.account.settings.form.country')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="country"
+          >{{ $t('pages.account.settings.form.country') }}</label>
           <div class="grid">
             <VeeField
               id="country"
@@ -386,14 +404,16 @@ definePageMeta({
               </option>
             </VeeField>
           </div>
-          <span v-if="errors.country" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.country
-          }}</span>
+          <span
+            v-if="errors.country"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.country }}</span>
         </div>
         <div class="grid">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="region">{{
-            $t('pages.account.settings.form.region')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="region"
+          >{{ $t('pages.account.settings.form.region') }}</label>
           <div class="grid">
             <VeeField
               id="region"
@@ -422,9 +442,10 @@ definePageMeta({
               </option>
             </VeeField>
           </div>
-          <span v-if="errors.region" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.region
-          }}</span>
+          <span
+            v-if="errors.region"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.region }}</span>
         </div>
 
         <div class="grid items-end justify-end">

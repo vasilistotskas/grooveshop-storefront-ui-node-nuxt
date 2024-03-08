@@ -4,39 +4,45 @@ import type { PropType } from 'vue'
 import type { UserAccount } from '~/types/user/account'
 
 const props = defineProps({
-	userAccount: {
-		type: Object as PropType<UserAccount>,
-		required: true
-	},
-	showName: {
-		type: Boolean,
-		required: false,
-		default: true
-	},
-	imgWidth: {
-		type: [Number, String],
-		required: false,
-		default: 100
-	},
-	imgHeight: {
-		type: [Number, String],
-		required: false,
-		default: 100
-	},
-	backgroundBorder: {
-		type: Boolean,
-		required: false,
-		default: false
-	},
-	changeAvatar: {
-		type: Boolean,
-		required: false,
-		default: false
-	}
+  userAccount: {
+    type: Object as PropType<UserAccount>,
+    required: true,
+  },
+  showName: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  imgWidth: {
+    type: [Number, String],
+    required: false,
+    default: 100,
+  },
+  imgHeight: {
+    type: [Number, String],
+    required: false,
+    default: 100,
+  },
+  backgroundBorder: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  changeAvatar: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
-const { userAccount, showName, imgWidth, imgHeight, backgroundBorder, changeAvatar } =
-	toRefs(props)
+const {
+  userAccount,
+  showName,
+  imgWidth,
+  imgHeight,
+  backgroundBorder,
+  changeAvatar,
+} = toRefs(props)
 
 const { t } = useI18n()
 const toast = useToast()
@@ -45,72 +51,75 @@ const { fetch } = useUserSession()
 const { fetchUser } = useAuth()
 
 const src = computed(() => {
-	return resolveImageSrc(
-		userAccount.value?.mainImageFilename,
-		`media/uploads/users/${userAccount.value?.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    userAccount.value?.mainImageFilename,
+    `media/uploads/users/${userAccount.value?.mainImageFilename}`,
+  )
 })
 
 const alt = computed(() => {
-	return userAccount.value?.firstName + ' ' + userAccount.value?.lastName
+  return userAccount.value?.firstName + ' ' + userAccount.value?.lastName
 })
 
 const uploadImage = async (event: Event) => {
-	const allowedExtensions = ['jpg', 'jpeg', 'png']
-	const target = event.target as HTMLInputElement
-	const file = target.files?.[0]
-	const fileExtensionAllowed = allowedExtensions.includes(
-		file?.name.split('.').pop()?.toLowerCase() || ''
-	)
-	if (!file)
-		return toast.add({
-			title: t('components.user.avatar.no_file_selected')
-		})
-	if (!fileExtensionAllowed)
-		return toast.add({
-			title: t('components.user.avatar.file_extension_not_allowed')
-		})
-	const formData = new FormData()
-	formData.append('image', file)
-	if (!userAccount.value) return
+  const allowedExtensions = ['jpg', 'jpeg', 'png']
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  const fileExtensionAllowed = allowedExtensions.includes(
+    file?.name.split('.').pop()?.toLowerCase() || '',
+  )
+  if (!file)
+    return toast.add({
+      title: t('components.user.avatar.no_file_selected'),
+    })
+  if (!fileExtensionAllowed)
+    return toast.add({
+      title: t('components.user.avatar.file_extension_not_allowed'),
+    })
+  const formData = new FormData()
+  formData.append('image', file)
+  if (!userAccount.value) return
 
-	await useFetch<UserAccount>(`/api/user/account/${userAccount.value.id}`, {
-		method: 'PATCH',
-		body: formData,
-		onRequestError() {
-			toast.add({
-				title: t('components.user.avatar.image.upload.error'),
-				color: 'red'
-			})
-		},
-		async onResponse() {
-			toast.add({
-				title: t('components.user.avatar.image.updated')
-			})
-			await fetchUser()
-			await fetch()
-		},
-		onResponseError() {
-			toast.add({
-				title: t('components.user.avatar.image.upload.error'),
-				color: 'red'
-			})
-		}
-	})
+  await useFetch(`/api/user/account/${userAccount.value.id}`, {
+    method: 'PATCH',
+    body: formData,
+    onRequestError() {
+      toast.add({
+        title: t('components.user.avatar.image.upload.error'),
+        color: 'red',
+      })
+    },
+    async onResponse() {
+      toast.add({
+        title: t('components.user.avatar.image.updated'),
+      })
+      await fetchUser()
+      await fetch()
+    },
+    onResponseError() {
+      toast.add({
+        title: t('components.user.avatar.image.upload.error'),
+        color: 'red',
+      })
+    },
+  })
 }
 </script>
 
 <template>
-  <div class="flex flex-col items-center" :class="[showName ? 'gap-2' : 'gap-0']">
+  <div
+    class="flex flex-col items-center"
+    :class="[showName ? 'gap-2' : 'gap-0']"
+  >
     <div
       class="user-avatar relative grid items-center justify-center justify-items-center"
       :class="{
         'inline-block h-[135px] w-[135px] shrink-0 text-center align-middle':
-          backgroundBorder
+          backgroundBorder,
       }"
       :style="{
         width: typeof imgWidth === 'number' ? imgWidth + 'px' : imgWidth,
-        height: typeof imgHeight === 'number' ? imgHeight + 'px' : imgHeight
+        height: typeof imgHeight === 'number' ? imgHeight + 'px' : imgHeight,
       }"
     >
       <ImgWithFallback
@@ -208,30 +217,30 @@ const uploadImage = async (event: Event) => {
 
 <style lang="scss" scoped>
 .user-avatar-change {
-	svg {
-		display: none;
-		position: absolute;
-		top: 18px;
-		left: 1px;
-		transform: scale(0.4);
-		cursor: pointer;
+  svg {
+    display: none;
+    position: absolute;
+    top: 18px;
+    left: 1px;
+    transform: scale(0.4);
+    cursor: pointer;
 
-		@media screen and (min-width: 768px) {
-			display: block;
-			top: 21px;
-			transform: scale(0.5);
-			transition: all 0.5s linear;
-			stroke-dashoffset: 75px;
-			stroke-dasharray: 75px;
-		}
-	}
+    @media screen and (min-width: 768px) {
+      display: block;
+      top: 21px;
+      transform: scale(0.5);
+      transition: all 0.5s linear;
+      stroke-dashoffset: 75px;
+      stroke-dasharray: 75px;
+    }
+  }
 
-	&:hover {
-		background-color: transparent;
-	}
+  &:hover {
+    background-color: transparent;
+  }
 
-	.user-avatar:hover & svg {
-		stroke-dashoffset: 0;
-	}
+  .user-avatar:hover & svg {
+    stroke-dashoffset: 0;
+  }
 }
 </style>

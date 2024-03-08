@@ -16,21 +16,21 @@ const { fetchCart } = cartStore
 const { setAccountState } = userStore
 
 const ZodLogin = z.object({
-	email: z.string().email(),
-	password: z.string()
+  email: z.string().email(),
+  password: z.string(),
 })
 
 const validationSchema = toTypedSchema(ZodLogin)
 
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
-	validationSchema
+  validationSchema,
 })
 
 const [email, emailProps] = defineField('email', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [password, passwordProps] = defineField('password', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 
 const showPassword = ref(false)
@@ -40,33 +40,34 @@ const loading = ref(false)
 const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
 const onSubmit = handleSubmit((values) => {
-	loading.value = true
-	login({
-		email: values.email,
-		password: values.password,
-		rememberMe: rememberMe.value
-	})
-		.then(async () => {
-			await fetch()
-			const { data: accountDetails } = await userAccountDetails()
-			if (accountDetails.value) {
-				setAccountState(accountDetails.value)
-			}
-			await Promise.all([totpActive(), fetchCart()])
-			const to = route.query.redirect?.toString() || '/account'
-			await navigateTo(to)
-		})
-		.catch((error) => {
-			toast.add({
-				title: error.data.data?.nonFieldErrors[0] || t('common.auth.login.error'),
-				color: 'red'
-			})
-		})
-		.finally(async () => {
-			loading.value = false
-			bus.emit('fallbackModalClose')
-			await fetch()
-		})
+  loading.value = true
+  login({
+    email: values.email,
+    password: values.password,
+    rememberMe: rememberMe.value,
+  })
+    .then(async () => {
+      await fetch()
+      const { data: accountDetails } = await userAccountDetails()
+      if (accountDetails.value) {
+        setAccountState(accountDetails.value)
+      }
+      await Promise.all([totpActive(), fetchCart()])
+      const to = route.query.redirect?.toString() || '/account'
+      await navigateTo(to)
+    })
+    .catch((error) => {
+      toast.add({
+        title:
+          error.data.data?.nonFieldErrors[0] || t('common.auth.login.error'),
+        color: 'red',
+      })
+    })
+    .finally(async () => {
+      loading.value = false
+      bus.emit('fallbackModalClose')
+      await fetch()
+    })
 })
 
 const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
@@ -86,7 +87,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
         loading
           ? {
             enabled: true,
-            fontSize: '5rem'
+            fontSize: '5rem',
           }
           : undefined
       "
@@ -113,15 +114,17 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
               autocomplete="email"
               :required="true"
             />
-            <span v-if="errors.email" class="relative px-4 py-3 text-sm text-red-600">{{
-              errors.email
-            }}</span>
+            <span
+              v-if="errors.email"
+              class="relative px-4 py-3 text-sm text-red-600"
+            >{{ errors.email }}</span>
           </div>
 
           <div class="grid content-evenly items-start">
-            <label class="text-primary-700 dark:text-primary-100" for="password">{{
-              $t('pages.auth.login.form.password.label')
-            }}</label>
+            <label
+              class="text-primary-700 dark:text-primary-100"
+              for="password"
+            >{{ $t('pages.auth.login.form.password.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password"

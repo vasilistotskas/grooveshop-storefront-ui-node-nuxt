@@ -2,11 +2,11 @@
 import type { ProductCategory } from '~/types/product/category'
 
 const props = defineProps({
-	category: { type: Object as PropType<ProductCategory>, required: true }
+  category: { type: Object as PropType<ProductCategory>, required: true },
 })
 
 const emit = defineEmits<{
-	categoryClick: [category: ProductCategory]
+  categoryClick: [category: ProductCategory]
 }>()
 
 const { category } = toRefs(props)
@@ -16,56 +16,56 @@ const { resolveImageSrc } = useImageResolver()
 const route = useRoute()
 
 const categoryName = computed(() => {
-	return extractTranslated(category.value, 'name', locale.value)
+  return extractTranslated(category.value, 'name', locale.value)
 })
 
 function toggleCategoryId(currentIds: string[], categoryId: string): string[] {
-	const index = currentIds.indexOf(categoryId)
-	if (index > -1) {
-		currentIds.splice(index, 1)
-	} else {
-		currentIds.push(categoryId)
-	}
-	return currentIds
+  const index = currentIds.indexOf(categoryId)
+  if (index > -1) {
+    currentIds.splice(index, 1)
+  } else {
+    currentIds.push(categoryId)
+  }
+  return currentIds
 }
 
 const toUrl = computed(() => {
-	const existingCategoryIds = route.query.category
-		? route.query.category.toString().split('_')
-		: []
-	const updatedCategoryIds = toggleCategoryId(
-		existingCategoryIds,
-		category.value?.id.toString()
-	)
+  const existingCategoryIds = route.query.category
+    ? route.query.category.toString().split('_')
+    : []
+  const updatedCategoryIds = toggleCategoryId(
+    existingCategoryIds,
+    category.value?.id.toString(),
+  )
 
-	const updatedQuery =
-		updatedCategoryIds.length > 0
-			? {
-					category: updatedCategoryIds.join('_'),
-					ordering: route.query?.ordering
-				}
-			: {
-					ordering: route.query?.ordering
-				}
+  const updatedQuery =
+    updatedCategoryIds.length > 0
+      ? {
+          category: updatedCategoryIds.join('_'),
+          ordering: route.query?.ordering,
+        }
+      : {
+          ordering: route.query?.ordering,
+        }
 
-	return {
-		path: route.path,
-		query: updatedQuery
-	}
+  return {
+    path: route.path,
+    query: updatedQuery,
+  }
 })
 
 const isCategorySelected = computed(() => {
-	const existingCategoryIds = route.query.category
-		? route.query.category.toString().split('_')
-		: []
-	return existingCategoryIds.includes(category.value?.id.toString())
+  const existingCategoryIds = route.query.category
+    ? route.query.category.toString().split('_')
+    : []
+  return existingCategoryIds.includes(category.value?.id.toString())
 })
 
 const categoryImageSource = computed(() => {
-	return resolveImageSrc(
-		category.value?.categoryMenuImageOneFilename,
-		`media/uploads/categories/${category.value?.categoryMenuImageOneFilename}`
-	)
+  return resolveImageSrc(
+    category.value?.categoryMenuImageOneFilename,
+    `media/uploads/categories/${category.value?.categoryMenuImageOneFilename}`,
+  )
 })
 </script>
 
@@ -73,7 +73,7 @@ const categoryImageSource = computed(() => {
   <li
     :class="{
       'grid w-full rounded border border-gray-700 p-2 md:border-transparent md:p-0': true,
-      'bg-white dark:bg-zinc-800': isCategorySelected
+      'bg-white dark:bg-zinc-800': isCategorySelected,
     }"
   >
     <Anchor

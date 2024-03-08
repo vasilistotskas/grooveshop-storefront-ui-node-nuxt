@@ -3,47 +3,47 @@ import { z } from 'zod'
 import { ZodProduct } from '~/types/product/product'
 
 export const ZodCartItem = z.object({
-	id: z.number(),
-	cart: z.number(),
-	product: ZodProduct,
-	quantity: z.number(),
-	price: z.number().nullish(),
-	finalPrice: z.number().nullish(),
-	discountValue: z.number().nullish(),
-	priceSavePercent: z.number().nullish(),
-	discountPercent: z.number().nullish(),
-	vatPercent: z.number().nullish(),
-	vatValue: z.number().nullish(),
-	totalPrice: z.number().nullish(),
-	totalDiscountValue: z.number().nullish(),
-	createdAt: z.string().datetime({ offset: true }),
-	updatedAt: z.string().datetime({ offset: true }),
-	uuid: z.string().uuid()
+  id: z.number(),
+  cart: z.number(),
+  product: ZodProduct,
+  quantity: z.number(),
+  price: z.number().nullish(),
+  finalPrice: z.number().nullish(),
+  discountValue: z.number().nullish(),
+  priceSavePercent: z.number().nullish(),
+  discountPercent: z.number().nullish(),
+  vatPercent: z.number().nullish(),
+  vatValue: z.number().nullish(),
+  totalPrice: z.number().nullish(),
+  totalDiscountValue: z.number().nullish(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+  uuid: z.string().uuid(),
 })
 
 export const ZodCartItemAddBody = z.object({
-	product: z.lazy(() => ZodProduct),
-	quantity: z.number()
+  product: z.lazy(() => ZodProduct),
+  quantity: z.number(),
 })
 
 export const ZodCartItemCreateResponse = z.object({
-	id: z.number(),
-	cart: z.number(),
-	product: z.number(),
-	quantity: z.number()
+  id: z.number(),
+  cart: z.number(),
+  product: z.number(),
+  quantity: z.number(),
 })
 
 export const ZodCartItemCreateBody = z.object({
-	product: z.string(),
-	quantity: z.string()
+  product: z.string(),
+  quantity: z.string(),
 })
 
 export const ZodCartItemPutBody = z.object({
-	quantity: z.string()
+  quantity: z.string(),
 })
 
 export const ZodCartItemParams = z.object({
-	id: z.string()
+  id: z.string(),
 })
 
 export type CartItem = Readonly<z.infer<typeof ZodCartItem>>

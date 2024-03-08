@@ -9,7 +9,7 @@
 
 <style lang="scss" scoped>
 .demo-mode-message {
-	grid-row: 2;
-	grid-column: 1 / span 2;
+  grid-row: 2;
+  grid-column: 1 / span 2;
 }
 </style>

@@ -1,46 +1,45 @@
 <script lang="ts" setup>
-import type { Pagination } from '~/types/pagination'
-import type { ProductCategory } from '~/types/product/category'
-
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data, pending } = await useLazyAsyncData('productCategories', () =>
-	$fetch<Pagination<ProductCategory>>('/api/products/categories', {
-		method: 'GET'
-	})
+const { data: categories, pending } = await useLazyAsyncData(
+  'productCategories',
+  () =>
+    $fetch('/api/products/categories', {
+      method: 'GET',
+    }),
 )
 
 const sidebar = ref(null)
 const searchQuery = ref('')
 const selectedCategoryIds = computed(() => {
-	return route.query.category ? route.query.category.toString().split('_') : []
+  return route.query.category ? route.query.category.toString().split('_') : []
 })
 
 const filteredCategories = computed(() => {
-	return data.value?.results
-		?.slice()
-		.sort((a, b) => {
-			const aIsSelected = selectedCategoryIds.value.includes(a.id.toString())
-			const bIsSelected = selectedCategoryIds.value.includes(b.id.toString())
-			if (aIsSelected && !bIsSelected) {
-				return -1
-			} else if (!aIsSelected && bIsSelected) {
-				return 1
-			}
-			return 0
-		})
-		.filter((category) => {
-			return extractTranslated(category, 'name', locale.value)
-				?.toLowerCase()
-				.includes(searchQuery.value.toLowerCase())
-		})
+  return categories.value?.results
+    ?.slice()
+    .sort((a, b) => {
+      const aIsSelected = selectedCategoryIds.value.includes(a.id.toString())
+      const bIsSelected = selectedCategoryIds.value.includes(b.id.toString())
+      if (aIsSelected && !bIsSelected) {
+        return -1
+      } else if (!aIsSelected && bIsSelected) {
+        return 1
+      }
+      return 0
+    })
+    .filter((category) => {
+      return extractTranslated(category, 'name', locale.value)
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
+    })
 })
 
 onMounted(() => {
-	if (!sidebar.value) return
-	const { onScroll } = useSticky(sidebar.value as HTMLElement, 150)
-	setTimeout(() => onScroll(), 50)
+  if (!sidebar.value) return
+  const { onScroll } = useSticky(sidebar.value as HTMLElement, 150)
+  setTimeout(() => onScroll(), 50)
 })
 </script>
 
@@ -56,8 +55,10 @@ onMounted(() => {
       <div class="sidebar-header-sticky grid bg-zinc-100 dark:bg-zinc-900">
         <h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('common.categories') }}
-          <span class="text-primary-700 dark:text-primary-100 text-sm font-normal">
-            ({{ data?.count ?? 0 }})
+          <span
+            class="text-primary-700 dark:text-primary-100 text-sm font-normal"
+          >
+            ({{ categories?.count ?? 0 }})
           </span>
         </h3>
         <label class="sr-only" for="search">
@@ -85,7 +86,11 @@ onMounted(() => {
         </template>
 
         <template v-if="pending">
-          <li v-for="index in 8" :key="index" class="flex items-center space-x-4 p-2">
+          <li
+            v-for="index in 8"
+            :key="index"
+            class="flex items-center space-x-4 p-2"
+          >
             <USkeleton class="h-12 w-20" :ui="{ rounded: 'rounded-full' }" />
             <USkeleton class="h-[30px] w-full" />
           </li>
@@ -102,13 +107,13 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .sidebar {
-	&.sticky {
-		top: 0;
-	}
+  &.sticky {
+    top: 0;
+  }
 }
 .sidebar-header-sticky {
-	position: sticky;
-	top: 0;
-	z-index: 10;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 </style>

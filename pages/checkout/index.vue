@@ -2,17 +2,14 @@
 import { z } from 'zod'
 
 import {
-	defaultSelectOptionChoose,
-	floorChoicesList,
-	locationChoicesList
+  defaultSelectOptionChoose,
+  floorChoicesList,
+  locationChoicesList,
 } from '~/constants/general'
-import type { Country } from '~/types/country'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
-import { type Order, ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
+import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
-import type { Pagination } from '~/types/pagination'
 import type { PayWay } from '~/types/pay-way'
-import type { Region } from '~/types/region'
 
 const { user, fetch } = useUserSession()
 
@@ -28,174 +25,183 @@ const toast = useToast()
 
 const payWay = useState<PayWay | null>('selectedPayWay', () => null)
 
-const { data: countries } = await useLazyAsyncData('countries', () =>
-	$fetch<Pagination<Country>>('/api/countries', {
-		method: 'GET'
-	})
-)
+const { data: countries } = await useLazyFetch('/api/countries', {
+  key: 'countries',
+  method: 'GET',
+})
 
 const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
 const ZodCheckout = z.object({
-	user: z.string().nullish(),
-	country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.country.required')
-	}),
-	region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-		message: t('common.validation.region.required')
-	}),
-	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
-	street: z.string().min(3, t('pages.checkout.validation.street.min', { min: 3 })),
-	streetNumber: z
-		.string()
-		.min(1, t('pages.checkout.validation.street_number.min', { min: 1 })),
-	status: ZodOrderStatusEnum.nullish(),
-	firstName: z.string().min(3, t('pages.checkout.validation.first_name.min', { min: 3 })),
-	lastName: z.string().min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
-	email: z.string().email(t('pages.checkout.validation.email.email')),
-	zipcode: z.string().min(3, t('pages.checkout.validation.zipcode.min', { min: 3 })),
-	place: z.string().min(3, t('pages.checkout.validation.place.min', { min: 3 })),
-	city: z.string().min(3, t('pages.checkout.validation.city.min', { min: 3 })),
-	phone: z.string().min(3, t('pages.checkout.validation.phone.min', { min: 3 })),
-	mobilePhone: z.string().nullish(),
-	customerNotes: z.string().nullish(),
-	shippingPrice: z.number(),
-	documentType: ZodDocumentTypeEnum,
-	orderItemOrder: z.array(ZodOrderCreateItem),
-	payWay: z.number()
+  user: z.string().nullish(),
+  country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
+    message: t('common.validation.country.required'),
+  }),
+  region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
+    message: t('common.validation.region.required'),
+  }),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+  locationType: z
+    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
+    .nullish(),
+  street: z
+    .string()
+    .min(3, t('pages.checkout.validation.street.min', { min: 3 })),
+  streetNumber: z
+    .string()
+    .min(1, t('pages.checkout.validation.street_number.min', { min: 1 })),
+  status: ZodOrderStatusEnum.nullish(),
+  firstName: z
+    .string()
+    .min(3, t('pages.checkout.validation.first_name.min', { min: 3 })),
+  lastName: z
+    .string()
+    .min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
+  email: z.string().email(t('pages.checkout.validation.email.email')),
+  zipcode: z
+    .string()
+    .min(3, t('pages.checkout.validation.zipcode.min', { min: 3 })),
+  place: z
+    .string()
+    .min(3, t('pages.checkout.validation.place.min', { min: 3 })),
+  city: z.string().min(3, t('pages.checkout.validation.city.min', { min: 3 })),
+  phone: z
+    .string()
+    .min(3, t('pages.checkout.validation.phone.min', { min: 3 })),
+  mobilePhone: z.string().nullish(),
+  customerNotes: z.string().nullish(),
+  shippingPrice: z.number(),
+  documentType: ZodDocumentTypeEnum,
+  orderItemOrder: z.array(ZodOrderCreateItem),
+  payWay: z.number(),
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)
-const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } = useForm({
-	validationSchema,
-	initialValues: {
-		user: userId.value || null,
-		country: defaultSelectOptionChoose,
-		region: defaultSelectOptionChoose,
-		floor: defaultSelectOptionChoose,
-		locationType: defaultSelectOptionChoose,
-		orderItemOrder:
-			getCartItems.value?.map((item) => ({
-				...item,
-				product: item.product.id
-			})) || [],
-		shippingPrice: shippingPrice.value,
-		documentType: ZodDocumentTypeEnum.enum.RECEIPT
-	}
-})
+const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } =
+  useForm({
+    validationSchema,
+    initialValues: {
+      user: userId.value || null,
+      country: defaultSelectOptionChoose,
+      region: defaultSelectOptionChoose,
+      floor: defaultSelectOptionChoose,
+      locationType: defaultSelectOptionChoose,
+      orderItemOrder:
+        getCartItems.value?.map((item) => ({
+          ...item,
+          product: item.product.id,
+        })) || [],
+      shippingPrice: shippingPrice.value,
+      documentType: ZodDocumentTypeEnum.enum.RECEIPT,
+    },
+  })
 
 const [email, emailProps] = defineField('email', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [firstName, firstNameProps] = defineField('firstName', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [lastName, lastNameProps] = defineField('lastName', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [street, streetProps] = defineField('street', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [streetNumber, streetNumberProps] = defineField('streetNumber', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [zipcode, zipcodeProps] = defineField('zipcode', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [place, placeProps] = defineField('place', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [city, cityProps] = defineField('city', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [phone, phoneProps] = defineField('phone', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [mobilePhone, mobilePhoneProps] = defineField('mobilePhone', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [customerNotes, customerNotesProps] = defineField('customerNotes', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [floor, floorProps] = defineField('floor', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [locationType, locationTypeProps] = defineField('locationType', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [country, countryProps] = defineField('country', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [region, regionProps] = defineField('region', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 
-const { data: regions } = await useLazyAsyncData(
-	'regions',
-	() =>
-		$fetch<Pagination<Region>>('/api/regions', {
-			method: 'GET',
-			params: {
-				country: country.value
-			}
-		}),
-	{
-		watch: [country]
-	}
-)
+const { data: regions } = await useLazyFetch('/api/regions', {
+  key: 'regions',
+  method: 'GET',
+  query: {
+    country: country.value,
+  },
+  watch: [country],
+})
 
 const onCountryChange = (event: Event) => {
-	if (!(event.target instanceof HTMLSelectElement)) return
-	country.value = event.target.value
-	region.value = defaultSelectOptionChoose
+  if (!(event.target instanceof HTMLSelectElement)) return
+  country.value = event.target.value
+  region.value = defaultSelectOptionChoose
 }
 
 const onSubmit = handleSubmit(async (values) => {
-	const updatedValues = processValues(values)
+  const updatedValues = processValues(values)
 
-	await useFetch<Order>('/api/orders', {
-		method: 'POST',
-		body: updatedValues,
-		onRequestError() {
-			toast.add({
-				title: t('pages.checkout.form.submit.error'),
-				color: 'red'
-			})
-		},
-		async onResponse({ response }) {
-			toast.add({
-				title: t('pages.checkout.form.submit.success'),
-				color: 'green'
-			})
-			addOrder(response._data)
-			cleanCartState()
-			await fetch()
-			await navigateTo(`/checkout/success/${response._data.uuid}`)
-		},
-		onResponseError({ error }) {
-			toast.add({
-				title: error?.message,
-				color: 'red'
-			})
-		}
-	})
+  await useFetch('/api/orders', {
+    method: 'POST',
+    body: updatedValues,
+    onRequestError() {
+      toast.add({
+        title: t('pages.checkout.form.submit.error'),
+        color: 'red',
+      })
+    },
+    async onResponse({ response }) {
+      toast.add({
+        title: t('pages.checkout.form.submit.success'),
+        color: 'green',
+      })
+      addOrder(response._data)
+      cleanCartState()
+      await fetch()
+      await navigateTo(`/checkout/success/${response._data.uuid}`)
+    },
+    onResponseError({ error }) {
+      toast.add({
+        title: error?.message,
+        color: 'red',
+      })
+    },
+  })
 })
 
 const submitButtonDisabled = computed(() => {
-	return isSubmitting.value || Object.keys(errors.value).length > 0
+  return isSubmitting.value || Object.keys(errors.value).length > 0
 })
 
 watch(
-	() => payWay.value,
-	() => {
-		setFieldValue('payWay', payWay.value?.id || undefined)
-	}
+  () => payWay.value,
+  () => {
+    setFieldValue('payWay', payWay.value?.id || undefined)
+  },
 )
 
 definePageMeta({
-	layout: 'default'
+  layout: 'default',
 })
 </script>
 
@@ -455,9 +461,10 @@ definePageMeta({
           <div class="grid gap-4 md:grid-cols-2">
             <div class="grid content-evenly items-start gap-2">
               <div class="grid">
-                <label class="text-primary-700 dark:text-primary-100 mb-2" for="floor">{{
-                  $t('pages.checkout.form.floor')
-                }}</label>
+                <label
+                  class="text-primary-700 dark:text-primary-100 mb-2"
+                  for="floor"
+                >{{ $t('pages.checkout.form.floor') }}</label>
                 <VeeField
                   id="floor"
                   v-model="floor"
@@ -562,9 +569,10 @@ definePageMeta({
                 }}</span>
               </div>
               <div class="grid">
-                <label class="text-primary-700 dark:text-primary-100 mb-2" for="region">{{
-                  $t('pages.checkout.form.region')
-                }}</label>
+                <label
+                  class="text-primary-700 dark:text-primary-100 mb-2"
+                  for="region"
+                >{{ $t('pages.checkout.form.region') }}</label>
                 <div class="grid">
                   <VeeField
                     id="region"
@@ -607,9 +615,10 @@ definePageMeta({
           <template #pay-ways>
             <CheckoutPayWays>
               <template #error>
-                <span v-if="errors.payWay" class="text-center text-sm text-red-600">{{
-                  errors.payWay
-                }}</span>
+                <span
+                  v-if="errors.payWay"
+                  class="text-center text-sm text-red-600"
+                >{{ errors.payWay }}</span>
               </template>
             </CheckoutPayWays>
           </template>

@@ -1,4 +1,4 @@
 export const schemaOrg = {
-	enabled: true,
-	minify: true
+  enabled: true,
+  minify: true,
 }

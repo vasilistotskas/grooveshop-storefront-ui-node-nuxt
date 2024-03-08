@@ -1,3 +1,3 @@
 export const robots = {
-	disallow: ['/account', '/auth']
+  disallow: ['/account', '/auth'],
 }

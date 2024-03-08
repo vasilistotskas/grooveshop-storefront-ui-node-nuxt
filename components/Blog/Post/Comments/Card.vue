@@ -4,15 +4,15 @@ import type { PropType } from 'vue'
 import type { BlogComment } from '~/types/blog/comment'
 
 const props = defineProps({
-	comment: {
-		type: Object as PropType<BlogComment>,
-		required: true
-	},
-	displayImageOf: {
-		type: String as PropType<'user' | 'blogPost'>,
-		required: true,
-		validator: (value: string) => ['user', 'blogPost'].includes(value)
-	}
+  comment: {
+    type: Object as PropType<BlogComment>,
+    required: true,
+  },
+  displayImageOf: {
+    type: String as PropType<'user' | 'blogPost'>,
+    required: true,
+    validator: (value: string) => ['user', 'blogPost'].includes(value),
+  },
 })
 
 const { comment, displayImageOf } = toRefs(props)
@@ -25,35 +25,37 @@ const { locale } = useI18n()
 const { contentShorten } = useText()
 
 const src = computed(() => {
-	const path =
-		displayImageOf.value === 'user' ? `media/uploads/users/` : `media/uploads/blog/`
-	return resolveImageSrc(
-		displayImageOf.value === 'user'
-			? userAccount.value?.mainImageFilename
-			: blogPost.value?.mainImageFilename,
-		path +
-			(displayImageOf.value === 'user'
-				? userAccount.value?.mainImageFilename
-				: blogPost.value?.mainImageFilename)
-	)
+  const path =
+    displayImageOf.value === 'user'
+      ? `media/uploads/users/`
+      : `media/uploads/blog/`
+  return resolveImageSrc(
+    displayImageOf.value === 'user'
+      ? userAccount.value?.mainImageFilename
+      : blogPost.value?.mainImageFilename,
+    path +
+      (displayImageOf.value === 'user'
+        ? userAccount.value?.mainImageFilename
+        : blogPost.value?.mainImageFilename),
+  )
 })
 
 const alt = computed(() => {
-	return displayImageOf.value === 'user'
-		? userAccount.value?.firstName + ' ' + userAccount.value?.lastName
-		: extractTranslated(blogPost?.value, 'title', locale.value)
+  return displayImageOf.value === 'user'
+    ? userAccount.value?.firstName + ' ' + userAccount.value?.lastName
+    : extractTranslated(blogPost?.value, 'title', locale.value)
 })
 
 const blogPostName = computed(() =>
-	extractTranslated(blogPost?.value, 'title', locale.value)
+  extractTranslated(blogPost?.value, 'title', locale.value),
 )
 
 const commentContent = computed(() => {
-	return contentShorten(
-		extractTranslated(comment?.value, 'content', locale.value),
-		0,
-		120
-	)
+  return contentShorten(
+    extractTranslated(comment?.value, 'content', locale.value),
+    0,
+    120,
+  )
 })
 </script>
 
@@ -67,8 +69,14 @@ const commentContent = computed(() => {
             :user-account="userAccount"
             :show-name="false"
           />
-          <div v-if="displayImageOf === 'blogPost' && blogPost" class="grid gap-2">
-            <Anchor :to="`/blog/post${blogPost.absoluteUrl}`" :text="blogPostName">
+          <div
+            v-if="displayImageOf === 'blogPost' && blogPost"
+            class="grid gap-2"
+          >
+            <Anchor
+              :to="`/blog/post${blogPost.absoluteUrl}`"
+              :text="blogPostName"
+            >
               <ImgWithFallback
                 loading="lazy"
                 provider="mediaStream"
@@ -82,12 +90,21 @@ const commentContent = computed(() => {
         </div>
       </div>
       <div class="grid h-full w-full">
-        <div v-if="displayImageOf === 'blogPost' && blogPost" class="grid gap-4 text-2xl">
-          <Anchor :to="`/blog/post${blogPost.absoluteUrl}`" :text="blogPostName">
+        <div
+          v-if="displayImageOf === 'blogPost' && blogPost"
+          class="grid gap-4 text-2xl"
+        >
+          <Anchor
+            :to="`/blog/post${blogPost.absoluteUrl}`"
+            :text="blogPostName"
+          >
             <span class="text-lg font-medium">{{ blogPostName }}</span>
           </Anchor>
         </div>
-        <div v-if="userAccount && displayImageOf === 'user'" class="flex flex-col">
+        <div
+          v-if="userAccount && displayImageOf === 'user'"
+          class="flex flex-col"
+        >
           <span class="text-primary-700 dark:text-primary-100 font-bold">
             {{ userAccount?.firstName }}
           </span>

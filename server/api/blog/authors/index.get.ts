@@ -4,11 +4,11 @@ import { ZodBlogAuthor, ZodBlogAuthorQuery } from '~/types/blog/author'
 import { ZodPagination } from '~/types/pagination'
 
 export default defineEventHandler(async (event: H3Event) => {
-	const config = useRuntimeConfig()
-	const query = await getValidatedQuery(event, ZodBlogAuthorQuery.parse)
-	const url = buildFullUrl(`${config.public.apiBaseUrl}/blog/author`, query)
-	const response = await $fetch(url, {
-		method: 'GET'
-	})
-	return await parseDataAs(response, ZodPagination(ZodBlogAuthor))
+  const config = useRuntimeConfig()
+  const query = await getValidatedQuery(event, ZodBlogAuthorQuery.parse)
+  const url = buildFullUrl(`${config.public.apiBaseUrl}/blog/author`, query)
+  const response = await $fetch(url, {
+    method: 'GET',
+  })
+  return await parseDataAs(response, ZodPagination(ZodBlogAuthor))
 })

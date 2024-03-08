@@ -4,25 +4,25 @@ import type { PropType } from 'vue'
 import type { ProductReview } from '~/types/product/review'
 
 defineProps({
-	reviewsAverage: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	reviewsCount: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	reviews: {
-		type: Array as PropType<ProductReview[] | null>,
-		required: true
-	},
-	displayImageOf: {
-		type: String as PropType<'user' | 'product'>,
-		required: true,
-		validator: (value: string) => ['user', 'product'].includes(value)
-	}
+  reviewsAverage: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  reviewsCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  reviews: {
+    type: Array as PropType<ProductReview[] | null>,
+    required: true,
+  },
+  displayImageOf: {
+    type: String as PropType<'user' | 'product'>,
+    required: true,
+    validator: (value: string) => ['user', 'product'].includes(value),
+  },
 })
 </script>
 

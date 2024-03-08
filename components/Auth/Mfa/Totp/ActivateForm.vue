@@ -10,37 +10,37 @@ const { t } = useI18n()
 const toast = useToast()
 
 function onSubmit(values: MfaTotpActivatePostBody) {
-	totpActivatePost(values)
-		.then(async () => {
-			toast.add({
-				title: t('pages.auth.security.mfa.totp.activate.success'),
-				color: 'green'
-			})
-			await fetch()
-			await navigateTo('/account')
-		})
-		.catch(() => {
-			toast.add({
-				title: t('pages.auth.security.mfa.totp.activate.error'),
-				color: 'red'
-			})
-		})
+  totpActivatePost(values)
+    .then(async () => {
+      toast.add({
+        title: t('pages.auth.security.mfa.totp.activate.success'),
+        color: 'green',
+      })
+      await fetch()
+      await navigateTo('/account')
+    })
+    .catch(() => {
+      toast.add({
+        title: t('pages.auth.security.mfa.totp.activate.error'),
+        color: 'red',
+      })
+    })
 }
 
 const formSchema: DynamicFormSchema = {
-	fields: [
-		{
-			label: t('pages.auth.security.mfa.totp.activate.form.code.label'),
-			name: 'code',
-			as: 'input',
-			rules: z.string().min(6).max(6),
-			autocomplete: 'one-time-code',
-			readonly: false,
-			required: true,
-			placeholder: '123456',
-			type: 'text'
-		}
-	]
+  fields: [
+    {
+      label: t('pages.auth.security.mfa.totp.activate.form.code.label'),
+      name: 'code',
+      as: 'input',
+      rules: z.string().min(6).max(6),
+      autocomplete: 'one-time-code',
+      readonly: false,
+      required: true,
+      placeholder: '123456',
+      type: 'text',
+    },
+  ],
 }
 </script>
 

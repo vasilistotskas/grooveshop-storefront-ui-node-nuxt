@@ -5,7 +5,7 @@ const userStore = useUserStore()
 const { userAddresses } = storeToRefs(userStore)
 
 definePageMeta({
-	layout: 'user'
+  layout: 'user',
 })
 </script>
 
@@ -26,7 +26,11 @@ definePageMeta({
         <li>
           <EmptyState :icon="emptyIcon">
             <template #actions>
-              <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+              <UButton
+                :label="$t('common.empty.button')"
+                :to="'index'"
+                color="white"
+              />
             </template>
           </EmptyState>
         </li>

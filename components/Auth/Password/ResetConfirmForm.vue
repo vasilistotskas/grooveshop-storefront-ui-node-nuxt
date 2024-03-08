@@ -9,45 +9,47 @@ const uid = route.params.uid
 const token = route.params.token
 
 const ZodPasswordResetConfirm = z
-	.object({
-		newPassword1: z.string().min(8).max(255),
-		newPassword2: z.string().min(8).max(255),
-		uid: z.string(),
-		token: z.string()
-	})
-	.refine((data) => data.newPassword1 === data.newPassword2, {
-		message: t('pages.auth.password.reset.confirm.form.newPassword2.errors.match'),
-		path: ['newPassword2']
-	})
+  .object({
+    newPassword1: z.string().min(8).max(255),
+    newPassword2: z.string().min(8).max(255),
+    uid: z.string(),
+    token: z.string(),
+  })
+  .refine((data) => data.newPassword1 === data.newPassword2, {
+    message: t(
+      'pages.auth.password.reset.confirm.form.newPassword2.errors.match',
+    ),
+    path: ['newPassword2'],
+  })
 
 const initialValues = {
-	newPassword1: '',
-	newPassword2: '',
-	uid,
-	token
+  newPassword1: '',
+  newPassword2: '',
+  uid,
+  token,
 }
 
 const validationSchema = toTypedSchema(ZodPasswordResetConfirm)
 
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
-	validationSchema,
-	initialValues
+  validationSchema,
+  initialValues,
 })
 
 const [newPassword1, newPassword1Props] = defineField('newPassword1', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [newPassword2, newPassword2Props] = defineField('newPassword2', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 
 const onSubmit = handleSubmit(async (values) => {
-	await passwordResetConfirm({
-		newPassword1: values.newPassword1,
-		newPassword2: values.newPassword2,
-		uid: values.uid,
-		token: values.token
-	})
+  await passwordResetConfirm({
+    newPassword1: values.newPassword1,
+    newPassword2: values.newPassword2,
+    uid: values.uid,
+    token: values.token,
+  })
 })
 </script>
 

@@ -1,3 +1,3 @@
 export const device = {
-	refreshOnResize: true
+  refreshOnResize: true,
 }

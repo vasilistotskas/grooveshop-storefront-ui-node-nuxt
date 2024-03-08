@@ -15,9 +15,9 @@ import type { PropType } from 'vue'
 import type { DynamicFormSchemaChildren } from '~/types/form'
 
 defineProps({
-	children: {
-		type: Array as PropType<DynamicFormSchemaChildren>,
-		required: true
-	}
+  children: {
+    type: Array as PropType<DynamicFormSchemaChildren>,
+    required: true,
+  },
 })
 </script>

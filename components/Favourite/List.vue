@@ -4,15 +4,15 @@ import type { PropType } from 'vue'
 import type { ProductFavourite } from '~/types/product/favourite'
 
 defineProps({
-	favourites: {
-		type: Array as PropType<ProductFavourite[] | null>,
-		required: true
-	},
-	displayTotal: {
-		type: Boolean,
-		required: false,
-		default: true
-	}
+  favourites: {
+    type: Array as PropType<ProductFavourite[] | null>,
+    required: true,
+  },
+  displayTotal: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 </script>
 
@@ -26,7 +26,9 @@ defineProps({
         {{ $t('components.favourite.list.favourites') }}
       </span>
     </div>
-    <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <ul
+      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    >
       <template v-for="favourite in favourites" :key="favourite.id">
         <ProductCard
           v-if="!isEntityId(favourite.product)"

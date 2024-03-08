@@ -4,15 +4,15 @@ import type { PropType } from 'vue'
 import type { ProductReview } from '~/types/product/review'
 
 const props = defineProps({
-	review: {
-		type: Object as PropType<ProductReview>,
-		required: true
-	},
-	displayImageOf: {
-		type: String as PropType<'user' | 'product'>,
-		required: true,
-		validator: (value: string) => ['user', 'product'].includes(value)
-	}
+  review: {
+    type: Object as PropType<ProductReview>,
+    required: true,
+  },
+  displayImageOf: {
+    type: String as PropType<'user' | 'product'>,
+    required: true,
+    validator: (value: string) => ['user', 'product'].includes(value),
+  },
 })
 
 const { review, displayImageOf } = toRefs(props)
@@ -25,31 +25,37 @@ const { locale } = useI18n()
 const { contentShorten } = useText()
 
 const src = computed(() => {
-	const path =
-		displayImageOf.value === 'user' ? `media/uploads/users/` : `media/uploads/products/`
-	return resolveImageSrc(
-		displayImageOf.value === 'user'
-			? userAccount.value?.mainImageFilename
-			: product.value?.mainImageFilename,
-		path +
-			(displayImageOf.value === 'user'
-				? userAccount.value?.mainImageFilename
-				: product.value?.mainImageFilename)
-	)
+  const path =
+    displayImageOf.value === 'user'
+      ? `media/uploads/users/`
+      : `media/uploads/products/`
+  return resolveImageSrc(
+    displayImageOf.value === 'user'
+      ? userAccount.value?.mainImageFilename
+      : product.value?.mainImageFilename,
+    path +
+      (displayImageOf.value === 'user'
+        ? userAccount.value?.mainImageFilename
+        : product.value?.mainImageFilename),
+  )
 })
 
 const alt = computed(() => {
-	return displayImageOf.value === 'user'
-		? userAccount.value?.firstName + ' ' + userAccount.value?.lastName
-		: extractTranslated(product?.value, 'name', locale.value)
+  return displayImageOf.value === 'user'
+    ? userAccount.value?.firstName + ' ' + userAccount.value?.lastName
+    : extractTranslated(product?.value, 'name', locale.value)
 })
 
 const productName = computed(() =>
-	extractTranslated(product?.value, 'name', locale.value)
+  extractTranslated(product?.value, 'name', locale.value),
 )
 
 const reviewComment = computed(() => {
-	return contentShorten(extractTranslated(review?.value, 'comment', locale.value), 0, 120)
+  return contentShorten(
+    extractTranslated(review?.value, 'comment', locale.value),
+    0,
+    120,
+  )
 })
 </script>
 
@@ -64,7 +70,10 @@ const reviewComment = computed(() => {
             v-if="userAccount && displayImageOf === 'user'"
             :user-account="userAccount"
           />
-          <div v-if="displayImageOf === 'product' && product" class="grid gap-2">
+          <div
+            v-if="displayImageOf === 'product' && product"
+            class="grid gap-2"
+          >
             <Anchor :to="`/product${product.absoluteUrl}`" :text="productName">
               <ImgWithFallback
                 loading="lazy"

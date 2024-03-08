@@ -1,20 +1,20 @@
 <script lang="ts" setup>
 defineProps({
-	reviewsAverage: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	reviewsCount: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	maxRate: {
-		type: Number,
-		required: false,
-		default: 10
-	}
+  reviewsAverage: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  reviewsCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  maxRate: {
+    type: Number,
+    required: false,
+    default: 10,
+  },
 })
 </script>
 

@@ -3,7 +3,6 @@ import type { Ref } from 'vue'
 
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
-import type { Pagination } from '~/types/pagination'
 
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
@@ -18,60 +17,66 @@ const slug = computed(() => route.query.slug)
 const tags = computed(() => route.query.tags)
 const expand = computed(() => 'true')
 
-const { data, pending, refresh } = await useLazyAsyncData('blogPosts', () =>
-	$fetch<Pagination<BlogPost>>('/api/blog/posts', {
-		method: 'GET',
-		params: {
-			page: page.value,
-			ordering: ordering.value,
-			id: id.value,
-			author: author.value,
-			slug: slug.value,
-			tags: tags.value,
-			expand: expand.value
-		}
-	})
+const {
+  data: posts,
+  pending,
+  refresh,
+} = await useLazyAsyncData('blogPosts', () =>
+  $fetch('/api/blog/posts', {
+    method: 'GET',
+    query: {
+      page: page.value,
+      ordering: ordering.value,
+      id: id.value,
+      author: author.value,
+      slug: slug.value,
+      tags: tags.value,
+      expand: expand.value,
+    },
+  }),
 )
 
 const entityOrdering: Ref<EntityOrdering<BlogPostOrderingField>> = ref([
-	{
-		value: 'createdAt',
-		label: t('pages.blog.ordering.created_at'),
-		options: ['ascending', 'descending']
-	},
-	{
-		value: 'title',
-		label: t('pages.blog.ordering.title'),
-		options: ['ascending', 'descending']
-	},
-	{
-		value: 'publishedAt',
-		label: t('pages.blog.ordering.published_at'),
-		options: ['ascending', 'descending']
-	}
+  {
+    value: 'createdAt',
+    label: t('pages.blog.ordering.created_at'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'title',
+    label: t('pages.blog.ordering.title'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'publishedAt',
+    label: t('pages.blog.ordering.published_at'),
+    options: ['ascending', 'descending'],
+  },
 ])
 
-const orderingFields: Partial<Record<BlogPostOrderingField, OrderingOption[]>> = reactive(
-	{
-		createdAt: [],
-		title: [],
-		publishedAt: []
-	}
-)
+const orderingFields: Partial<Record<BlogPostOrderingField, OrderingOption[]>> =
+  reactive({
+    createdAt: [],
+    title: [],
+    publishedAt: [],
+  })
 
 const pagination = computed(() => {
-	if (!data.value) return
-	return usePagination<BlogPost>(data.value)
+  if (!posts.value) return
+  return usePagination<BlogPost>(posts.value)
 })
 
 const orderingOptions = computed(() => {
-	return useOrdering<BlogPostOrderingField>(entityOrdering.value, orderingFields)
+  return useOrdering<BlogPostOrderingField>(
+    entityOrdering.value,
+    orderingFields,
+  )
 })
 
 watch(
-	() => route.query,
-	() => refresh(),
-	{ deep: true }
+  () => route.query,
+  () => refresh(),
+  { deep: true },
 )
 </script>
 
@@ -96,9 +101,9 @@ watch(
       <ol
         class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-1 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
       >
-        <template v-if="!pending && data?.results?.length">
+        <template v-if="!pending && posts?.results?.length">
           <BlogPostCard
-            v-for="(post, index) in data.results"
+            v-for="(post, index) in posts.results"
             :key="index"
             :post="post"
             :img-loading="index > 7 ? 'lazy' : 'eager'"
@@ -115,9 +120,13 @@ watch(
       </ol>
       <BlogTagsList />
     </section>
-    <EmptyState v-if="!pending && !data?.results?.length" :icon="emptyIcon">
+    <EmptyState v-if="!pending && !posts?.results?.length" :icon="emptyIcon">
       <template #actions>
-        <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+        <UButton
+          :label="$t('common.empty.button')"
+          :to="'index'"
+          color="white"
+        />
       </template>
     </EmptyState>
   </div>

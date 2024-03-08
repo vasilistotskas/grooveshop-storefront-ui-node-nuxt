@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 defineProps({
-	shippingPrice: { type: Number, required: true }
+  shippingPrice: { type: Number, required: true },
 })
 
 const cartStore = useCartStore()
 const { cart, getCartItems } = storeToRefs(cartStore)
 
 defineSlots<{
-	'pay-ways'(props: {}): any
-	items(props: {}): any
-	button(props: {}): any
+  'pay-ways'(props: {}): any
+  items(props: {}): any
+  button(props: {}): any
 }>()
 </script>
 

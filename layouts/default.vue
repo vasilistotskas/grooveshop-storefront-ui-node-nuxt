@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 defineSlots<{
-	default(props: {}): any
-	header(props: {}): any
-	footer(props: {}): any
-	'app-before'(props: {}): any
-	'app-after'(props: {}): any
+  default(props: {}): any
+  header(props: {}): any
+  footer(props: {}): any
+  'app-before'(props: {}): any
+  'app-after'(props: {}): any
 }>()
 </script>
 

@@ -5,19 +5,19 @@ import type { PropType } from 'vue'
 const PageWrapper = resolveComponent('PageWrapper') as string
 
 defineProps({
-	error: {
-		type: Object as PropType<IFetchError | null>,
-		required: false,
-		default: null
-	},
-	code: {
-		type: Number,
-		default: 400
-	},
-	wrap: {
-		type: Boolean,
-		default: false
-	}
+  error: {
+    type: Object as PropType<IFetchError | null>,
+    required: false,
+    default: null,
+  },
+  code: {
+    type: Number,
+    default: 400,
+  },
+  wrap: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const divTag = ref('div')
@@ -39,9 +39,9 @@ const divTag = ref('div')
       v-else
       class="text-primary-700 dark:text-primary-100 grid gap-4 text-center leading-3"
     >
-      <span class="text-primary-700 dark:text-primary-100 block text-8xl font-bold">{{
-        error.statusCode
-      }}</span>
+      <span
+        class="text-primary-700 dark:text-primary-100 block text-8xl font-bold"
+      >{{ error.statusCode }}</span>
       <span class="text-primary-700 dark:text-primary-100 block italic">{{
         error.statusMessage
       }}</span>
@@ -52,6 +52,12 @@ const divTag = ref('div')
     >
       ( {{ error?.data.detail }} )
     </h2>
-    <UButton class="mt-4" :label="$t('common.home')" :to="'/'" size="sm" color="white" />
+    <UButton
+      class="mt-4"
+      :label="$t('common.home')"
+      :to="'/'"
+      size="sm"
+      color="white"
+    />
   </Component>
 </template>

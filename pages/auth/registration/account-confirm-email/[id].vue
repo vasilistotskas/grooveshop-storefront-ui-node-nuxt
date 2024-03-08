@@ -10,34 +10,36 @@ const route = useRoute('auth-registration-account-confirm-email-id___en')
 const id = route.params.id
 
 const data = await registrationVerifyEmail({
-	key: id
+  key: id,
 })
 
 async function onSubmit(values: RegistrationResendEmailBody) {
-	await registrationResendEmail({
-		email: values.email
-	})
+  await registrationResendEmail({
+    email: values.email,
+  })
 }
 
 const formSchema: DynamicFormSchema = {
-	fields: [
-		{
-			label: t('pages.auth.registration.account-confirm-email.resend.form.email.label'),
-			name: 'email',
-			as: 'input',
-			rules: z.string().email(),
-			autocomplete: 'email',
-			readonly: false,
-			required: true,
-			placeholder: '',
-			type: 'email'
-		}
-	]
+  fields: [
+    {
+      label: t(
+        'pages.auth.registration.account-confirm-email.resend.form.email.label',
+      ),
+      name: 'email',
+      as: 'input',
+      rules: z.string().email(),
+      autocomplete: 'email',
+      readonly: false,
+      required: true,
+      placeholder: '',
+      type: 'email',
+    },
+  ],
 }
 
 definePageMeta({
-	layout: 'default',
-	middleware: 'guest'
+  layout: 'default',
+  middleware: 'guest',
 })
 </script>
 
@@ -52,14 +54,22 @@ definePageMeta({
         <LazyAlert
           v-if="data"
           :title="`${$t('pages.auth.registration.account-confirm-email.success.title')}`"
-          :text="$t('pages.auth.registration.account-confirm-email.success.description')"
+          :text="
+            $t(
+              'pages.auth.registration.account-confirm-email.success.description',
+            )
+          "
           :type="`success`"
           :close-button="false"
         />
         <LazyAlert
           v-else
           :title="`${$t('pages.auth.registration.account-confirm-email.error.title')}`"
-          :text="$t('pages.auth.registration.account-confirm-email.error.description')"
+          :text="
+            $t(
+              'pages.auth.registration.account-confirm-email.error.description',
+            )
+          "
           :type="`danger`"
           :close-button="false"
         />
@@ -77,7 +87,9 @@ definePageMeta({
           v-if="data"
           color="white"
           size="sm"
-          :label="$t('pages.auth.registration.account-confirm-email.success.button')"
+          :label="
+            $t('pages.auth.registration.account-confirm-email.success.button')
+          "
           :to="`/auth/login`"
         />
         <LazyDynamicForm v-else :schema="formSchema" @submit="onSubmit" />

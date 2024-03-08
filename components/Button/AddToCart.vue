@@ -4,12 +4,12 @@ import type { PropType } from 'vue'
 import type { Product } from '~/types/product/product'
 
 const props = defineProps({
-	product: { type: Object as PropType<Product>, required: true },
-	quantity: { type: Number, required: true, default: 1 },
-	text: {
-		type: String,
-		required: true
-	}
+  product: { type: Object as PropType<Product>, required: true },
+  quantity: { type: Number, required: true, default: 1 },
+  text: {
+    type: String,
+    required: true,
+  },
 })
 
 const cartStore = useCartStore()
@@ -22,14 +22,14 @@ const toast = useToast()
 const refreshCart = async () => await fetchCart()
 
 const addToCartEvent = async () => {
-	await createCartItem({
-		product: product.value,
-		quantity: quantity.value
-	})
-	await refreshCart()
-	toast.add({
-		title: t('components.add_to_cart_button.added_to_cart')
-	})
+  await createCartItem({
+    product: product.value,
+    quantity: quantity.value,
+  })
+  await refreshCart()
+  toast.add({
+    title: t('components.add_to_cart_button.added_to_cart'),
+  })
 }
 </script>
 

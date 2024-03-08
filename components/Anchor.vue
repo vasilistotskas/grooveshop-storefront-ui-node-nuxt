@@ -2,25 +2,25 @@
 import type { NuxtLinkProps } from '#app'
 
 defineProps({
-	text: {
-		type: String,
-		default: ''
-	},
-	to: {
-		type: [String, Object] as PropType<NuxtLinkProps['to']>,
-		default: undefined
-	},
-	href: {
-		type: String,
-		default: ''
-	},
-	cssClass: {
-		type: [String, Object],
-		default: ''
-	}
+  text: {
+    type: String,
+    default: '',
+  },
+  to: {
+    type: [String, Object] as PropType<NuxtLinkProps['to']>,
+    default: undefined,
+  },
+  href: {
+    type: String,
+    default: '',
+  },
+  cssClass: {
+    type: [String, Object],
+    default: '',
+  },
 })
 defineSlots<{
-	default(props: {}): any
+  default(props: {}): any
 }>()
 </script>
 
@@ -32,7 +32,7 @@ defineSlots<{
     :aria-label="text"
     :class="[
       cssClass,
-      `hover:text-primary-900 transition-colors duration-300 dark:hover:text-white`
+      `hover:text-primary-900 transition-colors duration-300 dark:hover:text-white`,
     ]"
   >
     <slot>{{ text }}</slot>
@@ -43,13 +43,13 @@ defineSlots<{
     :active-class="
       [
         cssClass,
-        `transition-colors duration-300 dark:hover:text-white hover:text-primary-900`
+        `transition-colors duration-300 dark:hover:text-white hover:text-primary-900`,
       ].join(' ')
     "
     :inactive-class="
       [
         cssClass,
-        `text-gray-700 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200`
+        `text-gray-700 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200`,
       ].join(' ')
     "
     :to="href"
@@ -60,10 +60,10 @@ defineSlots<{
 
 <style lang="scss" scoped>
 a {
-	&.disabled {
-		pointer-events: none;
-		cursor: default;
-		color: #ccc;
-	}
+  &.disabled {
+    pointer-events: none;
+    cursor: default;
+    color: #ccc;
+  }
 }
 </style>

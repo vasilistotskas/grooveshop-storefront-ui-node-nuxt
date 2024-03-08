@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 defineProps({
-	text: {
-		type: String,
-		default: ''
-	}
+  text: {
+    type: String,
+    default: '',
+  },
 })
 defineSlots<{
-	default(props: {}): any
+  default(props: {}): any
 }>()
 </script>
 

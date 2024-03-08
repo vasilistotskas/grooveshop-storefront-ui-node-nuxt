@@ -5,20 +5,20 @@ const { data: recoveryCodes } = await recoveryCodesList()
 const codes = recoveryCodes.value?.unusedCodes
 const rows = codes?.map((code: string) => ({ code })) ?? []
 const columns = [
-	{
-		key: 'code',
-		label: 'Code'
-	}
+  {
+    key: 'code',
+    label: 'Code',
+  },
 ]
 
 const downloadCodes = () => {
-	if (!codes) return
-	const blob = new Blob([codes.join('\n')], { type: 'text/plain' })
-	const url = window.URL.createObjectURL(blob)
-	const link = document.createElement('a')
-	link.download = 'recovery-codes.txt'
-	link.href = url
-	link.click()
+  if (!codes) return
+  const blob = new Blob([codes.join('\n')], { type: 'text/plain' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.download = 'recovery-codes.txt'
+  link.href = url
+  link.click()
 }
 </script>
 

@@ -1,4 +1,4 @@
 export const typescript = {
-	strict: true,
-	typeCheck: true
+  strict: true,
+  typeCheck: true,
 }

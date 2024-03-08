@@ -5,15 +5,15 @@ const colorMode = useColorMode()
 const bus = useEventBus<string>(GlobalEvents.ON_THEME_UPDATED)
 
 const isDark = computed({
-	get() {
-		return colorMode.value === 'dark'
-	},
-	set() {
-		colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
-		bus.emit(GlobalEvents.ON_THEME_UPDATED, {
-			isDark: colorMode.value === 'dark'
-		})
-	}
+  get() {
+    return colorMode.value === 'dark'
+  },
+  set() {
+    colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+    bus.emit(GlobalEvents.ON_THEME_UPDATED, {
+      isDark: colorMode.value === 'dark',
+    })
+  },
 })
 </script>
 
@@ -30,7 +30,11 @@ const isDark = computed({
     />
 
     <template #fallback>
-      <ClientOnlyFallback class="max-h-[24px] max-w-[24px]" width="24px" height="24px" />
+      <ClientOnlyFallback
+        class="max-h-[24px] max-w-[24px]"
+        width="24px"
+        height="24px"
+      />
     </template>
   </ClientOnly>
 </template>

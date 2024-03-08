@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 defineSlots<{
-	default(props: {}): any
-	header(props: {}): any
-	footer(props: {}): any
-	'app-before'(props: {}): any
-	'app-after'(props: {}): any
+  default(props: {}): any
+  header(props: {}): any
+  footer(props: {}): any
+  'app-before'(props: {}): any
+  'app-after'(props: {}): any
 }>()
 
 const userStore = useUserStore()
@@ -26,7 +26,11 @@ const route = useRoute()
             <UserSidebar mode="mobile" />
           </template>
           <template v-if="user" #image>
-            <LazyUserAvatar :user-account="user" :img-width="40" :img-height="40" />
+            <LazyUserAvatar
+              :user-account="user"
+              :img-width="40"
+              :img-height="40"
+            />
           </template>
         </UserNavbar>
       </slot>
@@ -46,7 +50,7 @@ const route = useRoute()
             <div class="flex w-full flex-1 flex-col md:gap-4">
               <div
                 :class="[
-                  'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row'
+                  'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row',
                 ]"
               >
                 <div
@@ -55,8 +59,8 @@ const route = useRoute()
                   :class="[
                     {
                       'grid w-full': route.path === '/account',
-                      hidden: route.path !== '/account'
-                    }
+                      hidden: route.path !== '/account',
+                    },
                   ]"
                 >
                   <UserSidebar />

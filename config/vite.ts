@@ -5,49 +5,49 @@ import Icons from 'unplugin-icons/vite'
 import Components from 'unplugin-vue-components/vite'
 
 export const vite = {
-	plugins: [
-		Components({
-			deep: true,
-			dts: 'components.d.ts',
-			directoryAsNamespace: true,
-			resolvers: [
-				IconsResolver({
-					prefix: 'Icon',
-					enabledCollections: ['fa6-solid', 'fa-solid', 'mdi']
-				})
-			]
-		}),
-		Icons({
-			compiler: 'vue3'
-		}),
-		AutoImport({
-			imports: ['vitest'],
-			dts: true // generate TypeScript declaration
-		})
-	],
-	build: {
-		rollupOptions: {
-			output: {
-				manualChunks(id: string) {
-					const chunks = ['v-calendar', 'zod', 'lottie']
-					if (id.includes('/node_modules/')) {
-						for (const chunkName of chunks) {
-							if (id.includes(chunkName)) {
-								return chunkName
-							}
-						}
-					}
-				}
-			}
-		}
-	},
-	vue: {
-		script: {
-			defineModel: true,
-			propsDestructure: true
-		}
-	},
-	optimizeDeps: {
-		include: ['@headlessui/vue', 'lottie-web', 'zod', 'v-calendar']
-	}
+  plugins: [
+    Components({
+      deep: true,
+      dts: 'components.d.ts',
+      directoryAsNamespace: true,
+      resolvers: [
+        IconsResolver({
+          prefix: 'Icon',
+          enabledCollections: ['fa6-solid', 'fa-solid', 'mdi'],
+        }),
+      ],
+    }),
+    Icons({
+      compiler: 'vue3',
+    }),
+    AutoImport({
+      imports: ['vitest'],
+      dts: true, // generate TypeScript declaration
+    }),
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          const chunks = ['v-calendar', 'zod', 'lottie']
+          if (id.includes('/node_modules/')) {
+            for (const chunkName of chunks) {
+              if (id.includes(chunkName)) {
+                return chunkName
+              }
+            }
+          }
+        },
+      },
+    },
+  },
+  vue: {
+    script: {
+      defineModel: true,
+      propsDestructure: true,
+    },
+  },
+  optimizeDeps: {
+    include: ['@headlessui/vue', 'lottie-web', 'zod', 'v-calendar'],
+  },
 } satisfies ViteConfig

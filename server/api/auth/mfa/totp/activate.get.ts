@@ -4,22 +4,25 @@ import { z } from 'zod'
 import type { MfaTotpActivateGetResponse } from '~/types/auth'
 
 export const ZodMfaTotpActivateGetResponse = z.object({
-	totpSvg: z.string(),
-	secret: z.string()
+  totpSvg: z.string(),
+  secret: z.string(),
 }) satisfies z.ZodType<MfaTotpActivateGetResponse>
 
 export default defineEventHandler(async (event: H3Event) => {
-	const config = useRuntimeConfig()
-	const session = await requireUserSession(event)
-	try {
-		const response = await $fetch(`${config.public.apiBaseUrl}/auth/mfa/totp/activate`, {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${session?.token}`
-			}
-		})
-		return parseDataAs(response, ZodMfaTotpActivateGetResponse)
-	} catch (error) {
-		await handleError(error)
-	}
+  const config = useRuntimeConfig()
+  const session = await requireUserSession(event)
+  try {
+    const response = await $fetch(
+      `${config.public.apiBaseUrl}/auth/mfa/totp/activate`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${session?.token}`,
+        },
+      },
+    )
+    return parseDataAs(response, ZodMfaTotpActivateGetResponse)
+  } catch (error) {
+    await handleError(error)
+  }
 })

@@ -42,14 +42,18 @@ const isPWAInstalled = computed(() => $pwa?.isPWAInstalled)
         </button>
       </div>
       <div
-        v-if="$pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh"
+        v-if="
+          $pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh
+        "
         class="fixed bottom-0 right-16 mb-4 rounded border border-gray-200 bg-white p-3 shadow-md dark:bg-zinc-800 sm:flex sm:gap-2 sm:text-center"
         role="alert"
       >
         <div
           class="sm:align-center mb-2 sm:mb-0 sm:grid sm:w-full sm:items-center sm:justify-center"
         >
-          <span class="text-primary-700 dark:text-primary-100 text-center capitalize">
+          <span
+            class="text-primary-700 dark:text-primary-100 text-center capitalize"
+          >
             {{ $t('components.pwa.install_pwa') }}
           </span>
         </div>

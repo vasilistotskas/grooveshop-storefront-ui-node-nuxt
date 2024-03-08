@@ -1,7 +1,11 @@
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <iframe v-if="isCookieFunctionalEnabled" :cookie-enabled="null" v-bind="$attrs" />
+      <iframe
+        v-if="isCookieFunctionalEnabled"
+        :cookie-enabled="null"
+        v-bind="$attrs"
+      />
       <div v-else class="cookie-control-BlockedIframe">
         <p>
           {{ $t('components.cookie.iframe_blocked') }}
@@ -25,9 +29,9 @@ import type { Cookie } from '#cookie-control/types'
 const { cookiesEnabled, isModalActive } = useCookieControl()
 
 const isCookieFunctionalEnabled = computed(
-	() =>
-		(cookiesEnabled.value || []).filter(
-			(cookieEnabled: Cookie) => cookieEnabled.name === 'functional'
-		).length > 0
+  () =>
+    (cookiesEnabled.value || []).filter(
+      (cookieEnabled: Cookie) => cookieEnabled.name === 'functional',
+    ).length > 0,
 )
 </script>

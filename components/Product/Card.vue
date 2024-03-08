@@ -7,21 +7,21 @@ import type { ImageLoading } from '~/types/global/general'
 import type { Product } from '~/types/product/product'
 
 const props = defineProps({
-	product: { type: Object as PropType<Product>, required: true },
-	showAddToFavouriteButton: { type: Boolean, required: false, default: true },
-	showShareButton: { type: Boolean, required: false, default: true },
-	showAddToCartButton: { type: Boolean, required: false, default: true },
-	imgWidth: { type: Number, required: false, default: 324 },
-	imgHeight: { type: Number, required: false, default: 230 },
-	showVat: { type: Boolean, required: false, default: false },
-	showStartPrice: { type: Boolean, required: false, default: false },
-	showDescription: { type: Boolean, required: false, default: false },
-	imgLoading: {
-		type: String as PropType<ImageLoading>,
-		required: false,
-		default: undefined,
-		validator: (value: string) => ['lazy', 'eager'].includes(value)
-	}
+  product: { type: Object as PropType<Product>, required: true },
+  showAddToFavouriteButton: { type: Boolean, required: false, default: true },
+  showShareButton: { type: Boolean, required: false, default: true },
+  showAddToCartButton: { type: Boolean, required: false, default: true },
+  imgWidth: { type: Number, required: false, default: 324 },
+  imgHeight: { type: Number, required: false, default: 230 },
+  showVat: { type: Boolean, required: false, default: false },
+  showStartPrice: { type: Boolean, required: false, default: false },
+  showDescription: { type: Boolean, required: false, default: false },
+  imgLoading: {
+    type: String as PropType<ImageLoading>,
+    required: false,
+    default: undefined,
+    validator: (value: string) => ['lazy', 'eager'].includes(value),
+  },
 })
 
 const userStore = useUserStore()
@@ -35,31 +35,31 @@ const { resolveImageSrc } = useImageResolver()
 const { product } = toRefs(props)
 
 const productUrl = computed(() => {
-	if (!props.product) return ''
-	return `/product/${product.value.id}/${product.value.slug}`
+  if (!props.product) return ''
+  return `/product/${product.value.id}/${product.value.slug}`
 })
 
 const src = computed(() => {
-	return resolveImageSrc(
-		product.value?.mainImageFilename,
-		`media/uploads/products/${product.value?.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    product.value?.mainImageFilename,
+    `media/uploads/products/${product.value?.mainImageFilename}`,
+  )
 })
 
 const alt = computed(() => {
-	return extractTranslated(product?.value, 'name', locale.value)
+  return extractTranslated(product?.value, 'name', locale.value)
 })
 
 const shareOptions = reactive({
-	title: extractTranslated(product.value, 'name', locale.value),
-	text: extractTranslated(product.value, 'description', locale.value) || '',
-	url: isClient ? productUrl : ''
+  title: extractTranslated(product.value, 'name', locale.value),
+  text: extractTranslated(product.value, 'description', locale.value) || '',
+  url: isClient ? productUrl : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
 
 const userProductFavourite = computed(() => {
-	return getUserProductFavourite(product.value?.id)
+  return getUserProductFavourite(product.value?.id)
 })
 </script>
 
@@ -136,7 +136,11 @@ const userProductFavourite = computed(() => {
             class="text-primary-700 dark:text-primary-100 text-muted min-h-[3.75rem] text-sm leading-6"
           >
             {{
-              contentShorten(extractTranslated(product, 'description', locale), 0, 100)
+              contentShorten(
+                extractTranslated(product, 'description', locale),
+                0,
+                100,
+              )
             }}
           </p>
           <div v-if="showStartPrice || showVat" class="grid">
@@ -149,7 +153,10 @@ const userProductFavourite = computed(() => {
                 }}</span>
               </p>
             </div>
-            <div v-if="showVat" class="card-vat-percent d-flex justify-content-between">
+            <div
+              v-if="showVat"
+              class="card-vat-percent d-flex justify-content-between"
+            >
               <p class="card-prices-vat-percent">
                 <span class="text-primary-700 dark:text-primary-100">{{
                   $t('components.product.card.vat_percent')
@@ -161,7 +168,9 @@ const userProductFavourite = computed(() => {
           </div>
           <div class="flex justify-between font-bold">
             <p class="grid grid-cols-[1fr_auto] items-center gap-2">
-              <span class="text-primary-700 dark:text-primary-100 text-sm leading-6">
+              <span
+                class="text-primary-700 dark:text-primary-100 text-sm leading-6"
+              >
                 {{ $t('components.product.card.total_price') }}
               </span>
               <I18nN

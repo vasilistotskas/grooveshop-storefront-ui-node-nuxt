@@ -2,27 +2,27 @@
 import { v4 as uuidv4 } from 'uuid'
 
 const props = defineProps({
-	text: {
-		type: String,
-		required: true
-	},
-	maxChars: {
-		type: Number,
-		default: 100
-	}
+  text: {
+    type: String,
+    required: true,
+  },
+  maxChars: {
+    type: Number,
+    default: 100,
+  },
 })
 
 const uuid = uuidv4()
 const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
 
 const toggleFullText = () => {
-	showFullText.value = !showFullText.value
+  showFullText.value = !showFullText.value
 }
 
 const trimmedText = computed(() => {
-	return props.text && props.text.length > props.maxChars
-		? props.text.substring(0, props.maxChars) + '...'
-		: props.text
+  return props.text && props.text.length > props.maxChars
+    ? props.text.substring(0, props.maxChars) + '...'
+    : props.text
 })
 </script>
 

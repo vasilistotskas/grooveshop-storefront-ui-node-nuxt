@@ -4,10 +4,10 @@ import type { PropType } from 'vue'
 import type { OrderItem } from '~/types/order/order-item'
 
 const props = defineProps({
-	item: {
-		type: Object as PropType<OrderItem>,
-		required: true
-	}
+  item: {
+    type: Object as PropType<OrderItem>,
+    required: true,
+  },
 })
 
 const { item } = toRefs(props)
@@ -15,14 +15,14 @@ const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 
 const src = computed(() => {
-	return resolveImageSrc(
-		item.value.product?.mainImageFilename,
-		`media/uploads/products/${item.value.product.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    item.value.product?.mainImageFilename,
+    `media/uploads/products/${item.value.product.mainImageFilename}`,
+  )
 })
 
 const alt = computed(() => {
-	return extractTranslated(item.value.product, 'name', locale.value)
+  return extractTranslated(item.value.product, 'name', locale.value)
 })
 </script>
 

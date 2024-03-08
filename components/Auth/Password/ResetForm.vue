@@ -8,25 +8,25 @@ const { passwordReset } = useAuth()
 
 const { t } = useI18n()
 async function onSubmit(values: PasswordResetBody) {
-	await passwordReset({
-		email: values.email
-	})
+  await passwordReset({
+    email: values.email,
+  })
 }
 
 const formSchema: DynamicFormSchema = {
-	fields: [
-		{
-			label: t('pages.auth.password.reset.form.email.label'),
-			name: 'email',
-			as: 'input',
-			rules: z.string().email(),
-			autocomplete: 'email',
-			readonly: false,
-			required: true,
-			placeholder: '',
-			type: 'email'
-		}
-	]
+  fields: [
+    {
+      label: t('pages.auth.password.reset.form.email.label'),
+      name: 'email',
+      as: 'input',
+      rules: z.string().email(),
+      autocomplete: 'email',
+      readonly: false,
+      required: true,
+      placeholder: '',
+      type: 'email',
+    },
+  ],
 }
 </script>
 

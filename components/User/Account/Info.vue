@@ -4,25 +4,25 @@ import type { PropType } from 'vue'
 import type { UserAccount } from '~/types/user/account'
 
 defineProps({
-	account: {
-		type: Object as PropType<UserAccount>,
-		required: true
-	},
-	ordersCount: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	favouritesCount: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	reviewsCount: {
-		type: Number,
-		required: false,
-		default: 0
-	}
+  account: {
+    type: Object as PropType<UserAccount>,
+    required: true,
+  },
+  ordersCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  favouritesCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  reviewsCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
 })
 </script>
 
@@ -60,9 +60,9 @@ defineProps({
             <span class="text-primary-500 dark:text-primary-400">{{
               $t('pages.account.orders.title')
             }}</span>
-            <span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
-              ordersCount
-            }}</span>
+            <span
+              class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+            >{{ ordersCount }}</span>
           </Anchor>
         </div>
         <div v-if="favouritesCount" class="user-info-stats-item">
@@ -77,9 +77,9 @@ defineProps({
             <span class="text-primary-500 dark:text-primary-400">{{
               $t('pages.account.favourites.title')
             }}</span>
-            <span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
-              favouritesCount
-            }}</span>
+            <span
+              class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+            >{{ favouritesCount }}</span>
           </Anchor>
         </div>
         <div v-if="reviewsCount" class="user-info-stats-item">
@@ -94,9 +94,9 @@ defineProps({
             <span class="text-primary-500 dark:text-primary-400">{{
               $t('pages.account.reviews.title')
             }}</span>
-            <span class="text-primary-900 dark:text-primary-100 text-2xl font-bold">{{
-              reviewsCount
-            }}</span>
+            <span
+              class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+            >{{ reviewsCount }}</span>
           </Anchor>
         </div>
       </div>
@@ -106,85 +106,85 @@ defineProps({
 
 <style lang="scss" scoped>
 .user {
-	&-info {
-		width: calc(100% - 128px);
-		margin: 0 auto;
-		display: grid;
-		align-items: center;
-		z-index: 20;
+  &-info {
+    width: calc(100% - 128px);
+    margin: 0 auto;
+    display: grid;
+    align-items: center;
+    z-index: 20;
 
-		@media screen and (width <= 767px) {
-			width: calc(100% - 16px);
-		}
+    @media screen and (width <= 767px) {
+      width: calc(100% - 16px);
+    }
 
-		&-container {
-			display: flex;
-			align-items: center;
-			padding-top: 1.5rem;
-			padding-bottom: 1.5rem;
-			gap: 2rem;
+    &-container {
+      display: flex;
+      align-items: center;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+      gap: 2rem;
 
-			@media screen and (width <= 767px) {
-				display: grid;
-				justify-items: center;
-				align-items: center;
-				justify-content: center;
-				padding-top: 3rem;
-				padding-bottom: 1rem;
-				gap: 1rem;
-			}
-		}
+      @media screen and (width <= 767px) {
+        display: grid;
+        justify-items: center;
+        align-items: center;
+        justify-content: center;
+        padding-top: 3rem;
+        padding-bottom: 1rem;
+        gap: 1rem;
+      }
+    }
 
-		&-name {
-			font-size: 1.25rem;
-			font-weight: 600;
+    &-name {
+      font-size: 1.25rem;
+      font-weight: 600;
 
-			@media screen and (width <= 767px) {
-				grid-row: 1 / span 1;
-				grid-column: 2 / span 1;
-			}
-		}
+      @media screen and (width <= 767px) {
+        grid-row: 1 / span 1;
+        grid-column: 2 / span 1;
+      }
+    }
 
-		&-stats {
-			display: grid;
-			align-items: center;
-			margin-left: auto;
-			gap: 1rem;
-			grid-template-columns: repeat(3, minmax(110px, 1fr));
+    &-stats {
+      display: grid;
+      align-items: center;
+      margin-left: auto;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(110px, 1fr));
 
-			@media screen and (width <= 767px) {
-				width: 100%;
-				display: flex;
-				flex-wrap: wrap;
-				grid-row: 2 / span 1;
-				grid-column: 1 / span 2;
-			}
+      @media screen and (width <= 767px) {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        grid-row: 2 / span 1;
+        grid-column: 1 / span 2;
+      }
 
-			&-item {
-				&-link {
-					display: flex;
-					flex-direction: column;
-					padding: 1rem;
-					align-items: center;
-					margin-left: 1rem;
+      &-item {
+        &-link {
+          display: flex;
+          flex-direction: column;
+          padding: 1rem;
+          align-items: center;
+          margin-left: 1rem;
 
-					&:first-child {
-						margin-left: 0;
-					}
+          &:first-child {
+            margin-left: 0;
+          }
 
-					& > svg {
-						margin: 0;
-					}
-				}
-			}
-		}
+          & > svg {
+            margin: 0;
+          }
+        }
+      }
+    }
 
-		&-avatar {
-			@media screen and (width <= 767px) {
-				grid-row: 1 / span 1;
-				grid-column: 1 / span 1;
-			}
-		}
-	}
+    &-avatar {
+      @media screen and (width <= 767px) {
+        grid-row: 1 / span 1;
+        grid-column: 1 / span 1;
+      }
+    }
+  }
 }
 </style>

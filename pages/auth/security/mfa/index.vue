@@ -3,14 +3,17 @@ const { session } = useUserSession()
 const isTotpActive = session.value?.totpActive
 
 definePageMeta({
-	layout: 'user'
+  layout: 'user',
 })
 </script>
 
 <template>
   <PageWrapper class="container flex flex-col gap-4 md:gap-8">
     <PageHeader>
-      <PageTitle :text="$t('pages.auth.security.mfa.title')" class="capitalize" />
+      <PageTitle
+        :text="$t('pages.auth.security.mfa.title')"
+        class="capitalize"
+      />
     </PageHeader>
     <AuthSecurityNavbar />
     <PageBody>
@@ -26,7 +29,10 @@ definePageMeta({
           <UButton :to="'/auth/security/mfa/recovery-codes'" color="white">
             {{ $t('pages.auth.security.mfa.recovery.codes.link') }}
           </UButton>
-          <UButton :to="'/auth/security/mfa/recovery-codes/generate'" color="white">
+          <UButton
+            :to="'/auth/security/mfa/recovery-codes/generate'"
+            color="white"
+          >
             {{ $t('pages.auth.security.mfa.recovery.codes.generate.link') }}
           </UButton>
         </template>

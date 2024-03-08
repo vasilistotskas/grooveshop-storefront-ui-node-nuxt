@@ -1,3 +1,4 @@
-const [provideIframeModal, useIframeModal] = useSingleton<(url: string) => void>()
+const [provideIframeModal, useIframeModal] =
+  useSingleton<(url: string) => void>()
 
 export { provideIframeModal, useIframeModal }

@@ -2,16 +2,12 @@
 import { z } from 'zod'
 
 import {
-	defaultSelectOptionChoose,
-	floorChoicesList,
-	locationChoicesList
+  defaultSelectOptionChoose,
+  floorChoicesList,
+  locationChoicesList,
 } from '~/constants/general'
-import type { Country } from '~/types/country'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
-import type { Pagination } from '~/types/pagination'
-import type { Region } from '~/types/region'
 import { ZodUserAccount } from '~/types/user/account'
-import type { UserAddress } from '~/types/user/address'
 
 const { t, locale } = useI18n()
 const toast = useToast()
@@ -22,203 +18,196 @@ const addressId = Number(route.params.id)
 const userStore = useUserStore()
 const { setMainAddress } = userStore
 
-const { data: address } = await useFetch<UserAddress>(
-	`/api/user/addresses/${addressId}`,
-	{
-		key: `address${addressId}`,
-		method: 'GET'
-	}
-)
+const { data: address } = await useFetch(`/api/user/addresses/${addressId}`, {
+  key: `address${addressId}`,
+  method: 'GET',
+})
 
 const ZodUserAddress = z.object({
-	title: z.string(),
-	firstName: z.string(),
-	lastName: z.string(),
-	street: z.string(),
-	streetNumber: z.string(),
-	city: z.string(),
-	zipcode: z.string(),
-	floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-	locationType: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).nullish(),
-	phone: z.string().nullish(),
-	mobilePhone: z.string().nullish(),
-	notes: z.string().nullish(),
-	isMain: z.boolean().nullish(),
-	user: z.union([z.number(), ZodUserAccount]),
-	country: z.string().nullish(),
-	region: z.string().nullish()
+  title: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  street: z.string(),
+  streetNumber: z.string(),
+  city: z.string(),
+  zipcode: z.string(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+  locationType: z
+    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
+    .nullish(),
+  phone: z.string().nullish(),
+  mobilePhone: z.string().nullish(),
+  notes: z.string().nullish(),
+  isMain: z.boolean().nullish(),
+  user: z.union([z.number(), ZodUserAccount]),
+  country: z.string().nullish(),
+  region: z.string().nullish(),
 })
 const validationSchema = toTypedSchema(ZodUserAddress)
 const initialValues = ZodUserAddress.parse({
-	title: address.value?.title || '',
-	firstName: address.value?.firstName || '',
-	lastName: address.value?.lastName || '',
-	street: address.value?.street || '',
-	streetNumber: address.value?.streetNumber || '',
-	city: address.value?.city || '',
-	zipcode: address.value?.zipcode || '',
-	floor: address.value?.floor || defaultSelectOptionChoose,
-	locationType: address.value?.locationType || defaultSelectOptionChoose,
-	phone: address.value?.phone || '',
-	mobilePhone: address.value?.mobilePhone || '',
-	notes: address.value?.notes || '',
-	isMain: address.value?.isMain || false,
-	user: address.value?.user || null,
-	country: address.value?.country || defaultSelectOptionChoose,
-	region: address.value?.region || defaultSelectOptionChoose
+  title: address.value?.title || '',
+  firstName: address.value?.firstName || '',
+  lastName: address.value?.lastName || '',
+  street: address.value?.street || '',
+  streetNumber: address.value?.streetNumber || '',
+  city: address.value?.city || '',
+  zipcode: address.value?.zipcode || '',
+  floor: address.value?.floor || defaultSelectOptionChoose,
+  locationType: address.value?.locationType || defaultSelectOptionChoose,
+  phone: address.value?.phone || '',
+  mobilePhone: address.value?.mobilePhone || '',
+  notes: address.value?.notes || '',
+  isMain: address.value?.isMain || false,
+  user: address.value?.user || null,
+  country: address.value?.country || defaultSelectOptionChoose,
+  region: address.value?.region || defaultSelectOptionChoose,
 })
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
-	validationSchema,
-	initialValues
+  validationSchema,
+  initialValues,
 })
 
 const [title, titleProps] = defineField('title', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [firstName, firstNameProps] = defineField('firstName', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [lastName, lastNameProps] = defineField('lastName', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [street, streetProps] = defineField('street', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [streetNumber, streetNumberProps] = defineField('streetNumber', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [city, cityProps] = defineField('city', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [zipcode, zipcodeProps] = defineField('zipcode', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [floor, floorProps] = defineField('floor', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [locationType, locationTypeProps] = defineField('locationType', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [phone, phoneProps] = defineField('phone', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [mobilePhone, mobilePhoneProps] = defineField('mobilePhone', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [notes, notesProps] = defineField('notes', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [country, countryProps] = defineField('country', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [region, regionProps] = defineField('region', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 defineField('isMain', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 
-const { data: countries } = await useLazyAsyncData('countries', () =>
-	$fetch<Pagination<Country>>('/api/countries', {
-		method: 'GET'
-	})
-)
+const { data: countries } = await useLazyFetch('/api/countries', {
+  key: 'countries',
+  method: 'GET',
+})
 
-const { data: regions } = await useLazyAsyncData(
-	'regions',
-	() =>
-		$fetch<Pagination<Region>>('/api/regions', {
-			method: 'GET',
-			params: {
-				country: country.value
-			}
-		}),
-	{
-		watch: [country]
-	}
-)
+const { data: regions } = await useLazyFetch('/api/regions', {
+  key: 'regions',
+  method: 'GET',
+  query: {
+    country: country.value,
+  },
+  watch: [country],
+})
 
 const onCountryChange = (event: Event) => {
-	if (!(event.target instanceof HTMLSelectElement)) return
-	country.value = event.target.value
-	region.value = defaultSelectOptionChoose
+  if (!(event.target instanceof HTMLSelectElement)) return
+  country.value = event.target.value
+  region.value = defaultSelectOptionChoose
 }
 const onSubmit = handleSubmit(async (values) => {
-	const updatedValues = processValues(values)
+  const updatedValues = processValues(values)
 
-	await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
-		method: 'PUT',
-		body: {
-			title: updatedValues.title,
-			firstName: updatedValues.firstName,
-			lastName: updatedValues.lastName,
-			street: updatedValues.street,
-			streetNumber: updatedValues.streetNumber,
-			city: updatedValues.city,
-			zipcode: updatedValues.zipcode,
-			floor: Number(updatedValues.floor),
-			locationType: Number(updatedValues.locationType),
-			phone: updatedValues.phone,
-			mobilePhone: updatedValues.mobilePhone,
-			notes: updatedValues.notes,
-			isMain: updatedValues.isMain,
-			user: updatedValues.user,
-			country: updatedValues.country,
-			region: updatedValues.region
-		},
-		onRequestError() {
-			toast.add({
-				title: t('pages.account.addresses.edit.error'),
-				color: 'red'
-			})
-		},
-		async onResponse() {
-			toast.add({
-				title: t('pages.account.addresses.edit.success')
-			})
-			await navigateTo('/account/addresses')
-		},
-		onResponseError() {
-			toast.add({
-				title: t('pages.account.addresses.edit.error'),
-				color: 'red'
-			})
-		}
-	})
+  await useFetch(`/api/user/addresses/${addressId}`, {
+    method: 'PUT',
+    body: {
+      title: updatedValues.title,
+      firstName: updatedValues.firstName,
+      lastName: updatedValues.lastName,
+      street: updatedValues.street,
+      streetNumber: updatedValues.streetNumber,
+      city: updatedValues.city,
+      zipcode: updatedValues.zipcode,
+      floor: Number(updatedValues.floor),
+      locationType: Number(updatedValues.locationType),
+      phone: updatedValues.phone,
+      mobilePhone: updatedValues.mobilePhone,
+      notes: updatedValues.notes,
+      isMain: updatedValues.isMain,
+      user: updatedValues.user,
+      country: updatedValues.country,
+      region: updatedValues.region,
+    },
+    onRequestError() {
+      toast.add({
+        title: t('pages.account.addresses.edit.error'),
+        color: 'red',
+      })
+    },
+    async onResponse() {
+      toast.add({
+        title: t('pages.account.addresses.edit.success'),
+      })
+      await navigateTo('/account/addresses')
+    },
+    onResponseError() {
+      toast.add({
+        title: t('pages.account.addresses.edit.error'),
+        color: 'red',
+      })
+    },
+  })
 })
 
 const onSetMain = async () => {
-	await useFetch(`/api/user/addresses/${addressId}/set-main`, {
-		method: 'POST',
-		onRequestError() {
-			toast.add({
-				title: t('pages.account.addresses.edit.main.error'),
-				color: 'red'
-			})
-		},
-		async onResponse() {
-			toast.add({
-				title: t('pages.account.addresses.edit.main.success')
-			})
-			setMainAddress(addressId)
-			await navigateTo('/account/addresses')
-		},
-		onResponseError() {
-			toast.add({
-				title: t('pages.account.addresses.edit.main.error'),
-				color: 'red'
-			})
-		}
-	})
+  await useFetch(`/api/user/addresses/${addressId}/set-main`, {
+    method: 'POST',
+    onRequestError() {
+      toast.add({
+        title: t('pages.account.addresses.edit.main.error'),
+        color: 'red',
+      })
+    },
+    async onResponse() {
+      toast.add({
+        title: t('pages.account.addresses.edit.main.success'),
+      })
+      setMainAddress(addressId)
+      await navigateTo('/account/addresses')
+    },
+    onResponseError() {
+      toast.add({
+        title: t('pages.account.addresses.edit.main.error'),
+        color: 'red',
+      })
+    },
+  })
 }
 
 const submitButtonDisabled = computed(() => {
-	return isSubmitting.value || Object.keys(errors.value).length > 0
+  return isSubmitting.value || Object.keys(errors.value).length > 0
 })
 
 definePageMeta({
-	layout: 'user',
-	keepalive: false
+  layout: 'user',
+  keepalive: false,
 })
 </script>
 
@@ -227,7 +216,7 @@ definePageMeta({
     <PageHeader
       :class="[
         'grid grid-cols-auto-1fr items-center justify-items-end gap-4',
-        { main: address?.isMain }
+        { main: address?.isMain },
       ]"
     >
       <div class="grid grid-cols-auto-1fr items-center gap-4">
@@ -238,9 +227,13 @@ definePageMeta({
           :trailing="true"
           color="white"
         >
-          <span class="sr-only">{{ $t('pages.account.addresses.edit.back') }}</span>
+          <span class="sr-only">{{
+            $t('pages.account.addresses.edit.back')
+          }}</span>
         </UButton>
-        <PageTitle :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`" />
+        <PageTitle
+          :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`"
+        />
       </div>
       <div v-if="address?.isMain" class="flex items-center">
         <span class="mr-2 text-green-500 dark:text-green-400">
@@ -271,9 +264,10 @@ definePageMeta({
         @submit="onSubmit"
       >
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="title">{{
-            $t('pages.account.addresses.edit.form.title')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="title"
+          >{{ $t('pages.account.addresses.edit.form.title') }}</label>
           <div class="grid">
             <FormTextInput
               id="title"
@@ -287,14 +281,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.title" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.title
-          }}</span>
+          <span
+            v-if="errors.title"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.title }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="firstName">{{
-            $t('pages.account.addresses.edit.form.first_name')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="firstName"
+          >{{ $t('pages.account.addresses.edit.form.first_name') }}</label>
           <div class="grid">
             <FormTextInput
               id="firstName"
@@ -308,14 +304,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.firstName" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.firstName
-          }}</span>
+          <span
+            v-if="errors.firstName"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.firstName }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="lastName">{{
-            $t('pages.account.addresses.edit.form.last_name')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="lastName"
+          >{{ $t('pages.account.addresses.edit.form.last_name') }}</label>
           <div class="grid">
             <FormTextInput
               id="lastName"
@@ -329,14 +327,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.lastName" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.lastName
-          }}</span>
+          <span
+            v-if="errors.lastName"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.lastName }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="street">{{
-            $t('pages.account.addresses.edit.form.street')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="street"
+          >{{ $t('pages.account.addresses.edit.form.street') }}</label>
           <div class="grid">
             <FormTextInput
               id="street"
@@ -350,14 +350,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.street" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.street
-          }}</span>
+          <span
+            v-if="errors.street"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.street }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="streetNumber">{{
-            $t('pages.account.addresses.edit.form.street_number')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="streetNumber"
+          >{{ $t('pages.account.addresses.edit.form.street_number') }}</label>
           <div class="grid">
             <FormTextInput
               id="streetNumber"
@@ -366,7 +368,9 @@ definePageMeta({
               class="text-primary-700 dark:text-primary-100 mb-2"
               name="streetNumber"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.street_number')"
+              :placeholder="
+                $t('pages.account.addresses.edit.form.street_number')
+              "
               autocomplete="street-address"
               :required="true"
             />
@@ -377,9 +381,10 @@ definePageMeta({
           >{{ errors.streetNumber }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="city">{{
-            $t('pages.account.addresses.edit.form.city')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="city"
+          >{{ $t('pages.account.addresses.edit.form.city') }}</label>
           <div class="grid">
             <FormTextInput
               id="city"
@@ -393,14 +398,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.city" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.city
-          }}</span>
+          <span
+            v-if="errors.city"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.city }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="zipcode">{{
-            $t('pages.account.addresses.edit.form.zipcode')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="zipcode"
+          >{{ $t('pages.account.addresses.edit.form.zipcode') }}</label>
           <div class="grid">
             <FormTextInput
               id="zipcode"
@@ -414,14 +421,16 @@ definePageMeta({
               :required="true"
             />
           </div>
-          <span v-if="errors.zipcode" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.zipcode
-          }}</span>
+          <span
+            v-if="errors.zipcode"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.zipcode }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="phone">{{
-            $t('pages.account.addresses.edit.form.phone')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="phone"
+          >{{ $t('pages.account.addresses.edit.form.phone') }}</label>
           <div class="grid">
             <FormTextInput
               id="phone"
@@ -434,14 +443,16 @@ definePageMeta({
               autocomplete="tel"
             />
           </div>
-          <span v-if="errors.phone" class="relative px-4 py-3 text-sm text-red-600">{{
-            errors.phone
-          }}</span>
+          <span
+            v-if="errors.phone"
+            class="relative px-4 py-3 text-sm text-red-600"
+          >{{ errors.phone }}</span>
         </div>
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="mobilePhone">{{
-            $t('pages.account.addresses.edit.form.mobile_phone')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="mobilePhone"
+          >{{ $t('pages.account.addresses.edit.form.mobile_phone') }}</label>
           <div class="grid">
             <FormTextInput
               id="mobilePhone"
@@ -450,7 +461,9 @@ definePageMeta({
               class="text-primary-700 dark:text-primary-100 mb-2"
               name="mobilePhone"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.mobile_phone')"
+              :placeholder="
+                $t('pages.account.addresses.edit.form.mobile_phone')
+              "
               autocomplete="tel"
             />
           </div>
@@ -462,9 +475,10 @@ definePageMeta({
 
         <div class="grid content-evenly items-start gap-2">
           <div class="grid">
-            <label class="text-primary-700 dark:text-primary-100 mb-2" for="floor">{{
-              $t('pages.account.addresses.edit.form.floor')
-            }}</label>
+            <label
+              class="text-primary-700 dark:text-primary-100 mb-2"
+              for="floor"
+            >{{ $t('pages.account.addresses.edit.form.floor') }}</label>
             <VeeField
               id="floor"
               v-model="floor"
@@ -490,15 +504,18 @@ definePageMeta({
                 {{ floorChoice }}
               </option>
             </VeeField>
-            <span v-if="errors.floor" class="relative px-4 py-3 text-sm text-red-600">{{
-              errors.floor
-            }}</span>
+            <span
+              v-if="errors.floor"
+              class="relative px-4 py-3 text-sm text-red-600"
+            >{{ errors.floor }}</span>
           </div>
           <div class="grid">
             <label
               class="text-primary-700 dark:text-primary-100 mb-2"
               for="locationType"
-            >{{ $t('pages.account.addresses.edit.form.location_type') }}</label>
+            >{{
+              $t('pages.account.addresses.edit.form.location_type')
+            }}</label>
             <VeeField
               id="locationType"
               v-model="locationType"
@@ -533,9 +550,10 @@ definePageMeta({
 
         <div class="grid content-evenly items-start gap-2">
           <div class="grid">
-            <label class="text-primary-700 dark:text-primary-100 mb-2" for="country">{{
-              $t('pages.account.addresses.edit.form.country')
-            }}</label>
+            <label
+              class="text-primary-700 dark:text-primary-100 mb-2"
+              for="country"
+            >{{ $t('pages.account.addresses.edit.form.country') }}</label>
             <div class="grid">
               <VeeField
                 id="country"
@@ -564,14 +582,16 @@ definePageMeta({
                 </option>
               </VeeField>
             </div>
-            <span v-if="errors.country" class="relative px-4 py-3 text-sm text-red-600">{{
-              errors.country
-            }}</span>
+            <span
+              v-if="errors.country"
+              class="relative px-4 py-3 text-sm text-red-600"
+            >{{ errors.country }}</span>
           </div>
           <div class="grid">
-            <label class="text-primary-700 dark:text-primary-100 mb-2" for="region">{{
-              $t('pages.account.addresses.edit.form.region')
-            }}</label>
+            <label
+              class="text-primary-700 dark:text-primary-100 mb-2"
+              for="region"
+            >{{ $t('pages.account.addresses.edit.form.region') }}</label>
             <div class="grid">
               <VeeField
                 id="region"
@@ -600,16 +620,18 @@ definePageMeta({
                 </option>
               </VeeField>
             </div>
-            <span v-if="errors.region" class="relative px-4 py-3 text-sm text-red-600">{{
-              errors.region
-            }}</span>
+            <span
+              v-if="errors.region"
+              class="relative px-4 py-3 text-sm text-red-600"
+            >{{ errors.region }}</span>
           </div>
         </div>
 
         <div class="grid content-evenly items-start">
-          <label class="text-primary-700 dark:text-primary-100 mb-2" for="notes">{{
-            $t('pages.account.addresses.edit.form.notes')
-          }}</label>
+          <label
+            class="text-primary-700 dark:text-primary-100 mb-2"
+            for="notes"
+          >{{ $t('pages.account.addresses.edit.form.notes') }}</label>
           <div class="grid">
             <VeeField
               id="notes"

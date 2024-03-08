@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import SearchingNoResultsJson from '~/assets/lotties/search_no_results.json'
 import SearchingJson from '~/assets/lotties/searching.json'
-import type { SearchResults } from '~/types/search'
 
 const searchStore = useSearchStore()
 const { results, storage, totalCount, productSearchItems, productHeadlines } =
-	storeToRefs(searchStore)
+  storeToRefs(searchStore)
 const { reset } = searchStore
 
 const route = useRoute()
@@ -18,105 +17,111 @@ const suggestions = ref(null)
 const isSuggestionsOpen = ref(false)
 
 const { pending, error, refresh } = await useAsyncData('search', () =>
-	$fetch<SearchResults>('/api/search', {
-		method: 'GET',
-		params: {
-			query: currentSearch.value,
-			language: locale.value
-		},
-		onResponse({ response }) {
-			results.value = response._data
-			isSuggestionsOpen.value = false
-		}
-	})
+  $fetch('/api/search', {
+    method: 'GET',
+    query: {
+      query: currentSearch.value,
+      language: locale.value,
+    },
+    onResponse({ response }) {
+      results.value = response._data
+      isSuggestionsOpen.value = false
+    },
+  }),
 )
 
 onClickOutside(suggestions, () => {
-	isSuggestionsOpen.value = false
+  isSuggestionsOpen.value = false
 })
 
 const throttledSearch = useDebounceFn(async () => {
-	await refresh()
+  await refresh()
 }, 250)
 
 const vFocus = {
-	mounted: (el: HTMLElement) => el.focus()
+  mounted: (el: HTMLElement) => el.focus(),
 }
 
 const storageSearchHistory = computed(() => {
-	const query = currentSearch.value.toLowerCase()
-	return storage.value.filter(
-		(item: string) => item.toLowerCase().includes(query) && item !== query
-	)
+  const query = currentSearch.value.toLowerCase()
+  return storage.value.filter(
+    (item: string) => item.toLowerCase().includes(query) && item !== query,
+  )
 })
 
 const showSearchHistory = computed(() => {
-	return storageSearchHistory.value.length > 0
+  return storageSearchHistory.value.length > 0
 })
 
 const showHeadlines = computed(() => {
-	return Object.keys(productHeadlines).length > 0
+  return Object.keys(productHeadlines).length > 0
 })
 
 const showSuggestions = computed(() => {
-	return isSuggestionsOpen.value && (showSearchHistory.value || showHeadlines.value)
+  return (
+    isSuggestionsOpen.value && (showSearchHistory.value || showHeadlines.value)
+  )
 })
 
 const showResults = computed(() => {
-	return productSearchItems.value.length > 0 && !pending.value && !error.value
+  return productSearchItems.value.length > 0 && !pending.value && !error.value
 })
 
 const showStartSearching = computed(() => {
-	return !currentSearch.value && !pending.value
+  return !currentSearch.value && !pending.value
 })
 
 const showTotalCount = computed(() => {
-	return totalCount.value > 0 && !pending.value
+  return totalCount.value > 0 && !pending.value
 })
 
 const showIsSearching = computed(() => {
-	return pending.value && !error.value
+  return pending.value && !error.value
 })
 
 const showNoResults = computed(() => {
-	return !showIsSearching.value && productSearchItems.value.length === 0 && !error.value
+  return (
+    !showIsSearching.value &&
+    productSearchItems.value.length === 0 &&
+    !error.value
+  )
 })
 
 const showErrors = computed(() => {
-	return error.value
+  return error.value
 })
 
 watch(
-	() => currentSearch.value,
-	() => {
-		pending.value = true
-		isSuggestionsOpen.value = false
-		throttledSearch()
-		router.replace({
-			query: {
-				...route.query,
-				query: currentSearch.value
-			}
-		})
-	}
+  () => currentSearch.value,
+  () => {
+    pending.value = true
+    isSuggestionsOpen.value = false
+    throttledSearch()
+    router.replace({
+      query: {
+        ...route.query,
+        query: currentSearch.value,
+      },
+    })
+  },
 )
 
 onUnmounted(() => {
-	currentSearch.value = ''
-	isSuggestionsOpen.value = false
-	reset()
+  currentSearch.value = ''
+  isSuggestionsOpen.value = false
+  reset()
 })
 
 onMounted(() => {
-	isSuggestionsOpen.value = false
+  isSuggestionsOpen.value = false
 })
 
 definePageMeta({
-	pageTransition: false
+  pageTransition: false,
 })
 
 definePageMeta({
-	layout: 'default'
+  layout: 'default',
 })
 </script>
 
@@ -137,7 +142,9 @@ definePageMeta({
             <UIcon name="i-heroicons-arrow-left" />
           </Anchor>
           <IconFa6Solid:magnifyingGlass />
-          <label for="search" class="sr-only">{{ $t('pages.search.placeholder') }}</label>
+          <label for="search" class="sr-only">{{
+            $t('pages.search.placeholder')
+          }}</label>
           <input
             id="search"
             v-model="currentSearch"
@@ -166,7 +173,9 @@ definePageMeta({
                 @click="currentSearch = suggestion"
               >
                 <IconFa6Solid:clockRotateLeft />
-                <span class="text-primary-700 dark:text-primary-100 truncate font-bold">
+                <span
+                  class="text-primary-700 dark:text-primary-100 truncate font-bold"
+                >
                   {{ suggestion }}
                 </span>
               </Anchor>
@@ -194,11 +203,12 @@ definePageMeta({
       <PageTitle class="sr-only">
         <span
           :class="{
-            'opacity-0': !currentSearch
+            'opacity-0': !currentSearch,
           }"
         >
           <span>{{ $t('pages.search.results') }}:</span>
-          <span v-if="currentSearch" class="font-bold"> {{ currentSearch }}</span>
+          <span v-if="currentSearch" class="font-bold">
+            {{ currentSearch }}</span>
         </span>
       </PageTitle>
 

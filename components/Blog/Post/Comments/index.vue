@@ -1,26 +1,26 @@
 <script lang="ts" setup>
 import type { PropType, Ref } from 'vue'
 
-import type { BlogComment, BlogCommentOrderingField } from '~/types/blog/comment'
+import type { BlogCommentOrderingField } from '~/types/blog/comment'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
 import emptyIcon from '~icons/mdi/package-variant-remove'
 
 const props = defineProps({
-	blogPostId: {
-		type: String,
-		required: true
-	},
-	commentsCount: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	displayImageOf: {
-		type: String as PropType<'user' | 'blogPost'>,
-		required: true,
-		validator: (value: string) => ['user', 'blogPost'].includes(value)
-	}
+  blogPostId: {
+    type: String,
+    required: true,
+  },
+  commentsCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  displayImageOf: {
+    type: String as PropType<'user' | 'blogPost'>,
+    required: true,
+    validator: (value: string) => ['user', 'blogPost'].includes(value),
+  },
 })
 
 const { blogPostId, commentsCount, displayImageOf } = toRefs(props)
@@ -32,45 +32,49 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const expand = computed(() => 'true')
 
 const {
-	data: blogPostComments,
-	pending,
-	refresh
-} = await useFetch<BlogComment[]>(`/api/blog/posts/${blogPostId.value}/comments`, {
-	key: `blogPostComments${blogPostId}`,
-	method: 'GET',
-	query: {
-		ordering: ordering.value,
-		expand
-	}
+  data: blogPostComments,
+  pending,
+  refresh,
+} = await useFetch(`/api/blog/posts/${blogPostId.value}/comments`, {
+  key: `blogPostComments${blogPostId}`,
+  method: 'GET',
+  query: {
+    ordering: ordering.value,
+    expand,
+  },
 })
 
 const entityOrdering: Ref<EntityOrdering<BlogCommentOrderingField>> = ref([
-	{
-		value: 'id',
-		label: t('common.ordering.id'),
-		options: ['ascending', 'descending']
-	},
-	{
-		value: 'createdAt',
-		label: t('common.ordering.created_at'),
-		options: ['ascending', 'descending']
-	}
+  {
+    value: 'id',
+    label: t('common.ordering.id'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'createdAt',
+    label: t('common.ordering.created_at'),
+    options: ['ascending', 'descending'],
+  },
 ])
 
-const orderingFields: Partial<Record<BlogCommentOrderingField, OrderingOption[]>> =
-	reactive({
-		id: [],
-		createdAt: []
-	})
+const orderingFields: Partial<
+  Record<BlogCommentOrderingField, OrderingOption[]>
+> = reactive({
+  id: [],
+  createdAt: [],
+})
 
 const orderingOptions = computed(() => {
-	return useOrdering<BlogCommentOrderingField>(entityOrdering.value, orderingFields)
+  return useOrdering<BlogCommentOrderingField>(
+    entityOrdering.value,
+    orderingFields,
+  )
 })
 
 watch(
-	() => route.query,
-	() => refresh(),
-	{ deep: true }
+  () => route.query,
+  () => refresh(),
+  { deep: true },
 )
 </script>
 
@@ -102,7 +106,11 @@ watch(
           />
           <EmptyState v-if="!pending && !blogPostComments" :icon="emptyIcon">
             <template #actions>
-              <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+              <UButton
+                :label="$t('common.empty.button')"
+                :to="'index'"
+                color="white"
+              />
             </template>
           </EmptyState>
         </div>

@@ -2,20 +2,20 @@ import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(
-	data: any,
-	schema: ZodSchema,
-	statusCode: number,
-	statusMessage: string
+  data: any,
+  schema: ZodSchema,
+  statusCode: number,
+  statusMessage: string,
 ): z.infer<ZodSchema> => {
-	try {
-		return schema.parse(data)
-	} catch (error) {
-		throw createError({
-			statusCode,
-			statusMessage,
-			data: error
-		})
-	}
+  try {
+    return schema.parse(data)
+  } catch (error) {
+    throw createError({
+      statusCode,
+      statusMessage,
+      data: error,
+    })
+  }
 }
 
 /**
@@ -29,13 +29,13 @@ const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
 async function parseBodyAs<ZodSchema extends z.ZodTypeAny>(
-	event: H3Event,
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Body parsing failed'
+  event: H3Event,
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Body parsing failed',
 ) {
-	const data = await readBody(event)
-	return apiValidateWithSchema(data, schema, errorCode, errorMessage)
+  const data = await readBody(event)
+  return apiValidateWithSchema(data, schema, errorCode, errorMessage)
 }
 
 /**
@@ -49,13 +49,13 @@ async function parseBodyAs<ZodSchema extends z.ZodTypeAny>(
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
 function parseParamsAs<ZodSchema extends z.ZodTypeAny>(
-	event: H3Event,
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Parameter parsing failed'
+  event: H3Event,
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Parameter parsing failed',
 ) {
-	const data = event.context.params
-	return apiValidateWithSchema(data, schema, errorCode, errorMessage)
+  const data = event.context.params
+  return apiValidateWithSchema(data, schema, errorCode, errorMessage)
 }
 
 /**
@@ -69,13 +69,13 @@ function parseParamsAs<ZodSchema extends z.ZodTypeAny>(
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
 function parseQueryAs<ZodSchema extends z.ZodTypeAny>(
-	event: H3Event,
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Query parsing failed'
+  event: H3Event,
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Query parsing failed',
 ) {
-	const data = getQuery(event)
-	return apiValidateWithSchema(data, schema, errorCode, errorMessage)
+  const data = getQuery(event)
+  return apiValidateWithSchema(data, schema, errorCode, errorMessage)
 }
 
 /**
@@ -89,13 +89,13 @@ function parseQueryAs<ZodSchema extends z.ZodTypeAny>(
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
 function parseCookieAs<ZodSchema extends z.ZodTypeAny>(
-	event: H3Event,
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Cookie parsing failed'
+  event: H3Event,
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Cookie parsing failed',
 ) {
-	const data = parseCookies(event)
-	return apiValidateWithSchema(data, schema, errorCode, errorMessage)
+  const data = parseCookies(event)
+  return apiValidateWithSchema(data, schema, errorCode, errorMessage)
 }
 
 /**
@@ -109,13 +109,13 @@ function parseCookieAs<ZodSchema extends z.ZodTypeAny>(
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
 function parseHeaderAs<ZodSchema extends z.ZodTypeAny>(
-	event: H3Event,
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Header parsing failed'
+  event: H3Event,
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Header parsing failed',
 ) {
-	const data = getHeaders(event)
-	return apiValidateWithSchema(data, schema, errorCode, errorMessage)
+  const data = getHeaders(event)
+  return apiValidateWithSchema(data, schema, errorCode, errorMessage)
 }
 
 /**
@@ -146,13 +146,13 @@ function parseHeaderAs<ZodSchema extends z.ZodTypeAny>(
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
 async function parseDataAs<ZodSchema extends z.ZodTypeAny>(
-	dataOrPromise: any | Promise<any>,
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Data parsing failed'
+  dataOrPromise: any | Promise<any>,
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Data parsing failed',
 ) {
-	const data = await dataOrPromise
-	return apiValidateWithSchema(data, schema, errorCode, errorMessage)
+  const data = await dataOrPromise
+  return apiValidateWithSchema(data, schema, errorCode, errorMessage)
 }
 
 /**
@@ -180,22 +180,22 @@ async function parseDataAs<ZodSchema extends z.ZodTypeAny>(
  * ```
  */
 function makeParser<ZodSchema extends z.ZodTypeAny>(
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Data parsing failed'
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Data parsing failed',
 ) {
-	return (
-		data: any,
-		errorCodeOverwrite = undefined,
-		errorMessageOverwrite = undefined
-	) => {
-		return apiValidateWithSchema(
-			data,
-			schema,
-			errorCodeOverwrite || errorCode,
-			errorMessageOverwrite || errorMessage
-		)
-	}
+  return (
+    data: any,
+    errorCodeOverwrite = undefined,
+    errorMessageOverwrite = undefined,
+  ) => {
+    return apiValidateWithSchema(
+      data,
+      schema,
+      errorCodeOverwrite || errorCode,
+      errorMessageOverwrite || errorMessage,
+    )
+  }
 }
 
 /**
@@ -222,33 +222,33 @@ function makeParser<ZodSchema extends z.ZodTypeAny>(
  * ```
  */
 function makePromiseParser<ZodSchema extends z.ZodTypeAny>(
-	schema: ZodSchema,
-	errorCode = 422,
-	errorMessage = 'Data-promise parsing failed'
+  schema: ZodSchema,
+  errorCode = 422,
+  errorMessage = 'Data-promise parsing failed',
 ) {
-	return async (
-		promise: Promise<any>,
-		errorCodeOverwrite = undefined,
-		errorMessageOverwrite = undefined
-	) => {
-		const data = await promise
-		return apiValidateWithSchema(
-			data,
-			schema,
-			errorCodeOverwrite || errorCode,
-			errorMessageOverwrite || errorMessage
-		)
-	}
+  return async (
+    promise: Promise<any>,
+    errorCodeOverwrite = undefined,
+    errorMessageOverwrite = undefined,
+  ) => {
+    const data = await promise
+    return apiValidateWithSchema(
+      data,
+      schema,
+      errorCodeOverwrite || errorCode,
+      errorMessageOverwrite || errorMessage,
+    )
+  }
 }
 
 export {
-	makeParser,
-	makePromiseParser,
-	parseBodyAs,
-	parseCookieAs,
-	parseDataAs,
-	parseHeaderAs,
-	parseParamsAs,
-	parseQueryAs,
-	z
+  makeParser,
+  makePromiseParser,
+  parseBodyAs,
+  parseCookieAs,
+  parseDataAs,
+  parseHeaderAs,
+  parseParamsAs,
+  parseQueryAs,
+  z,
 }

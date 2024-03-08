@@ -1,13 +1,16 @@
 <script lang="ts" setup>
 definePageMeta({
-	layout: 'user'
+  layout: 'user',
 })
 </script>
 
 <template>
   <PageWrapper>
     <PageHeader class="account-header">
-      <PageTitle :text="$t('pages.account.index.title')" class="account-header-title" />
+      <PageTitle
+        :text="$t('pages.account.index.title')"
+        class="account-header-title"
+      />
     </PageHeader>
     <PageBody>
       <PageSection />

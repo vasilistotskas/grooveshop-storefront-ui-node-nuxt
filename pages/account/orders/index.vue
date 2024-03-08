@@ -5,7 +5,7 @@ const userStore = useUserStore()
 const { orders } = storeToRefs(userStore)
 
 definePageMeta({
-	layout: 'user'
+  layout: 'user',
 })
 </script>
 
@@ -18,7 +18,11 @@ definePageMeta({
       <OrderList v-if="orders && orders.length" :orders="orders" />
       <EmptyState v-if="!orders" :icon="emptyIcon">
         <template #actions>
-          <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+          <UButton
+            :label="$t('common.empty.button')"
+            :to="'index'"
+            color="white"
+          />
         </template>
       </EmptyState>
     </PageBody>

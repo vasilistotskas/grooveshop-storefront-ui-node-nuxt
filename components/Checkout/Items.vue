@@ -17,14 +17,20 @@ const { locale } = useI18n()
         v-if="getCartItems?.length"
         class="max-h-[185px] overflow-auto border-b border-t border-gray-200 py-4"
       >
-        <div v-for="item in getCartItems" :key="item.id" class="grid gap-4 md:p-4">
+        <div
+          v-for="item in getCartItems"
+          :key="item.id"
+          class="grid gap-4 md:p-4"
+        >
           <div class="grid grid-cols-[1fr_auto_auto] gap-4">
             <div class="flex items-center">
               <Anchor
                 :title="extractTranslated(item.product, 'name', locale)"
                 :to="`/product${item.product.absoluteUrl}`"
               >
-                <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+                <span
+                  class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+                >
                   {{ extractTranslated(item.product, 'name', locale) }}
                 </span>
               </Anchor>

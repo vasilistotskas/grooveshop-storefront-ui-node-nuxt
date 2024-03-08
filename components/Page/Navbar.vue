@@ -13,7 +13,9 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
           class="text-primary-700 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
         >
           <ul class="flex items-center space-x-8">
-            <li class="relative grid items-center justify-center justify-items-center">
+            <li
+              class="relative grid items-center justify-center justify-items-center"
+            >
               <Anchor
                 class="flex items-center gap-4 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
                 :to="'search'"
@@ -52,13 +54,19 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
           <ul
             class="text-primary-700 dark:text-primary-100 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
           >
-            <li class="relative grid items-center justify-center justify-items-center">
+            <li
+              class="relative grid items-center justify-center justify-items-center"
+            >
               <LanguageSwitcher />
             </li>
-            <li class="relative grid items-center justify-center justify-items-center">
+            <li
+              class="relative grid items-center justify-center justify-items-center"
+            >
               <ThemeSwitcher />
             </li>
-            <li class="relative grid items-center justify-center justify-items-center">
+            <li
+              class="relative grid items-center justify-center justify-items-center"
+            >
               <ClientOnly>
                 <span
                   v-if="!pending.cart"
@@ -80,7 +88,9 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                 <IconFa6Solid:cartShopping />
               </Anchor>
             </li>
-            <li class="relative grid items-center justify-center justify-items-center">
+            <li
+              class="relative grid items-center justify-center justify-items-center"
+            >
               <Anchor
                 v-if="loggedIn && user"
                 class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
@@ -113,7 +123,9 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
       <ActionSheet @on-close="toggleOptions(false)">
         <ActionSheetBody class="grid gap-4">
           <ActionSheetHeader text="Menu" />
-          <nav class="text-primary-700 dark:text-primary-100 font-semibold leading-6">
+          <nav
+            class="text-primary-700 dark:text-primary-100 font-semibold leading-6"
+          >
             <ul
               class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
             >
@@ -132,7 +144,11 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
               <li class="link grid pb-2">
                 <UButton
                   icon="i-heroicons-user"
-                  :to="loggedIn ? '/account' : `/auth/login?redirect=${$route.path}`"
+                  :to="
+                    loggedIn
+                      ? '/account'
+                      : `/auth/login?redirect=${$route.path}`
+                  "
                   size="md"
                   variant="solid"
                   color="white"
@@ -186,24 +202,24 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
 
 <style lang="scss" scoped>
 .cart-items-count {
-	&::before {
-		content: attr(data-count);
-		display: grid;
-		position: absolute;
-		top: -5px;
-		align-items: center;
-		justify-content: center;
-		width: 70%;
-		height: 70%;
-		border-radius: 50%;
-		background: #eb2e2b;
-		cursor: pointer;
-		color: #fff;
-		font-size: 10px;
-		pointer-events: none;
-		right: -5px;
-		z-index: 10;
-		line-height: 16px;
-	}
+  &::before {
+    content: attr(data-count);
+    display: grid;
+    position: absolute;
+    top: -5px;
+    align-items: center;
+    justify-content: center;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background: #eb2e2b;
+    cursor: pointer;
+    color: #fff;
+    font-size: 10px;
+    pointer-events: none;
+    right: -5px;
+    z-index: 10;
+    line-height: 16px;
+  }
 }
 </style>

@@ -7,7 +7,9 @@ const packageVersion = pkg.version
 </script>
 
 <template>
-  <footer class="mt-6 w-full border-t-2 border-gray-500 bg-white pt-2 dark:bg-zinc-900">
+  <footer
+    class="mt-6 w-full border-t-2 border-gray-500 bg-white pt-2 dark:bg-zinc-900"
+  >
     <div class="container mx-auto w-full">
       <div class="grid grid-cols-1 gap-8 px-6 py-8 md:grid-cols-3">
         <div>
@@ -122,7 +124,9 @@ const packageVersion = pkg.version
     <div class="w-full bg-zinc-100 dark:bg-zinc-800">
       <div class="container mx-auto w-full">
         <div class="px-4 py-6 md:flex md:items-center md:justify-between">
-          <span class="text-primary-900 dark:text-primary-300 text-sm sm:text-center">© 2023
+          <span
+            class="text-primary-900 dark:text-primary-300 text-sm sm:text-center"
+          >© 2023
             <Anchor
               :href="config.public.siteUrl"
               :title="config.public.siteName"
@@ -191,7 +195,9 @@ const packageVersion = pkg.version
                 <span class="sr-only">{{ $t('common.twitter') }}</span>
               </Anchor>
             </div>
-            <span class="text-primary-700 dark:text-primary-300 text-xs sm:text-center">Version: {{ packageVersion }}</span>
+            <span
+              class="text-primary-700 dark:text-primary-300 text-xs sm:text-center"
+            >Version: {{ packageVersion }}</span>
           </div>
         </div>
       </div>

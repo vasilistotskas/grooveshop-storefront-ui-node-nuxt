@@ -2,65 +2,65 @@
 import { defu } from 'defu'
 
 type SpinnerPosition =
-	| 'top-left'
-	| 'top-right'
-	| 'bottom-left'
-	| 'bottom-right'
-	| 'center'
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'center'
 
 type Spinner = {
-	enabled: boolean
-	fontSize?: string
-	icon?: string
-	position?: SpinnerPosition
+  enabled: boolean
+  fontSize?: string
+  icon?: string
+  position?: SpinnerPosition
 }
 
 const defaultSpinner = {
-	enabled: false,
-	fontSize: 'text-3xl',
-	icon: 'i-heroicons-arrow-path',
-	position: 'center'
+  enabled: false,
+  fontSize: 'text-3xl',
+  icon: 'i-heroicons-arrow-path',
+  position: 'center',
 }
 
 const props = withDefaults(
-	defineProps<{
-		width?: number | string
-		height?: number | string
-		borderRadius?: string
-		showAnimation?: boolean
-		text?: string
-		textColor?: string
-		spinner?: Spinner
-		modal?: boolean
-	}>(),
-	{
-		width: 'auto',
-		height: 'auto',
-		borderRadius: '5px',
-		showAnimation: true,
-		text: undefined,
-		textColor: 'black',
-		spinner: undefined,
-		modal: false
-	}
+  defineProps<{
+    width?: number | string
+    height?: number | string
+    borderRadius?: string
+    showAnimation?: boolean
+    text?: string
+    textColor?: string
+    spinner?: Spinner
+    modal?: boolean
+  }>(),
+  {
+    width: 'auto',
+    height: 'auto',
+    borderRadius: '5px',
+    showAnimation: true,
+    text: undefined,
+    textColor: 'black',
+    spinner: undefined,
+    modal: false,
+  },
 )
 
 const spinnerWithDefaults = defu(props.spinner, defaultSpinner)
 
 const spinnerPositionClass = computed(() => {
-	switch (spinnerWithDefaults.position) {
-		case 'top-left':
-			return 'top-0 left-0'
-		case 'top-right':
-			return 'top-0 right-0'
-		case 'bottom-left':
-			return 'bottom-0 left-0'
-		case 'bottom-right':
-			return 'bottom-0 right-0'
-		case 'center':
-		default:
-			return 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
-	}
+  switch (spinnerWithDefaults.position) {
+    case 'top-left':
+      return 'top-0 left-0'
+    case 'top-right':
+      return 'top-0 right-0'
+    case 'bottom-left':
+      return 'bottom-0 left-0'
+    case 'bottom-right':
+      return 'bottom-0 right-0'
+    case 'center':
+    default:
+      return 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
+  }
 })
 
 const GenericModal = resolveComponent('GenericModal')
@@ -85,12 +85,12 @@ const GenericModal = resolveComponent('GenericModal')
       :style="{
         width: width,
         height: height,
-        borderRadius: borderRadius
+        borderRadius: borderRadius,
       }"
       :ui="{
         background: showAnimation
           ? 'bg-gray-300 dark:bg-gray-600'
-          : 'bg-transparent dark:bg-transparent'
+          : 'bg-transparent dark:bg-transparent',
       }"
     />
     <p
@@ -99,7 +99,10 @@ const GenericModal = resolveComponent('GenericModal')
       :style="{ color: textColor }"
       v-text="text"
     />
-    <div v-if="spinnerWithDefaults?.enabled" :class="['absolute', spinnerPositionClass]">
+    <div
+      v-if="spinnerWithDefaults?.enabled"
+      :class="['absolute', spinnerPositionClass]"
+    >
       <UIcon
         :name="spinnerWithDefaults?.icon"
         class="animate-spin"

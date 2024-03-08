@@ -4,20 +4,20 @@ import type { PropType } from 'vue'
 import type { UserAddress } from '~/types/user/address'
 
 defineProps({
-	addresses: {
-		type: Array as PropType<UserAddress[] | null>,
-		required: true
-	},
-	addressesTotal: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	displayTotal: {
-		type: Boolean,
-		required: false,
-		default: true
-	}
+  addresses: {
+    type: Array as PropType<UserAddress[] | null>,
+    required: true,
+  },
+  addressesTotal: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  displayTotal: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 const { t } = useI18n()
@@ -33,9 +33,15 @@ const { t } = useI18n()
         {{ t('pages.account.addresses.total') }}
       </span>
     </div>
-    <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <ul
+      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    >
       <AddressAddNew />
-      <AddressCard v-for="address in addresses" :key="address.id" :address="address" />
+      <AddressCard
+        v-for="address in addresses"
+        :key="address.id"
+        :address="address"
+      />
     </ul>
   </div>
 </template>

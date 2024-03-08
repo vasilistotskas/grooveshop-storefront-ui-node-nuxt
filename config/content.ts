@@ -1,5 +1,5 @@
 export const content = {
-	api: {
-		baseURL: '/api/_content'
-	}
+  api: {
+    baseURL: '/api/_content',
+  },
 }

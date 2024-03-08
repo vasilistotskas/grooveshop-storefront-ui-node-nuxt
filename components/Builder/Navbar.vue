@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 defineSlots<{
-	banner(props: {}): any
-	title(props: {}): any
-	menu(props: {}): any
-	drawer(props: { toggleDrawer: () => boolean }): any
-	options(props: { toggleOptions: (show?: boolean) => void; showOptions: boolean }): any
+  banner(props: {}): any
+  title(props: {}): any
+  menu(props: {}): any
+  drawer(props: { toggleDrawer: () => boolean }): any
+  options(props: {
+    toggleOptions: (show?: boolean) => void
+    showOptions: boolean
+  }): any
 }>()
 
 const { loggedIn } = useUserSession()
@@ -17,50 +20,50 @@ const config = useRuntimeConfig()
 
 let timer: NodeJS.Timer
 watch(
-	() => useRoute().path,
-	() => {
-		if (showDrawer.value) {
-			timer = setTimeout(() => {
-				showDrawer.value = false
-			}, 100)
-		}
-	}
+  () => useRoute().path,
+  () => {
+    if (showDrawer.value) {
+      timer = setTimeout(() => {
+        showDrawer.value = false
+      }, 100)
+    }
+  },
 )
 onMounted(() => {
-	if (!navbar.value) return
+  if (!navbar.value) return
 
-	// scroll
-	const { onScroll } = useSticky(navbar.value as HTMLElement, 0)
-	setTimeout(() => onScroll(), 50)
+  // scroll
+  const { onScroll } = useSticky(navbar.value as HTMLElement, 0)
+  setTimeout(() => onScroll(), 50)
 
-	// on show on mobile
-	setInterval(() => {
-		// must in mobile
-		const minW = 1024
-		if (window.innerWidth < minW) {
-			updateDrawerOptions()
-		}
-	}, 100)
+  // on show on mobile
+  setInterval(() => {
+    // must in mobile
+    const minW = 1024
+    if (window.innerWidth < minW) {
+      updateDrawerOptions()
+    }
+  }, 100)
 })
 onBeforeUnmount(() => {
-	if (timer) clearInterval(Number(timer))
+  if (timer) clearInterval(Number(timer))
 })
 
 const updateDrawerOptions = () => {
-	// drawer
-	if (showDrawer.value || showOptions.value) {
-		document.body.classList.add('overflow-hidden')
-	} else {
-		document.body.classList.remove('overflow-hidden')
-	}
+  // drawer
+  if (showDrawer.value || showOptions.value) {
+    document.body.classList.add('overflow-hidden')
+  } else {
+    document.body.classList.remove('overflow-hidden')
+  }
 }
 const toggleDrawer = () => (showDrawer.value = !showDrawer.value)
 const toggleOptions = (show?: boolean) => {
-	if (show) {
-		showOptions.value = show
-	} else {
-		showOptions.value = !showOptions.value
-	}
+  if (show) {
+    showOptions.value = show
+  } else {
+    showOptions.value = !showOptions.value
+  }
 }
 const appTitle = computed(() => config.public.appTitle as string)
 const environment = computed(() => config.public.environment)
@@ -120,7 +123,10 @@ const environment = computed(() => config.public.environment)
           <!-- menu -->
           <slot name="menu" />
           <!-- options:toggle -->
-          <div v-if="$slots['options']" class="flex flex-1 justify-end lg:sr-only">
+          <div
+            v-if="$slots['options']"
+            class="flex flex-1 justify-end lg:sr-only"
+          >
             <button
               type="button"
               class="flex items-center focus:outline-none"

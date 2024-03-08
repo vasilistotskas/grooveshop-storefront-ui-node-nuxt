@@ -1,48 +1,48 @@
 <script lang="ts" setup>
 const props = defineProps({
-	modelValue: {
-		type: Boolean,
-		default: false
-	},
-	on: {
-		type: Boolean,
-		default: false
-	},
-	id: {
-		type: String,
-		default: undefined
-	}
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
+  on: {
+    type: Boolean,
+    default: false,
+  },
+  id: {
+    type: String,
+    default: undefined,
+  },
 })
 defineSlots<{
-	default(props: {}): any
+  default(props: {}): any
 }>()
 
 const emit = defineEmits(['update:modelValue'])
 const { on, id } = toRefs(props)
 
 const randomId = () =>
-	Math.random().toString(36).substring(2, 15) +
-	Math.random().toString(36).substring(2, 15)
+  Math.random().toString(36).substring(2, 15) +
+  Math.random().toString(36).substring(2, 15)
 
 const switchId = ref(id?.value || randomId())
 const input = ref<HTMLInputElement>()
 
 const checked = useSyncProps<boolean>(props, 'modelValue', emit)
 const onInputChange = (e: Event) => {
-	const target = e.target as HTMLInputElement
-	checked.value = target.checked
-	emit('update:modelValue', target.checked)
+  const target = e.target as HTMLInputElement
+  checked.value = target.checked
+  emit('update:modelValue', target.checked)
 }
 
 onMounted(() => {
-	if (on.value) {
-		checked.value = true
-		emit('update:modelValue', true)
-		if (input.value)
-			if ('checked' in input.value) {
-				input.value.checked = true
-			}
-	}
+  if (on.value) {
+    checked.value = true
+    emit('update:modelValue', true)
+    if (input.value)
+      if ('checked' in input.value) {
+        input.value.checked = true
+      }
+  }
 })
 </script>
 
@@ -73,6 +73,6 @@ onMounted(() => {
 
 <style>
 .switch-checkbox:checked {
-	right: 0;
+  right: 0;
 }
 </style>

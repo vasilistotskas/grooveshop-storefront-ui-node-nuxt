@@ -1,34 +1,34 @@
 <script lang="ts" setup>
 const props = defineProps({
-	totalPages: {
-		type: Number,
-		required: true,
-		default: 1
-	},
-	pageTotalResults: {
-		type: Number,
-		required: true,
-		default: 0
-	},
-	page: {
-		type: Number,
-		required: true,
-		default: 1
-	},
-	offset: {
-		type: Number,
-		required: true
-	},
-	limit: {
-		type: Number,
-		required: true,
-		default: 10
-	},
-	maxVisibleButtons: {
-		type: Number,
-		required: false,
-		default: 3
-	}
+  totalPages: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
+  pageTotalResults: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  page: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
+  offset: {
+    type: Number,
+    required: true,
+  },
+  limit: {
+    type: Number,
+    required: true,
+    default: 10,
+  },
+  maxVisibleButtons: {
+    type: Number,
+    required: false,
+    default: 3,
+  },
 })
 
 const route = useRoute()
@@ -36,67 +36,69 @@ const route = useRoute()
 const firstPageNumber = computed(() => 1)
 const lastPageNumber = computed(() => props.totalPages)
 const startPage = computed(() => {
-	if (props.page === 1) {
-		return 1
-	}
-	if (props.page === props.totalPages) {
-		if (props.totalPages - props.maxVisibleButtons + 1 === 0) {
-			return 1
-		}
-		return props.totalPages - props.maxVisibleButtons + 1
-	}
-	return props.page - 1
+  if (props.page === 1) {
+    return 1
+  }
+  if (props.page === props.totalPages) {
+    if (props.totalPages - props.maxVisibleButtons + 1 === 0) {
+      return 1
+    }
+    return props.totalPages - props.maxVisibleButtons + 1
+  }
+  return props.page - 1
 })
 
 const isInFirstPage = computed(() => props.page === 1)
 const isInLastPage = computed(() => props.page === props.totalPages)
 
 const shouldDisplayFirstPage = computed(() => {
-	return !isInFirstPage.value && props.page > firstPageNumber.value + 1
+  return !isInFirstPage.value && props.page > firstPageNumber.value + 1
 })
 const shouldDisplayLastPage = computed(() => {
-	return !isInLastPage.value && props.page < lastPageNumber.value - 1
+  return !isInLastPage.value && props.page < lastPageNumber.value - 1
 })
 const shouldDisplayPreviousTripleDots = computed(() => {
-	return props.page > props.maxVisibleButtons
+  return props.page > props.maxVisibleButtons
 })
 const shouldDisplayNextTripleDots = computed(() => {
-	return props.page < props.totalPages - props.maxVisibleButtons + 1
+  return props.page < props.totalPages - props.maxVisibleButtons + 1
 })
 
 const pages = computed(() => {
-	const range: number[] = []
-	let lastPageNumber: number
-	if (!props.totalPages) {
-		return range
-	}
-	if (props.totalPages < props.maxVisibleButtons) {
-		lastPageNumber = props.totalPages
-	} else {
-		lastPageNumber = Math.min(
-			startPage.value + props.maxVisibleButtons - 1,
-			props.totalPages
-		)
-	}
-	const startPageNumber = isInLastPage.value ? startPage.value - 1 : startPage.value
-	for (let i = startPageNumber; i <= lastPageNumber; i += 1) {
-		range.push(i)
-	}
+  const range: number[] = []
+  let lastPageNumber: number
+  if (!props.totalPages) {
+    return range
+  }
+  if (props.totalPages < props.maxVisibleButtons) {
+    lastPageNumber = props.totalPages
+  } else {
+    lastPageNumber = Math.min(
+      startPage.value + props.maxVisibleButtons - 1,
+      props.totalPages,
+    )
+  }
+  const startPageNumber = isInLastPage.value
+    ? startPage.value - 1
+    : startPage.value
+  for (let i = startPageNumber; i <= lastPageNumber; i += 1) {
+    range.push(i)
+  }
 
-	if (props.maxVisibleButtons === range.length) {
-		if (isInFirstPage.value) {
-			range.pop()
-		}
-		if (isInLastPage.value) {
-			range.shift()
-		}
-	}
+  if (props.maxVisibleButtons === range.length) {
+    if (isInFirstPage.value) {
+      range.pop()
+    }
+    if (isInLastPage.value) {
+      range.shift()
+    }
+  }
 
-	return range
+  return range
 })
 
 const link = computed(() => {
-	return route.path
+  return route.path
 })
 </script>
 
@@ -114,12 +116,12 @@ const link = computed(() => {
               limit,
               offset: isInFirstPage ? offset : offset - limit,
               ordering: route.query?.ordering,
-              category: route.query?.category
-            }
+              category: route.query?.category,
+            },
           }"
           :class="{
             disabled: isInFirstPage,
-            active: isInFirstPage
+            active: isInFirstPage,
           }"
           :text="$t('components.pagination.previous_page')"
           :title="$t('components.pagination.previous_page')"
@@ -132,8 +134,8 @@ const link = computed(() => {
                   limit,
                   offset: isInFirstPage ? offset : offset - limit,
                   ordering: route.query?.ordering,
-                  category: route.query?.category
-                }
+                  category: route.query?.category,
+                },
               })
           "
         >
@@ -149,12 +151,12 @@ const link = computed(() => {
               limit,
               offset: 0,
               ordering: route.query?.ordering,
-              category: route.query?.category
-            }
+              category: route.query?.category,
+            },
           }"
           :css-class="{
             'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
-            disabled: isInFirstPage
+            disabled: isInFirstPage,
           }"
           :text="$t('components.pagination.first_page')"
           :title="$t('components.pagination.first_page')"
@@ -167,15 +169,15 @@ const link = computed(() => {
                   limit,
                   offset: 0,
                   ordering: route.query?.ordering,
-                  category: route.query?.category
-                }
+                  category: route.query?.category,
+                },
               })
           "
         >
           <span
             :class="{
               'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
-              'bg-primary-400 dark:bg-primary-400': isInFirstPage
+              'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
           >{{ firstPageNumber }}</span>
           <span
@@ -193,12 +195,12 @@ const link = computed(() => {
               limit,
               offset: (pageEntry - 1) * limit,
               ordering: route.query?.ordering,
-              category: route.query?.category
-            }
+              category: route.query?.category,
+            },
           }"
           :class="{
             'grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
-            active: pageEntry === page
+            active: pageEntry === page,
           }"
           :text="String(pageEntry)"
           :title="$t('components.pagination.go_to_page', { page: pageEntry })"
@@ -210,12 +212,14 @@ const link = computed(() => {
                   limit,
                   offset: (pageEntry - 1) * limit,
                   ordering: route.query?.ordering,
-                  category: route.query?.category
-                }
+                  category: route.query?.category,
+                },
               })
           "
         >
-          <span class="text-primary-700 dark:text-primary-100">{{ pageEntry }}</span>
+          <span class="text-primary-700 dark:text-primary-100">{{
+            pageEntry
+          }}</span>
         </Anchor>
       </li>
 
@@ -227,16 +231,18 @@ const link = computed(() => {
               limit,
               offset: (totalPages - 1) * limit,
               ordering: route.query?.ordering,
-              category: route.query?.category
-            }
+              category: route.query?.category,
+            },
           }"
           :class="{
             'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
             disabled: isInLastPage,
-            active: isInLastPage
+            active: isInLastPage,
           }"
           :text="String(lastPageNumber)"
-          :title="$t('components.pagination.go_to_page', { page: lastPageNumber })"
+          :title="
+            $t('components.pagination.go_to_page', { page: lastPageNumber })
+          "
           @click="
             async () =>
               await navigateTo({
@@ -245,8 +251,8 @@ const link = computed(() => {
                   limit,
                   offset: (totalPages - 1) * limit,
                   ordering: route.query?.ordering,
-                  category: route.query?.category
-                }
+                  category: route.query?.category,
+                },
               })
           "
         >
@@ -257,7 +263,7 @@ const link = computed(() => {
           <span
             :class="{
               'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
-              'bg-primary-400 dark:bg-primary-400': isInLastPage
+              'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
           >{{ lastPageNumber }}</span>
         </Anchor>
@@ -271,12 +277,12 @@ const link = computed(() => {
               limit,
               offset: offset + limit,
               ordering: route.query?.ordering,
-              category: route.query?.category
-            }
+              category: route.query?.category,
+            },
           }"
           :class="{
             disabled: isInLastPage,
-            active: isInLastPage
+            active: isInLastPage,
           }"
           :text="$t('components.pagination.next_page')"
           :title="
@@ -292,8 +298,8 @@ const link = computed(() => {
                   limit,
                   offset: offset + limit,
                   ordering: route.query?.ordering,
-                  category: route.query?.category
-                }
+                  category: route.query?.category,
+                },
               })
           "
         >
@@ -306,8 +312,8 @@ const link = computed(() => {
 
 <style lang="scss" scoped>
 .pagination {
-	.pagination-ordered-list {
-		grid-template-columns: auto auto 1fr auto auto auto auto;
-	}
+  .pagination-ordered-list {
+    grid-template-columns: auto auto 1fr auto auto auto auto;
+  }
 }
 </style>

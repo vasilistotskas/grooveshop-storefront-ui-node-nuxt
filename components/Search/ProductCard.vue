@@ -4,24 +4,24 @@ import type { PropType } from 'vue'
 import type { SearchProduct } from '~/types/search'
 
 const props = defineProps({
-	item: {
-		type: Object as PropType<SearchProduct>,
-		required: true
-	}
+  item: {
+    type: Object as PropType<SearchProduct>,
+    required: true,
+  },
 })
 const { locale } = useI18n()
 const { item } = toRefs(props)
 const { resolveImageSrc } = useImageResolver()
 
 const src = computed(() => {
-	return resolveImageSrc(
-		item.value?.mainImageFilename,
-		`media/uploads/products/${item.value?.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    item.value?.mainImageFilename,
+    `media/uploads/products/${item.value?.mainImageFilename}`,
+  )
 })
 
 const alt = computed(() => {
-	return extractTranslated(item.value, 'name', locale.value)
+  return extractTranslated(item.value, 'name', locale.value)
 })
 </script>
 
@@ -32,13 +32,18 @@ const alt = computed(() => {
       class="pb-2"
       :text="extractTranslated(item, 'name', locale)"
     >
-      <div class="bg-zinc4:10 duration-400 z-10 block p-1 transition hover:scale-105">
+      <div
+        class="bg-zinc4:10 duration-400 z-10 block p-1 transition hover:scale-105"
+      >
         <ImgWithFallback
           v-if="src"
           loading="lazy"
           provider="mediaStream"
           class="aspect-square h-full w-full bg-white object-cover"
-          :style="{ 'view-transition-name': `item-${item.id}`, aspectRatio: '1/1' }"
+          :style="{
+            'view-transition-name': `item-${item.id}`,
+            aspectRatio: '1/1',
+          }"
           :width="300"
           :height="300"
           :fit="'contain'"

@@ -5,7 +5,7 @@ const userStore = useUserStore()
 const { favouriteProducts } = storeToRefs(userStore)
 
 definePageMeta({
-	layout: 'user'
+  layout: 'user',
 })
 </script>
 
@@ -21,7 +21,11 @@ definePageMeta({
       />
       <EmptyState v-if="!favouriteProducts" :icon="emptyIcon">
         <template #actions>
-          <UButton :label="$t('common.empty.button')" :to="'index'" color="white" />
+          <UButton
+            :label="$t('common.empty.button')"
+            :to="'index'"
+            color="white"
+          />
         </template>
       </EmptyState>
     </PageBody>

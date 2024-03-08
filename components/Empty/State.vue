@@ -1,23 +1,23 @@
 <script lang="ts" setup>
 defineProps({
-	title: {
-		type: String,
-		required: false,
-		default: 'common.empty.title'
-	},
-	description: {
-		type: String,
-		required: false,
-		default: 'common.empty.description'
-	},
-	icon: {
-		type: Object,
-		required: true
-	}
+  title: {
+    type: String,
+    required: false,
+    default: 'common.empty.title',
+  },
+  description: {
+    type: String,
+    required: false,
+    default: 'common.empty.description',
+  },
+  icon: {
+    type: Object,
+    required: true,
+  },
 })
 
 defineSlots<{
-	actions(props: {}): any
+  actions(props: {}): any
 }>()
 </script>
 

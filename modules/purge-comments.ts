@@ -2,26 +2,26 @@ import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import MagicString from 'magic-string'
 
 export default defineNuxtModule({
-	meta: {
-		name: '@groove/purge-comments'
-	},
-	setup() {
-		addVitePlugin({
-			name: 'purge-comments',
-			enforce: 'pre',
-			transform: (code: string, id: string) => {
-				if (!id.endsWith('.vue') || !code.includes('<!--')) return
+  meta: {
+    name: '@groove/purge-comments',
+  },
+  setup() {
+    addVitePlugin({
+      name: 'purge-comments',
+      enforce: 'pre',
+      transform: (code: string, id: string) => {
+        if (!id.endsWith('.vue') || !code.includes('<!--')) return
 
-				const s = new MagicString(code)
-				s.replace(/<!--(?:.*?)-->/gs, '')
+        const s = new MagicString(code)
+        s.replace(/<!--(?:.*?)-->/gs, '')
 
-				if (s.hasChanged()) {
-					return {
-						code: s.toString(),
-						map: s.generateMap({ source: id, includeContent: true })
-					}
-				}
-			}
-		})
-	}
+        if (s.hasChanged()) {
+          return {
+            code: s.toString(),
+            map: s.generateMap({ source: id, includeContent: true }),
+          }
+        }
+      },
+    })
+  },
 })

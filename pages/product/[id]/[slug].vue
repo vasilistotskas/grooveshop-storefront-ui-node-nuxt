@@ -4,7 +4,6 @@ import { isClient } from '@vueuse/shared'
 
 import { GlobalEvents } from '~/events/global'
 import type { Product } from '~/types/product/product'
-import type { ProductReview } from '~/types/product/review'
 import { capitalize } from '~/utils/str'
 
 const { user, loggedIn } = useUserSession()
@@ -21,117 +20,119 @@ const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const productId = route.params.id
 
 const { data: product, refresh: refreshProduct } = await useFetch<Product>(
-	`/api/products/${productId}`,
-	{
-		key: `product${productId}`,
-		method: 'GET'
-	}
+  `/api/products/${productId}`,
+  {
+    key: `product${productId}`,
+    method: 'GET',
+  },
 )
 
 const { data: userProductReview, refresh: refreshUserProductReview } =
-	await useFetch<ProductReview>(`/api/products/reviews/user-product-review`, {
-		key: `productReviews${productId}${user.value?.id}`,
-		method: 'POST',
-		body: {
-			product: String(productId),
-			user: String(user.value?.id)
-		}
-	})
+  await useFetch('/api/products/reviews/user-product-review', {
+    key: `productReviews${productId}${user.value?.id}`,
+    method: 'POST',
+    body: {
+      product: String(productId),
+      user: String(user.value?.id),
+    },
+  })
 
 const onAddExistingReview = async () => {
-	await refreshProduct()
-	await refreshUserProductReview()
+  await refreshProduct()
+  await refreshUserProductReview()
 }
 const onUpdateExistingReview = async () => {
-	await refreshProduct()
-	await refreshUserProductReview()
+  await refreshProduct()
+  await refreshUserProductReview()
 }
 const onDeleteExistingReview = async () => {
-	await refreshProduct()
-	await refreshUserProductReview()
+  await refreshProduct()
+  await refreshUserProductReview()
 }
 
 const productTitle = computed(() => {
-	return capitalize(
-		product.value?.seoTitle ||
-			extractTranslated(product.value, 'name', locale.value) ||
-			''
-	)
+  return capitalize(
+    product.value?.seoTitle ||
+      extractTranslated(product?.value, 'name', locale.value) ||
+      '',
+  )
 })
 const selectorQuantity = ref(1)
 
 const shareOptions = reactive({
-	title: extractTranslated(product.value, 'name', locale.value),
-	text: extractTranslated(product.value, 'description', locale.value) || '',
-	url: isClient ? `/product/${product.value?.id}/${product.value?.slug}` : ''
+  title: extractTranslated(product.value, 'name', locale.value),
+  text: extractTranslated(product.value, 'description', locale.value) || '',
+  url: isClient ? `/product/${product.value?.id}/${product.value?.slug}` : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
 const userProductFavourite = computed(() => {
-	return getUserProductFavourite(Number(productId))
+  return getUserProductFavourite(Number(productId))
 })
 
 const openModal = () => {
-	if (user?.value) {
-		modalBus.emit(`modal-open-reviewModal-${user?.value?.id}-${product?.value?.id}`)
-	} else {
-		toast.add({
-			title: t('components.product.review.must_be_logged_in')
-		})
-	}
+  if (user?.value) {
+    modalBus.emit(
+      `modal-open-reviewModal-${user?.value?.id}-${product?.value?.id}`,
+    )
+  } else {
+    toast.add({
+      title: t('components.product.review.must_be_logged_in'),
+    })
+  }
 }
 
 const reviewButtonText = computed(() => {
-	if (user.value && userProductReview.value) {
-		return t('components.product.review.update_review')
-	}
-	return t('components.product.review.write_review')
+  if (user.value && userProductReview.value) {
+    return t('components.product.review.update_review')
+  }
+  return t('components.product.review.write_review')
 })
 
 const links = [
-	{
-		to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
-		label: t('breadcrumb.items.index.label'),
-		icon: 'i-heroicons-home'
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? '/products'
-				: `/${locale.value}/products`,
-		label: t('breadcrumb.items.products.label')
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? `/product/${productId}/${product.value?.slug}`
-				: `/${locale.value}/product/${productId}/${product.value?.slug}`,
-		label: productTitle.value
-	}
+  {
+    to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
+    label: t('breadcrumb.items.index.label'),
+    icon: 'i-heroicons-home',
+  },
+  {
+    to:
+      locale.value === config.public.defaultLocale
+        ? '/products'
+        : `/${locale.value}/products`,
+    label: t('breadcrumb.items.products.label'),
+  },
+  {
+    to:
+      locale.value === config.public.defaultLocale
+        ? `/product/${productId}/${product.value?.slug}`
+        : `/${locale.value}/product/${productId}/${product.value?.slug}`,
+    label: productTitle.value,
+  },
 ]
 
 watch(
-	() => route.query,
-	() => refreshProduct(),
-	{ deep: true }
+  () => route.query,
+  () => refreshProduct(),
+  { deep: true },
 )
 
 useSchemaOrg([
-	defineProduct({
-		name: () => extractTranslated(product.value, 'name', locale.value) || '',
-		description: () =>
-			extractTranslated(product.value, 'description', locale.value) || '',
-		image: () => [product.value?.mainImageAbsoluteUrl || ''],
-		sku: () => product.value?.uuid || '',
-		offer: {
-			price: () => (product.value?.price || 0).toFixed(2)
-		}
-	})
+  defineProduct({
+    name: () => extractTranslated(product.value, 'name', locale.value) || '',
+    description: () =>
+      extractTranslated(product.value, 'description', locale.value) || '',
+    image: () => [product.value?.mainImageAbsoluteUrl || ''],
+    sku: () => product.value?.uuid || '',
+    offer: {
+      price: () => (product.value?.price || 0).toFixed(2),
+    },
+  }),
 ])
 
 definePageMeta({
-	layout: 'default',
-	keepalive: false
+  layout: 'default',
+  keepalive: false,
 })
 </script>
 
@@ -200,9 +201,9 @@ definePageMeta({
               </PageSection>
               <h3 class="text-primary-700 dark:text-primary-100 text-sm">
                 <span>{{ $t('pages.product.product_id') }}: </span>
-                <span class="text-indigo-700 hover:underline dark:text-indigo-200">{{
-                  product.id
-                }}</span>
+                <span
+                  class="text-indigo-700 hover:underline dark:text-indigo-200"
+                >{{ product.id }}</span>
               </h3>
 
               <div class="flex items-center gap-4">

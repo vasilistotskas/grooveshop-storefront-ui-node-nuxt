@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps({
-	max: { type: Number, required: true, default: 1 },
-	cartItemId: { type: Number, required: true }
+  max: { type: Number, required: true, default: 1 },
+  cartItemId: { type: Number, required: true },
 })
 
 const cartStore = useCartStore()
@@ -13,30 +13,30 @@ const cartItemQuantity = useState<number>(`${cartItemId.value}-quantity`)
 const refreshCart = async () => await fetchCart()
 
 const decreaseQuantityEvent = async () => {
-	if (cartItemQuantity.value <= 1) return
-	cartItemQuantity.value -= 1
-	await updateCartItem(props.cartItemId, {
-		quantity: String(cartItemQuantity.value)
-	})
-	await refreshCart()
+  if (cartItemQuantity.value <= 1) return
+  cartItemQuantity.value -= 1
+  await updateCartItem(props.cartItemId, {
+    quantity: String(cartItemQuantity.value),
+  })
+  await refreshCart()
 }
 const increaseQuantityEvent = async () => {
-	if (cartItemQuantity.value >= props.max) return
-	cartItemQuantity.value += 1
-	await updateCartItem(props.cartItemId, {
-		quantity: String(cartItemQuantity.value)
-	})
-	await refreshCart()
+  if (cartItemQuantity.value >= props.max) return
+  cartItemQuantity.value += 1
+  await updateCartItem(props.cartItemId, {
+    quantity: String(cartItemQuantity.value),
+  })
+  await refreshCart()
 }
 const changeQuantityEvent = async (event: Event) => {
-	if (!(event.target instanceof HTMLSelectElement)) return
-	const value = parseInt(event.target.value)
-	if (value < 1 || value > props.max) return
-	cartItemQuantity.value = value
-	await updateCartItem(props.cartItemId, {
-		quantity: String(value)
-	})
-	await refreshCart()
+  if (!(event.target instanceof HTMLSelectElement)) return
+  const value = parseInt(event.target.value)
+  if (value < 1 || value > props.max) return
+  cartItemQuantity.value = value
+  await updateCartItem(props.cartItemId, {
+    quantity: String(value),
+  })
+  await refreshCart()
 }
 </script>
 
@@ -59,7 +59,12 @@ const changeQuantityEvent = async (event: Event) => {
       :aria-label="'quantity'"
       @change="changeQuantityEvent"
     >
-      <option v-for="i in max" :key="i" :value="i" :selected="i === cartItemQuantity">
+      <option
+        v-for="i in max"
+        :key="i"
+        :value="i"
+        :selected="i === cartItemQuantity"
+      >
         {{ i }}
       </option>
     </select>

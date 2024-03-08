@@ -1,3 +1,3 @@
 export const build = {
-	transpile: ['@headlessui/vue']
+  transpile: ['@headlessui/vue'],
 }

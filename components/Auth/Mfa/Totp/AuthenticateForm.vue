@@ -9,23 +9,23 @@ const { totpAuthenticate } = useAuthMfa()
 const { t } = useI18n()
 
 async function onSubmit(values: MfaTotpAuthenticateBody) {
-	await totpAuthenticate(values)
+  await totpAuthenticate(values)
 }
 
 const formSchema: DynamicFormSchema = {
-	fields: [
-		{
-			label: t('pages.auth.security.mfa.totp.authenticate.form.code.label'),
-			name: 'code',
-			as: 'input',
-			rules: z.string().min(6).max(6),
-			autocomplete: 'one-time-code',
-			readonly: false,
-			required: true,
-			placeholder: '123456',
-			type: 'text'
-		}
-	]
+  fields: [
+    {
+      label: t('pages.auth.security.mfa.totp.authenticate.form.code.label'),
+      name: 'code',
+      as: 'input',
+      rules: z.string().min(6).max(6),
+      autocomplete: 'one-time-code',
+      readonly: false,
+      required: true,
+      placeholder: '123456',
+      type: 'text',
+    },
+  ],
 }
 </script>
 

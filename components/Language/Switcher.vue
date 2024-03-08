@@ -1,16 +1,21 @@
 <script lang="ts" setup>
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/vue'
 import type { LocaleObject } from 'vue-i18n-routing'
 
 type Locale = LocaleObject & {
-	flag: string
+  flag: string
 }
 
 const props = defineProps({
-	type: {
-		type: String,
-		default: 'dropdown-right-top'
-	}
+  type: {
+    type: String,
+    default: 'dropdown-right-top',
+  },
 })
 
 const currentStyle = toRef(props, 'type')
@@ -21,16 +26,16 @@ const switchLocalePath = useSwitchLocalePath()
 const allLocales = locales as unknown as Locale[]
 
 const availableLocales = computed(() => {
-	const l = locales.value as Locale[]
-	return l.filter((i) => i.code !== locale.value)
+  const l = locales.value as Locale[]
+  return l.filter((i) => i.code !== locale.value)
 })
 
 const navigateToLocale = (code: string) => {
-	setLocale(code)
+  setLocale(code)
 }
 const onLocaleChange = (event: Event) => {
-	const target = event.target as HTMLSelectElement
-	navigateToLocale(target.value)
+  const target = event.target as HTMLSelectElement
+  navigateToLocale(target.value)
 }
 </script>
 
@@ -68,8 +73,9 @@ const onLocaleChange = (event: Event) => {
           :value="lang.code"
           :class="{
             'flex cursor-pointer items-center px-2 py-2': true,
-            'bg-zinc-100 text-sky-500 dark:bg-zinc-600/30': locale === lang.code,
-            'hover:bg-zinc-50 dark:hover:bg-zinc-700/30': locale !== lang.code
+            'bg-zinc-100 text-sky-500 dark:bg-zinc-600/30':
+              locale === lang.code,
+            'hover:bg-zinc-50 dark:hover:bg-zinc-700/30': locale !== lang.code,
           }"
           @click="navigateToLocale(lang.code)"
         >
@@ -77,7 +83,9 @@ const onLocaleChange = (event: Event) => {
             <span class="text-primary-700 dark:text-primary-100 mr-2 text-lg">
               {{ lang.flag }}
             </span>
-            <span class="text-primary-700 dark:text-primary-100 flex-1 truncate text-sm">
+            <span
+              class="text-primary-700 dark:text-primary-100 flex-1 truncate text-sm"
+            >
               {{ lang.name }}
               <span class="text-primary-700 dark:text-primary-100 text-xs">({{ lang.code }})</span>
             </span>

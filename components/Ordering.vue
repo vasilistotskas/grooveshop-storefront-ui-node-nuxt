@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/vue'
 import type { PropType } from 'vue'
 
 import type { OrderingOption } from '~/types/ordering'
@@ -7,44 +12,46 @@ import type { OrderingOption } from '~/types/ordering'
 const route = useRoute()
 
 const props = defineProps({
-	orderingOptions: {
-		type: Array as PropType<OrderingOption[]>,
-		required: true
-	},
-	ordering: {
-		type: String,
-		required: true
-	},
-	applyOrderingQuery: {
-		type: Boolean,
-		required: false,
-		default: true
-	}
+  orderingOptions: {
+    type: Array as PropType<OrderingOption[]>,
+    required: true,
+  },
+  ordering: {
+    type: String,
+    required: true,
+  },
+  applyOrderingQuery: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 const { ordering } = toRefs(props)
 const selectedOrderingLabel = computed(() => {
-	if (!ordering?.value) return
-	const orderingOptions = props.orderingOptions ?? []
-	const selectedOrdering = orderingOptions.find((o) => o.value === ordering.value)
-	return selectedOrdering?.label
+  if (!ordering?.value) return
+  const orderingOptions = props.orderingOptions ?? []
+  const selectedOrdering = orderingOptions.find(
+    (o) => o.value === ordering.value,
+  )
+  return selectedOrdering?.label
 })
 const listBox = ref(null)
 const { listBoxOpen, listBoxToggle } = useListBox(listBox)
 
 const link = computed(() => {
-	return route.path
+  return route.path
 })
 
 const onOptionClick = async (option: OrderingOption) => {
-	if (!props.applyOrderingQuery) return
-	listBoxToggle()
-	await navigateTo({
-		path: link.value,
-		query: {
-			ordering: option.value,
-			category: route.query?.category
-		}
-	})
+  if (!props.applyOrderingQuery) return
+  listBoxToggle()
+  await navigateTo({
+    path: link.value,
+    query: {
+      ordering: option.value,
+      category: route.query?.category,
+    },
+  })
 }
 </script>
 
@@ -59,7 +66,9 @@ const onOptionClick = async (option: OrderingOption) => {
               class="relative w-full cursor-pointer rounded-lg bg-zinc-200 py-2 pl-2 pr-6 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 dark:bg-zinc-800 md:pl-3 md:pr-10"
               @click="listBoxToggle"
             >
-              <span class="text-primary-700 dark:text-primary-100 block truncate">{{
+              <span
+                class="text-primary-700 dark:text-primary-100 block truncate"
+              >{{
                 selectedOrderingLabel ?? $t('components.ordering.title')
               }}</span>
               <span
@@ -88,8 +97,10 @@ const onOptionClick = async (option: OrderingOption) => {
                   >
                     <li
                       :class="[
-                        active ? 'bg-primary-400 text-amber-900' : 'text-primary-900',
-                        'relative cursor-default select-none py-2 pl-10 pr-4'
+                        active
+                          ? 'bg-primary-400 text-amber-900'
+                          : 'text-primary-900',
+                        'relative cursor-default select-none py-2 pl-10 pr-4',
                       ]"
                     >
                       <Anchor
@@ -97,12 +108,12 @@ const onOptionClick = async (option: OrderingOption) => {
                           path: link,
                           query: {
                             ordering: option.value,
-                            category: route.query?.category
-                          }
+                            category: route.query?.category,
+                          },
                         }"
                         :class="{
                           'text-primary-400 dark:text-primary-400':
-                            ordering === option.value
+                            ordering === option.value,
                         }"
                         :text="option.label"
                         :title="option.label"
@@ -112,7 +123,7 @@ const onOptionClick = async (option: OrderingOption) => {
                         <span
                           :class="[
                             selected ? 'font-medium' : 'font-normal',
-                            'text-primary-700 dark:text-primary-100 block truncate'
+                            'text-primary-700 dark:text-primary-100 block truncate',
                           ]"
                         >{{ option.label }}</span>
                         <span

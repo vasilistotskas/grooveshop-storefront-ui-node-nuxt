@@ -4,15 +4,15 @@ import type { PropType } from 'vue'
 import type { Order } from '~/types/order/order'
 
 const props = defineProps({
-	order: {
-		type: Object as PropType<Order>,
-		required: true
-	},
-	maxItems: {
-		type: Number,
-		default: 2,
-		required: false
-	}
+  order: {
+    type: Object as PropType<Order>,
+    required: true,
+  },
+  maxItems: {
+    type: Number,
+    default: 2,
+    required: false,
+  },
 })
 
 const { order, maxItems } = toRefs(props)
@@ -45,7 +45,7 @@ const { statusClass } = useOrder()
         <span v-else class="text-primary-700 dark:text-primary-100 text-xs">
           {{
             $t('components.order.card.extra', {
-              count: order.orderItemOrder.length - maxItems
+              count: order.orderItemOrder.length - maxItems,
             })
           }}
         </span>
@@ -57,7 +57,10 @@ const { statusClass } = useOrder()
         <span :class="statusClass(order).color">
           {{ order.status }}
         </span>
-        <Component :is="statusClass(order).icon" :class="statusClass(order).color" />
+        <Component
+          :is="statusClass(order).icon"
+          :class="statusClass(order).color"
+        />
       </div>
 
       <div class="order-card-body-id grid">

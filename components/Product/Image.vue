@@ -5,39 +5,39 @@ import type { ImageLoading } from '~/types/global/general'
 import type { ProductImage } from '~/types/product/image'
 
 const props = defineProps({
-	image: {
-		type: Object as PropType<ProductImage | null>,
-		required: false,
-		default: null
-	},
-	width: {
-		type: Number,
-		default: 572
-	},
-	height: {
-		type: Number,
-		default: 320
-	},
-	imgLoading: {
-		type: String as PropType<ImageLoading>,
-		required: false,
-		default: undefined,
-		validator: (value: string) => ['lazy', 'eager'].includes(value)
-	}
+  image: {
+    type: Object as PropType<ProductImage | null>,
+    required: false,
+    default: null,
+  },
+  width: {
+    type: Number,
+    default: 572,
+  },
+  height: {
+    type: Number,
+    default: 320,
+  },
+  imgLoading: {
+    type: String as PropType<ImageLoading>,
+    required: false,
+    default: undefined,
+    validator: (value: string) => ['lazy', 'eager'].includes(value),
+  },
 })
 
 const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 
 const src = computed(() => {
-	return resolveImageSrc(
-		props.image?.mainImageFilename,
-		`media/uploads/products/${props.image?.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    props.image?.mainImageFilename,
+    `media/uploads/products/${props.image?.mainImageFilename}`,
+  )
 })
 
 const alt = computed(() => {
-	return extractTranslated(props.image, 'title', locale.value)
+  return extractTranslated(props.image, 'title', locale.value)
 })
 </script>
 

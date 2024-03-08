@@ -5,21 +5,21 @@ const { t } = useI18n()
 const toast = useToast()
 
 function onSubmit() {
-	totpDeactivate({})
-		.then(async () => {
-			toast.add({
-				title: t('pages.auth.security.mfa.totp.deactivate.success'),
-				color: 'green'
-			})
-			await fetch()
-			await navigateTo('/account')
-		})
-		.catch(() => {
-			toast.add({
-				title: t('pages.auth.security.mfa.totp.deactivate.error'),
-				color: 'red'
-			})
-		})
+  totpDeactivate({})
+    .then(async () => {
+      toast.add({
+        title: t('pages.auth.security.mfa.totp.deactivate.success'),
+        color: 'green',
+      })
+      await fetch()
+      await navigateTo('/account')
+    })
+    .catch(() => {
+      toast.add({
+        title: t('pages.auth.security.mfa.totp.deactivate.error'),
+        color: 'red',
+      })
+    })
 }
 </script>
 

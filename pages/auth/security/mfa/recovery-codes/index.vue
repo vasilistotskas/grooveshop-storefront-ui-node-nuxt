@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 definePageMeta({
-	layout: 'user',
-	keepalive: false
+  layout: 'user',
+  keepalive: false,
 })
 </script>
 

@@ -1,19 +1,18 @@
 <script lang="ts" setup>
 import {
-	RadioGroup,
-	RadioGroupDescription,
-	RadioGroupLabel,
-	RadioGroupOption
+  RadioGroup,
+  RadioGroupDescription,
+  RadioGroupLabel,
+  RadioGroupOption,
 } from '@headlessui/vue'
 
 import CreditCardJSON from '~/assets/lotties/credit_card.json'
 import PayOnDeliveryJSON from '~/assets/lotties/pay_on_delivery.json'
-import type { Pagination } from '~/types/pagination'
 import type { PayWay } from '~/types/pay-way'
 import { PayWayEnum } from '~/types/pay-way'
 
 defineSlots<{
-	error(props: {}): any
+  error(props: {}): any
 }>()
 
 const { t, locale } = useI18n()
@@ -21,36 +20,36 @@ const payWay = useState<PayWay | null>('selectedPayWay', () => null)
 
 const emit = defineEmits(['update-model'])
 
-const { data, pending } = await useLazyAsyncData('payWays', () =>
-	$fetch<Pagination<PayWay>>('/api/pay-way', {
-		method: 'GET'
-	})
+const { data: payWays, pending } = await useLazyAsyncData('payWays', () =>
+  $fetch('/api/pay-way', {
+    method: 'GET',
+  }),
 )
 
 const selectedPayWay = computed(() => {
-	return payWay.value || undefined
+  return payWay.value || undefined
 })
 
 const getPayWayLottie = (name: string | undefined) => {
-	if (!name) {
-		return CreditCardJSON
-	}
-	switch (name) {
-		case PayWayEnum.CREDIT_CARD: {
-			return CreditCardJSON
-		}
-		case PayWayEnum.PAY_ON_DELIVERY: {
-			return PayOnDeliveryJSON
-		}
-		default: {
-			return CreditCardJSON
-		}
-	}
+  if (!name) {
+    return CreditCardJSON
+  }
+  switch (name) {
+    case PayWayEnum.CREDIT_CARD: {
+      return CreditCardJSON
+    }
+    case PayWayEnum.PAY_ON_DELIVERY: {
+      return PayOnDeliveryJSON
+    }
+    default: {
+      return CreditCardJSON
+    }
+  }
 }
 
 const updatePayWay = (value: PayWay) => {
-	emit('update-model', payWay)
-	payWay.value = value
+  emit('update-model', payWay)
+  payWay.value = value
 }
 </script>
 
@@ -62,7 +61,7 @@ const updatePayWay = (value: PayWay) => {
       </h3>
     </div>
     <RadioGroup
-      v-if="!pending && data?.results?.length"
+      v-if="!pending && payWays?.results?.length"
       id="pay-way"
       :model-value="selectedPayWay"
       by="id"
@@ -74,7 +73,7 @@ const updatePayWay = (value: PayWay) => {
       </RadioGroupLabel>
       <div class="space-y-2">
         <RadioGroupOption
-          v-for="option in data.results"
+          v-for="option in payWays.results"
           :id="`pay-way-${option.id}`"
           :key="option.id"
           v-slot="{ active, checked }"
@@ -86,7 +85,9 @@ const updatePayWay = (value: PayWay) => {
               active
                 ? 'ring-1 ring-white ring-opacity-60 ring-offset-1 ring-offset-sky-300'
                 : '',
-              checked ? 'bg-sky-900 bg-opacity-75' : 'bg-zinc-50 dark:bg-zinc-900'
+              checked
+                ? 'bg-sky-900 bg-opacity-75'
+                : 'bg-zinc-50 dark:bg-zinc-900',
             ]"
             class="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
           >
@@ -99,7 +100,9 @@ const updatePayWay = (value: PayWay) => {
                   <RadioGroupLabel
                     :id="`pay-way-${option.id}-label`"
                     :class="
-                      checked ? 'text-white' : 'text-primary-700 dark:text-primary-100'
+                      checked
+                        ? 'text-white'
+                        : 'text-primary-700 dark:text-primary-100'
                     "
                     as="p"
                     class="font-medium"
@@ -109,7 +112,9 @@ const updatePayWay = (value: PayWay) => {
                   <RadioGroupDescription
                     :id="`pay-way-${option.id}-description`"
                     :class="
-                      checked ? 'text-sky-100' : 'text-primary-700 dark:text-primary-100'
+                      checked
+                        ? 'text-sky-100'
+                        : 'text-primary-700 dark:text-primary-100'
                     "
                     as="span"
                     class="inline"
@@ -130,7 +135,13 @@ const updatePayWay = (value: PayWay) => {
                 class="grid h-full w-full items-center justify-items-end"
               >
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" fill="#fff" fill-opacity="0.2" r="12" />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    fill="#fff"
+                    fill-opacity="0.2"
+                    r="12"
+                  />
                   <path
                     d="M7 13l3 3 7-7"
                     stroke="#fff"

@@ -7,16 +7,16 @@ import type { BlogPost } from '~/types/blog/post'
 import type { ImageLoading } from '~/types/global/general'
 
 const props = defineProps({
-	post: { type: Object as PropType<BlogPost>, required: true },
-	imgWidth: { type: Number, required: false, default: 324 },
-	imgHeight: { type: Number, required: false, default: 230 },
-	showShareButton: { type: Boolean, required: false, default: true },
-	imgLoading: {
-		type: String as PropType<ImageLoading>,
-		required: false,
-		default: undefined,
-		validator: (value: string) => ['lazy', 'eager'].includes(value)
-	}
+  post: { type: Object as PropType<BlogPost>, required: true },
+  imgWidth: { type: Number, required: false, default: 324 },
+  imgHeight: { type: Number, required: false, default: 230 },
+  showShareButton: { type: Boolean, required: false, default: true },
+  imgLoading: {
+    type: String as PropType<ImageLoading>,
+    required: false,
+    default: undefined,
+    validator: (value: string) => ['lazy', 'eager'].includes(value),
+  },
 })
 
 const { locale } = useI18n()
@@ -26,25 +26,25 @@ const { contentShorten } = useText()
 const { post } = toRefs(props)
 
 const postUrl = computed(() => {
-	if (!props.post) return ''
-	return `/blog/post/${post.value.id}/${post.value.slug}`
+  if (!props.post) return ''
+  return `/blog/post/${post.value.id}/${post.value.slug}`
 })
 
 const src = computed(() => {
-	return resolveImageSrc(
-		post.value?.mainImageFilename,
-		`media/uploads/blog/${post.value?.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    post.value?.mainImageFilename,
+    `media/uploads/blog/${post.value?.mainImageFilename}`,
+  )
 })
 
 const alt = computed(() => {
-	return extractTranslated(post.value, 'title', locale.value)
+  return extractTranslated(post.value, 'title', locale.value)
 })
 
 const shareOptions = reactive({
-	title: extractTranslated(post.value, 'title', locale.value),
-	text: extractTranslated(post.value, 'subtitle', locale.value) || '',
-	url: isClient ? postUrl : ''
+  title: extractTranslated(post.value, 'title', locale.value),
+  text: extractTranslated(post.value, 'subtitle', locale.value) || '',
+  url: isClient ? postUrl : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
@@ -110,7 +110,9 @@ const startShare = () => share().catch((err) => err)
       <div class="grid gap-2 md:gap-4">
         <div class="grid h-20">
           <p class="text-primary-700 dark:text-primary-100 text-sm">
-            {{ contentShorten(extractTranslated(post, 'subtitle', locale), 100) }}
+            {{
+              contentShorten(extractTranslated(post, 'subtitle', locale), 100)
+            }}
           </p>
         </div>
         <div class="flex items-center justify-end">

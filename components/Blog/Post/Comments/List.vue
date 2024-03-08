@@ -4,41 +4,41 @@ import type { PropType } from 'vue'
 import type { BlogComment } from '~/types/blog/comment'
 
 const props = defineProps({
-	commentsCount: {
-		type: Number,
-		required: false,
-		default: 0
-	},
-	comments: {
-		type: Array as PropType<BlogComment[] | null>,
-		required: true
-	},
-	displayImageOf: {
-		type: String as PropType<'user' | 'blogPost'>,
-		required: true,
-		validator: (value: string) => ['user', 'blogPost'].includes(value)
-	}
+  commentsCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  comments: {
+    type: Array as PropType<BlogComment[] | null>,
+    required: true,
+  },
+  displayImageOf: {
+    type: String as PropType<'user' | 'blogPost'>,
+    required: true,
+    validator: (value: string) => ['user', 'blogPost'].includes(value),
+  },
 })
 
 const { comments } = toRefs(props)
 const { loggedIn, user } = useUserSession()
 
 const userHasCommented = (comment: BlogComment) => {
-	if (loggedIn.value && user.value) {
-		const userId = isEntityId(comment.user) ? comment.user : comment.user.id
-		return userId === user.value.id
-	}
-	return false
+  if (loggedIn.value && user.value) {
+    const userId = isEntityId(comment.user) ? comment.user : comment.user.id
+    return userId === user.value.id
+  }
+  return false
 }
 
 comments?.value?.sort((a) => {
-	if (loggedIn.value && user.value) {
-		const userId = isEntityId(a.user) ? a.user : a.user.id
-		if (userId === user.value.id) {
-			return -1
-		}
-	}
-	return 0
+  if (loggedIn.value && user.value) {
+    const userId = isEntityId(a.user) ? a.user : a.user.id
+    if (userId === user.value.id) {
+      return -1
+    }
+  }
+  return 0
 })
 </script>
 

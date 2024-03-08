@@ -9,61 +9,67 @@ const orderUUID = route.params.uuid
 const { t, locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 
-const { data, error } = await useFetch<Order>(`/api/orders/uuid/${orderUUID}`, {
-	key: `order${orderUUID}`,
-	method: 'GET'
-})
+const { data: order, error } = await useFetch<Order>(
+  `/api/orders/uuid/${orderUUID}`,
+  {
+    key: `order${orderUUID}`,
+    method: 'GET',
+  },
+)
 
-if (!data.value || error.value) {
-	throw createError({ statusCode: 404, statusMessage: t('common.error.page.not.found') })
+if (!order.value || error.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: t('common.error.page.not.found'),
+  })
 }
 
 const customerName = computed(() => {
-	const firstName = data.value?.firstName
-	const lastName = data.value?.lastName
-	return `${firstName} ${lastName}`
+  const firstName = order.value?.firstName
+  const lastName = order.value?.lastName
+  return `${firstName} ${lastName}`
 })
 
 const customerEmail = computed(() => {
-	return data.value?.email
+  return order.value?.email
 })
 
 const orderNumber = computed(() => {
-	return data.value?.id
+  return order.value?.id
 })
 
 const orderItems = computed(() => {
-	return data.value?.orderItemOrder
+  return order.value?.orderItemOrder
 })
 
 const paidAmount = computed(() => {
-	return data.value?.paidAmount
+  return order.value?.paidAmount
 })
 
 const shippingPrice = computed(() => {
-	return data.value?.shippingPrice
+  return order.value?.shippingPrice
 })
 
 const totalPriceItems = computed(() => {
-	return data.value?.totalPriceItems
+  return order.value?.totalPriceItems
 })
 
 const totalPriceExtra = computed(() => {
-	return data.value?.totalPriceExtra
+  return order.value?.totalPriceExtra
 })
 
 const payWayPrice = computed(() => {
-	const payWayCost = data.value?.payWay.cost
-	const payWayFreeForOrderAmount = data.value?.payWay.freeForOrderAmount ?? 0
-	const totalPriceItems = data.value?.totalPriceItems ?? 0
-	if (totalPriceItems >= payWayFreeForOrderAmount) {
-		return 0
-	}
-	return payWayCost
+  const payWayCost = order.value?.payWay.cost
+  const payWayFreeForOrderAmount = order.value?.payWay.freeForOrderAmount ?? 0
+  const totalPriceItems = order.value?.totalPriceItems ?? 0
+  if (totalPriceItems >= payWayFreeForOrderAmount) {
+    return 0
+  }
+  return payWayCost
 })
 
 definePageMeta({
-	layout: 'default'
+  layout: 'default',
 })
 </script>
 
@@ -77,8 +83,12 @@ definePageMeta({
       <div
         class="container-xxs rounded border border-gray-900/10 bg-white p-0 p-4 shadow-md dark:border-gray-50/[0.2] dark:bg-zinc-800 md:px-6"
       >
-        <div class="grid items-center justify-center justify-items-center gap-16">
-          <div class="grid items-center justify-center justify-items-center gap-4">
+        <div
+          class="grid items-center justify-center justify-items-center gap-16"
+        >
+          <div
+            class="grid items-center justify-center justify-items-center gap-4"
+          >
             <Lottie
               ref="lottie"
               :text="$t('pages.checkout.success.lottie')"
@@ -90,7 +100,9 @@ definePageMeta({
             />
             <h2 class="text-4xl font-bold">
               {{
-                $t('pages.checkout.success.main.title', { customerName: customerName })
+                $t('pages.checkout.success.main.title', {
+                  customerName: customerName,
+                })
               }}
             </h2>
             <p
@@ -98,13 +110,15 @@ definePageMeta({
               v-html="
                 $t('pages.checkout.success.main.text', {
                   orderId: orderNumber,
-                  customerEmail: customerEmail
+                  customerEmail: customerEmail,
                 })
               "
             />
           </div>
 
-          <div class="grid items-center justify-center justify-items-center gap-4">
+          <div
+            class="grid items-center justify-center justify-items-center gap-4"
+          >
             <h2 class="w-full text-center text-2xl font-semibold">
               {{ $t('pages.checkout.success.order.summary') }}
             </h2>
@@ -133,7 +147,10 @@ definePageMeta({
                       loading="lazy"
                       provider="mediaStream"
                       class="product-img bg-white"
-                      :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+                      :style="{
+                        objectFit: 'contain',
+                        contentVisibility: 'auto',
+                      }"
                       :width="100"
                       :height="100"
                       :fit="'contain'"
@@ -144,7 +161,7 @@ definePageMeta({
                       :src="
                         resolveImageSrc(
                           item.product.mainImageFilename,
-                          `media/uploads/products/${item.product.mainImageFilename}`
+                          `media/uploads/products/${item.product.mainImageFilename}`,
                         )
                       "
                       :alt="extractTranslated(item.product, 'name', locale)"
@@ -157,7 +174,11 @@ definePageMeta({
                     {{ item.quantity }}
                   </td>
                   <td v-if="item.totalPrice" class="border px-4 py-2">
-                    <I18nN tag="span" format="currency" :value="item.totalPrice" />
+                    <I18nN
+                      tag="span"
+                      format="currency"
+                      :value="item.totalPrice"
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -169,24 +190,39 @@ definePageMeta({
               <h3 class="text-xl font-semibold">
                 {{ $t('pages.checkout.success.order.details') }}
               </h3>
-              <p v-if="shippingPrice" class="text-primary-700 dark:text-primary-100">
+              <p
+                v-if="shippingPrice"
+                class="text-primary-700 dark:text-primary-100"
+              >
                 {{ $t('pages.checkout.success.shippingPrice') }}:
                 <I18nN tag="span" format="currency" :value="shippingPrice" />
               </p>
-              <p v-if="totalPriceItems" class="text-primary-700 dark:text-primary-100">
+              <p
+                v-if="totalPriceItems"
+                class="text-primary-700 dark:text-primary-100"
+              >
                 {{ $t('pages.checkout.success.totalPriceItems') }}:
                 <I18nN tag="span" format="currency" :value="totalPriceItems" />
               </p>
-              <p v-if="totalPriceExtra" class="text-primary-700 dark:text-primary-100">
+              <p
+                v-if="totalPriceExtra"
+                class="text-primary-700 dark:text-primary-100"
+              >
                 {{ $t('pages.checkout.success.totalPriceExtra') }}:
                 <I18nN tag="span" format="currency" :value="totalPriceExtra" />
               </p>
-              <p v-if="payWayPrice" class="text-primary-700 dark:text-primary-100">
+              <p
+                v-if="payWayPrice"
+                class="text-primary-700 dark:text-primary-100"
+              >
                 {{ $t('pages.checkout.success.payWayPrice') }}:
                 <I18nN tag="span" format="currency" :value="payWayPrice" />
               </p>
             </div>
-            <p v-if="paidAmount" class="text-primary-700 dark:text-primary-100 font-bold">
+            <p
+              v-if="paidAmount"
+              class="text-primary-700 dark:text-primary-100 font-bold"
+            >
               {{ $t('pages.checkout.success.total') }}:
               <I18nN tag="span" format="currency" :value="paidAmount" />
             </p>

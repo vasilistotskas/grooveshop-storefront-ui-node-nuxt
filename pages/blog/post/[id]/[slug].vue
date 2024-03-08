@@ -2,8 +2,6 @@
 import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
 
-import type { BlogPost } from '~/types/blog/post'
-
 const route = useRoute('blog-post-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
@@ -11,129 +9,143 @@ const { resolveImageSrc } = useImageResolver()
 
 const blogPostId = route.params.id
 
-const { data: blogPost } = await useFetch<BlogPost>(`/api/blog/posts/${blogPostId}`, {
-	key: `blogPost${blogPostId}`,
-	method: 'GET',
-	query: {
-		expand: 'true'
-	}
+const { data: blogPost } = await useFetch(`/api/blog/posts/${blogPostId}`, {
+  key: `blogPost${blogPostId}`,
+  method: 'GET',
+  query: {
+    expand: 'true',
+  },
 })
 
 if (!blogPost.value) {
-	throw createError({
-		statusCode: 404,
-		statusMessage: t('common.error.page.not.found')
-	})
+  throw createError({
+    statusCode: 404,
+    statusMessage: t('common.error.page.not.found'),
+  })
 }
 
 const blogPostBody = computed(() => {
-	return extractTranslated(blogPost.value, 'body', locale.value)
+  return extractTranslated(blogPost.value, 'body', locale.value)
 })
 const blogPostSubtitle = computed(() => {
-	return extractTranslated(blogPost.value, 'subtitle', locale.value)
+  return extractTranslated(blogPost.value, 'subtitle', locale.value)
 })
 const blogPostTitle = computed(() => {
-	return extractTranslated(blogPost.value, 'title', locale.value)
+  return extractTranslated(blogPost.value, 'title', locale.value)
 })
 const blogPostAuthor = computed(() => getEntityObject(blogPost?.value?.author))
-const blogPostAuthorUser = computed(() => getEntityObject(blogPostAuthor?.value?.user))
-const blogPostTags = computed(() => getEntityObjectsFromArray(blogPost.value?.tags))
+const blogPostAuthorUser = computed(() =>
+  getEntityObject(blogPostAuthor?.value?.user),
+)
+const blogPostTags = computed(() =>
+  getEntityObjectsFromArray(blogPost.value?.tags),
+)
 const blogPostImageSrc = computed(() => {
-	return resolveImageSrc(
-		blogPost.value?.mainImageFilename,
-		`media/uploads/blog/${blogPost.value?.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    blogPost.value?.mainImageFilename,
+    `media/uploads/blog/${blogPost.value?.mainImageFilename}`,
+  )
 })
 const blogPostAuthorUserImgSrc = computed(() => {
-	return resolveImageSrc(
-		blogPostAuthorUser.value?.mainImageFilename,
-		`media/uploads/users/${blogPostAuthorUser.value?.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    blogPostAuthorUser.value?.mainImageFilename,
+    `media/uploads/users/${blogPostAuthorUser.value?.mainImageFilename}`,
+  )
 })
 
 const links = [
-	{
-		to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
-		label: t('breadcrumb.items.index.label'),
-		icon: 'i-heroicons-home'
-	},
-	{
-		to: locale.value === config.public.defaultLocale ? '/blog' : `/${locale.value}/blog`,
-		label: t('breadcrumb.items.blog.label')
-	},
-	{
-		to:
-			locale.value === config.public.defaultLocale
-				? `/blog/post/${blogPostId}/${blogPost.value?.slug}`
-				: `/${locale.value}/blog/post/${blogPostId}/${blogPost.value?.slug}`,
-		label: blogPostTitle.value || ''
-	}
+  {
+    to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
+    label: t('breadcrumb.items.index.label'),
+    icon: 'i-heroicons-home',
+  },
+  {
+    to:
+      locale.value === config.public.defaultLocale
+        ? '/blog'
+        : `/${locale.value}/blog`,
+    label: t('breadcrumb.items.blog.label'),
+  },
+  {
+    to:
+      locale.value === config.public.defaultLocale
+        ? `/blog/post/${blogPostId}/${blogPost.value?.slug}`
+        : `/${locale.value}/blog/post/${blogPostId}/${blogPost.value?.slug}`,
+    label: blogPostTitle.value || '',
+  },
 ]
 
 const routeFullPath = computed(() => {
-	return route.fullPath
+  return route.fullPath
 })
 
 const shareOptions = reactive({
-	title: blogPostTitle.value,
-	text: blogPostSubtitle.value || '',
-	url: isClient ? routeFullPath : ''
+  title: blogPostTitle.value,
+  text: blogPostSubtitle.value || '',
+  url: isClient ? routeFullPath : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
 
 const seoMetaOptions = {
-	title: blogPostTitle.value,
-	description: blogPostSubtitle.value,
-	ogTitle: blogPostTitle.value,
-	ogType: 'article',
-	ogUrl: config.public.baseUrl + routeFullPath.value,
-	ogImage: blogPost.value?.mainImageAbsoluteUrl,
-	ogImageAlt: blogPostTitle.value,
-	twitterTitle: blogPostTitle.value,
-	twitterDescription: blogPostSubtitle.value,
-	twitterImage: blogPost.value?.mainImageAbsoluteUrl,
-	msapplicationTileImage: blogPost.value?.mainImageAbsoluteUrl
+  title: blogPostTitle.value,
+  description: blogPostSubtitle.value,
+  ogTitle: blogPostTitle.value,
+  ogType: 'article',
+  ogUrl: config.public.baseUrl + routeFullPath.value,
+  ogImage: blogPost.value?.mainImageAbsoluteUrl,
+  ogImageAlt: blogPostTitle.value,
+  twitterTitle: blogPostTitle.value,
+  twitterDescription: blogPostSubtitle.value,
+  twitterImage: blogPost.value?.mainImageAbsoluteUrl,
+  msapplicationTileImage: blogPost.value?.mainImageAbsoluteUrl,
 } satisfies UseSeoMetaInput
 useSchemaOrg([
-	defineArticle({
-		headline: blogPostTitle.value,
-		description: blogPostSubtitle.value,
-		image: blogPost.value?.mainImageAbsoluteUrl,
-		datePublished: blogPost.value?.createdAt,
-		dateModified: blogPost.value?.updatedAt,
-		author: {
-			name:
-				blogPostAuthorUser.value?.firstName + ' ' + blogPostAuthorUser.value?.lastName,
-			url: blogPostAuthor.value?.website
-		}
-	})
+  defineArticle({
+    headline: blogPostTitle.value,
+    description: blogPostSubtitle.value,
+    image: blogPost.value?.mainImageAbsoluteUrl,
+    datePublished: blogPost.value?.createdAt,
+    dateModified: blogPost.value?.updatedAt,
+    author: {
+      name:
+        blogPostAuthorUser.value?.firstName +
+        ' ' +
+        blogPostAuthorUser.value?.lastName,
+      url: blogPostAuthor.value?.website,
+    },
+  }),
 ])
 useSeoMeta(seoMetaOptions)
 const ogImageOptions = {
-	title: blogPostTitle.value,
-	description: blogPostSubtitle.value,
-	alt: blogPostTitle.value,
-	url: blogPost.value?.mainImageAbsoluteUrl || '',
-	cache: true,
-	cacheKey: `og-image-blog-post-${blogPostId}`,
-	cacheTtl: 60 * 60 * 24 * 7
+  title: blogPostTitle.value,
+  description: blogPostSubtitle.value,
+  alt: blogPostTitle.value,
+  url: blogPost.value?.mainImageAbsoluteUrl || '',
+  cache: true,
+  cacheKey: `og-image-blog-post-${blogPostId}`,
+  cacheTtl: 60 * 60 * 24 * 7,
 }
 defineOgImageComponent('NuxtSeo', ogImageOptions)
 definePageMeta({
-	layout: 'default'
+  layout: 'default',
 })
 </script>
 
 <template>
   <PageWrapper class="container">
     <PageBody>
-      <div v-if="blogPost" class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
+      <div
+        v-if="blogPost"
+        class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8"
+      >
         <UBreadcrumb :links="links" class="mb-5" />
         <article
           class="mx-auto flex max-w-2xl flex-col items-start justify-center border-gray-200 pb-6 dark:border-gray-700"
         >
-          <div class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4">
+          <div
+            class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4"
+          >
             <h2
               class="text-primary-700 dark:text-primary-100 text-3xl font-bold tracking-tight md:text-5xl"
             >
@@ -158,13 +170,21 @@ definePageMeta({
                     :sizes="`xs:${48}px sm:${48}px md:${48}px lg:${48}px xl:${48}px xxl:${48}px 2xl:${48}px`"
                     :src="blogPostAuthorUserImgSrc"
                     :alt="
-                      blogPostAuthorUser?.firstName + ' ' + blogPostAuthorUser?.lastName
+                      blogPostAuthorUser?.firstName +
+                        ' ' +
+                        blogPostAuthorUser?.lastName
                     "
                     densities="x1"
                   />
                 </div>
-                <div class="text-primary-700 dark:text-primary-100 text-sm font-bold">
-                  {{ blogPostAuthorUser?.firstName + ' ' + blogPostAuthorUser?.lastName }}
+                <div
+                  class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+                >
+                  {{
+                    blogPostAuthorUser?.firstName +
+                      ' ' +
+                      blogPostAuthorUser?.lastName
+                  }}
                 </div>
               </div>
               <div
@@ -243,7 +263,9 @@ definePageMeta({
                 </li>
               </ul>
             </div>
-            <div class="text-primary-700 dark:text-primary-100 mx-auto max-w-2xl">
+            <div
+              class="text-primary-700 dark:text-primary-100 mx-auto max-w-2xl"
+            >
               <div v-html="blogPostBody" />
             </div>
           </div>

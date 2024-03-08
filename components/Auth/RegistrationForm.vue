@@ -7,50 +7,50 @@ const { register } = useAuth()
 const { t } = useI18n()
 
 const ZodRegistration = z
-	.object({
-		email: z.string().email(),
-		password1: z.string().min(8, {
-			message: t('pages.auth.registration.form.password1.validation.min', {
-				min: 8
-			})
-		}),
-		password2: z.string().min(8, {
-			message: t('pages.auth.registration.form.password2.validation.min', {
-				min: 8
-			})
-		})
-	})
-	.refine((data) => data.password1 === data.password2, {
-		message: t('pages.auth.registration.form.password2.validation.match'),
-		path: ['password2']
-	})
+  .object({
+    email: z.string().email(),
+    password1: z.string().min(8, {
+      message: t('pages.auth.registration.form.password1.validation.min', {
+        min: 8,
+      }),
+    }),
+    password2: z.string().min(8, {
+      message: t('pages.auth.registration.form.password2.validation.min', {
+        min: 8,
+      }),
+    }),
+  })
+  .refine((data) => data.password1 === data.password2, {
+    message: t('pages.auth.registration.form.password2.validation.match'),
+    path: ['password2'],
+  })
 
 const validationSchema = toTypedSchema(ZodRegistration)
 
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
-	validationSchema
+  validationSchema,
 })
 
 const [email, emailProps] = defineField('email', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [password1, password1Props] = defineField('password1', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 const [password2, password2Props] = defineField('password2', {
-	validateOnModelUpdate: true
+  validateOnModelUpdate: true,
 })
 
 const showPassword1 = ref(false)
 const showPassword2 = ref(false)
 
 const onSubmit = handleSubmit(async (values) => {
-	await register({
-		email: values.email,
-		password1: values.password1,
-		password2: values.password2
-	})
-	await fetch()
+  await register({
+    email: values.email,
+    password1: values.password1,
+    password2: values.password2,
+  })
+  await fetch()
 })
 </script>
 
@@ -80,15 +80,17 @@ const onSubmit = handleSubmit(async (values) => {
               autocomplete="email"
               :required="true"
             />
-            <span v-if="errors.email" class="relative px-4 py-3 text-sm text-red-600">{{
-              errors.email
-            }}</span>
+            <span
+              v-if="errors.email"
+              class="relative px-4 py-3 text-sm text-red-600"
+            >{{ errors.email }}</span>
           </div>
 
           <div class="grid content-evenly items-start">
-            <label class="text-primary-700 dark:text-primary-100" for="password1">{{
-              $t('pages.auth.registration.form.password1.label')
-            }}</label>
+            <label
+              class="text-primary-700 dark:text-primary-100"
+              for="password1"
+            >{{ $t('pages.auth.registration.form.password1.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password1"
@@ -117,9 +119,10 @@ const onSubmit = handleSubmit(async (values) => {
           </div>
 
           <div class="grid content-evenly items-start">
-            <label class="text-primary-700 dark:text-primary-100" for="password2">{{
-              $t('pages.auth.registration.form.password2.label')
-            }}</label>
+            <label
+              class="text-primary-700 dark:text-primary-100"
+              for="password2"
+            >{{ $t('pages.auth.registration.form.password2.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password2"

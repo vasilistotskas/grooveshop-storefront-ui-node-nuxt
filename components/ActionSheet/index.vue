@@ -2,7 +2,7 @@
 import { TransitionChild, TransitionRoot } from '@headlessui/vue'
 
 defineSlots<{
-	default(props: {}): any
+  default(props: {}): any
 }>()
 
 const emit = defineEmits(['onClose'])
@@ -10,19 +10,19 @@ const emit = defineEmits(['onClose'])
 const show = ref(false)
 
 const close = () => {
-	show.value = false
-	setTimeout(() => emit('onClose'), 100)
+  show.value = false
+  setTimeout(() => emit('onClose'), 100)
 }
 
 onMounted(() => {
-	setTimeout(() => (show.value = true), 100)
+  setTimeout(() => (show.value = true), 100)
 })
 
 watch(
-	() => useRoute().path,
-	() => {
-		if (show.value) close()
-	}
+  () => useRoute().path,
+  () => {
+    if (show.value) close()
+  },
 )
 </script>
 
@@ -40,7 +40,10 @@ watch(
           leave-from="opacity-100"
           leave-to="opacity-0"
         >
-          <div class="fixed top-60 z-50 flex w-screen" style="max-height: 66.6667%">
+          <div
+            class="fixed top-60 z-50 flex w-screen"
+            style="max-height: 66.6667%"
+          >
             <div
               class="relative mx-auto flex w-full max-w-8xl flex-1 flex-col justify-end space-y-1 overflow-y-auto px-4 pb-4"
             >

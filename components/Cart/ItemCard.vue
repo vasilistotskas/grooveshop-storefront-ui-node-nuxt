@@ -4,7 +4,7 @@ import type { PropType } from 'vue'
 import type { CartItem } from '~/types/cart/cart-item'
 
 const props = defineProps({
-	cartItem: { type: Object as PropType<CartItem>, required: true }
+  cartItem: { type: Object as PropType<CartItem>, required: true },
 })
 
 const cartStore = useCartStore()
@@ -19,24 +19,24 @@ const { cartItem } = toRefs(props)
 const refreshCart = async () => await fetchCart()
 
 const src = computed(() => {
-	return resolveImageSrc(
-		cartItem?.value?.product?.mainImageFilename,
-		`media/uploads/products/${cartItem?.value?.product.mainImageFilename}`
-	)
+  return resolveImageSrc(
+    cartItem?.value?.product?.mainImageFilename,
+    `media/uploads/products/${cartItem?.value?.product.mainImageFilename}`,
+  )
 })
 
 const alt = computed(() => {
-	return extractTranslated(cartItem?.value?.product, 'name', locale.value)
+  return extractTranslated(cartItem?.value?.product, 'name', locale.value)
 })
 
 const cartItemQuantity = useState<number>(
-	`${cartItem?.value?.id}-quantity`,
-	() => cartItem?.value?.quantity || 0
+  `${cartItem?.value?.id}-quantity`,
+  () => cartItem?.value?.quantity || 0,
 )
 
 const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
-	await deleteCartItem(cartItemId)
-	await refreshCart()
+  await deleteCartItem(cartItemId)
+  await refreshCart()
 }
 </script>
 
@@ -94,7 +94,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
         class="text-primary-700 dark:text-primary-100"
         :title="
           $t('components.cart.item_card.remove_from_cart', {
-            name: alt
+            name: alt,
           })
         "
         type="button"
