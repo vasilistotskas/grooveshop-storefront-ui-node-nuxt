@@ -12,34 +12,30 @@ const props = defineProps({
 })
 const { product } = toRefs(props)
 
-const { data: productImages } = await useFetch(`/api/products/images`, {
-  key: `productImages${product.value.id}`,
-  method: 'GET',
-  query: {
-    product: product.value.id,
+const { data: productImages } = await useFetch(
+  `/api/products/${product.value.id}/images`,
+  {
+    key: `productImages${product.value.id}`,
+    method: 'GET',
   },
-})
-
-const mainImage = ref(
-  productImages.value?.results?.find((image) => image.isMain),
 )
+
+const mainImage = ref(productImages.value?.find((image) => image.isMain))
 
 const selectedImageId = useState<number>(
   `${product.value.uuid}-imageID`,
   () => {
-    if (!productImages.value?.results) {
+    if (!productImages.value) {
       return 0
     }
-    return mainImage.value?.id || productImages.value?.results[0]?.id || 0
+    return mainImage.value?.id || productImages.value[0]?.id || 0
   },
 )
 
 watch(
   () => selectedImageId.value,
   (value) => {
-    const image = productImages.value?.results?.find(
-      (image) => image.id === value,
-    )
+    const image = productImages.value?.find((image) => image.id === value)
     if (image) {
       mainImage.value = image
     }
@@ -50,11 +46,7 @@ watch(
 <template>
   <div
     class="grid"
-    :class="[
-      productImages?.results && productImages?.results?.length > 1
-        ? 'gap-4'
-        : '',
-    ]"
+    :class="[productImages && productImages?.length > 1 ? 'gap-4' : '']"
   >
     <div
       class="inline-table h-64 items-center justify-center justify-items-center rounded-lg bg-zinc-100 md:grid md:h-80"
@@ -68,9 +60,9 @@ watch(
     </div>
 
     <UCarousel
-      v-if="productImages?.results && productImages?.results?.length > 1"
+      v-if="productImages && productImages?.length > 1"
       v-slot="{ item }"
-      :items="productImages?.results"
+      :items="productImages"
       :ui="{ item: 'basis-full md:basis-1/2 lg:basis-1/3' }"
       class="overflow-hidden rounded-lg"
       arrows
