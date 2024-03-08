@@ -1,3 +1,10 @@
+## [1.67.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.1...v1.67.2) (2024-03-08)
+
+
+### Bug Fixes
+
+* Product images API endpoint ([fe69bcb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fe69bcbfec67531051ddc47d4ecaba6c2ad6facb))
+
 ## [1.67.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.0...v1.67.1) (2024-03-08)
 
 
