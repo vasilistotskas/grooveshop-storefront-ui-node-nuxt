@@ -1,3 +1,10 @@
+## [1.67.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.0...v1.67.1) (2024-03-08)
+
+
+### Bug Fixes
+
+* Run prettier and remove hardcoded generics from $fetch and useFetch ([165acea](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/165acea1335d065f4b7ecc571c5b986895dacee7))
+
 # [1.67.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.66.1...v1.67.0) (2024-03-07)
 
 
