@@ -33,3 +33,12 @@ export enum LocationChoicesEnum {
 export type ImageLoading = 'lazy' | 'eager' | undefined
 export type FloorChoicesEnumType = z.infer<typeof ZodFloorChoicesEnum>
 export type LocationChoicesEnumType = z.infer<typeof ZodLocationChoicesEnum>
+
+const WeightUnits = z.enum(['g', 'lb', 'oz', 'kg', 'tonne'], {
+  description: 'A type representing various weight units',
+})
+
+export const ZodWeight = z.object({
+  unit: WeightUnits,
+  value: z.number(),
+})

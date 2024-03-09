@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { ZodWeight } from '~/types/global/general'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodProductCategory } from '~/types/product/category'
@@ -27,7 +28,7 @@ export const ZodProduct = z.object({
   likesCount: z.number().int(),
   stock: z.number().int(),
   active: z.boolean(),
-  weight: z.number(),
+  weight: ZodWeight.nullish(),
   seoTitle: z.string().nullish(),
   seoDescription: z.string().nullish(),
   seoKeywords: z.string().nullish(),
@@ -53,7 +54,7 @@ export const ZodProductCreateBody = z.object({
   hits: z.number().int().nullish(),
   stock: z.number().int().nullish(),
   active: z.boolean().nullish(),
-  weight: z.number().nullish(),
+  weight: ZodWeight.nullish(),
   seoTitle: z.string().nullish(),
   seoDescription: z.string().nullish(),
   seoKeywords: z.string().nullish(),
