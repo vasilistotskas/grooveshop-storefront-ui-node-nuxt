@@ -6,352 +6,352 @@ settings:
 
 devDependencies:
   '@babel/core':
-    specifier: ^7.24.0
+    specifier: 7.24.0
     version: 7.24.0
   '@headlessui/vue':
-    specifier: ^1.7.19
+    specifier: 1.7.19
     version: 1.7.19(vue@3.4.21)
   '@iconify/json':
-    specifier: ^2.2.189
-    version: 2.2.190
+    specifier: 2.2.189
+    version: 2.2.189
   '@intlify/core-base':
-    specifier: ^9.10.1
+    specifier: 9.10.1
     version: 9.10.1
   '@intlify/message-compiler':
-    specifier: ^9.10.1
+    specifier: 9.10.1
     version: 9.10.1
   '@intlify/shared':
-    specifier: ^9.10.1
+    specifier: 9.10.1
     version: 9.10.1
   '@intlify/vue-i18n-bridge':
-    specifier: ^1.1.0
+    specifier: 1.1.0
     version: 1.1.0(vue-i18n@9.10.1)
   '@intlify/vue-router-bridge':
-    specifier: ^1.1.0
+    specifier: 1.1.0
     version: 1.1.0(vue-router@4.3.0)(vue@3.4.21)
   '@nuxt/devtools':
-    specifier: ^1.0.8
+    specifier: 1.0.8
     version: 1.0.8(nuxt@3.10.3)(rollup@4.12.1)(vite@5.1.5)
   '@nuxt/eslint-config':
-    specifier: ^0.2.0
+    specifier: 0.2.0
     version: 0.2.0(eslint@8.57.0)
   '@nuxt/image':
-    specifier: ^1.4.0
+    specifier: 1.4.0
     version: 1.4.0(idb-keyval@6.2.1)(rollup@4.12.1)
   '@nuxt/kit':
-    specifier: ^3.10.3
+    specifier: 3.10.3
     version: 3.10.3(rollup@4.12.1)
   '@nuxt/schema':
-    specifier: ^3.10.3
+    specifier: 3.10.3
     version: 3.10.3(rollup@4.12.1)
   '@nuxt/test-utils':
-    specifier: ^3.11.0
+    specifier: 3.11.0
     version: 3.11.0(@vue/test-utils@2.4.4)(h3@1.11.1)(happy-dom@13.6.2)(rollup@4.12.1)(vite@5.1.5)(vitest@1.3.1)(vue-router@4.3.0)(vue@3.4.21)
   '@nuxt/types':
-    specifier: ^2.17.3
+    specifier: 2.17.3
     version: 2.17.3
   '@nuxt/ui':
-    specifier: ^2.14.2
+    specifier: 2.14.2
     version: 2.14.2(idb-keyval@6.2.1)(nuxt@3.10.3)(rollup@4.12.1)(ts-node@10.9.2)(vite@5.1.5)(vue@3.4.21)
   '@nuxtjs/device':
-    specifier: ^3.1.1
+    specifier: 3.1.1
     version: 3.1.1(rollup@4.12.1)
   '@nuxtjs/html-validator':
-    specifier: ^1.6.0
+    specifier: 1.6.0
     version: 1.6.0(rollup@4.12.1)(vitest@1.3.1)
   '@nuxtjs/i18n':
-    specifier: ^8.1.1
+    specifier: 8.1.1
     version: 8.1.1(rollup@4.12.1)(vue@3.4.21)
   '@nuxtjs/tailwindcss':
-    specifier: ^6.11.4
+    specifier: 6.11.4
     version: 6.11.4(rollup@4.12.1)(ts-node@10.9.2)
   '@nuxtseo/module':
     specifier: 2.0.0-beta.55
     version: 2.0.0-beta.55(@lezer/common@1.2.1)(@nuxt/devtools@1.0.8)(@unhead/shared@1.8.11)(@vue/compiler-core@3.4.21)(h3@1.11.1)(idb-keyval@6.2.1)(nuxt@3.10.3)(postcss@8.4.35)(rollup@4.12.1)(unhead@1.8.11)(vite@5.1.5)(vue@3.4.21)(webpack@5.90.3)
   '@parcel/watcher':
-    specifier: ^2.4.1
+    specifier: 2.4.1
     version: 2.4.1
   '@pinia-plugin-persistedstate/nuxt':
-    specifier: ^1.2.0
+    specifier: 1.2.0
     version: 1.2.0(@pinia/nuxt@0.5.1)(pinia@2.1.7)(rollup@4.12.1)
   '@pinia/nuxt':
-    specifier: ^0.5.1
+    specifier: 0.5.1
     version: 0.5.1(rollup@4.12.1)(typescript@5.4.2)(vue@3.4.21)
   '@popperjs/core':
-    specifier: ^2.11.8
+    specifier: 2.11.8
     version: 2.11.8
   '@semantic-release/changelog':
-    specifier: ^6.0.3
+    specifier: 6.0.3
     version: 6.0.3(semantic-release@23.0.2)
   '@semantic-release/commit-analyzer':
-    specifier: ^11.1.0
+    specifier: 11.1.0
     version: 11.1.0(semantic-release@23.0.2)
   '@semantic-release/git':
-    specifier: ^10.0.1
+    specifier: 10.0.1
     version: 10.0.1(semantic-release@23.0.2)
   '@semantic-release/github':
-    specifier: ^9.2.6
+    specifier: 9.2.6
     version: 9.2.6(semantic-release@23.0.2)
   '@semantic-release/npm':
-    specifier: ^11.0.3
+    specifier: 11.0.3
     version: 11.0.3(semantic-release@23.0.2)
   '@semantic-release/release-notes-generator':
-    specifier: ^12.1.0
+    specifier: 12.1.0
     version: 12.1.0(semantic-release@23.0.2)
   '@sindresorhus/slugify':
-    specifier: ^2.2.1
+    specifier: 2.2.1
     version: 2.2.1
   '@tailwindcss/typography':
     specifier: 0.5.10
     version: 0.5.10(tailwindcss@3.4.1)
   '@testing-library/jest-dom':
-    specifier: ^6.4.2
+    specifier: 6.4.2
     version: 6.4.2(vitest@1.3.1)
   '@types/js-yaml':
-    specifier: ^4.0.9
+    specifier: 4.0.9
     version: 4.0.9
   '@types/uuid':
-    specifier: ^9.0.8
+    specifier: 9.0.8
     version: 9.0.8
   '@unhead/schema':
-    specifier: ^1.8.11
+    specifier: 1.8.11
     version: 1.8.11
   '@unhead/vue':
-    specifier: ^1.8.11
+    specifier: 1.8.11
     version: 1.8.11(vue@3.4.21)
   '@vee-validate/nuxt':
-    specifier: ^4.12.5
+    specifier: 4.12.5
     version: 4.12.5(rollup@4.12.1)(vue@3.4.21)
   '@vee-validate/zod':
-    specifier: ^4.12.5
+    specifier: 4.12.5
     version: 4.12.5(vue@3.4.21)
   '@vite-pwa/nuxt':
-    specifier: ^0.6.0
+    specifier: 0.6.0
     version: 0.6.0(rollup@4.12.1)(vite@5.1.5)(workbox-build@7.0.0)(workbox-window@7.0.0)
   '@vitest/coverage-v8':
-    specifier: ^1.3.1
+    specifier: 1.3.1
     version: 1.3.1(vitest@1.3.1)
   '@vue/test-utils':
-    specifier: ^2.4.4
+    specifier: 2.4.4
     version: 2.4.4(vue@3.4.21)
   '@vueuse/core':
-    specifier: ^10.9.0
+    specifier: 10.9.0
     version: 10.9.0(vue@3.4.21)
   '@vueuse/integrations':
-    specifier: ^10.9.0
+    specifier: 10.9.0
     version: 10.9.0(focus-trap@7.5.4)(fuse.js@7.0.0)(idb-keyval@6.2.1)(vue@3.4.21)
   '@vueuse/nuxt':
-    specifier: ^10.9.0
+    specifier: 10.9.0
     version: 10.9.0(nuxt@3.10.3)(rollup@4.12.1)(vue@3.4.21)
   '@vueuse/shared':
-    specifier: ^10.9.0
+    specifier: 10.9.0
     version: 10.9.0(vue@3.4.21)
   autoprefixer:
-    specifier: ^10.4.18
+    specifier: 10.4.18
     version: 10.4.18(postcss@8.4.35)
   cli-progress:
-    specifier: ^3.12.0
+    specifier: 3.12.0
     version: 3.12.0
   commander:
-    specifier: ^12.0.0
+    specifier: 12.0.0
     version: 12.0.0
   cookie-es:
-    specifier: ^1.0.0
+    specifier: 1.0.0
     version: 1.0.0
   coveralls:
-    specifier: ^3.1.1
+    specifier: 3.1.1
     version: 3.1.1
   defu:
-    specifier: ^6.1.4
+    specifier: 6.1.4
     version: 6.1.4
   eslint:
-    specifier: ^8.57.0
+    specifier: 8.57.0
     version: 8.57.0
   eslint-config-prettier:
-    specifier: ^9.1.0
+    specifier: 9.1.0
     version: 9.1.0(eslint@8.57.0)
   eslint-plugin-import:
-    specifier: ^2.29.1
+    specifier: 2.29.1
     version: 2.29.1(@typescript-eslint/parser@6.21.0)(eslint@8.57.0)
   eslint-plugin-nuxt:
-    specifier: ^4.0.0
+    specifier: 4.0.0
     version: 4.0.0(eslint@8.57.0)
   eslint-plugin-prettier:
-    specifier: ^5.1.3
+    specifier: 5.1.3
     version: 5.1.3(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.2.5)
   h3:
-    specifier: ^1.11.1
+    specifier: 1.11.1
     version: 1.11.1
   happy-dom:
-    specifier: ^13.6.2
+    specifier: 13.6.2
     version: 13.6.2
   idb-keyval:
-    specifier: ^6.2.1
+    specifier: 6.2.1
     version: 6.2.1
   jose:
-    specifier: ^5.2.2
-    version: 5.2.3
+    specifier: 5.2.2
+    version: 5.2.2
   js-yaml:
-    specifier: ^4.1.0
+    specifier: 4.1.0
     version: 4.1.0
   lottie-web:
-    specifier: ^5.12.2
+    specifier: 5.12.2
     version: 5.12.2
   magic-string:
-    specifier: ^0.30.8
+    specifier: 0.30.8
     version: 0.30.8
   nitropack:
-    specifier: ^2.9.1
+    specifier: 2.9.1
     version: 2.9.1(idb-keyval@6.2.1)
   nuxt:
     specifier: 3.10.3
     version: 3.10.3(@parcel/watcher@2.4.1)(@types/node@20.11.25)(eslint@8.57.0)(idb-keyval@6.2.1)(rollup@4.12.1)(sass@1.71.1)(typescript@5.4.2)(vite@5.1.5)(vue-tsc@1.8.27)
   nuxt-auth-utils:
-    specifier: ^0.0.20
+    specifier: 0.0.20
     version: 0.0.20(rollup@4.12.1)
   nuxt-build-cache:
-    specifier: ^0.1.1
+    specifier: 0.1.1
     version: 0.1.1(rollup@4.12.1)
   nuxt-delay-hydration:
-    specifier: ^1.3.3
+    specifier: 1.3.3
     version: 1.3.3(rollup@4.12.1)
   nuxt-time:
-    specifier: ^0.1.2
+    specifier: 0.1.2
     version: 0.1.2(rollup@4.12.1)
   ofetch:
-    specifier: ^1.3.3
+    specifier: 1.3.3
     version: 1.3.3
   pinia:
-    specifier: ^2.1.7
+    specifier: 2.1.7
     version: 2.1.7(typescript@5.4.2)(vue@3.4.21)
   playwright:
-    specifier: ^1.42.1
+    specifier: 1.42.1
     version: 1.42.1
   postcss:
     specifier: 8.4.35
     version: 8.4.35
   postcss-html:
-    specifier: ^1.6.0
+    specifier: 1.6.0
     version: 1.6.0
   postcss-import:
     specifier: 16.0.1
     version: 16.0.1(postcss@8.4.35)
   postcss-loader:
-    specifier: ^8.1.1
+    specifier: 8.1.1
     version: 8.1.1(postcss@8.4.35)(typescript@5.4.2)(webpack@5.90.3)
   prettier:
-    specifier: ^3.2.5
+    specifier: 3.2.5
     version: 3.2.5
   prettier-plugin-tailwindcss:
-    specifier: ^0.5.12
+    specifier: 0.5.12
     version: 0.5.12(prettier@3.2.5)
   sass:
-    specifier: ^1.71.1
+    specifier: 1.71.1
     version: 1.71.1
   sass-loader:
-    specifier: ^14.1.1
+    specifier: 14.1.1
     version: 14.1.1(sass@1.71.1)(webpack@5.90.3)
   semantic-release:
-    specifier: ^23.0.2
+    specifier: 23.0.2
     version: 23.0.2(typescript@5.4.2)
   std-env:
-    specifier: ^3.7.0
+    specifier: 3.7.0
     version: 3.7.0
   string-replace-loader:
     specifier: 3.1.0
     version: 3.1.0(webpack@5.90.3)
   tailwindcss:
-    specifier: ^3.4.1
+    specifier: 3.4.1
     version: 3.4.1(ts-node@10.9.2)
   translate:
-    specifier: ^2.0.2
+    specifier: 2.0.2
     version: 2.0.2
   ts-node:
-    specifier: ^10.9.2
+    specifier: 10.9.2
     version: 10.9.2(@types/node@20.11.25)(typescript@5.4.2)
   tsc-alias:
-    specifier: ^1.8.8
+    specifier: 1.8.8
     version: 1.8.8
   tslog:
-    specifier: ^4.9.2
+    specifier: 4.9.2
     version: 4.9.2
   typescript:
-    specifier: ^5.4.2
+    specifier: 5.4.2
     version: 5.4.2
   ufo:
-    specifier: ^1.4.0
+    specifier: 1.4.0
     version: 1.4.0
   unhead:
-    specifier: ^1.8.11
+    specifier: 1.8.11
     version: 1.8.11
   unplugin-auto-import:
-    specifier: ^0.17.5
+    specifier: 0.17.5
     version: 0.17.5(@nuxt/kit@3.10.3)(@vueuse/core@10.9.0)(rollup@4.12.1)
   unplugin-icons:
-    specifier: ^0.18.5
+    specifier: 0.18.5
     version: 0.18.5
   unplugin-vue-components:
-    specifier: ^0.26.0
+    specifier: 0.26.0
     version: 0.26.0(@nuxt/kit@3.10.3)(rollup@4.12.1)(vue@3.4.21)
   unstorage:
-    specifier: ^1.10.1
+    specifier: 1.10.1
     version: 1.10.1(idb-keyval@6.2.1)
   uuid:
-    specifier: ^9.0.1
+    specifier: 9.0.1
     version: 9.0.1
   v-calendar:
-    specifier: ^3.1.2
+    specifier: 3.1.2
     version: 3.1.2(@popperjs/core@2.11.8)(vue@3.4.21)
   vee-validate:
-    specifier: ^4.12.5
+    specifier: 4.12.5
     version: 4.12.5(vue@3.4.21)
   vite:
-    specifier: ^5.1.5
+    specifier: 5.1.5
     version: 5.1.5(@types/node@20.11.25)(sass@1.71.1)
   vitest:
-    specifier: ^1.3.1
+    specifier: 1.3.1
     version: 1.3.1(@types/node@20.11.25)(happy-dom@13.6.2)(sass@1.71.1)
   vitest-environment-nuxt:
-    specifier: ^1.0.0
+    specifier: 1.0.0
     version: 1.0.0(@vue/test-utils@2.4.4)(h3@1.11.1)(happy-dom@13.6.2)(rollup@4.12.1)(vite@5.1.5)(vitest@1.3.1)(vue-router@4.3.0)(vue@3.4.21)
   vue:
-    specifier: ^3.4.21
+    specifier: 3.4.21
     version: 3.4.21(typescript@5.4.2)
   vue-i18n:
-    specifier: ^9.10.1
+    specifier: 9.10.1
     version: 9.10.1(vue@3.4.21)
   vue-i18n-routing:
-    specifier: ^1.2.0
+    specifier: 1.2.0
     version: 1.2.0(vue-i18n@9.10.1)(vue-router@4.3.0)(vue@3.4.21)
   vue-router:
-    specifier: ^4.3.0
+    specifier: 4.3.0
     version: 4.3.0(vue@3.4.21)
   vue-tsc:
     specifier: 1.8.27
     version: 1.8.27(typescript@5.4.2)
   webpack:
-    specifier: ^5.90.3
+    specifier: 5.90.3
     version: 5.90.3
   workbox-cacheable-response:
-    specifier: ^7.0.0
+    specifier: 7.0.0
     version: 7.0.0
   workbox-core:
-    specifier: ^7.0.0
+    specifier: 7.0.0
     version: 7.0.0
   workbox-expiration:
-    specifier: ^7.0.0
+    specifier: 7.0.0
     version: 7.0.0
   workbox-precaching:
-    specifier: ^7.0.0
+    specifier: 7.0.0
     version: 7.0.0
   workbox-routing:
-    specifier: ^7.0.0
+    specifier: 7.0.0
     version: 7.0.0
   workbox-strategies:
-    specifier: ^7.0.0
+    specifier: 7.0.0
     version: 7.0.0
   zod:
-    specifier: ^3.22.4
+    specifier: 3.22.4
     version: 3.22.4
 
 packages:
@@ -2482,8 +2482,8 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
-  /@iconify/json@2.2.190:
-    resolution: {integrity: sha512-ci0/3DQUoRNxuNC8s0rNke5JwsCzWuYfEl4BgOykx3EAWDWMvD8lCenrDiFa04mokzMwSF+jA6I1YjBRGWfyOw==}
+  /@iconify/json@2.2.189:
+    resolution: {integrity: sha512-q0DxpGQuQhtoNXELlHKbkxTSOjuzf/3Qaqq5uuJ/dM62XH1GUUxlXsgH/Moh/CEcs3evzWFp2mjIQifZmihQTA==}
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
@@ -4699,13 +4699,13 @@ packages:
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
     dev: true
 
   /@types/clean-css@4.2.11:
     resolution: {integrity: sha512-Y8n81lQVTAfP2TOdtJJEsCoYl1AnOkqDqMvXb9/7pfgZZ7r8YrEyurrAvAoAjHOGXKRybay+5CsExqIH6liccw==}
     dependencies:
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
       source-map: 0.6.1
     dev: true
 
@@ -4718,7 +4718,7 @@ packages:
   /@types/connect@3.4.38:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
     dev: true
 
   /@types/eslint-scope@3.7.7:
@@ -4746,13 +4746,13 @@ packages:
   /@types/etag@1.8.3:
     resolution: {integrity: sha512-QYHv9Yeh1ZYSMPQOoxY4XC4F1r+xRUiAriB303F4G6uBsT3KKX60DjiogvVv+2VISVDuJhcIzMdbjT+Bm938QQ==}
     dependencies:
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
     dev: true
 
   /@types/express-serve-static-core@4.17.43:
     resolution: {integrity: sha512-oaYtiBirUOPQGSWNGPWnzyAFJ0BP3cwvN4oWZQY+zUBwpVIGsKUkpBpSztp74drYcjavs7SKFZ4DX1V2QeN8rg==}
     dependencies:
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
       '@types/qs': 6.9.12
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -4881,7 +4881,7 @@ packages:
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
     dev: true
 
   /@types/serve-static@1.15.5:
@@ -4889,7 +4889,7 @@ packages:
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
     dev: true
 
   /@types/source-list-map@0.1.6:
@@ -4941,7 +4941,7 @@ packages:
   /@types/webpack-sources@3.2.3:
     resolution: {integrity: sha512-4nZOdMwSPHZ4pTEZzSp0AsTM4K7Qmu40UKW4tJDiOVs20UzYF9l+qUe4s0ftfN0pin06n+5cWWDJXH+sbhAiDw==}
     dependencies:
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
       '@types/source-list-map': 0.1.6
       source-map: 0.7.4
     dev: true
@@ -4949,7 +4949,7 @@ packages:
   /@types/webpack@4.41.38:
     resolution: {integrity: sha512-oOW7E931XJU1mVfCnxCVgv8GLFL768pDO5u2Gzk82i8yTIgX6i7cntyZOkZYb/JtYM8252SN9bQp9tgkVDSsRw==}
     dependencies:
-      '@types/node': 16.18.87
+      '@types/node': 20.11.25
       '@types/tapable': 1.0.12
       '@types/uglify-js': 3.17.5
       '@types/webpack-sources': 3.2.3
@@ -9937,8 +9937,8 @@ packages:
     engines: {node: '>= 0.6.0'}
     dev: true
 
-  /jose@5.2.3:
-    resolution: {integrity: sha512-KUXdbctm1uHVL8BYhnyHkgp3zDX5KW8ZhAKVFEfUbU2P8Alpzjb+48hHvjOdQIyPshoblhzsuqOwEEAbtHVirA==}
+  /jose@5.2.2:
+    resolution: {integrity: sha512-/WByRr4jDcsKlvMd1dRJnPfS1GVO3WuKyaurJ/vvXcOaUQO8rnNObCQMlv/5uCceVQIq5Q4WLF44ohsdiTohdg==}
     dev: true
 
   /js-beautify@1.15.1:
