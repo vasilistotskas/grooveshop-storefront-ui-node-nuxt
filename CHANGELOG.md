@@ -1,3 +1,11 @@
+## [1.67.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.2...v1.67.3) (2024-03-10)
+
+
+### Bug Fixes
+
+* `weight` field at product type ([34ba4e5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/34ba4e5aba9096dda87c1f8fee2e17efb25b350d))
+* Update `pnpm-lock` file ([a51b163](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a51b16328821d0b4c4ce2d3dafb6bbb414021cc6))
+
 ## [1.67.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.1...v1.67.2) (2024-03-08)
 
 
