@@ -11,7 +11,10 @@ const toast = useToast()
 
 function onSubmit(values: MfaTotpActivatePostBody) {
   totpActivatePost(values)
-    .then(async () => {
+    .then(async ({ error }) => {
+      if (error.value) {
+        throw error.value
+      }
       toast.add({
         title: t('pages.auth.security.mfa.totp.activate.success'),
         color: 'green',

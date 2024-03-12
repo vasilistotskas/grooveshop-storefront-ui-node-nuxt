@@ -29,6 +29,10 @@ const ZodSearchProductTranslations = z.record(
   z.object({
     name: z.string().nullish(),
     description: z.string().nullish(),
+    searchDocument: z.string().nullish(),
+    searchVector: z.string().nullish(),
+    searchDocumentDirty: z.boolean().nullish(),
+    searchVectorDirty: z.boolean().nullish(),
   }),
 )
 

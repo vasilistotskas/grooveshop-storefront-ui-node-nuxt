@@ -5,7 +5,10 @@ const toast = useToast()
 
 function onSubmit() {
   recoveryCodesGenerate({})
-    .then(async () => {
+    .then(async ({ error }) => {
+      if (error.value) {
+        throw error.value
+      }
       toast.add({
         title: t('pages.auth.security.mfa.recovery.codes.generate.success'),
         color: 'green',

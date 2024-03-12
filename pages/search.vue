@@ -87,10 +87,6 @@ const showNoResults = computed(() => {
   )
 })
 
-const showErrors = computed(() => {
-  return error.value
-})
-
 watch(
   () => currentSearch.value,
   () => {
@@ -250,12 +246,6 @@ definePageMeta({
           :width="'254px'"
           :height="'254px'"
         />
-      </div>
-      <div v-if="showErrors" class="mt-40 flex flex-col items-start gap-3 p-8">
-        <h1 class="text-4xl text-red-600">
-          {{ $t('pages.search.error') }}
-        </h1>
-        <pre class="py-2">{{ error }}</pre>
       </div>
     </PageBody>
   </PageWrapper>

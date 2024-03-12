@@ -46,7 +46,10 @@ const onSubmit = handleSubmit((values) => {
     password: values.password,
     rememberMe: rememberMe.value,
   })
-    .then(async () => {
+    .then(async ({ error }) => {
+      if (error.value) {
+        throw error.value
+      }
       await fetch()
       const { data: accountDetails } = await userAccountDetails()
       if (accountDetails.value) {

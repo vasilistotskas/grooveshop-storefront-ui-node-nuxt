@@ -122,16 +122,17 @@ const setCookies = ({
     : []
 }
 const toggleButton = ($event: MouseEvent) => {
-  (
-    ($event.target as HTMLButtonElement | null)?.nextSibling as HTMLLabelElement
-  )?.click()
+  const target = $event.target as HTMLButtonElement | null
+  if (!target) return
+  const nextSibling = target.nextSibling as HTMLLabelElement | null
+  if (!nextSibling) return
+  nextSibling.click()
 }
 
 const toggleCookie = (cookie: Cookie) => {
   const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(
     getCookieId(cookie),
   )
-
   if (cookieIndex < 0) {
     localCookiesEnabled.value.push(cookie)
   } else {
@@ -139,7 +140,11 @@ const toggleCookie = (cookie: Cookie) => {
   }
 }
 const toggleLabel = ($event: KeyboardEvent) => {
-  if ($event.key === ' ') ($event.target as HTMLLabelElement)?.click()
+  const target = $event.target as HTMLLabelElement | null
+  if (!target) return
+  if ($event.key === ' ') {
+    target.click()
+  }
 }
 // lifecycle
 onBeforeMount(() => {
@@ -346,6 +351,7 @@ defineExpose({
                         :for="getName(cookie.name)"
                         tabindex="0"
                         @keydown="toggleLabel($event)"
+                        @click="toggleCookie(cookie)"
                       >
                         {{ getName(cookie.name) }}
                         <span v-if="cookie.description">

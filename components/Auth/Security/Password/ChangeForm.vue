@@ -11,7 +11,10 @@ const toast = useToast()
 
 function onSubmit(values: PasswordChangeBody) {
   passwordChange(values)
-    .then(async () => {
+    .then(async ({ error }) => {
+      if (error.value) {
+        throw error.value
+      }
       toast.add({
         title: t('components.auth.security.password.change.form.success.title'),
       })
