@@ -1,3 +1,10 @@
+## [1.67.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.3...v1.67.4) (2024-03-12)
+
+
+### Bug Fixes
+
+* cookies buttons fixed, in case of error in pages throw it ([b2fe22a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b2fe22a7fb50c459bfb69c5853f500988e4edcc6))
+
 ## [1.67.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.2...v1.67.3) (2024-03-10)
 
 
