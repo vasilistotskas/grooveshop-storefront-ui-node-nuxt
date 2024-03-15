@@ -207,7 +207,8 @@ components:
           comments: No Comments | 1 Comment | %{count} Comments
   favourite:
     list:
-      favourites: Favourites
+      favourites:
+        total: No Favourites | 1 Favourite | %{count} Favourites
   auth:
     security:
       password:

@@ -17,13 +17,12 @@ defineProps({
 </script>
 
 <template>
-  <div class="grid w-full items-start gap-4">
+  <div v-if="favourites" class="grid w-full items-start gap-4">
     <div v-if="displayTotal" class="flex items-center justify-center gap-1">
-      <span class="text-[0.75rem] font-semibold text-[#f0c14b]">{{
-        favourites?.length
-      }}</span>
-      <span class="text-[0.75rem] font-semibold text-[#f0c14b]">
-        {{ $t('components.favourite.list.favourites') }}
+      <span class="text-sm font-semibold text-yellow-600">
+        {{
+          $t('components.favourite.list.favourites.total', favourites.length)
+        }}
       </span>
     </div>
     <ul

@@ -37,7 +37,9 @@ const src = computed(() => {
 })
 
 const alt = computed(() => {
-  return extractTranslated(props.image, 'title', locale.value)
+  return (
+    extractTranslated(props.image, 'title', locale.value) || 'Product image'
+  )
 })
 </script>
 

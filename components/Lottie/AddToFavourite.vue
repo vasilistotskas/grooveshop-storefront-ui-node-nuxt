@@ -118,6 +118,12 @@ const buttonLabel = computed(() => {
     : t('components.add_to_favourite_button.add')
 })
 
+const buttonAreaLabel = computed(() => {
+  return props.isFavourite
+    ? t('components.add_to_favourite_button.remove')
+    : t('components.add_to_favourite_button.add')
+})
+
 const onAnimationLoaded = () => {
   if (props.isFavourite) {
     lottie.value?.goToAndStop(lottie.value?.getDuration() - 1 || 0)
@@ -138,6 +144,8 @@ const onAnimationLoaded = () => {
     :height="'40px'"
     :loop="false"
     :auto-play="false"
+    :aria-label="buttonAreaLabel"
+    :title="buttonAreaLabel"
     @on-animation-loaded="onAnimationLoaded"
     @click="toggleFavourite"
   />

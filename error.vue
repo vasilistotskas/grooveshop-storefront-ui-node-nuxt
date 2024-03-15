@@ -5,30 +5,34 @@ import type { IFetchError } from 'ofetch'
 import Json404 from '~/assets/lotties/404.json'
 
 defineProps({
-	error: {
-		type: Object as PropType<IFetchError | null>,
-		required: false,
-		default: null
-	}
+  error: {
+    type: Object as PropType<IFetchError | null>,
+    required: false,
+    default: null,
+  },
 })
 
 const colorMode = useColorMode()
 
-const themeClass = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
-const themeColor = computed(() => (colorMode.value === 'dark' ? '#1a202c' : '#ffffff'))
+const themeClass = computed(() =>
+  colorMode.value === 'dark' ? 'dark' : 'light',
+)
+const themeColor = computed(() =>
+  colorMode.value === 'dark' ? '#1a202c' : '#ffffff',
+)
 const { isMobile, isTablet } = useDevice()
 const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
 const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
 
 const headOptions = {
-	htmlAttrs: {
-		class: () => themeClass.value
-	}
+  htmlAttrs: {
+    class: () => themeClass.value,
+  },
 }
 const seoMetaOptions = {
-	colorScheme: colorMode.value === 'dark' ? 'dark' : 'light',
-	themeColor: themeColor.value,
-	msapplicationTileColor: themeColor.value
+  colorScheme: colorMode.value === 'dark' ? 'dark' : 'light',
+  themeColor: themeColor.value,
+  msapplicationTileColor: themeColor.value,
 } satisfies UseSeoMetaInput
 
 useHead(headOptions)
@@ -36,7 +40,7 @@ useSeoMeta(seoMetaOptions)
 </script>
 
 <template>
-  <div class="grid bg-zinc-100 dark:bg-zinc-900">
+  <div class="grid bg-white dark:bg-zinc-800">
     <PageHeader>
       <PageNavbar />
     </PageHeader>
@@ -53,7 +57,10 @@ useSeoMeta(seoMetaOptions)
         <p class="text-primary-700 dark:text-primary-100">
           {{ $t('pages.error.go.home') }}
         </p>
-        <NuxtLink to="/" class="mt-2 block font-bold text-blue-500 hover:underline">
+        <NuxtLink
+          to="/"
+          class="mt-2 block font-bold text-blue-500 hover:underline"
+        >
           {{ $t('pages.error.home') }}
         </NuxtLink>
         <div class="grid items-center justify-center">

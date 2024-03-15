@@ -109,6 +109,8 @@ pages:
       deleted:
         success: Review deleted successfully
         error: Review delete error
+    max_quantity_reached: Max quantity reached
+    adjusted_to_stock: Adjusted to stock %{stock}
   products:
     title: Products
     nav: products
@@ -330,7 +332,7 @@ pages:
       update_error: Addresses update error
       deleted: Addresses Item deleted
       delete_error: Addresses Item delete error
-      total: Total
+      total: No Addresses | 1 Address | %{count} Addresses
       delete: Delete
       ordering:
         created_at: Created At

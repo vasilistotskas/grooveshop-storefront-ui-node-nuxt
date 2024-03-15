@@ -119,6 +119,12 @@ const buttonLabel = computed(() => {
     : t('components.add_to_favourite_button.add')
 })
 
+const buttonAreaLabel = computed(() => {
+  return props.isFavourite
+    ? t('components.add_to_favourite_button.remove')
+    : t('components.add_to_favourite_button.add')
+})
+
 const backgroundColor = computed(() => {
   return props.isFavourite ? 'rgb(239 68 68)' : isDark.value ? 'white' : 'black'
 })
@@ -131,7 +137,8 @@ const backgroundColor = computed(() => {
     :label="buttonLabel"
     :icon="!isFavourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
     :color="'white'"
-    :aria-label="buttonLabel || $t('components.add_to_favourite_button.add')"
+    :aria-label="buttonAreaLabel"
+    :title="buttonAreaLabel"
     @click="toggleFavourite"
   />
 </template>

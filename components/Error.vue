@@ -29,7 +29,7 @@ const divTag = ref('div')
     :class="
       wrap
         ? 'flex flex-col items-center justify-center'
-        : 'grid items-center justify-center gap-4 rounded-lg bg-zinc-100 p-4 dark:bg-zinc-800 md:p-8'
+        : 'grid items-center justify-center gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800 md:p-8'
     "
   >
     <h1 v-if="!error">

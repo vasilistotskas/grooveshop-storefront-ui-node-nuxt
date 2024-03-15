@@ -383,7 +383,7 @@ definePageMeta({
               v-bind="countryProps"
               name="country"
               as="select"
-              class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
+              class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-800"
               @change.capture="onCountryChange"
             >
               <option
@@ -421,7 +421,7 @@ definePageMeta({
               v-bind="regionProps"
               name="region"
               as="select"
-              class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-zinc-100/[0.8] dark:bg-zinc-800/[0.8]"
+              class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-800"
               :disabled="country === defaultSelectOptionChoose"
             >
               <option

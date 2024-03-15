@@ -100,3 +100,5 @@ common:
   like: Like
   unlike: Unlike
   reply: Reply
+  decrement: Decrement
+  increment: Increment

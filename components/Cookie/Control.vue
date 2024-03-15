@@ -346,6 +346,11 @@ defineExpose({
                       <button type="button" @click="toggleButton($event)">
                         {{ getName(cookie.name) }}
                       </button>
+                      <ReadMore
+                        v-if="cookie.description"
+                        :text="getDescription(cookie.description)"
+                        :max-chars="100"
+                      />
                       <label
                         class="cookie-control-ModalCookieName"
                         :for="getName(cookie.name)"
@@ -354,9 +359,6 @@ defineExpose({
                         @click="toggleCookie(cookie)"
                       >
                         {{ getName(cookie.name) }}
-                        <span v-if="cookie.description">
-                          {{ getDescription(cookie.description) }}
-                        </span>
                         <span
                           v-if="
                             moduleOptions.isCookieIdVisible &&

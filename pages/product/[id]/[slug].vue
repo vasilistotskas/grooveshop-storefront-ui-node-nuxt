@@ -57,7 +57,25 @@ const productTitle = computed(() => {
       '',
   )
 })
+const productStock = computed(() => product.value?.stock || 0)
 const selectorQuantity = ref(1)
+
+const incrementQuantity = () => {
+  if (selectorQuantity.value < productStock.value) {
+    selectorQuantity.value++
+  } else {
+    toast.add({
+      title: t('pages.product.max_quantity_reached'),
+      color: 'red',
+    })
+  }
+}
+
+const decrementQuantity = () => {
+  if (selectorQuantity.value > 1) {
+    selectorQuantity.value--
+  }
+}
 
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value),
@@ -117,6 +135,20 @@ watch(
   { deep: true },
 )
 
+watch(selectorQuantity, (newValue) => {
+  const maxQuantity = productStock.value
+  if (newValue > maxQuantity) {
+    selectorQuantity.value = maxQuantity
+    toast.add({
+      title: t('pages.product.adjusted_to_stock', {
+        stock: maxQuantity,
+      }),
+    })
+  } else if (newValue < 1) {
+    selectorQuantity.value = 1
+  }
+})
+
 useSchemaOrg([
   defineProduct({
     name: () => extractTranslated(product.value, 'name', locale.value) || '',
@@ -146,12 +178,21 @@ definePageMeta({
             <div class="overflow-hidden">
               <ProductImages :product="product" />
             </div>
-            <div class="grid content-center items-center gap-6 px-4">
+            <div
+              class="grid content-center items-center gap-4 md:gap-6 md:px-4"
+            >
               <h2
                 class="text-primary-700 dark:text-primary-100 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </h2>
+              <h3 class="text-primary-700 dark:text-primary-100 text-sm">
+                <span>{{ $t('pages.product.product_id') }}: </span>
+                <span
+                  class="text-indigo-700 hover:underline dark:text-indigo-200"
+                  >{{ product.id }}</span
+                >
+              </h3>
               <PageSection class="actions flex items-center gap-4">
                 <ClientOnly>
                   <UButton
@@ -199,13 +240,6 @@ definePageMeta({
                   :is-authenticated="loggedIn"
                 />
               </PageSection>
-              <h3 class="text-primary-700 dark:text-primary-100 text-sm">
-                <span>{{ $t('pages.product.product_id') }}: </span>
-                <span
-                  class="text-indigo-700 hover:underline dark:text-indigo-200"
-                >{{ product.id }}</span>
-              </h3>
-
               <div class="flex items-center gap-4">
                 <div>
                   <div class="flex rounded-lg bg-zinc-100 px-3 py-2">
@@ -232,42 +266,38 @@ definePageMeta({
                 :max-chars="100"
               />
               <div class="flex flex-col gap-4 md:flex-row md:gap-0">
-                <div class="relative">
-                  <div
-                    class="text-primary-700 dark:text-primary-100 absolute left-0 right-0 block hidden pt-2 text-center text-xs font-semibold uppercase tracking-wide md:grid"
-                  >
-                    <label for="quantity">{{ $t('pages.product.qty') }}</label>
-                  </div>
-                  <select
-                    id="quantity"
-                    v-model="selectorQuantity"
-                    class="text-primary-700 dark:text-primary-100 flex h-8 w-full cursor-pointer appearance-none items-end rounded-xl border border-gray-200 bg-zinc-100/[0.8] pb-1 pl-4 pr-8 dark:bg-zinc-800/[0.8] md:h-14"
-                  >
-                    <option
-                      v-for="i in product.stock"
-                      :key="i"
-                      class="text-primary-700 dark:text-primary-100"
-                      :value="i"
-                      :selected="i === selectorQuantity"
-                    >
-                      {{ i }}
-                    </option>
-                  </select>
-
-                  <svg
-                    class="text-primary-700 dark:text-primary-100 absolute bottom-0 right-0 mb-2 mr-2 h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 9l4-4 4 4m0 6l-4 4-4-4"
+                <div class="grid">
+                  <label for="counter-input" class="sr-only">{{
+                    $t('pages.product.qty')
+                  }}</label>
+                  <div class="relative flex items-center">
+                    <UButton
+                      id="decrement-button"
+                      icon="i-heroicons-minus"
+                      size="xl"
+                      color="white"
+                      :title="$t('common.decrement')"
+                      :aria-label="$t('common.decrement')"
+                      @click="decrementQuantity"
                     />
-                  </svg>
+                    <input
+                      id="counter-input"
+                      v-model="selectorQuantity"
+                      type="number"
+                      :min="1"
+                      :max="productStock"
+                      :aria-label="$t('pages.product.qty')"
+                    />
+                    <UButton
+                      id="increment-button"
+                      icon="i-heroicons-plus"
+                      size="xl"
+                      color="white"
+                      :title="$t('common.increment')"
+                      :aria-label="$t('common.increment')"
+                      @click="incrementQuantity"
+                    />
+                  </div>
                 </div>
 
                 <ButtonAddToCart

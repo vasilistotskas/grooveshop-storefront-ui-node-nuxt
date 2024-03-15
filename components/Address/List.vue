@@ -19,18 +19,13 @@ defineProps({
     default: true,
   },
 })
-
-const { t } = useI18n()
 </script>
 
 <template>
   <div class="grid w-full items-start gap-4">
     <div v-if="displayTotal" class="flex items-center justify-center gap-1">
-      <span class="text-[0.75rem] font-semibold text-[#f0c14b]">{{
-        addressesTotal
-      }}</span>
-      <span class="text-[0.75rem] font-semibold text-[#f0c14b]">
-        {{ t('pages.account.addresses.total') }}
+      <span class="text-sm font-semibold text-yellow-600">
+        {{ $t('pages.account.addresses.total', addressesTotal) }}
       </span>
     </div>
     <ul
