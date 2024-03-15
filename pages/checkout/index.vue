@@ -35,12 +35,8 @@ const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
 const ZodCheckout = z.object({
   user: z.string().nullish(),
-  country: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-    message: t('common.validation.country.required'),
-  }),
-  region: z.string().refine((value) => value !== defaultSelectOptionChoose, {
-    message: t('common.validation.region.required'),
-  }),
+  country: z.string().nullish(),
+  region: z.string().nullish(),
   floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
   locationType: z
     .union([z.nativeEnum(LocationChoicesEnum), z.string()])
