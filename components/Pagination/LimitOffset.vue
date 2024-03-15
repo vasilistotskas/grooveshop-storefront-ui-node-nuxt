@@ -176,7 +176,7 @@ const link = computed(() => {
         >
           <span
             :class="{
-              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
+              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
           >{{ firstPageNumber }}</span>
@@ -199,7 +199,7 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
+            'grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
             active: pageEntry === page,
           }"
           :text="String(pageEntry)"
@@ -262,7 +262,7 @@ const link = computed(() => {
           >...</span>
           <span
             :class="{
-              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-zinc-200 px-2 py-1 dark:bg-zinc-800': true,
+              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
           >{{ lastPageNumber }}</span>

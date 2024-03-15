@@ -47,13 +47,13 @@ const menus = computed((): IMenuItem[] => [
     route: { name: 'auth-security', path: '/auth/security' },
     icon: userShield,
     cssClass:
-      'text-primary-700 dark:text-primary-100 bg-zinc-200 border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
+      'text-primary-700 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
   },
 ])
 </script>
 
 <template>
-  <BuilderNavbar class="bg-zinc-200 dark:bg-zinc-800">
+  <BuilderNavbar class="bg-white dark:bg-zinc-800">
     <template #menu>
       <nav
         class="text-primary-700 dark:text-primary-100 hidden items-center text-lg font-semibold leading-6 md:flex"
@@ -109,7 +109,7 @@ const menus = computed((): IMenuItem[] => [
             <UButton
               size="md"
               :label="$t('pages.accounts.logout.title')"
-              class="text-primary-700 dark:text-primary-100 gap-2 border-gray-200 bg-zinc-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+              class="text-primary-700 dark:text-primary-100 gap-2 border-gray-200 bg-white hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
               :trailing="false"
               icon="i-heroicons-arrow-left-start-on-rectangle"
               color="white"

@@ -11,7 +11,9 @@ const packageVersion = pkg.version
     class="mt-6 w-full border-t-2 border-gray-500 bg-white pt-2 dark:bg-zinc-900"
   >
     <div class="container mx-auto w-full">
-      <div class="grid grid-cols-1 gap-8 px-6 py-8 md:grid-cols-3">
+      <div
+        class="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-8 md:px-6 md:py-8"
+      >
         <div>
           <span
             class="text-primary-900 mb-6 text-sm font-semibold uppercase dark:text-white"
@@ -121,7 +123,7 @@ const packageVersion = pkg.version
         </div>
       </div>
     </div>
-    <div class="w-full bg-zinc-100 dark:bg-zinc-800">
+    <div class="w-full bg-white dark:bg-zinc-800">
       <div class="container mx-auto w-full">
         <div class="px-4 py-6 md:flex md:items-center md:justify-between">
           <span

@@ -6,7 +6,7 @@ defineSlots<{
 
 <template>
   <div
-    class="supports-backdrop-blur:bg-white/60 overflow-y-auto rounded bg-zinc-100/[0.8] p-4 backdrop-blur dark:bg-zinc-800/[0.8]"
+    class="supports-backdrop-blur:bg-white/60 overflow-y-auto rounded bg-white p-4 backdrop-blur dark:bg-zinc-800"
   >
     <slot />
   </div>

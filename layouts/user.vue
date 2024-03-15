@@ -35,7 +35,7 @@ const route = useRoute()
         </UserNavbar>
       </slot>
       <div class="grid gap-6">
-        <div class="bg-zinc-200 dark:bg-zinc-800 md:rounded-b-[94px]">
+        <div class="bg-white dark:bg-zinc-800 md:rounded-b-[94px]">
           <UserAccountInfo
             v-if="user"
             class="container mx-auto w-full"

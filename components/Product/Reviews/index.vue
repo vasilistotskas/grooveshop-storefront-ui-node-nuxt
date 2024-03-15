@@ -4,8 +4,6 @@ import type { PropType, Ref } from 'vue'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import type { ProductReviewOrderingField } from '~/types/product/review'
 
-import emptyIcon from '~icons/mdi/package-variant-remove'
-
 const props = defineProps({
   productId: {
     type: String,
@@ -88,44 +86,31 @@ watch(
 
 <template>
   <div
+    v-if="!pending && productReviews && productReviews?.length > 0"
     class="container-sm text-primary-700 dark:text-primary-100 border-t border-gray-900/10 p-6 dark:border-gray-50/20"
   >
-    <template v-if="!pending && productReviews && productReviews?.length > 0">
-      <div class="grid gap-4">
-        <h2 class="text-2xl font-semibold">
-          {{ $t('components.product.reviews.title') }}
-        </h2>
-        <div class="grid justify-start gap-4 md:flex md:items-center">
-          <div class="grid">
-            <Ordering
-              :ordering="String(ordering)"
-              :ordering-options="orderingOptions.orderingOptionsArray.value"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="grid">
-        <div class="grid gap-4">
-          <ProductReviewsList
-            :reviews-average="reviewsAverage"
-            :reviews-count="reviewsCount"
-            :reviews="productReviews"
-            :display-image-of="displayImageOf"
+    <div class="grid gap-4">
+      <h2 class="text-2xl font-semibold">
+        {{ $t('components.product.reviews.title') }}
+      </h2>
+      <div class="grid justify-start gap-4 md:flex md:items-center">
+        <div class="grid">
+          <Ordering
+            :ordering="String(ordering)"
+            :ordering-options="orderingOptions.orderingOptionsArray.value"
           />
-          <EmptyState
-            v-if="!pending && !productReviews?.length"
-            :icon="emptyIcon"
-          >
-            <template #actions>
-              <UButton
-                :label="$t('common.empty.button')"
-                :to="'index'"
-                color="white"
-              />
-            </template>
-          </EmptyState>
         </div>
       </div>
-    </template>
+    </div>
+    <div class="grid">
+      <div class="grid gap-4">
+        <ProductReviewsList
+          :reviews-average="reviewsAverage"
+          :reviews-count="reviewsCount"
+          :reviews="productReviews"
+          :display-image-of="displayImageOf"
+        />
+      </div>
+    </div>
   </div>
 </template>

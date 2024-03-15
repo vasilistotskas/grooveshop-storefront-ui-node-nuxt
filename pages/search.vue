@@ -7,7 +7,7 @@ const { results, storage, totalCount, productSearchItems, productHeadlines } =
   storeToRefs(searchStore)
 const { reset } = searchStore
 
-const route = useRoute()
+const route = useRoute('search___en')
 const router = useRouter()
 const { locale } = useI18n()
 const { cleanHtml } = useText()

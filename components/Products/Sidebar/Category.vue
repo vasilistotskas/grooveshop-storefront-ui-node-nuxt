@@ -83,11 +83,11 @@ const categoryImageSource = computed(() => {
       @click.prevent="() => emit('categoryClick', category)"
     >
       <div
-        class="flex h-[48px] w-[48px] items-center rounded-full bg-zinc-100 dark:bg-zinc-900"
+        class="flex h-[48px] w-[48px] items-center rounded-full bg-white dark:bg-zinc-800"
       >
         <ImgWithFallback
           provider="mediaStream"
-          class="h-auto w-full rounded-full bg-zinc-100 object-cover dark:bg-zinc-900"
+          class="h-auto w-full rounded-full bg-white object-cover dark:bg-zinc-800"
           :style="{ contentVisibility: 'auto' }"
           :src="categoryImageSource"
           :width="48"

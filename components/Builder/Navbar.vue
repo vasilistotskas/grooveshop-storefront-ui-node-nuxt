@@ -153,7 +153,7 @@ const environment = computed(() => config.public.environment)
         <Transition name="slide-fade-from-up" mode="out-in">
           <div
             v-if="showDrawer && $slots['drawer']"
-            class="fixed left-0 top-0 z-30 flex h-full w-screen flex-col bg-zinc-100 pt-[75px] dark:bg-zinc-800 md:pt-12 lg:sr-only"
+            class="fixed left-0 top-0 z-30 flex h-full w-screen flex-col bg-white pt-[75px] dark:bg-zinc-800 md:pt-12 lg:sr-only"
           >
             <div class="relative flex flex-1 flex-col overflow-y-auto">
               <slot name="drawer" :toggle-drawer="toggleDrawer" />

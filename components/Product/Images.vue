@@ -49,7 +49,7 @@ watch(
     :class="[productImages && productImages?.length > 1 ? 'gap-4' : '']"
   >
     <div
-      class="inline-table h-64 items-center justify-center justify-items-center rounded-lg bg-zinc-100 md:grid md:h-80"
+      class="grid items-center justify-center justify-items-center rounded-lg bg-white dark:bg-zinc-800 md:grid md:h-80"
     >
       <ProductImage
         :image="mainImage"
@@ -63,17 +63,17 @@ watch(
       v-if="productImages && productImages?.length > 1"
       v-slot="{ item }"
       :items="productImages"
-      :ui="{ item: 'basis-full md:basis-1/2 lg:basis-1/3' }"
+      :ui="{ item: 'basis-1/2 lg:basis-1/3', container: 'gap-2' }"
       class="overflow-hidden rounded-lg"
       arrows
     >
-      <div class="flex-1 px-2">
+      <div class="flex-1">
         <button
           :class="{
             'ring-2 ring-inset ring-indigo-300': selectedImageId === item.id,
           }"
           type="button"
-          class="flex w-full items-center justify-center rounded-lg bg-zinc-100 p-2 focus:outline-none md:h-32"
+          class="flex w-full items-center justify-center rounded-lg bg-white p-2 focus:outline-none dark:bg-zinc-800 md:h-32"
           :aria-label="`Select image ${item.id}`"
           @click="selectedImageId = item.id"
         >
