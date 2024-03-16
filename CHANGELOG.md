@@ -1,3 +1,10 @@
+# [1.68.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.5...v1.68.0) (2024-03-16)
+
+
+### Features
+
+* Bump Versions, remove redis cache for now, and registration form add messages ([dbcb9cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dbcb9cd672b33338ad2fd582249d04b72abe2c60))
+
 ## [1.67.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.67.4...v1.67.5) (2024-03-15)
 
 
