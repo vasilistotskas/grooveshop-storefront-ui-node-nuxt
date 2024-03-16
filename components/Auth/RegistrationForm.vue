@@ -5,6 +5,7 @@ const { fetch } = useUserSession()
 const { register } = useAuth()
 
 const { t } = useI18n()
+const toast = useToast()
 
 const ZodRegistration = z
   .object({
@@ -44,13 +45,35 @@ const [password2, password2Props] = defineField('password2', {
 const showPassword1 = ref(false)
 const showPassword2 = ref(false)
 
-const onSubmit = handleSubmit(async (values) => {
-  await register({
+const onSubmit = handleSubmit((values) => {
+  register({
     email: values.email,
     password1: values.password1,
     password2: values.password2,
   })
-  await fetch()
+    .then(async ({ data, error }) => {
+      if (error.value) {
+        throw error.value
+      }
+      toast.add({
+        title: data.value?.detail || t('common.auth.registration.success'),
+      })
+      await fetch()
+    })
+    .catch((error) => {
+      if (error.value) {
+        if (error.value?.data.data?.email) {
+          toast.add({
+            title: error.value?.data.data?.email[0],
+            color: 'red',
+          })
+        }
+        toast.add({
+          title: t('common.auth.registration.error'),
+          color: 'red',
+        })
+      }
+    })
 })
 </script>
 
