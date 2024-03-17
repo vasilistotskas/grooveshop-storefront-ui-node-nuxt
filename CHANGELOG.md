@@ -1,3 +1,10 @@
+## [1.70.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.70.1...v1.70.2) (2024-03-17)
+
+
+### Bug Fixes
+
+* revert nuxt version for now ([d02225e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d02225ed098027e18b84d1d39afd2cb5e1c0c702))
+
 ## [1.70.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.70.0...v1.70.1) (2024-03-17)
 
 
