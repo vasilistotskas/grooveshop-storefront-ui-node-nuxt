@@ -1,3 +1,10 @@
+## [1.70.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.70.0...v1.70.1) (2024-03-17)
+
+
+### Bug Fixes
+
+* remove routes from sw.ts ([0df6899](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0df68994a043649876877490385d9c5358bd0528))
+
 # [1.70.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.69.0...v1.70.0) (2024-03-17)
 
 
