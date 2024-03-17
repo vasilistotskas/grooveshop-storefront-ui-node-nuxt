@@ -8,8 +8,8 @@ import type { ImageLoading } from '~/types/global/general'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 324 },
-  imgHeight: { type: Number, required: false, default: 230 },
+  imgWidth: { type: Number, required: false, default: 400 },
+  imgHeight: { type: Number, required: false, default: 280 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -59,7 +59,7 @@ const startShare = () => share().catch((err) => err)
         <ImgWithFallback
           :loading="imgLoading"
           provider="mediaStream"
-          class="h-auto w-full bg-white object-cover"
+          class="h-auto w-full bg-white"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="src"
           :width="imgWidth"

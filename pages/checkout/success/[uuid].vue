@@ -74,17 +74,17 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col gap-4 md:gap-8">
+  <PageWrapper class="container flex flex-col gap-4 !p-0 md:gap-8">
     <PageTitle
       :text="$t('pages.checkout.success.title')"
       class="text-center capitalize"
     />
     <PageBody>
       <div
-        class="container-xxs rounded border border-gray-900/10 bg-white p-0 p-4 shadow-md dark:border-gray-50/[0.2] dark:bg-zinc-800 md:px-6"
+        class="container-xxs rounded border border-gray-900/10 bg-white !p-4 shadow-md dark:border-gray-50/[0.2] dark:bg-zinc-800 md:px-6"
       >
         <div
-          class="grid items-center justify-center justify-items-center gap-16"
+          class="grid items-center justify-center justify-items-center gap-8 md:gap-16"
         >
           <div
             class="grid items-center justify-center justify-items-center gap-4"

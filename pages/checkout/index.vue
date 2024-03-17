@@ -23,12 +23,13 @@ const { cleanCartState } = cartStore
 const { t, locale } = useI18n()
 const toast = useToast()
 
-const payWay = useState<PayWay | null>('selectedPayWay', () => null)
+const payWay = useState<PayWay | null>('selectedPayWay')
 
-const { data: countries } = await useLazyFetch('/api/countries', {
-  key: 'countries',
-  method: 'GET',
-})
+const { data: countries } = await useLazyAsyncData('countries', () =>
+  $fetch('/api/countries', {
+    method: 'GET',
+  }),
+)
 
 const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
@@ -90,6 +91,7 @@ const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } =
         })) || [],
       shippingPrice: shippingPrice.value,
       documentType: ZodDocumentTypeEnum.enum.RECEIPT,
+      payWay: payWay.value?.id || undefined,
     },
   })
 
@@ -139,14 +141,20 @@ const [region, regionProps] = defineField('region', {
   validateOnModelUpdate: true,
 })
 
-const { data: regions } = await useLazyFetch('/api/regions', {
-  key: 'regions',
-  method: 'GET',
-  query: {
-    country: country.value,
+const { data: regions } = await useLazyAsyncData(
+  'regions',
+  () =>
+    // @ts-ignore
+    $fetch('/api/regions', {
+      method: 'GET',
+      query: {
+        country: country.value,
+      },
+    }),
+  {
+    watch: [country],
   },
-  watch: [country],
-})
+)
 
 const onCountryChange = (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
@@ -202,7 +210,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col gap-4 md:gap-8">
+  <PageWrapper class="container flex flex-col gap-4 !p-0 md:gap-8">
     <PageBody>
       <form
         id="checkoutForm"
@@ -211,7 +219,7 @@ definePageMeta({
         @submit="onSubmit"
       >
         <div
-          class="container grid gap-4 rounded-lg bg-white p-6 text-white dark:bg-zinc-800 dark:text-black md:p-10"
+          class="container grid gap-4 rounded-lg bg-white !p-6 text-white dark:bg-zinc-800 dark:text-black md:p-10"
         >
           <div class="flex flex-col gap-4 md:grid md:grid-cols-2">
             <div class="grid">
@@ -606,7 +614,7 @@ definePageMeta({
         </div>
         <CheckoutSidebar
           :shipping-price="shippingPrice"
-          class="container rounded-lg bg-white p-6 text-white dark:bg-zinc-800 dark:text-black md:p-10"
+          class="container rounded-lg bg-white !p-6 text-white dark:bg-zinc-800 dark:text-black md:p-10"
         >
           <template #pay-ways>
             <CheckoutPayWays>

@@ -25,9 +25,7 @@ defineProps({
         }}
       </span>
     </div>
-    <ul
-      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-    >
+    <ul class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
       <template v-for="favourite in favourites" :key="favourite.id">
         <ProductCard
           v-if="!isEntityId(favourite.product)"

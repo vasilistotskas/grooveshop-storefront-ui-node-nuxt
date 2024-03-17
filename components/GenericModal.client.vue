@@ -388,7 +388,7 @@ $transitional-profile-1: all 0.2s ease-out;
 
         @media screen and (width <= 767px) {
           max-width: 100% !important;
-          padding: 0;
+          padding: 20px;
         }
       }
     }

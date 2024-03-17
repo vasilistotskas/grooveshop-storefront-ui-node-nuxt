@@ -269,7 +269,9 @@ definePageMeta({
                   <label for="counter-input" class="sr-only">{{
                     $t('pages.product.qty')
                   }}</label>
-                  <div class="relative flex items-center">
+                  <div
+                    class="relative flex items-center rounded-lg bg-white dark:bg-zinc-800"
+                  >
                     <UButton
                       id="decrement-button"
                       icon="i-heroicons-minus"
@@ -286,6 +288,8 @@ definePageMeta({
                       :min="1"
                       :max="productStock"
                       :aria-label="$t('pages.product.qty')"
+                      :aria-describedby="'increment-button decrement-button'"
+                      class="block w-full border-gray-300 bg-white p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     >
                     <UButton
                       id="increment-button"

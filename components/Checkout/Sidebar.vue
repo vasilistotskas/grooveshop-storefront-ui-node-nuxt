@@ -55,36 +55,6 @@ defineSlots<{
           <div class="flex gap-1">
             <div class="grid">
               <span class="text-primary-700 dark:text-primary-100">
-                {{ $t('components.checkout.sidebar.discount') }}:
-              </span>
-            </div>
-            <div class="grid">
-              <I18nN
-                tag="span"
-                class="text-primary-700 dark:text-primary-100 font-bold"
-                format="currency"
-                :value="cart.totalDiscountValue"
-              />
-            </div>
-          </div>
-          <div class="flex gap-1">
-            <div class="grid">
-              <span class="text-primary-700 dark:text-primary-100">
-                {{ $t('components.checkout.sidebar.vat') }}:
-              </span>
-            </div>
-            <div class="grid">
-              <I18nN
-                tag="span"
-                class="text-primary-700 dark:text-primary-100 font-bold"
-                format="currency"
-                :value="cart.totalVatValue"
-              />
-            </div>
-          </div>
-          <div class="flex gap-1">
-            <div class="grid">
-              <span class="text-primary-700 dark:text-primary-100">
                 {{ $t('components.checkout.sidebar.total') }}:
               </span>
             </div>
@@ -100,7 +70,7 @@ defineSlots<{
         </div>
       </div>
       <template #fallback>
-        <ClientOnlyFallback height="121px" width="416px" />
+        <ClientOnlyFallback height="72px" />
       </template>
     </ClientOnly>
     <slot name="button" />

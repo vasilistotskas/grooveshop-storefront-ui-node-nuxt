@@ -126,7 +126,7 @@ definePageMeta({
     <PageBody>
       <div
         v-focus
-        class="fixed left-0 top-0 z-20 grid w-full items-center gap-4 bg-zinc-50 p-[17px] dark:bg-zinc-800"
+        class="fixed left-0 top-0 z-20 grid w-full items-center gap-4 bg-zinc-50 p-[22px] dark:bg-zinc-800 md:p-[17px]"
       >
         <div class="flex w-full items-center gap-4">
           <Anchor
@@ -208,12 +208,12 @@ definePageMeta({
         </span>
       </PageTitle>
 
-      <div v-if="showResults" class="mt-20 min-h-screen">
-        <div v-if="showTotalCount" class="px-8 text-sm opacity-95">
+      <div v-if="showResults" class="min-h-screen md:mt-4">
+        <div v-if="showTotalCount" class="pb-2 text-sm opacity-95">
           {{ $t('common.items.count', totalCount) }}
         </div>
         <div
-          class="grid grid-cols-1 gap-4 p-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
           <SearchProductCard
             v-for="(item, index) of productSearchItems"

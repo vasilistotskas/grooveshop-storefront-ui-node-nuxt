@@ -113,19 +113,26 @@ defineField('isMain', {
   validateOnModelUpdate: true,
 })
 
-const { data: countries } = await useLazyFetch('/api/countries', {
-  key: 'countries',
-  method: 'GET',
-})
+const { data: countries } = await useLazyAsyncData('countries', () =>
+  $fetch('/api/countries', {
+    method: 'GET',
+  }),
+)
 
-const { data: regions } = await useLazyFetch('/api/regions', {
-  key: 'regions',
-  method: 'GET',
-  query: {
-    country: country.value,
+const { data: regions } = await useLazyAsyncData(
+  'regions',
+  () =>
+    // @ts-ignore
+    $fetch('/api/regions', {
+      method: 'GET',
+      query: {
+        country: country.value,
+      },
+    }),
+  {
+    watch: [country],
   },
-  watch: [country],
-})
+)
 
 const onCountryChange = (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
@@ -257,13 +264,13 @@ definePageMeta({
       <form
         v-if="address"
         id="AddressEditForm"
-        class="_form grid grid-cols-1 gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800 md:grid-cols-3"
+        class="flex flex-col gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800 md:grid md:grid-cols-3"
         name="AddressEditForm"
         :action="`/api/v1/user/addresses/${address.id}`"
         method="post"
         @submit="onSubmit"
       >
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="title"
@@ -286,7 +293,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.title }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="firstName"
@@ -309,7 +316,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.firstName }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="lastName"
@@ -332,7 +339,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.lastName }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="street"
@@ -355,7 +362,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.street }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="streetNumber"
@@ -380,7 +387,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.streetNumber }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="city"
@@ -403,7 +410,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.city }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="zipcode"
@@ -426,7 +433,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.zipcode }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="phone"
@@ -448,7 +455,7 @@ definePageMeta({
             class="relative px-4 py-3 text-sm text-red-600"
           >{{ errors.phone }}</span>
         </div>
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="mobilePhone"
@@ -473,7 +480,7 @@ definePageMeta({
           >{{ errors.mobilePhone }}</span>
         </div>
 
-        <div class="grid content-evenly items-start gap-2">
+        <div class="grid items-start gap-2 md:content-evenly">
           <div class="grid">
             <label
               class="text-primary-700 dark:text-primary-100 mb-2"
@@ -548,7 +555,7 @@ definePageMeta({
           </div>
         </div>
 
-        <div class="grid content-evenly items-start gap-2">
+        <div class="grid items-start gap-2 md:content-evenly">
           <div class="grid">
             <label
               class="text-primary-700 dark:text-primary-100 mb-2"
@@ -627,7 +634,7 @@ definePageMeta({
           </div>
         </div>
 
-        <div class="grid content-evenly items-start">
+        <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="notes"

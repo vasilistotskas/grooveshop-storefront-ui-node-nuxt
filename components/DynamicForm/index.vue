@@ -29,6 +29,7 @@
       :label="label"
       :name="name"
       v-bind="fields[name][1].value"
+      class="grid"
     >
       <label v-if="as === 'input'" :for="name" class="sr-only">{{
         label

@@ -58,7 +58,7 @@ const submit = async () => {
   >
     <div
       v-if="address.isMain"
-      class="absolute right-24 top-3 text-[#f0c14b] md:right-3"
+      class="absolute right-24 top-3 text-[#f0c14b] md:right-2 md:top-1"
     >
       <IconMdi:star />
     </div>
@@ -89,33 +89,62 @@ const submit = async () => {
         />
       </div>
     </div>
-    <div class="grid items-center justify-center gap-4">
-      <div class="grid h-64 w-full items-center gap-2 overflow-hidden">
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+    <div class="grid gap-2 md:items-center md:justify-center md:gap-4">
+      <div
+        class="grid w-full grid-cols-2 items-center gap-2 overflow-hidden md:h-64 md:grid-cols-1"
+      >
+        <span
+          v-if="address.firstName || address.lastName"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ address.firstName }} {{ address.lastName }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.street || address.streetNumber"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ address.street }} {{ address.streetNumber }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.city || address.zipcode"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ address.city }} {{ address.zipcode }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.country || address.region"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ address.country }} {{ address.region }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.floor"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ $t('common.floor') }}: {{ address.floor }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.locationType"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ $t('common.location_type') }}: {{ address.locationType }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.phone"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ $t('common.phone') }}: {{ address.phone }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.mobilePhone"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ $t('common.mobile_phone') }}: {{ address.mobilePhone }}
         </span>
-        <span class="text-primary-700 dark:text-primary-100 text-sm font-bold">
+        <span
+          v-if="address.notes"
+          class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+        >
           {{ $t('common.notes') }}: {{ address.notes }}
         </span>
       </div>

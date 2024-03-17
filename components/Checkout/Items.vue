@@ -15,14 +15,14 @@ const { locale } = useI18n()
     <ClientOnly>
       <div
         v-if="getCartItems?.length"
-        class="max-h-[185px] overflow-auto border-b border-t border-gray-200 py-4"
+        class="h-[185px] overflow-auto border-b border-t border-gray-200 py-4"
       >
         <div
           v-for="item in getCartItems"
           :key="item.id"
           class="grid gap-4 md:p-4"
         >
-          <div class="grid grid-cols-[1fr_auto_auto] gap-4">
+          <div class="grid grid-cols-[1fr_auto_auto_auto] gap-4">
             <div class="flex items-center">
               <Anchor
                 :title="extractTranslated(item.product, 'name', locale)"
@@ -34,6 +34,15 @@ const { locale } = useI18n()
                   {{ extractTranslated(item.product, 'name', locale) }}
                 </span>
               </Anchor>
+            </div>
+            <div class="flex items-center">
+              <I18nN
+                v-if="item.finalPrice"
+                tag="span"
+                class="text-primary-700 dark:text-primary-100 text-sm"
+                format="currency"
+                :value="item.finalPrice"
+              />
             </div>
             <div class="flex items-center">
               <span class="text-primary-700 dark:text-primary-100 text-sm">
@@ -57,7 +66,7 @@ const { locale } = useI18n()
         </div>
       </div>
       <template #fallback>
-        <ClientOnlyFallback height="185px" width="416px" />
+        <ClientOnlyFallback height="185px" />
       </template>
     </ClientOnly>
   </div>

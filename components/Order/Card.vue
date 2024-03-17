@@ -52,7 +52,9 @@ const { statusClass } = useOrder()
       </div>
     </div>
 
-    <div class="order-card-body grid gap-4 md:grid-cols-3 md:grid-rows-2">
+    <div
+      class="order-card-body grid grid-cols-2 items-center gap-2 md:grid-cols-3 md:grid-rows-2 md:gap-4"
+    >
       <div class="order-card-body-status flex items-center gap-2.5">
         <span :class="statusClass(order).color">
           {{ order.status }}

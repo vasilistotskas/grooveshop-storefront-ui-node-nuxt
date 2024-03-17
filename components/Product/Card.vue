@@ -11,7 +11,7 @@ const props = defineProps({
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },
-  imgWidth: { type: Number, required: false, default: 324 },
+  imgWidth: { type: Number, required: false, default: 410 },
   imgHeight: { type: Number, required: false, default: 230 },
   showVat: { type: Boolean, required: false, default: false },
   showStartPrice: { type: Boolean, required: false, default: false },
@@ -64,18 +64,18 @@ const userProductFavourite = computed(() => {
 </script>
 
 <template>
-  <li class="product-card">
+  <li class="product-card relative">
     <div
-      class="container rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black"
+      class="container rounded-lg bg-white text-white dark:bg-zinc-800 dark:text-black"
     >
-      <div class="grid gap-4">
+      <div class="grid gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
             <Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
               <ImgWithFallback
                 :loading="imgLoading"
                 provider="mediaStream"
-                class="bg-transparent bg-white object-cover"
+                class="bg-transparent bg-white"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
                 :src="src"
                 :width="imgWidth"
@@ -91,8 +91,8 @@ const userProductFavourite = computed(() => {
             </Anchor>
           </div>
         </div>
-        <div class="relative flex flex-1 flex-col justify-end gap-2">
-          <div class="flex justify-between gap-4">
+        <div class="flex flex-1 flex-col justify-end gap-2">
+          <div class="grid justify-between gap-2 md:flex md:gap-4">
             <h2 class="text-lg font-semibold leading-6">
               <Anchor
                 :to="`/product${product.absoluteUrl}`"
@@ -102,7 +102,9 @@ const userProductFavourite = computed(() => {
                 {{ extractTranslated(product, 'name', locale) }}
               </Anchor>
             </h2>
-            <div class="flex h-6 gap-4">
+            <div
+              class="absolute right-2 top-2 row-start-1 flex gap-1 md:relative md:gap-4"
+            >
               <ClientOnly>
                 <UButton
                   v-if="isSupported && showShareButton"
@@ -117,7 +119,7 @@ const userProductFavourite = computed(() => {
                   @click="startShare"
                 />
                 <template #fallback>
-                  <ClientOnlyFallback height="24px" width="40px" />
+                  <ClientOnlyFallback height="40px" width="40px" />
                 </template>
               </ClientOnly>
               <ButtonAddToFavourite

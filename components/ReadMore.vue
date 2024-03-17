@@ -27,7 +27,7 @@ const trimmedText = computed(() => {
 </script>
 
 <template>
-  <div v-if="text && text.length > maxChars" class="relative">
+  <div v-if="text && text.length > maxChars" class="relative flex flex-col">
     <div
       v-if="!showFullText"
       class="text-primary-700 dark:text-primary-100 overflow-hidden"
@@ -37,14 +37,13 @@ const trimmedText = computed(() => {
     <div v-else class="text-primary-700 dark:text-primary-100 overflow-hidden">
       <span v-html="text" />
     </div>
-    <div class="absolute bottom-0 right-0">
-      <button
-        type="button"
-        class="text-primary-700 dark:text-primary-100 hover:text-primary-800 dark:hover:text-primary-100 text-sm font-semibold"
+    <div class="bottom-0 right-0 grid justify-end">
+      <UButton
+        :label="showFullText ? $t('common.read_less') : $t('common.read_more')"
+        size="xs"
+        color="white"
         @click="toggleFullText"
-      >
-        {{ showFullText ? $t('common.read_less') : $t('common.read_more') }}
-      </button>
+      />
     </div>
   </div>
   <div v-else class="text-primary-700 dark:text-primary-100">

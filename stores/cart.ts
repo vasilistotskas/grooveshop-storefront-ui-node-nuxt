@@ -110,7 +110,7 @@ export const useCartStore = defineStore('cart', () => {
     cartItems: CartItem[],
   ) {
     const totalPrice = cartItems.reduce(
-      (acc, item) => acc + (item?.price ?? 0) * (item?.quantity ?? 0),
+      (acc, item) => acc + (item?.finalPrice ?? 0) * (item?.quantity ?? 0),
       0,
     )
     const totalDiscountValue = cartItems.reduce(
@@ -202,7 +202,9 @@ export const useCartStore = defineStore('cart', () => {
         cart: Date.now(),
         product: productData,
         price: body.product.price,
+        finalPrice: body.product.finalPrice,
         quantity: body.quantity,
+        totalPrice: body.product.finalPrice * body.quantity,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         uuid: uuidv4(),

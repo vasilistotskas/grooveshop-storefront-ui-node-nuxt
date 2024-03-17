@@ -2,7 +2,7 @@
 import { z } from 'zod'
 
 const { fetch } = useUserSession()
-const { register } = useAuth()
+const { register, registrationResendEmail } = useAuth()
 
 const { t } = useI18n()
 const toast = useToast()
@@ -61,17 +61,48 @@ const onSubmit = handleSubmit((values) => {
       await fetch()
     })
     .catch((error) => {
-      if (error.value) {
-        if (error.value?.data.data?.email) {
+      if (error) {
+        const actions = ref([
+          {
+            label: t('common.auth.registration.error.action1'),
+            click: () =>
+              email.value &&
+              registrationResendEmail({
+                email: email.value,
+              })
+                .then(() => {
+                  toast.add({
+                    title: t(
+                      'pages.auth.registration.account-confirm-email.resend.success.title',
+                    ),
+                  })
+                })
+                .catch((error) => {
+                  if (error) {
+                    toast.add({
+                      title:
+                        error.value?.message ??
+                        t(
+                          'pages.auth.registration.account-confirm-email.resend.error.title',
+                        ),
+                      color: 'red',
+                    })
+                  }
+                }),
+          },
+        ])
+        if (error.data.data?.error) {
           toast.add({
-            title: error.value?.data.data?.email[0],
+            description: error.data.data?.error,
+            color: 'red',
+            actions: actions.value,
+          })
+        } else if (error.data.data?.email) {
+          toast.add({
+            title: error.data.data?.email[0],
             color: 'red',
           })
         }
-        toast.add({
-          title: t('common.auth.registration.error'),
-          color: 'red',
-        })
       }
     })
 })
@@ -81,7 +112,7 @@ const onSubmit = handleSubmit((values) => {
   <section class="grid">
     <form
       id="RegistrationForm"
-      class="container-xs p-0 md:px-6"
+      class="container-xs !p-0 md:px-6"
       name="RegistrationForm"
       @submit.prevent="onSubmit"
     >
@@ -108,7 +139,6 @@ const onSubmit = handleSubmit((values) => {
               class="relative px-4 py-3 text-sm text-red-600"
             >{{ errors.email }}</span>
           </div>
-
           <div class="grid content-evenly items-start">
             <label
               class="text-primary-700 dark:text-primary-100"

@@ -6,17 +6,37 @@ import type { DynamicFormSchema } from '~/types/form'
 
 const { registrationVerifyEmail, registrationResendEmail } = useAuth()
 const { t } = useI18n()
+const toast = useToast()
 const route = useRoute('auth-registration-account-confirm-email-id___en')
 const id = route.params.id
 
-const data = await registrationVerifyEmail({
+const { data } = await registrationVerifyEmail({
   key: id,
 })
 
-async function onSubmit(values: RegistrationResendEmailBody) {
-  await registrationResendEmail({
+function onSubmit(values: RegistrationResendEmailBody) {
+  registrationResendEmail({
     email: values.email,
   })
+    .then(() => {
+      toast.add({
+        title: t(
+          'pages.auth.registration.account-confirm-email.resend.success.title',
+        ),
+      })
+    })
+    .catch((error) => {
+      if (error) {
+        toast.add({
+          title:
+            error.value?.message ??
+            t(
+              'pages.auth.registration.account-confirm-email.resend.error.title',
+            ),
+          color: 'red',
+        })
+      }
+    })
 }
 
 const formSchema: DynamicFormSchema = {

@@ -51,7 +51,7 @@ const alt = computed(() => {
     :height="height"
     :fit="'contain'"
     :position="'entropy'"
-    :background="'transparent'"
+    :background="'ffffff'"
     :trim-threshold="5"
     :sizes="`xs:${width}px sm:${width}px md:${
       width / 2

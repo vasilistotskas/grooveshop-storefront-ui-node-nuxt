@@ -537,7 +537,7 @@ pages:
         title: Confirm Email
         description: Confirm Email
         keywords: Confirm Email
-        loading: Sending confirmation email...
+        loading: Verifying your email...
         success:
           title: Email confirmed
           description: Your email has been confirmed, you can now login.

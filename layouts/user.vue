@@ -38,7 +38,7 @@ const route = useRoute()
         <div class="bg-white dark:bg-zinc-800 md:rounded-b-[94px]">
           <UserAccountInfo
             v-if="user"
-            class="container mx-auto w-full"
+            class="container mx-auto w-full !p-0"
             :account="user"
             :orders-count="orders?.length"
             :favourites-count="favouriteProducts?.length"

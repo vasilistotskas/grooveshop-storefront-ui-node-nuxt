@@ -84,19 +84,26 @@ const [birthDate] = defineField('birthDate')
 
 const date = ref(new Date())
 
-const { data: countries } = await useLazyFetch('/api/countries', {
-  key: 'countries',
-  method: 'GET',
-})
+const { data: countries } = await useLazyAsyncData('countries', () =>
+  $fetch('/api/countries', {
+    method: 'GET',
+  }),
+)
 
-const { data: regions } = await useLazyFetch('/api/regions', {
-  key: 'regions',
-  method: 'GET',
-  query: {
-    country: country.value,
+const { data: regions } = await useLazyAsyncData(
+  'regions',
+  () =>
+    // @ts-ignore
+    $fetch('/api/regions', {
+      method: 'GET',
+      query: {
+        country: country.value,
+      },
+    }),
+  {
+    watch: [country],
   },
-  watch: [country],
-})
+)
 
 const label = computed(() => {
   if (birthDate.value) {
@@ -172,7 +179,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col gap-4 md:gap-8">
+  <PageWrapper class="container flex flex-col gap-4 !p-0 md:gap-8">
     <PageHeader>
       <PageTitle :text="$t('pages.account.settings.title')" />
     </PageHeader>

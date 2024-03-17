@@ -114,7 +114,7 @@ defineProps({
     z-index: 20;
 
     @media screen and (width <= 767px) {
-      width: calc(100% - 16px);
+      width: 100%;
     }
 
     &-container {
@@ -129,7 +129,7 @@ defineProps({
         justify-items: center;
         align-items: center;
         justify-content: center;
-        padding-top: 3rem;
+        padding-top: 1rem;
         padding-bottom: 1rem;
         gap: 1rem;
       }
@@ -164,7 +164,7 @@ defineProps({
         &-link {
           display: flex;
           flex-direction: column;
-          padding: 1rem;
+          padding: 0.5rem;
           align-items: center;
           margin-left: 1rem;
 
@@ -181,6 +181,9 @@ defineProps({
 
     &-avatar {
       @media screen and (width <= 767px) {
+        display: grid;
+        width: 100%;
+        justify-content: start;
         grid-row: 1 / span 1;
         grid-column: 1 / span 1;
       }

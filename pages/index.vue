@@ -18,7 +18,7 @@ const secondarySliderItems = [
 </script>
 
 <template>
-  <div class="relative">
+  <div class="container-fluid relative !p-0">
     <PageBody>
       <PageSection>
         <UCarousel
@@ -31,7 +31,7 @@ const secondarySliderItems = [
           <a href="/">
             <NuxtPicture
               provider="mediaStream"
-              class="h-full w-full object-cover"
+              class="h-full w-full"
               :style="{ objectFit: 'contain' }"
               :src="item"
               :width="1920"
@@ -59,7 +59,7 @@ const secondarySliderItems = [
               <ImgWithFallback
                 loading="eager"
                 provider="mediaStream"
-                class="h-full w-full bg-white object-cover"
+                class="h-full w-full bg-white"
                 :style="{ objectFit: 'contain' }"
                 :src="item"
                 :width="1290"

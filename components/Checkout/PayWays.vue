@@ -16,14 +16,18 @@ defineSlots<{
 }>()
 
 const { t, locale } = useI18n()
-const payWay = useState<PayWay | null>('selectedPayWay', () => null)
 
 const emit = defineEmits(['update-model'])
 
-const { data: payWays, pending } = await useLazyAsyncData('payWays', () =>
+const { data: payWays, pending } = await useAsyncData('payWays', () =>
   $fetch('/api/pay-way', {
     method: 'GET',
   }),
+)
+
+const payWay = useState<PayWay | null>(
+  'selectedPayWay',
+  () => payWays.value?.results?.[0] || null,
 )
 
 const selectedPayWay = computed(() => {

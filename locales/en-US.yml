@@ -8,7 +8,9 @@ common:
       loading: Loading...
     registration:
       success: Registration successfully
-      error: Registration error
+      error:
+        title: Registration error
+        action1: Resend verification
   learn_more: learn more
   copy: copy
   enabled: enabled
