@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <Teleport to="#teleports">
+    <Teleport to="body">
       <iframe
         v-if="isCookieFunctionalEnabled"
         :cookie-enabled="null"

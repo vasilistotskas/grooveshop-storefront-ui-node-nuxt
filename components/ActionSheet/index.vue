@@ -27,7 +27,7 @@ watch(
 </script>
 
 <template>
-  <Teleport to="#teleports">
+  <Teleport to="body">
     <TransitionRoot :show="show" appear>
       <div>
         <ActionSheetOverlay @click="close" />

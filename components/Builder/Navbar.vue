@@ -148,7 +148,7 @@ const environment = computed(() => config.public.environment)
       </div>
     </div>
     <ClientOnly>
-      <Teleport to="#teleports">
+      <Teleport to="#app-after">
         <!-- drawer -->
         <Transition name="slide-fade-from-up" mode="out-in">
           <div
