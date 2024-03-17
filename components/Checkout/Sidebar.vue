@@ -1,10 +1,26 @@
 <script lang="ts" setup>
-defineProps({
+import type { PayWay } from '~/types/pay-way'
+
+const props = defineProps({
   shippingPrice: { type: Number, required: true },
 })
 
 const cartStore = useCartStore()
 const { cart, getCartItems } = storeToRefs(cartStore)
+const payWay = useState<PayWay | null>('selectedPayWay')
+
+const payWayCost = computed(() => {
+  if (!payWay?.value?.freeForOrderAmount) return 0
+  const cartTotal = cart.value?.totalPrice || 0
+  return cartTotal >= payWay?.value?.freeForOrderAmount
+    ? 0
+    : payWay?.value?.cost
+})
+
+const checkoutTotal = computed(() => {
+  if (!cart.value) return 0
+  return cart.value.totalPrice + props.shippingPrice + payWayCost.value
+})
 
 defineSlots<{
   'pay-ways'(props: {}): any
@@ -52,6 +68,21 @@ defineSlots<{
               />
             </div>
           </div>
+          <div v-if="payWayCost" class="flex gap-1">
+            <div class="grid">
+              <span class="text-primary-700 dark:text-primary-100">
+                {{ $t('components.checkout.sidebar.pay_way_fee') }}:
+              </span>
+            </div>
+            <div class="grid">
+              <I18nN
+                tag="span"
+                class="text-primary-700 dark:text-primary-100 font-bold"
+                format="currency"
+                :value="payWayCost"
+              />
+            </div>
+          </div>
           <div class="flex gap-1">
             <div class="grid">
               <span class="text-primary-700 dark:text-primary-100">
@@ -63,7 +94,7 @@ defineSlots<{
                 tag="span"
                 class="text-primary-700 dark:text-primary-100 font-bold"
                 format="currency"
-                :value="cart.totalPrice"
+                :value="checkoutTotal"
               />
             </div>
           </div>

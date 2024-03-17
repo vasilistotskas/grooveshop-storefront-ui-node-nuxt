@@ -47,7 +47,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   >
     <div class="grid">
       <div class="image">
-        <Anchor :to="`/product${cartItem.product.absoluteUrl}`" :title="alt">
+        <Anchor :to="`/products${cartItem.product.absoluteUrl}`" :title="alt">
           <ImgWithFallback
             loading="lazy"
             provider="mediaStream"
@@ -70,7 +70,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
     <div class="grid justify-items-center gap-2 md:grid-cols-5 md:gap-0">
       <div class="title">
         <h3 class="text-primary-700 dark:text-primary-100">
-          <Anchor :to="`/product${cartItem.product.absoluteUrl}`" :title="alt">
+          <Anchor :to="`/products${cartItem.product.absoluteUrl}`" :title="alt">
             {{ contentShorten(alt, 50) }}
           </Anchor>
         </h3>

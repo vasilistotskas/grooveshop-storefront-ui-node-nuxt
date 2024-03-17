@@ -83,10 +83,6 @@ export const getImage: ProviderGetImage = (
 
   const operations = operationsGenerator(mergeModifiers)
 
-  if (src.startsWith('/assets/images/')) {
-    src = src.replace('/assets/images/', '/nuxt/images/')
-  }
-
   const url = joinURL(baseURL, src, operations)
 
   return {

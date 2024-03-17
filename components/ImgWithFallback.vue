@@ -17,7 +17,7 @@ type Props = ExtractPropTypes<typeof baseImageProps> & {
 
 const props = withDefaults(defineProps<Props>(), {
   src: undefined,
-  fallback: '/assets/images/placeholder.png',
+  fallback: '/img/placeholder.png',
   quality: 100,
 })
 

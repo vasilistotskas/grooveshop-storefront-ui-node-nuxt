@@ -151,7 +151,9 @@ definePageMeta({
             >
               {{ blogPostTitle }}
             </h2>
-            <div class="grid w-full grid-cols-3 items-center gap-2 md:gap-4">
+            <div
+              class="grid w-full grid-cols-2 items-center gap-2 md:grid-cols-3 md:gap-4"
+            >
               <div
                 class="flex items-center justify-start border-r-2 border-gray-400 pr-2"
               >
@@ -188,45 +190,49 @@ definePageMeta({
                 </div>
               </div>
               <div
-                class="text-primary-700 dark:text-primary-100 grid h-full items-center justify-center border-r-2 border-gray-400 pr-2 text-sm"
+                class="text-primary-700 dark:text-primary-100 grid h-full items-center justify-center border-gray-400 pr-2 text-sm md:border-r-2"
               >
                 <NuxtTime :datetime="blogPost?.createdAt" />
               </div>
-              <div class="flex justify-end gap-4">
-                <UButton
-                  icon="i-heroicons-heart"
-                  size="lg"
-                  color="white"
-                  square
-                  variant="solid"
-                  class="justify-self-start font-extrabold capitalize"
-                  :label="String(blogPost.likesCount)"
-                />
-                <UButton
-                  icon="i-heroicons-chat-bubble-oval-left"
-                  size="lg"
-                  color="white"
-                  square
-                  variant="solid"
-                  class="justify-self-start font-extrabold capitalize"
-                  :label="String(blogPost.commentsCount)"
-                />
-                <ClientOnly>
+              <div
+                class="col-start-2 grid justify-items-end md:col-start-3 md:row-start-1"
+              >
+                <div class="flex flex-wrap justify-end gap-2 md:gap-4">
                   <UButton
-                    v-if="isSupported"
-                    :disabled="!isSupported"
-                    icon="i-heroicons-share"
+                    icon="i-heroicons-heart"
                     size="lg"
                     color="white"
                     square
                     variant="solid"
                     class="justify-self-start font-extrabold capitalize"
-                    @click="startShare"
+                    :label="String(blogPost.likesCount)"
                   />
-                  <template #fallback>
-                    <ClientOnlyFallback height="40px" width="40px" />
-                  </template>
-                </ClientOnly>
+                  <UButton
+                    icon="i-heroicons-chat-bubble-oval-left"
+                    size="lg"
+                    color="white"
+                    square
+                    variant="solid"
+                    class="justify-self-start font-extrabold capitalize"
+                    :label="String(blogPost.commentsCount)"
+                  />
+                  <ClientOnly>
+                    <UButton
+                      v-if="isSupported"
+                      :disabled="!isSupported"
+                      icon="i-heroicons-share"
+                      size="lg"
+                      color="white"
+                      square
+                      variant="solid"
+                      class="justify-self-start font-extrabold capitalize"
+                      @click="startShare"
+                    />
+                    <template #fallback>
+                      <ClientOnlyFallback height="40px" width="40px" />
+                    </template>
+                  </ClientOnly>
+                </div>
               </div>
             </div>
             <div class="w-full sm:mx-0">

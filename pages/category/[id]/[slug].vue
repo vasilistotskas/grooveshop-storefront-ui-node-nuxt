@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const route = useRoute('product-category-id-slug___en')
+const route = useRoute('category-id-slug___en')
 
 const categoryId = route.params.id
 

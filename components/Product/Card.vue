@@ -36,7 +36,7 @@ const { product } = toRefs(props)
 
 const productUrl = computed(() => {
   if (!props.product) return ''
-  return `/product/${product.value.id}/${product.value.slug}`
+  return `/products/${product.value.id}/${product.value.slug}`
 })
 
 const src = computed(() => {
@@ -71,7 +71,7 @@ const userProductFavourite = computed(() => {
       <div class="grid gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
-            <Anchor :to="`/product${product.absoluteUrl}`" :text="alt">
+            <Anchor :to="`/products${product.absoluteUrl}`" :text="alt">
               <ImgWithFallback
                 :loading="imgLoading"
                 provider="mediaStream"
@@ -95,7 +95,7 @@ const userProductFavourite = computed(() => {
           <div class="grid justify-between gap-2 md:flex md:gap-4">
             <h2 class="text-lg font-semibold leading-6">
               <Anchor
-                :to="`/product${product.absoluteUrl}`"
+                :to="`/products${product.absoluteUrl}`"
                 :text="alt"
                 class="text-primary-700 dark:text-primary-100"
               >

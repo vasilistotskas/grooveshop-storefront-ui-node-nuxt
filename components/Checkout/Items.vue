@@ -26,7 +26,7 @@ const { locale } = useI18n()
             <div class="flex items-center">
               <Anchor
                 :title="extractTranslated(item.product, 'name', locale)"
-                :to="`/product${item.product.absoluteUrl}`"
+                :to="`/products${item.product.absoluteUrl}`"
               >
                 <span
                   class="text-primary-700 dark:text-primary-100 text-sm font-bold"

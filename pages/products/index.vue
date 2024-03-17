@@ -26,8 +26,8 @@ definePageMeta({
 <template>
   <PageWrapper class="container-fluid flex flex-col">
     <PageBody>
-      <div class="container">
-        <UBreadcrumb :links="links" class="mb-5 md:pl-[2.6rem]" />
+      <div class="container !p-0">
+        <UBreadcrumb :links="links" class="mb-5 md:pl-[3.5rem]" />
       </div>
       <div class="flex gap-4">
         <ProductsSidebar />

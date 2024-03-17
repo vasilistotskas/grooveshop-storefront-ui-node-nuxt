@@ -2,7 +2,6 @@ import type { ModuleOptions } from '@nuxt/image'
 
 export const image = {
   dir: 'public',
-  staticFilename: '[publicPath]/assets/images/[name]-[hash][ext]',
   providers: {
     mediaStream: {
       name: 'mediaStream',

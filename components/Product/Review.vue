@@ -49,24 +49,19 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const toast = useToast()
 
-const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const expand = computed(() => 'true')
-const status = computed(() => 'TRUE')
 
-const { refresh } = await useLazyAsyncData(
-  `productReviews${product.value?.id}`,
-  () =>
-    $fetch('/api/products/reviews', {
-      method: 'GET',
-      query: {
-        productId: product.value?.id,
-        page: page.value,
-        ordering: ordering.value,
-        expand: expand.value,
-        status: status.value,
-      },
-    }),
+const { refresh } = await useFetch(
+  `/api/products/${product.value?.id}/reviews`,
+  {
+    key: `productReviews${product.value?.id}`,
+    method: 'GET',
+    query: {
+      ordering: ordering.value,
+      expand,
+    },
+  },
 )
 
 const editingLocked = ref(false)

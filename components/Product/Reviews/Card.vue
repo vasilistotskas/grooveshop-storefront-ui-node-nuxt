@@ -74,7 +74,7 @@ const reviewComment = computed(() => {
             v-if="displayImageOf === 'product' && product"
             class="grid gap-2"
           >
-            <Anchor :to="`/product${product.absoluteUrl}`" :text="productName">
+            <Anchor :to="`/products${product.absoluteUrl}`" :text="productName">
               <ImgWithFallback
                 loading="lazy"
                 provider="mediaStream"
@@ -89,7 +89,7 @@ const reviewComment = computed(() => {
         <div class="grid gap-4 text-2xl">
           <Anchor
             v-if="displayImageOf === 'product' && product"
-            :to="`/product${product.absoluteUrl}`"
+            :to="`/products${product.absoluteUrl}`"
             :text="productName"
           >
             <span class="text-lg font-medium">{{ productName }}</span>

@@ -192,6 +192,7 @@ components:
       discount: Discount
       vat: VAT
       total: Total
+      pay_way_fee: Pay Way Fee
     pay_ways:
       title: Choose the payment method
       label: Pay Way

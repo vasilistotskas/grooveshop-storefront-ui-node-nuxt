@@ -3,17 +3,13 @@ definePageMeta({
   layout: 'default',
 })
 
-const mainSliderItems = [
-  '/assets/images/black.png',
-  '/assets/images/black.png',
-  '/assets/images/black.png',
-]
+const mainSliderItems = ['/img/black.png', '/img/black.png', '/img/black.png']
 
 const secondarySliderItems = [
-  '/assets/images/black.png',
-  '/assets/images/white.png',
-  '/assets/images/black.png',
-  '/assets/images/white.png',
+  '/img/black.png',
+  '/img/white.png',
+  '/img/black.png',
+  '/img/white.png',
 ]
 </script>
 

@@ -28,7 +28,7 @@ const alt = computed(() => {
 <template>
   <UCard class="bg-white dark:bg-zinc-800">
     <Anchor
-      :to="`/product${item.absoluteUrl}`"
+      :to="`/products${item.absoluteUrl}`"
       class="pb-2"
       :text="extractTranslated(item, 'name', locale)"
     >

@@ -236,7 +236,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport to="#teleports">
     <div
       :class="`cp-utilities-generic-modal-wrapper ${
         isModalCurrentlyOpen ? 'open' : 'closed'

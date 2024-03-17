@@ -11,7 +11,7 @@ const { user, loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { getUserProductFavourite } = userStore
 
-const route = useRoute('product-id-slug___en')
+const route = useRoute('products-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
 const toast = useToast()
@@ -80,7 +80,7 @@ const decrementQuantity = () => {
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value),
   text: extractTranslated(product.value, 'description', locale.value) || '',
-  url: isClient ? `/product/${product.value?.id}/${product.value?.slug}` : '',
+  url: isClient ? `/products/${product.value?.id}/${product.value?.slug}` : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
@@ -123,8 +123,8 @@ const links = [
   {
     to:
       locale.value === config.public.defaultLocale
-        ? `/product/${productId}/${product.value?.slug}`
-        : `/${locale.value}/product/${productId}/${product.value?.slug}`,
+        ? `/products/${productId}/${product.value?.slug}`
+        : `/${locale.value}/products/${productId}/${product.value?.slug}`,
     label: productTitle.value,
   },
 ]

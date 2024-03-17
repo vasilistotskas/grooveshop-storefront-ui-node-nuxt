@@ -43,7 +43,7 @@ export const runtimeConfig = {
       process.env.NUXT_PUBLIC_APP_DESCRIPTION || 'GrooveShop Description',
     appImage:
       process.env.NUXT_PUBLIC_APP_IMAGE ||
-      'https://grooveshop.site/assets/images/websiteLogo.png',
+      'https://grooveshop.site/img/websiteLogo.png',
     domainName: process.env.NUXT_PUBLIC_DOMAIN_NAME || 'grooveshop.site',
     canonicalUrl:
       process.env.NUXT_PUBLIC_CANONICAL_URL || 'https://grooveshop.site',

@@ -82,7 +82,7 @@ definePageMeta({
                 :alt="extractTranslated(item.product, 'name', locale)"
               />
               <Anchor
-                :to="`/product${item.product.absoluteUrl}`"
+                :to="`/products${item.product.absoluteUrl}`"
                 :title="extractTranslated(item.product, 'name', locale)"
                 css-class="w-full"
               >
