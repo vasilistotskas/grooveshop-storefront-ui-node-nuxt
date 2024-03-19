@@ -1,3 +1,10 @@
+# [1.72.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.71.1...v1.72.0) (2024-03-19)
+
+
+### Features
+
+* use default nuxt lint and ui improvements ([3152c5a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3152c5ade2fc67771b0279e21f24a17f43dda8fa))
+
 ## [1.71.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.71.0...v1.71.1) (2024-03-19)
 
 
