@@ -1,3 +1,10 @@
+## [1.71.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.71.0...v1.71.1) (2024-03-19)
+
+
+### Bug Fixes
+
+* prerender home route and route-rules adds ([77c7ca6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/77c7ca60f31d850b71fa6f175ee8bc922553cd18))
+
 # [1.71.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.70.2...v1.71.0) (2024-03-19)
 
 
