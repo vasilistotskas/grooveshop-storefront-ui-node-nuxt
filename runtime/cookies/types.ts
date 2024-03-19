@@ -23,9 +23,7 @@ export interface ModuleOptions {
     necessary: Cookie[]
     optional: Cookie[]
   }
-  cookieOptions:
-    | (CookieOptions<any> & { readonly?: false | undefined })
-    | undefined
+  cookieOptions: (CookieOptions & { readonly?: false | undefined }) | undefined
   isAcceptNecessaryButtonEnabled: boolean
   isControlButtonEnabled: boolean
   isCookieIdVisible: boolean

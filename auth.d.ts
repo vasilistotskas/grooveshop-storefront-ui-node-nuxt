@@ -4,7 +4,6 @@ declare module '#auth-utils' {
 	interface User extends UserAccount {}
 
 	interface UserSession {
-		extended?: any
 		user?: User | null
 		token?: string | null
 		tokenExpiration?: string | null

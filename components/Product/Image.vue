@@ -12,11 +12,11 @@ const props = defineProps({
   },
   width: {
     type: Number,
-    default: 572,
+    default: 604,
   },
   height: {
     type: Number,
-    default: 320,
+    default: 319,
   },
   imgLoading: {
     type: String as PropType<ImageLoading>,

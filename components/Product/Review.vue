@@ -141,7 +141,7 @@ const reviewScoreText = computed(() => {
   ]
   if (
     liveReviewCountRatio.value < 0.01 ||
-    (newSelectionRatio === null &&
+    (newSelectionRatio.value === null &&
       (reviewCount.value === null || userProductReview?.value?.rate === 0))
   ) {
     return ''
@@ -155,6 +155,7 @@ const reviewScoreText = computed(() => {
   if (breakpoints.length > 0) {
     return breakpoints[0].value
   }
+  return ''
 })
 
 const useTimes = (n: number, iteratee: (i: number) => string) => {

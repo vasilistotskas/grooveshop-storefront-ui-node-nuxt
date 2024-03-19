@@ -28,6 +28,7 @@ import { typescript } from './config/typescript'
 import { veeValidate } from './config/vee-validate'
 import { vite } from './config/vite'
 import { vue } from './config/vue'
+import { eslint } from './config/eslint'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
@@ -55,6 +56,7 @@ export default defineNuxtConfig({
 	piniaPersistedstate,
 	vite,
 	nitro,
+  eslint,
 	app,
 	image,
 	pwa,

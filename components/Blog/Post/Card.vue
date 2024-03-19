@@ -52,7 +52,7 @@ const startShare = () => share().catch((err) => err)
 
 <template>
   <li
-    class="container grid w-full gap-4 rounded-lg bg-white p-5 text-white dark:bg-zinc-800 dark:text-black"
+    class="container grid w-full gap-4 rounded-lg bg-white !p-5 text-white dark:bg-zinc-800 dark:text-black"
   >
     <div class="mb-3 md:mb-6">
       <Anchor :to="`/blog/post${post.absoluteUrl}`" :text="alt">
@@ -68,7 +68,7 @@ const startShare = () => share().catch((err) => err)
           :position="'entropy'"
           :background="'transparent'"
           :trim-threshold="5"
-          sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:324px 2xl:324px`"
+          sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:400px 2xl:400px`"
           :alt="alt"
           densities="x1"
         />

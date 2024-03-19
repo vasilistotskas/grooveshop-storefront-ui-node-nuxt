@@ -53,7 +53,7 @@ export default function () {
    * Login via oauth provider
    */
   function loginWithProvider(provider: string): void {
-    if (process.client) {
+    if (import.meta.client) {
       const route = useRoute()
 
       // The protected page the user has visited before redirect to login page

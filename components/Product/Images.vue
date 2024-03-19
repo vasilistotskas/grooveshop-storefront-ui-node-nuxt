@@ -51,12 +51,7 @@ watch(
     <div
       class="grid items-center justify-center justify-items-center rounded-lg bg-white dark:bg-zinc-800 md:grid md:h-80"
     >
-      <ProductImage
-        :image="mainImage"
-        :width="572"
-        :height="320"
-        img-loading="eager"
-      />
+      <ProductImage :image="mainImage" img-loading="eager" />
     </div>
 
     <UCarousel

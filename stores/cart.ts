@@ -56,7 +56,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   function fetchCartFromLocalStorage() {
-    if (process.client) {
+    if (import.meta.client) {
       const cartFromLocalStorage = storage.value
       if (!cartFromLocalStorage) {
         storage.value = {
@@ -78,7 +78,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function fetchCart() {
-    if (process.prerender) {
+    if (import.meta.prerender) {
       return
     }
 
@@ -163,7 +163,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function createCartItem(body: CartItemAddBody) {
-    if (process.prerender) {
+    if (import.meta.prerender) {
       return
     }
     if (!loggedIn.value) {
@@ -255,7 +255,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function updateCartItem(id: number, body: CartItemPutBody) {
-    if (process.prerender) {
+    if (import.meta.prerender) {
       return
     }
 
@@ -300,7 +300,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function deleteCartItem(id: number) {
-    if (process.prerender) {
+    if (import.meta.prerender) {
       return
     }
 

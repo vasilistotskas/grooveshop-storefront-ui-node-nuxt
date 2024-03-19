@@ -166,7 +166,7 @@ export type TokenRefreshBody = {
   refresh: string
 }
 
-export type TokenVerifyResponse = {}
+export type TokenVerifyResponse = object
 
 export type TokenRefreshResponse = {
   access: string
@@ -236,13 +236,13 @@ export type MfaTotpActivateGetResponse = {
   secret: string
 }
 
-export type MfaTotpDeactivateBody = {}
+export type MfaTotpDeactivateBody = object
 
 export type MfaTotpDeactivateResponse = {
   success: boolean
 }
 
-export type MfaRecoveryCodesGenerateBody = {}
+export type MfaRecoveryCodesGenerateBody = object
 
 export type MfaRecoveryCodesGenerateResponse = {
   codes: string[]

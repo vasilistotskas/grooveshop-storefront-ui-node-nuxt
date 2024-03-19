@@ -36,7 +36,7 @@ const {
   pending,
   refresh,
 } = await useFetch(`/api/blog/posts/${blogPostId.value}/comments`, {
-  key: `blogPostComments${blogPostId}`,
+  key: `blogPostComments${blogPostId.value}`,
   method: 'GET',
   query: {
     ordering: ordering.value,

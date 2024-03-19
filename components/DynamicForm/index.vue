@@ -145,7 +145,7 @@ const {
   disableSubmitUntilValid,
 } = toRefs(props)
 
-const finalID = id ?? useId()
+const finalID = id.value ?? useId()
 const currentStep = ref(0)
 const isMultiStep =
   Array.isArray(schema.value.steps) && schema.value.steps.length > 0

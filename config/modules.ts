@@ -1,6 +1,7 @@
 export const modules = [
   '@nuxt/image',
   '@nuxt/ui',
+  '@nuxt/eslint',
   '@nuxt/test-utils/module',
   '@nuxtjs/i18n',
   '@nuxtjs/tailwindcss',

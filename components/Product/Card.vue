@@ -84,7 +84,7 @@ const userProductFavourite = computed(() => {
                 :position="'entropy'"
                 :background="'transparent'"
                 :trim-threshold="5"
-                sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:324px 2xl:324px`"
+                sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:410px 2xl:410px`"
                 :alt="alt"
                 densities="x1"
               />
