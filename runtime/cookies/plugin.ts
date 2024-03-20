@@ -1,7 +1,7 @@
 import type { Plugin } from '#app'
 import moduleOptions from '#build/cookie-control-options'
-import { getAllCookieIdsString, getCookieId } from './methods'
-import type { Cookie, State } from './types'
+import { getAllCookieIdsString } from './methods'
+import { type Cookie, COOKIE_ID_SEPARATOR, type State } from './types'
 
 const plugin: Plugin<{ cookies: State }> = defineNuxtPlugin(() => {
   const cookieIsConsentGiven = useCookie(
@@ -11,7 +11,7 @@ const plugin: Plugin<{ cookies: State }> = defineNuxtPlugin(() => {
   const cookieCookiesEnabledIds = useCookie(
     moduleOptions.cookieNameCookiesEnabledIds,
     moduleOptions.cookieOptions,
-  ).value?.split('|')
+  ).value?.split(COOKIE_ID_SEPARATOR)
 
   const isConsentGiven = ref<boolean | undefined>(
     cookieIsConsentGiven === undefined
@@ -23,10 +23,10 @@ const plugin: Plugin<{ cookies: State }> = defineNuxtPlugin(() => {
       ? undefined
       : [
           ...moduleOptions.cookies.necessary.filter((cookieNecessary: Cookie) =>
-            cookieCookiesEnabledIds.includes(getCookieId(cookieNecessary)),
+            cookieCookiesEnabledIds.includes(cookieNecessary.id),
           ),
           ...moduleOptions.cookies.optional.filter((cookieOptional: Cookie) =>
-            cookieCookiesEnabledIds.includes(getCookieId(cookieOptional)),
+            cookieCookiesEnabledIds.includes(cookieOptional.id),
           ),
         ],
   )

@@ -24,6 +24,11 @@ const props = defineProps({
     default: undefined,
     validator: (value: string) => ['lazy', 'eager'].includes(value),
   },
+  sizes: {
+    type: String,
+    required: false,
+    default: 'xs:604px sm:562px md:349px lg:461px xl:589px xxl:300px 2xl:604px',
+  },
 })
 
 const { locale } = useI18n()
@@ -44,7 +49,7 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <NuxtPicture
+  <ImgWithFallback
     :loading="imgLoading"
     provider="mediaStream"
     :width="width"
@@ -53,9 +58,7 @@ const alt = computed(() => {
     :position="'entropy'"
     :background="'ffffff'"
     :trim-threshold="5"
-    :sizes="`xs:${width}px sm:${width}px md:${
-      width / 2
-    }px lg:${width}px xl:${width}px xxl:${width}px 2xl:${width}px`"
+    :sizes="sizes"
     :src="src"
     :alt="alt"
     densities="x1"

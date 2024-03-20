@@ -87,7 +87,7 @@ const categoryImageSource = computed(() => {
       >
         <ImgWithFallback
           provider="mediaStream"
-          class="h-auto w-full rounded-full bg-white object-cover dark:bg-zinc-800"
+          class="rounded-full bg-white object-cover dark:bg-zinc-800"
           :style="{ contentVisibility: 'auto' }"
           :src="categoryImageSource"
           :width="48"

@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import {
   getAllCookieIdsString,
-  getCookieId,
   getCookieIds,
   removeCookie,
 } from '#cookie-control/methods'
-import type { Cookie } from '#cookie-control/types'
+import { type Cookie, COOKIE_ID_SEPARATOR } from '#cookie-control/types'
 import { ZodCookieTypeEnum } from '#cookie-control/types'
 import 'assets/sass/_cookies.scss'
 
@@ -44,7 +43,8 @@ const isSaved = computed(
   () =>
     getCookieIds(cookiesEnabled.value || [])
       .sort()
-      .join('|') !== getCookieIds(localCookiesEnabled.value).sort().join('|'),
+      .join(COOKIE_ID_SEPARATOR) !==
+    getCookieIds(localCookiesEnabled.value).sort().join(COOKIE_ID_SEPARATOR),
 )
 
 // methods
@@ -62,7 +62,7 @@ const acceptPartial = () => {
     cookiesOptionalEnabled: [
       ...moduleOptions.cookies.necessary,
       ...moduleOptions.cookies.optional,
-    ].filter((cookie) => localCookiesEnabledIds.includes(getCookieId(cookie))),
+    ].filter((cookie) => localCookiesEnabledIds.includes(cookie.id)),
   })
 }
 const decline = () => {
@@ -130,9 +130,7 @@ const toggleButton = ($event: MouseEvent) => {
 }
 
 const toggleCookie = (cookie: Cookie) => {
-  const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(
-    getCookieId(cookie),
-  )
+  const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(cookie.id)
   if (cookieIndex < 0) {
     localCookiesEnabled.value.push(cookie)
   } else {
@@ -159,7 +157,9 @@ watch(
     localCookiesEnabled.value = [...(current || [])]
 
     if (isConsentGiven.value) {
-      cookieCookiesEnabledIds.value = getCookieIds(current || []).join('|')
+      cookieCookiesEnabledIds.value = getCookieIds(current || []).join(
+        COOKIE_ID_SEPARATOR,
+      )
 
       for (const cookieEnabled of current || []) {
         if (!cookieEnabled.src) continue
@@ -323,7 +323,7 @@ defineExpose({
                       <input
                         v-if="
                           cookieType === ZodCookieTypeEnum.enum.necessary &&
-                            cookie.name !== 'functional'
+                          cookie.name !== 'functional'
                         "
                         :id="cookie.name"
                         :name="cookie.name"
@@ -337,9 +337,7 @@ defineExpose({
                         :id="cookie.name"
                         type="checkbox"
                         :checked="
-                          getCookieIds(localCookiesEnabled).includes(
-                            getCookieId(cookie),
-                          )
+                          getCookieIds(localCookiesEnabled).includes(cookie.id)
                         "
                         @change="toggleCookie(cookie)"
                       >
@@ -357,15 +355,15 @@ defineExpose({
                         <span
                           v-if="
                             moduleOptions.isCookieIdVisible &&
-                              cookie.targetCookieIds
+                            cookie.targetCookieIds
                           "
                         >
                           <br>
                           {{
                             'IDs: ' +
-                              cookie.targetCookieIds
-                                .map((id: string) => `"${id}"`)
-                                .join(', ')
+                            cookie.targetCookieIds
+                              .map((id) => `"${id}"`)
+                              .join(', ')
                           }}
                         </span>
                         <template

@@ -64,7 +64,7 @@ const reviewComment = computed(() => {
     <div
       class="grid items-center justify-center justify-items-center gap-2 md:grid-cols-3 md:justify-between md:gap-14"
     >
-      <div class="flex items-center gap-6">
+      <div class="flex w-full items-center gap-2 md:gap-6">
         <div class="h-auto w-auto">
           <UserAvatar
             v-if="userAccount && displayImageOf === 'user'"
@@ -79,9 +79,9 @@ const reviewComment = computed(() => {
                 loading="lazy"
                 provider="mediaStream"
                 class="product-img w-30 h-20 bg-white object-cover"
-                sizes="sm:100vw md:50vw lg:auto"
                 :src="src"
                 :alt="alt"
+                densities="x1"
               />
             </Anchor>
           </div>

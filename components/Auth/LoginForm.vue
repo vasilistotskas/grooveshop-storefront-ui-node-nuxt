@@ -89,9 +89,9 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
       :spinner="
         loading
           ? {
-            enabled: true,
-            fontSize: '5rem',
-          }
+              enabled: true,
+              fontSize: '5rem',
+            }
           : undefined
       "
       :modal="loading"
@@ -120,14 +120,14 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
             <span
               v-if="errors.email"
               class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.email }}</span>
+              >{{ errors.email }}</span>
           </div>
 
           <div class="grid content-evenly items-start">
             <label
               class="text-primary-700 dark:text-primary-100"
               for="password"
-            >{{ $t('pages.auth.login.form.password.label') }}</label>
+              >{{ $t('pages.auth.login.form.password.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password"
@@ -152,7 +152,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
             <span
               v-if="errors.password"
               class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.password }}</span>
+              >{{ errors.password }}</span>
           </div>
 
           <div class="flex items-center justify-between">

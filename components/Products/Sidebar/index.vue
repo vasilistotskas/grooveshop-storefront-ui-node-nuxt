@@ -45,6 +45,7 @@ onMounted(() => {
 
 <template>
   <aside
+    v-if="categories && categories.count > 0"
     ref="sidebar"
     class="sidebar relative hidden h-fit w-60 transition-all duration-300 ease-in-out lg:flex"
   >

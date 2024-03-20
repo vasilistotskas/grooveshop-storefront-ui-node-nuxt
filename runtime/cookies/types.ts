@@ -4,10 +4,11 @@ import { z } from 'zod'
 import type { CookieOptions } from '#app'
 
 export const ZodCookieTypeEnum = z.enum(['necessary', 'optional'])
+export const COOKIE_ID_SEPARATOR = '~'
 
 export interface Cookie {
   description?: string
-  id?: string
+  id: string
   name: string
   links?: Record<string, string | null>
   src?: string | string[]
@@ -45,6 +46,8 @@ export const DEFAULTS: Required<ModuleOptions> = {
   cookieOptions: {
     path: '/',
     readonly: false,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'development' ? undefined : true,
   },
   isAcceptNecessaryButtonEnabled: true,
   isControlButtonEnabled: true,

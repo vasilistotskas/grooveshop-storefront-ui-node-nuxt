@@ -11,8 +11,8 @@ const props = defineProps({
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },
-  imgWidth: { type: Number, required: false, default: 410 },
-  imgHeight: { type: Number, required: false, default: 230 },
+  imgWidth: { type: Number, required: false, default: 580 },
+  imgHeight: { type: Number, required: false, default: 325 },
   showVat: { type: Boolean, required: false, default: false },
   showStartPrice: { type: Boolean, required: false, default: false },
   showDescription: { type: Boolean, required: false, default: false },
@@ -68,7 +68,7 @@ const userProductFavourite = computed(() => {
     <div
       class="container rounded-lg bg-white text-white dark:bg-zinc-800 dark:text-black"
     >
-      <div class="grid gap-4 py-5">
+      <div class="flex flex-col gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
             <Anchor :to="`/products${product.absoluteUrl}`" :text="alt">
@@ -84,7 +84,7 @@ const userProductFavourite = computed(() => {
                 :position="'entropy'"
                 :background="'transparent'"
                 :trim-threshold="5"
-                sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:410px 2xl:410px`"
+                sizes="`xs:580px sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px`"
                 :alt="alt"
                 densities="x1"
               />

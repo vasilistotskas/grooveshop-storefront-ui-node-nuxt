@@ -173,8 +173,8 @@ definePageMeta({
                     :src="blogPostAuthorUserImgSrc"
                     :alt="
                       blogPostAuthorUser?.firstName +
-                        ' ' +
-                        blogPostAuthorUser?.lastName
+                      ' ' +
+                      blogPostAuthorUser?.lastName
                     "
                     densities="x1"
                   />
@@ -184,8 +184,8 @@ definePageMeta({
                 >
                   {{
                     blogPostAuthorUser?.firstName +
-                      ' ' +
-                      blogPostAuthorUser?.lastName
+                    ' ' +
+                    blogPostAuthorUser?.lastName
                   }}
                 </div>
               </div>
@@ -264,8 +264,8 @@ definePageMeta({
               >
                 <li v-for="tag in blogPostTags" :key="tag?.id">
                   <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
-                    extractTranslated(tag, 'name', locale)
-                  }}</span>
+                      extractTranslated(tag, 'name', locale)
+                    }}</span>
                 </li>
               </ul>
             </div>

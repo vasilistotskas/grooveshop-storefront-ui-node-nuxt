@@ -39,7 +39,6 @@ const alt = computed(() => {
       :position="'entropy'"
       :background="'transparent'"
       :trim-threshold="5"
-      sizes="`sm:100vw md:50vw lg:auto`"
       :src="src"
       :alt="alt"
     />

@@ -3,13 +3,17 @@ definePageMeta({
   layout: 'default',
 })
 
-const mainSliderItems = ['/img/black.png', '/img/black.png', '/img/black.png']
+const mainSliderItems = [
+  { src: '/img/black.png', loading: 'eager' },
+  { src: '/img/white.jpg', loading: 'lazy' },
+  { src: '/img/black.png', loading: 'lazy' },
+]
 
 const secondarySliderItems = [
-  '/img/black.png',
-  '/img/white.png',
-  '/img/black.png',
-  '/img/white.png',
+  { src: '/img/black.png', loading: 'eager' },
+  { src: '/img/white.jpg', loading: 'lazy' },
+  { src: '/img/black.png', loading: 'lazy' },
+  { src: '/img/white.jpg', loading: 'lazy' },
 ]
 </script>
 
@@ -20,16 +24,21 @@ const secondarySliderItems = [
         <UCarousel
           v-slot="{ item }"
           :items="mainSliderItems"
-          :ui="{ item: 'basis-full' }"
           class="overflow-hidden rounded-lg"
+          :ui="{
+            indicators: {
+              inactive: 'mix-blend-difference',
+            },
+          }"
           arrows
+          indicators
         >
           <a href="/">
-            <NuxtPicture
+            <ImgWithFallback
               provider="mediaStream"
               class="h-full w-full"
               :style="{ objectFit: 'contain' }"
-              :src="item"
+              :src="item.src"
               :width="1920"
               :height="640"
               :fit="'cover'"
@@ -38,6 +47,9 @@ const secondarySliderItems = [
               :trim-threshold="5"
               :format="'webp'"
               :alt="'Main Banner'"
+              sizes="sm:100vw md:100vw lg:100vw xl:100vw xxl:100vw 2xl:100vw"
+              densities="x1"
+              :loading="item.loading"
             />
           </a>
         </UCarousel>
@@ -47,17 +59,23 @@ const secondarySliderItems = [
           <UCarousel
             v-slot="{ item }"
             :items="secondarySliderItems"
-            :ui="{ item: 'basis-full' }"
+            :ui="{
+              item: 'basis-full',
+              indicators: {
+                inactive: 'mix-blend-difference',
+              },
+            }"
             class="overflow-hidden rounded-lg"
             arrows
+            indicators
           >
             <a href="/">
               <ImgWithFallback
-                loading="eager"
+                :loading="item.loading"
                 provider="mediaStream"
-                class="h-full w-full bg-white"
+                class="bg-white"
                 :style="{ objectFit: 'contain' }"
-                :src="item"
+                :src="item.src"
                 :width="1290"
                 :height="645"
                 :fit="'cover'"
@@ -66,7 +84,8 @@ const secondarySliderItems = [
                 :trim-threshold="5"
                 :format="'webp'"
                 :alt="'Usp'"
-                sizes="sm:100vw md:50vw lg:1290px"
+                sizes="`xs:307px sm:510px md:690px lg:930px xl:1290px xxl:1290px 2xl:1290px`"
+                densities="x1"
               />
             </a>
           </UCarousel>

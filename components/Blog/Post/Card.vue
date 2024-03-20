@@ -8,7 +8,7 @@ import type { ImageLoading } from '~/types/global/general'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 400 },
+  imgWidth: { type: Number, required: false, default: 380 },
   imgHeight: { type: Number, required: false, default: 280 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
@@ -54,12 +54,16 @@ const startShare = () => share().catch((err) => err)
   <li
     class="container grid w-full gap-4 rounded-lg bg-white !p-5 text-white dark:bg-zinc-800 dark:text-black"
   >
-    <div class="mb-3 md:mb-6">
-      <Anchor :to="`/blog/post${post.absoluteUrl}`" :text="alt">
+    <div class="grid">
+      <Anchor
+        :to="`/blog/post${post.absoluteUrl}`"
+        :text="alt"
+        css-class="grid justify-center"
+      >
         <ImgWithFallback
           :loading="imgLoading"
           provider="mediaStream"
-          class="h-auto w-full bg-white"
+          class="bg-white"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="src"
           :width="imgWidth"

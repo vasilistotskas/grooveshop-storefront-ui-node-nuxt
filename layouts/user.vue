@@ -50,12 +50,12 @@ const route = useRoute()
             <div class="flex w-full flex-1 flex-col md:gap-4">
               <div
                 :class="[
-                  'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row',
+                  'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row lg:gap-8 xl:gap-0',
                 ]"
               >
                 <div
                   v-if="!isMobile"
-                  class="md:grid md:w-auto md:py-4 lg:pl-8"
+                  class="md:grid md:w-auto md:py-4 md:pl-0 xl:pl-8"
                   :class="[
                     {
                       'grid w-full': route.path === '/account',

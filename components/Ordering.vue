@@ -68,9 +68,9 @@ const onOptionClick = async (option: OrderingOption) => {
             >
               <span
                 class="text-primary-700 dark:text-primary-100 block truncate"
-              >{{
-                selectedOrderingLabel ?? $t('components.ordering.title')
-              }}</span>
+                >{{
+                  selectedOrderingLabel ?? $t('components.ordering.title')
+                }}</span>
               <span
                 class="text-primary-700 dark:text-primary-100 pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
               >
@@ -125,7 +125,7 @@ const onOptionClick = async (option: OrderingOption) => {
                             selected ? 'font-medium' : 'font-normal',
                             'text-primary-700 dark:text-primary-100 block truncate',
                           ]"
-                        >{{ option.label }}</span>
+                          >{{ option.label }}</span>
                         <span
                           v-if="selected"
                           class="text-primary-400 absolute inset-y-0 left-0 flex items-center pl-3"
