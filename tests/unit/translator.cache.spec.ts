@@ -1,89 +1,84 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fsPromises from 'fs/promises'
+import path from 'path'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import translationCache from '~/tools/translator/src/cache'
+import consola from '~/tools/translator/src/consola'
+import { cacheDir, cacheFile } from '~/tools/translator/src/constants'
 
-import { describe, expect, it } from 'vitest'
+vi.mock('fs/promises')
+vi.mock('~/tools/translator/src/consola')
 
-import {
-  getCacheKeyVal,
-  loadCacheFromFile,
-  saveCacheKeyVal,
-  saveCacheToFile,
-} from '~/tools/translator/src/cache'
+const cacheFilePath = path.join(cacheDir, cacheFile)
 
-vi.mock('fs')
-
-describe('translator cache tests', () => {
-  const mockCache = new Map([
-    ['hello-en', 'Hello'],
-    ['greeting-es', 'Hola'],
-  ])
-  const cacheDir = '.translator_cache'
-  const cacheFile = '.cache.json'
-  const cacheFilePath = path.join(cacheDir, cacheFile)
-
-  beforeEach(() => {
+describe('TranslationCache', () => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await translationCache.init()
+    vi.mocked(fsPromises.access).mockClear().mockResolvedValue()
+    vi.mocked(fsPromises.readFile).mockClear().mockResolvedValue('{}')
+    vi.mocked(fsPromises.writeFile).mockClear().mockResolvedValue()
+    vi.mocked(fsPromises.mkdir).mockClear().mockResolvedValue(cacheDir)
+    vi.useFakeTimers()
   })
 
-  it('saveCacheKeyVal should correctly set a translation in the cache', () => {
-    const key = 'hello'
-    const language = 'fr'
-    const translation = 'bonjour'
-
-    saveCacheKeyVal(key, language, translation)
-    expect(getCacheKeyVal(key, language)).toBe(translation)
+  afterEach(() => {
+    vi.useRealTimers()
   })
-  it('getCacheKeyVal should correctly retrieve a translation from the cache', () => {
-    const key = 'greeting'
-    const language = 'es'
-    const translation = 'hola'
 
-    saveCacheKeyVal(key, language, translation)
-    const retrievedTranslation = getCacheKeyVal(key, language)
-    expect(retrievedTranslation).toBe(translation)
-  })
-  it('should return undefined for a non-existent translation', () => {
-    const nonExistentTranslation = getCacheKeyVal('nonexistent', 'en')
-    expect(nonExistentTranslation).toBeUndefined()
-  })
-  it('should overwrite an existing translation in the cache', () => {
-    const key = 'hello'
-    const language = 'fr'
-    const initialTranslation = 'bonjour'
-    const newTranslation = 'salut'
-
-    saveCacheKeyVal(key, language, initialTranslation)
-    saveCacheKeyVal(key, language, newTranslation)
-    const retrievedTranslation = getCacheKeyVal(key, language)
-
-    expect(retrievedTranslation).toBe(newTranslation)
-  })
-  it('saves the cache to a file correctly', () => {
-    const jsonContent = JSON.stringify(Object.fromEntries(mockCache), null, 2)
-    saveCacheToFile(mockCache)
-
-    expect(fs.writeFileSync).toHaveBeenCalledWith(
-      cacheFilePath,
-      jsonContent,
-      'utf-8',
-    )
-  })
-  it('loads the cache from a file correctly', () => {
-    vi.mocked(fs.existsSync).mockReturnValue(true)
-    vi.mocked(fs.readFileSync).mockReturnValue(
-      JSON.stringify(Object.fromEntries(mockCache)),
+  it('loads cache from file on initialization', async () => {
+    const mockCacheData = { 'hello-en': 'Hello', 'greeting-es': 'Hola' }
+    vi.mocked(fsPromises.readFile).mockResolvedValueOnce(
+      JSON.stringify(mockCacheData),
     )
 
-    const loadedCache = loadCacheFromFile()
+    await translationCache.init()
 
-    expect(loadedCache).toEqual(mockCache)
-    expect(fs.readFileSync).toHaveBeenCalledWith(cacheFilePath, 'utf-8')
+    expect(fsPromises.readFile).toHaveBeenCalledWith(cacheFilePath, 'utf-8')
+    expect(translationCache.getCacheKeyVal('hello', 'en')).toBe('Hello')
   })
-  it('returns an empty cache when file does not exist', () => {
-    vi.mocked(fs.existsSync).mockReturnValue(false)
 
-    const loadedCache = loadCacheFromFile()
+  it('handles file not existing by initializing empty cache', async () => {
+    vi.mocked(fsPromises.access).mockRejectedValueOnce(
+      new Error('File does not exist'),
+    )
 
-    expect(loadedCache).toEqual(new Map())
+    await translationCache.init()
+
+    expect(translationCache.cache.size).toBe(0)
+  })
+
+  it('saves translations to cache and debounces file writing', async () => {
+    await translationCache.saveCacheKeyVal('hello', 'fr', 'Bonjour')
+
+    vi.runAllTimers()
+
+    expect(translationCache.getCacheKeyVal('hello', 'fr')).toBe('Bonjour')
+  }, 5000)
+
+  it('ensures cache directory exists before saving', async () => {
+    vi.mocked(fsPromises.access).mockRejectedValueOnce(
+      new Error('Directory does not exist'),
+    )
+    await translationCache.saveCacheToFile()
+    expect(fsPromises.mkdir).toHaveBeenCalledWith(cacheDir, { recursive: true })
+  })
+
+  it('reports an error if saving to file fails', async () => {
+    vi.mocked(fsPromises.writeFile).mockRejectedValueOnce(
+      new Error('Failed to write'),
+    )
+
+    await translationCache.saveCacheToFile()
+
+    expect(consola.error).toHaveBeenCalled()
+  })
+
+  it('correctly retrieves a previously set translation', async () => {
+    translationCache.cache.set('greeting-es', 'Hola')
+    expect(translationCache.getCacheKeyVal('greeting', 'es')).toBe('Hola')
+  })
+
+  it('returns undefined for a non-existent translation', () => {
+    expect(translationCache.getCacheKeyVal('nonexistent', 'en')).toBeUndefined()
   })
 })

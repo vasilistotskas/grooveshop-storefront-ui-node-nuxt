@@ -1,23 +1,23 @@
 routes:
   el: griechisch
-  en: englisch
-  de: deutsch
-  id: indonesisch
+  en: Englisch
+  de: Deutsch
+  id: Indonesisch
   ja: japanisch
-  ko: koreanisch
-  zh: chinesisch
-  setting: einstellung
-  test: prüfen
-  blank: leer
-  testing: testen
-  products: produkte
-  product: produkt
-  home: heim
-  cart: wagen
-  checkout: kasse
-  account: konto
-  orders: aufträge
-  favourites: favoriten
-  reviews: rezensionen
-  settings: einstellungen
-  help: helfen
+  ko: Koreanisch
+  zh: Chinesisch
+  setting: Einstellung
+  test: Prüfen
+  blank: Leer
+  testing: Testen
+  products: Produkte
+  product: Produkt
+  home: Heim
+  cart: Wagen
+  checkout: Kasse
+  account: Konto
+  orders: Aufträge
+  favourites: Favoriten
+  reviews: Rezensionen
+  settings: Einstellungen
+  help: Helfen

@@ -30,12 +30,12 @@ const retry = async <T>(
   }
 }
 
-function extractDynamicKeys(str: string) {
+function extractDynamicKeys(str: string): RegExpMatchArray | [] {
   const dynamicKeyPattern = /%\{[a-zA-Z0-9_]+}/g
   return str.match(dynamicKeyPattern) || []
 }
 
-function validateDynamicKeys(original: string, translated: string) {
+function validateDynamicKeys(original: string, translated: string): boolean {
   const originalKeys = extractDynamicKeys(original)
   const translatedKeys = extractDynamicKeys(translated)
 

@@ -5,81 +5,63 @@ import { describe, expect, it, vi } from 'vitest'
 import * as cacheModule from '~/tools/translator/src/cache'
 import * as helpersModule from '~/tools/translator/src/helpers'
 import { translateBundle } from '~/tools/translator/src/translator'
+import yaml from 'js-yaml'
+import fs from 'fs'
+import { getFiles } from '~/tools/translator/src/file-ops'
+import type { LocaleFile } from '~/tools/translator/src/types'
 
-vi.mock('translate', () => ({
-  default: vi.fn((text) => `translated-${text}`),
-}))
 vi.mock('~/tools/translator/src/helpers')
 vi.mock('~/tools/translator/src/cache')
 
-describe('translator tests', () => {
+describe('translator tests', async () => {
   const testDir = path.join('tests', 'data', 'locales')
+  const inputBundle = yaml.load(
+    fs.readFileSync(path.join(testDir, 'en-US.yml'), 'utf8'),
+  ) as Record<string, unknown>
+
+  const localePath = path.join(testDir)
+  const localeFiles = await getFiles(localePath)
+  const sourceFileName = 'en-US'
+  const listLocaleToTranslate = localeFiles.filter(
+    (l: LocaleFile) => l.lang !== sourceFileName,
+  )
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(helpersModule.getISO6391Code).mockReturnValue('en')
     vi.mocked(helpersModule.retry).mockImplementation(
       async (func) => await func(),
     )
     vi.mocked(helpersModule.validateDynamicKeys).mockReturnValue(true)
-    vi.mocked(cacheModule.getCacheKeyVal).mockReturnValue(undefined)
-    vi.mocked(cacheModule.saveCacheKeyVal).mockImplementation(() => {})
   })
 
-  it('translates simple key-value pairs correctly', async () => {
-    const inputBundle = { key1: 'value1', key2: 'value2' }
-    const locale = {
-      path: path.join(testDir, 'en-US.yml'),
-      lang: 'en-US',
-      dir: testDir,
-    }
-    const translatedBundle = await translateBundle(inputBundle, locale)
-    expect(translatedBundle).toEqual({
-      key1: 'translated-value1',
-      key2: 'translated-value2',
-    })
-  })
   it('translate should return a correctly translated object', async () => {
-    vi.mock('translate', () => ({
-      default: vi.fn().mockImplementation((text) => `translated-${text}`),
-    }))
+    vi.mocked(helpersModule.getISO6391Code).mockReturnValue('el')
 
-    const testFile = { hello: 'Hello' }
-    const testLocale = {
-      path: 'tests/data/locales/el-GR.yml',
-      lang: 'el-GR',
-      dir: 'tests/data/locales',
-    }
-
-    const expectedOutput = { hello: 'translated-Hello'.toLowerCase() }
-    const translatedFile = await translateBundle(testFile, testLocale)
-
-    expect(translatedFile).toEqual(expectedOutput)
-  })
-  it('handles translation with dynamic keys correctly', async () => {
-    const inputBundle = { greeting: 'Hello, %{name}' }
-    const locale = {
-      path: path.join(testDir, 'en-US.yml'),
-      lang: 'en-US',
-      dir: testDir,
-    }
-    const translatedBundle = await translateBundle(inputBundle, locale)
-    expect(translatedBundle).toEqual({ greeting: 'translated-hello, %{name}' })
-  })
-  it('translates nested objects correctly', async () => {
-    const inputBundle = { section: { key: 'value' } }
-    const locale = {
-      path: path.join(testDir, 'en-US.yml'),
-      lang: 'en-US',
-      dir: testDir,
-    }
-    const translatedBundle = await translateBundle(inputBundle, locale)
-
-    expect(translatedBundle).toEqual({ section: { key: 'translated-value' } })
+    const translatedBundle = await translateBundle(
+      inputBundle,
+      listLocaleToTranslate[0],
+    )
+    expect(translatedBundle).toEqual({
+      hello: 'Γειά σου',
+      my_name_is: 'Το όνομά μου είναι %{name}',
+      what: {
+        a: {
+          beautiful: {
+            day: 'Τι όμορφη μέρα',
+          },
+        },
+      },
+    })
   })
   it('uses cached translation if available', async () => {
     const cachedTranslation = 'cached-translation'
-    vi.mocked(cacheModule.getCacheKeyVal).mockReturnValueOnce(cachedTranslation)
+    vi.mocked(cacheModule.default.getCacheKeyVal).mockReturnValueOnce(
+      cachedTranslation,
+    )
 
     const inputBundle = { key: 'value' }
     const locale = {

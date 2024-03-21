@@ -1,262 +1,268 @@
 components:
   generic_modal:
-    close: schließen
+    close: Schließen
   pwa:
-    ready_to_work_offline: app bereit, offline zu arbeiten
+    ready_to_work_offline: App bereit, offline zu arbeiten
     new_content_available: >-
-      neue inhalte verfügbar. klicken sie zum aktualisieren auf die schaltfläche
-      „neu laden“.
-    reload: neu laden
-    close: schließen
-    install_pwa: installieren sie pwa
-    install: installieren
-    cancel: stornieren
-    pwa_installed: pwa installiert
-    pwa_installed_description: pwa erfolgreich installiert
+      Neue Inhalte verfügbar. Klicken Sie zum Aktualisieren auf die Schaltfläche
+      „Neu laden“.
+    reload: Neu laden
+    close: Schließen
+    install_pwa: Installieren Sie PWA
+    install: Installieren
+    cancel: Stornieren
+    pwa_installed: PWA installiert
+    pwa_installed_description: PWA erfolgreich installiert
   page:
     footer:
-      copyright: urheberrecht © 2022
-      rights: alle rechte vorbehalten . gemacht mit
-      design_by: design von
+      copyright: Urheberrecht © 2022
+      rights: Alle Rechte vorbehalten . Gemacht mit
+      design_by: Design von
   language:
     switcher:
-      change_language: sprache ändern
-      theme: thema
+      change_language: Sprache ändern
+      theme: Thema
   theme:
     switcher:
-      theme: thema
+      theme: Thema
       change:
-        theme: thema ändern
+        theme: Thema ändern
   ordering:
-    title: bestellung
+    title: Bestellung
   breadcrumbs:
-    title: semmelbrösel
+    title: Semmelbrösel
   pagination:
-    title: seitennummerierung
+    title: Seitennummerierung
     prev: vorherige
     next: nächste
-    previous_page: vorherige seite
-    next_page: nächste seite
-    first_page: erste seite
-    last_page: letzte seite
-    go_to_page: gehe zur seite %{page}
-    you_are_on_last_page: sie befinden sich auf der letzten seite
+    previous_page: Vorherige Seite
+    next_page: Nächste Seite
+    first_page: Erste Seite
+    last_page: Letzte Seite
+    go_to_page: Gehe zur Seite %{page}
+    you_are_on_last_page: Sie befinden sich auf der letzten Seite
   builder:
     navbar:
-      toggle_drawer_menu: schubladenmenü umschalten
-      toggle_options_menu: optionsmenü umschalten
+      toggle_drawer_menu: Schubladenmenü umschalten
+      toggle_options_menu: Optionsmenü umschalten
   cookie:
-    accept: akzeptieren
-    accept_all: akzeptiere alle
+    accept: Akzeptieren
+    accept_all: Akzeptiere alle
     banner:
       description: >-
-        wir verwenden cookies und ähnliche technologien, um inhalte zu
-        personalisieren und ein besseres erlebnis zu bieten. sie können sie
-        individuell anpassen, indem sie auf die schaltfläche „anpassen“ klicken.
-      title: 🍪 hallo. diese seite verwendet cookies
+        Wir verwenden Cookies und ähnliche Technologien, um Inhalte zu
+        personalisieren und ein besseres Erlebnis zu bieten. Sie können sie
+        individuell anpassen, indem Sie auf die Schaltfläche „Anpassen“ klicken.
+      title: 🍪 Hallo. Diese Seite verwendet Cookies
     modal:
-      title: anpassen
+      title: Anpassen
       description: >-
-        wir verwenden verschiedene arten von cookies, um ihr erlebnis auf
-        unserer website zu optimieren. klicken sie auf die kategorien unten, um
-        mehr über deren zweck zu erfahren. sie können die arten von cookies
-        auswählen, die zugelassen werden sollen, und ihre einstellungen später
-        ändern. denken sie daran, dass die deaktivierung von cookies ihr
-        erlebnis beeinträchtigen kann.
-      privacy-policy: datenschutzrichtlinie
-    close: schließen
+        Wir verwenden verschiedene Arten von Cookies, um Ihr Erlebnis auf
+        unserer Website zu optimieren. Klicken Sie auf die Kategorien unten, um
+        mehr über deren Zweck zu erfahren. Sie können die Arten von Cookies
+        auswählen, die zugelassen werden sollen, und Ihre Einstellungen später
+        ändern. Denken Sie daran, dass die Deaktivierung von Cookies Ihr
+        Erlebnis beeinträchtigen kann.
+      privacy-policy: Datenschutzrichtlinie
+    close: Schließen
     cookies:
-      optional: optionale cookies
+      optional: Optionale Cookies
       optional_links:
-        privacy_policy: datenschutzrichtlinie
-      necessary: notwendige cookies
+        privacy_policy: Datenschutzrichtlinie
+      necessary: Notwendige Cookies
       necessary_description: >-
-        notwendige cookies tragen dazu bei, eine website nutzbar zu machen,
-        indem sie grundfunktionen wie seitennavigation und zugriff auf sichere
-        bereiche der website ermöglichen. ohne diese cookies kann die website
+        Notwendige Cookies tragen dazu bei, eine Website nutzbar zu machen,
+        indem sie Grundfunktionen wie Seitennavigation und Zugriff auf sichere
+        Bereiche der Website ermöglichen. Ohne diese Cookies kann die Website
         nicht ordnungsgemäß funktionieren.
-      analytics: analyse-cookies
+      analytics: Analyse-Cookies
       analytics_description: >-
-        durch die nutzung dieser website erklären sie sich mit der erhebung,
-        nutzung und weitergabe ihrer daten zu analysezwecken einverstanden. wir
-        können cookies verwenden, um informationen über ihre nutzung der website
-        zu sammeln und zu analysieren. diese informationen helfen uns zu
-        verstehen, wie benutzer mit der website interagieren, und ermöglichen es
-        uns, das benutzererlebnis zu verbessern.
-      advertising: werbe-cookies
+        Durch die Nutzung dieser Website erklären Sie sich mit der Erhebung,
+        Nutzung und Weitergabe Ihrer Daten zu Analysezwecken einverstanden. Wir
+        können Cookies verwenden, um Informationen über Ihre Nutzung der Website
+        zu sammeln und zu analysieren. Diese Informationen helfen uns zu
+        verstehen, wie Benutzer mit der Website interagieren, und ermöglichen es
+        uns, das Benutzererlebnis zu verbessern.
+      advertising: Werbe-Cookies
       advertising_description: >-
-        unsere website und werbepartner (einschließlich social-media-plattformen
-        wie google, facebook und instagram) nutzen tracking, um personalisierte
-        angebote bereitzustellen, die darauf abzielen, ihnen das volle
-        smile-pharmacy-erlebnis zu bieten. dazu gehört auch das versenden von
-        „gezielten nachrichten auf werbeplattformen dritter“, wie in der
-        datenschutzerklärung beschrieben. wenn sie dieses tracking nicht
-        akzeptieren, werden ihnen weiterhin zufällig smile-pharmacy-anzeigen auf
-        anderen plattformen angezeigt.
-      functional: funktionelle cookies
+        Unsere Website und Werbepartner (einschließlich Social-Media-Plattformen
+        wie Google, Facebook und Instagram) nutzen Tracking, um personalisierte
+        Angebote bereitzustellen, die darauf abzielen, Ihnen das volle
+        Smile-Pharmacy-Erlebnis zu bieten. Dazu gehört auch das Versenden von
+        „gezielten Nachrichten auf Werbeplattformen Dritter“, wie in der
+        Datenschutzerklärung beschrieben. Wenn Sie dieses Tracking nicht
+        akzeptieren, werden Ihnen weiterhin zufällig Smile-Pharmacy-Anzeigen auf
+        anderen Plattformen angezeigt.
+      functional: Funktionelle Cookies
       functional_description: >-
-        funktionale cookies helfen dabei, bestimmte funktionen auszuführen, wie
-        das teilen des inhalts der website auf social-media-plattformen, das
-        sammeln von feedback und andere funktionen von drittanbietern.
-    decline: abfall
-    decline_all: alle ablehnen
-    here: hier
-    iframe_blocked: um dies zu sehen, aktivieren sie bitte funktionale cookies.
-    manage_cookies: cookie-einstellungen
-    save: speichern
+        Funktionale Cookies helfen dabei, bestimmte Funktionen auszuführen, wie
+        das Teilen des Inhalts der Website auf Social-Media-Plattformen, das
+        Sammeln von Feedback und andere Funktionen von Drittanbietern.
+    decline: Abfall
+    decline_all: Alle ablehnen
+    here: Hier
+    iframe_blocked: Um dies zu sehen, aktivieren Sie bitte funktionale Cookies.
+    manage_cookies: Cookie-Einstellungen
+    save: Speichern
     settings:
-      unsaved: du hast nicht gespeicherte änderungen.
+      unsaved: Du hast nicht gespeicherte Änderungen.
   form:
     validation:
-      email: email
-      password: passwort
-      submit: einreichen
-      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
+      email: Email
+      password: Passwort
+      submit: Einreichen
+      too_many_attempts: Zu viele Versuche. Bitte später erneut versuchen.
   product:
     card:
-      price: preis
-      vat_percent: mehrwertsteuer-prozent
-      total_price: gesamtpreis
-      add_to_cart: in den warenkorb legen
-      share: aktie
-      share_not_supported: web share wird in ihrem browser nicht unterstützt
+      price: Preis
+      vat_percent: Mehrwertsteuer-Prozent
+      total_price: Gesamtpreis
+      add_to_cart: In den Warenkorb legen
+      share: Aktie
+      share_not_supported: Web Share wird in Ihrem Browser nicht unterstützt
     reviews:
-      title: rezensionen
-      empty: noch keine bewertungen
+      title: Rezensionen
+      empty: Noch keine Bewertungen
       ordering:
-        id: ausweis
-        user_id: benutzer-id
-        product_id: produkt id
-        created_at: hergestellt in
+        id: AUSWEIS
+        user_id: Benutzer-ID
+        product_id: Produkt ID
+        created_at: Hergestellt in
       summary:
-        reviews: rezensionen
+        reviews: Keine Bewertungen | 1 Rezension | %{count} Bewertungen
     review:
-      write_review: eine rezension schreiben
-      edit_review: rezension bearbeiten
-      update_review: update-überprüfung
-      delete_review: bewertung löschen
-      must_be_logged_in: sie müssen angemeldet sein, um eine bewertung schreiben zu können
-      write_review_for_product: schreiben sie eine bewertung für produkt %{product}
-      confirm_delete: sind sie sicher, dass sie diese bewertung löschen möchten?
-      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
-      delete_review_confirm: löschen
-      delete_review_cancel: stornieren
+      write_review: Eine Rezension schreiben
+      edit_review: Rezension bearbeiten
+      update_review: Update-Überprüfung
+      delete_review: Rezension löschen
+      must_be_logged_in: Sie müssen angemeldet sein, um eine Bewertung schreiben zu können
+      write_review_for_product: Schreiben Sie eine Bewertung für Produkt %{product}
+      confirm_delete: Sind Sie sicher, dass Sie diese Bewertung löschen möchten?
+      too_many_attempts: Zu viele Versuche. Bitte später erneut versuchen.
+      delete_review_confirm: Löschen
+      delete_review_cancel: Stornieren
       add:
-        title: bewertung hinzufügen
-        error: fehler bei der erstellung der rezension
-        success: bewertung erfolgreich erstellt
+        title: Bewertung hinzufügen
+        error: Fehler bei der Erstellung der Rezension
+        success: Bewertung erfolgreich erstellt
       update:
-        title: update-überprüfung
-        error: überprüfen sie den aktualisierungsfehler
-        success: bewertung erfolgreich aktualisiert
+        title: Update-Überprüfung
+        error: Überprüfen Sie den Aktualisierungsfehler
+        success: Bewertung erfolgreich aktualisiert
       delete:
-        success: bewertung erfolgreich gelöscht
-        error: fehler beim löschen der rezension
+        success: Bewertung erfolgreich gelöscht
+        error: Fehler beim Löschen der Rezension
       rating:
-        title: bewertung
-        bad: schlecht
-        not_that_good: nicht so gut
-        meh: meh
-        its_ok: es ist in ordnung
-        good: gut
-        very_good: sehr gut
-        perfect: perfekt!
+        title: Bewertung
+        bad: Schlecht
+        not_that_good: Nicht so gut
+        meh: Meh
+        its_ok: Es ist in Ordnung
+        good: Gut
+        very_good: Sehr gut
+        perfect: Perfekt!
       comment:
-        title: kommentar
-        placeholder: teile deine erfahrung...
-        label: kommentar
+        title: Kommentar
+        placeholder: Teile deine Erfahrung...
+        label: Kommentar
       validation:
         comment:
-          min: der kommentar muss mindestens %{min} zeichen lang sein
-          max: der kommentar darf höchstens %{max} zeichen lang sein
+          min: Der Kommentar muss mindestens %{min} Zeichen lang sein
+          max: Der Kommentar darf höchstens %{max} Zeichen lang sein
         rate:
-          min: die bewertung muss mindestens %{min} betragen
-          max: die bewertung darf höchstens %{max} betragen
+          min: Die Bewertung muss mindestens %{min} betragen
+          max: Die Bewertung darf höchstens %{max} betragen
   add_to_cart_button:
-    text: in den warenkorb legen
-    added_to_cart: zum warenkorb hinzugefügt
+    text: In den Warenkorb legen
+    added_to_cart: Zum Warenkorb hinzugefügt
   add_to_favourite_button:
-    not_authenticated: sie müssen angemeldet sein, um favoriten hinzuzufügen
-    added: zu den favoriten hinzugefügt
-    removed: aus den favoriten entfernt
-    add: zu favoriten hinzufügen
-    remove: von den favoriten entfernen
+    not_authenticated: Sie müssen angemeldet sein, um Favoriten hinzuzufügen
+    added: Zu den Favoriten hinzugefügt
+    removed: Aus den Favoriten entfernt
+    add: Zu Favoriten hinzufügen
+    remove: Von den Favoriten entfernen
   user:
     avatar:
-      change: ändern
-      no_file_selected: keine datei ausgewählt
-      file_extension_not_allowed: dateierweiterung nicht zulässig
+      change: Ändern
+      no_file_selected: Keine Datei ausgewählt
+      file_extension_not_allowed: Dateierweiterung nicht zulässig
       image:
-        updated: bild aktualisiert
-        not_updated: bild nicht aktualisiert
+        updated: Bild aktualisiert
+        not_updated: Bild nicht aktualisiert
   order:
     list:
-      footer: fusszeile
+      footer: Fusszeile
     card:
-      extra: '%{count} weitere produkte'
-      extra_one: 1 weiteres produkt
-      id: ausweis
-      address: adresse
-      pay_way: bezahlungsweise
-      status: status
-      total_price: gesamtpreis
-      created_at: hergestellt in
+      extra: '%{count} weitere Produkte'
+      extra_one: 1 weiteres Produkt
+      id: AUSWEIS
+      address: Adresse
+      pay_way: Bezahlungsweise
+      status: Status
+      total_price: Gesamtpreis
+      created_at: Hergestellt in
       actions:
-        details: einzelheiten
+        details: Einzelheiten
   cart:
     item_card:
-      remove_from_cart: aus dem warenkorb entfernen %{name}
+      remove_from_cart: Aus dem Warenkorb entfernen %{name}
   address:
     add_new:
       title: >-
-        sie können eine neue adresse hinzufügen und diese für alle ihre nächsten
-        einkäufe verwenden.
-      button: hinzufügen
+        Sie können eine neue Adresse hinzufügen und diese für alle Ihre nächsten
+        Einkäufe verwenden.
+      button: Hinzufügen
     card:
       delete:
-        success: adresse gelöscht
-        error: adresse nicht gelöscht
+        success: Adresse gelöscht
+        error: Adresse nicht gelöscht
         cant_delete_main: >-
-          sie können ihre hauptadresse nicht löschen. legen sie bitte eine
-          andere adresse als hauptadresse fest und versuchen sie es erneut.
+          Sie können Ihre Hauptadresse nicht löschen. Legen Sie bitte eine
+          andere Adresse als Hauptadresse fest und versuchen Sie es erneut.
   checkout:
     sidebar:
-      title: kasse
-      items: artikel
-      items_unique: artikel
-      shipping: versand
-      discount: rabatt
-      vat: mwst
-      total: gesamt
+      title: Kasse
+      items: Artikel
+      items_unique: Artikel
+      shipping: Versand
+      discount: Rabatt
+      vat: MwSt
+      total: Gesamt
+      pay_way_fee: Bezahlen Sie die Weggebühr
     pay_ways:
-      title: wählen sie die zahlungsmethode
-      label: bezahlungsweise
+      title: Wählen Sie die Zahlungsmethode
+      label: Bezahlungsweise
     items:
-      title: artikel
+      title: Artikel
   blog:
     post:
       card:
-        share: aktie
+        share: Aktie
+      comments:
+        title: Kommentare
+        summary:
+          comments: Keine Kommentare | 1 Kommentar | %{count} Kommentare
   favourite:
     list:
-      favourites: favoriten
+      favourites:
+        total: Keine Favoriten | 1 Favorit | %{count} Favoriten
   auth:
     security:
       password:
         change:
           form:
             newPassword1:
-              label: neues kennwort
-              placeholder: neues kennwort
+              label: Neues Kennwort
+              placeholder: Neues Kennwort
             newPassword2:
-              label: bestätige neues passwort
-              placeholder: bestätige neues passwort
+              label: Bestätige neues Passwort
+              placeholder: Bestätige neues Passwort
             password2:
               validation:
-                mismatch: passwörter stimmen nicht überein
+                mismatch: Passwörter stimmen nicht überein
             success:
-              title: passwort geändert
-              description: ihr passwort wurde erfolgreich geändert
+              title: Passwort geändert
+              description: Ihr Passwort wurde erfolgreich geändert
             error:
-              title: fehler bei der passwortänderung
-              description: ihr passwort wurde nicht geändert
+              title: Fehler bei der Passwortänderung
+              description: Ihr Passwort wurde nicht geändert

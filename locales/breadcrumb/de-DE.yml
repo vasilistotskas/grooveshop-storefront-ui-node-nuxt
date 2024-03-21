@@ -1,91 +1,91 @@
 breadcrumb:
-  label: semmelbrösel
+  label: Semmelbrösel
   items:
     index:
       icon: i-heroicons-home
-      label: heim
+      label: Heim
     products:
       icon: heroicons-solid:shopping-cart
-      label: produkte
+      label: Produkte
     terms:
       icon: heroicons-solid:document
-      label: bedingungen
+      label: Bedingungen
     about:
       icon: heroicons-solid:document
-      label: um
+      label: Um
     contact:
       icon: heroicons-solid:document
-      label: kontakt
+      label: Kontakt
     privacy:
       icon: heroicons-solid:document
-      label: privatsphäre
+      label: Privatsphäre
     cart:
       icon: heroicons-solid:shopping-cart
-      label: wagen
+      label: Wagen
     blog:
       icon: heroicons-solid:shopping-cart
-      label: blog
+      label: Blog
     checkout:
       icon: heroicons-solid:shopping-cart
-      label: kasse
+      label: Kasse
       success:
         icon: heroicons-solid:shopping-cart
-        label: kassenerfolg
+        label: Kassenerfolg
     auth:
       login:
         icon: heroicons-solid:shopping-cart
-        label: anmeldung
+        label: Anmeldung
       registration:
         icon: heroicons-solid:shopping-cart
-        label: anmeldung
+        label: Anmeldung
         account_confirm_email:
           icon: heroicons-solid:shopping-cart
-          label: e-mail bestätigen
+          label: E-Mail bestätigen
       password:
         reset:
           icon: heroicons-solid:shopping-cart
-          label: passwort zurücksetzen
+          label: Passwort zurücksetzen
           confirm:
             icon: heroicons-solid:shopping-cart
-            label: bestätige das passwort
+            label: Bestätige das Passwort
       security:
         icon: heroicons-solid:shopping-cart
-        label: sicherheit
+        label: Sicherheit
         general:
           icon: heroicons-solid:shopping-cart
-          label: allgemein
+          label: Allgemein
         mfa:
           icon: heroicons-solid:shopping-cart
-          label: mfa
+          label: MFA
           recovery:
             codes:
               icon: heroicons-solid:shopping-cart
-              label: wiederherstellungscodes
+              label: Wiederherstellungscodes
               generate:
                 icon: heroicons-solid:shopping-cart
-                label: generieren sie neue codes
+                label: Generieren Sie neue Codes
           totp:
             activate:
               icon: heroicons-solid:shopping-cart
-              label: aktivieren sie
+              label: aktivieren Sie
             authenticate:
               icon: heroicons-solid:shopping-cart
-              label: authentifizieren
+              label: Authentifizieren
             deactivate:
               icon: heroicons-solid:shopping-cart
-              label: deaktivieren
+              label: Deaktivieren
     account:
       icon: heroicons-solid:shopping-cart
-      label: konto
+      label: Konto
       addresses:
         icon: heroicons-solid:shopping-cart
-        label: adressen
+        label: Adressen
         new:
           icon: heroicons-solid:shopping-cart
-          label: neue adresse
+          label: Neue Adresse
         edit:
           icon: heroicons-solid:shopping-cart
-          label: adresse bearbeiten
+          label: Adresse bearbeiten
       favourites:
         icon: heroicons-solid:shopping-cart
-        label: favoriten
+        label: Favoriten

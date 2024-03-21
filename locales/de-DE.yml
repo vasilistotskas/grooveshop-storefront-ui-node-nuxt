@@ -3,94 +3,104 @@ common:
   close: schließen
   auth:
     login:
-      success: anmeldung erfolgreich
-      error: login fehler
-      loading: wird geladen...
+      success: Anmeldung erfolgreich
+      error: Login Fehler
+      loading: Wird geladen...
     registration:
-      success: registrierung erfolgreich
-      error: registrierungsfehler
-  learn_more: lern mehr
-  copy: kopieren
+      success: Registrierung erfolgreich
+      error:
+        title: Registrierungsfehler
+        action1: Bestätigung erneut senden
+  learn_more: Lern mehr
+  copy: Kopieren
   enabled: ermöglicht
   disabled: deaktiviert
-  read_less: lese weniger
+  read_less: Lese weniger
   read_more: mehr lesen
-  choose: wählen...
-  floor: boden
-  location_type: standorttyp
-  phone: telefon
-  mobile_phone: mobiltelefon
-  notes: anmerkungen
-  back: zurück
-  account: konto
-  search: suchen
-  retry: wiederholen
+  choose: Wählen...
+  floor: Boden
+  location_type: Standorttyp
+  phone: Telefon
+  mobile_phone: Mobiltelefon
+  notes: Anmerkungen
+  back: Zurück
+  account: Konto
+  search: Suchen
+  retry: Wiederholen
   items:
-    count: keine artikel | 1 artikel | %{count} artikel
+    count: Keine Artikel | 1 Artikel | %{count} Artikel
   client:
     only:
-      fallback: nur für clientseite
+      fallback: Nur für Clientseite
   unknown:
-    error: unbekannter fehler
+    error: Unbekannter Fehler
   error:
     page:
       not:
-        found: seite nicht gefunden
+        found: Seite nicht gefunden
   errors:
-    unknown_internal_api_error: unbekannter interner api-fehler
-  shop: geschäft
-  next: nächste
-  previous: vorherige
-  login: anmeldung
-  logout: ausloggen
-  about: um
-  blog: blog
-  company: unternehmen
-  help_center: hilfezentrum
-  terms_conditions: bedingungen
-  discord_server: discord-server
-  contact_us: kontaktiere uns
-  twitter: twitter
-  instagram: instagram
-  facebook: facebook
-  all_rights_reserved: alle rechte vorbehalten
-  privacy_policy: datenschutzrichtlinie
+    unknown_internal_api_error: Unbekannter interner API-Fehler
+  shop: Geschäft
+  next: Nächste
+  previous: Vorherige
+  login: Anmeldung
+  logout: Ausloggen
+  about: Um
+  blog: Blog
+  company: Unternehmen
+  help_center: Hilfezentrum
+  terms_conditions: Bedingungen
+  discord_server: Discord-Server
+  contact_us: Kontaktiere uns
+  twitter: Twitter
+  instagram: Instagram
+  facebook: Facebook
+  all_rights_reserved: Alle Rechte vorbehalten
+  privacy_policy: Datenschutzrichtlinie
   empty:
-    title: leer
-    description: leer
-    button: nach hause zurückkehren
+    title: Leer
+    description: Leer
+    button: Nach Hause zurückkehren
   validation:
     date:
-      required_error: bitte wählen sie ein datum und eine uhrzeit aus
-      invalid_type_error: das ist kein date!
+      required_error: Bitte wählen Sie ein Datum und eine Uhrzeit aus
+      invalid_type_error: Das ist kein Date!
     email:
-      invalid: e-mail ist ungültig
+      invalid: E-Mail ist ungültig
     first_name:
-      min: der vorname muss mindestens %{min} zeichen lang sein
+      min: Der Vorname muss mindestens %{min} Zeichen lang sein
     last_name:
-      min: der nachname muss mindestens %{min} zeichen lang sein
+      min: Der Nachname muss mindestens %{min} Zeichen lang sein
     street:
-      min: die straße muss mindestens %{min} zeichen lang sein
+      min: Die Straße muss mindestens %{min} Zeichen lang sein
     street_number:
-      min: die straßennummer muss mindestens %{min} zeichen lang sein
+      min: Die Straßennummer muss mindestens %{min} Zeichen lang sein
     city:
-      min: die stadt muss mindestens %{min} zeichen lang sein
+      min: Die Stadt muss mindestens %{min} Zeichen lang sein
     zipcode:
-      min: die postleitzahl muss mindestens %{min} zeichen lang sein
+      min: Die Postleitzahl muss mindestens %{min} Zeichen lang sein
     country:
-      required: land ist erforderlich
+      required: Land ist erforderlich
     region:
-      required: region ist erforderlich
-  version: ausführung
-  upload: hochladen
-  tags: stichworte
-  categories: kategorien
-  no_categories_found: keine kategorien gefunden
+      required: Region ist erforderlich
+  version: Ausführung
+  upload: Hochladen
+  tags: Stichworte
+  categories: Kategorien
+  no_categories_found: Keine Kategorien gefunden
   demo:
-    message: dies ist eine demo-website, die ausschließlich zu anzeigezwecken dient.
+    message: Dies ist eine Demo-Website, die nur zu Anzeigezwecken dient.
   change:
-    language: sprache ändern
+    language: Sprache ändern
   filters:
-    title: filter
-    clear: klar
-    apply: anwenden
+    title: Filter
+    clear: Klar
+    apply: Anwenden
+  ordering:
+    id: AUSWEIS
+    created_at: Hergestellt in
+  like: Wie
+  unlike: nicht wie
+  reply: Antwort
+  decrement: Dekrementieren
+  increment: Zuwachs

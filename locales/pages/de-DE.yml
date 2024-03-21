@@ -1,694 +1,696 @@
 pages:
   '404':
-    title: seite nicht gefunden
-    description: seite nicht gefunden
-    keywords: seite nicht gefunden
+    title: Seite nicht gefunden
+    description: Seite nicht gefunden
+    keywords: Seite nicht gefunden
   about:
-    title: um
+    title: Um
     nav: um
     description: um
     keywords: um
   blog:
-    title: blog
-    nav: blog
-    description: blog
-    keywords: blog
+    title: Blog
+    nav: Blog
+    description: Blog
+    keywords: Blog
     ordering:
-      created_at: hergestellt in
-      title: titel
-      published_at: veröffentlicht unter
+      created_at: Hergestellt in
+      title: Titel
+      published_at: Veröffentlicht unter
   testing:
     nav: testen
     title: testen
     index:
       nav: testen
       title: testen
-      description: dies ist eine testseite
+      description: Dies ist eine Testseite
       keywords: testen
     blank:
       nav: leer
-      title: leere seite
-      description: das ist eine leere seite
-      just_blank_page_with_title: nur eine leere seite mit titel
+      title: leere Seite
+      description: das ist eine leere Seite
+      just_blank_page_with_title: nur eine leere Seite mit Titel
     test:
       nav: prüfen
       title: testen
-      description: dies ist eine testseite
-      counter: schalter
-      increment: zuwachs
+      description: Dies ist eine Testseite
+      counter: Schalter
+      increment: Zuwachs
       decrement: dekrementieren
       reset: zurücksetzen
-      identity: identität
-      full_name: vollständiger name
+      identity: Identität
+      full_name: vollständiger Name
     setting:
-      nav: einstellung
-      title: einstellung
-      description: dies ist eine einstellungsseite
+      nav: Einstellung
+      title: Einstellung
+      description: Dies ist eine Einstellungsseite
       sections:
         validate_username:
-          title: validieren sie das github-profil
+          title: Validieren Sie das Github-Profil
           description: >-
-            geben sie ihren github-benutzernamen ein und klicken sie zur
-            bestätigung auf die schaltfläche.
-          footer: lerne mehr über
+            Geben Sie Ihren Github-Benutzernamen ein und klicken Sie zur
+            Bestätigung auf die Schaltfläche.
+          footer: Lerne mehr über
           footer_button: bestätigen
-          footer_link: github-benutzer-api
+          footer_link: Github-Benutzer-API
         bot_id:
-          title: bot-id
-          description: dies ist ihre bot-id.
-          footer: wird bei der interaktion mit dem bot verwendet.
+          title: Bot-ID
+          description: Dies ist Ihre Bot-ID.
+          footer: Wird bei der Interaktion mit dem Bot verwendet.
         protection_spam:
-          title: spamschutz
+          title: Spamschutz
           description: >-
-            schalten sie die option „aktivieren“ um, um den roten rand zu
+            Schalten Sie die Option „Aktivieren“ um, um den roten Rand zu
             entfernen
           footer: >-
-            wenn diese option aktiviert ist, schützen wir ihre kommentare vor
-            spam
+            Wenn diese Option aktiviert ist, schützen wir Ihre Kommentare vor
+            Spam
         advanced_enable_advanced:
-          title: erweiterte einstellungen aktivieren
+          title: Erweiterte Einstellungen aktivieren
           description: >-
-            sie können erweiterte einstellungen aktivieren, um die einstellungen
+            Sie können erweiterte Einstellungen aktivieren, um die Einstellungen
             zu ändern
         advanced_dir_listing:
-          title: verzeichnisliste
+          title: Verzeichnisliste
           description: >-
-            wenn in einem verzeichnis keine indexdatei vorhanden ist, wird der
-            verzeichnisinhalt angezeigt.
+            Wenn in einem Verzeichnis keine Indexdatei vorhanden ist, wird der
+            Verzeichnisinhalt angezeigt.
     cache:
-      title: zwischenspeicher
-      nav: zwischenspeicher
+      title: Zwischenspeicher
+      nav: Zwischenspeicher
     ws:
       title: ws
-      nav: ws
+      nav: WS
   index:
     nav: heim
-    title: grooveshop
-    description: grooveshop
-    keywords: grooveshop
-    add_to_cart: in den warenkorb legen
+    title: GrooveShop
+    description: GrooveShop
+    keywords: GrooveShop
+    add_to_cart: In den Warenkorb legen
   error:
-    title: hoppla! etwas ist schief gelaufen.
-    clean: klarer fehler
-    home: zurück nach hause
-    hmmm: hmmm
+    title: Hoppla! Etwas ist schief gelaufen.
+    clean: Klarer Fehler
+    home: Zurück nach Hause
+    hmmm: Hmmm
     page:
       not:
-        found: unser hund kann die von ihnen gesuchte seite nicht finden.
+        found: Unser Hund kann die von Ihnen gesuchte Seite nicht finden.
     go:
-      home: es kann sie jedoch zur homepage führen!
+      home: Es kann Sie jedoch zur Homepage führen!
   product:
-    add_to_cart: in den warenkorb legen
-    product_id: produkt id
-    save: speichern
-    inclusive_of_taxes: inklusive aller steuern.
-    qty: menge
+    add_to_cart: In den Warenkorb legen
+    product_id: Produkt ID
+    save: Speichern
+    inclusive_of_taxes: Inklusive aller Steuern.
+    qty: Menge
     ordering:
-      name: name
-      price: preis
-      created_at: hergestellt in
-    share: aktie
-    share_not_supported: web share wird in ihrem browser nicht unterstützt
+      name: Name
+      price: Preis
+      created_at: Hergestellt in
+    share: Aktie
+    share_not_supported: Web Share wird in Ihrem Browser nicht unterstützt
     review:
       created:
-        success: bewertung erfolgreich erstellt
-        error: fehler bei der erstellung der rezension
+        success: Bewertung erfolgreich erstellt
+        error: Fehler bei der Erstellung der Rezension
       updated:
-        success: bewertung erfolgreich aktualisiert
-        error: überprüfen sie den aktualisierungsfehler
+        success: Bewertung erfolgreich aktualisiert
+        error: Überprüfen Sie den Aktualisierungsfehler
       deleted:
-        success: bewertung erfolgreich gelöscht
-        error: fehler beim löschen der rezension
+        success: Bewertung erfolgreich gelöscht
+        error: Fehler beim Löschen der Rezension
+    max_quantity_reached: Maximale Menge erreicht
+    adjusted_to_stock: Angepasst an den Lagerbestand %{stock}
   products:
-    title: produkte
-    nav: produkte
-    description: produktliste
-    keywords: produkte
+    title: Produkte
+    nav: Produkte
+    description: Produktliste
+    keywords: Produkte
   cart:
-    title: wagen
-    nav: wagen
-    description: wagen
-    keywords: wagen
-    updated: warenkorb aktualisiert
-    update_error: fehler bei der warenkorbaktualisierung
-    deleted: warenkorbartikel gelöscht
-    delete_error: fehler beim löschen des warenkorbartikels
-    checkout: kasse
+    title: Wagen
+    nav: Wagen
+    description: Wagen
+    keywords: Wagen
+    updated: Warenkorb aktualisiert
+    update_error: Fehler bei der Warenkorbaktualisierung
+    deleted: Warenkorbartikel gelöscht
+    delete_error: Fehler beim Löschen des Warenkorbartikels
+    checkout: Kasse
     empty:
-      title: ihr warenkorb ist leer
-      description: ihr warenkorb ist leer
-      button: gehen sie zu den produkten
+      title: Ihr Warenkorb ist leer
+      description: Ihr Warenkorb ist leer
+      button: Gehen Sie zu den Produkten
   checkout:
-    title: kasse
-    nav: kasse
-    description: kasse
-    keywords: kasse
-    empty: ihr warenkorb ist leer
+    title: Kasse
+    nav: Kasse
+    description: Kasse
+    keywords: Kasse
+    empty: Ihr Warenkorb ist leer
     form:
-      first_name: vorname
-      last_name: familienname, nachname
-      address: adresse
-      city: stadt
-      email: email
-      phone: telefon
-      place: ort
-      zipcode: plz
-      country: land
-      region: region
-      mobile_phone: mobiltelefon
-      floor: boden
-      location_type: standorttyp
-      street: straße
-      street_number: hausnummer
-      customer_notes: kundenhinweise
+      first_name: Vorname
+      last_name: Familienname, Nachname
+      address: Adresse
+      city: Stadt
+      email: Email
+      phone: Telefon
+      place: Ort
+      zipcode: PLZ
+      country: Land
+      region: Region
+      mobile_phone: Mobiltelefon
+      floor: Boden
+      location_type: Standorttyp
+      street: Straße
+      street_number: Hausnummer
+      customer_notes: Kundenhinweise
       submit:
-        title: einreichen
-        success: bestellung erfolgreich erstellt
-        error: fehler bei der auftragserstellung
-      too_many_attempts: zu viele versuche. bitte später erneut versuchen.
+        title: Einreichen
+        success: Bestellung erfolgreich erstellt
+        error: Fehler bei der Auftragserstellung
+      too_many_attempts: Zu viele Versuche. Bitte später erneut versuchen.
       choose:
-        country: land auswählen
-        region: wählen sie region
+        country: Land auswählen
+        region: Wählen Sie Region
     success:
-      title: bestellung erfolgreich erstellt
-      lottie: auftrag erstellt
-      button: navigieren sie zur startseite
+      title: Bestellung erfolgreich erstellt
+      lottie: Auftrag erstellt
+      button: Navigieren Sie zur Startseite
       main:
-        title: vielen dank, %{customername}!
+        title: Vielen Dank, %{customerName}!
         text: >-
-          ihre bestellnummer ist <strong>%{orderid}</strong>. eine
-          bestätigungs-e-mail wurde an <strong>%{customeremail}</strong>
-          gesendet. wir benachrichtigen sie, wenn ihre bestellung versandt
+          Ihre Bestellnummer ist <strong>%{orderId}</strong>. Eine
+          Bestätigungs-E-Mail wurde an <strong>%{customerEmail}</strong>
+          gesendet. Wir benachrichtigen Sie, wenn Ihre Bestellung versandt
           wurde.
       order:
-        summary: bestellübersicht
-        details: bestelldetails
-      image: bild
-      product: produkt
-      quantity: menge
-      price: preis
-      shippingPrice: versandkosten
-      totalPriceItems: gesamtpreis der artikel
-      totalPriceExtra: gesamtpreis extra
-      payWayPrice: pay-way-preis
-      total: gesamt
+        summary: Bestellübersicht
+        details: Bestelldetails
+      image: Bild
+      product: Produkt
+      quantity: Menge
+      price: Preis
+      shippingPrice: Versandkosten
+      totalPriceItems: Gesamtpreis der Artikel
+      totalPriceExtra: Gesamtpreis extra
+      payWayPrice: Pay-Way-Preis
+      total: Gesamt
     validation:
       email:
-        required: e-mail ist erforderlich
-        email: e-mail muss eine gültige e-mail-adresse sein
+        required: E-Mail ist erforderlich
+        email: E-Mail muss eine gültige E-Mail-Adresse sein
       first_name:
-        required: vorname ist erforderlich
-        min: der vorname muss mindestens %{min} zeichen lang sein
+        required: Vorname ist erforderlich
+        min: Der Vorname muss mindestens %{min} Zeichen lang sein
       last_name:
-        required: nachname ist erforderlich
-        min: der nachname muss mindestens %{min} zeichen lang sein
+        required: Nachname ist erforderlich
+        min: Der Nachname muss mindestens %{min} Zeichen lang sein
       street:
-        required: straße ist erforderlich
-        min: die straße muss mindestens %{min} zeichen lang sein
+        required: Straße ist erforderlich
+        min: Die Straße muss mindestens %{min} Zeichen lang sein
       street_number:
-        required: die hausnummer ist erforderlich
-        min: die straßennummer muss mindestens %{min} zeichen lang sein
+        required: Die Hausnummer ist erforderlich
+        min: Die Straßennummer muss mindestens %{min} Zeichen lang sein
       zipcode:
-        required: postleitzahl ist erforderlich
-        min: die postleitzahl muss mindestens %{min} zeichen lang sein
+        required: Postleitzahl ist erforderlich
+        min: Die Postleitzahl muss mindestens %{min} Zeichen lang sein
       place:
-        required: platz ist erforderlich
-        min: der ort muss mindestens %{min} zeichen lang sein
+        required: Platz ist erforderlich
+        min: Der Ort muss mindestens %{min} Zeichen lang sein
       city:
-        required: stadt ist erforderlich
-        min: die stadt muss mindestens %{min} zeichen lang sein
+        required: Stadt ist erforderlich
+        min: Die Stadt muss mindestens %{min} Zeichen lang sein
       phone:
-        required: telefon ist erforderlich
-        min: das telefon muss mindestens %{min} zeichen lang sein
+        required: Telefon ist erforderlich
+        min: Das Telefon muss mindestens %{min} Zeichen lang sein
   terms:
-    title: bedingungen
-    nav: bedingungen
-    description: bedingungen
-    keywords: bedingungen
+    title: Bedingungen
+    nav: Bedingungen
+    description: Bedingungen
+    keywords: Bedingungen
   privacy:
-    title: privatsphäre
-    nav: privatsphäre
-    description: privatsphäre
-    keywords: privatsphäre
+    title: Privatsphäre
+    nav: Privatsphäre
+    description: Privatsphäre
+    keywords: Privatsphäre
   contact:
-    title: kontakt
-    nav: kontakt
-    description: kontakt
-    keywords: kontakt
+    title: Kontakt
+    nav: Kontakt
+    description: Kontakt
+    keywords: Kontakt
   accounts:
     login:
-      title: konto
+      title: Konto
     logout:
-      title: ausloggen
+      title: Ausloggen
     security:
-      title: sicherheit
+      title: Sicherheit
   account:
     index:
-      title: konto
-      nav: konto
-      description: konto
-      keywords: konto
+      title: Konto
+      nav: Konto
+      description: Konto
+      keywords: Konto
     orders:
-      title: aufträge
-      nav: aufträge
-      description: aufträge
-      keywords: aufträge
-      updated: bestellungen aktualisiert
-      update_error: fehler bei der aktualisierung der bestellungen
-      deleted: bestellartikel gelöscht
-      delete_error: fehler beim löschen des bestellartikels
+      title: Aufträge
+      nav: Aufträge
+      description: Aufträge
+      keywords: Aufträge
+      updated: Bestellungen aktualisiert
+      update_error: Fehler bei der Aktualisierung der Bestellungen
+      deleted: Bestellartikel gelöscht
+      delete_error: Fehler beim Löschen des Bestellartikels
       ordering:
-        created_at: hergestellt in
+        created_at: Hergestellt in
       empty:
-        title: ihre bestellungen sind leer
-        description: sie haben noch keine bestellungen aufgegeben.
-        button: zum laden gehen
+        title: Ihre Bestellungen sind leer
+        description: Sie haben noch keine Bestellungen aufgegeben.
+        button: Zum Laden gehen
     favourites:
-      title: favoriten
-      nav: favoriten
-      description: favoriten
-      keywords: favoriten
-      updated: favoriten aktualisiert
-      update_error: fehler bei der aktualisierung der favoriten
-      deleted: favoritenelement gelöscht
-      delete_error: fehler beim löschen des favoritenelements
+      title: Favoriten
+      nav: Favoriten
+      description: Favoriten
+      keywords: Favoriten
+      updated: Favoriten aktualisiert
+      update_error: Fehler bei der Aktualisierung der Favoriten
+      deleted: Favoritenelement gelöscht
+      delete_error: Fehler beim Löschen des Favoritenelements
       ordering:
-        created_at: hergestellt in
+        created_at: Hergestellt in
       empty:
-        title: ihre favoriten sind leer
-        description: sie haben noch keine favoriten hinzugefügt.
-        button: zum laden gehen
+        title: Ihre Favoriten sind leer
+        description: Sie haben noch keine Favoriten hinzugefügt.
+        button: Zum Laden gehen
     reviews:
-      title: rezensionen
-      nav: bewertungen
-      description: bewertungen
-      keywords: bewertungen
-      updated: bewertungen aktualisiert
-      update_error: fehler bei der aktualisierung der bewertungen
-      deleted: bewertungen artikel gelöscht
-      delete_error: fehler beim löschen des artikels
+      title: Rezensionen
+      nav: Bewertungen
+      description: Bewertungen
+      keywords: Bewertungen
+      updated: Bewertungen aktualisiert
+      update_error: Fehler bei der Aktualisierung der Bewertungen
+      deleted: Bewertungen Artikel gelöscht
+      delete_error: Fehler beim Löschen des Artikels
       ordering:
-        created_at: hergestellt in
+        created_at: Hergestellt in
       empty:
-        title: ihre bewertungen sind leer
-        description: sie haben noch keine bewertungen hinzugefügt.
-        button: zum laden gehen
+        title: Ihre Bewertungen sind leer
+        description: Sie haben noch keine Bewertungen hinzugefügt.
+        button: Zum Laden gehen
     settings:
-      title: einstellungen
-      nav: einstellungen
-      description: einstellungen
-      keywords: einstellungen
-      updated: einstellungen aktualisiert
-      update_error: fehler bei der aktualisierung der einstellungen
-      deleted: einstellungselement gelöscht
-      delete_error: fehler beim löschen des einstellungselements
+      title: Einstellungen
+      nav: Einstellungen
+      description: Einstellungen
+      keywords: Einstellungen
+      updated: Einstellungen aktualisiert
+      update_error: Fehler bei der Aktualisierung der Einstellungen
+      deleted: Einstellungselement gelöscht
+      delete_error: Fehler beim Löschen des Einstellungselements
       validation:
         email:
-          invalid: e-mail ist ungültig
+          invalid: E-Mail ist ungültig
         region:
-          required: region ist erforderlich
+          required: Region ist erforderlich
         first_name:
-          required: vorname ist erforderlich
-          min: der vorname muss mindestens %{min} zeichen lang sein
+          required: Vorname ist erforderlich
+          min: Der Vorname muss mindestens %{min} Zeichen lang sein
         last_name:
-          required: nachname ist erforderlich
-          min: der nachname muss mindestens %{min} zeichen lang sein
+          required: Nachname ist erforderlich
+          min: Der Nachname muss mindestens %{min} Zeichen lang sein
       form:
-        email: email
-        first_name: vorname
-        last_name: familienname, nachname
-        phone: telefon
-        city: stadt
-        zipcode: plz
-        address: adresse
-        place: ort
-        birth_date: geburtsdatum
-        country: land
-        region: region
-        submit: einreichen
-        success: einstellungen erfolgreich aktualisiert
-        error: fehler bei der aktualisierung der einstellungen
+        email: Email
+        first_name: Vorname
+        last_name: Familienname, Nachname
+        phone: Telefon
+        city: Stadt
+        zipcode: PLZ
+        address: Adresse
+        place: Ort
+        birth_date: Geburtsdatum
+        country: Land
+        region: Region
+        submit: Einreichen
+        success: Einstellungen erfolgreich aktualisiert
+        error: Fehler bei der Aktualisierung der Einstellungen
         choose:
-          country: land auswählen
-          region: wählen sie region
+          country: Land auswählen
+          region: Wählen Sie Region
         date_picker:
-          cancel: stornieren
-          select: wählen
-          now: jetzt
+          cancel: Stornieren
+          select: Wählen
+          now: Jetzt
     addresses:
-      title: adressen
-      nav: adressen
-      description: adressen
-      keywords: adressen
-      updated: adressen aktualisiert
-      update_error: behebt aktualisierungsfehler
-      deleted: adressen element gelöscht
-      delete_error: fehler beim löschen des adressenelements
-      total: gesamt
-      delete: löschen
+      title: Adressen
+      nav: Adressen
+      description: Adressen
+      keywords: Adressen
+      updated: Adressen aktualisiert
+      update_error: Behebt Aktualisierungsfehler
+      deleted: Adressen Element gelöscht
+      delete_error: Fehler beim Löschen des Adressenelements
+      total: Keine Adressen | 1 Adresse | %{count} Adressen
+      delete: Löschen
       ordering:
-        created_at: hergestellt in
-        is_main: hauptsächlich
+        created_at: Hergestellt in
+        is_main: Hauptsächlich
       empty:
-        title: ihre adressen sind leer
-        description: sie haben noch keine adressen hinzugefügt.
-        button: zum laden gehen
+        title: Ihre Adressen sind leer
+        description: Sie haben noch keine Adressen hinzugefügt.
+        button: Zum Laden gehen
       new:
-        title: neue adresse
-        error: fehler bei der adresserstellung
-        success: adresse erfolgreich erstellt
-        back: zurück zu adressen
+        title: Neue Adresse
+        error: Fehler bei der Adresserstellung
+        success: Adresse erfolgreich erstellt
+        back: Zurück zu Adressen
         main:
-          title: hauptadresse
-          success: hauptadresse erfolgreich aktualisiert
-          error: fehler bei der aktualisierung der hauptadresse
+          title: Hauptadresse
+          success: Hauptadresse erfolgreich aktualisiert
+          error: Fehler bei der Aktualisierung der Hauptadresse
         form:
-          title: adresse
-          first_name: vorname
-          last_name: familienname, nachname
-          street: straße
-          street_number: hausnummer
-          city: stadt
-          zipcode: plz
-          phone: telefon
-          mobile_phone: mobiltelefon
-          notes: anmerkungen
-          floor: boden
-          location_type: standorttyp
-          country: land
-          region: region
-          submit: einreichen
+          title: Adresse
+          first_name: Vorname
+          last_name: Familienname, Nachname
+          street: Straße
+          street_number: Hausnummer
+          city: Stadt
+          zipcode: PLZ
+          phone: Telefon
+          mobile_phone: Mobiltelefon
+          notes: Anmerkungen
+          floor: Boden
+          location_type: Standorttyp
+          country: Land
+          region: Region
+          submit: Einreichen
         validation:
           title:
-            min: der titel muss mindestens %{min} zeichen lang sein
+            min: Der Titel muss mindestens %{min} Zeichen lang sein
           first_name:
-            min: der vorname muss mindestens %{min} zeichen lang sein
+            min: Der Vorname muss mindestens %{min} Zeichen lang sein
           last_name:
-            min: der nachname muss mindestens %{min} zeichen lang sein
+            min: Der Nachname muss mindestens %{min} Zeichen lang sein
           street:
-            min: die straße muss mindestens %{min} zeichen lang sein
+            min: Die Straße muss mindestens %{min} Zeichen lang sein
           street_number:
-            min: die straßennummer muss mindestens %{min} zeichen lang sein
+            min: Die Straßennummer muss mindestens %{min} Zeichen lang sein
           city:
-            min: die stadt muss mindestens %{min} zeichen lang sein
+            min: Die Stadt muss mindestens %{min} Zeichen lang sein
           zipcode:
-            min: die postleitzahl muss mindestens %{min} zeichen lang sein
+            min: Die Postleitzahl muss mindestens %{min} Zeichen lang sein
           region:
-            required: region ist erforderlich
+            required: Region ist erforderlich
       edit:
-        title: adresse bearbeiten
-        error: fehler bei der adressaktualisierung
-        success: adresse erfolgreich aktualisiert
-        back: zurück zu adressen
+        title: Adresse bearbeiten
+        error: Fehler bei der Adressaktualisierung
+        success: Adresse erfolgreich aktualisiert
+        back: Zurück zu Adressen
         main:
-          title: hauptadresse
-          success: hauptadresse erfolgreich aktualisiert
-          error: fehler bei der aktualisierung der hauptadresse
-          button: als hauptadresse festlegen
+          title: Hauptadresse
+          success: Hauptadresse erfolgreich aktualisiert
+          error: Fehler bei der Aktualisierung der Hauptadresse
+          button: Als Hauptadresse festlegen
         form:
-          title: adresse
-          first_name: vorname
-          last_name: familienname, nachname
-          street: straße
-          street_number: hausnummer
-          city: stadt
-          zipcode: plz
-          phone: telefon
-          mobile_phone: mobiltelefon
-          notes: anmerkungen
-          floor: boden
-          location_type: standorttyp
-          country: land
-          region: region
-          submit: einreichen
-          update: aktualisieren
+          title: Adresse
+          first_name: Vorname
+          last_name: Familienname, Nachname
+          street: Straße
+          street_number: Hausnummer
+          city: Stadt
+          zipcode: PLZ
+          phone: Telefon
+          mobile_phone: Mobiltelefon
+          notes: Anmerkungen
+          floor: Boden
+          location_type: Standorttyp
+          country: Land
+          region: Region
+          submit: Einreichen
+          update: Aktualisieren
         validation:
           title:
-            min: der titel muss mindestens %{min} zeichen lang sein
+            min: Der Titel muss mindestens %{min} Zeichen lang sein
           first_name:
-            min: der vorname muss mindestens %{min} zeichen lang sein
+            min: Der Vorname muss mindestens %{min} Zeichen lang sein
           last_name:
-            min: der nachname muss mindestens %{min} zeichen lang sein
+            min: Der Nachname muss mindestens %{min} Zeichen lang sein
           street:
-            min: die straße muss mindestens %{min} zeichen lang sein
+            min: Die Straße muss mindestens %{min} Zeichen lang sein
           street_number:
-            min: die straßennummer muss mindestens %{min} zeichen lang sein
+            min: Die Straßennummer muss mindestens %{min} Zeichen lang sein
           city:
-            min: die stadt muss mindestens %{min} zeichen lang sein
+            min: Die Stadt muss mindestens %{min} Zeichen lang sein
           zipcode:
-            min: die postleitzahl muss mindestens %{min} zeichen lang sein
+            min: Die Postleitzahl muss mindestens %{min} Zeichen lang sein
           region:
-            required: region ist erforderlich
+            required: Region ist erforderlich
     order:
-      title: befehl
-      nav: befehl
-      description: befehl
-      keywords: befehl
-      updated: bestellung aktualisiert
-      update_error: fehler bei der auftragsaktualisierung
-      deleted: bestellartikel gelöscht
-      delete_error: fehler beim löschen des bestellartikels
-      back: zurück zu bestellungen
-      number: bestellnummer
-      details: bestelldetails
-      address: lieferanschrift
-      document_type: art des dokuments
-      pay_way: bezahlungsweise
-      synopsis: zusammenfassung
-      total: gesamt
+      title: Befehl
+      nav: Befehl
+      description: Befehl
+      keywords: Befehl
+      updated: Bestellung aktualisiert
+      update_error: Fehler bei der Auftragsaktualisierung
+      deleted: Bestellartikel gelöscht
+      delete_error: Fehler beim Löschen des Bestellartikels
+      back: Zurück zu Bestellungen
+      number: Bestellnummer
+      details: Bestelldetails
+      address: Lieferanschrift
+      document_type: Art des Dokuments
+      pay_way: Bezahlungsweise
+      synopsis: Zusammenfassung
+      total: Gesamt
       product:
-        value: produktwert
+        value: Produktwert
       shipping:
-        value: versandwert
+        value: Versandwert
       ordering:
-        created_at: hergestellt in
+        created_at: Hergestellt in
       empty:
-        title: ihre bestellungen sind leer
-        description: sie haben noch keine bestellungen aufgegeben.
-        button: zum laden gehen
+        title: Ihre Bestellungen sind leer
+        description: Sie haben noch keine Bestellungen aufgegeben.
+        button: Zum Laden gehen
     help:
-      title: helfen
+      title: Helfen
       nav: helfen
       description: helfen
       keywords: helfen
-      updated: hilfe aktualisiert
-      update_error: fehler beim update der hilfe
-      deleted: hilfeelement gelöscht
-      delete_error: fehler beim löschen des hilfeelements
+      updated: Hilfe aktualisiert
+      update_error: Fehler beim Update der Hilfe
+      deleted: Hilfeelement gelöscht
+      delete_error: Fehler beim Löschen des Hilfeelements
   search:
-    title: suchen
+    title: Suchen
     nav: suchen
     description: suchen
     keywords: suchen
     empty:
-      title: keine ergebnisse gefunden
-      description: keine ergebnisse gefunden
-      button: zum laden gehen
-    placeholder: tippe um zu suchen...
-    error: beim abrufen ist ein fehler aufgetreten
-    results: suchergebnis für
-    start_searching: geben sie etwas zum suchen ein...
-    back_to_home: zurück nach hause
+      title: keine Ergebnisse gefunden
+      description: keine Ergebnisse gefunden
+      button: Zum Laden gehen
+    placeholder: Tippe um zu suchen...
+    error: Beim Abrufen ist ein Fehler aufgetreten
+    results: Suchergebnis für
+    start_searching: Geben Sie etwas zum Suchen ein...
+    back_to_home: Zurück nach Hause
   auth:
     login:
-      title: anmeldung
-      description: anmeldung
-      keywords: anmeldung
-      nav: anmeldung
+      title: Anmeldung
+      description: Anmeldung
+      keywords: Anmeldung
+      nav: Anmeldung
       form:
         email:
-          label: email
+          label: Email
           validation:
-            email: e-mail muss eine gültige e-mail-adresse sein
+            email: E-Mail muss eine gültige E-Mail-Adresse sein
         password:
-          label: passwort
-          toggle: passwort anzeigen
+          label: Passwort
+          toggle: Passwort anzeigen
           validation:
-            min: das passwort muss mindestens %{min} zeichen lang sein
-        remember: erinnere dich an mich
+            min: Das Passwort muss mindestens %{min} Zeichen lang sein
+        remember: Erinnere dich an mich
         forgot:
           password:
-            reset: haben sie ihr passwort vergessen?
-        submit: anmeldung
-        facebook: mit facebook einloggen
-        google: melden sie sich mit google an
+            reset: Haben Sie Ihr Passwort vergessen?
+        submit: Anmeldung
+        facebook: Mit Facebook einloggen
+        google: Melden Sie sich mit Google an
         or: oder
         'no':
-          account: sie haben kein konto?
+          account: Sie haben kein Konto?
     registration:
-      title: anmeldung
-      description: anmeldung
-      keywords: anmeldung
-      nav: anmeldung
+      title: Anmeldung
+      description: Anmeldung
+      keywords: Anmeldung
+      nav: Anmeldung
       form:
         email:
-          label: email
+          label: Email
           validation:
-            email: e-mail muss eine gültige e-mail-adresse sein
+            email: E-Mail muss eine gültige E-Mail-Adresse sein
         password1:
-          label: passwort
-          show: passwort anzeigen
+          label: Passwort
+          show: Passwort anzeigen
           validation:
-            min: das passwort muss mindestens %{min} zeichen lang sein
+            min: Das Passwort muss mindestens %{min} Zeichen lang sein
         password2:
-          label: passwort bestätigung
-          show: passwort anzeigen
+          label: Passwort Bestätigung
+          show: Passwort anzeigen
           validation:
-            min: die passwortbestätigung muss mindestens %{min} zeichen lang sein
-            match: die passwortbestätigung muss mit dem passwort übereinstimmen
+            min: Die Passwortbestätigung muss mindestens %{min} Zeichen lang sein
+            match: Die Passwortbestätigung muss mit dem Passwort übereinstimmen
         password_confirmation:
-          label: passwort bestätigung
+          label: Passwort Bestätigung
           validation:
-            min: die passwortbestätigung muss mindestens %{min} zeichen lang sein
-        submit: registrieren
-        facebook: registrieren sie sich bei facebook
-        google: registrieren sie sich bei google
+            min: Die Passwortbestätigung muss mindestens %{min} Zeichen lang sein
+        submit: Registrieren
+        facebook: Registrieren Sie sich bei Facebook
+        google: Registrieren Sie sich bei Google
         or: oder
-        already_have_account: sie haben bereits ein konto?
+        already_have_account: Sie haben bereits ein Konto?
       account-confirm-email:
-        title: e-mail bestätigen
-        description: e-mail bestätigen
-        keywords: e-mail bestätigen
-        loading: bestätigungs-e-mail wird gesendet...
+        title: E-Mail bestätigen
+        description: E-Mail bestätigen
+        keywords: E-Mail bestätigen
+        loading: Ihre E-Mail-Adresse wird überprüft...
         success:
-          title: e-mail bestätigt
-          description: ihre e-mail-adresse wurde bestätigt. sie können sich jetzt anmelden.
-          button: anmeldung
+          title: E-Mail bestätigt
+          description: Ihre E-Mail-Adresse wurde bestätigt. Sie können sich jetzt anmelden.
+          button: Anmeldung
         error:
-          title: fehler bei der e-mail-bestätigung
-          description: möglicherweise ist der link abgelaufen oder ungültig.
-          button: bestätigungslink erneut senden
+          title: Fehler bei der E-Mail-Bestätigung
+          description: Möglicherweise ist der Link abgelaufen oder ungültig.
+          button: Bestätigungslink erneut senden
         resend:
           success:
-            title: e-mail-bestätigungslink gesendet
-            description: e-mail-bestätigungslink erfolgreich gesendet.
+            title: E-Mail-Bestätigungslink gesendet
+            description: E-Mail-Bestätigungslink erfolgreich gesendet.
           error:
-            title: fehler beim erneuten senden des e-mail-bestätigungslinks
-            description: fehler beim erneuten senden des e-mail-bestätigungslinks.
-          button: bestätigungslink erneut senden
+            title: Fehler beim erneuten Senden des E-Mail-Bestätigungslinks
+            description: Fehler beim erneuten Senden des E-Mail-Bestätigungslinks.
+          button: Bestätigungslink erneut senden
           form:
             email:
-              label: email
-            submit: bestätigungslink erneut senden
+              label: Email
+            submit: Bestätigungslink erneut senden
     password:
       reset:
-        title: setze dein passwort zurück
+        title: Setze dein Passwort zurück
         description: >-
-          geben sie die verifizierte e-mail-adresse ihres benutzerkontos ein und
-          wir senden ihnen einen link zum zurücksetzen des passworts.
-        keywords: passwort zurücksetzen
+          Geben Sie die verifizierte E-Mail-Adresse Ihres Benutzerkontos ein und
+          wir senden Ihnen einen Link zum Zurücksetzen des Passworts.
+        keywords: Passwort zurücksetzen
         form:
           email:
-            label: email
-            placeholder: geben sie ihre e-mailadresse ein
+            label: Email
+            placeholder: Geben sie ihre E-Mailadresse ein
             validation:
-              email: e-mail muss eine gültige e-mail-adresse sein
-          submit: link zum zurücksetzen des passworts senden
+              email: E-Mail muss eine gültige E-Mail-Adresse sein
+          submit: Link zum Zurücksetzen des Passworts senden
         success:
-          title: link zum zurücksetzen des passworts gesendet
-          description: der link zum zurücksetzen des passworts wurde erfolgreich gesendet.
+          title: Link zum Zurücksetzen des Passworts gesendet
+          description: Der Link zum Zurücksetzen des Passworts wurde erfolgreich gesendet.
         error:
-          title: fehler beim senden des passwort-reset-links
-          description: fehler beim senden des passwort-reset-links.
-        button: senden sie eine e-mail zum zurücksetzen des passworts
+          title: Fehler beim Senden des Passwort-Reset-Links
+          description: Fehler beim Senden des Passwort-Reset-Links.
+        button: Senden Sie eine E-Mail zum Zurücksetzen des Passworts
         confirm:
-          title: passwort zurücksetzen
-          description: gib dein neues passwort ein.
-          keywords: passwort zurücksetzen
+          title: Passwort zurücksetzen
+          description: Gib dein neues Passwort ein.
+          keywords: Passwort zurücksetzen
           form:
             email:
-              label: email
+              label: Email
             newPassword1:
-              label: passwort
+              label: Passwort
               validation:
-                min: das passwort muss mindestens %{min} zeichen lang sein
+                min: Das Passwort muss mindestens %{min} Zeichen lang sein
             newPassword2:
-              label: passwort bestätigung
+              label: Passwort Bestätigung
               validation:
                 min: >-
-                  die passwortbestätigung muss mindestens %{min} zeichen lang
+                  Die Passwortbestätigung muss mindestens %{min} Zeichen lang
                   sein
-                match: die passwortbestätigung muss mit dem passwort übereinstimmen
+                match: Die Passwortbestätigung muss mit dem Passwort übereinstimmen
               errors:
-                match: die passwortbestätigung muss mit dem passwort übereinstimmen
+                match: Die Passwortbestätigung muss mit dem Passwort übereinstimmen
             password_confirmation:
-              label: passwort bestätigung
+              label: Passwort Bestätigung
               validation:
                 min: >-
-                  die passwortbestätigung muss mindestens %{min} zeichen lang
+                  Die Passwortbestätigung muss mindestens %{min} Zeichen lang
                   sein
-            submit: passwort zurücksetzen
+            submit: Passwort zurücksetzen
     security:
-      title: sicherheit
-      description: sicherheit
+      title: Sicherheit
+      description: Sicherheit
       password:
-        title: kennwort ändern
-        description: kennwort ändern
-        keywords: kennwort ändern
+        title: Kennwort ändern
+        description: Kennwort ändern
+        keywords: Kennwort ändern
       mfa:
-        title: zwei-faktor-authentifizierung
-        description: zwei-faktor-authentifizierung
-        keywords: zwei-faktor-authentifizierung
+        title: Zwei-Faktor-Authentifizierung
+        description: Zwei-Faktor-Authentifizierung
+        keywords: Zwei-Faktor-Authentifizierung
         recovery:
           codes:
-            title: wiederherstellungscodes
+            title: Wiederherstellungscodes
             description: >-
-              speichern sie diese wiederherstellungscodes in einem sicheren
-              passwort-manager. sie können verwendet werden, um den zugriff auf
-              ihr konto wiederherzustellen, wenn ihr
-              zwei-faktor-authentifizierungsgerät verloren geht.
-            keywords: wiederherstellungscodes
-            link: wiederherstellungscodes anzeigen
-            download: laden sie wiederherstellungscodes herunter
+              Speichern Sie diese Wiederherstellungscodes in einem sicheren
+              Passwort-Manager. Sie können verwendet werden, um den Zugriff auf
+              Ihr Konto wiederherzustellen, wenn Ihr
+              Zwei-Faktor-Authentifizierungsgerät verloren geht.
+            keywords: Wiederherstellungscodes
+            link: Wiederherstellungscodes anzeigen
+            download: Laden Sie Wiederherstellungscodes herunter
             generate:
-              title: generieren sie neue codes
+              title: Generieren Sie neue Codes
               description: >-
-                wenn sie auf die schaltfläche unten klicken, werden ihre alten
-                wiederherstellungscodes ungültig und neue generiert. sie sollten
-                einen neuen satz codes herunterladen, nachdem sie neue generiert
+                Wenn Sie auf die Schaltfläche unten klicken, werden Ihre alten
+                Wiederherstellungscodes ungültig und neue generiert. Sie sollten
+                einen neuen Satz Codes herunterladen, nachdem Sie neue generiert
                 haben.
-              keywords: generieren sie neue codes
-              button: generieren sie neue codes
-              link: generieren sie neue codes
-              success: wiederherstellungscodes erfolgreich generiert
-              error: fehler bei der generierung des wiederherstellungscodes
+              keywords: Generieren Sie neue Codes
+              button: Generieren Sie neue Codes
+              link: Generieren Sie neue Codes
+              success: Wiederherstellungscodes erfolgreich generiert
+              error: Fehler bei der Generierung des Wiederherstellungscodes
               form:
                 code:
-                  label: code
-                button: generieren sie neue codes
+                  label: Code
+                button: Generieren Sie neue Codes
         totp:
           activate:
-            title: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
+            title: Scannen Sie diesen QR-Code mit Ihrer Authentifizierungsanwendung.
             description: >-
-              wenn sie keinen qr-code verwenden können, können sie den code
+              Wenn Sie keinen QR-Code verwenden können, können Sie den Code
               unten manuell eingeben.
-            keywords: scannen sie diesen qr-code mit ihrer authentifizierungsanwendung.
-            button: aktivieren sie
-            link: aktivieren sie
-            success: zwei-faktor-authentifizierung erfolgreich aktiviert!
-            error: fehler bei der aktivierung der zwei-faktor-authentifizierung
+            keywords: Scannen Sie diesen QR-Code mit Ihrer Authentifizierungsanwendung.
+            button: aktivieren Sie
+            link: aktivieren Sie
+            success: Zwei-Faktor-Authentifizierung erfolgreich aktiviert!
+            error: Fehler bei der Aktivierung der Zwei-Faktor-Authentifizierung
             form:
               code:
-                label: code
+                label: Code
           authenticate:
-            title: geben sie den code aus ihrer authentifizierungsanwendung ein.
+            title: Geben Sie den Code aus Ihrer Authentifizierungsanwendung ein.
             description: >-
-              geben sie den aktuellen code ein, der in ihrer
-              authentifizierungsanwendung angezeigt wird.
-            keywords: geben sie den code aus ihrer authentifizierungsanwendung ein.
-            button: authentifizieren
-            link: authentifizieren
+              Geben Sie den aktuellen Code ein, der in Ihrer
+              Authentifizierungsanwendung angezeigt wird.
+            keywords: Geben Sie den Code aus Ihrer Authentifizierungsanwendung ein.
+            button: Authentifizieren
+            link: Authentifizieren
             form:
               code:
-                label: code
+                label: Code
           deactivate:
-            title: deaktivieren sie die zwei-faktor-authentifizierung
+            title: Deaktivieren Sie die Zwei-Faktor-Authentifizierung
             description: >-
-              durch die deaktivierung der zwei-faktor-authentifizierung wird ihr
-              zwei-faktor-authentifizierungsgerät entfernt und ihre
-              wiederherstellungscodes gelöscht.
-            keywords: deaktivieren sie die zwei-faktor-authentifizierung
-            button: deaktivieren
-            link: deaktivieren
-            success: zwei-faktor-authentifizierung erfolgreich deaktiviert
-            error: fehler bei der deaktivierung der zwei-faktor-authentifizierung
+              Durch die Deaktivierung der Zwei-Faktor-Authentifizierung wird Ihr
+              Zwei-Faktor-Authentifizierungsgerät entfernt und Ihre
+              Wiederherstellungscodes gelöscht.
+            keywords: Deaktivieren Sie die Zwei-Faktor-Authentifizierung
+            button: Deaktivieren
+            link: Deaktivieren
+            success: Zwei-Faktor-Authentifizierung erfolgreich deaktiviert
+            error: Fehler bei der Deaktivierung der Zwei-Faktor-Authentifizierung

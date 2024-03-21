@@ -1,96 +1,106 @@
 common:
-  home: σπίτι
-  close: κλείσε
+  home: Σπίτι
+  close: Κλείσε
   auth:
     login:
-      success: συνδεθείτε με επιτυχία
-      error: σφάλμα σύνδεσης
-      loading: φόρτωση...
+      success: Συνδεθείτε με επιτυχία
+      error: Σφάλμα σύνδεσης
+      loading: Φόρτωση...
     registration:
-      success: η εγγραφή ολοκληρώθηκε με επιτυχία
-      error: σφάλμα εγγραφής
-  learn_more: μάθε περισσότερα
+      success: Η εγγραφή ολοκληρώθηκε με επιτυχία
+      error:
+        title: Σφάλμα εγγραφής
+        action1: Επανάληψη αποστολής επαλήθευσης
+  learn_more: Μάθε περισσότερα
   copy: αντίγραφο
   enabled: ενεργοποιημένη
   disabled: άτομα με ειδικές ανάγκες
   read_less: διάβασε λιγότερο
-  read_more: διαβάστε περισσότερα
-  choose: επιλέγω...
-  floor: πάτωμα
-  location_type: τύπος τοποθεσίας
-  phone: τηλέφωνο
-  mobile_phone: κινητό τηλέφωνο
-  notes: σημειώσεις
-  back: πίσω
+  read_more: Διαβάστε περισσότερα
+  choose: Επιλέγω...
+  floor: Πάτωμα
+  location_type: Τύπος τοποθεσίας
+  phone: Τηλέφωνο
+  mobile_phone: Κινητό τηλέφωνο
+  notes: Σημειώσεις
+  back: Πίσω
   account: λογαριασμός
-  search: αναζήτηση
-  retry: ξαναδοκιμάσετε
+  search: Αναζήτηση
+  retry: Ξαναδοκιμάσετε
   items:
-    count: κανένα αντικείμενο | 1 στοιχείο | %{count} στοιχεία
+    count: Κανένα αντικείμενο | 1 στοιχείο | %{count} στοιχεία
   client:
     only:
-      fallback: μόνο για την πλευρά του πελάτη
+      fallback: Μόνο για την πλευρά του πελάτη
   unknown:
-    error: αγνωστο σφάλμα
+    error: Αγνωστο σφάλμα
   error:
     page:
       not:
-        found: η σελίδα δεν βρέθηκε
+        found: Η σελίδα δεν βρέθηκε
   errors:
-    unknown_internal_api_error: άγνωστο εσωτερικό σφάλμα api
-  shop: κατάστημα
-  next: επόμενο
-  previous: προηγούμενος
-  login: σύνδεση
-  logout: αποσύνδεση
-  about: σχετικά με
-  blog: ιστολόγιο
-  company: εταιρία
-  help_center: κέντρο βοηθείας
-  terms_conditions: οροι
-  discord_server: διακομιστής discord
-  contact_us: επικοινωνήστε μαζί μας
-  twitter: κελάδημα
-  instagram: ίνσταγκραμ
-  facebook: facebook
-  all_rights_reserved: ολα τα δικαιώματα διατηρούνται
-  privacy_policy: πολιτική απορρήτου
+    unknown_internal_api_error: Άγνωστο εσωτερικό σφάλμα API
+  shop: Κατάστημα
+  next: Επόμενο
+  previous: Προηγούμενος
+  login: Σύνδεση
+  logout: Αποσύνδεση
+  about: Σχετικά με
+  blog: Ιστολόγιο
+  company: Εταιρία
+  help_center: Κέντρο βοηθείας
+  terms_conditions: Οροι
+  discord_server: Διακομιστής Discord
+  contact_us: Επικοινωνήστε μαζί μας
+  twitter: Κελάδημα
+  instagram: Ίνσταγκραμ
+  facebook: Facebook
+  all_rights_reserved: Ολα τα δικαιώματα διατηρούνται
+  privacy_policy: Πολιτική Απορρήτου
   empty:
-    title: αδειάζω
-    description: αδειάζω
-    button: επέστρεψε στο σπίτι
+    title: Αδειάζω
+    description: Αδειάζω
+    button: Επέστρεψε στο σπίτι
   validation:
     date:
-      required_error: επιλέξτε ημερομηνία και ώρα
-      invalid_type_error: δεν είναι ραντεβού!
+      required_error: Επιλέξτε ημερομηνία και ώρα
+      invalid_type_error: Δεν είναι ραντεβού!
     email:
-      invalid: το email δεν είναι έγκυρο
+      invalid: Το email δεν είναι έγκυρο
     first_name:
-      min: το όνομα πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+      min: Το όνομα πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
     last_name:
-      min: το επώνυμο πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+      min: Το επώνυμο πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
     street:
-      min: η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+      min: Η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
     street_number:
-      min: ο αριθμός οδού πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+      min: Ο αριθμός οδού πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
     city:
-      min: η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+      min: Η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
     zipcode:
-      min: ο ταχυδρομικός κώδικας πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+      min: Ο ταχυδρομικός κώδικας πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
     country:
-      required: απαιτείται χώρα
+      required: Απαιτείται χώρα
     region:
-      required: απαιτείται περιοχή
-  version: εκδοχή
-  upload: μεταφόρτωση
-  tags: ετικέτες
-  categories: κατηγορίες
-  no_categories_found: δεν βρέθηκαν κατηγορίες
+      required: Απαιτείται περιοχή
+  version: Εκδοχή
+  upload: Μεταφόρτωση
+  tags: Ετικέτες
+  categories: Κατηγορίες
+  no_categories_found: Δεν βρέθηκαν Κατηγορίες
   demo:
-    message: αυτός είναι ένας επίδειξης ιστότοπος μόνο για σκοπούς προβολής.
+    message: Αυτός είναι ένας επίδειξης ιστότοπος μόνο για σκοπούς προβολής.
   change:
-    language: αλλαξε γλώσσα
+    language: Αλλαξε γλώσσα
   filters:
-    title: φίλτρα
-    clear: σαφή
-    apply: ισχύουν
+    title: Φίλτρα
+    clear: Σαφή
+    apply: Ισχύουν
+  ordering:
+    id: ταυτότητα
+    created_at: Δημιουργήθηκε στο
+  like: Αρέσει
+  unlike: Διαφορετικός
+  reply: Απάντηση
+  decrement: Μείωση
+  increment: Αύξηση

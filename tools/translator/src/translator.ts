@@ -1,9 +1,8 @@
-import { getCacheKeyVal, saveCacheKeyVal } from './cache'
+import translationCache from './cache'
 import { getISO6391Code, retry, validateDynamicKeys } from './helpers'
-import useLogger from './logger'
+import consola from './consola'
 import type { LocaleFile, translateEngine } from './types'
-
-const logger = useLogger()
+import { Translate } from 'translate'
 
 const translateBundle = async (
   inputBundle: Record<string, unknown>,
@@ -14,27 +13,27 @@ const translateBundle = async (
   useRetry = true,
 ): Promise<Record<string, unknown>> => {
   const outputBundle: Record<string, unknown> = {}
-  const translateFunction = (await import('translate')).default
 
   const translateAndValidate = async (
     text: string,
     langCode: string,
   ): Promise<string> => {
-    const translatedText = await translateFunction(text, {
-      to: langCode,
-      engine,
-    })
+    try {
+      const translator = Translate({ engine })
+      const translatedText = await translator(text, { to: langCode })
 
-    if (text.includes('%{')) {
-      if (!validateDynamicKeys(text, translatedText)) {
-        logger.warn(
+      if (text.includes('%{') && !validateDynamicKeys(text, translatedText)) {
+        consola.warn(
           `Warning: Missing dynamic keys in translation of "${text}" in ${locale.path}`,
         )
         return translatedText.replace(/[%{}]/g, '')
       }
-    }
 
-    return translatedText
+      return translatedText
+    } catch (error) {
+      consola.error(new Error(`Error during translation: ${error}`))
+      throw error
+    }
   }
 
   const eachCurrLevel = async (
@@ -44,30 +43,42 @@ const translateBundle = async (
     for (const key in inputBundle) {
       const value = inputBundle[key]
       const nextParent = parentKey ? `${parentKey}.${key}` : key
+
       if (typeof value === 'string') {
         const langCode = getISO6391Code(locale.lang)
-        const cachedTranslation = getCacheKeyVal(nextParent, langCode)
+        const cachedTranslation = translationCache.getCacheKeyVal(
+          nextParent,
+          langCode,
+        )
+
         if (cachedTranslation) {
-          outputBundle[`${nextParent}`] = cachedTranslation
+          outputBundle[nextParent] = cachedTranslation
         } else {
-          const translation = useRetry
-            ? await retry<string>(
-                () => translateAndValidate(value, langCode),
-                maxRetries,
-                delayTime,
-              )
-            : await translateAndValidate(value, langCode)
+          try {
+            const translation = useRetry
+              ? await retry<string>(
+                  () => translateAndValidate(value, langCode),
+                  maxRetries,
+                  delayTime,
+                )
+              : await translateAndValidate(value, langCode)
 
-          if (!translation) {
-            logger.warn(
-              `Warning: Failed to translate "${value}" in ${locale.path}`,
+            if (!translation) {
+              throw new Error('Translation failed')
+            }
+
+            await translationCache.saveCacheKeyVal(
+              nextParent,
+              langCode,
+              translation,
             )
-            outputBundle[`${nextParent}`] = value
-            continue
+            outputBundle[nextParent] = translation
+          } catch (error) {
+            consola.warn(
+              `Warning: Failed to translate "${value}" in ${locale.path}, error: ${error}`,
+            )
+            outputBundle[nextParent] = value
           }
-
-          saveCacheKeyVal(nextParent, langCode, translation)
-          outputBundle[`${nextParent}`] = translation
         }
       } else if (typeof value === 'object' && value !== null) {
         await eachCurrLevel(value as Record<string, unknown>, nextParent)
@@ -85,19 +96,18 @@ const reconstructNestedObject = (
 ): Record<string, unknown> => {
   const nested: Record<string, unknown> = {}
   for (const key in flattened) {
-    let value = flattened[key]
+    const value = flattened[key]
     const keySplit = key.split('.')
-    const keyLevel = keySplit.length
-
-    if (typeof value === 'string') value = `${value}`.toLowerCase()
-
     let currParent = nested
-    for (let i = 0; i < keyLevel; i++) {
-      const currKey = keySplit[i]
-      if (!currParent[currKey]) currParent[currKey] = {}
-      if (i === keyLevel - 1) currParent[currKey] = value
+
+    keySplit.forEach((currKey, index) => {
+      if (index === keySplit.length - 1) {
+        currParent[currKey] = value
+      } else {
+        currParent[currKey] = currParent[currKey] || {}
+      }
       currParent = currParent[currKey] as Record<string, unknown>
-    }
+    })
   }
   return nested
 }

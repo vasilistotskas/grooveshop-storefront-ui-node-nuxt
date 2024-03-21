@@ -1,91 +1,91 @@
 breadcrumb:
-  label: φρυγανιά
+  label: Φρυγανιά
   items:
     index:
       icon: i-heroicons-home
-      label: σπίτι
+      label: Σπίτι
     products:
       icon: heroicons-solid:shopping-cart
-      label: προϊόντα
+      label: Προϊόντα
     terms:
       icon: heroicons-solid:document
-      label: οροι
+      label: Οροι
     about:
       icon: heroicons-solid:document
-      label: σχετικά με
+      label: Σχετικά με
     contact:
       icon: heroicons-solid:document
-      label: επικοινωνία
+      label: Επικοινωνία
     privacy:
       icon: heroicons-solid:document
-      label: μυστικότητα
+      label: Μυστικότητα
     cart:
       icon: heroicons-solid:shopping-cart
-      label: καροτσάκι
+      label: Καροτσάκι
     blog:
       icon: heroicons-solid:shopping-cart
-      label: ιστολόγιο
+      label: Ιστολόγιο
     checkout:
       icon: heroicons-solid:shopping-cart
-      label: ολοκλήρωση αγοράς
+      label: Ολοκλήρωση αγοράς
       success:
         icon: heroicons-solid:shopping-cart
-        label: ολοκλήρωση αγοράς επιτυχία
+        label: Ολοκλήρωση αγοράς Επιτυχία
     auth:
       login:
         icon: heroicons-solid:shopping-cart
-        label: σύνδεση
+        label: Σύνδεση
       registration:
         icon: heroicons-solid:shopping-cart
-        label: εγγραφή
+        label: Εγγραφή
         account_confirm_email:
           icon: heroicons-solid:shopping-cart
-          label: επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
+          label: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
       password:
         reset:
           icon: heroicons-solid:shopping-cart
-          label: επαναφέρετε τον κωδικό πρόσβασης
+          label: Επαναφέρετε τον κωδικό πρόσβασης
           confirm:
             icon: heroicons-solid:shopping-cart
-            label: επιβεβαίωση κωδικού
+            label: Επιβεβαίωση Κωδικού
       security:
         icon: heroicons-solid:shopping-cart
-        label: ασφάλεια
+        label: Ασφάλεια
         general:
           icon: heroicons-solid:shopping-cart
-          label: γενικός
+          label: Γενικός
         mfa:
           icon: heroicons-solid:shopping-cart
-          label: υπουργείο εξωτερικών
+          label: Υπουργείο Εξωτερικών
           recovery:
             codes:
               icon: heroicons-solid:shopping-cart
-              label: κωδικοί ανάκτησης
+              label: Κωδικοί ανάκτησης
               generate:
                 icon: heroicons-solid:shopping-cart
-                label: δημιουργήστε νέους κωδικούς
+                label: Δημιουργήστε νέους κωδικούς
           totp:
             activate:
               icon: heroicons-solid:shopping-cart
-              label: δραστηριοποιώ
+              label: Δραστηριοποιώ
             authenticate:
               icon: heroicons-solid:shopping-cart
-              label: πιστοποιώ την αυθεντικότητα
+              label: Πιστοποιώ την αυθεντικότητα
             deactivate:
               icon: heroicons-solid:shopping-cart
-              label: απενεργοποίηση
+              label: Απενεργοποίηση
     account:
       icon: heroicons-solid:shopping-cart
       label: λογαριασμός
       addresses:
         icon: heroicons-solid:shopping-cart
-        label: διευθύνσεις
+        label: Διευθύνσεις
         new:
           icon: heroicons-solid:shopping-cart
-          label: νέα διεύθυνση
+          label: Νέα διεύθυνση
         edit:
           icon: heroicons-solid:shopping-cart
-          label: επεξεργασία διεύθυνσης
+          label: Επεξεργασία διεύθυνσης
       favourites:
         icon: heroicons-solid:shopping-cart
-        label: αγαπημένα
+        label: Αγαπημένα

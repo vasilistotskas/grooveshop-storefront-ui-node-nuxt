@@ -5,30 +5,16 @@ import { describe, expect, it, vi } from 'vitest'
 
 import * as configModule from '~/tools/translator/src/config'
 import { getFiles } from '~/tools/translator/src/file-ops'
-import type { Config } from '~/tools/translator/src/types'
 
 vi.mock('fs')
 vi.mock('~/tools/translator/src/config')
 
 describe('translator file-ops tests', () => {
   const testDir = path.join('tests', 'data', 'locales')
-  const mockConfig = {
-    localePath: './tests/data/locales',
-    sourceFileName: 'en-US',
-    translate: {
-      engine: 'google',
-      bundleDelay: 500,
-      bundleMaxRetries: 3,
-    },
-  } as Config<any>
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    vi.mocked(configModule.getConfigFilePath).mockResolvedValue(
-      path.join('tests', 'data', 'locales', 'translator.config.json'),
-    )
-    vi.mocked(configModule.getConfig).mockResolvedValue(mockConfig)
-    await configModule.loadConfig()
+    await configModule.loadTranslatorConfig()
   })
 
   it('returns an empty array for an empty directory', async () => {

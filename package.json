@@ -79,14 +79,14 @@
     "@vueuse/integrations": "10.9.0",
     "@vueuse/nuxt": "10.9.0",
     "@vueuse/shared": "10.9.0",
-    "autoprefixer": "10.4.18",
+    "autoprefixer": "10.4.19",
     "cli-progress": "3.12.0",
     "commander": "12.0.0",
     "coveralls": "3.1.1",
     "defu": "6.1.4",
     "eslint": "8.57.0",
     "h3": "1.11.1",
-    "happy-dom": "14.1.1",
+    "happy-dom": "14.2.0",
     "jose": "5.2.3",
     "js-yaml": "4.1.0",
     "lottie-web": "5.12.2",
@@ -107,10 +107,9 @@
     "semantic-release": "23.0.5",
     "string-replace-loader": "3.1.0",
     "tailwindcss": "3.4.1",
-    "translate": "2.0.2",
+    "translate": "3.0.0",
     "ts-node": "10.9.2",
     "tsc-alias": "1.8.8",
-    "tslog": "4.9.2",
     "typescript": "5.4.3",
     "ufo": "1.5.3",
     "unhead": "1.8.20",
@@ -194,5 +193,9 @@
     "npm": ">=10.4.0",
     "pnpm": "^8.15.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "c12": "^1.10.0",
+    "consola": "^3.2.3"
+  }
 }

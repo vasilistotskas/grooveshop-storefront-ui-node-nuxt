@@ -5,7 +5,7 @@ try {
   const nuxtApp = useNuxtApp()
 
   config.global.plugins.push({
-    async install(app, ...options) {
+    install(app, ...options) {
       if (!('__VUE_I18N__' in nuxtApp.vueApp)) {
         throw new Error('i18n is not available')
       }
@@ -15,7 +15,7 @@ try {
         throw new Error('i18n.global is not available')
       }
 
-      await i18n.install(app, ...options)
+      i18n.install(app, ...options)
     },
   })
 } catch {

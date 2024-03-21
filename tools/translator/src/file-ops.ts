@@ -1,10 +1,8 @@
 import { promises as fsPromises } from 'fs'
 import path from 'path'
 
-import useLogger from './logger'
+import consola from './consola'
 import type { LocaleFile } from './types'
-
-const logger = useLogger()
 
 const getFiles = async (dir: string): Promise<LocaleFile[]> => {
   const files: LocaleFile[] = []
@@ -24,9 +22,8 @@ const getFiles = async (dir: string): Promise<LocaleFile[]> => {
         files.push(...subFiles)
       }
     }
-  } catch (e) {
-    const error = new Error(`Error reading directory at ${dir}: ${e}`)
-    logger.fatal(error)
+  } catch (error) {
+    consola.error(new Error(`Error reading directory at ${dir}: ${error}`))
     throw error
   }
   return files

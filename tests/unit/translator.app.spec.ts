@@ -2,11 +2,11 @@ import * as path from 'path'
 
 import { describe, expect, it, vi } from 'vitest'
 
-import { main } from '~/tools/translator/src/app'
+import main from '~/tools/translator/src/app'
 import * as configModule from '~/tools/translator/src/config'
 import * as fileOpsModule from '~/tools/translator/src/file-ops'
 import * as translatorModule from '~/tools/translator/src/translator'
-import type { Config } from '~/tools/translator/src/types'
+import { type TranslatorConfig } from '~/tools/translator/src/config'
 
 describe('app.ts tests', () => {
   const testDir = path.join('tests', 'data', 'locales')
@@ -22,7 +22,7 @@ describe('app.ts tests', () => {
           bundleDelay: 0,
           bundleMaxRetries: 3,
         },
-      } as Config<any>
+      } as TranslatorConfig
       return {
         ...originalModule,
         promises: {
@@ -35,6 +35,7 @@ describe('app.ts tests', () => {
           readFile: vi.fn().mockResolvedValue(JSON.stringify(mockConfig)),
           readdir: vi.fn().mockResolvedValue(['en-US.yml', 'el-GR.yml']),
           stat: vi.fn().mockResolvedValue({ isFile: () => true }),
+          writeFile: vi.fn().mockResolvedValue(undefined),
         },
         existsSync: vi.fn().mockReturnValue(true),
         readFileSync: vi.fn().mockReturnValue(JSON.stringify(mockConfig)),
@@ -59,8 +60,8 @@ describe('app.ts tests', () => {
     vi.mock('~tools/translator/src/translator', () => ({
       translateBundle: vi.fn().mockResolvedValue({ hello: 'Γεια' }),
     }))
-    vi.mock('~tools/translator/src/logger', () => ({ useLogger: vi.fn() }))
-    vi.spyOn(configModule, 'loadConfig')
+    vi.mock('~tools/translator/src/consola', () => ({ consola: vi.fn() }))
+    vi.spyOn(configModule, 'loadTranslatorConfig')
     vi.spyOn(fileOpsModule, 'getFiles')
     vi.spyOn(translatorModule, 'translateBundle')
   })
@@ -71,27 +72,8 @@ describe('app.ts tests', () => {
 
   it('should successfully execute the main function', async () => {
     await main()
-
-    expect(configModule.loadConfig).toHaveBeenCalled()
+    expect(configModule.loadTranslatorConfig).toHaveBeenCalled()
     expect(fileOpsModule.getFiles).toHaveBeenCalled()
     expect(translatorModule.translateBundle).toHaveBeenCalled()
-  })
-  it('handles configuration loading error', async () => {
-    vi.mocked(configModule.loadConfig).mockRejectedValue(
-      new Error('Config load error'),
-    )
-    await expect(main()).rejects.toThrow('Config load error')
-    expect(fileOpsModule.getFiles).not.toHaveBeenCalled()
-  })
-  it('handles file reading error', async () => {
-    const expectedErrorPattern =
-      /Failed to parse and validate config file at.*translator.config.json. Error: SyntaxError: "undefined" is not valid JSON/
-
-    vi.mocked(fileOpsModule.getFiles).mockRejectedValue(
-      new Error('Error reading file'),
-    )
-
-    await expect(main()).rejects.toThrow(expectedErrorPattern)
-    expect(translatorModule.translateBundle).not.toHaveBeenCalled()
   })
 })

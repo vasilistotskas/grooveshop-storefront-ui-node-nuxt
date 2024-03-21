@@ -1,0 +1,6 @@
+this:
+  is:
+    a:
+      nested:
+        directory:
+          structure: "This is a nested directory structure"

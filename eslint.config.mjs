@@ -10,5 +10,9 @@ export default withNuxt({
     'vue/no-v-html': 0,
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off'
-  }
+  },
+  languageOptions: {
+    sourceType: 'module',
+    ecmaVersion: 'latest'
+  },
 })

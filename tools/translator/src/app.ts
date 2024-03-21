@@ -1,140 +1,134 @@
 /* eslint-disable no-console */
-import * as fs from 'fs'
+import { promises as fsPromises } from 'fs'
+import translationCache from './cache'
 import path from 'path'
-
 import yaml from 'js-yaml'
-
 import cliProgress from './cli-progress.mjs'
-import { loadConfig } from './config'
 import { getFiles } from './file-ops'
-import useLogger from './logger'
+import consola from './consola'
 import { translateBundle } from './translator'
-import type { LocaleFile } from './types'
+import type { debugMode, LocaleFile, translateEngine } from './types'
+import { loadTranslatorConfig } from './config'
+
+const EXTENSIONS = {
+  YAML: '.yml',
+}
 
 const cwd = process.cwd()
 
-const logger = useLogger()
-
-async function main(): Promise<void> {
+async function main() {
+  consola.start('Starting translation process...')
+  await translationCache.init()
   try {
-    const config = await loadConfig()
+    const config = await loadTranslatorConfig()
     const localePath = path.join(cwd, config.localePath)
 
-    const mode = config.debug?.mode
-    const sourceFileName = config.sourceFileName
-    const engine = config.translate?.engine
-    const translateBundleMaxRetries = config.translate?.bundleMaxRetries
-    const translateBundleDelay = config.translate?.bundleDelay
+    const {
+      debug: { mode } = {},
+      sourceFileName,
+      translate: { engine, bundleMaxRetries, bundleDelay } = {},
+    } = config
 
     const localeFiles = await getFiles(localePath)
-
-    const mainLocalePath = path.join(localePath, `${sourceFileName}.yml`)
-    const totalLocaleFiles = localeFiles.length
     const listLocaleToTranslate = localeFiles.filter(
       (l: LocaleFile) => l.lang !== sourceFileName,
     )
-    const defaultLocalFiles = localeFiles.filter(
-      (l: LocaleFile) => l.lang === sourceFileName,
-    )
-    const totalProgressBarSegments = totalLocaleFiles - defaultLocalFiles.length
 
-    const startTime = Date.now()
-
-    const progressBar = new cliProgress.SingleBar(
-      {
-        format:
-          'Progress [{bar}] {percentage}% | {value}/{total} | ETA: {eta}s | Current File: {currentFile}',
-        etaBuffer: totalProgressBarSegments * 100,
-        progressCalculationRelative: true,
-        etaAsynchronousUpdate: true,
-      },
-      cliProgress.Presets.rect,
-    )
-
-    if (mode === 'progress-bar') {
-      progressBar.on('redraw-pre', () => {
-        console.clear()
-      })
-      progressBar.start(totalProgressBarSegments, 0)
-    }
-
-    const localesToTranslate = localeFiles.map((l: LocaleFile) => {
-      const pathParts = l.path.split('\\')
-      return pathParts
-        .slice(pathParts.lastIndexOf('locales') + 1)
-        .join('/')
-        .replace('.yml', '')
-    })
-
-    logger.silly(`Target Locales Path: ${localePath}`)
-    logger.silly(`Main Locale: ${mainLocalePath}`)
-    logger.silly(`Locales to translate: ${localesToTranslate.join(', ')}`)
+    const progressBar = setupProgressBar(mode, listLocaleToTranslate.length)
 
     const translations = await Promise.all(
-      listLocaleToTranslate.map(async (locale: LocaleFile) => {
-        const fileStartTime = Date.now()
-        try {
-          logger.silly(`Translating file: ${locale.path}`)
-
-          const inputBundle = yaml.load(
-            fs.readFileSync(
-              path.join(locale.dir, `${sourceFileName}.yml`),
-              'utf8',
-            ),
-          ) as Record<string, unknown>
-
-          const translated = await translateBundle(
-            inputBundle,
-            locale,
-            engine,
-            translateBundleMaxRetries,
-            translateBundleDelay,
-          )
-
-          const fileEndTime = Date.now()
-          const timePerFile = (fileEndTime - fileStartTime) / 1000
-          logger.info(
-            `Time taken for file ${locale.path}: ${timePerFile} seconds`,
-          )
-          if (mode === 'progress-bar') {
-            progressBar.increment(1, { currentFile: locale.path })
-          }
-          logger.info(`Successfully translated file: ${locale.path}`)
-          return translated
-        } catch (e) {
-          logger.error(`Failed to translate file: ${locale.path}`)
-          logger.error(e)
-          return null
-        }
-      }),
+      listLocaleToTranslate.map((locale) =>
+        translateLocaleFile(
+          locale,
+          sourceFileName,
+          engine,
+          bundleMaxRetries,
+          bundleDelay,
+          progressBar,
+        ),
+      ),
     )
-
-    translations.forEach((t: Awaited<unknown>, index: number) => {
-      if (t !== null && t !== undefined) {
-        fs.writeFileSync(listLocaleToTranslate[index].path, yaml.dump(t))
-      }
-    })
-
-    const endTime = Date.now()
-    const totalTime = (endTime - startTime) / 1000
-    logger.info(`Total time taken: ${totalTime} seconds`)
-
-    if (mode === 'progress-bar') {
-      progressBar.update(totalProgressBarSegments)
-      progressBar.stop()
-    }
-  } catch (e) {
-    logger.fatal(e)
-    throw e
+    await saveTranslations(translations, listLocaleToTranslate)
+  } catch (error) {
+    throw new Error(`Failed to translate files: ${error}`)
   }
 }
 
-main()
-  .then(() => {
-    logger.info('Done')
-  })
-  .catch((e) => {
-    logger.error(e)
-  })
+async function translateLocaleFile(
+  locale: LocaleFile,
+  sourceFileName: string,
+  engine: translateEngine | undefined,
+  maxRetries: number | undefined,
+  delay: number | undefined,
+  progressBar: cliProgress.SingleBar | null,
+) {
+  const startTime = Date.now()
+  try {
+    const inputBundlePath = path.join(
+      locale.dir,
+      `${sourceFileName}${EXTENSIONS.YAML}`,
+    )
+    const inputBundle = yaml.load(
+      await fsPromises.readFile(inputBundlePath, 'utf8'),
+    ) as Record<string, unknown>
 
-export { main }
+    const translated = await translateBundle(
+      inputBundle,
+      locale,
+      engine,
+      maxRetries,
+      delay,
+    )
+
+    const timeTaken = (Date.now() - startTime) / 1000
+    consola.info(`File ${locale.path} translated in ${timeTaken} seconds`)
+
+    if (progressBar) progressBar.increment()
+
+    return translated
+  } catch (error) {
+    consola.error(
+      new Error(`Failed to translate file: ${locale.path} - ${error}`),
+    )
+    return null
+  }
+}
+
+async function saveTranslations(
+  translations: (Record<string, unknown> | null)[],
+  locales: LocaleFile[],
+) {
+  await Promise.all(
+    translations.map((translation, index) => {
+      if (translation) {
+        const outputPath = locales[index].path
+        return fsPromises.writeFile(outputPath, yaml.dump(translation))
+      }
+    }),
+  )
+}
+
+function setupProgressBar(mode: debugMode | undefined, totalSegments: number) {
+  if (mode !== 'progress-bar') return null
+
+  const progressBar = new cliProgress.SingleBar(
+    {
+      format:
+        'Progress [{bar}] {percentage}% | {value}/{total} | ETA: {eta}s | Current File: {currentFile}',
+      etaBuffer: totalSegments * 100,
+      progressCalculationRelative: true,
+      etaAsynchronousUpdate: true,
+    },
+    cliProgress.Presets.rect,
+  )
+
+  progressBar.start(totalSegments, 0, { currentFile: 'N/A' })
+
+  return progressBar
+}
+
+main()
+  .then(() => consola.success('Translation process completed successfully.'))
+  .catch((error) => consola.error(error))
+
+export default main
