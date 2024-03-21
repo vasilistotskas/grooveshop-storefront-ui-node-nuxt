@@ -16,11 +16,17 @@ const EXTENSIONS = {
 
 const cwd = process.cwd()
 
-async function main() {
+export async function main() {
   consola.start('Starting translation process...')
   await translationCache.init()
   try {
     const config = await loadTranslatorConfig()
+    if (!config) {
+      const error = new Error('Failed to load translator config')
+      consola.error(consola.error(error))
+      throw error
+    }
+
     const localePath = path.join(cwd, config.localePath)
 
     const {
@@ -126,9 +132,3 @@ function setupProgressBar(mode: debugMode | undefined, totalSegments: number) {
 
   return progressBar
 }
-
-main()
-  .then(() => consola.success('Translation process completed successfully.'))
-  .catch((error) => consola.error(error))
-
-export default main

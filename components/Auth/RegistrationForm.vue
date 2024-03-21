@@ -137,13 +137,15 @@ const onSubmit = handleSubmit((values) => {
             <span
               v-if="errors.email"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.email }}</span>
+              >{{ errors.email }}</span
+            >
           </div>
           <div class="grid content-evenly items-start">
             <label
               class="text-primary-700 dark:text-primary-100"
               for="password1"
-              >{{ $t('pages.auth.registration.form.password1.label') }}</label>
+              >{{ $t('pages.auth.registration.form.password1.label') }}</label
+            >
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password1"
@@ -168,14 +170,16 @@ const onSubmit = handleSubmit((values) => {
             <span
               v-if="errors.password1"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.password1 }}</span>
+              >{{ errors.password1 }}</span
+            >
           </div>
 
           <div class="grid content-evenly items-start">
             <label
               class="text-primary-700 dark:text-primary-100"
               for="password2"
-              >{{ $t('pages.auth.registration.form.password2.label') }}</label>
+              >{{ $t('pages.auth.registration.form.password2.label') }}</label
+            >
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password2"
@@ -200,7 +204,8 @@ const onSubmit = handleSubmit((values) => {
             <span
               v-if="errors.password2"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.password2 }}</span>
+              >{{ errors.password2 }}</span
+            >
           </div>
 
           <button

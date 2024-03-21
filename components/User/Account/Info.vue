@@ -62,7 +62,8 @@ defineProps({
             }}</span>
             <span
               class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
-              >{{ ordersCount }}</span>
+              >{{ ordersCount }}</span
+            >
           </Anchor>
         </div>
         <div v-if="favouritesCount" class="user-info-stats-item">
@@ -79,7 +80,8 @@ defineProps({
             }}</span>
             <span
               class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
-              >{{ favouritesCount }}</span>
+              >{{ favouritesCount }}</span
+            >
           </Anchor>
         </div>
         <div v-if="reviewsCount" class="user-info-stats-item">
@@ -96,7 +98,8 @@ defineProps({
             }}</span>
             <span
               class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
-              >{{ reviewsCount }}</span>
+              >{{ reviewsCount }}</span
+            >
           </Anchor>
         </div>
       </div>

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { loadConfig, setupDotenv } from 'c12'
 import type { debugMode, translateEngine } from '~/tools/translator/src/types'
+import type { ConsolaOptions } from 'consola'
 
 export interface TranslatorConfig {
   localePath: string
@@ -13,6 +14,7 @@ export interface TranslatorConfig {
   debug?: {
     mode: debugMode
   }
+  consola?: Partial<ConsolaOptions>
 }
 
 const getDefaultConfig = () =>
@@ -31,7 +33,7 @@ const getDefaultConfig = () =>
 
 export async function loadTranslatorConfig(
   cwd: string = process.cwd(),
-): Promise<TranslatorConfig> {
+): Promise<TranslatorConfig | null> {
   await setupDotenv({ cwd })
   const defaults = getDefaultConfig()
   const { config } = await loadConfig<TranslatorConfig>({
@@ -41,5 +43,5 @@ export async function loadTranslatorConfig(
     defaults,
   })
 
-  return config as TranslatorConfig
+  return config
 }

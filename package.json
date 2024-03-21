@@ -26,7 +26,7 @@
     "lint:fix": "eslint . --fix",
     "format:fix": "npx prettier --write '*/**/*.{js,ts,vue,html}'",
     "cleanup": "nuxt cleanup",
-    "generate:locales": "node --enable-source-maps --no-warnings=ExperimentalWarning --loader ts-node/esm tools/translator/src/app.ts",
+    "generate:locales": "tsx ./tools/translator/src/commands/translate.ts",
     "analyze": "npx nuxt analyze",
     "test:dev": "nuxt dev --no-fork NUXT_VITEST_DEV_TEST=true",
     "test:unit": "vitest run",
@@ -43,7 +43,7 @@
     "@intlify/vue-i18n-bridge": "1.1.0",
     "@intlify/vue-router-bridge": "1.1.0",
     "@nuxt/devtools": "1.1.1",
-    "@nuxt/eslint": "0.3.0-beta.2",
+    "@nuxt/eslint": "0.3.0-beta.3",
     "@nuxt/image": "1.4.0",
     "@nuxt/kit": "3.11.1",
     "@nuxt/schema": "3.11.1",
@@ -136,7 +136,11 @@
     "workbox-precaching": "7.0.0",
     "workbox-routing": "7.0.0",
     "workbox-strategies": "7.0.0",
-    "zod": "3.22.4"
+    "zod": "3.22.4",
+    "c12": "^1.10.0",
+    "citty": "^0.1.6",
+    "consola": "^3.2.3",
+    "tsx": "^4.7.1"
   },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"
@@ -193,9 +197,5 @@
     "npm": ">=10.4.0",
     "pnpm": "^8.15.0"
   },
-  "packageManager": "pnpm@8.15.0",
-  "dependencies": {
-    "c12": "^1.10.0",
-    "consola": "^3.2.3"
-  }
+  "packageManager": "pnpm@8.15.0"
 }

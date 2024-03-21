@@ -1,4 +1,6 @@
 import { createConsola } from 'consola'
-const consola = createConsola()
+import { loadTranslatorConfig } from './config'
 
+const config = await loadTranslatorConfig()
+const consola = createConsola(config?.consola)
 export default consola

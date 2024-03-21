@@ -14,7 +14,7 @@ export const floorChoicesList = Object.keys(ZodFloorChoicesEnum.Values).filter(
   },
 )
 
-export const defaultSelectOptionChoose = 'choose' as const
+export const defaultSelectOptionChoose = 'choose'
 
 export const AuthenticatedRoutePrefixes = [
   '/auth/security',

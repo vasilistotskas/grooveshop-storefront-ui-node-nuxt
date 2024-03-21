@@ -41,7 +41,8 @@ const divTag = ref('div')
     >
       <span
         class="text-primary-700 dark:text-primary-100 block text-8xl font-bold"
-        >{{ error.statusCode }}</span>
+        >{{ error.statusCode }}</span
+      >
       <span class="text-primary-700 dark:text-primary-100 block italic">{{
         error.statusMessage
       }}</span>

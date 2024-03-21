@@ -204,7 +204,8 @@ definePageMeta({
         >
           <span>{{ $t('pages.search.results') }}:</span>
           <span v-if="currentSearch" class="font-bold">
-            {{ currentSearch }}</span>
+            {{ currentSearch }}</span
+          >
         </span>
       </PageTitle>
 

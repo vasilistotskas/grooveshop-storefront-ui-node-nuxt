@@ -1,20 +1,6 @@
 {
 	// https://v3.nuxtjs.org/concepts/typescript
 	"extends": "./.nuxt/tsconfig.json",
-	"compilerOptions": {
-		"outDir": "./.output",
-    "moduleResolution": "Bundler",
-    "inlineSourceMap": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "index.d.ts",
-      "auth.d.ts",
-      "unplugin-icons.d.ts",
-      "components.d.ts",
-      "global.d.ts",
-      "auto-imports.d.ts"
-    ]
-	},
   "ts-node": {
     "experimentalSpecifierResolution": "node",
     "transpileOnly": true,

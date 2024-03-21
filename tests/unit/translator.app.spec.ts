@@ -2,7 +2,7 @@ import * as path from 'path'
 
 import { describe, expect, it, vi } from 'vitest'
 
-import main from '~/tools/translator/src/app'
+import { main } from '~/tools/translator/src/app'
 import * as configModule from '~/tools/translator/src/config'
 import * as fileOpsModule from '~/tools/translator/src/file-ops'
 import * as translatorModule from '~/tools/translator/src/translator'

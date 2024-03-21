@@ -87,7 +87,9 @@ const onLocaleChange = (event: Event) => {
               class="text-primary-700 dark:text-primary-100 flex-1 truncate text-sm"
             >
               {{ lang.name }}
-              <span class="text-primary-700 dark:text-primary-100 text-xs">({{ lang.code }})</span>
+              <span class="text-primary-700 dark:text-primary-100 text-xs"
+                >({{ lang.code }})</span
+              >
             </span>
           </NuxtLink>
         </ListboxOption>

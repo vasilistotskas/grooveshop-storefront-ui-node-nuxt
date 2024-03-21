@@ -263,9 +263,11 @@ definePageMeta({
                 class="scrollable-tags flex flex-wrap items-center md:gap-4"
               >
                 <li v-for="tag in blogPostTags" :key="tag?.id">
-                  <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
+                  <span class="flex w-full items-center text-sm"
+                    ><UIcon name="i-heroicons-hashtag" />{{
                       extractTranslated(tag, 'name', locale)
-                    }}</span>
+                    }}</span
+                  >
                 </li>
               </ul>
             </div>

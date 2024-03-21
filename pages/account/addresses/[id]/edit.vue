@@ -274,7 +274,8 @@ definePageMeta({
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="title"
-            >{{ $t('pages.account.addresses.edit.form.title') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.title') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="title"
@@ -291,13 +292,15 @@ definePageMeta({
           <span
             v-if="errors.title"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.title }}</span>
+            >{{ errors.title }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="firstName"
-            >{{ $t('pages.account.addresses.edit.form.first_name') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.first_name') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="firstName"
@@ -314,13 +317,15 @@ definePageMeta({
           <span
             v-if="errors.firstName"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.firstName }}</span>
+            >{{ errors.firstName }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="lastName"
-            >{{ $t('pages.account.addresses.edit.form.last_name') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.last_name') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="lastName"
@@ -337,13 +342,15 @@ definePageMeta({
           <span
             v-if="errors.lastName"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.lastName }}</span>
+            >{{ errors.lastName }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="street"
-            >{{ $t('pages.account.addresses.edit.form.street') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.street') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="street"
@@ -360,13 +367,15 @@ definePageMeta({
           <span
             v-if="errors.street"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.street }}</span>
+            >{{ errors.street }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="streetNumber"
-            >{{ $t('pages.account.addresses.edit.form.street_number') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.street_number') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="streetNumber"
@@ -385,13 +394,15 @@ definePageMeta({
           <span
             v-if="errors.streetNumber"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.streetNumber }}</span>
+            >{{ errors.streetNumber }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="city"
-            >{{ $t('pages.account.addresses.edit.form.city') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.city') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="city"
@@ -408,13 +419,15 @@ definePageMeta({
           <span
             v-if="errors.city"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.city }}</span>
+            >{{ errors.city }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="zipcode"
-            >{{ $t('pages.account.addresses.edit.form.zipcode') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.zipcode') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="zipcode"
@@ -431,13 +444,15 @@ definePageMeta({
           <span
             v-if="errors.zipcode"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.zipcode }}</span>
+            >{{ errors.zipcode }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="phone"
-            >{{ $t('pages.account.addresses.edit.form.phone') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.phone') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="phone"
@@ -453,13 +468,15 @@ definePageMeta({
           <span
             v-if="errors.phone"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.phone }}</span>
+            >{{ errors.phone }}</span
+          >
         </div>
         <div class="grid items-start md:content-evenly">
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="mobilePhone"
-            >{{ $t('pages.account.addresses.edit.form.mobile_phone') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.mobile_phone') }}</label
+          >
           <div class="grid">
             <FormTextInput
               id="mobilePhone"
@@ -477,7 +494,8 @@ definePageMeta({
           <span
             v-if="errors.mobilePhone"
             class="relative px-4 py-3 text-sm text-red-600"
-            >{{ errors.mobilePhone }}</span>
+            >{{ errors.mobilePhone }}</span
+          >
         </div>
 
         <div class="grid items-start gap-2 md:content-evenly">
@@ -485,7 +503,8 @@ definePageMeta({
             <label
               class="text-primary-700 dark:text-primary-100 mb-2"
               for="floor"
-              >{{ $t('pages.account.addresses.edit.form.floor') }}</label>
+              >{{ $t('pages.account.addresses.edit.form.floor') }}</label
+            >
             <VeeField
               id="floor"
               v-model="floor"
@@ -514,7 +533,8 @@ definePageMeta({
             <span
               v-if="errors.floor"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.floor }}</span>
+              >{{ errors.floor }}</span
+            >
           </div>
           <div class="grid">
             <label
@@ -522,7 +542,8 @@ definePageMeta({
               for="locationType"
               >{{
                 $t('pages.account.addresses.edit.form.location_type')
-              }}</label>
+              }}</label
+            >
             <VeeField
               id="locationType"
               v-model="locationType"
@@ -551,7 +572,8 @@ definePageMeta({
             <span
               v-if="errors.locationType"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.locationType }}</span>
+              >{{ errors.locationType }}</span
+            >
           </div>
         </div>
 
@@ -560,7 +582,8 @@ definePageMeta({
             <label
               class="text-primary-700 dark:text-primary-100 mb-2"
               for="country"
-              >{{ $t('pages.account.addresses.edit.form.country') }}</label>
+              >{{ $t('pages.account.addresses.edit.form.country') }}</label
+            >
             <div class="grid">
               <VeeField
                 id="country"
@@ -592,13 +615,15 @@ definePageMeta({
             <span
               v-if="errors.country"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.country }}</span>
+              >{{ errors.country }}</span
+            >
           </div>
           <div class="grid">
             <label
               class="text-primary-700 dark:text-primary-100 mb-2"
               for="region"
-              >{{ $t('pages.account.addresses.edit.form.region') }}</label>
+              >{{ $t('pages.account.addresses.edit.form.region') }}</label
+            >
             <div class="grid">
               <VeeField
                 id="region"
@@ -630,7 +655,8 @@ definePageMeta({
             <span
               v-if="errors.region"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.region }}</span>
+              >{{ errors.region }}</span
+            >
           </div>
         </div>
 
@@ -638,7 +664,8 @@ definePageMeta({
           <label
             class="text-primary-700 dark:text-primary-100 mb-2"
             for="notes"
-            >{{ $t('pages.account.addresses.edit.form.notes') }}</label>
+            >{{ $t('pages.account.addresses.edit.form.notes') }}</label
+          >
           <div class="grid">
             <VeeField
               id="notes"

@@ -190,7 +190,8 @@ definePageMeta({
                 <span>{{ $t('pages.product.product_id') }}: </span>
                 <span
                   class="text-indigo-700 hover:underline dark:text-indigo-200"
-                  >{{ product.id }}</span>
+                  >{{ product.id }}</span
+                >
               </h3>
               <PageSection class="actions flex items-center gap-4">
                 <ClientOnly>

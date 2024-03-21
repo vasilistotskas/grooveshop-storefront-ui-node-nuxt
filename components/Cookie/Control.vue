@@ -358,7 +358,7 @@ defineExpose({
                             cookie.targetCookieIds
                           "
                         >
-                          <br>
+                          <br >
                           {{
                             'IDs: ' +
                             cookie.targetCookieIds
@@ -373,7 +373,7 @@ defineExpose({
                             v-for="entry in Object.entries(cookie.links || {})"
                             :key="entry[0]"
                           >
-                            <br>
+                            <br >
                             <a :href="entry[0]">{{
                               resolveLinkEntryText(entry)
                             }}</a>

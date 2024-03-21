@@ -86,7 +86,8 @@ const onSubmit = handleSubmit(async (values) => {
               for="newPassword1"
               >{{
                 $t('pages.auth.password.reset.confirm.form.newPassword1.label')
-              }}</label>
+              }}</label
+            >
             <FormTextInput
               id="newPassword1"
               v-model="newPassword1"
@@ -100,7 +101,8 @@ const onSubmit = handleSubmit(async (values) => {
             <span
               v-if="errors.newPassword1"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.newPassword1 }}</span>
+              >{{ errors.newPassword1 }}</span
+            >
           </div>
 
           <div class="grid content-evenly items-start">
@@ -109,7 +111,8 @@ const onSubmit = handleSubmit(async (values) => {
               for="newPassword2"
               >{{
                 $t('pages.auth.password.reset.confirm.form.newPassword2.label')
-              }}</label>
+              }}</label
+            >
             <FormTextInput
               id="newPassword2"
               v-model="newPassword2"
@@ -123,7 +126,8 @@ const onSubmit = handleSubmit(async (values) => {
             <span
               v-if="errors.newPassword2"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.newPassword2 }}</span>
+              >{{ errors.newPassword2 }}</span
+            >
           </div>
 
           <button

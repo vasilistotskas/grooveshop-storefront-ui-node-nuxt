@@ -134,7 +134,8 @@ const packageVersion = pkg.version
               :title="config.public.siteName"
               :text="config.public.siteName"
               css-class="flex-1 hover:no-underline capitalize text-gray-900"
-              >{{ config.public.siteName }}™</Anchor>. {{ $t('common.all_rights_reserved') }}.
+              >{{ config.public.siteName }}™</Anchor
+            >. {{ $t('common.all_rights_reserved') }}.
           </span>
           <div class="mt-4 flex items-center justify-between gap-12 md:mt-0">
             <div class="flex space-x-6 sm:justify-center">
@@ -199,7 +200,8 @@ const packageVersion = pkg.version
             </div>
             <span
               class="text-primary-700 dark:text-primary-300 text-xs sm:text-center"
-              >Version: {{ packageVersion }}</span>
+              >Version: {{ packageVersion }}</span
+            >
           </div>
         </div>
       </div>

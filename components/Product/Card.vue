@@ -150,7 +150,8 @@ const userProductFavourite = computed(() => {
               <p>
                 <span class="text-primary-700 dark:text-primary-100">{{
                   $t('components.product.card.price')
-                }}</span><span class="text-primary-700 dark:text-primary-100">{{
+                }}</span
+                ><span class="text-primary-700 dark:text-primary-100">{{
                   product.price
                 }}</span>
               </p>
@@ -162,7 +163,8 @@ const userProductFavourite = computed(() => {
               <p class="card-prices-vat-percent">
                 <span class="text-primary-700 dark:text-primary-100">{{
                   $t('components.product.card.vat_percent')
-                }}</span><span class="text-primary-700 dark:text-primary-100">{{
+                }}</span
+                ><span class="text-primary-700 dark:text-primary-100">{{
                   product.vatPercent
                 }}</span>
               </p>
