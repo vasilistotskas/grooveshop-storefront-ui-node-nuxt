@@ -1,7 +1,7 @@
-import * as fsPromises from 'fs/promises'
 import path from 'path'
-import { cacheDir, cacheFile } from './constants'
-import consola from './consola'
+import { cacheDir, cacheFile } from '~/tools/translator/src/constants'
+import consola from '~/tools/translator/src/consola'
+import { access, readFile, writeFile, mkdir, constants } from 'node:fs/promises'
 
 const cacheFilePath = path.join(cacheDir, cacheFile)
 
@@ -36,9 +36,10 @@ class TranslationCache {
 
   async ensureCacheDirectoryExists() {
     try {
-      await fsPromises.access(cacheDir)
+      await access(cacheDir)
     } catch {
-      await fsPromises.mkdir(cacheDir, { recursive: true })
+      consola.info('Cache directory does not exist. Creating...')
+      await mkdir(cacheDir, { recursive: true })
     }
   }
 
@@ -46,7 +47,7 @@ class TranslationCache {
     await this.ensureCacheDirectoryExists()
     const cacheObject = Object.fromEntries(this.cache)
     try {
-      await fsPromises.writeFile(
+      await writeFile(
         cacheFilePath,
         JSON.stringify(cacheObject, null, 2),
         'utf-8',
@@ -60,12 +61,11 @@ class TranslationCache {
     await this.ensureCacheDirectoryExists()
     try {
       if (
-        await fsPromises
-          .access(cacheFilePath, fsPromises.constants.F_OK)
+        await access(cacheFilePath, constants.F_OK)
           .then(() => true)
           .catch(() => false)
       ) {
-        const fileContent = await fsPromises.readFile(cacheFilePath, 'utf-8')
+        const fileContent = await readFile(cacheFilePath, 'utf-8')
         const parsedContent = JSON.parse(fileContent)
         if (
           typeof parsedContent === 'object' &&
@@ -101,6 +101,10 @@ class TranslationCache {
   async init() {
     await this.loadCacheFromFile()
     consola.info('Cache loaded from file')
+  }
+
+  clear() {
+    this.cache.clear()
   }
 }
 

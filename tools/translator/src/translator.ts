@@ -1,13 +1,27 @@
-import translationCache from './cache'
-import { getISO6391Code, retry, validateDynamicKeys } from './helpers'
-import consola from './consola'
-import type { LocaleFile, translateEngine } from './types'
+import translationCache from '~/tools/translator/src/cache'
+import {
+  getISO6391Code,
+  retry,
+  validateDynamicKeys,
+} from '~/tools/translator/src/helpers'
+import consola from '~/tools/translator/src/consola'
+import {
+  FileExtensions,
+  type LocaleFile,
+  type TranslateEngine,
+} from '~/tools/translator/src/types'
 import { Translate } from 'translate'
+import cliProgress from '~/tools/translator/src/cli-progress.mjs'
+import {
+  readFileContents,
+  writeFileContents,
+} from '~/tools/translator/src/file-ops'
+import type { TranslatorConfig } from '~/tools/translator/src/config'
 
-const translateBundle = async (
+export const translateBundle = async (
   inputBundle: Record<string, unknown>,
   locale: LocaleFile,
-  engine: translateEngine = 'google',
+  engine: TranslateEngine = 'google',
   maxRetries = 3,
   delayTime = 1000,
   useRetry = true,
@@ -45,7 +59,7 @@ const translateBundle = async (
       const nextParent = parentKey ? `${parentKey}.${key}` : key
 
       if (typeof value === 'string') {
-        const langCode = getISO6391Code(locale.lang)
+        const langCode = getISO6391Code(locale.langCode)
         const cachedTranslation = translationCache.getCacheKeyVal(
           nextParent,
           langCode,
@@ -64,6 +78,11 @@ const translateBundle = async (
               : await translateAndValidate(value, langCode)
 
             if (!translation) {
+              consola.error(
+                new Error(
+                  `Translation failed for "${value}" in ${locale.path}`,
+                ),
+              )
               throw new Error('Translation failed')
             }
 
@@ -91,7 +110,7 @@ const translateBundle = async (
   return reconstructNestedObject(outputBundle)
 }
 
-const reconstructNestedObject = (
+export const reconstructNestedObject = (
   flattened: Record<string, unknown>,
 ): Record<string, unknown> => {
   const nested: Record<string, unknown> = {}
@@ -112,4 +131,69 @@ const reconstructNestedObject = (
   return nested
 }
 
-export { translateBundle }
+export async function translateLocaleFile(
+  locale: LocaleFile,
+  input: string,
+  inputFileExtension: FileExtensions,
+  outputExtension: FileExtensions = inputFileExtension,
+  engine: TranslateEngine = 'google',
+  maxRetries: number = 3,
+  delay: number = 1000,
+  progressBar: cliProgress.SingleBar | null = null,
+): Promise<Record<string, unknown> | null> {
+  const startTime = Date.now()
+  const inputBundle = await readFileContents(input, inputFileExtension)
+
+  const translated = await translateBundle(
+    inputBundle,
+    locale,
+    engine,
+    maxRetries,
+    delay,
+  )
+
+  const timeTaken = (Date.now() - startTime) / 1000
+  consola.info(`File ${locale.path} translated in ${timeTaken} seconds`)
+
+  const fileToWrite = locale.path.replace(inputFileExtension, outputExtension)
+
+  await writeFileContents(fileToWrite, translated, outputExtension)
+
+  if (progressBar) progressBar.increment()
+
+  return translated
+}
+
+export async function executeTranslations(
+  input: string,
+  localesToTranslate: LocaleFile[],
+  progressBar: cliProgress.SingleBar | null,
+  config: TranslatorConfig,
+  inputFileExtension: FileExtensions,
+  outputExtension: FileExtensions,
+) {
+  const translationPromises = localesToTranslate.map((locale) =>
+    translateLocaleFile(
+      locale,
+      input,
+      inputFileExtension,
+      outputExtension,
+      config.translate?.engine,
+      config.translate?.maxRetries,
+      config.translate?.delay,
+      progressBar,
+    ),
+  )
+
+  const results = await Promise.allSettled(translationPromises)
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      const locale = localesToTranslate[index]
+      consola.error(
+        new Error(
+          `Failed to translate file: ${locale.path} - ${result.reason}`,
+        ),
+      )
+    }
+  })
+}

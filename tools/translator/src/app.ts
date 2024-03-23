@@ -1,120 +1,27 @@
-/* eslint-disable no-console */
-import { promises as fsPromises } from 'fs'
-import translationCache from './cache'
+import translationCache from '~/tools/translator/src/cache'
 import path from 'path'
-import yaml from 'js-yaml'
-import cliProgress from './cli-progress.mjs'
-import { getFiles } from './file-ops'
-import consola from './consola'
-import { translateBundle } from './translator'
-import type { debugMode, LocaleFile, translateEngine } from './types'
-import { loadTranslatorConfig } from './config'
+import cliProgress from '~/tools/translator/src/cli-progress.mjs'
+import {
+  generateLocalePaths,
+  getFileExtension,
+  validatePathAccess,
+} from '~/tools/translator/src/file-ops'
+import consola from '~/tools/translator/src/consola'
+import { executeTranslations } from '~/tools/translator/src/translator'
+import type { DebugMode } from '~/tools/translator/src/types'
+import { loadTranslatorConfig } from '~/tools/translator/src/config'
+import { FileExtensions } from '~/tools/translator/src/types'
+import {
+  promptForInputFile,
+  promptForLocales,
+  promptForOutputExtension,
+} from '~/tools/translator/src/prompts'
+import { filterLocales } from '~/tools/translator/src/helpers'
 
-const EXTENSIONS = {
-  YAML: '.yml',
-}
-
-const cwd = process.cwd()
-
-export async function main() {
-  consola.start('Starting translation process...')
-  await translationCache.init()
-  try {
-    const config = await loadTranslatorConfig()
-    if (!config) {
-      const error = new Error('Failed to load translator config')
-      consola.error(consola.error(error))
-      throw error
-    }
-
-    const localePath = path.join(cwd, config.localePath)
-
-    const {
-      debug: { mode } = {},
-      sourceFileName,
-      translate: { engine, bundleMaxRetries, bundleDelay } = {},
-    } = config
-
-    const localeFiles = await getFiles(localePath)
-    const listLocaleToTranslate = localeFiles.filter(
-      (l: LocaleFile) => l.lang !== sourceFileName,
-    )
-
-    const progressBar = setupProgressBar(mode, listLocaleToTranslate.length)
-
-    const translations = await Promise.all(
-      listLocaleToTranslate.map((locale) =>
-        translateLocaleFile(
-          locale,
-          sourceFileName,
-          engine,
-          bundleMaxRetries,
-          bundleDelay,
-          progressBar,
-        ),
-      ),
-    )
-    await saveTranslations(translations, listLocaleToTranslate)
-  } catch (error) {
-    throw new Error(`Failed to translate files: ${error}`)
-  }
-}
-
-async function translateLocaleFile(
-  locale: LocaleFile,
-  sourceFileName: string,
-  engine: translateEngine | undefined,
-  maxRetries: number | undefined,
-  delay: number | undefined,
-  progressBar: cliProgress.SingleBar | null,
+export function setupProgressBar(
+  mode: DebugMode | undefined,
+  totalSegments: number,
 ) {
-  const startTime = Date.now()
-  try {
-    const inputBundlePath = path.join(
-      locale.dir,
-      `${sourceFileName}${EXTENSIONS.YAML}`,
-    )
-    const inputBundle = yaml.load(
-      await fsPromises.readFile(inputBundlePath, 'utf8'),
-    ) as Record<string, unknown>
-
-    const translated = await translateBundle(
-      inputBundle,
-      locale,
-      engine,
-      maxRetries,
-      delay,
-    )
-
-    const timeTaken = (Date.now() - startTime) / 1000
-    consola.info(`File ${locale.path} translated in ${timeTaken} seconds`)
-
-    if (progressBar) progressBar.increment()
-
-    return translated
-  } catch (error) {
-    consola.error(
-      new Error(`Failed to translate file: ${locale.path} - ${error}`),
-    )
-    return null
-  }
-}
-
-async function saveTranslations(
-  translations: (Record<string, unknown> | null)[],
-  locales: LocaleFile[],
-) {
-  await Promise.all(
-    translations.map((translation, index) => {
-      if (translation) {
-        const outputPath = locales[index].path
-        return fsPromises.writeFile(outputPath, yaml.dump(translation))
-      }
-    }),
-  )
-}
-
-function setupProgressBar(mode: debugMode | undefined, totalSegments: number) {
   if (mode !== 'progress-bar') return null
 
   const progressBar = new cliProgress.SingleBar(
@@ -131,4 +38,54 @@ function setupProgressBar(mode: debugMode | undefined, totalSegments: number) {
   progressBar.start(totalSegments, 0, { currentFile: 'N/A' })
 
   return progressBar
+}
+
+export async function main() {
+  consola.start('Starting translation process...')
+  await translationCache.init()
+
+  try {
+    const config = await loadTranslatorConfig()
+    if (!config) throw new Error('Failed to load translator config')
+
+    const inputFile = await promptForInputFile(config)
+    const localeDirPath = path.dirname(inputFile)
+    await validatePathAccess(localeDirPath, 'locale directory')
+
+    const inputFileExtension = getFileExtension(
+      inputFile,
+      Object.values(FileExtensions),
+    )
+    if (!inputFileExtension)
+      throw new Error(`Source file ${inputFile} not found or not supported`)
+
+    const selectedLocales = await promptForLocales()
+    let localesToTranslate = generateLocalePaths(
+      localeDirPath,
+      inputFileExtension,
+    )
+    localesToTranslate = filterLocales(
+      localesToTranslate,
+      selectedLocales,
+      inputFile,
+    )
+
+    const progressBar = setupProgressBar(
+      config.debug?.mode,
+      localesToTranslate.length,
+    )
+    const outputExtension = await promptForOutputExtension()
+
+    await executeTranslations(
+      inputFile,
+      localesToTranslate,
+      progressBar,
+      config,
+      inputFileExtension,
+      outputExtension,
+    )
+  } catch (error) {
+    consola.error(error)
+    process.exit(1)
+  }
 }

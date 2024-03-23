@@ -1,39 +1,52 @@
-/* eslint-disable no-console */
 import { loadConfig, setupDotenv } from 'c12'
-import type { debugMode, translateEngine } from '~/tools/translator/src/types'
+import type { DebugMode, TranslateEngine } from '~/tools/translator/src/types'
 import type { ConsolaOptions } from 'consola'
+import consola from '~/tools/translator/src/consola'
+
+export type LocaleOption = {
+  label: string
+  value: `${string}-${string}`
+}
 
 export interface TranslatorConfig {
-  localePath: string
-  sourceFileName: string
+  input: string
   translate?: {
-    engine?: translateEngine
-    bundleDelay?: number
-    bundleMaxRetries?: number
+    engine?: TranslateEngine
+    delay?: number
+    maxRetries?: number
   }
   debug?: {
-    mode: debugMode
+    mode: DebugMode
   }
   consola?: Partial<ConsolaOptions>
+  locales: {
+    available: LocaleOption[]
+    default: string
+  }
 }
 
 const getDefaultConfig = () =>
   <TranslatorConfig>{
-    localePath: './locales',
-    sourceFileName: 'en-US',
+    input: './locales/en-US.yml',
     translate: {
       engine: 'google',
-      bundleDelay: 500,
-      bundleMaxRetries: 3,
+      delay: 500,
+      maxRetries: 3,
     },
     debug: {
       mode: 'consola',
     },
+    locales: {
+      available: [
+        { label: 'Greek', value: 'el-GR' },
+        { label: 'German', value: 'de-DE' },
+        { label: 'English', value: 'en-US' },
+      ],
+      default: 'all',
+    },
   }
 
-export async function loadTranslatorConfig(
-  cwd: string = process.cwd(),
-): Promise<TranslatorConfig | null> {
+export async function loadTranslatorConfig(cwd: string = process.cwd()) {
   await setupDotenv({ cwd })
   const defaults = getDefaultConfig()
   const { config } = await loadConfig<TranslatorConfig>({
@@ -42,6 +55,12 @@ export async function loadTranslatorConfig(
     packageJson: true,
     defaults,
   })
+
+  if (!config) {
+    const error = new Error('Failed to load translator config')
+    consola.error(error)
+    throw error
+  }
 
   return config
 }

@@ -1,4 +1,7 @@
-const getISO6391Code = (locale: string): string => {
+import type { LocaleFile } from '~/tools/translator/src/types'
+import path from 'path'
+
+export const getISO6391Code = (locale: string): string => {
   if (!locale) {
     return ''
   }
@@ -9,9 +12,10 @@ const getISO6391Code = (locale: string): string => {
   return ''
 }
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms))
 
-const retry = async <T>(
+export const retry = async <T>(
   func: () => Promise<T>,
   retries: number,
   delayTime: number,
@@ -30,12 +34,15 @@ const retry = async <T>(
   }
 }
 
-function extractDynamicKeys(str: string): RegExpMatchArray | [] {
+export function extractDynamicKeys(str: string): RegExpMatchArray | [] {
   const dynamicKeyPattern = /%\{[a-zA-Z0-9_]+}/g
   return str.match(dynamicKeyPattern) || []
 }
 
-function validateDynamicKeys(original: string, translated: string): boolean {
+export function validateDynamicKeys(
+  original: string,
+  translated: string,
+): boolean {
   const originalKeys = extractDynamicKeys(original)
   const translatedKeys = extractDynamicKeys(translated)
 
@@ -52,4 +59,23 @@ function validateDynamicKeys(original: string, translated: string): boolean {
   return true
 }
 
-export { delay, extractDynamicKeys, getISO6391Code, retry, validateDynamicKeys }
+export function filterLocales(
+  locales: LocaleFile[],
+  selectedLocales: string[],
+  sourceFilePath: string,
+) {
+  const sourceLangCode = getISO6391Code(
+    path.basename(sourceFilePath).replace(/\.[^/.]+$/, ''),
+  )
+  let filteredLocales = locales.filter(
+    (locale) => locale.langCode !== sourceLangCode,
+  )
+
+  if (!selectedLocales.includes('all')) {
+    filteredLocales = filteredLocales.filter((locale) =>
+      selectedLocales.includes(locale.langCode),
+    )
+  }
+
+  return filteredLocales
+}
