@@ -30,3 +30,4 @@ coverage
 
 # Cache
 .translator_cache
+.eslintcache

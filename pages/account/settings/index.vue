@@ -102,6 +102,7 @@ const { data: regions } = await useLazyAsyncData(
     }),
   {
     watch: [country],
+    immediate: country.value !== defaultSelectOptionChoose,
   },
 )
 

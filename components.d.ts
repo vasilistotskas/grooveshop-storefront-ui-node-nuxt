@@ -11,7 +11,6 @@ declare module 'vue' {
     'IconFa6Solid:circleCheck': typeof import('~icons/fa6-solid/circle-check')['default']
     'IconFa6Solid:circleQuestion': typeof import('~icons/fa6-solid/circle-question')['default']
     'IconFa6Solid:circleUser': typeof import('~icons/fa6-solid/circle-user')['default']
-    'IconFa6Solid:circleXmark': typeof import('~icons/fa6-solid/circle-xmark')['default']
     'IconFa6Solid:clockRotateLeft': typeof import('~icons/fa6-solid/clock-rotate-left')['default']
     'IconFa6Solid:eye': typeof import('~icons/fa6-solid/eye')['default']
     'IconFa6Solid:eyeSlash': typeof import('~icons/fa6-solid/eye-slash')['default']

@@ -16,18 +16,24 @@ const currentSearch = ref((route.query.query || '').toString())
 const suggestions = ref(null)
 const isSuggestionsOpen = ref(false)
 
-const { pending, error, refresh } = await useAsyncData('search', () =>
-  $fetch('/api/search', {
-    method: 'GET',
-    query: {
-      query: currentSearch.value,
-      language: locale.value,
-    },
-    onResponse({ response }) {
-      results.value = response._data
-      isSuggestionsOpen.value = false
-    },
-  }),
+const { pending, error, refresh } = await useAsyncData(
+  'search',
+  () =>
+    // @ts-ignore
+    $fetch('/api/search', {
+      method: 'GET',
+      query: {
+        query: currentSearch.value,
+        language: locale.value,
+      },
+      onResponse({ response }) {
+        results.value = response._data
+        isSuggestionsOpen.value = false
+      },
+    }),
+  {
+    immediate: false,
+  },
 )
 
 onClickOutside(suggestions, () => {
@@ -92,6 +98,7 @@ watch(
   () => {
     pending.value = true
     isSuggestionsOpen.value = false
+    if (currentSearch.value.length < 3) return
     throttledSearch()
     router.replace({
       query: {

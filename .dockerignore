@@ -25,3 +25,7 @@ coverage
 
 # Node dependencies
 node_modules
+
+# Cache
+.translator_cache
+.eslintcache

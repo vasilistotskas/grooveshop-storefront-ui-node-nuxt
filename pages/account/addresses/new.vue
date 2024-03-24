@@ -109,7 +109,7 @@ const { data: countries } = await useLazyAsyncData('countries', () =>
   }),
 )
 
-const { data: regions } = await useAsyncData(
+const { data: regions } = await useLazyAsyncData(
   'regions',
   () =>
     // @ts-ignore
@@ -121,6 +121,7 @@ const { data: regions } = await useAsyncData(
     }),
   {
     watch: [country],
+    immediate: country.value !== defaultSelectOptionChoose,
   },
 )
 

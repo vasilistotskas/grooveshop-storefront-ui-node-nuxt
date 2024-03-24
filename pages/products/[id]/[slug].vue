@@ -35,6 +35,7 @@ const { data: userProductReview, refresh: refreshUserProductReview } =
       product: String(productId),
       user: String(user.value?.id),
     },
+    immediate: loggedIn.value,
   })
 
 const onAddExistingReview = async () => {
