@@ -303,7 +303,6 @@ export default defineComponent({
       () => {
         // error if pauseAnimation is true and pauseOnHover is also true or playOnHover is also true
         if ((props.pauseOnHover || props.playOnHover) && props.pauseAnimation) {
-          // eslint-disable-next-line no-console
           console.error(
             'If you are using pauseAnimation prop, please remove the props pauseOnHover and playOnHover',
           )

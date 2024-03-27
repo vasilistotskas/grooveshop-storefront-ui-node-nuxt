@@ -67,7 +67,6 @@ export default defineEventHandler(async () => {
       theme: isNight ? 'dark' : 'light',
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Error fetching IP location/time data:', error)
     return {
       theme: defaultTheme,

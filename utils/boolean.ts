@@ -12,7 +12,7 @@ export function parseBoolean(value: any): boolean | undefined {
       if (value === 1) return true
       if (value === 0) return false
     }
-    // eslint-disable-next-line no-console
+
     console.error('Invalid input type or value')
     return undefined
   }

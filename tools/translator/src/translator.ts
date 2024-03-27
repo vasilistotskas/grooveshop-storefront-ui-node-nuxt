@@ -4,14 +4,12 @@ import {
   retry,
   validateDynamicKeys,
 } from '~/tools/translator/src/helpers'
-import consola from '~/tools/translator/src/consola'
 import {
   FileExtensions,
   type LocaleFile,
   type TranslateEngine,
 } from '~/tools/translator/src/types'
 import { Translate } from 'translate'
-import cliProgress from '~/tools/translator/src/cli-progress.mjs'
 import {
   readFileContents,
   writeFileContents,
@@ -37,7 +35,7 @@ export const translateBundle = async (
       const translatedText = await translator(text, { to: langCode })
 
       if (text.includes('%{') && !validateDynamicKeys(text, translatedText)) {
-        consola.warn(
+        console.warn(
           `Warning: Missing dynamic keys in translation of "${text}" in ${locale.path}`,
         )
         return translatedText.replace(/[%{}]/g, '')
@@ -45,7 +43,7 @@ export const translateBundle = async (
 
       return translatedText
     } catch (error) {
-      consola.error(new Error(`Error during translation: ${error}`))
+      console.error(`Error during translation: ${error}`)
       throw error
     }
   }
@@ -78,10 +76,8 @@ export const translateBundle = async (
               : await translateAndValidate(value, langCode)
 
             if (!translation) {
-              consola.error(
-                new Error(
-                  `Translation failed for "${value}" in ${locale.path}`,
-                ),
+              console.error(
+                `Translation failed for "${value}" in ${locale.path}`,
               )
               throw new Error('Translation failed')
             }
@@ -93,7 +89,7 @@ export const translateBundle = async (
             )
             outputBundle[nextParent] = translation
           } catch (error) {
-            consola.warn(
+            console.warn(
               `Warning: Failed to translate "${value}" in ${locale.path}, error: ${error}`,
             )
             outputBundle[nextParent] = value
@@ -139,7 +135,6 @@ export async function translateLocaleFile(
   engine: TranslateEngine = 'google',
   maxRetries: number = 3,
   delay: number = 1000,
-  progressBar: cliProgress.SingleBar | null = null,
 ): Promise<Record<string, unknown> | null> {
   const startTime = Date.now()
   const inputBundle = await readFileContents(input, inputFileExtension)
@@ -153,13 +148,11 @@ export async function translateLocaleFile(
   )
 
   const timeTaken = (Date.now() - startTime) / 1000
-  consola.info(`File ${locale.path} translated in ${timeTaken} seconds`)
+  console.info(`File ${locale.path} translated in ${timeTaken} seconds`)
 
   const fileToWrite = locale.path.replace(inputFileExtension, outputExtension)
 
   await writeFileContents(fileToWrite, translated, outputExtension)
-
-  if (progressBar) progressBar.increment()
 
   return translated
 }
@@ -167,7 +160,6 @@ export async function translateLocaleFile(
 export async function executeTranslations(
   input: string,
   localesToTranslate: LocaleFile[],
-  progressBar: cliProgress.SingleBar | null,
   config: TranslatorConfig,
   inputFileExtension: FileExtensions,
   outputExtension: FileExtensions,
@@ -181,7 +173,6 @@ export async function executeTranslations(
       config.translate?.engine,
       config.translate?.maxRetries,
       config.translate?.delay,
-      progressBar,
     ),
   )
 
@@ -189,10 +180,8 @@ export async function executeTranslations(
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
       const locale = localesToTranslate[index]
-      consola.error(
-        new Error(
-          `Failed to translate file: ${locale.path} - ${result.reason}`,
-        ),
+      console.error(
+        `Failed to translate file: ${locale.path} - ${result.reason}`,
       )
     }
   })

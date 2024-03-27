@@ -20,4 +20,9 @@ describe('TranslationCache', () => {
   it('returns undefined for a non-existent translation', () => {
     expect(translationCache.getCacheKeyVal('nonexistent', 'en')).toBeUndefined()
   })
+
+  it('saves cache to file', async () => {
+    await translationCache.saveCacheToFile()
+    expect(translationCache.cache.size).toBeGreaterThan(0)
+  })
 })

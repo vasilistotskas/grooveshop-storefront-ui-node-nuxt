@@ -91,7 +91,6 @@ const resolveLinkEntryText = (entry: [string, unknown]) => {
   return entry[0]
 }
 const init = () => {
-  // eslint-disable-next-line no-console
   console.log('Cookies Initialized')
 }
 

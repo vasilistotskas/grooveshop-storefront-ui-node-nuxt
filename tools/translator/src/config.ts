@@ -1,12 +1,10 @@
-import { loadConfig, setupDotenv } from 'c12'
-import type { DebugMode, TranslateEngine } from '~/tools/translator/src/types'
+import { loadConfig } from 'c12'
+import type {
+  DebugMode,
+  LocaleOption,
+  TranslateEngine,
+} from '~/tools/translator/src/types'
 import type { ConsolaOptions } from 'consola'
-import consola from '~/tools/translator/src/consola'
-
-export type LocaleOption = {
-  label: string
-  value: `${string}-${string}`
-}
 
 export interface TranslatorConfig {
   input: string
@@ -47,19 +45,19 @@ const getDefaultConfig = () =>
   }
 
 export async function loadTranslatorConfig(cwd: string = process.cwd()) {
-  await setupDotenv({ cwd })
   const defaults = getDefaultConfig()
   const { config } = await loadConfig<TranslatorConfig>({
     cwd,
     name: 'translator',
     packageJson: true,
     defaults,
+    rcFile: false,
+    globalRc: false,
+    dotenv: true,
   })
 
   if (!config) {
-    const error = new Error('Failed to load translator config')
-    consola.error(error)
-    throw error
+    throw new Error('Failed to load translator config')
   }
 
   return config

@@ -201,7 +201,6 @@ const merged = computed(() => {
     return generatedSchema.merge(extraValidationSchema)
   }
 
-  // eslint-disable-next-line no-console
   console.warn(
     'extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject',
   )

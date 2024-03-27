@@ -1,12 +1,22 @@
 import path from 'path'
-
-import consola from '~/tools/translator/src/consola'
-import { FileExtensions, type LocaleFile } from '~/tools/translator/src/types'
+import { pathToFileURL } from 'url'
+import {
+  FileExtensions,
+  type LocaleFile,
+  type LocaleOption,
+} from '~/tools/translator/src/types'
 import yaml from 'js-yaml'
 import ts from 'typescript'
 import vm from 'vm'
 import { type Context } from 'vm'
-import { writeFile, readFile, readdir, stat, access } from 'node:fs/promises'
+import {
+  writeFile,
+  readFile,
+  readdir,
+  stat,
+  access,
+  rename,
+} from 'node:fs/promises'
 
 async function executeTs(tsCode: string): Promise<Record<string, any>> {
   const jsCode = ts.transpileModule(tsCode, {
@@ -23,11 +33,24 @@ async function executeTs(tsCode: string): Promise<Record<string, any>> {
   return sandbox.exports
 }
 
+async function safelyRenameFile(originalPath: string, newPath: string) {
+  try {
+    await rename(originalPath, newPath)
+  } catch (error) {
+    console.error(
+      `Error renaming file from ${originalPath} to ${newPath}: ${error}`,
+    )
+    throw error
+  }
+}
+
 export async function readFileContents(
   filePath: string,
   extension: FileExtensions,
 ): Promise<Record<string, any>> {
+  let fileURL
   const fileContents = await readFile(filePath, 'utf8')
+
   switch (extension) {
     case FileExtensions.JSON:
       return JSON.parse(fileContents)
@@ -35,9 +58,23 @@ export async function readFileContents(
     case FileExtensions.YAML:
       return yaml.load(fileContents) as Record<string, any>
     case FileExtensions.TS:
+    case FileExtensions.MTS:
       return executeTs(fileContents)
+    case FileExtensions.CJS:
+      fileURL = pathToFileURL(filePath).href
+      return (await import(fileURL)).default
+    case FileExtensions.JS:
+      await safelyRenameFile(filePath, filePath.replace(/\.js$/, '.cjs'))
+      try {
+        const module = await import(
+          pathToFileURL(filePath.replace(/\.js$/, '.cjs')).href
+        )
+        return module.default
+      } finally {
+        await safelyRenameFile(filePath.replace(/\.js$/, '.cjs'), filePath)
+      }
     default:
-      consola.error(new Error(`Unsupported file extension: ${extension}`))
+      console.error(`Unsupported file extension: ${extension}`)
       throw new Error(`Unsupported file extension: ${extension}`)
   }
 }
@@ -57,18 +94,23 @@ export async function writeFileContents(
       fileContents = yaml.dump(data)
       break
     case FileExtensions.TS:
+    case FileExtensions.MTS:
       fileContents = `export default ${JSON.stringify(data, null, 2)};`
       break
+    case FileExtensions.JS:
+    case FileExtensions.CJS:
+      fileContents = `module.exports = ${JSON.stringify(data, null, 2)};`
+      break
     default:
-      consola.error(new Error(`Unsupported file extension: ${extension}`))
+      console.error(`Unsupported file extension: ${extension}`)
       throw new Error(`Unsupported file extension: ${extension}`)
   }
 
   try {
     await access(filePath)
-    consola.info(`File exists, updating: ${filePath}`)
+    console.info(`File exists, updating: ${filePath}`)
   } catch (error) {
-    consola.info(`File does not exist, creating: ${filePath}`)
+    console.info(`File does not exist, creating: ${filePath}`)
   }
 
   await writeFile(filePath, fileContents)
@@ -89,7 +131,7 @@ export const getFilesFromDir = async (dir: string): Promise<LocaleFile[]> => {
             fileExtension.substring(1) as FileExtensions,
           )
         ) {
-          consola.warn(`Unsupported file extension: ${fileExtension}`)
+          console.warn(`Unsupported file extension: ${fileExtension}`)
           continue
         }
         if (
@@ -110,7 +152,7 @@ export const getFilesFromDir = async (dir: string): Promise<LocaleFile[]> => {
       }
     }
   } catch (error) {
-    consola.warn(`Error reading directory at ${dir}: ${error}`)
+    console.warn(`Error reading directory at ${dir}: ${error}`)
     return []
   }
   return files
@@ -155,15 +197,17 @@ export async function validatePathAccess(filePath: string, fileType = 'file') {
 export function generateLocalePaths(
   localeDirPath: string,
   inputFileExtension: FileExtensions,
+  availableLocales: LocaleOption[],
 ): LocaleFile[] {
-  const localeFiles = [
-    { label: 'Greek', value: 'el-GR' },
-    { label: 'German', value: 'de-DE' },
-    { label: 'English', value: 'en-US' },
-  ]
+  const filteredLocales = availableLocales.filter((l) => l.label !== 'All')
 
-  return localeFiles.map((l) => {
+  return filteredLocales.map((l) => {
     const [lang, country] = l.value.split('-')
+    if (!lang || !country) {
+      throw new Error(
+        `Invalid locale code: ${l.value}, expected format: lang-countryCode`,
+      )
+    }
     const modifiedLocaleCode = `${lang}-${country.toUpperCase()}`
     return {
       path: path.join(

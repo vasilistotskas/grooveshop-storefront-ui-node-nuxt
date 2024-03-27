@@ -1,4 +1,4 @@
-export type DebugMode = 'progress-bar' | 'consola' | 'hidden'
+export type DebugMode = 'consola' | 'silent'
 export type TranslateEngine = 'google' | 'deepl' | 'libre' | 'yandex'
 
 export interface LocaleFile {
@@ -10,6 +10,14 @@ export interface LocaleFile {
 export enum FileExtensions {
   YML = 'yml',
   YAML = 'yaml',
-  TS = 'ts',
   JSON = 'json',
+  TS = 'ts',
+  MTS = 'mts',
+  JS = 'js',
+  CJS = 'cjs',
+}
+
+export type LocaleOption = {
+  label: string
+  value: `${string}-${string}` | string
 }

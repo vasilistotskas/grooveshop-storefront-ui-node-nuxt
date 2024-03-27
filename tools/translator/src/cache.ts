@@ -1,6 +1,5 @@
 import path from 'path'
 import { cacheDir, cacheFile } from '~/tools/translator/src/constants'
-import consola from '~/tools/translator/src/consola'
 import { access, readFile, writeFile, mkdir, constants } from 'node:fs/promises'
 
 const cacheFilePath = path.join(cacheDir, cacheFile)
@@ -38,7 +37,7 @@ class TranslationCache {
     try {
       await access(cacheDir)
     } catch {
-      consola.info('Cache directory does not exist. Creating...')
+      console.info('Cache directory does not exist. Creating...')
       await mkdir(cacheDir, { recursive: true })
     }
   }
@@ -53,7 +52,7 @@ class TranslationCache {
         'utf-8',
       )
     } catch (error) {
-      consola.error(new Error(`Failed to save cache to file: ${error}`))
+      console.error(`Failed to save cache to file: ${error}`)
     }
   }
 
@@ -74,14 +73,14 @@ class TranslationCache {
         ) {
           this.cache = new Map(Object.entries(parsedContent))
         } else {
-          consola.warn(
+          console.warn(
             'Invalid cache data structure. Initializing empty cache.',
           )
           this.cache.clear()
         }
       }
     } catch (error) {
-      consola.error(new Error(`Error loading cache from file: ${error}`))
+      console.error(`Error loading cache from file: ${error}`)
     }
   }
 
@@ -100,7 +99,7 @@ class TranslationCache {
 
   async init() {
     await this.loadCacheFromFile()
-    consola.info('Cache loaded from file')
+    console.info('Cache loaded from file')
   }
 
   clear() {

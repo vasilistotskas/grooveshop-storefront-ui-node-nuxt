@@ -25,7 +25,7 @@ export default defineNuxtModule<ModuleOptions>({
     compatibility: { nuxt: '^3.0.0' },
   },
   defaults: DEFAULTS,
-  // eslint-disable-next-line require-await
+
   async setup(moduleOptions, nuxt) {
     nuxt.options.alias['#cookie-control'] = cookiesDir
     nuxt.options.build.transpile.push(cookiesDir)

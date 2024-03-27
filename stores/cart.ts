@@ -142,7 +142,6 @@ export const useCartStore = defineStore('cart', () => {
   function createCartItemToLocalStorage(cartItem: CartItem) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
-      // eslint-disable-next-line no-console
       console.error('Cart not found in Local Storage')
       return
     }
@@ -240,7 +239,6 @@ export const useCartStore = defineStore('cart', () => {
   function updateCartItemInLocalStorage(id: number, body: CartItemPutBody) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
-      // eslint-disable-next-line no-console
       console.error('Cart not found in Local Storage')
       return
     }
@@ -286,7 +284,6 @@ export const useCartStore = defineStore('cart', () => {
   function deleteCartItemFromLocalStorage(id: number) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
-      // eslint-disable-next-line no-console
       console.error('Cart not found in Local Storage')
       return
     }

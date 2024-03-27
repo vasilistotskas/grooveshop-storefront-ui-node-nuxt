@@ -1,15 +1,13 @@
-import type { TranslatorConfig } from '~/tools/translator/src/config'
-import consola from '~/tools/translator/src/consola'
 import path from 'path'
 import { validatePathAccess } from '~/tools/translator/src/file-ops'
-import { FileExtensions } from '~/tools/translator/src/types'
+import { FileExtensions, type LocaleOption } from '~/tools/translator/src/types'
+import type { ConsolaInstance } from 'consola'
 
-export async function promptForInputFile(config: TranslatorConfig) {
+export async function promptForInputFile(consola: ConsolaInstance) {
   const inputFile = (await consola.prompt(
     'Enter the path to the input file: ',
     {
       type: 'text',
-      default: config.input,
       placeholder: 'For example: ./locales/en-US.yml',
     },
   )) as unknown as string | symbol
@@ -20,7 +18,7 @@ export async function promptForInputFile(config: TranslatorConfig) {
   return resolvedInputFile
 }
 
-export async function promptForOutputExtension() {
+export async function promptForOutputExtension(consola: ConsolaInstance) {
   const outputExtension = (await consola.prompt('Choose output extension: ', {
     type: 'select',
     options: Object.values(FileExtensions),
@@ -29,15 +27,13 @@ export async function promptForOutputExtension() {
   return outputExtension
 }
 
-export async function promptForLocales() {
+export async function promptForLocales(
+  consola: ConsolaInstance,
+  options: LocaleOption[],
+) {
   const selectedLocales = (await consola.prompt('Select locales: ', {
     type: 'multiselect',
-    options: [
-      { label: 'Greek', value: 'el-GR' },
-      { label: 'German', value: 'de-DE' },
-      { label: 'English', value: 'en-US' },
-      { label: 'All', value: 'all' },
-    ],
+    options,
     required: true,
   })) as unknown as string[] | symbol
   if (typeof selectedLocales === 'symbol') process.exit(0)

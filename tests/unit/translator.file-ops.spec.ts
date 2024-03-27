@@ -1,7 +1,11 @@
 import path from 'path'
 
-import { getFilesFromDir } from '~/tools/translator/src/file-ops'
+import {
+  findFileExtension,
+  getFilesFromDir,
+} from '~/tools/translator/src/file-ops'
 import { loadTranslatorConfig } from '~/tools/translator/src/config'
+import { FileExtensions } from '~/tools/translator/src/types'
 
 describe('translator file-ops tests', async () => {
   beforeEach(async () => {
@@ -11,6 +15,17 @@ describe('translator file-ops tests', async () => {
   it('returns an empty array for an empty directory', async () => {
     const files = await getFilesFromDir('emptyDir')
     expect(files).toEqual([])
+  })
+
+  it('finds the correct file extension', async () => {
+    const testDir = path.join('tests', 'data', 'locales')
+    const extension = await findFileExtension(testDir, 'en-US', [
+      FileExtensions.YML,
+      FileExtensions.YAML,
+      FileExtensions.TS,
+      FileExtensions.JSON,
+    ])
+    expect(extension).toBe('yml')
   })
 
   it('retrieves .yml files from a directory and subdirs', async () => {
