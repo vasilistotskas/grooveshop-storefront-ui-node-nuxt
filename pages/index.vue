@@ -4,16 +4,16 @@ definePageMeta({
 })
 
 const mainSliderItems = [
-  { src: '/img/black.png', loading: 'eager' },
-  { src: '/img/white.jpg', loading: 'lazy' },
-  { src: '/img/black.png', loading: 'lazy' },
+  { src: '/img/white.png', loading: 'eager' },
+  { src: '/img/black.jpg', loading: 'lazy' },
+  { src: '/img/white.png', loading: 'lazy' },
 ]
 
 const secondarySliderItems = [
-  { src: '/img/black.png', loading: 'eager' },
-  { src: '/img/white.jpg', loading: 'lazy' },
-  { src: '/img/black.png', loading: 'lazy' },
-  { src: '/img/white.jpg', loading: 'lazy' },
+  { src: '/img/white.png', loading: 'eager' },
+  { src: '/img/black.jpg', loading: 'lazy' },
+  { src: '/img/white.png', loading: 'lazy' },
+  { src: '/img/black.jpg', loading: 'lazy' },
 ]
 </script>
 
