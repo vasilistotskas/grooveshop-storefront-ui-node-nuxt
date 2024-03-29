@@ -1,3 +1,10 @@
+# [1.82.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.81.0...v1.82.0) (2024-03-29)
+
+
+### Features
+
+* New generic pagination component ([b1f7148](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1f71481231c0144fe717a30b9440d7a1340b1b4))
+
 # [1.81.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.80.0...v1.81.0) (2024-03-29)
 
 
