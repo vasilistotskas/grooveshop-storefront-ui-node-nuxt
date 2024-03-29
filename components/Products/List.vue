@@ -5,14 +5,27 @@ import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import type { Product, ProductOrderingField } from '~/types/product/product'
 
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import { type PaginationType, PaginationTypeEnum } from '~/types/global/general'
+
+const props = defineProps({
+  paginationType: {
+    type: String as PropType<PaginationType>,
+    required: false,
+    default: PaginationTypeEnum.PAGE_NUMBER,
+    validator: (value: string) =>
+      Object.values(PaginationTypeEnum).includes(value as PaginationTypeEnum),
+  },
+})
+
+const { paginationType } = toRefs(props)
 
 const route = useRoute()
 const { t } = useI18n()
 
-const limit = computed(() => route.query.limit)
-const offset = computed(() => route.query.offset)
+const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const category = computed(() => route.query.category)
+const pageSize = computed(() => '16')
 
 const entityOrdering: Ref<EntityOrdering<ProductOrderingField>> = ref([
   {
@@ -41,10 +54,11 @@ const {
   $fetch('/api/products', {
     method: 'GET',
     query: {
-      limit: limit.value,
-      offset: offset.value,
+      page: page.value,
       ordering: ordering.value,
       category: category.value,
+      pageSize: pageSize.value,
+      paginationType: paginationType.value,
     },
   }),
 )
@@ -68,13 +82,16 @@ watch(
 <template>
   <div class="products-list grid w-full gap-4">
     <div class="flex flex-row items-center gap-2">
-      <PaginationLimitOffset
+      <Pagination
         v-if="pagination"
-        :page="pagination.page"
-        :limit="pagination.limit"
-        :offset="pagination.offset"
+        :pagination-type="paginationType"
+        :count="pagination.count"
         :total-pages="pagination.totalPages"
         :page-total-results="pagination.pageTotalResults"
+        :page-size="pagination.pageSize"
+        :page="pagination.page"
+        :links="pagination.links"
+        :loading="pending"
       />
       <Ordering
         :ordering="String(ordering)"

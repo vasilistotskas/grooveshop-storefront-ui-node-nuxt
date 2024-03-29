@@ -30,8 +30,14 @@ export enum LocationChoicesEnum {
   OTHER = 2,
 }
 
-export type ImageLoading = 'lazy' | 'eager' | undefined
+export enum PaginationTypeEnum {
+  PAGE_NUMBER = 'pageNumber',
+  CURSOR = 'cursor',
+  LIMIT_OFFSET = 'limitOffset',
+}
+
 export type PaginationType = 'pageNumber' | 'cursor' | 'limitOffset'
+export type ImageLoading = 'lazy' | 'eager' | undefined
 export type FloorChoicesEnumType = z.infer<typeof ZodFloorChoicesEnum>
 export type LocationChoicesEnumType = z.infer<typeof ZodLocationChoicesEnum>
 

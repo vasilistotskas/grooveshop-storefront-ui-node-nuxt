@@ -3,16 +3,16 @@ import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import type { PaginationType } from '~/types/global/general'
+import { type PaginationType, PaginationTypeEnum } from '~/types/global/general'
 import { getCursorFromUrl } from '~/utils/pagination'
 
 const props = defineProps({
   paginationType: {
     type: String as PropType<PaginationType>,
     required: false,
-    default: 'pageNumber',
+    default: PaginationTypeEnum.PAGE_NUMBER,
     validator: (value: string) =>
-      ['pageNumber', 'cursor', 'limitOffset'].includes(value),
+      Object.values(PaginationTypeEnum).includes(value as PaginationTypeEnum),
   },
 })
 
@@ -96,9 +96,6 @@ const nextCursor = computed(() => {
   return getCursorFromUrl(pagination.value?.links?.next)
 })
 
-const PaginationPageNumber = resolveComponent('PaginationPageNumber')
-const PaginationCursor = resolveComponent('PaginationCursor')
-
 const showResults = computed(() => {
   if (paginationType.value === 'cursor') {
     return allPosts.value.length
@@ -130,13 +127,9 @@ watch(
 <template>
   <div class="posts-list grid gap-4">
     <div class="flex flex-row items-center gap-2">
-      <Component
-        :is="
-          paginationType === 'pageNumber'
-            ? PaginationPageNumber
-            : PaginationCursor
-        "
+      <Pagination
         v-if="pagination"
+        :pagination-type="paginationType"
         :count="pagination.count"
         :total-pages="pagination.totalPages"
         :page-total-results="pagination.pageTotalResults"
