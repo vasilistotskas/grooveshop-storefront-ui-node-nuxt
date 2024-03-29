@@ -1,3 +1,10 @@
+# [1.81.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.80.0...v1.81.0) (2024-03-29)
+
+
+### Features
+
+* Cursor pagination prototype at blog listing, code cleanup and Bump Versions ([db584e5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db584e5bb7c8220f87b70707f208993cb92c2ccd))
+
 # [1.80.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.79.0...v1.80.0) (2024-03-28)
 
 
