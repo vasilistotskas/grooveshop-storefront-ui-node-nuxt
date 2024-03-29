@@ -4,6 +4,8 @@ import { ZodBlogPost } from '~/types/blog/post'
 import type { OrderingQuery } from '~/types/ordering'
 import type { PaginationQuery } from '~/types/pagination'
 import { ZodUserAccount } from '~/types/user/account'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 const ZodBlogCommentTranslations = z.record(
   z.object({
@@ -28,15 +30,15 @@ export const ZodBlogComment = z.object({
   repliesCount: z.number().int(),
 })
 
-export const ZodBlogCommentQuery = z.object({
-  page: z.string().nullish(),
-  ordering: z.string().nullish(),
-  id: z.string().nullish(),
-  user: z.string().nullish(),
-  post: z.string().nullish(),
-  pagination: z.union([z.literal('true'), z.literal('false')]).nullish(),
-  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-})
+export const ZodBlogCommentQuery = z
+  .object({
+    id: z.string().nullish(),
+    user: z.string().nullish(),
+    post: z.string().nullish(),
+    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
+  })
+  .merge(ZodOrderingQuery)
+  .merge(ZodPaginationQuery)
 
 export const ZodBlogCommentParams = z.object({
   id: z.string(),

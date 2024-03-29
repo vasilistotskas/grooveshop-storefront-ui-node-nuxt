@@ -13,7 +13,7 @@ export const usePagination = <T>(results: Pagination<T>) => {
   const links = results.links
   const pageResults = results.results
 
-  const offset = (page - 1) * pageSize
+  const offset = (page ? page - 1 : 0) * pageSize
   const limit = pageSize
 
   return {

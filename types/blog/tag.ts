@@ -1,7 +1,6 @@
 import { z } from 'zod'
-
-import type { OrderingQuery } from '~/types/ordering'
-import type { PaginationQuery } from '~/types/pagination'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 const ZodBlogTagTranslations = z.record(
   z.object({
@@ -19,22 +18,16 @@ export const ZodBlogTag = z.object({
   uuid: z.string().uuid(),
 })
 
-export const ZodBlogTagQuery = z.object({
-  page: z.string().nullish(),
-  ordering: z.string().nullish(),
-  id: z.string().nullish(),
-  active: z.string().nullish(),
-  pagination: z.union([z.literal('true'), z.literal('false')]).nullish(),
-})
+export const ZodBlogTagQuery = z
+  .object({
+    id: z.string().nullish(),
+    active: z.string().nullish(),
+  })
+  .merge(ZodOrderingQuery)
+  .merge(ZodPaginationQuery)
 
 export const ZodBlogTagParams = z.object({
   id: z.string(),
 })
 
 export type BlogTag = z.infer<typeof ZodBlogTag>
-export type BlogTagQuery = PaginationQuery &
-  OrderingQuery & {
-    id?: string | undefined
-    active?: string | undefined
-  }
-export type BlogTagParams = z.infer<typeof ZodBlogTagParams>

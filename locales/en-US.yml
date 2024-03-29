@@ -104,3 +104,6 @@ common:
   reply: Reply
   decrement: Decrement
   increment: Increment
+  load:
+    more: Load More
+  loading: Loading...

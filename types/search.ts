@@ -78,10 +78,5 @@ export const ZodSearchResults = z.object({
   ]),
 })
 
-export type SearchQuery = z.infer<typeof ZodSearchQuery>
 export type SearchResults = z.infer<typeof ZodSearchResults>
 export type SearchProduct = z.infer<typeof ZodSearchProduct>
-export type SearchProductResult = z.infer<typeof ZodSearchProductResult>
-export type SearchProductTranslations = z.infer<
-  typeof ZodSearchProductTranslations
->

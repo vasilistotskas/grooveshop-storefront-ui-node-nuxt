@@ -1,12 +1,11 @@
-import type { LocationQueryValue } from 'vue-router'
 import { z } from 'zod'
 
 import { ZodBlogAuthor } from '~/types/blog/author'
 import { ZodBlogCategory } from '~/types/blog/category'
 import { ZodBlogTag } from '~/types/blog/tag'
-import type { OrderingQuery } from '~/types/ordering'
-import type { PaginationQuery } from '~/types/pagination'
 import { ZodUserAccount } from '~/types/user/account'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 
@@ -42,28 +41,20 @@ export const ZodBlogPost = z.object({
   absoluteUrl: z.string(),
 })
 
-export const ZodBlogPostQuery = z.object({
-  page: z.string().nullish(),
-  ordering: z.string().nullish(),
-  id: z.string().nullish(),
-  author: z.string().nullish(),
-  slug: z.string().nullish(),
-  tags: z.string().nullish(),
-  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-})
+export const ZodBlogPostQuery = z
+  .object({
+    id: z.string().nullish(),
+    author: z.string().nullish(),
+    slug: z.string().nullish(),
+    tags: z.string().nullish(),
+    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
+  })
+  .merge(ZodOrderingQuery)
+  .merge(ZodPaginationQuery)
 
 export const ZodBlogPostParams = z.object({
   id: z.string(),
 })
 
 export type BlogPost = z.infer<typeof ZodBlogPost>
-export type BlogPostQuery = PaginationQuery &
-  OrderingQuery & {
-    id?: string | LocationQueryValue[] | undefined
-    author?: string | LocationQueryValue[] | undefined
-    slug?: string | LocationQueryValue[] | undefined
-    tags?: string | LocationQueryValue[] | undefined
-    expand?: string | undefined
-  }
-export type BlogPostParams = z.infer<typeof ZodBlogPostParams>
 export type BlogPostOrderingField = 'createdAt' | 'title' | `publishedAt`

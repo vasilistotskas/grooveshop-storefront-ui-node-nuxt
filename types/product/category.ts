@@ -1,8 +1,5 @@
 import { z } from 'zod'
 
-import { ZodOrderingQuery } from '~/types/ordering'
-import { ZodPaginationQuery } from '~/types/pagination'
-
 const ZodProductCategoryTranslations = z.record(
   z.object({
     name: z.string().nullish(),
@@ -45,13 +42,3 @@ export const ZodProductCategory: z.ZodType<ProductCategory> =
 export const ZodProductCategoryParams = z.object({
   id: z.string(),
 })
-
-export const ZodProductCategoryQuery = z
-  .object({})
-  .merge(ZodOrderingQuery)
-  .merge(ZodPaginationQuery)
-
-export type ProductCategoryParams = Readonly<
-  z.infer<typeof ZodProductCategoryParams>
->
-export type ProductCategoryQuery = z.infer<typeof ZodProductCategoryQuery>

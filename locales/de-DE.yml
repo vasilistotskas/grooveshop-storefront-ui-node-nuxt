@@ -89,7 +89,7 @@ common:
   categories: Kategorien
   no_categories_found: Keine Kategorien gefunden
   demo:
-    message: Dies ist eine Demo-Website, die nur zu Anzeigezwecken dient.
+    message: Dies ist eine Demo-Website, die ausschließlich zu Anzeigezwecken dient.
   change:
     language: Sprache ändern
   filters:
@@ -104,3 +104,6 @@ common:
   reply: Antwort
   decrement: Dekrementieren
   increment: Zuwachs
+  load:
+    more: Mehr laden
+  loading: Wird geladen...

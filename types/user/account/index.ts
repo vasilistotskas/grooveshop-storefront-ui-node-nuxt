@@ -75,6 +75,3 @@ export const ZodUserAccountPutBody = z.object({
 })
 
 export type UserAccount = z.infer<typeof ZodUserAccount>
-export type UserAccountPutBody = z.infer<typeof ZodUserAccountPutBody>
-export type UserAccountParams = z.infer<typeof ZodUserAccountParams>
-export type UserAccountPatchBody = z.infer<typeof ZodUserAccountPatchBody>

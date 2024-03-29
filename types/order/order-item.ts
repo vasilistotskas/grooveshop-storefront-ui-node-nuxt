@@ -40,5 +40,3 @@ export const ZodOrderCreateResponseItem = z.object({
 })
 
 export type OrderItem = z.infer<typeof ZodOrderItem>
-export type OrderCreateItem = z.infer<typeof ZodOrderCreateItem>
-export type OrderResponseCreateItem = z.infer<typeof ZodOrderCreateResponseItem>

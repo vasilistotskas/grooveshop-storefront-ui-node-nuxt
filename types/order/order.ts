@@ -7,10 +7,10 @@ import {
   ZodOrderCreateResponseItem,
   ZodOrderItem,
 } from '~/types/order/order-item'
-import type { OrderingQuery } from '~/types/ordering'
-import type { PaginationQuery } from '~/types/pagination'
 import { ZodPayWay } from '~/types/pay-way'
 import { ZodRegion } from '~/types/region'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 export const ZodOrderStatusEnum = z.enum([
   'SENT',
@@ -52,12 +52,13 @@ export const ZodOrder = z.object({
   fullAddress: z.string(),
 })
 
-export const ZodOrderQuery = z.object({
-  page: z.string().nullish(),
-  ordering: z.string().nullish(),
-  userId: z.string().nullish(),
-  status: z.string().nullish(),
-})
+export const ZodOrderQuery = z
+  .object({
+    userId: z.string().nullish(),
+    status: z.string().nullish(),
+  })
+  .merge(ZodOrderingQuery)
+  .merge(ZodPaginationQuery)
 
 export const ZodOrderCreateBody = z.object({
   user: z.union([z.number(), z.string()]).nullish(),
@@ -127,11 +128,3 @@ export const ZodOrderUUIDParams = z.object({
 })
 
 export type Order = z.infer<typeof ZodOrder>
-export type OrderCreateBody = z.infer<typeof ZodOrderCreateBody>
-export type OrderParams = z.infer<typeof ZodOrderParams>
-export type OrderOrderingField = 'createdAt'
-export type OrderQuery = PaginationQuery &
-  OrderingQuery & {
-    userId?: string | undefined
-    status?: string | undefined
-  }

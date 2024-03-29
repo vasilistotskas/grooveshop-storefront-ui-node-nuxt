@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 const ZodBlogCategoryTranslations = z.record(
   z.object({
@@ -24,16 +26,15 @@ export const ZodBlogCategory = z.object({
   mainImageFilename: z.string().nullish(),
 })
 
-export const ZodBlogCategoryQuery = z.object({
-  page: z.string().nullish(),
-  ordering: z.string().nullish(),
-  id: z.string().nullish(),
-})
+export const ZodBlogCategoryQuery = z
+  .object({
+    id: z.string().nullish(),
+  })
+  .merge(ZodOrderingQuery)
+  .merge(ZodPaginationQuery)
 
 export const ZodBlogCategoryParams = z.object({
   id: z.string(),
 })
 
 export type BlogCategory = z.infer<typeof ZodBlogCategory>
-export type BlogCategoryQuery = z.infer<typeof ZodBlogCategoryQuery>
-export type BlogCategoryParams = z.infer<typeof ZodBlogCategoryParams>

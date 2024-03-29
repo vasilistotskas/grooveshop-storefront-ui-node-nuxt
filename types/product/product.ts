@@ -74,9 +74,6 @@ export const ZodProductQuery = z
   .merge(ZodPaginationQuery)
 
 export type Product = Readonly<z.infer<typeof ZodProduct>>
-export type ProductParams = z.infer<typeof ZodProductParams>
-export type ProductCreateBody = z.infer<typeof ZodProductCreateBody>
-export type ProductQuery = z.infer<typeof ZodProductQuery>
 export type ProductOrderingField =
   | 'price'
   | 'createdAt'

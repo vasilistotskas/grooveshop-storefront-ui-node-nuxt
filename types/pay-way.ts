@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 export enum PayWayEnum {
   CREDIT_CARD = 'Credit Card',
@@ -26,13 +28,13 @@ export const ZodPayWay = z.object({
   uuid: z.string().uuid(),
 })
 
-export const ZodPayWayQuery = z.object({
-  page: z.string().nullish(),
-  ordering: z.string().nullish(),
-  active: z.string().nullish(),
-  cost: z.string().nullish(),
-  freeForOrderAmount: z.string().nullish(),
-})
+export const ZodPayWayQuery = z
+  .object({
+    active: z.string().nullish(),
+    cost: z.string().nullish(),
+    freeForOrderAmount: z.string().nullish(),
+  })
+  .merge(ZodOrderingQuery)
+  .merge(ZodPaginationQuery)
 
 export type PayWay = z.infer<typeof ZodPayWay>
-export type PayWayQuery = z.infer<typeof ZodPayWayQuery>

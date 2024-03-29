@@ -39,7 +39,7 @@ const props = withDefaults(
     borderRadius: '5px',
     showAnimation: true,
     text: undefined,
-    textColor: 'black',
+    textColor: undefined,
     spinner: undefined,
     modal: false,
   },

@@ -31,6 +31,7 @@ export enum LocationChoicesEnum {
 }
 
 export type ImageLoading = 'lazy' | 'eager' | undefined
+export type PaginationType = 'pageNumber' | 'cursor' | 'limitOffset'
 export type FloorChoicesEnumType = z.infer<typeof ZodFloorChoicesEnum>
 export type LocationChoicesEnumType = z.infer<typeof ZodLocationChoicesEnum>
 

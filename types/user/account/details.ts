@@ -25,7 +25,3 @@ export const ZodUserAccountDetailsParams = z.object({
 })
 
 export type UserAccountDetails = z.infer<typeof ZodUserAccountDetails>
-export type UserAccountDetailsParams = z.infer<
-  typeof ZodUserAccountDetailsParams
->
-export type UserAccountDetailsQuery = z.infer<typeof ZodUserAccountDetailsQuery>

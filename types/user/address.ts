@@ -2,10 +2,10 @@ import { z } from 'zod'
 
 import { ZodCountry } from '~/types/country'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
-import type { OrderingQuery } from '~/types/ordering'
-import type { PaginationQuery } from '~/types/pagination'
 import { ZodRegion } from '~/types/region'
 import { ZodUserAccount } from '~/types/user/account'
+import { ZodOrderingQuery } from '~/types/ordering'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 export const ZodUserAddress = z.object({
   id: z.number(),
@@ -32,14 +32,14 @@ export const ZodUserAddress = z.object({
   region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
 })
 
-export const ZodUserAddressQuery = z.object({
-  page: z.string().nullish(),
-  ordering: z.string().nullish(),
-  id: z.string().nullish(),
-  user: z.string().nullish(),
-  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-  pagination: z.union([z.literal('true'), z.literal('false')]).nullish(),
-})
+export const ZodUserAddressQuery = z
+  .object({
+    id: z.string().nullish(),
+    user: z.string().nullish(),
+    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
+  })
+  .merge(ZodOrderingQuery)
+  .merge(ZodPaginationQuery)
 
 export const ZodUserAddressCreateBody = z.object({
   title: z.string(),
@@ -84,22 +84,3 @@ export const ZodUserAddressPutBody = z.object({
 })
 
 export type UserAddress = z.infer<typeof ZodUserAddress>
-export type UserAddressParams = z.infer<typeof ZodUserAddressParams>
-export type UserAddressPutBody = z.infer<typeof ZodUserAddressPutBody>
-export type UserAddressCreateBody = z.infer<typeof ZodUserAddressCreateBody>
-export type UserAddressQuery = PaginationQuery &
-  OrderingQuery & {
-    id?: string | undefined
-    user?: string | undefined
-    expand?: string | undefined
-  }
-export type UserAddressOrderingField =
-  | 'id'
-  | 'user'
-  | 'country'
-  | 'zipcode'
-  | 'floor'
-  | 'locationType'
-  | 'isMain'
-  | 'createdAt'
-  | 'updatedAt'

@@ -1,10 +1,22 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
-
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import type { PaginationType } from '~/types/global/general'
+import { getCursorFromUrl } from '~/utils/pagination'
+
+const props = defineProps({
+  paginationType: {
+    type: String as PropType<PaginationType>,
+    required: false,
+    default: 'pageNumber',
+    validator: (value: string) =>
+      ['pageNumber', 'cursor', 'limitOffset'].includes(value),
+  },
+})
+
+const { paginationType } = toRefs(props)
 
 const route = useRoute()
 const { t } = useI18n()
@@ -15,8 +27,11 @@ const id = computed(() => route.query.id)
 const author = computed(() => route.query.author)
 const slug = computed(() => route.query.slug)
 const tags = computed(() => route.query.tags)
+const cursor = computed(() => route.query.cursor)
 const expand = computed(() => 'true')
+const pageSize = computed(() => '10')
 
+const allPosts: Ref<BlogPost[]> = ref([])
 const {
   data: posts,
   pending,
@@ -32,6 +47,9 @@ const {
       slug: slug.value,
       tags: tags.value,
       expand: expand.value,
+      cursor: cursor.value,
+      pageSize: pageSize.value,
+      paginationType: paginationType.value,
     },
   }),
 )
@@ -73,17 +91,51 @@ const orderingOptions = computed(() => {
   )
 })
 
+const nextCursor = computed(() => {
+  if (!pagination.value?.links?.next) return ''
+  return getCursorFromUrl(pagination.value?.links?.next)
+})
+
+const PaginationPageNumber = resolveComponent('PaginationPageNumber')
+const PaginationCursor = resolveComponent('PaginationCursor')
+
+const showResults = computed(() => {
+  if (paginationType.value === 'cursor') {
+    return allPosts.value.length
+  }
+  return !pending.value && allPosts.value.length
+})
+
 watch(
   () => route.query,
   () => refresh(),
   { deep: true },
+)
+
+watch(
+  posts,
+  (newValue) => {
+    if (newValue && newValue?.results?.length) {
+      if (paginationType.value === 'cursor') {
+        allPosts.value = [...allPosts.value, ...newValue.results]
+      } else {
+        allPosts.value = newValue.results
+      }
+    }
+  },
+  { deep: true, immediate: true },
 )
 </script>
 
 <template>
   <div class="posts-list grid gap-4">
     <div class="flex flex-row items-center gap-2">
-      <PaginationPageNumber
+      <Component
+        :is="
+          paginationType === 'pageNumber'
+            ? PaginationPageNumber
+            : PaginationCursor
+        "
         v-if="pagination"
         :count="pagination.count"
         :total-pages="pagination.totalPages"
@@ -91,6 +143,8 @@ watch(
         :page-size="pagination.pageSize"
         :page="pagination.page"
         :links="pagination.links"
+        :next-cursor="nextCursor"
+        :loading="pending"
       />
       <Ordering
         :ordering="String(ordering)"
@@ -101,15 +155,15 @@ watch(
       <ol
         class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-2 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
       >
-        <template v-if="!pending && posts?.results?.length">
+        <template v-if="showResults">
           <BlogPostCard
-            v-for="(post, index) in posts.results"
+            v-for="(post, index) in allPosts"
             :key="index"
             :post="post"
             :img-loading="index > 7 ? 'lazy' : 'eager'"
           />
         </template>
-        <template v-if="pending">
+        <template v-if="pending && paginationType !== 'cursor'">
           <ClientOnlyFallback
             v-for="index in 8"
             :key="index"
@@ -120,6 +174,16 @@ watch(
       </ol>
       <BlogTagsList />
     </section>
+    <Transition>
+      <template v-if="pending && paginationType === 'cursor'">
+        <ClientOnlyFallback
+          height="75px"
+          width="35%"
+          class="grid items-center justify-items-center"
+          :text="$t('common.loading')"
+        />
+      </template>
+    </Transition>
     <EmptyState v-if="!pending && !posts?.results?.length" :icon="emptyIcon">
       <template #actions>
         <UButton
@@ -131,3 +195,15 @@ watch(
     </EmptyState>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>
