@@ -138,7 +138,7 @@ const startShare = () => share().catch((err) => err)
             @click="startShare"
           />
           <template #fallback>
-            <ClientOnlyFallback height="40px" width="40px" />
+            <ClientOnlyFallback height="48px" width="48px" />
           </template>
         </ClientOnly>
       </div>
