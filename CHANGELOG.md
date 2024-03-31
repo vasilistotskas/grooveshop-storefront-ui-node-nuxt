@@ -1,3 +1,10 @@
+## [1.83.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.83.2...v1.83.3) (2024-03-31)
+
+
+### Bug Fixes
+
+* mobile blog post card ui fix ([57ad572](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/57ad5722b8b315e75111426eace23936b007623e))
+
 ## [1.83.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.83.1...v1.83.2) (2024-03-31)
 
 
