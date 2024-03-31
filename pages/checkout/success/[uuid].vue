@@ -81,7 +81,7 @@ definePageMeta({
     />
     <PageBody>
       <div
-        class="container-xxs rounded border border-gray-900/10 bg-white !p-4 shadow-md dark:border-gray-50/[0.2] dark:bg-zinc-800 md:px-6"
+        class="container-2xs rounded border border-gray-900/10 bg-white !p-4 shadow-md dark:border-gray-50/[0.2] dark:bg-zinc-900 md:px-6"
       >
         <div
           class="grid items-center justify-center justify-items-center gap-8 md:gap-16"
@@ -106,7 +106,7 @@ definePageMeta({
               }}
             </h2>
             <p
-              class="text-primary-700 dark:text-primary-100 text-center"
+              class="text-primary-800 dark:text-primary-100 text-center"
               v-html="
                 $t('pages.checkout.success.main.text', {
                   orderId: orderNumber,
@@ -192,28 +192,28 @@ definePageMeta({
               </h3>
               <p
                 v-if="shippingPrice"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
               >
                 {{ $t('pages.checkout.success.shippingPrice') }}:
                 <I18nN tag="span" format="currency" :value="shippingPrice" />
               </p>
               <p
                 v-if="totalPriceItems"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
               >
                 {{ $t('pages.checkout.success.totalPriceItems') }}:
                 <I18nN tag="span" format="currency" :value="totalPriceItems" />
               </p>
               <p
                 v-if="totalPriceExtra"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
               >
                 {{ $t('pages.checkout.success.totalPriceExtra') }}:
                 <I18nN tag="span" format="currency" :value="totalPriceExtra" />
               </p>
               <p
                 v-if="payWayPrice"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
               >
                 {{ $t('pages.checkout.success.payWayPrice') }}:
                 <I18nN tag="span" format="currency" :value="payWayPrice" />
@@ -221,7 +221,7 @@ definePageMeta({
             </div>
             <p
               v-if="paidAmount"
-              class="text-primary-700 dark:text-primary-100 font-bold"
+              class="text-primary-800 dark:text-primary-100 font-bold"
             >
               {{ $t('pages.checkout.success.total') }}:
               <I18nN tag="span" format="currency" :value="paidAmount" />

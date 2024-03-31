@@ -2,7 +2,7 @@
 import { TransitionChild, TransitionRoot } from '@headlessui/vue'
 
 defineSlots<{
-  default(props: {}): any
+  default(props: object): any
 }>()
 
 const emit = defineEmits(['onClose'])

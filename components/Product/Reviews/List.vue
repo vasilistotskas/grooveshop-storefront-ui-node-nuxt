@@ -39,7 +39,7 @@ defineProps({
         :key="review.id"
         :review="review"
         :display-image-of="displayImageOf"
-        class="reviews-list-item rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800"
+        class="reviews-list-item rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-900"
       />
     </div>
   </div>

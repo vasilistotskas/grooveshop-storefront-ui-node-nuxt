@@ -34,7 +34,7 @@ const props = defineProps({
   closeBtnColor: {
     type: String,
     required: false,
-    default: '#9A9A9B',
+    default: '#f87171',
   },
   closeBtnPosition: {
     type: String,
@@ -124,7 +124,7 @@ const props = defineProps({
   },
   position: {
     type: String,
-    default: 'fixed',
+    default: 'absolute',
   },
   backgroundBlur: {
     type: String,
@@ -163,9 +163,9 @@ const props = defineProps({
 })
 
 defineSlots<{
-  header(props: {}): any
-  default(props: {}): any
-  footer(props: {}): any
+  header(props: object): any
+  default(props: object): any
+  footer(props: object): any
 }>()
 
 defineEmits(['submit'])
@@ -376,14 +376,15 @@ $transitional-profile-1: all 0.2s ease-out;
       .cp-utilities-generic-modal {
         visibility: visible;
         content-visibility: visible;
-        display: grid;
-        align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         padding: 1rem;
         border: v-bind(border);
         border-radius: v-bind(borderRadius);
 
         @media screen and (width <= 1200px) {
-          max-height: unset;
+          max-height: 100svh;
         }
 
         @media screen and (width <= 767px) {

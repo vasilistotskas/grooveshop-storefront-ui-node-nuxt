@@ -6,11 +6,11 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
 </script>
 
 <template>
-  <BuilderNavbar class="bg-white/[0.5] dark:bg-zinc-900/[0.5]">
+  <BuilderNavbar class="bg-zinc-50 dark:bg-zinc-900">
     <template #menu>
       <div class="relative ml-auto hidden items-center lg:flex">
         <nav
-          class="text-primary-700 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
+          class="text-primary-800 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
         >
           <ul class="flex items-center space-x-8">
             <li
@@ -52,7 +52,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
             </li>
           </ul>
           <ul
-            class="text-primary-700 dark:text-primary-100 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
+            class="text-primary-800 dark:text-primary-100 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
           >
             <li
               class="relative grid items-center justify-center justify-items-center"
@@ -124,7 +124,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
         <ActionSheetBody class="grid gap-4">
           <ActionSheetHeader text="Menu" />
           <nav
-            class="text-primary-700 dark:text-primary-100 font-semibold leading-6"
+            class="text-primary-800 dark:text-primary-100 font-semibold leading-6"
           >
             <ul
               class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
@@ -180,13 +180,13 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
             </div>
           </div>
           <Anchor
-            class="text-primary-700 dark:text-primary-100 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
+            class="text-primary-800 dark:text-primary-100 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
             :to="'cart'"
             :title="$t('pages.cart.title')"
             :text="$t('pages.cart.title')"
           >
             <IconFa6Solid:cartShopping />
-            <span class="text-primary-700 dark:text-primary-100 ml-1">
+            <span class="text-primary-800 dark:text-primary-100 ml-1">
               {{ $t('pages.cart.title') }}</span
             >
           </Anchor>

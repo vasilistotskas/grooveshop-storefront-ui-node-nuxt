@@ -140,7 +140,7 @@ export default defineComponent({
     let direction = 1
 
     // hack fix supplement for ssr
-    const checkIfContainerExists = (elementID: String) => {
+    const checkIfContainerExists = (elementID: string) => {
       return document.querySelector(`[data-id="${elementID}"]`) !== null
     }
 
@@ -369,7 +369,7 @@ export default defineComponent({
       }
     }
 
-    const goToAndStop = (frame: number, isFrame: Boolean = true) => {
+    const goToAndStop = (frame: number, isFrame: boolean = true) => {
       // value: numeric value.
       // isFrame: defines if first argument is a time based value or a frame based (default true).
       if (lottieAnimation.value) {
@@ -377,7 +377,7 @@ export default defineComponent({
       }
     }
 
-    const goToAndPlay = (frame: number, isFrame: Boolean = true) => {
+    const goToAndPlay = (frame: number, isFrame: boolean = true) => {
       // value: numeric value
       // isFrame: defines if first argument is a time based value or a frame based (default true).
 
@@ -388,7 +388,7 @@ export default defineComponent({
 
     const playSegments = (
       segments: Array<number>,
-      forceFlag: Boolean = false,
+      forceFlag: boolean = false,
     ) => {
       // segments: array. Can contain 2 numeric values that will be used as first and last frame of the animation. Or can contain a sequence of arrays each with 2 numeric values.
       // forceFlag: boolean. If set to false, it will wait until the current segment is complete. If true, it will update values immediately.
@@ -398,14 +398,14 @@ export default defineComponent({
       }
     }
 
-    const setSubFrame = (useSubFrame: Boolean = true) => {
+    const setSubFrame = (useSubFrame: boolean = true) => {
       // useSubFrames: If false, it will respect the original AE fps. If true, it will update on every requestAnimationFrame with intermediate values. Default is true.
       if (lottieAnimation.value) {
         lottieAnimation.value.setSubframe(useSubFrame)
       }
     }
 
-    const getDuration = (inFrames: Boolean = true) => {
+    const getDuration = (inFrames: boolean = true) => {
       if (lottieAnimation.value) {
         return lottieAnimation.value.getDuration(inFrames)
       }
@@ -433,7 +433,7 @@ export default defineComponent({
       return result
     }
 
-    const setupLottie = (elementID: String) => {
+    const setupLottie = (elementID: string) => {
       if (props.pauseOnHover && props.playOnHover) {
         throw new Error(
           'You cannot set pauseOnHover and playOnHover for Vue3-Lottie at the same time.',

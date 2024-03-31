@@ -2,9 +2,12 @@
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
-import emptyIcon from '~icons/mdi/package-variant-remove'
-import { type PaginationType, PaginationTypeEnum } from '~/types/global/general'
-import { getCursorFromUrl } from '~/utils/pagination'
+import {
+  type CursorStates,
+  PaginationCursorStateEnum,
+  type PaginationType,
+  PaginationTypeEnum,
+} from '~/types/global/general'
 
 const props = defineProps({
   paginationType: {
@@ -14,12 +17,28 @@ const props = defineProps({
     validator: (value: string) =>
       Object.values(PaginationTypeEnum).includes(value as PaginationTypeEnum),
   },
+  showOrdering: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  pageSize: {
+    type: Number,
+    required: false,
+    default: 10,
+  },
 })
 
-const { paginationType } = toRefs(props)
+defineSlots<{
+  sidebar(props: object): any
+}>()
+
+const { paginationType, pageSize } = toRefs(props)
 
 const route = useRoute()
 const { t } = useI18n()
+const { isMobileOrTablet } = useDevice()
+const cursorState = useState<CursorStates>('cursorStates')
 
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
@@ -27,16 +46,17 @@ const id = computed(() => route.query.id)
 const author = computed(() => route.query.author)
 const slug = computed(() => route.query.slug)
 const tags = computed(() => route.query.tags)
-const cursor = computed(() => route.query.cursor)
+const cursor = computed(
+  () => cursorState.value[PaginationCursorStateEnum.BLOG_POSTS],
+)
 const expand = computed(() => 'true')
-const pageSize = computed(() => '10')
 
 const allPosts: Ref<BlogPost[]> = ref([])
 const {
   data: posts,
   pending,
   refresh,
-} = await useLazyAsyncData('blogPosts', () =>
+} = await useAsyncData('blogPosts', () =>
   $fetch('/api/blog/posts', {
     method: 'GET',
     query: {
@@ -91,11 +111,6 @@ const orderingOptions = computed(() => {
   )
 })
 
-const nextCursor = computed(() => {
-  if (!pagination.value?.links?.next) return ''
-  return getCursorFromUrl(pagination.value?.links?.next)
-})
-
 const showResults = computed(() => {
   if (paginationType.value === 'cursor') {
     return allPosts.value.length
@@ -103,8 +118,14 @@ const showResults = computed(() => {
   return !pending.value && allPosts.value.length
 })
 
+const BlogPostCard = computed(() => {
+  return isMobileOrTablet
+    ? resolveComponent('BlogPostCardMobile')
+    : resolveComponent('BlogPostCardDesktop')
+})
+
 watch(
-  () => route.query,
+  () => [route.query, cursorState.value],
   () => refresh(),
   { deep: true },
 )
@@ -126,7 +147,14 @@ watch(
 
 <template>
   <div class="posts-list grid gap-4">
-    <div class="flex flex-row items-center gap-2">
+    <div
+      v-if="pagination || showOrdering"
+      :class="
+        paginationType === 'cursor'
+          ? 'sr-only'
+          : 'flex flex-row items-center gap-2'
+      "
+    >
       <Pagination
         v-if="pagination"
         :pagination-type="paginationType"
@@ -136,20 +164,22 @@ watch(
         :page-size="pagination.pageSize"
         :page="pagination.page"
         :links="pagination.links"
-        :next-cursor="nextCursor"
         :loading="pending"
+        :state-name="PaginationCursorStateEnum.BLOG_POSTS"
       />
       <Ordering
+        v-if="showOrdering"
         :ordering="String(ordering)"
         :ordering-options="orderingOptions.orderingOptionsArray.value"
       />
     </div>
-    <section class="grid gap-4 md:flex md:gap-8">
+    <section class="flex gap-4 md:gap-8">
       <ol
         class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-2 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
       >
         <template v-if="showResults">
-          <BlogPostCard
+          <Component
+            :is="BlogPostCard"
             v-for="(post, index) in allPosts"
             :key="index"
             :post="post"
@@ -160,12 +190,12 @@ watch(
           <ClientOnlyFallback
             v-for="index in 8"
             :key="index"
-            height="684px"
+            height="411px"
             width="100%"
           />
         </template>
       </ol>
-      <BlogTagsList />
+      <slot name="sidebar" />
     </section>
     <Transition>
       <template v-if="pending && paginationType === 'cursor'">
@@ -177,15 +207,6 @@ watch(
         />
       </template>
     </Transition>
-    <EmptyState v-if="!pending && !posts?.results?.length" :icon="emptyIcon">
-      <template #actions>
-        <UButton
-          :label="$t('common.empty.button')"
-          :to="'index'"
-          color="white"
-        />
-      </template>
-    </EmptyState>
   </div>
 </template>
 

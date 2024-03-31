@@ -10,9 +10,9 @@ defineProps({
   },
 })
 defineSlots<{
-  default(props: {}): any
-  header(props: {}): any
-  footer(props: {}): any
+  default(props: object): any
+  header(props: object): any
+  footer(props: object): any
 }>()
 </script>
 

@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import type { ExtractPropTypes } from 'vue'
 
-import { baseImageProps } from '#image/components/_base'
+import type { baseImageProps } from '#image/components/_base'
 
 interface Emits {
-  (e: 'error', data: any): void
-  (e: 'load', data: any): void
+  (e: 'error' | 'load', data: any): void
 }
 
 const emit = defineEmits<Emits>()

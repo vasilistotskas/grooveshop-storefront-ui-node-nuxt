@@ -30,11 +30,11 @@ const trimmedText = computed(() => {
   <div v-if="text && text.length > maxChars" class="relative flex flex-col">
     <div
       v-if="!showFullText"
-      class="text-primary-700 dark:text-primary-100 overflow-hidden"
+      class="text-primary-800 dark:text-primary-100 overflow-hidden"
     >
       <span v-html="trimmedText" />
     </div>
-    <div v-else class="text-primary-700 dark:text-primary-100 overflow-hidden">
+    <div v-else class="text-primary-800 dark:text-primary-100 overflow-hidden">
       <span v-html="text" />
     </div>
     <div class="bottom-0 right-0 grid justify-end">
@@ -46,7 +46,7 @@ const trimmedText = computed(() => {
       />
     </div>
   </div>
-  <div v-else class="text-primary-700 dark:text-primary-100">
+  <div v-else class="text-primary-800 dark:text-primary-100">
     {{ text }}
   </div>
 </template>

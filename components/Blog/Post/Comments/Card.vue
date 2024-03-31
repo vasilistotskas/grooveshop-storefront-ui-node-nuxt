@@ -61,32 +61,46 @@ const commentContent = computed(() => {
 
 <template>
   <div class="card">
-    <div class="relative flex items-start justify-start gap-2 md:gap-14">
-      <div class="flex items-center gap-6">
-        <div class="h-auto w-auto">
-          <UserAvatar
-            v-if="userAccount && displayImageOf === 'user'"
-            :user-account="userAccount"
-            :show-name="false"
-          />
-          <div
-            v-if="displayImageOf === 'blogPost' && blogPost"
-            class="grid gap-2"
-          >
-            <Anchor
-              :to="`/blog/post${blogPost.absoluteUrl}`"
-              :text="blogPostName"
+    <div
+      class="relative flex flex-col items-start justify-start gap-2 md:gap-14"
+    >
+      <div class="flex w-full items-center gap-6">
+        <div class="flex w-full items-center">
+          <div class="flex items-center gap-4">
+            <UserAvatar
+              v-if="userAccount && displayImageOf === 'user'"
+              :user-account="userAccount"
+              :show-name="false"
+            />
+            <span
+              v-if="userAccount && displayImageOf === 'user'"
+              class="text-primary-800 dark:text-primary-100 font-bold"
             >
-              <ImgWithFallback
-                loading="lazy"
-                provider="mediaStream"
-                class="blog-post-img w-30 h-20 bg-white object-cover"
-                sizes="sm:100vw md:50vw lg:auto"
-                :src="src"
-                :alt="alt"
-              />
-            </Anchor>
+              {{ userAccount?.firstName }}
+            </span>
+            <div
+              v-if="displayImageOf === 'blogPost' && blogPost"
+              class="grid gap-2"
+            >
+              <Anchor
+                :to="`/blog/post${blogPost.absoluteUrl}`"
+                :text="blogPostName"
+              >
+                <ImgWithFallback
+                  loading="lazy"
+                  provider="mediaStream"
+                  class="blog-post-img w-30 h-20 bg-white object-cover"
+                  sizes="sm:100vw md:50vw lg:auto"
+                  :src="src"
+                  :alt="alt"
+                />
+              </Anchor>
+            </div>
           </div>
+          <NuxtTime
+            class="w-full text-end text-xs"
+            :datetime="comment.createdAt"
+          />
         </div>
       </div>
       <div class="grid h-full w-full">
@@ -101,15 +115,6 @@ const commentContent = computed(() => {
             <span class="text-lg font-medium">{{ blogPostName }}</span>
           </Anchor>
         </div>
-        <div
-          v-if="userAccount && displayImageOf === 'user'"
-          class="flex flex-col"
-        >
-          <span class="text-primary-700 dark:text-primary-100 font-bold">
-            {{ userAccount?.firstName }}
-          </span>
-        </div>
-        <NuxtTime class="pb-5 text-xs" :datetime="comment.createdAt" />
         <span class="pb-6 md:pb-10">{{ commentContent }}</span>
         <div class="flex items-center gap-2">
           <UButton

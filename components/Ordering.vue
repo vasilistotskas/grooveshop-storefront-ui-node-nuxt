@@ -63,19 +63,19 @@ const onOptionClick = async (option: OrderingOption) => {
           <div class="w-46 relative md:w-60">
             <ListboxButton
               :id="`ordering-button-${ordering}`"
-              class="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-2 pr-6 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 dark:bg-zinc-800 md:pl-3 md:pr-10"
+              class="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-2 pr-6 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 dark:bg-zinc-900 md:pl-3 md:pr-10"
               @click="listBoxToggle"
             >
               <span
-                class="text-primary-700 dark:text-primary-100 block truncate"
+                class="text-primary-800 dark:text-primary-100 block truncate"
                 >{{
                   selectedOrderingLabel ?? $t('components.ordering.title')
                 }}</span
               >
               <span
-                class="text-primary-700 dark:text-primary-100 pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                class="text-primary-800 dark:text-primary-100 pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
               >
-                <span class="text-primary-700 dark:text-primary-100"
+                <span class="text-primary-800 dark:text-primary-100"
                   ><IconFaSolid:sort
                 /></span>
               </span>
@@ -87,7 +87,7 @@ const onOptionClick = async (option: OrderingOption) => {
                   :id="`ordering-options-${ordering}`"
                   role="none"
                   static
-                  class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-zinc-800 sm:text-sm"
+                  class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-zinc-900 sm:text-sm"
                 >
                   <ListboxOption
                     v-for="(option, index) in orderingOptions"
@@ -126,7 +126,7 @@ const onOptionClick = async (option: OrderingOption) => {
                         <span
                           :class="[
                             selected ? 'font-medium' : 'font-normal',
-                            'text-primary-700 dark:text-primary-100 block truncate',
+                            'text-primary-800 dark:text-primary-100 block truncate',
                           ]"
                           >{{ option.label }}</span
                         >

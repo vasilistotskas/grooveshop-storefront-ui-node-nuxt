@@ -46,12 +46,6 @@ const blogPostImageSrc = computed(() => {
     `media/uploads/blog/${blogPost.value?.mainImageFilename}`,
   )
 })
-const blogPostAuthorUserImgSrc = computed(() => {
-  return resolveImageSrc(
-    blogPostAuthorUser.value?.mainImageFilename,
-    `media/uploads/users/${blogPostAuthorUser.value?.mainImageFilename}`,
-  )
-})
 
 const links = [
   {
@@ -139,7 +133,14 @@ definePageMeta({
         v-if="blogPost"
         class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8"
       >
-        <UBreadcrumb :links="links" class="mb-5" />
+        <UBreadcrumb
+          :links="links"
+          class="mx-auto mb-5 max-w-2xl"
+          :ui="{
+            li: 'text-primary-800 dark:text-primary-100',
+            base: 'text-xs md:text-md',
+          }"
+        />
         <article
           class="mx-auto flex max-w-2xl flex-col items-start justify-center border-gray-200 pb-6 dark:border-gray-700"
         >
@@ -147,57 +148,15 @@ definePageMeta({
             class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4"
           >
             <h2
-              class="text-primary-700 dark:text-primary-100 text-3xl font-bold tracking-tight md:text-5xl"
+              class="text-primary-800 dark:text-primary-100 text-3xl font-bold tracking-tight md:text-4xl"
             >
               {{ blogPostTitle }}
             </h2>
             <div
               class="grid w-full grid-cols-2 items-center gap-2 md:grid-cols-3 md:gap-4"
             >
-              <div
-                class="flex items-center justify-start border-r-2 border-gray-400 pr-2"
-              >
-                <div class="relative mr-4 flex h-12 w-12 items-center">
-                  <ImgWithFallback
-                    loading="lazy"
-                    provider="mediaStream"
-                    class="rounded-full bg-white"
-                    :style="{ objectFit: 'contain' }"
-                    :width="48"
-                    :height="48"
-                    :fit="'contain'"
-                    :position="'entropy'"
-                    :background="'transparent'"
-                    :trim-threshold="5"
-                    :sizes="`xs:${48}px sm:${48}px md:${48}px lg:${48}px xl:${48}px xxl:${48}px 2xl:${48}px`"
-                    :src="blogPostAuthorUserImgSrc"
-                    :alt="
-                      blogPostAuthorUser?.firstName +
-                      ' ' +
-                      blogPostAuthorUser?.lastName
-                    "
-                    densities="x1"
-                  />
-                </div>
-                <div
-                  class="text-primary-700 dark:text-primary-100 text-sm font-bold"
-                >
-                  {{
-                    blogPostAuthorUser?.firstName +
-                    ' ' +
-                    blogPostAuthorUser?.lastName
-                  }}
-                </div>
-              </div>
-              <div
-                class="text-primary-700 dark:text-primary-100 grid h-full items-center justify-center border-gray-400 pr-2 text-sm md:border-r-2"
-              >
-                <NuxtTime :datetime="blogPost?.createdAt" />
-              </div>
-              <div
-                class="col-start-2 grid justify-items-end md:col-start-3 md:row-start-1"
-              >
-                <div class="flex flex-wrap justify-end gap-2 md:gap-4">
+              <div class="flex">
+                <div class="flex justify-end gap-2 md:gap-4">
                   <UButton
                     icon="i-heroicons-heart"
                     size="lg"
@@ -245,8 +204,8 @@ definePageMeta({
                     :style="{ objectFit: 'contain' }"
                     :width="675"
                     :height="340"
-                    :fit="'contain'"
-                    :position="'entropy'"
+                    :fit="'cover'"
+                    :position="'centre'"
                     :background="'transparent'"
                     :trim-threshold="5"
                     :sizes="`xs:${675}px sm:${675}px md:${675}px lg:${675}px xl:${675}px xxl:${675}px 2xl:${675}px`"
@@ -272,7 +231,7 @@ definePageMeta({
               </ul>
             </div>
             <div
-              class="text-primary-700 dark:text-primary-100 mx-auto max-w-2xl"
+              class="text-primary-800 dark:text-primary-100 mx-auto max-w-2xl"
             >
               <div v-html="blogPostBody" />
             </div>

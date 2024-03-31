@@ -80,7 +80,7 @@ watch(
 
 <template>
   <div
-    class="mx-auto flex max-w-2xl flex-col items-start justify-center border-t border-gray-200 border-gray-900/10 pb-6 pt-6 dark:border-gray-50/20 dark:border-gray-700"
+    class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t border-gray-200 border-gray-900/10 pb-6 pt-6 dark:border-gray-50/20 dark:border-gray-700"
   >
     <template v-if="!pending && blogPostComments">
       <div class="grid gap-4">

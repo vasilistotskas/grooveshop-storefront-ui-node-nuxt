@@ -36,7 +36,7 @@ definePageMeta({
       </div>
       <div class="grid items-center text-center">
         <NuxtTime
-          class="text-primary-700 dark:text-primary-100 text-sm"
+          class="text-primary-800 dark:text-primary-100 text-sm"
           :datetime="order.createdAt"
         />
       </div>
@@ -44,7 +44,7 @@ definePageMeta({
     <PageBody>
       <section class="flex flex-col gap-4">
         <div
-          class="order-items grid gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800"
+          class="order-items grid gap-4 rounded-lg bg-white p-4 dark:bg-zinc-900"
         >
           <div class="order-status flex items-center gap-2.5">
             <span :class="statusClass(order).color">
@@ -81,75 +81,77 @@ definePageMeta({
                 "
                 :alt="extractTranslated(item.product, 'name', locale)"
               />
-              <Anchor
-                :to="`/products${item.product.absoluteUrl}`"
-                :title="extractTranslated(item.product, 'name', locale)"
-                css-class="w-full"
-              >
-                <span class="text-primary-700 dark:text-primary-100">
-                  {{ extractTranslated(item.product, 'name', locale) }}
-                </span>
-              </Anchor>
-              <div class="flex items-center">
-                <span class="text-primary-700 dark:text-primary-100">
-                  {{ item.quantity }}
-                </span>
-                <UIcon name="i-heroicons-x-mark" />
-                <I18nN
-                  v-if="item.totalPrice"
-                  class="text-primary-700 dark:text-primary-100"
-                  tag="span"
-                  format="currency"
-                  :value="item.totalPrice"
-                />
+              <div class="grid w-full gap-2 md:flex">
+                <Anchor
+                  :to="`/products${item.product.absoluteUrl}`"
+                  :title="extractTranslated(item.product, 'name', locale)"
+                  css-class="w-full"
+                >
+                  <span class="text-primary-800 dark:text-primary-100">
+                    {{ extractTranslated(item.product, 'name', locale) }}
+                  </span>
+                </Anchor>
+                <div class="flex items-center">
+                  <span class="text-primary-800 dark:text-primary-100">
+                    {{ item.quantity }}
+                  </span>
+                  <UIcon name="i-heroicons-x-mark" />
+                  <I18nN
+                    v-if="item.totalPrice"
+                    class="text-primary-800 dark:text-primary-100"
+                    tag="span"
+                    format="currency"
+                    :value="item.totalPrice"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
         <div class="order-synopsis grid gap-4 md:grid-cols-2">
           <div
-            class="order-synopsis-info flex flex-col gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800"
+            class="order-synopsis-info flex flex-col gap-4 rounded-lg bg-white p-4 dark:bg-zinc-900"
           >
             <span
-              class="text-primary-700 dark:text-primary-100 text-2xl font-bold"
+              class="text-primary-800 dark:text-primary-100 text-2xl font-bold"
             >
               {{ $t('pages.account.order.details') }}
             </span>
             <div class="flex flex-col gap-4">
               <div class="grid gap-2">
                 <span
-                  class="text-primary-700 dark:text-primary-100 font-bold"
+                  class="text-primary-800 dark:text-primary-100 font-bold"
                   >{{ $t('pages.account.order.address') }}</span
                 >
-                <span class="text-primary-700 dark:text-primary-100">{{
+                <span class="text-primary-800 dark:text-primary-100">{{
                   order.fullAddress
                 }}</span>
               </div>
               <div class="grid gap-2">
                 <span
-                  class="text-primary-700 dark:text-primary-100 font-bold"
+                  class="text-primary-800 dark:text-primary-100 font-bold"
                   >{{ $t('pages.account.order.document_type') }}</span
                 >
-                <span class="text-primary-700 dark:text-primary-100">{{
+                <span class="text-primary-800 dark:text-primary-100">{{
                   order.documentType
                 }}</span>
               </div>
               <div class="grid gap-2">
                 <span
-                  class="text-primary-700 dark:text-primary-100 font-bold"
+                  class="text-primary-800 dark:text-primary-100 font-bold"
                   >{{ $t('pages.account.order.pay_way') }}</span
                 >
-                <span class="text-primary-700 dark:text-primary-100">{{
+                <span class="text-primary-800 dark:text-primary-100">{{
                   extractTranslated(order.payWay, 'name', locale)
                 }}</span>
               </div>
             </div>
           </div>
           <div
-            class="order-synopsis-prices flex flex-col gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800"
+            class="order-synopsis-prices flex flex-col gap-4 rounded-lg bg-white p-4 dark:bg-zinc-900"
           >
             <span
-              class="text-primary-700 dark:text-primary-100 text-2xl font-bold"
+              class="text-primary-800 dark:text-primary-100 text-2xl font-bold"
             >
               {{ $t('pages.account.order.synopsis') }}
             </span>
@@ -158,11 +160,11 @@ definePageMeta({
             >
               <div class="flex items-center justify-between">
                 <span
-                  class="text-primary-700 dark:text-primary-100 font-light"
+                  class="text-primary-800 dark:text-primary-100 font-light"
                   >{{ $t('pages.account.order.product.value') }}</span
                 >
                 <I18nN
-                  class="text-primary-700 dark:text-primary-100"
+                  class="text-primary-800 dark:text-primary-100"
                   tag="span"
                   format="currency"
                   :value="order.totalPriceItems"
@@ -170,11 +172,11 @@ definePageMeta({
               </div>
               <div class="flex items-center justify-between">
                 <span
-                  class="text-primary-700 dark:text-primary-100 font-light"
+                  class="text-primary-800 dark:text-primary-100 font-light"
                   >{{ $t('pages.account.order.shipping.value') }}</span
                 >
                 <I18nN
-                  class="text-primary-700 dark:text-primary-100"
+                  class="text-primary-800 dark:text-primary-100"
                   tag="span"
                   format="currency"
                   :value="order.shippingPrice"
@@ -184,11 +186,11 @@ definePageMeta({
             <div class="grid">
               <div class="flex items-center justify-between">
                 <span
-                  class="text-primary-700 dark:text-primary-100 font-bold"
+                  class="text-primary-800 dark:text-primary-100 font-bold"
                   >{{ $t('pages.account.order.total') }}</span
                 >
                 <I18nN
-                  class="text-primary-700 dark:text-primary-100 font-bold"
+                  class="text-primary-800 dark:text-primary-100 font-bold"
                   tag="span"
                   format="currency"
                   :value="order.paidAmount"

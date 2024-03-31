@@ -112,7 +112,6 @@ const { data: countries } = await useLazyAsyncData('countries', () =>
 const { data: regions } = await useLazyAsyncData(
   'regions',
   () =>
-    // @ts-ignore
     $fetch('/api/regions', {
       method: 'GET',
       query: {
@@ -203,13 +202,13 @@ definePageMeta({
     <PageBody>
       <form
         id="AddressEditForm"
-        class="flex flex-col gap-4 rounded-lg bg-white p-4 dark:bg-zinc-800 md:grid md:grid-cols-3"
+        class="flex flex-col gap-4 rounded-lg bg-white p-4 dark:bg-zinc-900 md:grid md:grid-cols-3"
         name="AddressEditForm"
         @submit="onSubmit"
       >
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="title"
             >{{ $t('pages.account.addresses.new.form.title') }}</label
           >
@@ -218,7 +217,7 @@ definePageMeta({
               id="title"
               v-model="title"
               :bind="titleProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="title"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.title')"
@@ -234,7 +233,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="firstName"
             >{{ $t('pages.account.addresses.new.form.first_name') }}</label
           >
@@ -243,7 +242,7 @@ definePageMeta({
               id="firstName"
               v-model="firstName"
               :bind="firstNameProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="firstName"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.first_name')"
@@ -259,7 +258,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="lastName"
             >{{ $t('pages.account.addresses.new.form.last_name') }}</label
           >
@@ -268,7 +267,7 @@ definePageMeta({
               id="lastName"
               v-model="lastName"
               :bind="lastNameProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="lastName"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.last_name')"
@@ -284,7 +283,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="street"
             >{{ $t('pages.account.addresses.new.form.street') }}</label
           >
@@ -293,7 +292,7 @@ definePageMeta({
               id="street"
               v-model="street"
               :bind="streetProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="street"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.street')"
@@ -309,7 +308,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="streetNumber"
             >{{ $t('pages.account.addresses.new.form.street_number') }}</label
           >
@@ -318,7 +317,7 @@ definePageMeta({
               id="streetNumber"
               v-model="streetNumber"
               :bind="streetNumberProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="streetNumber"
               type="text"
               :placeholder="
@@ -336,7 +335,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="city"
             >{{ $t('pages.account.addresses.new.form.city') }}</label
           >
@@ -345,7 +344,7 @@ definePageMeta({
               id="city"
               v-model="city"
               :bind="cityProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="city"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.city')"
@@ -361,7 +360,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="zipcode"
             >{{ $t('pages.account.addresses.new.form.zipcode') }}</label
           >
@@ -370,7 +369,7 @@ definePageMeta({
               id="zipcode"
               v-model="zipcode"
               :bind="zipcodeProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="zipcode"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.zipcode')"
@@ -386,7 +385,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="phone"
             >{{ $t('pages.account.addresses.new.form.phone') }}</label
           >
@@ -395,7 +394,7 @@ definePageMeta({
               id="phone"
               v-model="phone"
               :bind="phoneProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="phone"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.phone')"
@@ -410,7 +409,7 @@ definePageMeta({
         </div>
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="mobilePhone"
             >{{ $t('pages.account.addresses.new.form.mobile_phone') }}</label
           >
@@ -419,7 +418,7 @@ definePageMeta({
               id="mobilePhone"
               v-model="mobilePhone"
               :bind="mobilePhoneProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="mobilePhone"
               type="text"
               :placeholder="$t('pages.account.addresses.new.form.mobile_phone')"
@@ -436,7 +435,7 @@ definePageMeta({
         <div class="grid items-start gap-2 md:content-evenly">
           <div class="grid">
             <label
-              class="text-primary-700 dark:text-primary-100 mb-2"
+              class="text-primary-800 dark:text-primary-100 mb-2"
               for="floor"
               >{{ $t('pages.account.addresses.new.form.floor') }}</label
             >
@@ -446,7 +445,7 @@ definePageMeta({
               :bind="floorProps"
               name="floor"
               as="select"
-              class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-800"
+              class="form-select text-primary-800 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-900"
             >
               <option
                 :value="defaultSelectOptionChoose"
@@ -460,7 +459,7 @@ definePageMeta({
                 :key="index"
                 :value="index"
                 :selected="Number(floor) === index"
-                class="text-primary-700 dark:text-primary-300"
+                class="text-primary-800 dark:text-primary-300"
               >
                 {{ floorChoice }}
               </option>
@@ -473,7 +472,7 @@ definePageMeta({
           </div>
           <div class="grid">
             <label
-              class="text-primary-700 dark:text-primary-100 mb-2"
+              class="text-primary-800 dark:text-primary-100 mb-2"
               for="locationType"
               >{{ $t('pages.account.addresses.new.form.location_type') }}</label
             >
@@ -483,7 +482,7 @@ definePageMeta({
               v-bind="locationTypeProps"
               name="locationType"
               as="select"
-              class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-800"
+              class="form-select text-primary-800 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-900"
             >
               <option
                 :value="defaultSelectOptionChoose"
@@ -497,7 +496,7 @@ definePageMeta({
                 :key="index"
                 :value="index"
                 :selected="Number(locationType) === index"
-                class="text-primary-700 dark:text-primary-300"
+                class="text-primary-800 dark:text-primary-300"
               >
                 {{ location }}
               </option>
@@ -513,7 +512,7 @@ definePageMeta({
         <div class="grid items-start gap-2 md:content-evenly">
           <div class="grid">
             <label
-              class="text-primary-700 dark:text-primary-100 mb-2"
+              class="text-primary-800 dark:text-primary-100 mb-2"
               for="country"
               >{{ $t('pages.account.addresses.new.form.country') }}</label
             >
@@ -524,7 +523,7 @@ definePageMeta({
                 v-bind="countryProps"
                 name="country"
                 as="select"
-                class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-800"
+                class="form-select text-primary-800 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-900"
                 @change.capture="onCountryChange"
               >
                 <option
@@ -539,7 +538,7 @@ definePageMeta({
                   :key="cntry.alpha2"
                   :value="cntry.alpha2"
                   :selected="country === cntry.alpha2"
-                  class="text-primary-700 dark:text-primary-300"
+                  class="text-primary-800 dark:text-primary-300"
                 >
                   {{ extractTranslated(cntry, 'name', locale) }}
                 </option>
@@ -553,7 +552,7 @@ definePageMeta({
           </div>
           <div class="grid">
             <label
-              class="text-primary-700 dark:text-primary-100 mb-2"
+              class="text-primary-800 dark:text-primary-100 mb-2"
               for="region"
               >{{ $t('pages.account.addresses.new.form.region') }}</label
             >
@@ -564,7 +563,7 @@ definePageMeta({
                 v-bind="regionProps"
                 name="region"
                 as="select"
-                class="form-select text-primary-700 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-800"
+                class="form-select text-primary-800 dark:text-primary-300 border border-gray-200 bg-white dark:bg-zinc-900"
                 :disabled="country === defaultSelectOptionChoose"
               >
                 <option
@@ -579,7 +578,7 @@ definePageMeta({
                   :key="rgn.alpha"
                   :value="rgn.alpha"
                   :selected="region === rgn.alpha"
-                  class="text-primary-700 dark:text-primary-300"
+                  class="text-primary-800 dark:text-primary-300"
                 >
                   {{ extractTranslated(rgn, 'name', locale) }}
                 </option>
@@ -595,7 +594,7 @@ definePageMeta({
 
         <div class="grid items-start md:content-evenly">
           <label
-            class="text-primary-700 dark:text-primary-100 mb-2"
+            class="text-primary-800 dark:text-primary-100 mb-2"
             for="notes"
             >{{ $t('pages.account.addresses.new.form.notes') }}</label
           >
@@ -605,7 +604,7 @@ definePageMeta({
               v-model="notes"
               v-bind="notesProps"
               as="textarea"
-              class="text-input text-primary-700 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
+              class="text-input text-primary-800 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
               name="notes"
               type="text"
               rows="4"
@@ -617,7 +616,7 @@ definePageMeta({
         <div class="col-start-3 grid items-end justify-end">
           <button
             type="submit"
-            class="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            class="rounded bg-secondary px-4 py-2 font-bold text-white hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
             :disabled="submitButtonDisabled"
             :aria-busy="isSubmitting"
           >

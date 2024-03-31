@@ -1,4 +1,5 @@
-import { H3Event, sendRedirect } from 'h3'
+import type { H3Event } from 'h3'
+import { sendRedirect } from 'h3'
 
 import type { TokenVerifyResponse } from '~/types/auth'
 

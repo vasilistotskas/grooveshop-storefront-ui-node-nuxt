@@ -2,7 +2,7 @@
 import type { PropType } from 'vue'
 
 import heartJSON from '~/assets/lotties/heart.json'
-import Lottie from '~/components/Lottie/index.vue'
+import type Lottie from '~/components/Lottie/index.vue'
 import type { ButtonSize } from '~/types/global/button'
 import type { ProductFavourite } from '~/types/product/favourite'
 

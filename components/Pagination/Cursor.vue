@@ -1,9 +1,15 @@
 <script lang="ts" setup>
+import { clearCursorStates, getCursorFromUrl } from '~/utils/pagination'
+import type {
+  PaginationCursorStateEnum} from '~/types/global/general';
+import {
+  type CursorStates
+} from '~/types/global/general'
+
 const props = defineProps({
-  nextCursor: {
-    type: String,
-    required: false,
-    default: '',
+  stateName: {
+    type: String as PropType<PaginationCursorStateEnum>,
+    required: true,
   },
   links: {
     type: Object as PropType<{ next: string; previous: string }>,
@@ -19,10 +25,24 @@ const props = defineProps({
     required: false,
     default: false,
   },
+  useRouteQuery: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const router = useRouter()
 const route = useRoute()
+
+const cursorState = useState<CursorStates>('cursorStates', () =>
+  generateInitialCursorStates(),
+)
+
+const nextCursor = computed(() => {
+  if (!props.links?.next) return ''
+  return getCursorFromUrl(props.links.next)
+})
 
 const handleScroll = () => {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement
@@ -32,19 +52,29 @@ const handleScroll = () => {
 }
 
 const loadMore = async () => {
-  if (props.nextCursor) {
-    await router.push({
-      path: route.path,
-      query: {
-        ...route.query,
-        cursor: props.nextCursor,
-      },
-    })
+  if (!nextCursor.value) return
+
+  const currentState = { ...cursorState.value }
+  const currentCursor = currentState[props.stateName]
+
+  if (nextCursor.value !== currentCursor) {
+    currentState[props.stateName] = nextCursor.value
+    cursorState.value = currentState
+
+    if (props.useRouteQuery) {
+      await router.push({
+        path: route.path,
+        query: {
+          ...route.query,
+          cursor: nextCursor.value,
+        },
+      })
+    }
   }
 }
 
 watch(
-  () => props.nextCursor,
+  () => nextCursor.value,
   () => {
     if (import.meta.client) {
       window.addEventListener('scroll', handleScroll)
@@ -58,6 +88,7 @@ watch(
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  clearCursorStates(cursorState.value)
 })
 </script>
 

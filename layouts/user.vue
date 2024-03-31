@@ -1,24 +1,41 @@
 <script lang="ts" setup>
+import type { HorizontalNavigationLink } from '#ui/types'
+
 defineSlots<{
-  default(props: {}): any
-  header(props: {}): any
-  footer(props: {}): any
-  'app-before'(props: {}): any
-  'app-after'(props: {}): any
+  default(props: object): any
+  header(props: object): any
+  footer(props: object): any
 }>()
 
 const userStore = useUserStore()
 const { favouriteProducts, productReviews, orders } = storeToRefs(userStore)
 const { user } = useUserSession()
-const { isMobile } = useDevice()
+const { isMobileOrTablet } = useDevice()
 const route = useRoute()
+const { loggedIn } = useUserSession()
+
+const links = [
+  {
+    icon: 'i-heroicons-home',
+    to: '/',
+  },
+  {
+    icon: 'i-heroicons-magnifying-glass',
+    to: '/search',
+  },
+  {
+    icon: 'i-heroicons-heart',
+    to: '/account/favourites',
+  },
+  {
+    icon: 'i-heroicons-user',
+    to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+  },
+] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
 </script>
 
 <template>
   <div class="relative">
-    <div id="app-before">
-      <slot name="app-before" />
-    </div>
     <div class="flex min-h-screen flex-col">
       <slot name="header">
         <UserNavbar>
@@ -35,7 +52,7 @@ const route = useRoute()
         </UserNavbar>
       </slot>
       <div class="grid gap-6">
-        <div class="bg-white dark:bg-zinc-800 md:rounded-b-[94px]">
+        <div class="bg-white dark:bg-zinc-900 md:rounded-b-[94px]">
           <UserAccountInfo
             v-if="user"
             class="container mx-auto w-full !p-0"
@@ -45,16 +62,16 @@ const route = useRoute()
             :reviews-count="productReviews?.length"
           />
         </div>
-        <main class="container mx-auto w-full">
+        <main class="container">
           <div class="relative mb-12 md:mb-20">
-            <div class="flex w-full flex-1 flex-col md:gap-4">
+            <div class="flex-1 flex-col md:flex md:w-full md:gap-4">
               <div
                 :class="[
-                  'relative mx-auto flex h-full w-full flex-1 flex-col lg:flex-row lg:gap-8 xl:gap-0',
+                  'relative mx-auto flex h-full flex-1 flex-col md:w-full lg:flex-row lg:gap-8 xl:gap-0',
                 ]"
               >
                 <div
-                  v-if="!isMobile"
+                  v-if="!isMobileOrTablet"
                   class="md:grid md:w-auto md:py-4 md:pl-0 xl:pl-8"
                   :class="[
                     {
@@ -78,8 +95,21 @@ const route = useRoute()
         <Footer />
       </slot>
     </div>
-    <div id="app-after">
-      <slot name="app-after" />
-    </div>
+    <UHorizontalNavigation
+      v-if="isMobileOrTablet"
+      :links="links"
+      class="fixed bottom-0 left-0 right-0 z-50 w-full border-t border-secondary bg-zinc-50 dark:bg-zinc-900"
+      :ui="{
+        container: 'flex justify-between w-full',
+        inner: 'flex justify-between w-full',
+        base: 'flex flex-col items-center justify-center w-full',
+        icon: {
+          base: 'text-primary-900 dark:text-primary-100 w-6 h-6',
+          active: 'text-secondary dark:text-secondary',
+          inactive:
+            'text-primary-900 dark:text-primary-100 group-hover:text-primary-900 dark:group-hover:text-primary-900',
+        },
+      }"
+    />
   </div>
 </template>

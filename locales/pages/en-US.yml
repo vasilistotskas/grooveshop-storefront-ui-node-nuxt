@@ -347,7 +347,7 @@ pages:
         success: Address created successfully
         back: Back To Addresses
         main:
-          title: Main Address
+          title: Main
           success: Main Address updated successfully
           error: Main Address update error
         form:
@@ -389,7 +389,7 @@ pages:
         success: Address updated successfully
         back: Back To Addresses
         main:
-          title: Main Address
+          title: Main
           success: Main Address updated successfully
           error: Main Address update error
           button: Set as Main Address

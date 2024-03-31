@@ -8,7 +8,7 @@ const packageVersion = pkg.version
 
 <template>
   <footer
-    class="mt-6 w-full border-t-2 border-gray-500 bg-zinc-50 pt-2 dark:bg-zinc-800"
+    class="mt-6 w-full border-t-2 border-gray-500 bg-zinc-50 pt-2 dark:bg-zinc-900"
   >
     <div class="container mx-auto w-full">
       <div class="flex gap-4 md:grid md:grid-cols-3 md:gap-8 md:px-6 md:py-8">
@@ -18,7 +18,7 @@ const packageVersion = pkg.version
           >
             {{ $t('common.company') }}
           </span>
-          <ul class="text-primary-700 dark:text-primary-400 font-medium">
+          <ul class="text-primary-800 dark:text-primary-400 font-medium">
             <li class="mb-2 md:mb-4">
               <Anchor
                 :to="'about'"
@@ -47,7 +47,7 @@ const packageVersion = pkg.version
           >
             {{ $t('common.help_center') }}
           </span>
-          <ul class="text-primary-700 dark:text-primary-400 font-medium">
+          <ul class="text-primary-800 dark:text-primary-400 font-medium">
             <li class="mb-2 md:mb-4">
               <Anchor
                 :to="'contact'"
@@ -96,7 +96,7 @@ const packageVersion = pkg.version
           >
             Legal
           </span>
-          <ul class="text-primary-700 dark:text-primary-400 font-medium">
+          <ul class="text-primary-800 dark:text-primary-400 font-medium">
             <li class="mb-2 md:mb-4">
               <Anchor
                 :to="'privacy'"
@@ -121,7 +121,7 @@ const packageVersion = pkg.version
         </div>
       </div>
     </div>
-    <div class="w-full bg-white dark:bg-zinc-800">
+    <div class="w-full bg-white dark:bg-zinc-900">
       <div class="container mx-auto w-full">
         <div
           class="px-2 py-3 md:flex md:items-center md:justify-between md:px-4 md:py-6"
@@ -199,7 +199,7 @@ const packageVersion = pkg.version
               </Anchor>
             </div>
             <span
-              class="text-primary-700 dark:text-primary-300 text-xs sm:text-center"
+              class="text-primary-800 dark:text-primary-300 text-xs sm:text-center"
               >Version: {{ packageVersion }}</span
             >
           </div>

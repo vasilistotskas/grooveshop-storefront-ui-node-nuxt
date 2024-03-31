@@ -73,7 +73,7 @@ const categoryImageSource = computed(() => {
   <li
     :class="{
       'grid w-full rounded border border-gray-700 p-2 md:border-transparent md:p-0': true,
-      'bg-white dark:bg-zinc-800': isCategorySelected,
+      'bg-white dark:bg-zinc-900': isCategorySelected,
     }"
   >
     <Anchor
@@ -83,11 +83,11 @@ const categoryImageSource = computed(() => {
       @click.prevent="() => emit('categoryClick', category)"
     >
       <div
-        class="flex h-[48px] w-[48px] items-center rounded-full bg-white dark:bg-zinc-800"
+        class="flex h-[48px] w-[48px] items-center rounded-full bg-white dark:bg-zinc-900"
       >
         <ImgWithFallback
           provider="mediaStream"
-          class="rounded-full bg-white object-cover dark:bg-zinc-800"
+          class="rounded-full bg-white object-cover dark:bg-zinc-900"
           :style="{ contentVisibility: 'auto' }"
           :src="categoryImageSource"
           :width="48"
@@ -103,7 +103,7 @@ const categoryImageSource = computed(() => {
       </div>
       <div class="flex items-center">
         <span
-          class="text-primary-700 dark:text-primary-100 w-full text-xl capitalize md:text-lg"
+          class="text-primary-800 dark:text-primary-100 w-full text-xl capitalize md:text-lg"
         >
           {{ categoryName }}
         </span>

@@ -48,15 +48,27 @@
     ));
   }
 
-  .container-xxs {
+  .container-2xs {
     @apply base-container;
 
     @include responsive-width((
-      'sm': 240px,
+      'sm': 360px,
       'md': 360px,
       'lg': 480px,
       'xl': 640px,
       'xlplus': 800px,
+    ));
+  }
+
+  .container-3xs {
+    @apply base-container;
+
+    @include responsive-width((
+      'sm': 240px,
+      'md': 240px,
+      'lg': 360px,
+      'xl': 480px,
+      'xlplus': 640px,
     ));
   }
 

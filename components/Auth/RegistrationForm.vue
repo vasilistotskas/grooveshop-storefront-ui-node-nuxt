@@ -112,23 +112,23 @@ const onSubmit = handleSubmit((values) => {
   <section class="grid">
     <form
       id="RegistrationForm"
-      class="container-xs !p-0 md:px-6"
+      class="container-3xs !p-0 md:px-6"
       name="RegistrationForm"
       @submit.prevent="onSubmit"
     >
       <div
-        class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-800 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
+        class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-900 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
       >
         <div class="relative grid w-full gap-4">
           <div class="grid content-evenly items-start">
-            <label class="text-primary-700 dark:text-primary-100" for="email">{{
+            <label class="text-primary-800 dark:text-primary-100" for="email">{{
               $t('pages.auth.registration.form.email.label')
             }}</label>
             <FormTextInput
               id="email"
               v-model="email"
               :bind="emailProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="email"
               type="email"
               autocomplete="email"
@@ -142,7 +142,7 @@ const onSubmit = handleSubmit((values) => {
           </div>
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               for="password1"
               >{{ $t('pages.auth.registration.form.password1.label') }}</label
             >
@@ -151,7 +151,7 @@ const onSubmit = handleSubmit((values) => {
                 id="password1"
                 v-model="password1"
                 :bind="password1Props"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
                 name="password1"
                 :type="showPassword1 ? 'text' : 'password'"
                 autocomplete="current-password"
@@ -176,7 +176,7 @@ const onSubmit = handleSubmit((values) => {
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               for="password2"
               >{{ $t('pages.auth.registration.form.password2.label') }}</label
             >
@@ -185,7 +185,7 @@ const onSubmit = handleSubmit((values) => {
                 id="password2"
                 v-model="password2"
                 :bind="password2Props"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
                 name="password2"
                 :type="showPassword2 ? 'text' : 'password'"
                 autocomplete="current-password"
@@ -218,7 +218,7 @@ const onSubmit = handleSubmit((values) => {
           </button>
 
           <div class="flex items-center justify-end gap-2">
-            <span class="text-primary-700 dark:text-primary-100 text-sm">{{
+            <span class="text-primary-800 dark:text-primary-100 text-sm">{{
               $t('pages.auth.registration.form.already_have_account')
             }}</span>
             <Anchor

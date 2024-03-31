@@ -174,7 +174,14 @@ definePageMeta({
     <PageBody>
       <div v-if="product" class="product mb-12 md:mb-24">
         <div class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
-          <UBreadcrumb :links="links" class="mb-5" />
+          <UBreadcrumb
+            :links="links"
+            class="mb-5"
+            :ui="{
+              li: 'text-primary-800 dark:text-primary-100',
+              base: 'text-xs md:text-md',
+            }"
+          />
           <div class="grid gap-2 md:grid-cols-2">
             <div class="overflow-hidden">
               <ProductImages :product="product" />
@@ -183,11 +190,11 @@ definePageMeta({
               class="grid content-center items-center gap-4 md:gap-6 md:px-4"
             >
               <h2
-                class="text-primary-700 dark:text-primary-100 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
+                class="text-primary-800 dark:text-primary-100 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </h2>
-              <h3 class="text-primary-700 dark:text-primary-100 text-sm">
+              <h3 class="text-primary-800 dark:text-primary-100 text-sm">
                 <span>{{ $t('pages.product.product_id') }}: </span>
                 <span
                   class="text-indigo-700 hover:underline dark:text-indigo-200"
@@ -257,7 +264,7 @@ definePageMeta({
                     {{ $t('pages.product.save') }}
                     {{ product.priceSavePercent }}%
                   </p>
-                  <p class="text-primary-700 dark:text-primary-100 text-sm">
+                  <p class="text-primary-800 dark:text-primary-100 text-sm">
                     {{ $t('pages.product.inclusive_of_taxes') }}
                   </p>
                 </div>
@@ -272,7 +279,7 @@ definePageMeta({
                     $t('pages.product.qty')
                   }}</label>
                   <div
-                    class="relative flex items-center rounded-lg bg-white dark:bg-zinc-800"
+                    class="relative flex items-center rounded-lg bg-white dark:bg-zinc-900"
                   >
                     <UButton
                       id="decrement-button"
@@ -291,7 +298,7 @@ definePageMeta({
                       :max="productStock"
                       :aria-label="$t('pages.product.qty')"
                       :aria-describedby="'increment-button decrement-button'"
-                      class="block w-full border-gray-300 bg-white p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      class="block w-full border-gray-300 bg-white p-2.5 text-sm text-gray-900 outline-none focus:border-secondary focus:ring-secondary dark:border-gray-600 dark:bg-zinc-900 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     >
                     <UButton
                       id="increment-button"

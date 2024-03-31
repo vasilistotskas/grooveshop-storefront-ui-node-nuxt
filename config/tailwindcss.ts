@@ -6,6 +6,5 @@ export const tailwindcss = {
   exposeConfig: {
     level: 2,
   },
-  config: {},
   viewer: true,
 } satisfies Partial<ModuleOptions>

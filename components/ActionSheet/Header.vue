@@ -6,13 +6,13 @@ defineProps({
   },
 })
 defineSlots<{
-  default(props: {}): any
+  default(props: object): any
 }>()
 </script>
 
 <template>
   <div
-    class="text-primary-700 dark:text-primary-100 text-center text-xs font-bold"
+    class="text-primary-800 dark:text-primary-100 text-center text-xs font-bold"
   >
     <slot>{{ text }}</slot>
   </div>

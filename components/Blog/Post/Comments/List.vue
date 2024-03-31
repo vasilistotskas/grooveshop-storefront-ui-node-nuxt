@@ -55,7 +55,7 @@ comments?.value?.sort((a) => {
         :comment="comment"
         :display-image-of="displayImageOf"
         :class="userHasCommented(comment) ? 'user-commented' : ''"
-        class="comments-list-item rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-800"
+        class="comments-list-item rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-900"
       />
     </div>
   </div>

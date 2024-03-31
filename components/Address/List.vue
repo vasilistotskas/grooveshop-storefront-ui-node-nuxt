@@ -24,7 +24,7 @@ defineProps({
 <template>
   <div class="grid w-full items-start gap-4">
     <div v-if="displayTotal" class="flex items-center justify-center gap-1">
-      <span class="text-sm font-semibold text-yellow-600">
+      <span class="text-sm font-semibold text-secondary">
         {{ $t('pages.account.addresses.total', addressesTotal) }}
       </span>
     </div>

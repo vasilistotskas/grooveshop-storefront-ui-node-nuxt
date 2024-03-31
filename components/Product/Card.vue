@@ -65,9 +65,7 @@ const userProductFavourite = computed(() => {
 
 <template>
   <li class="product-card relative">
-    <div
-      class="container rounded-lg bg-white text-white dark:bg-zinc-800 dark:text-black"
-    >
+    <div class="container rounded-lg bg-white dark:bg-zinc-900">
       <div class="flex flex-col gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
@@ -97,7 +95,7 @@ const userProductFavourite = computed(() => {
               <Anchor
                 :to="`/products${product.absoluteUrl}`"
                 :text="alt"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </Anchor>
@@ -135,7 +133,7 @@ const userProductFavourite = computed(() => {
           </div>
           <p
             v-if="showDescription"
-            class="text-primary-700 dark:text-primary-100 text-muted min-h-[3.75rem] text-sm leading-6"
+            class="text-primary-800 dark:text-primary-100 text-muted min-h-[3.75rem] text-sm leading-6"
           >
             {{
               contentShorten(
@@ -148,10 +146,10 @@ const userProductFavourite = computed(() => {
           <div v-if="showStartPrice || showVat" class="grid">
             <div v-if="showStartPrice" class="d-flex justify-content-between">
               <p>
-                <span class="text-primary-700 dark:text-primary-100">{{
+                <span class="text-primary-800 dark:text-primary-100">{{
                   $t('components.product.card.price')
                 }}</span
-                ><span class="text-primary-700 dark:text-primary-100">{{
+                ><span class="text-primary-800 dark:text-primary-100">{{
                   product.price
                 }}</span>
               </p>
@@ -161,25 +159,25 @@ const userProductFavourite = computed(() => {
               class="card-vat-percent d-flex justify-content-between"
             >
               <p class="card-prices-vat-percent">
-                <span class="text-primary-700 dark:text-primary-100">{{
+                <span class="text-primary-800 dark:text-primary-100">{{
                   $t('components.product.card.vat_percent')
                 }}</span
-                ><span class="text-primary-700 dark:text-primary-100">{{
+                ><span class="text-primary-800 dark:text-primary-100">{{
                   product.vatPercent
                 }}</span>
               </p>
             </div>
           </div>
           <div class="flex justify-between font-bold">
-            <p class="grid grid-cols-[1fr_auto] items-center gap-2">
+            <p class="grid items-center gap-2 md:grid-cols-[1fr_auto]">
               <span
-                class="text-primary-700 dark:text-primary-100 text-sm leading-6"
+                class="text-primary-800 dark:text-primary-100 text-sm leading-6"
               >
                 {{ $t('components.product.card.total_price') }}
               </span>
               <I18nN
                 tag="span"
-                class="text-primary-700 dark:text-primary-100 text-lg leading-6"
+                class="text-primary-800 dark:text-primary-100 text-lg leading-6"
                 format="currency"
                 :value="product.finalPrice"
               />

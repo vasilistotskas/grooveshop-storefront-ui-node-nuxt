@@ -40,10 +40,14 @@ html.dark {
 html,
 body
 {
-	@apply bg-zinc-100 text-primary-900 dark:bg-zinc-900 dark:text-primary-100;
+	@apply bg-zinc-100 text-primary-900 dark:bg-zinc-950 dark:text-primary-100;
 	height: 100vh;
 	margin: 0;
 	padding: 0;
+}
+
+#__nuxt {
+  @apply bg-zinc-100 text-primary-900 dark:bg-zinc-950 dark:text-primary-100;
 }
 
 app {

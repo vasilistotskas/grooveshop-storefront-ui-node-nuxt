@@ -8,7 +8,7 @@ const { locale } = useI18n()
 <template>
   <div class="items">
     <div class="sr-only items-center justify-center">
-      <h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
+      <h3 class="text-primary-800 dark:text-primary-100 text-md font-bold">
         {{ $t('components.checkout.items.title') }}
       </h3>
     </div>
@@ -29,7 +29,7 @@ const { locale } = useI18n()
                 :to="`/products${item.product.absoluteUrl}`"
               >
                 <span
-                  class="text-primary-700 dark:text-primary-100 text-sm font-bold"
+                  class="text-primary-800 dark:text-primary-100 text-sm font-bold"
                 >
                   {{ extractTranslated(item.product, 'name', locale) }}
                 </span>
@@ -39,24 +39,24 @@ const { locale } = useI18n()
               <I18nN
                 v-if="item.finalPrice"
                 tag="span"
-                class="text-primary-700 dark:text-primary-100 text-sm"
+                class="text-primary-800 dark:text-primary-100 text-sm"
                 format="currency"
                 :value="item.finalPrice"
               />
             </div>
             <div class="flex items-center">
-              <span class="text-primary-700 dark:text-primary-100 text-sm">
+              <span class="text-primary-800 dark:text-primary-100 text-sm">
                 {{ item.quantity }}x
               </span>
             </div>
             <div class="flex items-center">
               <span
                 v-if="item.finalPrice"
-                class="text-primary-700 dark:text-primary-100 text-sm"
+                class="text-primary-800 dark:text-primary-100 text-sm"
               >
                 <I18nN
                   tag="span"
-                  class="text-primary-700 dark:text-primary-100 text-sm"
+                  class="text-primary-800 dark:text-primary-100 text-sm"
                   format="currency"
                   :value="item.finalPrice * item.quantity"
                 />

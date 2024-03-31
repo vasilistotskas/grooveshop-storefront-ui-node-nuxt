@@ -19,7 +19,7 @@ const isSuggestionsOpen = ref(false)
 const { pending, error, refresh } = await useAsyncData(
   'search',
   () =>
-    // @ts-ignore
+    // @ts-expect-error
     $fetch('/api/search', {
       method: 'GET',
       query: {
@@ -133,13 +133,13 @@ definePageMeta({
     <PageBody>
       <div
         v-focus
-        class="fixed left-0 top-0 z-20 grid w-full items-center gap-4 bg-zinc-50 p-[22px] dark:bg-zinc-800 md:p-[17px]"
+        class="fixed left-0 top-0 z-20 grid w-full items-center gap-4 bg-zinc-50 p-[22px] dark:bg-zinc-900 md:p-[17px]"
       >
         <div class="flex w-full items-center gap-4">
           <Anchor
             :to="'index'"
             aria-label="index"
-            class="text-md text-primary-700 dark:text-primary-100 flex items-center gap-3 overflow-hidden border-r-2 border-gray-900/10 pr-8 font-bold dark:border-gray-50/20 md:w-auto"
+            class="text-md text-primary-800 dark:text-primary-100 flex items-center gap-3 overflow-hidden border-r-2 border-gray-900/10 pr-8 font-bold dark:border-gray-50/20 md:w-auto"
           >
             <span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
             <UIcon name="i-heroicons-arrow-left" />
@@ -162,7 +162,7 @@ definePageMeta({
         <div
           v-if="showSuggestions"
           ref="suggestions"
-          class="absolute top-14 z-10 mt-1 max-h-36 w-full list-none overflow-y-auto rounded-md bg-zinc-50 shadow-md dark:bg-zinc-800"
+          class="absolute top-14 z-10 mt-1 max-h-36 w-full list-none overflow-y-auto rounded-md bg-zinc-50 shadow-md dark:bg-zinc-900"
         >
           <TransitionGroup name="list" tag="ul" class="grid">
             <li
@@ -177,7 +177,7 @@ definePageMeta({
               >
                 <IconFa6Solid:clockRotateLeft />
                 <span
-                  class="text-primary-700 dark:text-primary-100 truncate font-bold"
+                  class="text-primary-800 dark:text-primary-100 truncate font-bold"
                 >
                   {{ suggestion }}
                 </span>
@@ -195,7 +195,7 @@ definePageMeta({
               >
                 <IconFa6Solid:magnifyingGlass />
                 <span
-                  class="text-primary-700 dark:text-primary-100 truncate font-bold"
+                  class="text-primary-800 dark:text-primary-100 truncate font-bold"
                   v-html="headline"
                 />
               </Anchor>

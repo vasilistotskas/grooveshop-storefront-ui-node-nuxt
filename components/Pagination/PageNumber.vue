@@ -33,23 +33,21 @@ const props = defineProps({
     type: Object as PropType<Pagination<unknown>['links']>,
     required: true,
   },
-  maxVisibleButtons: {
-    type: Number,
-    required: false,
-    default: 3,
-  },
 })
 
 const route = useRoute()
+const { isMobileOrTablet } = useDevice()
+
+const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
 
 const firstPageNumber = computed(() => 1)
 const lastPageNumber = computed(() => props.totalPages)
 const startPage = computed(() => {
-  const halfMaxVisible = Math.floor(props.maxVisibleButtons / 2)
-  if (props.totalPages <= props.maxVisibleButtons) return 1
+  const halfMaxVisible = Math.floor(maxVisibleButtons.value / 2)
+  if (props.totalPages <= maxVisibleButtons.value) return 1
   if (props.page <= halfMaxVisible) return 1
   if (props.page + halfMaxVisible >= props.totalPages)
-    return props.totalPages - props.maxVisibleButtons + 1
+    return props.totalPages - maxVisibleButtons.value + 1
   return props.page - halfMaxVisible
 })
 
@@ -60,14 +58,14 @@ const shouldDisplayFirstPage = computed(() => props.page > 2)
 const shouldDisplayLastPage = computed(() => props.page < props.totalPages - 1)
 const shouldDisplayPreviousTripleDots = computed(() => startPage.value > 2)
 const shouldDisplayNextTripleDots = computed(
-  () => startPage.value + props.maxVisibleButtons < props.totalPages,
+  () => startPage.value + maxVisibleButtons.value < props.totalPages,
 )
 
 const pages = computed(() => {
   const range = []
   const adjustedStartPage = startPage.value
   const endPage = Math.min(
-    adjustedStartPage + props.maxVisibleButtons - 1,
+    adjustedStartPage + maxVisibleButtons.value - 1,
     props.totalPages,
   )
 
@@ -118,7 +116,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-700 dark:text-primary-100"
+          <span class="text-primary-800 dark:text-primary-100"
             ><IconFaSolid:angleLeft
           /></span>
         </Anchor>
@@ -155,14 +153,14 @@ const link = computed(() => {
         >
           <span
             :class="{
-              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
+              'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
             >{{ firstPageNumber }}</span
           >
           <span
             v-if="shouldDisplayPreviousTripleDots"
-            class="text-primary-700 dark:text-primary-100 grid self-end justify-self-start text-sm"
+            class="text-primary-800 dark:text-primary-100 grid self-end justify-self-start text-sm"
             >...</span
           >
         </Anchor>
@@ -179,7 +177,7 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
+            'grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
             active: page === pageEntry,
           }"
           :text="String(pageEntry)"
@@ -196,7 +194,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-700 dark:text-primary-100">{{
+          <span class="text-primary-800 dark:text-primary-100">{{
             pageEntry
           }}</span>
         </Anchor>
@@ -235,12 +233,12 @@ const link = computed(() => {
         >
           <span
             v-if="shouldDisplayNextTripleDots"
-            class="text-primary-700 dark:text-primary-100 grid self-end justify-self-end text-sm"
+            class="text-primary-800 dark:text-primary-100 grid self-end justify-self-end text-sm"
             >...</span
           >
           <span
             :class="{
-              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
+              'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
             >{{ lastPageNumber }}</span
@@ -280,7 +278,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-700 dark:text-primary-100"
+          <span class="text-primary-800 dark:text-primary-100"
             ><IconFaSolid:angleRight
           /></span>
         </Anchor>

@@ -23,9 +23,9 @@ const checkoutTotal = computed(() => {
 })
 
 defineSlots<{
-  'pay-ways'(props: {}): any
-  items(props: {}): any
-  button(props: {}): any
+  'pay-ways'(props: object): any
+  items(props: object): any
+  button(props: object): any
 }>()
 </script>
 
@@ -36,33 +36,33 @@ defineSlots<{
     <ClientOnly>
       <div class="grid">
         <div class="sr-only">
-          <h3 class="text-primary-700 dark:text-primary-100">
+          <h3 class="text-primary-800 dark:text-primary-100">
             {{ $t('components.checkout.sidebar.title') }}
           </h3>
         </div>
         <div v-if="cart && getCartItems?.length">
           <div class="flex gap-1">
             <div class="grid">
-              <span class="text-primary-700 dark:text-primary-100">
+              <span class="text-primary-800 dark:text-primary-100">
                 {{ $t('components.checkout.sidebar.items_unique') }}:
               </span>
             </div>
             <div class="grid">
-              <span class="text-primary-700 dark:text-primary-100 font-bold">
+              <span class="text-primary-800 dark:text-primary-100 font-bold">
                 {{ cart.totalItemsUnique }}
               </span>
             </div>
           </div>
           <div class="flex gap-1">
             <div class="grid">
-              <span class="text-primary-700 dark:text-primary-100">
+              <span class="text-primary-800 dark:text-primary-100">
                 {{ $t('components.checkout.sidebar.shipping') }}:
               </span>
             </div>
             <div class="grid">
               <I18nN
                 tag="span"
-                class="text-primary-700 dark:text-primary-100 font-bold"
+                class="text-primary-800 dark:text-primary-100 font-bold"
                 format="currency"
                 :value="shippingPrice"
               />
@@ -70,14 +70,14 @@ defineSlots<{
           </div>
           <div v-if="payWayCost" class="flex gap-1">
             <div class="grid">
-              <span class="text-primary-700 dark:text-primary-100">
+              <span class="text-primary-800 dark:text-primary-100">
                 {{ $t('components.checkout.sidebar.pay_way_fee') }}:
               </span>
             </div>
             <div class="grid">
               <I18nN
                 tag="span"
-                class="text-primary-700 dark:text-primary-100 font-bold"
+                class="text-primary-800 dark:text-primary-100 font-bold"
                 format="currency"
                 :value="payWayCost"
               />
@@ -85,14 +85,14 @@ defineSlots<{
           </div>
           <div class="flex gap-1">
             <div class="grid">
-              <span class="text-primary-700 dark:text-primary-100">
+              <span class="text-primary-800 dark:text-primary-100">
                 {{ $t('components.checkout.sidebar.total') }}:
               </span>
             </div>
             <div class="grid">
               <I18nN
                 tag="span"
-                class="text-primary-700 dark:text-primary-100 font-bold"
+                class="text-primary-800 dark:text-primary-100 font-bold"
                 format="currency"
                 :value="checkoutTotal"
               />

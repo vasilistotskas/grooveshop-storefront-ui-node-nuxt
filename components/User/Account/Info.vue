@@ -54,12 +54,11 @@ defineProps({
             :to="`/account/orders`"
             :title="$t('pages.account.orders.title')"
           >
-            <IconMdi:packageVariantClosed
-              class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
-            />
-            <span class="text-primary-500 dark:text-primary-400">{{
+            <UIcon name="i-heroicons-cube" class="h-6 w-6" />
+            <span class="text-primary-800 dark:text-primary-100">{{
               $t('pages.account.orders.title')
             }}</span>
+
             <span
               class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
               >{{ ordersCount }}</span
@@ -72,10 +71,8 @@ defineProps({
             :to="`/account/favourites`"
             :title="$t('pages.account.favourites.title')"
           >
-            <IconMdi:heartOutline
-              class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
-            />
-            <span class="text-primary-500 dark:text-primary-400">{{
+            <UIcon name="i-heroicons-heart" class="h-6 w-6" />
+            <span class="text-primary-800 dark:text-primary-100">{{
               $t('pages.account.favourites.title')
             }}</span>
             <span
@@ -90,10 +87,8 @@ defineProps({
             :to="`/account/reviews`"
             :title="$t('pages.account.reviews.title')"
           >
-            <IconMdi:starOutline
-              class="text-primary-500 dark:text-primary-400 text-xl md:text-2xl"
-            />
-            <span class="text-primary-500 dark:text-primary-400">{{
+            <UIcon name="i-heroicons-star" class="h-6 w-6" />
+            <span class="text-primary-800 dark:text-primary-100">{{
               $t('pages.account.reviews.title')
             }}</span>
             <span
@@ -170,6 +165,10 @@ defineProps({
           padding: 0.5rem;
           align-items: center;
           margin-left: 1rem;
+
+          &.router-link-active {
+            @apply text-secondary;
+          }
 
           &:first-child {
             margin-left: 0;

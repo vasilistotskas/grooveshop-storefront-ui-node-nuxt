@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
+import { type CursorStates } from '~/types/global/general'
 
 const config = useRuntimeConfig()
 const route = useRoute()
@@ -11,6 +12,8 @@ const cartStore = useCartStore()
 const { fetchCart } = cartStore
 
 await fetchCart()
+
+useState<CursorStates>('cursorStates', () => generateInitialCursorStates())
 
 const themeClass = computed(() =>
   colorMode.value === 'dark' ? 'dark' : 'light',

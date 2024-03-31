@@ -6,7 +6,7 @@ const { data: totp } = await totpActivateGet()
 
 <template>
   <section
-    class="container-xxs relative grid items-center justify-center justify-items-center gap-1 p-0 md:px-6"
+    class="container-2xs relative grid items-center justify-center justify-items-center gap-1 p-0 md:px-6"
   >
     <div
       v-if="totp"
@@ -14,7 +14,7 @@ const { data: totp } = await totpActivateGet()
     >
       <p v-html="totp.totpSvg" />
       <p
-        class="text-primary-500 dark:text-primary-400 rounded-md border border-gray-900/10 p-2 text-xs italic dark:border-gray-50/[0.2] md:text-base"
+        class="text-primary-500 dark:text-primary-400 rounded-md border border-gray-900/10 p-2 text-xs italic dark:border-gray-50/[0.2] lg:text-base"
       >
         {{ totp.secret }}
       </p>

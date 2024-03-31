@@ -1,4 +1,5 @@
-import { H3Error, H3Event, createError, sendRedirect } from 'h3'
+import type { H3Event } from 'h3'
+import { H3Error, createError, sendRedirect } from 'h3'
 import { FetchError } from 'ofetch'
 import { withQuery } from 'ufo'
 import { ZodError } from 'zod'

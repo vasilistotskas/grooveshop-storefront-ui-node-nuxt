@@ -53,11 +53,13 @@ onMounted(() => {
       <h2 class="flex items-center gap-2 p-2 text-center text-2xl font-bold">
         {{ $t('common.filters.title') }}
       </h2>
-      <div class="sidebar-header-sticky grid bg-zinc-100 dark:bg-zinc-900">
+      <div
+        class="sidebar-header-sticky bg-primary-100 dark:bg-primary-950 grid"
+      >
         <h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('common.categories') }}
           <span
-            class="text-primary-700 dark:text-primary-100 text-sm font-normal"
+            class="text-primary-800 dark:text-primary-100 text-sm font-normal"
           >
             ({{ categories?.count ?? 0 }})
           </span>
@@ -98,7 +100,7 @@ onMounted(() => {
         </template>
       </ul>
       <div v-if="!pending && !filteredCategories?.length" class="grid gap-4">
-        <p class="text-primary-700 dark:text-primary-100 p-2 text-center">
+        <p class="text-primary-800 dark:text-primary-100 p-2 text-center">
           {{ $t('common.no_categories_found') }}
         </p>
       </div>

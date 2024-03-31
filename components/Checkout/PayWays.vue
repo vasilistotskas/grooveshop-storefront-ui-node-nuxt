@@ -12,7 +12,7 @@ import type { PayWay } from '~/types/pay-way'
 import { PayWayEnum } from '~/types/pay-way'
 
 defineSlots<{
-  error(props: {}): any
+  error(props: object): any
 }>()
 
 const { t, locale } = useI18n()
@@ -60,7 +60,7 @@ const updatePayWay = (value: PayWay) => {
 <template>
   <div class="grid gap-4">
     <div class="grid place-items-center">
-      <h3 class="text-primary-700 dark:text-primary-100 text-md font-bold">
+      <h3 class="text-primary-800 dark:text-primary-100 text-md font-bold">
         {{ t('components.checkout.pay_ways.title') }}
       </h3>
     </div>
@@ -106,7 +106,7 @@ const updatePayWay = (value: PayWay) => {
                     :class="
                       checked
                         ? 'text-white'
-                        : 'text-primary-700 dark:text-primary-100'
+                        : 'text-primary-800 dark:text-primary-100'
                     "
                     as="p"
                     class="font-medium"
@@ -118,7 +118,7 @@ const updatePayWay = (value: PayWay) => {
                     :class="
                       checked
                         ? 'text-sky-100'
-                        : 'text-primary-700 dark:text-primary-100'
+                        : 'text-primary-800 dark:text-primary-100'
                     "
                     as="span"
                     class="inline"

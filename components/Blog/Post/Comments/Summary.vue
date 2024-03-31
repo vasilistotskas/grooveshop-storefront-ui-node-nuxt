@@ -16,7 +16,7 @@ defineProps({
 <template>
   <div class="flex items-center justify-center gap-8">
     <div class="flex items-center gap-1">
-      <span class="text-sm font-semibold text-yellow-600">
+      <span class="text-sm font-semibold text-secondary">
         {{
           $t('components.blog.post.comments.summary.comments', commentsCount)
         }}

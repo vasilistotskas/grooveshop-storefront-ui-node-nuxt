@@ -60,47 +60,44 @@ const reviewComment = computed(() => {
 </script>
 
 <template>
-  <div class="card">
-    <div
-      class="grid items-center justify-center justify-items-center gap-2 md:grid-cols-3 md:justify-between md:gap-14"
-    >
-      <div class="flex w-full items-center gap-2 md:gap-6">
-        <div class="h-auto w-auto">
-          <UserAvatar
-            v-if="userAccount && displayImageOf === 'user'"
-            :user-account="userAccount"
-          />
-          <div
-            v-if="displayImageOf === 'product' && product"
-            class="grid gap-2"
-          >
-            <Anchor :to="`/products${product.absoluteUrl}`" :text="productName">
-              <ImgWithFallback
-                loading="lazy"
-                provider="mediaStream"
-                class="product-img w-30 h-20 bg-white object-cover"
-                :src="src"
-                :alt="alt"
-                densities="x1"
-              />
-            </Anchor>
-          </div>
-        </div>
-        <div class="grid gap-4 text-2xl">
-          <Anchor
-            v-if="displayImageOf === 'product' && product"
-            :to="`/products${product.absoluteUrl}`"
-            :text="productName"
-          >
-            <span class="text-lg font-medium">{{ productName }}</span>
+  <div
+    class="flex flex-col gap-2 md:grid md:grid-cols-auto-1fr md:items-center"
+  >
+    <div class="flex items-center gap-2 md:w-full md:gap-6">
+      <div class="h-auto w-auto">
+        <UserAvatar
+          v-if="userAccount && displayImageOf === 'user'"
+          :user-account="userAccount"
+        />
+        <div v-if="displayImageOf === 'product' && product" class="grid gap-2">
+          <Anchor :to="`/products${product.absoluteUrl}`" :text="productName">
+            <ImgWithFallback
+              loading="lazy"
+              provider="mediaStream"
+              class="product-img w-30 h-20 bg-white object-cover"
+              :src="src"
+              :alt="alt"
+              densities="x1"
+            />
           </Anchor>
-          <Rating :rate="review.rate" />
         </div>
       </div>
-      <div class="grid h-full w-full">
-        <span>{{ reviewComment }}</span>
+      <div class="grid gap-4 text-2xl">
+        <Anchor
+          v-if="displayImageOf === 'product' && product"
+          :to="`/products${product.absoluteUrl}`"
+          :text="productName"
+        >
+          <span class="text-lg font-medium">{{ productName }}</span>
+        </Anchor>
+        <Rating :rate="review.rate" />
       </div>
-      <div class="flex justify-end">
+    </div>
+    <div class="grid gap-2 md:flex md:w-full md:justify-between">
+      <span class="text-ellipsis break-all md:w-full">
+        {{ reviewComment }}
+      </span>
+      <div class="flex items-center md:justify-end">
         <div class="text-xs">
           <NuxtTime :datetime="review.createdAt" />
         </div>

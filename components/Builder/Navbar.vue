@@ -1,16 +1,13 @@
 <script lang="ts" setup>
-defineSlots<{
-  banner(props: {}): any
-  title(props: {}): any
-  menu(props: {}): any
-  drawer(props: { toggleDrawer: () => boolean }): any
-  options(props: {
-    toggleOptions: (show?: boolean) => void
-    showOptions: boolean
-  }): any
-}>()
+defineProps({
+  useToggle: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const { loggedIn } = useUserSession()
+const { isMobileOrTablet } = useDevice()
 
 const navbar = ref(null)
 const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
@@ -79,7 +76,7 @@ const environment = computed(() => config.public.environment)
     </div>
     <div class="bg-background-700 mx-auto w-full max-w-8xl">
       <div class="mx-4 py-3 md:py-4 lg:mx-0 lg:px-8">
-        <div class="relative flex items-center gap-4">
+        <div class="relative flex items-center justify-between gap-4">
           <!-- drawer:toggle -->
           <div
             v-if="$slots['drawer']"
@@ -95,7 +92,7 @@ const environment = computed(() => config.public.environment)
                 $t('components.builder.navbar.toggle_drawer_menu')
               }}</span>
               <span
-                class="text-primary-700 dark:text-primary-100 flex items-center text-lg"
+                class="text-primary-800 dark:text-primary-100 flex items-center text-lg"
                 aria-hidden="true"
               >
                 <UIcon v-if="!showDrawer" name="i-heroicons-bars-3" />
@@ -112,9 +109,10 @@ const environment = computed(() => config.public.environment)
                   :aria-label="appTitle"
                   class="text-md flex items-center gap-3 overflow-hidden font-bold md:w-auto"
                 >
-                  <span class="text-primary-700 dark:text-primary-100">{{
-                    appTitle
-                  }}</span>
+                  <span
+                    class="text-primary-800 dark:text-primary-100 text-sm md:text-base"
+                    >{{ appTitle }}</span
+                  >
                 </Anchor>
               </strong>
             </h1>
@@ -124,7 +122,7 @@ const environment = computed(() => config.public.environment)
           <slot name="menu" />
           <!-- options:toggle -->
           <div
-            v-if="$slots['options']"
+            v-if="$slots['options'] && useToggle"
             class="flex flex-1 justify-end lg:sr-only"
           >
             <button
@@ -137,12 +135,19 @@ const environment = computed(() => config.public.environment)
                 $t('components.builder.navbar.toggle_options_menu')
               }}</span>
               <span
-                class="text-primary-700 dark:text-primary-100 flex items-center text-sm"
+                class="text-primary-800 dark:text-primary-100 flex items-center text-sm"
                 aria-hidden="true"
               >
                 <IconFaSolid:ellipsisV />
               </span>
             </button>
+          </div>
+          <div
+            v-else-if="isMobileOrTablet"
+            class="flex items-center gap-4 lg:sr-only"
+          >
+            <LanguageSwitcher />
+            <ThemeSwitcher />
           </div>
         </div>
       </div>
@@ -153,9 +158,9 @@ const environment = computed(() => config.public.environment)
         <Transition name="slide-fade-from-up" mode="out-in">
           <div
             v-if="showDrawer && $slots['drawer']"
-            class="fixed left-0 top-0 z-30 flex h-full w-screen flex-col bg-white pt-[75px] dark:bg-zinc-800 md:pt-12 lg:sr-only"
+            class="fixed left-0 top-0 z-30 flex h-full w-screen flex-col bg-white pt-[80px] dark:bg-zinc-900 md:pt-12 lg:sr-only"
           >
-            <div class="relative flex flex-1 flex-col overflow-y-auto">
+            <div class="relative flex flex-1 flex-col overflow-y-auto px-4">
               <slot name="drawer" :toggle-drawer="toggleDrawer" />
             </div>
           </div>

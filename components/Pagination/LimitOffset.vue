@@ -24,14 +24,12 @@ const props = defineProps({
     required: true,
     default: 10,
   },
-  maxVisibleButtons: {
-    type: Number,
-    required: false,
-    default: 3,
-  },
 })
 
 const route = useRoute()
+const { isMobileOrTablet } = useDevice()
+
+const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
 
 const firstPageNumber = computed(() => 1)
 const lastPageNumber = computed(() => props.totalPages)
@@ -40,10 +38,10 @@ const startPage = computed(() => {
     return 1
   }
   if (props.page === props.totalPages) {
-    if (props.totalPages - props.maxVisibleButtons + 1 === 0) {
+    if (props.totalPages - maxVisibleButtons.value + 1 === 0) {
       return 1
     }
-    return props.totalPages - props.maxVisibleButtons + 1
+    return props.totalPages - maxVisibleButtons.value + 1
   }
   return props.page - 1
 })
@@ -58,10 +56,10 @@ const shouldDisplayLastPage = computed(() => {
   return !isInLastPage.value && props.page < lastPageNumber.value - 1
 })
 const shouldDisplayPreviousTripleDots = computed(() => {
-  return props.page > props.maxVisibleButtons
+  return props.page > maxVisibleButtons.value
 })
 const shouldDisplayNextTripleDots = computed(() => {
-  return props.page < props.totalPages - props.maxVisibleButtons + 1
+  return props.page < props.totalPages - maxVisibleButtons.value + 1
 })
 
 const pages = computed(() => {
@@ -70,11 +68,11 @@ const pages = computed(() => {
   if (!props.totalPages) {
     return range
   }
-  if (props.totalPages < props.maxVisibleButtons) {
+  if (props.totalPages < maxVisibleButtons.value) {
     lastPageNumber = props.totalPages
   } else {
     lastPageNumber = Math.min(
-      startPage.value + props.maxVisibleButtons - 1,
+      startPage.value + maxVisibleButtons.value - 1,
       props.totalPages,
     )
   }
@@ -85,7 +83,7 @@ const pages = computed(() => {
     range.push(i)
   }
 
-  if (props.maxVisibleButtons === range.length) {
+  if (maxVisibleButtons.value === range.length) {
     if (isInFirstPage.value) {
       range.pop()
     }
@@ -139,7 +137,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-700 dark:text-primary-100"
+          <span class="text-primary-800 dark:text-primary-100"
             ><IconFaSolid:angleLeft
           /></span>
         </Anchor>
@@ -178,14 +176,14 @@ const link = computed(() => {
         >
           <span
             :class="{
-              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
+              'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
             >{{ firstPageNumber }}</span
           >
           <span
             v-if="shouldDisplayPreviousTripleDots"
-            class="text-primary-700 dark:text-primary-100 grid self-end justify-self-start text-sm"
+            class="text-primary-800 dark:text-primary-100 grid self-end justify-self-start text-sm"
             >...</span
           >
         </Anchor>
@@ -203,7 +201,7 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
+            'grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
             active: pageEntry === page,
           }"
           :text="String(pageEntry)"
@@ -221,7 +219,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-700 dark:text-primary-100">{{
+          <span class="text-primary-800 dark:text-primary-100">{{
             pageEntry
           }}</span>
         </Anchor>
@@ -262,12 +260,12 @@ const link = computed(() => {
         >
           <span
             v-if="shouldDisplayNextTripleDots"
-            class="text-primary-700 dark:text-primary-100 grid self-end justify-self-end text-sm"
+            class="text-primary-800 dark:text-primary-100 grid self-end justify-self-end text-sm"
             >...</span
           >
           <span
             :class="{
-              'text-primary-700 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-800': true,
+              'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
             >{{ lastPageNumber }}</span
@@ -309,7 +307,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-700 dark:text-primary-100"
+          <span class="text-primary-800 dark:text-primary-100"
             ><IconFaSolid:angleRight
           /></span>
         </Anchor>

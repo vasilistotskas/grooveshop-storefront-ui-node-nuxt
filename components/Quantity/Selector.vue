@@ -45,7 +45,7 @@ const changeQuantityEvent = async (event: Event) => {
     class="quantity-selector grid grid-cols-3 items-center justify-center justify-items-center"
   >
     <button
-      class="text-primary-700 dark:text-primary-100"
+      class="text-primary-800 dark:text-primary-100"
       :disabled="cartItemQuantity <= 1"
       :aria-label="'decrease'"
       type="button"
@@ -54,7 +54,7 @@ const changeQuantityEvent = async (event: Event) => {
       <IconFaSolid:minus />
     </button>
     <select
-      class="text-primary-700 dark:text-primary-100 w-full border border-gray-200 bg-white dark:bg-zinc-800"
+      class="text-primary-800 dark:text-primary-100 w-full border border-gray-200 bg-white dark:bg-zinc-900"
       :value="cartItemQuantity"
       :aria-label="'quantity'"
       @change="changeQuantityEvent"
@@ -70,7 +70,7 @@ const changeQuantityEvent = async (event: Event) => {
     </select>
 
     <button
-      class="text-primary-700 dark:text-primary-100"
+      class="text-primary-800 dark:text-primary-100"
       :disabled="cartItemQuantity >= max"
       :aria-label="'increase'"
       type="button"

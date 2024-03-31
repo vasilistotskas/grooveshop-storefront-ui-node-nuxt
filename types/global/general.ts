@@ -36,6 +36,14 @@ export enum PaginationTypeEnum {
   LIMIT_OFFSET = 'limitOffset',
 }
 
+export enum PaginationCursorStateEnum {
+  BLOG_POSTS = 'blogPostsCursor',
+}
+export type PaginationCursorStateType = `${PaginationCursorStateEnum}`
+export type CursorStates = {
+  [key in PaginationCursorStateEnum]?: string | null
+}
+
 export type PaginationType = 'pageNumber' | 'cursor' | 'limitOffset'
 export type ImageLoading = 'lazy' | 'eager' | undefined
 export type FloorChoicesEnumType = z.infer<typeof ZodFloorChoicesEnum>

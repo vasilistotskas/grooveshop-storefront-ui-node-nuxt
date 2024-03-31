@@ -14,7 +14,7 @@ const props = defineProps({
   },
 })
 defineSlots<{
-  default(props: {}): any
+  default(props: object): any
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -64,7 +64,7 @@ onMounted(() => {
       >
       <label
         :for="switchId"
-        class="switch-label block h-6 cursor-pointer overflow-hidden rounded-full border border-slate-300 bg-white dark:border-slate-500 dark:bg-zinc-800"
+        class="switch-label block h-6 cursor-pointer overflow-hidden rounded-full border border-slate-300 bg-white dark:border-slate-500 dark:bg-zinc-900"
       />
     </label>
     <slot />

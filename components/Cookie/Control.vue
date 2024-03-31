@@ -9,8 +9,8 @@ import { ZodCookieTypeEnum } from '#cookie-control/types'
 import 'assets/sass/_cookies.scss'
 
 defineSlots<{
-  bar(props: {}): any
-  modal(props: {}): any
+  bar(props: object): any
+  modal(props: object): any
 }>()
 
 const { t } = useI18n()

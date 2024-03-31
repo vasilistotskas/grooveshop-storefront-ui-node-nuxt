@@ -1,18 +1,38 @@
 <script lang="ts" setup>
+import type { HorizontalNavigationLink } from '#ui/types'
+
 defineSlots<{
-  default(props: {}): any
-  header(props: {}): any
-  footer(props: {}): any
-  'app-before'(props: {}): any
-  'app-after'(props: {}): any
+  default(props: object): any
+  header(props: object): any
+  footer(props: object): any
 }>()
+
+const { loggedIn } = useUserSession()
+const route = useRoute()
+const { isMobileOrTablet } = useDevice()
+
+const links = [
+  {
+    icon: 'i-heroicons-home',
+    to: '/',
+  },
+  {
+    icon: 'i-heroicons-magnifying-glass',
+    to: '/search',
+  },
+  {
+    icon: 'i-heroicons-heart',
+    to: '/account/favourites',
+  },
+  {
+    icon: 'i-heroicons-user',
+    to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+  },
+] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
 </script>
 
 <template>
   <div class="relative">
-    <div id="app-before">
-      <slot name="app-before" />
-    </div>
     <slot name="header">
       <PageHeader>
         <PageNavbar />
@@ -28,8 +48,21 @@ defineSlots<{
     <slot name="footer">
       <Footer />
     </slot>
-    <div id="app-after">
-      <slot name="app-after" />
-    </div>
+    <UHorizontalNavigation
+      v-if="isMobileOrTablet"
+      :links="links"
+      class="fixed bottom-0 left-0 right-0 z-50 w-full border-t border-secondary bg-zinc-50 dark:bg-zinc-900"
+      :ui="{
+        container: 'flex justify-between w-full',
+        inner: 'flex justify-between w-full',
+        base: 'flex flex-col items-center justify-center w-full',
+        icon: {
+          base: 'text-primary-900 dark:text-primary-100 w-6 h-6',
+          active: 'text-secondary dark:text-secondary',
+          inactive:
+            'text-primary-900 dark:text-primary-100 group-hover:text-primary-900 dark:group-hover:text-primary-900',
+        },
+      }"
+    />
   </div>
 </template>

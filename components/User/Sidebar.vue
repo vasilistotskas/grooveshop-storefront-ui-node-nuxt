@@ -33,7 +33,7 @@ const menus = computed((): IMenuItem[] => [
     route: { name: 'account-orders', path: '/account/orders' },
     icon: ordersIcon,
     cssClass:
-      'text-primary-700 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
+      'text-primary-800 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-900 dark:hover:bg-zinc-700',
   },
   {
     type: 'link',
@@ -41,7 +41,7 @@ const menus = computed((): IMenuItem[] => [
     route: { name: 'account-favourites', path: '/account/favourites' },
     icon: favouritesIcon,
     cssClass:
-      'text-primary-700 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
+      'text-primary-800 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-900 dark:hover:bg-zinc-700',
   },
   {
     type: 'link',
@@ -49,7 +49,7 @@ const menus = computed((): IMenuItem[] => [
     route: { name: 'account-reviews', path: '/account/reviews' },
     icon: reviewsIcon,
     cssClass:
-      'text-primary-700 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
+      'text-primary-800 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-900 dark:hover:bg-zinc-700',
   },
   {
     type: 'link',
@@ -57,7 +57,7 @@ const menus = computed((): IMenuItem[] => [
     route: { name: 'account-settings', path: '/account/settings' },
     icon: settingsIcon,
     cssClass:
-      'text-primary-700 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
+      'text-primary-800 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-900 dark:hover:bg-zinc-700',
   },
   {
     type: 'link',
@@ -65,7 +65,7 @@ const menus = computed((): IMenuItem[] => [
     route: { name: 'account-help', path: '/account/help' },
     icon: helpIcon,
     cssClass:
-      'text-primary-700 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
+      'text-primary-800 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-900 dark:hover:bg-zinc-700',
   },
 ])
 
@@ -94,7 +94,7 @@ onMounted(() => {
         <li
           v-for="(item, i) in menus"
           :key="i"
-          class="rounded border border-gray-700 bg-white p-2 dark:bg-zinc-800 md:border-transparent md:bg-transparent md:p-0 md:dark:bg-transparent"
+          class="rounded border border-gray-700 bg-white p-2 dark:bg-zinc-900 md:border-transparent md:bg-transparent md:p-0 md:dark:bg-transparent"
         >
           <Anchor
             v-if="item.type === 'link'"
@@ -107,14 +107,14 @@ onMounted(() => {
               :class="{
                 'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
                   route.path === item.route?.path,
-                'dark:text-primary-100 bg-white text-slate-500 group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-600':
+                'dark:text-primary-100 bg-white text-slate-500 group-hover:bg-zinc-200 dark:bg-zinc-900 dark:group-hover:bg-zinc-600':
                   route.path !== item.route?.path,
               }"
             >
               <Component :is="item.icon" class="text-2xl md:text-xl" />
             </div>
             <span
-              class="text-primary-700 dark:text-primary-100 text-xl font-semibold capitalize md:text-lg"
+              class="text-primary-800 dark:text-primary-100 text-xl font-semibold capitalize md:text-lg"
               :class="{
                 'font-extrabold text-sky-500 dark:text-sky-400':
                   route.path === item.route?.path,
@@ -134,14 +134,14 @@ onMounted(() => {
               :class="{
                 'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
                   item.route?.path === route.path,
-                'dark:text-primary-100 bg-white text-slate-500 group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-600':
+                'dark:text-primary-100 bg-white text-slate-500 group-hover:bg-zinc-200 dark:bg-zinc-900 dark:group-hover:bg-zinc-600':
                   item.route?.path !== route.path,
               }"
             >
               <Component :is="item.icon" class="text-2xl md:text-xl" />
             </div>
             <span
-              class="text-primary-700 dark:text-primary-100 text-xl font-semibold capitalize md:text-lg"
+              class="text-primary-800 dark:text-primary-100 text-xl font-semibold capitalize md:text-lg"
               :class="{
                 'font-extrabold text-sky-500 dark:text-sky-400':
                   item.route?.path === route.path,

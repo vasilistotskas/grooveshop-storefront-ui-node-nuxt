@@ -26,7 +26,7 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <UCard class="bg-white dark:bg-zinc-800">
+  <UCard class="bg-white dark:bg-zinc-900">
     <Anchor
       :to="`/products${item.absoluteUrl}`"
       class="pb-2"

@@ -40,26 +40,26 @@ useSeoMeta(seoMetaOptions)
 </script>
 
 <template>
-  <div class="grid bg-white dark:bg-zinc-800">
+  <div class="grid bg-white dark:bg-zinc-900">
     <PageHeader>
       <PageNavbar />
     </PageHeader>
     <div class="grid min-h-screen">
       <div class="flex flex-col items-center justify-center gap-2 p-6">
         <h2
-          class="text-primary-700 dark:text-primary-100 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
+          class="text-primary-800 dark:text-primary-100 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
         >
           <strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
           <span>
             {{ $t('pages.error.page.not.found') }}
           </span>
         </h2>
-        <p class="text-primary-700 dark:text-primary-100">
+        <p class="text-primary-800 dark:text-primary-100">
           {{ $t('pages.error.go.home') }}
         </p>
         <NuxtLink
           to="/"
-          class="mt-2 block font-bold text-blue-500 hover:underline"
+          class="text-secondary mt-2 block font-bold hover:underline"
         >
           {{ $t('pages.error.home') }}
         </NuxtLink>
@@ -73,9 +73,6 @@ useSeoMeta(seoMetaOptions)
           />
         </div>
       </div>
-    </div>
-    <div id="app-after">
-      <slot name="app-after" />
     </div>
   </div>
 </template>

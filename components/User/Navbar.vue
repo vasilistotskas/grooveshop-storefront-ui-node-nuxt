@@ -1,20 +1,18 @@
 <script lang="ts" setup>
 import type { FunctionalComponent, SVGAttributes } from 'vue'
 
-import userShield from '~icons/fa6-solid/user-shield'
-
 interface IMenuItem {
   type: 'link' | 'button' | 'external-link'
   text: string
   href?: string
   route?: string | { name: string; path: string }
-  icon?: FunctionalComponent<SVGAttributes>
+  icon?: FunctionalComponent<SVGAttributes> | string
   cssClass?: string
 }
 
 defineSlots<{
-  image(props: {}): any
-  drawer(props: {}): any
+  image(props: object): any
+  drawer(props: object): any
 }>()
 
 const { session, loggedIn, clear } = useUserSession()
@@ -45,45 +43,36 @@ const menus = computed((): IMenuItem[] => [
     type: 'link',
     text: t('pages.accounts.security.title'),
     route: { name: 'auth-security', path: '/auth/security' },
-    icon: userShield,
-    cssClass:
-      'text-primary-700 dark:text-primary-100 bg-white border-gray-200 hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700',
+    icon: 'i-heroicons-shield-check',
+    cssClass: '',
   },
 ])
 </script>
 
 <template>
-  <BuilderNavbar class="bg-white dark:bg-zinc-800">
+  <BuilderNavbar class="bg-white dark:bg-zinc-900">
     <template #menu>
       <nav
-        class="text-primary-700 dark:text-primary-100 hidden items-center text-lg font-semibold leading-6 md:flex"
+        class="text-primary-800 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
       >
-        <ul class="flex items-center gap-4">
+        <ul class="flex items-center gap-2 md:gap-4">
           <li
             v-for="(item, i) in menus"
             :key="i"
             class="relative grid items-center justify-center justify-items-center"
           >
-            <Anchor
-              v-if="item.type === 'link'"
-              :to="item.route ? item.route : undefined"
-              :text="item.text"
-              class="transition-color flex items-center rounded border px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gray-600/[0.6] focus:ring-offset-1 focus:ring-offset-gray-800/[0.6] focus:dark:ring-gray-400 focus:dark:ring-offset-gray-50 md:block md:px-4 md:py-2"
-              :class="[
-                {
-                  'grid-cols-auto-1fr gap-2': item.icon !== undefined,
-                },
-                item.cssClass,
-              ]"
-            >
-              <span class="sr-only md:grid">{{ item.text }}</span>
-              <Component :is="item.icon" />
-            </Anchor>
+            <UButton
+              v-if="item.type === 'link' && typeof item.route !== 'string'"
+              size="md"
+              :class="item.cssClass"
+              :to="item.route ? item.route.path : undefined"
+              :icon="item.icon as string"
+              color="secondary"
+            />
             <Anchor
               v-if="item.type === 'external-link'"
               :href="item.href"
-              :text="item.text"
-              class="transition-color flex items-center rounded border px-2 py-1 duration-300 focus:outline-none focus:ring-1 focus:ring-gray-600/[0.6] focus:ring-offset-1 focus:ring-offset-gray-800/[0.6] focus:dark:ring-gray-400 focus:dark:ring-offset-gray-50 md:grid md:px-4 md:py-2"
+              class="transition-color focus:secondary/[0.6] focus:dark:secondary flex items-center rounded border px-2 py-1 duration-300 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-800/[0.6] focus:dark:ring-offset-gray-50 md:grid md:px-4 md:py-2"
               :class="[
                 {
                   'grid-cols-auto-1fr gap-2': item.icon !== undefined,
@@ -96,7 +85,7 @@ const menus = computed((): IMenuItem[] => [
             </Anchor>
             <UButton
               v-else-if="item.type === 'button'"
-              size="xs"
+              size="md"
               class="font-extrabold capitalize"
               :label="item.text"
               :to="item.route ? item.route : undefined"
@@ -108,11 +97,10 @@ const menus = computed((): IMenuItem[] => [
           >
             <UButton
               size="md"
-              :label="$t('pages.accounts.logout.title')"
-              class="text-primary-700 dark:text-primary-100 gap-2 border-gray-200 bg-white hover:bg-zinc-300 dark:border-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
               :trailing="false"
               icon="i-heroicons-arrow-left-start-on-rectangle"
-              color="white"
+              class="text-primary-100 dark:text-primary-100"
+              color="red"
               @click="authLogoutEvent"
             />
           </li>
@@ -123,7 +111,7 @@ const menus = computed((): IMenuItem[] => [
           <slot name="image" />
         </div>
         <ul
-          class="text-primary-700 dark:text-primary-100 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
+          class="text-primary-800 dark:text-primary-100 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
         >
           <li
             class="relative grid items-center justify-center justify-items-center"
@@ -173,7 +161,7 @@ const menus = computed((): IMenuItem[] => [
         <ActionSheetBody class="grid gap-4">
           <ActionSheetHeader text="Menu" />
           <nav
-            class="text-primary-700 dark:text-primary-100 font-semibold leading-6"
+            class="text-primary-800 dark:text-primary-100 font-semibold leading-6"
           >
             <ul
               class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
@@ -238,27 +226,27 @@ const menus = computed((): IMenuItem[] => [
             </div>
           </div>
           <Anchor
-            class="text-primary-700 dark:text-primary-100 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
+            class="text-primary-800 dark:text-primary-100 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
             :to="'cart'"
             :title="$t('pages.cart.title')"
             :text="$t('pages.cart.title')"
           >
             <IconFa6Solid:cartShopping />
-            <span class="text-primary-700 dark:text-primary-100 ml-1">
+            <span class="text-primary-800 dark:text-primary-100 ml-1">
               {{ $t('pages.cart.title') }}</span
             >
           </Anchor>
           <UButton
             size="md"
-            :label="$t('pages.accounts.logout.title')"
-            class="text-primary-700 dark:text-primary-100"
             :trailing="false"
+            class="text-primary-100 dark:text-primary-100"
             icon="i-heroicons-arrow-left-start-on-rectangle"
             color="red"
             @click="authLogoutEvent"
           />
         </ActionSheetBody>
         <UButton
+          size="md"
           :label="$t('common.close')"
           color="white"
           @click.prevent="toggleOptions(false)"

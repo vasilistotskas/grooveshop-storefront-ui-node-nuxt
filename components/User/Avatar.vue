@@ -16,12 +16,12 @@ const props = defineProps({
   imgWidth: {
     type: [Number, String],
     required: false,
-    default: 100,
+    default: 50,
   },
   imgHeight: {
     type: [Number, String],
     required: false,
-    default: 100,
+    default: 50,
   },
   backgroundBorder: {
     type: Boolean,
@@ -208,7 +208,7 @@ const uploadImage = async (event: Event) => {
       </form>
     </div>
     <div v-if="showName" class="flex flex-col">
-      <span class="text-primary-700 dark:text-primary-100 font-bold">
+      <span class="text-primary-800 dark:text-primary-100 font-bold">
         {{ userAccount?.firstName }}
       </span>
     </div>

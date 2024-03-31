@@ -82,7 +82,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
       :is="loading ? ClientOnlyFallback : 'form'"
       :id="loading ? undefined : 'loginForm'"
       ref="loginForm"
-      class="container-xs !p-0 md:px-6"
+      class="container-3xs md:px-6"
       :height="loading ? '484px' : undefined"
       :width="loading ? '100%' : undefined"
       :show-animation="loading ? false : undefined"
@@ -100,18 +100,18 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
     >
       <div
         v-if="!loading"
-        class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-800 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
+        class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-900 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
       >
         <div class="relative grid w-full gap-4">
           <div class="grid content-evenly items-start">
-            <label class="text-primary-700 dark:text-primary-100" for="email">{{
+            <label class="text-primary-800 dark:text-primary-100" for="email">{{
               $t('pages.auth.login.form.email.label')
             }}</label>
             <FormTextInput
               id="email"
               v-model="email"
               :bind="emailProps"
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               name="email"
               type="email"
               autocomplete="email"
@@ -126,7 +126,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-700 dark:text-primary-100"
+              class="text-primary-800 dark:text-primary-100"
               for="password"
               >{{ $t('pages.auth.login.form.password.label') }}</label
             >
@@ -135,7 +135,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
                 id="password"
                 v-model="password"
                 :bind="passwordProps"
-                class="text-primary-700 dark:text-primary-100"
+                class="text-primary-800 dark:text-primary-100"
                 name="password"
                 :type="showPassword ? 'text' : 'password'"
                 autocomplete="current-password"
@@ -178,7 +178,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
               :to="'/auth/password/reset'"
               :title="$t('pages.auth.login.form.forgot.password.reset')"
               :text="$t('pages.auth.login.form.forgot.password.reset')"
-              class="text-primary hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 text-sm transition duration-150 ease-in-out md:text-base"
+              class="text-primary hover:text-primary-600 focus:text-primary-600 active:text-primary-800 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 text-sm transition duration-150 ease-in-out md:text-base"
             />
           </div>
 
@@ -221,7 +221,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
           </button>
 
           <div class="flex items-center justify-end gap-2">
-            <span class="text-primary-700 dark:text-primary-100 text-sm">{{
+            <span class="text-primary-800 dark:text-primary-100 text-sm">{{
               $t('pages.auth.login.form.no.account')
             }}</span>
             <Anchor

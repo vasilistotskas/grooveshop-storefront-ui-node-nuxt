@@ -47,9 +47,9 @@ const props = defineProps({
 const modelValue = defineModel<string | null>('modelValue', { default: '' })
 
 defineSlots<{
-  'prefix-disabled'(props: {}): any
-  prefix(props: {}): any
-  suffix(props: {}): any
+  'prefix-disabled'(props: object): any
+  prefix(props: object): any
+  suffix(props: object): any
 }>()
 
 const slots = useSlots()
@@ -97,7 +97,7 @@ const selectedFontSizeStyle = computed(
   <div :class="`text-input-container relative flex`">
     <div
       v-if="slots['prefix-disabled']"
-      :class="`text-primary-500 flex rounded-l border bg-white dark:bg-zinc-800 ${selectedBorderStyle}`"
+      :class="`text-primary-500 flex rounded-l border bg-white dark:bg-zinc-900 ${selectedBorderStyle}`"
     >
       <slot name="prefix-disabled" />
     </div>
@@ -114,7 +114,7 @@ const selectedFontSizeStyle = computed(
         v-model="modelValue"
         v-bind="bind"
         :name="name"
-        :class="`text-input text-primary-700 dark:text-primary-100 w-full flex-1 border bg-transparent outline-none ${
+        :class="`text-input text-primary-800 dark:text-primary-100 w-full flex-1 border bg-transparent outline-none ${
           havePreEl ? '' : 'rounded-l'
         } ${
           haveSuEl ? '' : 'rounded-r'
