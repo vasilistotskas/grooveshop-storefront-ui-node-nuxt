@@ -1,3 +1,10 @@
+## [1.83.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.83.0...v1.83.1) (2024-03-31)
+
+
+### Bug Fixes
+
+* Do not prerender homepage ([5c3b754](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5c3b7544b917134d7f98d3d8adf0b0fa8ae21677))
+
 # [1.83.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.82.0...v1.83.0) (2024-03-31)
 
 
