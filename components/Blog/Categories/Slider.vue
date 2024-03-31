@@ -60,7 +60,7 @@ const categoryResults = ref(categories.value?.results)
               `media/uploads/blog/${item?.mainImageFilename}`,
             )
           "
-          :alt="extractTranslated(item, 'name', locale)"
+          ::alt="`Image - ${extractTranslated(item, 'name', locale)}`"
           densities="x1"
         />
       </template>

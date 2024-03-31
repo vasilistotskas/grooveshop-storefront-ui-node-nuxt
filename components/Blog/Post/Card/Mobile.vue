@@ -72,20 +72,20 @@ const startShare = () => share().catch((err) => err)
           :background="'transparent'"
           :trim-threshold="5"
           sizes="`xs:480px sm:480px md:480px lg:480px xl:480px xxl:400px 2xl:400px`"
-          :alt="alt"
+          :alt="`Image - ${alt}`"
           densities="x1"
         />
         <div class="absolute bottom-12 right-0 grid w-full">
-          <h3 class="grid justify-center justify-items-start">
+          <span class="grid justify-center justify-items-start">
             <span
               class="m-auto block w-[70%] text-xl font-bold tracking-tight text-white dark:text-white md:text-4xl"
             >
               {{ extractTranslated(post, 'title', locale) }}
             </span>
-          </h3>
+          </span>
         </div>
       </Anchor>
-      <div class="absolute bottom-4 right-6 grid items-end gap-2">
+      <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <UButton
           icon="i-heroicons-heart"
           size="xl"
@@ -94,6 +94,13 @@ const startShare = () => share().catch((err) => err)
           variant="ghost"
           class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
           :label="String(post.likesCount)"
+          :ui="{
+            icon: {
+              size: {
+                xl: 'h-12 w-12',
+              },
+            },
+          }"
         />
         <UButton
           icon="i-heroicons-chat-bubble-oval-left"
@@ -103,6 +110,13 @@ const startShare = () => share().catch((err) => err)
           variant="ghost"
           class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
           :label="String(post.commentsCount)"
+          :ui="{
+            icon: {
+              size: {
+                xl: 'h-12 w-12',
+              },
+            },
+          }"
         />
         <ClientOnly>
           <UButton
@@ -114,6 +128,13 @@ const startShare = () => share().catch((err) => err)
             square
             variant="ghost"
             class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
+            :ui="{
+              icon: {
+                size: {
+                  xl: 'h-12 w-12',
+                },
+              },
+            }"
             @click="startShare"
           />
           <template #fallback>

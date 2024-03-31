@@ -10,23 +10,32 @@ defineSlots<{
 const { loggedIn } = useUserSession()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+const { t } = useI18n()
 
 const links = [
   {
     icon: 'i-heroicons-home',
     to: '/',
+    label: t('common.home'),
+    labelClass: 'hidden',
   },
   {
     icon: 'i-heroicons-magnifying-glass',
     to: '/search',
+    label: t('common.search'),
+    labelClass: 'hidden',
   },
   {
     icon: 'i-heroicons-heart',
     to: '/account/favourites',
+    label: t('common.favourites'),
+    labelClass: 'hidden',
   },
   {
     icon: 'i-heroicons-user',
     to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+    label: t('common.account'),
+    labelClass: 'hidden',
   },
 ] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
 </script>

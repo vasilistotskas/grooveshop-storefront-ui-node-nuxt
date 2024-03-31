@@ -26,6 +26,7 @@ common:
   back: Back
   account: Account
   search: Search
+  favourites: Favourites
   retry: Retry
   items:
     count: No items | 1 item | %{count} items

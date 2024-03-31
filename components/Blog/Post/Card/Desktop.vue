@@ -72,7 +72,7 @@ const startShare = () => share().catch((err) => err)
           :background="'transparent'"
           :trim-threshold="5"
           sizes="`xs:405px sm:318px md:196px lg:196px xl:260px xxl:380px 2xl:380px`"
-          :alt="alt"
+          :alt="`Image - ${alt}`"
           densities="x1"
         />
       </Anchor>

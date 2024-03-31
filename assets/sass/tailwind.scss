@@ -53,7 +53,7 @@
 
     @include responsive-width((
       'sm': 360px,
-      'md': 360px,
+      'md': 480px,
       'lg': 480px,
       'xl': 640px,
       'xlplus': 800px,
@@ -64,10 +64,10 @@
     @apply base-container;
 
     @include responsive-width((
-      'sm': 240px,
-      'md': 240px,
-      'lg': 360px,
-      'xl': 480px,
+      'sm': 360px,
+      'md': 480px,
+      'lg': 480px,
+      'xl': 640px,
       'xlplus': 640px,
     ));
   }

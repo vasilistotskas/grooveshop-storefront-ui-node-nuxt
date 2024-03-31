@@ -19,6 +19,7 @@ const props = defineProps({
 })
 
 const currentStyle = toRef(props, 'type')
+const id = useId()
 
 const { locale, locales, setLocale } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
@@ -47,7 +48,7 @@ const onLocaleChange = (event: Event) => {
       class="relative flex items-center"
     >
       <ListboxButton
-        id="language-switcher"
+        :id="`language-switcher-${id}`"
         type="button"
         :title="$t('common.change.language')"
         class="text-[1.5rem] transition-colors duration-300"
@@ -63,7 +64,7 @@ const onLocaleChange = (event: Event) => {
       </ListboxButton>
       <ListboxOptions
         v-if="availableLocales.length > 0"
-        id="language-switcher-options"
+        :id="`language-switcher-options-${id}`"
         class="text-primary-800 dark:highlight-white/5 dark:text-primary-300 absolute right-0 top-full z-50 w-36 overflow-hidden rounded-lg bg-white p-1 py-1 text-lg font-semibold shadow-lg outline-none ring-1 ring-gray-900/10 dark:bg-zinc-900 dark:ring-0"
       >
         <ListboxOption
