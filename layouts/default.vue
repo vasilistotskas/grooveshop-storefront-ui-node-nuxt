@@ -60,13 +60,13 @@ const links = [
     <UHorizontalNavigation
       v-if="isMobileOrTablet"
       :links="links"
-      class="fixed bottom-0 left-0 right-0 z-50 w-full border-t border-secondary bg-zinc-50 dark:bg-zinc-900"
+      class="border-primary-200 dark:border-primary-700 fixed bottom-0 left-0 right-0 z-50 w-full border-t bg-zinc-50 dark:bg-zinc-900"
       :ui="{
         container: 'flex justify-between w-full',
         inner: 'flex justify-between w-full',
         base: 'flex flex-col items-center justify-center w-full',
         icon: {
-          base: 'text-primary-900 dark:text-primary-100 w-6 h-6',
+          base: 'text-primary-900 dark:text-primary-100 w-8 h-8',
           active: 'text-secondary dark:text-secondary',
           inactive:
             'text-primary-900 dark:text-primary-100 group-hover:text-primary-900 dark:group-hover:text-primary-900',
