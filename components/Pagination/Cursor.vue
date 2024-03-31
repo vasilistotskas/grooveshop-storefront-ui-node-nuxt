@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 import { clearCursorStates, getCursorFromUrl } from '~/utils/pagination'
-import type {
-  PaginationCursorStateEnum} from '~/types/global/general';
-import {
-  type CursorStates
-} from '~/types/global/general'
+import type { PaginationCursorStateEnum } from '~/types/global/general'
+import { type CursorStates } from '~/types/global/general'
 
 const props = defineProps({
   stateName: {

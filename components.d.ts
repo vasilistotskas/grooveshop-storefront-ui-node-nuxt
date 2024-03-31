@@ -24,10 +24,7 @@ declare module 'vue' {
     'IconFaSolid:plus': typeof import('~icons/fa-solid/plus')['default']
     'IconFaSolid:sort': typeof import('~icons/fa-solid/sort')['default']
     'IconFaSolid:trash': typeof import('~icons/fa-solid/trash')['default']
-    'IconMdi:heartOutline': typeof import('~icons/mdi/heart-outline')['default']
-    'IconMdi:packageVariantClosed': typeof import('~icons/mdi/package-variant-closed')['default']
     'IconMdi:star': typeof import('~icons/mdi/star')['default']
-    'IconMdi:starOutline': typeof import('~icons/mdi/star-outline')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
