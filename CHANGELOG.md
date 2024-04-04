@@ -1,3 +1,10 @@
+# [1.84.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.83.4...v1.84.0) (2024-04-04)
+
+
+### Features
+
+* Blog post comments / replies and likes ([bb354ae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bb354ae968efba66189aff25237c4157c8e61aac))
+
 ## [1.83.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.83.3...v1.83.4) (2024-03-31)
 
 
