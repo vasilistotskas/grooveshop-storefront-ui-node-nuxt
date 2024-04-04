@@ -27,6 +27,9 @@ const { pending, error, refresh } = await useAsyncData(
         language: locale.value,
       },
       onResponse({ response }) {
+        if (!response.ok) {
+          return
+        }
         results.value = response._data
         isSuggestionsOpen.value = false
       },
@@ -157,7 +160,7 @@ definePageMeta({
             :placeholder="$t('pages.search.placeholder')"
             @keyup.enter="refresh()"
             @click="isSuggestionsOpen = true"
-          >
+          />
         </div>
         <div
           v-if="showSuggestions"

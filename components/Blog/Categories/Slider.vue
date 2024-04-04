@@ -37,10 +37,10 @@ const categoryResults = ref(categories.value?.results)
       :to="`/blog/category/${item?.id}/${item?.slug}`"
       size="lg"
       :ui="{
-        rounded: 'rounded-[15px]',
+        rounded: 'rounded-lg',
         color: {
           secondary: {
-            solid: 'shadow-sm bg-secondary text-white',
+            solid: 'shadow-sm bg-secondary dark:bg-secondary-dark text-white',
           },
         },
       }"

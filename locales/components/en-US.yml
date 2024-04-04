@@ -149,6 +149,10 @@ components:
     removed: Removed from favourites
     add: Add to favourites
     remove: Remove from favourites
+  like_button:
+    not_authenticated: You must be logged in to like
+    liked: Liked
+    like: Like
   user:
     avatar:
       change: Change
@@ -206,6 +210,18 @@ components:
         title: Comments
         summary:
           comments: No Comments | 1 Comment | %{count} Comments
+        empty:
+          title: Write a comment
+          title_guest: Log in to write a comment
+          description: Be the first to comment
+          description_guest: Log in to comment
+        add:
+          title: Add Comment
+          error: Comment creation error
+          success: Comment created successfully
+        reply:
+          login: Log in to reply
+          placeholder: Write a reply...
   favourite:
     list:
       favourites:

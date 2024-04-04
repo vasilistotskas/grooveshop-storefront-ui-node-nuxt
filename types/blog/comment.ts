@@ -6,6 +6,7 @@ import type { PaginationQuery } from '~/types/pagination'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodExpandQuery } from '~/types/global/general'
 
 const ZodBlogCommentTranslations = z.record(
   z.object({
@@ -13,7 +14,7 @@ const ZodBlogCommentTranslations = z.record(
   }),
 )
 
-export const ZodBlogComment = z.object({
+export const ZodBlogCommentBase = z.object({
   translations: ZodBlogCommentTranslations,
   id: z.number().int(),
   isApproved: z.boolean(),
@@ -35,8 +36,8 @@ export const ZodBlogCommentQuery = z
     id: z.string().nullish(),
     user: z.string().nullish(),
     post: z.string().nullish(),
-    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
   })
+  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
@@ -45,14 +46,13 @@ export const ZodBlogCommentParams = z.object({
 })
 
 export const ZodBlogCommentCreateBody = z.object({
-  product: z.string(),
+  post: z.string(),
   user: z.string(),
   translations: ZodBlogCommentTranslations,
+  parent: z.number().nullish(),
 })
 
-export const ZodBlogCommentCreateQuery = z.object({
-  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-})
+export const ZodBlogCommentCreateQuery = z.object({}).merge(ZodExpandQuery)
 
 export const ZodBlogCommentPutBody = z.object({
   product: z.string(),
@@ -72,7 +72,9 @@ export type BlogCommentQuery = PaginationQuery &
     user?: string | undefined
     expand?: string | undefined
   }
-export type BlogComment = z.infer<typeof ZodBlogComment>
+export type BlogComment = z.infer<typeof ZodBlogCommentBase> & {
+  children?: BlogComment[] | null | number[]
+}
 export type BlogCommentParams = z.infer<typeof ZodBlogCommentParams>
 export type BlogCommentCreateBody = z.infer<typeof ZodBlogCommentCreateBody>
 export type BlogCommentCreateQuery = z.infer<typeof ZodBlogCommentCreateQuery>
@@ -81,3 +83,11 @@ export type BlogCommentOrderingField = 'id' | 'userId' | 'postId' | 'createdAt'
 export type BlogCommentUserBlogCommentBody = z.infer<
   typeof ZodBlogCommentUserBlogCommentBody
 >
+
+export const ZodBlogComment: z.ZodType<BlogComment> = ZodBlogCommentBase.extend(
+  {
+    children: z.lazy(() =>
+      z.union([ZodBlogComment.array().nullish(), z.array(z.number())]),
+    ),
+  },
+)

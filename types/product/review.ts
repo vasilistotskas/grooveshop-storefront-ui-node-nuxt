@@ -4,6 +4,7 @@ import { ZodProduct } from '~/types/product/product'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodExpandQuery } from '~/types/global/general'
 
 export const ZodProductReviewStatusEnum = z.enum(['NEW', 'TRUE', 'FALSE'])
 
@@ -32,9 +33,9 @@ export const ZodProductReviewQuery = z
     id: z.string().nullish(),
     productId: z.string().nullish(),
     userId: z.string().nullish(),
-    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
     status: z.lazy(() => ZodProductReviewStatusEnum).nullish(),
   })
+  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
@@ -46,9 +47,7 @@ export const ZodProductReviewCreateBody = z.object({
   status: z.string(),
 })
 
-export const ZodProductReviewCreateQuery = z.object({
-  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-})
+export const ZodProductReviewCreateQuery = z.object({}).merge(ZodExpandQuery)
 
 export const ZodProductReviewPutBody = z.object({
   product: z.string(),
@@ -57,9 +56,7 @@ export const ZodProductReviewPutBody = z.object({
   rate: z.string(),
 })
 
-export const ZodProductReviewPutQuery = z.object({
-  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-})
+export const ZodProductReviewPutQuery = z.object({}).merge(ZodExpandQuery)
 
 export const ZodReviewParams = z.object({
   id: z.string(),

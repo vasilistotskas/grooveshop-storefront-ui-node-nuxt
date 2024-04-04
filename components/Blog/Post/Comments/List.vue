@@ -20,6 +20,14 @@ const props = defineProps({
   },
 })
 
+defineSlots<{
+  default(props: object): any
+}>()
+
+const emit = defineEmits<{
+  (e: 'reply-add', data: BlogComment): void
+}>()
+
 const { comments } = toRefs(props)
 const { loggedIn, user } = useUserSession()
 
@@ -29,6 +37,10 @@ const userHasCommented = (comment: BlogComment) => {
     return userId === user.value.id
   }
   return false
+}
+
+const onReplyAdd = (data: BlogComment) => {
+  emit('reply-add', data)
 }
 
 comments?.value?.sort((a) => {
@@ -48,7 +60,8 @@ comments?.value?.sort((a) => {
       :comments-count="commentsCount"
       class="comments-list-summary"
     />
-    <div class="comments-list-items grid gap-4">
+    <slot />
+    <div id="comment-tree" class="comments-list-items grid gap-4">
       <BlogPostCommentsCard
         v-for="comment in comments"
         :key="comment.id"
@@ -56,6 +69,7 @@ comments?.value?.sort((a) => {
         :display-image-of="displayImageOf"
         :class="userHasCommented(comment) ? 'user-commented' : ''"
         class="comments-list-item rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-900"
+        @reply-add="onReplyAdd"
       />
     </div>
   </div>

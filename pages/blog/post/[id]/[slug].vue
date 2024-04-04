@@ -9,13 +9,16 @@ const { resolveImageSrc } = useImageResolver()
 
 const blogPostId = route.params.id
 
-const { data: blogPost } = await useFetch(`/api/blog/posts/${blogPostId}`, {
-  key: `blogPost${blogPostId}`,
-  method: 'GET',
-  query: {
-    expand: 'true',
+const { data: blogPost, refresh } = await useFetch(
+  `/api/blog/posts/${blogPostId}`,
+  {
+    key: `blogPost${blogPostId}`,
+    method: 'GET',
+    query: {
+      expand: 'true',
+    },
   },
-})
+)
 
 if (!blogPost.value) {
   throw createError({
@@ -80,6 +83,16 @@ const shareOptions = reactive({
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
+const likeClicked = async () => {
+  await refresh()
+}
+
+const scrollToComments = () => {
+  const comments = document.getElementById('blog-post-comments')
+  if (comments) {
+    comments.scrollIntoView({ behavior: 'smooth' })
+  }
+}
 
 const seoMetaOptions = {
   title: blogPostTitle.value,
@@ -157,14 +170,11 @@ definePageMeta({
             >
               <div class="flex">
                 <div class="flex justify-end gap-2 md:gap-4">
-                  <UButton
-                    icon="i-heroicons-heart"
-                    size="lg"
-                    color="white"
-                    square
-                    variant="solid"
+                  <ButtonBlogPostLike
                     class="justify-self-start font-extrabold capitalize"
-                    :label="String(blogPost.likesCount)"
+                    :blog-post-id="blogPost.id"
+                    :likes-count="blogPost.likesCount"
+                    @update="likeClicked"
                   />
                   <UButton
                     icon="i-heroicons-chat-bubble-oval-left"
@@ -174,6 +184,7 @@ definePageMeta({
                     variant="solid"
                     class="justify-self-start font-extrabold capitalize"
                     :label="String(blogPost.commentsCount)"
+                    @click="scrollToComments"
                   />
                   <ClientOnly>
                     <UButton

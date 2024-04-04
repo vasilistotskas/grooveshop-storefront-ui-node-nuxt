@@ -1,97 +1,3 @@
-<template>
-  <UForm
-    :id="finalID"
-    class="w-full space-y-4"
-    :state="fields"
-    autocomplete="on"
-    @submit="onSubmit"
-  >
-    <div v-if="isMultiStep" class="grid items-center justify-center">
-      <span class="text-xl font-semibold">{{
-        schema.steps?.[currentStep].title
-      }}</span>
-    </div>
-
-    <UFormGroup
-      v-for="{
-        as,
-        name,
-        label,
-        autocomplete = 'off',
-        readonly = false,
-        required = false,
-        placeholder = '',
-        type = 'text',
-        children = [],
-      } in filteredFields"
-      :key="name"
-      v-model="fields[name][0].value"
-      :label="label"
-      :name="name"
-      v-bind="fields[name][1].value"
-      class="grid"
-    >
-      <label v-if="as === 'input'" :for="name" class="sr-only">{{
-        label
-      }}</label>
-      <UInput
-        v-bind="fields[name][1].value"
-        :id="name"
-        v-model="fields[name][0].value"
-        :as="as"
-        :name="name"
-        :autocomplete="autocomplete"
-        :aria-readonly="readonly"
-        :readonly="readonly"
-        :required="required"
-        :placeholder="
-          type === 'text' || type === 'password' || type === 'email'
-            ? placeholder
-            : ''
-        "
-        :type="type"
-        :disabled="disabledFields[name]"
-        class="grid gap-1"
-      >
-        <div v-if="children">
-          <LazyDynamicFormChildren :children="children" />
-        </div>
-      </UInput>
-    </UFormGroup>
-
-    <LazyDynamicFormNavigation
-      v-if="isMultiStep"
-      :current-step="currentStep"
-      :last-step="lastStep"
-      :next-step-button-disabled="nextStepButtonDisabled"
-      :submit-label="buttonLabel"
-      @go-to-next-step="goToNextStep"
-      @go-to-previous-step="goToPreviousStep"
-    />
-
-    <LazyUButton
-      v-if="!isMultiStep && submitButton"
-      :aria-busy="isSubmitting"
-      :disabled="submitButtonDisabled"
-      type="submit"
-      color="white"
-    >
-      {{ buttonLabel }}
-    </LazyUButton>
-
-    <LazyUButton
-      v-if="!isMultiStep && resetButton"
-      class="ml-4"
-      color="white"
-      variant="outline"
-      type="button"
-      @click="resetForm"
-    >
-      {{ resetLabel }}
-    </LazyUButton>
-  </UForm>
-</template>
-
 <script lang="ts" setup>
 import type { ValidationOptions } from 'vee-validate'
 import { z } from 'zod'
@@ -104,6 +10,7 @@ import type {
   FormValues,
 } from '~/types/form'
 import { mergeWithEffect } from '~/types/zod'
+import type { Button } from '#ui/types/button'
 
 // Define the UI configuration for Nuxt-UI
 const nuxtUiConfig = (state: DynamicFormState) => {
@@ -124,6 +31,8 @@ const props = withDefaults(
     buttonLabel?: string
     resetLabel?: string
     disableSubmitUntilValid?: boolean
+    submitButtonUi?: Button
+    resetButtonUi?: Button
   }>(),
   {
     id: undefined,
@@ -132,6 +41,20 @@ const props = withDefaults(
     buttonLabel: 'Submit',
     resetLabel: 'Reset',
     disableSubmitUntilValid: true,
+    submitButtonUi: () => ({
+      type: 'submit',
+      variant: 'solid',
+      color: 'primary',
+      size: 'md',
+      ui: {},
+    }),
+    resetButtonUi: () => ({
+      type: 'button',
+      variant: 'outline',
+      color: 'secondary',
+      size: 'md',
+      ui: {},
+    }),
   },
 )
 
@@ -320,3 +243,127 @@ formFields.forEach((field) => {
   )
 })
 </script>
+
+<template>
+  <UForm
+    :id="finalID"
+    class="w-full space-y-4"
+    :state="fields"
+    autocomplete="on"
+    @submit="onSubmit"
+  >
+    <div v-if="isMultiStep" class="grid items-center justify-center">
+      <span class="text-xl font-semibold">{{
+        schema.steps?.[currentStep].title
+      }}</span>
+    </div>
+
+    <UFormGroup
+      v-for="{
+        as,
+        id: groupId,
+        name,
+        label,
+        autocomplete = 'off',
+        readonly = false,
+        required = false,
+        placeholder = '',
+        type = 'text',
+        children = [],
+      } in filteredFields"
+      :key="name"
+      v-model="fields[name][0].value"
+      :label="label"
+      :name="name"
+      v-bind="fields[name][1].value"
+      class="grid"
+    >
+      <label v-if="as === 'input'" :for="name" class="sr-only">{{
+        label
+      }}</label>
+      <UTextarea
+        v-if="as === 'textarea'"
+        v-bind="fields[name][1].value"
+        :id="groupId"
+        v-model="fields[name][0].value"
+        :as="as"
+        :name="name"
+        :autocomplete="autocomplete"
+        :aria-readonly="readonly"
+        :readonly="readonly"
+        :required="required"
+        :placeholder="
+          type === 'text' || type === 'password' || type === 'email'
+            ? placeholder
+            : ''
+        "
+        :type="type"
+        :disabled="disabledFields[name]"
+        class="grid gap-1"
+      >
+        <div v-if="children">
+          <LazyDynamicFormChildren :children="children" />
+        </div>
+      </UTextarea>
+      <UInput
+        v-else
+        v-bind="fields[name][1].value"
+        :id="groupId"
+        v-model="fields[name][0].value"
+        :as="as"
+        :name="name"
+        :autocomplete="autocomplete"
+        :aria-readonly="readonly"
+        :readonly="readonly"
+        :required="required"
+        :placeholder="
+          type === 'text' || type === 'password' || type === 'email'
+            ? placeholder
+            : ''
+        "
+        :type="type"
+        :disabled="disabledFields[name]"
+        class="grid gap-1"
+      >
+        <div v-if="children">
+          <LazyDynamicFormChildren :children="children" />
+        </div>
+      </UInput>
+    </UFormGroup>
+
+    <LazyDynamicFormNavigation
+      v-if="isMultiStep"
+      :current-step="currentStep"
+      :last-step="lastStep"
+      :next-step-button-disabled="nextStepButtonDisabled"
+      :submit-label="buttonLabel"
+      @go-to-next-step="goToNextStep"
+      @go-to-previous-step="goToPreviousStep"
+    />
+
+    <LazyUButton
+      v-if="!isMultiStep && submitButton"
+      :aria-busy="isSubmitting"
+      :disabled="submitButtonDisabled"
+      :type="submitButtonUi.type"
+      :variant="submitButtonUi.variant"
+      :color="submitButtonUi.color"
+      :ui="submitButtonUi.ui"
+      :size="submitButtonUi.size"
+    >
+      {{ buttonLabel }}
+    </LazyUButton>
+
+    <LazyUButton
+      v-if="!isMultiStep && resetButton"
+      :type="resetButtonUi.type"
+      :variant="resetButtonUi.variant"
+      :color="resetButtonUi.color"
+      :ui="resetButtonUi.ui"
+      :size="resetButtonUi.size"
+      @click="resetForm"
+    >
+      {{ resetLabel }}
+    </LazyUButton>
+  </UForm>
+</template>

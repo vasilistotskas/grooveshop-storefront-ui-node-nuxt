@@ -6,6 +6,7 @@ import { ZodBlogTag } from '~/types/blog/tag'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodExpandQuery } from '~/types/global/general'
 
 export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 
@@ -47,8 +48,9 @@ export const ZodBlogPostQuery = z
     author: z.string().nullish(),
     slug: z.string().nullish(),
     tags: z.string().nullish(),
-    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
+    parent: z.literal('none').nullish(),
   })
+  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

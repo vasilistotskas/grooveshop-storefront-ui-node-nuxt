@@ -177,7 +177,7 @@ export const useCartStore = defineStore('cart', () => {
         vatPercent: body.product.vatPercent,
         vatValue: body.product.vatValue,
         finalPrice: body.product.finalPrice,
-        hits: body.product.hits,
+        viewCount: body.product.viewCount,
         likesCount: body.product.likesCount,
         stock: body.product.stock,
         active: body.product.active,

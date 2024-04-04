@@ -150,6 +150,12 @@ watch(selectorQuantity, (newValue) => {
   }
 })
 
+onMounted(() => {
+  $fetch(`/api/products/${productId}/update-view-count`, {
+    method: 'POST',
+  })
+})
+
 useSchemaOrg([
   defineProduct({
     name: () => extractTranslated(product.value, 'name', locale.value) || '',
@@ -299,7 +305,7 @@ definePageMeta({
                       :aria-label="$t('pages.product.qty')"
                       :aria-describedby="'increment-button decrement-button'"
                       class="block w-full border-gray-300 bg-white p-2.5 text-sm text-gray-900 outline-none focus:border-secondary focus:ring-secondary dark:border-gray-600 dark:bg-zinc-900 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                    >
+                    />
                     <UButton
                       id="increment-button"
                       icon="i-heroicons-plus"
@@ -312,7 +318,7 @@ definePageMeta({
                   </div>
                 </div>
 
-                <ButtonAddToCart
+                <ButtonProductAddToCart
                   :product="product"
                   :quantity="selectorQuantity || 1"
                   :text="$t('pages.product.add_to_cart')"

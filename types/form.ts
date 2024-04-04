@@ -14,7 +14,10 @@ export const ZodDynamicFormSchemaChildren = z
 
 export const ZodDynamicFormSchemaField = z.array(
   z.object({
-    as: z.string(),
+    as: z
+      .enum(['input', 'textarea', 'select', 'radio', 'checkbox'])
+      .default('input'),
+    id: z.string().optional(),
     name: z.string(),
     label: z.string(),
     autocomplete: z.string().default('off'),

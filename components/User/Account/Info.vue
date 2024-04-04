@@ -167,7 +167,7 @@ defineProps({
           margin-left: 1rem;
 
           &.router-link-active {
-            @apply text-secondary;
+            @apply text-secondary dark:text-secondary-dark;
           }
 
           &:first-child {

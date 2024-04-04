@@ -38,6 +38,7 @@ export enum PaginationTypeEnum {
 
 export enum PaginationCursorStateEnum {
   BLOG_POSTS = 'blogPostsCursor',
+  BLOG_POST_COMMENTS = 'blogPostCommentsCursor',
 }
 export type PaginationCursorStateType = `${PaginationCursorStateEnum}`
 export type CursorStates = {
@@ -56,4 +57,9 @@ const WeightUnits = z.enum(['g', 'lb', 'oz', 'kg', 'tonne'], {
 export const ZodWeight = z.object({
   unit: WeightUnits,
   value: z.number(),
+})
+
+export const ZodExpandQuery = z.object({
+  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
+  expandFields: z.string().nullish(),
 })

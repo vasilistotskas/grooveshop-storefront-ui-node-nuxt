@@ -4,6 +4,7 @@ import { ZodProduct } from '~/types/product/product'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodExpandQuery } from '~/types/global/general'
 
 export const ZodProductFavourite = z.object({
   id: z.number(),
@@ -19,8 +20,8 @@ export const ZodProductFavouriteQuery = z
     id: z.string().nullish(),
     userId: z.string().nullish(),
     productId: z.string().nullish(),
-    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
   })
+  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

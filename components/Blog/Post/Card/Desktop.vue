@@ -47,6 +47,14 @@ const shareOptions = reactive({
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
+
+const likeClicked = async (event: { blogPostId: number; liked: boolean }) => {
+  if (event.liked) {
+    post.value.likesCount++
+  } else {
+    post.value.likesCount--
+  }
+}
 </script>
 
 <template>
@@ -90,14 +98,13 @@ const startShare = () => share().catch((err) => err)
         </h3>
       </div>
       <div class="flex justify-end gap-6">
-        <UButton
-          icon="i-heroicons-heart"
-          size="xl"
-          color="white"
-          square
-          variant="ghost"
+        <ButtonBlogPostLike
           class="text-primary-800 dark:text-primary-100 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
-          :label="String(post.likesCount)"
+          size="lg"
+          variant="ghost"
+          :blog-post-id="post.id"
+          :likes-count="post.likesCount"
+          @update="likeClicked"
         />
         <UButton
           icon="i-heroicons-chat-bubble-oval-left"
@@ -107,6 +114,7 @@ const startShare = () => share().catch((err) => err)
           variant="ghost"
           class="text-primary-800 dark:text-primary-100 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
           :label="String(post.commentsCount)"
+          :to="`/blog/post${post.absoluteUrl}#blog-post-comments`"
         />
         <ClientOnly>
           <UButton
@@ -121,7 +129,7 @@ const startShare = () => share().catch((err) => err)
             @click="startShare"
           />
           <template #fallback>
-            <ClientOnlyFallback height="40px" width="40px" />
+            <ClientOnlyFallback height="24px" width="24px" />
           </template>
         </ClientOnly>
       </div>

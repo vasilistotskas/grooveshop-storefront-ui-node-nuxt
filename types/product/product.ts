@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { ZodWeight } from '~/types/global/general'
+import { ZodExpandQuery, ZodWeight } from '~/types/global/general'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodProductCategory } from '~/types/product/category'
@@ -24,7 +24,7 @@ export const ZodProduct = z.object({
   vatPercent: z.number(),
   vatValue: z.number(),
   finalPrice: z.number(),
-  hits: z.number().int(),
+  viewCount: z.number().int(),
   likesCount: z.number().int(),
   stock: z.number().int(),
   active: z.boolean(),
@@ -51,7 +51,7 @@ export const ZodProductCreateBody = z.object({
   description: z.string().nullish(),
   price: z.number(),
   vat: z.number(),
-  hits: z.number().int().nullish(),
+  viewCount: z.number().int().nullish(),
   stock: z.number().int().nullish(),
   active: z.boolean().nullish(),
   weight: ZodWeight.nullish(),
@@ -68,8 +68,8 @@ export const ZodProductParams = z.object({
 export const ZodProductQuery = z
   .object({
     category: z.union([z.number(), z.string()]).nullish(),
-    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
   })
+  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

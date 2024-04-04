@@ -67,7 +67,7 @@ const links = [
         base: 'flex flex-col items-center justify-center w-full',
         icon: {
           base: 'text-primary-900 dark:text-primary-100 w-8 h-8',
-          active: 'text-secondary dark:text-secondary',
+          active: 'text-secondary dark:text-secondary-dark',
           inactive:
             'text-primary-900 dark:text-primary-100 group-hover:text-primary-900 dark:group-hover:text-primary-900',
         },

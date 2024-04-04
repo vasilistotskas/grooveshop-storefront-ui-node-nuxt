@@ -6,7 +6,7 @@ export default defineEventHandler(async (event: H3Event) => {
   const config = useRuntimeConfig()
   const params = await getValidatedRouterParams(event, ZodProductParams.parse)
   const response = await $fetch(
-    `${config.public.apiBaseUrl}/product/${params.id}/update_product_hits`,
+    `${config.public.apiBaseUrl}/product/${params.id}/update_view_count`,
     {
       method: 'POST',
     },

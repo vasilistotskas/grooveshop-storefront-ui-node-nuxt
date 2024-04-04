@@ -1,7 +1,11 @@
 import { z } from 'zod'
 
 import { ZodCountry } from '~/types/country'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import {
+  FloorChoicesEnum,
+  LocationChoicesEnum,
+  ZodExpandQuery,
+} from '~/types/global/general'
 import { ZodRegion } from '~/types/region'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
@@ -36,8 +40,8 @@ export const ZodUserAddressQuery = z
   .object({
     id: z.string().nullish(),
     user: z.string().nullish(),
-    expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
   })
+  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

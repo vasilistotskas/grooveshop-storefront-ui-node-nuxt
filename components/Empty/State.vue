@@ -8,11 +8,12 @@ defineProps({
   description: {
     type: String,
     required: false,
-    default: 'common.empty.description',
+    default: '',
   },
   icon: {
     type: Object,
-    required: true,
+    required: false,
+    default: null,
   },
 })
 
@@ -23,19 +24,17 @@ defineSlots<{
 
 <template>
   <div
-    class="empty-state text-primary-800 dark:text-primary-100 flex flex-col items-center justify-center gap-4 rounded-lg border border-gray-900/10 p-16 text-center dark:border-gray-50/[0.2]"
+    class="empty-state text-primary-800 dark:text-primary-100 flex flex-col items-center justify-center gap-4 rounded-lg border border-gray-900/10 p-4 text-center dark:border-gray-50/[0.2] md:p-8"
   >
-    <div class="empty-state-icon">
+    <div v-if="icon" class="empty-state-icon">
       <Component :is="icon" />
     </div>
-    <div class="empty-state-title">
+    <div class="empty-state-title text-xl font-semibold">
       {{ $t(title) }}
     </div>
-    <div class="empty-state-description">
+    <div v-if="description" class="empty-state-description text-sm">
       {{ $t(description) }}
     </div>
-    <div class="empty-state-actions">
-      <slot name="actions" />
-    </div>
+    <slot name="actions" />
   </div>
 </template>

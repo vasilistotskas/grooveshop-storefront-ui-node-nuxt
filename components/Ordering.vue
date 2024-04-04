@@ -63,7 +63,7 @@ const onOptionClick = async (option: OrderingOption) => {
           <div class="w-46 relative md:w-60">
             <ListboxButton
               :id="`ordering-button-${ordering}`"
-              class="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-2 pr-6 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 dark:bg-zinc-900 md:pl-3 md:pr-10"
+              class="relative z-40 w-full cursor-pointer rounded-lg bg-white py-2 pl-2 pr-6 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 dark:bg-zinc-900 md:pl-3 md:pr-10"
               @click="listBoxToggle"
             >
               <span

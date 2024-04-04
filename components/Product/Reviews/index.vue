@@ -44,7 +44,7 @@ const {
   method: 'GET',
   query: {
     ordering: ordering.value,
-    expand,
+    expand: expand.value,
   },
 })
 

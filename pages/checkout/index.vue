@@ -650,7 +650,7 @@ definePageMeta({
               <button
                 :aria-busy="isSubmitting"
                 :disabled="submitButtonDisabled"
-                class="rounded bg-secondary px-4 py-2 font-bold text-white hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                class="rounded bg-secondary px-4 py-2 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-secondary-dark"
                 type="submit"
               >
                 {{ $t('pages.checkout.form.submit.title') }}

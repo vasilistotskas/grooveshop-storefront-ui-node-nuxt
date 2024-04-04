@@ -157,7 +157,10 @@ const onSubmit = handleSubmit(async (values) => {
     onRequestError() {
       toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
     },
-    async onResponse() {
+    async onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
       await fetchUser()
       await fetch()
       toast.add({ title: t('pages.account.settings.form.success') })
@@ -479,7 +482,7 @@ definePageMeta({
         <div class="grid items-end justify-end">
           <button
             type="submit"
-            class="rounded bg-secondary px-4 py-2 font-bold text-white hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+            class="rounded bg-secondary px-4 py-2 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-secondary-dark"
             :disabled="submitButtonDisabled"
             :aria-busy="isSubmitting"
           >

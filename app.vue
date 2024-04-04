@@ -75,7 +75,7 @@ const schemaOrgOptions = [
 const seoMetaOptions = {
   title: config.public.appTitle,
   description: config.public.appDescription,
-  colorScheme: colorMode.value === 'dark' ? 'dark' : 'light',
+  colorScheme: themeClass.value,
   themeColor: themeColor.value,
   applicationName: config.public.appTitle,
   author: config.public.author.name,

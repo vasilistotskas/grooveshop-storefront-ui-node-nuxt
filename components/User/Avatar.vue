@@ -89,7 +89,10 @@ const uploadImage = async (event: Event) => {
         color: 'red',
       })
     },
-    async onResponse() {
+    async onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
       toast.add({
         title: t('components.user.avatar.image.updated'),
       })
@@ -201,7 +204,7 @@ const uploadImage = async (event: Event) => {
           accept="image/*"
           class="sr-only"
           @change="uploadImage"
-        >
+        />
         <button type="submit" class="sr-only">
           {{ $t('common.upload') }}
         </button>

@@ -35,7 +35,10 @@ const submit = async () => {
         color: 'red',
       })
     },
-    onResponse() {
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
       deleteAddress(address?.value.id)
       toast.add({
         title: t('components.address.card.delete.success'),

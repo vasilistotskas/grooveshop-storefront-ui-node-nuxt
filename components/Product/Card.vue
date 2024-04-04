@@ -120,7 +120,7 @@ const userProductFavourite = computed(() => {
                   <ClientOnlyFallback height="40px" width="40px" />
                 </template>
               </ClientOnly>
-              <ButtonAddToFavourite
+              <ButtonProductAddToFavourite
                 v-if="showAddToFavouriteButton"
                 :product-id="product.id"
                 :user-id="user?.id"
@@ -185,7 +185,7 @@ const userProductFavourite = computed(() => {
           </div>
         </div>
         <div class="grid items-center">
-          <ButtonAddToCart
+          <ButtonProductAddToCart
             v-if="showAddToCartButton"
             :product="product"
             :quantity="1"

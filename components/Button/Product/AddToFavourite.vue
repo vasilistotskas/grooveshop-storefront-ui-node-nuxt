@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import heartJSON from '~/assets/lotties/heart.json'
-import type Lottie from '~/components/Lottie/index.vue'
 import type { ButtonSize } from '~/types/global/button'
 import type { ProductFavourite } from '~/types/product/favourite'
 
@@ -34,6 +32,10 @@ const props = defineProps({
     default: 'md',
     validator: (value: string) => ['lg', 'md', 'sm', 'xs'].includes(value),
   },
+  showLabel: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const userStore = useUserStore()
@@ -42,8 +44,6 @@ const { getUserProductFavourite } = userStore
 
 const { t } = useI18n()
 const toast = useToast()
-
-const lottie = ref<InstanceType<typeof Lottie>>()
 
 const toggleFavourite = async () => {
   if (!props.isAuthenticated || !props.userId || !favouriteProducts) {
@@ -74,7 +74,6 @@ const toggleFavourite = async () => {
           return
         }
         favouriteProducts.value?.push(response._data)
-        lottie.value?.play()
         toast.add({
           title: t('components.add_to_favourite_button.added'),
         })
@@ -103,7 +102,6 @@ const toggleFavourite = async () => {
         favouriteProducts.value =
           favouriteProducts.value?.filter((favourite) => favourite.id !== id) ||
           []
-        lottie.value?.goToAndStop(0)
         toast.add({
           title: t('components.add_to_favourite_button.removed'),
         })
@@ -119,6 +117,7 @@ const toggleFavourite = async () => {
 }
 
 const buttonLabel = computed(() => {
+  if (!props.showLabel) return ''
   return props.isFavourite
     ? t('components.add_to_favourite_button.remove')
     : t('components.add_to_favourite_button.add')
@@ -129,30 +128,22 @@ const buttonAreaLabel = computed(() => {
     ? t('components.add_to_favourite_button.remove')
     : t('components.add_to_favourite_button.add')
 })
-
-const onAnimationLoaded = () => {
-  if (props.isFavourite) {
-    lottie.value?.goToAndStop(lottie.value?.getDuration() - 1 || 0)
-  } else {
-    lottie.value?.goToAndStop(0)
-  }
-}
 </script>
 
 <template>
-  <LazyLottie
-    ref="lottie"
-    :text="buttonLabel"
-    :component-element="'button'"
+  <UButton
+    class="add-to-favourite-btn"
     :size="size"
-    :animation-data="heartJSON"
-    :width="'40px'"
-    :height="'40px'"
-    :loop="false"
-    :auto-play="false"
+    :label="buttonLabel"
+    :icon="!isFavourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
+    :color="'white'"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
-    @on-animation-loaded="onAnimationLoaded"
+    :ui="{
+      icon: {
+        base: isFavourite ? 'bg-red-500' : '',
+      },
+    }"
     @click="toggleFavourite"
   />
 </template>

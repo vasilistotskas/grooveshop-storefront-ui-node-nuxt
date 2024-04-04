@@ -108,3 +108,7 @@ common:
   load:
     more: Load More
   loading: Loading...
+  more:
+    replies: No replies | 1 reply | %{count} replies
+  hide:
+    replies: Hide

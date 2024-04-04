@@ -8,10 +8,13 @@ defineProps({
 
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
+const colorMode = useColorMode()
 
 const navbar = ref(null)
 const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
 const showOptions = useState<boolean>('navbar.showOptions', () => false)
+
+const isDark = computed(() => colorMode.value === 'dark')
 
 const config = useRuntimeConfig()
 
@@ -64,6 +67,16 @@ const toggleOptions = (show?: boolean) => {
 }
 const appTitle = computed(() => config.public.appTitle as string)
 const environment = computed(() => config.public.environment)
+
+const logo = computed(() => {
+  return isDark.value ? '/img/logo-dark-mode.png' : '/img/logo-light-mode.png'
+})
+
+const spider = computed(() => {
+  return isDark.value
+    ? '/img/spider-dark-mode.png'
+    : '/img/spider-light-mode.png'
+})
 </script>
 
 <template>
@@ -107,12 +120,33 @@ const environment = computed(() => config.public.environment)
                 <Anchor
                   to="/"
                   :aria-label="appTitle"
-                  class="text-md flex items-center gap-3 overflow-hidden font-bold md:w-auto"
+                  class="text-md flex items-center gap-2 overflow-hidden font-bold md:w-auto"
                 >
-                  <span
-                    class="text-primary-800 dark:text-primary-100 text-sm md:text-base"
-                    >{{ appTitle }}</span
-                  >
+                  <ClientOnly>
+                    <NuxtImg
+                      class="h-full w-full"
+                      :style="{ objectFit: 'contain' }"
+                      :src="spider"
+                      :width="24"
+                      :height="24"
+                      :alt="'Main Banner'"
+                      loading="eager"
+                      format="webp"
+                      preload
+                    />
+                    <NuxtImg
+                      class="h-full w-full"
+                      :style="{ objectFit: 'contain' }"
+                      :src="logo"
+                      :width="140"
+                      :height="24"
+                      :alt="'Main Banner'"
+                      loading="eager"
+                      format="webp"
+                      preload
+                    />
+                  </ClientOnly>
+                  <span class="sr-only">{{ appTitle }}</span>
                 </Anchor>
               </strong>
             </h1>

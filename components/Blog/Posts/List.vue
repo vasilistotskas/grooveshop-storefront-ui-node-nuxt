@@ -51,7 +51,7 @@ const cursor = computed(
 )
 const expand = computed(() => 'true')
 
-const allPosts: Ref<BlogPost[]> = ref([])
+const allPosts = ref<BlogPost[]>([])
 const {
   data: posts,
   pending,
@@ -133,9 +133,13 @@ watch(
 watch(
   posts,
   (newValue) => {
-    if (newValue && newValue?.results?.length) {
+    if (newValue && newValue.results?.length) {
+      const postsMap = new Map(allPosts.value.map((post) => [post.id, post]))
+      newValue.results.forEach((newPost) => {
+        postsMap.set(newPost.id, newPost)
+      })
       if (paginationType.value === 'cursor') {
-        allPosts.value = [...allPosts.value, ...newValue.results]
+        allPosts.value = [...postsMap.values()]
       } else {
         allPosts.value = newValue.results
       }
@@ -166,6 +170,7 @@ watch(
         :links="pagination.links"
         :loading="pending"
         :state-name="PaginationCursorStateEnum.BLOG_POSTS"
+        :strategy="'scroll'"
       />
       <Ordering
         v-if="showOrdering"

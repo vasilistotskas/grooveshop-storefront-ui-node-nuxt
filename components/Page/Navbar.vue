@@ -10,6 +10,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
     <template #menu>
       <div class="relative ml-auto hidden items-center lg:flex">
         <nav
+          aria-label="Main Navigation"
           class="text-primary-800 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
         >
           <ul class="flex items-center space-x-8">
@@ -124,6 +125,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
         <ActionSheetBody class="grid gap-4">
           <ActionSheetHeader text="Menu" />
           <nav
+            aria-label="Main Navigation"
             class="text-primary-800 dark:text-primary-100 font-semibold leading-6"
           >
             <ul

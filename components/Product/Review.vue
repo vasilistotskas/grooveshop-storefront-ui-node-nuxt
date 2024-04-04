@@ -59,7 +59,7 @@ const { refresh } = await useFetch(
     method: 'GET',
     query: {
       ordering: ordering.value,
-      expand,
+      expand: expand.value,
     },
   },
 )
@@ -340,6 +340,9 @@ const updateReviewEvent = async (event: { comment: string; rate: number }) => {
     },
     async onResponse({ response }) {
       if (!userProductReview?.value) return
+      if (!response.ok) {
+        return
+      }
       updateReview(userProductReview?.value?.id, response._data)
       await refresh()
       emit('update-existing-review', userProductReview?.value)
@@ -366,8 +369,11 @@ const deleteReviewEvent = async () => {
           color: 'red',
         })
       },
-      async onResponse() {
+      async onResponse({ response }) {
         if (!userProductReview?.value) return
+        if (!response.ok) {
+          return
+        }
         deleteReview(userProductReview?.value?.id)
         setFieldValue('rate', 0)
         setFieldValue('comment', '')
@@ -533,7 +539,7 @@ watch(
           <span class="review_body-rating-error h-6">{{ errors.comment }}</span>
         </div>
 
-        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate" >
+        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
       </div>
     </template>
     <template #footer>

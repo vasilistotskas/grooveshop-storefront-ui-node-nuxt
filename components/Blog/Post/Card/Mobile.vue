@@ -47,6 +47,14 @@ const shareOptions = reactive({
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch((err) => err)
+
+const likeClicked = async (event: { blogPostId: number; liked: boolean }) => {
+  if (event.liked) {
+    post.value.likesCount++
+  } else {
+    post.value.likesCount--
+  }
+}
 </script>
 
 <template>
@@ -78,7 +86,7 @@ const startShare = () => share().catch((err) => err)
         <div class="absolute bottom-12 right-0 grid w-full">
           <span class="grid justify-center justify-items-start">
             <span
-              class="m-auto block w-[70%] text-xl font-bold tracking-tight text-white dark:text-white md:text-4xl"
+              class="m-auto block w-[70%] text-3xl font-bold tracking-tight text-white dark:text-white md:text-4xl"
             >
               {{ extractTranslated(post, 'title', locale) }}
             </span>
@@ -86,21 +94,13 @@ const startShare = () => share().catch((err) => err)
         </div>
       </Anchor>
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
-        <UButton
-          icon="i-heroicons-heart"
-          size="xl"
-          color="white"
-          square
-          variant="ghost"
+        <ButtonBlogPostLike
           class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
-          :label="String(post.likesCount)"
-          :ui="{
-            icon: {
-              size: {
-                xl: 'h-12 w-12',
-              },
-            },
-          }"
+          size="xl"
+          variant="ghost"
+          :blog-post-id="post.id"
+          :likes-count="post.likesCount"
+          @update="likeClicked"
         />
         <UButton
           icon="i-heroicons-chat-bubble-oval-left"
