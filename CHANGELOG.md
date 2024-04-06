@@ -1,3 +1,10 @@
+## [1.85.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.85.1...v1.85.2) (2024-04-06)
+
+
+### Bug Fixes
+
+* do not reload window client hints ([bbe59ba](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bbe59ba954cebe95a2385f16abd3d65190efccf8))
+
 ## [1.85.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.85.0...v1.85.1) (2024-04-06)
 
 
