@@ -1,3 +1,10 @@
+# [1.85.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.84.0...v1.85.0) (2024-04-06)
+
+
+### Features
+
+* client hints and add language in get requests ([319654b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/319654b4f6768251830a3d6c215167e3338e033a))
+
 # [1.84.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.83.4...v1.84.0) (2024-04-04)
 
 
