@@ -19,11 +19,11 @@ const { isMobileOrTablet } = useDevice()
         >
           <BlogCategoriesSlider
             v-if="isMobileOrTablet"
-            class="container-sm !pr-0"
+            class="container !pr-0"
           />
           <BlogSidebar v-else />
           <BlogPostsList
-            :class="isMobileOrTablet ? 'container-sm' : 'container-sm'"
+            :class="'container'"
             pagination-type="cursor"
             :show-ordering="false"
             :page-size="6"

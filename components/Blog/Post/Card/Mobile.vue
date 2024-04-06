@@ -9,7 +9,7 @@ import type { ImageLoading } from '~/types/global/general'
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
   imgWidth: { type: Number, required: false, default: 600 },
-  imgHeight: { type: Number, required: false, default: 280 },
+  imgHeight: { type: Number, required: false, default: 750 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -79,14 +79,14 @@ const likeClicked = async (event: { blogPostId: number; liked: boolean }) => {
           :position="'attention'"
           :background="'transparent'"
           :trim-threshold="5"
-          sizes="`xs:480px sm:480px md:480px lg:480px xl:480px xxl:400px 2xl:400px`"
+          sizes="`xs:600px sm:600px md:360px lg:600px xl:600px`"
           :alt="`Image - ${alt}`"
           densities="x1"
         />
         <div class="absolute bottom-12 right-0 grid w-full">
           <span class="grid justify-center justify-items-start">
             <span
-              class="m-auto block w-[70%] text-3xl font-bold tracking-tight text-white dark:text-white md:text-4xl"
+              class="m-auto block w-[70%] text-3xl font-bold tracking-tight text-white dark:text-white sm:w-[60%] md:w-[66%] md:text-4xl lg:w-[76%]"
             >
               {{ extractTranslated(post, 'title', locale) }}
             </span>

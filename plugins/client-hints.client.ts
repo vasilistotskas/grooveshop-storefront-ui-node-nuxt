@@ -11,24 +11,12 @@ export default defineNuxtPlugin({
   setup(nuxtApp) {
     const state = useSSRClientHints()
 
-    const {
-      firstRequest,
-      prefersColorSchemeAvailable,
-      prefersReducedMotionAvailable,
-      viewportHeightAvailable,
-      viewportWidthAvailable,
-    } = state.value
+    const { firstRequest } = state.value
 
-    const {
-      reloadOnFirstRequest,
-      viewportSize,
-      prefersReducedMotion,
-      prefersColorScheme,
-      prefersColorSchemeOptions,
-    } = ssrClientHintsConfiguration
+    const { viewportSize, prefersColorScheme, prefersColorSchemeOptions } =
+      ssrClientHintsConfiguration
 
-    // reload the page when it is the first request, explicitly configured, and any feature available
-    if (firstRequest && reloadOnFirstRequest) {
+    if (firstRequest) {
       if (prefersColorScheme) {
         const themeCookie = state.value.colorSchemeCookie
         // write the cookie and refresh the page if configured
@@ -46,18 +34,8 @@ export default defineNuxtPlugin({
             cookieEntry,
             `${cookieName}=${newThemeName};`,
           )
-          window.location.reload()
-        } else if (prefersColorSchemeAvailable) {
-          window.location.reload()
         }
       }
-
-      if (prefersReducedMotion && prefersReducedMotionAvailable)
-        window.location.reload()
-
-      if (viewportSize && viewportHeightAvailable) window.location.reload()
-
-      if (viewportSize && viewportWidthAvailable) window.location.reload()
     }
 
     if (viewportSize || (prefersColorScheme && prefersColorSchemeOptions)) {
@@ -87,16 +65,6 @@ export default defineNuxtPlugin({
               },
               { immediate: false },
             )
-            if (prefersColorSchemeOptions.useBrowserThemeOnly) {
-              const { darkThemeName, lightThemeName } =
-                prefersColorSchemeOptions
-              const prefersDark = window.matchMedia(
-                '(prefers-color-scheme: dark)',
-              )
-              prefersDark.addEventListener('change', (e) => {
-                color.value = e.matches ? darkThemeName : lightThemeName
-              })
-            }
           })
         }
       }

@@ -115,37 +115,37 @@ const spider = computed(() => {
           <!-- title -->
           <slot name="title">
             <h1>
-              <strong>
-                <Anchor
-                  to="/"
-                  :aria-label="appTitle"
-                  class="text-md flex items-center gap-2 overflow-hidden font-bold md:w-auto"
-                >
-                  <NuxtImg
-                    class="h-full w-full"
-                    :style="{ objectFit: 'contain' }"
-                    :src="spider"
-                    :width="24"
-                    :height="24"
-                    :alt="'Main Banner'"
-                    loading="eager"
-                    format="webp"
-                    preload
-                  />
-                  <NuxtImg
-                    class="h-full w-full"
-                    :style="{ objectFit: 'contain' }"
-                    :src="logo"
-                    :width="140"
-                    :height="24"
-                    :alt="'Main Banner'"
-                    loading="eager"
-                    format="webp"
-                    preload
-                  />
-                  <span class="sr-only">{{ appTitle }}</span>
-                </Anchor>
-              </strong>
+              <Anchor
+                to="/"
+                :aria-label="appTitle"
+                class="text-md flex items-center gap-2 overflow-hidden font-bold md:w-auto"
+              >
+                <NuxtImg
+                  class="h-full w-full"
+                  :style="{ objectFit: 'contain' }"
+                  :src="spider"
+                  :width="24"
+                  :height="24"
+                  :alt="'Main Banner'"
+                  loading="eager"
+                  format="webp"
+                  densities="x1"
+                  preload
+                />
+                <NuxtImg
+                  class="h-full w-full"
+                  :style="{ objectFit: 'contain' }"
+                  :src="logo"
+                  :width="140"
+                  :height="24"
+                  :alt="'Main Banner'"
+                  loading="eager"
+                  format="webp"
+                  densities="x1"
+                  preload
+                />
+                <span class="sr-only">{{ appTitle }}</span>
+              </Anchor>
             </h1>
           </slot>
           <LazyDemoModeMessage v-if="environment === 'demo' && !loggedIn" />

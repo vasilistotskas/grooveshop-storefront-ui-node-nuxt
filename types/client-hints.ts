@@ -21,7 +21,6 @@ export interface SSRClientHintsConfiguration {
     cookieName: string
     darkThemeName: string
     lightThemeName: string
-    useBrowserThemeOnly: boolean
   }
 }
 
@@ -42,18 +41,17 @@ export interface SSRClientHints {
 export const HTTPClientHints = 'nuxt:ssr-client-hints'
 
 export const ssrClientHintsConfiguration: SSRClientHintsConfiguration = {
-  reloadOnFirstRequest: true,
+  reloadOnFirstRequest: false,
   viewportSize: true,
   prefersColorScheme: true,
   prefersReducedMotion: true,
   prefersColorSchemeOptions: {
     baseUrl: '/',
-    defaultTheme: 'dark',
+    defaultTheme: 'light',
     themeNames: ['dark', 'light'],
     cookieName: 'theme',
     darkThemeName: 'dark',
     lightThemeName: 'light',
-    useBrowserThemeOnly: false,
   },
 }
 
