@@ -1,3 +1,10 @@
+## [1.85.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.85.0...v1.85.1) (2024-04-06)
+
+
+### Bug Fixes
+
+* use cookie theme value in usages ([71ce995](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/71ce995e1ee00197acb895d34c150a4736b8ae26))
+
 # [1.85.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.84.0...v1.85.0) (2024-04-06)
 
 
