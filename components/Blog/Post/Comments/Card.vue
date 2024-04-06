@@ -33,6 +33,11 @@ const props = defineProps({
     required: false,
     default: 4,
   },
+  maxDepth: {
+    type: Number,
+    required: false,
+    default: 3,
+  },
 })
 
 const emit = defineEmits<{
@@ -335,6 +340,7 @@ watch(
                 @update="likeClicked"
               />
               <UButton
+                v-if="maxDepth > depth"
                 size="sm"
                 :label="$t('common.reply')"
                 variant="ghost"
@@ -428,7 +434,7 @@ watch(
       </span>
     </span>
     <LazyDynamicForm
-      v-show="showReplyForm"
+      v-if="showReplyForm"
       :id="'reply-comment-form-' + comment.id"
       class="reply-comment-form relative mb-2 mt-2"
       :schema="replyCommentFormSchema"

@@ -3,10 +3,10 @@ const modelValue = defineModel<Date | null>('modelValue', { default: null })
 
 const emit = defineEmits(['close'])
 
-const colorMode = useColorMode()
 const { locale } = useI18n()
 
-const isDark = computed(() => colorMode.value === 'dark')
+const themeCookie = useCookie('theme')
+const isDark = computed(() => themeCookie.value === 'dark')
 
 const date = computed({
   get: () => modelValue.value,

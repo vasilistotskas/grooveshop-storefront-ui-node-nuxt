@@ -15,7 +15,6 @@ await fetchCart()
 useState<CursorStates>('cursorStates', () => generateInitialCursorStates())
 
 const themeCookie = useCookie('theme')
-
 const themeClass = computed(() => themeCookie.value || 'light')
 const themeColor = computed(() =>
   themeClass.value === 'dark' ? '#1a202c' : '#ffffff',

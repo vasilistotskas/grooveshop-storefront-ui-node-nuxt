@@ -12,14 +12,12 @@ defineProps({
   },
 })
 
-const colorMode = useColorMode()
-
-const themeClass = computed(() =>
-  colorMode.value === 'dark' ? 'dark' : 'light',
-)
+const themeCookie = useCookie('theme')
+const themeClass = computed(() => themeCookie.value || 'light')
 const themeColor = computed(() =>
-  colorMode.value === 'dark' ? '#1a202c' : '#ffffff',
+  themeClass.value === 'dark' ? '#1a202c' : '#ffffff',
 )
+
 const { isMobile, isTablet } = useDevice()
 const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
 const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
@@ -30,7 +28,7 @@ const headOptions = {
   },
 }
 const seoMetaOptions = {
-  colorScheme: colorMode.value === 'dark' ? 'dark' : 'light',
+  colorScheme: themeClass.value,
   themeColor: themeColor.value,
   msapplicationTileColor: themeColor.value,
 } satisfies UseSeoMetaInput
@@ -59,7 +57,7 @@ useSeoMeta(seoMetaOptions)
         </p>
         <NuxtLink
           to="/"
-          class="text-secondary mt-2 block font-bold hover:underline"
+          class="mt-2 block font-bold text-secondary hover:underline"
         >
           {{ $t('pages.error.home') }}
         </NuxtLink>

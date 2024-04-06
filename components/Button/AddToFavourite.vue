@@ -42,8 +42,8 @@ const userStore = useUserStore()
 const { favouriteProducts } = storeToRefs(userStore)
 const { getUserProductFavourite } = userStore
 
-const colorMode = useColorMode()
-const isDark = computed(() => colorMode.value === 'dark')
+const themeCookie = useCookie('theme')
+const isDark = computed(() => themeCookie.value === 'dark')
 
 const { t } = useI18n()
 const toast = useToast()
