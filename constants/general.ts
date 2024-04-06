@@ -8,6 +8,7 @@ export const locationChoicesList = Object.keys(
 ).filter((element) => {
   return isNaN(Number(element))
 })
+
 export const floorChoicesList = Object.keys(ZodFloorChoicesEnum.Values).filter(
   (element) => {
     return isNaN(Number(element))

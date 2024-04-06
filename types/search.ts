@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ZodLanguageQuery } from '~/types/global/general'
 
 export interface SearchResult<T> {
   results: T[]
@@ -20,10 +21,11 @@ export function ZodSearchResult<T>(
   })
 }
 
-export const ZodSearchQuery = z.object({
-  query: z.string().nullish(),
-  language: z.string().nullish(),
-})
+export const ZodSearchQuery = z
+  .object({
+    query: z.string().nullish(),
+  })
+  .merge(ZodLanguageQuery)
 
 const ZodSearchProductTranslations = z.record(
   z.object({

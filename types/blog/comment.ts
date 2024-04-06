@@ -1,12 +1,10 @@
 import { z } from 'zod'
 
 import { ZodBlogPost } from '~/types/blog/post'
-import type { OrderingQuery } from '~/types/ordering'
-import type { PaginationQuery } from '~/types/pagination'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery } from '~/types/global/general'
+import { ZodExpandQuery, ZodLanguageQuery } from '~/types/global/general'
 
 const ZodBlogCommentTranslations = z.record(
   z.object({
@@ -37,6 +35,7 @@ export const ZodBlogCommentQuery = z
     user: z.string().nullish(),
     post: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
@@ -52,7 +51,10 @@ export const ZodBlogCommentCreateBody = z.object({
   parent: z.number().nullish(),
 })
 
-export const ZodBlogCommentCreateQuery = z.object({}).merge(ZodExpandQuery)
+export const ZodBlogCommentCreateQuery = z
+  .object({})
+  .merge(ZodLanguageQuery)
+  .merge(ZodExpandQuery)
 
 export const ZodBlogCommentPutBody = z.object({
   product: z.string(),
@@ -65,24 +67,10 @@ export const ZodBlogCommentUserBlogCommentBody = z.object({
   user: z.string(),
 })
 
-export type BlogCommentQuery = PaginationQuery &
-  OrderingQuery & {
-    id?: string | undefined
-    post?: string | undefined
-    user?: string | undefined
-    expand?: string | undefined
-  }
 export type BlogComment = z.infer<typeof ZodBlogCommentBase> & {
   children?: BlogComment[] | null | number[]
 }
-export type BlogCommentParams = z.infer<typeof ZodBlogCommentParams>
-export type BlogCommentCreateBody = z.infer<typeof ZodBlogCommentCreateBody>
-export type BlogCommentCreateQuery = z.infer<typeof ZodBlogCommentCreateQuery>
-export type BlogCommentPutBody = z.infer<typeof ZodBlogCommentPutBody>
 export type BlogCommentOrderingField = 'id' | 'userId' | 'postId' | 'createdAt'
-export type BlogCommentUserBlogCommentBody = z.infer<
-  typeof ZodBlogCommentUserBlogCommentBody
->
 
 export const ZodBlogComment: z.ZodType<BlogComment> = ZodBlogCommentBase.extend(
   {

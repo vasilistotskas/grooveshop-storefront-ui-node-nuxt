@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodLanguageQuery } from '~/types/global/general'
 
 export enum PayWayEnum {
   CREDIT_CARD = 'Credit Card',
@@ -34,6 +35,7 @@ export const ZodPayWayQuery = z
     cost: z.string().nullish(),
     freeForOrderAmount: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

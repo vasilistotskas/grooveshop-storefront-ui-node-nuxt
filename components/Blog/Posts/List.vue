@@ -36,7 +36,7 @@ defineSlots<{
 const { paginationType, pageSize } = toRefs(props)
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
 const cursorState = useState<CursorStates>('cursorStates')
 
@@ -70,6 +70,7 @@ const {
       cursor: cursor.value,
       pageSize: pageSize.value,
       paginationType: paginationType.value,
+      language: locale.value,
     },
   }),
 )

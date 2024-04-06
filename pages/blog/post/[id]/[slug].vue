@@ -16,6 +16,7 @@ const { data: blogPost, refresh } = await useFetch(
     method: 'GET',
     query: {
       expand: 'true',
+      language: locale.value,
     },
   },
 )

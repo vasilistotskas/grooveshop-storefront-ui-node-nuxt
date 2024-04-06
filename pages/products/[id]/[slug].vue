@@ -24,6 +24,9 @@ const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   {
     key: `product${productId}`,
     method: 'GET',
+    query: {
+      language: locale.value,
+    },
   },
 )
 
@@ -305,7 +308,7 @@ definePageMeta({
                       :aria-label="$t('pages.product.qty')"
                       :aria-describedby="'increment-button decrement-button'"
                       class="block w-full border-gray-300 bg-white p-2.5 text-sm text-gray-900 outline-none focus:border-secondary focus:ring-secondary dark:border-gray-600 dark:bg-zinc-900 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                    />
+                    >
                     <UButton
                       id="increment-button"
                       icon="i-heroicons-plus"

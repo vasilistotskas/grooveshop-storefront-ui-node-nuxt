@@ -204,7 +204,7 @@ const uploadImage = async (event: Event) => {
           accept="image/*"
           class="sr-only"
           @change="uploadImage"
-        />
+        >
         <button type="submit" class="sr-only">
           {{ $t('common.upload') }}
         </button>

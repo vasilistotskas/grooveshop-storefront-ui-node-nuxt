@@ -1,4 +1,8 @@
 pages:
+  '404':
+    title: page not found
+    description: page not found
+    keywords: page not found
   about:
     title: About
     nav: about
@@ -60,7 +64,9 @@ pages:
           description: you can enable advanced settings to change the settings
         advanced_dir_listing:
           title: directory listing
-          description: if no index file is present within a directory, the directory contents will be displayed.
+          description: >-
+            if no index file is present within a directory, the directory
+            contents will be displayed.
     cache:
       title: cache
       nav: Cache
@@ -83,10 +89,6 @@ pages:
         found: Our hound cannot find the page you are looking for.
     go:
       home: It can lead you to the homepage though!
-  404:
-    title: page not found
-    description: page not found
-    keywords: page not found
   product:
     add_to_cart: Add to cart
     product_id: Product ID
@@ -167,7 +169,10 @@ pages:
       button: Navigate to home
       main:
         title: Thank You, %{customerName}!
-        text: Your order number is <strong>%{orderId}</strong>. A confirmation email has been sent to <strong>%{customerEmail}</strong>. We will notify you when your order has shipped.
+        text: >-
+          Your order number is <strong>%{orderId}</strong>. A confirmation email
+          has been sent to <strong>%{customerEmail}</strong>. We will notify you
+          when your order has shipped.
       order:
         summary: Order Summary
         details: Order Details
@@ -449,11 +454,11 @@ pages:
       shipping:
         value: Shipping value
       ordering:
-          created_at: Created At
+        created_at: Created At
       empty:
-          title: Your orders is empty
-          description: You have not placed any orders yet.
-          button: Go to shop
+        title: Your orders is empty
+        description: You have not placed any orders yet.
+        button: Go to shop
     help:
       title: Help
       nav: help
@@ -501,7 +506,7 @@ pages:
         facebook: Login with Facebook
         google: Login with Google
         or: or
-        no:
+        'no':
           account: You don't have an account?
     registration:
       title: Registration
@@ -561,7 +566,9 @@ pages:
     password:
       reset:
         title: Reset your password
-        description: Enter your user account's verified email address and we will send you a password reset link.
+        description: >-
+          Enter your user account's verified email address and we will send you
+          a password reset link.
         keywords: Reset Password
         form:
           email:
@@ -614,13 +621,19 @@ pages:
         recovery:
           codes:
             title: Recovery Codes
-            description: Store these recovery codes in a secure password manager. They can be used to recover access to your account if your two factor authentication device is lost.
+            description: >-
+              Store these recovery codes in a secure password manager. They can
+              be used to recover access to your account if your two factor
+              authentication device is lost.
             keywords: Recovery Codes
             link: Show Recovery Codes
             download: Download Recovery Codes
             generate:
               title: Generate New Codes
-              description: Clicking the button below will invalidate your old recovery codes and generate new ones. You should download a new set of codes after generating new ones.
+              description: >-
+                Clicking the button below will invalidate your old recovery
+                codes and generate new ones. You should download a new set of
+                codes after generating new ones.
               keywords: Generate New Codes
               button: Generate New Codes
               link: Generate New Codes
@@ -644,7 +657,9 @@ pages:
                 label: Code
           authenticate:
             title: Enter the code from your authenticator application.
-            description: Enter the current code displayed in your authenticator application.
+            description: >-
+              Enter the current code displayed in your authenticator
+              application.
             keywords: Enter the code from your authenticator application.
             button: Authenticate
             link: Authenticate
@@ -653,7 +668,9 @@ pages:
                 label: Code
           deactivate:
             title: Deactivate Two Factor Authentication
-            description: Deactivating two factor authentication will remove your two factor authentication device and delete your recovery codes.
+            description: >-
+              Deactivating two factor authentication will remove your two factor
+              authentication device and delete your recovery codes.
             keywords: Deactivate Two Factor Authentication
             button: Deactivate
             link: Deactivate

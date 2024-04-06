@@ -181,6 +181,10 @@ components:
     removed: Aus den Favoriten entfernt
     add: Zu Favoriten hinzufügen
     remove: Von den Favoriten entfernen
+  like_button:
+    not_authenticated: Zum Liken müssen Sie eingeloggt sein
+    liked: Gefallen
+    like: Wie
   user:
     avatar:
       change: Ändern
@@ -242,6 +246,18 @@ components:
         title: Kommentare
         summary:
           comments: Keine Kommentare | 1 Kommentar | %{count} Kommentare
+        empty:
+          title: Schreibe einen Kommentar
+          title_guest: Melden Sie sich an, um einen Kommentar zu schreiben
+          description: Sei der erste der kommentiert
+          description_guest: Melden Sie sich an, um zu kommentieren
+        add:
+          title: Einen Kommentar hinzufügen
+          error: Fehler bei der Kommentarerstellung
+          success: Kommentar erfolgreich erstellt
+        reply:
+          login: Anmelden um zu Antworten
+          placeholder: Eine Antwort schreiben...
   favourite:
     list:
       favourites:

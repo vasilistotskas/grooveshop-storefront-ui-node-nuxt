@@ -97,7 +97,6 @@ const replyCommentFormSchema: DynamicFormSchema = {
 }
 
 async function onReplySubmit({ content }: { content: string }) {
-  console.log('onReplySubmit', content)
   await $fetch('/api/blog/comments', {
     method: 'POST',
     body: {
@@ -137,7 +136,6 @@ async function onReplySubmit({ content }: { content: string }) {
 
 const {
   data: blogCommentReplies,
-  pending,
   execute,
   status,
   refresh,
@@ -150,6 +148,7 @@ const {
     expandFields: expandFields.value,
     paginationType: paginationType.value,
     pageSize: pageSize.value,
+    language: locale.value,
   },
   immediate: false,
 })

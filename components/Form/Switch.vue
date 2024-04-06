@@ -61,7 +61,7 @@ onMounted(() => {
         name="switch"
         placeholder="Switch"
         @change="onInputChange"
-      />
+      >
       <label
         :for="switchId"
         class="switch-label block h-6 cursor-pointer overflow-hidden rounded-full border border-slate-300 bg-white dark:border-slate-500 dark:bg-zinc-900"

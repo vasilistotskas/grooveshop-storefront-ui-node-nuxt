@@ -1,13 +1,16 @@
 <script lang="ts" setup>
+const { locale } = useI18n()
 const route = useRoute('account-orders-id___en')
 const orderId = route.params.id
 
 const { data: order } = await useFetch(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
+  query: {
+    language: locale.value,
+  },
 })
 
-const { locale } = useI18n()
 const { statusClass } = useOrder()
 const { resolveImageSrc } = useImageResolver()
 

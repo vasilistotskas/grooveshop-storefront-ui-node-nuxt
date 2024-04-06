@@ -8,13 +8,12 @@ defineProps({
 
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
-const colorMode = useColorMode()
-
 const navbar = ref(null)
 const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
 const showOptions = useState<boolean>('navbar.showOptions', () => false)
 
-const isDark = computed(() => colorMode.value === 'dark')
+const themeCookie = useCookie('theme')
+const isDark = computed(() => themeCookie.value === 'dark')
 
 const config = useRuntimeConfig()
 
@@ -122,30 +121,28 @@ const spider = computed(() => {
                   :aria-label="appTitle"
                   class="text-md flex items-center gap-2 overflow-hidden font-bold md:w-auto"
                 >
-                  <ClientOnly>
-                    <NuxtImg
-                      class="h-full w-full"
-                      :style="{ objectFit: 'contain' }"
-                      :src="spider"
-                      :width="24"
-                      :height="24"
-                      :alt="'Main Banner'"
-                      loading="eager"
-                      format="webp"
-                      preload
-                    />
-                    <NuxtImg
-                      class="h-full w-full"
-                      :style="{ objectFit: 'contain' }"
-                      :src="logo"
-                      :width="140"
-                      :height="24"
-                      :alt="'Main Banner'"
-                      loading="eager"
-                      format="webp"
-                      preload
-                    />
-                  </ClientOnly>
+                  <NuxtImg
+                    class="h-full w-full"
+                    :style="{ objectFit: 'contain' }"
+                    :src="spider"
+                    :width="24"
+                    :height="24"
+                    :alt="'Main Banner'"
+                    loading="eager"
+                    format="webp"
+                    preload
+                  />
+                  <NuxtImg
+                    class="h-full w-full"
+                    :style="{ objectFit: 'contain' }"
+                    :src="logo"
+                    :width="140"
+                    :height="24"
+                    :alt="'Main Banner'"
+                    loading="eager"
+                    format="webp"
+                    preload
+                  />
                   <span class="sr-only">{{ appTitle }}</span>
                 </Anchor>
               </strong>

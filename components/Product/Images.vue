@@ -10,13 +10,18 @@ const props = defineProps({
     required: true,
   },
 })
+
 const { product } = toRefs(props)
+const { locale } = useI18n()
 
 const { data: productImages } = await useFetch(
   `/api/products/${product.value.id}/images`,
   {
     key: `productImages${product.value.id}`,
     method: 'GET',
+    query: {
+      language: locale.value,
+    },
   },
 )
 

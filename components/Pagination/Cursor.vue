@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { clearCursorStates, getCursorFromUrl } from '~/utils/pagination'
-import type { PaginationCursorStateEnum } from '~/types/global/general'
-import { type CursorStates } from '~/types/global/general'
+import {
+  type PaginationCursorStateEnum,
+  type CursorStates,
+} from '~/types/global/general'
 import type { PropType } from 'vue'
 
 const props = defineProps({

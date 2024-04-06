@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { ZodCountry } from '~/types/country'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodLanguageQuery } from '~/types/global/general'
 
 const ZodRegionTranslations = z.record(
   z.object({
@@ -26,6 +27,7 @@ export const ZodRegionsQuery = z
     alpha: z.string().nullish(),
     country: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

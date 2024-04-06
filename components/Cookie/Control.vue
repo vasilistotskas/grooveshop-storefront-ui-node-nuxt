@@ -330,7 +330,7 @@ defineExpose({
                         type="checkbox"
                         disabled
                         checked
-                      />
+                      >
                       <input
                         v-else
                         :id="cookie.name"
@@ -339,7 +339,7 @@ defineExpose({
                           getCookieIds(localCookiesEnabled).includes(cookie.id)
                         "
                         @change="toggleCookie(cookie)"
-                      />
+                      >
                       <button type="button" @click="toggleButton($event)">
                         {{ getName(cookie.name) }}
                       </button>
@@ -357,7 +357,7 @@ defineExpose({
                             cookie.targetCookieIds
                           "
                         >
-                          <br />
+                          <br >
                           {{
                             'IDs: ' +
                             cookie.targetCookieIds
@@ -372,7 +372,7 @@ defineExpose({
                             v-for="entry in Object.entries(cookie.links || {})"
                             :key="entry[0]"
                           >
-                            <br />
+                            <br >
                             <a :href="entry[0]">{{
                               resolveLinkEntryText(entry)
                             }}</a>

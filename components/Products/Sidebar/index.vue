@@ -7,6 +7,9 @@ const { data: categories, pending } = await useLazyAsyncData(
   () =>
     $fetch('/api/products/categories', {
       method: 'GET',
+      query: {
+        language: locale.value,
+      },
     }),
 )
 

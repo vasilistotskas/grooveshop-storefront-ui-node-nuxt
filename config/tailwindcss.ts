@@ -4,7 +4,7 @@ export const tailwindcss = {
   cssPath: ['~/assets/sass/tailwind.scss', { injectPosition: 'first' }],
   configPath: './tailwind.config.ts',
   exposeConfig: {
-    level: 2,
+    level: 1,
   },
   viewer: true,
 } satisfies Partial<ModuleOptions>

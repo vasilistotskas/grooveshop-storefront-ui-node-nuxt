@@ -1,6 +1,10 @@
 import { z } from 'zod'
 
-import { ZodExpandQuery, ZodWeight } from '~/types/global/general'
+import {
+  ZodExpandQuery,
+  ZodLanguageQuery,
+  ZodWeight,
+} from '~/types/global/general'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodProductCategory } from '~/types/product/category'
@@ -69,6 +73,7 @@ export const ZodProductQuery = z
   .object({
     category: z.union([z.number(), z.string()]).nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)

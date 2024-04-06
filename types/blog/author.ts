@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodLanguageQuery } from '~/types/global/general'
 
 const ZodBlogAuthorTranslations = z.record(
   z.object({
@@ -27,6 +28,7 @@ export const ZodBlogAuthorQuery = z
     id: z.string().nullish(),
     user: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

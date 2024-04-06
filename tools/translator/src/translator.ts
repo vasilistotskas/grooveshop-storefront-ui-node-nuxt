@@ -4,8 +4,8 @@ import {
   retry,
   validateDynamicKeys,
 } from '~/tools/translator/src/helpers'
-import type { FileExtensions } from '~/tools/translator/src/types'
 import {
+  type FileExtensions,
   type LocaleFile,
   type TranslateEngine,
 } from '~/tools/translator/src/types'

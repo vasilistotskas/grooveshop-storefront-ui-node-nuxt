@@ -41,6 +41,7 @@ const props = defineProps({
 const userStore = useUserStore()
 const { favouriteProducts } = storeToRefs(userStore)
 const { getUserProductFavourite } = userStore
+
 const colorMode = useColorMode()
 const isDark = computed(() => colorMode.value === 'dark')
 

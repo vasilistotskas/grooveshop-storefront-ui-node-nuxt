@@ -84,6 +84,7 @@ const {
       parent: 'none',
       paginationType: paginationType.value,
       pageSize: pageSize.value,
+      language: locale.value,
     },
   }),
 )

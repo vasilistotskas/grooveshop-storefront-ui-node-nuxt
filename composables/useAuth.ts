@@ -34,7 +34,7 @@ export default function () {
     return useFetch(`/api/user/account/${user.value?.id}/details`, {
       method: 'GET',
       query: {
-        expand: 'true',
+        expand: 'false',
       },
     })
   }

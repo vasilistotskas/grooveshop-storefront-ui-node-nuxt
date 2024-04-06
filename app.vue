@@ -6,7 +6,6 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const router = useRouter()
 const { locale, locales } = useI18n()
-const colorMode = useColorMode()
 
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
@@ -15,11 +14,11 @@ await fetchCart()
 
 useState<CursorStates>('cursorStates', () => generateInitialCursorStates())
 
-const themeClass = computed(() =>
-  colorMode.value === 'dark' ? 'dark' : 'light',
-)
+const themeCookie = useCookie('theme')
+
+const themeClass = computed(() => themeCookie.value || 'light')
 const themeColor = computed(() =>
-  colorMode.value === 'dark' ? '#1a202c' : '#ffffff',
+  themeClass.value === 'dark' ? '#1a202c' : '#ffffff',
 )
 
 const i18nHead = useLocaleHead({

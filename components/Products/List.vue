@@ -20,7 +20,7 @@ const props = defineProps({
 const { paginationType } = toRefs(props)
 
 const route = useRoute()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
@@ -59,6 +59,7 @@ const {
       category: category.value,
       pageSize: pageSize.value,
       paginationType: paginationType.value,
+      language: locale.value,
     },
   }),
 )

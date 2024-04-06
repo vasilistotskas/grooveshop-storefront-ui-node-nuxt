@@ -181,6 +181,10 @@ components:
     removed: Καταργήθηκε από τα αγαπημένα
     add: Προσθήκη στα αγαπημένα
     remove: Αφαίρεση από τα αγαπημένα
+  like_button:
+    not_authenticated: Πρέπει να είστε συνδεδεμένοι για να κάνετε like
+    liked: Άρεσε
+    like: Αρέσει
   user:
     avatar:
       change: Αλλαγή
@@ -228,7 +232,7 @@ components:
       discount: Εκπτωση
       vat: ΔΕΞΑΜΕΝΗ
       total: Σύνολο
-      pay_way_fee: Προμήθεια Τρόπου Πληρωμής
+      pay_way_fee: Προμήθεια Τρόπου πληρωμής
     pay_ways:
       title: Επιλέξτε τον τρόπο πληρωμής
       label: Τρόπος πληρωμής
@@ -242,6 +246,18 @@ components:
         title: Σχόλια
         summary:
           comments: Κανένα σχόλιο | 1 σχόλιο | %{count} Σχόλια
+        empty:
+          title: Γράψε ένα σχόλιο
+          title_guest: Συνδεθείτε για να γράψετε ένα σχόλιο
+          description: Γίνε ο πρώτος που θα σχολιάσει
+          description_guest: Συνδεθείτε για να σχολιάσετε
+        add:
+          title: Πρόσθεσε σχόλιο
+          error: Σφάλμα δημιουργίας σχολίου
+          success: Το σχόλιο δημιουργήθηκε με επιτυχία
+        reply:
+          login: Συνδεθείτε για να απαντήσετε
+          placeholder: ΓΡΑΨΕ μια ΑΠΑΝΤΗΣΗ...
   favourite:
     list:
       favourites:

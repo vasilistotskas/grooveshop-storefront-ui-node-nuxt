@@ -1,7 +1,11 @@
 import { z } from 'zod'
 
 import { ZodCountry } from '~/types/country'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+import {
+  FloorChoicesEnum,
+  LocationChoicesEnum,
+  ZodLanguageQuery,
+} from '~/types/global/general'
 import {
   ZodOrderCreateItem,
   ZodOrderCreateResponseItem,
@@ -57,6 +61,7 @@ export const ZodOrderQuery = z
     userId: z.string().nullish(),
     status: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

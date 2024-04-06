@@ -22,6 +22,7 @@ const emit = defineEmits(['update-model'])
 const { data: payWays, pending } = await useAsyncData('payWays', () =>
   $fetch('/api/pay-way', {
     method: 'GET',
+    language: locale.value,
   }),
 )
 

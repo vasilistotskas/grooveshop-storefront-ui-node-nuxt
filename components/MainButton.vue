@@ -129,7 +129,7 @@ const onClick = async (event: MouseEvent) => {
     :name="text"
     :class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"
     :title="text"
-  />
+  >
   <a
     v-else
     :class="`${defaultStyle} ${selectedStyle} ${selectedSize}`"

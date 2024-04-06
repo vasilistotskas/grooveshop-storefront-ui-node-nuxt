@@ -286,7 +286,7 @@ pages:
       description: Bewertungen
       keywords: Bewertungen
       updated: Bewertungen aktualisiert
-      update_error: Fehler bei der Aktualisierung der Bewertungen
+      update_error: Fehler bei der Aktualisierung der Rezensionen
       deleted: Bewertungen Artikel gelöscht
       delete_error: Fehler beim Löschen des Artikels
       ordering:
@@ -361,7 +361,7 @@ pages:
         success: Adresse erfolgreich erstellt
         back: Zurück zu Adressen
         main:
-          title: Hauptadresse
+          title: Hauptsächlich
           success: Hauptadresse erfolgreich aktualisiert
           error: Fehler bei der Aktualisierung der Hauptadresse
         form:
@@ -403,7 +403,7 @@ pages:
         success: Adresse erfolgreich aktualisiert
         back: Zurück zu Adressen
         main:
-          title: Hauptadresse
+          title: Hauptsächlich
           success: Hauptadresse erfolgreich aktualisiert
           error: Fehler bei der Aktualisierung der Hauptadresse
           button: Als Hauptadresse festlegen

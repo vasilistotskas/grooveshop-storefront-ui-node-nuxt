@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodLanguageQuery } from '~/types/global/general'
 
 const ZodBlogTagTranslations = z.record(
   z.object({
@@ -23,6 +24,7 @@ export const ZodBlogTagQuery = z
     id: z.string().nullish(),
     active: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

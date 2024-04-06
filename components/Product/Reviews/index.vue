@@ -31,6 +31,7 @@ const { productId, reviewsAverage, reviewsCount, displayImageOf } =
 
 const { t } = useI18n()
 const route = useRoute()
+const { locale } = useI18n()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const expand = computed(() => 'true')
@@ -45,6 +46,7 @@ const {
   query: {
     ordering: ordering.value,
     expand: expand.value,
+    language: locale.value,
   },
 })
 

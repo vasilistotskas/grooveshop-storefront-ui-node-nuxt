@@ -160,7 +160,7 @@ definePageMeta({
             :placeholder="$t('pages.search.placeholder')"
             @keyup.enter="refresh()"
             @click="isSuggestionsOpen = true"
-          />
+          >
         </div>
         <div
           v-if="showSuggestions"

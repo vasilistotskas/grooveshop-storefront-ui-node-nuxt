@@ -106,6 +106,9 @@ defineField('isMain', {
 const { data: countries } = await useLazyAsyncData('countries', () =>
   $fetch('/api/countries', {
     method: 'GET',
+    query: {
+      language: locale.value,
+    },
   }),
 )
 
@@ -116,6 +119,7 @@ const { data: regions } = await useLazyAsyncData(
       method: 'GET',
       query: {
         country: country.value,
+        language: locale.value,
       },
     }),
   {

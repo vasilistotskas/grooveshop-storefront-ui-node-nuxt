@@ -1,15 +1,16 @@
 <script lang="ts" setup>
+const { locale } = useI18n()
+
 const { data: blogTags } = await useLazyAsyncData('blogTags', () =>
   $fetch('/api/blog/tags', {
     method: 'GET',
     query: {
       active: 'true',
       pagination: 'false',
+      language: locale.value,
     },
   }),
 )
-
-const { locale } = useI18n()
 
 const searchQuery = ref('')
 const filteredTags = computed(() => {

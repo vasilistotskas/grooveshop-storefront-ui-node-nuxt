@@ -16,6 +16,7 @@ const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
   method: 'GET',
   query: {
     pageSize: max.value,
+    language: locale.value,
   },
 })
 

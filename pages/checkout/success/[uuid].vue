@@ -14,6 +14,9 @@ const { data: order, error } = await useFetch<Order>(
   {
     key: `order${orderUUID}`,
     method: 'GET',
+    query: {
+      language: locale.value,
+    },
   },
 )
 

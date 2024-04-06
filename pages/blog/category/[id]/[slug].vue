@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+const { locale } = useI18n()
 const route = useRoute('blog-category-id-slug___en')
 
 const categoryId = route.params.id
@@ -8,6 +9,9 @@ const { data: category } = await useFetch(
   {
     key: `category${categoryId}`,
     method: 'GET',
+    query: {
+      language: locale.value,
+    },
   },
 )
 

@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
+import { ZodLanguageQuery } from '~/types/global/general'
 
 const ZodProductImageTranslations = z.record(
   z.object({
@@ -30,6 +31,7 @@ export const ZodProductImageQuery = z
     product: z.string().nullish(),
     isMain: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

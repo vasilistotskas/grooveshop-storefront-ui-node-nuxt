@@ -77,7 +77,7 @@ const onSubmit = handleSubmit(async (values) => {
               value="..."
               autocomplete="username email"
               style="display: none"
-            />
+            >
           </div>
 
           <div class="grid content-evenly items-start">

@@ -26,6 +26,7 @@ common:
   back: Zurück
   account: Konto
   search: Suchen
+  favourites: Favoriten
   retry: Wiederholen
   items:
     count: Keine Artikel | 1 Artikel | %{count} Artikel
@@ -107,3 +108,7 @@ common:
   load:
     more: Mehr laden
   loading: Wird geladen...
+  more:
+    replies: Keine Antworten | 1 Antwort | %{count} Antworten
+  hide:
+    replies: Verstecken

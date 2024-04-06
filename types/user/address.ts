@@ -5,6 +5,7 @@ import {
   FloorChoicesEnum,
   LocationChoicesEnum,
   ZodExpandQuery,
+  ZodLanguageQuery,
 } from '~/types/global/general'
 import { ZodRegion } from '~/types/region'
 import { ZodUserAccount } from '~/types/user/account'
@@ -41,6 +42,7 @@ export const ZodUserAddressQuery = z
     id: z.string().nullish(),
     user: z.string().nullish(),
   })
+  .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)

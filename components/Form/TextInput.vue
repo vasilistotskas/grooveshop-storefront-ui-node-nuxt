@@ -127,7 +127,7 @@ const selectedFontSizeStyle = computed(
         "
         :required="required"
         :autocomplete="autocomplete"
-      />
+      >
     </div>
     <div
       v-if="slots.suffix"
