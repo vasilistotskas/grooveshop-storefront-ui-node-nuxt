@@ -1,3 +1,10 @@
+## [1.85.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.85.2...v1.85.3) (2024-04-08)
+
+
+### Bug Fixes
+
+* hook client hint on app:beforeMount and minor ui fixes ([e47237d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e47237d43a743281ca81de0ae3b66ceb57264d54))
+
 ## [1.85.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.85.1...v1.85.2) (2024-04-06)
 
 
