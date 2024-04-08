@@ -1,4 +1,4 @@
-import { setResponseHeader , H3Event } from 'h3'
+import { setResponseHeader, H3Event } from 'h3'
 import { type Browser, parseUserAgent } from '~/tools/detect-browser'
 import {
   AcceptClientHintsHeaders,

@@ -210,7 +210,7 @@ definePageMeta({
               <div class="sm:mx-0">
                 <div class="shadow-small">
                   <ImgWithFallback
-                    loading="lazy"
+                    loading="eager"
                     provider="mediaStream"
                     class="rounded-lg bg-white"
                     :style="{ objectFit: 'contain' }"

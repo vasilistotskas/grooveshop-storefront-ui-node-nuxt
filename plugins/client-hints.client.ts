@@ -44,7 +44,7 @@ export default defineNuxtPlugin({
         const themeCookie = state.value.colorSchemeCookie
         const themeColor = state.value.colorSchemeFromCookie
         if (themeCookie) {
-          nuxtApp.hook('page:finish', () => {
+          nuxtApp.hook('app:beforeMount', () => {
             const cookieName = prefersColorSchemeOptions.cookieName
             const parseCookieName = `${cookieName}=`
             const cookieEntry = `${parseCookieName}${state.value.colorSchemeFromCookie ?? prefersColorSchemeOptions.defaultTheme};`
