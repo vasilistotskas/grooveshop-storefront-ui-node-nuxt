@@ -1,3 +1,15 @@
+# [1.86.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.85.3...v1.86.0) (2024-04-13)
+
+
+### Bug Fixes
+
+* lint fix ([59a2a49](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/59a2a4922c615ca63a1a64a3c1875137fa4d8685))
+
+
+### Features
+
+* New API endpoints and replace `useFetch` usage with `$fetch` in already mounted components ([eabd67b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eabd67b99128fd85756b32af02981d4c44d191dd))
+
 ## [1.85.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.85.2...v1.85.3) (2024-04-08)
 
 
