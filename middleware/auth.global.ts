@@ -24,7 +24,7 @@ export default defineNuxtRouteMiddleware(
       const { loggedIn, session } = useUserSession()
       const { tokenVerify } = useAuth()
 
-      const isRouteAuthenticated = AuthenticatedRoutePrefixes.some((prefix) =>
+      const isRouteAuthenticated = AuthenticatedRoutePrefixes.some(prefix =>
         to.path.startsWith(prefix),
       )
 

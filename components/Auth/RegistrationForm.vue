@@ -21,7 +21,7 @@ const ZodRegistration = z
       }),
     }),
   })
-  .refine((data) => data.password1 === data.password2, {
+  .refine(data => data.password1 === data.password2, {
     message: t('pages.auth.registration.form.password2.validation.match'),
     path: ['password2'],
   })
@@ -51,12 +51,10 @@ const onSubmit = handleSubmit((values) => {
     password1: values.password1,
     password2: values.password2,
   })
-    .then(async ({ data, error }) => {
-      if (error.value) {
-        throw error.value
-      }
+    .then(async (data) => {
       toast.add({
-        title: data.value?.detail || t('common.auth.registration.success'),
+        title: data?.detail || t('common.auth.registration.success'),
+        color: 'green',
       })
       await fetch()
     })
@@ -66,8 +64,8 @@ const onSubmit = handleSubmit((values) => {
           {
             label: t('common.auth.registration.error.action1'),
             click: () =>
-              email.value &&
-              registrationResendEmail({
+              email.value
+              && registrationResendEmail({
                 email: email.value,
               })
                 .then(() => {
@@ -75,14 +73,15 @@ const onSubmit = handleSubmit((values) => {
                     title: t(
                       'pages.auth.registration.account-confirm-email.resend.success.title',
                     ),
+                    color: 'green',
                   })
                 })
                 .catch((error) => {
                   if (error) {
                     toast.add({
                       title:
-                        error.value?.message ??
-                        t(
+                        error.value?.message
+                        ?? t(
                           'pages.auth.registration.account-confirm-email.resend.error.title',
                         ),
                       color: 'red',
@@ -97,7 +96,8 @@ const onSubmit = handleSubmit((values) => {
             color: 'red',
             actions: actions.value,
           })
-        } else if (error.data.data?.email) {
+        }
+        else if (error.data.data?.email) {
           toast.add({
             title: error.data.data?.email[0],
             color: 'red',
@@ -137,15 +137,13 @@ const onSubmit = handleSubmit((values) => {
             <span
               v-if="errors.email"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.email }}</span
-            >
+            >{{ errors.email }}</span>
           </div>
           <div class="grid content-evenly items-start">
             <label
               class="text-primary-800 dark:text-primary-100"
               for="password1"
-              >{{ $t('pages.auth.registration.form.password1.label') }}</label
-            >
+            >{{ $t('pages.auth.registration.form.password1.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password1"
@@ -170,16 +168,14 @@ const onSubmit = handleSubmit((values) => {
             <span
               v-if="errors.password1"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.password1 }}</span
-            >
+            >{{ errors.password1 }}</span>
           </div>
 
           <div class="grid content-evenly items-start">
             <label
               class="text-primary-800 dark:text-primary-100"
               for="password2"
-              >{{ $t('pages.auth.registration.form.password2.label') }}</label
-            >
+            >{{ $t('pages.auth.registration.form.password2.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password2"
@@ -204,8 +200,7 @@ const onSubmit = handleSubmit((values) => {
             <span
               v-if="errors.password2"
               class="relative px-4 py-3 text-sm text-red-600"
-              >{{ errors.password2 }}</span
-            >
+            >{{ errors.password2 }}</span>
           </div>
 
           <button

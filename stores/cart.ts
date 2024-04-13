@@ -46,13 +46,13 @@ export const useCartStore = defineStore('cart', () => {
   })
 
   const getCartItemById = (id: number) => {
-    return cart.value?.cartItems.find((item) => item.id === id) ?? null
+    return cart.value?.cartItems.find(item => item.id === id) ?? null
   }
 
   const getCartItemByProductId = (productId: number) => {
     return (cart.value?.cartItems
-      .map((item) => item.product)
-      .find((product) => product.id === productId) ?? null) as CartItem | null
+      .map(item => item.product)
+      .find(product => product.id === productId) ?? null) as CartItem | null
   }
 
   function fetchCartFromLocalStorage() {
@@ -88,6 +88,34 @@ export const useCartStore = defineStore('cart', () => {
     }
 
     await useFetch('/api/cart', {
+      method: 'GET',
+      onRequest() {
+        pending.value.cart = true
+      },
+      onRequestError({ error: requestError }) {
+        error.value.cart = requestError
+      },
+      onResponse({ response }) {
+        cart.value = response._data
+        pending.value.cart = false
+      },
+      onResponseError({ error: responseError }) {
+        error.value.cart = responseError
+      },
+    })
+  }
+
+  async function refreshCart() {
+    if (import.meta.prerender) {
+      return
+    }
+
+    if (!loggedIn.value) {
+      fetchCartFromLocalStorage()
+      return
+    }
+
+    await $fetch('/api/cart', {
       method: 'GET',
       onRequest() {
         pending.value.cart = true
@@ -148,13 +176,14 @@ export const useCartStore = defineStore('cart', () => {
 
     const cartItems = cartFromLocalStorage?.cartItems ?? []
     const existingCartItem = cartItems.find(
-      (item) => item.product.id === cartItem.product.id,
+      item => item.product.id === cartItem.product.id,
     )
 
     if (existingCartItem) {
       existingCartItem.quantity += cartItem.quantity
       existingCartItem.updatedAt = new Date().toISOString()
-    } else {
+    }
+    else {
       cartItems.push(cartItem)
     }
 
@@ -217,7 +246,7 @@ export const useCartStore = defineStore('cart', () => {
       quantity: body.quantity.toString(),
     }
 
-    await useFetch('/api/cart/items', {
+    await $fetch('/api/cart/items', {
       method: 'POST',
       body: requestBody,
       onRequest() {
@@ -243,7 +272,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
     const cartItems = cartFromLocalStorage?.cartItems ?? []
-    const cartItem = cartItems.find((item) => item.id === id)
+    const cartItem = cartItems.find(item => item.id === id)
     if (!cartItem) {
       return
     }
@@ -262,7 +291,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    await useFetch(`/api/cart/items/${id}`, {
+    await $fetch(`/api/cart/items/${id}`, {
       method: 'PUT',
       body,
       onRequest() {
@@ -288,7 +317,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
     const cartItems = cartFromLocalStorage?.cartItems ?? []
-    const cartItemIndex = cartItems.findIndex((item) => item.id === Number(id))
+    const cartItemIndex = cartItems.findIndex(item => item.id === Number(id))
     if (cartItemIndex !== -1) {
       cartItems.splice(cartItemIndex, 1)
     }
@@ -306,7 +335,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    await useFetch(`/api/cart/items/${id}`, {
+    await $fetch(`/api/cart/items/${id}`, {
       method: 'DELETE',
       onRequest() {
         pending.value.cart = true
@@ -339,6 +368,7 @@ export const useCartStore = defineStore('cart', () => {
     getCartItemById,
     getCartItemByProductId,
     fetchCart,
+    refreshCart,
     createCartItem,
     updateCartItem,
     deleteCartItem,

@@ -35,8 +35,8 @@ export const useSearchStore = defineStore('search', () => {
       return true
     }
     const totalProductsCount = results.value?.products?.resultCount || 0
-    const totalProductCategoriesCount =
-      results.value?.productCategories?.resultCount || 0
+    const totalProductCategoriesCount
+      = results.value?.productCategories?.resultCount || 0
     return totalProductsCount + totalProductCategoriesCount === 0
   })
 

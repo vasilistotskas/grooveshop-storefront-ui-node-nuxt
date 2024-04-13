@@ -34,8 +34,8 @@ export type ProductCategory = z.infer<typeof ZodProductCategoryBase> & {
   children?: ProductCategory[] | null
 }
 
-export const ZodProductCategory: z.ZodType<ProductCategory> =
-  ZodProductCategoryBase.extend({
+export const ZodProductCategory: z.ZodType<ProductCategory>
+  = ZodProductCategoryBase.extend({
     children: z.lazy(() => ZodProductCategory.array().nullish()),
   })
 

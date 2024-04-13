@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { PropType, Ref } from 'vue'
+import type { PropType } from 'vue'
 
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import type { ProductReviewOrderingField } from '~/types/product/review'
@@ -26,8 +26,8 @@ const props = defineProps({
   },
 })
 
-const { productId, reviewsAverage, reviewsCount, displayImageOf } =
-  toRefs(props)
+const { productId, reviewsAverage, reviewsCount, displayImageOf }
+  = toRefs(props)
 
 const { t } = useI18n()
 const route = useRoute()
@@ -50,7 +50,7 @@ const {
   },
 })
 
-const entityOrdering: Ref<EntityOrdering<ProductReviewOrderingField>> = ref([
+const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   {
     value: 'id',
     label: t('components.product.reviews.ordering.id'),
@@ -63,9 +63,9 @@ const entityOrdering: Ref<EntityOrdering<ProductReviewOrderingField>> = ref([
   },
 ])
 
-const orderingFields: Partial<
-  Record<ProductReviewOrderingField, OrderingOption[]>
-> = reactive({
+const orderingFields = reactive<
+  Partial<Record<ProductReviewOrderingField, OrderingOption[]>>
+>({
   id: [],
   userId: [],
   productId: [],

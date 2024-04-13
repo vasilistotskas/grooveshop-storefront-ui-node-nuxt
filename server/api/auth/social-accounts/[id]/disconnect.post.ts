@@ -35,7 +35,8 @@ export default defineEventHandler(async (event: H3Event) => {
       },
     )
     return await parseDataAs(response, ZodSocialAccountDisconnectResponse)
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

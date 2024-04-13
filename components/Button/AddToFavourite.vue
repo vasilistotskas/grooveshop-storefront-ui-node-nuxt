@@ -14,18 +14,10 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
-  isFavourite: {
-    type: Boolean,
-    required: true,
-  },
   favourite: {
     type: Object as PropType<ProductFavourite | null>,
     required: false,
     default: null,
-  },
-  isAuthenticated: {
-    type: Boolean,
-    required: true,
   },
   size: {
     type: String as PropType<ButtonSize>,
@@ -38,26 +30,23 @@ const props = defineProps({
   },
 })
 
-const userStore = useUserStore()
-const { favouriteProducts } = storeToRefs(userStore)
-const { getUserProductFavourite } = userStore
-
 const themeCookie = useCookie('theme')
 const isDark = computed(() => themeCookie.value === 'dark')
 
 const { t } = useI18n()
 const toast = useToast()
+const { loggedIn } = useUserSession()
 
 const toggleFavourite = async () => {
-  if (!props.isAuthenticated || !props.userId || !favouriteProducts) {
+  if (!loggedIn.value || !props.userId) {
     toast.add({
       title: t('components.add_to_favourite_button.not_authenticated'),
+      color: 'red',
     })
     return
   }
-  const isProductInFavorites = getUserProductFavourite(props.productId)
-  if (!isProductInFavorites) {
-    await useFetch(`/api/products/favourites`, {
+  if (!props.favourite) {
+    await $fetch(`/api/products/favourites`, {
       method: 'POST',
       body: {
         product: String(props.productId),
@@ -73,9 +62,12 @@ const toggleFavourite = async () => {
         })
       },
       onResponse({ response }) {
-        favouriteProducts.value?.push(response._data)
+        if (!response.ok) {
+          return
+        }
         toast.add({
           title: t('components.add_to_favourite_button.added'),
+          color: 'green',
         })
       },
       onResponseError({ error }) {
@@ -85,9 +77,10 @@ const toggleFavourite = async () => {
         })
       },
     })
-  } else {
+  }
+  else {
     const id = props.favourite?.id
-    await useFetch(`/api/products/favourites/${id}`, {
+    await $fetch(`/api/products/favourites/${id}`, {
       method: 'DELETE',
       onRequestError({ error }) {
         toast.add({
@@ -95,12 +88,13 @@ const toggleFavourite = async () => {
           color: 'red',
         })
       },
-      onResponse() {
-        favouriteProducts.value =
-          favouriteProducts.value?.filter((favourite) => favourite.id !== id) ||
-          []
+      onResponse({ response }) {
+        if (!response.ok) {
+          return
+        }
         toast.add({
           title: t('components.add_to_favourite_button.removed'),
+          color: 'red',
         })
       },
       onResponseError({ error }) {
@@ -115,19 +109,19 @@ const toggleFavourite = async () => {
 
 const buttonLabel = computed(() => {
   if (!props.showLabel) return ''
-  return props.isFavourite
+  return props.favourite
     ? t('components.add_to_favourite_button.remove')
     : t('components.add_to_favourite_button.add')
 })
 
 const buttonAreaLabel = computed(() => {
-  return props.isFavourite
+  return props.favourite
     ? t('components.add_to_favourite_button.remove')
     : t('components.add_to_favourite_button.add')
 })
 
 const backgroundColor = computed(() => {
-  return props.isFavourite ? 'rgb(239 68 68)' : isDark.value ? 'white' : 'black'
+  return props.favourite ? 'rgb(239 68 68)' : isDark.value ? 'white' : 'black'
 })
 </script>
 
@@ -136,7 +130,7 @@ const backgroundColor = computed(() => {
     class="add-to-favourite-btn"
     :size="size"
     :label="buttonLabel"
-    :icon="!isFavourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
+    :icon="!favourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
     :color="'white'"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"

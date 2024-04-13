@@ -1,15 +1,17 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+import { z } from 'zod'
 import type { BlogComment } from '~/types/blog/comment'
 import type { DynamicFormSchema } from '~/types/form'
-import { z } from 'zod'
 import {
   type CursorStates,
   PaginationCursorStateEnum,
+  type PaginationCursorStateType,
   type PaginationType,
   PaginationTypeEnum,
 } from '~/types/global/general'
+import type { Pagination } from '~/types/pagination'
 
 const props = defineProps({
   comment: {
@@ -48,15 +50,23 @@ const emit = defineEmits<{
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 
 const showReplyForm = ref(false)
-const replies = ref<BlogComment[]>([])
+const replies = ref<Pagination<BlogComment> | null>(null)
+const pending = ref(false)
+const repliesFetched = ref(false)
+const allReplies = ref<BlogComment[]>([])
 const showReplies = ref(false)
 const isLineHovered = ref(false)
 const likes = ref(comment.value.likesCount)
 
 const cursorState = useState<CursorStates>('cursorStates')
-const cursor = computed(
-  () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
+
+const cursorKey = computed<PaginationCursorStateType>(
+  () => `${PaginationCursorStateEnum.BLOG_POST_COMMENTS}-${comment.value.id}`,
 )
+
+cursorState.value[cursorKey.value] = ''
+
+const cursor = computed(() => cursorState.value[cursorKey.value] ?? '')
 
 const blogPost = computed(() => getEntityObject(comment?.value?.post))
 const userAccount = computed(() => getEntityObject(comment?.value?.user))
@@ -67,6 +77,8 @@ const toast = useToast()
 const { t, locale } = useI18n()
 const { contentShorten } = useText()
 const { user, loggedIn } = useUserSession()
+const userStore = useUserStore()
+const { updateLikedComments } = userStore
 
 const commentContent = computed(() => {
   return contentShorten(
@@ -76,10 +88,11 @@ const commentContent = computed(() => {
   )
 })
 
-const likeClicked = (event: { blogCommentId: number; liked: boolean }) => {
+const likeClicked = (event: { blogCommentId: number, liked: boolean }) => {
   if (event.liked) {
     likes.value++
-  } else {
+  }
+  else {
     likes.value--
   }
 }
@@ -99,6 +112,29 @@ const replyCommentFormSchema: DynamicFormSchema = {
       type: 'text',
     },
   ],
+}
+
+const fetchReplies = async (cursorValue: string) => {
+  pending.value = true
+  await $fetch(`/api/blog/comments/${comment.value.id}/replies`, {
+    method: 'GET',
+    query: {
+      cursor: cursorValue,
+      expand: expand.value,
+      expandFields: expandFields.value,
+      paginationType: paginationType.value,
+      pageSize: pageSize.value,
+      language: locale.value,
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      replies.value = response._data
+      repliesFetched.value = true
+    },
+  })
+  pending.value = false
 }
 
 async function onReplySubmit({ content }: { content: string }) {
@@ -122,11 +158,7 @@ async function onReplySubmit({ content }: { content: string }) {
         return
       }
       emit('reply-add', response._data)
-      if (status.value === 'success') {
-        await refresh()
-      } else {
-        await execute()
-      }
+      await fetchReplies(cursor.value)
       showReplyForm.value = false
       showReplies.value = true
     },
@@ -139,24 +171,26 @@ async function onReplySubmit({ content }: { content: string }) {
   })
 }
 
-const {
-  data: blogCommentReplies,
-  execute,
-  status,
-  refresh,
-} = await useLazyFetch(`/api/blog/comments/${comment.value.id}/replies`, {
-  key: `blogCommentReplies${comment.value.id}`,
-  method: 'GET',
-  query: {
-    cursor: cursor.value,
-    expand: expand.value,
-    expandFields: expandFields.value,
-    paginationType: paginationType.value,
-    pageSize: pageSize.value,
-    language: locale.value,
-  },
-  immediate: false,
+const replyIds = computed(() => {
+  if (!replies.value) return []
+  return replies.value?.results?.map(reply => reply.id)
 })
+
+const fetchLikedComments = async (ids: number[]) => {
+  return await $fetch(`/api/blog/comments/liked-comments`, {
+    method: 'POST',
+    body: {
+      commentIds: ids,
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const likedCommentIds = response._data
+      updateLikedComments(likedCommentIds)
+    },
+  })
+}
 
 const commentCardClass = computed(() => {
   let classes = 'card'
@@ -192,34 +226,68 @@ const onReplyButtonClick = async () => {
 const onShowMoreRepliesButtonClick = async () => {
   showReplies.value = !showReplies.value
 
-  if (showReplies.value && replies.value.length === 0) {
+  if (showReplies.value && allReplies.value.length === 0) {
     emit('show-more-replies', comment.value?.id)
-    await execute()
+    await fetchReplies(cursor.value)
+    if (loggedIn.value && replyIds.value && replyIds.value.length > 0) {
+      await fetchLikedComments(replyIds.value)
+    }
   }
 }
 
 const hasReplies = computed(() => {
-  return replies.value.length > 0 || (comment.value?.children?.length ?? 0) > 0
+  return (
+    allReplies.value.length > 0 || (comment.value?.children?.length ?? 0) > 0
+  )
 })
 
 const totalReplies = computed(() => {
-  return replies.value.length + (comment.value?.children?.length ?? 0)
+  return allReplies.value.length + (comment.value?.children?.length ?? 0)
+})
+
+const pagination = computed(() => {
+  if (!replies.value) return
+  return usePagination<BlogComment>(replies.value)
 })
 
 watch(
-  blogCommentReplies,
+  () => cursorState.value[cursorKey.value],
+  async (newValue) => {
+    if (!newValue) return
+    await fetchReplies(newValue)
+    if (loggedIn.value && replyIds.value && replyIds.value.length > 0) {
+      await fetchLikedComments(replyIds.value)
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  replies,
   (newValue) => {
     if (newValue && newValue.results?.length) {
       const repliesMap = new Map(
-        replies.value.map((reply) => [reply.id, reply]),
+        allReplies.value.map(reply => [reply.id, reply]),
       )
       newValue.results.forEach((newReply) => {
         repliesMap.set(newReply.id, newReply)
       })
+      let sortedReplies
       if (paginationType.value === 'cursor') {
-        replies.value = [...repliesMap.values()]
-      } else {
-        replies.value = newValue.results
+        sortedReplies = [...repliesMap.values()].sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        })
+        allReplies.value = sortedReplies
+      }
+      else {
+        sortedReplies = newValue.results.sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        })
+        allReplies.value = sortedReplies
       }
     }
   },
@@ -253,8 +321,7 @@ watch(
           <span class="flex items-center">
             <span
               class="text-12 text-primary-400 dark:text-primary-400 mx-2 my-0 inline-block font-bold"
-              >•</span
-            >
+            >•</span>
             <NuxtTime
               class="text-primary-400 dark:text-primary-400 w-full text-end text-xs"
               :datetime="comment.createdAt"
@@ -296,9 +363,9 @@ watch(
       </span>
 
       <span class="contents">
-        <span v-show="status !== 'success'" />
+        <span v-show="!repliesFetched" />
         <span
-          v-show="status === 'success'"
+          v-show="repliesFetched"
           class="relative z-20 mt-[6px] flex justify-center self-start bg-white py-[2px] dark:bg-zinc-900"
         >
           <UButton
@@ -355,15 +422,16 @@ watch(
       </span>
 
       <span :id="`comment-children-${comment.id}`" class="contents">
-        <template v-for="reply in replies" :key="reply.id">
+        <template v-for="reply in allReplies" :key="reply.id">
           <span
-            v-show="hasReplies && (showReplies || status !== 'success')"
+            v-show="hasReplies && (showReplies || !repliesFetched)"
             :aria-expanded="showReplies"
             :aria-hidden="!showReplies"
             :class="{
               'threadline-hovered': isLineHovered,
               'z-20 bg-white dark:bg-zinc-900':
-                !showReplies || replies[replies.length - 1].id === reply.id,
+                !showReplies
+                || allReplies[allReplies.length - 1].id === reply.id,
             }"
             class="threadline-one align-start relative flex justify-end"
           >
@@ -381,13 +449,12 @@ watch(
           />
         </template>
         <span
-          v-show="hasReplies && status !== 'success'"
+          v-show="hasReplies && !repliesFetched"
           :aria-expanded="showReplies"
           :aria-hidden="!showReplies"
           :class="{
             'threadline-hovered': isLineHovered,
-            'z-20 bg-white dark:bg-zinc-900':
-              !showReplies || status === 'pending',
+            'z-20 bg-white dark:bg-zinc-900': !showReplies || pending,
           }"
           class="threadline-two align-start relative flex justify-end"
         >
@@ -398,10 +465,7 @@ watch(
             class="border-primary-300 dark:border-primary-600 absolute right-[-8px] box-border h-[1rem] w-[0.5rem] cursor-pointer border-0 border-b-[1px] border-solid"
           />
         </span>
-        <span
-          v-if="hasReplies && status !== 'success'"
-          class="ml-px inline-block"
-        >
+        <span v-if="hasReplies && !repliesFetched" class="ml-px inline-block">
           <UButton
             class="z-20"
             size="sm"
@@ -417,7 +481,7 @@ watch(
                 : 'i-heroicons-plus-circle'
             "
             :color="'white'"
-            :disabled="status === 'pending'"
+            :disabled="pending"
             :aria-label="
               showReplies
                 ? $t('common.hide.replies')
@@ -447,6 +511,17 @@ watch(
         },
       }"
       @submit="onReplySubmit"
+    />
+    <Pagination
+      v-if="pagination"
+      :pagination-type="paginationType"
+      :count="pagination.count"
+      :total-pages="pagination.totalPages"
+      :page-total-results="pagination.pageTotalResults"
+      :page-size="pagination.pageSize"
+      :page="pagination.page"
+      :links="pagination.links"
+      :cursor-key="cursorKey"
     />
   </details>
 </template>

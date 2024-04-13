@@ -35,7 +35,8 @@ export default defineEventHandler(async (event: H3Event) => {
       loggedInAt: new Date(),
     })
     return loginResponse
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

@@ -1,7 +1,7 @@
 import path from 'path'
+import type { ConsolaInstance } from 'consola'
 import { validatePathAccess } from '~/tools/translator/src/file-ops'
 import { FileExtensions, type LocaleOption } from '~/tools/translator/src/types'
-import type { ConsolaInstance } from 'consola'
 
 export async function promptForInputFile(consola: ConsolaInstance) {
   const inputFile = (await consola.prompt(

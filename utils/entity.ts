@@ -25,7 +25,8 @@ export function getEntityId<T>(
 ): number | undefined {
   if (isEntityId(entity)) {
     return entity
-  } else if (typeof entity === 'object' && entity !== null) {
+  }
+  else if (typeof entity === 'object' && entity !== null) {
     const entityId = (entity as Record<string, any>).id
     if (typeof entityId === 'number') {
       return entityId

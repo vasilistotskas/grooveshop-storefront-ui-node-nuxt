@@ -23,7 +23,6 @@ const props = withDefaults(defineProps<Props>(), {
 const attrs = useAttrs()
 
 const propsWithoutFallbackAndSrc = computed(() => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { fallback, src, ...restProps } = props
 
   return { ...attrs, ...restProps }

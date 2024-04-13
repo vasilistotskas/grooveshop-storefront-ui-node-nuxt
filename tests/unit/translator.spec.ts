@@ -18,7 +18,7 @@ describe('translator tests', async () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(retry).mockImplementation(async (func) => await func())
+    vi.mocked(retry).mockImplementation(async func => await func())
     vi.mocked(validateDynamicKeys).mockReturnValue(true)
   })
 

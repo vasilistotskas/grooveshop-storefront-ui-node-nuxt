@@ -48,8 +48,8 @@ const modelValue = defineModel<string | null>('modelValue', { default: '' })
 
 defineSlots<{
   'prefix-disabled'(props: object): any
-  prefix(props: object): any
-  suffix(props: object): any
+  'prefix'(props: object): any
+  'suffix'(props: object): any
 }>()
 
 const slots = useSlots()
@@ -75,8 +75,8 @@ const fontSizeStyles = reactive<{
 // states
 const havePreEl = computed(
   () =>
-    typeof slots.prefix !== 'undefined' ||
-    typeof slots['prefix-disabled'] !== 'undefined',
+    typeof slots.prefix !== 'undefined'
+    || typeof slots['prefix-disabled'] !== 'undefined',
 )
 const haveSuEl = computed(() => typeof slots.suffix !== 'undefined')
 const selectedBorderStyle = computed(

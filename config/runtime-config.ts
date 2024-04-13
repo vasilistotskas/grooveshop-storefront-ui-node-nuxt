@@ -42,8 +42,8 @@ export const runtimeConfig = {
     appDescription:
       process.env.NUXT_PUBLIC_APP_DESCRIPTION || 'GrooveShop Description',
     appImage:
-      process.env.NUXT_PUBLIC_APP_IMAGE ||
-      'https://grooveshop.site/img/websiteLogo.png',
+      process.env.NUXT_PUBLIC_APP_IMAGE
+      || 'https://grooveshop.site/img/websiteLogo.png',
     domainName: process.env.NUXT_PUBLIC_DOMAIN_NAME || 'grooveshop.site',
     canonicalUrl:
       process.env.NUXT_PUBLIC_CANONICAL_URL || 'https://grooveshop.site',
@@ -51,23 +51,23 @@ export const runtimeConfig = {
     djangoUrl:
       process.env.NUXT_PUBLIC_DJANGO_URL || 'http://backend-service:80',
     apiBaseUrl:
-      process.env.NUXT_PUBLIC_API_BASE_URL ||
-      'http://backend-service:80/api/v1',
+      process.env.NUXT_PUBLIC_API_BASE_URL
+      || 'http://backend-service:80/api/v1',
     djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST || 'backend-service:80',
     facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID || 'facebook-app-id',
     mediaStreamDomain:
       process.env.NUXT_PUBLIC_MEDIA_STREAM_DOMAIN || 'assets.grooveshop.site',
     mediaStreamOrigin:
-      process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN ||
-      'https://assets.grooveshop.site',
+      process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN
+      || 'https://assets.grooveshop.site',
     mediaStreamPath:
-      process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH ||
-      'https://assets.grooveshop.site/media_stream-image',
+      process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH
+      || 'https://assets.grooveshop.site/media_stream-image',
     author: {
       name: process.env.NUXT_PUBLIC_AUTHOR_NAME || 'vasilistotskas',
       github_url:
-        process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL ||
-        'https://github.com/vasilistotskas',
+        process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL
+        || 'https://github.com/vasilistotskas',
     },
 
     // Socials
@@ -76,8 +76,8 @@ export const runtimeConfig = {
         process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK || 'https://www.facebook.com',
       twitter: process.env.NUXT_PUBLIC_SOCIALS_TWITTER || 'https://twitter.com',
       instagram:
-        process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM ||
-        'https://www.instagram.com',
+        process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM
+        || 'https://www.instagram.com',
       discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD || 'https://discord.gg',
     },
 

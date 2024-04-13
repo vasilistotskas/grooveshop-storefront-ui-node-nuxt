@@ -27,7 +27,8 @@ const filteredCategories = computed(() => {
       const bIsSelected = selectedCategoryIds.value.includes(b.id.toString())
       if (aIsSelected && !bIsSelected) {
         return -1
-      } else if (!aIsSelected && bIsSelected) {
+      }
+      else if (!aIsSelected && bIsSelected) {
         return 1
       }
       return 0

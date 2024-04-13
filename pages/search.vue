@@ -3,8 +3,8 @@ import SearchingNoResultsJson from '~/assets/lotties/search_no_results.json'
 import SearchingJson from '~/assets/lotties/searching.json'
 
 const searchStore = useSearchStore()
-const { results, storage, totalCount, productSearchItems, productHeadlines } =
-  storeToRefs(searchStore)
+const { results, storage, totalCount, productSearchItems, productHeadlines }
+  = storeToRefs(searchStore)
 const { reset } = searchStore
 
 const route = useRoute('search___en')
@@ -90,9 +90,9 @@ const showIsSearching = computed(() => {
 
 const showNoResults = computed(() => {
   return (
-    !showIsSearching.value &&
-    productSearchItems.value.length === 0 &&
-    !error.value
+    !showIsSearching.value
+    && productSearchItems.value.length === 0
+    && !error.value
   )
 })
 
@@ -214,8 +214,7 @@ definePageMeta({
         >
           <span>{{ $t('pages.search.results') }}:</span>
           <span v-if="currentSearch" class="font-bold">
-            {{ currentSearch }}</span
-          >
+            {{ currentSearch }}</span>
         </span>
       </PageTitle>
 

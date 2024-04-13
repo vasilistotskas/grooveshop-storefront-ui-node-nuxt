@@ -1,3 +1,4 @@
+import { Translate } from 'translate'
 import translationCache from '~/tools/translator/src/cache'
 import {
   getISO6391Code,
@@ -9,7 +10,6 @@ import {
   type LocaleFile,
   type TranslateEngine,
 } from '~/tools/translator/src/types'
-import { Translate } from 'translate'
 import {
   readFileContents,
   writeFileContents,
@@ -42,7 +42,8 @@ export const translateBundle = async (
       }
 
       return translatedText
-    } catch (error) {
+    }
+    catch (error) {
       console.error(`Error during translation: ${error}`)
       throw error
     }
@@ -65,14 +66,15 @@ export const translateBundle = async (
 
         if (cachedTranslation) {
           outputBundle[nextParent] = cachedTranslation
-        } else {
+        }
+        else {
           try {
             const translation = useRetry
               ? await retry<string>(
-                  () => translateAndValidate(value, langCode),
-                  maxRetries,
-                  delayTime,
-                )
+                () => translateAndValidate(value, langCode),
+                maxRetries,
+                delayTime,
+              )
               : await translateAndValidate(value, langCode)
 
             if (!translation) {
@@ -88,14 +90,16 @@ export const translateBundle = async (
               translation,
             )
             outputBundle[nextParent] = translation
-          } catch (error) {
+          }
+          catch (error) {
             console.warn(
               `Warning: Failed to translate "${value}" in ${locale.path}, error: ${error}`,
             )
             outputBundle[nextParent] = value
           }
         }
-      } else if (typeof value === 'object' && value !== null) {
+      }
+      else if (typeof value === 'object' && value !== null) {
         await eachCurrLevel(value as Record<string, unknown>, nextParent)
       }
     }
@@ -118,7 +122,8 @@ export const reconstructNestedObject = (
     keySplit.forEach((currKey, index) => {
       if (index === keySplit.length - 1) {
         currParent[currKey] = value
-      } else {
+      }
+      else {
         currParent[currKey] = currParent[currKey] || {}
       }
       currParent = currParent[currKey] as Record<string, unknown>
@@ -164,7 +169,7 @@ export async function executeTranslations(
   inputFileExtension: FileExtensions,
   outputExtension: FileExtensions,
 ) {
-  const translationPromises = localesToTranslate.map((locale) =>
+  const translationPromises = localesToTranslate.map(locale =>
     translateLocaleFile(
       locale,
       input,

@@ -124,8 +124,7 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="text-primary-800 dark:text-primary-100 font-bold"
-                  >{{ $t('pages.account.order.address') }}</span
-                >
+                >{{ $t('pages.account.order.address') }}</span>
                 <span class="text-primary-800 dark:text-primary-100">{{
                   order.fullAddress
                 }}</span>
@@ -133,8 +132,7 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="text-primary-800 dark:text-primary-100 font-bold"
-                  >{{ $t('pages.account.order.document_type') }}</span
-                >
+                >{{ $t('pages.account.order.document_type') }}</span>
                 <span class="text-primary-800 dark:text-primary-100">{{
                   order.documentType
                 }}</span>
@@ -142,8 +140,7 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="text-primary-800 dark:text-primary-100 font-bold"
-                  >{{ $t('pages.account.order.pay_way') }}</span
-                >
+                >{{ $t('pages.account.order.pay_way') }}</span>
                 <span class="text-primary-800 dark:text-primary-100">{{
                   extractTranslated(order.payWay, 'name', locale)
                 }}</span>
@@ -164,8 +161,7 @@ definePageMeta({
               <div class="flex items-center justify-between">
                 <span
                   class="text-primary-800 dark:text-primary-100 font-light"
-                  >{{ $t('pages.account.order.product.value') }}</span
-                >
+                >{{ $t('pages.account.order.product.value') }}</span>
                 <I18nN
                   class="text-primary-800 dark:text-primary-100"
                   tag="span"
@@ -176,8 +172,7 @@ definePageMeta({
               <div class="flex items-center justify-between">
                 <span
                   class="text-primary-800 dark:text-primary-100 font-light"
-                  >{{ $t('pages.account.order.shipping.value') }}</span
-                >
+                >{{ $t('pages.account.order.shipping.value') }}</span>
                 <I18nN
                   class="text-primary-800 dark:text-primary-100"
                   tag="span"
@@ -190,8 +185,7 @@ definePageMeta({
               <div class="flex items-center justify-between">
                 <span
                   class="text-primary-800 dark:text-primary-100 font-bold"
-                  >{{ $t('pages.account.order.total') }}</span
-                >
+                >{{ $t('pages.account.order.total') }}</span>
                 <I18nN
                   class="text-primary-800 dark:text-primary-100 font-bold"
                   tag="span"

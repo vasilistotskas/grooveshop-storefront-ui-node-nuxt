@@ -4,7 +4,6 @@ import type { PropType } from 'vue'
 import heartJSON from '~/assets/lotties/heart.json'
 import type Lottie from '~/components/Lottie/index.vue'
 import type { ButtonSize } from '~/types/global/button'
-import type { ProductFavourite } from '~/types/product/favourite'
 
 const props = defineProps({
   productId: {
@@ -16,18 +15,10 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
-  isFavourite: {
-    type: Boolean,
-    required: true,
-  },
-  favourite: {
-    type: Object as PropType<ProductFavourite | null>,
+  favouriteId: {
+    type: Number as PropType<number | null>,
     required: false,
     default: null,
-  },
-  isAuthenticated: {
-    type: Boolean,
-    required: true,
   },
   size: {
     type: String as PropType<ButtonSize>,
@@ -36,25 +27,24 @@ const props = defineProps({
   },
 })
 
-const userStore = useUserStore()
-const { favouriteProducts } = storeToRefs(userStore)
-const { getUserProductFavourite } = userStore
-
 const { t } = useI18n()
 const toast = useToast()
+const { loggedIn } = useUserSession()
+const userStore = useUserStore()
+const { addFavouriteProduct, removeFavouriteProduct } = userStore
 
 const lottie = ref<InstanceType<typeof Lottie>>()
 
 const toggleFavourite = async () => {
-  if (!props.isAuthenticated || !props.userId || !favouriteProducts) {
+  if (!loggedIn.value || !props.userId) {
     toast.add({
       title: t('components.add_to_favourite_button.not_authenticated'),
+      color: 'red',
     })
     return
   }
-  const isProductInFavorites = getUserProductFavourite(props.productId)
-  if (!isProductInFavorites) {
-    await useFetch(`/api/products/favourites`, {
+  if (!props.favouriteId) {
+    await $fetch(`/api/products/favourites`, {
       method: 'POST',
       body: {
         product: String(props.productId),
@@ -73,10 +63,11 @@ const toggleFavourite = async () => {
         if (!response.ok) {
           return
         }
-        favouriteProducts.value?.push(response._data)
+        addFavouriteProduct(response._data)
         lottie.value?.play()
         toast.add({
           title: t('components.add_to_favourite_button.added'),
+          color: 'green',
         })
       },
       onResponseError({ error }) {
@@ -86,8 +77,9 @@ const toggleFavourite = async () => {
         })
       },
     })
-  } else {
-    const id = props.favourite?.id
+  }
+  else {
+    const id = props.favouriteId
     await useFetch(`/api/products/favourites/${id}`, {
       method: 'DELETE',
       onRequestError({ error }) {
@@ -100,12 +92,11 @@ const toggleFavourite = async () => {
         if (!response.ok) {
           return
         }
-        favouriteProducts.value =
-          favouriteProducts.value?.filter((favourite) => favourite.id !== id) ||
-          []
+        removeFavouriteProduct(props.productId)
         lottie.value?.goToAndStop(0)
         toast.add({
           title: t('components.add_to_favourite_button.removed'),
+          color: 'red',
         })
       },
       onResponseError({ error }) {
@@ -119,21 +110,22 @@ const toggleFavourite = async () => {
 }
 
 const buttonLabel = computed(() => {
-  return props.isFavourite
+  return props.favouriteId
     ? t('components.add_to_favourite_button.remove')
     : t('components.add_to_favourite_button.add')
 })
 
 const buttonAreaLabel = computed(() => {
-  return props.isFavourite
+  return props.favouriteId
     ? t('components.add_to_favourite_button.remove')
     : t('components.add_to_favourite_button.add')
 })
 
 const onAnimationLoaded = () => {
-  if (props.isFavourite) {
+  if (props.favouriteId) {
     lottie.value?.goToAndStop(lottie.value?.getDuration() - 1 || 0)
-  } else {
+  }
+  else {
     lottie.value?.goToAndStop(0)
   }
 }

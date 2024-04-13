@@ -13,9 +13,6 @@ import type { PayWay } from '~/types/pay-way'
 
 const { user, fetch } = useUserSession()
 
-const userStore = useUserStore()
-const { addOrder } = userStore
-
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 const { cleanCartState } = cartStore
@@ -78,8 +75,8 @@ const ZodCheckout = z.object({
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)
-const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } =
-  useForm({
+const { defineField, setFieldValue, handleSubmit, errors, isSubmitting }
+  = useForm({
     validationSchema,
     initialValues: {
       user: userId.value || null,
@@ -88,7 +85,7 @@ const { defineField, setFieldValue, handleSubmit, errors, isSubmitting } =
       floor: defaultSelectOptionChoose,
       locationType: defaultSelectOptionChoose,
       orderItemOrder:
-        getCartItems.value?.map((item) => ({
+        getCartItems.value?.map(item => ({
           ...item,
           product: item.product.id,
         })) || [],
@@ -179,11 +176,13 @@ const onSubmit = handleSubmit(async (values) => {
       })
     },
     async onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
       toast.add({
         title: t('pages.checkout.form.submit.success'),
         color: 'green',
       })
-      addOrder(response._data)
       cleanCartState()
       await fetch()
       await navigateTo(`/checkout/success/${response._data.uuid}`)
@@ -230,8 +229,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="firstName"
-                >{{ $t('pages.checkout.form.first_name') }}</label
-              >
+              >{{ $t('pages.checkout.form.first_name') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="firstName"
@@ -253,8 +251,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="lastName"
-                >{{ $t('pages.checkout.form.last_name') }}</label
-              >
+              >{{ $t('pages.checkout.form.last_name') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="lastName"
@@ -276,8 +273,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="email"
-                >{{ $t('pages.checkout.form.email') }}</label
-              >
+              >{{ $t('pages.checkout.form.email') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="email"
@@ -299,8 +295,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="phone"
-                >{{ $t('pages.checkout.form.phone') }}</label
-              >
+              >{{ $t('pages.checkout.form.phone') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="phone"
@@ -322,8 +317,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="mobilePhone"
-                >{{ $t('pages.checkout.form.mobile_phone') }}</label
-              >
+              >{{ $t('pages.checkout.form.mobile_phone') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="mobilePhone"
@@ -345,8 +339,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="city"
-                >{{ $t('pages.checkout.form.city') }}</label
-              >
+              >{{ $t('pages.checkout.form.city') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="city"
@@ -368,8 +361,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="place"
-                >{{ $t('pages.checkout.form.place') }}</label
-              >
+              >{{ $t('pages.checkout.form.place') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="place"
@@ -391,8 +383,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="zipcode"
-                >{{ $t('pages.checkout.form.zipcode') }}</label
-              >
+              >{{ $t('pages.checkout.form.zipcode') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="zipcode"
@@ -414,8 +405,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="street"
-                >{{ $t('pages.checkout.form.street') }}</label
-              >
+              >{{ $t('pages.checkout.form.street') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="street"
@@ -437,8 +427,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="streetNumber"
-                >{{ $t('pages.checkout.form.street_number') }}</label
-              >
+              >{{ $t('pages.checkout.form.street_number') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="streetNumber"
@@ -460,8 +449,7 @@ definePageMeta({
               <label
                 class="text-primary-800 dark:text-primary-100 sr-only mb-2"
                 for="customerNotes"
-                >{{ $t('pages.checkout.form.customer_notes') }}</label
-              >
+              >{{ $t('pages.checkout.form.customer_notes') }}</label>
               <div class="grid">
                 <VeeField
                   id="customerNotes"
@@ -483,8 +471,7 @@ definePageMeta({
                 <label
                   class="text-primary-800 dark:text-primary-100 mb-2"
                   for="floor"
-                  >{{ $t('pages.checkout.form.floor') }}</label
-                >
+                >{{ $t('pages.checkout.form.floor') }}</label>
                 <VeeField
                   id="floor"
                   v-model="floor"
@@ -518,8 +505,7 @@ definePageMeta({
                 <label
                   class="text-primary-800 dark:text-primary-100 mb-2"
                   for="locationType"
-                  >{{ $t('pages.checkout.form.location_type') }}</label
-                >
+                >{{ $t('pages.checkout.form.location_type') }}</label>
                 <VeeField
                   id="locationType"
                   v-model="locationType"
@@ -556,8 +542,7 @@ definePageMeta({
                 <label
                   class="text-primary-800 dark:text-primary-100 mb-2"
                   for="country"
-                  >{{ $t('pages.checkout.form.country') }}</label
-                >
+                >{{ $t('pages.checkout.form.country') }}</label>
                 <div class="grid">
                   <VeeField
                     id="country"
@@ -594,8 +579,7 @@ definePageMeta({
                 <label
                   class="text-primary-800 dark:text-primary-100 mb-2"
                   for="region"
-                  >{{ $t('pages.checkout.form.region') }}</label
-                >
+                >{{ $t('pages.checkout.form.region') }}</label>
                 <div class="grid">
                   <VeeField
                     id="region"
@@ -641,8 +625,7 @@ definePageMeta({
                 <span
                   v-if="errors.payWay"
                   class="text-center text-sm text-red-600"
-                  >{{ errors.payWay }}</span
-                >
+                >{{ errors.payWay }}</span>
               </template>
             </CheckoutPayWays>
           </template>

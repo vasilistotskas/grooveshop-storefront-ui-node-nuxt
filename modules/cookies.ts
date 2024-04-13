@@ -56,7 +56,8 @@ const blockIframes = (moduleOptions: ModuleOptions) => {
     if (moduleOptions.cookies) {
       if (moduleOptions.cookies.optional) {
         moduleOptions.cookies.optional.push(isIframeBlocked)
-      } else {
+      }
+      else {
         moduleOptions.cookies.optional = [isIframeBlocked]
       }
     }
@@ -85,8 +86,8 @@ const blockIframes = (moduleOptions: ModuleOptions) => {
                 match.includes('cookie-enabled')
                   ? match
                   : match
-                      .replace(/<iframe/g, '<CookieIframe')
-                      .replace(/iframe>/g, 'CookieIframe>'),
+                    .replace(/<iframe/g, '<CookieIframe')
+                    .replace(/iframe>/g, 'CookieIframe>'),
             },
           ],
         }),

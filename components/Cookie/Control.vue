@@ -43,8 +43,8 @@ const isSaved = computed(
   () =>
     getCookieIds(cookiesEnabled.value || [])
       .sort()
-      .join(COOKIE_ID_SEPARATOR) !==
-    getCookieIds(localCookiesEnabled.value).sort().join(COOKIE_ID_SEPARATOR),
+      .join(COOKIE_ID_SEPARATOR)
+      !== getCookieIds(localCookiesEnabled.value).sort().join(COOKIE_ID_SEPARATOR),
 )
 
 // methods
@@ -62,7 +62,7 @@ const acceptPartial = () => {
     cookiesOptionalEnabled: [
       ...moduleOptions.cookies.necessary,
       ...moduleOptions.cookies.optional,
-    ].filter((cookie) => localCookiesEnabledIds.includes(cookie.id)),
+    ].filter(cookie => localCookiesEnabledIds.includes(cookie.id)),
   })
 }
 const decline = () => {
@@ -132,7 +132,8 @@ const toggleCookie = (cookie: Cookie) => {
   const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(cookie.id)
   if (cookieIndex < 0) {
     localCookiesEnabled.value.push(cookie)
-  } else {
+  }
+  else {
     localCookiesEnabled.value.splice(cookieIndex, 1)
   }
 }
@@ -172,12 +173,13 @@ watch(
           document.getElementsByTagName('head')[0].appendChild(script)
         })
       }
-    } else {
+    }
+    else {
       cookieCookiesEnabledIds.value = undefined
     }
 
     const cookiesOptionalDisabled = moduleOptions.cookies.optional.filter(
-      (cookieOptional) => !(current || []).includes(cookieOptional),
+      cookieOptional => !(current || []).includes(cookieOptional),
     )
 
     for (const cookieOptionalDisabled of cookiesOptionalDisabled) {
@@ -207,7 +209,8 @@ watch(
 watch(isConsentGiven, (current) => {
   if (current === undefined) {
     cookieIsConsentGiven.value = undefined
-  } else {
+  }
+  else {
     cookieIsConsentGiven.value = current ? allCookieIdsString : '0'
   }
 })
@@ -321,8 +324,8 @@ defineExpose({
                     <div class="cookie-control-ModalInputWrapper">
                       <input
                         v-if="
-                          cookieType === ZodCookieTypeEnum.enum.necessary &&
-                          cookie.name !== 'functional'
+                          cookieType === ZodCookieTypeEnum.enum.necessary
+                            && cookie.name !== 'functional'
                         "
                         :id="cookie.name"
                         :name="cookie.name"
@@ -353,16 +356,16 @@ defineExpose({
                         {{ getName(cookie.name) }}
                         <span
                           v-if="
-                            moduleOptions.isCookieIdVisible &&
-                            cookie.targetCookieIds
+                            moduleOptions.isCookieIdVisible
+                              && cookie.targetCookieIds
                           "
                         >
-                          <br >
+                          <br>
                           {{
-                            'IDs: ' +
-                            cookie.targetCookieIds
-                              .map((id) => `"${id}"`)
-                              .join(', ')
+                            'IDs: '
+                              + cookie.targetCookieIds
+                                .map((id) => `"${id}"`)
+                                .join(', ')
                           }}
                         </span>
                         <template
@@ -372,7 +375,7 @@ defineExpose({
                             v-for="entry in Object.entries(cookie.links || {})"
                             :key="entry[0]"
                           >
-                            <br >
+                            <br>
                             <a :href="entry[0]">{{
                               resolveLinkEntryText(entry)
                             }}</a>

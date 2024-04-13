@@ -1,19 +1,19 @@
 import type { UserAccount } from '~/types/user/account'
 
 declare module '#auth-utils' {
-	interface User extends UserAccount {}
+  interface User extends UserAccount {}
 
-	interface UserSession {
-		user?: User | null
-		token?: string | null
-		tokenExpiration?: string | null
-		refreshToken?: string | null
-		refreshTokenExpiration?: string | null
-		totpActive?: boolean | null
-		totpAuthenticated?: boolean | null
-		loggedInAt?: Date | null
-		rememberMe?: boolean | null
-	}
+  interface UserSession {
+    user?: User | null
+    token?: string | null
+    tokenExpiration?: string | null
+    refreshToken?: string | null
+    refreshTokenExpiration?: string | null
+    totpActive?: boolean | null
+    totpAuthenticated?: boolean | null
+    loggedInAt?: Date | null
+    rememberMe?: boolean | null
+  }
 }
 
 export {}

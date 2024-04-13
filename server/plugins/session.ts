@@ -8,18 +8,19 @@ export default defineNitroPlugin(() => {
     const statuses = [401, 403, 500]
     if (error.status && statuses.includes(error.status)) {
       await sendRedirect(event, '/auth/login')
-    } else {
+    }
+    else {
       await handleError(error)
     }
   }
 
   sessionHooks.hook('fetch', async (session, event) => {
-    const shouldRefreshToken =
-      session.token &&
-      session.refreshToken &&
-      session.rememberMe &&
-      isTokenExpired(session.token) &&
-      !isTokenExpired(session.refreshToken)
+    const shouldRefreshToken
+      = session.token
+      && session.refreshToken
+      && session.rememberMe
+      && isTokenExpired(session.token)
+      && !isTokenExpired(session.refreshToken)
 
     if (shouldRefreshToken) {
       try {
@@ -29,7 +30,8 @@ export default defineNitroPlugin(() => {
             refresh: session.refreshToken,
           },
         })
-      } catch (error) {
+      }
+      catch (error) {
         await handleResponseError(error, event)
       }
     }
@@ -41,7 +43,8 @@ export default defineNitroPlugin(() => {
           token: session.token,
         },
       })
-    } catch (error) {
+    }
+    catch (error) {
       await handleResponseError(error, event)
     }
   })

@@ -9,7 +9,8 @@ const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(
 ): z.infer<ZodSchema> => {
   try {
     return schema.parse(data)
-  } catch (error) {
+  }
+  catch (error) {
     throw createError({
       statusCode,
       statusMessage,

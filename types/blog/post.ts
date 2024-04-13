@@ -59,5 +59,9 @@ export const ZodBlogPostParams = z.object({
   id: z.string(),
 })
 
+export const ZodBlogPostsLikedPostsBody = z.object({
+  postIds: z.array(z.number()),
+})
+
 export type BlogPost = z.infer<typeof ZodBlogPost>
 export type BlogPostOrderingField = 'createdAt' | 'title' | `publishedAt`

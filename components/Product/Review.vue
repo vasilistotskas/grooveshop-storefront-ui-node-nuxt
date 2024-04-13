@@ -36,9 +36,6 @@ const props = defineProps({
 
 const { userProductReview, userHadReviewed, product, user } = toRefs(props)
 
-const userStore = useUserStore()
-const { addReview, updateReview, deleteReview } = userStore
-
 const emit = defineEmits([
   'add-existing-review',
   'update-existing-review',
@@ -299,12 +296,12 @@ const createReviewEvent = async (event: { comment: string; rate: number }) => {
         color: 'red',
       })
     },
-    async onResponse({ response }) {
-      addReview(response._data)
+    async onResponse() {
       await refresh()
       emit('add-existing-review', userProductReview?.value)
       toast.add({
         title: t('components.product.review.add.success'),
+        color: 'green',
       })
     },
     onResponseError() {
@@ -344,11 +341,11 @@ const updateReviewEvent = async (event: { comment: string; rate: number }) => {
       if (!response.ok) {
         return
       }
-      updateReview(userProductReview?.value?.id, response._data)
       await refresh()
       emit('update-existing-review', userProductReview?.value)
       toast.add({
         title: t('components.product.review.update.success'),
+        color: 'green',
       })
     },
     onResponseError() {
@@ -375,7 +372,6 @@ const deleteReviewEvent = async () => {
         if (!response.ok) {
           return
         }
-        deleteReview(userProductReview?.value?.id)
         setFieldValue('rate', 0)
         setFieldValue('comment', '')
         modalBus.emit(
@@ -385,6 +381,7 @@ const deleteReviewEvent = async () => {
         await refresh()
         toast.add({
           title: t('components.product.review.delete.success'),
+          color: 'green',
         })
       },
       onResponseError() {
@@ -397,6 +394,7 @@ const deleteReviewEvent = async () => {
   } else {
     toast.add({
       title: t('components.product.review.must_be_logged_in'),
+      color: 'green',
     })
   }
 }
@@ -411,6 +409,7 @@ const onSubmit = handleSubmit(async (event) => {
   } else {
     toast.add({
       title: t('components.product.review.must_be_logged_in'),
+      color: 'red',
     })
   }
   modalBus.emit(
@@ -540,7 +539,7 @@ watch(
           <span class="review_body-rating-error h-6">{{ errors.comment }}</span>
         </div>
 
-        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate" >
+        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
       </div>
     </template>
     <template #footer>

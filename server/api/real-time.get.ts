@@ -66,7 +66,8 @@ export default defineEventHandler(async () => {
       timeZoneApiResponse,
       theme: isNight ? 'dark' : 'light',
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error fetching IP location/time data:', error)
     return {
       theme: defaultTheme,

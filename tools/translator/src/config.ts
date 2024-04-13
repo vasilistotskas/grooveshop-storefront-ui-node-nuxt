@@ -1,10 +1,10 @@
 import { loadConfig } from 'c12'
+import type { ConsolaOptions } from 'consola'
 import type {
   DebugMode,
   LocaleOption,
   TranslateEngine,
 } from '~/tools/translator/src/types'
-import type { ConsolaOptions } from 'consola'
 
 export interface TranslatorConfig {
   input: string

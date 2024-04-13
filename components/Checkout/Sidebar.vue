@@ -24,8 +24,8 @@ const checkoutTotal = computed(() => {
 
 defineSlots<{
   'pay-ways'(props: object): any
-  items(props: object): any
-  button(props: object): any
+  'items'(props: object): any
+  'button'(props: object): any
 }>()
 </script>
 

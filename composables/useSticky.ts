@@ -3,7 +3,8 @@ export const useSticky = (el: HTMLElement, offset: number) => {
     const scrollTop = window.scrollY || document.documentElement.scrollTop
     if (scrollTop > offset) {
       el.classList.add('sticky')
-    } else {
+    }
+    else {
       el.classList.remove('sticky')
     }
   }

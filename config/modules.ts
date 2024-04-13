@@ -9,7 +9,6 @@ export const modules = [
   '@nuxtjs/device',
   '@nuxtseo/module',
   '@pinia/nuxt',
-  '@pinia-plugin-persistedstate/nuxt',
   '@vueuse/nuxt',
   '@vite-pwa/nuxt',
   '@vee-validate/nuxt',

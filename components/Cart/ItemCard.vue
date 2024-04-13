@@ -8,15 +8,13 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
-const { fetchCart, deleteCartItem } = cartStore
+const { refreshCart, deleteCartItem } = cartStore
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
 const { resolveImageSrc } = useImageResolver()
 
 const { cartItem } = toRefs(props)
-
-const refreshCart = async () => await fetchCart()
 
 const src = computed(() => {
   return resolveImageSrc(

@@ -18,6 +18,7 @@ try {
       i18n.install(app, ...options)
     },
   })
-} catch {
+}
+catch {
   // For .test files we don't make i18n available
 }

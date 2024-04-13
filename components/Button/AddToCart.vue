@@ -13,13 +13,11 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
-const { fetchCart, createCartItem } = cartStore
+const { refreshCart, createCartItem } = cartStore
 
 const { product, quantity, text } = toRefs(props)
 const { t } = useI18n()
 const toast = useToast()
-
-const refreshCart = async () => await fetchCart()
 
 const addToCartEvent = async () => {
   await createCartItem({
@@ -29,6 +27,7 @@ const addToCartEvent = async () => {
   await refreshCart()
   toast.add({
     title: t('components.add_to_cart_button.added_to_cart'),
+    color: 'green',
   })
 }
 </script>

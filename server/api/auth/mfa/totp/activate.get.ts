@@ -22,7 +22,8 @@ export default defineEventHandler(async (event: H3Event) => {
       },
     )
     return parseDataAs(response, ZodMfaTotpActivateGetResponse)
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

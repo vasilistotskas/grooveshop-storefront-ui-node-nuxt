@@ -93,17 +93,19 @@ function browserFeatureAvailable(
   try {
     const browserName = userAgent.name
     const android = userAgent.os?.toLowerCase().startsWith('android') ?? false
-    const versions = userAgent.version.split('.').map((v) => Number.parseInt(v))
+    const versions = userAgent.version.split('.').map(v => Number.parseInt(v))
     return allowedBrowsers.some(([name, check]) => {
       if (browserName !== name) return false
 
       try {
         return check[feature](android, versions)
-      } catch {
+      }
+      catch {
         return false
       }
     })
-  } catch {
+  }
+  catch {
     return false
   }
 }
@@ -161,11 +163,11 @@ function collectClientHints(
 
   if (ssrClientHintsConfiguration.prefersColorScheme) {
     if (ssrClientHintsConfiguration.prefersColorSchemeOptions) {
-      const cookieName =
-        ssrClientHintsConfiguration.prefersColorSchemeOptions.cookieName
+      const cookieName
+        = ssrClientHintsConfiguration.prefersColorSchemeOptions.cookieName
       const cookieValue = headers.cookie
         ?.split(';')
-        .find((c) => c.trim().startsWith(`${cookieName}=`))
+        .find(c => c.trim().startsWith(`${cookieName}=`))
       if (cookieValue) {
         const value = cookieValue.split('=')?.[1].trim()
         if (
@@ -181,8 +183,8 @@ function collectClientHints(
     if (!hints.colorSchemeFromCookie) {
       const value = hints.prefersColorSchemeAvailable
         ? headers[
-            AcceptClientHintsRequestHeaders.prefersColorScheme
-          ]?.toLowerCase()
+          AcceptClientHintsRequestHeaders.prefersColorScheme
+        ]?.toLowerCase()
         : undefined
       if (value === 'dark' || value === 'light' || value === 'no-preference') {
         hints.prefersColorScheme = value
@@ -192,26 +194,27 @@ function collectClientHints(
       // update the color scheme cookie
       if (ssrClientHintsConfiguration.prefersColorSchemeOptions) {
         if (!value || value === 'no-preference') {
-          hints.colorSchemeFromCookie =
-            ssrClientHintsConfiguration.prefersColorSchemeOptions.defaultTheme
-        } else {
-          hints.colorSchemeFromCookie =
-            value === 'dark'
+          hints.colorSchemeFromCookie
+            = ssrClientHintsConfiguration.prefersColorSchemeOptions.defaultTheme
+        }
+        else {
+          hints.colorSchemeFromCookie
+            = value === 'dark'
               ? ssrClientHintsConfiguration.prefersColorSchemeOptions
-                  .darkThemeName
+                .darkThemeName
               : ssrClientHintsConfiguration.prefersColorSchemeOptions
-                  .lightThemeName
+                .lightThemeName
         }
       }
     }
   }
 
   if (
-    hints.prefersReducedMotionAvailable &&
-    ssrClientHintsConfiguration.prefersReducedMotion
+    hints.prefersReducedMotionAvailable
+    && ssrClientHintsConfiguration.prefersReducedMotion
   ) {
-    const value =
-      headers[
+    const value
+      = headers[
         AcceptClientHintsRequestHeaders.prefersReducedMotion
       ]?.toLowerCase()
     if (value === 'no-preference' || value === 'reduce') {
@@ -221,36 +224,40 @@ function collectClientHints(
   }
 
   if (
-    hints.viewportHeightAvailable &&
-    ssrClientHintsConfiguration.viewportSize
+    hints.viewportHeightAvailable
+    && ssrClientHintsConfiguration.viewportSize
   ) {
     const header = headers[AcceptClientHintsRequestHeaders.viewportHeight]
     if (header) {
       hints.firstRequest = false
       try {
         hints.viewportHeight = Number.parseInt(header)
-      } catch {
+      }
+      catch {
         hints.viewportHeight = ssrClientHintsConfiguration.clientHeight
       }
     }
-  } else {
+  }
+  else {
     hints.viewportHeight = ssrClientHintsConfiguration.clientHeight
   }
 
   if (
-    hints.viewportWidthAvailable &&
-    ssrClientHintsConfiguration.viewportSize
+    hints.viewportWidthAvailable
+    && ssrClientHintsConfiguration.viewportSize
   ) {
     const header = headers[AcceptClientHintsRequestHeaders.viewportWidth]
     if (header) {
       hints.firstRequest = false
       try {
         hints.viewportWidth = Number.parseInt(header)
-      } catch {
+      }
+      catch {
         hints.viewportWidth = ssrClientHintsConfiguration.clientWidth
       }
     }
-  } else {
+  }
+  else {
     hints.viewportWidth = ssrClientHintsConfiguration.clientWidth
   }
 
@@ -275,14 +282,14 @@ function writeClientHintsResponseHeaders(
   const headers: Record<string, string[]> = {}
 
   if (
-    ssrClientHintsConfiguration.prefersColorScheme &&
-    clientHintsRequest.prefersColorSchemeAvailable
+    ssrClientHintsConfiguration.prefersColorScheme
+    && clientHintsRequest.prefersColorSchemeAvailable
   )
     writeClientHintHeaders(AcceptClientHintsHeaders.prefersColorScheme, headers)
 
   if (
-    ssrClientHintsConfiguration.prefersReducedMotion &&
-    clientHintsRequest.prefersReducedMotionAvailable
+    ssrClientHintsConfiguration.prefersReducedMotion
+    && clientHintsRequest.prefersReducedMotionAvailable
   )
     writeClientHintHeaders(
       AcceptClientHintsHeaders.prefersReducedMotion,
@@ -290,9 +297,9 @@ function writeClientHintsResponseHeaders(
     )
 
   if (
-    ssrClientHintsConfiguration.viewportSize &&
-    clientHintsRequest.viewportHeightAvailable &&
-    clientHintsRequest.viewportWidthAvailable
+    ssrClientHintsConfiguration.viewportSize
+    && clientHintsRequest.viewportHeightAvailable
+    && clientHintsRequest.viewportWidthAvailable
   ) {
     writeClientHintHeaders(AcceptClientHintsHeaders.viewportHeight, headers)
     writeClientHintHeaders(AcceptClientHintsHeaders.viewportWidth, headers)
@@ -321,23 +328,23 @@ function writeThemeCookie(
   ssrClientHintsConfiguration: SSRClientHintsConfiguration,
 ) {
   if (
-    !ssrClientHintsConfiguration.prefersColorScheme ||
-    !ssrClientHintsConfiguration.prefersColorSchemeOptions
+    !ssrClientHintsConfiguration.prefersColorScheme
+    || !ssrClientHintsConfiguration.prefersColorSchemeOptions
   )
     return
 
-  const cookieName =
-    ssrClientHintsConfiguration.prefersColorSchemeOptions.cookieName
-  const themeName =
-    clientHintsRequest.colorSchemeFromCookie ??
-    ssrClientHintsConfiguration.prefersColorSchemeOptions.defaultTheme
+  const cookieName
+    = ssrClientHintsConfiguration.prefersColorSchemeOptions.cookieName
+  const themeName
+    = clientHintsRequest.colorSchemeFromCookie
+    ?? ssrClientHintsConfiguration.prefersColorSchemeOptions.defaultTheme
   const path = ssrClientHintsConfiguration.prefersColorSchemeOptions.baseUrl
 
   const date = new Date()
   const expires = new Date(date.setDate(date.getDate() + 365))
   if (
-    !clientHintsRequest.firstRequest ||
-    !ssrClientHintsConfiguration.reloadOnFirstRequest
+    !clientHintsRequest.firstRequest
+    || !ssrClientHintsConfiguration.reloadOnFirstRequest
   ) {
     useCookie(cookieName, {
       path,

@@ -1,5 +1,6 @@
-import translationCache from '~/tools/translator/src/cache'
 import path from 'path'
+import type { ConsolaInstance } from 'consola'
+import translationCache from '~/tools/translator/src/cache'
 import {
   generateLocalePaths,
   getFileExtension,
@@ -9,7 +10,6 @@ import { executeTranslations } from '~/tools/translator/src/translator'
 import { FileExtensions } from '~/tools/translator/src/types'
 import { filterLocales } from '~/tools/translator/src/helpers'
 import type { TranslatorConfig } from '~/tools/translator/src/config'
-import type { ConsolaInstance } from 'consola'
 
 export async function main(
   config: TranslatorConfig,
@@ -50,7 +50,8 @@ export async function main(
       inputFileExtension,
       outputExtension,
     )
-  } catch (error) {
+  }
+  catch (error) {
     consola.error(error)
     throw error
   }

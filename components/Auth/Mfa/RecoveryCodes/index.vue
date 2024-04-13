@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const { recoveryCodesList } = useAuthMfa()
 
-const { data: recoveryCodes } = await recoveryCodesList()
-const codes = recoveryCodes.value?.unusedCodes
+const recoveryCodes = await recoveryCodesList()
+const codes = recoveryCodes?.unusedCodes
 const rows = codes?.map((code: string) => ({ code })) ?? []
 const columns = [
   {

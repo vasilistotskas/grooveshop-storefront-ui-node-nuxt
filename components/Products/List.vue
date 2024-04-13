@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { Ref } from 'vue'
-
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 import type { Product, ProductOrderingField } from '~/types/product/product'
 
@@ -21,13 +19,16 @@ const { paginationType } = toRefs(props)
 
 const route = useRoute()
 const { t, locale } = useI18n()
+const { loggedIn } = useUserSession()
+const userStore = useUserStore()
+const { updateFavouriteProducts } = userStore
 
+const pageSize = ref(4)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const category = computed(() => route.query.category)
-const pageSize = computed(() => '16')
 
-const entityOrdering: Ref<EntityOrdering<ProductOrderingField>> = ref([
+const entityOrdering = ref<EntityOrdering<ProductOrderingField>>([
   {
     value: 'finalPrice',
     label: t('pages.product.ordering.price'),
@@ -40,11 +41,12 @@ const entityOrdering: Ref<EntityOrdering<ProductOrderingField>> = ref([
   },
 ])
 
-const orderingFields: Partial<Record<ProductOrderingField, OrderingOption[]>> =
-  reactive({
-    finalPrice: [],
-    createdAt: [],
-  })
+const orderingFields = reactive<
+  Partial<Record<ProductOrderingField, OrderingOption[]>>
+>({
+  finalPrice: [],
+  createdAt: [],
+})
 
 const {
   data: products,
@@ -64,6 +66,32 @@ const {
   }),
 )
 
+const productIds = computed(() => {
+  if (!products.value) return
+  return products.value.results?.map(product => product.id)
+})
+
+const shouldFetchFavouriteProducts = computed(() => {
+  return loggedIn.value && productIds.value && productIds.value.length > 0
+})
+
+const refreshFavouriteProducts = async (ids: number[]) => {
+  if (!shouldFetchFavouriteProducts.value) return
+  return await $fetch('/api/products/favourites/favourites-by-products', {
+    method: 'POST',
+    body: {
+      productIds: ids,
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const favourites = response._data
+      updateFavouriteProducts(favourites)
+    },
+  })
+}
+
 const pagination = computed(() => {
   if (!products.value) return
   return usePagination<Product>(products.value)
@@ -75,14 +103,19 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  () => refresh(),
+  async () => {
+    await refresh()
+    if (loggedIn.value && productIds.value && productIds.value.length > 0) {
+      await refreshFavouriteProducts(productIds.value)
+    }
+  },
   { deep: true },
 )
 </script>
 
 <template>
-  <div class="products-list grid w-full gap-4">
-    <div class="flex flex-row items-center gap-2">
+  <div class="products-list flex w-full flex-col gap-4">
+    <div class="flex flex-row flex-wrap items-center gap-2">
       <Pagination
         v-if="pagination"
         :pagination-type="paginationType"

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { totpActivateGet } = useAuthMfa()
 
-const { data: totp } = await totpActivateGet()
+const totp = await totpActivateGet()
 </script>
 
 <template>

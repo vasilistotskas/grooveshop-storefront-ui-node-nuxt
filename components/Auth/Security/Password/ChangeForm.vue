@@ -11,12 +11,10 @@ const toast = useToast()
 
 function onSubmit(values: PasswordChangeBody) {
   passwordChange(values)
-    .then(async ({ error }) => {
-      if (error.value) {
-        throw error.value
-      }
+    .then(async () => {
       toast.add({
         title: t('components.auth.security.password.change.form.success.title'),
+        color: 'green',
       })
       await navigateTo('/account')
     })
@@ -24,11 +22,11 @@ function onSubmit(values: PasswordChangeBody) {
       const newPassword1Error = error.value.data?.data?.newPassword1 as string[]
       const newPassword2Error = error.value.data?.data?.newPassword2 as string[]
 
-      const toastTitle =
-        newPassword1Error?.join(' ') ??
-        newPassword2Error?.join(' ') ??
-        error.value?.message ??
-        t('components.auth.security.password.change.form.error.title')
+      const toastTitle
+        = newPassword1Error?.join(' ')
+        ?? newPassword2Error?.join(' ')
+        ?? error.value?.message
+        ?? t('components.auth.security.password.change.form.error.title')
 
       toast.add({
         title: toastTitle,
@@ -75,7 +73,7 @@ const formSchema: DynamicFormSchema = {
       newPassword1: z.string(),
       newPassword2: z.string(),
     })
-    .refine((data) => data.newPassword1 === data.newPassword2, {
+    .refine(data => data.newPassword1 === data.newPassword2, {
       message: t(
         'components.auth.security.password.change.form.password2.validation.mismatch',
       ),

@@ -162,7 +162,8 @@ export default defineComponent({
         try {
           const response = await fetch(props.animationLink)
           animationData = await response.json()
-        } catch (error) {
+        }
+        catch (error) {
           return
         }
       }
@@ -201,9 +202,11 @@ export default defineComponent({
 
         if (props.playOnHover) {
           lottieAnimation.value.pause()
-        } else if (autoPlay) {
+        }
+        else if (autoPlay) {
           lottieAnimation.value.play()
-        } else {
+        }
+        else {
           lottieAnimation.value.pause()
         }
 
@@ -225,7 +228,8 @@ export default defineComponent({
 
       if (props.pauseAnimation) {
         lottieAnimation.value.pause()
-      } else if (props.playOnHover) {
+      }
+      else if (props.playOnHover) {
         lottieAnimation.value.pause()
       }
 
@@ -313,7 +317,8 @@ export default defineComponent({
         if (lottieAnimation.value) {
           if (props.pauseAnimation) {
             lottieAnimation.value.pause()
-          } else {
+          }
+          else {
             lottieAnimation.value.play()
           }
         }
@@ -363,7 +368,8 @@ export default defineComponent({
       if (lottieAnimation.value) {
         if (direction === 'forward') {
           lottieAnimation.value.setDirection(1)
-        } else if (direction === 'reverse') {
+        }
+        else if (direction === 'reverse') {
           lottieAnimation.value.setDirection(-1)
         }
       }
@@ -422,8 +428,8 @@ export default defineComponent({
     // function to generate random strings for IDs
     const makeId = (length: number) => {
       let result = ''
-      const characters =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      const characters
+        = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
       const charactersLength = characters.length
       for (let i = 0; i < length; i++) {
         result += characters.charAt(
@@ -441,8 +447,8 @@ export default defineComponent({
       }
 
       if (
-        props.animationLink === '' &&
-        Object.keys(props.animationData).length === 0
+        props.animationLink === ''
+        && Object.keys(props.animationData).length === 0
       ) {
         throw new Error(
           'You must provide either animationLink or animationData',

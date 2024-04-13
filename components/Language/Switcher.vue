@@ -28,7 +28,7 @@ const allLocales = locales as unknown as Locale[]
 
 const availableLocales = computed(() => {
   const l = locales.value as Locale[]
-  return l.filter((i) => i.code !== locale.value)
+  return l.filter(i => i.code !== locale.value)
 })
 
 const navigateToLocale = (code: string) => {
@@ -88,9 +88,7 @@ const onLocaleChange = (event: Event) => {
               class="text-primary-800 dark:text-primary-100 flex-1 truncate text-sm"
             >
               {{ lang.name }}
-              <span class="text-primary-800 dark:text-primary-100 text-xs"
-                >({{ lang.code }})</span
-              >
+              <span class="text-primary-800 dark:text-primary-100 text-xs">({{ lang.code }})</span>
             </span>
           </NuxtLink>
         </ListboxOption>

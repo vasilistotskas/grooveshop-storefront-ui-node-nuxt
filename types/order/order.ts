@@ -132,4 +132,5 @@ export const ZodOrderUUIDParams = z.object({
   uuid: z.string(),
 })
 
+export type OrderOrderingField = 'status' | 'createdAt' | 'updatedAt'
 export type Order = z.infer<typeof ZodOrder>

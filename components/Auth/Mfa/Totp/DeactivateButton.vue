@@ -6,10 +6,7 @@ const toast = useToast()
 
 function onSubmit() {
   totpDeactivate({})
-    .then(async ({ error }) => {
-      if (error.value) {
-        throw error.value
-      }
+    .then(async () => {
       toast.add({
         title: t('pages.auth.security.mfa.totp.deactivate.success'),
         color: 'green',

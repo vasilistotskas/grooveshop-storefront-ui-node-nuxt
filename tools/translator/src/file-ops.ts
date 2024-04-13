@@ -1,12 +1,5 @@
 import path from 'path'
 import { pathToFileURL } from 'url'
-import {
-  FileExtensions,
-  type LocaleFile,
-  type LocaleOption,
-} from '~/tools/translator/src/types'
-import yaml from 'js-yaml'
-import ts from 'typescript'
 import vm from 'vm'
 import { type Context } from 'vm'
 import {
@@ -17,6 +10,13 @@ import {
   access,
   rename,
 } from 'node:fs/promises'
+import ts from 'typescript'
+import yaml from 'js-yaml'
+import {
+  FileExtensions,
+  type LocaleFile,
+  type LocaleOption,
+} from '~/tools/translator/src/types'
 
 async function executeTs(tsCode: string): Promise<Record<string, any>> {
   const jsCode = ts.transpileModule(tsCode, {
@@ -36,7 +36,8 @@ async function executeTs(tsCode: string): Promise<Record<string, any>> {
 async function safelyRenameFile(originalPath: string, newPath: string) {
   try {
     await rename(originalPath, newPath)
-  } catch (error) {
+  }
+  catch (error) {
     console.error(
       `Error renaming file from ${originalPath} to ${newPath}: ${error}`,
     )
@@ -70,7 +71,8 @@ export async function readFileContents(
           pathToFileURL(filePath.replace(/\.js$/, '.cjs')).href
         )
         return module.default
-      } finally {
+      }
+      finally {
         await safelyRenameFile(filePath.replace(/\.js$/, '.cjs'), filePath)
       }
     default:
@@ -109,7 +111,8 @@ export async function writeFileContents(
   try {
     await access(filePath)
     console.info(`File exists, updating: ${filePath}`)
-  } catch (error) {
+  }
+  catch (error) {
     console.info(`File does not exist, creating: ${filePath}`)
   }
 
@@ -146,12 +149,14 @@ export const getFilesFromDir = async (dir: string): Promise<LocaleFile[]> => {
             dir,
           })
         }
-      } else if (status.isDirectory()) {
+      }
+      else if (status.isDirectory()) {
         const subFiles = await getFilesFromDir(filePath)
         files.push(...subFiles)
       }
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.warn(`Error reading directory at ${dir}: ${error}`)
     return []
   }
@@ -167,7 +172,8 @@ export async function findFileExtension(
     try {
       await access(`${basePath}/${fileName}.${ext}`)
       return ext
-    } catch {
+    }
+    catch {
       // ignore
     }
   }
@@ -189,7 +195,8 @@ export function getFileExtension(
 export async function validatePathAccess(filePath: string, fileType = 'file') {
   try {
     await access(filePath)
-  } catch (error) {
+  }
+  catch (error) {
     throw new Error(`Failed to access the ${fileType}: ${filePath} - ${error}`)
   }
 }
@@ -199,7 +206,7 @@ export function generateLocalePaths(
   inputFileExtension: FileExtensions,
   availableLocales: LocaleOption[],
 ): LocaleFile[] {
-  const filteredLocales = availableLocales.filter((l) => l.label !== 'All')
+  const filteredLocales = availableLocales.filter(l => l.label !== 'All')
 
   return filteredLocales.map((l) => {
     const [lang, country] = l.value.split('-')

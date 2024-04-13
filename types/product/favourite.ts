@@ -31,8 +31,18 @@ export const ZodProductFavouriteCreateBody = z.object({
   product: z.string(),
 })
 
+export const ZodProductFavouritesByProductsBody = z.object({
+  productIds: z.array(z.number()),
+})
+
 export const ZodProductFavouriteParams = z.object({
   id: z.string(),
 })
 
 export type ProductFavourite = z.infer<typeof ZodProductFavourite>
+export type ProductFavouriteOrderingField =
+  | 'id'
+  | 'productId'
+  | 'userId'
+  | 'createdAt'
+  | 'updatedAt'

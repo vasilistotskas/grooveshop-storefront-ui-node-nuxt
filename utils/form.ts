@@ -11,7 +11,8 @@ export const processValues = (
       const validKey = key as keyof typeof values
       if (defaultOptions.includes(String(values[validKey]))) {
         acc[validKey] = null as never
-      } else {
+      }
+      else {
         acc[validKey] = values[validKey] as never
       }
       return acc

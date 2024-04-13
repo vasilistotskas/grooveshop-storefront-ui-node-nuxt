@@ -10,8 +10,8 @@ export const experimental = {
   cookieStore: true,
   restoreState: true,
   watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
-    | 'chokidar'
-    | 'chokidar-granular'
-    | 'parcel'
-    | undefined,
+  | 'chokidar'
+  | 'chokidar-granular'
+  | 'parcel'
+  | undefined,
 }

@@ -38,7 +38,8 @@ export default defineEventHandler(async (event: H3Event) => {
       refreshToken: registrationResponse.refresh,
     })
     return registrationResponse
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

@@ -40,7 +40,8 @@ export default defineEventHandler(async (event: H3Event) => {
       totpAuthenticated: authenticateResponse.success,
     })
     return authenticateResponse
-  } catch (error) {
+  }
+  catch (error) {
     await setUserSession(event, {
       totpAuthenticated: false,
     })

@@ -1,8 +1,84 @@
 <script lang="ts" setup>
 import emptyIcon from '~icons/mdi/package-variant-remove'
+import type { Order, OrderOrderingField } from '~/types/order/order'
+import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
-const userStore = useUserStore()
-const { orders } = storeToRefs(userStore)
+const { t } = useI18n()
+const route = useRoute('account-orders___en')
+const { user } = useUserSession()
+
+const pageSize = ref(4)
+const page = computed(() => route.query.page)
+const ordering = computed(() => route.query.ordering || '-createdAt')
+
+const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
+  {
+    value: 'status',
+    label: t('pages.account.orders.ordering.status'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'createdAt',
+    label: t('pages.account.orders.ordering.created_at'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'updatedAt',
+    label: t('pages.account.orders.ordering.updated_at'),
+    options: ['ascending', 'descending'],
+  },
+])
+
+const orderingFields = reactive<
+  Partial<Record<OrderOrderingField, OrderingOption[]>>
+>({
+  status: [],
+  createdAt: [],
+  updatedAt: [],
+})
+
+const { data: orders, pending } = await useLazyFetch(
+  `/api/user/account/${user.value?.id}/orders`,
+  {
+    method: 'GET',
+    query: {
+      page: page.value,
+      ordering: ordering.value,
+      pageSize: pageSize.value,
+    },
+  },
+)
+
+const refreshOrders = async () => {
+  pending.value = true
+  const orders = await $fetch(`/api/user/account/${user.value?.id}/orders`, {
+    method: 'GET',
+    query: {
+      page: page.value,
+      ordering: ordering.value,
+      pageSize: pageSize.value,
+    },
+  })
+  pending.value = false
+  return orders
+}
+
+const pagination = computed(() => {
+  if (!orders.value) return
+  return usePagination<Order>(orders.value)
+})
+
+const orderingOptions = computed(() => {
+  return useOrdering<OrderOrderingField>(entityOrdering.value, orderingFields)
+})
+
+watch(
+  () => route.query,
+  async () => {
+    orders.value = await refreshOrders()
+  },
+  { deep: true },
+)
 
 definePageMeta({
   layout: 'user',
@@ -15,8 +91,37 @@ definePageMeta({
       <PageTitle :text="$t('pages.account.orders.title')" />
     </PageHeader>
     <PageBody>
-      <OrderList v-if="orders && orders.length" :orders="orders" />
-      <EmptyState v-if="!orders" :icon="emptyIcon">
+      <div class="flex flex-row flex-wrap items-center gap-2">
+        <PaginationPageNumber
+          v-if="pagination"
+          :count="pagination.count"
+          :total-pages="pagination.totalPages"
+          :page-total-results="pagination.pageTotalResults"
+          :page-size="pagination.pageSize"
+          :page="pagination.page"
+          :links="pagination.links"
+        />
+        <Ordering
+          :ordering="String(ordering)"
+          :ordering-options="orderingOptions.orderingOptionsArray.value"
+        />
+      </div>
+      <OrderList
+        v-if="!pending && orders?.results?.length"
+        :orders="orders?.results"
+        :orders-total="orders?.count"
+      />
+      <template v-if="pending">
+        <div class="grid gap-2 md:gap-4">
+          <ClientOnlyFallback
+            v-for="index in 4"
+            :key="index"
+            height="202px"
+            width="100%"
+          />
+        </div>
+      </template>
+      <EmptyState v-if="!pending && !orders?.results?.length" :icon="emptyIcon">
         <template #actions>
           <UButton
             :label="$t('common.empty.button')"

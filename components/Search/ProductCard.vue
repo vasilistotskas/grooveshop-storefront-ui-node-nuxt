@@ -42,7 +42,7 @@ const alt = computed(() => {
           class="aspect-square h-full w-full bg-white object-cover"
           :style="{
             'view-transition-name': `item-${item.id}`,
-            aspectRatio: '1/1',
+            'aspectRatio': '1/1',
           }"
           :width="300"
           :height="300"

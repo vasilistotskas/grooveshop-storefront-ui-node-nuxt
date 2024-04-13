@@ -10,7 +10,7 @@ const toast = useToast()
 const route = useRoute('auth-registration-account-confirm-email-id___en')
 const id = route.params.id
 
-const { data } = await registrationVerifyEmail({
+const data = await registrationVerifyEmail({
   key: id,
 })
 
@@ -23,14 +23,15 @@ function onSubmit(values: RegistrationResendEmailBody) {
         title: t(
           'pages.auth.registration.account-confirm-email.resend.success.title',
         ),
+        color: 'green',
       })
     })
     .catch((error) => {
       if (error) {
         toast.add({
           title:
-            error.value?.message ??
-            t(
+            error.value?.message
+            ?? t(
               'pages.auth.registration.account-confirm-email.resend.error.title',
             ),
           color: 'red',

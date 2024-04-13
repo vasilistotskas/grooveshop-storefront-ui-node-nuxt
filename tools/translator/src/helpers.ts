@@ -1,5 +1,5 @@
-import type { LocaleFile } from '~/tools/translator/src/types'
 import path from 'path'
+import type { LocaleFile } from '~/tools/translator/src/types'
 
 export const getISO6391Code = (locale: string): string => {
   if (!locale) {
@@ -13,7 +13,7 @@ export const getISO6391Code = (locale: string): string => {
 }
 
 export const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms))
+  new Promise(resolve => setTimeout(resolve, ms))
 
 export const retry = async <T>(
   func: () => Promise<T>,
@@ -24,7 +24,8 @@ export const retry = async <T>(
   while (attempts < retries) {
     try {
       return await func()
-    } catch (error) {
+    }
+    catch (error) {
       attempts++
       if (attempts === retries) {
         throw error
@@ -68,11 +69,11 @@ export function filterLocales(
     path.basename(sourceFilePath).replace(/\.[^/.]+$/, ''),
   )
   let filteredLocales = locales.filter(
-    (locale) => locale.langCode !== sourceLangCode,
+    locale => locale.langCode !== sourceLangCode,
   )
 
   if (!selectedLocales.includes('all')) {
-    filteredLocales = filteredLocales.filter((locale) =>
+    filteredLocales = filteredLocales.filter(locale =>
       selectedLocales.includes(locale.langCode),
     )
   }

@@ -21,8 +21,8 @@ const emit = defineEmits(['update:modelValue'])
 const { on, id } = toRefs(props)
 
 const randomId = () =>
-  Math.random().toString(36).substring(2, 15) +
   Math.random().toString(36).substring(2, 15)
+  + Math.random().toString(36).substring(2, 15)
 
 const switchId = ref(id?.value || randomId())
 const input = ref<HTMLInputElement>()

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
+import { existsSync } from 'fs'
 import { defineCommand, runMain } from 'citty'
+import { type ConsolaInstance, createConsola } from 'consola'
 import pkg from '~/package.json'
 import { mainCLI } from '~/tools/translator/src/main-cli'
 import {
   loadTranslatorConfig,
   type TranslatorConfig,
 } from '~/tools/translator/src/config'
-import { type ConsolaInstance, createConsola } from 'consola'
 import { main as mainArgs } from '~/tools/translator/src/main'
-import { existsSync } from 'fs'
 import { FileExtensions } from '~/tools/translator/src/types'
 
 const validateInputFile = (filePath?: string) => {
@@ -27,7 +27,7 @@ const validateSelectedLocales = (locales?: string) => {
   if (locales) {
     const selectedLocales = locales.split(',')
     const invalidLocales = selectedLocales.filter(
-      (locale) => !/^[a-z]{2}-[A-Z]{2}$/.test(locale),
+      locale => !/^[a-z]{2}-[A-Z]{2}$/.test(locale),
     )
     if (invalidLocales.length) {
       throw new Error(
@@ -104,12 +104,14 @@ const main = defineCommand({
           selectedLocales,
           outputExtension,
         )
-      } else {
+      }
+      else {
         await mainCLI(_config, _consola)
       }
 
       _consola.success('Translation process completed.')
-    } catch (error) {
+    }
+    catch (error) {
       console.error(error)
       process.exit(1)
     }

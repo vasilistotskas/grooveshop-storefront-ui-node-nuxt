@@ -14,7 +14,6 @@ import { linkChecker } from './config/link-checker'
 import { modules } from './config/modules'
 import { nitro } from './config/nitro'
 import { pinia } from './config/pinia'
-import { piniaPersistedstate } from './config/pinia-persistedstate'
 import { plugins } from './config/plugins'
 import { pwa } from './config/pwa'
 import { robots } from './config/robots'
@@ -32,40 +31,39 @@ import { eslint } from './config/eslint'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
-	ssr: true,
-	sourcemap: true,
-	generate: {
-		exclude: [/^\/api\/.*/]
-	},
-	site,
-	modules,
-	routeRules,
-	plugins,
-	build,
-	imports,
-	experimental,
-	devtools,
-	typescript,
-	tailwindcss,
-	i18n,
-	css,
-	runtimeConfig,
-	cookieControl,
-	vue,
-	pinia,
-	piniaPersistedstate,
-	vite,
-	nitro,
+  ssr: true,
+  sourcemap: true,
+  generate: {
+    exclude: [/^\/api\/.*/],
+  },
+  site,
+  modules,
+  routeRules,
+  plugins,
+  build,
+  imports,
+  experimental,
+  devtools,
+  typescript,
+  tailwindcss,
+  i18n,
+  css,
+  runtimeConfig,
+  cookieControl,
+  vue,
+  pinia,
+  vite,
+  nitro,
   eslint,
-	app,
-	image,
-	pwa,
-	schemaOrg,
-	sitemap,
-	linkChecker,
-	robots,
-	htmlValidator,
-	veeValidate,
-	delayHydration,
-	device
+  app,
+  image,
+  pwa,
+  schemaOrg,
+  sitemap,
+  linkChecker,
+  robots,
+  htmlValidator,
+  veeValidate,
+  delayHydration,
+  device,
 })

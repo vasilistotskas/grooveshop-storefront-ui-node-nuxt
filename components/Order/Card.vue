@@ -23,7 +23,7 @@ const { statusClass } = useOrder()
 </script>
 
 <template>
-  <div
+  <li
     v-if="order"
     class="order-card text-primary-800 dark:text-primary-100 flex flex-col items-center justify-between gap-4 rounded border border-gray-900/10 bg-white p-4 dark:border-gray-50/[0.2] dark:bg-zinc-900 md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-10"
   >
@@ -117,5 +117,5 @@ const { statusClass } = useOrder()
         />
       </div>
     </div>
-  </div>
+  </li>
 </template>
