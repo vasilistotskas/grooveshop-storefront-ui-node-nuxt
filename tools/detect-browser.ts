@@ -20,8 +20,7 @@ interface DetectedInfo<
 }
 
 export class BrowserInfo
-  implements DetectedInfo<'browser', Browser, OperatingSystem | null, string>
-{
+implements DetectedInfo<'browser', Browser, OperatingSystem | null, string> {
   public readonly type = 'browser'
   constructor(
     public readonly name: Browser,
@@ -31,8 +30,7 @@ export class BrowserInfo
 }
 
 export class NodeInfo
-  implements DetectedInfo<'node', 'node', NodeJS.Platform, string>
-{
+implements DetectedInfo<'node', 'node', NodeJS.Platform, string> {
   public readonly type = 'node'
   public readonly name = 'node' as const
   public readonly os: NodeJS.Platform = process.platform
@@ -41,9 +39,8 @@ export class NodeInfo
 }
 
 export class SearchBotDeviceInfo
-  implements
-    DetectedInfo<'bot-device', Browser, OperatingSystem | null, string>
-{
+implements
+    DetectedInfo<'bot-device', Browser, OperatingSystem | null, string> {
   public readonly type = 'bot-device'
   constructor(
     public readonly name: Browser,
@@ -62,8 +59,7 @@ export class BotInfo implements DetectedInfo<'bot', 'bot', null, null> {
 }
 
 export class ReactNativeInfo
-  implements DetectedInfo<'react-native', 'react-native', null, null>
-{
+implements DetectedInfo<'react-native', 'react-native', null, null> {
   public readonly type = 'react-native'
   public readonly name = 'react-native' as const
   public readonly version: null = null
@@ -137,10 +133,10 @@ type UserAgentMatch = [Browser, RegExpExecArray] | false
 type OperatingSystemRule = [OperatingSystem, RegExp]
 
 // tslint:disable-next-line:max-line-length
-const SEARCHBOX_UA_REGEX =
-  /alexa|bot|crawl(er|ing)|facebookexternalhit|feedburner|google web preview|nagios|postrank|pingdom|slurp|spider|yahoo!|yandex/
-const SEARCHBOT_OS_REGEX =
-  /(nuhk|curl|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/
+const SEARCHBOX_UA_REGEX
+  = /alexa|bot|crawl(er|ing)|facebookexternalhit|feedburner|google web preview|nagios|postrank|pingdom|slurp|spider|yahoo!|yandex/
+const SEARCHBOT_OS_REGEX
+  = /(nuhk|curl|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/
 const REQUIRED_VERSION_PARTS = 3
 
 const userAgentRules: UserAgentRule[] = [
@@ -226,9 +222,9 @@ export function detect(
   if (userAgent) return parseUserAgent(userAgent)
 
   if (
-    typeof document === 'undefined' &&
-    typeof navigator !== 'undefined' &&
-    navigator.product === 'ReactNative'
+    typeof document === 'undefined'
+    && typeof navigator !== 'undefined'
+    && navigator.product === 'ReactNative'
   )
     return new ReactNativeInfo()
 
@@ -244,8 +240,8 @@ function matchUserAgent(ua: string): UserAgentMatch {
   // execution once rather than once for the test and for the exec again below
   // probably something that needs to be benchmarked though
   return (
-    ua !== '' &&
-    userAgentRules.reduce<UserAgentMatch>(
+    ua !== ''
+    && userAgentRules.reduce<UserAgentMatch>(
       (matched: UserAgentMatch, [browser, regex]) => {
         if (matched) return matched
 
@@ -273,8 +269,8 @@ export function parseUserAgent(
   if (name === 'searchbot') return new BotInfo()
 
   // Do not use RegExp for split operation as some browser do not support it (See: http://blog.stevenlevithan.com/archives/cross-browser-split)
-  let versionParts =
-    match[1] && match[1].split('.').join('_').split('_').slice(0, 3)
+  let versionParts
+    = match[1] && match[1].split('.').join('_').split('_').slice(0, 3)
   if (versionParts) {
     if (versionParts.length < REQUIRED_VERSION_PARTS) {
       versionParts = [
@@ -282,7 +278,8 @@ export function parseUserAgent(
         ...createVersionParts(REQUIRED_VERSION_PARTS - versionParts.length),
       ]
     }
-  } else {
+  }
+  else {
     versionParts = []
   }
 

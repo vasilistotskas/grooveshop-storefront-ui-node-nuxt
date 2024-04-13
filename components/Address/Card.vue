@@ -12,9 +12,6 @@ const props = defineProps({
 
 const { address } = toRefs(props)
 
-const userStore = useUserStore()
-const { deleteAddress } = userStore
-
 const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
@@ -23,6 +20,7 @@ const submit = async () => {
   if (address?.value && address?.value.isMain) {
     toast.add({
       title: t('components.address.card.delete.cant_delete_main'),
+      color: 'red',
     })
     return
   }
@@ -39,9 +37,9 @@ const submit = async () => {
       if (!response.ok) {
         return
       }
-      deleteAddress(address?.value.id)
       toast.add({
         title: t('components.address.card.delete.success'),
+        color: 'green',
       })
     },
     onResponseError() {
@@ -61,7 +59,7 @@ const submit = async () => {
   >
     <div
       v-if="address.isMain"
-      class="absolute right-24 top-3 text-[#f0c14b] md:right-2 md:top-1"
+      class="absolute right-24 top-3 text-sm text-[#f0c14b] md:right-2 md:top-1"
     >
       <IconMdi:star />
     </div>

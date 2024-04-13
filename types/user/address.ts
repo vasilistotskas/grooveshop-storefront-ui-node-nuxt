@@ -90,3 +90,12 @@ export const ZodUserAddressPutBody = z.object({
 })
 
 export type UserAddress = z.infer<typeof ZodUserAddress>
+export type UserAddressOrderingField =
+  | 'id'
+  | 'country'
+  | 'zipcode'
+  | 'floor'
+  | 'locationType'
+  | 'isMain'
+  | 'createdAt'
+  | 'updatedAt'

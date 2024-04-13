@@ -71,10 +71,12 @@ const uploadImage = async (event: Event) => {
   if (!file)
     return toast.add({
       title: t('components.user.avatar.no_file_selected'),
+      color: 'red',
     })
   if (!fileExtensionAllowed)
     return toast.add({
       title: t('components.user.avatar.file_extension_not_allowed'),
+      color: 'red',
     })
   const formData = new FormData()
   formData.append('image', file)
@@ -95,6 +97,7 @@ const uploadImage = async (event: Event) => {
       }
       toast.add({
         title: t('components.user.avatar.image.updated'),
+        color: 'green',
       })
       await fetchUser()
       await fetch()

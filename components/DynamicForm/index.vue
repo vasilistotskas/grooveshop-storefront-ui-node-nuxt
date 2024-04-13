@@ -70,13 +70,13 @@ const {
 
 const finalID = id.value ?? useId()
 const currentStep = ref(0)
-const isMultiStep =
-  Array.isArray(schema.value.steps) && schema.value.steps.length > 0
+const isMultiStep
+  = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
 const lastStep = schema.value.steps?.length ? schema.value.steps.length - 1 : 0
 
 // Filter the schema fields based on the current step
-const formFields =
-  (isMultiStep
+const formFields
+  = (isMultiStep
     ? schema.value.steps?.[currentStep.value].fields
     : schema.value.fields) ?? []
 
@@ -104,11 +104,11 @@ const disabledFields = computed<DisabledFields>(() => {
 })
 
 // Create an array of field names from the schema object
-const schemaFieldNames = formFields.map((field) => field.name)
+const schemaFieldNames = formFields.map(field => field.name)
 
 // Use schema.fields to generate a Zod schema object
 const generatedSchema = z.object(
-  Object.fromEntries(formFields.map((field) => [field.name, field.rules])),
+  Object.fromEntries(formFields.map(field => [field.name, field.rules])),
 )
 
 // Use schema.extraValidation to generate a Zod schema object
@@ -120,7 +120,8 @@ const extraValidationSchema = schema.value.extraValidation
 const merged = computed(() => {
   if (extraValidationSchema instanceof z.ZodEffects) {
     return mergeWithEffect(extraValidationSchema, generatedSchema)
-  } else if (extraValidationSchema instanceof z.ZodObject) {
+  }
+  else if (extraValidationSchema instanceof z.ZodObject) {
     return generatedSchema.merge(extraValidationSchema)
   }
 
@@ -157,10 +158,10 @@ const {
 const goToNextStep = async () => {
   const currentStepFields = schema.value.steps?.[currentStep.value].fields ?? []
   const fieldsToValidate = currentStepFields.map(
-    (field) => field.name,
+    field => field.name,
   ) as Partial<ValidationOptions>
   const isValid = await validate(fieldsToValidate).then(
-    (result) => result.valid,
+    result => result.valid,
   )
   if (isValid) {
     if (currentStep.value < lastStep) {
@@ -212,9 +213,9 @@ const submitButtonDisabled = computedAsync(async () => {
     .parse(formState.value)
     .then((result) => {
       const liveResultValid = result.errors.length === 0
-      return isSubmitting.value ||
-        Object.keys(errors.value).length > 0 ||
-        disableSubmitUntilValid.value
+      return isSubmitting.value
+        || Object.keys(errors.value).length > 0
+        || disableSubmitUntilValid.value
         ? !liveResultValid
         : false
     })
@@ -225,9 +226,9 @@ const submitButtonDisabled = computedAsync(async () => {
 
 const nextStepButtonDisabled = computed(() => {
   return (
-    isSubmitting.value ||
-    Object.keys(errors.value).length > 0 ||
-    disableSubmitUntilValid.value
+    isSubmitting.value
+    || Object.keys(errors.value).length > 0
+    || disableSubmitUntilValid.value
   )
 })
 

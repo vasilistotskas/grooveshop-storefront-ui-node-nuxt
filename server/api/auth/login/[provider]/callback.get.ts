@@ -68,7 +68,8 @@ export default defineEventHandler(async (event) => {
     }
 
     await sendRedirect(event, withQuery('/account', { redirect: returnToPath }))
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error, {
       event,
       url: '/auth/login',

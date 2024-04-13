@@ -52,7 +52,8 @@ const updateDrawerOptions = () => {
   // drawer
   if (showDrawer.value || showOptions.value) {
     document.body.classList.add('overflow-hidden')
-  } else {
+  }
+  else {
     document.body.classList.remove('overflow-hidden')
   }
 }
@@ -60,7 +61,8 @@ const toggleDrawer = () => (showDrawer.value = !showDrawer.value)
 const toggleOptions = (show?: boolean) => {
   if (show) {
     showOptions.value = show
-  } else {
+  }
+  else {
     showOptions.value = !showOptions.value
   }
 }

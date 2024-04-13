@@ -26,7 +26,7 @@ definePageMeta({
       <PageTitle :text="$t('pages.category.title')" class="capitalize" />
     </PageHeader>
     <PageBody>
-      <div />
+      <div v-if="category" />
     </PageBody>
   </PageWrapper>
 </template>

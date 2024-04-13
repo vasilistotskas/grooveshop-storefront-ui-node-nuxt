@@ -46,7 +46,8 @@ export default defineEventHandler(async (event) => {
     })
 
     await sendRedirect(event, authorizationUrl)
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

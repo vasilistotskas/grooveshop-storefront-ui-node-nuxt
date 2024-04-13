@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import type { PropType, Ref } from 'vue'
+import type { PropType } from 'vue'
 
+import { z } from 'zod'
 import type {
   BlogComment,
   BlogCommentOrderingField,
@@ -8,7 +9,6 @@ import type {
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
 import type { DynamicFormSchema } from '~/types/form'
-import { z } from 'zod'
 import {
   type CursorStates,
   PaginationCursorStateEnum,
@@ -49,15 +49,15 @@ const emit = defineEmits<{
   (e: 'reply-add', data: BlogComment): void
 }>()
 
-const { blogPostId, commentsCount, displayImageOf, paginationType, pageSize } =
-  toRefs(props)
+const { blogPostId, commentsCount, displayImageOf, paginationType, pageSize }
+  = toRefs(props)
 
 const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute()
 const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
-const { getBlogPostComment, addBlogPostComment } = userStore
+const { updateLikedComments } = userStore
 const cursorState = useState<CursorStates>('cursorStates')
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
@@ -67,13 +67,30 @@ const cursor = computed(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
 )
 
-const allBlogPostComments = ref<BlogComment[]>([])
+const allComments = ref<BlogComment[]>([])
+
+const refreshLikedComments = async (ids: number[]) => {
+  if (!loggedIn.value) return
+  return await $fetch('/api/blog/comments/liked-comments', {
+    method: 'POST',
+    body: {
+      commentIds: ids,
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const likedCommentIds = response._data
+      updateLikedComments(likedCommentIds)
+    },
+  })
+}
 
 const {
-  data: blogPostComments,
+  data: comments,
   pending,
   refresh,
-} = await useAsyncData(`blogPostComments${blogPostId.value}`, () =>
+} = await useAsyncData(`comments${blogPostId.value}`, () =>
   $fetch(`/api/blog/posts/${blogPostId.value}/comments`, {
     method: 'GET',
     query: {
@@ -89,7 +106,7 @@ const {
   }),
 )
 
-const entityOrdering: Ref<EntityOrdering<BlogCommentOrderingField>> = ref([
+const entityOrdering = ref<EntityOrdering<BlogCommentOrderingField>>([
   {
     value: 'id',
     label: t('common.ordering.id'),
@@ -102,23 +119,23 @@ const entityOrdering: Ref<EntityOrdering<BlogCommentOrderingField>> = ref([
   },
 ])
 
-const orderingFields: Partial<
-  Record<BlogCommentOrderingField, OrderingOption[]>
-> = reactive({
+const orderingFields = reactive<
+  Partial<Record<BlogCommentOrderingField, OrderingOption[]>>
+>({
   id: [],
   createdAt: [],
 })
 
 const pagination = computed(() => {
-  if (!blogPostComments.value) return
-  return usePagination<BlogComment>(blogPostComments.value)
+  if (!comments.value) return
+  return usePagination<BlogComment>(comments.value)
 })
 
 const showResults = computed(() => {
   if (paginationType.value === 'cursor') {
-    return allBlogPostComments.value.length
+    return allComments.value.length
   }
-  return !pending.value && allBlogPostComments.value.length
+  return !pending.value && allComments.value.length
 })
 
 const orderingOptions = computed(() => {
@@ -128,11 +145,44 @@ const orderingOptions = computed(() => {
   )
 })
 
-const userBlogPostComment = computed(() => {
-  if (!user.value) {
-    return null
-  }
-  return getBlogPostComment(user.value?.id, Number(blogPostId.value))
+const loggedInAndHasComments = computed(() => {
+  return (
+    loggedIn.value
+    && comments.value !== null
+    && comments.value.results !== null
+    && comments.value.results.length > 0
+  )
+})
+
+const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
+  = await useFetch('/api/blog/comments/user-blog-comment', {
+    key: `userBlogPostComment${blogPostId.value}`,
+    method: 'POST',
+    body: {
+      post: blogPostId.value,
+    },
+    immediate: loggedInAndHasComments.value,
+  })
+
+const commentIds = computed(() => {
+  if (!comments.value) return []
+  return comments.value?.results?.map(comment => comment.id)
+})
+
+await useFetch('/api/blog/comments/liked-comments', {
+  key: `likedComments${blogPostId.value}`,
+  method: 'POST',
+  body: {
+    commentIds: commentIds.value,
+  },
+  onResponse({ response }) {
+    if (!response.ok) {
+      return
+    }
+    const likedCommentIds = response._data
+    updateLikedComments(likedCommentIds)
+  },
+  immediate: loggedInAndHasComments.value,
 })
 
 const onReplyAdd = async (data: BlogComment) => {
@@ -176,8 +226,8 @@ async function onAddCommentSubmit({ content }: { content: string }) {
         return
       }
       emit('reply-add', response._data)
-      addBlogPostComment(response._data)
       await refresh()
+      await refreshUserBlogPostComment()
       toast.add({
         title: t('components.blog.post.comments.add.success'),
         color: 'green',
@@ -204,25 +254,49 @@ const scrollToComments = () => {
 }
 
 watch(
-  () => [route.query, cursorState.value],
-  () => refresh(),
+  () => cursorState.value,
+  async (newVal, oldVal) => {
+    if (
+      newVal[PaginationCursorStateEnum.BLOG_POST_COMMENTS]
+      === oldVal[PaginationCursorStateEnum.BLOG_POST_COMMENTS]
+    ) {
+      return
+    }
+
+    await refresh()
+    if (loggedIn.value && commentIds.value && commentIds.value.length > 0) {
+      await refreshLikedComments(commentIds.value)
+    }
+  },
   { deep: true },
 )
 
 watch(
-  blogPostComments,
+  comments,
   (newValue) => {
     if (newValue && newValue.results?.length) {
       const commentsMap = new Map(
-        allBlogPostComments.value.map((comment) => [comment.id, comment]),
+        allComments.value.map(comment => [comment.id, comment]),
       )
       newValue.results.forEach((newComment) => {
         commentsMap.set(newComment.id, newComment)
       })
+      let sortedComments
       if (paginationType.value === 'cursor') {
-        allBlogPostComments.value = [...commentsMap.values()]
-      } else {
-        allBlogPostComments.value = newValue.results
+        sortedComments = [...commentsMap.values()].sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        })
+        allComments.value = sortedComments
+      }
+      else {
+        sortedComments = newValue.results.sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        })
+        allComments.value = sortedComments
       }
     }
   },
@@ -259,7 +333,7 @@ onMounted(() => {
       <div class="grid gap-4">
         <LazyBlogPostCommentsList
           :comments-count="commentsCount"
-          :comments="allBlogPostComments"
+          :comments="allComments"
           :display-image-of="displayImageOf"
           @reply-add="onReplyAdd"
         >
@@ -313,7 +387,7 @@ onMounted(() => {
       :page="pagination.page"
       :links="pagination.links"
       :loading="pending"
-      :state-name="PaginationCursorStateEnum.BLOG_POST_COMMENTS"
+      :cursor-key="PaginationCursorStateEnum.BLOG_POST_COMMENTS"
     />
   </div>
 </template>

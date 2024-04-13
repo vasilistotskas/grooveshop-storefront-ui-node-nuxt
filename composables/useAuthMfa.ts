@@ -6,47 +6,47 @@ import type {
 } from '~/types/auth'
 
 export default function () {
-  function totpActivateGet() {
-    return useFetch('/api/auth/mfa/totp/activate', {
+  async function totpActivateGet() {
+    return await $fetch('/api/auth/mfa/totp/activate', {
       method: 'GET',
     })
   }
 
-  function totpActive() {
-    return useFetch('/api/auth/mfa/totp/active', {
+  async function totpActive() {
+    return await $fetch('/api/auth/mfa/totp/active', {
       method: 'GET',
     })
   }
 
-  function recoveryCodesList() {
-    return useFetch('/api/auth/mfa/recovery-codes/list', {
+  async function recoveryCodesList() {
+    return await $fetch('/api/auth/mfa/recovery-codes/list', {
       method: 'GET',
     })
   }
 
-  function totpAuthenticate(body: MfaTotpAuthenticateBody) {
-    return useFetch('/api/auth/mfa/totp/authenticate', {
+  async function totpAuthenticate(body: MfaTotpAuthenticateBody) {
+    return await $fetch('/api/auth/mfa/totp/authenticate', {
       method: 'POST',
       body,
     })
   }
 
-  function totpDeactivate(body: MfaTotpDeactivateBody) {
-    return useFetch('/api/auth/mfa/totp/deactivate', {
+  async function totpDeactivate(body: MfaTotpDeactivateBody) {
+    return await $fetch('/api/auth/mfa/totp/deactivate', {
       method: 'POST',
       body,
     })
   }
 
-  function totpActivatePost(body: MfaTotpActivatePostBody) {
-    return useFetch('/api/auth/mfa/totp/activate', {
+  async function totpActivatePost(body: MfaTotpActivatePostBody) {
+    return await $fetch('/api/auth/mfa/totp/activate', {
       method: 'POST',
       body,
     })
   }
 
-  function recoveryCodesGenerate(body: MfaRecoveryCodesGenerateBody) {
-    return useFetch('/api/auth/mfa/recovery-codes/generate', {
+  async function recoveryCodesGenerate(body: MfaRecoveryCodesGenerateBody) {
+    return await $fetch('/api/auth/mfa/recovery-codes/generate', {
       method: 'POST',
       body,
     })

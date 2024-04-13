@@ -8,16 +8,16 @@ import { capitalize } from '~/utils/str'
 
 const { user, loggedIn } = useUserSession()
 
-const userStore = useUserStore()
-const { getUserProductFavourite } = userStore
-
 const route = useRoute('products-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
 const toast = useToast()
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
-const productId = route.params.id
+const userStore = useUserStore()
+const { getFavouriteByProductId, updateFavouriteProducts } = userStore
+
+const productId = Number(route.params.id)
 
 const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   `/api/products/${productId}`,
@@ -30,13 +30,31 @@ const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   },
 )
 
-const { data: userProductReview, refresh: refreshUserProductReview } =
-  await useFetch('/api/products/reviews/user-product-review', {
+const shouldFetchFavouriteProducts = computed(() => {
+  return loggedIn.value
+})
+
+await useFetch('/api/products/favourites/favourites-by-products', {
+  method: 'POST',
+  body: {
+    productIds: [productId],
+  },
+  immediate: shouldFetchFavouriteProducts.value,
+  onResponse({ response }) {
+    if (!response.ok) {
+      return
+    }
+    const favourites = response._data
+    updateFavouriteProducts(favourites)
+  },
+})
+
+const { data: userProductReview, refresh: refreshUserProductReview }
+  = await useFetch('/api/products/reviews/user-product-review', {
     key: `productReviews${productId}${user.value?.id}`,
     method: 'POST',
     body: {
       product: String(productId),
-      user: String(user.value?.id),
     },
     immediate: loggedIn.value,
   })
@@ -56,9 +74,9 @@ const onDeleteExistingReview = async () => {
 
 const productTitle = computed(() => {
   return capitalize(
-    product.value?.seoTitle ||
-      extractTranslated(product?.value, 'name', locale.value) ||
-      '',
+    product.value?.seoTitle
+    || extractTranslated(product?.value, 'name', locale.value)
+    || '',
   )
 })
 const productStock = computed(() => product.value?.stock || 0)
@@ -67,7 +85,8 @@ const selectorQuantity = ref(1)
 const incrementQuantity = () => {
   if (selectorQuantity.value < productStock.value) {
     selectorQuantity.value++
-  } else {
+  }
+  else {
     toast.add({
       title: t('pages.product.max_quantity_reached'),
       color: 'red',
@@ -87,9 +106,11 @@ const shareOptions = reactive({
   url: isClient ? `/products/${product.value?.id}/${product.value?.slug}` : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch((err) => err)
-const userProductFavourite = computed(() => {
-  return getUserProductFavourite(Number(productId))
+const startShare = () => share().catch(err => err)
+
+const favouriteId = computed(() => {
+  if (!product.value) return
+  return getFavouriteByProductId(product.value?.id)?.id
 })
 
 const openModal = () => {
@@ -97,9 +118,11 @@ const openModal = () => {
     modalBus.emit(
       `modal-open-reviewModal-${user?.value?.id}-${product?.value?.id}`,
     )
-  } else {
+  }
+  else {
     toast.add({
       title: t('components.product.review.must_be_logged_in'),
+      color: 'red',
     })
   }
 }
@@ -147,8 +170,10 @@ watch(selectorQuantity, (newValue) => {
       title: t('pages.product.adjusted_to_stock', {
         stock: maxQuantity,
       }),
+      color: 'blue',
     })
-  } else if (newValue < 1) {
+  }
+  else if (newValue < 1) {
     selectorQuantity.value = 1
   }
 })
@@ -207,8 +232,7 @@ definePageMeta({
                 <span>{{ $t('pages.product.product_id') }}: </span>
                 <span
                   class="text-indigo-700 hover:underline dark:text-indigo-200"
-                  >{{ product.id }}</span
-                >
+                >{{ product.id }}</span>
               </h3>
               <PageSection class="actions flex items-center gap-4">
                 <ClientOnly>
@@ -252,9 +276,7 @@ definePageMeta({
                 <LottieAddToFavourite
                   :product-id="product.id"
                   :user-id="user?.id"
-                  :is-favourite="userProductFavourite !== null"
-                  :favourite="userProductFavourite"
-                  :is-authenticated="loggedIn"
+                  :favourite-id="favouriteId"
                 />
               </PageSection>
               <div class="flex items-center gap-4">

@@ -2,22 +2,24 @@ const execSrcReplacements = (src: any, replacements: any[]) => {
   for (const replacement of replacements) {
     if (
       !(
-        typeof replacement.from === 'string' ||
-        replacement.from instanceof RegExp
+        typeof replacement.from === 'string'
+        || replacement.from instanceof RegExp
       )
     ) {
       throw new TypeError(
-        "[vite-plugin-replace]: The replacement option 'from' is not of type 'string' or 'RegExp'.",
+        '[vite-plugin-replace]: The replacement option \'from\' is not of type \'string\' or \'RegExp\'.',
       )
-    } else if (
+    }
+    else if (
       !(
         typeof replacement.to === 'string' || replacement.to instanceof Function
       )
     ) {
       throw new TypeError(
-        "[vite-plugin-replace]: The replacement option 'to' is not of type 'string' or 'Function'",
+        '[vite-plugin-replace]: The replacement option \'to\' is not of type \'string\' or \'Function\'',
       )
-    } else src = src.replace(replacement.from, replacement.to)
+    }
+    else src = src.replace(replacement.from, replacement.to)
   }
 
   return src
@@ -28,13 +30,15 @@ export const replaceCodePlugin = (config: any) => {
     config = {
       replacements: [],
     }
-  } else if (!(typeof config === 'object' || config !== null)) {
+  }
+  else if (!(typeof config === 'object' || config !== null)) {
     throw new TypeError(
-      "[vite-plugin-replace]: The configuration is not of type 'Object'.",
+      '[vite-plugin-replace]: The configuration is not of type \'Object\'.',
     )
-  } else if (Array.isArray(config.replacements) === false) {
+  }
+  else if (Array.isArray(config.replacements) === false) {
     throw new TypeError(
-      "[vite-plugin-replace]: The configuration option 'replacement' is not of type 'Array'.",
+      '[vite-plugin-replace]: The configuration option \'replacement\' is not of type \'Array\'.',
     )
   }
 

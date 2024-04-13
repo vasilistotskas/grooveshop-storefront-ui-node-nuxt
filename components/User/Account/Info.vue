@@ -13,12 +13,12 @@ defineProps({
     required: false,
     default: 0,
   },
-  favouritesCount: {
+  productFavouritesCount: {
     type: Number,
     required: false,
     default: 0,
   },
-  reviewsCount: {
+  productReviewsCount: {
     type: Number,
     required: false,
     default: 0,
@@ -61,11 +61,10 @@ defineProps({
 
             <span
               class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
-              >{{ ordersCount }}</span
-            >
+            >{{ ordersCount }}</span>
           </Anchor>
         </div>
-        <div v-if="favouritesCount" class="user-info-stats-item">
+        <div v-if="productFavouritesCount" class="user-info-stats-item">
           <Anchor
             class="user-info-stats-item-link"
             :to="`/account/favourites`"
@@ -77,11 +76,10 @@ defineProps({
             }}</span>
             <span
               class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
-              >{{ favouritesCount }}</span
-            >
+            >{{ productFavouritesCount }}</span>
           </Anchor>
         </div>
-        <div v-if="reviewsCount" class="user-info-stats-item">
+        <div v-if="productReviewsCount" class="user-info-stats-item">
           <Anchor
             class="user-info-stats-item-link"
             :to="`/account/reviews`"
@@ -93,8 +91,7 @@ defineProps({
             }}</span>
             <span
               class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
-              >{{ reviewsCount }}</span
-            >
+            >{{ productReviewsCount }}</span>
           </Anchor>
         </div>
       </div>

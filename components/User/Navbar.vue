@@ -5,7 +5,7 @@ interface IMenuItem {
   type: 'link' | 'button' | 'external-link'
   text: string
   href?: string
-  route?: string | { name: string; path: string }
+  route?: string | { name: string, path: string }
   icon?: FunctionalComponent<SVGAttributes> | string
   cssClass?: string
 }
@@ -22,10 +22,9 @@ const { logout } = useAuth()
 
 const userStore = useUserStore()
 const { cleanAccountState } = userStore
-
 const cartStore = useCartStore()
 const { getCartTotalItems } = storeToRefs(cartStore)
-const { cleanCartState, fetchCart } = cartStore
+const { cleanCartState, refreshCart } = cartStore
 
 const authLogoutEvent = async () => {
   await navigateTo('/')
@@ -35,7 +34,7 @@ const authLogoutEvent = async () => {
   cleanCartState()
   cleanAccountState()
   await clear()
-  await fetchCart()
+  await refreshCart()
 }
 
 const menus = computed((): IMenuItem[] => [
@@ -233,8 +232,7 @@ const menus = computed((): IMenuItem[] => [
           >
             <IconFa6Solid:cartShopping />
             <span class="text-primary-800 dark:text-primary-100 ml-1">
-              {{ $t('pages.cart.title') }}</span
-            >
+              {{ $t('pages.cart.title') }}</span>
           </Anchor>
           <UButton
             size="md"

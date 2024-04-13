@@ -24,9 +24,9 @@ const props = defineProps({
   },
 })
 
+const { user } = useUserSession()
 const userStore = useUserStore()
-const { user, loggedIn } = useUserSession()
-const { getUserProductFavourite } = userStore
+const { getFavouriteByProductId } = userStore
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
@@ -56,11 +56,11 @@ const shareOptions = reactive({
   url: isClient ? productUrl : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch((err) => err)
+const startShare = () => share().catch(err => err)
 
-const userProductFavourite = computed(() => {
-  return getUserProductFavourite(product.value?.id)
-})
+const favouriteId = computed(
+  () => getFavouriteByProductId(product.value.id)?.id,
+)
 </script>
 
 <template>
@@ -124,9 +124,7 @@ const userProductFavourite = computed(() => {
                 v-if="showAddToFavouriteButton"
                 :product-id="product.id"
                 :user-id="user?.id"
-                :is-favourite="userProductFavourite !== null"
-                :favourite="userProductFavourite"
-                :is-authenticated="loggedIn"
+                :favourite-id="favouriteId"
                 size="lg"
               />
             </div>
@@ -148,8 +146,7 @@ const userProductFavourite = computed(() => {
               <p>
                 <span class="text-primary-800 dark:text-primary-100">{{
                   $t('components.product.card.price')
-                }}</span
-                ><span class="text-primary-800 dark:text-primary-100">{{
+                }}</span><span class="text-primary-800 dark:text-primary-100">{{
                   product.price
                 }}</span>
               </p>
@@ -161,8 +158,7 @@ const userProductFavourite = computed(() => {
               <p class="card-prices-vat-percent">
                 <span class="text-primary-800 dark:text-primary-100">{{
                   $t('components.product.card.vat_percent')
-                }}</span
-                ><span class="text-primary-800 dark:text-primary-100">{{
+                }}</span><span class="text-primary-800 dark:text-primary-100">{{
                   product.vatPercent
                 }}</span>
               </p>

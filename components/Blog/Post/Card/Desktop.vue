@@ -46,12 +46,13 @@ const shareOptions = reactive({
   url: isClient ? postUrl : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch((err) => err)
+const startShare = () => share().catch(err => err)
 
-const likeClicked = async (event: { blogPostId: number; liked: boolean }) => {
+const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   if (event.liked) {
     post.value.likesCount++
-  } else {
+  }
+  else {
     post.value.likesCount--
   }
 }

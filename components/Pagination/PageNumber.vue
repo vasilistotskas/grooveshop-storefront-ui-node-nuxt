@@ -116,9 +116,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-800 dark:text-primary-100"
-            ><IconFaSolid:angleLeft
-          /></span>
+          <span class="text-primary-800 dark:text-primary-100"><IconFaSolid:angleLeft /></span>
         </Anchor>
       </li>
 
@@ -134,7 +132,7 @@ const link = computed(() => {
           }"
           :class="{
             'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
-            disabled: isInFirstPage,
+            'disabled': isInFirstPage,
           }"
           :text="$t('components.pagination.first_page')"
           :title="$t('components.pagination.first_page')"
@@ -156,13 +154,11 @@ const link = computed(() => {
               'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
-            >{{ firstPageNumber }}</span
-          >
+          >{{ firstPageNumber }}</span>
           <span
             v-if="shouldDisplayPreviousTripleDots"
             class="text-primary-800 dark:text-primary-100 grid self-end justify-self-start text-sm"
-            >...</span
-          >
+          >...</span>
         </Anchor>
       </li>
 
@@ -178,7 +174,7 @@ const link = computed(() => {
           }"
           :class="{
             'grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
-            active: page === pageEntry,
+            'active': page === pageEntry,
           }"
           :text="String(pageEntry)"
           :title="$t('components.pagination.go_to_page', { page: pageEntry })"
@@ -212,8 +208,8 @@ const link = computed(() => {
           }"
           :class="{
             'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
-            disabled: isInLastPage,
-            active: isInLastPage,
+            'disabled': isInLastPage,
+            'active': isInLastPage,
           }"
           :text="String(lastPageNumber)"
           :title="
@@ -234,15 +230,13 @@ const link = computed(() => {
           <span
             v-if="shouldDisplayNextTripleDots"
             class="text-primary-800 dark:text-primary-100 grid self-end justify-self-end text-sm"
-            >...</span
-          >
+          >...</span>
           <span
             :class="{
               'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
-            >{{ lastPageNumber }}</span
-          >
+          >{{ lastPageNumber }}</span>
         </Anchor>
       </li>
 
@@ -278,9 +272,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-800 dark:text-primary-100"
-            ><IconFaSolid:angleRight
-          /></span>
+          <span class="text-primary-800 dark:text-primary-100"><IconFaSolid:angleRight /></span>
         </Anchor>
       </li>
     </ol>

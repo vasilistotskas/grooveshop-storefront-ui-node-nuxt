@@ -7,29 +7,36 @@ defineSlots<{
   footer(props: object): any
 }>()
 
-const userStore = useUserStore()
-const { favouriteProducts, productReviews, orders } = storeToRefs(userStore)
 const { user } = useUserSession()
 const { isMobileOrTablet } = useDevice()
 const route = useRoute()
 const { loggedIn } = useUserSession()
+const { t } = useI18n()
 
 const links = [
   {
     icon: 'i-heroicons-home',
     to: '/',
+    label: t('common.home'),
+    labelClass: 'sr-only',
   },
   {
     icon: 'i-heroicons-magnifying-glass',
     to: '/search',
+    label: t('common.search'),
+    labelClass: 'sr-only',
   },
   {
     icon: 'i-heroicons-heart',
     to: '/account/favourites',
+    label: t('common.favourites'),
+    labelClass: 'sr-only',
   },
   {
     icon: 'i-heroicons-user',
     to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+    label: t('common.account'),
+    labelClass: 'sr-only',
   },
 ] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
 </script>
@@ -57,9 +64,9 @@ const links = [
             v-if="user"
             class="container mx-auto w-full !p-0"
             :account="user"
-            :orders-count="orders?.length"
-            :favourites-count="favouriteProducts?.length"
-            :reviews-count="productReviews?.length"
+            :orders-count="0"
+            :product-favourites-count="0"
+            :product-reviews-count="0"
           />
         </div>
         <main class="container">
@@ -76,7 +83,7 @@ const links = [
                   :class="[
                     {
                       'grid w-full': route.path === '/account',
-                      hidden: route.path !== '/account',
+                      'hidden': route.path !== '/account',
                     },
                   ]"
                 >

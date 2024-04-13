@@ -5,12 +5,11 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
-const { fetchCart, updateCartItem } = cartStore
+const { refreshCart, updateCartItem } = cartStore
 
 const { max, cartItemId } = toRefs(props)
 
 const cartItemQuantity = useState<number>(`${cartItemId.value}-quantity`)
-const refreshCart = async () => await fetchCart()
 
 const decreaseQuantityEvent = async () => {
   if (cartItemQuantity.value <= 1) return

@@ -36,24 +36,23 @@ const props = defineProps({
 const emit = defineEmits<{
   (
     e: 'update',
-    { blogPostId, liked }: { blogPostId: number; liked: boolean },
+    { blogPostId, liked }: { blogPostId: number, liked: boolean },
   ): void
 }>()
-
-const userStore = useUserStore()
-const { getBlogPostLiked } = userStore
-const { blogLikedPosts } = storeToRefs(userStore)
 
 const { t } = useI18n()
 const toast = useToast()
 const { loggedIn } = useUserSession()
+const userStore = useUserStore()
+const { blogPostLiked, addLikedPost, removeLikedPost } = userStore
 
-const liked = computed(() => getBlogPostLiked(props.blogPostId))
+const liked = computed(() => blogPostLiked(props.blogPostId))
 
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
     toast.add({
       title: t('components.like_button.not_authenticated'),
+      color: 'red',
     })
     return
   }
@@ -64,24 +63,26 @@ const toggleFavourite = async () => {
       expand: props.expand ? 'true' : 'false',
     },
     onResponse({ response }) {
-      if (!blogLikedPosts.value.includes(props.blogPostId)) {
+      if (!response.ok) {
+        return
+      }
+      if (!liked.value) {
         emit('update', {
           blogPostId: props.blogPostId,
           liked: true,
         })
-        blogLikedPosts.value?.push(response._data.id)
+        addLikedPost(props.blogPostId)
         toast.add({
           title: t('components.add_to_favourite_button.added'),
           color: 'green',
         })
-      } else {
+      }
+      else {
         emit('update', {
           blogPostId: props.blogPostId,
           liked: false,
         })
-        blogLikedPosts.value = blogLikedPosts.value.filter(
-          (id: number) => id !== props.blogPostId,
-        )
+        removeLikedPost(props.blogPostId)
         toast.add({
           title: t('components.add_to_favourite_button.removed'),
           color: 'red',

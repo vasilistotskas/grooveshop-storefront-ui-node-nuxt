@@ -1,3 +1,4 @@
+import type { ConsolaInstance } from 'consola'
 import {
   promptForInputFile,
   promptForLocales,
@@ -5,7 +6,6 @@ import {
 } from '~/tools/translator/src/prompts'
 import { main } from '~/tools/translator/src/main'
 import type { TranslatorConfig } from '~/tools/translator/src/config'
-import type { ConsolaInstance } from 'consola'
 
 export async function mainCLI(
   config: TranslatorConfig,
@@ -23,7 +23,8 @@ export async function mainCLI(
     const outputExtension = await promptForOutputExtension(consola)
 
     await main(config, consola, inputFile, selectedLocales, outputExtension)
-  } catch (error) {
+  }
+  catch (error) {
     consola.error(error)
     process.exit(1)
   }

@@ -25,7 +25,7 @@ const { data: productImages } = await useFetch(
   },
 )
 
-const mainImage = ref(productImages.value?.find((image) => image.isMain))
+const mainImage = ref(productImages.value?.find(image => image.isMain))
 
 const selectedImageId = useState<number>(
   `${product.value.uuid}-imageID`,
@@ -40,7 +40,7 @@ const selectedImageId = useState<number>(
 watch(
   () => selectedImageId.value,
   (value) => {
-    const image = productImages.value?.find((image) => image.id === value)
+    const image = productImages.value?.find(image => image.id === value)
     if (image) {
       mainImage.value = image
     }

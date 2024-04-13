@@ -21,7 +21,8 @@ export default defineEventHandler(async (event: H3Event) => {
     })
     await clearUserSession(event)
     return await parseDataAs(response, ZodLogoutResponse)
-  } catch (error) {
+  }
+  catch (error) {
     await clearUserSession(event)
     await handleError(error)
   }

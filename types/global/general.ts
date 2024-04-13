@@ -40,9 +40,10 @@ export enum PaginationCursorStateEnum {
   BLOG_POSTS = 'blogPostsCursor',
   BLOG_POST_COMMENTS = 'blogPostCommentsCursor',
 }
-export type PaginationCursorStateType = `${PaginationCursorStateEnum}`
+export type PaginationCursorStateType = `${PaginationCursorStateEnum}-${string}`
+
 export type CursorStates = {
-  [key in PaginationCursorStateEnum]?: string | null
+  [key in PaginationCursorStateEnum | PaginationCursorStateType]?: string | null
 }
 
 export type PaginationType = 'pageNumber' | 'cursor' | 'limitOffset'

@@ -3,10 +3,10 @@ export type DeepKeys<T> =
     ? {
         [K in keyof T]-?: K extends string
           ?
-              | `${K}`
-              | (T[K] extends Record<string, any>
-                  ? `${K}.${DeepKeys<T[K]>}`
-                  : never)
+          | `${K}`
+          | (T[K] extends Record<string, any>
+            ? `${K}.${DeepKeys<T[K]>}`
+            : never)
           : never
       }[keyof T]
     : ''

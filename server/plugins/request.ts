@@ -35,7 +35,8 @@ export default defineNitroPlugin((nitroApp) => {
 
     if (!url.includes('?')) {
       event.context.language = locale
-    } else {
+    }
+    else {
       event.context.language = locale
     }
   })

@@ -25,18 +25,18 @@ const { locale } = useI18n()
 const { contentShorten } = useText()
 
 const src = computed(() => {
-  const path =
-    displayImageOf.value === 'user'
+  const path
+    = displayImageOf.value === 'user'
       ? `media/uploads/users/`
       : `media/uploads/products/`
   return resolveImageSrc(
     displayImageOf.value === 'user'
       ? userAccount.value?.mainImageFilename
       : product.value?.mainImageFilename,
-    path +
-      (displayImageOf.value === 'user'
-        ? userAccount.value?.mainImageFilename
-        : product.value?.mainImageFilename),
+    path
+    + (displayImageOf.value === 'user'
+      ? userAccount.value?.mainImageFilename
+      : product.value?.mainImageFilename),
   )
 })
 
@@ -54,7 +54,7 @@ const reviewComment = computed(() => {
   return contentShorten(
     extractTranslated(review?.value, 'comment', locale.value),
     0,
-    120,
+    110,
   )
 })
 </script>
@@ -82,7 +82,7 @@ const reviewComment = computed(() => {
           </Anchor>
         </div>
       </div>
-      <div class="grid gap-4 text-2xl">
+      <div class="grid gap-2 text-2xl md:gap-4">
         <Anchor
           v-if="displayImageOf === 'product' && product"
           :to="`/products${product.absoluteUrl}`"

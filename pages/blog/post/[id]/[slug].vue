@@ -1,15 +1,23 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
+import type { BlogPost } from '~/types/blog/post'
 
 const route = useRoute('blog-post-id-slug___en')
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
+const { loggedIn } = useUserSession()
 const { resolveImageSrc } = useImageResolver()
+const userStore = useUserStore()
+const { updateLikedPosts } = userStore
 
-const blogPostId = route.params.id
+const blogPostId = Number(route.params.id)
 
-const { data: blogPost, refresh } = await useFetch(
+const shouldFetchLikedPosts = computed(() => {
+  return loggedIn.value
+})
+
+const { data: blogPost, refresh } = await useFetch<BlogPost>(
   `/api/blog/posts/${blogPostId}`,
   {
     key: `blogPost${blogPostId}`,
@@ -20,6 +28,21 @@ const { data: blogPost, refresh } = await useFetch(
     },
   },
 )
+
+await useFetch('/api/blog/posts/liked-posts', {
+  method: 'POST',
+  body: {
+    postIds: [blogPostId],
+  },
+  immediate: shouldFetchLikedPosts.value,
+  onResponse({ response }) {
+    if (!response.ok) {
+      return
+    }
+    const likedPostsIds = response._data
+    updateLikedPosts(likedPostsIds)
+  },
+})
 
 if (!blogPost.value) {
   throw createError({
@@ -83,7 +106,7 @@ const shareOptions = reactive({
   url: isClient ? routeFullPath : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch((err) => err)
+const startShare = () => share().catch(err => err)
 const likeClicked = async () => {
   await refresh()
 }
@@ -117,9 +140,9 @@ useSchemaOrg([
     dateModified: blogPost.value?.updatedAt,
     author: {
       name:
-        blogPostAuthorUser.value?.firstName +
-        ' ' +
-        blogPostAuthorUser.value?.lastName,
+        blogPostAuthorUser.value?.firstName
+        + ' '
+        + blogPostAuthorUser.value?.lastName,
       url: blogPostAuthor.value?.website,
     },
   }),
@@ -234,11 +257,9 @@ definePageMeta({
                 class="scrollable-tags flex flex-wrap items-center md:gap-4"
               >
                 <li v-for="tag in blogPostTags" :key="tag?.id">
-                  <span class="flex w-full items-center text-sm"
-                    ><UIcon name="i-heroicons-hashtag" />{{
-                      extractTranslated(tag, 'name', locale)
-                    }}</span
-                  >
+                  <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
+                    extractTranslated(tag, 'name', locale)
+                  }}</span>
                 </li>
               </ul>
             </div>

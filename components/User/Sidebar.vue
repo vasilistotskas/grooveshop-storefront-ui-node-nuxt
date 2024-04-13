@@ -11,7 +11,7 @@ interface IMenuItem {
   type: 'link' | 'button' | 'external-link'
   text: string
   href?: string
-  route?: { name: string; path: string }
+  route?: { name: string, path: string }
   icon?: FunctionalComponent<SVGAttributes>
   cssClass?: string
 }

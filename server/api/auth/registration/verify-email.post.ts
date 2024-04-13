@@ -29,7 +29,8 @@ export default defineEventHandler(async (event: H3Event) => {
       },
     )
     return await parseDataAs(response, ZodRegistrationVerifyEmailResponse)
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

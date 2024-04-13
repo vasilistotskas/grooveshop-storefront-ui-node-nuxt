@@ -7,9 +7,10 @@ export function isTokenExpired(tokenOrTimestamp: string) {
     const { exp } = decodeJwt(tokenOrTimestamp)
     const expires = exp! * 1000 - msRefreshBeforeExpires
     return expires < Date.now()
-  } else {
-    const expires =
-      new Date(tokenOrTimestamp).getTime() - msRefreshBeforeExpires
+  }
+  else {
+    const expires
+      = new Date(tokenOrTimestamp).getTime() - msRefreshBeforeExpires
     return expires < Date.now()
   }
 }

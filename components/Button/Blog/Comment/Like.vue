@@ -36,24 +36,23 @@ const props = defineProps({
 const emit = defineEmits<{
   (
     e: 'update',
-    { blogCommentId, liked }: { blogCommentId: number; liked: boolean },
+    { blogCommentId, liked }: { blogCommentId: number, liked: boolean },
   ): void
 }>()
-
-const userStore = useUserStore()
-const { getBlogCommentLiked } = userStore
-const { blogLikedComments } = storeToRefs(userStore)
 
 const { t } = useI18n()
 const toast = useToast()
 const { loggedIn } = useUserSession()
+const userStore = useUserStore()
+const { blogCommentLiked, addLikedComment, removeLikedComment } = userStore
 
-const liked = computed(() => getBlogCommentLiked(props.blogCommentId))
+const liked = computed(() => blogCommentLiked(props.blogCommentId))
 
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
     toast.add({
       title: t('components.like_button.not_authenticated'),
+      color: 'red',
     })
     return
   }
@@ -64,20 +63,22 @@ const toggleFavourite = async () => {
       expand: props.expand ? 'true' : 'false',
     },
     onResponse({ response }) {
-      if (!blogLikedComments.value.includes(props.blogCommentId)) {
+      if (!response.ok) {
+        return
+      }
+      if (!liked.value) {
         emit('update', {
           blogCommentId: props.blogCommentId,
           liked: true,
         })
-        blogLikedComments.value?.push(response._data.id)
-      } else {
+        addLikedComment(props.blogCommentId)
+      }
+      else {
         emit('update', {
           blogCommentId: props.blogCommentId,
           liked: false,
         })
-        blogLikedComments.value = blogLikedComments.value.filter(
-          (id: number) => id !== props.blogCommentId,
-        )
+        removeLikedComment(props.blogCommentId)
       }
     },
     onResponseError({ error }) {

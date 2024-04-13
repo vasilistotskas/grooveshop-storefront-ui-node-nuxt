@@ -17,7 +17,8 @@ export default defineEventHandler(async (event: H3Event) => {
       user: userResponse,
     })
     return userResponse
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

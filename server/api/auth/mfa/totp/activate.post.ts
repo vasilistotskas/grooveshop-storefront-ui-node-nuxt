@@ -40,7 +40,8 @@ export default defineEventHandler(async (event: H3Event) => {
       totpActive: activateResponse.success,
     })
     return activateResponse
-  } catch (error) {
+  }
+  catch (error) {
     await setUserSession(event, {
       totpActive: false,
     })

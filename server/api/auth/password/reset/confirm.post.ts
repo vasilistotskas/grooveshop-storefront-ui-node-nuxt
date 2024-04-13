@@ -32,7 +32,8 @@ export default defineEventHandler(async (event: H3Event) => {
       },
     )
     return await parseDataAs(response, ZodPasswordResetConfirmResponse)
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

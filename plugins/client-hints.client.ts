@@ -13,8 +13,8 @@ export default defineNuxtPlugin({
 
     const { firstRequest } = state.value
 
-    const { viewportSize, prefersColorScheme, prefersColorSchemeOptions } =
-      ssrClientHintsConfiguration
+    const { viewportSize, prefersColorScheme, prefersColorSchemeOptions }
+      = ssrClientHintsConfiguration
 
     if (firstRequest) {
       if (prefersColorScheme) {
@@ -97,18 +97,18 @@ function useSSRClientHints() {
   const initial = ref(defaultClientValues())
 
   if (
-    !ssrClientHintsConfiguration.prefersColorScheme ||
-    !ssrClientHintsConfiguration.prefersColorSchemeOptions
+    !ssrClientHintsConfiguration.prefersColorScheme
+    || !ssrClientHintsConfiguration.prefersColorSchemeOptions
   )
     return initial
 
-  const { baseUrl, cookieName, defaultTheme } =
-    ssrClientHintsConfiguration.prefersColorSchemeOptions
+  const { baseUrl, cookieName, defaultTheme }
+    = ssrClientHintsConfiguration.prefersColorSchemeOptions
   const cookieNamePrefix = `${cookieName}=`
-  initial.value.colorSchemeFromCookie =
-    document.cookie
+  initial.value.colorSchemeFromCookie
+    = document.cookie
       ?.split(';')
-      ?.find((c) => c.trim().startsWith(cookieNamePrefix))
+      ?.find(c => c.trim().startsWith(cookieNamePrefix))
       ?.split('=')[1] ?? defaultTheme
   const date = new Date()
   const expires = new Date(date.setDate(date.getDate() + 365))

@@ -65,13 +65,12 @@ export const ZodProductReviewPutQuery = z
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
 
-export const ZodReviewParams = z.object({
+export const ZodProductReviewParams = z.object({
   id: z.string(),
 })
 
-export const ZodReviewUserProductReviewBody = z.object({
+export const ZodProductReviewUserProductReviewBody = z.object({
   product: z.string(),
-  user: z.string(),
 })
 
 export type ProductReview = z.infer<typeof ZodProductReview>
@@ -80,3 +79,4 @@ export type ProductReviewOrderingField =
   | 'userId'
   | 'productId'
   | 'createdAt'
+  | 'updatedAt'

@@ -30,8 +30,8 @@ const PaginationComponents = {
 
 const CurrentPaginationComponent = computed(() => {
   return (
-    PaginationComponents[props.paginationType] ||
-    PaginationComponents[PaginationTypeEnum.PAGE_NUMBER]
+    PaginationComponents[props.paginationType]
+    || PaginationComponents[PaginationTypeEnum.PAGE_NUMBER]
   )
 })
 </script>

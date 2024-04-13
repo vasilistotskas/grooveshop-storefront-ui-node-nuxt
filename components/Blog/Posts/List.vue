@@ -38,7 +38,10 @@ const { paginationType, pageSize } = toRefs(props)
 const route = useRoute()
 const { t, locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
+const { loggedIn } = useUserSession()
 const cursorState = useState<CursorStates>('cursorStates')
+const userStore = useUserStore()
+const { updateLikedPosts } = userStore
 
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
@@ -75,7 +78,7 @@ const {
   }),
 )
 
-const entityOrdering: Ref<EntityOrdering<BlogPostOrderingField>> = ref([
+const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   {
     value: 'createdAt',
     label: t('pages.blog.ordering.created_at'),
@@ -93,12 +96,13 @@ const entityOrdering: Ref<EntityOrdering<BlogPostOrderingField>> = ref([
   },
 ])
 
-const orderingFields: Partial<Record<BlogPostOrderingField, OrderingOption[]>> =
-  reactive({
-    createdAt: [],
-    title: [],
-    publishedAt: [],
-  })
+const orderingFields = reactive<
+  Partial<Record<BlogPostOrderingField, OrderingOption[]>>
+>({
+  createdAt: [],
+  title: [],
+  publishedAt: [],
+})
 
 const pagination = computed(() => {
   if (!posts.value) return
@@ -111,6 +115,33 @@ const orderingOptions = computed(() => {
     orderingFields,
   )
 })
+
+const postIds = computed(() => {
+  if (!posts.value) return
+  return posts.value.results?.map(post => post.id)
+})
+
+const shouldFetchLikedPosts = computed(() => {
+  return loggedIn.value && postIds.value && postIds.value.length > 0
+})
+
+const { refresh: refreshLikedPosts } = await useFetch(
+  '/api/blog/posts/liked-posts',
+  {
+    method: 'POST',
+    body: {
+      postIds: postIds.value,
+    },
+    immediate: shouldFetchLikedPosts.value,
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const likedPostsIds = response._data
+      updateLikedPosts(likedPostsIds)
+    },
+  },
+)
 
 const showResults = computed(() => {
   if (paginationType.value === 'cursor') {
@@ -127,7 +158,12 @@ const BlogPostCard = computed(() => {
 
 watch(
   () => [route.query, cursorState.value],
-  () => refresh(),
+  async () => {
+    await refresh()
+    if (shouldFetchLikedPosts.value) {
+      await refreshLikedPosts()
+    }
+  },
   { deep: true },
 )
 
@@ -135,14 +171,26 @@ watch(
   posts,
   (newValue) => {
     if (newValue && newValue.results?.length) {
-      const postsMap = new Map(allPosts.value.map((post) => [post.id, post]))
+      const postsMap = new Map(allPosts.value.map(post => [post.id, post]))
       newValue.results.forEach((newPost) => {
         postsMap.set(newPost.id, newPost)
       })
+      let sortedPosts
       if (paginationType.value === 'cursor') {
-        allPosts.value = [...postsMap.values()]
-      } else {
-        allPosts.value = newValue.results
+        sortedPosts = [...postsMap.values()].sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        })
+        allPosts.value = sortedPosts
+      }
+      else {
+        sortedPosts = newValue.results.sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        })
+        allPosts.value = sortedPosts
       }
     }
   },
@@ -157,7 +205,7 @@ watch(
       :class="
         paginationType === 'cursor'
           ? 'sr-only'
-          : 'flex flex-row items-center gap-2'
+          : 'flex flex-row flex-wrap items-center gap-2'
       "
     >
       <Pagination
@@ -170,7 +218,7 @@ watch(
         :page="pagination.page"
         :links="pagination.links"
         :loading="pending"
-        :state-name="PaginationCursorStateEnum.BLOG_POSTS"
+        :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
         :strategy="'scroll'"
       />
       <Ordering

@@ -16,34 +16,23 @@ import type {
 } from '~/types/auth'
 
 export default function () {
-  const { user } = useUserSession()
-
-  function socialAccounts() {
-    return useFetch('/api/auth/social-accounts', {
+  async function socialAccounts() {
+    return await $fetch('/api/auth/social-accounts', {
       method: 'GET',
     })
   }
 
-  function fetchUser() {
-    return useFetch('/api/auth/user', {
+  async function fetchUser() {
+    return await $fetch('/api/auth/user', {
       method: 'GET',
-    })
-  }
-
-  function userAccountDetails() {
-    return useFetch(`/api/user/account/${user.value?.id}/details`, {
-      method: 'GET',
-      query: {
-        expand: 'false',
-      },
     })
   }
 
   /**
    * Login with email/password
    */
-  function login(body: LoginBody) {
-    return useFetch('/api/auth/login', {
+  async function login(body: LoginBody) {
+    return await $fetch('/api/auth/login', {
       method: 'POST',
       body,
     })
@@ -67,81 +56,81 @@ export default function () {
     }
   }
 
-  function logout(body?: LogoutBody) {
-    return useFetch('/api/auth/logout', {
+  async function logout(body?: LogoutBody) {
+    return await $fetch('/api/auth/logout', {
       method: 'POST',
       body,
     })
   }
 
-  function register(body: RegistrationBody) {
-    return useFetch('/api/auth/registration', {
+  async function register(body: RegistrationBody) {
+    return await $fetch('/api/auth/registration', {
       method: 'POST',
       body,
     })
   }
 
-  function passwordReset(body: PasswordResetBody) {
-    return useFetch('/api/auth/password/reset', {
+  async function passwordReset(body: PasswordResetBody) {
+    return await $fetch('/api/auth/password/reset', {
       method: 'POST',
       body,
     })
   }
 
-  function passwordResetConfirm(body: PasswordResetConfirmBody) {
-    return useFetch('/api/auth/password/reset/confirm', {
+  async function passwordResetConfirm(body: PasswordResetConfirmBody) {
+    return await $fetch('/api/auth/password/reset/confirm', {
       method: 'POST',
       body,
     })
   }
 
-  function passwordChange(body: PasswordChangeBody) {
-    return useFetch('/api/auth/password/change', {
+  async function passwordChange(body: PasswordChangeBody) {
+    return await $fetch('/api/auth/password/change', {
       method: 'POST',
       body,
     })
   }
 
-  function registrationResendEmail(body: RegistrationResendEmailBody) {
-    return useFetch('/api/auth/registration/resend-email', {
+  async function registrationResendEmail(body: RegistrationResendEmailBody) {
+    return await $fetch('/api/auth/registration/resend-email', {
       method: 'POST',
       body,
     })
   }
 
-  function registrationVerifyEmail(body: RegistrationVerifyEmailBody) {
-    return useFetch('/api/auth/registration/verify-email', {
+  async function registrationVerifyEmail(body: RegistrationVerifyEmailBody) {
+    return await $fetch('/api/auth/registration/verify-email', {
       method: 'POST',
       body,
     })
   }
 
-  function tokenVerify(body: TokenVerifyBody) {
-    return useFetch('/api/auth/token/verify', {
+  async function tokenVerify(body: TokenVerifyBody) {
+    return await $fetch('/api/auth/token/verify', {
       method: 'POST',
       body,
     })
   }
 
-  function tokenRefresh(body: TokenRefreshBody) {
-    return useFetch('/api/auth/token/refresh', {
+  async function tokenRefresh(body: TokenRefreshBody) {
+    return await $fetch('/api/auth/token/refresh', {
       method: 'POST',
       body,
     })
   }
 
-  function socialAccountDisconnect(
+  async function socialAccountDisconnect(
     id: number,
     body: SocialAccountDisconnectBody,
   ) {
-    return useFetch(`/api/auth/social-accounts/${id}/disconnect`, {
+    return await $fetch(`/api/auth/social-accounts/${id}/disconnect`, {
       method: 'POST',
       body,
     })
   }
 
-  function isUserRegistered(body: IsUserRegisteredBody) {
-    return useFetch('/api/auth/is-user-registered', {
+  async function isUserRegistered(body: IsUserRegisteredBody) {
+    return await $fetch('/api/auth/is-user-registered', {
       method: 'POST',
       body,
     })
@@ -162,7 +151,6 @@ export default function () {
     socialAccounts,
     socialAccountDisconnect,
     isUserRegistered,
-    userAccountDetails,
     fetchUser,
   }
 }

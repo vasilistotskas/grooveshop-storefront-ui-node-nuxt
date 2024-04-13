@@ -37,7 +37,8 @@ export default defineEventHandler(async (event: H3Event) => {
       refreshTokenExpiration: refreshResponse.refreshExpiration,
     })
     return refreshResponse
-  } catch (error) {
+  }
+  catch (error) {
     await clearUserSession(event)
     await handleError(error)
   }

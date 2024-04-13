@@ -189,8 +189,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
           >
             <IconFa6Solid:cartShopping />
             <span class="text-primary-800 dark:text-primary-100 ml-1">
-              {{ $t('pages.cart.title') }}</span
-            >
+              {{ $t('pages.cart.title') }}</span>
           </Anchor>
         </ActionSheetBody>
         <UButton

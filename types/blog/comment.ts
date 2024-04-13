@@ -64,7 +64,10 @@ export const ZodBlogCommentPutBody = z.object({
 
 export const ZodBlogCommentUserBlogCommentBody = z.object({
   post: z.string(),
-  user: z.string(),
+})
+
+export const ZodBlogCommentsLikedCommentsBody = z.object({
+  commentIds: z.array(z.number()),
 })
 
 export type BlogComment = z.infer<typeof ZodBlogCommentBase> & {

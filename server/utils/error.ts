@@ -14,10 +14,10 @@ export const reportError = ({ message }: { message: string }) => {
 
 export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    typeof (error as Record<string, unknown>).message === 'string'
+    typeof error === 'object'
+    && error !== null
+    && 'message' in error
+    && typeof (error as Record<string, unknown>).message === 'string'
   )
 }
 
@@ -26,7 +26,8 @@ export function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
 
   try {
     return new Error(JSON.stringify(maybeError))
-  } catch {
+  }
+  catch {
     // fallback in case there's an error stringifying the maybeError
     // like with circular references for example.
     return new Error(String(maybeError))
@@ -39,7 +40,7 @@ export function getErrorMessage(error: unknown) {
 
 export async function handleError(
   error: unknown,
-  redirect?: { event: H3Event; url: string },
+  redirect?: { event: H3Event, url: string },
 ) {
   const h3Error = new H3Error('server-error')
   h3Error.statusCode = 500
@@ -60,10 +61,12 @@ export async function handleError(
       h3Error.cause = error.cause
       h3Error.name = error.name
       h3Error.stack = error.stack
-    } else if (isErrorWithMessage(error) && error.message === 'unauthorized') {
+    }
+    else if (isErrorWithMessage(error) && error.message === 'unauthorized') {
       h3Error.message = 'unauthorized'
       h3Error.statusCode = 401
-    } else if (isErrorWithMessage(error)) {
+    }
+    else if (isErrorWithMessage(error)) {
       h3Error.message = error.message
       h3Error.statusCode = 400
     }

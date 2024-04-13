@@ -28,7 +28,9 @@ definePageMeta({
       <PageTitle :text="$t('pages.category.title')" class="capitalize" />
     </PageHeader>
     <PageBody>
-      <div />
+      <div>
+        {{ totalPosts }}
+      </div>
     </PageBody>
   </PageWrapper>
 </template>

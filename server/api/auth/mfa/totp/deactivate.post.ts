@@ -37,7 +37,8 @@ export default defineEventHandler(async (event: H3Event) => {
       totpActive: false,
     })
     return deactivateResponse
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

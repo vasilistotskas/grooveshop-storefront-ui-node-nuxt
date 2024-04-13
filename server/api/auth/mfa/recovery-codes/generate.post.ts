@@ -33,7 +33,8 @@ export default defineEventHandler(async (event: H3Event) => {
       },
     )
     return await parseDataAs(response, ZodMfaRecoveryCodesGenerateResponse)
-  } catch (error) {
+  }
+  catch (error) {
     await handleError(error)
   }
 })

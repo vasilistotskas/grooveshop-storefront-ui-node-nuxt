@@ -1,18 +1,18 @@
 <script lang="ts" setup>
+import type { PropType } from 'vue'
 import { clearCursorStates, getCursorFromUrl } from '~/utils/pagination'
 import {
   type PaginationCursorStateEnum,
   type CursorStates,
 } from '~/types/global/general'
-import type { PropType } from 'vue'
 
 const props = defineProps({
-  stateName: {
+  cursorKey: {
     type: String as PropType<PaginationCursorStateEnum>,
     required: true,
   },
   links: {
-    type: Object as PropType<{ next: string; previous: string }>,
+    type: Object as PropType<{ next: string, previous: string }>,
     required: true,
   },
   loading: {
@@ -44,7 +44,7 @@ const currentState = computed(() => {
   return { ...cursorState.value }
 })
 const currentCursor = computed(() => {
-  return currentState.value[props.stateName]
+  return currentState.value[props.cursorKey]
 })
 
 const nextCursor = computed(() => {
@@ -65,7 +65,7 @@ const loadMore = async () => {
   if (!nextCursor.value || props.loading) return
 
   if (nextCursor.value !== currentCursor.value) {
-    currentState.value[props.stateName] = nextCursor.value
+    currentState.value[props.cursorKey] = nextCursor.value
     cursorState.value = currentState.value
 
     if (props.useRouteQuery) {
@@ -93,7 +93,8 @@ watch(
     if (import.meta.client) {
       if (newStrategy === 'scroll') {
         window.addEventListener('scroll', handleScroll)
-      } else {
+      }
+      else {
         window.removeEventListener('scroll', handleScroll)
       }
     }

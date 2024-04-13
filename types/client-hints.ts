@@ -59,8 +59,8 @@ export const AcceptClientHintsRequestHeaders = Object.entries(
   AcceptClientHintsHeaders,
 ).reduce(
   (acc, [key, value]) => {
-    acc[key as AcceptClientHintsHeadersKey] =
-      value.toLowerCase() as Lowercase<string>
+    acc[key as AcceptClientHintsHeadersKey]
+      = value.toLowerCase() as Lowercase<string>
     return acc
   },
   {} as Record<AcceptClientHintsHeadersKey, Lowercase<string>>,

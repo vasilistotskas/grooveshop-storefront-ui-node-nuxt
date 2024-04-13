@@ -23,7 +23,8 @@ function toggleCategoryId(currentIds: string[], categoryId: string): string[] {
   const index = currentIds.indexOf(categoryId)
   if (index > -1) {
     currentIds.splice(index, 1)
-  } else {
+  }
+  else {
     currentIds.push(categoryId)
   }
   return currentIds
@@ -38,8 +39,8 @@ const toUrl = computed(() => {
     category.value?.id.toString(),
   )
 
-  const updatedQuery =
-    updatedCategoryIds.length > 0
+  const updatedQuery
+    = updatedCategoryIds.length > 0
       ? {
           category: updatedCategoryIds.join('_'),
           ordering: route.query?.ordering,
