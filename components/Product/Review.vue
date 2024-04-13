@@ -8,10 +8,10 @@ import type { ProductReview } from '~/types/product/review'
 import { ZodProductReviewStatusEnum } from '~/types/product/review'
 import type { UserAccount } from '~/types/user/account'
 
-const starSvg =
-  '<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
-const starHalfSvg =
-  '<path fill="currentColor" d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" class=""></path>'
+const starSvg
+  = '<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
+const starHalfSvg
+  = '<path fill="currentColor" d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" class=""></path>'
 
 const props = defineProps({
   userProductReview: {
@@ -79,8 +79,8 @@ const reviewButtonText = computed(() => {
 
 const reviewCount = computed(() => {
   if (
-    userProductReview?.value?.rate !== null &&
-    !isNaN(userProductReview?.value?.rate as unknown as number)
+    userProductReview?.value?.rate !== null
+    && !isNaN(userProductReview?.value?.rate as unknown as number)
   ) {
     return Number(userProductReview?.value?.rate).toFixed(1)
   }
@@ -91,7 +91,8 @@ const liveReviewCountRatio = computed(() => {
   let reviewCount = 0
   if (newSelectionRatio.value > 0) {
     reviewCount = newSelectionRatio.value * reviewCountMax.value
-  } else if (reviewCount > 0) {
+  }
+  else if (reviewCount > 0) {
     reviewCount = reviewCount - 0.01
   }
   if (reviewCount > reviewCountMax.value) reviewCount = reviewCountMax.value
@@ -138,9 +139,9 @@ const reviewScoreText = computed(() => {
     },
   ]
   if (
-    liveReviewCountRatio.value < 0.01 ||
-    (newSelectionRatio.value === null &&
-      (reviewCount.value === null || userProductReview?.value?.rate === 0))
+    liveReviewCountRatio.value < 0.01
+    || (newSelectionRatio.value === null
+    && (reviewCount.value === null || userProductReview?.value?.rate === 0))
   ) {
     return ''
   }
@@ -213,9 +214,9 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
   if ('clientX' in event) {
     leftBound = event.clientX - target?.getBoundingClientRect()?.left
   }
-  const rightBound =
-    target?.getBoundingClientRect()?.right -
-    target?.getBoundingClientRect()?.left
+  const rightBound
+    = target?.getBoundingClientRect()?.right
+    - target?.getBoundingClientRect()?.left
   newSelectionRatio.value = leftBound / rightBound
 }
 
@@ -273,7 +274,7 @@ const tooManyAttempts = computed(() => {
   return submitCount.value >= 10
 })
 
-const createReviewEvent = async (event: { comment: string; rate: number }) => {
+const createReviewEvent = async (event: { comment: string, rate: number }) => {
   await useFetch(`/api/products/reviews`, {
     method: 'POST',
     body: {
@@ -313,7 +314,7 @@ const createReviewEvent = async (event: { comment: string; rate: number }) => {
   })
 }
 
-const updateReviewEvent = async (event: { comment: string; rate: number }) => {
+const updateReviewEvent = async (event: { comment: string, rate: number }) => {
   if (!userProductReview?.value) return
   await useFetch(`/api/products/reviews/${userProductReview?.value.id}`, {
     method: 'PUT',
@@ -391,7 +392,8 @@ const deleteReviewEvent = async () => {
         })
       },
     })
-  } else {
+  }
+  else {
     toast.add({
       title: t('components.product.review.must_be_logged_in'),
       color: 'green',
@@ -403,10 +405,12 @@ const onSubmit = handleSubmit(async (event) => {
   if (user?.value) {
     if (!userHadReviewed.value) {
       await createReviewEvent(event)
-    } else {
+    }
+    else {
       await updateReviewEvent(event)
     }
-  } else {
+  }
+  else {
     toast.add({
       title: t('components.product.review.must_be_logged_in'),
       color: 'red',
@@ -539,7 +543,7 @@ watch(
           <span class="review_body-rating-error h-6">{{ errors.comment }}</span>
         </div>
 
-        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate" />
+        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate">
       </div>
     </template>
     <template #footer>
