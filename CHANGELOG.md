@@ -1,3 +1,10 @@
+# [1.88.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.87.0...v1.88.0) (2024-04-16)
+
+
+### Features
+
+* Bump Versions for npm and pnpm ([7944d7e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7944d7eb64db55cfa6eeca62b76c9be46c6cd842))
+
 # [1.87.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.86.0...v1.87.0) (2024-04-15)
 
 
