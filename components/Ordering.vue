@@ -1,13 +1,8 @@
 <script lang="ts" setup>
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/vue'
 import type { PropType } from 'vue'
 
 import type { OrderingOption } from '~/types/ordering'
+import type { DropdownItem } from '#ui/types'
 
 const route = useRoute()
 
@@ -36,17 +31,47 @@ const selectedOrderingLabel = computed(() => {
   return selectedOrdering?.label
 })
 const listBox = ref(null)
-const { listBoxOpen, listBoxToggle } = useListBox(listBox)
 
-const link = computed(() => {
+const path = computed(() => {
   return route.path
+})
+
+const items = computed<DropdownItem[][]>(() => {
+  const dropDownItems = []
+  for (const option of props.orderingOptions) {
+    dropDownItems.push([
+      {
+        label: option.label,
+        labelClass: option.labelClass,
+        icon: option.icon,
+        iconClass: option.iconClass,
+        avatar: option.avatar,
+        shortcuts: option.shortcuts,
+        slot: option.slot,
+        disabled: option.value === ordering.value,
+        class: option.class,
+        click: () => onOptionClick(option),
+      },
+    ])
+  }
+
+  dropDownItems.sort((a, b) => {
+    if (a[0].disabled && !b[0].disabled) {
+      return -1
+    }
+    if (!a[0].disabled && b[0].disabled) {
+      return 1
+    }
+    return a[0].label.localeCompare(b[0].label)
+  })
+
+  return dropDownItems
 })
 
 const onOptionClick = async (option: OrderingOption) => {
   if (!props.applyOrderingQuery) return
-  listBoxToggle()
   await navigateTo({
-    path: link.value,
+    path: path.value,
     query: {
       ordering: option.value,
       category: route.query?.category,
@@ -59,87 +84,24 @@ const onOptionClick = async (option: OrderingOption) => {
   <div ref="listBox" class="z-10 grid md:flex md:flex-col md:items-center">
     <div class="flex flex-row">
       <div class="flex flex-col">
-        <Listbox v-model="ordering" name="Ordering">
-          <div class="w-46 relative md:w-60">
-            <ListboxButton
-              :id="`ordering-button-${ordering}`"
-              class="relative z-40 w-full cursor-pointer rounded-lg bg-white py-2 pl-2 pr-6 text-left text-sm shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 dark:bg-zinc-900 md:pl-3 md:pr-10"
-              @click="listBoxToggle"
-            >
-              <span
-                class="text-primary-800 dark:text-primary-100 block truncate"
-              >{{
-                selectedOrderingLabel ?? $t('components.ordering.title')
-              }}</span>
-              <span
-                class="text-primary-800 dark:text-primary-100 pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-              >
-                <span class="text-primary-800 dark:text-primary-100"><IconFaSolid:sort /></span>
-              </span>
-            </ListboxButton>
-
-            <div v-show="listBoxOpen">
-              <Transition>
-                <ListboxOptions
-                  :id="`ordering-options-${ordering}`"
-                  role="none"
-                  static
-                  class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-zinc-900 sm:text-sm"
-                >
-                  <ListboxOption
-                    v-for="(option, index) in orderingOptions"
-                    :id="`ordering-${option.value}`"
-                    v-slot="{ active, selected }"
-                    :key="index"
-                    :value="option.value"
-                    :disabled="ordering === option.value"
-                    as="template"
-                  >
-                    <li
-                      :class="[
-                        active
-                          ? 'bg-primary-400 text-amber-900'
-                          : 'text-primary-900',
-                        'relative cursor-default select-none py-2 pl-10 pr-4',
-                      ]"
-                    >
-                      <Anchor
-                        :to="{
-                          path: link,
-                          query: {
-                            ordering: option.value,
-                            category: route.query?.category,
-                          },
-                        }"
-                        :class="{
-                          'text-primary-400 dark:text-primary-400':
-                            ordering === option.value,
-                        }"
-                        :text="option.label"
-                        :title="option.label"
-                        :disabled="ordering === option.value"
-                        @click="onOptionClick(option)"
-                      >
-                        <span
-                          :class="[
-                            selected ? 'font-medium' : 'font-normal',
-                            'text-primary-800 dark:text-primary-100 block truncate',
-                          ]"
-                        >{{ option.label }}</span>
-                        <span
-                          v-if="selected"
-                          class="text-primary-400 absolute inset-y-0 left-0 flex items-center pl-3"
-                        >
-                          <IconFaSolid:check />
-                        </span>
-                      </Anchor>
-                    </li>
-                  </ListboxOption>
-                </ListboxOptions>
-              </Transition>
-            </div>
-          </div>
-        </Listbox>
+        <div class="w-46 relative md:w-60">
+          <UDropdown
+            :items="items"
+            :popper="{ placement: 'bottom-start' }"
+            :ui="{
+              background: 'bg-primary-200 dark:bg-primary-800',
+              item: {
+                label: 'text-primary-800 dark:text-primary-200',
+              },
+            }"
+          >
+            <UButton
+              color="primary"
+              :label="selectedOrderingLabel"
+              trailing-icon="i-heroicons-chevron-down-20-solid"
+            />
+          </UDropdown>
+        </div>
       </div>
     </div>
   </div>

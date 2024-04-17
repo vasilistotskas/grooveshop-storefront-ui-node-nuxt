@@ -40,7 +40,7 @@ const filteredTags = computed(() => {
         name="search"
         icon="i-heroicons-magnifying-glass-20-solid"
         class="hidden md:grid"
-        color="white"
+        color="primary"
         :trailing="false"
         variant="outline"
         :placeholder="`${$t('common.search')}...`"
@@ -51,7 +51,7 @@ const filteredTags = computed(() => {
       >
         <li v-for="tag in filteredTags" :key="tag.id">
           <UButton
-            color="white"
+            color="primary"
             variant="solid"
             class="flex w-full items-center"
           >

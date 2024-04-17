@@ -31,7 +31,7 @@ definePageMeta({
           :links="links"
           class="mb-5 md:pl-[3.5rem]"
           :ui="{
-            li: 'text-primary-800 dark:text-primary-100',
+            li: 'text-primary-950 dark:text-primary-50',
             base: 'text-xs md:text-md',
           }"
         />

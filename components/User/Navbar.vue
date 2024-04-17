@@ -49,10 +49,10 @@ const menus = computed((): IMenuItem[] => [
 </script>
 
 <template>
-  <BuilderNavbar class="bg-white dark:bg-zinc-900">
+  <BuilderNavbar class="dark:bg-primary-900 bg-primary-100">
     <template #menu>
       <nav
-        class="text-primary-800 dark:text-primary-100 flex items-center text-lg font-semibold leading-6"
+        class="text-primary-950 dark:text-primary-50 flex items-center text-lg font-semibold leading-6"
       >
         <ul class="flex items-center gap-2 md:gap-4">
           <li
@@ -88,7 +88,7 @@ const menus = computed((): IMenuItem[] => [
               class="font-extrabold capitalize"
               :label="item.text"
               :to="item.route ? item.route : undefined"
-              color="white"
+              color="primary"
             />
           </li>
           <li
@@ -98,7 +98,7 @@ const menus = computed((): IMenuItem[] => [
               size="md"
               :trailing="false"
               icon="i-heroicons-arrow-left-start-on-rectangle"
-              class="text-primary-100 dark:text-primary-100"
+              class="text-primary-100 dark:text-primary-50"
               color="red"
               @click="authLogoutEvent"
             />
@@ -110,7 +110,7 @@ const menus = computed((): IMenuItem[] => [
           <slot name="image" />
         </div>
         <ul
-          class="text-primary-800 dark:text-primary-100 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
+          class="text-primary-950 dark:text-primary-50 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
         >
           <li
             class="relative grid items-center justify-center justify-items-center"
@@ -146,7 +146,7 @@ const menus = computed((): IMenuItem[] => [
               "
               size="md"
               variant="solid"
-              color="white"
+              color="primary"
               :label="loggedIn ? $t('common.account') : $t('common.login')"
             >
               {{ loggedIn ? $t('common.account') : $t('common.login') }}
@@ -160,7 +160,7 @@ const menus = computed((): IMenuItem[] => [
         <ActionSheetBody class="grid gap-4">
           <ActionSheetHeader text="Menu" />
           <nav
-            class="text-primary-800 dark:text-primary-100 font-semibold leading-6"
+            class="text-primary-950 dark:text-primary-50 font-semibold leading-6"
           >
             <ul
               class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
@@ -171,7 +171,7 @@ const menus = computed((): IMenuItem[] => [
                   :to="'/products'"
                   size="md"
                   variant="solid"
-                  color="white"
+                  color="primary"
                   :label="$t('common.shop')"
                 >
                   {{ $t('common.shop') }}
@@ -181,7 +181,7 @@ const menus = computed((): IMenuItem[] => [
                   :to="'/search'"
                   size="md"
                   variant="solid"
-                  color="white"
+                  color="primary"
                   :label="$t('common.search')"
                 >
                   {{ $t('common.search') }}
@@ -197,7 +197,7 @@ const menus = computed((): IMenuItem[] => [
                   "
                   size="md"
                   variant="solid"
-                  color="white"
+                  color="primary"
                   :label="loggedIn ? $t('common.account') : $t('common.login')"
                 >
                   {{ loggedIn ? $t('common.account') : $t('common.login') }}
@@ -208,7 +208,7 @@ const menus = computed((): IMenuItem[] => [
                   to="/auth/security"
                   size="md"
                   variant="solid"
-                  color="white"
+                  color="primary"
                   :label="$t('pages.accounts.security.title')"
                 >
                   {{ $t('pages.accounts.security.title') }}
@@ -225,19 +225,19 @@ const menus = computed((): IMenuItem[] => [
             </div>
           </div>
           <Anchor
-            class="text-primary-800 dark:text-primary-100 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
+            class="text-primary-950 dark:text-primary-50 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
             :to="'cart'"
             :title="$t('pages.cart.title')"
             :text="$t('pages.cart.title')"
           >
             <IconFa6Solid:cartShopping />
-            <span class="text-primary-800 dark:text-primary-100 ml-1">
+            <span class="text-primary-950 dark:text-primary-50 ml-1">
               {{ $t('pages.cart.title') }}</span>
           </Anchor>
           <UButton
             size="md"
             :trailing="false"
-            class="text-primary-100 dark:text-primary-100"
+            class="text-primary-100 dark:text-primary-50"
             icon="i-heroicons-arrow-left-start-on-rectangle"
             color="red"
             @click="authLogoutEvent"
@@ -246,7 +246,7 @@ const menus = computed((): IMenuItem[] => [
         <UButton
           size="md"
           :label="$t('common.close')"
-          color="white"
+          color="primary"
           @click.prevent="toggleOptions(false)"
         />
       </ActionSheet>

@@ -63,7 +63,7 @@ const onSubmit = handleSubmit(async (values) => {
       @submit="onSubmit"
     >
       <div
-        class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-900 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
+        class="dark:bg-primary-900 bg-primary-100 flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
       >
         <div class="relative grid w-full">
           <div class="sr-only">
@@ -82,7 +82,7 @@ const onSubmit = handleSubmit(async (values) => {
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-800 dark:text-primary-100 mb-2"
+              class="text-primary-950 dark:text-primary-50 mb-2"
               for="newPassword1"
             >{{
               $t('pages.auth.password.reset.confirm.form.newPassword1.label')
@@ -91,7 +91,7 @@ const onSubmit = handleSubmit(async (values) => {
               id="newPassword1"
               v-model="newPassword1"
               :bind="newPassword1Props"
-              class="text-primary-800 dark:text-primary-100 mb-2"
+              class="text-primary-950 dark:text-primary-50 mb-2"
               name="newPassword1"
               type="password"
               autocomplete="new-password"
@@ -105,7 +105,7 @@ const onSubmit = handleSubmit(async (values) => {
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-800 dark:text-primary-100 mb-2"
+              class="text-primary-950 dark:text-primary-50 mb-2"
               for="newPassword2"
             >{{
               $t('pages.auth.password.reset.confirm.form.newPassword2.label')
@@ -114,7 +114,7 @@ const onSubmit = handleSubmit(async (values) => {
               id="newPassword2"
               v-model="newPassword2"
               :bind="newPassword2Props"
-              class="text-primary-800 dark:text-primary-100 mb-2"
+              class="text-primary-950 dark:text-primary-50 mb-2"
               name="newPassword2"
               type="password"
               autocomplete="new-password"
@@ -126,14 +126,16 @@ const onSubmit = handleSubmit(async (values) => {
             >{{ errors.newPassword2 }}</span>
           </div>
 
-          <button
+          <UButton
             type="submit"
-            class="bg-primary hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded px-7 pb-2.5 pt-3 text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
+            size="sm"
+            color="primary"
+            variant="solid"
+            :label="$t('pages.auth.password.reset.confirm.form.submit')"
             :disabled="isSubmitting"
             :aria-busy="isSubmitting"
-          >
-            {{ $t('pages.auth.password.reset.confirm.form.submit') }}
-          </button>
+            block
+          />
         </div>
       </div>
     </form>

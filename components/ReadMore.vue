@@ -30,23 +30,23 @@ const trimmedText = computed(() => {
   <div v-if="text && text.length > maxChars" class="relative flex flex-col">
     <div
       v-if="!showFullText"
-      class="text-primary-800 dark:text-primary-100 overflow-hidden"
+      class="text-primary-950 dark:text-primary-50 overflow-hidden"
     >
       <span v-html="trimmedText" />
     </div>
-    <div v-else class="text-primary-800 dark:text-primary-100 overflow-hidden">
+    <div v-else class="text-primary-950 dark:text-primary-50 overflow-hidden">
       <span v-html="text" />
     </div>
     <div class="bottom-0 right-0 grid justify-end">
       <UButton
         :label="showFullText ? $t('common.read_less') : $t('common.read_more')"
         size="xs"
-        color="white"
+        color="primary"
         @click="toggleFullText"
       />
     </div>
   </div>
-  <div v-else class="text-primary-800 dark:text-primary-100">
+  <div v-else class="text-primary-950 dark:text-primary-50">
     {{ text }}
   </div>
 </template>

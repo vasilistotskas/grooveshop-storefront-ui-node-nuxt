@@ -29,7 +29,7 @@ function onSubmit() {
           $t('pages.auth.security.mfa.recovery.codes.generate.form.button')
         "
         size="xl"
-        color="white"
+        color="primary"
         @click="onSubmit"
       />
     </section>

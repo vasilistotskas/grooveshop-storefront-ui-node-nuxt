@@ -131,7 +131,7 @@ const uploadImage = async (event: Event) => {
       <ImgWithFallback
         loading="lazy"
         provider="mediaStream"
-        class="rounded-full bg-white"
+        class="bg-primary-100 rounded-full"
         :style="{ objectFit: 'contain' }"
         :width="imgWidth"
         :height="imgHeight"
@@ -214,7 +214,7 @@ const uploadImage = async (event: Event) => {
       </form>
     </div>
     <div v-if="showName" class="flex flex-col">
-      <span class="text-primary-800 dark:text-primary-100 font-bold">
+      <span class="text-primary-950 dark:text-primary-50 font-bold">
         {{ userAccount?.firstName }}
       </span>
     </div>

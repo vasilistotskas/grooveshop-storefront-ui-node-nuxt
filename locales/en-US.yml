@@ -99,7 +99,7 @@ common:
     apply: Apply
   ordering:
     id: ID
-    created_at: Created At
+    created_at: More recently
   like: Like
   unlike: Unlike
   reply: Reply
@@ -112,3 +112,4 @@ common:
     replies: No replies | 1 reply | %{count} replies
   hide:
     replies: Hide
+  register: Register

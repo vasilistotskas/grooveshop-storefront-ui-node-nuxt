@@ -6,6 +6,7 @@ import { GlobalEvents } from '~/events/global'
 const { t } = useI18n()
 const toast = useToast()
 const route = useRoute()
+const localePath = useLocalePath()
 const { fetch } = useUserSession()
 const { login, loginWithProvider } = useAuth()
 const { totpActive } = useAuthMfa()
@@ -90,18 +91,18 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
     >
       <div
         v-if="!loading"
-        class="flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 bg-white p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:bg-zinc-900 dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
+        class="dark:bg-primary-900 bg-primary-100 flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
       >
         <div class="relative grid w-full gap-4">
           <div class="grid content-evenly items-start">
-            <label class="text-primary-800 dark:text-primary-100" for="email">{{
+            <label class="text-primary-950 dark:text-primary-50" for="email">{{
               $t('pages.auth.login.form.email.label')
             }}</label>
             <FormTextInput
               id="email"
               v-model="email"
               :bind="emailProps"
-              class="text-primary-800 dark:text-primary-100"
+              class="text-primary-950 dark:text-primary-50"
               name="email"
               type="email"
               autocomplete="email"
@@ -115,7 +116,7 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-800 dark:text-primary-100"
+              class="text-primary-950 dark:text-primary-50"
               for="password"
             >{{ $t('pages.auth.login.form.password.label') }}</label>
             <div class="relative grid items-center gap-2">
@@ -123,21 +124,23 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
                 id="password"
                 v-model="password"
                 :bind="passwordProps"
-                class="text-primary-800 dark:text-primary-100"
+                class="text-primary-950 dark:text-primary-50"
                 name="password"
                 :type="showPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 :required="true"
               />
-              <button
-                type="button"
+              <UButton
                 class="absolute right-2 top-1/2 -translate-y-1/2 transform"
+                type="button"
+                color="primary"
+                variant="ghost"
+                :icon="
+                  showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
+                "
                 :aria-label="$t('pages.auth.login.form.password.toggle')"
                 @click="showPassword = !showPassword"
-              >
-                <IconFa6Solid:eye v-if="!showPassword" />
-                <IconFa6Solid:eyeSlash v-else />
-              </button>
+              />
             </div>
             <span
               v-if="errors.password"
@@ -160,62 +163,80 @@ const ClientOnlyFallback = resolveComponent('ClientOnlyFallback')
                 {{ $t('pages.auth.login.form.remember') }}
               </label>
             </div>
-
-            <Anchor
-              :to="'/auth/password/reset'"
-              :title="$t('pages.auth.login.form.forgot.password.reset')"
-              :text="$t('pages.auth.login.form.forgot.password.reset')"
-              class="text-primary hover:text-primary-600 focus:text-primary-600 active:text-primary-800 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 text-sm transition duration-150 ease-in-out md:text-base"
+            <UButton
+              size="lg"
+              type="submit"
+              color="opposite"
+              variant="link"
+              :label="$t('pages.auth.login.form.forgot.password.reset')"
+              :to="localePath('/auth/password/reset')"
             />
           </div>
 
-          <button
+          <UButton
+            size="xl"
             type="submit"
-            class="bg-primary hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 inline-block w-full rounded px-7 pb-2.5 pt-3 text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
+            color="primary"
+            variant="soft"
             :disabled="isSubmitting"
             :aria-busy="isSubmitting"
-          >
-            {{ $t('pages.auth.login.form.submit') }}
-          </button>
+            :label="$t('pages.auth.login.form.submit')"
+            :loading="isSubmitting"
+            block
+          />
 
           <div
-            class="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300"
+            class="my-2 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300"
           >
             <p class="mx-4 text-center font-semibold dark:text-neutral-200">
               {{ $t('pages.auth.login.form.or') }}
             </p>
           </div>
 
-          <button
-            class="bg-info hover:bg-info-600 focus:bg-info-600 active:bg-info-700 flex w-full items-center justify-center rounded px-7 pb-2.5 pt-3 text-center text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#54b4d3] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.3),0_4px_18px_0_rgba(84,180,211,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(84,180,211,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(84,180,211,0.2),0_4px_18px_0_rgba(84,180,211,0.1)]"
-            style="background-color: #ea4335"
-            type="button"
-            data-te-ripple-init
-            data-te-ripple-color="light"
-            @click="() => loginWithProvider('google')"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="mr-2 h-3.5 w-3.5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
+          <div class="flex items-center justify-center gap-4">
+            <UButton
+              size="xl"
+              type="button"
+              color="red"
+              variant="solid"
+              :disabled="isSubmitting"
+              :aria-busy="isSubmitting"
+              :aria-label="$t('pages.auth.login.form.google')"
+              :loading="isSubmitting"
+              @click="() => loginWithProvider('google')"
             >
-              <path
-                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
-              />
-            </svg>
-            {{ $t('pages.auth.login.form.google') }}
-          </button>
+              <template #leading>
+                <IconMdi:google class="text-xl text-white" />
+              </template>
+            </UButton>
+            <UButton
+              size="xl"
+              type="button"
+              color="blue"
+              variant="solid"
+              :disabled="isSubmitting"
+              :aria-busy="isSubmitting"
+              :aria-label="$t('pages.auth.login.form.facebook')"
+              :loading="isSubmitting"
+              @click="() => loginWithProvider('facebook')"
+            >
+              <template #leading>
+                <IconMdi:facebook class="text-xl text-white" />
+              </template>
+            </UButton>
+          </div>
 
-          <div class="flex items-center justify-end gap-2">
-            <span class="text-primary-800 dark:text-primary-100 text-sm">{{
+          <div class="flex items-center justify-end">
+            <span class="text-primary-950 dark:text-primary-50 text-sm">{{
               $t('pages.auth.login.form.no.account')
             }}</span>
-            <Anchor
-              class="flex items-center self-center text-[1.5rem] text-base hover:text-slate-900 hover:no-underline hover:dark:text-white"
-              :title="$t('pages.auth.registration.title')"
-              :text="$t('pages.auth.registration.title')"
-              :to="'/auth/registration'"
+            <UButton
+              size="lg"
+              type="submit"
+              color="opposite"
+              variant="link"
+              :label="$t('common.register')"
+              :to="localePath('/auth/registration')"
             />
           </div>
         </div>

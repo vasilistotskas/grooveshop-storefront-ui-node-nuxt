@@ -6,7 +6,6 @@ defineProps({
   },
 })
 
-const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
 const navbar = ref(null)
 const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
@@ -67,7 +66,6 @@ const toggleOptions = (show?: boolean) => {
   }
 }
 const appTitle = computed(() => config.public.appTitle as string)
-const environment = computed(() => config.public.environment)
 
 const logo = computed(() => {
   return isDark.value ? '/img/logo-dark-mode.png' : '/img/logo-light-mode.png'
@@ -106,7 +104,7 @@ const spider = computed(() => {
                 $t('components.builder.navbar.toggle_drawer_menu')
               }}</span>
               <span
-                class="text-primary-800 dark:text-primary-100 flex items-center text-lg"
+                class="text-primary-950 dark:text-primary-50 flex items-center text-lg"
                 aria-hidden="true"
               >
                 <UIcon v-if="!showDrawer" name="i-heroicons-bars-3" />
@@ -150,7 +148,6 @@ const spider = computed(() => {
               </Anchor>
             </h1>
           </slot>
-          <LazyDemoModeMessage v-if="environment === 'demo' && !loggedIn" />
           <!-- menu -->
           <slot name="menu" />
           <!-- options:toggle -->
@@ -168,7 +165,7 @@ const spider = computed(() => {
                 $t('components.builder.navbar.toggle_options_menu')
               }}</span>
               <span
-                class="text-primary-800 dark:text-primary-100 flex items-center text-sm"
+                class="text-primary-950 dark:text-primary-50 flex items-center text-sm"
                 aria-hidden="true"
               >
                 <IconFaSolid:ellipsisV />
@@ -191,7 +188,7 @@ const spider = computed(() => {
         <Transition name="slide-fade-from-up" mode="out-in">
           <div
             v-if="showDrawer && $slots['drawer']"
-            class="fixed left-0 top-0 z-30 flex h-full w-screen flex-col bg-white pt-[80px] dark:bg-zinc-900 md:pt-12 lg:sr-only"
+            class="dark:bg-primary-900 bg-primary-100 fixed left-0 top-0 z-30 flex h-full w-screen flex-col pt-[80px] md:pt-12 lg:sr-only"
           >
             <div class="relative flex flex-1 flex-col overflow-y-auto px-4">
               <slot name="drawer" :toggle-drawer="toggleDrawer" />

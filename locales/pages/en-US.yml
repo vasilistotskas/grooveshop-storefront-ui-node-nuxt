@@ -14,7 +14,7 @@ pages:
     description: blog
     keywords: blog
     ordering:
-      created_at: Created At
+      created_at: More recently
       updated_at: Updated At
       title: Title
       published_at: Published At
@@ -99,7 +99,7 @@ pages:
     ordering:
       name: Name
       price: Price
-      created_at: Created At
+      created_at: More recently
       updated_at: Updated At
     share: Share
     share_not_supported: Web share is not supported in your browser
@@ -254,7 +254,7 @@ pages:
       delete_error: Orders Item delete error
       total: No Orders | 1 Order | %{count} Orders
       ordering:
-        created_at: Created At
+        created_at: More recently
         updated_at: Updated At
         status: Status
       empty:
@@ -273,7 +273,7 @@ pages:
       ordering:
         id: ID
         product_id: Product ID
-        created_at: Created At
+        created_at: More recently
         updated_at: Updated At
       empty:
         title: Your favourites is empty
@@ -289,7 +289,7 @@ pages:
       deleted: Reviews Item deleted
       delete_error: Reviews Item delete error
       ordering:
-        created_at: Created At
+        created_at: More recently
         updated_at: Updated At
       empty:
         title: Your reviews are empty
@@ -349,7 +349,7 @@ pages:
       total: No Addresses | 1 Address | %{count} Addresses
       delete: Delete
       ordering:
-        created_at: Created At
+        created_at: More recently
         updated_at: Updated At
         is_main: Main
       empty:
@@ -464,7 +464,7 @@ pages:
       shipping:
         value: Shipping value
       ordering:
-        created_at: Created At
+        created_at: More recently
         updated_at: Updated At
       empty:
         title: Your orders is empty

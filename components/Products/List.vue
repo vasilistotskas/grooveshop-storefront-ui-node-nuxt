@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
+import type { EntityOrdering } from '~/types/ordering'
 import type { Product, ProductOrderingField } from '~/types/product/product'
 
 import emptyIcon from '~icons/mdi/package-variant-remove'
@@ -40,13 +40,6 @@ const entityOrdering = ref<EntityOrdering<ProductOrderingField>>([
     options: ['ascending', 'descending'],
   },
 ])
-
-const orderingFields = reactive<
-  Partial<Record<ProductOrderingField, OrderingOption[]>>
->({
-  finalPrice: [],
-  createdAt: [],
-})
 
 const {
   data: products,
@@ -98,7 +91,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<ProductOrderingField>(entityOrdering.value, orderingFields)
+  return useOrdering(entityOrdering.value)
 })
 
 watch(
@@ -164,7 +157,7 @@ watch(
           <UButton
             :label="$t('common.empty.button')"
             :to="'index'"
-            color="white"
+            color="primary"
           />
         </template>
       </EmptyState>

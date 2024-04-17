@@ -95,7 +95,7 @@ const toggleFavourite = async () => {
   <UButton
     :icon="!liked ? 'i-heroicons-hand-thumb-up' : 'i-heroicons-hand-thumb-up'"
     :size="size"
-    :color="'white'"
+    :color="'primary'"
     square
     :variant="variant"
     :label="String(likesCount)"

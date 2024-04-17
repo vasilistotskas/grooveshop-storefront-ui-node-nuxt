@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
+import type { EntityOrdering } from '~/types/ordering'
 import type {
   ProductReview,
   ProductReviewOrderingField,
@@ -26,13 +26,6 @@ const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
     options: ['ascending', 'descending'],
   },
 ])
-
-const orderingFields = reactive<
-  Partial<Record<ProductReviewOrderingField, OrderingOption[]>>
->({
-  updatedAt: [],
-  createdAt: [],
-})
 
 const { data: reviews, pending } = await useLazyFetch(
   `/api/user/account/${user.value?.id}/product-reviews`,
@@ -71,10 +64,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<ProductReviewOrderingField>(
-    entityOrdering.value,
-    orderingFields,
-  )
+  return useOrdering<ProductReviewOrderingField>(entityOrdering.value)
 })
 
 watch(
@@ -140,7 +130,7 @@ definePageMeta({
           <UButton
             :label="$t('common.empty.button')"
             :to="'index'"
-            color="white"
+            color="primary"
           />
         </template>
       </EmptyState>

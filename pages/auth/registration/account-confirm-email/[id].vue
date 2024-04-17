@@ -106,7 +106,7 @@ definePageMeta({
       <div class="flex justify-center">
         <UButton
           v-if="data"
-          color="white"
+          color="primary"
           size="sm"
           :label="
             $t('pages.auth.registration.account-confirm-email.success.button')

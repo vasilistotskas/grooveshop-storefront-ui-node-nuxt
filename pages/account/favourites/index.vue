@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
+import type { EntityOrdering } from '~/types/ordering'
 import type {
   ProductFavourite,
   ProductFavouriteOrderingField,
@@ -26,14 +26,6 @@ const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
     options: ['ascending', 'descending'],
   },
 ])
-
-const orderingFields = reactive<
-  Partial<Record<ProductFavouriteOrderingField, OrderingOption[]>>
->({
-  id: [],
-  productId: [],
-  createdAt: [],
-})
 
 const { data: favourites, pending } = await useLazyFetch(
   `/api/user/account/${user.value?.id}/favourite-products`,
@@ -72,10 +64,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<ProductFavouriteOrderingField>(
-    entityOrdering.value,
-    orderingFields,
-  )
+  return useOrdering<ProductFavouriteOrderingField>(entityOrdering.value)
 })
 
 watch(
@@ -139,7 +128,7 @@ definePageMeta({
           <UButton
             :label="$t('common.empty.button')"
             :to="'index'"
-            color="white"
+            color="primary"
           />
         </template>
       </EmptyState>

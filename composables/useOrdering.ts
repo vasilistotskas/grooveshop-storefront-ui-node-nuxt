@@ -1,36 +1,29 @@
 import type { EntityOrdering, OrderingOption } from '~/types/ordering'
 
-export const useOrdering = <T extends string>(
-  ordering: EntityOrdering<T>,
-  orderingFields: Partial<Record<T, OrderingOption[]>>,
-) => {
+export const useOrdering = <T extends string>(ordering: EntityOrdering<T>) => {
   const orderingOptions = computed(() => {
+    const fields: Partial<Record<T, OrderingOption[]>> = {}
     ordering.forEach(({ value, label, options: opt }) => {
-      orderingFields[value] = opt.map((option) => {
+      fields[value] = opt.map((option) => {
         const newValue = option === 'ascending' ? value : `-${value}`
+        const optionUpDown = option === 'ascending' ? '↑' : '↓'
         return {
           value: newValue,
-          label: `${label} ${option}`,
+          label: `${label} ${optionUpDown}`,
         }
       })
     })
-    return orderingFields
+    return fields
   })
 
   const orderingOptionsArray = computed(() => {
     const options: OrderingOption[] = []
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(orderingOptions.value).forEach(([key, value]) => {
-      const orderingOptionsForKey = value as OrderingOption[]
-      orderingOptionsForKey.forEach((option) => {
-        options.push({
-          value: String(option.value),
-          label: option.label,
-        })
-      })
+    Object.entries(orderingOptions.value).forEach(([_, value]) => {
+      options.push(...(value as OrderingOption[]))
     })
     return options
   })
+
   return {
     orderingOptions,
     orderingOptionsArray,

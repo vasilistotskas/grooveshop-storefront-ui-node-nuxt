@@ -65,7 +65,7 @@ const favouriteId = computed(
 
 <template>
   <li class="product-card relative">
-    <div class="container rounded-lg bg-white dark:bg-zinc-900">
+    <div class="dark:bg-primary-900 bg-primary-100 container rounded-lg">
       <div class="flex flex-col gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
@@ -73,7 +73,7 @@ const favouriteId = computed(
               <ImgWithFallback
                 :loading="imgLoading"
                 provider="mediaStream"
-                class="bg-transparent bg-white"
+                class="bg-primary-100 bg-transparent"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
                 :src="src"
                 :width="imgWidth"
@@ -95,7 +95,7 @@ const favouriteId = computed(
               <Anchor
                 :to="`/products${product.absoluteUrl}`"
                 :text="alt"
-                class="text-primary-800 dark:text-primary-100"
+                class="text-primary-950 dark:text-primary-50"
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </Anchor>
@@ -110,9 +110,9 @@ const favouriteId = computed(
                   :aria-label="$t('components.product.card.share')"
                   icon="i-heroicons-share"
                   size="lg"
-                  color="white"
+                  color="gray"
                   square
-                  variant="solid"
+                  variant="ghost"
                   class="font-extrabold capitalize"
                   @click="startShare"
                 />
@@ -131,7 +131,7 @@ const favouriteId = computed(
           </div>
           <p
             v-if="showDescription"
-            class="text-primary-800 dark:text-primary-100 text-muted min-h-[3.75rem] text-sm leading-6"
+            class="text-primary-950 dark:text-primary-50 text-muted min-h-[3.75rem] text-sm leading-6"
           >
             {{
               contentShorten(
@@ -144,9 +144,9 @@ const favouriteId = computed(
           <div v-if="showStartPrice || showVat" class="grid">
             <div v-if="showStartPrice" class="d-flex justify-content-between">
               <p>
-                <span class="text-primary-800 dark:text-primary-100">{{
+                <span class="text-primary-950 dark:text-primary-50">{{
                   $t('components.product.card.price')
-                }}</span><span class="text-primary-800 dark:text-primary-100">{{
+                }}</span><span class="text-primary-950 dark:text-primary-50">{{
                   product.price
                 }}</span>
               </p>
@@ -156,9 +156,9 @@ const favouriteId = computed(
               class="card-vat-percent d-flex justify-content-between"
             >
               <p class="card-prices-vat-percent">
-                <span class="text-primary-800 dark:text-primary-100">{{
+                <span class="text-primary-950 dark:text-primary-50">{{
                   $t('components.product.card.vat_percent')
-                }}</span><span class="text-primary-800 dark:text-primary-100">{{
+                }}</span><span class="text-primary-950 dark:text-primary-50">{{
                   product.vatPercent
                 }}</span>
               </p>
@@ -167,13 +167,13 @@ const favouriteId = computed(
           <div class="flex justify-between font-bold">
             <p class="grid items-center gap-2 md:grid-cols-[1fr_auto]">
               <span
-                class="text-primary-800 dark:text-primary-100 text-sm leading-6"
+                class="text-primary-950 dark:text-primary-50 text-sm leading-6"
               >
                 {{ $t('components.product.card.total_price') }}
               </span>
               <I18nN
                 tag="span"
-                class="text-primary-800 dark:text-primary-100 text-lg leading-6"
+                class="text-primary-950 dark:text-primary-50 text-lg leading-6"
                 format="currency"
                 :value="product.finalPrice"
               />

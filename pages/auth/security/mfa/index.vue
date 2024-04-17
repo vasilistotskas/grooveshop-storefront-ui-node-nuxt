@@ -18,26 +18,38 @@ definePageMeta({
     <AuthSecurityNavbar />
     <PageBody>
       <div
-        class="container-2xs grid items-center justify-center justify-items-center gap-4 rounded border border-gray-900/10 bg-white !p-4 dark:border-gray-50/[0.2] dark:bg-zinc-900 md:px-6"
+        class="container-2xs dark:bg-primary-900 bg-primary-100 grid items-center justify-center justify-items-center gap-4 rounded border border-gray-900/10 !p-4 dark:border-gray-50/[0.2] md:px-6"
       >
         <UIcon
           name="i-heroicons-shield-check"
           class="mx-auto h-24 w-24 text-secondary"
         />
         <template v-if="isTotpActive">
-          <AuthMfaTotpDeactivateButton />
-          <UButton :to="'/auth/security/mfa/recovery-codes'" color="white">
+          <UButton
+            :to="'/auth/security/mfa/recovery-codes'"
+            variant="link"
+            color="opposite"
+            size="xl"
+          >
             {{ $t('pages.auth.security.mfa.recovery.codes.link') }}
           </UButton>
           <UButton
             :to="'/auth/security/mfa/recovery-codes/generate'"
-            color="white"
+            variant="link"
+            color="opposite"
+            size="xl"
           >
             {{ $t('pages.auth.security.mfa.recovery.codes.generate.link') }}
           </UButton>
+          <AuthMfaTotpDeactivateButton />
         </template>
         <template v-else>
-          <UButton :to="'/auth/security/mfa/totp/activate'" color="white">
+          <UButton
+            :to="'/auth/security/mfa/totp/activate'"
+            variant="link"
+            color="opposite"
+            size="xl"
+          >
             {{ $t('pages.auth.security.mfa.totp.activate.link') }}
           </UButton>
         </template>

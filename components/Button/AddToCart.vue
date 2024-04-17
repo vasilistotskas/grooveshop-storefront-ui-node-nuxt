@@ -39,7 +39,7 @@ const addToCartEvent = async () => {
     :label="text"
     size="xl"
     :trailing="true"
-    color="white"
+    color="primary"
     @click.prevent="addToCartEvent"
   />
 </template>

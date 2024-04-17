@@ -138,7 +138,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-800 dark:text-primary-100"><IconFaSolid:angleLeft /></span>
+          <span class="text-primary-950 dark:text-primary-50"><IconFaSolid:angleLeft /></span>
         </Anchor>
       </li>
 
@@ -175,13 +175,13 @@ const link = computed(() => {
         >
           <span
             :class="{
-              'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
+              'text-primary-950 dark:text-primary-50 dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
           >{{ firstPageNumber }}</span>
           <span
             v-if="shouldDisplayPreviousTripleDots"
-            class="text-primary-800 dark:text-primary-100 grid self-end justify-self-start text-sm"
+            class="text-primary-950 dark:text-primary-50 grid self-end justify-self-start text-sm"
           >...</span>
         </Anchor>
       </li>
@@ -198,7 +198,7 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
+            'dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
             'active': pageEntry === page,
           }"
           :text="String(pageEntry)"
@@ -216,7 +216,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-800 dark:text-primary-100">{{
+          <span class="text-primary-950 dark:text-primary-50">{{
             pageEntry
           }}</span>
         </Anchor>
@@ -257,11 +257,11 @@ const link = computed(() => {
         >
           <span
             v-if="shouldDisplayNextTripleDots"
-            class="text-primary-800 dark:text-primary-100 grid self-end justify-self-end text-sm"
+            class="text-primary-950 dark:text-primary-50 grid self-end justify-self-end text-sm"
           >...</span>
           <span
             :class="{
-              'text-primary-800 dark:text-primary-100 grid w-full items-center justify-center rounded bg-white px-2 py-1 dark:bg-zinc-900': true,
+              'text-primary-950 dark:text-primary-50 dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
           >{{ lastPageNumber }}</span>
@@ -302,7 +302,7 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-800 dark:text-primary-100"><IconFaSolid:angleRight /></span>
+          <span class="text-primary-950 dark:text-primary-50"><IconFaSolid:angleRight /></span>
         </Anchor>
       </li>
     </ol>

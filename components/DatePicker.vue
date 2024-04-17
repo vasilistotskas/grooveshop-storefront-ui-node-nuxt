@@ -19,12 +19,8 @@ const date = computed({
 const attrs = [
   {
     key: 'today',
-    highlight: {
-      color: 'blue',
-      fillMode: 'outline',
-      class: '!bg-gray-100 dark:!bg-gray-800',
-    },
     dates: new Date(),
+    highlight: true,
   },
 ]
 </script>
@@ -40,5 +36,6 @@ const attrs = [
     title-position="left"
     trim-weeks
     :first-day-of-week="2"
+    :color="'blue'"
   />
 </template>

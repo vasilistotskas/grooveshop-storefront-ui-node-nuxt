@@ -38,7 +38,7 @@ const categoryImageSource = computed(() => {
   <li
     :class="{
       'grid w-full rounded border border-gray-700 p-2 md:border-transparent md:p-0': true,
-      'bg-white dark:bg-zinc-900': isCategorySelected,
+      'dark:bg-primary-900 bg-primary-100': isCategorySelected,
     }"
   >
     <Anchor
@@ -65,9 +65,7 @@ const categoryImageSource = computed(() => {
         />
       </div>
       <div class="flex items-center">
-        <span
-          class="text-primary-800 dark:text-primary-100 w-full text-xl capitalize md:text-lg"
-        >
+        <span class="text-primary-950 dark:text-primary-50 w-full capitalize">
           {{ categoryName }}
         </span>
       </div>

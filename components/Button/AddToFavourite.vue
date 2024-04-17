@@ -131,7 +131,7 @@ const backgroundColor = computed(() => {
     :size="size"
     :label="buttonLabel"
     :icon="!favourite ? 'i-heroicons-heart' : 'i-heroicons-heart'"
-    :color="'white'"
+    :color="'primary'"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
     @click="toggleFavourite"

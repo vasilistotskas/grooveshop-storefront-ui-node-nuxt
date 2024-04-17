@@ -314,7 +314,7 @@ watch(
           />
           <span
             v-if="userAccount"
-            class="text-primary-800 dark:text-primary-100 font-bold"
+            class="text-primary-950 dark:text-primary-50 font-bold"
           >
             {{ userAccount?.firstName }}
           </span>
@@ -366,20 +366,20 @@ watch(
         <span v-show="!repliesFetched" />
         <span
           v-show="repliesFetched"
-          class="relative z-20 mt-[6px] flex justify-center self-start bg-white py-[2px] dark:bg-zinc-900"
+          class="dark:bg-primary-900 bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start py-[2px]"
         >
           <UButton
             v-if="hasReplies"
             :aria-expanded="showReplies"
             class="button inline-flex h-[1rem] w-[1rem] items-center justify-center overflow-visible px-[0.375rem]"
             size="sm"
-            variant="ghost"
+            variant="solid"
             :icon="
               showReplies
                 ? 'i-heroicons-minus-circle'
                 : 'i-heroicons-plus-circle'
             "
-            :color="'white'"
+            :color="'primary'"
             :aria-label="
               showReplies
                 ? $t('common.hide.replies')
@@ -400,7 +400,7 @@ watch(
             <span class="max-h-2xl flex items-center">
               <ButtonBlogCommentLike
                 size="sm"
-                variant="ghost"
+                variant="solid"
                 :aria-label="$t('common.like')"
                 :blog-comment-id="comment.id"
                 :likes-count="likes"
@@ -410,9 +410,9 @@ watch(
                 v-if="maxDepth > depth"
                 size="sm"
                 :label="$t('common.reply')"
-                variant="ghost"
                 :icon="'i-heroicons-chat-bubble-left-ellipsis'"
-                :color="'white'"
+                :color="'primary'"
+                variant="solid"
                 :aria-label="$t('common.reply')"
                 @click="onReplyButtonClick"
               />
@@ -429,7 +429,7 @@ watch(
             :aria-hidden="!showReplies"
             :class="{
               'threadline-hovered': isLineHovered,
-              'z-20 bg-white dark:bg-zinc-900':
+              'dark:bg-primary-900 bg-primary-100 z-20':
                 !showReplies
                 || allReplies[allReplies.length - 1].id === reply.id,
             }"
@@ -454,7 +454,7 @@ watch(
           :aria-hidden="!showReplies"
           :class="{
             'threadline-hovered': isLineHovered,
-            'z-20 bg-white dark:bg-zinc-900': !showReplies || pending,
+            'dark:bg-primary-900 bg-primary-100 z-20': !showReplies || pending,
           }"
           class="threadline-two align-start relative flex justify-end"
         >
@@ -474,13 +474,13 @@ watch(
                 ? $t('common.hide.replies')
                 : $t('common.more.replies', totalReplies)
             "
-            variant="ghost"
+            variant="solid"
             :icon="
               showReplies
                 ? 'i-heroicons-minus-circle'
                 : 'i-heroicons-plus-circle'
             "
-            :color="'white'"
+            :color="'primary'"
             :disabled="pending"
             :aria-label="
               showReplies
@@ -522,6 +522,7 @@ watch(
       :page="pagination.page"
       :links="pagination.links"
       :cursor-key="cursorKey"
+      :loading="pending"
     />
   </details>
 </template>
@@ -531,10 +532,5 @@ watch(
   & > span {
     @apply border-primary-600 dark:border-primary-300;
   }
-}
-.reply-comment-form:deep(button) {
-  position: absolute;
-  right: 6px;
-  bottom: 12px;
 }
 </style>

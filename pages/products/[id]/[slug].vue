@@ -212,7 +212,7 @@ definePageMeta({
             :links="links"
             class="mb-5"
             :ui="{
-              li: 'text-primary-800 dark:text-primary-100',
+              li: 'text-primary-950 dark:text-primary-50',
               base: 'text-xs md:text-md',
             }"
           />
@@ -224,11 +224,11 @@ definePageMeta({
               class="grid content-center items-center gap-4 md:gap-6 md:px-4"
             >
               <h2
-                class="text-primary-800 dark:text-primary-100 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
+                class="text-primary-950 dark:text-primary-50 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </h2>
-              <h3 class="text-primary-800 dark:text-primary-100 text-sm">
+              <h3 class="text-primary-950 dark:text-primary-50 text-sm">
                 <span>{{ $t('pages.product.product_id') }}: </span>
                 <span
                   class="text-indigo-700 hover:underline dark:text-indigo-200"
@@ -241,7 +241,7 @@ definePageMeta({
                     :disabled="!isSupported"
                     icon="i-heroicons-share"
                     size="lg"
-                    color="white"
+                    color="primary"
                     square
                     variant="solid"
                     class="font-extrabold capitalize"
@@ -256,7 +256,7 @@ definePageMeta({
                     class="capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
                     :label="reviewButtonText"
                     size="lg"
-                    color="white"
+                    color="primary"
                     @click="openModal"
                   />
                   <template #fallback>
@@ -281,7 +281,7 @@ definePageMeta({
               </PageSection>
               <div class="flex items-center gap-4">
                 <div>
-                  <div class="flex rounded-lg bg-zinc-100 px-3 py-2">
+                  <div class="bg-primary-50 flex rounded-lg px-3 py-2">
                     <I18nN
                       tag="span"
                       class="text-3xl font-bold text-indigo-600"
@@ -295,7 +295,7 @@ definePageMeta({
                     {{ $t('pages.product.save') }}
                     {{ product.priceSavePercent }}%
                   </p>
-                  <p class="text-primary-800 dark:text-primary-100 text-sm">
+                  <p class="text-primary-950 dark:text-primary-50 text-sm">
                     {{ $t('pages.product.inclusive_of_taxes') }}
                   </p>
                 </div>
@@ -310,13 +310,13 @@ definePageMeta({
                     $t('pages.product.qty')
                   }}</label>
                   <div
-                    class="relative flex items-center rounded-lg bg-white dark:bg-zinc-900"
+                    class="dark:bg-primary-900 bg-primary-100 relative flex items-center rounded-lg"
                   >
                     <UButton
                       id="decrement-button"
                       icon="i-heroicons-minus"
                       size="xl"
-                      color="white"
+                      color="primary"
                       :title="$t('common.decrement')"
                       :aria-label="$t('common.decrement')"
                       @click="decrementQuantity"
@@ -329,13 +329,13 @@ definePageMeta({
                       :max="productStock"
                       :aria-label="$t('pages.product.qty')"
                       :aria-describedby="'increment-button decrement-button'"
-                      class="block w-full border-gray-300 bg-white p-2.5 text-sm text-gray-900 outline-none focus:border-secondary focus:ring-secondary dark:border-gray-600 dark:bg-zinc-900 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      class="dark:bg-primary-900 bg-primary-100 block w-full border-gray-300 p-2.5 text-sm text-gray-900 outline-none focus:border-secondary focus:ring-secondary dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     >
                     <UButton
                       id="increment-button"
                       icon="i-heroicons-plus"
                       size="xl"
-                      color="white"
+                      color="primary"
                       :title="$t('common.increment')"
                       :aria-label="$t('common.increment')"
                       @click="incrementQuantity"

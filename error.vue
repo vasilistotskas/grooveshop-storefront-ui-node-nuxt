@@ -38,21 +38,21 @@ useSeoMeta(seoMetaOptions)
 </script>
 
 <template>
-  <div class="grid bg-white dark:bg-zinc-900">
+  <div class="dark:bg-primary-900 bg-primary-100 grid">
     <PageHeader>
       <PageNavbar />
     </PageHeader>
     <div class="grid min-h-screen">
       <div class="flex flex-col items-center justify-center gap-2 p-6">
         <h2
-          class="text-primary-800 dark:text-primary-100 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
+          class="text-primary-950 dark:text-primary-50 mb-2 grid items-center justify-center justify-items-center gap-4 text-xl"
         >
           <strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
           <span>
             {{ $t('pages.error.page.not.found') }}
           </span>
         </h2>
-        <p class="text-primary-800 dark:text-primary-100">
+        <p class="text-primary-950 dark:text-primary-50">
           {{ $t('pages.error.go.home') }}
         </p>
         <NuxtLink

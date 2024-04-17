@@ -127,7 +127,8 @@ const buttonAreaLabel = computed(() => {
     :size="size"
     :label="buttonLabel"
     :icon="!favouriteId ? 'i-heroicons-heart' : 'i-heroicons-heart'"
-    :color="'white'"
+    :color="'gray'"
+    variant="ghost"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
     :ui="{

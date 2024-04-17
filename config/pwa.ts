@@ -26,30 +26,6 @@ export const pwa = {
         form_factor: 'narrow',
       },
       {
-        src: '/screenshots/540x720.png',
-        type: 'image/png',
-        sizes: '540x720',
-        form_factor: 'narrow',
-      },
-      {
-        src: '/screenshots/540x720.png',
-        type: 'image/png',
-        sizes: '540x720',
-        form_factor: 'narrow',
-      },
-      {
-        src: '/screenshots/1024x593.png',
-        type: 'image/png',
-        sizes: '1024x593',
-        form_factor: 'wide',
-      },
-      {
-        src: '/screenshots/1024x593.png',
-        type: 'image/png',
-        sizes: '1024x593',
-        form_factor: 'wide',
-      },
-      {
         src: '/screenshots/1024x593.png',
         type: 'image/png',
         sizes: '1024x593',

@@ -41,7 +41,7 @@ definePageMeta({
             <UButton
               :label="$t('common.empty.button')"
               :to="'index'"
-              color="white"
+              color="primary"
             />
           </template>
         </EmptyState>
@@ -55,7 +55,8 @@ definePageMeta({
         <UButton
           :label="$t('pages.cart.checkout')"
           class="font-extrabold capitalize"
-          color="white"
+          color="primary"
+          variant="soft"
           :to="'checkout'"
         />
       </h2>

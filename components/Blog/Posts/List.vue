@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
+import type { EntityOrdering } from '~/types/ordering'
 
 import {
   type CursorStates,
@@ -96,24 +96,13 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const orderingFields = reactive<
-  Partial<Record<BlogPostOrderingField, OrderingOption[]>>
->({
-  createdAt: [],
-  title: [],
-  publishedAt: [],
-})
-
 const pagination = computed(() => {
   if (!posts.value) return
   return usePagination<BlogPost>(posts.value)
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<BlogPostOrderingField>(
-    entityOrdering.value,
-    orderingFields,
-  )
+  return useOrdering<BlogPostOrderingField>(entityOrdering.value)
 })
 
 const postIds = computed(() => {

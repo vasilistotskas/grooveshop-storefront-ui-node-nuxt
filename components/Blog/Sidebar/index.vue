@@ -58,7 +58,7 @@ onMounted(() => {
         <h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('common.categories') }}
           <span
-            class="text-primary-800 dark:text-primary-100 text-sm font-normal"
+            class="text-primary-950 dark:text-primary-50 text-sm font-normal"
           >
             ({{ categories?.count ?? 0 }})
           </span>
@@ -85,7 +85,7 @@ onMounted(() => {
         </template>
       </ul>
       <div v-if="!pending && !filteredCategories?.length" class="grid gap-4">
-        <p class="text-primary-800 dark:text-primary-100 p-2 text-center">
+        <p class="text-primary-950 dark:text-primary-50 p-2 text-center">
           {{ $t('common.no_categories_found') }}
         </p>
       </div>

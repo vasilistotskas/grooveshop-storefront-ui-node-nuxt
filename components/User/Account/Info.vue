@@ -42,7 +42,7 @@ defineProps({
       <div class="user-info-name">
         <h2
           v-if="account?.firstName || account?.lastName"
-          class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+          class="text-primary-950 dark:text-primary-50 text-2xl font-bold"
         >
           {{ account.firstName }} {{ account.lastName }}
         </h2>
@@ -55,12 +55,12 @@ defineProps({
             :title="$t('pages.account.orders.title')"
           >
             <UIcon name="i-heroicons-cube" class="h-6 w-6" />
-            <span class="text-primary-800 dark:text-primary-100">{{
+            <span class="text-primary-950 dark:text-primary-50">{{
               $t('pages.account.orders.title')
             }}</span>
 
             <span
-              class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+              class="text-primary-950 dark:text-primary-50 text-2xl font-bold"
             >{{ ordersCount }}</span>
           </Anchor>
         </div>
@@ -71,11 +71,11 @@ defineProps({
             :title="$t('pages.account.favourites.title')"
           >
             <UIcon name="i-heroicons-heart" class="h-6 w-6" />
-            <span class="text-primary-800 dark:text-primary-100">{{
+            <span class="text-primary-950 dark:text-primary-50">{{
               $t('pages.account.favourites.title')
             }}</span>
             <span
-              class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+              class="text-primary-950 dark:text-primary-50 text-2xl font-bold"
             >{{ productFavouritesCount }}</span>
           </Anchor>
         </div>
@@ -86,11 +86,11 @@ defineProps({
             :title="$t('pages.account.reviews.title')"
           >
             <UIcon name="i-heroicons-star" class="h-6 w-6" />
-            <span class="text-primary-800 dark:text-primary-100">{{
+            <span class="text-primary-950 dark:text-primary-50">{{
               $t('pages.account.reviews.title')
             }}</span>
             <span
-              class="text-primary-900 dark:text-primary-100 text-2xl font-bold"
+              class="text-primary-950 dark:text-primary-50 text-2xl font-bold"
             >{{ productReviewsCount }}</span>
           </Anchor>
         </div>

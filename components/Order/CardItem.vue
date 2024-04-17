@@ -31,7 +31,7 @@ const alt = computed(() => {
     <ImgWithFallback
       loading="lazy"
       provider="mediaStream"
-      class="product-img bg-white"
+      class="product-img bg-primary-100"
       :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
       :width="120"
       :height="120"

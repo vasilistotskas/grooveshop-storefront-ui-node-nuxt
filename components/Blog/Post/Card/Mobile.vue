@@ -60,7 +60,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
 <template>
   <li
-    class="container grid w-full gap-4 rounded-lg bg-white !p-0 text-white dark:bg-zinc-900 dark:text-black"
+    class="dark:bg-primary-900 bg-primary-100 container grid w-full gap-4 rounded-lg !p-0 text-white dark:text-black"
   >
     <div class="relative grid">
       <Anchor
@@ -71,7 +71,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <ImgWithFallback
           :loading="imgLoading"
           provider="mediaStream"
-          class="rounded-lg bg-white"
+          class="bg-primary-100 rounded-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="src"
           :width="imgWidth"
@@ -106,7 +106,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <UButton
           icon="i-heroicons-chat-bubble-oval-left"
           size="xl"
-          color="white"
+          color="primary"
           square
           variant="ghost"
           class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
@@ -125,7 +125,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             :disabled="!isSupported"
             icon="i-heroicons-share"
             size="xl"
-            color="white"
+            color="primary"
             square
             variant="ghost"
             class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"

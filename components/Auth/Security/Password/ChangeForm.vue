@@ -84,7 +84,7 @@ const formSchema: DynamicFormSchema = {
 
 <template>
   <section
-    class="container-2xs rounded border border-gray-900/10 bg-white !p-4 dark:border-gray-50/[0.2] dark:bg-zinc-900 md:px-6"
+    class="container-2xs dark:bg-primary-900 bg-primary-100 rounded border border-gray-900/10 !p-4 dark:border-gray-50/[0.2] md:px-6"
   >
     <DynamicForm :schema="formSchema" @submit="onSubmit" />
   </section>

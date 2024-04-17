@@ -33,6 +33,7 @@ const props = withDefaults(
     disableSubmitUntilValid?: boolean
     submitButtonUi?: Button
     resetButtonUi?: Button
+    buttonsPosition?: 'center' | 'left' | 'right'
   }>(),
   {
     id: undefined,
@@ -43,7 +44,7 @@ const props = withDefaults(
     disableSubmitUntilValid: true,
     submitButtonUi: () => ({
       type: 'submit',
-      variant: 'solid',
+      variant: 'soft',
       color: 'primary',
       size: 'md',
       ui: {},
@@ -55,6 +56,7 @@ const props = withDefaults(
       size: 'md',
       ui: {},
     }),
+    buttonsPosition: 'right',
   },
 )
 
@@ -248,7 +250,7 @@ formFields.forEach((field) => {
 <template>
   <UForm
     :id="finalID"
-    class="w-full space-y-4"
+    class="grid w-full gap-2"
     :state="fields"
     autocomplete="on"
     @submit="onSubmit"
@@ -300,9 +302,13 @@ formFields.forEach((field) => {
         "
         :type="type"
         :disabled="disabledFields[name]"
-        class="grid gap-1"
+        :class="{
+          'grid': true,
+          'gap-1': children && children.length > 0,
+        }"
+        color="primary"
       >
-        <div v-if="children">
+        <div v-if="children && children.length > 0">
           <LazyDynamicFormChildren :children="children" />
         </div>
       </UTextarea>
@@ -324,47 +330,60 @@ formFields.forEach((field) => {
         "
         :type="type"
         :disabled="disabledFields[name]"
-        class="grid gap-1"
+        color="primary"
+        :class="{
+          'grid': true,
+          'gap-1': children && children.length > 0,
+        }"
       >
-        <div v-if="children">
+        <div v-if="children && children.length > 0">
           <LazyDynamicFormChildren :children="children" />
         </div>
       </UInput>
     </UFormGroup>
 
-    <LazyDynamicFormNavigation
-      v-if="isMultiStep"
-      :current-step="currentStep"
-      :last-step="lastStep"
-      :next-step-button-disabled="nextStepButtonDisabled"
-      :submit-label="buttonLabel"
-      @go-to-next-step="goToNextStep"
-      @go-to-previous-step="goToPreviousStep"
-    />
-
-    <LazyUButton
-      v-if="!isMultiStep && submitButton"
-      :aria-busy="isSubmitting"
-      :disabled="submitButtonDisabled"
-      :type="submitButtonUi.type"
-      :variant="submitButtonUi.variant"
-      :color="submitButtonUi.color"
-      :ui="submitButtonUi.ui"
-      :size="submitButtonUi.size"
+    <div
+      :class="{
+        'flex': true,
+        'justify-end': buttonsPosition === 'right',
+        'justify-center': buttonsPosition === 'center',
+        'justify-start': buttonsPosition === 'left',
+      }"
     >
-      {{ buttonLabel }}
-    </LazyUButton>
+      <LazyDynamicFormNavigation
+        v-if="isMultiStep"
+        :current-step="currentStep"
+        :last-step="lastStep"
+        :next-step-button-disabled="nextStepButtonDisabled"
+        :submit-label="buttonLabel"
+        @go-to-next-step="goToNextStep"
+        @go-to-previous-step="goToPreviousStep"
+      />
 
-    <LazyUButton
-      v-if="!isMultiStep && resetButton"
-      :type="resetButtonUi.type"
-      :variant="resetButtonUi.variant"
-      :color="resetButtonUi.color"
-      :ui="resetButtonUi.ui"
-      :size="resetButtonUi.size"
-      @click="resetForm"
-    >
-      {{ resetLabel }}
-    </LazyUButton>
+      <LazyUButton
+        v-if="!isMultiStep && submitButton"
+        :aria-busy="isSubmitting"
+        :disabled="submitButtonDisabled"
+        :type="submitButtonUi.type"
+        :variant="submitButtonUi.variant"
+        :color="submitButtonUi.color"
+        :ui="submitButtonUi.ui"
+        :size="submitButtonUi.size"
+      >
+        {{ buttonLabel }}
+      </LazyUButton>
+
+      <LazyUButton
+        v-if="!isMultiStep && resetButton"
+        :type="resetButtonUi.type"
+        :variant="resetButtonUi.variant"
+        :color="resetButtonUi.color"
+        :ui="resetButtonUi.ui"
+        :size="resetButtonUi.size"
+        @click="resetForm"
+      >
+        {{ resetLabel }}
+      </LazyUButton>
+    </div>
   </UForm>
 </template>

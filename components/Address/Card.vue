@@ -55,7 +55,7 @@ const submit = async () => {
 <template>
   <li
     v-if="address"
-    class="relative grid w-full items-start gap-8 rounded-lg bg-white p-2 text-white dark:bg-zinc-900 dark:text-black sm:px-4 sm:py-10 md:p-5"
+    class="dark:bg-primary-900 bg-primary-100 relative grid w-full items-start gap-8 rounded-lg p-2 text-white dark:text-black sm:px-4 sm:py-10 md:p-5"
   >
     <div
       v-if="address.isMain"
@@ -66,7 +66,7 @@ const submit = async () => {
     <div class="grid grid-cols-[1fr_auto] items-center justify-center gap-2">
       <div class="grid items-center gap-2">
         <h3
-          class="text-primary-800 dark:text-primary-100 text-center text-xl font-bold"
+          class="text-primary-950 dark:text-primary-50 text-center text-xl font-bold"
         >
           {{ contentShorten(address.title, 0, 25) }}
         </h3>
@@ -78,7 +78,7 @@ const submit = async () => {
           :to="`/account/addresses/${address.id}/edit`"
           size="sm"
           :trailing="true"
-          color="white"
+          color="primary"
         />
         <UButton
           class="grid h-[2rem] w-[2rem] place-items-center rounded-full"
@@ -96,55 +96,55 @@ const submit = async () => {
       >
         <span
           v-if="address.firstName || address.lastName"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ address.firstName }} {{ address.lastName }}
         </span>
         <span
           v-if="address.street || address.streetNumber"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ address.street }} {{ address.streetNumber }}
         </span>
         <span
           v-if="address.city || address.zipcode"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ address.city }} {{ address.zipcode }}
         </span>
         <span
           v-if="address.country || address.region"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ address.country }} {{ address.region }}
         </span>
         <span
           v-if="address.floor"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ $t('common.floor') }}: {{ address.floor }}
         </span>
         <span
           v-if="address.locationType"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ $t('common.location_type') }}: {{ address.locationType }}
         </span>
         <span
           v-if="address.phone"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ $t('common.phone') }}: {{ address.phone }}
         </span>
         <span
           v-if="address.mobilePhone"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ $t('common.mobile_phone') }}: {{ address.mobilePhone }}
         </span>
         <span
           v-if="address.notes"
-          class="text-primary-800 dark:text-primary-100 text-sm font-bold"
+          class="text-primary-950 dark:text-primary-50 text-sm font-bold"
         >
           {{ $t('common.notes') }}: {{ address.notes }}
         </span>

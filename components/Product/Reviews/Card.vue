@@ -74,7 +74,7 @@ const reviewComment = computed(() => {
             <ImgWithFallback
               loading="lazy"
               provider="mediaStream"
-              class="product-img w-30 h-20 bg-white object-cover"
+              class="product-img w-30 bg-primary-100 h-20 object-cover"
               :src="src"
               :alt="alt"
               densities="x1"

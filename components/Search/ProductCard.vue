@@ -26,7 +26,7 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <UCard class="bg-white dark:bg-zinc-900">
+  <UCard class="dark:bg-primary-900 bg-primary-100">
     <Anchor
       :to="`/products${item.absoluteUrl}`"
       class="pb-2"
@@ -39,7 +39,7 @@ const alt = computed(() => {
           v-if="src"
           loading="lazy"
           provider="mediaStream"
-          class="aspect-square h-full w-full bg-white object-cover"
+          class="bg-primary-100 aspect-square h-full w-full object-cover"
           :style="{
             'view-transition-name': `item-${item.id}`,
             'aspectRatio': '1/1',

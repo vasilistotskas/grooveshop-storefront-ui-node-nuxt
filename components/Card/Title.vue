@@ -12,7 +12,7 @@ defineSlots<{
 
 <template>
   <div class="mb-2 text-xl font-semibold">
-    <p class="text-primary-800 dark:text-primary-100">
+    <p class="text-primary-950 dark:text-primary-50">
       <slot>
         {{ text }}
       </slot>

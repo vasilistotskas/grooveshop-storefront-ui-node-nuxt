@@ -26,7 +26,7 @@ const downloadCodes = () => {
   <div class="container-2xs grid items-center justify-center p-0 md:px-6">
     <UButton
       size="sm"
-      color="white"
+      color="primary"
       variant="solid"
       :label="$t('pages.auth.security.mfa.recovery.codes.download')"
       :trailing="false"

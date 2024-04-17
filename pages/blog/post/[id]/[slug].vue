@@ -174,7 +174,7 @@ definePageMeta({
           :links="links"
           class="mx-auto mb-5 max-w-2xl"
           :ui="{
-            li: 'text-primary-800 dark:text-primary-100',
+            li: 'text-primary-950 dark:text-primary-50',
             base: 'text-xs md:text-md',
           }"
         />
@@ -185,7 +185,7 @@ definePageMeta({
             class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4"
           >
             <h2
-              class="text-primary-800 dark:text-primary-100 text-3xl font-bold tracking-tight md:text-4xl"
+              class="text-primary-950 dark:text-primary-50 text-3xl font-bold tracking-tight md:text-4xl"
             >
               {{ blogPostTitle }}
             </h2>
@@ -203,7 +203,7 @@ definePageMeta({
                   <UButton
                     icon="i-heroicons-chat-bubble-oval-left"
                     size="lg"
-                    color="white"
+                    color="primary"
                     square
                     variant="solid"
                     class="justify-self-start font-extrabold capitalize"
@@ -216,7 +216,7 @@ definePageMeta({
                       :disabled="!isSupported"
                       icon="i-heroicons-share"
                       size="lg"
-                      color="white"
+                      color="primary"
                       square
                       variant="solid"
                       class="justify-self-start font-extrabold capitalize"
@@ -235,7 +235,7 @@ definePageMeta({
                   <ImgWithFallback
                     loading="eager"
                     provider="mediaStream"
-                    class="rounded-lg bg-white"
+                    class="bg-primary-100 rounded-lg"
                     :style="{ objectFit: 'contain' }"
                     :width="675"
                     :height="340"
@@ -264,7 +264,7 @@ definePageMeta({
               </ul>
             </div>
             <div
-              class="text-primary-800 dark:text-primary-100 mx-auto max-w-2xl"
+              class="text-primary-950 dark:text-primary-50 mx-auto max-w-2xl"
             >
               <div v-html="blogPostBody" />
             </div>

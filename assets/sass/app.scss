@@ -20,7 +20,7 @@
 }
 
 html.dark {
-	background-color: theme('colors.zinc.900');
+	background-color: theme('colors.zinc.950');
 
 	::-webkit-scrollbar-track {
 		background: theme('colors.slate.800');
@@ -40,14 +40,14 @@ html.dark {
 html,
 body
 {
-	@apply bg-zinc-100 text-primary-900 dark:bg-zinc-950 dark:text-primary-100;
+	@apply bg-zinc-50 text-primary-950 dark:bg-zinc-950 dark:text-primary-50;
 	height: 100vh;
 	margin: 0;
 	padding: 0;
 }
 
 #__nuxt {
-  @apply bg-zinc-100 text-primary-900 dark:bg-zinc-950 dark:text-primary-100;
+  @apply bg-zinc-50 text-primary-950 dark:bg-zinc-950 dark:text-primary-50;
 }
 
 app {

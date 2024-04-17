@@ -113,8 +113,9 @@ onUnmounted(() => {
     <UButton
       v-if="nextCursor && showButton && strategy === 'button'"
       size="md"
+      variant="soft"
       :label="$t('common.load.more')"
-      :color="'white'"
+      :color="'primary'"
       :aria-label="$t('common.load.more')"
       :loading="loading"
       @click="loadMore"

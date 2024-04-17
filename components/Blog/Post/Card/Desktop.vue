@@ -60,7 +60,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
 <template>
   <li
-    class="container grid w-full gap-6 rounded-lg bg-white !p-0 text-white dark:bg-zinc-800 dark:text-black"
+    class="dark:bg-primary-800 bg-primary-100 container grid w-full gap-6 rounded-lg !p-0 text-white dark:text-black"
   >
     <div class="grid">
       <Anchor
@@ -71,7 +71,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <ImgWithFallback
           :loading="imgLoading"
           provider="mediaStream"
-          class="rounded-t-lg bg-white"
+          class="bg-primary-100 rounded-t-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="src"
           :width="imgWidth"
@@ -100,7 +100,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       </div>
       <div class="flex justify-end gap-6">
         <ButtonBlogPostLike
-          class="text-primary-800 dark:text-primary-100 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
+          class="text-primary-950 dark:text-primary-50 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
           size="lg"
           variant="ghost"
           :blog-post-id="post.id"
@@ -110,10 +110,10 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <UButton
           icon="i-heroicons-chat-bubble-oval-left"
           size="xl"
-          color="white"
+          color="primary"
           square
           variant="ghost"
-          class="text-primary-800 dark:text-primary-100 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
+          class="text-primary-950 dark:text-primary-50 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
           :label="String(post.commentsCount)"
           :to="`/blog/post${post.absoluteUrl}#blog-post-comments`"
         />
@@ -123,10 +123,10 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             :disabled="!isSupported"
             icon="i-heroicons-share"
             size="xl"
-            color="white"
+            color="primary"
             square
             variant="ghost"
-            class="text-primary-800 dark:text-primary-100 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
+            class="text-primary-950 dark:text-primary-50 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
             @click="startShare"
           />
           <template #fallback>

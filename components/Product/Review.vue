@@ -436,7 +436,7 @@ watch(
     v-if="user"
     ref="reviewModal"
     :key="`reviewModal-${user?.id}-${product?.id}`"
-    class="bg-white p-4 dark:bg-zinc-900 md:p-0"
+    class="dark:bg-primary-900 bg-primary-100 p-4 md:p-0"
     unique-id="reviewModal"
     exit-modal-icon-class="fa fa-times"
     :modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
@@ -533,7 +533,7 @@ watch(
               as="textarea"
               v-bind="commentProps"
               :placeholder="$t('components.product.review.comment.placeholder')"
-              class="review_body-comment-content-textarea text-input text-primary-800 dark:text-primary-100 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
+              class="review_body-comment-content-textarea text-input text-primary-950 dark:text-primary-50 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
               name="comment"
               maxlength="10000"
               rows="6"
@@ -555,7 +555,7 @@ watch(
             :label="reviewButtonText"
             size="lg"
             class="review_footer-button"
-            color="white"
+            color="primary"
             @click.prevent="onSubmit"
           />
           <UButton
@@ -563,7 +563,7 @@ watch(
             block
             size="lg"
             :label="$t('components.product.review.too_many_attempts')"
-            color="white"
+            color="primary"
             disabled
           />
         </div>

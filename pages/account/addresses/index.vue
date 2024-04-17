@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
-import type {
-  UserAddress,
-  UserAddressOrderingField,
-} from '~/types/user/address'
+import type { EntityOrdering } from '~/types/ordering'
+import type { UserAddressOrderingField } from '~/types/user/address'
 
 const { t } = useI18n()
 const route = useRoute('account-addresses___en')
@@ -26,13 +23,6 @@ const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
     options: ['ascending', 'descending'],
   },
 ])
-
-const orderingFields = reactive<
-  Partial<Record<UserAddressOrderingField, OrderingOption[]>>
->({
-  createdAt: [],
-  updatedAt: [],
-})
 
 const { data: addresses, pending } = await useLazyFetch(
   `/api/user/account/${user.value?.id}/addresses`,
@@ -65,14 +55,11 @@ const refreshAddresses = async () => {
 
 const pagination = computed(() => {
   if (!addresses.value) return
-  return usePagination<UserAddress>(addresses.value)
+  return usePagination(addresses.value)
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<UserAddressOrderingField>(
-    entityOrdering.value,
-    orderingFields,
-  )
+  return useOrdering<UserAddressOrderingField>(entityOrdering.value)
 })
 
 watch(
@@ -137,7 +124,7 @@ definePageMeta({
           <UButton
             :label="$t('common.empty.button')"
             :to="'index'"
-            color="white"
+            color="primary"
           />
         </template>
       </EmptyState>

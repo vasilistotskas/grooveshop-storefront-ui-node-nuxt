@@ -77,7 +77,7 @@ const close = () => {
       leave-to="opacity-0"
     >
       <div
-        :class="`relative space-x-6 rounded-md bg-white bg-gradient-to-r px-6 py-6 shadow-lg shadow-white/50 dark:bg-zinc-900 dark:shadow-slate-900/50 ${selectedStyle}`"
+        :class="`dark:bg-primary-900 bg-primary-100 relative space-x-6 rounded-md bg-gradient-to-r px-6 py-6 shadow-lg shadow-white/50 dark:shadow-slate-900/50 ${selectedStyle}`"
       >
         <div class="flex items-center justify-center">
           <slot name="icon">
@@ -105,7 +105,7 @@ const close = () => {
             </slot>
           </div>
           <div>
-            <p class="text-primary-800 dark:text-primary-100">
+            <p class="text-primary-950 dark:text-primary-50">
               <slot name="title">
                 {{ text }}
               </slot>

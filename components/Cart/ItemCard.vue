@@ -41,7 +41,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 <template>
   <div
     v-if="cartItem"
-    class="relative grid grid-cols-auto-1fr items-center justify-center justify-items-center gap-4 rounded-md border border-gray-900/10 bg-white p-2 dark:border-gray-50/[0.2] dark:bg-zinc-900 md:p-4"
+    class="dark:bg-primary-900 bg-primary-100 relative grid grid-cols-auto-1fr items-center justify-center justify-items-center gap-4 rounded-md border border-gray-900/10 p-2 dark:border-gray-50/[0.2] md:p-4"
   >
     <div class="grid">
       <div class="image">
@@ -49,7 +49,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
           <ImgWithFallback
             loading="lazy"
             provider="mediaStream"
-            class="product-img bg-white"
+            class="product-img bg-primary-100"
             :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
             :width="237"
             :height="90"
@@ -65,9 +65,9 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
         </Anchor>
       </div>
     </div>
-    <div class="grid justify-items-center gap-2 md:grid-cols-5 md:gap-0">
+    <div class="grid w-full justify-items-center gap-2 md:grid-cols-5 md:gap-0">
       <div class="title">
-        <h3 class="text-primary-800 dark:text-primary-100">
+        <h3 class="text-primary-950 dark:text-primary-50">
           <Anchor :to="`/products${cartItem.product.absoluteUrl}`" :title="alt">
             {{ contentShorten(alt, 50) }}
           </Anchor>
@@ -81,18 +81,18 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
         />
       </div>
       <div class="price">
-        <span class="text-primary-800 dark:text-primary-100">{{
+        <span class="text-primary-950 dark:text-primary-50">{{
           cartItem.product.finalPrice
         }}</span>
       </div>
       <div class="total-price">
-        <span class="text-primary-800 dark:text-primary-100">{{
+        <span class="text-primary-950 dark:text-primary-50">{{
           cartItem.totalPrice
         }}</span>
       </div>
       <div class="remove-from-cart absolute right-2 md:relative">
         <button
-          class="text-primary-800 dark:text-primary-100"
+          class="text-primary-950 dark:text-primary-50"
           :title="
             $t('components.cart.item_card.remove_from_cart', {
               name: alt,

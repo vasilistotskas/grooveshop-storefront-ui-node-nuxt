@@ -8,7 +8,7 @@
     <UButton
       v-if="currentStep > 0"
       icon="i-heroicons-arrow-long-left"
-      color="white"
+      color="primary"
       @click="emit('goToPreviousStep')"
     >
       {{ $t('common.previous') }}
@@ -18,13 +18,13 @@
       v-if="currentStep < lastStep"
       icon="i-heroicons-arrow-long-right"
       :disabled="nextStepButtonDisabled"
-      color="white"
+      color="primary"
       @click="emit('goToNextStep')"
     >
       {{ $t('common.next') }}
     </UButton>
 
-    <UButton v-if="currentStep === lastStep" type="submit" color="white">
+    <UButton v-if="currentStep === lastStep" type="submit" color="primary">
       {{ submitLabel }}
     </UButton>
   </div>

@@ -8,17 +8,17 @@ const packageVersion = pkg.version
 
 <template>
   <footer
-    class="mt-6 w-full border-t-2 border-gray-500 bg-zinc-50 pt-2 dark:bg-zinc-900"
+    class="bg-primary-50 dark:bg-primary-900 mt-6 w-full border-t-2 border-gray-500 pt-2"
   >
     <div class="container mx-auto w-full">
       <div class="flex gap-4 md:grid md:grid-cols-3 md:gap-8 md:px-6 md:py-8">
         <div class="w-full">
           <span
-            class="text-primary-900 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
+            class="text-primary-950 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
           >
             {{ $t('common.company') }}
           </span>
-          <ul class="text-primary-800 dark:text-primary-400 font-medium">
+          <ul class="text-primary-950 dark:text-primary-400 font-medium">
             <li class="mb-2 md:mb-4">
               <Anchor
                 :to="'about'"
@@ -43,11 +43,11 @@ const packageVersion = pkg.version
         </div>
         <div class="w-full">
           <span
-            class="text-primary-900 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
+            class="text-primary-950 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
           >
             {{ $t('common.help_center') }}
           </span>
-          <ul class="text-primary-800 dark:text-primary-400 font-medium">
+          <ul class="text-primary-950 dark:text-primary-400 font-medium">
             <li class="mb-2 md:mb-4">
               <Anchor
                 :to="'contact'"
@@ -92,11 +92,11 @@ const packageVersion = pkg.version
         </div>
         <div class="w-full">
           <span
-            class="text-primary-900 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
+            class="text-primary-950 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
           >
             Legal
           </span>
-          <ul class="text-primary-800 dark:text-primary-400 font-medium">
+          <ul class="text-primary-950 dark:text-primary-400 font-medium">
             <li class="mb-2 md:mb-4">
               <Anchor
                 :to="'privacy'"
@@ -121,13 +121,13 @@ const packageVersion = pkg.version
         </div>
       </div>
     </div>
-    <div class="w-full bg-white dark:bg-zinc-900">
+    <div class="dark:bg-primary-900 bg-primary-100 w-full">
       <div class="container mx-auto w-full">
         <div
           class="px-2 py-3 md:flex md:items-center md:justify-between md:px-4 md:py-6"
         >
           <span
-            class="text-primary-900 dark:text-primary-300 text-sm sm:text-center"
+            class="text-primary-950 dark:text-primary-300 text-sm sm:text-center"
           >© 2023
             <Anchor
               :href="config.public.siteUrl"
@@ -142,7 +142,7 @@ const packageVersion = pkg.version
                 :href="config.public.socials.facebook"
                 :title="$t('common.facebook')"
                 :text="$t('common.facebook')"
-                class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+                class="text-primary-400 hover:text-primary-950 dark:hover:text-white"
               >
                 <svg
                   class="h-5 w-5"
@@ -162,7 +162,7 @@ const packageVersion = pkg.version
                 :href="config.public.socials.instagram"
                 :title="$t('common.instagram')"
                 :text="$t('common.instagram')"
-                class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+                class="text-primary-400 hover:text-primary-950 dark:hover:text-white"
               >
                 <svg
                   class="h-5 w-5"
@@ -182,7 +182,7 @@ const packageVersion = pkg.version
                 :href="config.public.socials.twitter"
                 :title="$t('common.twitter')"
                 :text="$t('common.twitter')"
-                class="text-primary-400 hover:text-primary-900 dark:hover:text-white"
+                class="text-primary-400 hover:text-primary-950 dark:hover:text-white"
               >
                 <svg
                   class="h-5 w-5"
@@ -198,7 +198,7 @@ const packageVersion = pkg.version
               </Anchor>
             </div>
             <span
-              class="text-primary-800 dark:text-primary-300 text-xs sm:text-center"
+              class="text-primary-950 dark:text-primary-300 text-xs sm:text-center"
             >Version: {{ packageVersion }}</span>
           </div>
         </div>

@@ -6,7 +6,7 @@ import type {
   BlogComment,
   BlogCommentOrderingField,
 } from '~/types/blog/comment'
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
+import type { EntityOrdering } from '~/types/ordering'
 
 import type { DynamicFormSchema } from '~/types/form'
 import {
@@ -119,13 +119,6 @@ const entityOrdering = ref<EntityOrdering<BlogCommentOrderingField>>([
   },
 ])
 
-const orderingFields = reactive<
-  Partial<Record<BlogCommentOrderingField, OrderingOption[]>>
->({
-  id: [],
-  createdAt: [],
-})
-
 const pagination = computed(() => {
   if (!comments.value) return
   return usePagination<BlogComment>(comments.value)
@@ -139,10 +132,7 @@ const showResults = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<BlogCommentOrderingField>(
-    entityOrdering.value,
-    orderingFields,
-  )
+  return useOrdering<BlogCommentOrderingField>(entityOrdering.value)
 })
 
 const loggedInAndHasComments = computed(() => {

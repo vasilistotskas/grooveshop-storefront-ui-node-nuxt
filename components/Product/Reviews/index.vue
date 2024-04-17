@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
+import type { EntityOrdering } from '~/types/ordering'
 import type { ProductReviewOrderingField } from '~/types/product/review'
 
 const props = defineProps({
@@ -63,20 +63,8 @@ const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   },
 ])
 
-const orderingFields = reactive<
-  Partial<Record<ProductReviewOrderingField, OrderingOption[]>>
->({
-  id: [],
-  userId: [],
-  productId: [],
-  createdAt: [],
-})
-
 const orderingOptions = computed(() => {
-  return useOrdering<ProductReviewOrderingField>(
-    entityOrdering.value,
-    orderingFields,
-  )
+  return useOrdering<ProductReviewOrderingField>(entityOrdering.value)
 })
 
 watch(
@@ -89,7 +77,7 @@ watch(
 <template>
   <div
     v-if="!pending && productReviews && productReviews?.length > 0"
-    class="container-sm text-primary-800 dark:text-primary-100 grid gap-2 border-t border-gray-900/10 !px-0 !py-6 dark:border-gray-50/20 md:!p-6"
+    class="container-sm text-primary-950 dark:text-primary-50 grid gap-2 border-t border-gray-900/10 !px-0 !py-6 dark:border-gray-50/20 md:!p-6"
   >
     <div class="grid gap-4">
       <h2 class="text-2xl font-semibold">
