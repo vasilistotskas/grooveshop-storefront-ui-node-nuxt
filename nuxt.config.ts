@@ -33,9 +33,6 @@ import { eslint } from './config/eslint'
 export default defineNuxtConfig({
   ssr: true,
   sourcemap: true,
-  generate: {
-    exclude: [/^\/api\/.*/],
-  },
   site,
   modules,
   routeRules,
