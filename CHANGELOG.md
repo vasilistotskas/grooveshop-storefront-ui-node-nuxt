@@ -1,3 +1,10 @@
+# [1.92.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.91.0...v1.92.0) (2024-04-20)
+
+
+### Features
+
+* Remove prettier, fix color theme, ui improvements ([9433f26](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9433f2645e204d0145be3d9faba239312fc77369))
+
 # [1.91.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.90.0...v1.91.0) (2024-04-18)
 
 
