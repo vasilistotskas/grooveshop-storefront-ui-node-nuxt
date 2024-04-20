@@ -1,3 +1,10 @@
+## [1.92.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.92.0...v1.92.1) (2024-04-20)
+
+
+### Bug Fixes
+
+* Remove lazy from fetch and async data ([1f7c905](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1f7c90548ddf27f119b60e2251af98cb45d96dde))
+
 # [1.92.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.91.0...v1.92.0) (2024-04-20)
 
 
