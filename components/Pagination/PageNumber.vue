@@ -71,25 +71,25 @@ watch(
         color: 'primary',
       }"
       :first-button="{
-        icon: 'i-heroicons-arrow-small-left-20-solid',
-        label: $t('common.first'),
+        icon: 'i-heroicons-arrow-long-left-20-solid',
+        label: !isMobileOrTablet ? $t('common.first') : undefined,
         color: 'primary',
       }"
       :last-button="{
-        icon: 'i-heroicons-arrow-small-right-20-solid',
+        icon: 'i-heroicons-arrow-long-right-20-solid',
         trailing: true,
-        label: $t('common.last'),
+        label: !isMobileOrTablet ? $t('common.last') : undefined,
         color: 'primary',
       }"
       :prev-button="{
         icon: 'i-heroicons-arrow-small-left-20-solid',
-        label: $t('common.prev'),
+        label: !isMobileOrTablet ? $t('common.prev') : undefined,
         color: 'primary',
       }"
       :next-button="{
         icon: 'i-heroicons-arrow-small-right-20-solid',
         trailing: true,
-        label: $t('common.next'),
+        label: !isMobileOrTablet ? $t('common.next') : undefined,
         color: 'primary',
       }"
       :total="items.length"

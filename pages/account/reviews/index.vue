@@ -27,7 +27,7 @@ const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   },
 ])
 
-const { data: reviews, pending } = await useLazyFetch(
+const { data: reviews, pending } = await useFetch(
   `/api/user/account/${user.value?.id}/product-reviews`,
   {
     method: 'GET',

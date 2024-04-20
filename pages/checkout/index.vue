@@ -25,7 +25,7 @@ const USelect = resolveComponent('USelect')
 
 const payWay = useState<PayWay | null>('selectedPayWay')
 
-const { data: countries } = await useLazyAsyncData('countries', () =>
+const { data: countries } = await useAsyncData('countries', () =>
   $fetch('/api/countries', {
     method: 'GET',
     query: {
@@ -154,7 +154,7 @@ const [region, regionProps] = defineField('region', {
   validateOnModelUpdate: true,
 })
 
-const { data: regions } = await useLazyAsyncData(
+const { data: regions } = await useAsyncData(
   'regions',
   () =>
     $fetch('/api/regions', {

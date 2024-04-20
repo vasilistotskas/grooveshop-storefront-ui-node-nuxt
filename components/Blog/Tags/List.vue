@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { locale } = useI18n()
 
-const { data: blogTags } = await useLazyAsyncData('blogTags', () =>
+const { data: blogTags } = await useAsyncData('blogTags', () =>
   $fetch('/api/blog/tags', {
     method: 'GET',
     query: {

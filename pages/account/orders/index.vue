@@ -29,7 +29,7 @@ const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
   },
 ])
 
-const { data: orders, pending } = await useLazyFetch(
+const { data: orders, pending } = await useFetch(
   `/api/user/account/${user.value?.id}/orders`,
   {
     method: 'GET',

@@ -24,7 +24,7 @@ const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
   },
 ])
 
-const { data: addresses, pending } = await useLazyFetch(
+const { data: addresses, pending } = await useFetch(
   `/api/user/account/${user.value?.id}/addresses`,
   {
     method: 'GET',

@@ -2,7 +2,7 @@
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data: categories, pending } = await useLazyAsyncData(
+const { data: categories, pending } = await useAsyncData(
   'blogCategories',
   () =>
     $fetch('/api/blog/categories', {

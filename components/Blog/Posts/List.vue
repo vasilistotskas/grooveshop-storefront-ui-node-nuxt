@@ -106,7 +106,7 @@ const orderingOptions = computed(() => {
 })
 
 const postIds = computed(() => {
-  if (!posts.value) return
+  if (!posts.value) return []
   return posts.value.results?.map(post => post.id)
 })
 

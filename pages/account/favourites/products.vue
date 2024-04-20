@@ -5,7 +5,6 @@ import type {
   ProductFavourite,
   ProductFavouriteOrderingField,
 } from '~/types/product/favourite'
-import { getEntityId } from '~/utils/entity'
 
 const { t } = useI18n()
 const route = useRoute('account-favourites-products___en')
@@ -30,7 +29,7 @@ const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
   },
 ])
 
-const { data: favourites, pending } = await useLazyFetch(
+const { data: favourites, pending } = await useFetch(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
     method: 'GET',
@@ -62,7 +61,7 @@ const refreshFavourites = async () => {
 }
 
 const productIds = computed(() => {
-  if (!favourites.value) return
+  if (!favourites.value) return []
   return favourites.value.results?.map(favourite =>
     getEntityId(favourite.product),
   )

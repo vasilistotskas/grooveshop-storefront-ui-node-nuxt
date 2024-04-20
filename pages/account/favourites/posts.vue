@@ -7,7 +7,7 @@ const { t } = useI18n()
 const route = useRoute('account-favourites-posts___en')
 const { user } = useUserSession()
 
-const pageSize = ref(8)
+const pageSize = ref(4)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -29,7 +29,7 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const { data: favourites, pending } = await useLazyFetch(
+const { data: favourites, pending } = await useFetch(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
     method: 'GET',
@@ -105,7 +105,11 @@ definePageMeta({
           :ordering-options="orderingOptions.orderingOptionsArray.value"
         />
       </div>
-
+      <BlogPostFavouritesList
+        v-if="!pending && favourites?.results?.length"
+        :favourites="favourites?.results"
+        :favourites-count="favourites?.count"
+      />
       <template v-if="pending">
         <div class="grid w-full items-start gap-4">
           <div class="flex w-full items-center justify-center">

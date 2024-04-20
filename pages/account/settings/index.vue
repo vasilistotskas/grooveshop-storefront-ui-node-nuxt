@@ -86,7 +86,7 @@ const [birthDate] = defineField('birthDate')
 
 const date = ref(new Date())
 
-const { data: countries } = await useLazyAsyncData('countries', () =>
+const { data: countries } = await useAsyncData('countries', () =>
   $fetch('/api/countries', {
     method: 'GET',
     query: {
@@ -105,7 +105,7 @@ const countryOptions = computed(() => {
   }) || []
 })
 
-const { data: regions } = await useLazyAsyncData(
+const { data: regions } = await useAsyncData(
   'regions',
   () =>
     $fetch('/api/regions', {

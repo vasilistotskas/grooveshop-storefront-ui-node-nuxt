@@ -28,7 +28,7 @@ const links = [
   },
   {
     icon: 'i-heroicons-heart',
-    to: '/account/favourites/products',
+    to: '/account/favourites/posts',
     label: t('common.favourites'),
     labelClass: 'sr-only',
   },

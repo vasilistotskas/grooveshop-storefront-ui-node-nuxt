@@ -45,7 +45,7 @@ const {
   data: products,
   status,
   refresh,
-} = await useLazyAsyncData('products', () =>
+} = await useAsyncData('products', () =>
   $fetch('/api/products', {
     method: 'GET',
     query: {
@@ -60,7 +60,7 @@ const {
 )
 
 const productIds = computed(() => {
-  if (!products.value) return
+  if (!products.value) return []
   return products.value.results?.map(product => product.id)
 })
 
