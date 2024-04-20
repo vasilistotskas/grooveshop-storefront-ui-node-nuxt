@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ButtonSize } from '~/types/global/button'
+import type { ButtonSize, ButtonVariant } from '#ui/types'
 
 const props = defineProps({
   blogCommentId: {
@@ -11,17 +11,14 @@ const props = defineProps({
   size: {
     type: String as PropType<ButtonSize>,
     default: 'md',
-    validator: (value: string) =>
-      ['xl', 'lg', 'md', 'sm', 'xs'].includes(value),
   },
   showLabel: {
     type: Boolean,
     default: false,
   },
   variant: {
-    type: String as PropType<'solid' | 'ghost'>,
+    type: String as PropType<ButtonVariant>,
     default: 'solid',
-    validator: (value: string) => ['solid', 'ghost'].includes(value),
   },
   likesCount: {
     type: Number,

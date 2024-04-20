@@ -4,7 +4,7 @@ import { ZodProduct } from '~/types/product/product'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types/global/general'
+import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
 
 export const ZodProductReviewStatusEnum = z.enum(['NEW', 'TRUE', 'FALSE'])
 

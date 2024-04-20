@@ -121,7 +121,7 @@ components:
         id: ID
         user_id: User ID
         product_id: Product ID
-        created_at: More recently
+        created_at: Created At
       summary:
         reviews: No Reviews | 1 Review | %{count} Reviews
     review:
@@ -198,7 +198,7 @@ components:
       pay_way: Pay Way
       status: Status
       total_price: Total Price
-      created_at: More recently
+      created_at: Created At
       actions:
         details: Details
   cart:

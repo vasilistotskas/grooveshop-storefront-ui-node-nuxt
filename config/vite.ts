@@ -48,6 +48,17 @@ export const vite = {
     },
   },
   optimizeDeps: {
-    include: ['@headlessui/vue', 'lottie-web', 'zod', 'v-calendar'],
+    include: [
+      '@headlessui/vue',
+      'lottie-web',
+      'zod',
+      'v-calendar',
+      'workbox-window',
+      'workbox-precaching',
+      'workbox-routing',
+      'workbox-cacheable-response',
+      'workbox-strategies',
+      'workbox-expiration',
+    ],
   },
 } satisfies ViteConfig

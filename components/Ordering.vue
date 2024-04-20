@@ -81,11 +81,24 @@ const onOptionClick = async (option: OrderingOption) => {
 </script>
 
 <template>
-  <div ref="listBox" class="z-10 grid md:flex md:flex-col md:items-center">
-    <div class="flex flex-row">
-      <div class="flex flex-col">
-        <div class="w-46 relative md:w-60">
+  <div
+    ref="listBox" class="
+      z-10 grid h-full
+
+      md:flex md:flex-col md:items-center
+    "
+  >
+    <div class="flex h-full flex-row">
+      <div class="flex h-full flex-col">
+        <div
+          class="
+            w-46 relative h-full
+
+            md:w-60
+          "
+        >
           <UDropdown
+            class="h-full"
             :items="items"
             :popper="{ placement: 'bottom-start' }"
             :ui="{

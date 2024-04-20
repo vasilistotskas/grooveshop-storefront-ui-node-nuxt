@@ -1,6 +1,12 @@
 <script lang="ts" setup>
+import type { UseSeoMetaInput } from '@unhead/schema'
+
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
+
+const seoMetaOptions = {
+  title: t('pages.blog.title'),
+} satisfies UseSeoMetaInput
 
 const links = [
   {
@@ -17,6 +23,11 @@ const links = [
     current: true,
   },
 ]
+
+useHydratedHead({
+  title: () => t('pages.blog.title'),
+})
+useSeoMeta(seoMetaOptions)
 
 definePageMeta({
   layout: 'default',

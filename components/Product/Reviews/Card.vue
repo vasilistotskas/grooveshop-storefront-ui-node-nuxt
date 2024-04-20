@@ -61,9 +61,19 @@ const reviewComment = computed(() => {
 
 <template>
   <div
-    class="flex flex-col gap-2 md:grid md:grid-cols-auto-1fr md:items-center"
+    class="
+      flex flex-col gap-2
+
+      md:grid md:grid-cols-auto-1fr md:items-center
+    "
   >
-    <div class="flex items-center gap-2 md:w-full md:gap-6">
+    <div
+      class="
+        flex items-center gap-2
+
+        md:w-full md:gap-6
+      "
+    >
       <div class="h-auto w-auto">
         <UserAvatar
           v-if="userAccount && displayImageOf === 'user'"
@@ -82,7 +92,13 @@ const reviewComment = computed(() => {
           </Anchor>
         </div>
       </div>
-      <div class="grid gap-2 text-2xl md:gap-4">
+      <div
+        class="
+          grid gap-2 text-2xl
+
+          md:gap-4
+        "
+      >
         <Anchor
           v-if="displayImageOf === 'product' && product"
           :to="`/products${product.absoluteUrl}`"
@@ -93,11 +109,29 @@ const reviewComment = computed(() => {
         <Rating :rate="review.rate" />
       </div>
     </div>
-    <div class="grid gap-2 md:flex md:w-full md:justify-between">
-      <span class="text-ellipsis break-all md:w-full">
+    <div
+      class="
+        grid gap-2
+
+        md:flex md:w-full md:justify-between
+      "
+    >
+      <span
+        class="
+          text-ellipsis break-all
+
+          md:w-full
+        "
+      >
         {{ reviewComment }}
       </span>
-      <div class="flex items-center md:justify-end">
+      <div
+        class="
+          flex items-center
+
+          md:justify-end
+        "
+      >
         <div class="text-xs">
           <NuxtTime :datetime="review.createdAt" />
         </div>

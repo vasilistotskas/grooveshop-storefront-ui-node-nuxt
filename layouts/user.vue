@@ -28,7 +28,7 @@ const links = [
   },
   {
     icon: 'i-heroicons-heart',
-    to: '/account/favourites',
+    to: '/account/favourites/products',
     label: t('common.favourites'),
     labelClass: 'sr-only',
   },
@@ -44,22 +44,19 @@ const links = [
 <template>
   <div class="relative">
     <div class="flex min-h-screen flex-col">
-      <slot name="header">
-        <UserNavbar>
-          <template #drawer>
-            <UserSidebar mode="mobile" />
-          </template>
-          <template v-if="user" #image>
-            <LazyUserAvatar
-              :user-account="user"
-              :img-width="40"
-              :img-height="40"
-            />
-          </template>
-        </UserNavbar>
-      </slot>
+      <PageHeader>
+        <PageNavbar />
+      </PageHeader>
       <div class="grid gap-6">
-        <div class="dark:bg-primary-900 bg-primary-100 md:rounded-b-[94px]">
+        <div
+          class="
+            bg-primary-100
+
+            dark:bg-primary-900
+
+            md:rounded-b-[94px]
+          "
+        >
           <UserAccountInfo
             v-if="user"
             class="container mx-auto w-full !p-0"
@@ -70,8 +67,20 @@ const links = [
           />
         </div>
         <main class="container">
-          <div class="relative mb-12 md:mb-20">
-            <div class="flex-1 flex-col md:flex md:w-full md:gap-4">
+          <div
+            class="
+              relative mb-12
+
+              md:mb-20
+            "
+          >
+            <div
+              class="
+                flex-1 flex-col
+
+                md:flex md:w-full md:gap-4
+              "
+            >
               <div
                 :class="[
                   'relative mx-auto flex h-full flex-1 flex-col md:w-full lg:flex-row lg:gap-8 xl:gap-0',
@@ -79,7 +88,11 @@ const links = [
               >
                 <div
                   v-if="!isMobileOrTablet"
-                  class="md:grid md:w-auto md:py-4 md:pl-0 xl:pl-8"
+                  class="
+                    md:grid md:w-auto md:py-4 md:pl-0
+
+                    xl:pl-8
+                  "
                   :class="[
                     {
                       'grid w-full': route.path === '/account',
@@ -105,7 +118,12 @@ const links = [
     <UHorizontalNavigation
       v-if="isMobileOrTablet"
       :links="links"
-      class="border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900 fixed bottom-0 left-0 right-0 z-50 w-full border-t"
+      class="
+        border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
+        w-full border-t
+
+        dark:border-primary-700 dark:bg-primary-900
+      "
       :ui="{
         container: 'flex justify-between w-full',
         inner: 'flex justify-between w-full',

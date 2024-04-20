@@ -121,16 +121,14 @@ const scrollToComments = () => {
 const seoMetaOptions = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
-  ogTitle: blogPostTitle.value,
   ogType: 'article',
   ogUrl: config.public.baseUrl + routeFullPath.value,
-  ogImage: blogPost.value?.mainImageAbsoluteUrl,
-  ogImageAlt: blogPostTitle.value,
   twitterTitle: blogPostTitle.value,
   twitterDescription: blogPostSubtitle.value,
   twitterImage: blogPost.value?.mainImageAbsoluteUrl,
   msapplicationTileImage: blogPost.value?.mainImageAbsoluteUrl,
 } satisfies UseSeoMetaInput
+
 useSchemaOrg([
   defineArticle({
     headline: blogPostTitle.value,
@@ -147,7 +145,7 @@ useSchemaOrg([
     },
   }),
 ])
-useSeoMeta(seoMetaOptions)
+
 const ogImageOptions = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
@@ -157,6 +155,8 @@ const ogImageOptions = {
   cacheKey: `og-image-blog-post-${blogPostId}`,
   cacheTtl: 60 * 60 * 24 * 7,
 }
+
+useSeoMeta(seoMetaOptions)
 defineOgImageComponent('NuxtSeo', ogImageOptions)
 definePageMeta({
   layout: 'default',
@@ -168,7 +168,15 @@ definePageMeta({
     <PageBody>
       <div
         v-if="blogPost"
-        class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8"
+        class="
+          mx-auto max-w-7xl pb-6
+
+          lg:px-8
+
+          md:px-4
+
+          sm:px-6
+        "
       >
         <UBreadcrumb
           :links="links"
@@ -179,21 +187,44 @@ definePageMeta({
           }"
         />
         <article
-          class="mx-auto flex max-w-2xl flex-col items-start justify-center border-gray-200 pb-6 dark:border-gray-700"
+          class="
+            mx-auto flex max-w-2xl flex-col items-start justify-center
+            border-gray-200 pb-6
+
+            dark:border-gray-700
+          "
         >
           <div
-            class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4"
+            class="
+              mx-auto flex max-w-2xl flex-col items-start justify-center gap-4
+            "
           >
             <h2
-              class="text-primary-950 dark:text-primary-50 text-3xl font-bold tracking-tight md:text-4xl"
+              class="
+                text-primary-950 text-3xl font-bold tracking-tight
+
+                dark:text-primary-50
+
+                md:text-4xl
+              "
             >
               {{ blogPostTitle }}
             </h2>
             <div
-              class="grid w-full grid-cols-2 items-center gap-2 md:grid-cols-3 md:gap-4"
+              class="
+                grid w-full grid-cols-2 items-center gap-2
+
+                md:grid-cols-3 md:gap-4
+              "
             >
               <div class="flex">
-                <div class="flex justify-end gap-2 md:gap-4">
+                <div
+                  class="
+                    flex justify-end gap-2
+
+                    md:gap-4
+                  "
+                >
                   <ButtonBlogPostLike
                     class="justify-self-start font-extrabold capitalize"
                     :blog-post-id="blogPost.id"
@@ -229,7 +260,13 @@ definePageMeta({
                 </div>
               </div>
             </div>
-            <div class="w-full sm:mx-0">
+            <div
+              class="
+                w-full
+
+                sm:mx-0
+              "
+            >
               <div class="sm:mx-0">
                 <div class="shadow-small">
                   <ImgWithFallback
@@ -254,7 +291,11 @@ definePageMeta({
             <div class="grid">
               <ul
                 v-if="blogPostTags && blogPostTags.length > 0"
-                class="scrollable-tags flex flex-wrap items-center md:gap-4"
+                class="
+                  scrollable-tags flex flex-wrap items-center
+
+                  md:gap-4
+                "
               >
                 <li v-for="tag in blogPostTags" :key="tag?.id">
                   <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
@@ -264,7 +305,11 @@ definePageMeta({
               </ul>
             </div>
             <div
-              class="text-primary-950 dark:text-primary-50 mx-auto max-w-2xl"
+              class="
+                text-primary-950 mx-auto max-w-2xl
+
+                dark:text-primary-50
+              "
             >
               <div v-html="blogPostBody" />
             </div>

@@ -37,18 +37,36 @@ const divTag = ref('div')
     </h1>
     <h1
       v-else
-      class="text-primary-950 dark:text-primary-50 grid gap-4 text-center leading-3"
+      class="
+        text-primary-950 grid gap-4 text-center leading-3
+
+        dark:text-primary-50
+      "
     >
       <span
-        class="text-primary-950 dark:text-primary-50 block text-8xl font-bold"
+        class="
+          text-primary-950 block text-8xl font-bold
+
+          dark:text-primary-50
+        "
       >{{ error.statusCode }}</span>
-      <span class="text-primary-950 dark:text-primary-50 block italic">{{
+      <span
+        class="
+          text-primary-950 block italic
+
+          dark:text-primary-50
+        "
+      >{{
         error.statusMessage
       }}</span>
     </h1>
     <h2
       v-if="error?.data.detail"
-      class="text-primary-950 dark:text-primary-50 text-center text-sm"
+      class="
+        text-primary-950 text-center text-sm
+
+        dark:text-primary-50
+      "
     >
       ( {{ error?.data.detail }} )
     </h2>

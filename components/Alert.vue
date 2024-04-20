@@ -105,7 +105,13 @@ const close = () => {
             </slot>
           </div>
           <div>
-            <p class="text-primary-950 dark:text-primary-50">
+            <p
+              class="
+                text-primary-950
+
+                dark:text-primary-50
+              "
+            >
               <slot name="title">
                 {{ text }}
               </slot>
@@ -115,7 +121,13 @@ const close = () => {
         <div v-if="props.closeButton" class="absolute right-0 top-0 p-4">
           <button
             type="button"
-            class="dark:text-primary-400 :hover:font-bold font-bold text-slate-600 transition-colors duration-300"
+            class="
+              font-bold text-slate-600 transition-colors duration-300
+
+              :hover:font-bold
+
+              dark:text-primary-400
+            "
             @click="close"
           >
             <span class="sr-only">{{ title }}</span>

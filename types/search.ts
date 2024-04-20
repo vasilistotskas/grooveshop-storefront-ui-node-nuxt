@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZodLanguageQuery } from '~/types/global/general'
+import { ZodLanguageQuery } from '~/types'
 
 export interface SearchResult<T> {
   results: T[]

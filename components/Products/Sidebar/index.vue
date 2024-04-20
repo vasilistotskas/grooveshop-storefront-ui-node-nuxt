@@ -51,19 +51,37 @@ onMounted(() => {
   <aside
     v-if="categories && categories.count > 0"
     ref="sidebar"
-    class="sidebar relative hidden h-fit w-60 transition-all duration-300 ease-in-out lg:flex"
+    class="
+      sidebar relative hidden h-fit w-60 transition-all duration-300 ease-in-out
+
+      lg:flex
+    "
   >
-    <div class="grid w-full flex-1 gap-2 overflow-y-auto pl-4 pr-4 lg:pl-0">
+    <div
+      class="
+        grid w-full flex-1 gap-2 overflow-y-auto pl-4 pr-4
+
+        lg:pl-0
+      "
+    >
       <h2 class="flex items-center gap-2 p-2 text-center text-2xl font-bold">
         {{ $t('common.filters.title') }}
       </h2>
       <div
-        class="sidebar-header-sticky bg-primary-100 dark:bg-primary-950 grid"
+        class="
+          sidebar-header-sticky bg-primary-100 grid
+
+          dark:bg-primary-950
+        "
       >
         <h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('common.categories') }}
           <span
-            class="text-primary-950 dark:text-primary-50 text-sm font-normal"
+            class="
+              text-primary-950 text-sm font-normal
+
+              dark:text-primary-50
+            "
           >
             ({{ categories?.count ?? 0 }})
           </span>
@@ -76,14 +94,24 @@ onMounted(() => {
           v-model="searchQuery"
           name="search"
           icon="i-heroicons-magnifying-glass-20-solid"
-          class="hidden p-2 md:grid"
+          class="
+            hidden p-2
+
+            md:grid
+          "
           color="primary"
           :trailing="false"
           variant="outline"
           :placeholder="`${$t('common.search')}...`"
         />
       </div>
-      <ul class="grid max-h-96 gap-2 md:gap-4">
+      <ul
+        class="
+          grid max-h-96 gap-2
+
+          md:gap-4
+        "
+      >
         <template v-if="!pending && filteredCategories?.length">
           <ProductsSidebarCategory
             v-for="category in filteredCategories"
@@ -104,7 +132,13 @@ onMounted(() => {
         </template>
       </ul>
       <div v-if="!pending && !filteredCategories?.length" class="grid gap-4">
-        <p class="text-primary-950 dark:text-primary-50 p-2 text-center">
+        <p
+          class="
+            text-primary-950 p-2 text-center
+
+            dark:text-primary-50
+          "
+        >
           {{ $t('common.no_categories_found') }}
         </p>
       </div>

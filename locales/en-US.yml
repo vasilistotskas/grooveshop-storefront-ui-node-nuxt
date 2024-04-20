@@ -99,7 +99,7 @@ common:
     apply: Apply
   ordering:
     id: ID
-    created_at: More recently
+    created_at: Created At
   like: Like
   unlike: Unlike
   reply: Reply
@@ -113,3 +113,10 @@ common:
   hide:
     replies: Hide
   register: Register
+  first: First
+  last: Last
+  prev: Prev
+  settings: Settings
+  signed_in_as: Signed in as
+  security: Security
+  theme: Theme

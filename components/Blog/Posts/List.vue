@@ -7,7 +7,7 @@ import {
   PaginationCursorStateEnum,
   type PaginationType,
   PaginationTypeEnum,
-} from '~/types/global/general'
+} from '~/types'
 
 const props = defineProps({
   paginationType: {
@@ -216,9 +216,25 @@ watch(
         :ordering-options="orderingOptions.orderingOptionsArray.value"
       />
     </div>
-    <section class="flex gap-4 md:gap-8">
+    <section
+      class="
+        flex gap-4
+
+        md:gap-8
+      "
+    >
       <ol
-        class="row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4 sm:grid-cols-2 md:row-start-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+        class="
+          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4
+
+          lg:grid-cols-2
+
+          md:row-start-1 md:grid-cols-2
+
+          sm:grid-cols-2
+
+          xl:grid-cols-3
+        "
       >
         <template v-if="showResults">
           <Component

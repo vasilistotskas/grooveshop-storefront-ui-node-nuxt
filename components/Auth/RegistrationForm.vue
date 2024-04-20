@@ -113,23 +113,43 @@ const onSubmit = handleSubmit((values) => {
   <section class="grid">
     <form
       id="RegistrationForm"
-      class="container-3xs !p-0 md:px-6"
+      class="
+        container-3xs !p-0
+
+        md:px-6
+      "
       name="RegistrationForm"
       @submit.prevent="onSubmit"
     >
       <div
-        class="dark:bg-primary-900 bg-primary-100 flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
+        class="
+          bg-primary-100 flex h-full flex-wrap items-center justify-center
+          rounded-[0.5rem] border border-gray-900/10 p-4
+          shadow-[0_4px_9px_-4px_#0000000d]
+
+          dark:bg-primary-900 dark:border-gray-50/[0.2]
+          dark:shadow-[0_4px_9px_-4px_#0000000d]
+
+          lg:justify-between
+
+          md:p-8
+        "
       >
         <div class="relative grid w-full gap-4">
           <div class="grid content-evenly items-start">
-            <label class="text-primary-950 dark:text-primary-50" for="email">{{
+            <label
+              class="
+                text-primary-950
+
+                dark:text-primary-50
+              " for="email"
+            >{{
               $t('pages.auth.registration.form.email.label')
             }}</label>
             <FormTextInput
               id="email"
               v-model="email"
               :bind="emailProps"
-              class="text-primary-950 dark:text-primary-50"
               name="email"
               type="email"
               autocomplete="email"
@@ -137,12 +157,16 @@ const onSubmit = handleSubmit((values) => {
             />
             <span
               v-if="errors.email"
-              class="relative px-4 py-3 text-sm text-red-600"
+              class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.email }}</span>
           </div>
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-950 dark:text-primary-50"
+              class="
+                text-primary-950
+
+                dark:text-primary-50
+              "
               for="password1"
             >{{ $t('pages.auth.registration.form.password1.label') }}</label>
             <div class="relative grid items-center gap-2">
@@ -150,7 +174,6 @@ const onSubmit = handleSubmit((values) => {
                 id="password1"
                 v-model="password1"
                 :bind="password1Props"
-                class="text-primary-950 dark:text-primary-50"
                 name="password1"
                 :type="showPassword1 ? 'text' : 'password'"
                 autocomplete="current-password"
@@ -170,13 +193,17 @@ const onSubmit = handleSubmit((values) => {
             </div>
             <span
               v-if="errors.password1"
-              class="relative px-4 py-3 text-sm text-red-600"
+              class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.password1 }}</span>
           </div>
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-950 dark:text-primary-50"
+              class="
+                text-primary-950
+
+                dark:text-primary-50
+              "
               for="password2"
             >{{ $t('pages.auth.registration.form.password2.label') }}</label>
             <div class="relative grid items-center gap-2">
@@ -184,7 +211,6 @@ const onSubmit = handleSubmit((values) => {
                 id="password2"
                 v-model="password2"
                 :bind="password2Props"
-                class="text-primary-950 dark:text-primary-50"
                 name="password2"
                 :type="showPassword2 ? 'text' : 'password'"
                 autocomplete="current-password"
@@ -204,7 +230,7 @@ const onSubmit = handleSubmit((values) => {
             </div>
             <span
               v-if="errors.password2"
-              class="relative px-4 py-3 text-sm text-red-600"
+              class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.password2 }}</span>
           </div>
 
@@ -221,7 +247,13 @@ const onSubmit = handleSubmit((values) => {
           />
 
           <div class="flex items-center justify-end gap-2">
-            <span class="text-primary-950 dark:text-primary-50 text-sm">{{
+            <span
+              class="
+                text-primary-950 text-sm
+
+                dark:text-primary-50
+              "
+            >{{
               $t('pages.auth.registration.form.already_have_account')
             }}</span>
             <UButton

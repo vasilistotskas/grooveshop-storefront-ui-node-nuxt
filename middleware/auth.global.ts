@@ -1,6 +1,6 @@
 import type { RouteLocationNormalized } from 'vue-router'
 
-import { AuthenticatedRoutePrefixes } from '~/constants/general'
+import { AuthenticatedRoutePrefixes } from '~/constants'
 
 export default defineNuxtRouteMiddleware(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
@@ -24,11 +24,11 @@ export default defineNuxtRouteMiddleware(
       const { loggedIn, session } = useUserSession()
       const { tokenVerify } = useAuth()
 
-      const isRouteAuthenticated = AuthenticatedRoutePrefixes.some(prefix =>
+      const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
         to.path.startsWith(prefix),
       )
 
-      if (!isRouteAuthenticated) return
+      if (!isRouteProtected) return
 
       if (!loggedIn.value) {
         return navigateTo({

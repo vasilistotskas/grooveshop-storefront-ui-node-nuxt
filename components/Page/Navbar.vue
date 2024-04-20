@@ -1,24 +1,112 @@
 <script lang="ts" setup>
-const { user, loggedIn } = useUserSession()
+import { AuthenticatedRoutePrefixes } from '~/constants'
+import type { DropdownItem } from '#ui/types'
 
+const userStore = useUserStore()
+const { cleanAccountState } = userStore
 const cartStore = useCartStore()
 const { getCartTotalItems, pending } = storeToRefs(cartStore)
+const { cleanCartState, refreshCart } = cartStore
+
+const { user, session, loggedIn, clear } = useUserSession()
+const { t } = useI18n()
+const { logout } = useAuth()
+const route = useRoute()
+
+const onClickLogout = async () => {
+  await Promise.all([
+    logout({
+      refresh: session.value?.refreshToken,
+    }),
+    clear(),
+  ])
+
+  cleanCartState()
+  cleanAccountState()
+
+  await refreshCart()
+}
+
+const items = [
+  [
+    {
+      label: user.value?.email,
+      slot: 'account',
+      disabled: true,
+    },
+  ],
+  [
+    {
+      label: t('common.account'),
+      icon: 'i-heroicons-user',
+      click: async () => await navigateTo('/account'),
+    },
+    {
+      label: t('common.settings'),
+      icon: 'i-heroicons-cog-8-tooth',
+      click: async () => await navigateTo('/account/settings'),
+    },
+  ],
+  [
+    {
+      label: t('common.security'),
+      icon: 'i-heroicons-shield-check',
+      click: async () => await navigateTo('/auth/security'),
+    },
+  ],
+  [
+    {
+      label: t('common.logout'),
+      icon: 'i-heroicons-arrow-left-on-rectangle',
+      click: async () => {
+        const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
+          route.path.startsWith(prefix),
+        )
+        if (isRouteProtected)
+          navigateTo('/').then(async () => await onClickLogout())
+        else await onClickLogout()
+      },
+    },
+  ],
+] as DropdownItem[][]
 </script>
 
 <template>
-  <BuilderNavbar class="bg-primary-50 dark:bg-primary-900">
+  <BuilderNavbar
+    class="
+      bg-primary-50
+
+      dark:bg-primary-900
+    "
+  >
     <template #menu>
-      <div class="relative ml-auto hidden items-center lg:flex">
+      <div
+        class="
+          relative ml-auto hidden items-center
+
+          lg:flex
+        "
+      >
         <nav
           aria-label="Main Navigation"
-          class="text-primary-950 dark:text-primary-50 flex items-center text-lg font-semibold leading-6"
+          class="
+            text-primary-950 flex items-center text-lg font-semibold leading-6
+
+            dark:text-primary-50
+          "
         >
           <ul class="flex items-center space-x-8">
             <li
-              class="relative grid items-center justify-center justify-items-center"
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
             >
               <Anchor
-                class="flex items-center gap-4 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
+                class="
+                  flex items-center gap-4 self-center text-lg
+
+                  hover:text-slate-900 hover:no-underline hover:dark:text-white
+                "
                 :to="'search'"
                 :title="$t('pages.search.title')"
                 :text="$t('pages.search.title')"
@@ -33,7 +121,12 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                   :to="'products'"
                   :title="$t('common.shop')"
                   :text="$t('common.shop')"
-                  class="text-lg capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
+                  class="
+                    text-lg capitalize
+
+                    hover:text-slate-900 hover:no-underline
+                    hover:dark:text-white
+                  "
                 >
                   {{ $t('common.shop') }}
                 </Anchor>
@@ -45,7 +138,12 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                   :to="'blog'"
                   :title="$t('common.blog')"
                   :text="$t('common.blog')"
-                  class="text-lg capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
+                  class="
+                    text-lg capitalize
+
+                    hover:text-slate-900 hover:no-underline
+                    hover:dark:text-white
+                  "
                 >
                   {{ $t('common.blog') }}
                 </Anchor>
@@ -53,20 +151,31 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
             </li>
           </ul>
           <ul
-            class="text-primary-950 dark:text-primary-50 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
+            class="
+              text-primary-950 ml-6 flex items-center gap-3 border-l
+              border-gray-900/10 pl-6
+
+              dark:text-primary-50 dark:border-gray-50/[0.2]
+            "
           >
             <li
-              class="relative grid items-center justify-center justify-items-center"
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
             >
               <LanguageSwitcher />
             </li>
             <li
-              class="relative grid items-center justify-center justify-items-center"
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
             >
               <ThemeSwitcher />
             </li>
             <li
-              class="relative grid items-center justify-center justify-items-center"
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
             >
               <ClientOnly>
                 <span
@@ -81,7 +190,11 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                 </template>
               </ClientOnly>
               <Anchor
-                class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
+                class="
+                  flex items-center self-center text-[1.5rem]
+
+                  hover:text-slate-900 hover:no-underline hover:dark:text-white
+                "
                 :to="'cart'"
                 :title="$t('pages.cart.title')"
                 :text="$t('pages.cart.title')"
@@ -90,14 +203,15 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
               </Anchor>
             </li>
             <li
-              class="relative grid items-center justify-center justify-items-center"
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
             >
-              <Anchor
+              <UDropdown
                 v-if="loggedIn && user"
-                class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
-                :title="$t('pages.accounts.login.title')"
-                :text="$t('pages.accounts.login.title')"
-                :to="'account'"
+                :items="items"
+                :ui="{ item: { disabled: 'cursor-text select-text' } }"
+                :popper="{ placement: 'bottom-start' }"
               >
                 <UserAvatar
                   :user-account="user"
@@ -105,10 +219,41 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                   :img-height="30"
                   :show-name="false"
                 />
-              </Anchor>
+
+                <template #account="{ item }">
+                  <div class="text-left">
+                    <p>{{ $t('common.signed_in_as') }}</p>
+                    <p
+                      class="
+                        text-primary-900 truncate font-medium
+
+                        dark:text-white
+                      "
+                    >
+                      {{ item.label }}
+                    </p>
+                  </div>
+                </template>
+
+                <template #item="{ item }">
+                  <span class="truncate">{{ item.label }}</span>
+                  <UIcon
+                    :name="item.icon"
+                    class="
+                      text-primary-900 ms-auto h-4 w-4 flex-shrink-0
+
+                      dark:text-primary-100
+                    "
+                  />
+                </template>
+              </UDropdown>
               <Anchor
                 v-else
-                class="flex h-[30px] w-[30px] items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
+                class="
+                  flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
+
+                  hover:text-slate-900 hover:no-underline hover:dark:text-white
+                "
                 :title="$t('pages.accounts.login.title')"
                 :text="$t('pages.accounts.login.title')"
                 :to="`/auth/login?redirect=${$route.path}`"
@@ -126,10 +271,19 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
           <ActionSheetHeader text="Menu" />
           <nav
             aria-label="Main Navigation"
-            class="text-primary-950 dark:text-primary-50 font-semibold leading-6"
+            class="
+              text-primary-950 font-semibold leading-6
+
+              dark:text-primary-50
+            "
           >
             <ul
-              class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
+              class="
+                flex flex-row items-center justify-center gap-2 border-b
+                border-gray-900/10
+
+                dark:border-gray-50/[0.2]
+              "
             >
               <li class="link grid pb-2">
                 <UButton
@@ -139,9 +293,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                   variant="solid"
                   color="primary"
                   :label="$t('common.shop')"
-                >
-                  {{ $t('common.shop') }}
-                </UButton>
+                />
               </li>
               <li class="link grid pb-2">
                 <UButton
@@ -155,9 +307,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                   variant="solid"
                   color="primary"
                   :label="loggedIn ? $t('common.account') : $t('common.login')"
-                >
-                  {{ loggedIn ? $t('common.account') : $t('common.login') }}
-                </UButton>
+                />
               </li>
               <li class="link grid pb-2">
                 <UButton
@@ -167,9 +317,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
                   variant="solid"
                   color="primary"
                   :label="$t('common.search')"
-                >
-                  {{ $t('common.search') }}
-                </UButton>
+                />
               </li>
             </ul>
           </nav>
@@ -182,13 +330,26 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
             </div>
           </div>
           <Anchor
-            class="text-primary-950 dark:text-primary-50 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
+            class="
+              text-primary-950 flex items-center justify-center gap-2
+              self-center text-lg
+
+              dark:text-primary-50
+
+              hover:text-slate-900 hover:no-underline hover:dark:text-white
+            "
             :to="'cart'"
             :title="$t('pages.cart.title')"
             :text="$t('pages.cart.title')"
           >
             <IconFa6Solid:cartShopping />
-            <span class="text-primary-950 dark:text-primary-50 ml-1">
+            <span
+              class="
+                text-primary-950 ml-1
+
+                dark:text-primary-50
+              "
+            >
               {{ $t('pages.cart.title') }}</span>
           </Anchor>
         </ActionSheetBody>

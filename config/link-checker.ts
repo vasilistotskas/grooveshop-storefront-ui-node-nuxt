@@ -3,12 +3,12 @@ export const linkChecker = {
     html: true,
     markdown: true,
   },
-  debug: process.env.NODE_ENV !== 'production',
+  debug: import.meta.env.NODE_ENV !== 'production',
   enabled: false,
   excludeLinks: [
-    process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
-    process.env.NUXT_PUBLIC_SOCIALS_TWITTER,
-    process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM,
-    process.env.NUXT_PUBLIC_SOCIALS_DISCORD,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_TWITTER,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_DISCORD,
   ],
 }

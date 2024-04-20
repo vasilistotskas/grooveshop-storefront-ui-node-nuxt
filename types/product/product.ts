@@ -4,7 +4,7 @@ import {
   ZodExpandQuery,
   ZodLanguageQuery,
   ZodWeight,
-} from '~/types/global/general'
+} from '~/types'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodProductCategory } from '~/types/product/category'

@@ -23,9 +23,29 @@ const filteredTags = computed(() => {
 </script>
 
 <template>
-  <aside class="row-start-1 hidden md:row-start-2 lg:grid">
-    <div class="flex gap-4 md:flex-col">
-      <div class="grid items-center md:justify-center">
+  <aside
+    class="
+      row-start-1 hidden
+
+      lg:grid
+
+      md:row-start-2
+    "
+  >
+    <div
+      class="
+        flex gap-4
+
+        md:flex-col
+      "
+    >
+      <div
+        class="
+          grid items-center
+
+          md:justify-center
+        "
+      >
         <h3 class="flex items-center gap-2 text-center text-2xl font-bold">
           <UIcon name="i-heroicons-tag" />
           {{ $t('common.tags') }}
@@ -39,7 +59,11 @@ const filteredTags = computed(() => {
         v-model="searchQuery"
         name="search"
         icon="i-heroicons-magnifying-glass-20-solid"
-        class="hidden md:grid"
+        class="
+          hidden
+
+          md:grid
+        "
         color="primary"
         :trailing="false"
         variant="outline"
@@ -47,18 +71,20 @@ const filteredTags = computed(() => {
       />
       <ul
         v-if="filteredTags && filteredTags.length > 0"
-        class="scrollable-tags grid items-center md:gap-4"
+        class="
+          scrollable-tags grid items-center
+
+          md:gap-4
+        "
       >
         <li v-for="tag in filteredTags" :key="tag.id">
           <UButton
             color="primary"
             variant="solid"
             class="flex w-full items-center"
-          >
-            <UIcon name="i-heroicons-hashtag" />{{
-              extractTranslated(tag, 'name', locale)
-            }}
-          </UButton>
+            icon="i-heroicons-hashtag"
+            :label="extractTranslated(tag, 'name', locale)"
+          />
         </li>
       </ul>
     </div>

@@ -7,12 +7,10 @@ defineProps({
 })
 
 const { isMobileOrTablet } = useDevice()
+
 const navbar = ref(null)
 const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
 const showOptions = useState<boolean>('navbar.showOptions', () => false)
-
-const themeCookie = useCookie('theme')
-const isDark = computed(() => themeCookie.value === 'dark')
 
 const config = useRuntimeConfig()
 
@@ -67,12 +65,18 @@ const toggleOptions = (show?: boolean) => {
 }
 const appTitle = computed(() => config.public.appTitle as string)
 
+const colorModeCookie = useCookie(
+  'color-mode',
+)
+
 const logo = computed(() => {
-  return isDark.value ? '/img/logo-dark-mode.png' : '/img/logo-light-mode.png'
+  return colorModeCookie.value === 'dark'
+    ? '/img/logo-dark-mode.png'
+    : '/img/logo-light-mode.png'
 })
 
 const spider = computed(() => {
-  return isDark.value
+  return colorModeCookie.value === 'dark'
     ? '/img/spider-dark-mode.png'
     : '/img/spider-light-mode.png'
 })
@@ -81,22 +85,45 @@ const spider = computed(() => {
 <template>
   <div
     ref="navbar"
-    class="top-0 z-50 w-full flex-none border-b border-gray-900/10 backdrop-blur-md backdrop-filter transition-colors duration-300 dark:border-gray-50/[0.2] lg:z-50"
+    class="
+      top-0 z-50 w-full flex-none border-b border-gray-900/10 backdrop-blur-md
+      backdrop-filter transition-colors duration-300
+
+      dark:border-gray-50/[0.2]
+
+      lg:z-50
+    "
   >
     <div id="navbar-banner" class="banner">
       <slot name="banner" />
     </div>
     <div class="bg-background-700 mx-auto w-full max-w-8xl">
-      <div class="mx-4 py-3 md:py-4 lg:mx-0 lg:px-8">
+      <div
+        class="
+          mx-4 py-3
+
+          lg:mx-0 lg:px-8
+
+          md:py-4
+        "
+      >
         <div class="relative flex items-center justify-between gap-4">
           <!-- drawer:toggle -->
           <div
             v-if="$slots['drawer']"
-            class="flex items-center justify-center self-center lg:sr-only"
+            class="
+              flex items-center justify-center self-center
+
+              lg:sr-only
+            "
           >
             <button
               type="button"
-              class="flex items-center focus:outline-none"
+              class="
+                flex items-center
+
+                focus:outline-none
+              "
               aria-label="Toggle Drawer Menu"
               @click="toggleDrawer()"
             >
@@ -104,7 +131,11 @@ const spider = computed(() => {
                 $t('components.builder.navbar.toggle_drawer_menu')
               }}</span>
               <span
-                class="text-primary-950 dark:text-primary-50 flex items-center text-lg"
+                class="
+                  text-primary-950 flex items-center text-lg
+
+                  dark:text-primary-50
+                "
                 aria-hidden="true"
               >
                 <UIcon v-if="!showDrawer" name="i-heroicons-bars-3" />
@@ -118,7 +149,11 @@ const spider = computed(() => {
               <Anchor
                 to="/"
                 :aria-label="appTitle"
-                class="text-md flex items-center gap-2 overflow-hidden font-bold md:w-auto"
+                class="
+                  text-md flex items-center gap-2 overflow-hidden font-bold
+
+                  md:w-auto
+                "
               >
                 <NuxtImg
                   class="h-full w-full"
@@ -153,11 +188,19 @@ const spider = computed(() => {
           <!-- options:toggle -->
           <div
             v-if="$slots['options'] && useToggle"
-            class="flex flex-1 justify-end lg:sr-only"
+            class="
+              flex flex-1 justify-end
+
+              lg:sr-only
+            "
           >
             <button
               type="button"
-              class="flex items-center focus:outline-none"
+              class="
+                flex items-center
+
+                focus:outline-none
+              "
               aria-label="Toggle Options Menu"
               @click="toggleOptions()"
             >
@@ -165,7 +208,11 @@ const spider = computed(() => {
                 $t('components.builder.navbar.toggle_options_menu')
               }}</span>
               <span
-                class="text-primary-950 dark:text-primary-50 flex items-center text-sm"
+                class="
+                  text-primary-950 flex items-center text-sm
+
+                  dark:text-primary-50
+                "
                 aria-hidden="true"
               >
                 <IconFaSolid:ellipsisV />
@@ -174,7 +221,11 @@ const spider = computed(() => {
           </div>
           <div
             v-else-if="isMobileOrTablet"
-            class="flex items-center gap-4 lg:sr-only"
+            class="
+              flex items-center gap-4
+
+              lg:sr-only
+            "
           >
             <LanguageSwitcher />
             <ThemeSwitcher />
@@ -188,7 +239,16 @@ const spider = computed(() => {
         <Transition name="slide-fade-from-up" mode="out-in">
           <div
             v-if="showDrawer && $slots['drawer']"
-            class="dark:bg-primary-900 bg-primary-100 fixed left-0 top-0 z-30 flex h-full w-screen flex-col pt-[80px] md:pt-12 lg:sr-only"
+            class="
+              bg-primary-100 fixed left-0 top-0 z-30 flex h-full w-screen
+              flex-col pt-[80px]
+
+              dark:bg-primary-900
+
+              lg:sr-only
+
+              md:pt-12
+            "
           >
             <div class="relative flex flex-1 flex-col overflow-y-auto px-4">
               <slot name="drawer" :toggle-drawer="toggleDrawer" />

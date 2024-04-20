@@ -46,8 +46,6 @@ jobs:
           scope: '@vasilistotskas'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
-      - name: Run format fix
-        run: pnpm run format:fix
       - name: Run lint fix
         run: pnpm run lint:fix
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies

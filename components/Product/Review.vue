@@ -2,7 +2,7 @@
 import type { PropType } from 'vue'
 import { z } from 'zod'
 
-import { GlobalEvents } from '~/events/global'
+import { GlobalEvents } from '~/events'
 import type { Product } from '~/types/product/product'
 import type { ProductReview } from '~/types/product/review'
 import { ZodProductReviewStatusEnum } from '~/types/product/review'
@@ -35,6 +35,7 @@ const props = defineProps({
 })
 
 const { userProductReview, userHadReviewed, product, user } = toRefs(props)
+const UTextarea = resolveComponent('UTextarea')
 
 const emit = defineEmits([
   'add-existing-review',
@@ -436,7 +437,13 @@ watch(
     v-if="user"
     ref="reviewModal"
     :key="`reviewModal-${user?.id}-${product?.id}`"
-    class="dark:bg-primary-900 bg-primary-100 p-4 md:p-0"
+    class="
+      bg-primary-50 p-4
+
+      dark:bg-primary-950
+
+      md:p-0
+    "
     unique-id="reviewModal"
     exit-modal-icon-class="fa fa-times"
     :modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
@@ -530,13 +537,13 @@ watch(
             <VeeField
               id="comment"
               v-model="comment"
-              as="textarea"
+              :as="UTextarea"
+              color="primary"
               v-bind="commentProps"
               :placeholder="$t('components.product.review.comment.placeholder')"
-              class="review_body-comment-content-textarea text-input text-primary-950 dark:text-primary-50 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
               name="comment"
               maxlength="10000"
-              rows="6"
+              :rows="6"
               type="text"
             />
           </div>

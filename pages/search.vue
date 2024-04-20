@@ -136,13 +136,27 @@ definePageMeta({
     <PageBody>
       <div
         v-focus
-        class="bg-primary-50 dark:bg-primary-900 fixed left-0 top-0 z-20 grid w-full items-center gap-4 p-[22px] md:p-[17px]"
+        class="
+          bg-primary-50 fixed left-0 top-0 z-20 grid w-full items-center gap-4
+          p-[22px]
+
+          dark:bg-primary-900
+
+          md:p-[17px]
+        "
       >
         <div class="flex w-full items-center gap-4">
           <Anchor
             :to="'index'"
             aria-label="index"
-            class="text-md text-primary-950 dark:text-primary-50 flex items-center gap-3 overflow-hidden border-r-2 border-gray-900/10 pr-8 font-bold dark:border-gray-50/20 md:w-auto"
+            class="
+              text-md text-primary-950 flex items-center gap-3 overflow-hidden
+              border-r-2 border-gray-900/10 pr-8 font-bold
+
+              dark:text-primary-50 dark:border-gray-50/20
+
+              md:w-auto
+            "
           >
             <span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
             <UIcon name="i-heroicons-arrow-left" />
@@ -165,13 +179,24 @@ definePageMeta({
         <div
           v-if="showSuggestions"
           ref="suggestions"
-          class="bg-primary-50 dark:bg-primary-900 absolute top-14 z-10 mt-1 max-h-36 w-full list-none overflow-y-auto rounded-md shadow-md"
+          class="
+            bg-primary-50 absolute top-14 z-10 mt-1 max-h-36 w-full list-none
+            overflow-y-auto rounded-md shadow-md
+
+            dark:bg-primary-900
+          "
         >
           <TransitionGroup name="list" tag="ul" class="grid">
             <li
               v-for="suggestion in storageSearchHistory"
               :key="suggestion"
-              class="hover:bg-primary-50 dark:hover:bg-primary-700 px-4 py-2"
+              class="
+                px-4 py-2
+
+                dark:hover:bg-primary-700
+
+                hover:bg-primary-50
+              "
             >
               <Anchor
                 :to="`/search?query=${suggestion}`"
@@ -180,7 +205,11 @@ definePageMeta({
               >
                 <IconFa6Solid:clockRotateLeft />
                 <span
-                  class="text-primary-950 dark:text-primary-50 truncate font-bold"
+                  class="
+                    text-primary-950 truncate font-bold
+
+                    dark:text-primary-50
+                  "
                 >
                   {{ suggestion }}
                 </span>
@@ -189,7 +218,13 @@ definePageMeta({
             <li
               v-for="(headline, productId) in productHeadlines"
               :key="productId"
-              class="hover:bg-primary-50 dark:hover:bg-primary-700 px-4 py-2"
+              class="
+                px-4 py-2
+
+                dark:hover:bg-primary-700
+
+                hover:bg-primary-50
+              "
             >
               <Anchor
                 :to="`/search?query=${cleanHtml(headline)}`"
@@ -198,7 +233,11 @@ definePageMeta({
               >
                 <IconFa6Solid:magnifyingGlass />
                 <span
-                  class="text-primary-950 dark:text-primary-50 truncate font-bold"
+                  class="
+                    text-primary-950 truncate font-bold
+
+                    dark:text-primary-50
+                  "
                   v-html="headline"
                 />
               </Anchor>
@@ -218,12 +257,26 @@ definePageMeta({
         </span>
       </PageTitle>
 
-      <div v-if="showResults" class="min-h-screen md:mt-4">
+      <div
+        v-if="showResults" class="
+          min-h-screen
+
+          md:mt-4
+        "
+      >
         <div v-if="showTotalCount" class="pb-2 text-sm opacity-95">
           {{ $t('common.items.count', totalCount) }}
         </div>
         <div
-          class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          class="
+            grid grid-cols-1 gap-4
+
+            lg:grid-cols-3
+
+            md:grid-cols-2
+
+            xl:grid-cols-4
+          "
         >
           <SearchProductCard
             v-for="(item, index) of productSearchItems"

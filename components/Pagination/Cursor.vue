@@ -4,7 +4,7 @@ import { clearCursorStates, getCursorFromUrl } from '~/utils/pagination'
 import {
   type PaginationCursorStateEnum,
   type CursorStates,
-} from '~/types/global/general'
+} from '~/types'
 
 const props = defineProps({
   cursorKey: {
@@ -36,9 +36,7 @@ const props = defineProps({
 const router = useRouter()
 const route = useRoute()
 
-const cursorState = useState<CursorStates>('cursorStates', () =>
-  generateInitialCursorStates(),
-)
+const cursorState = useState<CursorStates>('cursorStates')
 
 const currentState = computed(() => {
   return { ...cursorState.value }
@@ -104,7 +102,7 @@ watch(
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  clearCursorStates(cursorState.value)
+  clearCursorStates()
 })
 </script>
 

@@ -25,13 +25,25 @@ defineProps({
   <div class="grid w-full items-start gap-4">
     <div v-if="displayTotal" class="flex items-center justify-center gap-1">
       <span
-        class="text-sm font-semibold text-secondary dark:text-secondary-dark"
+        class="
+          text-sm font-semibold text-secondary
+
+          dark:text-secondary-dark
+        "
       >
         {{ $t('pages.account.addresses.total', addressesTotal) }}
       </span>
     </div>
     <ul
-      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      class="
+        grid grid-cols-1 gap-4
+
+        lg:grid-cols-3
+
+        md:grid-cols-2
+
+        xl:grid-cols-4
+      "
     >
       <AddressAddNew />
       <AddressCard

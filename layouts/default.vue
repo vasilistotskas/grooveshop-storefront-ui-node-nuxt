@@ -27,7 +27,7 @@ const links = [
   },
   {
     icon: 'i-heroicons-heart',
-    to: '/account/favourites',
+    to: '/account/favourites/products',
     label: t('common.favourites'),
     labelClass: 'hidden',
   },
@@ -60,7 +60,12 @@ const links = [
     <UHorizontalNavigation
       v-if="isMobileOrTablet"
       :links="links"
-      class="border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900 fixed bottom-0 left-0 right-0 z-50 w-full border-t"
+      class="
+        border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
+        w-full border-t
+
+        dark:border-primary-700 dark:bg-primary-900
+      "
       :ui="{
         container: 'flex justify-between w-full',
         inner: 'flex justify-between w-full',

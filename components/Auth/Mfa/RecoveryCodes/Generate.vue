@@ -22,7 +22,13 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="container-2xs p-0 md:px-6">
+  <div
+    class="
+      container-2xs p-0
+
+      md:px-6
+    "
+  >
     <section class="grid items-center justify-center justify-items-center">
       <UButton
         :label="

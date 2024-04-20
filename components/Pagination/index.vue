@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type PaginationType, PaginationTypeEnum } from '~/types/global/general'
+import { type PaginationType, PaginationTypeEnum } from '~/types'
 
 const props = defineProps({
   paginationType: {

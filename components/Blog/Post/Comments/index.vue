@@ -14,7 +14,7 @@ import {
   PaginationCursorStateEnum,
   type PaginationType,
   PaginationTypeEnum,
-} from '~/types/global/general'
+} from '~/types'
 
 const props = defineProps({
   blogPostId: {
@@ -304,13 +304,24 @@ onMounted(() => {
 <template>
   <div
     id="blog-post-comments"
-    class="mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t border-gray-200 border-gray-900/10 pb-6 pt-6 dark:border-gray-50/20 dark:border-gray-700"
+    class="
+      mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t
+      border-gray-200 border-gray-900/10 pb-6 pt-6
+
+      dark:border-gray-50/20 dark:border-gray-700
+    "
   >
     <div class="grid gap-4">
       <h2 class="text-2xl font-semibold">
         {{ $t('components.blog.post.comments.title') }}
       </h2>
-      <div class="grid justify-start gap-4 md:flex md:items-center">
+      <div
+        class="
+          grid justify-start gap-4
+
+          md:flex md:items-center
+        "
+      >
         <div class="grid">
           <Ordering
             :ordering="String(ordering)"

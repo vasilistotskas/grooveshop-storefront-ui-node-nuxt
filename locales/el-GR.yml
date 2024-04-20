@@ -112,3 +112,11 @@ common:
     replies: Δεν υπάρχουν απαντήσεις | 1 απάντηση | %{count} απαντήσεις
   hide:
     replies: Κρύβω
+  register: Κανω ΕΓΓΡΑΦΗ
+  first: Πρώτα
+  last: τελευταίος
+  prev: Προηγ
+  settings: Ρυθμίσεις
+  signed_in_as: Συνδεθήκατε ως
+  security: Ασφάλεια
+  theme: Θέμα

@@ -1,4 +1,4 @@
-import { defaultSelectOptionChoose } from '~/constants/general'
+import { defaultSelectOptionChoose } from '~/constants'
 
 const excludedOptions = [defaultSelectOptionChoose]
 

@@ -54,7 +54,14 @@ watch(
     :class="[productImages && productImages?.length > 1 ? 'gap-4' : '']"
   >
     <div
-      class="dark:bg-primary-900 bg-primary-100 grid items-center justify-center justify-items-center rounded-lg md:grid md:h-80"
+      class="
+        bg-primary-100 grid items-center justify-center justify-items-center
+        rounded-lg
+
+        dark:bg-primary-900
+
+        md:grid md:h-80
+      "
     >
       <ProductImage :image="mainImage" img-loading="eager" />
     </div>
@@ -73,7 +80,16 @@ watch(
             'ring-2 ring-inset ring-indigo-300': selectedImageId === item.id,
           }"
           type="button"
-          class="dark:bg-primary-900 bg-primary-100 flex w-full items-center justify-center rounded-lg p-2 focus:outline-none md:h-32"
+          class="
+            bg-primary-100 flex w-full items-center justify-center rounded-lg
+            p-2
+
+            dark:bg-primary-900
+
+            focus:outline-none
+
+            md:h-32
+          "
           :aria-label="`Select image ${item.id}`"
           @click="selectedImageId = item.id"
         >

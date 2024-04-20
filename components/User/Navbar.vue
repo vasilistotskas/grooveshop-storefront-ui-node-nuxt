@@ -49,16 +49,34 @@ const menus = computed((): IMenuItem[] => [
 </script>
 
 <template>
-  <BuilderNavbar class="dark:bg-primary-900 bg-primary-100">
+  <BuilderNavbar
+    class="
+      bg-primary-100
+
+      dark:bg-primary-900
+    "
+  >
     <template #menu>
       <nav
-        class="text-primary-950 dark:text-primary-50 flex items-center text-lg font-semibold leading-6"
+        class="
+          text-primary-950 flex items-center text-lg font-semibold leading-6
+
+          dark:text-primary-50
+        "
       >
-        <ul class="flex items-center gap-2 md:gap-4">
+        <ul
+          class="
+            flex items-center gap-2
+
+            md:gap-4
+          "
+        >
           <li
             v-for="(item, i) in menus"
             :key="i"
-            class="relative grid items-center justify-center justify-items-center"
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
           >
             <UButton
               v-if="item.type === 'link' && typeof item.route !== 'string'"
@@ -71,7 +89,16 @@ const menus = computed((): IMenuItem[] => [
             <Anchor
               v-if="item.type === 'external-link'"
               :href="item.href"
-              class="transition-color focus:secondary/[0.6] focus:dark:secondary flex items-center rounded border px-2 py-1 duration-300 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-800/[0.6] focus:dark:ring-offset-gray-50 md:grid md:px-4 md:py-2"
+              class="
+                transition-color flex items-center rounded border px-2 py-1
+                duration-300
+
+                focus:secondary/[0.6] focus:dark:secondary focus:outline-none
+                focus:ring-1 focus:ring-offset-1
+                focus:ring-offset-gray-800/[0.6] focus:dark:ring-offset-gray-50
+
+                md:grid md:px-4 md:py-2
+              "
               :class="[
                 {
                   'grid-cols-auto-1fr gap-2': item.icon !== undefined,
@@ -79,7 +106,13 @@ const menus = computed((): IMenuItem[] => [
                 item.cssClass,
               ]"
             >
-              <span class="sr-only md:grid">{{ item.text }}</span>
+              <span
+                class="
+                  sr-only
+
+                  md:grid
+                "
+              >{{ item.text }}</span>
               <Component :is="item.icon" />
             </Anchor>
             <UButton
@@ -92,42 +125,69 @@ const menus = computed((): IMenuItem[] => [
             />
           </li>
           <li
-            class="relative grid items-center justify-center justify-items-center"
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
           >
             <UButton
               size="md"
               :trailing="false"
               icon="i-heroicons-arrow-left-start-on-rectangle"
-              class="text-primary-100 dark:text-primary-50"
+              class="
+                text-primary-100
+
+                dark:text-primary-50
+              "
               color="red"
               @click="authLogoutEvent"
             />
           </li>
         </ul>
       </nav>
-      <div class="sr-only relative ml-auto items-center lg:flex">
+      <div
+        class="
+          sr-only relative ml-auto items-center
+
+          lg:flex
+        "
+      >
         <div class="flex items-center justify-center">
           <slot name="image" />
         </div>
         <ul
-          class="text-primary-950 dark:text-primary-50 ml-6 flex items-center gap-3 border-l border-gray-900/10 pl-6 dark:border-gray-50/[0.2]"
+          class="
+            text-primary-950 ml-6 flex items-center gap-3 border-l
+            border-gray-900/10 pl-6
+
+            dark:text-primary-50 dark:border-gray-50/[0.2]
+          "
         >
           <li
-            class="relative grid items-center justify-center justify-items-center"
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
           >
             <LanguageSwitcher />
           </li>
           <li
-            class="relative grid items-center justify-center justify-items-center"
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
           >
             <ThemeSwitcher />
           </li>
           <li
-            class="relative grid items-center justify-center justify-items-center"
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
           >
             <span class="cart-items-count" :data-count="getCartTotalItems" />
             <Anchor
-              class="flex items-center self-center text-[1.5rem] hover:text-slate-900 hover:no-underline hover:dark:text-white"
+              class="
+                flex items-center self-center text-[1.5rem]
+
+                hover:text-slate-900 hover:no-underline hover:dark:text-white
+              "
               :to="'cart'"
               :title="$t('pages.cart.title')"
               :text="$t('pages.cart.title')"
@@ -137,7 +197,9 @@ const menus = computed((): IMenuItem[] => [
             </Anchor>
           </li>
           <li
-            class="relative grid items-center justify-center justify-items-center"
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
           >
             <UButton
               icon="i-heroicons-user"
@@ -148,9 +210,7 @@ const menus = computed((): IMenuItem[] => [
               variant="solid"
               color="primary"
               :label="loggedIn ? $t('common.account') : $t('common.login')"
-            >
-              {{ loggedIn ? $t('common.account') : $t('common.login') }}
-            </UButton>
+            />
           </li>
         </ul>
       </div>
@@ -160,10 +220,19 @@ const menus = computed((): IMenuItem[] => [
         <ActionSheetBody class="grid gap-4">
           <ActionSheetHeader text="Menu" />
           <nav
-            class="text-primary-950 dark:text-primary-50 font-semibold leading-6"
+            class="
+              text-primary-950 font-semibold leading-6
+
+              dark:text-primary-50
+            "
           >
             <ul
-              class="flex flex-row items-center justify-center gap-2 border-b border-gray-900/10 dark:border-gray-50/[0.2]"
+              class="
+                flex flex-row items-center justify-center gap-2 border-b
+                border-gray-900/10
+
+                dark:border-gray-50/[0.2]
+              "
             >
               <li class="link grid gap-2 pb-2">
                 <UButton
@@ -173,9 +242,7 @@ const menus = computed((): IMenuItem[] => [
                   variant="solid"
                   color="primary"
                   :label="$t('common.shop')"
-                >
-                  {{ $t('common.shop') }}
-                </UButton>
+                />
                 <UButton
                   icon="i-heroicons-magnifying-glass"
                   :to="'/search'"
@@ -183,9 +250,7 @@ const menus = computed((): IMenuItem[] => [
                   variant="solid"
                   color="primary"
                   :label="$t('common.search')"
-                >
-                  {{ $t('common.search') }}
-                </UButton>
+                />
               </li>
               <li class="link grid gap-2 pb-2">
                 <UButton
@@ -199,9 +264,7 @@ const menus = computed((): IMenuItem[] => [
                   variant="solid"
                   color="primary"
                   :label="loggedIn ? $t('common.account') : $t('common.login')"
-                >
-                  {{ loggedIn ? $t('common.account') : $t('common.login') }}
-                </UButton>
+                />
                 <UButton
                   v-if="loggedIn"
                   icon="i-heroicons-shield-check"
@@ -210,9 +273,7 @@ const menus = computed((): IMenuItem[] => [
                   variant="solid"
                   color="primary"
                   :label="$t('pages.accounts.security.title')"
-                >
-                  {{ $t('pages.accounts.security.title') }}
-                </UButton>
+                />
               </li>
             </ul>
           </nav>
@@ -225,19 +286,36 @@ const menus = computed((): IMenuItem[] => [
             </div>
           </div>
           <Anchor
-            class="text-primary-950 dark:text-primary-50 flex items-center justify-center gap-2 self-center text-lg hover:text-slate-900 hover:no-underline hover:dark:text-white"
+            class="
+              text-primary-950 flex items-center justify-center gap-2
+              self-center text-lg
+
+              dark:text-primary-50
+
+              hover:text-slate-900 hover:no-underline hover:dark:text-white
+            "
             :to="'cart'"
             :title="$t('pages.cart.title')"
             :text="$t('pages.cart.title')"
           >
             <IconFa6Solid:cartShopping />
-            <span class="text-primary-950 dark:text-primary-50 ml-1">
+            <span
+              class="
+                text-primary-950 ml-1
+
+                dark:text-primary-50
+              "
+            >
               {{ $t('pages.cart.title') }}</span>
           </Anchor>
           <UButton
             size="md"
             :trailing="false"
-            class="text-primary-100 dark:text-primary-50"
+            class="
+              text-primary-100
+
+              dark:text-primary-50
+            "
             icon="i-heroicons-arrow-left-start-on-rectangle"
             color="red"
             @click="authLogoutEvent"

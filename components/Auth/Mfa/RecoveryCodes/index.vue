@@ -23,7 +23,13 @@ const downloadCodes = () => {
 </script>
 
 <template>
-  <div class="container-2xs grid items-center justify-center p-0 md:px-6">
+  <div
+    class="
+      container-2xs grid items-center justify-center p-0
+
+      md:px-6
+    "
+  >
     <UButton
       size="sm"
       color="primary"

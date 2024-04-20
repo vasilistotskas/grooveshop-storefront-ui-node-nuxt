@@ -44,7 +44,11 @@ const categoryImageSource = computed(() => {
     <Anchor
       :to="`/blog/category/${category?.id}/${category?.slug}`"
       :text="categoryName"
-      class="group grid w-full grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
+      class="
+        group grid w-full grid-cols-auto-1fr items-center gap-4 p-2
+
+        hover:no-underline
+      "
       @click.prevent="() => emit('categoryClick', category)"
     >
       <div class="flex h-[40px] w-[40px] items-center rounded-full">
@@ -65,7 +69,13 @@ const categoryImageSource = computed(() => {
         />
       </div>
       <div class="flex items-center">
-        <span class="text-primary-950 dark:text-primary-50 w-full capitalize">
+        <span
+          class="
+            text-primary-950 w-full capitalize
+
+            dark:text-primary-50
+          "
+        >
           {{ categoryName }}
         </span>
       </div>

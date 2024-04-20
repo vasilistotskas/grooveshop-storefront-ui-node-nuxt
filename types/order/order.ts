@@ -5,7 +5,7 @@ import {
   FloorChoicesEnum,
   LocationChoicesEnum,
   ZodLanguageQuery,
-} from '~/types/global/general'
+} from '~/types'
 import {
   ZodOrderCreateItem,
   ZodOrderCreateResponseItem,

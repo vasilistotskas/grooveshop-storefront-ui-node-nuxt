@@ -50,13 +50,21 @@ onMounted(() => {
   <label :for="switchId" class="flex cursor-pointer">
     <label
       :for="switchId"
-      class="relative mr-2 inline-block w-10 select-none align-middle transition duration-200 ease-in"
+      class="
+        relative mr-2 inline-block w-10 select-none align-middle transition
+        duration-200 ease-in
+      "
     >
       <input
         :id="switchId"
         ref="input"
         type="checkbox"
-        class="switch-checkbox dark:bg-primary-900 bg-primary-100 absolute block h-6 w-6 cursor-pointer appearance-none rounded-full border-2 border-slate-300 dark:border-slate-600"
+        class="
+          switch-checkbox bg-primary-100 absolute block h-6 w-6 cursor-pointer
+          appearance-none rounded-full border-2 border-slate-300
+
+          dark:bg-primary-900 dark:border-slate-600
+        "
         :checked="checked"
         name="switch"
         placeholder="Switch"
@@ -64,7 +72,12 @@ onMounted(() => {
       >
       <label
         :for="switchId"
-        class="switch-label dark:bg-primary-900 bg-primary-100 block h-6 cursor-pointer overflow-hidden rounded-full border border-slate-300 dark:border-slate-500"
+        class="
+          switch-label bg-primary-100 block h-6 cursor-pointer overflow-hidden
+          rounded-full border border-slate-300
+
+          dark:bg-primary-900 dark:border-slate-500
+        "
       />
     </label>
     <slot />

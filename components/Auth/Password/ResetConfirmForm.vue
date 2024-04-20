@@ -58,12 +58,27 @@ const onSubmit = handleSubmit(async (values) => {
     <form
       id="passwordResetConfirmForm"
       ref="passwordResetConfirmForm"
-      class="container-2xs p-0 md:px-20"
+      class="
+        container-2xs p-0
+
+        md:px-20
+      "
       name="passwordResetConfirmForm"
       @submit="onSubmit"
     >
       <div
-        class="dark:bg-primary-900 bg-primary-100 flex h-full flex-wrap items-center justify-center rounded-[0.5rem] border border-gray-900/10 p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 lg:justify-between"
+        class="
+          bg-primary-100 flex h-full flex-wrap items-center justify-center
+          rounded-[0.5rem] border border-gray-900/10 p-4
+          shadow-[0_4px_9px_-4px_#0000000d]
+
+          dark:bg-primary-900 dark:border-gray-50/[0.2]
+          dark:shadow-[0_4px_9px_-4px_#0000000d]
+
+          lg:justify-between
+
+          md:p-8
+        "
       >
         <div class="relative grid w-full">
           <div class="sr-only">
@@ -82,7 +97,11 @@ const onSubmit = handleSubmit(async (values) => {
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-950 dark:text-primary-50 mb-2"
+              class="
+                text-primary-950 mb-2
+
+                dark:text-primary-50
+              "
               for="newPassword1"
             >{{
               $t('pages.auth.password.reset.confirm.form.newPassword1.label')
@@ -91,7 +110,6 @@ const onSubmit = handleSubmit(async (values) => {
               id="newPassword1"
               v-model="newPassword1"
               :bind="newPassword1Props"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="newPassword1"
               type="password"
               autocomplete="new-password"
@@ -99,13 +117,17 @@ const onSubmit = handleSubmit(async (values) => {
             />
             <span
               v-if="errors.newPassword1"
-              class="relative px-4 py-3 text-sm text-red-600"
+              class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.newPassword1 }}</span>
           </div>
 
           <div class="grid content-evenly items-start">
             <label
-              class="text-primary-950 dark:text-primary-50 mb-2"
+              class="
+                text-primary-950 mb-2
+
+                dark:text-primary-50
+              "
               for="newPassword2"
             >{{
               $t('pages.auth.password.reset.confirm.form.newPassword2.label')
@@ -114,7 +136,6 @@ const onSubmit = handleSubmit(async (values) => {
               id="newPassword2"
               v-model="newPassword2"
               :bind="newPassword2Props"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="newPassword2"
               type="password"
               autocomplete="new-password"
@@ -122,7 +143,7 @@ const onSubmit = handleSubmit(async (values) => {
             />
             <span
               v-if="errors.newPassword2"
-              class="relative px-4 py-3 text-sm text-red-600"
+              class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.newPassword2 }}</span>
           </div>
 

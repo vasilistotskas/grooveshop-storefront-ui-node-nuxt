@@ -77,13 +77,26 @@ watch(
 <template>
   <div
     v-if="!pending && productReviews && productReviews?.length > 0"
-    class="container-sm text-primary-950 dark:text-primary-50 grid gap-2 border-t border-gray-900/10 !px-0 !py-6 dark:border-gray-50/20 md:!p-6"
+    class="
+      container-sm text-primary-950 grid gap-2 border-t border-gray-900/10 !px-0
+      !py-6
+
+      dark:text-primary-50 dark:border-gray-50/20
+
+      md:!p-6
+    "
   >
     <div class="grid gap-4">
       <h2 class="text-2xl font-semibold">
         {{ $t('components.product.reviews.title') }}
       </h2>
-      <div class="grid justify-start gap-4 md:flex md:items-center">
+      <div
+        class="
+          grid justify-start gap-4
+
+          md:flex md:items-center
+        "
+      >
         <div class="grid">
           <Ordering
             :ordering="String(ordering)"

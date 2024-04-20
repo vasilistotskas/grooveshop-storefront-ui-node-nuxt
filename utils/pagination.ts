@@ -1,7 +1,7 @@
 import {
   type CursorStates,
   PaginationCursorStateEnum,
-} from '~/types/global/general'
+} from '~/types'
 
 export function getCursorFromUrl(
   url: string,
@@ -21,8 +21,7 @@ export function generateInitialCursorStates(): CursorStates {
   return initialState
 }
 
-export function clearCursorStates(cursorStates: CursorStates) {
-  for (const key of Object.keys(cursorStates)) {
-    cursorStates[key as PaginationCursorStateEnum] = ''
-  }
+export function clearCursorStates() {
+  const cursorState = useState<CursorStates>('cursorStates')
+  cursorState.value = generateInitialCursorStates()
 }

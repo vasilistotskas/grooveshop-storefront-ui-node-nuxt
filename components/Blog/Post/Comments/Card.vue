@@ -10,7 +10,7 @@ import {
   type PaginationCursorStateType,
   type PaginationType,
   PaginationTypeEnum,
-} from '~/types/global/general'
+} from '~/types'
 import type { Pagination } from '~/types/pagination'
 
 const props = defineProps({
@@ -314,16 +314,28 @@ watch(
           />
           <span
             v-if="userAccount"
-            class="text-primary-950 dark:text-primary-50 font-bold"
+            class="
+              text-primary-950 font-bold
+
+              dark:text-primary-50
+            "
           >
             {{ userAccount?.firstName }}
           </span>
           <span class="flex items-center">
             <span
-              class="text-12 text-primary-400 dark:text-primary-400 mx-2 my-0 inline-block font-bold"
+              class="
+                text-12 text-primary-400 mx-2 my-0 inline-block font-bold
+
+                dark:text-primary-400
+              "
             >•</span>
             <NuxtTime
-              class="text-primary-400 dark:text-primary-400 w-full text-end text-xs"
+              class="
+                text-primary-400 w-full text-end text-xs
+
+                dark:text-primary-400
+              "
               :datetime="comment.createdAt"
             />
           </span>
@@ -333,7 +345,10 @@ watch(
     <span class="relative grid grid-cols-[32px_1fr]">
       <span
         v-show="hasReplies"
-        class="line absolute bottom-0 left-0 top-0 z-10 mb-[0.75rem] flex w-8 cursor-pointer items-center justify-center"
+        class="
+          line absolute bottom-0 left-0 top-0 z-10 mb-[0.75rem] flex w-8
+          cursor-pointer items-center justify-center
+        "
         aria-hidden="true"
         @mouseenter="isLineHovered = true"
         @mouseleave="isLineHovered = false"
@@ -366,12 +381,20 @@ watch(
         <span v-show="!repliesFetched" />
         <span
           v-show="repliesFetched"
-          class="dark:bg-primary-900 bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start py-[2px]"
+          class="
+            bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start
+            py-[2px]
+
+            dark:bg-primary-900
+          "
         >
           <UButton
             v-if="hasReplies"
             :aria-expanded="showReplies"
-            class="button inline-flex h-[1rem] w-[1rem] items-center justify-center overflow-visible px-[0.375rem]"
+            class="
+              button inline-flex h-[1rem] w-[1rem] items-center justify-center
+              overflow-visible px-[0.375rem]
+            "
             size="sm"
             variant="solid"
             :icon="
@@ -436,10 +459,21 @@ watch(
             class="threadline-one align-start relative flex justify-end"
           >
             <span
-              class="border-primary-300 dark:border-primary-600 box-border h-[1rem] w-[calc(50%+0.5px)] cursor-pointer rounded-bl-[12px] border-0 border-b-[1px] border-l-[1px] border-solid"
+              class="
+                border-primary-300 box-border h-[1rem] w-[calc(50%+0.5px)]
+                cursor-pointer rounded-bl-[12px] border-0 border-b-[1px]
+                border-l-[1px] border-solid
+
+                dark:border-primary-600
+              "
             />
             <span
-              class="border-primary-300 dark:border-primary-600 absolute right-[-8px] box-border h-[1rem] w-[0.5rem] cursor-pointer border-0 border-b-[1px] border-solid"
+              class="
+                border-primary-300 absolute right-[-8px] box-border h-[1rem]
+                w-[0.5rem] cursor-pointer border-0 border-b-[1px] border-solid
+
+                dark:border-primary-600
+              "
             />
           </span>
           <BlogPostCommentsCard
@@ -459,10 +493,21 @@ watch(
           class="threadline-two align-start relative flex justify-end"
         >
           <span
-            class="border-primary-300 dark:border-primary-600 box-border h-[1rem] w-[calc(50%+0.5px)] cursor-pointer rounded-bl-[12px] border-0 border-b-[1px] border-l-[1px] border-solid"
+            class="
+              border-primary-300 box-border h-[1rem] w-[calc(50%+0.5px)]
+              cursor-pointer rounded-bl-[12px] border-0 border-b-[1px]
+              border-l-[1px] border-solid
+
+              dark:border-primary-600
+            "
           />
           <span
-            class="border-primary-300 dark:border-primary-600 absolute right-[-8px] box-border h-[1rem] w-[0.5rem] cursor-pointer border-0 border-b-[1px] border-solid"
+            class="
+              border-primary-300 absolute right-[-8px] box-border h-[1rem]
+              w-[0.5rem] cursor-pointer border-0 border-b-[1px] border-solid
+
+              dark:border-primary-600
+            "
           />
         </span>
         <span v-if="hasReplies && !repliesFetched" class="ml-px inline-block">

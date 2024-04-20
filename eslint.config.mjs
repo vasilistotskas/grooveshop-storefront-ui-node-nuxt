@@ -1,7 +1,11 @@
 // @ts-check
+import eslintPluginReadableTailwind from 'eslint-plugin-readable-tailwind'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt({
+  plugins: {
+    'readable-tailwind': eslintPluginReadableTailwind,
+  },
   rules: {
     'nuxt/prefer-import-meta': 'off',
     'vue/multi-word-component-names': 0,
@@ -10,10 +14,7 @@ export default withNuxt({
     'vue/no-v-html': 0,
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
+    ...eslintPluginReadableTailwind.configs.warning.rules,
+    ...eslintPluginReadableTailwind.configs.error.rules,
   },
-  languageOptions: {
-    sourceType: 'module',
-    ecmaVersion: 'latest',
-  },
-  ignores: ['components.d.ts', 'auto-imports.d.ts', 'nuxt.d.ts', 'dist', '.nuxt', 'node_modules', 'output'],
 })

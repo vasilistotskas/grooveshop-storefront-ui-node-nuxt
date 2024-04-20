@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ButtonSize } from '~/types/global/button'
+import type { ButtonSize } from '#ui/types'
 
 const props = defineProps({
   productId: {
@@ -21,7 +21,6 @@ const props = defineProps({
   size: {
     type: String as PropType<ButtonSize>,
     default: 'md',
-    validator: (value: string) => ['lg', 'md', 'sm', 'xs'].includes(value),
   },
   showLabel: {
     type: Boolean,

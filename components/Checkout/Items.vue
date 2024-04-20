@@ -8,7 +8,13 @@ const { locale } = useI18n()
 <template>
   <div class="items">
     <div class="sr-only items-center justify-center">
-      <h3 class="text-primary-950 dark:text-primary-50 text-md font-bold">
+      <h3
+        class="
+          text-primary-950 text-md font-bold
+
+          dark:text-primary-50
+        "
+      >
         {{ $t('components.checkout.items.title') }}
       </h3>
     </div>
@@ -20,7 +26,11 @@ const { locale } = useI18n()
         <div
           v-for="item in getCartItems"
           :key="item.id"
-          class="grid gap-4 md:py-2"
+          class="
+            grid gap-4
+
+            md:py-2
+          "
         >
           <div class="grid grid-cols-[1fr_auto_auto_auto] gap-4">
             <div class="flex items-center">
@@ -29,7 +39,11 @@ const { locale } = useI18n()
                 :to="`/products${item.product.absoluteUrl}`"
               >
                 <span
-                  class="text-primary-950 dark:text-primary-50 text-sm font-bold"
+                  class="
+                    text-primary-950 text-sm font-bold
+
+                    dark:text-primary-50
+                  "
                 >
                   {{ extractTranslated(item.product, 'name', locale) }}
                 </span>
@@ -39,24 +53,42 @@ const { locale } = useI18n()
               <I18nN
                 v-if="item.finalPrice"
                 tag="span"
-                class="text-primary-950 dark:text-primary-50 text-sm"
+                class="
+                  text-primary-950 text-sm
+
+                  dark:text-primary-50
+                "
                 format="currency"
                 :value="item.finalPrice"
               />
             </div>
             <div class="flex items-center">
-              <span class="text-primary-950 dark:text-primary-50 text-sm">
+              <span
+                class="
+                  text-primary-950 text-sm
+
+                  dark:text-primary-50
+                "
+              >
                 {{ item.quantity }}x
               </span>
             </div>
             <div class="flex items-center">
               <span
                 v-if="item.finalPrice"
-                class="text-primary-950 dark:text-primary-50 text-sm"
+                class="
+                  text-primary-950 text-sm
+
+                  dark:text-primary-50
+                "
               >
                 <I18nN
                   tag="span"
-                  class="text-primary-950 dark:text-primary-50 text-sm"
+                  class="
+                    text-primary-950 text-sm
+
+                    dark:text-primary-50
+                  "
                   format="currency"
                   :value="item.finalPrice * item.quantity"
                 />

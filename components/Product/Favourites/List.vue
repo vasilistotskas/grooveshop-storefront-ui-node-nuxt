@@ -8,6 +8,11 @@ defineProps({
     type: Array as PropType<ProductFavourite[] | null>,
     required: true,
   },
+  favouritesCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
   displayTotal: {
     type: Boolean,
     required: false,
@@ -20,12 +25,18 @@ defineProps({
   <div v-if="favourites" class="grid w-full items-start gap-4">
     <div v-if="displayTotal" class="flex items-center justify-center gap-1">
       <span class="text-sm font-semibold text-secondary">
-        {{
-          $t('components.favourite.list.favourites.total', favourites.length)
-        }}
+        {{ $t('components.favourite.list.favourites.total', favouritesCount) }}
       </span>
     </div>
-    <ul class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+    <ul
+      class="
+        grid grid-cols-2 gap-4
+
+        md:grid-cols-3
+
+        xl:grid-cols-4
+      "
+    >
       <template v-for="favourite in favourites" :key="favourite.id">
         <ProductCard
           v-if="!isEntityId(favourite.product)"

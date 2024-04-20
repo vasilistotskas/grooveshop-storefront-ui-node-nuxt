@@ -4,7 +4,7 @@ import { ZodBlogPost } from '~/types/blog/post'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types/global/general'
+import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
 
 const ZodBlogCommentTranslations = z.record(
   z.object({

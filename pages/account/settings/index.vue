@@ -1,13 +1,15 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-import { defaultSelectOptionChoose } from '~/constants/general'
+import { defaultSelectOptionChoose } from '~/constants'
 
 const { user, fetch } = useUserSession()
 const { fetchUser } = useAuth()
 
 const { t, locale } = useI18n()
 const toast = useToast()
+
+const USelect = resolveComponent('USelect')
 
 const userId = user.value?.id
 
@@ -93,6 +95,16 @@ const { data: countries } = await useLazyAsyncData('countries', () =>
   }),
 )
 
+const countryOptions = computed(() => {
+  return countries.value?.results?.map((country) => {
+    const countryName = extractTranslated(country, 'name', locale.value)
+    return {
+      name: countryName,
+      value: country.alpha2,
+    }
+  }) || []
+})
+
 const { data: regions } = await useLazyAsyncData(
   'regions',
   () =>
@@ -108,6 +120,16 @@ const { data: regions } = await useLazyAsyncData(
     immediate: country.value !== defaultSelectOptionChoose,
   },
 )
+
+const regionOptions = computed(() => {
+  return regions.value?.results?.map((region) => {
+    const regionName = extractTranslated(region, 'name', locale.value)
+    return {
+      name: regionName,
+      value: region.alpha,
+    }
+  }) || []
+})
 
 const label = computed(() => {
   if (birthDate.value) {
@@ -189,26 +211,45 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col gap-4 !p-0 md:gap-8">
-    <PageHeader>
-      <PageTitle :text="$t('pages.account.settings.title')" />
-    </PageHeader>
-    <UserAccountNavbar />
+  <PageWrapper
+    class="
+      container flex flex-col gap-4 !p-0
+
+      md:gap-8
+    "
+  >
+    <PageTitle :text="$t('pages.account.settings.title')" />
+    <UserAccountSettingsNavbar />
     <div class="grid items-center justify-start pt-4">
       <span
-        class="text-primary-500 dark:text-primary-400 cursor-not-allowed rounded-md border border-gray-900/10 p-2 italic dark:border-gray-50/[0.2]"
+        class="
+          text-primary-500 cursor-not-allowed rounded-md border
+          border-gray-900/10 p-2 italic
+
+          dark:text-primary-400 dark:border-gray-50/[0.2]
+        "
       >{{ email }}</span>
     </div>
     <PageBody>
       <form
         id="accountSettingsForm"
-        class="_form dark:bg-primary-900 bg-primary-100 grid gap-4 rounded border border-gray-900/10 p-4 dark:border-gray-50/[0.2] md:grid-cols-2"
+        class="
+          _form bg-primary-100 grid gap-4 rounded border border-gray-900/10 p-4
+
+          dark:bg-primary-900 dark:border-gray-50/[0.2]
+
+          md:grid-cols-2
+        "
         name="accountSettingsForm"
         @submit="onSubmit"
       >
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="firstName"
           >{{ $t('pages.account.settings.form.first_name') }}</label>
           <div class="grid">
@@ -216,7 +257,6 @@ definePageMeta({
               id="firstName"
               v-model="firstName"
               :bind="firstNameProps"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="firstName"
               type="text"
               :placeholder="$t('pages.account.settings.form.first_name')"
@@ -226,12 +266,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.firstName"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.firstName }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="lastName"
           >{{ $t('pages.account.settings.form.last_name') }}</label>
           <div class="grid">
@@ -239,7 +283,6 @@ definePageMeta({
               id="lastName"
               v-model="lastName"
               :bind="lastNameProps"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="lastName"
               type="text"
               :placeholder="$t('pages.account.settings.form.last_name')"
@@ -249,12 +292,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.lastName"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.lastName }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="phone"
           >{{ $t('pages.account.settings.form.phone') }}</label>
           <div class="grid">
@@ -262,7 +309,6 @@ definePageMeta({
               id="phone"
               v-model="phone"
               :bind="phoneProps"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="phone"
               type="text"
               :placeholder="$t('pages.account.settings.form.phone')"
@@ -271,12 +317,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.phone"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.phone }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="city"
           >{{ $t('pages.account.settings.form.city') }}</label>
           <div class="grid">
@@ -284,7 +334,6 @@ definePageMeta({
               id="city"
               v-model="city"
               :bind="cityProps"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="city"
               type="text"
               :placeholder="$t('pages.account.settings.form.city')"
@@ -293,12 +342,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.city"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.city }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="zipcode"
           >{{ $t('pages.account.settings.form.zipcode') }}</label>
           <div class="grid">
@@ -306,7 +359,6 @@ definePageMeta({
               id="zipcode"
               v-model="zipcode"
               :bind="zipcodeProps"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="zipcode"
               type="text"
               :placeholder="$t('pages.account.settings.form.zipcode')"
@@ -315,12 +367,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.zipcode"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.zipcode }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="address"
           >{{ $t('pages.account.settings.form.address') }}</label>
           <div class="grid">
@@ -328,7 +384,6 @@ definePageMeta({
               id="address"
               v-model="address"
               :bind="addressProps"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="address"
               type="text"
               :placeholder="$t('pages.account.settings.form.address')"
@@ -337,12 +392,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.address"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.address }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="place"
           >{{ $t('pages.account.settings.form.place') }}</label>
           <div class="grid">
@@ -350,7 +409,6 @@ definePageMeta({
               id="place"
               v-model="place"
               :bind="placeProps"
-              class="text-primary-950 dark:text-primary-50 mb-2"
               name="place"
               type="text"
               :placeholder="$t('pages.account.settings.form.place')"
@@ -359,12 +417,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.place"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.place }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="birthDate"
           >{{ $t('pages.account.settings.form.birth_date') }}</label>
           <div class="grid">
@@ -375,8 +437,7 @@ definePageMeta({
                 color="primary"
               />
               <template #panel="{ close }">
-                <LazyDatePicker
-                  id="birthDate"
+                <DatePicker
                   v-model="birthDate"
                   @close="close"
                 />
@@ -385,12 +446,16 @@ definePageMeta({
           </div>
           <span
             v-if="errors.birthDate"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.birthDate }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="country"
           >{{ $t('pages.account.settings.form.country') }}</label>
           <div class="grid">
@@ -399,36 +464,26 @@ definePageMeta({
               v-model="country"
               v-bind="countryProps"
               name="country"
-              as="select"
-              class="form-select text-primary-950 dark:text-primary-300 dark:bg-primary-900 bg-primary-100 border border-gray-200"
+              color="white"
+              :as="USelect"
+              :options="countryOptions"
+              option-attribute="name"
+              :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
               @change.capture="onCountryChange"
-            >
-              <option
-                :value="defaultSelectOptionChoose"
-                disabled
-                :selected="country === defaultSelectOptionChoose"
-              >
-                {{ defaultSelectOptionChoose }}
-              </option>
-              <option
-                v-for="cntry in countries?.results"
-                :key="cntry.alpha2"
-                :value="cntry.alpha2"
-                :selected="country === cntry.alpha2"
-                class="text-primary-950 dark:text-primary-300"
-              >
-                {{ extractTranslated(cntry, 'name', locale) }}
-              </option>
-            </VeeField>
+            />
           </div>
           <span
             v-if="errors.country"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.country }}</span>
         </div>
         <div class="grid">
           <label
-            class="text-primary-950 dark:text-primary-50 mb-2"
+            class="
+              text-primary-950 mb-2
+
+              dark:text-primary-50
+            "
             for="region"
           >{{ $t('pages.account.settings.form.region') }}</label>
           <div class="grid">
@@ -437,38 +492,29 @@ definePageMeta({
               v-model="region"
               v-bind="regionProps"
               name="region"
-              as="select"
-              class="form-select text-primary-950 dark:text-primary-300 dark:bg-primary-900 bg-primary-100 border border-gray-200"
-              :disabled="country === defaultSelectOptionChoose"
-            >
-              <option
-                :value="defaultSelectOptionChoose"
-                disabled
-                :selected="region === defaultSelectOptionChoose"
-              >
-                {{ defaultSelectOptionChoose }}
-              </option>
-              <option
-                v-for="rgn in regions?.results"
-                :key="rgn.alpha"
-                :value="rgn.alpha"
-                :selected="region === rgn.alpha"
-                class="text-primary-950 dark:text-primary-300"
-              >
-                {{ extractTranslated(rgn, 'name', locale) }}
-              </option>
-            </VeeField>
+              color="white"
+              :as="USelect"
+              :options="regionOptions"
+              option-attribute="name"
+              :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+            />
           </div>
           <span
             v-if="errors.region"
-            class="relative px-4 py-3 text-sm text-red-600"
+            class="relative px-4 py-3 text-xs text-red-600"
           >{{ errors.region }}</span>
         </div>
 
         <div class="grid items-end justify-end">
           <button
             type="submit"
-            class="rounded bg-secondary px-4 py-2 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-secondary-dark"
+            class="
+              rounded bg-secondary px-4 py-2 font-bold text-white
+
+              dark:bg-secondary-dark
+
+              disabled:cursor-not-allowed disabled:opacity-50
+            "
             :disabled="submitButtonDisabled"
             :aria-busy="isSubmitting"
           >

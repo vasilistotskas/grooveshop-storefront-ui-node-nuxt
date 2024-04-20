@@ -25,8 +25,12 @@ function onSubmit() {
 
 <template>
   <section class="grid items-center">
-    <UButton variant="link" color="red" size="xl" @click="onSubmit">
-      {{ $t('pages.auth.security.mfa.totp.deactivate.button') }}
-    </UButton>
+    <UButton
+      variant="link"
+      color="red"
+      size="xl"
+      :label="$t('pages.auth.security.mfa.totp.deactivate.button')"
+      @click="onSubmit"
+    />
   </section>
 </template>

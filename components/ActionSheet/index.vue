@@ -45,7 +45,10 @@ watch(
             style="max-height: 66.6667%"
           >
             <div
-              class="relative mx-auto flex w-full max-w-8xl flex-1 flex-col justify-end space-y-1 overflow-y-auto px-4 pb-4"
+              class="
+                relative mx-auto flex w-full max-w-8xl flex-1 flex-col
+                justify-end space-y-1 overflow-y-auto px-4 pb-4
+              "
             >
               <slot />
             </div>

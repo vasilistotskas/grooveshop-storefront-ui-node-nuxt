@@ -8,33 +8,75 @@ const packageVersion = pkg.version
 
 <template>
   <footer
-    class="bg-primary-50 dark:bg-primary-900 mt-6 w-full border-t-2 border-gray-500 pt-2"
+    class="
+      bg-primary-50 mt-6 w-full border-t-2 border-gray-500 pt-2
+
+      dark:bg-primary-900
+    "
   >
     <div class="container mx-auto w-full">
-      <div class="flex gap-4 md:grid md:grid-cols-3 md:gap-8 md:px-6 md:py-8">
+      <div
+        class="
+          flex gap-4
+
+          md:grid md:grid-cols-3 md:gap-8 md:px-6 md:py-8
+        "
+      >
         <div class="w-full">
           <span
-            class="text-primary-950 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
+            class="
+              text-primary-950 mb-6 text-xs font-semibold uppercase
+
+              dark:text-white
+
+              md:text-sm
+            "
           >
             {{ $t('common.company') }}
           </span>
-          <ul class="text-primary-950 dark:text-primary-400 font-medium">
-            <li class="mb-2 md:mb-4">
+          <ul
+            class="
+              text-primary-950 font-medium
+
+              dark:text-primary-400
+            "
+          >
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :to="'about'"
                 :title="$t('common.about')"
                 :text="$t('common.about')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.about') }}
               </Anchor>
             </li>
-            <li class="mb-2 md:mb-4">
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :to="'blog'"
                 :title="$t('common.blog')"
                 :text="$t('common.blog')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.blog') }}
               </Anchor>
@@ -43,47 +85,99 @@ const packageVersion = pkg.version
         </div>
         <div class="w-full">
           <span
-            class="text-primary-950 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
+            class="
+              text-primary-950 mb-6 text-xs font-semibold uppercase
+
+              dark:text-white
+
+              md:text-sm
+            "
           >
             {{ $t('common.help_center') }}
           </span>
-          <ul class="text-primary-950 dark:text-primary-400 font-medium">
-            <li class="mb-2 md:mb-4">
+          <ul
+            class="
+              text-primary-950 font-medium
+
+              dark:text-primary-400
+            "
+          >
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :to="'contact'"
                 :title="$t('common.contact_us')"
                 :text="$t('common.contact_us')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.contact_us') }}
               </Anchor>
             </li>
-            <li class="mb-2 md:mb-4">
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :href="config.public.socials.discord"
                 :title="$t('common.discord_server')"
                 :text="$t('common.discord_server')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.discord_server') }}
               </Anchor>
             </li>
-            <li class="mb-2 md:mb-4">
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :href="config.public.socials.twitter"
                 :title="$t('common.twitter')"
                 :text="$t('common.twitter')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.twitter') }}
               </Anchor>
             </li>
-            <li class="mb-2 md:mb-4">
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :href="config.public.socials.facebook"
                 :title="$t('common.facebook')"
                 :text="$t('common.facebook')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.facebook') }}
               </Anchor>
@@ -92,27 +186,59 @@ const packageVersion = pkg.version
         </div>
         <div class="w-full">
           <span
-            class="text-primary-950 mb-6 text-xs font-semibold uppercase dark:text-white md:text-sm"
+            class="
+              text-primary-950 mb-6 text-xs font-semibold uppercase
+
+              dark:text-white
+
+              md:text-sm
+            "
           >
             Legal
           </span>
-          <ul class="text-primary-950 dark:text-primary-400 font-medium">
-            <li class="mb-2 md:mb-4">
+          <ul
+            class="
+              text-primary-950 font-medium
+
+              dark:text-primary-400
+            "
+          >
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :to="'privacy'"
                 :title="$t('common.privacy_policy')"
                 :text="$t('common.privacy_policy')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.privacy_policy') }}
               </Anchor>
             </li>
-            <li class="mb-2 md:mb-4">
+            <li
+              class="
+                mb-2
+
+                md:mb-4
+              "
+            >
               <Anchor
                 :to="'terms'"
                 :title="$t('common.terms_conditions')"
                 :text="$t('common.terms_conditions')"
-                class="flex-1 text-sm capitalize hover:no-underline"
+                class="
+                  flex-1 text-sm capitalize
+
+                  hover:no-underline
+                "
               >
                 {{ $t('common.terms_conditions') }}
               </Anchor>
@@ -121,13 +247,29 @@ const packageVersion = pkg.version
         </div>
       </div>
     </div>
-    <div class="dark:bg-primary-900 bg-primary-100 w-full">
+    <div
+      class="
+        bg-primary-100 w-full
+
+        dark:bg-primary-900
+      "
+    >
       <div class="container mx-auto w-full">
         <div
-          class="px-2 py-3 md:flex md:items-center md:justify-between md:px-4 md:py-6"
+          class="
+            px-2 py-3
+
+            md:flex md:items-center md:justify-between md:px-4 md:py-6
+          "
         >
           <span
-            class="text-primary-950 dark:text-primary-300 text-sm sm:text-center"
+            class="
+              text-primary-950 text-sm
+
+              dark:text-primary-300
+
+              sm:text-center
+            "
           >© 2023
             <Anchor
               :href="config.public.siteUrl"
@@ -136,13 +278,31 @@ const packageVersion = pkg.version
               css-class="flex-1 hover:no-underline capitalize text-gray-900"
             >{{ config.public.siteName }}™</Anchor>. {{ $t('common.all_rights_reserved') }}.
           </span>
-          <div class="mt-4 flex items-center justify-between gap-12 md:mt-0">
-            <div class="flex space-x-6 sm:justify-center">
+          <div
+            class="
+              mt-4 flex items-center justify-between gap-12
+
+              md:mt-0
+            "
+          >
+            <div
+              class="
+                flex space-x-6
+
+                sm:justify-center
+              "
+            >
               <Anchor
                 :href="config.public.socials.facebook"
                 :title="$t('common.facebook')"
                 :text="$t('common.facebook')"
-                class="text-primary-400 hover:text-primary-950 dark:hover:text-white"
+                class="
+                  text-primary-400
+
+                  dark:hover:text-white
+
+                  hover:text-primary-950
+                "
               >
                 <svg
                   class="h-5 w-5"
@@ -162,7 +322,13 @@ const packageVersion = pkg.version
                 :href="config.public.socials.instagram"
                 :title="$t('common.instagram')"
                 :text="$t('common.instagram')"
-                class="text-primary-400 hover:text-primary-950 dark:hover:text-white"
+                class="
+                  text-primary-400
+
+                  dark:hover:text-white
+
+                  hover:text-primary-950
+                "
               >
                 <svg
                   class="h-5 w-5"
@@ -182,7 +348,13 @@ const packageVersion = pkg.version
                 :href="config.public.socials.twitter"
                 :title="$t('common.twitter')"
                 :text="$t('common.twitter')"
-                class="text-primary-400 hover:text-primary-950 dark:hover:text-white"
+                class="
+                  text-primary-400
+
+                  dark:hover:text-white
+
+                  hover:text-primary-950
+                "
               >
                 <svg
                   class="h-5 w-5"
@@ -198,7 +370,13 @@ const packageVersion = pkg.version
               </Anchor>
             </div>
             <span
-              class="text-primary-950 dark:text-primary-300 text-xs sm:text-center"
+              class="
+                text-primary-950 text-xs
+
+                dark:text-primary-300
+
+                sm:text-center
+              "
             >Version: {{ packageVersion }}</span>
           </div>
         </div>

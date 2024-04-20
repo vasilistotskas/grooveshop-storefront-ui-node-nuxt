@@ -1,7 +1,7 @@
 import {
   ZodFloorChoicesEnum,
   ZodLocationChoicesEnum,
-} from '~/types/global/general'
+} from '~/types'
 
 export const locationChoicesList = Object.keys(
   ZodLocationChoicesEnum.Values,
@@ -21,3 +21,10 @@ export const AuthenticatedRoutePrefixes = [
   '/auth/security',
   '/account',
 ] as const
+
+export const THEME_COLORS = {
+  themeDark: '#1a202c',
+  themeLight: '#ffffff',
+  backgroundDark: '#ffffff',
+  backgroundLight: '#1a202c',
+} as const

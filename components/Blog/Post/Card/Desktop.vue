@@ -4,7 +4,7 @@ import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
 
 import type { BlogPost } from '~/types/blog/post'
-import type { ImageLoading } from '~/types/global/general'
+import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
@@ -60,7 +60,11 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
 <template>
   <li
-    class="dark:bg-primary-800 bg-primary-100 container grid w-full gap-6 rounded-lg !p-0 text-white dark:text-black"
+    class="
+      bg-primary-100 container grid w-full gap-6 rounded-lg !p-0 text-white
+
+      dark:bg-primary-900 dark:text-black
+    "
   >
     <div class="grid">
       <Anchor
@@ -87,12 +91,26 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       </Anchor>
     </div>
     <div class="grid p-5">
-      <div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
+      <div
+        class="
+          flex flex-col gap-4
+
+          lg:gap-x-6
+
+          md:gap-x-12
+        "
+      >
         <h3 class="grid h-20">
           <Anchor
             :to="`/blog/post${post.absoluteUrl}`"
             :text="alt"
-            class="text-2xl font-bold tracking-tight text-black dark:text-white md:text-3xl"
+            class="
+              text-2xl font-bold tracking-tight text-black
+
+              dark:text-white
+
+              md:text-3xl
+            "
           >
             {{ contentShorten(extractTranslated(post, 'title', locale), 100) }}
           </Anchor>
@@ -100,7 +118,14 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       </div>
       <div class="flex justify-end gap-6">
         <ButtonBlogPostLike
-          class="text-primary-950 dark:text-primary-50 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
+          class="
+            text-primary-950 flex-col justify-self-start p-0 font-extrabold
+            capitalize
+
+            dark:text-primary-50 dark:hover:bg-transparent
+
+            hover:bg-transparent
+          "
           size="lg"
           variant="ghost"
           :blog-post-id="post.id"
@@ -113,7 +138,14 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           color="primary"
           square
           variant="ghost"
-          class="text-primary-950 dark:text-primary-50 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
+          class="
+            text-primary-950 flex-col justify-self-start p-0 font-extrabold
+            capitalize
+
+            dark:text-primary-50 dark:hover:bg-transparent
+
+            hover:bg-transparent
+          "
           :label="String(post.commentsCount)"
           :to="`/blog/post${post.absoluteUrl}#blog-post-comments`"
         />
@@ -126,7 +158,14 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             color="primary"
             square
             variant="ghost"
-            class="text-primary-950 dark:text-primary-50 flex-col justify-self-start p-0 font-extrabold capitalize hover:bg-transparent dark:hover:bg-transparent"
+            class="
+              text-primary-950 flex-col justify-self-start p-0 font-extrabold
+              capitalize
+
+              dark:text-primary-50 dark:hover:bg-transparent
+
+              hover:bg-transparent
+            "
             @click="startShare"
           />
           <template #fallback>

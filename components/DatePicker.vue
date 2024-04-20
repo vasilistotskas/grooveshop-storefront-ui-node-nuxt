@@ -1,12 +1,20 @@
 <script setup lang="ts">
-const modelValue = defineModel<Date | null>('modelValue', { default: null })
+import type {
+  DatePickerDate,
+  DatePickerRangeObject,
+} from 'v-calendar/dist/types/src/use/datePicker'
+
+const modelValue = defineModel<DatePickerDate | DatePickerRangeObject | null>(
+  'modelValue',
+  { default: null },
+)
 
 const emit = defineEmits(['close'])
 
 const { locale } = useI18n()
+const colorMode = useColorMode()
 
-const themeCookie = useCookie('theme')
-const isDark = computed(() => themeCookie.value === 'dark')
+const isDark = computed(() => colorMode.value === 'dark')
 
 const date = computed({
   get: () => modelValue.value,
@@ -28,14 +36,12 @@ const attrs = [
 <template>
   <VDatePicker
     v-model="date"
-    transparent
-    borderless
+    :color="'primary'"
     :attributes="attrs"
     :is-dark="isDark"
-    :locale="locale"
-    title-position="left"
-    trim-weeks
     :first-day-of-week="2"
-    :color="'blue'"
+    title-position="left"
+    :locale="locale"
+    trim-weeks
   />
 </template>

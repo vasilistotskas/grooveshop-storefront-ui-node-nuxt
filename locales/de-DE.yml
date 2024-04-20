@@ -112,3 +112,11 @@ common:
     replies: Keine Antworten | 1 Antwort | %{count} Antworten
   hide:
     replies: Verstecken
+  register: Registrieren
+  first: Erste
+  last: Zuletzt
+  prev: Vorher
+  settings: Einstellungen
+  signed_in_as: Eingeloggt als
+  security: Sicherheit
+  theme: Thema

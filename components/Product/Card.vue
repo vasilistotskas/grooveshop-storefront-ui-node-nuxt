@@ -3,7 +3,7 @@ import { useShare } from '@vueuse/core'
 import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
 
-import type { ImageLoading } from '~/types/global/general'
+import type { ImageLoading } from '~/types'
 import type { Product } from '~/types/product/product'
 
 const props = defineProps({
@@ -65,7 +65,13 @@ const favouriteId = computed(
 
 <template>
   <li class="product-card relative">
-    <div class="dark:bg-primary-900 bg-primary-100 container rounded-lg">
+    <div
+      class="
+        bg-primary-100 container rounded-lg
+
+        dark:bg-primary-900
+      "
+    >
       <div class="flex flex-col gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
@@ -90,18 +96,32 @@ const favouriteId = computed(
           </div>
         </div>
         <div class="flex flex-1 flex-col justify-end gap-2">
-          <div class="grid justify-between gap-2 md:flex md:gap-4">
+          <div
+            class="
+              grid justify-between gap-2
+
+              md:flex md:gap-4
+            "
+          >
             <h2 class="text-lg font-semibold leading-6">
               <Anchor
                 :to="`/products${product.absoluteUrl}`"
                 :text="alt"
-                class="text-primary-950 dark:text-primary-50"
+                class="
+                  text-primary-950
+
+                  dark:text-primary-50
+                "
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </Anchor>
             </h2>
             <div
-              class="absolute right-2 top-2 row-start-1 flex gap-1 md:relative md:gap-4"
+              class="
+                absolute right-2 top-2 row-start-1 flex gap-1
+
+                md:relative md:gap-4
+              "
             >
               <ClientOnly>
                 <UButton
@@ -131,7 +151,11 @@ const favouriteId = computed(
           </div>
           <p
             v-if="showDescription"
-            class="text-primary-950 dark:text-primary-50 text-muted min-h-[3.75rem] text-sm leading-6"
+            class="
+              text-primary-950 text-muted min-h-[3.75rem] text-sm leading-6
+
+              dark:text-primary-50
+            "
           >
             {{
               contentShorten(
@@ -144,9 +168,21 @@ const favouriteId = computed(
           <div v-if="showStartPrice || showVat" class="grid">
             <div v-if="showStartPrice" class="d-flex justify-content-between">
               <p>
-                <span class="text-primary-950 dark:text-primary-50">{{
+                <span
+                  class="
+                    text-primary-950
+
+                    dark:text-primary-50
+                  "
+                >{{
                   $t('components.product.card.price')
-                }}</span><span class="text-primary-950 dark:text-primary-50">{{
+                }}</span><span
+                  class="
+                    text-primary-950
+
+                    dark:text-primary-50
+                  "
+                >{{
                   product.price
                 }}</span>
               </p>
@@ -156,24 +192,50 @@ const favouriteId = computed(
               class="card-vat-percent d-flex justify-content-between"
             >
               <p class="card-prices-vat-percent">
-                <span class="text-primary-950 dark:text-primary-50">{{
+                <span
+                  class="
+                    text-primary-950
+
+                    dark:text-primary-50
+                  "
+                >{{
                   $t('components.product.card.vat_percent')
-                }}</span><span class="text-primary-950 dark:text-primary-50">{{
+                }}</span><span
+                  class="
+                    text-primary-950
+
+                    dark:text-primary-50
+                  "
+                >{{
                   product.vatPercent
                 }}</span>
               </p>
             </div>
           </div>
           <div class="flex justify-between font-bold">
-            <p class="grid items-center gap-2 md:grid-cols-[1fr_auto]">
+            <p
+              class="
+                grid items-center gap-2
+
+                md:grid-cols-[1fr_auto]
+              "
+            >
               <span
-                class="text-primary-950 dark:text-primary-50 text-sm leading-6"
+                class="
+                  text-primary-950 text-sm leading-6
+
+                  dark:text-primary-50
+                "
               >
                 {{ $t('components.product.card.total_price') }}
               </span>
               <I18nN
                 tag="span"
-                class="text-primary-950 dark:text-primary-50 text-lg leading-6"
+                class="
+                  text-primary-950 text-lg leading-6
+
+                  dark:text-primary-50
+                "
                 format="currency"
                 :value="product.finalPrice"
               />

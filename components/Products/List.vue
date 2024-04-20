@@ -3,7 +3,7 @@ import type { EntityOrdering } from '~/types/ordering'
 import type { Product, ProductOrderingField } from '~/types/product/product'
 
 import emptyIcon from '~icons/mdi/package-variant-remove'
-import { type PaginationType, PaginationTypeEnum } from '~/types/global/general'
+import { type PaginationType, PaginationTypeEnum } from '~/types'
 
 const props = defineProps({
   paginationType: {
@@ -23,7 +23,7 @@ const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 
-const pageSize = ref(4)
+const pageSize = ref(8)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const category = computed(() => route.query.category)
@@ -43,7 +43,7 @@ const entityOrdering = ref<EntityOrdering<ProductOrderingField>>([
 
 const {
   data: products,
-  pending,
+  status,
   refresh,
 } = await useLazyAsyncData('products', () =>
   $fetch('/api/products', {
@@ -66,6 +66,21 @@ const productIds = computed(() => {
 
 const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value && productIds.value && productIds.value.length > 0
+})
+
+await useFetch('/api/products/favourites/favourites-by-products', {
+  method: 'POST',
+  body: {
+    productIds: productIds.value,
+  },
+  immediate: shouldFetchFavouriteProducts.value,
+  onResponse({ response }) {
+    if (!response.ok) {
+      return
+    }
+    const favourites = response._data
+    updateFavouriteProducts(favourites)
+  },
 })
 
 const refreshFavouriteProducts = async (ids: number[]) => {
@@ -118,7 +133,7 @@ watch(
         :page-size="pagination.pageSize"
         :page="pagination.page"
         :links="pagination.links"
-        :loading="pending"
+        :loading="status === 'pending'"
       />
       <Ordering
         :ordering="String(ordering)"
@@ -129,11 +144,11 @@ watch(
       class="grid grid-cols-1 justify-center gap-4"
       :class="{
         'items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4':
-          pending || products?.results?.length,
-        'items-start': !pending && !products?.results?.length,
+          status === 'pending' || products?.results?.length,
+        'items-start': !(status === 'pending') && !products?.results?.length,
       }"
     >
-      <template v-if="!pending && products?.results?.length">
+      <template v-if="!(status === 'pending') && products?.results?.length">
         <ProductCard
           v-for="(product, index) in products?.results"
           :key="index"
@@ -141,7 +156,7 @@ watch(
           :img-loading="index > 7 ? 'lazy' : 'eager'"
         />
       </template>
-      <template v-if="pending">
+      <template v-if="status === 'pending'">
         <ClientOnlyFallback
           v-for="index in 8"
           :key="index"
@@ -150,7 +165,7 @@ watch(
         />
       </template>
       <EmptyState
-        v-if="!pending && !products?.results?.length"
+        v-if="!(status === 'pending') && !products?.results?.length"
         :icon="emptyIcon"
       >
         <template #actions>

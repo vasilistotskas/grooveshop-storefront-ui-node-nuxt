@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodLanguageQuery } from '~/types/global/general'
+import { ZodLanguageQuery } from '~/types'
 
 const ZodBlogCategoryTranslations = z.record(
   z.object({

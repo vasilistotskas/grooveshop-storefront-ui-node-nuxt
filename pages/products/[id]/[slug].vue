@@ -2,7 +2,7 @@
 import { useShare } from '@vueuse/core'
 import { isClient } from '@vueuse/shared'
 
-import { GlobalEvents } from '~/events/global'
+import { GlobalEvents } from '~/events'
 import type { Product } from '~/types/product/product'
 import { capitalize } from '~/utils/str'
 
@@ -206,8 +206,24 @@ definePageMeta({
 <template>
   <PageWrapper class="container">
     <PageBody>
-      <div v-if="product" class="product mb-12 md:mb-24">
-        <div class="mx-auto max-w-7xl pb-6 sm:px-6 md:px-4 lg:px-8">
+      <div
+        v-if="product" class="
+          product mb-12
+
+          md:mb-24
+        "
+      >
+        <div
+          class="
+            mx-auto max-w-7xl pb-6
+
+            lg:px-8
+
+            md:px-4
+
+            sm:px-6
+          "
+        >
           <UBreadcrumb
             :links="links"
             class="mb-5"
@@ -216,22 +232,51 @@ definePageMeta({
               base: 'text-xs md:text-md',
             }"
           />
-          <div class="grid gap-2 md:grid-cols-2">
+          <div
+            class="
+              grid gap-2
+
+              md:grid-cols-2
+            "
+          >
             <div class="overflow-hidden">
               <ProductImages :product="product" />
             </div>
             <div
-              class="grid content-center items-center gap-4 md:gap-6 md:px-4"
+              class="
+                grid content-center items-center gap-4
+
+                md:gap-6 md:px-4
+              "
             >
               <h2
-                class="text-primary-950 dark:text-primary-50 text-2xl font-bold leading-tight tracking-tight md:text-3xl"
+                class="
+                  text-primary-950 text-2xl font-bold leading-tight
+                  tracking-tight
+
+                  dark:text-primary-50
+
+                  md:text-3xl
+                "
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </h2>
-              <h3 class="text-primary-950 dark:text-primary-50 text-sm">
+              <h3
+                class="
+                  text-primary-950 text-sm
+
+                  dark:text-primary-50
+                "
+              >
                 <span>{{ $t('pages.product.product_id') }}: </span>
                 <span
-                  class="text-indigo-700 hover:underline dark:text-indigo-200"
+                  class="
+                    text-indigo-700
+
+                    dark:text-indigo-200
+
+                    hover:underline
+                  "
                 >{{ product.id }}</span>
               </h3>
               <PageSection class="actions flex items-center gap-4">
@@ -253,7 +298,12 @@ definePageMeta({
                 </ClientOnly>
                 <ClientOnly>
                   <UButton
-                    class="capitalize hover:text-slate-900 hover:no-underline hover:dark:text-white"
+                    class="
+                      capitalize
+
+                      hover:text-slate-900 hover:no-underline
+                      hover:dark:text-white
+                    "
                     :label="reviewButtonText"
                     size="lg"
                     color="primary"
@@ -295,7 +345,13 @@ definePageMeta({
                     {{ $t('pages.product.save') }}
                     {{ product.priceSavePercent }}%
                   </p>
-                  <p class="text-primary-950 dark:text-primary-50 text-sm">
+                  <p
+                    class="
+                      text-primary-950 text-sm
+
+                      dark:text-primary-50
+                    "
+                  >
                     {{ $t('pages.product.inclusive_of_taxes') }}
                   </p>
                 </div>
@@ -304,13 +360,23 @@ definePageMeta({
                 :text="extractTranslated(product, 'description', locale) || ''"
                 :max-chars="100"
               />
-              <div class="flex flex-col gap-4 md:flex-row md:gap-0">
+              <div
+                class="
+                  flex flex-col gap-4
+
+                  md:flex-row md:gap-0
+                "
+              >
                 <div class="grid">
                   <label for="counter-input" class="sr-only">{{
                     $t('pages.product.qty')
                   }}</label>
                   <div
-                    class="dark:bg-primary-900 bg-primary-100 relative flex items-center rounded-lg"
+                    class="
+                      bg-primary-100 relative flex items-center rounded-lg
+
+                      dark:bg-primary-900
+                    "
                   >
                     <UButton
                       id="decrement-button"
@@ -329,7 +395,16 @@ definePageMeta({
                       :max="productStock"
                       :aria-label="$t('pages.product.qty')"
                       :aria-describedby="'increment-button decrement-button'"
-                      class="dark:bg-primary-900 bg-primary-100 block w-full border-gray-300 p-2.5 text-sm text-gray-900 outline-none focus:border-secondary focus:ring-secondary dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      class="
+                        bg-primary-100 block w-full border-gray-300 p-2.5
+                        text-sm text-gray-900 outline-none
+
+                        dark:bg-primary-900 dark:border-gray-600 dark:text-white
+                        dark:placeholder-gray-400 dark:focus:border-blue-500
+                        dark:focus:ring-blue-500
+
+                        focus:border-secondary focus:ring-secondary
+                      "
                     >
                     <UButton
                       id="increment-button"

@@ -4,7 +4,7 @@ import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
 
 import type { BlogPost } from '~/types/blog/post'
-import type { ImageLoading } from '~/types/global/general'
+import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
@@ -60,7 +60,11 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
 <template>
   <li
-    class="dark:bg-primary-900 bg-primary-100 container grid w-full gap-4 rounded-lg !p-0 text-white dark:text-black"
+    class="
+      bg-primary-100 container grid w-full gap-4 rounded-lg !p-0 text-white
+
+      dark:bg-primary-900 dark:text-black
+    "
   >
     <div class="relative grid">
       <Anchor
@@ -87,7 +91,18 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <div class="absolute bottom-12 right-0 grid w-full">
           <span class="grid justify-center justify-items-start">
             <span
-              class="m-auto block w-[70%] text-3xl font-bold tracking-tight text-white dark:text-white sm:w-[60%] md:w-[66%] md:text-4xl lg:w-[76%]"
+              class="
+                m-auto block w-[70%] text-3xl font-bold tracking-tight
+                text-white
+
+                dark:text-white
+
+                lg:w-[76%]
+
+                md:w-[66%] md:text-4xl
+
+                sm:w-[60%]
+              "
             >
               {{ extractTranslated(post, 'title', locale) }}
             </span>
@@ -96,7 +111,13 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       </Anchor>
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike
-          class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
+          class="
+            flex-col justify-self-start p-0 font-extrabold capitalize text-white
+
+            dark:hover:bg-transparent
+
+            hover:bg-transparent
+          "
           size="xl"
           variant="ghost"
           :blog-post-id="post.id"
@@ -109,7 +130,13 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           color="primary"
           square
           variant="ghost"
-          class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
+          class="
+            flex-col justify-self-start p-0 font-extrabold capitalize text-white
+
+            dark:hover:bg-transparent
+
+            hover:bg-transparent
+          "
           :label="String(post.commentsCount)"
           :ui="{
             icon: {
@@ -128,7 +155,14 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             color="primary"
             square
             variant="ghost"
-            class="flex-col justify-self-start p-0 font-extrabold capitalize text-white hover:bg-transparent dark:hover:bg-transparent"
+            class="
+              flex-col justify-self-start p-0 font-extrabold capitalize
+              text-white
+
+              dark:hover:bg-transparent
+
+              hover:bg-transparent
+            "
             :ui="{
               icon: {
                 size: {

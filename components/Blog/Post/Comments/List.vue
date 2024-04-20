@@ -68,7 +68,12 @@ comments?.value?.sort((a) => {
         :comment="comment"
         :display-image-of="displayImageOf"
         :class="userHasCommented(comment) ? 'user-commented' : ''"
-        class="comments-list-item dark:bg-primary-900 bg-primary-100 rounded border border-gray-900/10 p-4 dark:border-gray-50/[0.2]"
+        class="
+          comments-list-item bg-primary-100 rounded border border-gray-900/10
+          p-4
+
+          dark:bg-primary-900 dark:border-gray-50/[0.2]
+        "
         @reply-add="onReplyAdd"
       />
     </div>

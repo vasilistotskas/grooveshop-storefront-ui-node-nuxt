@@ -105,7 +105,11 @@ const link = computed(() => {
   <div class="pagination relative">
     <ol
       v-if="totalPages > 1"
-      class="pagination-ordered-list flex w-full items-center gap-1 md:grid md:gap-4"
+      class="
+        pagination-ordered-list flex w-full items-center gap-1
+
+        md:grid md:gap-4
+      "
     >
       <li class="previous-page">
         <Anchor
@@ -138,7 +142,13 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-950 dark:text-primary-50"><IconFaSolid:angleLeft /></span>
+          <span
+            class="
+              text-primary-950
+
+              dark:text-primary-50
+            "
+          ><IconFaSolid:angleLeft /></span>
         </Anchor>
       </li>
 
@@ -181,7 +191,11 @@ const link = computed(() => {
           >{{ firstPageNumber }}</span>
           <span
             v-if="shouldDisplayPreviousTripleDots"
-            class="text-primary-950 dark:text-primary-50 grid self-end justify-self-start text-sm"
+            class="
+              text-primary-950 grid self-end justify-self-start text-sm
+
+              dark:text-primary-50
+            "
           >...</span>
         </Anchor>
       </li>
@@ -216,7 +230,13 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-950 dark:text-primary-50">{{
+          <span
+            class="
+              text-primary-950
+
+              dark:text-primary-50
+            "
+          >{{
             pageEntry
           }}</span>
         </Anchor>
@@ -257,7 +277,11 @@ const link = computed(() => {
         >
           <span
             v-if="shouldDisplayNextTripleDots"
-            class="text-primary-950 dark:text-primary-50 grid self-end justify-self-end text-sm"
+            class="
+              text-primary-950 grid self-end justify-self-end text-sm
+
+              dark:text-primary-50
+            "
           >...</span>
           <span
             :class="{
@@ -302,7 +326,13 @@ const link = computed(() => {
               })
           "
         >
-          <span class="text-primary-950 dark:text-primary-50"><IconFaSolid:angleRight /></span>
+          <span
+            class="
+              text-primary-950
+
+              dark:text-primary-50
+            "
+          ><IconFaSolid:angleRight /></span>
         </Anchor>
       </li>
     </ol>

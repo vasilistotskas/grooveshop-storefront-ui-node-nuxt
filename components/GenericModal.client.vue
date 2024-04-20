@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { GlobalEvents } from '~/events/global'
+import { GlobalEvents } from '~/events'
 
 const props = defineProps({
   shouldModalStartInOpenState: {

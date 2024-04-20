@@ -9,7 +9,7 @@ export const experimental = {
   payloadExtraction: true,
   cookieStore: true,
   restoreState: true,
-  watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
+  watcher: (import.meta.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
   | 'chokidar'
   | 'chokidar-granular'
   | 'parcel'

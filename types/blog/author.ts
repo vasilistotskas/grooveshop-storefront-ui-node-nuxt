@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodLanguageQuery } from '~/types/global/general'
+import { ZodLanguageQuery } from '~/types'
 
 const ZodBlogAuthorTranslations = z.record(
   z.object({

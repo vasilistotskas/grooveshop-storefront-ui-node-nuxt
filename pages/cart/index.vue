@@ -15,7 +15,11 @@ definePageMeta({
       <ClientOnly>
         <div
           v-if="!pending.cart && cart?.cartItems?.length"
-          class="products grid gap-4 md:grid-rows-1"
+          class="
+            products grid gap-4
+
+            md:grid-rows-1
+          "
         >
           <CartItemCard
             v-for="(cartItem, index) in cart.cartItems"
@@ -24,7 +28,13 @@ definePageMeta({
           />
         </div>
         <template v-if="pending.cart">
-          <div class="no-products grid gap-4 md:grid-rows-1">
+          <div
+            class="
+              no-products grid gap-4
+
+              md:grid-rows-1
+            "
+          >
             <ClientOnlyFallback
               v-for="index in 3"
               :key="index"
@@ -54,9 +64,10 @@ definePageMeta({
       <h2 class="grid justify-items-center justify-self-end">
         <UButton
           :label="$t('pages.cart.checkout')"
-          class="font-extrabold capitalize"
+          class="capitalize"
           color="primary"
           variant="soft"
+          size="xl"
           :to="'checkout'"
         />
       </h2>

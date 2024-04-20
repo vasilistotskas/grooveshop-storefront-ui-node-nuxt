@@ -1,60 +1,19 @@
 <script lang="ts" setup>
-import type { UseSeoMetaInput } from '@unhead/schema'
-import { type CursorStates } from '~/types/global/general'
+setupPageHeader()
+setupCursorStates()
 
 const config = useRuntimeConfig()
-const route = useRoute()
-const router = useRouter()
-const { locale, locales } = useI18n()
+const { locales } = useI18n()
 
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
 
 await fetchCart()
 
-useState<CursorStates>('cursorStates', () => generateInitialCursorStates())
-
-const themeCookie = useCookie('theme')
-const themeClass = computed(() => themeCookie.value || 'light')
-const themeColor = computed(() =>
-  themeClass.value === 'dark' ? '#1a202c' : '#ffffff',
-)
-
-const i18nHead = useLocaleHead({
-  addDirAttribute: true,
-  addSeoAttributes: true,
-  identifierAttribute: 'hid',
-  route,
-  router,
-  i18n: useI18n(),
-})
-
-const headOptions = {
-  htmlAttrs: {
-    lang: i18nHead.value.htmlAttrs!.lang,
-    class: () => themeClass.value,
-    dir: i18nHead.value.htmlAttrs?.dir,
-  },
-  link: [{ rel: 'icon', type: 'image/png', href: '/favicon/favicon.ico' }],
-  charset: 'utf-8',
-  title: () => config.public.appTitle,
-  meta: [
-    {
-      name: 'msapplication-config',
-      content: '/favicon/browserconfig.xml',
-    },
-    {
-      name: 'google-site-verification',
-      content: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-    },
-    ...(i18nHead.value.meta || []),
-  ],
-}
-
 const schemaOrgOptions = [
   defineOrganization({
     name: config.public.appTitle,
-    logo: config.public.appImage,
+    logo: config.public.appLogo,
     sameAs: [
       config.public.socials.facebook,
       config.public.socials.twitter,
@@ -70,33 +29,6 @@ const schemaOrgOptions = [
   defineWebPage(),
 ]
 
-const seoMetaOptions = {
-  title: config.public.appTitle,
-  description: config.public.appDescription,
-  colorScheme: themeClass.value,
-  themeColor: themeColor.value,
-  applicationName: config.public.appTitle,
-  author: config.public.author.name,
-  creator: config.public.author.name,
-  publisher: config.public.author.name,
-  ogTitle: `${config.public.appTitle}`,
-  ogType: 'website',
-  ogUrl: config.public.baseUrl,
-  ogImage: config.public.appImage,
-  ogImageAlt: config.public.appTitle,
-  ogSiteName: config.public.appTitle,
-  ogLocale: locale.value,
-  ogLocaleAlternate: locales.value.map((l: any) => l.iso),
-  fbAppId: config.public.facebookAppId,
-  twitterCard: 'summary_large_image',
-  twitterTitle: config.public.appTitle,
-  twitterDescription: config.public.appDescription,
-  twitterImage: config.public.appImage,
-  mobileWebAppCapable: 'yes',
-  msapplicationTileImage: config.public.appImage,
-  msapplicationTileColor: themeColor.value,
-} satisfies UseSeoMetaInput
-
 const ogImageOptions = {
   title: config.public.appTitle,
   description: config.public.appDescription,
@@ -106,9 +38,7 @@ const ogImageOptions = {
   cacheTtl: 60 * 60 * 24 * 7,
 }
 
-useHead(headOptions)
 useSchemaOrg(schemaOrgOptions)
-useSeoMeta(seoMetaOptions)
 defineOgImageComponent('NuxtSeo', ogImageOptions)
 </script>
 

@@ -13,7 +13,7 @@ const envVariables = z.object({
   NUXT_PUBLIC_SITE_DESCRIPTION: z.string(),
   NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION: z.string(),
   NUXT_PUBLIC_TWITTER_USERNAME: z.string(),
-  NUXT_PUBLIC_APP_IMAGE: z.string(),
+  NUXT_PUBLIC_APP_LOGO: z.string(),
 
   // Public
   NUXT_PUBLIC_TITLE_SEPARATOR: z.string(),

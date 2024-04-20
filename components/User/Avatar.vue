@@ -118,7 +118,10 @@ const uploadImage = async (event: Event) => {
     :class="[showName ? 'gap-2' : 'gap-0']"
   >
     <div
-      class="user-avatar relative grid items-center justify-center justify-items-center"
+      class="
+        user-avatar relative grid items-center justify-center
+        justify-items-center
+      "
       :class="{
         'inline-block h-[135px] w-[135px] shrink-0 text-center align-middle':
           backgroundBorder,
@@ -214,7 +217,13 @@ const uploadImage = async (event: Event) => {
       </form>
     </div>
     <div v-if="showName" class="flex flex-col">
-      <span class="text-primary-950 dark:text-primary-50 font-bold">
+      <span
+        class="
+          text-primary-950 font-bold
+
+          dark:text-primary-50
+        "
+      >
         {{ userAccount?.firstName }}
       </span>
     </div>

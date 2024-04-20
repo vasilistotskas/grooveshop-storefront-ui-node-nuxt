@@ -15,6 +15,7 @@ pages:
     keywords: Blog
     ordering:
       created_at: Hergestellt in
+      updated_at: Aktualisiert am
       title: Titel
       published_at: Veröffentlicht unter
   testing:
@@ -83,9 +84,6 @@ pages:
       nav: WS
   index:
     nav: heim
-    title: GrooveShop
-    description: GrooveShop
-    keywords: GrooveShop
     add_to_cart: In den Warenkorb legen
   error:
     title: Hoppla! Etwas ist schief gelaufen.
@@ -107,6 +105,7 @@ pages:
       name: Name
       price: Preis
       created_at: Hergestellt in
+      updated_at: Aktualisiert am
     share: Aktie
     share_not_supported: Web Share wird in Ihrem Browser nicht unterstützt
     review:
@@ -259,27 +258,43 @@ pages:
       update_error: Fehler bei der Aktualisierung der Bestellungen
       deleted: Bestellartikel gelöscht
       delete_error: Fehler beim Löschen des Bestellartikels
+      total: Keine Bestellungen | 1 Bestellung | %{count} Bestellungen
       ordering:
         created_at: Hergestellt in
+        updated_at: Aktualisiert am
+        status: Status
       empty:
         title: Ihre Bestellungen sind leer
         description: Sie haben noch keine Bestellungen aufgegeben.
         button: Zum Laden gehen
     favourites:
-      title: Favoriten
-      nav: Favoriten
-      description: Favoriten
-      keywords: Favoriten
-      updated: Favoriten aktualisiert
-      update_error: Fehler bei der Aktualisierung der Favoriten
-      deleted: Favoritenelement gelöscht
-      delete_error: Fehler beim Löschen des Favoritenelements
-      ordering:
-        created_at: Hergestellt in
-      empty:
-        title: Ihre Favoriten sind leer
-        description: Sie haben noch keine Favoriten hinzugefügt.
-        button: Zum Laden gehen
+      products:
+        title: Lieblingsprodukte
+        nav: Favoriten
+        description: Favoriten
+        keywords: Favoriten
+        updated: Favoriten aktualisiert
+        update_error: Fehler bei der Aktualisierung der Favoriten
+        deleted: Favoritenelement gelöscht
+        delete_error: Fehler beim Löschen des Favoritenelements
+        ordering:
+          id: AUSWEIS
+          product_id: Produkt ID
+          created_at: In jüngerer Zeit
+          updated_at: Aktualisiert am
+        empty:
+          title: Ihre Favoriten sind leer
+          description: Sie haben noch keine Favoriten hinzugefügt.
+          button: Zum Laden gehen
+      posts:
+        title: Lieblingsbeiträge
+        nav: Favoriten
+        description: Favoriten
+        keywords: Favoriten
+        ordering:
+          title: Titel
+          created_at: In jüngerer Zeit
+          updated_at: Aktualisiert am
     reviews:
       title: Rezensionen
       nav: Bewertungen
@@ -291,6 +306,7 @@ pages:
       delete_error: Fehler beim Löschen des Artikels
       ordering:
         created_at: Hergestellt in
+        updated_at: Aktualisiert am
       empty:
         title: Ihre Bewertungen sind leer
         description: Sie haben noch keine Bewertungen hinzugefügt.
@@ -350,6 +366,7 @@ pages:
       delete: Löschen
       ordering:
         created_at: Hergestellt in
+        updated_at: Aktualisiert am
         is_main: Hauptsächlich
       empty:
         title: Ihre Adressen sind leer
@@ -464,6 +481,7 @@ pages:
         value: Versandwert
       ordering:
         created_at: Hergestellt in
+        updated_at: Aktualisiert am
       empty:
         title: Ihre Bestellungen sind leer
         description: Sie haben noch keine Bestellungen aufgegeben.

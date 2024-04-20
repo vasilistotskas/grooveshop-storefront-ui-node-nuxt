@@ -25,7 +25,14 @@ const { statusClass } = useOrder()
 <template>
   <li
     v-if="order"
-    class="order-card text-primary-950 dark:text-primary-50 dark:bg-primary-900 bg-primary-100 flex flex-col items-center justify-between gap-4 rounded border border-gray-900/10 p-4 dark:border-gray-50/[0.2] md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-10"
+    class="
+      order-card text-primary-950 bg-primary-100 flex flex-col items-center
+      justify-between gap-4 rounded border border-gray-900/10 p-4
+
+      dark:text-primary-50 dark:bg-primary-900 dark:border-gray-50/[0.2]
+
+      md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-10
+    "
   >
     <div class="order-card-items grid gap-2">
       <div class="flex gap-2">
@@ -38,11 +45,21 @@ const { statusClass } = useOrder()
       <div v-if="order.orderItemOrder.length > maxItems" class="grid">
         <span
           v-if="order.orderItemOrder.length - maxItems === 1"
-          class="text-primary-950 dark:text-primary-50 text-xs"
+          class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
         >
           {{ $t('components.order.card.extra_one') }}
         </span>
-        <span v-else class="text-primary-950 dark:text-primary-50 text-xs">
+        <span
+          v-else class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
+        >
           {{
             $t('components.order.card.extra', {
               count: order.orderItemOrder.length - maxItems,
@@ -53,7 +70,11 @@ const { statusClass } = useOrder()
     </div>
 
     <div
-      class="order-card-body grid grid-cols-2 items-center gap-2 md:grid-cols-3 md:grid-rows-2 md:gap-4"
+      class="
+        order-card-body grid grid-cols-2 items-center gap-2
+
+        md:grid-cols-3 md:grid-rows-2 md:gap-4
+      "
     >
       <div class="order-card-body-status flex items-center gap-2.5">
         <span :class="statusClass(order).color">
@@ -66,28 +87,52 @@ const { statusClass } = useOrder()
       </div>
 
       <div class="order-card-body-id grid">
-        <span class="text-primary-950 dark:text-primary-50 text-xs">{{
+        <span
+          class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
+        >{{
           $t('components.order.card.id')
         }}</span>
         <span class="font-semibold">{{ order.id }}</span>
       </div>
 
       <div class="order-card-body-address grid">
-        <span class="text-primary-950 dark:text-primary-50 text-xs">{{
+        <span
+          class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
+        >{{
           $t('components.order.card.address')
         }}</span>
         <span>{{ contentShorten(order.fullAddress, 0, 45) }}</span>
       </div>
 
       <div class="order-card-body-pay_way grid">
-        <span class="text-primary-950 dark:text-primary-50 text-xs">{{
+        <span
+          class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
+        >{{
           $t('components.order.card.pay_way')
         }}</span>
         <span>{{ extractTranslated(order.payWay, 'name', locale) }}</span>
       </div>
 
       <div class="order-card-body-total_price grid">
-        <span class="text-primary-950 dark:text-primary-50 text-xs">{{
+        <span
+          class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
+        >{{
           $t('components.order.card.total_price')
         }}</span>
         <I18nN
@@ -99,7 +144,13 @@ const { statusClass } = useOrder()
       </div>
 
       <div class="order-card-body-created_at grid">
-        <span class="text-primary-950 dark:text-primary-50 text-xs">{{
+        <span
+          class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
+        >{{
           $t('components.order.card.created_at')
         }}</span>
         <NuxtTime :datetime="order.createdAt" />
@@ -109,7 +160,11 @@ const { statusClass } = useOrder()
     <div class="order-card-footer grid gap-4">
       <div class="order-card-footer-item">
         <UButton
-          class="py-1.25 w-full text-sm md:py-2.5"
+          class="
+            py-1.25 w-full text-sm
+
+            md:py-2.5
+          "
           :label="$t('components.order.card.actions.details')"
           :to="`/account/orders/${order.id}`"
           color="opposite"

@@ -26,14 +26,26 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <UCard class="dark:bg-primary-900 bg-primary-100">
+  <UCard
+    class="
+      bg-primary-100
+
+      dark:bg-primary-900
+    "
+  >
     <Anchor
       :to="`/products${item.absoluteUrl}`"
       class="pb-2"
       :text="extractTranslated(item, 'name', locale)"
     >
       <div
-        class="bg-zinc4:10 duration-400 z-10 block p-1 transition hover:scale-105"
+        class="
+          duration-400 z-10 block p-1 transition
+
+          bg-zinc4:10
+
+          hover:scale-105
+        "
       >
         <ImgWithFallback
           v-if="src"

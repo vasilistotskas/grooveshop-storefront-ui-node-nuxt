@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ButtonSize } from '~/types/global/button'
+import type { ButtonSize } from '#ui/types'
 import type { ProductFavourite } from '~/types/product/favourite'
 
 const props = defineProps({
@@ -22,7 +22,6 @@ const props = defineProps({
   size: {
     type: String as PropType<ButtonSize>,
     default: 'md',
-    validator: (value: string) => ['lg', 'md', 'sm', 'xs'].includes(value),
   },
   showLabel: {
     type: Boolean,
@@ -30,8 +29,8 @@ const props = defineProps({
   },
 })
 
-const themeCookie = useCookie('theme')
-const isDark = computed(() => themeCookie.value === 'dark')
+const colorMode = useColorMode()
+const isDark = computed(() => colorMode.value === 'dark')
 
 const { t } = useI18n()
 const toast = useToast()

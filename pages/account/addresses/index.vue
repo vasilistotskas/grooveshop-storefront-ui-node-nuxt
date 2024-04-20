@@ -7,7 +7,7 @@ const { t } = useI18n()
 const route = useRoute('account-addresses___en')
 const { user } = useUserSession()
 
-const pageSize = ref(4)
+const pageSize = ref(8)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-isMain')
 
@@ -76,20 +76,21 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col gap-4 !p-0 md:gap-8">
-    <PageHeader>
-      <PageTitle :text="$t('pages.account.addresses.title')" />
-    </PageHeader>
+  <PageWrapper
+    class="
+      container flex flex-col gap-4 !p-0
+
+      md:gap-8
+    "
+  >
+    <PageTitle :text="$t('pages.account.addresses.title')" />
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
         <PaginationPageNumber
           v-if="pagination"
           :count="pagination.count"
-          :total-pages="pagination.totalPages"
-          :page-total-results="pagination.pageTotalResults"
           :page-size="pagination.pageSize"
           :page="pagination.page"
-          :links="pagination.links"
         />
         <Ordering
           :ordering="String(ordering)"
@@ -106,7 +107,15 @@ definePageMeta({
           <div class="flex w-full items-center justify-center">
             <ClientOnlyFallback class="w-full" height="20px" width="100%" />
           </div>
-          <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+          <div
+            class="
+              grid grid-cols-2 gap-4
+
+              lg:grid-cols-3
+
+              xl:grid-cols-4
+            "
+          >
             <ClientOnlyFallback
               v-for="index in 4"
               :key="index"

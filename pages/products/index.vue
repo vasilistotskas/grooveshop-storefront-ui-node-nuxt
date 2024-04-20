@@ -29,7 +29,11 @@ definePageMeta({
       <div class="container !p-0">
         <UBreadcrumb
           :links="links"
-          class="mb-5 md:pl-[3.5rem]"
+          class="
+            mb-5
+
+            md:pl-[3.5rem]
+          "
           :ui="{
             li: 'text-primary-950 dark:text-primary-50',
             base: 'text-xs md:text-md',

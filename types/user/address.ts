@@ -6,7 +6,7 @@ import {
   LocationChoicesEnum,
   ZodExpandQuery,
   ZodLanguageQuery,
-} from '~/types/global/general'
+} from '~/types'
 import { ZodRegion } from '~/types/region'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'

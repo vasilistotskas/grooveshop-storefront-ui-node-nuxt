@@ -1,20 +1,9 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-
-import type { Pagination } from '~/types/pagination'
+import type { ButtonSize } from '#ui/types'
 
 const props = defineProps({
   count: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  totalPages: {
-    type: Number,
-    required: true,
-    default: 1,
-  },
-  pageTotalResults: {
     type: Number,
     required: true,
     default: 0,
@@ -29,260 +18,87 @@ const props = defineProps({
     required: true,
     default: 1,
   },
-  links: {
-    type: Object as PropType<Pagination<unknown>['links']>,
-    required: true,
+  loading: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  size: {
+    type: String as PropType<ButtonSize>,
+    default: 'md',
   },
 })
 
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+const { count } = toRefs(props)
+
+const currentPage = ref(props.page)
 
 const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
+const items = ref(Array(count.value))
 
-const firstPageNumber = computed(() => 1)
-const lastPageNumber = computed(() => props.totalPages)
-const startPage = computed(() => {
-  const halfMaxVisible = Math.floor(maxVisibleButtons.value / 2)
-  if (props.totalPages <= maxVisibleButtons.value) return 1
-  if (props.page <= halfMaxVisible) return 1
-  if (props.page + halfMaxVisible >= props.totalPages)
-    return props.totalPages - maxVisibleButtons.value + 1
-  return props.page - halfMaxVisible
-})
-
-const isInFirstPage = computed(() => props.page === 1)
-const isInLastPage = computed(() => props.page === props.totalPages)
-
-const shouldDisplayFirstPage = computed(() => props.page > 2)
-const shouldDisplayLastPage = computed(() => props.page < props.totalPages - 1)
-const shouldDisplayPreviousTripleDots = computed(() => startPage.value > 2)
-const shouldDisplayNextTripleDots = computed(
-  () => startPage.value + maxVisibleButtons.value < props.totalPages,
+watch(
+  () => currentPage.value,
+  async () => {
+    await navigateTo({
+      path: route.path,
+      query: {
+        page: currentPage.value,
+        ordering: route.query?.ordering,
+        category: route.query?.category,
+      },
+    })
+  },
 )
 
-const pages = computed(() => {
-  const range = []
-  const adjustedStartPage = startPage.value
-  const endPage = Math.min(
-    adjustedStartPage + maxVisibleButtons.value - 1,
-    props.totalPages,
-  )
-
-  for (let i = adjustedStartPage; i <= endPage; i++) {
-    range.push(i)
-  }
-
-  return range
-})
-
-const link = computed(() => {
-  return route.path
-})
+watch(
+  () => route.query,
+  () => {
+    currentPage.value = Number(route.query.page) || 1
+  },
+)
 </script>
 
 <template>
   <div class="pagination relative">
-    <ol
-      v-if="totalPages > 1"
-      class="pagination-ordered-list flex w-full items-center gap-1 md:grid md:gap-4"
-    >
-      <li class="previous-page">
-        <Anchor
-          :to="{
-            path: link,
-            query: {
-              page: page - 1,
-              ordering: route.query?.ordering,
-              category: route.query?.category,
-            },
-          }"
-          :class="{
-            disabled: isInFirstPage,
-            active: isInFirstPage,
-          }"
-          :text="$t('components.pagination.previous_page')"
-          :title="$t('components.pagination.previous_page')"
-          :disabled="isInFirstPage"
-          @click="
-            async () =>
-              await navigateTo({
-                path: link,
-                query: {
-                  page: page - 1,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
-          "
-        >
-          <span class="text-primary-950 dark:text-primary-50"><IconFaSolid:angleLeft /></span>
-        </Anchor>
-      </li>
-
-      <li v-if="shouldDisplayFirstPage" class="first-page">
-        <Anchor
-          :to="{
-            path: link,
-            query: {
-              page: firstPageNumber,
-              ordering: route.query?.ordering,
-              category: route.query?.category,
-            },
-          }"
-          :class="{
-            'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
-            'disabled': isInFirstPage,
-          }"
-          :text="$t('components.pagination.first_page')"
-          :title="$t('components.pagination.first_page')"
-          :disabled="isInFirstPage"
-          @click="
-            async () =>
-              await navigateTo({
-                path: link,
-                query: {
-                  page: firstPageNumber,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
-          "
-        >
-          <span
-            :class="{
-              'text-primary-950 dark:text-primary-50 dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
-              'bg-primary-400 dark:bg-primary-400': isInFirstPage,
-            }"
-          >{{ firstPageNumber }}</span>
-          <span
-            v-if="shouldDisplayPreviousTripleDots"
-            class="text-primary-950 dark:text-primary-50 grid self-end justify-self-start text-sm"
-          >...</span>
-        </Anchor>
-      </li>
-
-      <li v-for="pageEntry in pages" :key="pageEntry" class="page">
-        <Anchor
-          :to="{
-            path: link,
-            query: {
-              page: pageEntry,
-              ordering: route.query?.ordering,
-              category: route.query?.category,
-            },
-          }"
-          :class="{
-            'dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
-            'active': page === pageEntry,
-          }"
-          :text="String(pageEntry)"
-          :title="$t('components.pagination.go_to_page', { page: pageEntry })"
-          @click="
-            async () =>
-              await navigateTo({
-                path: link,
-                query: {
-                  page: pageEntry,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
-          "
-        >
-          <span class="text-primary-950 dark:text-primary-50">{{
-            pageEntry
-          }}</span>
-        </Anchor>
-      </li>
-
-      <li v-if="shouldDisplayLastPage" class="last-page">
-        <Anchor
-          :to="{
-            path: link,
-            query: {
-              page: lastPageNumber,
-              ordering: route.query?.ordering,
-              category: route.query?.category,
-            },
-          }"
-          :class="{
-            'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
-            'disabled': isInLastPage,
-            'active': isInLastPage,
-          }"
-          :text="String(lastPageNumber)"
-          :title="
-            $t('components.pagination.go_to_page', { page: lastPageNumber })
-          "
-          @click="
-            async () =>
-              await navigateTo({
-                path: link,
-                query: {
-                  page: lastPageNumber,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
-          "
-        >
-          <span
-            v-if="shouldDisplayNextTripleDots"
-            class="text-primary-950 dark:text-primary-50 grid self-end justify-self-end text-sm"
-          >...</span>
-          <span
-            :class="{
-              'text-primary-950 dark:text-primary-50 dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
-              'bg-primary-400 dark:bg-primary-400': isInLastPage,
-            }"
-          >{{ lastPageNumber }}</span>
-        </Anchor>
-      </li>
-
-      <li class="next-page">
-        <Anchor
-          :to="{
-            path: link,
-            query: {
-              page: page + 1,
-              ordering: route.query?.ordering,
-              category: route.query?.category,
-            },
-          }"
-          :class="{
-            disabled: isInLastPage,
-            active: isInLastPage,
-          }"
-          :text="$t('components.pagination.next_page')"
-          :title="
-            isInLastPage
-              ? $t('components.pagination.you_are_on_last_page')
-              : $t('components.pagination.next_page')
-          "
-          @click="
-            async () =>
-              await navigateTo({
-                path: link,
-                query: {
-                  page: page + 1,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
-          "
-        >
-          <span class="text-primary-950 dark:text-primary-50"><IconFaSolid:angleRight /></span>
-        </Anchor>
-      </li>
-    </ol>
+    <UPagination
+      v-model="currentPage"
+      :active-button="{
+        color: 'secondary',
+      }"
+      :inactive-button="{
+        color: 'primary',
+      }"
+      :first-button="{
+        icon: 'i-heroicons-arrow-small-left-20-solid',
+        label: $t('common.first'),
+        color: 'primary',
+      }"
+      :last-button="{
+        icon: 'i-heroicons-arrow-small-right-20-solid',
+        trailing: true,
+        label: $t('common.last'),
+        color: 'primary',
+      }"
+      :prev-button="{
+        icon: 'i-heroicons-arrow-small-left-20-solid',
+        label: $t('common.prev'),
+        color: 'primary',
+      }"
+      :next-button="{
+        icon: 'i-heroicons-arrow-small-right-20-solid',
+        trailing: true,
+        label: $t('common.next'),
+        color: 'primary',
+      }"
+      :total="items.length"
+      :page-count="pageSize"
+      :max="maxVisibleButtons"
+      :disabled="loading"
+      :size="size"
+      show-first
+      show-last
+    />
   </div>
 </template>
-
-<style lang="scss" scoped>
-.pagination {
-  .pagination-ordered-list {
-    grid-template-columns: auto auto 1fr auto auto auto auto;
-  }
-}
-</style>

@@ -80,15 +80,27 @@ const categoryImageSource = computed(() => {
     <Anchor
       :to="toUrl"
       :text="categoryName"
-      class="group grid w-full grid-cols-auto-1fr items-center gap-4 p-2 hover:no-underline"
+      class="
+        group grid w-full grid-cols-auto-1fr items-center gap-4 p-2
+
+        hover:no-underline
+      "
       @click.prevent="() => emit('categoryClick', category)"
     >
       <div
-        class="dark:bg-primary-900 bg-primary-100 flex h-[48px] w-[48px] items-center rounded-full"
+        class="
+          bg-primary-100 flex h-[48px] w-[48px] items-center rounded-full
+
+          dark:bg-primary-900
+        "
       >
         <ImgWithFallback
           provider="mediaStream"
-          class="dark:bg-primary-900 bg-primary-100 rounded-full object-cover"
+          class="
+            bg-primary-100 rounded-full object-cover
+
+            dark:bg-primary-900
+          "
           :style="{ contentVisibility: 'auto' }"
           :src="categoryImageSource"
           :width="48"
@@ -103,12 +115,22 @@ const categoryImageSource = computed(() => {
         />
       </div>
       <div class="flex items-center">
-        <span class="text-primary-950 dark:text-primary-50 w-full capitalize">
+        <span
+          class="
+            text-primary-950 w-full capitalize
+
+            dark:text-primary-50
+          "
+        >
           {{ categoryName }}
         </span>
         <IconFa6Solid:circleCheck
           v-if="isCategorySelected"
-          class="text-green-500 dark:text-green-400"
+          class="
+            text-green-500
+
+            dark:text-green-400
+          "
         />
       </div>
     </Anchor>

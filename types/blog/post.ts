@@ -6,7 +6,7 @@ import { ZodBlogTag } from '~/types/blog/tag'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types/global/general'
+import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
 
 export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 
@@ -64,4 +64,8 @@ export const ZodBlogPostsLikedPostsBody = z.object({
 })
 
 export type BlogPost = z.infer<typeof ZodBlogPost>
-export type BlogPostOrderingField = 'createdAt' | 'title' | `publishedAt`
+export type BlogPostOrderingField =
+  | 'title'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'publishedAt'

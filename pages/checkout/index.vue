@@ -5,8 +5,8 @@ import {
   defaultSelectOptionChoose,
   floorChoicesList,
   locationChoicesList,
-} from '~/constants/general'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types/global/general'
+} from '~/constants'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
 import type { PayWay } from '~/types/pay-way'
@@ -20,6 +20,9 @@ const { cleanCartState } = cartStore
 const { t, locale } = useI18n()
 const toast = useToast()
 
+const UTextarea = resolveComponent('UTextarea')
+const USelect = resolveComponent('USelect')
+
 const payWay = useState<PayWay | null>('selectedPayWay')
 
 const { data: countries } = await useLazyAsyncData('countries', () =>
@@ -30,6 +33,16 @@ const { data: countries } = await useLazyAsyncData('countries', () =>
     },
   }),
 )
+
+const countryOptions = computed(() => {
+  return countries.value?.results?.map((country) => {
+    const countryName = extractTranslated(country, 'name', locale.value)
+    return {
+      name: countryName,
+      value: country.alpha2,
+    }
+  }) || []
+})
 
 const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
@@ -157,6 +170,16 @@ const { data: regions } = await useLazyAsyncData(
   },
 )
 
+const regionOptions = computed(() => {
+  return regions.value?.results?.map((region) => {
+    const regionName = extractTranslated(region, 'name', locale.value)
+    return {
+      name: regionName,
+      value: region.alpha,
+    }
+  }) || []
+})
+
 const onCountryChange = (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
   country.value = event.target.value
@@ -213,21 +236,49 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-sm flex flex-col gap-4 md:gap-8">
+  <PageWrapper
+    class="
+      container-sm flex flex-col gap-4
+
+      md:gap-8
+    "
+  >
     <PageBody>
       <form
         id="checkoutForm"
-        class="_form grid gap-2 md:gap-4 lg:grid-cols-[2fr,0.75fr]"
+        class="
+          _form grid gap-2
+
+          lg:grid-cols-[2fr,0.75fr]
+
+          md:gap-4
+        "
         name="checkoutForm"
         @submit="onSubmit"
       >
         <div
-          class="dark:bg-primary-900 bg-primary-100 container grid gap-4 rounded-lg !p-6 text-white dark:text-black md:p-10"
+          class="
+            bg-primary-100 container grid gap-4 rounded-lg !p-6 text-white
+
+            dark:bg-primary-900 dark:text-black
+
+            md:p-10
+          "
         >
-          <div class="flex flex-col gap-4 md:grid md:grid-cols-2">
+          <div
+            class="
+              flex flex-col gap-4
+
+              md:grid md:grid-cols-2
+            "
+          >
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="firstName"
               >{{ $t('pages.checkout.form.first_name') }}</label>
               <div class="grid">
@@ -237,19 +288,22 @@ definePageMeta({
                   :bind="firstNameProps"
                   :placeholder="$t('pages.checkout.form.first_name')"
                   autocomplete="given-name"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="firstName"
                   type="text"
                 />
               </div>
-              <span v-if="errors.firstName" class="text-sm text-red-600">{{
+              <span v-if="errors.firstName" class="text-xs text-red-600">{{
                 errors.firstName
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="lastName"
               >{{ $t('pages.checkout.form.last_name') }}</label>
               <div class="grid">
@@ -259,19 +313,22 @@ definePageMeta({
                   :bind="lastNameProps"
                   :placeholder="$t('pages.checkout.form.last_name')"
                   autocomplete="family-name"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="lastName"
                   type="text"
                 />
               </div>
-              <span v-if="errors.lastName" class="text-sm text-red-600">{{
+              <span v-if="errors.lastName" class="text-xs text-red-600">{{
                 errors.lastName
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="email"
               >{{ $t('pages.checkout.form.email') }}</label>
               <div class="grid">
@@ -281,19 +338,22 @@ definePageMeta({
                   :bind="emailProps"
                   :placeholder="$t('pages.checkout.form.email')"
                   autocomplete="email"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="email"
                   type="email"
                 />
               </div>
-              <span v-if="errors.email" class="text-sm text-red-600">{{
+              <span v-if="errors.email" class="text-xs text-red-600">{{
                 errors.email
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="phone"
               >{{ $t('pages.checkout.form.phone') }}</label>
               <div class="grid">
@@ -303,19 +363,22 @@ definePageMeta({
                   :bind="phoneProps"
                   :placeholder="$t('pages.checkout.form.phone')"
                   autocomplete="tel"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="phone"
                   type="text"
                 />
               </div>
-              <span v-if="errors.phone" class="text-sm text-red-600">{{
+              <span v-if="errors.phone" class="text-xs text-red-600">{{
                 errors.phone
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="mobilePhone"
               >{{ $t('pages.checkout.form.mobile_phone') }}</label>
               <div class="grid">
@@ -325,19 +388,22 @@ definePageMeta({
                   :bind="mobilePhoneProps"
                   :placeholder="$t('pages.checkout.form.mobile_phone')"
                   autocomplete="tel"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="mobilePhone"
                   type="text"
                 />
               </div>
-              <span v-if="errors.mobilePhone" class="text-sm text-red-600">{{
+              <span v-if="errors.mobilePhone" class="text-xs text-red-600">{{
                 errors.mobilePhone
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="city"
               >{{ $t('pages.checkout.form.city') }}</label>
               <div class="grid">
@@ -347,19 +413,22 @@ definePageMeta({
                   :bind="cityProps"
                   :placeholder="$t('pages.checkout.form.city')"
                   autocomplete="address-level2"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="city"
                   type="text"
                 />
               </div>
-              <span v-if="errors.city" class="text-sm text-red-600">{{
+              <span v-if="errors.city" class="text-xs text-red-600">{{
                 errors.city
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="place"
               >{{ $t('pages.checkout.form.place') }}</label>
               <div class="grid">
@@ -369,19 +438,22 @@ definePageMeta({
                   :bind="placeProps"
                   :placeholder="$t('pages.checkout.form.place')"
                   autocomplete="address-level2"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="place"
                   type="text"
                 />
               </div>
-              <span v-if="errors.place" class="text-sm text-red-600">{{
+              <span v-if="errors.place" class="text-xs text-red-600">{{
                 errors.place
               }}</span>
             </div>
 
             <div class="grid content-evenly items-start">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="zipcode"
               >{{ $t('pages.checkout.form.zipcode') }}</label>
               <div class="grid">
@@ -391,19 +463,22 @@ definePageMeta({
                   :bind="zipcodeProps"
                   :placeholder="$t('pages.checkout.form.zipcode')"
                   autocomplete="postal-code"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="zipcode"
                   type="text"
                 />
               </div>
-              <span v-if="errors.zipcode" class="text-sm text-red-600">{{
+              <span v-if="errors.zipcode" class="text-xs text-red-600">{{
                 errors.zipcode
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="street"
               >{{ $t('pages.checkout.form.street') }}</label>
               <div class="grid">
@@ -413,19 +488,22 @@ definePageMeta({
                   :bind="streetProps"
                   :placeholder="$t('pages.checkout.form.street')"
                   autocomplete="address-line1"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="street"
                   type="text"
                 />
               </div>
-              <span v-if="errors.street" class="text-sm text-red-600">{{
+              <span v-if="errors.street" class="text-xs text-red-600">{{
                 errors.street
               }}</span>
             </div>
 
             <div class="grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="streetNumber"
               >{{ $t('pages.checkout.form.street_number') }}</label>
               <div class="grid">
@@ -435,41 +513,54 @@ definePageMeta({
                   :bind="streetNumberProps"
                   :placeholder="$t('pages.checkout.form.street_number')"
                   autocomplete="address-line2"
-                  class="text-primary-950 dark:text-primary-50 mb-2"
                   name="streetNumber"
                   type="text"
                 />
               </div>
-              <span v-if="errors.streetNumber" class="text-sm text-red-600">{{
+              <span v-if="errors.streetNumber" class="text-xs text-red-600">{{
                 errors.streetNumber
               }}</span>
             </div>
 
             <div class="col-span-2 grid">
               <label
-                class="text-primary-950 dark:text-primary-50 sr-only mb-2"
+                class="
+                  text-primary-950 sr-only mb-2
+
+                  dark:text-primary-50
+                "
                 for="customerNotes"
               >{{ $t('pages.checkout.form.customer_notes') }}</label>
               <div class="grid">
                 <VeeField
                   id="customerNotes"
                   v-model="customerNotes"
-                  as="textarea"
+                  :as="UTextarea"
                   v-bind="customerNotesProps"
                   :placeholder="$t('pages.checkout.form.customer_notes')"
-                  class="text-input text-primary-950 dark:text-primary-50 w-full flex-1 rounded-l rounded-r border border-gray-900/10 bg-transparent px-4 py-2 text-base outline-none focus:border-gray-900 dark:border-gray-50/[0.2] dark:focus:border-white"
                   name="customerNotes"
-                  rows="4"
+                  :rows="4"
+                  color="primary"
                   type="text"
                 />
               </div>
             </div>
           </div>
-          <div class="grid gap-4 md:grid-cols-2">
+          <div
+            class="
+              grid gap-4
+
+              md:grid-cols-2
+            "
+          >
             <div class="grid content-evenly items-start gap-2">
               <div class="grid">
                 <label
-                  class="text-primary-950 dark:text-primary-50 mb-2"
+                  class="
+                    text-primary-950 mb-2
+
+                    dark:text-primary-50
+                  "
                   for="floor"
                 >{{ $t('pages.checkout.form.floor') }}</label>
                 <VeeField
@@ -477,33 +568,22 @@ definePageMeta({
                   v-model="floor"
                   :bind="floorProps"
                   name="floor"
-                  as="select"
-                  class="form-select text-primary-950 dark:text-primary-300 dark:bg-primary-900 bg-primary-100 border border-gray-200"
-                >
-                  <option
-                    :value="defaultSelectOptionChoose"
-                    disabled
-                    :selected="floor === defaultSelectOptionChoose"
-                  >
-                    {{ defaultSelectOptionChoose }}
-                  </option>
-                  <option
-                    v-for="(floorChoice, index) in floorChoicesList"
-                    :key="index"
-                    :value="index"
-                    :selected="Number(floor) === index"
-                    class="text-primary-950 dark:text-primary-300"
-                  >
-                    {{ floorChoice }}
-                  </option>
-                </VeeField>
-                <span v-if="errors.floor" class="text-sm text-red-600">{{
+                  color="white"
+                  :as="USelect"
+                  :options="floorChoicesList"
+                  :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                />
+                <span v-if="errors.floor" class="text-xs text-red-600">{{
                   errors.floor
                 }}</span>
               </div>
               <div class="grid">
                 <label
-                  class="text-primary-950 dark:text-primary-50 mb-2"
+                  class="
+                    text-primary-950 mb-2
+
+                    dark:text-primary-50
+                  "
                   for="locationType"
                 >{{ $t('pages.checkout.form.location_type') }}</label>
                 <VeeField
@@ -511,27 +591,12 @@ definePageMeta({
                   v-model="locationType"
                   v-bind="locationTypeProps"
                   name="locationType"
-                  as="select"
-                  class="form-select text-primary-950 dark:text-primary-300 dark:bg-primary-900 bg-primary-100 border border-gray-200"
-                >
-                  <option
-                    :value="defaultSelectOptionChoose"
-                    disabled
-                    :selected="locationType === defaultSelectOptionChoose"
-                  >
-                    {{ defaultSelectOptionChoose }}
-                  </option>
-                  <option
-                    v-for="(location, index) in locationChoicesList"
-                    :key="index"
-                    :value="index"
-                    :selected="Number(locationType) === index"
-                    class="text-primary-950 dark:text-primary-300"
-                  >
-                    {{ location }}
-                  </option>
-                </VeeField>
-                <span v-if="errors.locationType" class="text-sm text-red-600">{{
+                  color="white"
+                  :as="USelect"
+                  :options="locationChoicesList"
+                  :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                />
+                <span v-if="errors.locationType" class="text-xs text-red-600">{{
                   errors.locationType
                 }}</span>
               </div>
@@ -540,7 +605,11 @@ definePageMeta({
             <div class="grid content-evenly items-start gap-2">
               <div class="grid">
                 <label
-                  class="text-primary-950 dark:text-primary-50 mb-2"
+                  class="
+                    text-primary-950 mb-2
+
+                    dark:text-primary-50
+                  "
                   for="country"
                 >{{ $t('pages.checkout.form.country') }}</label>
                 <div class="grid">
@@ -549,35 +618,25 @@ definePageMeta({
                     v-model="country"
                     v-bind="countryProps"
                     name="country"
-                    as="select"
-                    class="form-select text-primary-950 dark:text-primary-300 dark:bg-primary-900 bg-primary-100 border border-gray-200"
+                    color="white"
+                    :as="USelect"
+                    :options="countryOptions"
+                    option-attribute="name"
+                    :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
                     @change.capture="onCountryChange"
-                  >
-                    <option
-                      :value="defaultSelectOptionChoose"
-                      disabled
-                      :selected="country === defaultSelectOptionChoose"
-                    >
-                      {{ defaultSelectOptionChoose }}
-                    </option>
-                    <option
-                      v-for="cntry in countries?.results"
-                      :key="cntry.alpha2"
-                      :value="cntry.alpha2"
-                      :selected="country === cntry.alpha2"
-                      class="text-primary-950 dark:text-primary-300"
-                    >
-                      {{ extractTranslated(cntry, 'name', locale) }}
-                    </option>
-                  </VeeField>
+                  />
                 </div>
-                <span v-if="errors.country" class="text-sm text-red-600">{{
+                <span v-if="errors.country" class="text-xs text-red-600">{{
                   errors.country
                 }}</span>
               </div>
               <div class="grid">
                 <label
-                  class="text-primary-950 dark:text-primary-50 mb-2"
+                  class="
+                    text-primary-950 mb-2
+
+                    dark:text-primary-50
+                  "
                   for="region"
                 >{{ $t('pages.checkout.form.region') }}</label>
                 <div class="grid">
@@ -586,29 +645,14 @@ definePageMeta({
                     v-model="region"
                     v-bind="regionProps"
                     name="region"
-                    as="select"
-                    class="form-select text-primary-950 dark:text-primary-300 dark:bg-primary-900 bg-primary-100 border border-gray-200"
-                    :disabled="country === defaultSelectOptionChoose"
-                  >
-                    <option
-                      :value="defaultSelectOptionChoose"
-                      disabled
-                      :selected="region === defaultSelectOptionChoose"
-                    >
-                      {{ defaultSelectOptionChoose }}
-                    </option>
-                    <option
-                      v-for="rgn in regions?.results"
-                      :key="rgn.alpha"
-                      :value="rgn.alpha"
-                      :selected="region === rgn.alpha"
-                      class="text-primary-950 dark:text-primary-300"
-                    >
-                      {{ extractTranslated(rgn, 'name', locale) }}
-                    </option>
-                  </VeeField>
+                    color="white"
+                    :as="USelect"
+                    :options="regionOptions"
+                    option-attribute="name"
+                    :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                  />
                 </div>
-                <span v-if="errors.region" class="text-sm text-red-600">{{
+                <span v-if="errors.region" class="text-xs text-red-600">{{
                   errors.region
                 }}</span>
               </div>
@@ -617,14 +661,20 @@ definePageMeta({
         </div>
         <CheckoutSidebar
           :shipping-price="shippingPrice"
-          class="dark:bg-primary-900 bg-primary-100 container rounded-lg !p-6 text-white dark:text-black md:p-8"
+          class="
+            bg-primary-100 container rounded-lg !p-6 text-white
+
+            dark:bg-primary-900 dark:text-black
+
+            md:p-8
+          "
         >
           <template #pay-ways>
             <CheckoutPayWays>
               <template #error>
                 <span
                   v-if="errors.payWay"
-                  class="text-center text-sm text-red-600"
+                  class="text-center text-xs text-red-600"
                 >{{ errors.payWay }}</span>
               </template>
             </CheckoutPayWays>
@@ -637,7 +687,13 @@ definePageMeta({
               <button
                 :aria-busy="isSubmitting"
                 :disabled="submitButtonDisabled"
-                class="rounded bg-secondary px-4 py-2 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-secondary-dark"
+                class="
+                  rounded bg-secondary px-4 py-2 font-bold text-white
+
+                  dark:bg-secondary-dark
+
+                  disabled:cursor-not-allowed disabled:opacity-50
+                "
                 type="submit"
               >
                 {{ $t('pages.checkout.form.submit.title') }}

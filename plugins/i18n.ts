@@ -1,4 +1,4 @@
-import { GlobalEvents } from '~/events/global'
+import { GlobalEvents } from '~/events'
 
 export default defineNuxtPlugin((nuxtApp) => {
   // called right before setting a new locale

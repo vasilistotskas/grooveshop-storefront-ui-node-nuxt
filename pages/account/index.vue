@@ -6,12 +6,10 @@ definePageMeta({
 
 <template>
   <PageWrapper>
-    <PageHeader class="account-header">
-      <PageTitle
-        :text="$t('pages.account.index.title')"
-        class="account-header-title"
-      />
-    </PageHeader>
+    <PageTitle
+      :text="$t('pages.account.index.title')"
+      class="account-header-title"
+    />
     <PageBody>
       <PageSection />
     </PageBody>

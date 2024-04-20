@@ -33,7 +33,16 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="grid">
     <DynamicForm
-      class="container-2xs dark:bg-primary-900 bg-primary-100 grid h-full items-center justify-center rounded-[0.5rem] border border-gray-900/10 !p-4 shadow-[0_4px_9px_-4px_#0000000d] dark:border-gray-50/[0.2] dark:shadow-[0_4px_9px_-4px_#0000000d] md:p-8 md:px-6"
+      class="
+        container-2xs bg-primary-100 grid h-full items-center justify-center
+        rounded-[0.5rem] border border-gray-900/10 !p-4
+        shadow-[0_4px_9px_-4px_#0000000d]
+
+        dark:bg-primary-900 dark:border-gray-50/[0.2]
+        dark:shadow-[0_4px_9px_-4px_#0000000d]
+
+        md:p-8 md:px-6
+      "
       :schema="formSchema"
       @submit="onSubmit"
     />

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { GlobalEvents } from '~/events/global'
+import { GlobalEvents } from '~/events'
 
 const colorMode = useColorMode()
 const bus = useEventBus<string>(GlobalEvents.ON_THEME_UPDATED)
@@ -15,20 +15,35 @@ const isDark = computed({
     })
   },
 })
+
+const modes = [
+  {
+    icon: 'i-heroicons-moon-20-solid',
+    mode: 'dark',
+  },
+  {
+    icon: 'i-heroicons-sun-20-solid',
+    mode: 'light',
+  },
+] as const
+
+const mode = computed(() => colorMode.preference)
+const icon = computed(() => modes.find(m => m.mode === mode.value)?.icon ?? 'i-heroicons-computer-desktop')
 </script>
 
 <template>
   <ClientOnly>
     <UButton
-      :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
-      color="gray"
-      variant="ghost"
-      aria-label="Theme"
+      type="button"
       size="xl"
       class="p-0"
+      color="black"
+      variant="ghost"
+      :aria-label="$t('common.theme')"
+      :aria-pressed="colorMode.preference === mode ? 'true' : 'false'"
+      :icon="icon"
       @click="isDark = !isDark"
     />
-
     <template #fallback>
       <ClientOnlyFallback
         class="max-h-[24px] max-w-[24px]"

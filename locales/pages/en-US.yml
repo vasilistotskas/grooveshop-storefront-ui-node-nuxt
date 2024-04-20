@@ -14,7 +14,7 @@ pages:
     description: blog
     keywords: blog
     ordering:
-      created_at: More recently
+      created_at: Created At
       updated_at: Updated At
       title: Title
       published_at: Published At
@@ -76,9 +76,6 @@ pages:
       nav: WS
   index:
     nav: home
-    title: GrooveShop
-    description: GrooveShop
-    keywords: GrooveShop
     add_to_cart: Add to cart
   error:
     title: Oops! Something went wrong.
@@ -99,7 +96,7 @@ pages:
     ordering:
       name: Name
       price: Price
-      created_at: More recently
+      created_at: Created At
       updated_at: Updated At
     share: Share
     share_not_supported: Web share is not supported in your browser
@@ -254,7 +251,7 @@ pages:
       delete_error: Orders Item delete error
       total: No Orders | 1 Order | %{count} Orders
       ordering:
-        created_at: More recently
+        created_at: Created At
         updated_at: Updated At
         status: Status
       empty:
@@ -262,23 +259,33 @@ pages:
         description: You have not placed any orders yet.
         button: Go to shop
     favourites:
-      title: Favourites
-      nav: favourites
-      description: favourites
-      keywords: favourites
-      updated: Favourites updated
-      update_error: Favourites update error
-      deleted: Favourites Item deleted
-      delete_error: Favourites Item delete error
-      ordering:
-        id: ID
-        product_id: Product ID
-        created_at: More recently
-        updated_at: Updated At
-      empty:
-        title: Your favourites is empty
-        description: You have not added any favourites yet.
-        button: Go to shop
+      products:
+        title: Favourite Products
+        nav: favourites
+        description: favourites
+        keywords: favourites
+        updated: Favourites updated
+        update_error: Favourites update error
+        deleted: Favourites Item deleted
+        delete_error: Favourites Item delete error
+        ordering:
+          id: ID
+          product_id: Product ID
+          created_at: More recently
+          updated_at: Updated At
+        empty:
+          title: Your favourites is empty
+          description: You have not added any favourites yet.
+          button: Go to shop
+      posts:
+        title: Favourite Posts
+        nav: favourites
+        description: favourites
+        keywords: favourites
+        ordering:
+          title: Title
+          created_at: More recently
+          updated_at: Updated At
     reviews:
       title: Reviews
       nav: reviews
@@ -289,7 +296,7 @@ pages:
       deleted: Reviews Item deleted
       delete_error: Reviews Item delete error
       ordering:
-        created_at: More recently
+        created_at: Created At
         updated_at: Updated At
       empty:
         title: Your reviews are empty
@@ -349,7 +356,7 @@ pages:
       total: No Addresses | 1 Address | %{count} Addresses
       delete: Delete
       ordering:
-        created_at: More recently
+        created_at: Created At
         updated_at: Updated At
         is_main: Main
       empty:
@@ -464,7 +471,7 @@ pages:
       shipping:
         value: Shipping value
       ordering:
-        created_at: More recently
+        created_at: Created At
         updated_at: Updated At
       empty:
         title: Your orders is empty
