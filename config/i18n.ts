@@ -30,19 +30,6 @@ export const i18n = {
       flag: '🇺🇸',
     },
     {
-      code: 'de',
-      name: 'Deutsch',
-      files: [
-        'de-DE.yml',
-        'components/de-DE.yml',
-        'pages/de-DE.yml',
-        'routes/de-DE.yml',
-        'breadcrumb/de-DE.yml',
-      ],
-      iso: 'de-DE',
-      flag: '🇩🇪',
-    },
-    {
       code: 'el',
       name: 'Ελληνικά',
       files: [

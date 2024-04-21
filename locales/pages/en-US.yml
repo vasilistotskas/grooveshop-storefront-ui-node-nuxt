@@ -4,7 +4,7 @@ pages:
     description: page not found
     keywords: page not found
   about:
-    title: About
+    title: About Us
     nav: about
     description: about
     keywords: about
@@ -213,20 +213,35 @@ pages:
         required: Phone is required
         min: Phone must be at least %{min} characters long
   terms:
-    title: Terms
+    title: Terms of usage
     nav: terms
     description: terms
     keywords: terms
-  privacy:
-    title: Privacy
-    nav: privacy
-    description: privacy
-    keywords: privacy
+  privacy-policy:
+    title: Privacy Policy
+    nav: privacy-policy
+    description: privacy policy
+    keywords: privacy policy
+  return-policy:
+    title: Return Policy
+    nav: return-policy
+    description: return policy
+    keywords: return policy
   contact:
-    title: Contact
+    title: Contact Us
     nav: contact
     description: contact
     keywords: contact
+  feedback:
+    title: Give Feedback
+    nav: feedback
+    description: feedback
+    keywords: feedback
+  cookies:
+    title: Cookies
+    nav: cookies
+    description: cookies
+    keywords: cookies
   accounts:
     login:
       title: Account

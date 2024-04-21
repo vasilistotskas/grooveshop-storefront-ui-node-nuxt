@@ -39,6 +39,12 @@ const links = [
     labelClass: 'sr-only',
   },
 ] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
+
+const Footer = computed(() => {
+  return isMobileOrTablet
+    ? resolveComponent('FooterMobile')
+    : resolveComponent('FooterDesktop')
+})
 </script>
 
 <template>
@@ -112,7 +118,9 @@ const links = [
       </div>
 
       <slot name="footer">
-        <Footer />
+        <Component
+          :is="Footer"
+        />
       </slot>
     </div>
     <UHorizontalNavigation

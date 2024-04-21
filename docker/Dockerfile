@@ -32,6 +32,10 @@ RUN apk add --no-cache git && \
 
 FROM base AS build
 
+# Set environment variables
+ENV NUXT_PUBLIC_APP_TITLE="Webside"
+ENV NUXT_PUBLIC_SITE_DESCRIPTION="Webside Description"
+
 # Install pnpm
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 

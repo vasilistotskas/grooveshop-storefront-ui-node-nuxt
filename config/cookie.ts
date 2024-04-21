@@ -23,7 +23,7 @@ export const cookieControl = {
         name: 'components.cookie.cookies.advertising',
         description: 'components.cookie.cookies.advertising_description',
         links: {
-          [`${import.meta.env.NUXT_PUBLIC_SITE_URL}/privacy`]:
+          [`${import.meta.env.NUXT_PUBLIC_SITE_URL}/privacy-policy`]:
             'components.cookie.cookies.optional_links.privacy_policy',
         },
         targetCookieIds: ['_fbp', 'fr', 'tr'],

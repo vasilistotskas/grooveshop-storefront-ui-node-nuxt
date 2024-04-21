@@ -38,6 +38,12 @@ const links = [
     labelClass: 'hidden',
   },
 ] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
+
+const Footer = computed(() => {
+  return isMobileOrTablet
+    ? resolveComponent('FooterMobile')
+    : resolveComponent('FooterDesktop')
+})
 </script>
 
 <template>
@@ -47,7 +53,15 @@ const links = [
         <PageNavbar />
       </PageHeader>
     </slot>
-    <main>
+    <main
+      class="
+        pt-[48px]
+
+        lg:pt-[63px]
+
+        md:pt-[56px]
+      "
+    >
       <PageSection class="flex flex-col">
         <div class="flex w-full flex-1 flex-col">
           <slot />
@@ -55,7 +69,9 @@ const links = [
       </PageSection>
     </main>
     <slot name="footer">
-      <Footer />
+      <Component
+        :is="Footer"
+      />
     </slot>
     <UHorizontalNavigation
       v-if="isMobileOrTablet"

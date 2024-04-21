@@ -16,6 +16,7 @@ export default defineAppConfig({
         secondary: {
           solid:
             'bg-secondary dark:bg-secondary text-primary-100 dark:text-primary-100',
+          link: 'text-secondary-light dark:text-secondary-dark',
         },
       },
     },

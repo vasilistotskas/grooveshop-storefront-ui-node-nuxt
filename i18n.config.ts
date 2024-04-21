@@ -1,6 +1,6 @@
 export default defineI18nConfig(() => ({
   legacy: false,
-  availableLocales: ['en', 'de', 'el'],
+  availableLocales: ['en', 'el'],
   locale: 'en',
   fallbackLocale: 'en',
   numberFormats: {

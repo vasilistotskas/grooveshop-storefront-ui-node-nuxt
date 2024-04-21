@@ -211,7 +211,7 @@ const packageVersion = pkg.version
               "
             >
               <Anchor
-                :to="'privacy'"
+                :to="'privacy-policy'"
                 :title="$t('common.privacy_policy')"
                 :text="$t('common.privacy_policy')"
                 class="
@@ -271,12 +271,15 @@ const packageVersion = pkg.version
               sm:text-center
             "
           >© 2023
-            <Anchor
-              :href="config.public.siteUrl"
-              :title="config.public.siteName"
-              :text="config.public.siteName"
-              css-class="flex-1 hover:no-underline capitalize text-gray-900"
-            >{{ config.public.siteName }}™</Anchor>. {{ $t('common.all_rights_reserved') }}.
+            <UButton
+              class="p-0"
+              size="lg"
+              type="button"
+              color="opposite"
+              variant="link"
+              :label="`${config.public.siteName}™.`"
+              :to="config.public.siteUrl"
+            /> {{ $t('common.all_rights_reserved') }}.
           </span>
           <div
             class="
