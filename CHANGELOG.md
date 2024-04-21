@@ -1,3 +1,10 @@
+# [1.93.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.92.2...v1.93.0) (2024-04-21)
+
+
+### Features
+
+* Mobile footer ([bd298f4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bd298f4a8b6f351a1c25f09e08287036131a18e0))
+
 ## [1.92.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.92.1...v1.92.2) (2024-04-21)
 
 
