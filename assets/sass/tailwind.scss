@@ -79,4 +79,25 @@
   .form-select {
     @apply block w-full text-base px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500;
   }
+
+  .article {
+    ol, ul, menu {
+      display: block;
+      margin-block-start: 1em;
+      margin-block-end: 1em;
+      margin-inline-start: 0;
+      margin-inline-end: 0;
+      padding-inline-start: 40px;
+      unicode-bidi: isolate;
+    }
+    ol {
+      @apply list-decimal;
+    }
+    ul {
+      @apply list-disc;
+    }
+    menu {
+      @apply list-disc;
+    }
+  }
 }

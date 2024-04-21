@@ -75,9 +75,9 @@ const { locale } = useI18n()
             :to="`/blog/post${favourite.absoluteUrl}`"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
-              flex text-lg font-bold tracking-tight text-black
+              flex text-lg font-bold tracking-tight text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
 
               md:h-14
             "

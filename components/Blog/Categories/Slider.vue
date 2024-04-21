@@ -41,7 +41,7 @@ const categoryResults = ref(categories.value?.results)
         rounded: 'rounded-lg',
         color: {
           secondary: {
-            solid: 'shadow-sm bg-secondary dark:bg-secondary-dark text-white',
+            solid: 'shadow-sm bg-secondary dark:bg-secondary-dark text-primary-100',
           },
         },
       }"

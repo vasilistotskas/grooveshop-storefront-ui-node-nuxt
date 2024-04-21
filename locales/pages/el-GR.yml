@@ -225,16 +225,31 @@ pages:
     nav: όροι
     description: όροι
     keywords: όροι
-  privacy:
-    title: Μυστικότητα
-    nav: μυστικότητα
-    description: μυστικότητα
-    keywords: μυστικότητα
+  privacy-policy:
+    title: Πολιτική Απορρήτου
+    nav: πολιτική απορρήτου
+    description: πολιτική απορρήτου
+    keywords: πολιτική απορρήτου
+  return-policy:
+    title: ΠΟΛΙΤΙΚΗ ΕΠΙΣΤΡΟΦΗΣ ΠΡΟΪΟΝΤΩΝ
+    nav: ΠΟΛΙΤΙΚΗ ΕΠΙΣΤΡΟΦΗΣ ΠΡΟΪΟΝΤΩΝ
+    description: ΠΟΛΙΤΙΚΗ ΕΠΙΣΤΡΟΦΗΣ ΠΡΟΪΟΝΤΩΝ
+    keywords: ΠΟΛΙΤΙΚΗ ΕΠΙΣΤΡΟΦΗΣ ΠΡΟΪΟΝΤΩΝ
   contact:
     title: Επικοινωνία
     nav: Επικοινωνία
     description: Επικοινωνία
     keywords: Επικοινωνία
+  feedback:
+    title: Δώστε σχόλια
+    nav: ανατροφοδότηση
+    description: ανατροφοδότηση
+    keywords: ανατροφοδότηση
+  cookies:
+    title: Μπισκότα
+    nav: μπισκότα
+    description: μπισκότα
+    keywords: μπισκότα
   accounts:
     login:
       title: λογαριασμός

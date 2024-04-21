@@ -61,9 +61,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 <template>
   <li
     class="
-      bg-primary-100 container grid w-full gap-4 rounded-lg !p-0 text-white
+      bg-primary-100 container grid w-full gap-4 rounded-lg !p-0
 
-      dark:bg-primary-900 dark:text-black
+      dark:bg-primary-900 dark:text-primary-950
     "
   >
     <div class="relative grid">
@@ -93,9 +93,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             <span
               class="
                 m-auto block w-[70%] text-3xl font-bold tracking-tight
-                text-white
+                text-primary-50
 
-                dark:text-white
+                dark:text-primary-50
 
                 lg:w-[76%]
 
@@ -112,7 +112,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike
           class="
-            flex-col justify-self-start p-0 font-extrabold capitalize text-white
+            flex-col justify-self-start p-0 font-extrabold capitalize
+            text-primary-50
 
             dark:hover:bg-transparent
 
@@ -131,7 +132,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           square
           variant="ghost"
           class="
-            flex-col justify-self-start p-0 font-extrabold capitalize text-white
+            flex-col justify-self-start p-0 font-extrabold capitalize
+            text-primary-50
 
             dark:hover:bg-transparent
 
@@ -157,7 +159,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             variant="ghost"
             class="
               flex-col justify-self-start p-0 font-extrabold capitalize
-              text-white
+              text-primary-50
 
               dark:hover:bg-transparent
 

@@ -775,7 +775,7 @@ definePageMeta({
           <button
             type="submit"
             class="
-              rounded bg-secondary px-4 py-2 font-bold text-white
+              rounded bg-secondary px-4 py-2 font-bold text-primary-50
 
               dark:bg-secondary-dark
 

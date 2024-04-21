@@ -258,9 +258,9 @@ definePageMeta({
       >
         <div
           class="
-            bg-primary-100 container grid gap-4 rounded-lg !p-6 text-white
+            bg-primary-100 container grid gap-4 rounded-lg !p-6 text-primary-50
 
-            dark:bg-primary-900 dark:text-black
+            dark:bg-primary-900 dark:text-primary-950
 
             md:p-10
           "
@@ -662,9 +662,9 @@ definePageMeta({
         <CheckoutSidebar
           :shipping-price="shippingPrice"
           class="
-            bg-primary-100 container rounded-lg !p-6 text-white
+            bg-primary-100 container rounded-lg !p-6 text-primary-50
 
-            dark:bg-primary-900 dark:text-black
+            dark:bg-primary-900 dark:text-primary-950
 
             md:p-8
           "
@@ -688,7 +688,7 @@ definePageMeta({
                 :aria-busy="isSubmitting"
                 :disabled="submitButtonDisabled"
                 class="
-                  rounded bg-secondary px-4 py-2 font-bold text-white
+                  rounded bg-secondary px-4 py-2 font-bold text-primary-50
 
                   dark:bg-secondary-dark
 

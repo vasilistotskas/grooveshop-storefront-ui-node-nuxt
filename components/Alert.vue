@@ -43,7 +43,7 @@ const styles = reactive<{
 const textStyles = reactive<{
   [key: string]: string
 }>({
-  primary: 'text-white',
+  primary: 'text-primary-100',
   success: 'text-green-500',
   warning: 'text-orange-500',
   danger: 'text-red-500',

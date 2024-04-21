@@ -17,9 +17,9 @@
         >
           <span
             class="
-              text-black
+              text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
             "
           >
             {{ $t('pages.auth.security.password.title') }}
@@ -35,9 +35,9 @@
         >
           <span
             class="
-              text-black
+              text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
             "
           >
             {{ $t('pages.auth.security.mfa.title') }}

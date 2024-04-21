@@ -7,6 +7,7 @@ defineSlots<{
   footer(props: object): any
 }>()
 
+const config = useRuntimeConfig()
 const { loggedIn } = useUserSession()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
@@ -17,25 +18,25 @@ const links = [
     icon: 'i-heroicons-home',
     to: '/',
     label: t('common.home'),
-    labelClass: 'hidden',
+    labelClass: 'sr-only',
   },
   {
     icon: 'i-heroicons-magnifying-glass',
     to: '/search',
     label: t('common.search'),
-    labelClass: 'hidden',
+    labelClass: 'sr-only',
   },
   {
     icon: 'i-heroicons-heart',
     to: '/account/favourites/posts',
     label: t('common.favourites'),
-    labelClass: 'hidden',
+    labelClass: 'sr-only',
   },
   {
     icon: 'i-heroicons-user',
     to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
     label: t('common.account'),
-    labelClass: 'hidden',
+    labelClass: 'sr-only',
   },
 ] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
 
@@ -69,6 +70,68 @@ const Footer = computed(() => {
       </PageSection>
     </main>
     <slot name="footer">
+      <div v-if="isMobileOrTablet" class="flex items-center justify-center">
+        <UButton
+          :to="config.public.socials.tiktok"
+          variant="link"
+          color="opposite"
+          size="xl"
+        >
+          <IconAntDesign:tikTokFilled
+            class="
+              text-5xl text-secondary-light
+
+              dark:text-secondary-dark
+            "
+          />
+          <span class="sr-only">{{ $t('common.tiktok') }}</span>
+        </UButton>
+        <UButton
+          :to="config.public.socials.instagram"
+          variant="link"
+          color="opposite"
+          size="xl"
+        >
+          <IconMdi:instagram
+            class="
+              text-5xl text-secondary-light
+
+              dark:text-secondary-dark
+            "
+          />
+          <span class="sr-only">{{ $t('common.instagram') }}</span>
+        </UButton>
+        <UButton
+          :to="config.public.socials.facebook"
+          variant="link"
+          color="opposite"
+          size="xl"
+        >
+          <IconMdi:facebook
+            class="
+              text-5xl text-secondary-light
+
+              dark:text-secondary-dark
+            "
+          />
+          <span class="sr-only">{{ $t('common.facebook') }}</span>
+        </UButton>
+        <UButton
+          :to="config.public.socials.youtube"
+          variant="link"
+          color="opposite"
+          size="xl"
+        >
+          <IconMdi:youtube
+            class="
+              text-5xl text-secondary-light
+
+              dark:text-secondary-dark
+            "
+          />
+          <span class="sr-only">{{ $t('common.youtube') }}</span>
+        </UButton>
+      </div>
       <Component
         :is="Footer"
       />

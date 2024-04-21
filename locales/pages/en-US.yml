@@ -4,7 +4,7 @@ pages:
     description: page not found
     keywords: page not found
   about:
-    title: About Us
+    title: About
     nav: about
     description: about
     keywords: about
@@ -213,7 +213,7 @@ pages:
         required: Phone is required
         min: Phone must be at least %{min} characters long
   terms:
-    title: Terms of usage
+    title: Terms
     nav: terms
     description: terms
     keywords: terms
@@ -228,7 +228,7 @@ pages:
     description: return policy
     keywords: return policy
   contact:
-    title: Contact Us
+    title: Contact
     nav: contact
     description: contact
     keywords: contact

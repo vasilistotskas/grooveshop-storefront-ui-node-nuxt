@@ -36,7 +36,13 @@ const trimmedText = computed(() => {
         dark:text-primary-50
       "
     >
-      <span v-html="trimmedText" />
+      <span
+        class="
+          text-sm
+
+          md:text-base
+        " v-html="trimmedText"
+      />
     </div>
     <div
       v-else class="
@@ -45,7 +51,13 @@ const trimmedText = computed(() => {
         dark:text-primary-50
       "
     >
-      <span v-html="text" />
+      <span
+        class="
+          text-sm
+
+          md:text-base
+        " v-html="text"
+      />
     </div>
     <div class="bottom-0 right-0 grid justify-end">
       <UButton
@@ -56,13 +68,15 @@ const trimmedText = computed(() => {
       />
     </div>
   </div>
-  <div
+  <span
     v-else class="
-      text-primary-950
+      text-primary-950 text-sm
 
       dark:text-primary-50
+
+      md:text-base
     "
   >
     {{ text }}
-  </div>
+  </span>
 </template>

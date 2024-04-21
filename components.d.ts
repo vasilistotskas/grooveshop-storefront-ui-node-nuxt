@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    'IconAntDesign:tikTokFilled': typeof import('~icons/ant-design/tik-tok-filled')['default']
     'IconFa6Solid:cartShopping': typeof import('~icons/fa6-solid/cart-shopping')['default']
     'IconFa6Solid:circleCheck': typeof import('~icons/fa6-solid/circle-check')['default']
     'IconFa6Solid:circleQuestion': typeof import('~icons/fa6-solid/circle-question')['default']
@@ -15,14 +16,16 @@ declare module 'vue' {
     'IconFa6Solid:magnifyingGlass': typeof import('~icons/fa6-solid/magnifying-glass')['default']
     'IconFaSolid:angleLeft': typeof import('~icons/fa-solid/angle-left')['default']
     'IconFaSolid:angleRight': typeof import('~icons/fa-solid/angle-right')['default']
-    'IconFaSolid:ellipsisV': typeof import('~icons/fa-solid/ellipsis-v')['default']
     'IconFaSolid:minus': typeof import('~icons/fa-solid/minus')['default']
     'IconFaSolid:pen': typeof import('~icons/fa-solid/pen')['default']
     'IconFaSolid:plus': typeof import('~icons/fa-solid/plus')['default']
     'IconFaSolid:trash': typeof import('~icons/fa-solid/trash')['default']
     'IconMdi:facebook': typeof import('~icons/mdi/facebook')['default']
     'IconMdi:google': typeof import('~icons/mdi/google')['default']
+    'IconMdi:instagram': typeof import('~icons/mdi/instagram')['default']
     'IconMdi:star': typeof import('~icons/mdi/star')['default']
+    'IconMdi:youtube': typeof import('~icons/mdi/youtube')['default']
+    'IconMdi:youTube': typeof import('~icons/mdi/you-tube')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

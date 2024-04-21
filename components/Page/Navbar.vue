@@ -105,7 +105,8 @@ const items = [
                 class="
                   flex items-center gap-4 self-center text-lg
 
-                  hover:text-slate-900 hover:no-underline hover:dark:text-white
+                  hover:text-slate-900 hover:no-underline
+                  hover:dark:text-primary-50
                 "
                 :to="'search'"
                 :title="$t('pages.search.title')"
@@ -125,7 +126,7 @@ const items = [
                     text-lg capitalize
 
                     hover:text-slate-900 hover:no-underline
-                    hover:dark:text-white
+                    hover:dark:text-primary-50
                   "
                 >
                   {{ $t('common.shop') }}
@@ -142,7 +143,7 @@ const items = [
                     text-lg capitalize
 
                     hover:text-slate-900 hover:no-underline
-                    hover:dark:text-white
+                    hover:dark:text-primary-50
                   "
                 >
                   {{ $t('common.blog') }}
@@ -193,7 +194,8 @@ const items = [
                 class="
                   flex items-center self-center text-[1.5rem]
 
-                  hover:text-slate-900 hover:no-underline hover:dark:text-white
+                  hover:text-slate-900 hover:no-underline
+                  hover:dark:text-primary-50
                 "
                 :to="'cart'"
                 :title="$t('pages.cart.title')"
@@ -227,7 +229,7 @@ const items = [
                       class="
                         text-primary-900 truncate font-medium
 
-                        dark:text-white
+                        dark:text-primary-50
                       "
                     >
                       {{ item.label }}
@@ -252,7 +254,8 @@ const items = [
                 class="
                   flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
 
-                  hover:text-slate-900 hover:no-underline hover:dark:text-white
+                  hover:text-slate-900 hover:no-underline
+                  hover:dark:text-primary-50
                 "
                 :title="$t('pages.accounts.login.title')"
                 :text="$t('pages.accounts.login.title')"
@@ -336,7 +339,7 @@ const items = [
 
               dark:text-primary-50
 
-              hover:text-slate-900 hover:no-underline hover:dark:text-white
+              hover:text-slate-900 hover:no-underline hover:dark:text-primary-50
             "
             :to="'cart'"
             :title="$t('pages.cart.title')"

@@ -134,7 +134,7 @@ onMounted(() => {
                 group-hover:ring-slate-900/10
               "
               :class="{
-                'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
+                'bg-sky-500 text-primary-50 group-hover:bg-sky-500 dark:text-primary-50':
                   route.path === item.route?.path,
                 'dark:text-primary-50 group-hover:bg-primary-200 dark:bg-primary-900 dark:group-hover:bg-primary-600 bg-primary-100 text-slate-500':
                   route.path !== item.route?.path,
@@ -186,7 +186,7 @@ onMounted(() => {
                 group-hover:ring-slate-900/10
               "
               :class="{
-                'bg-sky-500 text-white group-hover:bg-sky-500 dark:text-white':
+                'bg-sky-500 text-primary-50 group-hover:bg-sky-500 dark:text-primary-50':
                   item.route?.path === route.path,
                 'dark:text-primary-50 group-hover:bg-primary-200 dark:bg-primary-900 dark:group-hover:bg-primary-600 bg-primary-100 text-slate-500':
                   item.route?.path !== route.path,

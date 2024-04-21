@@ -283,7 +283,7 @@ const onSubmit = handleSubmit((values) => {
               @click="() => loginWithProvider('google')"
             >
               <template #leading>
-                <IconMdi:google class="text-xl text-white" />
+                <IconMdi:google class="text-xl text-primary-50" />
               </template>
             </UButton>
             <UButton
@@ -298,7 +298,7 @@ const onSubmit = handleSubmit((values) => {
               @click="() => loginWithProvider('facebook')"
             >
               <template #leading>
-                <IconMdi:facebook class="text-xl text-white" />
+                <IconMdi:facebook class="text-xl text-primary-50" />
               </template>
             </UButton>
           </div>

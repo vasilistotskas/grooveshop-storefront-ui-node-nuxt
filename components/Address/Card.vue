@@ -57,9 +57,9 @@ const submit = async () => {
     v-if="address"
     class="
       bg-primary-100 relative grid w-full items-start gap-8 rounded-lg p-2
-      text-white
+      text-primary-950
 
-      dark:bg-primary-900 dark:text-black
+      dark:text-primary-50 dark:bg-primary-900
 
       md:p-5
 

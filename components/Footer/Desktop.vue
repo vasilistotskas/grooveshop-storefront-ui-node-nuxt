@@ -25,9 +25,9 @@ const packageVersion = pkg.version
         <div class="w-full">
           <span
             class="
-              text-primary-950 mb-6 text-xs font-semibold uppercase
+              mb-6 text-xs font-semibold uppercase text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
 
               md:text-sm
             "
@@ -86,9 +86,9 @@ const packageVersion = pkg.version
         <div class="w-full">
           <span
             class="
-              text-primary-950 mb-6 text-xs font-semibold uppercase
+              mb-6 text-xs font-semibold uppercase text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
 
               md:text-sm
             "
@@ -189,7 +189,7 @@ const packageVersion = pkg.version
             class="
               text-primary-950 mb-6 text-xs font-semibold uppercase
 
-              dark:text-white
+              dark:text-primary-50
 
               md:text-sm
             "
@@ -302,7 +302,7 @@ const packageVersion = pkg.version
                 class="
                   text-primary-400
 
-                  dark:hover:text-white
+                  dark:hover:text-primary-50
 
                   hover:text-primary-950
                 "
@@ -328,7 +328,7 @@ const packageVersion = pkg.version
                 class="
                   text-primary-400
 
-                  dark:hover:text-white
+                  dark:hover:text-primary-50
 
                   hover:text-primary-950
                 "
@@ -354,7 +354,7 @@ const packageVersion = pkg.version
                 class="
                   text-primary-400
 
-                  dark:hover:text-white
+                  dark:hover:text-primary-50
 
                   hover:text-primary-950
                 "

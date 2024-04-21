@@ -15,9 +15,9 @@
         >
           <span
             class="
-              text-black
+              text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
             "
           >
             {{ $t('pages.account.settings.title') }}
@@ -33,9 +33,9 @@
         >
           <span
             class="
-              text-black
+              text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
             "
           >
             {{ $t('pages.account.addresses.title') }}

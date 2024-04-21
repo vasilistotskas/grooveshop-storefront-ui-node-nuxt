@@ -156,6 +156,10 @@ const ogImageOptions = {
   cacheTtl: 60 * 60 * 24 * 7,
 }
 
+useHydratedHead({
+  title: () => blogPostTitle.value,
+})
+
 useSeoMeta(seoMetaOptions)
 defineOgImageComponent('NuxtSeo', ogImageOptions)
 definePageMeta({
@@ -311,7 +315,7 @@ definePageMeta({
                 dark:text-primary-50
               "
             >
-              <div v-html="blogPostBody" />
+              <div class="article" v-html="blogPostBody" />
             </div>
           </div>
         </article>

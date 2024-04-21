@@ -1,6 +1,6 @@
 .cookie-control-ModalCookieName {
 	@apply font-medium;
-	@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
+	@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;
 
 	span {
 		@apply mt-2 block text-xs font-normal;
@@ -21,7 +21,7 @@
 	@apply fixed mb-2 mt-5 flex flex-col sm:flex-row-reverse;
 
 	button {
-		@apply border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-100 hover:text-gray-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700;
+		@apply border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700;
 		@apply flex-row whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 mb-3 md:mb-0;
 
 		&:nth-child(3) {
@@ -36,13 +36,13 @@
 }
 
 .cookie-control-BarButtons {
-	@apply ml-auto flex md:flex-col md:space-x-3 md:space-y-0 gap-3 md:gap-0 items-center;
+	@apply ml-auto flex md:flex-col md:space-x-3 md:space-y-0 gap-2 md:gap-0 items-center;
 	@apply mt-4 lg:mt-0;
 	@apply md:flex-row-reverse;
 
 	button {
 		@apply whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium  transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
-		@apply border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-100 hover:text-gray-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700;
+		@apply border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700;
 
 		&:nth-child(1) {
 			@apply md:ml-3 whitespace-nowrap rounded-lg  px-5 py-2.5 text-sm font-medium  transition duration-150 ease-in-out  focus:z-10 focus:outline-none focus:ring-4;
@@ -53,14 +53,14 @@
 
 .cookie-control-ModalContent {
 	@apply relative mb-6 transform rounded-lg border shadow-xl transition-all sm:mx-auto sm:w-full md:max-w-3xl;
-	@apply border-gray-200 bg-gray-50 dark:border-gray-700  dark:bg-gray-800;
+	@apply border-primary-200 bg-primary-50 dark:border-primary-700  dark:bg-primary-800;
 
 	input {
 		@apply sr-only;
 	}
 
 	input + button {
-		@apply bg-gray-500;
+		@apply bg-primary-500;
 		@apply relative mr-[10px] inline-block min-h-[24px] min-w-[44px] rounded-[20px] text-[0] transition duration-200;
 
 		&::before {
@@ -100,7 +100,7 @@
 
 	h2,
 	h3 {
-		@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
+		@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;
 		@apply mt-3 text-sm;
 
 		&:first-child {
@@ -110,17 +110,17 @@
 
 	ul {
 		li {
-			@apply border border-gray-200 bg-gray-100 dark:border-gray-700  dark:bg-gray-700;
-			@apply relative my-3 rounded-md p-5;
+			@apply border border-primary-200 bg-primary-100 dark:border-primary-700  dark:bg-primary-700;
+			@apply relative my-3 rounded-md p-3 md:p-5;
 		}
 	}
 
 	p {
-		@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
+		@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;
 		@apply mb-5 mt-6 border-b pb-5 text-sm;
 
 		a {
-			@apply border-gray-400 hover:border-gray-700;
+			@apply border-primary-100 hover:border-primary-700;
 			@apply border-b font-bold;
 		}
 	}
@@ -129,7 +129,7 @@
 .cookie-control-BarContainer {
 	@apply flex items-center justify-between space-x-0;
 	@apply flex-col lg:flex-row;
-	@apply text-xs text-gray-700 dark:border-gray-700 dark:text-gray-400;
+	@apply text-xs text-primary-700 dark:border-primary-700 dark:text-primary-100;
 
 	div {
 		h2,
@@ -139,31 +139,31 @@
 
 		p {
 			@apply text-sm;
-			@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
+			@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;
 		}
 	}
 }
 
 .cookie-control-ModalUnsaved {
 	@apply fixed bottom-0 left-0 right-0 z-50 mx-auto mb-5 border  p-3 text-center text-sm sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-sm sm:rounded-md;
-	@apply border-gray-200 bg-gray-50 dark:border-gray-700  dark:bg-gray-800;
+	@apply border-primary-200 bg-primary-50 dark:border-primary-700  dark:bg-primary-800;
 }
 
 .cookie-control-ModalClose {
-	@apply bg-red-500 text-white hover:bg-red-600 hover:text-white focus:ring-red-200 dark:bg-red-500 dark:text-white dark:hover:bg-red-600 dark:focus:ring-red-400;
+	@apply bg-red-500 text-white hover:bg-red-600 hover:text-white focus:ring-red-200 dark:bg-red-500 dark:text-white dark:hover:bg-red-600 dark:focus:ring-red-100;
 	@apply absolute right-6 top-2 md:top-6 z-10 h-auto whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out  focus:z-10 focus:outline-none focus:ring-4;
-	@apply border-gray-200 dark:border-gray-600 dark:hover:text-white;
+	@apply border-primary-200 dark:border-primary-600 dark:hover:text-white;
 }
 
 .cookie-control-ControlButton {
-	@apply border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-100 hover:text-gray-700 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700;
-	@apply fixed bottom-[100px] right-[20px] h-[40px] w-[40px] cursor-pointer rounded-full border outline-0;
+	@apply border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700;
+	@apply fixed bottom-[160px] right-[20px] h-[40px] w-[40px] cursor-pointer rounded-full border outline-0;
 
 	backface-visibility: hidden;
 	transition: 200ms;
 
 	svg {
-		@apply text-gray-600 dark:text-gray-400;
+		@apply text-primary-600 dark:text-primary-100;
 		@apply absolute left-[50%] top-[50%] max-h-[24px] min-h-[24px] min-w-[24px] max-w-[24px] transition duration-200;
 
 		backface-visibility: hidden;
@@ -171,18 +171,18 @@
 	}
 
 	&:hover {
-		@apply bg-white text-gray-700;
+		@apply bg-white text-primary-700;
 
 		svg {
-			@apply text-gray-800 dark:text-gray-200;
+			@apply text-primary-800 dark:text-primary-200;
 		}
 	}
 }
 
 .cookie-control-Bar {
-	@apply fixed bottom-0 left-0 right-0 z-50 mx-auto border px-6 py-4 shadow-xl sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-4xl sm:rounded-md;
-	@apply border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800;
-	@apply text-gray-600 dark:border-gray-700 dark:text-gray-400;
+	@apply fixed bottom-20 left-0 right-0 z-50 mx-auto border px-6 py-4 shadow-xl max-w-sm sm:max-w-xl lg:max-w-4xl rounded-md;
+	@apply border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800;
+	@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;
 }
 
 .cookie-control-Modal {
@@ -190,5 +190,5 @@
 
 	background: rgb(0 0 0 / 25%);
 
-	@apply pt-[5rem] md:pt-0;
+	@apply pt-[2rem] md:pt-0;
 }

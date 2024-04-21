@@ -186,7 +186,8 @@ const menus = computed((): IMenuItem[] => [
               class="
                 flex items-center self-center text-[1.5rem]
 
-                hover:text-slate-900 hover:no-underline hover:dark:text-white
+                hover:text-slate-900 hover:no-underline
+                hover:dark:text-primary-50
               "
               :to="'cart'"
               :title="$t('pages.cart.title')"
@@ -292,7 +293,7 @@ const menus = computed((): IMenuItem[] => [
 
               dark:text-primary-50
 
-              hover:text-slate-900 hover:no-underline hover:dark:text-white
+              hover:text-slate-900 hover:no-underline hover:dark:text-primary-50
             "
             :to="'cart'"
             :title="$t('pages.cart.title')"

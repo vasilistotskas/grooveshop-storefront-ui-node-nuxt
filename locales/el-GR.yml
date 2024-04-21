@@ -52,10 +52,15 @@ common:
   help_center: Κέντρο βοηθείας
   terms_conditions: Οροι
   discord_server: Διακομιστής Discord
+  contact: Επικοινωνία
+  microlearning: Μικρομάθηση
   contact_us: Επικοινωνήστε μαζί μας
+  terms_and_policies: Όροι και Πολιτικές
   twitter: Κελάδημα
   instagram: Ίνσταγκραμ
   facebook: Facebook
+  tiktok: Τικ Τοκ
+  youtube: YouTube
   all_rights_reserved: Ολα τα δικαιώματα διατηρούνται
   privacy_policy: Πολιτική Απορρήτου
   empty:

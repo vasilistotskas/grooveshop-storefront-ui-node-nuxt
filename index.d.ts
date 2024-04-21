@@ -85,8 +85,12 @@ const envVariables = z.object({
   // Socials
   NUXT_PUBLIC_SOCIALS_FACEBOOK: z.string(),
   NUXT_PUBLIC_SOCIALS_TWITTER: z.string(),
+  NUXT_PUBLIC_SOCIALS_TIKTOK: z.string(),
+  NUXT_PUBLIC_SOCIALS_YOUTUBE: z.string(),
   NUXT_PUBLIC_SOCIALS_INSTAGRAM: z.string(),
   NUXT_PUBLIC_SOCIALS_DISCORD: z.string(),
+  NUXT_PUBLIC_SOCIALS_REDDIT: z.string(),
+  NUXT_PUBLIC_SOCIALS_PINTEREST: z.string(),
 })
 
 declare global {

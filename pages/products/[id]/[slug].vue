@@ -302,7 +302,7 @@ definePageMeta({
                       capitalize
 
                       hover:text-slate-900 hover:no-underline
-                      hover:dark:text-white
+                      hover:dark:text-primary-50
                     "
                     :label="reviewButtonText"
                     size="lg"
@@ -399,9 +399,9 @@ definePageMeta({
                         bg-primary-100 block w-full border-gray-300 p-2.5
                         text-sm text-gray-900 outline-none
 
-                        dark:bg-primary-900 dark:border-gray-600 dark:text-white
-                        dark:placeholder-gray-400 dark:focus:border-blue-500
-                        dark:focus:ring-blue-500
+                        dark:bg-primary-900 dark:border-gray-600
+                        dark:text-primary-50 dark:placeholder-gray-400
+                        dark:focus:border-blue-500 dark:focus:ring-blue-500
 
                         focus:border-secondary focus:ring-secondary
                       "

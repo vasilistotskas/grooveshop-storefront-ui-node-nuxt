@@ -61,9 +61,10 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 <template>
   <li
     class="
-      bg-primary-100 container grid w-full gap-6 rounded-lg !p-0 text-white
+      bg-primary-100 container grid w-full gap-6 rounded-lg !p-0
+      text-primary-950
 
-      dark:bg-primary-900 dark:text-black
+      dark:text-primary-50 dark:bg-primary-900
     "
   >
     <div class="grid">
@@ -105,9 +106,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             :to="`/blog/post${post.absoluteUrl}`"
             :text="alt"
             class="
-              text-2xl font-bold tracking-tight text-black
+              text-2xl font-bold tracking-tight text-primary-950
 
-              dark:text-white
+              dark:text-primary-50
 
               md:text-3xl
             "

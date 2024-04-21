@@ -10,5 +10,9 @@ export const linkChecker = {
     import.meta.env.NUXT_PUBLIC_SOCIALS_TWITTER,
     import.meta.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM,
     import.meta.env.NUXT_PUBLIC_SOCIALS_DISCORD,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_TIKTOK,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_YOUTUBE,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_REDDIT,
+    import.meta.env.NUXT_PUBLIC_SOCIALS_PINTEREST,
   ],
 }

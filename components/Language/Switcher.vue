@@ -68,7 +68,11 @@ const onLocaleChange = (code: string) => {
         class="p-0"
         color="primary"
         trailing-icon="i-heroicons-language"
-      />
+      >
+        <span class="sr-only">{{
+          $t('components.language.switcher.change_language')
+        }}</span>
+      </UButton>
     </UDropdown>
   </div>
 </template>
