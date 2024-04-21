@@ -1,3 +1,10 @@
+## [1.92.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.92.1...v1.92.2) (2024-04-21)
+
+
+### Bug Fixes
+
+* nuxt instance unavailable error ([233daae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/233daaea83223a462c965b7f7bb10e8b11f30a6a))
+
 ## [1.92.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.92.0...v1.92.1) (2024-04-20)
 
 
