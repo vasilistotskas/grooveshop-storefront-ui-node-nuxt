@@ -1,4 +1,4 @@
-import { type ComponentInternalInstance, onActivated, onDeactivated, ref } from 'vue'
+import { type ComponentInternalInstance } from 'vue'
 import type { UseHeadInput, UseHeadOptions } from '@unhead/vue'
 import type { SchemaAugmentations } from '@unhead/schema'
 
