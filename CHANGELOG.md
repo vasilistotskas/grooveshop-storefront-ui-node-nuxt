@@ -1,3 +1,10 @@
+# [1.95.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.94.0...v1.95.0) (2024-04-22)
+
+
+### Features
+
+* Default lang `el` by default ([04daefe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/04daefedfa427203006d68a7b2e4f043769e5473))
+
 # [1.94.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.93.0...v1.94.0) (2024-04-21)
 
 
