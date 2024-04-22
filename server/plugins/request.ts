@@ -30,7 +30,7 @@ export default defineNitroPlugin((nitroApp) => {
     }
 
     if (!locale) {
-      locale = config.public.defaultLocale || 'en'
+      locale = config.public.defaultLocale || 'el'
     }
 
     if (!url.includes('?')) {

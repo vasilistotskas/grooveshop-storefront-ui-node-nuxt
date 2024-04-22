@@ -3,7 +3,7 @@ import type { NuxtI18nOptions } from '@nuxtjs/i18n'
 export const i18n = {
   strategy: 'prefix_except_default',
   lazy: true,
-  defaultLocale: import.meta.env.NUXT_PUBLIC_DEFAULT_LOCALE || 'en',
+  defaultLocale: import.meta.env.NUXT_PUBLIC_DEFAULT_LOCALE || 'el',
   debug: import.meta.env.NUXT_PUBLIC_I18N_DEBUG === 'true',
   langDir: 'locales/',
   baseUrl: import.meta.env.NUXT_PUBLIC_BASE_URL,
@@ -16,19 +16,6 @@ export const i18n = {
     cookieSecure: true,
   },
   locales: [
-    {
-      code: 'en',
-      name: 'English',
-      files: [
-        'en-US.yml',
-        'components/en-US.yml',
-        'pages/en-US.yml',
-        'routes/en-US.yml',
-        'breadcrumb/en-US.yml',
-      ],
-      iso: 'en-US',
-      flag: '🇺🇸',
-    },
     {
       code: 'el',
       name: 'Ελληνικά',
