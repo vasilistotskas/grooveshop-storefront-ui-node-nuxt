@@ -28,6 +28,10 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits<{
+  (e: 'favourite-delete', id: number): void
+}>()
+
 const { t } = useI18n()
 const toast = useToast()
 const { loggedIn } = useUserSession()
@@ -90,6 +94,7 @@ const toggleFavourite = async () => {
         if (!response.ok) {
           return
         }
+        emit('favourite-delete', id)
         removeFavouriteProduct(props.productId)
         toast.add({
           title: t('components.add_to_favourite_button.removed'),

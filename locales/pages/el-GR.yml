@@ -14,8 +14,8 @@ pages:
     description: blog
     keywords: blog
     ordering:
-      created_at: Δημιουργήθηκε στο
-      updated_at: Ενημερώθηκε στο
+      created_at: Ημερομηνία δημιουργίας
+      updated_at: Ημερομηνία ενημέρωσης
       title: Τίτλος
       published_at: Δημοσιεύθηκε στο
   testing:
@@ -102,8 +102,8 @@ pages:
     ordering:
       name: Ονομα
       price: Τιμή
-      created_at: Δημιουργήθηκε στο
-      updated_at: Ενημερώθηκε στο
+      created_at: Ημερομηνία δημιουργίας
+      updated_at: Ημερομηνία ενημέρωσης
     share: Μερίδιο
     share_not_supported: Η κοινή χρήση ιστού δεν υποστηρίζεται στο πρόγραμμα περιήγησής σας
     review:
@@ -274,8 +274,8 @@ pages:
       delete_error: Σφάλμα διαγραφής στοιχείων παραγγελιών
       total: Χωρίς παραγγελίες | 1 Παραγγελία | %{count} Παραγγελίες
       ordering:
-        created_at: Δημιουργήθηκε στο
-        updated_at: Ενημερώθηκε στο
+        created_at: Ημερομηνία δημιουργίας
+        updated_at: Ημερομηνία ενημέρωσης
         status: Κατάσταση
       empty:
         title: Οι παραγγελίες σας είναι κενές
@@ -295,7 +295,7 @@ pages:
           id: ταυτότητα
           product_id: Αναγνωριστικό προϊόντος
           created_at: Πιο πρόσφατα
-          updated_at: Ενημερώθηκε στο
+          updated_at: Ημερομηνία ενημέρωσης
         empty:
           title: Τα αγαπημένα σας είναι άδεια
           description: Δεν έχετε προσθέσει ακόμη αγαπημένα.
@@ -308,7 +308,7 @@ pages:
         ordering:
           title: Τίτλος
           created_at: Πιο πρόσφατα
-          updated_at: Ενημερώθηκε στο
+          updated_at: Ημερομηνία ενημέρωσης
     reviews:
       title: Κριτικές
       nav: κριτικές
@@ -319,8 +319,8 @@ pages:
       deleted: Κριτικές Το στοιχείο διαγράφηκε
       delete_error: Κριτικές Σφάλμα διαγραφής στοιχείου
       ordering:
-        created_at: Δημιουργήθηκε στο
-        updated_at: Ενημερώθηκε στο
+        created_at: Ημερομηνία δημιουργίας
+        updated_at: Ημερομηνία ενημέρωσης
       empty:
         title: Οι κριτικές σας είναι κενές
         description: Δεν έχετε προσθέσει ακόμα καμία κριτική.
@@ -379,8 +379,8 @@ pages:
       total: Χωρίς Διευθύνσεις | 1 Διεύθυνση | %{count} Διευθύνσεις
       delete: Διαγράφω
       ordering:
-        created_at: Δημιουργήθηκε στο
-        updated_at: Ενημερώθηκε στο
+        created_at: Ημερομηνία δημιουργίας
+        updated_at: Ημερομηνία ενημέρωσης
         is_main: Κύριος
       empty:
         title: Οι διευθύνσεις σας είναι κενές
@@ -498,8 +498,8 @@ pages:
       shipping:
         value: Αξία αποστολής
       ordering:
-        created_at: Δημιουργήθηκε στο
-        updated_at: Ενημερώθηκε στο
+        created_at: Ημερομηνία δημιουργίας
+        updated_at: Ημερομηνία ενημέρωσης
       empty:
         title: Οι παραγγελίες σας είναι κενές
         description: Δεν έχετε κάνει ακόμη παραγγελίες.

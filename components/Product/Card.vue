@@ -24,6 +24,10 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits<{
+  (e: 'favourite-delete', id: number): void
+}>()
+
 const { user } = useUserSession()
 const userStore = useUserStore()
 const { getFavouriteByProductId } = userStore
@@ -61,6 +65,8 @@ const startShare = () => share().catch(err => err)
 const favouriteId = computed(
   () => getFavouriteByProductId(product.value.id)?.id,
 )
+
+const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 </script>
 
 <template>
@@ -146,6 +152,7 @@ const favouriteId = computed(
                 :user-id="user?.id"
                 :favourite-id="favouriteId"
                 size="lg"
+                @favourite-delete="onFavouriteDelete"
               />
             </div>
           </div>

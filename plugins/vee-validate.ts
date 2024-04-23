@@ -1,7 +1,8 @@
 import { defineRule } from 'vee-validate'
+import type { VueI18n } from 'vue-i18n'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const $t = nuxtApp.$i18n.t
+  const $t = (nuxtApp.$i18n as VueI18n).t
 
   defineRule('minMax', (value: string, [min, max]: [number, number]) => {
     if (!value || !value.length) {

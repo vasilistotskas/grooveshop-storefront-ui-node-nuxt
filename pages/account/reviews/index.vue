@@ -68,6 +68,7 @@ const orderingOptions = computed(() => {
 })
 
 watch(
+  () => route.query,
   async (newVal, oldVal) => {
     if (!deepEqual(newVal, oldVal)) {
       reviews.value = await refreshReviews()

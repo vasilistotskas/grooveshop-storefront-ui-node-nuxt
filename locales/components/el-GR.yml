@@ -127,7 +127,7 @@ components:
         id: ταυτότητα
         user_id: ταυτότητα χρήστη
         product_id: Αναγνωριστικό προϊόντος
-        created_at: Δημιουργήθηκε στο
+        created_at: Ημερομηνία δημιουργίας
       summary:
         reviews: Δεν υπάρχουν κριτικές | 1 Αξιολόγηση | %{count} Κριτικές
     review:
@@ -178,7 +178,7 @@ components:
   add_to_favourite_button:
     not_authenticated: Πρέπει να είστε συνδεδεμένοι για να προσθέσετε στα αγαπημένα
     added: Προστέθηκε στα αγαπημένα
-    removed: Καταργήθηκε από τα αγαπημένα
+    removed: Αφαιρέθηκε από τα αγαπημένα
     add: Προσθήκη στα αγαπημένα
     remove: Αφαίρεση από τα αγαπημένα
   like_button:
@@ -204,7 +204,7 @@ components:
       pay_way: Τρόπος πληρωμής
       status: Κατάσταση
       total_price: Συνολικό ποσό
-      created_at: Δημιουργήθηκε στο
+      created_at: Ημερομηνία δημιουργίας
       actions:
         details: Λεπτομέριες
   cart:
@@ -250,7 +250,7 @@ components:
           title: Γράψε ένα σχόλιο
           title_guest: Συνδεθείτε για να γράψετε ένα σχόλιο
           description: Γίνε ο πρώτος που θα σχολιάσει
-          description_guest: Συνδεθείτε για να σχολιάσετε
+          description_guest: Συνδέσου για να σχολιάσεις
         add:
           title: Πρόσθεσε σχόλιο
           error: Σφάλμα δημιουργίας σχολίου
