@@ -1,3 +1,10 @@
+# [1.97.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.96.0...v1.97.0) (2024-04-23)
+
+
+### Features
+
+* Add `required_error` from i18n in string zod fields ([b3cde53](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b3cde53ce7eaa5ab01ad738846cbbac392776250))
+
 # [1.96.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.95.0...v1.96.0) (2024-04-23)
 
 
