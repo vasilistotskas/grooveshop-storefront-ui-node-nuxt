@@ -15,7 +15,7 @@ common:
   copy: αντίγραφο
   enabled: ενεργοποιημένη
   disabled: άτομα με ειδικές ανάγκες
-  read_less: διάβασε λιγότερο
+  read_less: Διαβάστε λιγότερα
   read_more: Διαβάστε περισσότερα
   choose: Επιλέγω...
   floor: Πάτωμα
@@ -108,10 +108,12 @@ common:
   submit: Υποβολή
   reset: Επαναφορά
   validation:
+    min: Το πεδίο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    max: Το πεδίο πρέπει να έχει το πολύ %{max} χαρακτήρες
     required: Απαιτούμενο
     email:
       required: Απαιτείται email
-      email: Το email πρέπει να είναι έγκυρο
+      valid: Το email πρέπει να είναι έγκυρο
       invalid: Το email δεν είναι έγκυρο
     first_name:
       required: Απαιτείται Όνομα

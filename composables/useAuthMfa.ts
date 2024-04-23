@@ -6,8 +6,8 @@ import type {
 } from '~/types/auth'
 
 export default function () {
-  async function totpActivateGet() {
-    return await useFetch('/api/auth/mfa/totp/activate', {
+  function totpActivateGet() {
+    return useFetch('/api/auth/mfa/totp/activate', {
       method: 'GET',
     })
   }
@@ -18,8 +18,8 @@ export default function () {
     })
   }
 
-  async function recoveryCodesList() {
-    return await useFetch('/api/auth/mfa/recovery-codes/list', {
+  function recoveryCodesList() {
+    return useFetch('/api/auth/mfa/recovery-codes/list', {
       method: 'GET',
     })
   }

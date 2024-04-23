@@ -165,7 +165,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   if (!userId) return
 
-  await useFetch(`/api/user/account/${userId}`, {
+  await $fetch(`/api/user/account/${userId}`, {
     method: 'PUT',
     body: {
       email: values.email,
@@ -179,9 +179,6 @@ const onSubmit = handleSubmit(async (values) => {
       birthDate: values.birthDate?.toISOString().slice(0, 10),
       country: values.country,
       region: values.region,
-    },
-    onRequestError() {
-      toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
     },
     async onResponse({ response }) {
       if (!response.ok) {

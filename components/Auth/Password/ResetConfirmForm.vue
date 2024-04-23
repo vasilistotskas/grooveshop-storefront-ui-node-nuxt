@@ -69,11 +69,9 @@ const onSubmit = handleSubmit(async (values) => {
       <div
         class="
           bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-[0.5rem] border border-primary-500 p-4
-          shadow-[0_4px_9px_-4px_#0000000d]
+          rounded-[0.5rem] p-4 shadow-[0_4px_9px_-4px_#0000000d]
 
-          dark:bg-primary-900 dark:border-primary-500
-          dark:shadow-[0_4px_9px_-4px_#0000000d]
+          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           lg:justify-between
 
@@ -95,7 +93,7 @@ const onSubmit = handleSubmit(async (values) => {
             >
           </div>
 
-          <div class="grid content-evenly items-start">
+          <div class="grid content-evenly items-start gap-1">
             <label
               class="
                 text-primary-950 mb-2
@@ -116,12 +114,12 @@ const onSubmit = handleSubmit(async (values) => {
               :required="true"
             />
             <span
-              v-if="errors.newPassword1"
+              v-if="errors.newPassword1 && meta.touched"
               class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.newPassword1 }}</span>
           </div>
 
-          <div class="grid content-evenly items-start">
+          <div class="grid content-evenly items-start gap-1">
             <label
               class="
                 text-primary-950 mb-2

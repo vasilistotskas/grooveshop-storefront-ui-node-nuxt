@@ -10,6 +10,10 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits<{
+  (e: 'address-delete', id: number): void
+}>()
+
 const { address } = toRefs(props)
 
 const { t } = useI18n()
@@ -25,14 +29,8 @@ const submit = async () => {
     return
   }
 
-  await useFetch(`/api/user/addresses/${address?.value.id}`, {
+  await $fetch(`/api/user/addresses/${address?.value.id}`, {
     method: 'DELETE',
-    onRequestError() {
-      toast.add({
-        title: t('components.address.card.delete.error'),
-        color: 'red',
-      })
-    },
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -41,6 +39,7 @@ const submit = async () => {
         title: t('components.address.card.delete.success'),
         color: 'green',
       })
+      emit('address-delete', address?.value.id)
     },
     onResponseError() {
       toast.add({

@@ -1,16 +1,20 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
+const Anchor = resolveComponent('Anchor')
+const PlusModalLink = resolveComponent('PlusModalLink')
+
 const { fetch } = useUserSession()
 const { register, registrationResendEmail } = useAuth()
 
 const { t } = useI18n()
 const toast = useToast()
+const route = useRoute()
 const localePath = useLocalePath()
 
 const ZodRegistration = z
   .object({
-    email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email')),
+    email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
     password1: z.string({ required_error: t('common.validation.required') }).min(8, {
       message: t('pages.auth.registration.form.password1.validation.min', {
         min: 8,
@@ -34,24 +38,39 @@ const { defineField, handleSubmit, errors, isSubmitting } = useForm({
 })
 
 const [email, emailProps] = defineField('email', {
+  validateOnBlur: false,
   validateOnModelUpdate: true,
 })
 const [password1, password1Props] = defineField('password1', {
+  validateOnBlur: false,
   validateOnModelUpdate: true,
 })
 const [password2, password2Props] = defineField('password2', {
+  validateOnBlur: false,
   validateOnModelUpdate: true,
 })
 
 const showPassword1 = ref(false)
 const showPassword2 = ref(false)
 
+const handleResendEmail = async (email: string) => {
+  try {
+    await registrationResendEmail({ email })
+    toast.add({
+      title: t('pages.auth.registration.account-confirm-email.resend.success.title'),
+      color: 'green',
+    })
+  }
+  catch (error) {
+    toast.add({
+      title: isErrorWithMessage(error) ? error.message : t('pages.auth.registration.account-confirm-email.resend.error.title'),
+      color: 'red',
+    })
+  }
+}
+
 const onSubmit = handleSubmit((values) => {
-  register({
-    email: values.email,
-    password1: values.password1,
-    password2: values.password2,
-  })
+  register({ email: values.email, password1: values.password1, password2: values.password2 })
     .then(async (data) => {
       toast.add({
         title: data?.detail || t('common.auth.registration.success'),
@@ -60,48 +79,33 @@ const onSubmit = handleSubmit((values) => {
       await fetch()
     })
     .catch((error) => {
-      if (error) {
-        const actions = ref([
-          {
-            label: t('common.auth.registration.error.action1'),
-            click: () =>
-              email.value
-              && registrationResendEmail({
-                email: email.value,
-              })
-                .then(() => {
-                  toast.add({
-                    title: t(
-                      'pages.auth.registration.account-confirm-email.resend.success.title',
-                    ),
-                    color: 'green',
-                  })
-                })
-                .catch((error) => {
-                  if (error) {
-                    toast.add({
-                      title:
-                        error.value?.message
-                        ?? t(
-                          'pages.auth.registration.account-confirm-email.resend.error.title',
-                        ),
-                      color: 'red',
-                    })
-                  }
-                }),
-          },
-        ])
-        if (error.data.data?.error) {
+      if (error?.data?.data) {
+        const errorData = error.data.data
+        const errorMessages: string[] = []
+
+        Object.keys(errorData).forEach((key) => {
+          if (Array.isArray(errorData[key])) {
+            errorMessages.push(...errorData[key])
+          }
+        })
+
+        if (errorMessages.length > 0) {
+          const combinedErrorMessage = errorMessages.join('\n')
           toast.add({
-            description: error.data.data?.error,
+            title: combinedErrorMessage,
             color: 'red',
-            actions: actions.value,
           })
         }
-        else if (error.data.data?.email) {
+
+        if (errorData.error || errorData.email) {
+          const actions = ref([{
+            label: t('common.auth.registration.error.action1'),
+            click: () => handleResendEmail(values.email),
+          }])
           toast.add({
-            title: error.data.data?.email[0],
+            description: errorData.error || errorData.email[0],
             color: 'red',
+            actions: actions.value,
           })
         }
       }
@@ -114,7 +118,7 @@ const onSubmit = handleSubmit((values) => {
     <form
       id="RegistrationForm"
       class="
-        container-3xs !p-0
+        container-3xs
 
         md:px-6
       "
@@ -134,7 +138,7 @@ const onSubmit = handleSubmit((values) => {
         "
       >
         <div class="relative grid w-full gap-4">
-          <div class="grid content-evenly items-start">
+          <div class="grid content-evenly items-start gap-1">
             <label
               class="
                 text-primary-950
@@ -158,7 +162,7 @@ const onSubmit = handleSubmit((values) => {
               class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.email }}</span>
           </div>
-          <div class="grid content-evenly items-start">
+          <div class="grid content-evenly items-start gap-1">
             <label
               class="
                 text-primary-950
@@ -195,7 +199,7 @@ const onSubmit = handleSubmit((values) => {
             >{{ errors.password1 }}</span>
           </div>
 
-          <div class="grid content-evenly items-start">
+          <div class="grid content-evenly items-start gap-1">
             <label
               class="
                 text-primary-950
@@ -254,14 +258,18 @@ const onSubmit = handleSubmit((values) => {
             >{{
               $t('pages.auth.registration.form.already_have_account')
             }}</span>
-            <UButton
-              size="lg"
-              type="submit"
-              color="opposite"
-              variant="link"
-              :label="$t('pages.auth.login.title')"
+            <Component
+              :is="route.path === localePath('/auth/registration') ? Anchor : PlusModalLink"
               :to="localePath('/auth/login')"
-            />
+            >
+              <UButton
+                size="lg"
+                type="submit"
+                color="opposite"
+                variant="link"
+                :label="$t('pages.auth.login.title')"
+              />
+            </Component>
           </div>
         </div>
       </div>

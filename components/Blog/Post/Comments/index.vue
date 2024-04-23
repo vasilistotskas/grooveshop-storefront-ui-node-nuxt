@@ -295,9 +295,6 @@ watch(
 
 onMounted(() => {
   scrollToComments()
-  $fetch(`/api/blog/posts/${blogPostId.value}/update-view-count`, {
-    method: 'POST',
-  })
 })
 </script>
 

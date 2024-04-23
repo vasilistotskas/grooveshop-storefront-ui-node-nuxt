@@ -1,56 +1,169 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
-
-import type { UserAddress } from '~/types/user/address'
+import type { UserAddressOrderingField } from '~/types/user/address'
+import emptyIcon from '~icons/mdi/package-variant-remove'
+import type { EntityOrdering } from '~/types/ordering'
 
 defineProps({
-  addresses: {
-    type: Array as PropType<UserAddress[] | null>,
-    required: true,
-  },
-  addressesTotal: {
-    type: Number,
-    required: false,
-    default: 0,
-  },
   displayTotal: {
     type: Boolean,
     required: false,
     default: true,
   },
 })
+
+const { t } = useI18n()
+const route = useRoute()
+const { user } = useUserSession()
+
+const pageSize = ref(8)
+const page = computed(() => route.query.page)
+const ordering = computed(() => route.query.ordering || '-isMain')
+
+const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
+  {
+    value: 'createdAt',
+    label: t('pages.account.addresses.ordering.created_at'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'updatedAt',
+    label: t('pages.account.addresses.ordering.updated_at'),
+    options: ['ascending', 'descending'],
+  },
+])
+
+const { data: addresses, pending } = await useFetch(
+  `/api/user/account/${user.value?.id}/addresses`,
+  {
+    method: 'GET',
+    query: {
+      page: page.value,
+      ordering: ordering.value,
+      pageSize: pageSize.value,
+    },
+  },
+)
+
+const refreshAddresses = async () => {
+  pending.value = true
+  const addresses = await $fetch(
+    `/api/user/account/${user.value?.id}/addresses`,
+    {
+      method: 'GET',
+      query: {
+        page: page.value,
+        ordering: ordering.value,
+        pageSize: pageSize.value,
+      },
+    },
+  )
+  pending.value = false
+  return addresses
+}
+
+const onAddressDelete = async () => {
+  addresses.value = await refreshAddresses()
+}
+
+const pagination = computed(() => {
+  if (!addresses.value) return
+  return usePagination(addresses.value)
+})
+
+const orderingOptions = computed(() => {
+  return useOrdering<UserAddressOrderingField>(entityOrdering.value)
+})
+
+watch(
+  () => route.query,
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      addresses.value = await refreshAddresses()
+    }
+  },
+)
 </script>
 
 <template>
-  <div class="grid w-full items-start gap-4">
-    <div v-if="displayTotal" class="flex items-center justify-center gap-1">
-      <span
-        class="
-          text-sm font-semibold text-secondary
+  <div class="address-list grid gap-4">
+    <div class="flex flex-row flex-wrap items-center gap-2">
+      <PaginationPageNumber
+        v-if="pagination"
+        :count="pagination.count"
+        :page-size="pagination.pageSize"
+        :page="pagination.page"
+      />
+      <Ordering
+        :ordering="String(ordering)"
+        :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+    </div>
+    <div class="grid w-full items-start gap-4">
+      <div v-if="displayTotal" class="flex items-center justify-center gap-1">
+        <span
+          class="
+            text-sm font-semibold text-secondary
 
-          dark:text-secondary-dark
+            dark:text-secondary-dark
+          "
+        >
+          {{ $t('pages.account.addresses.total', addresses?.count) }}
+        </span>
+      </div>
+      <ul
+        class="
+          grid grid-cols-1 gap-4
+
+          lg:grid-cols-3
+
+          md:grid-cols-2
+
+          xl:grid-cols-4
         "
       >
-        {{ $t('pages.account.addresses.total', addressesTotal) }}
-      </span>
+        <AddressAddNew />
+        <AddressCard
+          v-for="address in addresses?.results"
+          :key="address.id"
+          :address="address"
+          @address-delete="onAddressDelete"
+        />
+      </ul>
     </div>
-    <ul
-      class="
-        grid grid-cols-1 gap-4
+    <template v-if="pending">
+      <div class="grid w-full items-start gap-4">
+        <div class="flex w-full items-center justify-center">
+          <ClientOnlyFallback class="w-full" height="20px" width="100%" />
+        </div>
+        <div
+          class="
+            grid grid-cols-2 gap-4
 
-        lg:grid-cols-3
+            lg:grid-cols-3
 
-        md:grid-cols-2
-
-        xl:grid-cols-4
-      "
+            xl:grid-cols-4
+          "
+        >
+          <ClientOnlyFallback
+            v-for="index in 4"
+            :key="index"
+            height="360px"
+            width="100%"
+          />
+        </div>
+      </div>
+    </template>
+    <EmptyState
+      v-if="!pending && !addresses?.results?.length"
+      :icon="emptyIcon"
     >
-      <AddressAddNew />
-      <AddressCard
-        v-for="address in addresses"
-        :key="address.id"
-        :address="address"
-      />
-    </ul>
+      <template #actions>
+        <UButton
+          :label="$t('common.empty.button')"
+          :to="'index'"
+          color="primary"
+        />
+      </template>
+    </EmptyState>
   </div>
 </template>

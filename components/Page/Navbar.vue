@@ -15,6 +15,7 @@ const { user, session, loggedIn, clear } = useUserSession()
 const { t } = useI18n()
 const { logout } = useAuth()
 const route = useRoute()
+const localePath = useLocalePath()
 
 const onClickLogout = async () => {
   await Promise.all([
@@ -267,11 +268,13 @@ const items = [
                   hover:dark:text-primary-50
                 "
                 :title="$t('pages.accounts.login.title')"
-                :to="route.path === '/auth/login' ? '/auth/login' : `/auth/login?redirect=${route.path}`"
+                :to="route.path === '/auth/login' ? localePath('/auth/login') : localePath(`/auth/login?redirect=${route.path}`)"
               >
                 <IconFa6Solid:circleUser />
               </Component>
-              <PlusModalPage v-if="route.path !== '/auth/login'" name="login-modal" />
+
+              <PlusModalPage v-if="route.path !== '/auth/login' && route.path !== '/auth/registration'" name="login-modal" />
+              <PlusModalPage v-if="route.path !== '/auth/login' && route.path !== '/auth/registration'" name="registration-modal" />
             </li>
           </ul>
         </nav>

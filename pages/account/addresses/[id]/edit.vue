@@ -169,7 +169,7 @@ const onCountryChange = (event: Event) => {
 const onSubmit = handleSubmit(async (values) => {
   const updatedValues = processValues(values)
 
-  await useFetch(`/api/user/addresses/${addressId}`, {
+  await $fetch(`/api/user/addresses/${addressId}`, {
     method: 'PUT',
     body: {
       title: updatedValues.title,
@@ -188,12 +188,6 @@ const onSubmit = handleSubmit(async (values) => {
       user: updatedValues.user,
       country: updatedValues.country,
       region: updatedValues.region,
-    },
-    onRequestError() {
-      toast.add({
-        title: t('pages.account.addresses.edit.error'),
-        color: 'red',
-      })
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -215,14 +209,8 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 const onSetMain = async () => {
-  await useFetch(`/api/user/addresses/${addressId}/set-main`, {
+  await $fetch(`/api/user/addresses/${addressId}/set-main`, {
     method: 'POST',
-    onRequestError() {
-      toast.add({
-        title: t('pages.account.addresses.edit.main.error'),
-        color: 'red',
-      })
-    },
     async onResponse({ response }) {
       if (!response.ok) {
         return

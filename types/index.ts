@@ -68,3 +68,7 @@ export const ZodExpandQuery = z.object({
 export const ZodLanguageQuery = z.object({
   language: z.string().nullish(),
 })
+
+export type ErrorWithMessage = {
+  message: string
+}

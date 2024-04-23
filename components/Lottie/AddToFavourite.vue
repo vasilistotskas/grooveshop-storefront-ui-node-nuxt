@@ -79,7 +79,7 @@ const toggleFavourite = async () => {
   }
   else {
     const id = props.favouriteId
-    await useFetch(`/api/products/favourites/${id}`, {
+    await $fetch(`/api/products/favourites/${id}`, {
       method: 'DELETE',
       onRequestError({ error }) {
         toast.add({

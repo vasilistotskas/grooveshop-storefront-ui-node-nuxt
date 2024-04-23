@@ -3,6 +3,9 @@ import { z } from 'zod'
 
 import { GlobalEvents } from '~/events'
 
+const Anchor = resolveComponent('Anchor')
+const PlusModalLink = resolveComponent('PlusModalLink')
+
 const { t } = useI18n()
 const toast = useToast()
 const route = useRoute()
@@ -16,20 +19,22 @@ const { refreshCart } = cartStore
 const ZodLogin = z.object({
   email: z.string(
     { required_error: t('common.validation.required') },
-  ).email(t('common.validation.email')),
+  ).email(t('common.validation.email.valid')),
   password: z.string({ required_error: t('common.validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodLogin)
 
-const { defineField, handleSubmit, errors } = useForm({
+const { defineField, handleSubmit, errors, meta } = useForm({
   validationSchema,
 })
 
 const [email, emailProps] = defineField('email', {
+  validateOnBlur: false,
   validateOnModelUpdate: true,
 })
 const [password, passwordProps] = defineField('password', {
+  validateOnBlur: false,
   validateOnModelUpdate: true,
 })
 
@@ -39,32 +44,48 @@ const loading = ref(false)
 
 const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
-const onSubmit = handleSubmit((values) => {
-  loading.value = true
-  login({
-    email: values.email,
-    password: values.password,
-    rememberMe: rememberMe.value,
-  })
-    .then(async () => {
-      await fetch()
-      await Promise.all([totpActive(), refreshCart()])
-      const to = route.query.redirect?.toString() || '/account'
-      await navigateTo(to)
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    loading.value = true
+    await login({
+      email: values.email,
+      password: values.password,
+      rememberMe: rememberMe.value,
     })
-    .catch((error) => {
-      toast.add({
-        title:
-          error.data.data?.nonFieldErrors[0] || t('common.auth.login.error'),
-        color: 'red',
-      })
-    })
-    .finally(async () => {
-      loading.value = false
-      bus.emit('fallbackModalClose')
-      await fetch()
-    })
+    await performPostLoginActions()
+    await navigateUser()
+  }
+  catch (error) {
+    handleLoginError(error)
+  }
+  finally {
+    await finalizeLogin()
+  }
 })
+
+async function performPostLoginActions() {
+  await fetch()
+  await Promise.all([totpActive(), refreshCart()])
+}
+
+async function navigateUser() {
+  const redirectPath = route.query.redirect?.toString() || '/account'
+  await navigateTo(redirectPath)
+}
+
+function handleLoginError(error: any) {
+  const errorMessage = error.data?.data?.nonFieldErrors?.[0] || t('common.auth.login.error')
+  toast.add({
+    title: errorMessage,
+    color: 'red',
+  })
+}
+
+async function finalizeLogin() {
+  loading.value = false
+  bus.emit('fallbackModalClose')
+  await fetch()
+}
 </script>
 
 <template>
@@ -93,7 +114,7 @@ const onSubmit = handleSubmit((values) => {
         "
       >
         <div class="relative grid w-full gap-4">
-          <div class="grid content-evenly items-start">
+          <div class="grid content-evenly items-start gap-1">
             <label
               class="
                 text-primary-950
@@ -113,12 +134,12 @@ const onSubmit = handleSubmit((values) => {
               :required="true"
             />
             <span
-              v-if="errors.email"
+              v-if="errors.email && meta.touched"
               class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.email }}</span>
           </div>
 
-          <div class="grid content-evenly items-start">
+          <div class="grid content-evenly items-start gap-1">
             <label
               class="
                 text-primary-950
@@ -150,7 +171,7 @@ const onSubmit = handleSubmit((values) => {
               />
             </div>
             <span
-              v-if="errors.password"
+              v-if="errors.password && meta.touched"
               class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.password }}</span>
           </div>
@@ -221,8 +242,6 @@ const onSubmit = handleSubmit((values) => {
                   inline-block pl-[0.15rem] text-sm
 
                   hover:cursor-pointer
-
-                  md:text-base
                 "
                 for="checkbox"
               >
@@ -325,14 +344,19 @@ const onSubmit = handleSubmit((values) => {
             >{{
               $t('pages.auth.login.form.no.account')
             }}</span>
-            <UButton
-              size="md"
-              type="button"
-              color="opposite"
-              variant="link"
-              :label="$t('common.register')"
+
+            <Component
+              :is="route.path === localePath('/auth/login') ? Anchor : PlusModalLink"
               :to="localePath('/auth/registration')"
-            />
+            >
+              <UButton
+                size="md"
+                type="button"
+                color="opposite"
+                variant="link"
+                :label="$t('common.register')"
+              />
+            </Component>
           </div>
         </div>
       </div>

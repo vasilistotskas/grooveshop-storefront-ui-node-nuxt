@@ -82,15 +82,9 @@ const uploadImage = async (event: Event) => {
   formData.append('image', file)
   if (!userAccount.value) return
 
-  await useFetch(`/api/user/account/${userAccount.value.id}`, {
+  await $fetch(`/api/user/account/${userAccount.value.id}`, {
     method: 'PATCH',
     body: formData,
-    onRequestError() {
-      toast.add({
-        title: t('components.user.avatar.image.upload.error'),
-        color: 'red',
-      })
-    },
     async onResponse({ response }) {
       if (!response.ok) {
         return

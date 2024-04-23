@@ -68,7 +68,7 @@ const ZodCheckout = z.object({
   lastName: z
     .string()
     .min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
-  email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email')),
+  email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
   zipcode: z
     .string()
     .min(3, t('pages.checkout.validation.zipcode.min', { min: 3 })),
@@ -189,15 +189,9 @@ const onCountryChange = (event: Event) => {
 const onSubmit = handleSubmit(async (values) => {
   const updatedValues = processValues(values)
 
-  await useFetch('/api/orders', {
+  await $fetch('/api/orders', {
     method: 'POST',
     body: updatedValues,
-    onRequestError() {
-      toast.add({
-        title: t('pages.checkout.form.submit.error'),
-        color: 'red',
-      })
-    },
     async onResponse({ response }) {
       if (!response.ok) {
         return
@@ -447,7 +441,7 @@ definePageMeta({
               }}</span>
             </div>
 
-            <div class="grid content-evenly items-start">
+            <div class="grid content-evenly items-start gap-1">
               <label
                 class="
                   text-primary-950 sr-only mb-2

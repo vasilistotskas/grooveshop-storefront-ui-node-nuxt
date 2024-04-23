@@ -276,7 +276,7 @@ const tooManyAttempts = computed(() => {
 })
 
 const createReviewEvent = async (event: { comment: string, rate: number }) => {
-  await useFetch(`/api/products/reviews`, {
+  await $fetch(`/api/products/reviews`, {
     method: 'POST',
     body: {
       product: String(product.value?.id),
@@ -291,12 +291,6 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
     },
     query: {
       expand: 'true',
-    },
-    onRequestError() {
-      toast.add({
-        title: t('components.product.review.add.error'),
-        color: 'red',
-      })
     },
     async onResponse() {
       await refresh()
@@ -317,7 +311,7 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
 
 const updateReviewEvent = async (event: { comment: string, rate: number }) => {
   if (!userProductReview?.value) return
-  await useFetch(`/api/products/reviews/${userProductReview?.value.id}`, {
+  await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
     method: 'PUT',
     body: {
       product: String(product.value?.id),
@@ -331,12 +325,6 @@ const updateReviewEvent = async (event: { comment: string, rate: number }) => {
     },
     query: {
       expand: 'true',
-    },
-    onRequestError() {
-      toast.add({
-        title: t('components.product.review.update.error'),
-        color: 'red',
-      })
     },
     async onResponse({ response }) {
       if (!userProductReview?.value) return
@@ -361,14 +349,8 @@ const updateReviewEvent = async (event: { comment: string, rate: number }) => {
 
 const deleteReviewEvent = async () => {
   if (user?.value && userProductReview?.value) {
-    await useFetch(`/api/products/reviews/${userProductReview?.value.id}`, {
+    await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
       method: 'DELETE',
-      onRequestError() {
-        toast.add({
-          title: t('components.product.review.delete.error'),
-          color: 'red',
-        })
-      },
       async onResponse({ response }) {
         if (!userProductReview?.value) return
         if (!response.ok) {
