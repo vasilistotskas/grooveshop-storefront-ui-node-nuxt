@@ -1,3 +1,10 @@
+# [1.96.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.95.0...v1.96.0) (2024-04-23)
+
+
+### Features
+
+* UI/UX updates and use of nuxt-pages-plus for login, Bump Versions ([d8d2b5b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d8d2b5be94a2ddceda09d31c80d8d939b352d3dc))
+
 # [1.95.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.94.0...v1.95.0) (2024-04-22)
 
 
