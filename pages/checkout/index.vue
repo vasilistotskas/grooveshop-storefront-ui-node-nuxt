@@ -48,12 +48,12 @@ const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
 const ZodCheckout = z.object({
-  user: z.string().nullish(),
-  country: z.string().nullish(),
-  region: z.string().nullish(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+  user: z.string({ required_error: t('common.validation.required') }).nullish(),
+  country: z.string({ required_error: t('common.validation.required') }).nullish(),
+  region: z.string({ required_error: t('common.validation.required') }).nullish(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).nullish(),
   locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('common.validation.required') })])
     .nullish(),
   street: z
     .string()
@@ -68,23 +68,23 @@ const ZodCheckout = z.object({
   lastName: z
     .string()
     .min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
-  email: z.string().email(t('common.validation.email')),
+  email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email')),
   zipcode: z
     .string()
     .min(3, t('pages.checkout.validation.zipcode.min', { min: 3 })),
   place: z
     .string()
     .min(3, t('pages.checkout.validation.place.min', { min: 3 })),
-  city: z.string().min(3, t('pages.checkout.validation.city.min', { min: 3 })),
+  city: z.string({ required_error: t('common.validation.required') }).min(3, t('pages.checkout.validation.city.min', { min: 3 })),
   phone: z
     .string()
     .min(3, t('pages.checkout.validation.phone.min', { min: 3 })),
-  mobilePhone: z.string().nullish(),
-  customerNotes: z.string().nullish(),
+  mobilePhone: z.string({ required_error: t('common.validation.required') }).nullish(),
+  customerNotes: z.string({ required_error: t('common.validation.required') }).nullish(),
   shippingPrice: z.number(),
   documentType: ZodDocumentTypeEnum,
   orderItemOrder: z.array(ZodOrderCreateItem),
-  payWay: z.number(),
+  payWay: z.number({ required_error: t('common.validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)

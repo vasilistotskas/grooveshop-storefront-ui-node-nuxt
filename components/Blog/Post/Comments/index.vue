@@ -186,7 +186,7 @@ const addCommentFormSchema: DynamicFormSchema = {
       id: `content-${blogPostId.value}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string().max(1000),
+      rules: z.string({ required_error: t('common.validation.required') }).max(1000),
       autocomplete: 'on',
       readonly: false,
       required: true,

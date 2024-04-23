@@ -10,10 +10,10 @@ const token = route.params.token
 
 const ZodPasswordResetConfirm = z
   .object({
-    newPassword1: z.string().min(8).max(255),
-    newPassword2: z.string().min(8).max(255),
-    uid: z.string(),
-    token: z.string(),
+    newPassword1: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
+    newPassword2: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
+    uid: z.string({ required_error: t('common.validation.required') }),
+    token: z.string({ required_error: t('common.validation.required') }),
   })
   .refine(data => data.newPassword1 === data.newPassword2, {
     message: t(

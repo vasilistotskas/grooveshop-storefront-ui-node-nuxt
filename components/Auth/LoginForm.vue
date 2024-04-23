@@ -17,7 +17,7 @@ const ZodLogin = z.object({
   email: z.string(
     { required_error: t('common.validation.required') },
   ).email(t('common.validation.email')),
-  password: z.string(),
+  password: z.string({ required_error: t('common.validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodLogin)

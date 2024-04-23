@@ -104,7 +104,7 @@ const replyCommentFormSchema: DynamicFormSchema = {
       id: `content-${comment.value.id}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string().max(1000),
+      rules: z.string({ required_error: t('common.validation.required') }).max(1000),
       autocomplete: 'on',
       readonly: false,
       required: true,

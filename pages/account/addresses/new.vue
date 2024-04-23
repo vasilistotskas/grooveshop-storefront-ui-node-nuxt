@@ -18,20 +18,20 @@ const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
 
 const ZodUserAddress = z.object({
-  title: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  street: z.string(),
-  streetNumber: z.string(),
-  city: z.string(),
-  zipcode: z.string(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+  title: z.string({ required_error: t('common.validation.required') }),
+  firstName: z.string({ required_error: t('common.validation.required') }),
+  lastName: z.string({ required_error: t('common.validation.required') }),
+  street: z.string({ required_error: t('common.validation.required') }),
+  streetNumber: z.string({ required_error: t('common.validation.required') }),
+  city: z.string({ required_error: t('common.validation.required') }),
+  zipcode: z.string({ required_error: t('common.validation.required') }),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).nullish(),
   locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('common.validation.required') })])
     .nullish(),
-  phone: z.string().nullish(),
-  mobilePhone: z.string().nullish(),
-  notes: z.string().nullish(),
+  phone: z.string({ required_error: t('common.validation.required') }).nullish(),
+  mobilePhone: z.string({ required_error: t('common.validation.required') }).nullish(),
+  notes: z.string({ required_error: t('common.validation.required') }).nullish(),
   isMain: z.boolean().nullish(),
   user: z.union([z.number(), ZodUserAccount]),
   country: z

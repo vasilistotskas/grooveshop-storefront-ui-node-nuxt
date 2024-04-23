@@ -19,7 +19,7 @@ const formSchema: DynamicFormSchema = {
       label: t('pages.auth.password.reset.form.email.label'),
       name: 'email',
       as: 'input',
-      rules: z.string().email(t('common.validation.email')),
+      rules: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email')),
       autocomplete: 'email',
       readonly: false,
       required: true,

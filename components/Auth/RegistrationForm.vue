@@ -10,13 +10,13 @@ const localePath = useLocalePath()
 
 const ZodRegistration = z
   .object({
-    email: z.string().email(t('common.validation.email')),
-    password1: z.string().min(8, {
+    email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email')),
+    password1: z.string({ required_error: t('common.validation.required') }).min(8, {
       message: t('pages.auth.registration.form.password1.validation.min', {
         min: 8,
       }),
     }),
-    password2: z.string().min(8, {
+    password2: z.string({ required_error: t('common.validation.required') }).min(8, {
       message: t('pages.auth.registration.form.password2.validation.min', {
         min: 8,
       }),

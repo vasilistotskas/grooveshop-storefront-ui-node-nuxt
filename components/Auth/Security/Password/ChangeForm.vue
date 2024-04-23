@@ -43,7 +43,7 @@ const formSchema: DynamicFormSchema = {
       ),
       name: 'newPassword1',
       as: 'input',
-      rules: z.string().min(8).max(255),
+      rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -58,7 +58,7 @@ const formSchema: DynamicFormSchema = {
       ),
       name: 'newPassword2',
       as: 'input',
-      rules: z.string().min(8).max(255),
+      rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -70,8 +70,8 @@ const formSchema: DynamicFormSchema = {
   ],
   extraValidation: z
     .object({
-      newPassword1: z.string(),
-      newPassword2: z.string(),
+      newPassword1: z.string({ required_error: t('common.validation.required') }),
+      newPassword2: z.string({ required_error: t('common.validation.required') }),
     })
     .refine(data => data.newPassword1 === data.newPassword2, {
       message: t(

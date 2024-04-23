@@ -14,24 +14,24 @@ const USelect = resolveComponent('USelect')
 const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
-  email: z.string().email({
+  email: z.string({ required_error: t('common.validation.required') }).email({
     message: t('pages.account.settings.validation.email.invalid'),
   }),
-  firstName: z.string(),
-  lastName: z.string(),
-  phone: z.string(),
-  city: z.string(),
-  zipcode: z.string(),
-  address: z.string(),
-  place: z.string(),
+  firstName: z.string({ required_error: t('common.validation.required') }),
+  lastName: z.string({ required_error: t('common.validation.required') }),
+  phone: z.string({ required_error: t('common.validation.required') }),
+  city: z.string({ required_error: t('common.validation.required') }),
+  zipcode: z.string({ required_error: t('common.validation.required') }),
+  address: z.string({ required_error: t('common.validation.required') }),
+  place: z.string({ required_error: t('common.validation.required') }),
   birthDate: z.coerce
     .date({
       required_error: t('common.validation.date.required_error'),
       invalid_type_error: t('common.validation.date.invalid_type_error'),
     })
     .nullish(),
-  country: z.string().default(defaultSelectOptionChoose).nullish(),
-  region: z.string().default(defaultSelectOptionChoose).nullish(),
+  country: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).nullish(),
+  region: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).nullish(),
 })
 
 const validationSchema = toTypedSchema(ZodAccountSettings)
