@@ -9,7 +9,7 @@ const packageVersion = pkg.version
 <template>
   <footer
     class="
-      bg-primary-50 mt-6 w-full border-t-2 border-gray-500 pt-2
+      bg-primary-50 mt-6 w-full border-t-2 border-primary-500 pt-2
 
       dark:bg-primary-900
     "

@@ -206,7 +206,6 @@ const submitButtonDisabled = computed(() => {
 
 definePageMeta({
   layout: 'user',
-  keepalive: false,
 })
 </script>
 
@@ -219,14 +218,16 @@ definePageMeta({
     "
   >
     <PageTitle :text="$t('pages.account.settings.title')" />
-    <UserAccountSettingsNavbar />
+    <DevOnly>
+      <UserAccountSettingsNavbar />
+    </DevOnly>
     <div class="grid items-center justify-start pt-4">
       <span
         class="
           text-primary-500 cursor-not-allowed rounded-md border
-          border-gray-900/10 p-2 italic
+          border-primary-500 p-2 italic
 
-          dark:text-primary-400 dark:border-gray-50/[0.2]
+          dark:text-primary-400 dark:border-primary-500
         "
       >{{ email }}</span>
     </div>
@@ -234,9 +235,9 @@ definePageMeta({
       <form
         id="accountSettingsForm"
         class="
-          _form bg-primary-100 grid gap-4 rounded border border-gray-900/10 p-4
+          _form bg-primary-100 grid gap-4 rounded p-4
 
-          dark:bg-primary-900 dark:border-gray-50/[0.2]
+          dark:bg-primary-900
 
           md:grid-cols-2
         "
@@ -505,7 +506,7 @@ definePageMeta({
           >{{ errors.region }}</span>
         </div>
 
-        <div class="grid items-end justify-end">
+        <div class="col-span-2 grid items-end justify-end">
           <button
             type="submit"
             class="

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { locale } = useI18n()
-const route = useRoute('blog-category-id-slug___en')
+const route = useRoute()
 
 const categoryId = route.params.id
 

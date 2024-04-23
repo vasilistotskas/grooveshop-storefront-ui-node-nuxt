@@ -115,7 +115,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             flex-col justify-self-start p-0 font-extrabold capitalize
             text-primary-50
 
-            dark:hover:bg-transparent
+            dark:hover:bg-transparent dark:text-primary-50
 
             hover:bg-transparent
           "
@@ -135,7 +135,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             flex-col justify-self-start p-0 font-extrabold capitalize
             text-primary-50
 
-            dark:hover:bg-transparent
+            dark:hover:bg-transparent dark:text-primary-50
 
             hover:bg-transparent
           "
@@ -161,7 +161,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
               flex-col justify-self-start p-0 font-extrabold capitalize
               text-primary-50
 
-              dark:hover:bg-transparent
+              dark:hover:bg-transparent dark:text-primary-50
 
               hover:bg-transparent
             "

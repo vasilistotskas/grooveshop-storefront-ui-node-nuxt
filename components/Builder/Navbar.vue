@@ -35,10 +35,10 @@ const spider = computed(() => {
   <div
     ref="navbar"
     class="
-      top-0 z-50 w-full flex-none border-b border-gray-900/10 backdrop-blur-md
+      top-0 z-50 w-full flex-none border-b border-primary-500 backdrop-blur-md
       backdrop-filter transition-colors duration-300
 
-      dark:border-gray-50/[0.2]
+      dark:border-primary-500
 
       lg:z-50
     "

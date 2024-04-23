@@ -103,14 +103,14 @@ components:
     here: εδώ
     iframe_blocked: Για να το δείτε αυτό, ενεργοποιήστε τα λειτουργικά cookies.
     manage_cookies: Ρυθμίσεις cookies
-    save: Αποθηκεύσετε
+    save: Αποθήκευση
     settings:
       unsaved: Έχετε μη αποθηκευμένες αλλαγές.
   form:
     validation:
-      email: ΗΛΕΚΤΡΟΝΙΚΗ ΔΙΕΥΘΥΝΣΗ
+      email: Email
       password: Κωδικός πρόσβασης
-      submit: υποβάλλουν
+      submit: Αποθήκευση
       too_many_attempts: Πάρα πολλές προσπάθειες, δοκιμάστε ξανά αργότερα.
   product:
     card:
@@ -257,7 +257,7 @@ components:
           success: Το σχόλιο δημιουργήθηκε με επιτυχία
         reply:
           login: Συνδεθείτε για να απαντήσετε
-          placeholder: ΓΡΑΨΕ μια ΑΠΑΝΤΗΣΗ...
+          placeholder: Γράψε κάτι...
   favourite:
     list:
       favourites:

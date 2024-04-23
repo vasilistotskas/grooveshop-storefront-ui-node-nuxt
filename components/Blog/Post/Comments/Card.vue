@@ -555,6 +555,7 @@ watch(
           rounded: 'rounded-full',
         },
       }"
+      :button-label="t('common.submit')"
       @submit="onReplySubmit"
     />
     <Pagination

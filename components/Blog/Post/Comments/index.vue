@@ -306,9 +306,9 @@ onMounted(() => {
     id="blog-post-comments"
     class="
       mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t
-      border-gray-200 border-gray-900/10 pb-6 pt-6
+      border-primary-500 pb-6 pt-6
 
-      dark:border-gray-50/20 dark:border-gray-700
+      dark:border-primary-500
     "
   >
     <div class="grid gap-4">
@@ -352,6 +352,7 @@ onMounted(() => {
                 id="add-comment-form"
                 :schema="addCommentFormSchema"
                 class="container-3xs"
+                :button-label="t('common.submit')"
                 @submit="onAddCommentSubmit"
               />
             </template>
@@ -374,6 +375,7 @@ onMounted(() => {
           id="add-comment-form"
           :schema="addCommentFormSchema"
           class="container-3xs"
+          :button-label="t('common.submit')"
           @submit="onAddCommentSubmit"
         />
       </template>

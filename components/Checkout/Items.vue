@@ -21,7 +21,7 @@ const { locale } = useI18n()
     <ClientOnly>
       <div
         v-if="getCartItems?.length"
-        class="h-[185px] overflow-auto border-b border-t border-gray-200 py-4"
+        class="h-[185px] overflow-auto border-b border-t border-primary-500 py-4"
       >
         <div
           v-for="item in getCartItems"

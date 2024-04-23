@@ -24,7 +24,7 @@ const items = [{
 <template>
   <footer
     class="
-      bg-primary-50 mt-6 w-full pb-[3.75rem]
+      bg-primary-50 w-full pb-[3.75rem]
 
       dark:bg-primary-900
     "

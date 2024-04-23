@@ -95,7 +95,8 @@ const menus = computed((): IMenuItem[] => [
 
                 focus:secondary/[0.6] focus:dark:secondary focus:outline-none
                 focus:ring-1 focus:ring-offset-1
-                focus:ring-offset-gray-800/[0.6] focus:dark:ring-offset-gray-50
+                focus:ring-offset-primary-800/[0.6]
+                focus:dark:ring-offset-primary-50
 
                 md:grid md:px-4 md:py-2
               "
@@ -157,9 +158,9 @@ const menus = computed((): IMenuItem[] => [
         <ul
           class="
             text-primary-950 ml-6 flex items-center gap-3 border-l
-            border-gray-900/10 pl-6
+            border-primary-500 pl-6
 
-            dark:text-primary-50 dark:border-gray-50/[0.2]
+            dark:text-primary-50 dark:border-primary-500
           "
         >
           <li
@@ -230,9 +231,9 @@ const menus = computed((): IMenuItem[] => [
             <ul
               class="
                 flex flex-row items-center justify-center gap-2 border-b
-                border-gray-900/10
+                border-primary-500
 
-                dark:border-gray-50/[0.2]
+                dark:border-primary-500
               "
             >
               <li class="link grid gap-2 pb-2">

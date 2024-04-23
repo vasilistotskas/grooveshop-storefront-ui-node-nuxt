@@ -4,7 +4,7 @@ import { z } from 'zod'
 const { passwordResetConfirm } = useAuth()
 
 const { t } = useI18n()
-const route = useRoute('auth-password-reset-confirm-uid-token___en')
+const route = useRoute()
 const uid = route.params.uid
 const token = route.params.token
 
@@ -69,10 +69,10 @@ const onSubmit = handleSubmit(async (values) => {
       <div
         class="
           bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-[0.5rem] border border-gray-900/10 p-4
+          rounded-[0.5rem] border border-primary-500 p-4
           shadow-[0_4px_9px_-4px_#0000000d]
 
-          dark:bg-primary-900 dark:border-gray-50/[0.2]
+          dark:bg-primary-900 dark:border-primary-500
           dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           lg:justify-between

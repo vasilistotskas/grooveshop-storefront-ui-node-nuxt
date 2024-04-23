@@ -4,7 +4,7 @@ import type { EntityOrdering } from '~/types/ordering'
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 
 const { t } = useI18n()
-const route = useRoute('account-favourites-posts___en')
+const route = useRoute()
 const { user } = useUserSession()
 
 const pageSize = ref(4)
@@ -71,10 +71,11 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async () => {
-    favourites.value = await refreshFavourites()
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      favourites.value = await refreshFavourites()
+    }
   },
-  { deep: true },
 )
 
 definePageMeta({
@@ -91,7 +92,9 @@ definePageMeta({
     "
   >
     <PageTitle :text="$t('pages.account.favourites.posts.title')" />
-    <UserAccountFavouritesNavbar />
+    <DevOnly>
+      <UserAccountFavouritesNavbar />
+    </DevOnly>
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
         <PaginationPageNumber

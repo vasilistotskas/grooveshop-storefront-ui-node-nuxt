@@ -81,6 +81,30 @@
   }
 
   .article {
+    h1, h2, h3, h4, h5, h6 {
+      @apply font-bold;
+    }
+    h1 {
+      @apply text-3xl;
+    }
+    h2 {
+      @apply text-2xl;
+    }
+    h3 {
+      @apply text-xl;
+    }
+    h4 {
+      @apply text-lg;
+    }
+    h5 {
+      @apply text-base;
+    }
+    h6 {
+      @apply text-sm;
+    }
+    p {
+      @apply mt-[1em] mb-[1em];
+    }
     ol, ul, menu {
       display: block;
       margin-block-start: 1em;

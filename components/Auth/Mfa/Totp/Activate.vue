@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { totpActivateGet } = useAuthMfa()
 
-const totp = await totpActivateGet()
+const { data: totp } = await totpActivateGet()
 </script>
 
 <template>
@@ -20,10 +20,10 @@ const totp = await totpActivateGet()
       <p v-html="totp.totpSvg" />
       <p
         class="
-          text-primary-500 rounded-md border border-gray-900/10 p-2 text-xs
+          text-primary-500 rounded-md border border-primary-500 p-2 text-xs
           italic
 
-          dark:text-primary-400 dark:border-gray-50/[0.2]
+          dark:text-primary-400 dark:border-primary-500
 
           lg:text-base
         "

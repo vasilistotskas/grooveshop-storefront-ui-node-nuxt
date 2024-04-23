@@ -4,7 +4,7 @@ import type { Order, OrderOrderingField } from '~/types/order/order'
 import type { EntityOrdering } from '~/types/ordering'
 
 const { t } = useI18n()
-const route = useRoute('account-orders___en')
+const route = useRoute()
 const { user } = useUserSession()
 
 const pageSize = ref(8)
@@ -66,10 +66,11 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async () => {
-    orders.value = await refreshOrders()
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      orders.value = await refreshOrders()
+    }
   },
-  { deep: true },
 )
 
 definePageMeta({

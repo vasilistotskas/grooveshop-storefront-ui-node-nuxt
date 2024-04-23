@@ -25,6 +25,10 @@ export const ZodProductImage = z.object({
   sortOrder: z.number().nullish(),
 })
 
+export const ZodProductImageParams = z.object({
+  id: z.string(),
+})
+
 export const ZodProductImageQuery = z
   .object({
     id: z.string().nullish(),

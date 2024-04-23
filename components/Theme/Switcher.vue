@@ -28,7 +28,7 @@ const modes = [
 ] as const
 
 const mode = computed(() => colorMode.preference)
-const icon = computed(() => modes.find(m => m.mode === mode.value)?.icon ?? 'i-heroicons-computer-desktop')
+const icon = computed(() => colorMode.value === 'dark' ? modes[0].icon : modes[1].icon)
 </script>
 
 <template>

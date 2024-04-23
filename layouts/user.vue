@@ -53,7 +53,15 @@ const Footer = computed(() => {
       <PageHeader>
         <PageNavbar />
       </PageHeader>
-      <div class="grid gap-6">
+      <div
+        class="
+          grid gap-6 pt-[48px]
+
+          lg:pt-[63px]
+
+          md:pt-[56px]
+        "
+      >
         <div
           class="
             bg-primary-100

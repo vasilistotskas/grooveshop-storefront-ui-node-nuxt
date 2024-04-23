@@ -7,7 +7,7 @@ import type { DynamicFormSchema } from '~/types/form'
 const { registrationVerifyEmail, registrationResendEmail } = useAuth()
 const { t } = useI18n()
 const toast = useToast()
-const route = useRoute('auth-registration-account-confirm-email-id___en')
+const route = useRoute()
 const id = route.params.id
 
 const data = await registrationVerifyEmail({
@@ -48,7 +48,7 @@ const formSchema: DynamicFormSchema = {
       ),
       name: 'email',
       as: 'input',
-      rules: z.string().email(),
+      rules: z.string().email(t('common.validation.email')),
       autocomplete: 'email',
       readonly: false,
       required: true,
@@ -113,7 +113,7 @@ definePageMeta({
           "
           :to="`/auth/login`"
         />
-        <LazyDynamicForm v-else :schema="formSchema" @submit="onSubmit" />
+        <LazyDynamicForm v-else :schema="formSchema" :button-label="t('common.submit')" @submit="onSubmit" />
       </div>
     </PageBody>
   </PageWrapper>

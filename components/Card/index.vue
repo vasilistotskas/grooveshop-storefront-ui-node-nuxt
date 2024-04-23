@@ -14,9 +14,9 @@ defineSlots<{
   <div
     class="
       card bg-primary-100 relative w-full overflow-hidden rounded border
-      border-gray-900/10 transition-colors duration-300
+      border-primary-500 transition-colors duration-300
 
-      dark:bg-primary-900 dark:border-gray-50/[0.2]
+      dark:bg-primary-900 dark:border-primary-500
     "
   >
     <div

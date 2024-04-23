@@ -10,7 +10,7 @@ const localePath = useLocalePath()
 
 const ZodRegistration = z
   .object({
-    email: z.string().email(),
+    email: z.string().email(t('common.validation.email')),
     password1: z.string().min(8, {
       message: t('pages.auth.registration.form.password1.validation.min', {
         min: 8,
@@ -124,11 +124,9 @@ const onSubmit = handleSubmit((values) => {
       <div
         class="
           bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-[0.5rem] border border-gray-900/10 p-4
-          shadow-[0_4px_9px_-4px_#0000000d]
+          rounded-[0.5rem] p-4 shadow-[0_4px_9px_-4px_#0000000d]
 
-          dark:bg-primary-900 dark:border-gray-50/[0.2]
-          dark:shadow-[0_4px_9px_-4px_#0000000d]
+          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           lg:justify-between
 

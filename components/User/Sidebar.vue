@@ -26,33 +26,17 @@ defineProps({
 const { t } = useI18n()
 const route = useRoute()
 
-const menus = computed((): IMenuItem[] => [
-  {
-    type: 'link',
-    text: t('pages.account.orders.title'),
-    route: { name: 'account-orders', path: '/account/orders' },
-    icon: ordersIcon,
-    cssClass:
-      'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
-  },
+const menus = shallowRef<IMenuItem[]>([
   {
     type: 'link',
     text: t('common.favourites'),
     route: {
-      name: 'account-favourites-products',
-      path: '/account/favourites/products',
+      name: 'account-favourites-posts',
+      path: '/account/favourites/posts',
     },
     icon: favouritesIcon,
     cssClass:
-      'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
-  },
-  {
-    type: 'link',
-    text: t('pages.account.reviews.title'),
-    route: { name: 'account-reviews', path: '/account/reviews' },
-    icon: reviewsIcon,
-    cssClass:
-      'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
+      'text-primary-950 dark:text-primary-50 bg-primary-100 border-primary-500 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
   },
   {
     type: 'link',
@@ -60,17 +44,38 @@ const menus = computed((): IMenuItem[] => [
     route: { name: 'account-settings', path: '/account/settings' },
     icon: settingsIcon,
     cssClass:
-      'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
-  },
-  {
-    type: 'link',
-    text: t('pages.account.help.title'),
-    route: { name: 'account-help', path: '/account/help' },
-    icon: helpIcon,
-    cssClass:
-      'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
+      'text-primary-950 dark:text-primary-50 bg-primary-100 border-primary-500 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
   },
 ])
+
+if (import.meta.dev) {
+  menus.value.push(
+    {
+      type: 'link',
+      text: t('pages.account.orders.title'),
+      route: { name: 'account-orders', path: '/account/orders' },
+      icon: ordersIcon,
+      cssClass:
+        'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
+    },
+    {
+      type: 'link',
+      text: t('pages.account.reviews.title'),
+      route: { name: 'account-reviews', path: '/account/reviews' },
+      icon: reviewsIcon,
+      cssClass:
+        'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
+    },
+    {
+      type: 'link',
+      text: t('pages.account.help.title'),
+      route: { name: 'account-help', path: '/account/help' },
+      icon: helpIcon,
+      cssClass:
+        'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
+    },
+  )
+}
 
 const sidebar = ref(null)
 onMounted(() => {
@@ -104,7 +109,7 @@ onMounted(() => {
           v-for="(item, i) in menus"
           :key="i"
           class="
-            bg-primary-100 rounded border border-gray-700 p-2
+            bg-primary-100 rounded border border-primary-500 p-2
 
             dark:bg-primary-900
 

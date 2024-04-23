@@ -3,7 +3,7 @@ import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
 
 import type { Order } from '~/types/order/order'
 
-const route = useRoute('checkout-success-uuid___en')
+const route = useRoute()
 const orderUUID = route.params.uuid
 
 const { t, locale } = useI18n()
@@ -91,10 +91,9 @@ definePageMeta({
     <PageBody>
       <div
         class="
-          container-2xs bg-primary-100 rounded border border-gray-900/10 !p-4
-          shadow-md
+          container-2xs bg-primary-100 rounded !p-4 shadow-md
 
-          dark:bg-primary-900 dark:border-gray-50/[0.2]
+          dark:bg-primary-900
 
           md:px-6
         "

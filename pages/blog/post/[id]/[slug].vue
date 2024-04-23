@@ -3,7 +3,7 @@ import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
 import type { BlogPost } from '~/types/blog/post'
 
-const route = useRoute('blog-post-id-slug___en')
+const route = useRoute()
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
 const { loggedIn } = useUserSession()
@@ -29,6 +29,13 @@ const { data: blogPost, refresh } = await useFetch<BlogPost>(
   },
 )
 
+if (!blogPost.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: t('common.error.page.not.found'),
+  })
+}
+
 await useFetch('/api/blog/posts/liked-posts', {
   method: 'POST',
   body: {
@@ -43,13 +50,6 @@ await useFetch('/api/blog/posts/liked-posts', {
     updateLikedPosts(likedPostsIds)
   },
 })
-
-if (!blogPost.value) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: t('common.error.page.not.found'),
-  })
-}
 
 const blogPostBody = computed(() => {
   return extractTranslated(blogPost.value, 'body', locale.value)
@@ -156,8 +156,14 @@ const ogImageOptions = {
   cacheTtl: 60 * 60 * 24 * 7,
 }
 
+onMounted(() => {
+  $fetch(`/api/blog/posts/${blogPostId}/update-view-count`, {
+    method: 'POST',
+  })
+})
+
 useHydratedHead({
-  title: () => blogPostTitle.value,
+  title: () => blogPostTitle.value || '',
 })
 
 useSeoMeta(seoMetaOptions)
@@ -193,9 +199,9 @@ definePageMeta({
         <article
           class="
             mx-auto flex max-w-2xl flex-col items-start justify-center
-            border-gray-200 pb-6
+            border-primary-500 pb-6
 
-            dark:border-gray-700
+            dark:border-primary-500
           "
         >
           <div

@@ -21,9 +21,9 @@ definePageMeta({
       <div
         class="
           container-2xs bg-primary-100 grid items-center justify-center
-          justify-items-center gap-4 rounded border border-gray-900/10 !p-4
+          justify-items-center gap-4 rounded !p-4
 
-          dark:bg-primary-900 dark:border-gray-50/[0.2]
+          dark:bg-primary-900
 
           md:px-6
         "

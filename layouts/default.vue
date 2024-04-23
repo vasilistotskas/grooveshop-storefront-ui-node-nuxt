@@ -70,31 +70,20 @@ const Footer = computed(() => {
       </PageSection>
     </main>
     <slot name="footer">
-      <div v-if="isMobileOrTablet" class="flex items-center justify-center">
-        <UButton
-          :to="config.public.socials.tiktok"
-          variant="link"
-          color="opposite"
-          size="xl"
-        >
-          <IconAntDesign:tikTokFilled
-            class="
-              text-5xl text-secondary-light
-
-              dark:text-secondary-dark
-            "
-          />
-          <span class="sr-only">{{ $t('common.tiktok') }}</span>
-        </UButton>
+      <div
+        v-if="isMobileOrTablet" class="
+          mb-6 mt-6 flex flex-wrap items-center justify-center
+        "
+      >
         <UButton
           :to="config.public.socials.instagram"
           variant="link"
           color="opposite"
-          size="xl"
+          size="md"
         >
           <IconMdi:instagram
             class="
-              text-5xl text-secondary-light
+              text-3xl text-secondary-light
 
               dark:text-secondary-dark
             "
@@ -102,34 +91,79 @@ const Footer = computed(() => {
           <span class="sr-only">{{ $t('common.instagram') }}</span>
         </UButton>
         <UButton
-          :to="config.public.socials.facebook"
+          :to="config.public.socials.tiktok"
           variant="link"
           color="opposite"
-          size="xl"
+          size="md"
         >
-          <IconMdi:facebook
+          <IconAntDesign:tikTokFilled
             class="
-              text-5xl text-secondary-light
+              text-3xl text-secondary-light
 
               dark:text-secondary-dark
             "
           />
-          <span class="sr-only">{{ $t('common.facebook') }}</span>
+          <span class="sr-only">{{ $t('common.tiktok') }}</span>
+        </UButton>
+        <UButton
+          :to="config.public.socials.reddit"
+          variant="link"
+          color="opposite"
+          size="md"
+        >
+          <IconMdi:reddit
+            class="
+              text-3xl text-secondary-light
+
+              dark:text-secondary-dark
+            "
+          />
+          <span class="sr-only">{{ $t('common.reddit') }}</span>
         </UButton>
         <UButton
           :to="config.public.socials.youtube"
           variant="link"
           color="opposite"
-          size="xl"
+          size="md"
         >
           <IconMdi:youtube
             class="
-              text-5xl text-secondary-light
+              text-3xl text-secondary-light
 
               dark:text-secondary-dark
             "
           />
           <span class="sr-only">{{ $t('common.youtube') }}</span>
+        </UButton>
+        <UButton
+          :to="config.public.socials.pinterest"
+          variant="link"
+          color="opposite"
+          size="md"
+        >
+          <IconMdi:pinterest
+            class="
+              text-3xl text-secondary-light
+
+              dark:text-secondary-dark
+            "
+          />
+          <span class="sr-only">{{ $t('common.pinterest') }}</span>
+        </UButton>
+        <UButton
+          :to="config.public.socials.facebook"
+          variant="link"
+          color="opposite"
+          size="md"
+        >
+          <IconMdi:facebook
+            class="
+              text-3xl text-secondary-light
+
+              dark:text-secondary-dark
+            "
+          />
+          <span class="sr-only">{{ $t('common.facebook') }}</span>
         </UButton>
       </div>
       <Component

@@ -3,7 +3,7 @@
     class="
       z-10 w-full bg-transparent px-4
 
-      lg:static lg:w-auto lg:border-b lg:border-gray-300 lg:bg-transparent
+      lg:static lg:w-auto lg:border-b lg:border-primary-500 lg:bg-transparent
       lg:px-0 lg:shadow-none
     "
   >
@@ -13,7 +13,9 @@
           :to="`/auth/security/password`"
           :aria-label="$t('pages.auth.security.password.title')"
           :title="$t('pages.auth.security.password.title')"
-          class="block whitespace-nowrap py-4 text-sm text-gray-600 outline-none"
+          class="
+            block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
+          "
         >
           <span
             class="
@@ -31,7 +33,9 @@
           :to="`/auth/security/mfa`"
           :aria-label="$t('pages.auth.security.mfa.title')"
           :title="$t('pages.auth.security.mfa.title')"
-          class="block whitespace-nowrap py-4 text-sm text-gray-600 outline-none"
+          class="
+            block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
+          "
         >
           <span
             class="

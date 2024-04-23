@@ -11,9 +11,9 @@ defineProps({
   <div
     class="
       flex flex-col items-center justify-center rounded-lg border
-      border-gray-900/10 p-16
+      border-primary-500 p-16
 
-      dark:border-gray-50/[0.2]
+      dark:border-primary-500
     "
   >
     <p

@@ -68,7 +68,7 @@ const ZodCheckout = z.object({
   lastName: z
     .string()
     .min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
-  email: z.string().email(t('pages.checkout.validation.email.email')),
+  email: z.string().email(t('common.validation.email')),
   zipcode: z
     .string()
     .min(3, t('pages.checkout.validation.zipcode.min', { min: 3 })),

@@ -7,7 +7,7 @@ import type {
 } from '~/types/product/favourite'
 
 const { t } = useI18n()
-const route = useRoute('account-favourites-products___en')
+const route = useRoute()
 const { user } = useUserSession()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
@@ -62,7 +62,7 @@ const refreshFavourites = async () => {
 
 const productIds = computed(() => {
   if (!favourites.value) return []
-  return favourites.value.results?.map(favourite =>
+  return favourites.value.results.map(favourite =>
     getEntityId(favourite.product),
   )
 })
@@ -110,13 +110,14 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async () => {
-    favourites.value = await refreshFavourites()
-    if (productIds.value && productIds.value.length > 0) {
-      await refreshFavouriteProducts(productIds.value)
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      favourites.value = await refreshFavourites()
+      if (productIds.value && productIds.value.length > 0) {
+        await refreshFavouriteProducts(productIds.value)
+      }
     }
   },
-  { deep: true },
 )
 
 definePageMeta({
@@ -133,7 +134,9 @@ definePageMeta({
     "
   >
     <PageTitle :text="$t('pages.account.favourites.products.title')" />
-    <UserAccountFavouritesNavbar />
+    <DevOnly>
+      <UserAccountFavouritesNavbar />
+    </DevOnly>
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
         <PaginationPageNumber

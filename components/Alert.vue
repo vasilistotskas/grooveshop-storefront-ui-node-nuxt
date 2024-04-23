@@ -34,11 +34,11 @@ const styles = reactive<{
 }>({
   primary: '',
   success:
-    'dark:from-green-500/50 via-gray-200 to-gray-200 dark:via-slate-800 dark:to-slate-800',
+    'dark:from-green-500/50 via-primary-200 to-primary-200 dark:via-slate-800 dark:to-slate-800',
   warning:
-    'dark:from-yellow-500/50 via-gray-200 to-gray-200 dark:via-slate-800 dark:to-slate-800',
+    'dark:from-yellow-500/50 via-primary-200 to-primary-200 dark:via-slate-800 dark:to-slate-800',
   danger:
-    'dark:from-red-500/50 via-gray-200 to-gray-200 dark:via-slate-800 dark:to-slate-800',
+    'dark:from-red-500/50 via-primary-200 to-primary-200 dark:via-slate-800 dark:to-slate-800',
 })
 const textStyles = reactive<{
   [key: string]: string

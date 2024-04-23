@@ -1,7 +1,7 @@
 <template>
   <nav
     class="
-      static z-10 w-auto border-b border-gray-300 bg-transparent px-0
+      static z-10 w-auto border-b border-primary-500 bg-transparent px-0
       shadow-none
     "
   >
@@ -11,7 +11,9 @@
           :to="`/account/favourites/products`"
           :aria-label="$t('pages.account.favourites.products.title')"
           :title="$t('pages.account.favourites.products.title')"
-          class="block whitespace-nowrap py-4 text-sm text-gray-600 outline-none"
+          class="
+            block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
+          "
         >
           <span
             class="
@@ -29,7 +31,9 @@
           :to="`/account/favourites/posts`"
           :aria-label="$t('pages.account.favourites.posts.title')"
           :title="$t('pages.account.favourites.posts.title')"
-          class="block whitespace-nowrap py-4 text-sm text-gray-600 outline-none"
+          class="
+            block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
+          "
         >
           <span
             class="

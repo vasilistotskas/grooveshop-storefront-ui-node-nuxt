@@ -23,9 +23,10 @@ declare module 'vue' {
     'IconMdi:facebook': typeof import('~icons/mdi/facebook')['default']
     'IconMdi:google': typeof import('~icons/mdi/google')['default']
     'IconMdi:instagram': typeof import('~icons/mdi/instagram')['default']
+    'IconMdi:pinterest': typeof import('~icons/mdi/pinterest')['default']
+    'IconMdi:reddit': typeof import('~icons/mdi/reddit')['default']
     'IconMdi:star': typeof import('~icons/mdi/star')['default']
     'IconMdi:youtube': typeof import('~icons/mdi/youtube')['default']
-    'IconMdi:youTube': typeof import('~icons/mdi/you-tube')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

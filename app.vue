@@ -47,7 +47,7 @@ defineOgImageComponent('NuxtSeo', ogImageOptions)
     <NuxtPwaManifest />
     <LoadingIndicator />
     <NuxtLayout>
-      <NuxtPage />
+      <PlusModalNuxtPage />
     </NuxtLayout>
     <Pwa />
     <CookieControl />

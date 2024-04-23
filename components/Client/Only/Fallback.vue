@@ -89,7 +89,7 @@ const GenericModal = resolveComponent('GenericModal')
       }"
       :ui="{
         background: showAnimation
-          ? 'bg-gray-300 dark:bg-gray-600'
+          ? 'bg-primary-300 dark:bg-primary-600'
           : 'bg-transparent dark:bg-transparent',
       }"
     />

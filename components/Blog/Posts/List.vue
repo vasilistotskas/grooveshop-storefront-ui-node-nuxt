@@ -146,7 +146,7 @@ const BlogPostCard = computed(() => {
 })
 
 watch(
-  () => [route.query, cursorState.value],
+  () => cursorState.value,
   async () => {
     await refresh()
     if (shouldFetchLikedPosts.value) {
@@ -154,6 +154,18 @@ watch(
     }
   },
   { deep: true },
+)
+
+watch(
+  () => route.query,
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      await refresh()
+      if (shouldFetchLikedPosts.value) {
+        await refreshLikedPosts()
+      }
+    }
+  },
 )
 
 watch(

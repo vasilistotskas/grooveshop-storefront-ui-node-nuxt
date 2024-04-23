@@ -681,7 +681,7 @@ definePageMeta({
           </div>
         </div>
 
-        <div class="col-start-3 grid items-end justify-end">
+        <div class="col-span-2 col-start-3 grid items-end justify-end">
           <button
             type="submit"
             class="

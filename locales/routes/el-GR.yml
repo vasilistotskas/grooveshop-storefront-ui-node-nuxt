@@ -12,10 +12,10 @@ routes:
   testing: Δοκιμές
   products: Προϊόντα
   product: Προϊόν
-  home: Σπίτι
+  home: Αρχική
   cart: Καροτσάκι
   checkout: Ολοκλήρωση αγοράς
-  account: λογαριασμός
+  account: Λογαριασμός
   orders: Παραγγελίες
   favourites: Αγαπημένα
   reviews: Κριτικές

@@ -7,9 +7,9 @@ defineSlots<{
 <template>
   <div
     class="
-      card-footer bg-primary-100 border-t border-gray-900/10 px-6 py-2 text-sm
+      card-footer bg-primary-100 border-t border-primary-500 px-6 py-2 text-sm
 
-      dark:bg-primary-900 dark:border-gray-50/[0.2]
+      dark:bg-primary-900 dark:border-primary-500
     "
   >
     <slot />

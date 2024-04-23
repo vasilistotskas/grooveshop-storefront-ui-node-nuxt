@@ -11,7 +11,7 @@ import { ZodUserAccount } from '~/types/user/account'
 
 const { t, locale } = useI18n()
 const toast = useToast()
-const route = useRoute('account-addresses-id-edit___en')
+const route = useRoute()
 
 const addressId = Number(route.params.id)
 
@@ -248,7 +248,6 @@ const submitButtonDisabled = computed(() => {
 
 definePageMeta({
   layout: 'user',
-  keepalive: false,
 })
 </script>
 
@@ -771,7 +770,7 @@ definePageMeta({
           </div>
         </div>
 
-        <div class="col-start-3 grid items-end justify-end">
+        <div class="col-span-2 col-start-3 grid items-end justify-end">
           <button
             type="submit"
             class="

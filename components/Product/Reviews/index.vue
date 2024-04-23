@@ -69,8 +69,11 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  () => refresh(),
-  { deep: true },
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      await refresh()
+    }
+  },
 )
 </script>
 
@@ -78,10 +81,10 @@ watch(
   <div
     v-if="!pending && productReviews && productReviews?.length > 0"
     class="
-      container-sm text-primary-950 grid gap-2 border-t border-gray-900/10 !px-0
+      container-sm text-primary-950 grid gap-2 border-t border-primary-500 !px-0
       !py-6
 
-      dark:text-primary-50 dark:border-gray-50/20
+      dark:text-primary-50 dark:border-primary-500
 
       md:!p-6
     "

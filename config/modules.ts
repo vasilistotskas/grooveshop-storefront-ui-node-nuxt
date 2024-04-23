@@ -17,4 +17,5 @@ export const modules = [
   'nuxt-build-cache',
   'nuxt-auth-utils',
   'nuxt-time',
+  'nuxt-pages-plus',
 ]

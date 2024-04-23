@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { locale } = useI18n()
-const route = useRoute('account-orders-id___en')
+const route = useRoute()
 const orderId = route.params.id
 
 const { data: order } = await useFetch(`/api/orders/${orderId}`, {
@@ -253,9 +253,9 @@ definePageMeta({
             </span>
             <div
               class="
-                grid gap-2 border-b border-gray-900/10 pb-4
+                grid gap-2 border-b border-primary-500 pb-4
 
-                dark:border-gray-50/[0.2]
+                dark:border-primary-500
               "
             >
               <div class="flex items-center justify-between">

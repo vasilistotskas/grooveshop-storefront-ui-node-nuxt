@@ -3,7 +3,7 @@ breadcrumb:
   items:
     index:
       icon: i-heroicons-home
-      label: Σπίτι
+      label: Αρχική
     products:
       icon: heroicons-solid:shopping-cart
       label: Προϊόντα
@@ -24,7 +24,7 @@ breadcrumb:
       label: Καροτσάκι
     blog:
       icon: heroicons-solid:shopping-cart
-      label: Ιστολόγιο
+      label: Blog
     checkout:
       icon: heroicons-solid:shopping-cart
       label: Ολοκλήρωση αγοράς
@@ -67,7 +67,7 @@ breadcrumb:
           totp:
             activate:
               icon: heroicons-solid:shopping-cart
-              label: Δραστηριοποιώ
+              label: Ενεργοποίηση
             authenticate:
               icon: heroicons-solid:shopping-cart
               label: Πιστοποιώ την αυθεντικότητα
@@ -76,7 +76,7 @@ breadcrumb:
               label: Απενεργοποίηση
     account:
       icon: heroicons-solid:shopping-cart
-      label: λογαριασμός
+      label: Λογαριασμός
       addresses:
         icon: heroicons-solid:shopping-cart
         label: Διευθύνσεις

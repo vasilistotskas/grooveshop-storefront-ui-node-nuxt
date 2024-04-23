@@ -32,6 +32,7 @@ import { eslint } from './config/eslint'
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
   ssr: true,
+  debug: false,
   sourcemap: true,
   site,
   modules,

@@ -7,7 +7,7 @@ import type {
 } from '~/types/product/review'
 
 const { t } = useI18n()
-const route = useRoute('account-reviews___en')
+const route = useRoute()
 const { user } = useUserSession()
 
 const pageSize = ref(8)
@@ -68,11 +68,11 @@ const orderingOptions = computed(() => {
 })
 
 watch(
-  () => route.query,
-  async () => {
-    reviews.value = await refreshReviews()
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      reviews.value = await refreshReviews()
+    }
   },
-  { deep: true },
 )
 
 definePageMeta({

@@ -27,7 +27,15 @@ const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
     <PageHeader>
       <PageNavbar />
     </PageHeader>
-    <div class="grid min-h-screen">
+    <div
+      class="
+        grid min-h-screen pt-[48px]
+
+        lg:pt-[63px]
+
+        md:pt-[56px]
+      "
+    >
       <div class="flex flex-col items-center justify-center gap-2 p-6">
         <h2
           class="

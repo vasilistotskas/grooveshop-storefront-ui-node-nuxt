@@ -7,7 +7,7 @@ const { results, storage, totalCount, productSearchItems, productHeadlines }
   = storeToRefs(searchStore)
 const { reset } = searchStore
 
-const route = useRoute('search___en')
+const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
 const { cleanHtml } = useText()
@@ -151,9 +151,9 @@ definePageMeta({
             aria-label="index"
             class="
               text-md text-primary-950 flex items-center gap-3 overflow-hidden
-              border-r-2 border-gray-900/10 pr-8 font-bold
+              border-r-2 border-primary-500 pr-8 font-bold
 
-              dark:text-primary-50 dark:border-gray-50/20
+              dark:text-primary-50 dark:border-primary-500
 
               md:w-auto
             "

@@ -111,13 +111,14 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async () => {
-    await refresh()
-    if (loggedIn.value && productIds.value && productIds.value.length > 0) {
-      await refreshFavouriteProducts(productIds.value)
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      await refresh()
+      if (loggedIn.value && productIds.value && productIds.value.length > 0) {
+        await refreshFavouriteProducts(productIds.value)
+      }
     }
   },
-  { deep: true },
 )
 </script>
 

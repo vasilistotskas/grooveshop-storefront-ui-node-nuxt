@@ -54,8 +54,10 @@ watch(
 
 watch(
   () => route.query,
-  () => {
-    currentPage.value = Number(route.query.page) || 1
+  (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      currentPage.value = Number(route.query.page) || 1
+    }
   },
 )
 </script>

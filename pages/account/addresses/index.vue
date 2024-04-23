@@ -4,7 +4,7 @@ import type { EntityOrdering } from '~/types/ordering'
 import type { UserAddressOrderingField } from '~/types/user/address'
 
 const { t } = useI18n()
-const route = useRoute('account-addresses___en')
+const route = useRoute()
 const { user } = useUserSession()
 
 const pageSize = ref(8)
@@ -64,10 +64,11 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async () => {
-    addresses.value = await refreshAddresses()
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      addresses.value = await refreshAddresses()
+    }
   },
-  { deep: true },
 )
 
 definePageMeta({

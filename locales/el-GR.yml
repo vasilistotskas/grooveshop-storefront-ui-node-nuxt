@@ -1,5 +1,5 @@
 common:
-  home: Σπίτι
+  home: Αρχική
   close: Κλείσε
   auth:
     login:
@@ -24,7 +24,7 @@ common:
   mobile_phone: Κινητό τηλέφωνο
   notes: Σημειώσεις
   back: Πίσω
-  account: λογαριασμός
+  account: Λογαριασμός
   search: Αναζήτηση
   favourites: Αγαπημένα
   retry: Ξαναδοκιμάσετε
@@ -47,7 +47,7 @@ common:
   login: Σύνδεση
   logout: Αποσύνδεση
   about: Σχετικά με
-  blog: Ιστολόγιο
+  blog: Blog
   company: Εταιρία
   help_center: Κέντρο βοηθείας
   terms_conditions: Οροι
@@ -66,29 +66,7 @@ common:
   empty:
     title: Αδειάζω
     description: Αδειάζω
-    button: Επέστρεψε στο σπίτι
-  validation:
-    date:
-      required_error: Επιλέξτε ημερομηνία και ώρα
-      invalid_type_error: Δεν είναι ραντεβού!
-    email:
-      invalid: Το email δεν είναι έγκυρο
-    first_name:
-      min: Το όνομα πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
-    last_name:
-      min: Το επώνυμο πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
-    street:
-      min: Η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    street_number:
-      min: Ο αριθμός οδού πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
-    city:
-      min: Η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    zipcode:
-      min: Ο ταχυδρομικός κώδικας πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
-    country:
-      required: Απαιτείται χώρα
-    region:
-      required: Απαιτείται περιοχή
+    button: Επέστρεψε στην Αρχική
   version: Εκδοχή
   upload: Μεταφόρτωση
   tags: Ετικέτες
@@ -97,7 +75,8 @@ common:
   demo:
     message: Αυτός είναι ένας επίδειξης ιστότοπος μόνο για σκοπούς προβολής.
   change:
-    language: Αλλαξε γλώσσα
+    title: Αλλαγή
+    language: Άλλαξε γλώσσα
   filters:
     title: Φίλτρα
     clear: Σαφή
@@ -111,17 +90,59 @@ common:
   decrement: Μείωση
   increment: Αύξηση
   load:
-    more: Φόρτωσε περισσότερα
+    more: Περισσότερα
   loading: Φόρτωση...
   more:
-    replies: Δεν υπάρχουν απαντήσεις | 1 απάντηση | %{count} απαντήσεις
+    replies: Δεν υπάρχουν απαντήσεις | 1 Aπάντηση | %{count} Aπαντήσεις
   hide:
-    replies: Κρύβω
-  register: Κανω ΕΓΓΡΑΦΗ
+    replies: Απόκρυψη
+  register: Εγγραφή
   first: Πρώτα
   last: τελευταίος
-  prev: Προηγ
+  prev: Προηγούμενο
   settings: Ρυθμίσεις
-  signed_in_as: Συνδεθήκατε ως
+  signed_in_as: Email
   security: Ασφάλεια
   theme: Θέμα
+  entry: Καταχώρηση
+  submit: Υποβολή
+  reset: Επαναφορά
+  validation:
+    required: Απαιτούμενο
+    email:
+      required: Απαιτείται email
+      email: Το email πρέπει να είναι έγκυρο
+      invalid: Το email δεν είναι έγκυρο
+    first_name:
+      required: Απαιτείται Όνομα
+      min: Το όνομα πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    last_name:
+      required: Το επώνυμο είναι υποχρεωτικό
+      min: Το επώνυμο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    street:
+      required: Απαιτείται οδός
+      min: Η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    street_number:
+      required: Απαιτείται αριθμός οδού
+      min: Ο αριθμός οδού πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    zipcode:
+      required: Απαιτείται ταχυδρομικός κώδικας
+      min: >-
+        Ο ταχυδρομικός κώδικας πρέπει να έχει μήκος τουλάχιστον %{min}
+        χαρακτήρων
+    place:
+      required: Η περιοχή είναι απαραίτητη
+      min: Το μέρος πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    city:
+      required: Η πόλη είναι απαραίτητη
+      min: Η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    phone:
+      required: Απαιτείται τηλέφωνο
+      min: Το τηλέφωνο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    date:
+      required_error: Επιλέξτε ημερομηνία και ώρα
+      invalid_type_error: Δεν είναι ραντεβού!
+    country:
+      required: Απαιτείται χώρα
+    region:
+      required: Απαιτείται Περιφέρεια

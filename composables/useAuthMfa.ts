@@ -7,7 +7,7 @@ import type {
 
 export default function () {
   async function totpActivateGet() {
-    return await $fetch('/api/auth/mfa/totp/activate', {
+    return await useFetch('/api/auth/mfa/totp/activate', {
       method: 'GET',
     })
   }
@@ -19,7 +19,7 @@ export default function () {
   }
 
   async function recoveryCodesList() {
-    return await $fetch('/api/auth/mfa/recovery-codes/list', {
+    return await useFetch('/api/auth/mfa/recovery-codes/list', {
       method: 'GET',
     })
   }

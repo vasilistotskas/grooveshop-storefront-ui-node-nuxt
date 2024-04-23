@@ -27,9 +27,9 @@ const { statusClass } = useOrder()
     v-if="order"
     class="
       order-card text-primary-950 bg-primary-100 flex flex-col items-center
-      justify-between gap-4 rounded border border-gray-900/10 p-4
+      justify-between gap-4 rounded border border-primary-500 p-4
 
-      dark:text-primary-50 dark:bg-primary-900 dark:border-gray-50/[0.2]
+      dark:text-primary-50 dark:bg-primary-900 dark:border-primary-500
 
       md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-10
     "

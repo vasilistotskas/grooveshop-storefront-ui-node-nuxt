@@ -44,9 +44,9 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
     class="
       bg-primary-100 relative grid grid-cols-auto-1fr items-center
       justify-center justify-items-center gap-4 rounded-md border
-      border-gray-900/10 p-2
+      border-primary-500
 
-      dark:bg-primary-900 dark:border-gray-50/[0.2]
+      dark:bg-primary-900 dark:border-primary-500
 
       md:p-4
     "

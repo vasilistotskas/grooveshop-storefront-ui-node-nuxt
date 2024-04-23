@@ -2,6 +2,9 @@
 import { AuthenticatedRoutePrefixes } from '~/constants'
 import type { DropdownItem } from '#ui/types'
 
+const Anchor = resolveComponent('Anchor')
+const PlusModalLink = resolveComponent('PlusModalLink')
+
 const userStore = useUserStore()
 const { cleanAccountState } = userStore
 const cartStore = useCartStore()
@@ -95,77 +98,80 @@ const items = [
             dark:text-primary-50
           "
         >
-          <ul class="flex items-center space-x-8">
-            <li
-              class="
-                relative grid items-center justify-center justify-items-center
-              "
-            >
-              <Anchor
+          <DevOnly>
+            <ul class="flex items-center space-x-8">
+              <li
                 class="
-                  flex items-center gap-4 self-center text-lg
-
-                  hover:text-slate-900 hover:no-underline
-                  hover:dark:text-primary-50
+                  relative grid items-center justify-center justify-items-center
                 "
-                :to="'search'"
-                :title="$t('pages.search.title')"
-                :text="$t('pages.search.title')"
               >
-                <span class="capitalize">{{ $t('pages.search.title') }}</span>
-                <IconFa6Solid:magnifyingGlass />
-              </Anchor>
-            </li>
-            <li class="flex w-full gap-4">
-              <h2>
                 <Anchor
-                  :to="'products'"
-                  :title="$t('common.shop')"
-                  :text="$t('common.shop')"
                   class="
-                    text-lg capitalize
+                    flex items-center gap-4 self-center text-lg
 
                     hover:text-slate-900 hover:no-underline
                     hover:dark:text-primary-50
                   "
+                  :to="'search'"
+                  :title="$t('pages.search.title')"
+                  :text="$t('pages.search.title')"
                 >
-                  {{ $t('common.shop') }}
+                  <span class="capitalize">{{ $t('pages.search.title') }}</span>
+                  <IconFa6Solid:magnifyingGlass />
                 </Anchor>
-              </h2>
-            </li>
-            <li class="flex w-full gap-4">
-              <h2>
-                <Anchor
-                  :to="'blog'"
-                  :title="$t('common.blog')"
-                  :text="$t('common.blog')"
-                  class="
-                    text-lg capitalize
+              </li>
+              <li class="flex w-full gap-4">
+                <h2>
+                  <Anchor
+                    :to="'products'"
+                    :title="$t('common.shop')"
+                    :text="$t('common.shop')"
+                    class="
+                      text-lg capitalize
 
-                    hover:text-slate-900 hover:no-underline
-                    hover:dark:text-primary-50
-                  "
-                >
-                  {{ $t('common.blog') }}
-                </Anchor>
-              </h2>
-            </li>
-          </ul>
+                      hover:text-slate-900 hover:no-underline
+                      hover:dark:text-primary-50
+                    "
+                  >
+                    {{ $t('common.shop') }}
+                  </Anchor>
+                </h2>
+              </li>
+              <li class="flex w-full gap-4">
+                <h2>
+                  <Anchor
+                    :to="'blog'"
+                    :title="$t('common.blog')"
+                    :text="$t('common.blog')"
+                    class="
+                      text-lg capitalize
+
+                      hover:text-slate-900 hover:no-underline
+                      hover:dark:text-primary-50
+                    "
+                  >
+                    {{ $t('common.blog') }}
+                  </Anchor>
+                </h2>
+              </li>
+            </ul>
+          </DevOnly>
           <ul
             class="
-              text-primary-950 ml-6 flex items-center gap-3 border-l
-              border-gray-900/10 pl-6
+              text-primary-950 ml-6 flex items-center gap-3 pl-6
 
-              dark:text-primary-50 dark:border-gray-50/[0.2]
+              dark:text-primary-50 dark:border-primary-500
             "
           >
-            <li
-              class="
-                relative grid items-center justify-center justify-items-center
-              "
-            >
-              <LanguageSwitcher />
-            </li>
+            <DevOnly>
+              <li
+                class="
+                  relative grid items-center justify-center justify-items-center
+                "
+              >
+                <LanguageSwitcher />
+              </li>
+            </DevOnly>
             <li
               class="
                 relative grid items-center justify-center justify-items-center
@@ -173,37 +179,39 @@ const items = [
             >
               <ThemeSwitcher />
             </li>
-            <li
-              class="
-                relative grid items-center justify-center justify-items-center
-              "
-            >
-              <ClientOnly>
-                <span
-                  v-if="!pending.cart"
-                  class="cart-items-count"
-                  :data-count="getCartTotalItems"
-                />
-                <span v-if="pending.cart" class="cart-items-count" />
-
-                <template #fallback>
-                  <span class="cart-items-count" />
-                </template>
-              </ClientOnly>
-              <Anchor
+            <DevOnly>
+              <li
                 class="
-                  flex items-center self-center text-[1.5rem]
-
-                  hover:text-slate-900 hover:no-underline
-                  hover:dark:text-primary-50
+                  relative grid items-center justify-center justify-items-center
                 "
-                :to="'cart'"
-                :title="$t('pages.cart.title')"
-                :text="$t('pages.cart.title')"
               >
-                <IconFa6Solid:cartShopping />
-              </Anchor>
-            </li>
+                <ClientOnly>
+                  <span
+                    v-if="!pending.cart"
+                    class="cart-items-count"
+                    :data-count="getCartTotalItems"
+                  />
+                  <span v-if="pending.cart" class="cart-items-count" />
+
+                  <template #fallback>
+                    <span class="cart-items-count" />
+                  </template>
+                </ClientOnly>
+                <Anchor
+                  class="
+                    flex items-center self-center text-[1.5rem]
+
+                    hover:text-slate-900 hover:no-underline
+                    hover:dark:text-primary-50
+                  "
+                  :to="'cart'"
+                  :title="$t('pages.cart.title')"
+                  :text="$t('pages.cart.title')"
+                >
+                  <IconFa6Solid:cartShopping />
+                </Anchor>
+              </li>
+            </DevOnly>
             <li
               class="
                 relative grid items-center justify-center justify-items-center
@@ -249,7 +257,8 @@ const items = [
                   />
                 </template>
               </UDropdown>
-              <Anchor
+              <Component
+                :is="route.path === '/auth/login' ? Anchor : PlusModalLink"
                 v-else
                 class="
                   flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
@@ -258,110 +267,15 @@ const items = [
                   hover:dark:text-primary-50
                 "
                 :title="$t('pages.accounts.login.title')"
-                :text="$t('pages.accounts.login.title')"
-                :to="`/auth/login?redirect=${$route.path}`"
+                :to="route.path === '/auth/login' ? '/auth/login' : `/auth/login?redirect=${route.path}`"
               >
                 <IconFa6Solid:circleUser />
-              </Anchor>
+              </Component>
+              <PlusModalPage v-if="route.path !== '/auth/login'" name="login-modal" />
             </li>
           </ul>
         </nav>
       </div>
-    </template>
-    <template #options="{ toggleOptions }">
-      <ActionSheet @on-close="toggleOptions(false)">
-        <ActionSheetBody class="grid gap-4">
-          <ActionSheetHeader text="Menu" />
-          <nav
-            aria-label="Main Navigation"
-            class="
-              text-primary-950 font-semibold leading-6
-
-              dark:text-primary-50
-            "
-          >
-            <ul
-              class="
-                flex flex-row items-center justify-center gap-2 border-b
-                border-gray-900/10
-
-                dark:border-gray-50/[0.2]
-              "
-            >
-              <li class="link grid pb-2">
-                <UButton
-                  icon="i-heroicons-shopping-bag"
-                  :to="'/products'"
-                  size="md"
-                  variant="solid"
-                  color="primary"
-                  :label="$t('common.shop')"
-                />
-              </li>
-              <li class="link grid pb-2">
-                <UButton
-                  icon="i-heroicons-user"
-                  :to="
-                    loggedIn
-                      ? '/account'
-                      : `/auth/login?redirect=${$route.path}`
-                  "
-                  size="md"
-                  variant="solid"
-                  color="primary"
-                  :label="loggedIn ? $t('common.account') : $t('common.login')"
-                />
-              </li>
-              <li class="link grid pb-2">
-                <UButton
-                  icon="i-heroicons-magnifying-glass"
-                  :to="'/search'"
-                  size="md"
-                  variant="solid"
-                  color="primary"
-                  :label="$t('common.search')"
-                />
-              </li>
-            </ul>
-          </nav>
-          <div class="flex items-center justify-center gap-3">
-            <div class="grid items-center justify-center justify-items-center">
-              <ThemeSwitcher type="select-box" />
-            </div>
-            <div class="grid items-center justify-center justify-items-center">
-              <LanguageSwitcher type="select-box" />
-            </div>
-          </div>
-          <Anchor
-            class="
-              text-primary-950 flex items-center justify-center gap-2
-              self-center text-lg
-
-              dark:text-primary-50
-
-              hover:text-slate-900 hover:no-underline hover:dark:text-primary-50
-            "
-            :to="'cart'"
-            :title="$t('pages.cart.title')"
-            :text="$t('pages.cart.title')"
-          >
-            <IconFa6Solid:cartShopping />
-            <span
-              class="
-                text-primary-950 ml-1
-
-                dark:text-primary-50
-              "
-            >
-              {{ $t('pages.cart.title') }}</span>
-          </Anchor>
-        </ActionSheetBody>
-        <UButton
-          :label="$t('common.close')"
-          color="primary"
-          @click.prevent="toggleOptions(false)"
-        />
-      </ActionSheet>
     </template>
   </BuilderNavbar>
 </template>

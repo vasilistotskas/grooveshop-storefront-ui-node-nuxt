@@ -14,7 +14,9 @@ const cartStore = useCartStore()
 const { refreshCart } = cartStore
 
 const ZodLogin = z.object({
-  email: z.string().email(),
+  email: z.string(
+    { required_error: t('common.validation.required') },
+  ).email(t('common.validation.email')),
   password: z.string(),
 })
 
@@ -81,11 +83,9 @@ const onSubmit = handleSubmit((values) => {
       <div
         class="
           bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-[0.5rem] border border-gray-900/10 p-4
-          shadow-[0_4px_9px_-4px_#0000000d]
+          rounded-[0.5rem] p-4 shadow-[0_4px_9px_-4px_#0000000d]
 
-          dark:bg-primary-900 dark:border-gray-50/[0.2]
-          dark:shadow-[0_4px_9px_-4px_#0000000d]
+          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           lg:justify-between
 
@@ -155,14 +155,20 @@ const onSubmit = handleSubmit((values) => {
             >{{ errors.password }}</span>
           </div>
 
-          <div class="flex items-center justify-between">
+          <div
+            class="
+              flex flex-col justify-between
+
+              sm:flex-row sm:items-center
+            "
+          >
             <div class="0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
               <input
                 id="checkbox"
                 v-model="rememberMe"
                 class="
-                  relative float-left -ml-[1.5rem] mr-[6px] h-[1.125rem]
-                  w-[1.125rem] appearance-none rounded-[0.25rem]
+                  relative top-[2px] float-left -ml-[1.5rem] mr-[6px]
+                  h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem]
                   border-[0.125rem] border-solid border-neutral-300 outline-none
 
                   before:pointer-events-none before:absolute before:h-[0.875rem]
@@ -224,7 +230,7 @@ const onSubmit = handleSubmit((values) => {
               </label>
             </div>
             <UButton
-              size="lg"
+              size="md"
               type="button"
               color="opposite"
               variant="link"
@@ -303,7 +309,13 @@ const onSubmit = handleSubmit((values) => {
             </UButton>
           </div>
 
-          <div class="flex items-center justify-end">
+          <div
+            class="
+              flex flex-col items-center justify-end
+
+              sm:flex-row
+            "
+          >
             <span
               class="
                 text-primary-950 text-sm
@@ -314,7 +326,7 @@ const onSubmit = handleSubmit((values) => {
               $t('pages.auth.login.form.no.account')
             }}</span>
             <UButton
-              size="lg"
+              size="md"
               type="button"
               color="opposite"
               variant="link"
