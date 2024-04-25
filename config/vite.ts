@@ -53,7 +53,6 @@ export const vite = {
       'lottie-web',
       'zod',
       'v-calendar',
-      'workbox-window',
       'workbox-precaching',
       'workbox-routing',
       'workbox-cacheable-response',

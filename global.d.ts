@@ -1,5 +1,4 @@
 /* prettier-ignore */
-// @ts-nocheck
 // global.d.ts
 export {}
 
