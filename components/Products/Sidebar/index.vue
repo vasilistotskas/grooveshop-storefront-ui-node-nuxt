@@ -87,7 +87,7 @@ onMounted(() => {
           </span>
         </h3>
         <label class="sr-only" for="search">
-          {{ $t('common.search') }}
+          {{ $t('common.search.title') }}
         </label>
         <UInput
           id="search"
@@ -102,7 +102,7 @@ onMounted(() => {
           color="primary"
           :trailing="false"
           variant="outline"
-          :placeholder="`${$t('common.search')}...`"
+          :placeholder="`${$t('common.search.title')}...`"
         />
       </div>
       <ul

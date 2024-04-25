@@ -19,4 +19,5 @@ export default withNuxt({
     ...eslintPluginReadableTailwind.configs.warning.rules,
     ...eslintPluginReadableTailwind.configs.error.rules,
   },
+  ignores: ['auto-imports.d.ts'],
 })

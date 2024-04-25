@@ -23,7 +23,7 @@ const links = [
   {
     icon: 'i-heroicons-magnifying-glass',
     to: '/search',
-    label: t('common.search'),
+    label: t('common.search.title'),
     labelClass: 'sr-only',
   },
   {

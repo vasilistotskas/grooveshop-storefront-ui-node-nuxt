@@ -3,14 +3,22 @@ import SearchingNoResultsJson from '~/assets/lotties/search_no_results.json'
 import SearchingJson from '~/assets/lotties/searching.json'
 
 const searchStore = useSearchStore()
-const { results, storage, totalCount, productSearchItems, productHeadlines }
-  = storeToRefs(searchStore)
-const { reset } = searchStore
+const {
+  results,
+  searchHistory,
+  totalCount,
+  productSearchItems,
+  blogPostSearchItems,
+  productHeadlines,
+  blogPostHeadlines,
+} = storeToRefs(searchStore)
+const { reset, addToSearchHistory, clearSearchHistory, clearSearchHistoryItem } = searchStore
 
 const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
 const { cleanHtml } = useText()
+const { isMobileOrTablet } = useDevice()
 
 const currentSearch = ref((route.query.query || '').toString())
 const suggestions = ref(null)
@@ -19,7 +27,6 @@ const isSuggestionsOpen = ref(false)
 const { pending, error, refresh } = await useAsyncData(
   'search',
   () =>
-    // @ts-expect-error
     $fetch('/api/search', {
       method: 'GET',
       query: {
@@ -31,11 +38,14 @@ const { pending, error, refresh } = await useAsyncData(
           return
         }
         results.value = response._data
-        isSuggestionsOpen.value = false
+
+        if (!Object.values(response._data).every(value => !value)) {
+          addToSearchHistory(currentSearch.value)
+        }
       },
     }),
   {
-    immediate: false,
+    immediate: !!(currentSearch.value && currentSearch.value.length >= 3),
   },
 )
 
@@ -53,7 +63,7 @@ const vFocus = {
 
 const storageSearchHistory = computed(() => {
   const query = currentSearch.value.toLowerCase()
-  return storage.value.filter(
+  return searchHistory.value.filter(
     (item: string) => item.toLowerCase().includes(query) && item !== query,
   )
 })
@@ -63,7 +73,7 @@ const showSearchHistory = computed(() => {
 })
 
 const showHeadlines = computed(() => {
-  return Object.keys(productHeadlines).length > 0
+  return Object.keys(productHeadlines).length > 0 || Object.keys(blogPostHeadlines).length > 0
 })
 
 const showSuggestions = computed(() => {
@@ -73,7 +83,7 @@ const showSuggestions = computed(() => {
 })
 
 const showResults = computed(() => {
-  return productSearchItems.value.length > 0 && !pending.value && !error.value
+  return (productSearchItems.value.length > 0 || blogPostSearchItems.value.length > 0) && !pending.value && !error.value
 })
 
 const showStartSearching = computed(() => {
@@ -92,6 +102,7 @@ const showNoResults = computed(() => {
   return (
     !showIsSearching.value
     && productSearchItems.value.length === 0
+    && blogPostSearchItems.value.length === 0
     && !error.value
   )
 })
@@ -100,7 +111,6 @@ watch(
   () => currentSearch.value,
   () => {
     pending.value = true
-    isSuggestionsOpen.value = false
     if (currentSearch.value.length < 3) return
     throttledSearch()
     router.replace({
@@ -137,112 +147,208 @@ definePageMeta({
       <div
         v-focus
         class="
-          bg-primary-50 fixed left-0 top-0 z-20 grid w-full items-center gap-4
-          p-[22px]
+          bg-primary-50 fixed left-0 top-[48px] z-20 grid w-full items-center
+          gap-4 p-[8px]
 
           dark:bg-primary-900
 
-          md:p-[17px]
+          lg:top-[63px]
+
+          md:top-[56px] md:p-[12px]
         "
       >
-        <div class="flex w-full items-center gap-4">
+        <div
+          class="
+            flex w-full items-center gap-2
+
+            md:gap-4
+          "
+        >
           <Anchor
             :to="'index'"
             aria-label="index"
             class="
               text-md text-primary-950 flex items-center gap-3 overflow-hidden
-              border-r-2 border-primary-500 pr-8 font-bold
+              border-r-2 border-primary-500 pr-2 font-bold
 
               dark:text-primary-50 dark:border-primary-500
 
-              md:w-auto
+              md:w-auto md:pr-8
             "
           >
             <span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
             <UIcon name="i-heroicons-arrow-left" />
           </Anchor>
-          <IconFa6Solid:magnifyingGlass />
+          <IconFa6Solid:magnifyingGlass
+            class="
+              text-lg
+
+              md:text-base
+            "
+          />
           <label for="search" class="sr-only">{{
             $t('pages.search.placeholder')
           }}</label>
-          <input
+          <UInput
             id="search"
             v-model="currentSearch"
             v-focus
+            variant="none"
             type="text"
             class="w-full bg-transparent text-xl outline-none"
             :placeholder="$t('pages.search.placeholder')"
             @keyup.enter="refresh()"
             @click="isSuggestionsOpen = true"
-          >
+          />
         </div>
         <div
           v-if="showSuggestions"
           ref="suggestions"
           class="
-            bg-primary-50 absolute top-14 z-10 mt-1 max-h-36 w-full list-none
-            overflow-y-auto rounded-md shadow-md
+            absolute top-[45px] z-10 max-h-36 w-full list-none overflow-y-auto
 
-            dark:bg-primary-900
+            md:mt-2
           "
         >
-          <TransitionGroup name="list" tag="ul" class="grid">
-            <li
-              v-for="suggestion in storageSearchHistory"
-              :key="suggestion"
-              class="
-                px-4 py-2
+          <div
+            class="
+              bg-primary-50 m-auto w-11/12 rounded-md shadow-md
 
-                dark:hover:bg-primary-700
-
-                hover:bg-primary-50
+              dark:bg-primary-900
+            "
+          >
+            <p
+              v-if="!currentSearch && storageSearchHistory && storageSearchHistory.length > 0" class="
+                flex items-center justify-between px-2
               "
             >
-              <Anchor
-                :to="`/search?query=${suggestion}`"
-                class="flex items-center gap-3"
-                @click="currentSearch = suggestion"
-              >
-                <IconFa6Solid:clockRotateLeft />
-                <span
-                  class="
-                    text-primary-950 truncate font-bold
+              <span
+                class="
+                  text-primary-950 text-sm
 
-                    dark:text-primary-50
+                  dark:text-primary-50
+                "
+              >{{ $t('common.search.recent') }}</span>
+              <UButton
+                :label="$t('common.search.clear_all')"
+                icon="i-heroicons-x-mark"
+                :size="isMobileOrTablet ? 'xs' : 'xs'"
+                :trailing="true"
+                color="rose"
+                variant="link"
+                @click="clearSearchHistory"
+              />
+            </p>
+            <TransitionGroup name="list" tag="ul" class="grid">
+              <template v-for="suggestion in storageSearchHistory" :key="suggestion">
+                <li
+                  class="
+                    relative px-4 py-2
+
+                    dark:hover:bg-primary-700
+
+                    hover:bg-primary-50
                   "
                 >
-                  {{ suggestion }}
-                </span>
-              </Anchor>
-            </li>
-            <li
-              v-for="(headline, productId) in productHeadlines"
-              :key="productId"
-              class="
-                px-4 py-2
+                  <Anchor
+                    :to="`/search?query=${suggestion}`"
+                    class="flex items-center gap-3"
+                    @click="() => {
+                      currentSearch = suggestion
+                      isSuggestionsOpen = false
+                    }"
+                  >
+                    <IconFa6Solid:clockRotateLeft
+                      class="text-sm"
+                    />
+                    <span
+                      class="
+                        text-primary-950 truncate text-sm
 
-                dark:hover:bg-primary-700
+                        dark:text-primary-50
+                      "
+                    >
+                      {{ suggestion }}
+                    </span>
+                  </Anchor>
+                  <UButton
+                    class="absolute right-0 top-0"
+                    :label="$t('common.clear')"
+                    icon="i-heroicons-x-mark"
+                    :size="isMobileOrTablet ? 'xs' : 'xs'"
+                    :trailing="true"
+                    color="rose"
+                    variant="link"
+                    @click="clearSearchHistoryItem(suggestion)"
+                  />
+                </li>
+              </template>
+              <li
+                v-for="(headline, productId) in productHeadlines"
+                :key="productId"
+                class="
+                  px-4 py-2
 
-                hover:bg-primary-50
-              "
-            >
-              <Anchor
-                :to="`/search?query=${cleanHtml(headline)}`"
-                class="flex items-center gap-3"
-                @click="currentSearch = cleanHtml(headline)"
+                  dark:hover:bg-primary-700
+
+                  hover:bg-primary-50
+                "
               >
-                <IconFa6Solid:magnifyingGlass />
-                <span
-                  class="
-                    text-primary-950 truncate font-bold
+                <Anchor
+                  :to="`/search?query=${cleanHtml(headline)}`"
+                  class="flex items-center gap-3"
+                  @click="() => {
+                    currentSearch = cleanHtml(headline)
+                    isSuggestionsOpen = false
+                  }"
+                >
+                  <IconFa6Solid:magnifyingGlass
+                    class="text-sm"
+                  />
+                  <span
+                    class="
+                      text-primary-950 truncate text-sm
 
-                    dark:text-primary-50
-                  "
-                  v-html="headline"
-                />
-              </Anchor>
-            </li>
-          </TransitionGroup>
+                      dark:text-primary-50
+                    "
+                    v-html="headline"
+                  />
+                </Anchor>
+              </li>
+              <li
+                v-for="(headline, blogPostId) in blogPostHeadlines"
+                :key="blogPostId"
+                class="
+                  px-4 py-2
+
+                  dark:hover:bg-primary-700
+
+                  hover:bg-primary-50
+                "
+              >
+                <Anchor
+                  :to="`/search?query=${cleanHtml(headline)}`"
+                  class="flex items-center gap-3"
+                  @click="() => {
+                    currentSearch = cleanHtml(headline)
+                    isSuggestionsOpen = false
+                  }"
+                >
+                  <IconFa6Solid:magnifyingGlass
+                    class="text-sm"
+                  />
+                  <span
+                    class="
+                      text-primary-950 truncate text-sm
+
+                      dark:text-primary-50
+                    "
+                    v-html="headline"
+                  />
+                </Anchor>
+              </li>
+            </TransitionGroup>
+          </div>
         </div>
       </div>
       <PageTitle class="sr-only">
@@ -259,9 +365,9 @@ definePageMeta({
 
       <div
         v-if="showResults" class="
-          min-h-screen
+          mt-14 min-h-screen
 
-          md:mt-4
+          md:mt-14
         "
       >
         <div v-if="showTotalCount" class="pb-2 text-sm opacity-95">
@@ -280,6 +386,11 @@ definePageMeta({
         >
           <SearchProductCard
             v-for="(item, index) of productSearchItems"
+            :key="index"
+            :item="item"
+          />
+          <SearchBlogPostCard
+            v-for="(item, index) of blogPostSearchItems"
             :key="index"
             :item="item"
           />

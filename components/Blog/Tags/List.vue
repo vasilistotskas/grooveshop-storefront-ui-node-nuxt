@@ -52,7 +52,7 @@ const filteredTags = computed(() => {
         </h3>
       </div>
       <label class="sr-only" for="search">
-        {{ $t('common.search') }}
+        {{ $t('common.search.title') }}
       </label>
       <UInput
         id="search"
@@ -67,7 +67,7 @@ const filteredTags = computed(() => {
         color="primary"
         :trailing="false"
         variant="outline"
-        :placeholder="`${$t('common.search')}...`"
+        :placeholder="`${$t('common.search.title')}...`"
       />
       <ul
         v-if="filteredTags && filteredTags.length > 0"

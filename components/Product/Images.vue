@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ProductImage } from '~/types/product/image'
 import type { Product } from '~/types/product/product'
 
 const props = defineProps({
@@ -13,6 +12,7 @@ const props = defineProps({
 
 const { product } = toRefs(props)
 const { locale } = useI18n()
+const localePath = useLocalePath()
 
 const { data: productImages } = await useFetch(
   `/api/products/${product.value.id}/images`,
@@ -59,12 +59,14 @@ watch(
         rounded-lg
 
         dark:bg-primary-900
-
-        md:grid md:h-80
       "
     >
-      <ProductImage :image="mainImage" img-loading="eager" />
+      <PlusModalLink :to="localePath(`/products/${product.id}/gallery/${selectedImageId}`)">
+        <ProductImage :image="mainImage" img-loading="eager" />
+      </PlusModalLink>
     </div>
+
+    <PlusModalPage name="gallery-modal" />
 
     <UCarousel
       v-if="productImages && productImages?.length > 1"

@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import {
+  ZodSearchBlogPostResult,
   ZodSearchProductResult,
   ZodSearchQuery,
   ZodSearchResults,
@@ -10,6 +11,7 @@ import {
 export default defineEventHandler(async (event: H3Event) => {
   const config = useRuntimeConfig()
   const query = await getValidatedQuery(event, ZodSearchQuery.parse)
+
   const productUrl = buildFullUrl(
     `${config.public.apiBaseUrl}/search/product`,
     query,
@@ -26,12 +28,26 @@ export default defineEventHandler(async (event: H3Event) => {
     z.union([z.undefined(), ZodSearchProductResult]),
   )
 
-  // @TODO: Implement productCategories and blogPosts
-  const productCategoriesParsedData = null
+  const blogPostUrl = buildFullUrl(
+    `${config.public.apiBaseUrl}/search/blog/post`,
+    query,
+  )
+
+  const blogPostResponse = await $fetch(blogPostUrl, {
+    method: 'GET',
+    timeout: 10000,
+    retry: 3,
+    retryDelay: 1000,
+  })
+
+  const blogPostsParsedData = await parseDataAs(
+    blogPostResponse,
+    z.union([z.undefined(), ZodSearchBlogPostResult]),
+  )
 
   const results = {
     products: productsParsedData || null,
-    productCategories: productCategoriesParsedData,
+    blogPosts: blogPostsParsedData || null,
   }
 
   return await parseDataAs(results, ZodSearchResults)

@@ -251,7 +251,7 @@ const menus = computed((): IMenuItem[] => [
                   size="md"
                   variant="solid"
                   color="primary"
-                  :label="$t('common.search')"
+                  :label="$t('common.search.title')"
                 />
               </li>
               <li class="link grid gap-2 pb-2">

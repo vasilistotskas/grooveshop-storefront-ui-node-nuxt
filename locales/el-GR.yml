@@ -25,7 +25,11 @@ common:
   notes: Σημειώσεις
   back: Πίσω
   account: Λογαριασμός
-  search: Αναζήτηση
+  search:
+    title: Αναζήτηση
+    clear_history: Καθαρισμός ιστορικού
+    clear_all: Καθαρισμός όλων
+    recent: Πρόσφατες αναζητήσεις
   favourites: Αγαπημένα
   retry: Ξαναδοκιμάσετε
   items:
@@ -107,6 +111,7 @@ common:
   entry: Καταχώρηση
   submit: Υποβολή
   reset: Επαναφορά
+  clear: Καθαρισμός
   validation:
     min: Το πεδίο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
     max: Το πεδίο πρέπει να έχει το πολύ %{max} χαρακτήρες
