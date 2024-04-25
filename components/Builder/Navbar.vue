@@ -107,7 +107,9 @@ const spider = computed(() => {
               lg:sr-only
             "
           >
-            <LanguageSwitcher />
+            <DevOnly>
+              <LanguageSwitcher />
+            </DevOnly>
             <ThemeSwitcher />
           </div>
         </div>

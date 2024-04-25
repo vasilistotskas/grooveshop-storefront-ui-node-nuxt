@@ -99,28 +99,29 @@ const items = [
             dark:text-primary-50
           "
         >
-          <DevOnly>
-            <ul class="flex items-center space-x-8">
-              <li
+          <ul class="flex items-center space-x-8">
+            <li
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
+            >
+              <Anchor
                 class="
-                  relative grid items-center justify-center justify-items-center
-                "
-              >
-                <Anchor
-                  class="
-                    flex items-center gap-4 self-center text-lg
+                  flex items-center gap-4 self-center text-lg
 
-                    hover:text-slate-900 hover:no-underline
-                    hover:dark:text-primary-50
-                  "
-                  :to="'search'"
-                  :title="$t('pages.search.title')"
-                  :text="$t('pages.search.title')"
-                >
-                  <span class="capitalize">{{ $t('pages.search.title') }}</span>
-                  <IconFa6Solid:magnifyingGlass />
-                </Anchor>
-              </li>
+                  hover:text-slate-900 hover:no-underline
+                  hover:dark:text-primary-50
+                "
+                :to="'search'"
+                :title="$t('pages.search.title')"
+                :text="$t('pages.search.title')"
+              >
+                <span class="capitalize">{{ $t('pages.search.title') }}</span>
+                <IconFa6Solid:magnifyingGlass />
+              </Anchor>
+            </li>
+
+            <DevOnly>
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
@@ -155,8 +156,8 @@ const items = [
                   </Anchor>
                 </h2>
               </li>
-            </ul>
-          </DevOnly>
+            </DevOnly>
+          </ul>
           <ul
             class="
               text-primary-950 ml-6 flex items-center gap-3 pl-6
