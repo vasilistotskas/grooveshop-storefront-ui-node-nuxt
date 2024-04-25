@@ -1,3 +1,15 @@
+# [1.100.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.99.0...v1.100.0) (2024-04-25)
+
+
+### Bug Fixes
+
+* remove some useless staff ([c683c8a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c683c8a3e41172b0e0d48f885a68d0974421e586))
+
+
+### Features
+
+* Search blog posts ([1c2b3e6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1c2b3e6c5cbaf88b13f18ff9127d8b0cc164431f))
+
 # [1.99.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.98.0...v1.99.0) (2024-04-23)
 
 
