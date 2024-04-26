@@ -1,3 +1,10 @@
+# [1.101.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.100.1...v1.101.0) (2024-04-26)
+
+
+### Features
+
+* Add username in user account and remove some useless staff ([a28f2d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a28f2d42687b014cb326ef220b8588b882a30e5f))
+
 ## [1.100.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.100.0...v1.100.1) (2024-04-25)
 
 
