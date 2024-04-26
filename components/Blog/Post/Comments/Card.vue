@@ -320,7 +320,7 @@ watch(
               dark:text-primary-50
             "
           >
-            {{ userAccount?.firstName }}
+            {{ userAccount?.username }}
           </span>
           <span class="flex items-center">
             <span

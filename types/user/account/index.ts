@@ -7,6 +7,7 @@ export const ZodUserAccount = z.object({
   pk: z.number().nullish(),
   id: z.number(),
   email: z.string(),
+  username: z.string().nullish(),
   image: z.string().nullish(),
   firstName: z.string().nullish(),
   lastName: z.string().nullish(),

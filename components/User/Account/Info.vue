@@ -41,14 +41,13 @@ defineProps({
       </div>
       <div class="user-info-name">
         <h2
-          v-if="account?.firstName || account?.lastName"
           class="
             text-primary-950 text-2xl font-bold
 
             dark:text-primary-50
           "
         >
-          {{ account.firstName }} {{ account.lastName }}
+          {{ account.username || account.email }}
         </h2>
       </div>
       <div class="user-info-stats">
