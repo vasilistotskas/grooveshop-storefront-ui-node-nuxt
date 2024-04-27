@@ -25,7 +25,7 @@ const ZodLogin = z.object({
 
 const validationSchema = toTypedSchema(ZodLogin)
 
-const { defineField, handleSubmit, errors, meta } = useForm({
+const { defineField, handleSubmit, errors, meta, submitCount } = useForm({
   validationSchema,
 })
 
@@ -86,6 +86,16 @@ async function finalizeLogin() {
   bus.emit('fallbackModalClose')
   await fetch()
 }
+
+const submitButtonLabel = computed(() => {
+  if (submitCount.value > 5) {
+    return t('common.validation.tooManyAttempts')
+  }
+
+  return !loading.value
+    ? t('pages.auth.login.form.submit')
+    : t('common.loading')
+})
 </script>
 
 <template>
@@ -263,13 +273,10 @@ async function finalizeLogin() {
             type="submit"
             color="primary"
             variant="soft"
-            :disabled="loading"
+            :disabled="loading || submitCount > 5"
             :aria-busy="loading"
             :label="
-              !loading
-                ? $t('pages.auth.login.form.submit')
-                : $t('common.loading')
-            "
+              submitButtonLabel"
             :loading="loading"
             block
           />

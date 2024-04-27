@@ -12,6 +12,8 @@ const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
 
+const loading = ref(false)
+
 const ZodRegistration = z
   .object({
     email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
@@ -33,7 +35,7 @@ const ZodRegistration = z
 
 const validationSchema = toTypedSchema(ZodRegistration)
 
-const { defineField, handleSubmit, errors, isSubmitting } = useForm({
+const { defineField, handleSubmit, errors, submitCount } = useForm({
   validationSchema,
 })
 
@@ -69,47 +71,66 @@ const handleResendEmail = async (email: string) => {
   }
 }
 
-const onSubmit = handleSubmit((values) => {
-  register({ email: values.email, password1: values.password1, password2: values.password2 })
-    .then(async (data) => {
+const onSubmit = handleSubmit(async (values) => {
+  loading.value = true
+
+  try {
+    const data = await register({ email: values.email, password1: values.password1, password2: values.password2 })
+    toast.add({
+      title: data?.detail || t('common.auth.registration.success'),
+      color: 'green',
+    })
+    await fetch()
+  }
+  catch (error) {
+    handleRegistrationError(error, values.email)
+  }
+  finally {
+    loading.value = false
+  }
+})
+
+function handleRegistrationError(error: any, email: string) {
+  const defaultErrorMessage = t('pages.auth.registration.account-confirm-email.resend.error.title')
+  if (error?.data?.data) {
+    const errorData = error.data.data
+    const errorMessages = Object.values(errorData).flat()
+
+    if (errorMessages.length > 0) {
       toast.add({
-        title: data?.detail || t('common.auth.registration.success'),
-        color: 'green',
+        title: errorMessages.join('\n'),
+        color: 'red',
       })
-      await fetch()
+    }
+
+    if (errorData.error || errorData.email) {
+      const actions = [{
+        label: t('common.auth.registration.error.action1'),
+        click: () => handleResendEmail(email),
+      }]
+      toast.add({
+        description: errorData.error || errorData.email[0],
+        color: 'red',
+        actions,
+      })
+    }
+  }
+  else {
+    toast.add({
+      title: isErrorWithMessage(error) ? error.message : defaultErrorMessage,
+      color: 'red',
     })
-    .catch((error) => {
-      if (error?.data?.data) {
-        const errorData = error.data.data
-        const errorMessages: string[] = []
+  }
+}
 
-        Object.keys(errorData).forEach((key) => {
-          if (Array.isArray(errorData[key])) {
-            errorMessages.push(...errorData[key])
-          }
-        })
+const submitButtonLabel = computed(() => {
+  if (submitCount.value > 5) {
+    return t('common.validation.tooManyAttempts')
+  }
 
-        if (errorMessages.length > 0) {
-          const combinedErrorMessage = errorMessages.join('\n')
-          toast.add({
-            title: combinedErrorMessage,
-            color: 'red',
-          })
-        }
-
-        if (errorData.error || errorData.email) {
-          const actions = ref([{
-            label: t('common.auth.registration.error.action1'),
-            click: () => handleResendEmail(values.email),
-          }])
-          toast.add({
-            description: errorData.error || errorData.email[0],
-            color: 'red',
-            actions: actions.value,
-          })
-        }
-      }
-    })
+  return !loading.value
+    ? t('pages.auth.registration.form.submit')
+    : t('common.loading')
 })
 </script>
 
@@ -241,10 +262,11 @@ const onSubmit = handleSubmit((values) => {
             type="submit"
             color="primary"
             variant="soft"
-            :disabled="isSubmitting"
-            :aria-busy="isSubmitting"
-            :label="$t('pages.auth.registration.form.submit')"
-            :loading="isSubmitting"
+            :disabled="loading || submitCount > 5"
+            :aria-busy="loading"
+            :label="
+              submitButtonLabel"
+            :loading="loading"
             block
           />
 
