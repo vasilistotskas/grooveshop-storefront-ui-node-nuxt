@@ -1,3 +1,10 @@
+# [1.103.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.102.0...v1.103.0) (2024-04-27)
+
+
+### Features
+
+* registration form component cleanup and add max submit count validation ([92b2477](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/92b2477ef17b3fbf91bddc850ab856b4a7b930b1))
+
 # [1.102.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.101.0...v1.102.0) (2024-04-26)
 
 
