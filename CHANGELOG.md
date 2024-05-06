@@ -1,3 +1,10 @@
+# [1.104.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.103.0...v1.104.0) (2024-05-06)
+
+
+### Features
+
+* **docker:** Bump Versions and code cleanup ([cb35b64](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cb35b6496892b092913130b45253101543b40db6))
+
 # [1.103.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.102.0...v1.103.0) (2024-04-27)
 
 
