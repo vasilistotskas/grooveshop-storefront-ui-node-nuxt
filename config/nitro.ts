@@ -1,5 +1,3 @@
-import type { NitroConfig } from 'nitropack'
-
 export const nitro = {
   routeRules: {},
   compressPublicAssets: { gzip: true },
@@ -8,4 +6,4 @@ export const nitro = {
     routes: [],
     ignore: ['/api', '/account', '/auth', '/checkout', '/cart'],
   },
-} satisfies NitroConfig
+}

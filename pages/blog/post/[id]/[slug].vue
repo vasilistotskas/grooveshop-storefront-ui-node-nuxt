@@ -32,7 +32,8 @@ const { data: blogPost, refresh } = await useFetch<BlogPost>(
 if (!blogPost.value) {
   throw createError({
     statusCode: 404,
-    statusMessage: t('common.error.page.not.found'),
+    message: t('common.error.page.not.found'),
+    fatal: true,
   })
 }
 
@@ -248,6 +249,9 @@ definePageMeta({
                     square
                     variant="solid"
                     class="justify-self-start font-extrabold capitalize"
+                    :title="$t('common.comments.count', {
+                      count: blogPost.commentsCount,
+                    })"
                     :label="String(blogPost.commentsCount)"
                     @click="scrollToComments"
                   />
@@ -261,6 +265,7 @@ definePageMeta({
                       square
                       variant="solid"
                       class="justify-self-start font-extrabold capitalize"
+                      :title="$t('common.share')"
                       @click="startShare"
                     />
                     <template #fallback>
@@ -307,7 +312,7 @@ definePageMeta({
                   md:gap-4
                 "
               >
-                <li v-for="tag in blogPostTags" :key="tag?.id">
+                <li v-for="(tag, index) in blogPostTags" :key="index">
                   <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
                     extractTranslated(tag, 'name', locale)
                   }}</span>

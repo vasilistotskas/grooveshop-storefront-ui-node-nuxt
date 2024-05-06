@@ -22,14 +22,14 @@ export const vite = {
     }),
     AutoImport({
       imports: ['vitest'],
-      dts: true, // generate TypeScript declaration
+      dts: true,
     }),
   ],
   build: {
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          const chunks = ['v-calendar', 'zod', 'lottie']
+          const chunks = ['v-calendar', 'zod', 'lottie', '@headlessui/vue']
           if (id.includes('/node_modules/')) {
             for (const chunkName of chunks) {
               if (id.includes(chunkName)) {
@@ -39,12 +39,6 @@ export const vite = {
           }
         },
       },
-    },
-  },
-  vue: {
-    script: {
-      defineModel: true,
-      propsDestructure: true,
     },
   },
   optimizeDeps: {

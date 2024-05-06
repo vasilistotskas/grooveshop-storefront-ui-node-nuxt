@@ -20,7 +20,8 @@ components:
       design_by: Σχεδιασμένο από
   language:
     switcher:
-      change_language: Αλλαξε γλώσσα
+      change_language: Άλλαξε γλώσσα
+      current_language: Τρέχουσα γλώσσα %{language}
       theme: Θέμα
   theme:
     switcher:
@@ -184,7 +185,7 @@ components:
   like_button:
     not_authenticated: Πρέπει να είστε συνδεδεμένοι για να κάνετε like
     liked: Άρεσε
-    like: Αρέσει
+    like: Like
   user:
     avatar:
       change: Αλλαγή

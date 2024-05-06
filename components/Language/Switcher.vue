@@ -68,6 +68,10 @@ const onLocaleChange = (code: string) => {
         class="p-0"
         color="primary"
         trailing-icon="i-heroicons-language"
+        :aria-current-value="locale"
+        :title="$t('components.language.switcher.current_language', {
+          language: locale,
+        })"
       >
         <span class="sr-only">{{
           $t('components.language.switcher.change_language')

@@ -46,6 +46,10 @@ common:
   errors:
     unknown_internal_api_error: Άγνωστο εσωτερικό σφάλμα API
   shop: Κατάστημα
+  cookies: Cookies
+  share: Μοιραστείτε
+  comments:
+    count: Κανένα σχόλιο | 1 σχόλιο | %{count} σχόλια
   next: Επόμενο
   previous: Προηγούμενος
   login: Σύνδεση
@@ -88,7 +92,7 @@ common:
   ordering:
     id: ταυτότητα
     created_at: Ημερομηνία δημιουργίας
-  like: Αρέσει
+  like: Like
   unlike: Διαφορετικός
   reply: Απάντηση
   decrement: Μείωση

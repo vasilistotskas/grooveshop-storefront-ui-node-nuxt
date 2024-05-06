@@ -39,6 +39,7 @@ const icon = computed(() => colorMode.value === 'dark' ? modes[0].icon : modes[1
       class="p-0"
       color="black"
       variant="ghost"
+      :title="$t('common.theme')"
       :aria-label="$t('common.theme')"
       :aria-pressed="colorMode.preference === mode ? 'true' : 'false'"
       :icon="icon"

@@ -95,6 +95,7 @@ const toggleFavourite = async () => {
     :color="'primary'"
     square
     :variant="variant"
+    :title="$t('common.like')"
     :label="String(likesCount)"
     :ui="{
       size: {

@@ -403,6 +403,12 @@ watch(
                 : 'i-heroicons-plus-circle'
             "
             :color="'primary'"
+            :disabled="pending"
+            :title="
+              showReplies
+                ? $t('common.hide.replies')
+                : $t('common.more.replies', totalReplies)
+            "
             :aria-label="
               showReplies
                 ? $t('common.hide.replies')
@@ -436,6 +442,7 @@ watch(
                 :icon="'i-heroicons-chat-bubble-left-ellipsis'"
                 :color="'primary'"
                 variant="solid"
+                :title="$t('common.reply')"
                 :aria-label="$t('common.reply')"
                 @click="onReplyButtonClick"
               />
@@ -527,6 +534,11 @@ watch(
             "
             :color="'primary'"
             :disabled="pending"
+            :title="
+              showReplies
+                ? $t('common.hide.replies')
+                : $t('common.more.replies', totalReplies)
+            "
             :aria-label="
               showReplies
                 ? $t('common.hide.replies')

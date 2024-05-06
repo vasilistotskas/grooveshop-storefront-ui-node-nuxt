@@ -15,6 +15,14 @@ const { data: category } = await useFetch(
   },
 )
 
+if (!category.value) {
+  throw createError({
+    statusCode: 404,
+    message: t('common.error.page.not.found'),
+    fatal: true,
+  })
+}
+
 definePageMeta({
   layout: 'default',
 })

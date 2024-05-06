@@ -268,7 +268,7 @@ const items = [
                   hover:text-slate-900 hover:no-underline
                   hover:dark:text-primary-50
                 "
-                :title="$t('pages.accounts.login.title')"
+                :title="loggedIn ? $t('common.account') : $t('common.login')"
                 :to="route.path === '/auth/login' ? localePath('/auth/login') : localePath(`/auth/login?redirect=${route.path}`)"
               >
                 <IconFa6Solid:circleUser />

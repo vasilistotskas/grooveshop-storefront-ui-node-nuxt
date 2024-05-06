@@ -30,6 +30,14 @@ const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   },
 )
 
+if (!product.value) {
+  throw createError({
+    statusCode: 404,
+    message: t('common.error.page.not.found'),
+    fatal: true,
+  })
+}
+
 const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
@@ -292,6 +300,7 @@ definePageMeta({
                     square
                     variant="solid"
                     class="font-extrabold capitalize"
+                    :title="$t('common.share')"
                     @click="startShare"
                   />
                   <template #fallback>

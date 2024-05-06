@@ -140,6 +140,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                   square
                   variant="ghost"
                   class="font-extrabold capitalize"
+                  :title="$t('common.share')"
                   @click="startShare"
                 />
                 <template #fallback>

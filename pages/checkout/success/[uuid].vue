@@ -23,7 +23,8 @@ const { data: order, error } = await useFetch<Order>(
 if (!order.value || error.value) {
   throw createError({
     statusCode: 404,
-    statusMessage: t('common.error.page.not.found'),
+    message: t('common.error.page.not.found'),
+    fatal: true,
   })
 }
 
