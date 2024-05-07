@@ -1,6 +1,8 @@
 # Docker
 dev.Dockerfile
-Dockerfile
+Dockerfile*
+docker-compose*
+.dockerignore
 
 # Git files
 .git
@@ -11,8 +13,9 @@ Dockerfile
 .DS_Store
 
 # IDE / Editor directories
-.idea/
 .editorconfig
+.idea
+.vscode
 
 # Nuxt dev/build outputs
 .output
@@ -29,3 +32,10 @@ node_modules
 # Cache
 .translator_cache
 .eslintcache
+
+# Others
+.env
+README.md
+LICENSE
+Makefile
+helm-charts

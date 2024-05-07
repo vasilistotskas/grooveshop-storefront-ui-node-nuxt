@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(
   data: any,
@@ -251,5 +251,4 @@ export {
   parseHeaderAs,
   parseParamsAs,
   parseQueryAs,
-  z,
 }

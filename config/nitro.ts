@@ -1,4 +1,5 @@
 export const nitro = {
+  preset: 'bun',
   routeRules: {},
   compressPublicAssets: { gzip: true },
   prerender: {
