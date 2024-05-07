@@ -1,3 +1,10 @@
+# [1.107.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.106.0...v1.107.0) (2024-05-07)
+
+
+### Features
+
+* Change username feature ([a9de1d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a9de1d9df112b699104908cd29287365f3311bd5))
+
 # [1.106.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.105.0...v1.106.0) (2024-05-07)
 
 
