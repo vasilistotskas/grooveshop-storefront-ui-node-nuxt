@@ -84,7 +84,7 @@ export const pwa = {
     globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
   },
   devOptions: {
-    enabled: true,
+    enabled: false,
     suppressWarnings: true,
     navigateFallback: undefined,
     type: 'module',
