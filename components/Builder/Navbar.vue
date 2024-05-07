@@ -6,8 +6,6 @@ defineProps({
   },
 })
 
-const { isMobileOrTablet } = useDevice()
-
 const navbar = ref(null)
 
 const config = useRuntimeConfig()
@@ -49,14 +47,17 @@ const spider = computed(() => {
     <div class="bg-background-700 mx-auto w-full max-w-8xl">
       <div
         class="
-          mx-4 py-3
+          ml-2 mr-4 flex gap-2 py-3
 
           lg:mx-0 lg:px-8
 
           md:py-4
         "
       >
-        <div class="relative flex items-center justify-between gap-4">
+        <MobileOrTabletOnly>
+          <BackButton />
+        </MobileOrTabletOnly>
+        <div class="relative flex w-full items-center justify-between gap-4">
           <!-- title -->
           <slot name="title">
             <h1>
@@ -99,19 +100,20 @@ const spider = computed(() => {
           </slot>
           <!-- menu -->
           <slot name="menu" />
-          <div
-            v-if="isMobileOrTablet"
-            class="
-              flex items-center gap-4
+          <MobileOrTabletOnly>
+            <div
+              class="
+                flex items-center gap-4
 
-              lg:sr-only
-            "
-          >
-            <DevOnly>
-              <LanguageSwitcher />
-            </DevOnly>
-            <ThemeSwitcher />
-          </div>
+                lg:sr-only
+              "
+            >
+              <DevOnly>
+                <LanguageSwitcher />
+              </DevOnly>
+              <ThemeSwitcher />
+            </div>
+          </MobileOrTabletOnly>
         </div>
       </div>
     </div>

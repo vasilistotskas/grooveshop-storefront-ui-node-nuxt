@@ -17,11 +17,14 @@ const { isMobileOrTablet } = useDevice()
             flex: !isMobileOrTablet,
           }"
         >
-          <BlogCategoriesSlider
-            v-if="isMobileOrTablet"
-            class="container !pr-0"
-          />
-          <BlogSidebar v-else />
+          <MobileOrTabletOnly>
+            <BlogCategoriesSlider
+              class="container !pr-0"
+            />
+          </MobileOrTabletOnly>
+          <DesktopOnly>
+            <BlogSidebar />
+          </DesktopOnly>
           <BlogPostsList
             :class="'container'"
             pagination-type="cursor"

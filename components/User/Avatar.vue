@@ -128,7 +128,7 @@ const uploadImage = async (event: Event) => {
       <ImgWithFallback
         loading="lazy"
         provider="mediaStream"
-        class="bg-primary-100 rounded-full"
+        class="user-avatar-img bg-primary-100 rounded-full"
         :style="{ objectFit: 'contain' }"
         :width="imgWidth"
         :height="imgHeight"
@@ -150,7 +150,7 @@ const uploadImage = async (event: Event) => {
         :title="$t('components.user.avatar.change')"
         @submit.prevent="uploadImage"
       >
-        <label for="image">
+        <label for="image" class="user-avatar-change-label">
           <svg
             id="camera"
             class="hide-small-viewport hide-medium-viewport"
@@ -246,10 +246,25 @@ const uploadImage = async (event: Event) => {
 
   &:hover {
     background-color: transparent;
+    svg {
+      stroke-dashoffset: 0;
+    }
   }
 
   .user-avatar:hover & svg {
     stroke-dashoffset: 0;
   }
+
+  &-label {
+    @media screen and (width <= 767px) {
+      display: grid;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+.user-avatar-img {
+  width: v-bind(imgWidth);
+  height: v-bind(imgHeight);
 }
 </style>

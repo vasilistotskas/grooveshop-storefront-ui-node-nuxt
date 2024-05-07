@@ -71,6 +71,8 @@ common:
   youtube: YouTube
   all_rights_reserved: Ολα τα δικαιώματα διατηρούνται
   privacy_policy: Πολιτική Απορρήτου
+  save: Αποθήκευση
+  edit: Επεξεργασία
   empty:
     title: Αδειάζω
     description: Αδειάζω
@@ -116,6 +118,7 @@ common:
   submit: Υποβολή
   reset: Επαναφορά
   clear: Καθαρισμός
+  menu: Μενού
   validation:
     min: Το πεδίο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
     max: Το πεδίο πρέπει να έχει το πολύ %{max} χαρακτήρες

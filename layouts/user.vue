@@ -1,19 +1,33 @@
 <script lang="ts" setup>
-import type { HorizontalNavigationLink } from '#ui/types'
-
 defineSlots<{
   default(props: object): any
   header(props: object): any
   footer(props: object): any
 }>()
 
-const { user } = useUserSession()
 const { isMobileOrTablet } = useDevice()
 const route = useRoute()
-const { loggedIn } = useUserSession()
+const { loggedIn, user } = useUserSession()
 const { t } = useI18n()
+const { resolveImageSrc } = useImageResolver()
+const img = useImage()
 
-const links = [
+const avatarSrc = computed(() => {
+  return resolveImageSrc(
+    user.value?.mainImageFilename,
+    `media/uploads/users/${user.value?.mainImageFilename}`,
+  )
+})
+
+const avatarImg = img(avatarSrc.value, {
+  width: 32,
+  height: 32,
+  fit: 'cover',
+}, {
+  provider: 'mediaStream',
+})
+
+const links = shallowRef([
   {
     icon: 'i-heroicons-home',
     to: '/',
@@ -32,13 +46,30 @@ const links = [
     label: t('common.favourites'),
     labelClass: 'sr-only',
   },
-  {
-    icon: 'i-heroicons-user',
-    to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
-    label: t('common.account'),
-    labelClass: 'sr-only',
-  },
-] as HorizontalNavigationLink[] | HorizontalNavigationLink[][] | undefined
+])
+
+if (!loggedIn.value && links.value) {
+  links.value.push(
+    {
+      icon: 'i-heroicons-user',
+      to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+      label: t('common.account'),
+      labelClass: 'sr-only',
+    },
+  )
+}
+else {
+  links.value.push(
+    {
+      to: '/account',
+      label: t('common.account'),
+      labelClass: 'sr-only',
+      avatar: {
+        src: avatarImg,
+      },
+    },
+  )
+}
 
 const Footer = computed(() => {
   return isMobileOrTablet
@@ -100,22 +131,25 @@ const Footer = computed(() => {
                   'relative mx-auto flex h-full flex-1 flex-col md:w-full lg:flex-row lg:gap-8 xl:gap-0',
                 ]"
               >
-                <div
-                  v-if="!isMobileOrTablet"
-                  class="
-                    md:grid md:w-auto md:py-4 md:pl-0
+                <DesktopOnly>
+                  <div
+                    class="
+                      hidden
 
-                    xl:pl-8
-                  "
-                  :class="[
-                    {
-                      'grid w-full': route.path === '/account',
-                      'hidden': route.path !== '/account',
-                    },
-                  ]"
-                >
-                  <UserSidebar />
-                </div>
+                      md:grid md:w-auto md:py-4 md:pl-0
+
+                      xl:pl-8
+                    "
+                    :class="[
+                      {
+                        'grid w-full': route.path === '/account',
+                        'hidden': route.path !== '/account',
+                      },
+                    ]"
+                  >
+                    <UserSidebar />
+                  </div>
+                </DesktopOnly>
                 <div class="flex w-full flex-col">
                   <slot />
                 </div>
@@ -131,26 +165,30 @@ const Footer = computed(() => {
         />
       </slot>
     </div>
-    <UHorizontalNavigation
-      v-if="isMobileOrTablet"
-      :links="links"
-      class="
-        border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
-        w-full border-t
+    <MobileOrTabletOnly>
+      <UHorizontalNavigation
+        :links="links"
+        class="
+          border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
+          w-full border-t
 
-        dark:border-primary-700 dark:bg-primary-900
-      "
-      :ui="{
-        container: 'flex justify-between w-full',
-        inner: 'flex justify-between w-full',
-        base: 'flex flex-col items-center justify-center w-full',
-        icon: {
-          base: 'text-primary-950 dark:text-primary-50 w-8 h-8',
-          active: 'text-secondary dark:text-secondary-dark',
-          inactive:
-            'text-primary-950 dark:text-primary-50 group-hover:text-primary-950 dark:group-hover:text-primary-950',
-        },
-      }"
-    />
+          dark:border-primary-700 dark:bg-primary-900
+        "
+        :ui="{
+          container: 'flex justify-between w-full',
+          inner: 'flex justify-between w-full',
+          base: 'flex flex-col items-center justify-center w-full',
+          icon: {
+            base: 'text-primary-950 dark:text-primary-50 w-8 h-8',
+            active: 'text-secondary dark:text-secondary-dark',
+            inactive:
+              'text-primary-950 dark:text-primary-50 group-hover:text-primary-950 dark:group-hover:text-primary-950',
+          },
+          avatar: {
+            size: 'sm',
+          },
+        }"
+      />
+    </MobileOrTabletOnly>
   </div>
 </template>

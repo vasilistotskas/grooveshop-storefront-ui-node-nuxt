@@ -18,6 +18,13 @@ const route = useRoute()
 const localePath = useLocalePath()
 
 const onClickLogout = async () => {
+  const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
+    route.path.startsWith(prefix),
+  )
+
+  if (isRouteProtected)
+    await navigateTo('/')
+
   await Promise.all([
     logout({
       refresh: session.value?.refreshToken,
@@ -62,14 +69,7 @@ const items = [
     {
       label: t('common.logout'),
       icon: 'i-heroicons-arrow-left-on-rectangle',
-      click: async () => {
-        const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
-          route.path.startsWith(prefix),
-        )
-        if (isRouteProtected)
-          navigateTo('/').then(async () => await onClickLogout())
-        else await onClickLogout()
-      },
+      click: async () => await onClickLogout(),
     },
   ],
 ] as DropdownItem[][]

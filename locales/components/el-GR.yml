@@ -70,7 +70,7 @@ components:
       optional: Προαιρετικά cookies
       optional_links:
         privacy_policy: Πολιτική Απορρήτου
-      necessary: Απαραίτητα μπισκότα
+      necessary: Απαραίτητα Cookies
       necessary_description: >-
         Τα απαραίτητα cookies βοηθούν να γίνει ένας ιστότοπος εύχρηστος,
         ενεργοποιώντας βασικές λειτουργίες όπως η πλοήγηση στη σελίδα και η

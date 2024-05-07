@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 
 import type { UserAccount } from '~/types/user/account'
 
-defineProps({
+const props = defineProps({
   account: {
     type: Object as PropType<UserAccount>,
     required: true,
@@ -24,6 +24,20 @@ defineProps({
     default: 0,
   },
 })
+
+const { account } = toRefs(props)
+const { isMobileOrTablet } = useDevice()
+
+const UInput = resolveComponent('UInput')
+
+const userNameEditing = ref(false)
+const username = ref(account.value.username || account.value.email)
+const imgWidth = computed(() => (isMobileOrTablet ? 96 : 144))
+const imgHeight = computed(() => (isMobileOrTablet ? 96 : 144))
+
+const onEditUserName = () => {
+  userNameEditing.value = !userNameEditing.value
+}
 </script>
 
 <template>
@@ -32,25 +46,53 @@ defineProps({
       <div class="user-info-avatar">
         <UserAvatar
           :user-account="account"
-          :img-width="135"
-          :img-height="135"
+          :img-width="imgWidth"
+          :img-height="imgHeight"
           :show-name="false"
           :background-border="true"
           :change-avatar="true"
         />
       </div>
-      <div class="user-info-name">
-        <h2
-          class="
-            text-primary-950 text-2xl font-bold
-
-            dark:text-primary-50
-          "
-        >
-          {{ account.username || account.email }}
-        </h2>
+      <div class="user-info-name relative flex w-full items-center">
+        <UButton
+          size="sm"
+          color="primary"
+          :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
+          :aria-label="userNameEditing ? $t('common.save') : $t('common.edit')"
+          :title="userNameEditing ? $t('common.save') : $t('common.edit')"
+          :ui="{
+            icon: {
+              base: userNameEditing ? 'bg-green-500 dark:bg-green-400' : '',
+              size: {
+                sm: 'h-4 w-4 md:h-5 md:w-5',
+              },
+            },
+          }"
+          @click="onEditUserName"
+        />
+        <UInput
+          v-model="username"
+          :disabled="!userNameEditing"
+          size="sm"
+          variant="none"
+          color="primary"
+          :class="!userNameEditing ? 'text-primary-950 text-2xl dark:text-primary-50' : ''"
+          class="font-bold"
+          :ui="{
+            size: {
+              sm: 'text-md md:text-2xl',
+            },
+            padding: {
+              sm: 'px-0 py-0',
+            },
+          }"
+        />
       </div>
-      <div class="user-info-stats">
+      <div
+        v-if="ordersCount || productFavouritesCount || productReviewsCount" class="
+          user-info-stats
+        "
+      >
         <div v-if="ordersCount" class="user-info-stats-item">
           <Anchor
             class="user-info-stats-item-link"
@@ -164,12 +206,9 @@ defineProps({
     }
 
     &-name {
-      font-size: 1.25rem;
-      font-weight: 600;
-
       @media screen and (width <= 767px) {
-        grid-row: 1 / span 1;
-        grid-column: 2 / span 1;
+        display: flex;
+        align-items: center;
       }
     }
 
@@ -215,9 +254,7 @@ defineProps({
       @media screen and (width <= 767px) {
         display: grid;
         width: 100%;
-        justify-content: start;
-        grid-row: 1 / span 1;
-        grid-column: 1 / span 1;
+        justify-content: center;
       }
     }
   }
