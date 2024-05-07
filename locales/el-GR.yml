@@ -38,7 +38,7 @@ common:
     only:
       fallback: Μόνο για την πλευρά του πελάτη
   unknown:
-    error: Αγνωστο σφάλμα
+    error: Άγνωστο σφάλμα
   error:
     page:
       not:

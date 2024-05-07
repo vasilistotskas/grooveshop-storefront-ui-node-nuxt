@@ -72,3 +72,11 @@ export const ZodLanguageQuery = z.object({
 export type ErrorWithMessage = {
   message: string
 }
+
+export type ErrorWithDetail = {
+  data: {
+    data: {
+      detail: string
+    }
+  }
+}

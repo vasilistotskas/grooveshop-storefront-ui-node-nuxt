@@ -5,8 +5,8 @@ import { ZodRegion } from '~/types/region'
 
 export const ZodUserAccount = z.object({
   pk: z.number().nullish(),
-  id: z.number(),
-  email: z.string(),
+  id: z.number().nullish(),
+  email: z.string().email().nullish(),
   username: z.string().nullish(),
   image: z.string().nullish(),
   firstName: z.string().nullish(),
@@ -18,8 +18,8 @@ export const ZodUserAccount = z.object({
   place: z.string().nullish(),
   country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
   region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
-  isActive: z.boolean(),
-  isStaff: z.boolean(),
+  isActive: z.boolean().nullish(),
+  isStaff: z.boolean().nullish(),
   birthDate: z.string().nullish(),
   twitter: z.string().nullish(),
   linkedin: z.string().nullish(),
@@ -31,10 +31,10 @@ export const ZodUserAccount = z.object({
   bio: z.string().nullish(),
   mainImageAbsoluteUrl: z.string().nullish(),
   mainImageFilename: z.string().nullish(),
-  isSuperuser: z.boolean(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
+  isSuperuser: z.boolean().nullish(),
+  createdAt: z.string().datetime({ offset: true }).nullish(),
+  updatedAt: z.string().datetime({ offset: true }).nullish(),
+  uuid: z.string().uuid().nullish(),
 })
 
 export const ZodUserAccountParams = z.object({
@@ -73,6 +73,14 @@ export const ZodUserAccountPutBody = z.object({
   isActive: z.boolean().nullish(),
   isStaff: z.boolean().nullish(),
   birthDate: z.string().nullish(),
+})
+
+export const ZodChangeUserNameBody = z.object({
+  username: z.string().max(30),
+})
+
+export const ZodChangeUserNameResponse = z.object({
+  detail: z.string().min(1),
 })
 
 export type UserAccount = z.infer<typeof ZodUserAccount>

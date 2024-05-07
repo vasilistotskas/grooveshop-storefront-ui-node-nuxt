@@ -27,6 +27,9 @@ const props = defineProps({
 
 const { account } = toRefs(props)
 const { isMobileOrTablet } = useDevice()
+const toast = useToast()
+const { t } = useI18n()
+const { fetch } = useUserSession()
 
 const UInput = resolveComponent('UInput')
 
@@ -35,8 +38,42 @@ const username = ref(account.value.username || account.value.email)
 const imgWidth = computed(() => (isMobileOrTablet ? 96 : 144))
 const imgHeight = computed(() => (isMobileOrTablet ? 96 : 144))
 
-const onEditUserName = () => {
+const onEditUserName = async () => {
+  if (userNameEditing.value) {
+    await changeUserName()
+  }
   userNameEditing.value = !userNameEditing.value
+}
+
+const changeUserName = async () => {
+  if (!username.value) {
+    toast.add({
+      title: t('pages.account.username.edit.empty'),
+      color: 'red',
+    })
+    return
+  }
+
+  try {
+    const response = await $fetch(`/api/user/account/${account.value.id}/change-username`, {
+      method: 'POST',
+      body: { username: username.value },
+    })
+
+    toast.add({
+      title: response.detail,
+      color: 'green',
+    })
+
+    account.value.username = username.value
+    await fetch()
+  }
+  catch (error) {
+    toast.add({
+      title: isErrorWithDetail(error) ? error.data.data.detail : t('common.unknown.error'),
+      color: 'red',
+    })
+  }
 }
 </script>
 
@@ -86,6 +123,7 @@ const onEditUserName = () => {
               sm: 'px-0 py-0',
             },
           }"
+          @keydown.enter="onEditUserName"
         />
       </div>
       <div

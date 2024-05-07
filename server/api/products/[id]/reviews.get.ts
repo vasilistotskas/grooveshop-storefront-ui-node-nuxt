@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-
+import { z } from 'zod'
 import { ZodProductParams, ZodProductQuery } from '~/types/product/product'
 import { ZodProductReview } from '~/types/product/review'
 
