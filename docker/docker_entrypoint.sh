@@ -3,6 +3,6 @@ set -e
 
 cd /mnt/app
 
-bun i
+npm i
 
-bun run dev -o
+npm run dev -o
