@@ -173,6 +173,9 @@ importers:
       nuxt-time:
         specifier: 0.1.3
         version: 0.1.3(rollup@4.17.2)
+      ofetch:
+        specifier: 1.3.4
+        version: 1.3.4
       pinia:
         specifier: 2.1.7
         version: 2.1.7(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5))
@@ -285,8 +288,8 @@ importers:
         specifier: 7.1.0
         version: 7.1.0
       zod:
-        specifier: 3.23.6
-        version: 3.23.6
+        specifier: 3.23.7
+        version: 3.23.7
 
 packages:
 
@@ -8176,8 +8179,8 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod@3.23.6:
-    resolution: {integrity: sha512-RTHJlZhsRbuA8Hmp/iNL7jnfc4nZishjsanDAfEY1QpDQZCahUp3xDzl+zfweE9BklxMUcgBgS1b7Lvie/ZVwA==}
+  zod@3.23.7:
+    resolution: {integrity: sha512-NBeIoqbtOiUMomACV/y+V3Qfs9+Okr18vR5c/5pHClPpufWOrsx8TENboDPe265lFdfewX2yBtNTLPvnmCxwog==}
 
 snapshots:
 
@@ -11475,7 +11478,7 @@ snapshots:
     dependencies:
       type-fest: 4.18.2
       vee-validate: 4.12.7(vue@3.4.27(typescript@5.4.5))
-      zod: 3.23.6
+      zod: 3.23.7
     transitivePeerDependencies:
       - vue
 
@@ -18056,4 +18059,4 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.5.2
 
-  zod@3.23.6: {}
+  zod@3.23.7: {}
