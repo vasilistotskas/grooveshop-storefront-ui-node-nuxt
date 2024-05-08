@@ -1,3 +1,10 @@
+# [1.108.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.107.1...v1.108.0) (2024-05-08)
+
+
+### Features
+
+* Replace `bun` with `pnpm` ([3628c59](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3628c59e956efff8034f29aae34b03ecbab00507))
+
 ## [1.107.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.107.0...v1.107.1) (2024-05-07)
 
 
