@@ -163,6 +163,10 @@ onMounted(() => {
   })
 })
 
+onReactivated(() => {
+  refresh()
+})
+
 useHydratedHead({
   title: () => blogPostTitle.value || '',
 })

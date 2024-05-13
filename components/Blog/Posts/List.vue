@@ -55,6 +55,7 @@ const cursor = computed(
 const expand = computed(() => 'true')
 
 const allPosts = ref<BlogPost[]>([])
+
 const {
   data: posts,
   pending,
@@ -96,31 +97,17 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const pagination = computed(() => {
-  if (!posts.value) return
-  return usePagination<BlogPost>(posts.value)
-})
+const pagination = computed(() => posts.value && usePagination<BlogPost>(posts.value))
+const orderingOptions = computed(() => useOrdering<BlogPostOrderingField>(entityOrdering.value))
 
-const orderingOptions = computed(() => {
-  return useOrdering<BlogPostOrderingField>(entityOrdering.value)
-})
-
-const postIds = computed(() => {
-  if (!posts.value) return []
-  return posts.value.results?.map(post => post.id)
-})
-
-const shouldFetchLikedPosts = computed(() => {
-  return loggedIn.value && postIds.value && postIds.value.length > 0
-})
+const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
+const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
 
 const { refresh: refreshLikedPosts } = await useFetch(
   '/api/blog/posts/liked-posts',
   {
     method: 'POST',
-    body: {
-      postIds: postIds.value,
-    },
+    body: { postIds: postIds.value },
     immediate: shouldFetchLikedPosts.value,
     onResponse({ response }) {
       if (!response.ok) {
@@ -133,17 +120,15 @@ const { refresh: refreshLikedPosts } = await useFetch(
 )
 
 const showResults = computed(() => {
-  if (paginationType.value === 'cursor') {
+  if (paginationType.value === PaginationTypeEnum.CURSOR) {
     return allPosts.value.length
   }
   return !pending.value && allPosts.value.length
 })
 
-const BlogPostCard = computed(() => {
-  return isMobileOrTablet
-    ? resolveComponent('BlogPostCardMobile')
-    : resolveComponent('BlogPostCardDesktop')
-})
+const BlogPostCard = computed(() =>
+  isMobileOrTablet ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
+)
 
 watch(
   () => cursorState.value,
@@ -171,43 +156,34 @@ watch(
 watch(
   posts,
   (newValue) => {
-    if (newValue && newValue.results?.length) {
+    if (newValue?.results?.length) {
       const postsMap = new Map(allPosts.value.map(post => [post.id, post]))
-      newValue.results.forEach((newPost) => {
-        postsMap.set(newPost.id, newPost)
-      })
+      newValue.results.forEach(newPost => postsMap.set(newPost.id, newPost))
+
       let sortedPosts
-      if (paginationType.value === 'cursor') {
-        sortedPosts = [...postsMap.values()].sort((a, b) => {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-        })
+      if (paginationType.value === PaginationTypeEnum.CURSOR) {
+        sortedPosts = [...postsMap.values()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         allPosts.value = sortedPosts
       }
       else {
-        sortedPosts = newValue.results.sort((a, b) => {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-        })
+        sortedPosts = newValue.results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         allPosts.value = sortedPosts
       }
     }
   },
   { deep: true, immediate: true },
 )
+
+onReactivated(() => {
+  refresh()
+})
 </script>
 
 <template>
   <div class="posts-list grid gap-4">
     <div
       v-if="pagination || showOrdering"
-      :class="
-        paginationType === 'cursor'
-          ? 'sr-only'
-          : 'flex flex-row flex-wrap items-center gap-2'
-      "
+      :class="paginationType === PaginationTypeEnum.CURSOR ? 'sr-only' : 'flex flex-row flex-wrap items-center gap-2'"
     >
       <Pagination
         v-if="pagination"
@@ -257,7 +233,7 @@ watch(
             :img-loading="index > 7 ? 'lazy' : 'eager'"
           />
         </template>
-        <template v-if="pending && paginationType !== 'cursor'">
+        <template v-if="pending && paginationType !== PaginationTypeEnum.CURSOR">
           <ClientOnlyFallback
             v-for="index in 8"
             :key="index"
@@ -269,7 +245,7 @@ watch(
       <slot name="sidebar" />
     </section>
     <Transition>
-      <template v-if="pending && paginationType === 'cursor'">
+      <template v-if="pending && paginationType === PaginationTypeEnum.CURSOR">
         <ClientOnlyFallback
           height="75px"
           width="35%"
