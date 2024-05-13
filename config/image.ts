@@ -2,6 +2,18 @@ import type { ModuleOptions } from '@nuxt/image'
 
 export const image = {
   dir: 'public',
+  provider: 'ipx',
+  ipx: {
+    maxAge: 60 * 60 * 24 * 365,
+  },
+  presets: {
+    default: {
+      modifiers: {
+        quality: 90,
+        format: 'webp',
+      },
+    },
+  },
   providers: {
     mediaStream: {
       name: 'mediaStream',
