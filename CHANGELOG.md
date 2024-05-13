@@ -1,3 +1,10 @@
+## [1.110.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.4...v1.110.5) (2024-05-13)
+
+
+### Bug Fixes
+
+* component `BlogPostList` cleanup and refresh onReactivated ([7472892](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/74728925627de961b09ccda21d8a4b98c1ec439e))
+
 ## [1.110.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.3...v1.110.4) (2024-05-13)
 
 
