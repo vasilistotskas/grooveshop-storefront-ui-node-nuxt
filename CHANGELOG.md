@@ -1,3 +1,10 @@
+## [1.110.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.0...v1.110.1) (2024-05-13)
+
+
+### Bug Fixes
+
+* remove `dependencies` from package.json ([9726e95](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9726e951575cc5e8d5352890a5245bab6bca57d3))
+
 # [1.110.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.109.1...v1.110.0) (2024-05-13)
 
 
