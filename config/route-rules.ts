@@ -13,4 +13,24 @@ export const routeRules = {
       'Cache-Control': 'public, max-age=0, must-revalidate',
     },
   },
+  '/favicon.ico': {
+    cache: {
+      maxAge: 60 * 60 * 24 * 365,
+    },
+  },
+  '/favicon/**': {
+    cache: {
+      maxAge: 60 * 60 * 24 * 365,
+    },
+  },
+  'img/**': {
+    cache: {
+      maxAge: 60 * 60 * 24 * 365,
+    },
+  },
+  '/screenshots/**': {
+    cache: {
+      maxAge: 60 * 60 * 24 * 365,
+    },
+  },
 }

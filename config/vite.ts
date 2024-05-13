@@ -44,8 +44,6 @@ export const vite = {
   optimizeDeps: {
     include: [
       '@headlessui/vue',
-      '@iconify',
-      '@unocss',
       'lottie-web',
       'zod',
       'v-calendar',

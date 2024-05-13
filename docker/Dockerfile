@@ -58,9 +58,6 @@ COPY --from=build /app/.output ./.output
 COPY --from=build /app/.nuxt ./.nuxt
 COPY --from=build /app/package*.json ./
 
-# Install pm2 globally
-RUN pnpm install -g pm2
-
 # Adjust permissions
 RUN chmod -R 777 /app && \
     chown -R node:node /app
@@ -69,4 +66,4 @@ RUN chmod -R 777 /app && \
 USER node
 
 # Define the entrypoint command
-ENTRYPOINT ["pm2-runtime", "/app/.output/server/index.mjs"]
+CMD ["pnpm", "run", "start"]

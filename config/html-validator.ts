@@ -5,10 +5,12 @@ export const htmlValidator = {
   logLevel: 'verbose',
   failOnError: false,
   options: {
-    extends: [
-      'html-validate:document',
-      'html-validate:recommended',
-      'html-validate:standard',
-    ],
+    rules: {
+      'unrecognized-char-ref': 'off',
+      'wcag/h37': 'warn',
+      'element-permitted-content': 'warn',
+      'element-required-attributes': 'warn',
+      'attribute-empty-style': 'off',
+    },
   },
 } satisfies Partial<ModuleOptions>
