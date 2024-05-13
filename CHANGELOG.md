@@ -1,3 +1,10 @@
+## [1.110.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.3...v1.110.4) (2024-05-13)
+
+
+### Bug Fixes
+
+* remove some route-rules ([d55fcf3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d55fcf3944916d33a31c65d94b2d25912e8d596a))
+
 ## [1.110.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.2...v1.110.3) (2024-05-13)
 
 
