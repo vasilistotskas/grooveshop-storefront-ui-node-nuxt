@@ -38,7 +38,6 @@ const { pending, error, refresh } = await useAsyncData(
           return
         }
         results.value = response._data
-
         if (!Object.values(response._data).every(value => !value)) {
           addToSearchHistory(currentSearch.value)
         }
@@ -48,10 +47,6 @@ const { pending, error, refresh } = await useAsyncData(
     immediate: !!(currentSearch.value && currentSearch.value.length >= 3),
   },
 )
-
-onClickOutside(suggestions, () => {
-  isSuggestionsOpen.value = false
-})
 
 const throttledSearch = useDebounceFn(async () => {
   await refresh()
@@ -68,59 +63,35 @@ const storageSearchHistory = computed(() => {
   )
 })
 
-const showSearchHistory = computed(() => {
-  return storageSearchHistory.value.length > 0
-})
-
-const showHeadlines = computed(() => {
-  return Object.keys(productHeadlines).length > 0 || Object.keys(blogPostHeadlines).length > 0
-})
-
-const showSuggestions = computed(() => {
-  return (
-    isSuggestionsOpen.value && (showSearchHistory.value || showHeadlines.value)
-  )
-})
-
-const showResults = computed(() => {
-  return (productSearchItems.value.length > 0 || blogPostSearchItems.value.length > 0) && !pending.value && !error.value
-})
-
-const showStartSearching = computed(() => {
-  return !currentSearch.value && !pending.value
-})
-
-const showTotalCount = computed(() => {
-  return totalCount.value > 0 && !pending.value
-})
-
-const showIsSearching = computed(() => {
-  return pending.value && !error.value
-})
-
-const showNoResults = computed(() => {
-  return (
-    !showIsSearching.value
-    && productSearchItems.value.length === 0
-    && blogPostSearchItems.value.length === 0
-    && !error.value
-  )
-})
+const showSearchHistory = computed(() => storageSearchHistory.value.length > 0)
+const showHeadlines = computed(() => Object.keys(productHeadlines).length > 0 || Object.keys(blogPostHeadlines).length > 0)
+const showSuggestions = computed(() => isSuggestionsOpen.value && (showSearchHistory.value || showHeadlines.value))
+const showResults = computed(() => (productSearchItems.value.length > 0 || blogPostSearchItems.value.length > 0) && !pending.value && !error.value)
+const showStartSearching = computed(() => !currentSearch.value && !pending.value)
+const showTotalCount = computed(() => totalCount.value > 0 && !pending.value)
+const showIsSearching = computed(() => pending.value && !error.value)
+const showNoResults = computed(() => !showIsSearching.value && productSearchItems.value.length === 0 && blogPostSearchItems.value.length === 0 && !error.value)
 
 watch(
   () => currentSearch.value,
-  () => {
-    pending.value = true
-    if (currentSearch.value.length < 3) return
+  (newVal) => {
+    if (newVal.length < 3) return
     throttledSearch()
-    router.replace({
-      query: {
-        ...route.query,
-        query: currentSearch.value,
-      },
-    })
+    router.replace({ query: { ...route.query, query: newVal } })
   },
 )
+
+const handleSearchEnter = () => {
+  refresh()
+}
+
+const handleClearHistoryItem = (item: string) => {
+  clearSearchHistoryItem(item)
+}
+
+const handleClearHistory = () => {
+  clearSearchHistory()
+}
 
 onUnmounted(() => {
   currentSearch.value = ''
@@ -134,9 +105,6 @@ onMounted(() => {
 
 definePageMeta({
   pageTransition: false,
-})
-
-definePageMeta({
   layout: 'default',
 })
 </script>
@@ -145,10 +113,9 @@ definePageMeta({
   <PageWrapper class="container flex flex-col gap-10 p-0">
     <PageBody>
       <div
-        v-focus
-        class="
-          bg-primary-50 fixed left-0 top-[48px] z-20 grid w-full items-center
-          gap-4 p-[8px]
+        v-focus class="
+          search-bar bg-primary-50 fixed left-0 top-[48px] z-20 grid w-full
+          items-center gap-4 p-[8px]
 
           dark:bg-primary-900
 
@@ -165,11 +132,9 @@ definePageMeta({
           "
         >
           <Anchor
-            :to="'index'"
-            aria-label="index"
-            class="
-              text-md text-primary-950 flex items-center gap-3 overflow-hidden
-              border-r-2 border-primary-500 pr-2 font-bold
+            :to="'index'" aria-label="index" class="
+              back-to-home text-md text-primary-950 flex items-center gap-3
+              overflow-hidden border-r-2 border-primary-500 pr-2 font-bold
 
               dark:text-primary-50 dark:border-primary-500
 
@@ -186,9 +151,7 @@ definePageMeta({
               md:text-base
             "
           />
-          <label for="search" class="sr-only">{{
-            $t('pages.search.placeholder')
-          }}</label>
+          <label for="search" class="sr-only">{{ $t('pages.search.placeholder') }}</label>
           <UInput
             id="search"
             v-model="currentSearch"
@@ -197,29 +160,29 @@ definePageMeta({
             type="text"
             class="w-full bg-transparent text-xl outline-none"
             :placeholder="$t('pages.search.placeholder')"
-            @keyup.enter="refresh()"
+            @keyup.enter="handleSearchEnter"
             @click="isSuggestionsOpen = true"
           />
         </div>
         <div
-          v-if="showSuggestions"
-          ref="suggestions"
-          class="
-            absolute top-[45px] z-10 max-h-36 w-full list-none overflow-y-auto
+          v-if="showSuggestions" ref="suggestions" class="
+            suggestions absolute top-[45px] z-10 max-h-36 w-full list-none
+            overflow-y-auto
 
             md:mt-2
           "
         >
           <div
             class="
-              bg-primary-50 m-auto w-11/12 rounded-md shadow-md
+              suggestions-content bg-primary-50 m-auto w-11/12 rounded-md
+              shadow-md
 
               dark:bg-primary-900
             "
           >
             <p
-              v-if="!currentSearch && storageSearchHistory && storageSearchHistory.length > 0" class="
-                flex items-center justify-between px-2
+              v-if="!currentSearch && storageSearchHistory.length > 0" class="
+                recent-searches flex items-center justify-between px-2
               "
             >
               <span
@@ -229,21 +192,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
               >{{ $t('common.search.recent') }}</span>
-              <UButton
-                :label="$t('common.search.clear_all')"
-                icon="i-heroicons-x-mark"
-                :size="isMobileOrTablet ? 'xs' : 'xs'"
-                :trailing="true"
-                color="rose"
-                variant="link"
-                @click="clearSearchHistory"
-              />
+              <UButton :label="$t('common.search.clear_all')" icon="i-heroicons-x-mark" :size="isMobileOrTablet ? 'xs' : 'xs'" :trailing="true" color="rose" variant="link" @click="handleClearHistory" />
             </p>
             <TransitionGroup name="list" tag="ul" class="grid">
               <template v-for="suggestion in storageSearchHistory" :key="suggestion">
                 <li
                   class="
-                    relative px-4 py-2
+                    suggestion-item relative px-4 py-2
 
                     dark:hover:bg-primary-700
 
@@ -251,43 +206,25 @@ definePageMeta({
                   "
                 >
                   <Anchor
-                    :to="`/search?query=${suggestion}`"
-                    class="flex items-center gap-3"
-                    @click="() => {
-                      currentSearch = suggestion
-                      isSuggestionsOpen = false
-                    }"
+                    :to="`/search?query=${suggestion}`" class="
+                      flex items-center gap-3
+                    " @click="() => { currentSearch = suggestion; isSuggestionsOpen = false; }"
                   >
-                    <IconFa6Solid:clockRotateLeft
-                      class="text-sm"
-                    />
+                    <IconFa6Solid:clockRotateLeft class="text-sm" />
                     <span
                       class="
                         text-primary-950 truncate text-sm
 
                         dark:text-primary-50
                       "
-                    >
-                      {{ suggestion }}
-                    </span>
+                    >{{ suggestion }}</span>
                   </Anchor>
-                  <UButton
-                    class="absolute right-0 top-0"
-                    :label="$t('common.clear')"
-                    icon="i-heroicons-x-mark"
-                    :size="isMobileOrTablet ? 'xs' : 'xs'"
-                    :trailing="true"
-                    color="rose"
-                    variant="link"
-                    @click="clearSearchHistoryItem(suggestion)"
-                  />
+                  <UButton class="absolute right-0 top-0" :label="$t('common.clear')" icon="i-heroicons-x-mark" :size="isMobileOrTablet ? 'xs' : 'xs'" :trailing="true" color="rose" variant="link" @click="handleClearHistoryItem(suggestion)" />
                 </li>
               </template>
               <li
-                v-for="(headline, productId) in productHeadlines"
-                :key="productId"
-                class="
-                  px-4 py-2
+                v-for="(headline, productId) in productHeadlines" :key="productId" class="
+                  headline-item px-4 py-2
 
                   dark:hover:bg-primary-700
 
@@ -295,31 +232,23 @@ definePageMeta({
                 "
               >
                 <Anchor
-                  :to="`/search?query=${cleanHtml(headline)}`"
-                  class="flex items-center gap-3"
-                  @click="() => {
-                    currentSearch = cleanHtml(headline)
-                    isSuggestionsOpen = false
-                  }"
+                  :to="`/search?query=${cleanHtml(headline)}`" class="
+                    flex items-center gap-3
+                  " @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
                 >
-                  <IconFa6Solid:magnifyingGlass
-                    class="text-sm"
-                  />
+                  <IconFa6Solid:magnifyingGlass class="text-sm" />
                   <span
                     class="
                       text-primary-950 truncate text-sm
 
                       dark:text-primary-50
-                    "
-                    v-html="headline"
+                    " v-html="headline"
                   />
                 </Anchor>
               </li>
               <li
-                v-for="(headline, blogPostId) in blogPostHeadlines"
-                :key="blogPostId"
-                class="
-                  px-4 py-2
+                v-for="(headline, blogPostId) in blogPostHeadlines" :key="blogPostId" class="
+                  headline-item px-4 py-2
 
                   dark:hover:bg-primary-700
 
@@ -327,23 +256,17 @@ definePageMeta({
                 "
               >
                 <Anchor
-                  :to="`/search?query=${cleanHtml(headline)}`"
-                  class="flex items-center gap-3"
-                  @click="() => {
-                    currentSearch = cleanHtml(headline)
-                    isSuggestionsOpen = false
-                  }"
+                  :to="`/search?query=${cleanHtml(headline)}`" class="
+                    flex items-center gap-3
+                  " @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
                 >
-                  <IconFa6Solid:magnifyingGlass
-                    class="text-sm"
-                  />
+                  <IconFa6Solid:magnifyingGlass class="text-sm" />
                   <span
                     class="
                       text-primary-950 truncate text-sm
 
                       dark:text-primary-50
-                    "
-                    v-html="headline"
+                    " v-html="headline"
                   />
                 </Anchor>
               </li>
@@ -352,30 +275,24 @@ definePageMeta({
         </div>
       </div>
       <PageTitle class="sr-only">
-        <span
-          :class="{
-            'opacity-0': !currentSearch,
-          }"
-        >
+        <span :class="{ 'opacity-0': !currentSearch }">
           <span>{{ $t('pages.search.results') }}:</span>
-          <span v-if="currentSearch" class="font-bold">
-            {{ currentSearch }}</span>
+          <span v-if="currentSearch" class="font-bold">{{ currentSearch }}</span>
         </span>
       </PageTitle>
-
       <div
         v-if="showResults" class="
-          mt-14 min-h-screen
+          results mt-14 min-h-screen
 
           md:mt-14
         "
       >
-        <div v-if="showTotalCount" class="pb-2 text-sm opacity-95">
+        <div v-if="showTotalCount" class="total-count pb-2 text-sm opacity-95">
           {{ $t('common.items.count', totalCount) }}
         </div>
         <div
           class="
-            grid grid-cols-1 gap-4
+            results-grid grid grid-cols-1 gap-4
 
             lg:grid-cols-3
 
@@ -384,42 +301,31 @@ definePageMeta({
             xl:grid-cols-4
           "
         >
-          <SearchProductCard
-            v-for="(item, index) of productSearchItems"
-            :key="index"
-            :item="item"
-          />
-          <SearchBlogPostCard
-            v-for="(item, index) of blogPostSearchItems"
-            :key="index"
-            :item="item"
-          />
+          <SearchProductCard v-for="(item, index) in productSearchItems" :key="index" :item="item" />
+          <SearchBlogPostCard v-for="(item, index) in blogPostSearchItems" :key="index" :item="item" />
         </div>
       </div>
       <div
-        v-if="showStartSearching"
-        class="p-10 text-center text-4xl font-light opacity-50"
+        v-if="showStartSearching" class="
+          start-searching p-10 text-center text-4xl font-light opacity-50
+        "
       >
         {{ $t('pages.search.start_searching') }}
       </div>
       <div
-        v-if="showIsSearching"
-        class="mb-20 mt-20 grid animate-pulse items-center justify-center"
+        v-if="showIsSearching" class="
+          is-searching mb-20 mt-20 grid animate-pulse items-center
+          justify-center
+        "
       >
-        <LazyLottie
-          class="grid"
-          :animation-data="SearchingJson"
-          :width="'254px'"
-          :height="'254px'"
-        />
+        <LazyLottie class="grid" :animation-data="SearchingJson" :width="'254px'" :height="'254px'" />
       </div>
-      <div v-if="showNoResults" class="mt-40 grid items-center justify-center">
-        <LazyLottie
-          class="grid"
-          :animation-data="SearchingNoResultsJson"
-          :width="'254px'"
-          :height="'254px'"
-        />
+      <div
+        v-if="showNoResults" class="
+          no-results mt-40 grid items-center justify-center
+        "
+      >
+        <LazyLottie class="grid" :animation-data="SearchingNoResultsJson" :width="'254px'" :height="'254px'" />
       </div>
     </PageBody>
   </PageWrapper>
