@@ -29,7 +29,7 @@ export const vite = {
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          const chunks = ['@headlessui/vue', '@iconify', '@unocss', 'v-calendar', 'zod', 'lottie']
+          const chunks = ['v-calendar', 'zod', 'lottie']
           if (id.includes('/node_modules/')) {
             for (const chunkName of chunks) {
               if (id.includes(chunkName)) {
@@ -43,7 +43,6 @@ export const vite = {
   },
   optimizeDeps: {
     include: [
-      '@headlessui/vue',
       'lottie-web',
       'zod',
       'v-calendar',
