@@ -1,3 +1,10 @@
+## [1.110.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.2...v1.110.3) (2024-05-13)
+
+
+### Bug Fixes
+
+* cache ipx provider images ([becb73a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/becb73a2cbd8e926ec7c9bf0bd83d748b695427b))
+
 ## [1.110.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.1...v1.110.2) (2024-05-13)
 
 
