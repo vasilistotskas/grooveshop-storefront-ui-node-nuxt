@@ -1,3 +1,10 @@
+## [1.110.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.5...v1.110.6) (2024-05-13)
+
+
+### Bug Fixes
+
+* search page cleanup ([600ae2a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/600ae2a12f42fe59a7c2d6de18359ab30b0e6a85))
+
 ## [1.110.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.4...v1.110.5) (2024-05-13)
 
 
