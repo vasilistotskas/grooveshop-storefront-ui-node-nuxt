@@ -1,3 +1,10 @@
+## [1.110.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.1...v1.110.2) (2024-05-13)
+
+
+### Bug Fixes
+
+* lang update and add headers for some public routes ([17881d2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/17881d274dadc536491f0433471bf6b17692a902))
+
 ## [1.110.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.110.0...v1.110.1) (2024-05-13)
 
 
