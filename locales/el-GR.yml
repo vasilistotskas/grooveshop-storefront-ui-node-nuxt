@@ -74,8 +74,8 @@ common:
   save: Αποθήκευση
   edit: Επεξεργασία
   empty:
-    title: Αδειάζω
-    description: Αδειάζω
+    title: Άδειο
+    description: Δεν υπάρχουν αποτελέσματα
     button: Επέστρεψε στην Αρχική
   version: Εκδοχή
   upload: Μεταφόρτωση
