@@ -47,7 +47,11 @@ const id = useId()
         "
         :id="id"
         :close-button="{ id: 'actions', onClick: () => $pwa?.cancelPrompt() }"
-        class="m-auto w-[90%]"
+        class="
+          m-auto w-[33%]
+
+          md:w-[90%]
+        "
         :actions="actions"
         :title="$pwa?.offlineReady ? $t('components.pwa.ready_to_work_offline') : $t('components.pwa.new_content_available')"
         :timeout="0"
@@ -58,7 +62,11 @@ const id = useId()
         "
         :id="id"
         :close-button="{ id: 'installActions', onClick: () => $pwa?.cancelInstall() }"
-        class="m-auto w-[90%]"
+        class="
+          m-auto w-[33%]
+
+          md:w-[90%]
+        "
         :actions="installActions"
         :title="$t('components.pwa.install_pwa')"
         :timeout="0"

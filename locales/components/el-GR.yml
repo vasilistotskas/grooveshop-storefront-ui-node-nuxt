@@ -1,15 +1,15 @@
 components:
   generic_modal:
-    close: Κλείσε
+    close: Κλείσιμο
   pwa:
     ready_to_work_offline: Εφαρμογή έτοιμη για εργασία εκτός σύνδεσης
     new_content_available: >-
       Νέο διαθέσιμο περιεχόμενο, κάντε κλικ στο κουμπί επαναφόρτωσης για
       ενημέρωση.
-    reload: Γεμίζω πάλι
-    close: Κλείσε
+    reload: Επαναφόρτωση
+    close: Κλείσιμο
     install_pwa: Εγκαταστήστε το PWA
-    install: Εγκαθιστώ
+    install: Εγκατάσταση
     cancel: Ματαίωση
     pwa_installed: Εγκατεστημένο PWA
     pwa_installed_description: Το PWA εγκαταστάθηκε με επιτυχία
@@ -65,7 +65,7 @@ components:
         αλλάξετε τις προτιμήσεις σας αργότερα. Να θυμάστε ότι η απενεργοποίηση
         των cookies μπορεί να επηρεάσει την εμπειρία σας.
       privacy-policy: Πολιτική Απορρήτου
-    close: Κλείσε
+    close: Κλείσιμο
     cookies:
       optional: Προαιρετικά cookies
       optional_links:

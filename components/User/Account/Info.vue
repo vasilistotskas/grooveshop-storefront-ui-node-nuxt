@@ -31,10 +31,8 @@ const toast = useToast()
 const { t } = useI18n()
 const { fetch } = useUserSession()
 
-const UInput = resolveComponent('UInput')
-
 const userNameEditing = ref(false)
-const username = ref(account.value.username || account.value.email)
+const username = ref(account.value.username || account.value.email || '')
 const imgWidth = computed(() => (isMobileOrTablet ? 96 : 144))
 const imgHeight = computed(() => (isMobileOrTablet ? 96 : 144))
 

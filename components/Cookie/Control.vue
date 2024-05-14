@@ -23,7 +23,6 @@ const {
   moduleOptions,
 } = useCookieControl()
 
-// data
 const expires = new Date(Date.now() + moduleOptions.cookieExpiryOffsetMs)
 const localCookiesEnabled = ref([...(cookiesEnabled.value || [])])
 const allCookieIdsString = getAllCookieIdsString(moduleOptions)
@@ -38,16 +37,15 @@ const cookieCookiesEnabledIds = useCookie(
     ...moduleOptions.cookieOptions,
   },
 )
-// computations
-const isSaved = computed(
-  () =>
-    getCookieIds(cookiesEnabled.value || [])
+const isUnSaved = computed(
+  () => {
+    return getCookieIds(cookiesEnabled.value || [])
       .sort()
       .join(COOKIE_ID_SEPARATOR)
-      !== getCookieIds(localCookiesEnabled.value).sort().join(COOKIE_ID_SEPARATOR),
+      !== getCookieIds(localCookiesEnabled.value).sort().join(COOKIE_ID_SEPARATOR)
+  },
 )
 
-// methods
 const accept = () => {
   setCookies({
     isConsentGiven: true,
@@ -80,9 +78,7 @@ const declineAll = () => {
 const getDescription = (description: string) =>
   `${!moduleOptions.isDashInDescriptionEnabled ? '' : '-'} ${t(description)}`
 const getName = (name: string) => {
-  return name === 'functional'
-    ? t('components.cookie.cookies.functional')
-    : t(name)
+  return t(name)
 }
 const resolveLinkEntryText = (entry: [string, unknown]) => {
   if (typeof entry[1] === 'string') {
@@ -134,6 +130,9 @@ const toggleCookie = (cookie: Cookie) => {
     localCookiesEnabled.value.push(cookie)
   }
   else {
+    if (getName(cookie.name) === t('components.cookie.cookies.necessary')) {
+      return
+    }
     localCookiesEnabled.value.splice(cookieIndex, 1)
   }
 }
@@ -144,7 +143,7 @@ const toggleLabel = ($event: KeyboardEvent) => {
     target.click()
   }
 }
-// lifecycle
+
 onBeforeMount(() => {
   if (moduleOptions.isModalForced && !isConsentGiven.value) {
     isModalActive.value = true
@@ -286,7 +285,7 @@ defineExpose({
         @click.self="onModalClick"
       >
         <p
-          v-if="isSaved"
+          v-if="isUnSaved"
           class="cookie-control-ModalUnsaved"
           v-text="$t('components.cookie.settings.unsaved')"
         />
@@ -326,18 +325,18 @@ defineExpose({
                       <input
                         v-if="
                           cookieType === ZodCookieTypeEnum.enum.necessary
-                            && cookie.name !== 'functional'
+                            && getName(cookie.name) === $t('components.cookie.cookies.necessary')
                         "
-                        :id="cookie.name"
-                        :name="cookie.name"
-                        :placeholder="cookie.name"
+                        :id="cookie.id"
+                        :name="getName(cookie.name)"
+                        :placeholder="getName(cookie.name)"
                         type="checkbox"
                         disabled
                         checked
                       >
                       <input
                         v-else
-                        :id="cookie.name"
+                        :id="cookie.id"
                         type="checkbox"
                         :checked="
                           getCookieIds(localCookiesEnabled).includes(cookie.id)

@@ -22,7 +22,7 @@ const packageVersion = pkg.version
           md:grid md:grid-cols-3 md:gap-8 md:px-6 md:py-8
         "
       >
-        <div class="w-full">
+        <div class="flex w-full flex-col gap-4">
           <span
             class="
               mb-6 text-xs font-semibold uppercase text-primary-950
@@ -36,18 +36,12 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              text-primary-950 font-medium
+              grid gap-2 text-primary-950 font-medium
 
               dark:text-primary-400
             "
           >
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :to="'about'"
                 :title="$t('common.about')"
@@ -61,13 +55,7 @@ const packageVersion = pkg.version
                 {{ $t('common.about') }}
               </Anchor>
             </li>
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :to="'blog'"
                 :title="$t('common.blog')"
@@ -83,7 +71,7 @@ const packageVersion = pkg.version
             </li>
           </ul>
         </div>
-        <div class="w-full">
+        <div class="flex w-full flex-col gap-4">
           <span
             class="
               mb-6 text-xs font-semibold uppercase text-primary-950
@@ -97,18 +85,12 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              text-primary-950 font-medium
+              grid gap-2 text-primary-950 font-medium
 
               dark:text-primary-400
             "
           >
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :to="'contact'"
                 :title="$t('common.contact_us')"
@@ -122,13 +104,7 @@ const packageVersion = pkg.version
                 {{ $t('common.contact_us') }}
               </Anchor>
             </li>
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :href="config.public.socials.discord"
                 :title="$t('common.discord_server')"
@@ -142,13 +118,7 @@ const packageVersion = pkg.version
                 {{ $t('common.discord_server') }}
               </Anchor>
             </li>
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :href="config.public.socials.twitter"
                 :title="$t('common.twitter')"
@@ -162,13 +132,7 @@ const packageVersion = pkg.version
                 {{ $t('common.twitter') }}
               </Anchor>
             </li>
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :href="config.public.socials.facebook"
                 :title="$t('common.facebook')"
@@ -184,7 +148,7 @@ const packageVersion = pkg.version
             </li>
           </ul>
         </div>
-        <div class="w-full">
+        <div class="flex w-full flex-col gap-4">
           <span
             class="
               text-primary-950 mb-6 text-xs font-semibold uppercase
@@ -198,18 +162,12 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              text-primary-950 font-medium
+              grid gap-2 text-primary-950 font-medium
 
               dark:text-primary-400
             "
           >
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :to="'privacy-policy'"
                 :title="$t('common.privacy_policy')"
@@ -223,13 +181,7 @@ const packageVersion = pkg.version
                 {{ $t('common.privacy_policy') }}
               </Anchor>
             </li>
-            <li
-              class="
-                mb-2
-
-                md:mb-4
-              "
-            >
+            <li class="grid">
               <Anchor
                 :to="'terms'"
                 :title="$t('common.terms_conditions')"

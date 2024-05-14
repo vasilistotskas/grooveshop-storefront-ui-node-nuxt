@@ -1,6 +1,6 @@
 common:
   home: Αρχική
-  close: Κλείσε
+  close: Κλείσιμο
   auth:
     login:
       success: Συνδεθείτε με επιτυχία
@@ -107,8 +107,8 @@ common:
   hide:
     replies: Απόκρυψη
   register: Εγγραφή
-  first: Πρώτα
-  last: τελευταίος
+  first: Πρώτο
+  last: Τελευταίο
   prev: Προηγούμενο
   settings: Ρυθμίσεις
   signed_in_as: Email
