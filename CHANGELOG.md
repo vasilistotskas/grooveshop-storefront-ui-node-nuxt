@@ -1,3 +1,10 @@
+# [1.114.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.113.0...v1.114.0) (2024-05-15)
+
+
+### Features
+
+* Product image gallery and modal ([6ce5682](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6ce56827ddf1eba1c7af9311eaf802b07523446a))
+
 # [1.113.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.112.0...v1.113.0) (2024-05-15)
 
 
