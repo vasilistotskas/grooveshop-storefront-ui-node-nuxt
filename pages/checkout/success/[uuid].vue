@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
 
-import type { Order } from '~/types/order/order'
-
 const route = useRoute()
 const orderUUID = route.params.uuid
 
 const { t, locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 
-const { data: order, error } = await useFetch<Order>(
+const { data: order, error } = await useFetch(
   `/api/orders/uuid/${orderUUID}`,
   {
     key: `order${orderUUID}`,

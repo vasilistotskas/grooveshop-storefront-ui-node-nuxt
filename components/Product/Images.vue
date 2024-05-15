@@ -14,7 +14,7 @@ const { product } = toRefs(props)
 const { locale } = useI18n()
 const localePath = useLocalePath()
 
-const { data: productImages } = await useFetch(
+const { data: images } = await useFetch(
   `/api/products/${product.value.id}/images`,
   {
     key: `productImages${product.value.id}`,
@@ -25,22 +25,22 @@ const { data: productImages } = await useFetch(
   },
 )
 
-const mainImage = ref(productImages.value?.find(image => image.isMain))
+const mainImage = ref(images.value?.find(image => image.isMain))
 
 const selectedImageId = useState<number>(
   `${product.value.uuid}-imageID`,
   () => {
-    if (!productImages.value) {
+    if (!images.value) {
       return 0
     }
-    return mainImage.value?.id || productImages.value[0]?.id || 0
+    return mainImage.value?.id || images.value[0]?.id || 0
   },
 )
 
 watch(
   () => selectedImageId.value,
   (value) => {
-    const image = productImages.value?.find(image => image.id === value)
+    const image = images.value?.find(image => image.id === value)
     if (image) {
       mainImage.value = image
     }
@@ -51,7 +51,7 @@ watch(
 <template>
   <div
     class="grid"
-    :class="[productImages && productImages?.length > 1 ? 'gap-4' : '']"
+    :class="[images && images?.length > 1 ? 'gap-4' : '']"
   >
     <div
       class="
@@ -69,9 +69,9 @@ watch(
     <PlusModalPage name="gallery-modal" />
 
     <UCarousel
-      v-if="productImages && productImages?.length > 1"
+      v-if="images && images?.length > 1"
       v-slot="{ item }"
-      :items="productImages"
+      :items="images"
       :ui="{ item: 'basis-1/2 lg:basis-1/3', container: 'gap-2' }"
       class="overflow-hidden rounded-lg"
       arrows

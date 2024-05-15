@@ -3,7 +3,6 @@ import { useShare } from '@vueuse/core'
 import { isClient } from '@vueuse/shared'
 
 import { GlobalEvents } from '~/events'
-import type { Product } from '~/types/product/product'
 import { capitalize } from '~/utils/str'
 
 const { user, loggedIn } = useUserSession()
@@ -19,7 +18,7 @@ const { getFavouriteByProductId, updateFavouriteProducts } = userStore
 
 const productId = Number(route.params.id)
 
-const { data: product, refresh: refreshProduct } = await useFetch<Product>(
+const { data: product, refresh: refreshProduct } = await useFetch(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
-import type { BlogPost } from '~/types/blog/post'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -17,7 +16,7 @@ const shouldFetchLikedPosts = computed(() => {
   return loggedIn.value
 })
 
-const { data: blogPost, refresh } = await useFetch<BlogPost>(
+const { data: blogPost, refresh } = await useFetch(
   `/api/blog/posts/${blogPostId}`,
   {
     key: `blogPost${blogPostId}`,
