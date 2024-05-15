@@ -34,6 +34,7 @@ const props = withDefaults(
     submitButtonUi?: Button
     resetButtonUi?: Button
     buttonsPosition?: 'center' | 'left' | 'right'
+    loading?: boolean
   }>(),
   {
     id: undefined,
@@ -57,6 +58,7 @@ const props = withDefaults(
       ui: {},
     }),
     buttonsPosition: 'right',
+    loading: false,
   },
 )
 
@@ -363,7 +365,7 @@ formFields.forEach((field) => {
       <LazyUButton
         v-if="!isMultiStep && submitButton"
         :aria-busy="isSubmitting"
-        :disabled="submitButtonDisabled"
+        :disabled="submitButtonDisabled || loading"
         :type="submitButtonUi.type"
         :variant="submitButtonUi.variant"
         :color="submitButtonUi.color"

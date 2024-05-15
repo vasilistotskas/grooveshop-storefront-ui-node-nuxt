@@ -3,9 +3,6 @@ import { z } from 'zod'
 
 import { GlobalEvents } from '~/events'
 
-const Anchor = resolveComponent('Anchor')
-const PlusModalLink = resolveComponent('PlusModalLink')
-
 const { t } = useI18n()
 const toast = useToast()
 const route = useRoute()
@@ -352,18 +349,14 @@ const submitButtonLabel = computed(() => {
               $t('pages.auth.login.form.no.account')
             }}</span>
 
-            <Component
-              :is="route.path === localePath('/auth/login') ? Anchor : PlusModalLink"
+            <UButton
+              size="md"
+              type="button"
+              color="opposite"
+              variant="link"
+              :label="$t('common.register')"
               :to="localePath('/auth/registration')"
-            >
-              <UButton
-                size="md"
-                type="button"
-                color="opposite"
-                variant="link"
-                :label="$t('common.register')"
-              />
-            </Component>
+            />
           </div>
         </div>
       </div>

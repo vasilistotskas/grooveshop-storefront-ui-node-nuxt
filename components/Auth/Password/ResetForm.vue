@@ -4,13 +4,43 @@ import { z } from 'zod'
 import type { PasswordResetBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
+const emit = defineEmits(['passwordReset'])
+
 const { passwordReset } = useAuth()
+const toast = useToast()
+
+const loading = ref(false)
 
 const { t } = useI18n()
 async function onSubmit(values: PasswordResetBody) {
-  await passwordReset({
-    email: values.email,
+  try {
+    loading.value = true
+    const { detail } = await passwordReset({
+      email: values.email,
+    })
+    toast.add({
+      title: detail,
+      color: 'green',
+    })
+    emit('passwordReset')
+  }
+  catch (error) {
+    handleResetError()
+  }
+  finally {
+    finalizeReset()
+  }
+}
+
+function handleResetError() {
+  toast.add({
+    title: t('common.error'),
+    color: 'red',
   })
+}
+
+function finalizeReset() {
+  loading.value = false
 }
 
 const formSchema: DynamicFormSchema = {
@@ -43,6 +73,7 @@ const formSchema: DynamicFormSchema = {
       "
       :schema="formSchema"
       :button-label="t('common.reset')"
+      :loading="loading"
       @submit="onSubmit"
     />
   </section>

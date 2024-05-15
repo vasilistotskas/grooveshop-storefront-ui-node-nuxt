@@ -2,9 +2,6 @@
 import { AuthenticatedRoutePrefixes } from '~/constants'
 import type { DropdownItem } from '#ui/types'
 
-const Anchor = resolveComponent('Anchor')
-const PlusModalLink = resolveComponent('PlusModalLink')
-
 const userStore = useUserStore()
 const { cleanAccountState } = userStore
 const cartStore = useCartStore()
@@ -259,8 +256,7 @@ const items = [
                   />
                 </template>
               </UDropdown>
-              <Component
-                :is="route.path === '/auth/login' ? Anchor : PlusModalLink"
+              <Anchor
                 v-else
                 class="
                   flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
@@ -269,13 +265,10 @@ const items = [
                   hover:dark:text-primary-50
                 "
                 :title="loggedIn ? $t('common.account') : $t('common.login')"
-                :to="route.path === '/auth/login' ? localePath('/auth/login') : localePath(`/auth/login?redirect=${route.path}`)"
+                :to="route.path === localePath('/auth/login') ? localePath('/auth/login') : localePath(`/auth/login?redirect=${route.path}`)"
               >
                 <IconFa6Solid:circleUser />
-              </Component>
-
-              <PlusModalPage v-if="route.path !== '/auth/login' && route.path !== '/auth/registration'" name="login-modal" />
-              <PlusModalPage v-if="route.path !== '/auth/login' && route.path !== '/auth/registration'" name="registration-modal" />
+              </Anchor>
             </li>
           </ul>
         </nav>

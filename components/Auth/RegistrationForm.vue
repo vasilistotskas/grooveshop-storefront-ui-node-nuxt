@@ -1,15 +1,11 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-const Anchor = resolveComponent('Anchor')
-const PlusModalLink = resolveComponent('PlusModalLink')
-
 const { fetch } = useUserSession()
 const { register, registrationResendEmail } = useAuth()
 
 const { t } = useI18n()
 const toast = useToast()
-const route = useRoute()
 const localePath = useLocalePath()
 
 const loading = ref(false)
@@ -280,18 +276,14 @@ const submitButtonLabel = computed(() => {
             >{{
               $t('pages.auth.registration.form.already_have_account')
             }}</span>
-            <Component
-              :is="route.path === localePath('/auth/registration') ? Anchor : PlusModalLink"
+            <UButton
+              size="lg"
+              type="submit"
+              color="opposite"
+              variant="link"
+              :label="$t('pages.auth.login.title')"
               :to="localePath('/auth/login')"
-            >
-              <UButton
-                size="lg"
-                type="submit"
-                color="opposite"
-                variant="link"
-                :label="$t('pages.auth.login.title')"
-              />
-            </Component>
+            />
           </div>
         </div>
       </div>
