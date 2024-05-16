@@ -1,3 +1,10 @@
+# [1.115.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.114.0...v1.115.0) (2024-05-16)
+
+
+### Features
+
+* Bump Versions and upload user profile image improve ([2af3e7a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2af3e7a6e0e20facf359cab9269ad1f15e42b3e1))
+
 # [1.114.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.113.0...v1.114.0) (2024-05-15)
 
 
