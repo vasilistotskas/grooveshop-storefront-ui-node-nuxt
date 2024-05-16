@@ -1,9 +1,8 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import { ZodSearchBlogPostResult, ZodSearchProductResult, ZodSearchQuery, ZodSearchResults } from '~/types/search'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {

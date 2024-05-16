@@ -1,8 +1,6 @@
-import type { H3Event } from 'h3'
-
 import { ZodOrderCreateBody, ZodOrderCreateResponse } from '~/types/order/order'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(event, ZodOrderCreateBody.parse)

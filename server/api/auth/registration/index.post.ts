@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type { RegistrationBody, RegistrationResponse } from '~/types/auth'
@@ -17,7 +16,7 @@ export const ZodRegistrationBody = z.object({
   password2: z.string().min(1),
 }) satisfies z.ZodType<RegistrationBody>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(event, ZodRegistrationBody.parse)

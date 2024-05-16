@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type { MfaTotpActivateGetResponse } from '~/types/auth'
@@ -8,7 +7,7 @@ export const ZodMfaTotpActivateGetResponse = z.object({
   secret: z.string(),
 }) satisfies z.ZodType<MfaTotpActivateGetResponse>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await requireUserSession(event)
   try {

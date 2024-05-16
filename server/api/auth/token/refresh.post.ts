@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type { TokenRefreshBody, TokenRefreshResponse } from '~/types/auth'
@@ -14,7 +13,7 @@ export const ZodTokenRefreshBody = z.object({
   refresh: z.string().min(1),
 }) satisfies z.ZodType<TokenRefreshBody>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
   try {

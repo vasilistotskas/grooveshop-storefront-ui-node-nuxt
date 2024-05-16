@@ -1,8 +1,6 @@
-import type { H3Event } from 'h3'
-
 import { ZodCartItemCreateBody, ZodCartItemCreateResponse } from '~/types/cart/cart-item'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
   try {

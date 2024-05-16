@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type { MfaRecoveryCodesListResponse } from '~/types/auth'
@@ -8,7 +7,7 @@ export const ZodMfaRecoveryCodesListResponse = z.object({
   totalCount: z.number().int().positive(),
 }) satisfies z.ZodType<MfaRecoveryCodesListResponse>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
   try {

@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type { LogoutBody, LogoutResponse } from '~/types/auth'
@@ -11,7 +10,7 @@ export const ZodLogoutBody = z.object({
   refresh: z.string().optional(),
 }) satisfies z.ZodType<LogoutBody>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(event, ZodLogoutBody.parse)

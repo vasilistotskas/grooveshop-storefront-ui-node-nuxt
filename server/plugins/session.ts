@@ -1,5 +1,4 @@
 import type { H3Event } from 'h3'
-import { sendRedirect } from 'h3'
 
 export default defineNitroPlugin(() => {
   const handleResponseError = async (error: any, event: H3Event) => {

@@ -1,10 +1,6 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import type {
-  PasswordResetConfirmBody,
-  PasswordResetConfirmResponse,
-} from '~/types/auth'
+import type { PasswordResetConfirmBody, PasswordResetConfirmResponse } from '~/types/auth'
 
 export const ZodPasswordResetConfirmResponse = z.object({
   detail: z.string(),
@@ -17,7 +13,7 @@ export const ZodPasswordResetConfirmBody = z.object({
   token: z.string(),
 }) satisfies z.ZodType<PasswordResetConfirmBody>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(

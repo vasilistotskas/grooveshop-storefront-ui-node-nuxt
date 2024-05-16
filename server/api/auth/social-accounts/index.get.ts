@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type { Provider, SocialAccount } from '~/types/auth'
@@ -24,7 +23,7 @@ export const ZodSocialAccountResponse = z.array(
   }),
 ) satisfies z.ZodType<SocialAccount[]>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
   try {

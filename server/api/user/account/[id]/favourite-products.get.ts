@@ -1,8 +1,7 @@
-import type { H3Event } from 'h3'
 import { ZodProductFavourite, ZodProductFavouriteParams, ZodProductFavouriteQuery } from '~/types/product/favourite'
 import { ZodPagination } from '~/types/pagination'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await requireUserSession(event)
   try {

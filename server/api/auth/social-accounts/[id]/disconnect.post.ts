@@ -1,10 +1,6 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import type {
-  SocialAccountDisconnectBody,
-  SocialAccountDisconnectResponse,
-} from '~/types/auth'
+import type { SocialAccountDisconnectBody, SocialAccountDisconnectResponse } from '~/types/auth'
 
 export const ZodSocialAccountDisconnectResponse = z.object({
   detail: z.string(),
@@ -16,7 +12,7 @@ export const ZodSocialAccountDisconnectBody = z.object({
   idToken: z.string().nullish(),
 }) satisfies z.ZodType<SocialAccountDisconnectBody>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
   try {

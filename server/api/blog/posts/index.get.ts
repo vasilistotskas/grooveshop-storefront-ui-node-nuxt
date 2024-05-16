@@ -1,9 +1,7 @@
-import type { H3Event } from 'h3'
-
 import { ZodBlogPost, ZodBlogPostQuery } from '~/types/blog/post'
 import { ZodPagination } from '~/types/pagination'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodBlogPostQuery.parse)

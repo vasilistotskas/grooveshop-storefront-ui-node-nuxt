@@ -1,8 +1,6 @@
-import type { H3Event } from 'h3'
-
 import { ZodProductReview, ZodProductReviewUserProductReviewBody } from '~/types/product/review'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
   try {

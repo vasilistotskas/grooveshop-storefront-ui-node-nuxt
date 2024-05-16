@@ -1,10 +1,6 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
-import type {
-  RegistrationVerifyEmailBody,
-  RegistrationVerifyEmailResponse,
-} from '~/types/auth'
+import type { RegistrationVerifyEmailBody, RegistrationVerifyEmailResponse } from '~/types/auth'
 
 export const ZodRegistrationVerifyEmailResponse = z.object({
   detail: z.string().min(1),
@@ -14,7 +10,7 @@ export const ZodRegistrationVerifyEmailBody = z.object({
   key: z.string().min(1),
 }) satisfies z.ZodType<RegistrationVerifyEmailBody>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(

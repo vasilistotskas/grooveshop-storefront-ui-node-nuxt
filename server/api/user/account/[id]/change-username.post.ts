@@ -1,7 +1,6 @@
-import type { H3Event } from 'h3'
 import { ZodChangeUserNameBody, ZodChangeUserNameResponse, ZodUserAccountParams } from '~/types/user/account'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
 

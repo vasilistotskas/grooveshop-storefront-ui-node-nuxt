@@ -1,9 +1,8 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 import { ZodProductImage } from '~/types/product/image'
 import { ZodProductParams, ZodProductQuery } from '~/types/product/product'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(event, ZodProductParams.parse)

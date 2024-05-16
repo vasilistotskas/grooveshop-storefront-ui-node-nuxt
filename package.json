@@ -49,7 +49,7 @@
     "js-yaml": "4.1.0",
     "lottie-web": "5.12.2",
     "nuxt": "3.11.2",
-    "nuxt-auth-utils": "0.0.24",
+    "nuxt-auth-utils": "0.0.25",
     "nuxt-delay-hydration": "1.3.3",
     "nuxt-pages-plus": "0.3.0-beta.0",
     "nuxt-time": "0.1.3",

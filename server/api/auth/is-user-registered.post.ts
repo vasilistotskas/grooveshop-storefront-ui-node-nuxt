@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type {
@@ -14,7 +13,7 @@ export const ZodIsUserRegisteredResponse = z.object({
   registered: z.boolean(),
 }) as z.ZodType<IsUserRegisteredResponse>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
   try {

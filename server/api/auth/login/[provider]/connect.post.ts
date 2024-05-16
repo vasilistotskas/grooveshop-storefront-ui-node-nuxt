@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 import type { ProviderConnectBody, ProviderConnectResponse } from '~/types/auth'
@@ -16,7 +15,7 @@ export const ZodProviderConnectBody = z.object({
   idToken: z.string().nullish(),
 }) satisfies z.ZodType<ProviderConnectBody>
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(event, ZodProviderConnectBody.parse)

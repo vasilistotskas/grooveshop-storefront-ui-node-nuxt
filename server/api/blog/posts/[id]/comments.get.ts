@@ -1,10 +1,8 @@
-import type { H3Event } from 'h3'
-
 import { ZodBlogComment } from '~/types/blog/comment'
 import { ZodBlogPostParams, ZodBlogPostQuery } from '~/types/blog/post'
 import { ZodPagination } from '~/types/pagination'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(event, ZodBlogPostParams.parse)

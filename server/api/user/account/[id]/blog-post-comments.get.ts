@@ -1,8 +1,7 @@
-import type { H3Event } from 'h3'
 import { ZodPagination } from '~/types/pagination'
 import { ZodBlogComment, ZodBlogCommentParams, ZodBlogCommentQuery } from '~/types/blog/comment'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await requireUserSession(event)
   try {

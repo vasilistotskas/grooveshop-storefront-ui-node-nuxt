@@ -1,8 +1,6 @@
-import type { H3Event } from 'h3'
-
 import { ZodOrder, ZodOrderParams, ZodOrderQuery } from '~/types/order/order'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodOrderQuery.parse)
