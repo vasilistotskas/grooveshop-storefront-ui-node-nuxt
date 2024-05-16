@@ -1,3 +1,15 @@
+# [1.116.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.115.0...v1.116.0) (2024-05-16)
+
+
+### Bug Fixes
+
+* Include forgotten endpoint ([03162df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/03162df91107d860f2b20cba42e8e7a168131fd9))
+
+
+### Features
+
+* Wrap server API endpoints with try catch ([5951328](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5951328f4e51888bfcb965af8156e834d23f1184))
+
 # [1.115.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.114.0...v1.115.0) (2024-05-16)
 
 
