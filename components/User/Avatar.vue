@@ -50,6 +50,8 @@ const { resolveImageSrc } = useImageResolver()
 const { fetch } = useUserSession()
 const { fetchUser } = useAuth()
 
+const loading = ref(false)
+
 const src = computed(() => {
   return resolveImageSrc(
     userAccount.value?.mainImageFilename,
@@ -62,25 +64,36 @@ const alt = computed(() => {
 })
 
 const uploadImage = async (event: Event) => {
+  loading.value = true
   const allowedExtensions = ['jpg', 'jpeg', 'png']
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   const fileExtensionAllowed = allowedExtensions.includes(
     file?.name.split('.').pop()?.toLowerCase() || '',
   )
-  if (!file)
+
+  if (!file) {
+    loading.value = false
     return toast.add({
       title: t('components.user.avatar.no_file_selected'),
       color: 'red',
     })
-  if (!fileExtensionAllowed)
+  }
+  if (!fileExtensionAllowed) {
+    loading.value = false
     return toast.add({
       title: t('components.user.avatar.file_extension_not_allowed'),
       color: 'red',
     })
+  }
+
   const formData = new FormData()
   formData.append('image', file)
-  if (!userAccount.value) return
+
+  if (!userAccount.value) {
+    loading.value = false
+    return
+  }
 
   await $fetch(`/api/user/account/${userAccount.value.id}`, {
     method: 'PATCH',
@@ -119,6 +132,7 @@ const uploadImage = async (event: Event) => {
       :class="{
         'inline-block h-[135px] w-[135px] shrink-0 text-center align-middle':
           backgroundBorder,
+        'loading': loading,
       }"
       :style="{
         width: typeof imgWidth === 'number' ? imgWidth + 'px' : imgWidth,
@@ -129,10 +143,13 @@ const uploadImage = async (event: Event) => {
         loading="lazy"
         provider="mediaStream"
         class="user-avatar-img bg-primary-100 rounded-full"
+        :class="{
+          'filter blur-sm': loading,
+        }"
         :style="{ objectFit: 'contain' }"
         :width="imgWidth"
         :height="imgHeight"
-        :fit="'contain'"
+        :fit="'cover'"
         :position="'entropy'"
         :background="'transparent'"
         :trim-threshold="5"
@@ -140,6 +157,7 @@ const uploadImage = async (event: Event) => {
         :src="src"
         :alt="alt"
         densities="x1"
+        @load="() => (loading = false)"
       />
 
       <form
@@ -203,6 +221,7 @@ const uploadImage = async (event: Event) => {
           name="image"
           accept="image/*"
           class="sr-only"
+          :disabled="loading"
           @change="uploadImage"
         >
         <button type="submit" class="sr-only">
@@ -246,6 +265,7 @@ const uploadImage = async (event: Event) => {
 
   &:hover {
     background-color: transparent;
+
     svg {
       stroke-dashoffset: 0;
     }
@@ -263,6 +283,7 @@ const uploadImage = async (event: Event) => {
     }
   }
 }
+
 .user-avatar-img {
   width: v-bind(imgWidth);
   height: v-bind(imgHeight);
