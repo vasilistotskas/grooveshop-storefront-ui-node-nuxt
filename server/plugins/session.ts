@@ -1,8 +1,6 @@
 import type { H3Event } from 'h3'
 import { sendRedirect } from 'h3'
 
-import type { TokenVerifyResponse } from '~/types/auth'
-
 export default defineNitroPlugin(() => {
   const handleResponseError = async (error: any, event: H3Event) => {
     const statuses = [401, 403, 500]
@@ -24,7 +22,7 @@ export default defineNitroPlugin(() => {
 
     if (shouldRefreshToken) {
       try {
-        await $fetch<TokenVerifyResponse>('/api/auth/token/refresh', {
+        await $fetch('/api/auth/token/refresh', {
           method: 'POST',
           body: {
             refresh: session.refreshToken,
@@ -37,7 +35,7 @@ export default defineNitroPlugin(() => {
     }
 
     try {
-      await $fetch<TokenVerifyResponse>('/api/auth/token/verify', {
+      await $fetch('/api/auth/token/verify', {
         method: 'POST',
         body: {
           token: session.token,
