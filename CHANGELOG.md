@@ -1,3 +1,10 @@
+## [1.116.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.116.0...v1.116.1) (2024-05-16)
+
+
+### Bug Fixes
+
+* remove useless server type imports ([5b985c0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5b985c0634dab6daf37ae20f3740db41a6125a13))
+
 # [1.116.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.115.0...v1.116.0) (2024-05-16)
 
 
