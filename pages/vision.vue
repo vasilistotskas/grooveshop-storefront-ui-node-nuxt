@@ -6,7 +6,7 @@ definePageMeta({
 
 <template>
   <PageWrapper class="container flex flex-col">
-    <PageTitle :text="$t('pages.terms.title')" class="text-center capitalize" />
+    <PageTitle :text="$t('pages.vision.title')" class="text-center capitalize" />
     <PageBody>
       <div />
     </PageBody>

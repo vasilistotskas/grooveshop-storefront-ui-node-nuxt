@@ -227,6 +227,11 @@ pages:
     nav: όροι
     description: όροι
     keywords: όροι
+  term_of_use:
+    title: Όροι Χρήσης
+    nav: Όροι Χρήσης
+    description: Όροι Χρήσης
+    keywords: Όροι Χρήσης
   privacy-policy:
     title: Πολιτική Απορρήτου
     nav: πολιτική απορρήτου
@@ -247,11 +252,11 @@ pages:
     nav: ανατροφοδότηση
     description: ανατροφοδότηση
     keywords: ανατροφοδότηση
-  cookies:
-    title: Μπισκότα
-    nav: μπισκότα
-    description: μπισκότα
-    keywords: μπισκότα
+  cookies_policy:
+    title: Πολιτική Cookies
+    nav: πολιτική cookies
+    description: πολιτική cookies
+    keywords: πολιτική cookies
   accounts:
     login:
       title: Λογαριασμός
@@ -747,3 +752,5 @@ pages:
             link: Απενεργοποίηση
             success: Ο έλεγχος ταυτότητας δύο παραγόντων απενεργοποιήθηκε με επιτυχία
             error: Σφάλμα απενεργοποίησης ελέγχου ταυτότητας δύο παραγόντων
+  vision:
+    title: Όραμα
