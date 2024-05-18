@@ -1,6 +1,6 @@
 import type { ModuleOptions as PWAModuleOptions } from '@vite-pwa/nuxt'
 
-const sw = import.meta.env.SW === 'true'
+const sw = process.env.SW === 'true'
 
 export const pwa = {
   strategies: sw ? 'injectManifest' : 'generateSW',
@@ -9,10 +9,10 @@ export const pwa = {
   injectRegister: 'auto',
   registerType: 'autoUpdate',
   manifest: {
-    name: import.meta.env.NUXT_PUBLIC_APP_TITLE,
-    short_name: import.meta.env.NUXT_PUBLIC_APP_TITLE,
+    name: process.env.NUXT_PUBLIC_APP_TITLE,
+    short_name: process.env.NUXT_PUBLIC_APP_TITLE,
     description:
-    import.meta.env.NUXT_PUBLIC_SITE_DESCRIPTION,
+    process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
     theme_color: '#ffffff',
     background_color: '#ffffff',
     display: 'standalone',

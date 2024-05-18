@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { HorizontalNavigationLink } from '#ui/types'
+
 defineSlots<{
   default(props: object): any
   header(props: object): any
@@ -27,7 +29,7 @@ const avatarImg = img(avatarSrc.value, {
   provider: 'mediaStream',
 })
 
-const links = shallowRef([
+const links = shallowRef<HorizontalNavigationLink[]>([
   {
     icon: 'i-heroicons-home',
     to: '/',

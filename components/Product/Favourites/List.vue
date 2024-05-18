@@ -67,7 +67,7 @@ const refreshFavourites = async () => {
 const productIds = computed(() => {
   if (!favourites.value) return []
   return favourites.value.results?.map(favourite =>
-    getEntityId(favourite.product),
+    getEntityId(favourite.product) as number,
   )
 })
 

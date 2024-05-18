@@ -59,7 +59,7 @@ const changeUserName = async () => {
     })
 
     toast.add({
-      title: response.detail,
+      title: response?.detail || t('common.success'),
       color: 'green',
     })
 

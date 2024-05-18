@@ -31,7 +31,7 @@ const initialValues = {
 
 const validationSchema = toTypedSchema(ZodPasswordResetConfirm)
 
-const { defineField, handleSubmit, errors, isSubmitting } = useForm({
+const { defineField, handleSubmit, errors, isSubmitting, meta } = useForm({
   validationSchema,
   initialValues,
 })

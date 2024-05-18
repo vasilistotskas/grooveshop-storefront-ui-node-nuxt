@@ -33,13 +33,11 @@ const ogImageOptions = {
   title: config.public.appTitle,
   description: config.public.appDescription,
   alt: config.public.appTitle,
-  cache: true,
-  cacheKey: 'og-image',
-  cacheTtl: 60 * 60 * 24 * 7,
+  url: config.public.appLogo,
 }
 
 useSchemaOrg(schemaOrgOptions)
-defineOgImageComponent('NuxtSeo', ogImageOptions)
+defineOgImage(ogImageOptions)
 </script>
 
 <template>

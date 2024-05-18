@@ -463,7 +463,7 @@ pages:
           country: Χώρα
           region: Περιφέρεια
           submit: Αποθήκευση
-          update: Εκσυγχρονίζω
+          update: Ενημέρωση
         validation:
           title:
             min: Ο τίτλος πρέπει να αποτελείται από τουλάχιστον %{min} χαρακτήρες

@@ -3,7 +3,7 @@ export const experimental = {
   renderJsonPayloads: true,
   asyncContext: true,
   cookieStore: true,
-  watcher: (import.meta.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
+  watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
   | 'chokidar'
   | 'chokidar-granular'
   | 'parcel'

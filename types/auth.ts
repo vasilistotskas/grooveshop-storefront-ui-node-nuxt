@@ -201,15 +201,6 @@ interface MailResendProvider {
   apiKey: string
 }
 
-// Actions
-export type IsUserRegisteredBody = {
-  email: string
-}
-
-export type IsUserRegisteredResponse = {
-  registered: boolean
-}
-
 // MFA
 export type MfaTotpAuthenticateBody = {
   code: string

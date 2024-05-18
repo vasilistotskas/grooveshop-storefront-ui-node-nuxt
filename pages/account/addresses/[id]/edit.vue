@@ -1,19 +1,18 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-import {
-  defaultSelectOptionChoose,
-  floorChoicesList,
-  locationChoicesList,
-} from '~/constants'
+import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodUserAccount } from '~/types/user/account'
+import type { Pagination } from '~/types/pagination'
+import type { Region } from '~/types/region'
 
 const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute()
 
 const addressId = Number(route.params.id)
+const regions = ref<Pagination<Region> | null>(null)
 
 const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
@@ -34,17 +33,17 @@ const ZodUserAddress = z.object({
   streetNumber: z.string({ required_error: t('common.validation.required') }),
   city: z.string({ required_error: t('common.validation.required') }),
   zipcode: z.string({ required_error: t('common.validation.required') }),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).nullish(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).optional(),
   locationType: z
     .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('common.validation.required') })])
-    .nullish(),
-  phone: z.string({ required_error: t('common.validation.required') }).nullish(),
-  mobilePhone: z.string({ required_error: t('common.validation.required') }).nullish(),
-  notes: z.string({ required_error: t('common.validation.required') }).nullish(),
-  isMain: z.boolean().nullish(),
+    .optional(),
+  phone: z.string({ required_error: t('common.validation.required') }).optional(),
+  mobilePhone: z.string({ required_error: t('common.validation.required') }).optional(),
+  notes: z.string({ required_error: t('common.validation.required') }).optional(),
+  isMain: z.boolean().optional(),
   user: z.union([z.number(), ZodUserAccount]),
-  country: z.string({ required_error: t('common.validation.required') }).nullish(),
-  region: z.string({ required_error: t('common.validation.required') }).nullish(),
+  country: z.string({ required_error: t('common.validation.required') }).optional(),
+  region: z.string({ required_error: t('common.validation.required') }).optional(),
 })
 const validationSchema = toTypedSchema(ZodUserAddress)
 const initialValues = ZodUserAddress.parse({
@@ -135,21 +134,28 @@ const countryOptions = computed(() => {
   }) || []
 })
 
-const { data: regions } = await useAsyncData(
-  'regions',
-  () =>
-    $fetch('/api/regions', {
+const fetchRegions = async () => {
+  if (country.value === defaultSelectOptionChoose) {
+    return
+  }
+
+  try {
+    regions.value = await $fetch('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
         language: locale.value,
       },
-    }),
-  {
-    watch: [country],
-    immediate: country.value !== defaultSelectOptionChoose,
-  },
-)
+    })
+  }
+  catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: t('common.error_occurred'),
+      color: 'red',
+    })
+  }
+}
 
 const regionOptions = computed(() => {
   return regions.value?.results?.map((region) => {
@@ -161,11 +167,13 @@ const regionOptions = computed(() => {
   }) || []
 })
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
   country.value = event.target.value
   region.value = defaultSelectOptionChoose
+  await fetchRegions()
 }
+
 const onSubmit = handleSubmit(async (values) => {
   const updatedValues = processValues(values)
 
@@ -313,7 +321,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -350,7 +358,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -382,7 +390,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -414,7 +422,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -446,7 +454,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -480,7 +488,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -512,7 +520,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -544,7 +552,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -575,7 +583,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -609,7 +617,7 @@ definePageMeta({
           class="
             grid items-start gap-2
 
-            md:content-evenly
+            md:content-start
           "
         >
           <div class="grid">
@@ -629,6 +637,7 @@ definePageMeta({
               color="white"
               :as="USelect"
               :options="floorChoicesList"
+              option-attribute="name"
               :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             />
             <span
@@ -655,6 +664,7 @@ definePageMeta({
               color="white"
               :as="USelect"
               :options="locationChoicesList"
+              option-attribute="name"
               :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             />
             <span
@@ -668,7 +678,7 @@ definePageMeta({
           class="
             grid items-start gap-2
 
-            md:content-evenly
+            md:content-start
           "
         >
           <div class="grid">
@@ -732,7 +742,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label

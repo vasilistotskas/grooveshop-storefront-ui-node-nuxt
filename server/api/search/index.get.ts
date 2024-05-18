@@ -14,9 +14,6 @@ export default defineEventHandler(async (event) => {
     )
     const productResponse = await $fetch(productUrl, {
       method: 'GET',
-      timeout: 10000,
-      retry: 3,
-      retryDelay: 1000,
     })
 
     const productsParsedData = await parseDataAs(
@@ -31,9 +28,6 @@ export default defineEventHandler(async (event) => {
 
     const blogPostResponse = await $fetch(blogPostUrl, {
       method: 'GET',
-      timeout: 10000,
-      retry: 3,
-      retryDelay: 1000,
     })
 
     const blogPostsParsedData = await parseDataAs(

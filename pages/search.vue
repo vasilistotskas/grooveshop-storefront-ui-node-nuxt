@@ -23,14 +23,17 @@ const { isMobileOrTablet } = useDevice()
 const currentSearch = ref((route.query.query || '').toString())
 const suggestions = ref(null)
 const isSuggestionsOpen = ref(false)
+const suggestionsContent = ref(null)
+const error = ref(null)
+const pending = ref(false)
 
-const { pending, error, refresh } = await useAsyncData(
-  'search',
-  () =>
-    $fetch('/api/search', {
+const searchRequest = async (query: string) => {
+  pending.value = true
+  try {
+    await $fetch('/api/search', {
       method: 'GET',
       query: {
-        query: currentSearch.value,
+        query: query,
         language: locale.value,
       },
       onResponse({ response }) {
@@ -39,17 +42,26 @@ const { pending, error, refresh } = await useAsyncData(
         }
         results.value = response._data
         if (!Object.values(response._data).every(value => !value)) {
-          addToSearchHistory(currentSearch.value)
+          addToSearchHistory(query)
         }
       },
-    }),
-  {
-    immediate: !!(currentSearch.value && currentSearch.value.length >= 3),
-  },
-)
+    })
+  }
+  catch (error) {
+    console.error(error)
+  }
+  finally {
+    pending.value = false
+    isSuggestionsOpen.value = false
+  }
+}
+
+if (currentSearch.value && currentSearch.value.length >= 3) {
+  await searchRequest(currentSearch.value)
+}
 
 const throttledSearch = useDebounceFn(async () => {
-  await refresh()
+  await searchRequest(currentSearch.value)
 }, 250)
 
 const vFocus = {
@@ -81,8 +93,8 @@ watch(
   },
 )
 
-const handleSearchEnter = () => {
-  refresh()
+const handleSearchEnter = async () => {
+  await searchRequest(currentSearch.value)
 }
 
 const handleClearHistoryItem = (item: string) => {
@@ -92,6 +104,10 @@ const handleClearHistoryItem = (item: string) => {
 const handleClearHistory = () => {
   clearSearchHistory()
 }
+
+onClickOutside(suggestionsContent, () => {
+  isSuggestionsOpen.value = false
+})
 
 onUnmounted(() => {
   currentSearch.value = ''
@@ -166,39 +182,76 @@ definePageMeta({
         </div>
         <div
           v-if="showSuggestions" ref="suggestions" class="
-            suggestions absolute top-[45px] z-10 max-h-36 w-full list-none
-            overflow-y-auto
+            suggestions absolute top-[45px] z-10 w-full list-none
 
             md:mt-2
           "
         >
           <div
             class="
-              suggestions-content bg-primary-50 m-auto w-11/12 rounded-md
-              shadow-md
+              bg-primary-50 m-auto w-11/12 rounded-md shadow-md
 
               dark:bg-primary-900
             "
           >
-            <p
-              v-if="!currentSearch && storageSearchHistory.length > 0" class="
-                recent-searches flex items-center justify-between px-2
+            <div
+              ref="suggestionsContent" class="
+                suggestions-content max-h-36 overflow-y-auto
               "
             >
-              <span
-                class="
-                  text-primary-950 text-sm
-
-                  dark:text-primary-50
+              <p
+                v-if="!currentSearch && storageSearchHistory.length > 0" class="
+                  recent-searches flex items-center justify-between px-2
                 "
-              >{{ $t('common.search.recent') }}</span>
-              <UButton :label="$t('common.search.clear_all')" icon="i-heroicons-x-mark" :size="isMobileOrTablet ? 'xs' : 'xs'" :trailing="true" color="rose" variant="link" @click="handleClearHistory" />
-            </p>
-            <TransitionGroup name="list" tag="ul" class="grid">
-              <template v-for="suggestion in storageSearchHistory" :key="suggestion">
-                <li
+              >
+                <span
                   class="
-                    suggestion-item relative px-4 py-2
+                    text-primary-950 text-sm
+
+                    dark:text-primary-50
+                  "
+                >{{ $t('common.search.recent') }}</span>
+                <UButton
+                  :label="$t('common.search.clear_all')" icon="i-heroicons-x-mark"
+                  :size="isMobileOrTablet ? 'xs' : 'xs'" :trailing="true" color="rose" variant="link"
+                  @click="handleClearHistory"
+                />
+              </p>
+              <TransitionGroup name="list" tag="ul" class="grid">
+                <template v-for="suggestion in storageSearchHistory" :key="suggestion">
+                  <li
+                    class="
+                      suggestion-item relative px-4 py-2
+
+                      dark:hover:bg-primary-700
+
+                      hover:bg-primary-50
+                    "
+                  >
+                    <Anchor
+                      :to="`/search?query=${suggestion}`" class="
+                        flex items-center gap-3
+                      " @click="() => { currentSearch = suggestion; isSuggestionsOpen = false; }"
+                    >
+                      <IconFa6Solid:clockRotateLeft class="text-sm" />
+                      <span
+                        class="
+                          text-primary-950 truncate text-sm
+
+                          dark:text-primary-50
+                        "
+                      >{{ suggestion }}</span>
+                    </Anchor>
+                    <UButton
+                      class="absolute right-0 top-0" :label="$t('common.clear')" icon="i-heroicons-x-mark"
+                      :size="isMobileOrTablet ? 'xs' : 'xs'" :trailing="true" color="rose" variant="link"
+                      @click="handleClearHistoryItem(suggestion)"
+                    />
+                  </li>
+                </template>
+                <li
+                  v-for="(headline, productId) in productHeadlines" :key="productId" class="
+                    headline-item px-4 py-2
 
                     dark:hover:bg-primary-700
 
@@ -206,71 +259,46 @@ definePageMeta({
                   "
                 >
                   <Anchor
-                    :to="`/search?query=${suggestion}`" class="
+                    :to="`/search?query=${cleanHtml(headline)}`" class="
                       flex items-center gap-3
-                    " @click="() => { currentSearch = suggestion; isSuggestionsOpen = false; }"
+                    " @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
                   >
-                    <IconFa6Solid:clockRotateLeft class="text-sm" />
+                    <IconFa6Solid:magnifyingGlass class="text-sm" />
                     <span
                       class="
                         text-primary-950 truncate text-sm
 
                         dark:text-primary-50
-                      "
-                    >{{ suggestion }}</span>
+                      " v-html="headline"
+                    />
                   </Anchor>
-                  <UButton class="absolute right-0 top-0" :label="$t('common.clear')" icon="i-heroicons-x-mark" :size="isMobileOrTablet ? 'xs' : 'xs'" :trailing="true" color="rose" variant="link" @click="handleClearHistoryItem(suggestion)" />
                 </li>
-              </template>
-              <li
-                v-for="(headline, productId) in productHeadlines" :key="productId" class="
-                  headline-item px-4 py-2
+                <li
+                  v-for="(headline, blogPostId) in blogPostHeadlines" :key="blogPostId" class="
+                    headline-item px-4 py-2
 
-                  dark:hover:bg-primary-700
+                    dark:hover:bg-primary-700
 
-                  hover:bg-primary-50
-                "
-              >
-                <Anchor
-                  :to="`/search?query=${cleanHtml(headline)}`" class="
-                    flex items-center gap-3
-                  " @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
+                    hover:bg-primary-50
+                  "
                 >
-                  <IconFa6Solid:magnifyingGlass class="text-sm" />
-                  <span
-                    class="
-                      text-primary-950 truncate text-sm
+                  <Anchor
+                    :to="`/search?query=${cleanHtml(headline)}`" class="
+                      flex items-center gap-3
+                    " @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
+                  >
+                    <IconFa6Solid:magnifyingGlass class="text-sm" />
+                    <span
+                      class="
+                        text-primary-950 truncate text-sm
 
-                      dark:text-primary-50
-                    " v-html="headline"
-                  />
-                </Anchor>
-              </li>
-              <li
-                v-for="(headline, blogPostId) in blogPostHeadlines" :key="blogPostId" class="
-                  headline-item px-4 py-2
-
-                  dark:hover:bg-primary-700
-
-                  hover:bg-primary-50
-                "
-              >
-                <Anchor
-                  :to="`/search?query=${cleanHtml(headline)}`" class="
-                    flex items-center gap-3
-                  " @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
-                >
-                  <IconFa6Solid:magnifyingGlass class="text-sm" />
-                  <span
-                    class="
-                      text-primary-950 truncate text-sm
-
-                      dark:text-primary-50
-                    " v-html="headline"
-                  />
-                </Anchor>
-              </li>
-            </TransitionGroup>
+                        dark:text-primary-50
+                      " v-html="headline"
+                    />
+                  </Anchor>
+                </li>
+              </TransitionGroup>
+            </div>
           </div>
         </div>
       </div>

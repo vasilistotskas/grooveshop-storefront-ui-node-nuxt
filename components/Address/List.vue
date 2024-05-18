@@ -99,7 +99,11 @@ watch(
       />
     </div>
     <div class="grid w-full items-start gap-4">
-      <div v-if="displayTotal" class="flex items-center justify-center gap-1">
+      <div
+        v-if="displayTotal && addresses?.count" class="
+          flex items-center justify-center gap-1
+        "
+      >
         <span
           class="
             text-sm font-semibold text-secondary

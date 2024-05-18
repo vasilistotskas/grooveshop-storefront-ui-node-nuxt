@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import type {
-  DatePickerDate,
-  DatePickerRangeObject,
-} from 'v-calendar/dist/types/src/use/datePicker'
-
-const modelValue = defineModel<DatePickerDate | DatePickerRangeObject | null>(
+const modelValue = defineModel<any>(
   'modelValue',
   { default: null },
 )

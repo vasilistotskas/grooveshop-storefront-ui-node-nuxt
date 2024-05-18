@@ -115,6 +115,7 @@ watch(
 const seoMetaOptions = {
   title: categoryTitle.value,
   description: categoryDescription.value,
+  ogImage: category.value?.mainImageAbsoluteUrl,
   ogUrl: config.public.baseUrl + route.fullPath,
   twitterTitle: categoryTitle.value,
   twitterDescription: categoryDescription.value,
@@ -122,21 +123,10 @@ const seoMetaOptions = {
   msapplicationTileImage: category.value?.mainImageAbsoluteUrl,
 } satisfies UseSeoMetaInput
 
-const ogImageOptions = {
-  title: categoryTitle.value,
-  description: categoryDescription.value,
-  alt: categoryTitle.value,
-  url: category.value?.mainImageAbsoluteUrl || '',
-  cache: true,
-  cacheKey: `og-image-blog-post-${categoryId}`,
-  cacheTtl: 60 * 60 * 24 * 7,
-}
-
 useHydratedHead({
   title: () => categoryTitle.value || '',
 })
 useSeoMeta(seoMetaOptions)
-defineOgImageComponent('NuxtSeo', ogImageOptions)
 definePageMeta({
   layout: 'default',
 })

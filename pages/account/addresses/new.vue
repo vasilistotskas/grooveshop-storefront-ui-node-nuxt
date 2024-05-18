@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-import {
-  defaultSelectOptionChoose,
-  floorChoicesList,
-  locationChoicesList,
-} from '~/constants'
+import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodUserAccount } from '~/types/user/account'
+import type { Pagination } from '~/types/pagination'
+import type { Region } from '~/types/region'
 
 const { user } = useUserSession()
 
@@ -17,6 +15,8 @@ const toast = useToast()
 const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
 
+const regions = ref<Pagination<Region> | null>(null)
+
 const ZodUserAddress = z.object({
   title: z.string({ required_error: t('common.validation.required') }),
   firstName: z.string({ required_error: t('common.validation.required') }),
@@ -25,34 +25,34 @@ const ZodUserAddress = z.object({
   streetNumber: z.string({ required_error: t('common.validation.required') }),
   city: z.string({ required_error: t('common.validation.required') }),
   zipcode: z.string({ required_error: t('common.validation.required') }),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).nullish(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).optional(),
   locationType: z
     .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('common.validation.required') })])
-    .nullish(),
-  phone: z.string({ required_error: t('common.validation.required') }).nullish(),
-  mobilePhone: z.string({ required_error: t('common.validation.required') }).nullish(),
-  notes: z.string({ required_error: t('common.validation.required') }).nullish(),
-  isMain: z.boolean().nullish(),
-  user: z.union([z.number(), ZodUserAccount]),
+    .optional(),
+  phone: z.string({ required_error: t('common.validation.required') }).optional(),
+  mobilePhone: z.string({ required_error: t('common.validation.required') }).optional(),
+  notes: z.string({ required_error: t('common.validation.required') }).optional(),
+  isMain: z.boolean().optional(),
+  user: z.union([z.number(), ZodUserAccount]).optional(),
   country: z
     .string()
     .refine(value => value !== defaultSelectOptionChoose, {
       message: t('common.validation.region.required'),
     })
-    .nullish(),
+    .optional(),
   region: z
     .string()
     .refine(value => value !== defaultSelectOptionChoose, {
       message: t('common.validation.region.required'),
     })
-    .nullish(),
+    .optional(),
 })
 const validationSchema = toTypedSchema(ZodUserAddress)
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
   validationSchema,
   initialValues: {
     isMain: false,
-    user: user.value?.id,
+    user: user.value?.id || undefined,
     country: defaultSelectOptionChoose,
     region: defaultSelectOptionChoose,
     floor: defaultSelectOptionChoose,
@@ -125,21 +125,28 @@ const countryOptions = computed(() => {
   }) || []
 })
 
-const { data: regions } = await useAsyncData(
-  'regions',
-  () =>
-    $fetch('/api/regions', {
+const fetchRegions = async () => {
+  if (country.value === defaultSelectOptionChoose) {
+    return
+  }
+
+  try {
+    regions.value = await $fetch('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
         language: locale.value,
       },
-    }),
-  {
-    watch: [country],
-    immediate: country.value !== defaultSelectOptionChoose,
-  },
-)
+    })
+  }
+  catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: t('common.error_occurred'),
+      color: 'red',
+    })
+  }
+}
 
 const regionOptions = computed(() => {
   return regions.value?.results?.map((region) => {
@@ -151,10 +158,11 @@ const regionOptions = computed(() => {
   }) || []
 })
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
   country.value = event.target.value
   region.value = defaultSelectOptionChoose
+  await fetchRegions()
 }
 
 const onSubmit = handleSubmit(async (values) => {
@@ -163,22 +171,22 @@ const onSubmit = handleSubmit(async (values) => {
   await $fetch(`/api/user/addresses`, {
     method: 'POST',
     body: {
-      title: updatedValues.value.title,
-      firstName: updatedValues.value.firstName,
-      lastName: updatedValues.value.lastName,
-      street: updatedValues.value.street,
-      streetNumber: updatedValues.value.streetNumber,
-      city: updatedValues.value.city,
-      zipcode: updatedValues.value.zipcode,
-      floor: updatedValues.value.floor,
-      locationType: updatedValues.value.locationType,
-      phone: updatedValues.value.phone,
-      mobilePhone: updatedValues.value.mobilePhone,
-      notes: updatedValues.value.notes,
-      isMain: updatedValues.value.isMain,
+      title: updatedValues.title,
+      firstName: updatedValues.firstName,
+      lastName: updatedValues.lastName,
+      street: updatedValues.street,
+      streetNumber: updatedValues.streetNumber,
+      city: updatedValues.city,
+      zipcode: updatedValues.zipcode,
+      floor: updatedValues.floor,
+      locationType: updatedValues.locationType,
+      phone: updatedValues.phone,
+      mobilePhone: updatedValues.mobilePhone,
+      notes: updatedValues.notes,
+      isMain: updatedValues.isMain,
       user: user.value?.id,
-      country: updatedValues.value.country,
-      region: updatedValues.value.region,
+      country: updatedValues.country,
+      region: updatedValues.region,
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -239,7 +247,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -271,7 +279,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -303,7 +311,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -335,7 +343,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -367,7 +375,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -401,7 +409,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -433,7 +441,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -465,7 +473,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -496,7 +504,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label
@@ -528,7 +536,7 @@ definePageMeta({
           class="
             grid items-start gap-2
 
-            md:content-evenly
+            md:content-start
           "
         >
           <div class="grid">
@@ -548,6 +556,7 @@ definePageMeta({
               color="white"
               :as="USelect"
               :options="floorChoicesList"
+              option-attribute="name"
               :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             />
             <span
@@ -572,6 +581,7 @@ definePageMeta({
               color="white"
               :as="USelect"
               :options="locationChoicesList"
+              option-attribute="name"
               :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             />
             <span
@@ -585,7 +595,7 @@ definePageMeta({
           class="
             grid items-start gap-2
 
-            md:content-evenly
+            md:content-start
           "
         >
           <div class="grid">
@@ -649,7 +659,7 @@ definePageMeta({
           class="
             grid items-start
 
-            md:content-evenly
+            md:content-start
           "
         >
           <label

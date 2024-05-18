@@ -117,6 +117,7 @@ const scrollToComments = () => {
 const seoMetaOptions = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
+  ogImage: blogPost.value?.mainImageAbsoluteUrl,
   ogType: 'article',
   ogUrl: config.public.baseUrl + route.fullPath.value,
   twitterTitle: blogPostTitle.value,
@@ -142,16 +143,6 @@ useSchemaOrg([
   }),
 ])
 
-const ogImageOptions = {
-  title: blogPostTitle.value,
-  description: blogPostSubtitle.value,
-  alt: blogPostTitle.value,
-  url: blogPost.value?.mainImageAbsoluteUrl || '',
-  cache: true,
-  cacheKey: `og-image-blog-post-${blogPostId}`,
-  cacheTtl: 60 * 60 * 24 * 7,
-}
-
 onMounted(() => {
   $fetch(`/api/blog/posts/${blogPostId}/update-view-count`, {
     method: 'POST',
@@ -167,7 +158,6 @@ useHydratedHead({
 })
 
 useSeoMeta(seoMetaOptions)
-defineOgImageComponent('NuxtSeo', ogImageOptions)
 definePageMeta({
   layout: 'default',
 })
@@ -284,9 +274,10 @@ definePageMeta({
               <div class="sm:mx-0">
                 <div class="shadow-small">
                   <ImgWithFallback
+                    id="blog-post-image"
                     loading="eager"
                     provider="mediaStream"
-                    class="bg-primary-100 rounded-lg"
+                    class="blog-post-image bg-primary-100 rounded-lg"
                     :style="{ objectFit: 'contain' }"
                     :width="675"
                     :height="340"

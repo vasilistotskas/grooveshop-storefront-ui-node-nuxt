@@ -3,10 +3,10 @@ import type { NuxtI18nOptions } from '@nuxtjs/i18n'
 export const i18n = {
   strategy: 'prefix_except_default',
   lazy: true,
-  defaultLocale: import.meta.env.NUXT_PUBLIC_DEFAULT_LOCALE || 'el',
-  debug: import.meta.env.NUXT_PUBLIC_I18N_DEBUG === 'true',
+  defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE || 'el',
+  debug: process.env.NUXT_PUBLIC_I18N_DEBUG === 'true',
   langDir: 'locales/',
-  baseUrl: import.meta.env.NUXT_PUBLIC_BASE_URL,
+  baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
   detectBrowserLanguage: {
     useCookie: true,
     redirectOn: 'root',
