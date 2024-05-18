@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { NotAuthenticatedResponse } from '~/types/all-auth'
 
 export const ZodFloorChoicesEnum = z.enum([
   'BASEMENT',
@@ -40,6 +41,7 @@ export enum PaginationCursorStateEnum {
   BLOG_POSTS = 'blogPostsCursor',
   BLOG_POST_COMMENTS = 'blogPostCommentsCursor',
 }
+
 export type PaginationCursorStateType = `${PaginationCursorStateEnum}-${string}`
 
 export type CursorStates = {
@@ -78,5 +80,11 @@ export type ErrorWithDetail = {
     data: {
       detail: string
     }
+  }
+}
+
+export interface ErrorResponse {
+  data: {
+    data: NotAuthenticatedResponse
   }
 }

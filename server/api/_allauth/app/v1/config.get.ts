@@ -1,30 +1,4 @@
-import { z } from 'zod'
-import type { ConfigResponse } from '~/types/all-auth'
-
-export const ZodConfigResponse = z.object({
-  status: z.number(),
-  data: z.object({
-    account: z.object({
-      authentication_method: z.string(),
-    }),
-    socialaccount: z.object({
-      providers: z.array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-          flows: z.array(z.string()),
-          client_id: z.string().optional(),
-        }),
-      ),
-    }).optional(),
-    mfa: z.object({
-      supported_types: z.array(z.string()),
-    }).optional(),
-    usersessions: z.object({
-      track_activity: z.boolean(),
-    }).optional(),
-  }),
-}) as z.ZodType<ConfigResponse>
+import { ZodConfigResponse } from '~/types/all-auth'
 
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()

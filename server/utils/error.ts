@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { H3Error, createError, sendRedirect } from 'h3'
+import { H3Error } from 'h3'
 import { FetchError } from 'ofetch'
 import { withQuery } from 'ufo'
 import { ZodError } from 'zod'
@@ -19,6 +19,30 @@ export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
     && 'message' in error
     && typeof (error as Record<string, unknown>).message === 'string'
   )
+}
+
+export const isErrorWithSessionToken = (error: unknown): error is { data: { meta: { session_token: string } } } => {
+  if (
+    typeof error === 'object'
+    && error !== null
+    && 'data' in error
+  ) {
+    const data = (error as { data: unknown }).data
+    if (
+      typeof data === 'object'
+      && data !== null
+      && 'meta' in data
+    ) {
+      const meta = (data as { meta: unknown }).meta
+      return (
+        typeof meta === 'object'
+        && meta !== null
+        && 'session_token' in meta
+        && typeof (meta as { session_token: unknown }).session_token === 'string'
+      )
+    }
+  }
+  return false
 }
 
 export function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
@@ -73,21 +97,11 @@ export async function handleError(
   }
 
   if (error instanceof FetchError) {
-    throw createError({
-      statusCode: error?.statusCode,
-      statusMessage: error?.statusMessage,
-      data: error?.data,
-      message: error?.message,
-    })
+    throw createError(error)
   }
 
   if (error instanceof H3Error) {
-    throw createError({
-      statusCode: error?.statusCode,
-      statusMessage: error?.statusMessage,
-      data: error?.data,
-      message: error?.message,
-    })
+    throw createError(error)
   }
 
   throw createError(h3Error)

@@ -1,43 +1,16 @@
-import { z } from 'zod'
-
-export const Zod2FaAuthenticateResponse = z.object({
-  status: z.number(),
-  data: z.object({
-    user: z.object({
-      id: z.number(),
-      display: z.string(),
-      email: z.string(),
-      username: z.string(),
-      has_usable_password: z.boolean(),
-    }),
-    methods: z.array(
-      z.object({
-        at: z.any(),
-        email: z.string(),
-        method: z.string(),
-      }),
-    ),
-  }),
-  meta: z.object({
-    is_authenticated: z.boolean(),
-    session_token: z.string(),
-    access_token: z.string().optional(),
-  }),
-})
-
-export const Zod2FaAuthenticateBody = z.object({
-  code: z.string(),
-})
+import { ZodTwoFaAuthenticateBody, ZodTwoFaAuthenticateResponse } from '~/types/all-auth'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const session = await getUserSession(event)
   try {
     const sessionCookie = getCookie(event, 'session_token')
 
-    const validatedBody = await readValidatedBody(event, Zod2FaAuthenticateBody.parse)
+    const validatedBody = await readValidatedBody(event, ZodTwoFaAuthenticateBody.parse)
     const headers = {
       'Content-Type': 'application/json',
-    }
+    } as Record<string, string>
+
     if (sessionCookie) {
       headers['X-Session-Token'] = sessionCookie
     }
@@ -45,12 +18,14 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/2fa/authenticate`, {
       body: validatedBody,
       method: 'POST',
-      headers,
+      headers: {
+        Authorization: `Bearer ${session?.token}`,
+        ...headers,
+      },
     })
-    return await parseDataAs(response, Zod2FaAuthenticateResponse)
+    return await parseDataAs(response, ZodTwoFaAuthenticateResponse)
   }
   catch (error) {
-    // await handleAllAuthError(error, event)
-    console.log('===== error data =====', error.data)
+    await handleError(error)
   }
 })

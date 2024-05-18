@@ -8,15 +8,15 @@ const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
 const { fetch } = useUserSession()
-const { login, loginWithProvider } = useAuth()
-const { totpActive } = useAuthMfa()
+const { loginWithProvider } = useAuth()
+const { login } = useAllAuthAuthentication()
 const cartStore = useCartStore()
 const { refreshCart } = cartStore
 
 const ZodLogin = z.object({
   email: z.string(
     { required_error: t('common.validation.required') },
-  ).email(t('common.validation.email.valid')),
+  ),
   password: z.string({ required_error: t('common.validation.required') }),
 })
 
@@ -40,17 +40,15 @@ const rememberMe = ref(false)
 const loading = ref(false)
 
 const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
-
 const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
     await login({
       email: values.email,
       password: values.password,
-      rememberMe: rememberMe.value,
     })
     await performPostLoginActions()
-    await navigateUser()
+    // await navigateUser()
   }
   catch (error) {
     handleLoginError(error)
@@ -62,7 +60,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 async function performPostLoginActions() {
   await fetch()
-  await Promise.all([totpActive(), refreshCart()])
+  await refreshCart()
 }
 
 async function navigateUser() {
@@ -136,7 +134,7 @@ const submitButtonLabel = computed(() => {
               v-model="email"
               :bind="emailProps"
               name="email"
-              type="email"
+              type="text"
               autocomplete="email"
               :required="true"
             />

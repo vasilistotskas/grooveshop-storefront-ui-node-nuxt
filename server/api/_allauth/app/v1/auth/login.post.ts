@@ -1,34 +1,5 @@
-import { z } from 'zod'
-
-export const ZodLoginResponse = z.object({
-  status: z.number(),
-  data: z.object({
-    user: z.object({
-      id: z.number(),
-      display: z.string(),
-      email: z.string(),
-      username: z.string(),
-      has_usable_password: z.boolean(),
-    }),
-    methods: z.array(
-      z.object({
-        at: z.any(),
-        email: z.string(),
-        method: z.string(),
-      }),
-    ),
-  }),
-  meta: z.object({
-    is_authenticated: z.boolean(),
-    session_token: z.string(),
-    access_token: z.string().optional(),
-  }),
-})
-
-export const ZodLoginBody = z.object({
-  email: z.string(),
-  password: z.string(),
-})
+import { ZodLoginBody, ZodLoginResponse } from '~/types/all-auth'
+import { ZodUserAccount } from '~/types/user/account'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -41,15 +12,43 @@ export default defineEventHandler(async (event) => {
         'Content-Type': 'application/json',
       },
     })
-    console.log('===== response =====', response)
 
     const loginResponse = await parseDataAs(response, ZodLoginResponse)
 
-    console.log('===== loginResponse =====', loginResponse)
+    if (loginResponse.meta.access_token) {
+      await setUserSession(event, {
+        token: loginResponse.meta.access_token,
+      })
+    }
+
+    if (loginResponse.meta.session_token) {
+      appendResponseHeader(event, 'X-Session-Token', loginResponse.meta.session_token)
+      setCookie(event, 'session_token', loginResponse.meta.session_token, {
+        path: '/',
+        sameSite: 'lax',
+        secure: true,
+        httpOnly: true,
+      })
+    }
+
+    const user = await $fetch(`${config.public.apiBaseUrl}/user/account/${loginResponse.data.user.id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${loginResponse.meta.access_token}`,
+      },
+    })
+    const userResponse = await parseDataAs(user, ZodUserAccount)
+
+    await setUserSession(event, {
+      data: loginResponse.data,
+      meta: loginResponse.meta,
+      user: userResponse,
+    })
 
     return loginResponse
   }
   catch (error) {
-    await handleAllAuthError(error, event)
+    await clearUserSession(event)
+    await handleError(error)
   }
 })

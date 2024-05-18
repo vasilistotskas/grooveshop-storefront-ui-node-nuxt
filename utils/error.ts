@@ -1,4 +1,4 @@
-import type { ErrorWithDetail, ErrorWithMessage } from '~/types'
+import type { ErrorResponse, ErrorWithDetail, ErrorWithMessage } from '~/types'
 
 export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (
@@ -21,4 +21,8 @@ export function isErrorWithDetail(error: unknown): error is ErrorWithDetail {
     }
   }
   return false
+}
+
+export const isErrorWithNestedData = (error: any): error is ErrorResponse => {
+  return error.data && error.data.data && error.data.data.data
 }

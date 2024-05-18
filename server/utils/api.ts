@@ -1,4 +1,5 @@
 import type { QueryObject } from 'ufo'
+import type { H3Event } from 'h3'
 
 export function buildFullUrl(url: string, query: QueryObject): string {
   const valuesToExclude: (QueryObject[keyof QueryObject] | undefined)[] = [
@@ -20,4 +21,29 @@ export function buildFullUrl(url: string, query: QueryObject): string {
     }
   }
   return url
+}
+
+export async function getSessionToken(event: H3Event) {
+  const session = await getUserSession(event)
+  return session?.token
+}
+
+export function getSessionCookie(event: H3Event) {
+  return getCookie(event, 'session_token')
+}
+
+export function createAuthenticationHeaders(sessionToken?: string | null, sessionCookie?: string) {
+  const headers = {
+    'Content-Type': 'application/json',
+  } as Record<string, string>
+
+  if (sessionCookie) {
+    headers['X-Session-Token'] = sessionCookie
+  }
+
+  if (sessionToken) {
+    headers['Authorization'] = `Bearer ${sessionToken}`
+  }
+
+  return headers
 }

@@ -1,5 +1,4 @@
 import type { RouteLocationNormalized } from 'vue-router'
-
 import { AuthenticatedRoutePrefixes } from '~/constants'
 
 export default defineNuxtRouteMiddleware(
@@ -18,11 +17,11 @@ export default defineNuxtRouteMiddleware(
       return navigateTo(redirectTo)
     }
 
-    const verifyTokenForAuthenticatedRoutes = async (
+    const verifyAuthenticatedRoutes = async (
       to: RouteLocationNormalized,
     ) => {
-      const { loggedIn, session } = useUserSession()
-      const { tokenVerify } = useAuth()
+      const { loggedIn } = useUserSession()
+      const { getSession } = useAllAuthAuthentication()
 
       const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
         to.path.startsWith(prefix),
@@ -37,14 +36,20 @@ export default defineNuxtRouteMiddleware(
         })
       }
 
-      await tokenVerify({ token: session.value.token || '' })
-      await fetch()
+      try {
+        await getSession()
+        await fetch()
+      }
+      catch (error) {
+        console.log('error', error)
+        throw error
+      }
     }
 
     if (isLoginPage(to)) {
       return handleLoggedInUserRedirection(from)
     }
 
-    return await verifyTokenForAuthenticatedRoutes(to)
+    return await verifyAuthenticatedRoutes(to)
   },
 )
