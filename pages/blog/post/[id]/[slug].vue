@@ -96,14 +96,10 @@ const links = [
   },
 ]
 
-const routeFullPath = computed(() => {
-  return route.fullPath
-})
-
 const shareOptions = reactive({
   title: blogPostTitle.value,
   text: blogPostSubtitle.value || '',
-  url: isClient ? routeFullPath : '',
+  url: isClient ? route.fullPath : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = () => share().catch(err => err)
@@ -122,7 +118,7 @@ const seoMetaOptions = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
   ogType: 'article',
-  ogUrl: config.public.baseUrl + routeFullPath.value,
+  ogUrl: config.public.baseUrl + route.fullPath.value,
   twitterTitle: blogPostTitle.value,
   twitterDescription: blogPostSubtitle.value,
   twitterImage: blogPost.value?.mainImageAbsoluteUrl,

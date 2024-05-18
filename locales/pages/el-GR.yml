@@ -18,6 +18,8 @@ pages:
       updated_at: Ημερομηνία ενημέρωσης
       title: Τίτλος
       published_at: Δημοσιεύθηκε στο
+    category:
+      title: Κατηγορία
   testing:
     nav: δοκιμές
     title: δοκιμές
