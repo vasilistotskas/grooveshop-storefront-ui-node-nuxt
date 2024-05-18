@@ -1,3 +1,10 @@
+# [1.119.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.118.0...v1.119.0) (2024-05-18)
+
+
+### Features
+
+* Footer and pages ([065856a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/065856ab58278db5fb82c2901776f3c8db791205))
+
 # [1.118.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.117.0...v1.118.0) (2024-05-18)
 
 
