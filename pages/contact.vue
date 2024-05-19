@@ -43,6 +43,7 @@ definePageMeta({
           </a>
         </p>
       </div>
+      <ContactForm />
     </PageBody>
   </PageWrapper>
 </template>

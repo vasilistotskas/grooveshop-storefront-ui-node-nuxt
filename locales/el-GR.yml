@@ -1,6 +1,9 @@
 common:
   home: Αρχική
   close: Κλείσιμο
+  name: Όνομα
+  email: Email
+  message: Μήνυμα
   auth:
     login:
       success: Συνδεθείτε με επιτυχία
