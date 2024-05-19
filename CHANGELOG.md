@@ -1,3 +1,10 @@
+# [1.122.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.121.0...v1.122.0) (2024-05-19)
+
+
+### Features
+
+* Contact form ([3295a9e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3295a9e60b78498334412d6b098901711e34844c))
+
 # [1.121.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.120.0...v1.121.0) (2024-05-19)
 
 
