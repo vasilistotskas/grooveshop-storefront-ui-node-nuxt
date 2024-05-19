@@ -4,10 +4,10 @@ pages:
     description: Η σελίδα δεν βρέθηκε
     keywords: Η σελίδα δεν βρέθηκε
   about:
-    title: Σχετικά με
-    nav: σχετικά με
-    description: σχετικά με
-    keywords: σχετικά με
+    title: Τι Είναι Το Webside
+    nav: τι είναι το webside
+    description: τι είναι το webside
+    keywords: τι είναι το webside
   blog:
     title: Blog
     nav: blog

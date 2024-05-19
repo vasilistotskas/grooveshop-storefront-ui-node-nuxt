@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import { clearCursorStates, getCursorFromUrl } from '~/utils/pagination'
-import {
-  type PaginationCursorStateEnum,
-  type CursorStates,
-} from '~/types'
+import { type CursorStates, type PaginationCursorStateEnum } from '~/types'
 
 const props = defineProps({
   cursorKey: {
@@ -31,7 +28,14 @@ const props = defineProps({
     validator: (value: string) => ['button', 'scroll'].includes(value),
     default: 'button',
   },
+  totalPages: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
 })
+
+const { cursorKey, links, loading, useRouteQuery, strategy, totalPages } = toRefs(props)
 
 const router = useRouter()
 const route = useRoute()
@@ -42,16 +46,16 @@ const currentState = computed(() => {
   return { ...cursorState.value }
 })
 const currentCursor = computed(() => {
-  return currentState.value[props.cursorKey]
+  return currentState.value[cursorKey.value]
 })
 
 const nextCursor = computed(() => {
-  if (!props.links?.next) return ''
-  return getCursorFromUrl(props.links.next)
+  if (!links.value?.next) return ''
+  return getCursorFromUrl(links.value.next)
 })
 
 const handleScroll = () => {
-  if (props.strategy !== 'scroll') return
+  if (strategy.value !== 'scroll' || totalPages.value === 1) return
 
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement
   if (scrollTop + clientHeight >= scrollHeight - 5) {
@@ -60,13 +64,13 @@ const handleScroll = () => {
 }
 
 const loadMore = async () => {
-  if (!nextCursor.value || props.loading) return
+  if (!nextCursor.value || loading.value) return
 
   if (nextCursor.value !== currentCursor.value) {
-    currentState.value[props.cursorKey] = nextCursor.value
+    currentState.value[cursorKey.value] = nextCursor.value
     cursorState.value = currentState.value
 
-    if (props.useRouteQuery) {
+    if (useRouteQuery.value) {
       await router.push({
         path: route.path,
         query: {
@@ -79,14 +83,14 @@ const loadMore = async () => {
 }
 
 const showButton = computed(() => {
-  if (props.strategy === 'scroll') return false
-  if (props.loading) return true
+  if (strategy.value === 'scroll' || totalPages.value === 1) return false
+  if (loading.value) return true
   if (nextCursor.value !== currentCursor.value) return true
   return false
 })
 
 watch(
-  () => props.strategy,
+  () => strategy.value,
   (newStrategy) => {
     if (import.meta.client) {
       if (newStrategy === 'scroll') {
@@ -109,7 +113,7 @@ onUnmounted(() => {
 <template>
   <div class="cursor-pagination">
     <UButton
-      v-if="nextCursor && showButton && strategy === 'button'"
+      v-if="nextCursor && showButton && strategy === 'button' && totalPages > 1"
       size="md"
       variant="soft"
       :label="$t('common.load.more')"

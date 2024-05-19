@@ -135,8 +135,8 @@ importers:
         specifier: 9.3.0
         version: 9.3.0
       eslint-plugin-readable-tailwind:
-        specifier: 1.3.2
-        version: 1.3.2(eslint@9.3.0)(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5)))
+        specifier: 1.4.0
+        version: 1.4.0(eslint@9.3.0)(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5)))
       h3:
         specifier: 1.11.1
         version: 1.11.1
@@ -4088,8 +4088,8 @@ packages:
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
 
-  eslint-plugin-readable-tailwind@1.3.2:
-    resolution: {integrity: sha512-AJoAhTCNhl/qLlXpy1L5JRP4+A1Uf1YcloYp8uvgPWNxa/VWGJJnQ40mCSVVT6a7ARh33LLLPn9RhdtZ04+/AA==}
+  eslint-plugin-readable-tailwind@1.4.0:
+    resolution: {integrity: sha512-qrC2pGqSkn1r9I51dMFe5QgTtFCOFtJk4PcciS+nHD/3zV9sqA62yEPVDrpc4XVKVyvT0GRoPm0zrKoj0VHyug==}
     engines: {node: '>=16'}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
@@ -13065,7 +13065,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-readable-tailwind@1.3.2(eslint@9.3.0)(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))):
+  eslint-plugin-readable-tailwind@1.4.0(eslint@9.3.0)(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))):
     dependencies:
       eslint: 9.3.0
       tailwindcss: 3.4.3(ts-node@10.9.2(@types/node@20.12.12)(typescript@5.4.5))
