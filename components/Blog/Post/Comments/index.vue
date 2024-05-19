@@ -2,19 +2,11 @@
 import type { PropType } from 'vue'
 
 import { z } from 'zod'
-import type {
-  BlogComment,
-  BlogCommentOrderingField,
-} from '~/types/blog/comment'
+import type { BlogComment, BlogCommentOrderingField } from '~/types/blog/comment'
 import type { EntityOrdering } from '~/types/ordering'
 
 import type { DynamicFormSchema } from '~/types/form'
-import {
-  type CursorStates,
-  PaginationCursorStateEnum,
-  type PaginationType,
-  PaginationTypeEnum,
-} from '~/types'
+import { type CursorStates, PaginationCursorStateEnum, type PaginationType, PaginationTypeEnum } from '~/types'
 
 const props = defineProps({
   blogPostId: {
@@ -138,10 +130,10 @@ const orderingOptions = computed(() => {
 const loggedInAndHasComments = computed(() => {
   return (
     loggedIn.value
-    && comments.value !== null
-    && comments.value.results !== null
+    && comments.value
+    && comments.value.results
     && comments.value.results.length > 0
-  )
+  ) || false
 })
 
 const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }

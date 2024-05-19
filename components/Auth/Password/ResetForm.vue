@@ -12,14 +12,15 @@ const toast = useToast()
 const loading = ref(false)
 
 const { t } = useI18n()
+
 async function onSubmit(values: PasswordResetBody) {
   try {
     loading.value = true
-    const { detail } = await passwordReset({
+    const data = await passwordReset({
       email: values.email,
     })
     toast.add({
-      title: detail,
+      title: data?.detail || t('common.success'),
       color: 'green',
     })
     emit('passwordReset')

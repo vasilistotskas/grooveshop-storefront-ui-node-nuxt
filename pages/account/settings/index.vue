@@ -2,6 +2,8 @@
 import { z } from 'zod'
 
 import { defaultSelectOptionChoose } from '~/constants'
+import type { Pagination } from '~/types/pagination'
+import type { Region } from '~/types/region'
 
 const { user, fetch } = useUserSession()
 const { fetchUser } = useAuth()
@@ -11,6 +13,7 @@ const toast = useToast()
 
 const USelect = resolveComponent('USelect')
 
+const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
@@ -29,9 +32,9 @@ const ZodAccountSettings = z.object({
       required_error: t('common.validation.date.required_error'),
       invalid_type_error: t('common.validation.date.invalid_type_error'),
     })
-    .nullish(),
-  country: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).nullish(),
-  region: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).nullish(),
+    .optional(),
+  country: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).optional(),
+  region: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).optional(),
 })
 
 const validationSchema = toTypedSchema(ZodAccountSettings)
@@ -105,22 +108,28 @@ const countryOptions = computed(() => {
   }) || []
 })
 
-const { data: regions } = await useAsyncData(
-  'regions',
-  () =>
-    $fetch('/api/regions', {
+const fetchRegions = async () => {
+  if (country.value === defaultSelectOptionChoose) {
+    return
+  }
+
+  try {
+    regions.value = await $fetch('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
         language: locale.value,
       },
-    }),
-  {
-    watch: [country],
-    immediate: country.value !== defaultSelectOptionChoose,
-  },
-)
-
+    })
+  }
+  catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: t('common.error_occurred'),
+      color: 'red',
+    })
+  }
+}
 const regionOptions = computed(() => {
   return regions.value?.results?.map((region) => {
     const regionName = extractTranslated(region, 'name', locale.value)
@@ -148,10 +157,11 @@ const label = computed(() => {
   })
 })
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
   country.value = event.target.value
   region.value = defaultSelectOptionChoose
+  await fetchRegions()
 }
 
 const onSubmit = handleSubmit(async (values) => {
@@ -159,8 +169,8 @@ const onSubmit = handleSubmit(async (values) => {
     values.region === defaultSelectOptionChoose
     || values.country === defaultSelectOptionChoose
   ) {
-    values.region = null
-    values.country = null
+    values.region = undefined
+    values.country = undefined
   }
 
   if (!userId) return

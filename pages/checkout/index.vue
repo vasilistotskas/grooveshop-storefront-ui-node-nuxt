@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-import {
-  defaultSelectOptionChoose,
-  floorChoicesList,
-  locationChoicesList,
-} from '~/constants'
+import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
 import type { PayWay } from '~/types/pay-way'
+import type { Pagination } from '~/types/pagination'
+import type { Region } from '~/types/region'
 
 const { user, fetch } = useUserSession()
 
@@ -24,6 +22,7 @@ const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
 
 const payWay = useState<PayWay | null>('selectedPayWay')
+const regions = ref<Pagination<Region> | null>(null)
 
 const { data: countries } = await useAsyncData('countries', () =>
   $fetch('/api/countries', {
@@ -48,20 +47,20 @@ const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
 const ZodCheckout = z.object({
-  user: z.string({ required_error: t('common.validation.required') }).nullish(),
-  country: z.string({ required_error: t('common.validation.required') }).nullish(),
-  region: z.string({ required_error: t('common.validation.required') }).nullish(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).nullish(),
+  user: z.string({ required_error: t('common.validation.required') }).optional(),
+  country: z.string({ required_error: t('common.validation.required') }).optional(),
+  region: z.string({ required_error: t('common.validation.required') }).optional(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).optional(),
   locationType: z
     .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('common.validation.required') })])
-    .nullish(),
+    .optional(),
   street: z
     .string()
     .min(3, t('pages.checkout.validation.street.min', { min: 3 })),
   streetNumber: z
     .string()
     .min(1, t('pages.checkout.validation.street_number.min', { min: 1 })),
-  status: ZodOrderStatusEnum.nullish(),
+  status: ZodOrderStatusEnum.optional(),
   firstName: z
     .string()
     .min(3, t('pages.checkout.validation.first_name.min', { min: 3 })),
@@ -79,8 +78,8 @@ const ZodCheckout = z.object({
   phone: z
     .string()
     .min(3, t('pages.checkout.validation.phone.min', { min: 3 })),
-  mobilePhone: z.string({ required_error: t('common.validation.required') }).nullish(),
-  customerNotes: z.string({ required_error: t('common.validation.required') }).nullish(),
+  mobilePhone: z.string({ required_error: t('common.validation.required') }).optional(),
+  customerNotes: z.string({ required_error: t('common.validation.required') }).optional(),
   shippingPrice: z.number(),
   documentType: ZodDocumentTypeEnum,
   orderItemOrder: z.array(ZodOrderCreateItem),
@@ -92,16 +91,16 @@ const { defineField, setFieldValue, handleSubmit, errors, isSubmitting }
   = useForm({
     validationSchema,
     initialValues: {
-      user: userId.value || null,
+      user: userId.value || undefined,
       country: defaultSelectOptionChoose,
       region: defaultSelectOptionChoose,
       floor: defaultSelectOptionChoose,
       locationType: defaultSelectOptionChoose,
       orderItemOrder:
-        getCartItems.value?.map(item => ({
-          ...item,
-          product: item.product.id,
-        })) || [],
+      getCartItems.value?.map(item => ({
+        ...item,
+        product: item.product.id,
+      })) || [],
       shippingPrice: shippingPrice.value,
       documentType: ZodDocumentTypeEnum.enum.RECEIPT,
       payWay: payWay.value?.id || undefined,
@@ -154,21 +153,28 @@ const [region, regionProps] = defineField('region', {
   validateOnModelUpdate: true,
 })
 
-const { data: regions } = await useAsyncData(
-  'regions',
-  () =>
-    $fetch('/api/regions', {
+const fetchRegions = async () => {
+  if (country.value === defaultSelectOptionChoose) {
+    return
+  }
+
+  try {
+    regions.value = await $fetch('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
         language: locale.value,
       },
-    }),
-  {
-    watch: [country],
-    immediate: country.value !== defaultSelectOptionChoose,
-  },
-)
+    })
+  }
+  catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: t('common.error_occurred'),
+      color: 'red',
+    })
+  }
+}
 
 const regionOptions = computed(() => {
   return regions.value?.results?.map((region) => {
@@ -180,10 +186,11 @@ const regionOptions = computed(() => {
   }) || []
 })
 
-const onCountryChange = (event: Event) => {
+const onCountryChange = async (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
   country.value = event.target.value
   region.value = defaultSelectOptionChoose
+  await fetchRegions()
 }
 
 const onSubmit = handleSubmit(async (values) => {
@@ -565,6 +572,7 @@ definePageMeta({
                   color="white"
                   :as="USelect"
                   :options="floorChoicesList"
+                  option-attribute="name"
                   :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
                 />
                 <span v-if="errors.floor" class="text-xs text-red-600">{{
@@ -588,6 +596,7 @@ definePageMeta({
                   color="white"
                   :as="USelect"
                   :options="locationChoicesList"
+                  option-attribute="name"
                   :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
                 />
                 <span v-if="errors.locationType" class="text-xs text-red-600">{{

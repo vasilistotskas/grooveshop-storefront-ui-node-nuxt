@@ -9,6 +9,7 @@ import {
   extendWebpackConfig,
 } from '@nuxt/kit'
 
+import type { Nuxt } from '@nuxt/schema'
 import { version } from '../package.json'
 import type { ModuleOptions } from '../runtime/cookies/types'
 import { DEFAULTS } from '../runtime/cookies/types'
@@ -26,7 +27,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: DEFAULTS,
 
-  async setup(moduleOptions, nuxt) {
+  async setup(moduleOptions: ModuleOptions, nuxt: Nuxt) {
     nuxt.options.alias['#cookie-control'] = cookiesDir
     nuxt.options.build.transpile.push(cookiesDir)
 

@@ -1,6 +1,9 @@
 common:
   home: Αρχική
   close: Κλείσιμο
+  name: Όνομα
+  email: Email
+  message: Μήνυμα
   auth:
     login:
       success: Συνδεθείτε με επιτυχία
@@ -54,23 +57,33 @@ common:
   previous: Προηγούμενος
   login: Σύνδεση
   logout: Αποσύνδεση
-  about: Σχετικά με
+  about:
+    us: Σχετικά με εμάς
+    site: Τι είναι το Webside
+  vision: Όραμα
   blog: Blog
   company: Εταιρία
   help_center: Κέντρο βοηθείας
-  terms_conditions: Οροι
-  discord_server: Διακομιστής Discord
+  discord_server: Discord
   contact: Επικοινωνία
-  microlearning: Μικρομάθηση
-  contact_us: Επικοινωνήστε μαζί μας
+  microlearning:
+    title: Microlearning
+    what: Τι είναι το Microlearning
+    why: Γιατί Microlearning
+  contact_us: Επικοινωνία
   terms_and_policies: Όροι και Πολιτικές
-  twitter: Κελάδημα
+  twitter: Χ
   instagram: Ίνσταγκραμ
   facebook: Facebook
+  reddit: Reddit
+  pinterest: Pinterest
   tiktok: Τικ Τοκ
   youtube: YouTube
-  all_rights_reserved: Ολα τα δικαιώματα διατηρούνται
+  all_rights_reserved: All rights reserved
   privacy_policy: Πολιτική Απορρήτου
+  terms_conditions: Όροι και Προϋποθέσεις
+  term_of_use: Όροι Χρήσης
+  cookies_policy: Πολιτική Cookies
   save: Αποθήκευση
   edit: Επεξεργασία
   empty:
@@ -119,6 +132,7 @@ common:
   reset: Επαναφορά
   clear: Καθαρισμός
   menu: Μενού
+  title: Τίτλος
   validation:
     min: Το πεδίο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
     max: Το πεδίο πρέπει να έχει το πολύ %{max} χαρακτήρες

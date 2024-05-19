@@ -15,7 +15,7 @@ export const cookieControl = {
         id: 'an',
         name: 'components.cookie.cookies.analytics',
         description: 'components.cookie.cookies.analytics_description',
-        src: `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.NUXT_PUBLIC_GOOGLE_TAG_ID}`,
+        src: `https://www.googletagmanager.com/gtag/js?id=${process.env.NUXT_PUBLIC_GOOGLE_TAG_ID}`,
         targetCookieIds: ['_ga', '_gat', '_gid'],
       },
       {

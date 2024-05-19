@@ -6,6 +6,7 @@ type MainSliderItem = {
 }
 
 const router = useRouter()
+const modalRouter = useModalRouter()
 const { resolveImageSrc } = useImageResolver()
 const { locale } = useI18n()
 
@@ -166,7 +167,7 @@ watch(
         :aria-label="$t('common.close')"
         @click="() => {
           isOpen = false
-          $modalRouter.close()
+          modalRouter.close()
         }"
       />
     </div>

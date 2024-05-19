@@ -1,11 +1,12 @@
 <script lang="ts" setup>
+import type { HorizontalNavigationLink } from '#ui/types'
+
 defineSlots<{
   default(props: object): any
   header(props: object): any
   footer(props: object): any
 }>()
 
-const config = useRuntimeConfig()
 const { loggedIn, user } = useUserSession()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
@@ -28,7 +29,7 @@ const avatarImg = img(avatarSrc.value, {
   provider: 'mediaStream',
 })
 
-const links = shallowRef([
+const links = shallowRef<HorizontalNavigationLink[]>([
   {
     icon: 'i-heroicons-home',
     to: '/',
@@ -106,96 +107,7 @@ const Footer = computed(() => {
         <div
           class="mb-6 mt-6 flex flex-wrap items-center justify-center"
         >
-          <UButton
-            :to="config.public.socials.instagram"
-            variant="link"
-            color="opposite"
-            size="md"
-          >
-            <IconMdi:instagram
-              class="
-                text-3xl text-secondary-light
-
-                dark:text-secondary-dark
-              "
-            />
-            <span class="sr-only">{{ $t('common.instagram') }}</span>
-          </UButton>
-          <UButton
-            :to="config.public.socials.tiktok"
-            variant="link"
-            color="opposite"
-            size="md"
-          >
-            <IconAntDesign:tikTokFilled
-              class="
-                text-3xl text-secondary-light
-
-                dark:text-secondary-dark
-              "
-            />
-            <span class="sr-only">{{ $t('common.tiktok') }}</span>
-          </UButton>
-          <UButton
-            :to="config.public.socials.reddit"
-            variant="link"
-            color="opposite"
-            size="md"
-          >
-            <IconMdi:reddit
-              class="
-                text-3xl text-secondary-light
-
-                dark:text-secondary-dark
-              "
-            />
-            <span class="sr-only">{{ $t('common.reddit') }}</span>
-          </UButton>
-          <UButton
-            :to="config.public.socials.youtube"
-            variant="link"
-            color="opposite"
-            size="md"
-          >
-            <IconMdi:youtube
-              class="
-                text-3xl text-secondary-light
-
-                dark:text-secondary-dark
-              "
-            />
-            <span class="sr-only">{{ $t('common.youtube') }}</span>
-          </UButton>
-          <UButton
-            :to="config.public.socials.pinterest"
-            variant="link"
-            color="opposite"
-            size="md"
-          >
-            <IconMdi:pinterest
-              class="
-                text-3xl text-secondary-light
-
-                dark:text-secondary-dark
-              "
-            />
-            <span class="sr-only">{{ $t('common.pinterest') }}</span>
-          </UButton>
-          <UButton
-            :to="config.public.socials.facebook"
-            variant="link"
-            color="opposite"
-            size="md"
-          >
-            <IconMdi:facebook
-              class="
-                text-3xl text-secondary-light
-
-                dark:text-secondary-dark
-              "
-            />
-            <span class="sr-only">{{ $t('common.facebook') }}</span>
-          </UButton>
+          <Socials />
         </div>
       </MobileOrTabletOnly>
       <Component

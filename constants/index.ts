@@ -1,19 +1,18 @@
-import {
-  ZodFloorChoicesEnum,
-  ZodLocationChoicesEnum,
-} from '~/types'
+import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 
-export const locationChoicesList = Object.keys(
-  ZodLocationChoicesEnum.Values,
-).filter((element) => {
-  return isNaN(Number(element))
-})
+export const locationChoicesList = Object.keys(LocationChoicesEnum)
+  .filter(key => isNaN(Number(key)))
+  .map(key => ({
+    name: key,
+    value: LocationChoicesEnum[key as keyof typeof LocationChoicesEnum],
+  }))
 
-export const floorChoicesList = Object.keys(ZodFloorChoicesEnum.Values).filter(
-  (element) => {
-    return isNaN(Number(element))
-  },
-)
+export const floorChoicesList = Object.keys(FloorChoicesEnum)
+  .filter(key => isNaN(Number(key)))
+  .map(key => ({
+    name: key,
+    value: FloorChoicesEnum[key as keyof typeof FloorChoicesEnum],
+  }))
 
 export const defaultSelectOptionChoose = 'choose'
 

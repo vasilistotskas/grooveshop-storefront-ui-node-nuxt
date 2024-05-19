@@ -1,7 +1,6 @@
 import { resolveURL, withQuery } from 'ufo'
 
 import type {
-  IsUserRegisteredBody,
   LoginBody,
   LogoutBody,
   PasswordChangeBody,
@@ -129,13 +128,6 @@ export default function () {
     })
   }
 
-  async function isUserRegistered(body: IsUserRegisteredBody) {
-    return await $fetch('/api/auth/is-user-registered', {
-      method: 'POST',
-      body,
-    })
-  }
-
   return {
     login,
     loginWithProvider,
@@ -150,7 +142,6 @@ export default function () {
     tokenRefresh,
     socialAccounts,
     socialAccountDisconnect,
-    isUserRegistered,
     fetchUser,
   }
 }

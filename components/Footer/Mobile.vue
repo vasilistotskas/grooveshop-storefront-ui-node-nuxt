@@ -3,21 +3,21 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 
 const items = [{
-  label: t('common.contact'),
-  icon: 'i-heroicons-chat-bubble-oval-left',
-  slot: 'contact',
-}, {
-  label: t('common.microlearning'),
-  icon: 'i-heroicons-light-bulb',
-  slot: 'micro-learning',
-}, {
-  label: t('common.about'),
+  label: t('common.about.us'),
   icon: 'i-heroicons-information-circle',
   slot: 'about',
 }, {
-  label: t('common.terms_and_policies'),
+  label: t('common.microlearning.title'),
+  icon: 'i-heroicons-light-bulb',
+  slot: 'micro-learning',
+}, {
+  label: t('common.terms_conditions'),
   icon: 'i-heroicons-rectangle-group',
-  slot: 'terms-and-policies',
+  slot: 'terms-conditions',
+}, {
+  label: t('common.help_center'),
+  icon: 'i-heroicons-chat-bubble-oval-left',
+  slot: 'contact',
 }]
 </script>
 
@@ -79,43 +79,6 @@ const items = [{
         </UButton>
       </template>
 
-      <template #contact>
-        <div
-          class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
-            :label="$t('pages.contact.title')"
-            :to="localePath('contact')"
-          />
-        </div>
-        <div
-          class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
-            :label="$t('pages.feedback.title')"
-            :to="localePath('feedback')"
-          />
-        </div>
-      </template>
-
       <template #about>
         <div
           class="
@@ -130,13 +93,30 @@ const items = [{
             type="button"
             color="secondary"
             variant="link"
-            :label="$t('pages.about.title')"
+            :label="$t('common.about.site')"
             :to="localePath('about')"
+          />
+        </div>
+        <div
+          class="
+            text-primary-950
+
+            dark:text-primary-50
+          "
+        >
+          <UButton
+            size="xl"
+            class="font-semibold"
+            type="button"
+            color="secondary"
+            variant="link"
+            :label="$t('common.vision')"
+            :to="localePath('vision')"
           />
         </div>
       </template>
 
-      <template #terms-and-policies>
+      <template #micro-learning>
         <div
           class="
             text-primary-950
@@ -150,8 +130,8 @@ const items = [{
             type="button"
             color="secondary"
             variant="link"
-            :label="$t('pages.terms.title')"
-            :to="localePath('terms')"
+            :label="$t('common.microlearning.what')"
+            :to="localePath('what-is-microlearning')"
           />
         </div>
         <div
@@ -167,7 +147,44 @@ const items = [{
             type="button"
             color="secondary"
             variant="link"
-            :label="$t('pages.privacy-policy.title')"
+            :label="$t('common.microlearning.why')"
+            :to="localePath('why-microlearning')"
+          />
+        </div>
+      </template>
+
+      <template #terms-conditions>
+        <div
+          class="
+            text-primary-950
+
+            dark:text-primary-50
+          "
+        >
+          <UButton
+            size="xl"
+            class="font-semibold"
+            type="button"
+            color="secondary"
+            variant="link"
+            :label="$t('common.term_of_use')"
+            :to="localePath('terms-of-use')"
+          />
+        </div>
+        <div
+          class="
+            text-primary-950
+
+            dark:text-primary-50
+          "
+        >
+          <UButton
+            size="xl"
+            class="font-semibold"
+            type="button"
+            color="secondary"
+            variant="link"
+            :label="$t('common.privacy_policy')"
             :to="localePath('privacy-policy')"
           />
         </div>
@@ -184,8 +201,28 @@ const items = [{
             type="button"
             color="secondary"
             variant="link"
-            :label="$t('pages.cookies.title')"
-            :to="localePath('cookies')"
+            :label="$t('common.cookies_policy')"
+            :to="localePath('cookies-policy')"
+          />
+        </div>
+      </template>
+
+      <template #contact>
+        <div
+          class="
+            text-primary-950
+
+            dark:text-primary-50
+          "
+        >
+          <UButton
+            size="xl"
+            class="font-semibold"
+            type="button"
+            color="secondary"
+            variant="link"
+            :label="$t('pages.contact.title')"
+            :to="localePath('contact')"
           />
         </div>
       </template>

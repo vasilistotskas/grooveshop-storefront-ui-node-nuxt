@@ -62,7 +62,6 @@ const envVariables = z.object({
   NUXT_WEB_SOCKET_SERVER_PORT: z.string(),
 
   // Auth
-  NUXT_AUTH_EMAIL_FROM: z.string(),
   NUXT_PUBLIC_AUTH_COOKIE_DOMAIN: z.string(),
   NUXT_AUTH_EMAIL_PROVIDER_API_KEY: z.string(),
   NUXT_AUTH_BASE_URL: z.string(),
@@ -95,7 +94,8 @@ const envVariables = z.object({
 
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof envVariables> {}
+    interface ProcessEnv extends z.infer<typeof envVariables> {
+    }
   }
 }
 

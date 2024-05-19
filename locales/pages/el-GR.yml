@@ -4,10 +4,10 @@ pages:
     description: Η σελίδα δεν βρέθηκε
     keywords: Η σελίδα δεν βρέθηκε
   about:
-    title: Σχετικά με
-    nav: σχετικά με
-    description: σχετικά με
-    keywords: σχετικά με
+    title: Τι Είναι Το Webside
+    nav: τι είναι το webside
+    description: τι είναι το webside
+    keywords: τι είναι το webside
   blog:
     title: Blog
     nav: blog
@@ -18,6 +18,8 @@ pages:
       updated_at: Ημερομηνία ενημέρωσης
       title: Τίτλος
       published_at: Δημοσιεύθηκε στο
+    category:
+      title: Κατηγορία
   testing:
     nav: δοκιμές
     title: δοκιμές
@@ -225,6 +227,11 @@ pages:
     nav: όροι
     description: όροι
     keywords: όροι
+  term_of_use:
+    title: Όροι Χρήσης
+    nav: Όροι Χρήσης
+    description: Όροι Χρήσης
+    keywords: Όροι Χρήσης
   privacy-policy:
     title: Πολιτική Απορρήτου
     nav: πολιτική απορρήτου
@@ -245,11 +252,11 @@ pages:
     nav: ανατροφοδότηση
     description: ανατροφοδότηση
     keywords: ανατροφοδότηση
-  cookies:
-    title: Μπισκότα
-    nav: μπισκότα
-    description: μπισκότα
-    keywords: μπισκότα
+  cookies_policy:
+    title: Πολιτική Cookies
+    nav: πολιτική cookies
+    description: πολιτική cookies
+    keywords: πολιτική cookies
   accounts:
     login:
       title: Λογαριασμός
@@ -456,7 +463,7 @@ pages:
           country: Χώρα
           region: Περιφέρεια
           submit: Αποθήκευση
-          update: Εκσυγχρονίζω
+          update: Ενημέρωση
         validation:
           title:
             min: Ο τίτλος πρέπει να αποτελείται από τουλάχιστον %{min} χαρακτήρες
@@ -745,6 +752,8 @@ pages:
             link: Απενεργοποίηση
             success: Ο έλεγχος ταυτότητας δύο παραγόντων απενεργοποιήθηκε με επιτυχία
             error: Σφάλμα απενεργοποίησης ελέγχου ταυτότητας δύο παραγόντων
-    2fa:
-      authenticate:
-        title: Εφαρμογή ελέγχου ταυτότητας
+  2fa:
+    authenticate:
+      title: Εφαρμογή ελέγχου ταυτότητας
+  vision:
+    title: Όραμα

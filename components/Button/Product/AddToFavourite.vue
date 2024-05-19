@@ -9,7 +9,7 @@ const props = defineProps({
     required: true,
   },
   userId: {
-    type: Number as PropType<number | undefined>,
+    type: Number as PropType<number | null | undefined>,
     required: false,
     default: undefined,
   },

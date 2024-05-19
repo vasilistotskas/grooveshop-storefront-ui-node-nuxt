@@ -1,3 +1,45 @@
+# [1.122.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.121.0...v1.122.0) (2024-05-19)
+
+
+### Features
+
+* Contact form ([3295a9e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3295a9e60b78498334412d6b098901711e34844c))
+
+# [1.121.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.120.0...v1.121.0) (2024-05-19)
+
+
+### Features
+
+* static pages implemented ([f85c5c4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f85c5c4726a1cbc01d70fc45938a98e011d71e18))
+
+# [1.120.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.119.0...v1.120.0) (2024-05-18)
+
+
+### Features
+
+* App improvements and fixes ([0a72eed](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0a72eed59e41df37b27a4fe31278114683c9a48a))
+
+# [1.119.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.118.0...v1.119.0) (2024-05-18)
+
+
+### Features
+
+* Footer and pages ([065856a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/065856ab58278db5fb82c2901776f3c8db791205))
+
+# [1.118.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.117.0...v1.118.0) (2024-05-18)
+
+
+### Features
+
+* blog category page ([3d2fb02](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3d2fb029da7314b264056dd0a40db040085256e2))
+
+# [1.117.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.116.1...v1.117.0) (2024-05-18)
+
+
+### Features
+
+* Bump Versions ([d895b13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d895b13a88ea7ba16dde4a1294fdd47b6b54ac20))
+
 ## [1.116.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.116.0...v1.116.1) (2024-05-16)
 
 

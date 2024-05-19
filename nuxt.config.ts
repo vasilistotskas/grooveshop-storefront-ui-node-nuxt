@@ -28,11 +28,12 @@ import { veeValidate } from './config/vee-validate'
 import { vite } from './config/vite'
 import { vue } from './config/vue'
 import { eslint } from './config/eslint'
+import { ogImage } from './config/og-image'
+import { colorMode } from './config/color-mode'
 
-// https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
   ssr: true,
-  debug: false,
+  debug: process.env.NODE_ENV === 'development',
   sourcemap: true,
   site,
   modules,
@@ -64,4 +65,6 @@ export default defineNuxtConfig({
   veeValidate,
   delayHydration,
   device,
+  ogImage,
+  colorMode,
 })

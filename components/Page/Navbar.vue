@@ -176,6 +176,22 @@ const items = [
                 relative grid items-center justify-center justify-items-center
               "
             >
+              <UButton
+                type="button"
+                size="xl"
+                class="p-0"
+                color="black"
+                variant="ghost"
+                icon="i-heroicons-heart"
+                :aria-label="$t('common.favourites')"
+                :to="localePath('/account/favourites/posts')"
+              />
+            </li>
+            <li
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
+            >
               <ThemeSwitcher />
             </li>
             <DevOnly>

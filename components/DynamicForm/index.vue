@@ -2,13 +2,7 @@
 import type { ValidationOptions } from 'vee-validate'
 import { z } from 'zod'
 
-import type {
-  DisabledFields,
-  DynamicFormFields,
-  DynamicFormSchema,
-  DynamicFormState,
-  FormValues,
-} from '~/types/form'
+import type { DisabledFields, DynamicFormFields, DynamicFormSchema, DynamicFormState, FormValues } from '~/types/form'
 import { mergeWithEffect } from '~/types/zod'
 import type { Button } from '#ui/types/button'
 
@@ -35,6 +29,7 @@ const props = withDefaults(
     resetButtonUi?: Button
     buttonsPosition?: 'center' | 'left' | 'right'
     loading?: boolean
+    maxSubmitCount?: number
   }>(),
   {
     id: undefined,
@@ -59,6 +54,7 @@ const props = withDefaults(
     }),
     buttonsPosition: 'right',
     loading: false,
+    maxSubmitCount: 5,
   },
 )
 
@@ -70,6 +66,8 @@ const {
   buttonLabel,
   resetLabel,
   disableSubmitUntilValid,
+  loading,
+  maxSubmitCount,
 } = toRefs(props)
 
 const finalID = id.value ?? useId()
@@ -153,6 +151,7 @@ const {
   isSubmitting,
   validate,
   values,
+  submitCount,
 } = useForm({
   validationSchema,
   initialValues: initialFormValues,
@@ -213,6 +212,10 @@ const formState = computed(() => {
 
 // Define the submit button disabled state
 const submitButtonDisabled = computedAsync(async () => {
+  if (submitCount.value >= maxSubmitCount.value || loading.value) {
+    return true
+  }
+
   return await validationSchema
     .parse(formState.value)
     .then((result) => {
@@ -365,15 +368,14 @@ formFields.forEach((field) => {
       <LazyUButton
         v-if="!isMultiStep && submitButton"
         :aria-busy="isSubmitting"
-        :disabled="submitButtonDisabled || loading"
+        :disabled="submitButtonDisabled"
         :type="submitButtonUi.type"
         :variant="submitButtonUi.variant"
         :color="submitButtonUi.color"
         :ui="submitButtonUi.ui"
         :size="submitButtonUi.size"
-      >
-        {{ buttonLabel }}
-      </LazyUButton>
+        :label="buttonLabel"
+      />
 
       <LazyUButton
         v-if="!isMultiStep && resetButton"
