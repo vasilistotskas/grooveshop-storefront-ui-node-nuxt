@@ -1,3 +1,10 @@
+# [1.121.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.120.0...v1.121.0) (2024-05-19)
+
+
+### Features
+
+* static pages implemented ([f85c5c4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f85c5c4726a1cbc01d70fc45938a98e011d71e18))
+
 # [1.120.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.119.0...v1.120.0) (2024-05-18)
 
 
