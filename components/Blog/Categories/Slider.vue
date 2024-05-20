@@ -11,7 +11,7 @@ const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 const { contentShorten } = useText()
 
-const { data: categories } = await useFetch(`/api/blog/categories`, {
+const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
   key: `blogCategories`,
   method: 'GET',
   query: {

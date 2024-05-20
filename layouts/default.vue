@@ -17,16 +17,16 @@ const img = useImage()
 const avatarSrc = computed(() => {
   return resolveImageSrc(
     user.value?.mainImageFilename,
-    `media/uploads/users/${user.value?.mainImageFilename}`,
+    `media/uploads/users/${user.value?.mainImageFilename}`
   )
 })
 
 const avatarImg = img(avatarSrc.value, {
   width: 32,
   height: 32,
-  fit: 'cover',
+  fit: 'cover'
 }, {
-  provider: 'mediaStream',
+  provider: 'mediaStream'
 })
 
 const links = shallowRef<HorizontalNavigationLink[]>([
@@ -34,42 +34,41 @@ const links = shallowRef<HorizontalNavigationLink[]>([
     icon: 'i-heroicons-home',
     to: '/',
     label: t('common.home'),
-    labelClass: 'sr-only',
+    labelClass: 'sr-only'
   },
   {
     icon: 'i-heroicons-magnifying-glass',
     to: '/search',
     label: t('common.search.title'),
-    labelClass: 'sr-only',
+    labelClass: 'sr-only'
   },
   {
     icon: 'i-heroicons-heart',
     to: '/account/favourites/posts',
     label: t('common.favourites'),
-    labelClass: 'sr-only',
-  },
+    labelClass: 'sr-only'
+  }
 ])
 
 if (!loggedIn.value && links.value) {
   links.value.push(
     {
       icon: 'i-heroicons-user',
-      to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+      to: loggedIn.value ? '/account' : `/account/login?redirect=${route.path}`,
       label: t('common.account'),
-      labelClass: 'sr-only',
-    },
+      labelClass: 'sr-only'
+    }
   )
-}
-else {
+} else {
   links.value.push(
     {
       to: '/account',
       label: t('common.account'),
       labelClass: 'sr-only',
       avatar: {
-        src: avatarImg,
-      },
-    },
+        src: avatarImg
+      }
+    }
   )
 }
 

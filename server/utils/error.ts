@@ -1,108 +1,75 @@
-import type { H3Event } from 'h3'
-import { H3Error } from 'h3'
-import { FetchError } from 'ofetch'
-import { withQuery } from 'ufo'
 import { ZodError } from 'zod'
+import { FetchError } from 'ofetch'
+import { H3Error } from 'h3'
+import type { BadResponse, InvalidSessionResponse, NotAuthenticatedResponse } from '~/types/all-auth'
+import { ZodBadResponse, ZodInvalidSessionResponse, ZodNotAuthenticatedResponse } from '~/types/all-auth'
+import { useAllAuthSession } from '~/server/utils/api'
 
-type ErrorWithMessage = {
-  message: string
+type isAllAuthError = {
+  data: BadResponse | NotAuthenticatedResponse | InvalidSessionResponse
 }
 
-export const reportError = ({ message }: { message: string }) => {
-  console.error(message)
+function isBadResponseError(error: any): error is { data: BadResponse } {
+  return ZodBadResponse.safeParse(error.data).success
 }
 
-export function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
-  return (
-    typeof error === 'object'
-    && error !== null
-    && 'message' in error
-    && typeof (error as Record<string, unknown>).message === 'string'
-  )
+function isNotAuthenticatedResponseError(error: any): error is { data: NotAuthenticatedResponse } {
+  return ZodNotAuthenticatedResponse.safeParse(error.data).success
 }
 
-export const isErrorWithSessionToken = (error: unknown): error is { data: { meta: { session_token: string } } } => {
-  if (
-    typeof error === 'object'
-    && error !== null
-    && 'data' in error
-  ) {
-    const data = (error as { data: unknown }).data
-    if (
-      typeof data === 'object'
-      && data !== null
-      && 'meta' in data
-    ) {
-      const meta = (data as { meta: unknown }).meta
-      return (
-        typeof meta === 'object'
-        && meta !== null
-        && 'session_token' in meta
-        && typeof (meta as { session_token: unknown }).session_token === 'string'
-      )
-    }
+function isInvalidSessionResponseError(error: any): error is { data: InvalidSessionResponse } {
+  return ZodInvalidSessionResponse.safeParse(error.data).success
+}
+
+export function isAllAuthError(error: unknown): error is isAllAuthError {
+  if (typeof error !== 'object' || error === null || !('data' in error)) {
+    return false
   }
-  return false
-}
 
-export function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
-  if (isErrorWithMessage(maybeError)) return maybeError
-
-  try {
-    return new Error(JSON.stringify(maybeError))
-  }
-  catch {
-    // fallback in case there's an error stringifying the maybeError
-    // like with circular references for example.
-    return new Error(String(maybeError))
-  }
-}
-
-export function getErrorMessage(error: unknown) {
-  return toErrorWithMessage(error).message
+  return isBadResponseError(error) || isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)
 }
 
 export async function handleError(
   error: unknown,
-  redirect?: { event: H3Event, url: string },
 ) {
-  const h3Error = new H3Error('server-error')
-  h3Error.statusCode = 500
-  reportError(toErrorWithMessage(error))
-
-  if (redirect) {
-    await sendRedirect(
-      redirect.event,
-      withQuery(redirect.url, { error: h3Error.message }),
-    )
-    return
-  }
-
-  if (error) {
-    if (error instanceof ZodError) {
-      h3Error.message = error.issues[0].path + ' | ' + error.issues[0].message
-      h3Error.statusCode = 400
-      h3Error.cause = error.cause
-      h3Error.name = error.name
-      h3Error.stack = error.stack
-    }
-    else if (isErrorWithMessage(error) && error.message === 'unauthorized') {
-      h3Error.message = 'unauthorized'
-      h3Error.statusCode = 401
-    }
-    else if (isErrorWithMessage(error)) {
-      h3Error.message = error.message
-      h3Error.statusCode = 400
-    }
-  }
-
-  if (error instanceof FetchError) {
+  if (error instanceof ZodError || error instanceof FetchError || error instanceof H3Error) {
     throw createError(error)
   }
+  else {
+    console.error('Unexpected error type:', error)
+    throw error
+  }
+}
 
-  if (error instanceof H3Error) {
-    throw createError(error)
+export async function handleAllAuthError(
+  error: unknown,
+) {
+  const session = await useAllAuthSession()
+
+  if (isAllAuthError(error)) {
+    if (error.data.status === 410) {
+      await session.update({
+        sessionToken: null,
+      })
+    }
+    if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
+      if (error.data.meta?.session_token) {
+        await session.update({
+          sessionToken: error.data.meta.session_token,
+        })
+      }
+      if (error.data.meta?.access_token) {
+        await session.update({
+          accessToken: error.data.meta.access_token,
+        })
+      }
+      await allAuthHooks.callHookParallel('authChange', error.data)
+    }
+  }
+  else {
+    // Handle other types of errors if necessary
+    console.error('Unexpected AllAuth error type:', error)
   }
 
-  throw createError(h3Error)
+  await handleError(error)
 }

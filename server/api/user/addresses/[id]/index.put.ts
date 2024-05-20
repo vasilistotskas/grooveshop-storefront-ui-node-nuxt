@@ -2,7 +2,7 @@ import { ZodUserAddress, ZodUserAddressParams, ZodUserAddressPutBody } from '~/t
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodUserAddressPutBody.parse)
     const params = await getValidatedRouterParams(
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
         method: 'PUT',
         body,
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

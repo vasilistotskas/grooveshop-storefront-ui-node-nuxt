@@ -14,6 +14,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, ZodCodeConfirmResponse)
   }
   catch (error) {
-    await handleError(error)
+    await handleAllAuthError(error)
   }
 })

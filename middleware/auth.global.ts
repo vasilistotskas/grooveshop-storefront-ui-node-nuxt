@@ -1,18 +1,18 @@
 import type { RouteLocationNormalized } from 'vue-router'
-import { AuthenticatedRoutePrefixes } from '~/constants'
+import { AuthenticatedRoutePrefixes, AuthenticatedRoutes } from '~/constants'
 
 export default defineNuxtRouteMiddleware(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
     const { fetch } = useUserSession()
     const isLoginPage = (to: RouteLocationNormalized) =>
-      to.path === '/auth/login'
+      to.path === '/account/login'
 
     const handleLoggedInUserRedirection = (from: RouteLocationNormalized) => {
       const { loggedIn } = useUserSession()
       if (!loggedIn.value) return
 
       const returnToPath = from.query.redirect?.toString()
-      const isRedirectingToLogin = returnToPath === '/auth/login'
+      const isRedirectingToLogin = returnToPath === '/account/login'
       const redirectTo = isRedirectingToLogin ? '/' : returnToPath || '/'
       return navigateTo(redirectTo)
     }
@@ -21,28 +21,18 @@ export default defineNuxtRouteMiddleware(
       to: RouteLocationNormalized,
     ) => {
       const { loggedIn } = useUserSession()
-      const { getSession } = useAllAuthAuthentication()
 
       const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
         to.path.startsWith(prefix),
-      )
+      ) || AuthenticatedRoutes.includes(to.path as typeof AuthenticatedRoutes[number])
 
       if (!isRouteProtected) return
 
       if (!loggedIn.value) {
         return navigateTo({
-          path: '/auth/login',
+          path: '/account/login',
           query: { redirect: to.path },
         })
-      }
-
-      try {
-        await getSession()
-        await fetch()
-      }
-      catch (error) {
-        console.log('error', error)
-        throw error
       }
     }
 

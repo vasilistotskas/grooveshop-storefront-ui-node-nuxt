@@ -4,7 +4,7 @@ import { ZodBlogCommentParams } from '~/types/blog/comment'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
       {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

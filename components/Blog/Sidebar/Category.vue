@@ -64,7 +64,7 @@ const categoryImageSource = computed(() => {
           :background="'transparent'"
           :trim-threshold="5"
           sizes="`xs:40px sm:40px md:40px lg:40px xl:40px xxl:40px 2xl:40px`"
-          :alt="categoryName"
+          :alt="`sidebar category ${categoryName}`"
           densities="x1"
         />
       </div>

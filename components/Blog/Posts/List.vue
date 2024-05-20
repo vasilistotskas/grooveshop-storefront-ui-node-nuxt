@@ -2,12 +2,7 @@
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering } from '~/types/ordering'
 
-import {
-  type CursorStates,
-  PaginationCursorStateEnum,
-  type PaginationType,
-  PaginationTypeEnum,
-} from '~/types'
+import { type CursorStates, PaginationCursorStateEnum, type PaginationType, PaginationTypeEnum } from '~/types'
 
 const props = defineProps({
   paginationType: {
@@ -103,21 +98,26 @@ const orderingOptions = computed(() => useOrdering<BlogPostOrderingField>(entity
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
 
-const { refresh: refreshLikedPosts } = await useFetch(
-  '/api/blog/posts/liked-posts',
-  {
-    method: 'POST',
-    body: { postIds: postIds.value },
-    immediate: shouldFetchLikedPosts.value,
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const likedPostsIds = response._data
-      updateLikedPosts(likedPostsIds)
-    },
-  },
-)
+const refreshLikedPosts = async (postIds: number[]) => {
+  if (shouldFetchLikedPosts.value) {
+    await $fetch(
+      '/api/blog/posts/liked-posts',
+      {
+        method: 'POST',
+        body: { postIds: postIds },
+        onResponse({ response }) {
+          if (!response.ok) {
+            return
+          }
+          const likedPostsIds = response._data
+          updateLikedPosts(likedPostsIds)
+        },
+      },
+    )
+  }
+}
+
+refreshLikedPosts(postIds.value)
 
 const showResults = computed(() => {
   if (paginationType.value === PaginationTypeEnum.CURSOR) {
@@ -135,7 +135,7 @@ watch(
   async () => {
     await refresh()
     if (shouldFetchLikedPosts.value) {
-      await refreshLikedPosts()
+      await refreshLikedPosts(postIds.value)
     }
   },
   { deep: true },
@@ -147,8 +147,17 @@ watch(
     if (!deepEqual(newVal, oldVal)) {
       await refresh()
       if (shouldFetchLikedPosts.value) {
-        await refreshLikedPosts()
+        await refreshLikedPosts(postIds.value)
       }
+    }
+  },
+)
+
+watch(
+  () => loggedIn.value,
+  async (newVal, _oldVal) => {
+    if (newVal) {
+      await refreshLikedPosts(postIds.value)
     }
   },
 )

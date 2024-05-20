@@ -30,7 +30,7 @@ const ZodAuthenticated = z.object({
 const ZodAuthenticationMeta = z.object({
   session_token: z.string().optional().describe('The session token (app clients only).'),
   access_token: z.string().optional().describe('The access token (app clients only).'),
-  is_authenticated: z.boolean(),
+  is_authenticated: z.boolean().optional(),
 }).describe('Metadata available in an authentication related response.')
 
 export const ZodReauthenticateBody = z.object({

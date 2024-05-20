@@ -3,7 +3,7 @@ import { ZodBlogComment, ZodBlogCommentParams, ZodBlogCommentQuery } from '~/typ
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await requireUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     return await parseDataAs(response, ZodPagination(ZodBlogComment))

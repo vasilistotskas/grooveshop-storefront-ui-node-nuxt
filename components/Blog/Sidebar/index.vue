@@ -2,14 +2,13 @@
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data: categories, pending } = await useLazyAsyncData(
-  'blogCategories',
-  () =>
-    $fetch('/api/blog/categories', {
-      method: 'GET',
-      language: locale.value,
-    }),
-)
+const { data: categories, pending } = await useLazyFetch(`/api/blog/categories`, {
+  key: `blogCategories`,
+  method: 'GET',
+  query: {
+    language: locale.value
+  }
+})
 
 const sidebar = ref(null)
 const searchQuery = ref('')
@@ -25,8 +24,7 @@ const filteredCategories = computed(() => {
       const bIsSelected = selectedCategoryIds.value.includes(b.id.toString())
       if (aIsSelected && !bIsSelected) {
         return -1
-      }
-      else if (!aIsSelected && bIsSelected) {
+      } else if (!aIsSelected && bIsSelected) {
         return 1
       }
       return 0
@@ -70,7 +68,7 @@ onMounted(() => {
           dark:bg-primary-950
         "
       >
-        <h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
+        <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('common.categories') }}
           <span
             class="
@@ -81,7 +79,7 @@ onMounted(() => {
           >
             ({{ categories?.count ?? 0 }})
           </span>
-        </h3>
+        </h2>
       </div>
       <ul
         class="
@@ -130,6 +128,7 @@ onMounted(() => {
     top: 0;
   }
 }
+
 .sidebar-header-sticky {
   position: sticky;
   top: 0;

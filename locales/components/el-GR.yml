@@ -263,7 +263,7 @@ components:
     list:
       favourites:
         total: Χωρίς Αγαπημένα | 1 Αγαπημένο | %{count} Αγαπημένα
-  auth:
+  account:
     security:
       password:
         change:

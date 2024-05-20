@@ -8,9 +8,9 @@ const { data: categories, pending } = await useAsyncData(
     $fetch('/api/products/categories', {
       method: 'GET',
       query: {
-        language: locale.value,
-      },
-    }),
+        language: locale.value
+      }
+    })
 )
 
 const sidebar = ref(null)
@@ -27,8 +27,7 @@ const filteredCategories = computed(() => {
       const bIsSelected = selectedCategoryIds.value.includes(b.id.toString())
       if (aIsSelected && !bIsSelected) {
         return -1
-      }
-      else if (!aIsSelected && bIsSelected) {
+      } else if (!aIsSelected && bIsSelected) {
         return 1
       }
       return 0
@@ -74,7 +73,7 @@ onMounted(() => {
           dark:bg-primary-950
         "
       >
-        <h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
+        <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('common.categories') }}
           <span
             class="
@@ -85,7 +84,7 @@ onMounted(() => {
           >
             ({{ categories?.count ?? 0 }})
           </span>
-        </h3>
+        </h2>
         <label class="sr-only" for="search">
           {{ $t('common.search.title') }}
         </label>
@@ -152,6 +151,7 @@ onMounted(() => {
     top: 0;
   }
 }
+
 .sidebar-header-sticky {
   position: sticky;
   top: 0;

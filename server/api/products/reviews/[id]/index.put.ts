@@ -7,7 +7,7 @@ import {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodProductReviewPutBody.parse)
     const params = await getValidatedRouterParams(
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
       method: 'PUT',
       body,
       headers: {
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     return await parseDataAs(response, ZodProductReview)

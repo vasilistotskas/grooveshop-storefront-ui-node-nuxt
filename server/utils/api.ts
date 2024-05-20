@@ -1,5 +1,15 @@
 import type { QueryObject } from 'ufo'
-import type { H3Event } from 'h3'
+import type { AllAuthSession } from '~/types/all-auth'
+
+type AllAuthResponse = {
+  status: number
+  data?: Record<string, any>
+  meta?: {
+    session_token?: string
+    access_token?: string
+    is_authenticated?: boolean
+  }
+}
 
 export function buildFullUrl(url: string, query: QueryObject): string {
   const valuesToExclude: (QueryObject[keyof QueryObject] | undefined)[] = [
@@ -23,19 +33,20 @@ export function buildFullUrl(url: string, query: QueryObject): string {
   return url
 }
 
-export async function getSessionToken(event: H3Event) {
-  const session = await getUserSession(event)
-  return session?.token
+export const useAllAuthSession = async () => {
+  return await useSession<AllAuthSession>(useEvent(), {
+    name: 'all-auth-session',
+    password: '80d42cfb-1cd2-462c-8f17-e3237d9027e9',
+  })
 }
 
-export function getSessionCookie(event: H3Event) {
-  return getCookie(event, 'session_token')
+export const clearAllAuthSession = async () => {
+  const session = await useAllAuthSession()
+  await session.clear()
 }
 
-export function createAuthenticationHeaders(sessionToken?: string | null, sessionCookie?: string) {
-  const headers = {
-    'Content-Type': 'application/json',
-  } as Record<string, string>
+export function createAuthenticationHeaders(sessionToken?: string | null, sessionCookie?: string | null) {
+  const headers = {} as Record<string, string>
 
   if (sessionCookie) {
     headers['X-Session-Token'] = sessionCookie
@@ -46,4 +57,39 @@ export function createAuthenticationHeaders(sessionToken?: string | null, sessio
   }
 
   return headers
+}
+
+export async function processAllAuthSession(response: AllAuthResponse) {
+  const session = await useAllAuthSession()
+
+  if (response.meta?.session_token) {
+    appendResponseHeader(useEvent(), 'X-Session-Token', response.meta.session_token)
+    await session.update({
+      sessionToken: response.meta.session_token,
+    })
+  }
+  if (response.meta?.access_token) {
+    appendResponseHeader(useEvent(), 'Authorization', `Bearer ${response.meta.access_token}`)
+    await session.update({
+      accessToken: response.meta.access_token,
+    })
+  }
+}
+
+export async function getAllAuthHeaders() {
+  const session = await useAllAuthSession()
+  const sessionToken = session.data.sessionToken
+  const accessToken = session.data.accessToken
+
+  return createAuthenticationHeaders(sessionToken, accessToken)
+}
+
+export async function getAllAuthSessionToken() {
+  const session = await useAllAuthSession()
+  return session.data.sessionToken
+}
+
+export async function getAllAuthAccessToken() {
+  const session = await useAllAuthSession()
+  return session.data.accessToken
 }

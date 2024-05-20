@@ -1,3 +1,4 @@
+export * from './defaults'
 export * from './config'
 export * from './auth'
 export * from './account'

@@ -9,6 +9,6 @@ export default defineEventHandler(async () => {
     return await parseDataAs(response, ZodPasswordResetGetResponse)
   }
   catch (error) {
-    await handleError(error)
+    await handleAllAuthError(error)
   }
 })

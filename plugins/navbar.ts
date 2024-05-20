@@ -1,8 +1,8 @@
 export default defineNuxtPlugin(() => {
   // when page redirect on mobile device, close drawer navbar
   onNuxtReady(async () => {
-    const showDrawer = await useState<boolean>('navbar.showDrawer', () => false)
-    const showOptions = await useState<boolean>(
+    const showDrawer = useState<boolean>('navbar.showDrawer', () => false)
+    const showOptions = useState<boolean>(
       'navbar.showOptions',
       () => false,
     )

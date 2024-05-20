@@ -14,22 +14,7 @@ export default defineEventHandler(async (event) => {
     })
 
     const loginResponse = await parseDataAs(response, ZodLoginResponse)
-
-    if (loginResponse.meta.access_token) {
-      await setUserSession(event, {
-        token: loginResponse.meta.access_token,
-      })
-    }
-
-    if (loginResponse.meta.session_token) {
-      appendResponseHeader(event, 'X-Session-Token', loginResponse.meta.session_token)
-      setCookie(event, 'session_token', loginResponse.meta.session_token, {
-        path: '/',
-        sameSite: 'lax',
-        secure: true,
-        httpOnly: true,
-      })
-    }
+    await processAllAuthSession(loginResponse)
 
     const user = await $fetch(`${config.public.apiBaseUrl}/user/account/${loginResponse.data.user.id}`, {
       method: 'GET',
@@ -37,18 +22,15 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${loginResponse.meta.access_token}`,
       },
     })
-    const userResponse = await parseDataAs(user, ZodUserAccount)
 
+    const userResponse = await parseDataAs(user, ZodUserAccount)
     await setUserSession(event, {
-      data: loginResponse.data,
-      meta: loginResponse.meta,
       user: userResponse,
     })
 
     return loginResponse
   }
   catch (error) {
-    await clearUserSession(event)
-    await handleError(error)
+    await handleAllAuthError(error)
   }
 })

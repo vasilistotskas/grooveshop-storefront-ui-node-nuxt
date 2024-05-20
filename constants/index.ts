@@ -17,7 +17,15 @@ export const floorChoicesList = Object.keys(FloorChoicesEnum)
 export const defaultSelectOptionChoose = 'choose'
 
 export const AuthenticatedRoutePrefixes = [
-  '/auth/security',
+  '/account/addresses',
+  '/account/favourites',
+  '/account/help',
+  '/account/orders',
+  '/account/reviews',
+  '/account/settings',
+] as const
+
+export const AuthenticatedRoutes = [
   '/account',
 ] as const
 

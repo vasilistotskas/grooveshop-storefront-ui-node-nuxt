@@ -31,7 +31,7 @@ const ZodNotAuthenticatedData = z.object({
 const ZodMeta = z.object({
   session_token: z.string().optional(),
   access_token: z.string().optional(),
-  is_authenticated: z.literal(false),
+  is_authenticated: z.literal(false).nullable(),
 })
 
 export const ZodNotAuthenticatedResponse = z.object({

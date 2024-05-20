@@ -14,6 +14,7 @@ common:
       error:
         title: Σφάλμα εγγραφής
         action1: Επανάληψη αποστολής επαλήθευσης
+        verify_email: Σου έχει σταλεί email επαλήθευσης
   learn_more: Μάθε περισσότερα
   copy: αντίγραφο
   enabled: ενεργοποιημένη
@@ -43,6 +44,7 @@ common:
   unknown:
     error: Άγνωστο σφάλμα
   error:
+    default: Σφάλμα
     page:
       not:
         found: Η σελίδα δεν βρέθηκε

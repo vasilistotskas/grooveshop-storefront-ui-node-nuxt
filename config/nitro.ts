@@ -6,4 +6,7 @@ export const nitro = {
     routes: [],
     ignore: ['/api', '/account', '/auth', '/checkout', '/cart'],
   },
+  experimental: {
+    asyncContext: true,
+  },
 }

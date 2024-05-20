@@ -8,9 +8,9 @@ const cartStore = useCartStore()
 const { getCartTotalItems, pending } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
 
-const { user, session, loggedIn, clear } = useUserSession()
+const { user, loggedIn, clear } = useUserSession()
 const { t } = useI18n()
-const { logout } = useAuth()
+const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
 
@@ -23,9 +23,7 @@ const onClickLogout = async () => {
     await navigateTo('/')
 
   await Promise.all([
-    logout({
-      refresh: session.value?.refreshToken,
-    }),
+    deleteSession(),
     clear(),
   ])
 
@@ -59,7 +57,7 @@ const items = [
     {
       label: t('common.security'),
       icon: 'i-heroicons-shield-check',
-      click: async () => await navigateTo('/auth/security'),
+      click: async () => await navigateTo('/account/security'),
     },
   ],
   [
@@ -281,7 +279,7 @@ const items = [
                   hover:dark:text-primary-50
                 "
                 :title="loggedIn ? $t('common.account') : $t('common.login')"
-                :to="route.path === localePath('/auth/login') ? localePath('/auth/login') : localePath(`/auth/login?redirect=${route.path}`)"
+                :to="route.path === localePath('/account/login') ? localePath('/account/login') : localePath(`/account/login?redirect=${route.path}`)"
               >
                 <IconFa6Solid:circleUser />
               </Anchor>

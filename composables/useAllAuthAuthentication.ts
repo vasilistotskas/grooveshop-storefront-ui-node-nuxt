@@ -18,13 +18,13 @@ const API_BASE_URL = '/api/_allauth/app/v1/auth'
 
 export default function () {
   async function getSession() {
-    return await $fetch(`${API_BASE_URL}/session`, {
+    return useFetch(`${API_BASE_URL}/session`, {
       method: 'GET',
     })
   }
 
   async function deleteSession() {
-    return await $fetch(`${API_BASE_URL}/session`, {
+    return useFetch(`${API_BASE_URL}/session`, {
       method: 'DELETE',
     })
   }
@@ -45,7 +45,7 @@ export default function () {
       if (data && data.flows) {
         for (const flow of data.flows) {
           if (flow.id === 'mfa_authenticate' && flow.is_pending) {
-            await navigateTo('/auth/2fa/authenticate')
+            await navigateTo('/account/2fa/authenticate')
             return
           }
         }
@@ -60,14 +60,17 @@ export default function () {
     })
   }
 
-  async function getEmailVerify() {
-    return await $fetch(`${API_BASE_URL}/email/verify`, {
+  async function getEmailVerify(key: string) {
+    return useFetch(`${API_BASE_URL}/email/verify`, {
       method: 'GET',
+      headers: {
+        'X-Email-Verification-Key': key,
+      },
     })
   }
 
   async function emailVerify(body: EmailVerifyPostBody) {
-    return await $fetch(`${API_BASE_URL}/email/verify`, {
+    return useFetch(`${API_BASE_URL}/email/verify`, {
       method: 'POST',
       body,
     })

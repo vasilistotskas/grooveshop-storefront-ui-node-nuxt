@@ -2,14 +2,14 @@ import { ZodCartItemCreateBody, ZodCartItemCreateResponse } from '~/types/cart/c
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodCartItemCreateBody.parse)
     const response = await $fetch(`${config.public.apiBaseUrl}/cart/item`, {
       method: 'POST',
       body,
       headers: {
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     return await parseDataAs(response, ZodCartItemCreateResponse)

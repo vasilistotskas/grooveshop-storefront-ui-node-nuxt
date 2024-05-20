@@ -48,7 +48,6 @@ const { t } = useI18n()
 const toast = useToast()
 const { resolveImageSrc } = useImageResolver()
 const { fetch } = useUserSession()
-const { fetchUser } = useAuth()
 
 const loading = ref(false)
 
@@ -106,7 +105,6 @@ const uploadImage = async (event: Event) => {
         title: t('components.user.avatar.image.updated'),
         color: 'green',
       })
-      await fetchUser()
       await fetch()
     },
     onResponseError() {

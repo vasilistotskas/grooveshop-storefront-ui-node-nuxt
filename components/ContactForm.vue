@@ -26,7 +26,7 @@ async function onSubmit(values: ContactBody) {
   }
   catch (error) {
     toast.add({
-      title: t('common.error'),
+      title: t('common.error.default'),
       color: 'red',
     })
   }

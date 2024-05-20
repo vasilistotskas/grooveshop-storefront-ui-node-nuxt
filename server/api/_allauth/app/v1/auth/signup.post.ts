@@ -7,13 +7,14 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/signup`, {
       body: validatedBody,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
     })
-    return await parseDataAs(response, ZodSignupResponse)
+
+    const signupResponse = await parseDataAs(response, ZodSignupResponse)
+    await processAllAuthSession(signupResponse)
+
+    return signupResponse
   }
   catch (error) {
-    await handleError(error)
+    await handleAllAuthError(error)
   }
 })

@@ -2,7 +2,7 @@ import { ZodBlogPost, ZodBlogPostParams } from '~/types/blog/post'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await requireUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(event, ZodBlogPostParams.parse)
     const response = await $fetch(
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

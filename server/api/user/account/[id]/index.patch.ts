@@ -2,7 +2,7 @@ import { ZodUserAccount, ZodUserAccountParams } from '~/types/user/account'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const form = await readFormData(event)
     const params = await getValidatedRouterParams(
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
         method: 'PATCH',
         body: form,
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

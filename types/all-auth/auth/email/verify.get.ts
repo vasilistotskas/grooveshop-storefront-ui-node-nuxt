@@ -14,7 +14,7 @@ const ZodData = z.object({
 })
 
 const ZodMeta = z.object({
-  is_authenticated: z.boolean(),
+  is_authenticating: z.boolean().optional(),
 })
 
 export const ZodEmailVerifyGetResponse = z.object({

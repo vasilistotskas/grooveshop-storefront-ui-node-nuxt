@@ -2,7 +2,7 @@ import { ZodBlogComment, ZodBlogCommentUserBlogCommentBody } from '~/types/blog/
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const body = await readValidatedBody(
       event,
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body,
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

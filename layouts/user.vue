@@ -54,7 +54,7 @@ if (!loggedIn.value && links.value) {
   links.value.push(
     {
       icon: 'i-heroicons-user',
-      to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+      to: loggedIn.value ? '/account' : `/account/login?redirect=${route.path}`,
       label: t('common.account'),
       labelClass: 'sr-only',
     },

@@ -3,7 +3,7 @@ import { ZodProductFavourite, ZodProductFavouriteQuery } from '~/types/product/f
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await getAllAuthAccessToken()
   try {
     const query = await getValidatedQuery(event, ZodProductFavouriteQuery.parse)
     const url = buildFullUrl(
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     return await parseDataAs(response, ZodPagination(ZodProductFavourite))

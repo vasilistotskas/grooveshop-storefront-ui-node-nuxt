@@ -33,7 +33,7 @@ import { colorMode } from './config/color-mode'
 
 export default defineNuxtConfig({
   ssr: true,
-  debug: process.env.NODE_ENV === 'development',
+  debug: false,
   sourcemap: true,
   site,
   modules,

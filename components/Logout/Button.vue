@@ -24,8 +24,8 @@ const { cleanAccountState } = userStore
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
 
-const { session, clear } = useUserSession()
-const { logout } = useAuth()
+const { clear } = useUserSession()
+const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 
 const onClickLogout = async () => {
@@ -37,9 +37,7 @@ const onClickLogout = async () => {
     await navigateTo('/')
 
   await Promise.all([
-    logout({
-      refresh: session.value?.refreshToken,
-    }),
+    deleteSession(),
     clear(),
   ])
 

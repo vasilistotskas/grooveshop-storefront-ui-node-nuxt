@@ -15,6 +15,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, z.any())
   }
   catch (error) {
-    await handleError(error)
+    await handleAllAuthError(error)
   }
 })

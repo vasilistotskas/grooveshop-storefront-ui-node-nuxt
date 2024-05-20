@@ -2,6 +2,11 @@
 setupPageHeader()
 setupCursorStates()
 
+const { getSession } = useAllAuthAuthentication()
+await callOnce(async () => {
+  await getSession()
+})
+
 const config = useRuntimeConfig()
 const { locales } = useI18n()
 
