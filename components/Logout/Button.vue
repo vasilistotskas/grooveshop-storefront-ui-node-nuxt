@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { AuthenticatedRoutePrefixes } from '~/constants'
 import type { ButtonSize, ButtonVariant } from '#ui/types'
 import type { ButtonColor } from '#ui/types/button'
 
@@ -29,11 +28,7 @@ const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 
 const onClickLogout = async () => {
-  const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
-    route.path.startsWith(prefix),
-  )
-
-  if (isRouteProtected)
+  if (isRouteProtected(route.path))
     await navigateTo('/')
 
   await Promise.all([

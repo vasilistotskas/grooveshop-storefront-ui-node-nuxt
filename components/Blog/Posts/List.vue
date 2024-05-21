@@ -100,7 +100,7 @@ const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.len
 
 const refreshLikedPosts = async (postIds: number[]) => {
   if (shouldFetchLikedPosts.value) {
-    await $fetch(
+    await useFetch(
       '/api/blog/posts/liked-posts',
       {
         method: 'POST',

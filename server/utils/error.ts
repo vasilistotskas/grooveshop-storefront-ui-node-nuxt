@@ -3,7 +3,6 @@ import { FetchError } from 'ofetch'
 import { H3Error } from 'h3'
 import type { BadResponse, InvalidSessionResponse, NotAuthenticatedResponse } from '~/types/all-auth'
 import { ZodBadResponse, ZodInvalidSessionResponse, ZodNotAuthenticatedResponse } from '~/types/all-auth'
-import { useAllAuthSession } from '~/server/utils/api'
 
 type isAllAuthError = {
   data: BadResponse | NotAuthenticatedResponse | InvalidSessionResponse
@@ -44,22 +43,24 @@ export async function handleError(
 export async function handleAllAuthError(
   error: unknown,
 ) {
-  const session = await useAllAuthSession()
+  const event = useEvent()
 
   if (isAllAuthError(error)) {
     if (error.data.status === 410) {
-      await session.update({
-        sessionToken: null,
-      })
+      console.log('Session expired')
+      await clearUserSession(event)
     }
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
+      console.log('Not authenticated')
       if (error.data.meta?.session_token) {
-        await session.update({
+        console.log('Setting session token')
+        await setUserSession(event, {
           sessionToken: error.data.meta.session_token,
         })
       }
       if (error.data.meta?.access_token) {
-        await session.update({
+        console.log('Setting access token')
+        await setUserSession(event, {
           accessToken: error.data.meta.access_token,
         })
       }

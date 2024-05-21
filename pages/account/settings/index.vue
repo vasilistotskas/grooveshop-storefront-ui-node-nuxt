@@ -6,7 +6,6 @@ import type { Pagination } from '~/types/pagination'
 import type { Region } from '~/types/region'
 
 const { user, fetch } = useUserSession()
-const { fetchUser } = useAuth()
 
 const { t, locale } = useI18n()
 const toast = useToast()
@@ -194,7 +193,6 @@ const onSubmit = handleSubmit(async (values) => {
       if (!response.ok) {
         return
       }
-      await fetchUser()
       await fetch()
       toast.add({
         title: t('pages.account.settings.form.success'),

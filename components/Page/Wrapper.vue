@@ -5,7 +5,13 @@ defineSlots<{
 </script>
 
 <template>
-  <div class="wrapper relative mb-12 mt-4 min-h-[calc(100vh-25rem)]">
+  <div
+    class="
+      wrapper relative mb-6 mt-2 min-h-[calc(100vh-25rem)]
+
+      md:mb-12 md:mt-4
+    "
+  >
     <slot />
   </div>
 </template>

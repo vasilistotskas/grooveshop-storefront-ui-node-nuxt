@@ -1,11 +1,7 @@
 <script lang="ts" setup>
 setupPageHeader()
 setupCursorStates()
-
-const { getSession } = useAllAuthAuthentication()
-await callOnce(async () => {
-  await getSession()
-})
+await setupSession()
 
 const config = useRuntimeConfig()
 const { locales } = useI18n()

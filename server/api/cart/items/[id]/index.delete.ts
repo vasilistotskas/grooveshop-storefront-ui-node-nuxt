@@ -4,7 +4,7 @@ import { ZodCartItemParams } from '~/types/cart/cart-item'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(event, ZodCartItemParams.parse)
     const response = await $fetch(

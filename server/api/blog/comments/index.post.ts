@@ -2,7 +2,7 @@ import { ZodBlogComment, ZodBlogCommentCreateBody, ZodBlogCommentCreateQuery } f
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodBlogCommentCreateBody.parse)
     const query = await getValidatedQuery(event, ZodBlogCommentCreateQuery.parse)

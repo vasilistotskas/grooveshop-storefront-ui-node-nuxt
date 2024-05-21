@@ -2,7 +2,7 @@ import { ZodCart } from '~/types/cart/cart'
 
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const response = await $fetch(`${config.public.apiBaseUrl}/cart`, {
       method: 'GET',

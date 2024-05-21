@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { AuthenticatedRoutePrefixes } from '~/constants'
 import type { DropdownItem } from '#ui/types'
 
 const userStore = useUserStore()
@@ -15,11 +14,7 @@ const route = useRoute()
 const localePath = useLocalePath()
 
 const onClickLogout = async () => {
-  const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
-    route.path.startsWith(prefix),
-  )
-
-  if (isRouteProtected)
+  if (isRouteProtected(route.path))
     await navigateTo('/')
 
   await Promise.all([

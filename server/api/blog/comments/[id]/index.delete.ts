@@ -4,7 +4,7 @@ import { ZodBlogCommentParams } from '~/types/blog/comment'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,

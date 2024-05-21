@@ -9,12 +9,9 @@ export default defineEventHandler(async (event) => {
       headers,
     })
     await clearUserSession(event)
-    await clearAllAuthSession()
     return await parseDataAs(response, z.any())
   }
   catch (error) {
-    await clearUserSession(event)
-    await clearAllAuthSession()
     await handleAllAuthError(error)
   }
 })

@@ -3,7 +3,7 @@ import { ZodChangeUserNameBody, ZodChangeUserNameResponse, ZodUserAccountParams 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await getUserSession(event)
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodChangeUserNameBody.parse)
     const params = await getValidatedRouterParams(
@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
+    const data = await parseDataAs(response, ZodChangeUserNameResponse)
     await setUserSession(event, {
       user: {
         ...session?.user,
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return await parseDataAs(response, ZodChangeUserNameResponse)
+    return data
   }
   catch (error) {
     await handleError(error)

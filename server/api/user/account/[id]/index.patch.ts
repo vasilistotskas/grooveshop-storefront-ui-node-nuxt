@@ -2,7 +2,7 @@ import { ZodUserAccount, ZodUserAccountParams } from '~/types/user/account'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const form = await readFormData(event)
     const params = await getValidatedRouterParams(
@@ -19,7 +19,13 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, ZodUserAccount)
+
+    const userResponse = await parseDataAs(response, ZodUserAccount)
+    await setUserSession(event, {
+      user: userResponse,
+    })
+
+    return userResponse
   }
   catch (error) {
     await handleError(error)

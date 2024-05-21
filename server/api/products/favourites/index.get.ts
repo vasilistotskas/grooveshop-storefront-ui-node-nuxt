@@ -3,7 +3,7 @@ import { ZodProductFavourite, ZodProductFavouriteQuery } from '~/types/product/f
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const query = await getValidatedQuery(event, ZodProductFavouriteQuery.parse)
     const url = buildFullUrl(

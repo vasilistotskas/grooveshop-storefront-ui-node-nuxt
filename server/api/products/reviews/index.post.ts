@@ -2,7 +2,7 @@ import { ZodProductReview, ZodProductReviewCreateBody, ZodProductReviewCreateQue
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodProductReviewCreateBody.parse)
     const query = await getValidatedQuery(
