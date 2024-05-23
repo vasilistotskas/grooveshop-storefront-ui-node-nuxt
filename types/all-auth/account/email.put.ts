@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const ZodEmailPutResponse = z.object({
-  status: z.number(),
+  status: z.literal(200),
 })
 
 export const ZodEmailPutBody = z.object({

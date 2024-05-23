@@ -42,7 +42,10 @@ const { statusClass } = useOrder()
           :item="item"
         />
       </div>
-      <div v-if="order.orderItemOrder.length > maxItems" class="grid">
+      <div
+        v-if="order.orderItemOrder.length > maxItems"
+        class="grid"
+      >
         <span
           v-if="order.orderItemOrder.length - maxItems === 1"
           class="
@@ -54,7 +57,8 @@ const { statusClass } = useOrder()
           {{ $t('components.order.card.extra_one') }}
         </span>
         <span
-          v-else class="
+          v-else
+          class="
             text-primary-950 text-xs
 
             dark:text-primary-50

@@ -142,7 +142,7 @@ const uploadImage = async (event: Event) => {
         provider="mediaStream"
         class="user-avatar-img bg-primary-100 rounded-full"
         :class="{
-          'filter blur-sm': loading,
+          'blur-sm filter': loading,
         }"
         :style="{ objectFit: 'contain' }"
         :width="imgWidth"
@@ -166,7 +166,10 @@ const uploadImage = async (event: Event) => {
         :title="$t('components.user.avatar.change')"
         @submit.prevent="uploadImage"
       >
-        <label for="image" class="user-avatar-change-label">
+        <label
+          for="image"
+          class="user-avatar-change-label"
+        >
           <svg
             id="camera"
             class="hide-small-viewport hide-medium-viewport"
@@ -222,12 +225,18 @@ const uploadImage = async (event: Event) => {
           :disabled="loading"
           @change="uploadImage"
         >
-        <button type="submit" class="sr-only">
+        <button
+          type="submit"
+          class="sr-only"
+        >
           {{ $t('common.upload') }}
         </button>
       </form>
     </div>
-    <div v-if="showName" class="flex flex-col">
+    <div
+      v-if="showName"
+      class="flex flex-col"
+    >
       <span
         class="
           text-primary-950 font-bold

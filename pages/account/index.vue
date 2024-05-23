@@ -22,7 +22,9 @@ definePageMeta({
     <PageBody>
       <MobileOrTabletOnly>
         <ul
-          role="tablist" :aria-label="$t('common.menu')" class="
+          role="tablist"
+          :aria-label="$t('common.menu')"
+          class="
             grid grid-cols-2 gap-3
 
             lg:grid-cols-3
@@ -46,7 +48,8 @@ definePageMeta({
               :text="item.text"
             >
               <Component
-                :is="item.icon" class="
+                :is="item.icon"
+                class="
                   text-2xl
 
                   md:text-xl
@@ -77,7 +80,12 @@ definePageMeta({
               dark:bg-primary-900 dark:border-primary-500
             "
           >
-            <LogoutButton class="!m-0 ml-2 !p-0" variant="link" color="white" size="xl" />
+            <LogoutButton
+              class="!m-0 ml-2 !p-0"
+              variant="link"
+              color="white"
+              size="xl"
+            />
           </li>
         </ul>
       </MobileOrTabletOnly>

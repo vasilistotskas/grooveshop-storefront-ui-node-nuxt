@@ -111,7 +111,11 @@ const changeUserName = async () => {
           size="sm"
           variant="none"
           color="primary"
-          :class="!userNameEditing ? 'text-primary-950 text-2xl dark:text-primary-50' : ''"
+          :class="!userNameEditing ? `
+            text-primary-950 text-2xl
+
+            dark:text-primary-50
+          ` : ''"
           class="font-bold"
           :ui="{
             size: {
@@ -125,17 +129,22 @@ const changeUserName = async () => {
         />
       </div>
       <div
-        v-if="ordersCount || productFavouritesCount || productReviewsCount" class="
-          user-info-stats
-        "
+        v-if="ordersCount || productFavouritesCount || productReviewsCount"
+        class="user-info-stats"
       >
-        <div v-if="ordersCount" class="user-info-stats-item">
+        <div
+          v-if="ordersCount"
+          class="user-info-stats-item"
+        >
           <Anchor
             class="user-info-stats-item-link"
             :to="`/account/orders`"
             :title="$t('pages.account.orders.title')"
           >
-            <UIcon name="i-heroicons-cube" class="h-6 w-6" />
+            <UIcon
+              name="i-heroicons-cube"
+              class="h-6 w-6"
+            />
             <span
               class="
                 text-primary-950
@@ -155,13 +164,19 @@ const changeUserName = async () => {
             >{{ ordersCount }}</span>
           </Anchor>
         </div>
-        <div v-if="productFavouritesCount" class="user-info-stats-item">
+        <div
+          v-if="productFavouritesCount"
+          class="user-info-stats-item"
+        >
           <Anchor
             class="user-info-stats-item-link"
             :to="`/account/favourites/products`"
             :title="$t('pages.account.favourites.products.title')"
           >
-            <UIcon name="i-heroicons-heart" class="h-6 w-6" />
+            <UIcon
+              name="i-heroicons-heart"
+              class="h-6 w-6"
+            />
             <span
               class="
                 text-primary-950
@@ -180,13 +195,19 @@ const changeUserName = async () => {
             >{{ productFavouritesCount }}</span>
           </Anchor>
         </div>
-        <div v-if="productReviewsCount" class="user-info-stats-item">
+        <div
+          v-if="productReviewsCount"
+          class="user-info-stats-item"
+        >
           <Anchor
             class="user-info-stats-item-link"
             :to="`/account/reviews`"
             :title="$t('pages.account.reviews.title')"
           >
-            <UIcon name="i-heroicons-star" class="h-6 w-6" />
+            <UIcon
+              name="i-heroicons-star"
+              class="h-6 w-6"
+            />
             <span
               class="
                 text-primary-950

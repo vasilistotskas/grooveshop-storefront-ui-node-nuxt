@@ -268,7 +268,10 @@ const packageVersion = pkg.version
                 sm:justify-center
               "
             >
-              <Socials :icon-class="'text-xl'" :button-size="'sm'" />
+              <Socials
+                :icon-class="'text-xl'"
+                :button-size="'sm'"
+              />
             </div>
             <span
               class="

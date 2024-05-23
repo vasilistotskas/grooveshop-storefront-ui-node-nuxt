@@ -20,7 +20,10 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper v-if="order" class="grid gap-4">
+  <PageWrapper
+    v-if="order"
+    class="grid gap-4"
+  >
     <div
       class="
         grid items-center

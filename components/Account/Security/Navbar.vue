@@ -7,8 +7,14 @@
       lg:px-0 lg:shadow-none
     "
   >
-    <ul role="tablist" class="flex snap-x gap-4 overflow-x-auto">
-      <li role="tab" class="shrink-0">
+    <ul
+      role="tablist"
+      class="flex snap-x gap-4 overflow-x-auto"
+    >
+      <li
+        role="tab"
+        class="shrink-0"
+      >
         <Anchor
           :to="`/account/security/password`"
           :aria-label="$t('pages.account.security.password.title')"
@@ -28,7 +34,10 @@
           </span>
         </Anchor>
       </li>
-      <li role="tab" class="shrink-0">
+      <li
+        role="tab"
+        class="shrink-0"
+      >
         <Anchor
           :to="`/account/security/mfa`"
           :aria-label="$t('pages.account.security.mfa.title')"

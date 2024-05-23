@@ -1,16 +1,15 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-
-import type { PasswordChangeBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
+import type { PasswordChangeBody } from '~/types/all-auth'
 
-const { passwordChange } = useAuth()
+const { changePassword } = useAllAuthAccount()
 
 const { t } = useI18n()
 const toast = useToast()
 
 function onSubmit(values: PasswordChangeBody) {
-  passwordChange(values)
+  changePassword(values)
     .then(async () => {
       toast.add({
         title: t('components.account.security.password.change.form.success.title'),
@@ -19,17 +18,8 @@ function onSubmit(values: PasswordChangeBody) {
       await navigateTo('/account')
     })
     .catch((error) => {
-      const newPassword1Error = error.value.data?.data?.newPassword1 as string[]
-      const newPassword2Error = error.value.data?.data?.newPassword2 as string[]
-
-      const toastTitle
-        = newPassword1Error?.join(' ')
-        ?? newPassword2Error?.join(' ')
-        ?? error.value?.message
-        ?? t('components.account.security.password.change.form.error.title')
-
       toast.add({
-        title: toastTitle,
+        title: error,
         color: 'red',
       })
     })
@@ -39,45 +29,45 @@ const formSchema: DynamicFormSchema = {
   fields: [
     {
       label: t(
-        'components.account.security.password.change.form.newPassword1.label',
+        'components.account.security.password.change.form.current_password.label',
       ),
-      name: 'newPassword1',
+      name: 'current_password',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
-      autocomplete: 'new-password',
+      autocomplete: 'current-password',
       readonly: false,
       required: true,
       placeholder: t(
-        'components.account.security.password.change.form.newPassword1.placeholder',
+        'components.account.security.password.change.form.current_password.placeholder',
       ),
       type: 'password',
     },
     {
       label: t(
-        'components.account.security.password.change.form.newPassword2.label',
+        'components.account.security.password.change.form.new_password.label',
       ),
-      name: 'newPassword2',
+      name: 'new_password',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
       placeholder: t(
-        'components.account.security.password.change.form.newPassword2.placeholder',
+        'components.account.security.password.change.form.new_password.placeholder',
       ),
       type: 'password',
     },
   ],
   extraValidation: z
     .object({
-      newPassword1: z.string({ required_error: t('common.validation.required') }),
-      newPassword2: z.string({ required_error: t('common.validation.required') }),
+      current_password: z.string({ required_error: t('common.validation.required') }),
+      new_password: z.string({ required_error: t('common.validation.required') }),
     })
-    .refine(data => data.newPassword1 === data.newPassword2, {
+    .refine(data => data.current_password !== data.new_password, {
       message: t(
-        'components.account.security.password.change.form.password2.validation.mismatch',
+        'components.account.security.password.change.form.error.same_password',
       ),
-      path: ['newPassword2'],
+      path: ['new_password'],
     }),
 }
 </script>
@@ -92,6 +82,10 @@ const formSchema: DynamicFormSchema = {
       md:px-6
     "
   >
-    <DynamicForm :schema="formSchema" :button-label="t('common.change.title')" @submit="onSubmit" />
+    <DynamicForm
+      :button-label="t('common.change.title')"
+      :schema="formSchema"
+      @submit="onSubmit"
+    />
   </section>
 </template>

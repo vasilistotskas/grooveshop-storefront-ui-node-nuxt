@@ -145,25 +145,43 @@ definePageMeta({
               {{ $t('pages.checkout.success.order.summary') }}
             </h2>
 
-            <table v-if="orderItems" class="min-w-full table-auto text-center">
+            <table
+              v-if="orderItems"
+              class="min-w-full table-auto text-center"
+            >
               <thead>
                 <tr>
-                  <th scope="col" class="px-4 py-2">
+                  <th
+                    scope="col"
+                    class="px-4 py-2"
+                  >
                     {{ $t('pages.checkout.success.image') }}
                   </th>
-                  <th scope="col" class="px-4 py-2">
+                  <th
+                    scope="col"
+                    class="px-4 py-2"
+                  >
                     {{ $t('pages.checkout.success.product') }}
                   </th>
-                  <th scope="col" class="px-4 py-2">
+                  <th
+                    scope="col"
+                    class="px-4 py-2"
+                  >
                     {{ $t('pages.checkout.success.quantity') }}
                   </th>
-                  <th scope="col" class="px-4 py-2">
+                  <th
+                    scope="col"
+                    class="px-4 py-2"
+                  >
                     {{ $t('pages.checkout.success.price') }}
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in orderItems" :key="index">
+                <tr
+                  v-for="(item, index) in orderItems"
+                  :key="index"
+                >
                   <td class="border px-4 py-2">
                     <ImgWithFallback
                       loading="lazy"
@@ -195,7 +213,10 @@ definePageMeta({
                   <td class="border px-4 py-2">
                     {{ item.quantity }}
                   </td>
-                  <td v-if="item.totalPrice" class="border px-4 py-2">
+                  <td
+                    v-if="item.totalPrice"
+                    class="border px-4 py-2"
+                  >
                     <I18nN
                       tag="span"
                       format="currency"
@@ -224,7 +245,11 @@ definePageMeta({
                 "
               >
                 {{ $t('pages.checkout.success.shippingPrice') }}:
-                <I18nN tag="span" format="currency" :value="shippingPrice" />
+                <I18nN
+                  tag="span"
+                  format="currency"
+                  :value="shippingPrice"
+                />
               </p>
               <p
                 v-if="totalPriceItems"
@@ -235,7 +260,11 @@ definePageMeta({
                 "
               >
                 {{ $t('pages.checkout.success.totalPriceItems') }}:
-                <I18nN tag="span" format="currency" :value="totalPriceItems" />
+                <I18nN
+                  tag="span"
+                  format="currency"
+                  :value="totalPriceItems"
+                />
               </p>
               <p
                 v-if="totalPriceExtra"
@@ -246,7 +275,11 @@ definePageMeta({
                 "
               >
                 {{ $t('pages.checkout.success.totalPriceExtra') }}:
-                <I18nN tag="span" format="currency" :value="totalPriceExtra" />
+                <I18nN
+                  tag="span"
+                  format="currency"
+                  :value="totalPriceExtra"
+                />
               </p>
               <p
                 v-if="payWayPrice"
@@ -257,7 +290,11 @@ definePageMeta({
                 "
               >
                 {{ $t('pages.checkout.success.payWayPrice') }}:
-                <I18nN tag="span" format="currency" :value="payWayPrice" />
+                <I18nN
+                  tag="span"
+                  format="currency"
+                  :value="payWayPrice"
+                />
               </p>
             </div>
             <p
@@ -269,7 +306,11 @@ definePageMeta({
               "
             >
               {{ $t('pages.checkout.success.total') }}:
-              <I18nN tag="span" format="currency" :value="paidAmount" />
+              <I18nN
+                tag="span"
+                format="currency"
+                :value="paidAmount"
+              />
             </p>
           </div>
           <UButton

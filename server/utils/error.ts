@@ -1,26 +1,22 @@
 import { ZodError } from 'zod'
 import { FetchError } from 'ofetch'
 import { H3Error } from 'h3'
-import type { BadResponse, InvalidSessionResponse, NotAuthenticatedResponse } from '~/types/all-auth'
+import type { AllAuthError, BadResponse, InvalidSessionResponse, NotAuthenticatedResponse } from '~/types/all-auth'
 import { ZodBadResponse, ZodInvalidSessionResponse, ZodNotAuthenticatedResponse } from '~/types/all-auth'
 
-type isAllAuthError = {
-  data: BadResponse | NotAuthenticatedResponse | InvalidSessionResponse
-}
-
-function isBadResponseError(error: any): error is { data: BadResponse } {
+export function isBadResponseError(error: any): error is { data: BadResponse } {
   return ZodBadResponse.safeParse(error.data).success
 }
 
-function isNotAuthenticatedResponseError(error: any): error is { data: NotAuthenticatedResponse } {
+export function isNotAuthenticatedResponseError(error: any): error is { data: NotAuthenticatedResponse } {
   return ZodNotAuthenticatedResponse.safeParse(error.data).success
 }
 
-function isInvalidSessionResponseError(error: any): error is { data: InvalidSessionResponse } {
+export function isInvalidSessionResponseError(error: any): error is { data: InvalidSessionResponse } {
   return ZodInvalidSessionResponse.safeParse(error.data).success
 }
 
-export function isAllAuthError(error: unknown): error is isAllAuthError {
+export function isAllAuthError(error: unknown): error is AllAuthError {
   if (typeof error !== 'object' || error === null || !('data' in error)) {
     return false
   }
@@ -64,7 +60,7 @@ export async function handleAllAuthError(
           accessToken: error.data.meta.access_token,
         })
       }
-      await allAuthHooks.callHookParallel('authChange', error.data)
+      await allAuthHooks.callHookParallel('authChange', { detail: error.data })
     }
   }
   else {

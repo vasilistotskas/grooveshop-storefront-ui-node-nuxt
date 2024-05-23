@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const ZodTotpDeleteResponse = z.object({
-  status: z.number(),
+  status: z.literal(200),
 })
 
 export type TotpDeleteResponse = z.infer<typeof ZodTotpDeleteResponse>

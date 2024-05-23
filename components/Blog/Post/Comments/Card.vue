@@ -357,8 +357,16 @@ watch(
         <span
           :class="
             isLineHovered
-              ? 'bg-primary-600 dark:bg-primary-300'
-              : 'bg-primary-300 dark:bg-primary-600'
+              ? `
+                bg-primary-600
+
+                dark:bg-primary-300
+              `
+              : `
+                bg-primary-300
+
+                dark:bg-primary-600
+              `
           "
           class="h-full w-[1px]"
         />
@@ -451,15 +459,21 @@ watch(
         </span>
       </span>
 
-      <span :id="`comment-children-${comment.id}`" class="contents">
-        <template v-for="reply in allReplies" :key="reply.id">
+      <span
+        :id="`comment-children-${comment.id}`"
+        class="contents"
+      >
+        <template
+          v-for="reply in allReplies"
+          :key="reply.id"
+        >
           <span
             v-show="hasReplies && (showReplies || !repliesFetched)"
             :aria-expanded="showReplies"
             :aria-hidden="!showReplies"
             :class="{
               'threadline-hovered': isLineHovered,
-              'dark:bg-primary-900 bg-primary-100 z-20':
+              'bg-primary-100 z-20 dark:bg-primary-900':
                 !showReplies
                 || allReplies[allReplies.length - 1].id === reply.id,
             }"
@@ -495,7 +509,7 @@ watch(
           :aria-hidden="!showReplies"
           :class="{
             'threadline-hovered': isLineHovered,
-            'dark:bg-primary-900 bg-primary-100 z-20': !showReplies || pending,
+            'bg-primary-100 z-20 dark:bg-primary-900': !showReplies || pending,
           }"
           class="threadline-two align-start relative flex justify-end"
         >
@@ -517,7 +531,10 @@ watch(
             "
           />
         </span>
-        <span v-if="hasReplies && !repliesFetched" class="ml-px inline-block">
+        <span
+          v-if="hasReplies && !repliesFetched"
+          class="ml-px inline-block"
+        >
           <UButton
             class="z-20"
             size="sm"

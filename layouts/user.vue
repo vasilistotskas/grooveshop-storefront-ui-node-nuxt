@@ -130,7 +130,15 @@ const Footer = computed(() => {
             >
               <div
                 :class="[
-                  'relative mx-auto flex h-full flex-1 flex-col md:w-full lg:flex-row lg:gap-8 xl:gap-0',
+                  `
+                    relative mx-auto flex h-full flex-1 flex-col
+
+                    lg:flex-row lg:gap-8
+
+                    md:w-full
+
+                    xl:gap-0
+                  `,
                 ]"
               >
                 <DesktopOnly>

@@ -116,7 +116,11 @@ definePageMeta({
       <template v-if="pending">
         <div class="grid w-full items-start gap-4">
           <div class="flex w-full items-center justify-center">
-            <ClientOnlyFallback class="w-full" height="20px" width="100%" />
+            <ClientOnlyFallback
+              class="w-full"
+              height="20px"
+              width="100%"
+            />
           </div>
           <div
             class="

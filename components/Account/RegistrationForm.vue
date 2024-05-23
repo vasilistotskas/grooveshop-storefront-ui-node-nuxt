@@ -9,26 +9,26 @@ const localePath = useLocalePath()
 
 const loading = ref(false)
 
-const ZodRegistration = z
+const ZodSignup = z
   .object({
     email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
     password: z.string({ required_error: t('common.validation.required') }).min(8, {
-      message: t('pages.account.registration.form.password1.validation.min', {
+      message: t('pages.account.signup.form.password1.validation.min', {
         min: 8,
       }),
     }),
     password2: z.string({ required_error: t('common.validation.required') }).min(8, {
-      message: t('pages.account.registration.form.password2.validation.min', {
+      message: t('pages.account.signup.form.password2.validation.min', {
         min: 8,
       }),
     }),
   })
   .refine(data => data.password === data.password2, {
-    message: t('pages.account.registration.form.password2.validation.match'),
+    message: t('pages.account.signup.form.password2.validation.match'),
     path: ['password2'],
   })
 
-const validationSchema = toTypedSchema(ZodRegistration)
+const validationSchema = toTypedSchema(ZodSignup)
 
 const { defineField, handleSubmit, errors, submitCount } = useForm({
   validationSchema,
@@ -56,20 +56,20 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     await signup({ email: values.email, password: values.password })
     toast.add({
-      title: t('common.auth.registration.success'),
+      title: t('common.auth.signup.success'),
       color: 'green',
     })
   }
   catch (error) {
-    handleRegistrationError(error)
+    handleSignupError(error)
   }
   finally {
     loading.value = false
   }
 })
 
-function handleRegistrationError(error: any) {
-  const defaultErrorMessage = t('pages.account.registration.account-confirm-email.resend.error.title')
+function handleSignupError(error: any) {
+  const defaultErrorMessage = t('pages.account.signup.account-confirm-email.resend.error.title')
   if (!isErrorWithNestedData(error)) {
     throw error
   }
@@ -79,7 +79,7 @@ function handleRegistrationError(error: any) {
     for (const flow of data.flows) {
       if (flow.id === 'verify_email' && flow.is_pending) {
         toast.add({
-          description: t(`common.auth.registration.error.${flow.id}`),
+          description: t(`common.auth.signup.error.${flow.id}`),
           color: 'red',
         })
         return
@@ -99,7 +99,7 @@ const submitButtonLabel = computed(() => {
   }
 
   return !loading.value
-    ? t('pages.account.registration.form.submit')
+    ? t('pages.account.signup.form.submit')
     : t('common.loading')
 })
 </script>
@@ -107,13 +107,13 @@ const submitButtonLabel = computed(() => {
 <template>
   <section class="grid">
     <form
-      id="RegistrationForm"
+      id="SignupForm"
       class="
         container-3xs
 
         md:px-6
       "
-      name="RegistrationForm"
+      name="SignupForm"
       @submit.prevent="onSubmit"
     >
       <div
@@ -135,18 +135,19 @@ const submitButtonLabel = computed(() => {
                 text-primary-950
 
                 dark:text-primary-50
-              " for="email"
+              "
+              for="email"
             >{{
-              $t('pages.account.registration.form.email.label')
+              $t('pages.account.signup.form.email.label')
             }}</label>
             <FormTextInput
               id="email"
               v-model="email"
               :bind="emailProps"
+              :required="true"
+              autocomplete="email"
               name="email"
               type="email"
-              autocomplete="email"
-              :required="true"
             />
             <span
               v-if="errors.email"
@@ -161,26 +162,26 @@ const submitButtonLabel = computed(() => {
                 dark:text-primary-50
               "
               for="password"
-            >{{ $t('pages.account.registration.form.password1.label') }}</label>
+            >{{ $t('pages.account.signup.form.password1.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password"
                 v-model="password"
                 :bind="passwordProps"
-                name="password"
+                :required="true"
                 :type="showPassword1 ? 'text' : 'password'"
                 autocomplete="current-password"
-                :required="true"
+                name="password"
               />
               <UButton
-                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
-                type="button"
-                color="primary"
-                variant="ghost"
+                :aria-label="$t('pages.account.signup.form.password1.show')"
                 :icon="
                   showPassword1 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
-                :aria-label="$t('pages.account.registration.form.password1.show')"
+                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
+                color="primary"
+                type="button"
+                variant="ghost"
                 @click="showPassword1 = !showPassword1"
               />
             </div>
@@ -198,26 +199,26 @@ const submitButtonLabel = computed(() => {
                 dark:text-primary-50
               "
               for="password2"
-            >{{ $t('pages.account.registration.form.password2.label') }}</label>
+            >{{ $t('pages.account.signup.form.password2.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password2"
                 v-model="password2"
                 :bind="password2Props"
-                name="password2"
+                :required="true"
                 :type="showPassword2 ? 'text' : 'password'"
                 autocomplete="current-password"
-                :required="true"
+                name="password2"
               />
               <UButton
-                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
-                type="button"
-                color="primary"
-                variant="ghost"
+                :aria-label="$t('pages.account.signup.form.password2.show')"
                 :icon="
                   showPassword2 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
-                :aria-label="$t('pages.account.registration.form.password2.show')"
+                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
+                color="primary"
+                type="button"
+                variant="ghost"
                 @click="showPassword2 = !showPassword2"
               />
             </div>
@@ -228,16 +229,16 @@ const submitButtonLabel = computed(() => {
           </div>
 
           <UButton
-            size="xl"
-            type="submit"
-            color="primary"
-            variant="soft"
-            :disabled="loading || submitCount > 5"
             :aria-busy="loading"
+            :disabled="loading || submitCount > 5"
             :label="
               submitButtonLabel"
             :loading="loading"
             block
+            color="primary"
+            size="xl"
+            type="submit"
+            variant="soft"
           />
 
           <div class="flex items-center justify-end gap-2">
@@ -248,15 +249,15 @@ const submitButtonLabel = computed(() => {
                 dark:text-primary-50
               "
             >{{
-              $t('pages.account.registration.form.already_have_account')
+              $t('pages.account.signup.form.already_have_account')
             }}</span>
             <UButton
-              size="lg"
-              type="submit"
-              color="opposite"
-              variant="link"
               :label="$t('pages.account.login.title')"
               :to="localePath('/account/login')"
+              color="opposite"
+              size="lg"
+              type="submit"
+              variant="link"
             />
           </div>
         </div>

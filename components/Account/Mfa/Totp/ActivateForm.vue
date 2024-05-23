@@ -14,7 +14,7 @@ function onSubmit(values: MfaTotpActivatePostBody) {
     .then(async () => {
       toast.add({
         title: t('pages.account.security.mfa.totp.activate.success'),
-        color: 'green'
+        color: 'green',
       })
       await fetch()
       await navigateTo('/account')
@@ -22,7 +22,7 @@ function onSubmit(values: MfaTotpActivatePostBody) {
     .catch(() => {
       toast.add({
         title: t('pages.account.security.mfa.totp.activate.error'),
-        color: 'red'
+        color: 'red',
       })
     })
 }
@@ -38,14 +38,19 @@ const formSchema: DynamicFormSchema = {
       readonly: false,
       required: true,
       placeholder: '123456',
-      type: 'text'
-    }
-  ]
+      type: 'text',
+    },
+  ],
 }
 </script>
 
 <template>
   <section class="grid items-center justify-center justify-items-center">
-    <DynamicForm :schema="formSchema" class="grid" :button-label="t('common.entry')" @submit="onSubmit" />
+    <DynamicForm
+      :schema="formSchema"
+      class="grid"
+      :button-label="t('common.entry')"
+      @submit="onSubmit"
+    />
   </section>
 </template>

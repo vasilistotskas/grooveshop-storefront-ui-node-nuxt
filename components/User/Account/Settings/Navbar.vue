@@ -5,8 +5,14 @@
       shadow-none
     "
   >
-    <ul role="tablist" class="flex snap-x gap-4 overflow-x-auto">
-      <li role="tab" class="shrink-0">
+    <ul
+      role="tablist"
+      class="flex snap-x gap-4 overflow-x-auto"
+    >
+      <li
+        role="tab"
+        class="shrink-0"
+      >
         <Anchor
           :to="`/account/settings`"
           :aria-label="$t('pages.account.settings.title')"
@@ -26,7 +32,10 @@
           </span>
         </Anchor>
       </li>
-      <li role="tab" class="shrink-0">
+      <li
+        role="tab"
+        class="shrink-0"
+      >
         <Anchor
           :to="`/account/addresses`"
           :aria-label="$t('pages.account.addresses.title')"

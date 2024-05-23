@@ -1,4 +1,6 @@
 export * from './defaults'
+export * from './response'
+export * from './error'
 export * from './config'
 export * from './auth'
 export * from './account'

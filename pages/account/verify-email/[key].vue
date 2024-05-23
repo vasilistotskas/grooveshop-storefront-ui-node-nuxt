@@ -17,38 +17,38 @@ definePageMeta({
 <template>
   <PageWrapper class="container-2xs grid gap-12">
     <PageTitle
-      :text="$t('pages.account.registration.account-confirm-email.title')"
+      :text="$t('pages.account.signup.account-confirm-email.title')"
       class="text-center capitalize"
     />
     <PageBody>
       <ClientOnly>
         <LazyAlert
           v-if="!getVerifyEmailError"
-          :title="`${$t('pages.account.registration.account-confirm-email.success.title')}`"
+          :close-button="false"
           :text="
             $t(
-              'pages.account.registration.account-confirm-email.success.description',
+              'pages.account.signup.account-confirm-email.success.description',
             )
           "
+          :title="`${$t('pages.account.signup.account-confirm-email.success.title')}`"
           :type="`success`"
-          :close-button="false"
         />
         <LazyAlert
           v-else
-          :title="`${$t('pages.account.registration.account-confirm-email.error.title')}`"
+          :close-button="false"
           :text="
             $t(
-              'pages.account.registration.account-confirm-email.error.description',
+              'pages.account.signup.account-confirm-email.error.description',
             )
           "
+          :title="`${$t('pages.account.signup.account-confirm-email.error.title')}`"
           :type="`danger`"
-          :close-button="false"
         />
         <template #fallback>
           <ClientOnlyFallback
-            height="130.8px"
-            :text="$t('pages.account.registration.account-confirm-email.loading')"
+            :text="$t('pages.account.signup.account-confirm-email.loading')"
             :text-visibility="`visible`"
+            height="130.8px"
           />
         </template>
       </ClientOnly>
@@ -56,12 +56,12 @@ definePageMeta({
       <div class="flex justify-center">
         <UButton
           v-if="!getVerifyEmailError"
-          color="primary"
-          size="sm"
           :label="
-            $t('pages.account.registration.account-confirm-email.success.button')
+            $t('pages.account.signup.account-confirm-email.success.button')
           "
           :to="`/account/login`"
+          color="primary"
+          size="sm"
         />
       </div>
     </PageBody>

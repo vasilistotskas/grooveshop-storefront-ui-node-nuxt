@@ -199,7 +199,10 @@ const items = [
                     class="cart-items-count"
                     :data-count="getCartTotalItems"
                   />
-                  <span v-if="pending.cart" class="cart-items-count" />
+                  <span
+                    v-if="pending.cart"
+                    class="cart-items-count"
+                  />
 
                   <template #fallback>
                     <span class="cart-items-count" />

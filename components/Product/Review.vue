@@ -532,7 +532,12 @@ watch(
           <span class="review_body-rating-error h-6">{{ errors.comment }}</span>
         </div>
 
-        <input v-model="rate" type="hidden" v-bind="rateProps" name="rate">
+        <input
+          v-model="rate"
+          type="hidden"
+          v-bind="rateProps"
+          name="rate"
+        >
       </div>
     </template>
     <template #footer>
@@ -556,7 +561,10 @@ watch(
             disabled
           />
         </div>
-        <div v-if="userProductReview" class="review_footer-content">
+        <div
+          v-if="userProductReview"
+          class="review_footer-content"
+        >
           <UButton
             block
             :label="$t('components.product.review.delete_review')"

@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-const { recoveryCodesGenerate } = useAuthMfa()
+const { generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 
 function onSubmit() {
-  recoveryCodesGenerate({})
+  generateRecoveryCodes()
     .then(async () => {
       toast.add({
         title: t('pages.account.security.mfa.recovery.codes.generate.success'),
@@ -34,8 +34,8 @@ function onSubmit() {
         :label="
           $t('pages.account.security.mfa.recovery.codes.generate.form.button')
         "
-        size="xl"
         color="primary"
+        size="xl"
         @click="onSubmit"
       />
     </section>

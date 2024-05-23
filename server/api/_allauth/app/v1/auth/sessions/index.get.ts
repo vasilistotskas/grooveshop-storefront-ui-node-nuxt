@@ -8,9 +8,7 @@ export default defineEventHandler(async () => {
       method: 'GET',
       headers,
     })
-    const sessionResponse = await parseDataAs(response, ZodSessionsGetResponse)
-    await processAllAuthSession(sessionResponse)
-    return sessionResponse
+    return await parseDataAs(response, ZodSessionsGetResponse)
   }
   catch (error) {
     await handleAllAuthError(error)

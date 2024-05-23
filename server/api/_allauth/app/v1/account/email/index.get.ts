@@ -1,6 +1,6 @@
 import { ZodEmailGetResponse } from '~/types/all-auth'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders()

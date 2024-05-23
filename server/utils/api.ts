@@ -1,14 +1,5 @@
 import type { QueryObject } from 'ufo'
-
-type AllAuthResponse = {
-  status: number
-  data?: Record<string, any>
-  meta?: {
-    session_token?: string
-    access_token?: string
-    is_authenticated?: boolean
-  }
-}
+import type { AllAuthResponse } from '~/types/all-auth'
 
 export function buildFullUrl(url: string, query: QueryObject): string {
   const valuesToExclude: (QueryObject[keyof QueryObject] | undefined)[] = [
@@ -49,17 +40,19 @@ export function createAuthenticationHeaders(sessionToken?: string | null, sessio
 export async function processAllAuthSession(response: AllAuthResponse) {
   const event = useEvent()
 
-  if (response.meta?.session_token) {
-    appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
-    await setUserSession(event, {
-      sessionToken: response.meta.session_token,
-    })
-  }
-  if (response.meta?.access_token) {
-    appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
-    await setUserSession(event, {
-      accessToken: response.meta.access_token,
-    })
+  if (response.status === 200 && response.meta?.is_authenticated) {
+    if (response.meta?.session_token) {
+      appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
+      await setUserSession(event, {
+        sessionToken: response.meta.session_token,
+      })
+    }
+    if (response.meta?.access_token) {
+      appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
+      await setUserSession(event, {
+        accessToken: response.meta.access_token,
+      })
+    }
   }
 }
 

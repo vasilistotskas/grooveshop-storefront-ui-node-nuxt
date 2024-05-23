@@ -72,15 +72,11 @@ const {
 
 const finalID = id.value ?? useId()
 const currentStep = ref(0)
-const isMultiStep
-  = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
+const isMultiStep = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
 const lastStep = schema.value.steps?.length ? schema.value.steps.length - 1 : 0
 
 // Filter the schema fields based on the current step
-const formFields
-  = (isMultiStep
-    ? schema.value.steps?.[currentStep.value].fields
-    : schema.value.fields) ?? []
+const formFields = (isMultiStep ? schema.value.steps?.[currentStep.value].fields : schema.value.fields) ?? []
 
 // Filter the schema fields based on the condition function
 const filteredFields = formFields.filter((field) => {
@@ -98,9 +94,7 @@ const disabledFields = computed<DisabledFields>(() => {
     return {}
   }
   return formFields.reduce((acc: DisabledFields, field) => {
-    acc[field.name] = field.disabledCondition
-      ? field.disabledCondition(formState.value)
-      : false
+    acc[field.name] = field.disabledCondition ? field.disabledCondition(formState.value) : false
     return acc
   }, {})
 })
@@ -114,9 +108,7 @@ const generatedSchema = z.object(
 )
 
 // Use schema.extraValidation to generate a Zod schema object
-const extraValidationSchema = schema.value.extraValidation
-  ? schema.value.extraValidation
-  : z.object({})
+const extraValidationSchema = schema.value.extraValidation ? schema.value.extraValidation : z.object({})
 
 // Merge the generated Zod schema object with the extraValidationSchema
 const merged = computed(() => {
@@ -127,9 +119,7 @@ const merged = computed(() => {
     return generatedSchema.merge(extraValidationSchema)
   }
 
-  console.warn(
-    'extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject',
-  )
+  console.warn('extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject')
   return generatedSchema
 })
 
@@ -142,7 +132,6 @@ const initialFormValues = formFields.reduce((acc: FormValues, field) => {
   return acc
 }, {})
 
-// Define the form bindings and validation rules using VeeValidate's useForm hook
 const {
   defineField,
   handleSubmit,
@@ -150,7 +139,6 @@ const {
   errors,
   isSubmitting,
   validate,
-  values,
   submitCount,
 } = useForm({
   validationSchema,
@@ -160,12 +148,8 @@ const {
 
 const goToNextStep = async () => {
   const currentStepFields = schema.value.steps?.[currentStep.value].fields ?? []
-  const fieldsToValidate = currentStepFields.map(
-    field => field.name,
-  ) as Partial<ValidationOptions>
-  const isValid = await validate(fieldsToValidate).then(
-    result => result.valid,
-  )
+  const fieldsToValidate = currentStepFields.map(field => field.name) as Partial<ValidationOptions>
+  const isValid = await validate(fieldsToValidate).then(result => result.valid)
   if (isValid) {
     if (currentStep.value < lastStep) {
       currentStep.value++
@@ -199,7 +183,7 @@ const fields = createFields(schemaFieldNames)
 const emit = defineEmits(['submit'])
 
 // Define the submit event handler using handleSubmit function and emit function
-const onSubmit = handleSubmit(() => {
+const onSubmit = handleSubmit((values) => {
   emit('submit', values)
 })
 
@@ -220,9 +204,7 @@ const submitButtonDisabled = computedAsync(async () => {
     .parse(formState.value)
     .then((result) => {
       const liveResultValid = result.errors.length === 0
-      return isSubmitting.value
-        || Object.keys(errors.value).length > 0
-        || disableSubmitUntilValid.value
+      return isSubmitting.value || Object.keys(errors.value).length > 0 || disableSubmitUntilValid.value
         ? !liveResultValid
         : false
     })
@@ -232,11 +214,7 @@ const submitButtonDisabled = computedAsync(async () => {
 }, disableSubmitUntilValid.value)
 
 const nextStepButtonDisabled = computed(() => {
-  return (
-    isSubmitting.value
-    || Object.keys(errors.value).length > 0
-    || disableSubmitUntilValid.value
-  )
+  return isSubmitting.value || Object.keys(errors.value).length > 0 || disableSubmitUntilValid.value
 })
 
 // Watch for changes to the disabledFields object
@@ -260,10 +238,11 @@ formFields.forEach((field) => {
     autocomplete="on"
     @submit="onSubmit"
   >
-    <div v-if="isMultiStep" class="grid items-center justify-center">
-      <span class="text-xl font-semibold">{{
-        schema.steps?.[currentStep].title
-      }}</span>
+    <div
+      v-if="isMultiStep"
+      class="grid items-center justify-center"
+    >
+      <span class="text-xl font-semibold">{{ schema.steps?.[currentStep].title }}</span>
     </div>
 
     <UFormGroup
@@ -286,9 +265,11 @@ formFields.forEach((field) => {
       v-bind="fields[name][1].value"
       class="grid"
     >
-      <label v-if="as === 'input'" :for="name" class="sr-only">{{
-        label
-      }}</label>
+      <label
+        v-if="as === 'input'"
+        :for="name"
+        class="sr-only"
+      >{{ label }}</label>
       <UTextarea
         v-if="as === 'textarea'"
         v-bind="fields[name][1].value"
@@ -300,17 +281,10 @@ formFields.forEach((field) => {
         :aria-readonly="readonly"
         :readonly="readonly"
         :required="required"
-        :placeholder="
-          type === 'text' || type === 'password' || type === 'email'
-            ? placeholder
-            : ''
-        "
+        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :type="type"
         :disabled="disabledFields[name]"
-        :class="{
-          'grid': true,
-          'gap-1': children && children.length > 0,
-        }"
+        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
         color="primary"
       >
         <div v-if="children && children.length > 0">
@@ -328,18 +302,13 @@ formFields.forEach((field) => {
         :aria-readonly="readonly"
         :readonly="readonly"
         :required="required"
-        :placeholder="
-          type === 'text' || type === 'password' || type === 'email'
-            ? placeholder
-            : ''
-        "
+        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :type="type"
         :disabled="disabledFields[name]"
+        :aria-invalid="errors[name] ? 'true' : 'false'"
+        :aria-describedby="errors[name] ? `error-${name}` : undefined"
         color="primary"
-        :class="{
-          'grid': true,
-          'gap-1': children && children.length > 0,
-        }"
+        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
       >
         <div v-if="children && children.length > 0">
           <LazyDynamicFormChildren :children="children" />
@@ -348,12 +317,7 @@ formFields.forEach((field) => {
     </UFormGroup>
 
     <div
-      :class="{
-        'flex': true,
-        'justify-end': buttonsPosition === 'right',
-        'justify-center': buttonsPosition === 'center',
-        'justify-start': buttonsPosition === 'left',
-      }"
+      :class="{ 'flex': true, 'justify-end': buttonsPosition === 'right', 'justify-center': buttonsPosition === 'center', 'justify-start': buttonsPosition === 'left' }"
     >
       <LazyDynamicFormNavigation
         v-if="isMultiStep"

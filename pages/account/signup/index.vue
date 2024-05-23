@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 definePageMeta({
-  layout: 'user',
+  layout: 'default',
+  middleware: 'guest',
 })
 </script>
 
@@ -13,12 +14,11 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.security.mfa.totp.authenticate.title')"
+      :text="$t('pages.account.signup.title')"
       class="text-center capitalize"
     />
-    <AccountSecurityNavbar />
     <PageBody>
-      <AccountMfaTotpAuthenticateForm />
+      <AccountSignupForm />
     </PageBody>
   </PageWrapper>
 </template>

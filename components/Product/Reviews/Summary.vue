@@ -20,7 +20,10 @@ defineProps({
 
 <template>
   <div class="flex items-center justify-center gap-8">
-    <div v-if="reviewsAverage > 0" class="flex items-center gap-1">
+    <div
+      v-if="reviewsAverage > 0"
+      class="flex items-center gap-1"
+    >
       <span
         class="
           text-3xl font-semibold text-secondary

@@ -10,7 +10,7 @@ const ZodSensitiveRecoveryCodesAuthenticator = z.object({
 })
 
 export const ZodRecoveryCodesGetResponse = z.object({
-  status: z.number(),
+  status: z.literal(200),
   data: ZodSensitiveRecoveryCodesAuthenticator,
 })
 

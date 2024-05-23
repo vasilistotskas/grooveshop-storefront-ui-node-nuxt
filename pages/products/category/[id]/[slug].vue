@@ -30,7 +30,10 @@ definePageMeta({
 
 <template>
   <PageWrapper class="flex flex-col">
-    <PageTitle :text="$t('pages.category.title')" class="capitalize" />
+    <PageTitle
+      :text="$t('pages.category.title')"
+      class="capitalize"
+    />
     <PageBody>
       <div v-if="category" />
     </PageBody>

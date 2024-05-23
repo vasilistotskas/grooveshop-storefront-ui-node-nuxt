@@ -9,7 +9,7 @@ common:
       success: Συνδεθείτε με επιτυχία
       error: Σφάλμα σύνδεσης
       loading: Φόρτωση...
-    registration:
+    signup:
       success: Η εγγραφή ολοκληρώθηκε με επιτυχία
       error:
         title: Σφάλμα εγγραφής
@@ -135,6 +135,11 @@ common:
   clear: Καθαρισμός
   menu: Μενού
   title: Τίτλος
+  created_at: Ημερομηνία δημιουργίας
+  last_used_at: Τελευταία χρήση
+  type: Τύπος
+  total_code_count: Συνολικός αριθμός κωδικών
+  unused_code_count: Αχρησιμοποίητος αριθμός κωδικών
   validation:
     min: Το πεδίο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
     max: Το πεδίο πρέπει να έχει το πολύ %{max} χαρακτήρες

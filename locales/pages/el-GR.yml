@@ -292,7 +292,7 @@ pages:
         or: ή
         'no':
           account: Δεν έχεις λογαριασμό;
-    registration:
+    signup:
       title: Εγγραφή
       description: Εγγραφή
       keywords: Εγγραφή

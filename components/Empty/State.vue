@@ -33,13 +33,19 @@ defineSlots<{
       md:p-8
     "
   >
-    <div v-if="icon" class="empty-state-icon">
+    <div
+      v-if="icon"
+      class="empty-state-icon"
+    >
       <Component :is="icon" />
     </div>
     <div class="empty-state-title text-xl font-semibold">
       {{ $t(title) }}
     </div>
-    <div v-if="description" class="empty-state-description text-sm">
+    <div
+      v-if="description"
+      class="empty-state-description text-sm"
+    >
       {{ $t(description) }}
     </div>
     <slot name="actions" />

@@ -1,26 +1,26 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-import type { PasswordResetBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
+import type { PasswordRequestBody } from '~/types/all-auth'
 
 const emit = defineEmits(['passwordReset'])
 
-const { passwordReset } = useAuth()
+const { passwordRequest } = useAllAuthAuthentication()
 const toast = useToast()
 
 const loading = ref(false)
 
 const { t } = useI18n()
 
-async function onSubmit(values: PasswordResetBody) {
+async function onSubmit(values: PasswordRequestBody) {
   try {
     loading.value = true
-    const data = await passwordReset({
+    await passwordRequest({
       email: values.email,
     })
     toast.add({
-      title: data?.detail || t('common.success'),
+      title: t('common.success'),
       color: 'green',
     })
     emit('passwordReset')
@@ -64,6 +64,9 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="grid">
     <DynamicForm
+      :button-label="t('common.reset')"
+      :loading="loading"
+      :schema="formSchema"
       class="
         container-2xs bg-primary-100 grid h-full items-center justify-center
         rounded-[0.5rem] !p-4 shadow-[0_4px_9px_-4px_#0000000d]
@@ -72,9 +75,6 @@ const formSchema: DynamicFormSchema = {
 
         md:p-8 md:px-6
       "
-      :schema="formSchema"
-      :button-label="t('common.reset')"
-      :loading="loading"
       @submit="onSubmit"
     />
   </section>

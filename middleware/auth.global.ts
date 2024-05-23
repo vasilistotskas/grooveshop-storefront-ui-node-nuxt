@@ -3,7 +3,8 @@ import { AuthenticatedRoutePrefixes, AuthenticatedRoutes } from '~/constants'
 
 export default defineNuxtRouteMiddleware(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
-    const { fetch } = useUserSession()
+    const nuxtApp = useNuxtApp()
+
     const isLoginPage = (to: RouteLocationNormalized) =>
       to.path === '/account/login'
 
@@ -14,7 +15,7 @@ export default defineNuxtRouteMiddleware(
       const returnToPath = from.query.redirect?.toString()
       const isRedirectingToLogin = returnToPath === '/account/login'
       const redirectTo = isRedirectingToLogin ? '/' : returnToPath || '/'
-      return navigateTo(redirectTo)
+      return nuxtApp.runWithContext(() => navigateTo(redirectTo))
     }
 
     const verifyAuthenticatedRoutes = async (
@@ -29,10 +30,10 @@ export default defineNuxtRouteMiddleware(
       if (!isRouteProtected) return
 
       if (!loggedIn.value) {
-        return navigateTo({
+        return nuxtApp.runWithContext(() => navigateTo({
           path: '/account/login',
           query: { redirect: to.path },
-        })
+        }))
       }
     }
 

@@ -77,7 +77,10 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="container-3xs">
     <DynamicForm
-      :schema="formSchema" class="grid" :button-label="t('common.submit')" :loading="loading"
+      :schema="formSchema"
+      class="grid"
+      :button-label="t('common.submit')"
+      :loading="loading"
       @submit="onSubmit"
     />
   </section>

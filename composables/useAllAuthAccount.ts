@@ -12,8 +12,14 @@ const API_BASE_URL = '/api/_allauth/app/v1/account'
 
 export default function () {
   async function getEmailAddresses() {
-    return await $fetch(`${API_BASE_URL}/email`, {
+    return useFetch(`${API_BASE_URL}/email`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -21,6 +27,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/email`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -28,6 +40,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/email`, {
       method: 'PUT',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -35,6 +53,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/email`, {
       method: 'PUT',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -42,6 +66,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/email`, {
       method: 'DELETE',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -49,12 +79,24 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/password/change`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function connectedThirdPartyProviderAccounts() {
-    return await $fetch(`${API_BASE_URL}/providers`, {
+    return useFetch(`${API_BASE_URL}/providers`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -62,18 +104,36 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/providers`, {
       method: 'DELETE',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function authenticators() {
-    return await $fetch(`${API_BASE_URL}/authenticators`, {
+    return useFetch(`${API_BASE_URL}/authenticators`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function totpAuthenticatorStatus() {
-    return await $fetch(`${API_BASE_URL}/authenticators/totp`, {
+    return useFetch(`${API_BASE_URL}/authenticators/totp`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -81,24 +141,48 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/authenticators/totp`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function deactivateTotp() {
     return await $fetch(`${API_BASE_URL}/authenticators/totp`, {
       method: 'DELETE',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function recoveryCodes() {
-    return await $fetch(`${API_BASE_URL}/recovery_codes`, {
+    return useFetch(`${API_BASE_URL}/authenticators/recovery-codes`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function generateRecoveryCodes() {
-    return await $fetch(`${API_BASE_URL}/recovery_codes`, {
+    return await $fetch(`${API_BASE_URL}/authenticators/recovery-codes`, {
       method: 'POST',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 

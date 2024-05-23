@@ -79,8 +79,14 @@ const reviewComment = computed(() => {
           v-if="userAccount && displayImageOf === 'user'"
           :user-account="userAccount"
         />
-        <div v-if="displayImageOf === 'product' && product" class="grid gap-2">
-          <Anchor :to="`/products${product.absoluteUrl}`" :text="productName">
+        <div
+          v-if="displayImageOf === 'product' && product"
+          class="grid gap-2"
+        >
+          <Anchor
+            :to="`/products${product.absoluteUrl}`"
+            :text="productName"
+          >
             <ImgWithFallback
               loading="lazy"
               provider="mediaStream"

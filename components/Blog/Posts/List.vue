@@ -100,7 +100,7 @@ const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.len
 
 const refreshLikedPosts = async (postIds: number[]) => {
   if (shouldFetchLikedPosts.value) {
-    await useFetch(
+    await $fetch(
       '/api/blog/posts/liked-posts',
       {
         method: 'POST',
@@ -192,20 +192,22 @@ onReactivated(() => {
   <div class="posts-list grid gap-4">
     <div
       v-if="pagination || showOrdering"
-      :class="paginationType === PaginationTypeEnum.CURSOR ? 'sr-only' : 'flex flex-row flex-wrap items-center gap-2'"
+      :class="paginationType === PaginationTypeEnum.CURSOR ? 'sr-only' : `
+        flex flex-row flex-wrap items-center gap-2
+      `"
     >
       <Pagination
         v-if="pagination"
-        :pagination-type="paginationType"
         :count="pagination.count"
-        :total-pages="pagination.totalPages"
-        :page-total-results="pagination.pageTotalResults"
-        :page-size="pagination.pageSize"
-        :page="pagination.page"
+        :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
         :links="pagination.links"
         :loading="pending"
-        :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
+        :page-total-results="pagination.pageTotalResults"
+        :pagination-type="paginationType"
         :strategy="'scroll'"
+        :total-pages="pagination.totalPages"
       />
       <Ordering
         v-if="showOrdering"
@@ -238,8 +240,8 @@ onReactivated(() => {
             :is="BlogPostCard"
             v-for="(post, index) in allPosts"
             :key="index"
-            :post="post"
             :img-loading="index > 7 ? 'lazy' : 'eager'"
+            :post="post"
           />
         </template>
         <template v-if="pending && paginationType !== PaginationTypeEnum.CURSOR">
@@ -256,10 +258,10 @@ onReactivated(() => {
     <Transition>
       <template v-if="pending && paginationType === PaginationTypeEnum.CURSOR">
         <ClientOnlyFallback
+          :text="$t('common.loading')"
+          class="grid items-center justify-items-center"
           height="75px"
           width="35%"
-          class="grid items-center justify-items-center"
-          :text="$t('common.loading')"
         />
       </template>
     </Transition>

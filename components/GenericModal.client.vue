@@ -238,9 +238,13 @@ onMounted(() => {
 <template>
   <Teleport to="#teleports">
     <div
-      :class="`cp-utilities-generic-modal-wrapper ${
+      :class="`
+        cp-utilities-generic-modal-wrapper
+
+        ${
         isModalCurrentlyOpen ? 'open' : 'closed'
-      }`"
+      }
+      `"
     >
       <div
         class="cp-utilities-generic-modal-overlay"
@@ -259,7 +263,11 @@ onMounted(() => {
               stitchTiles="stitch"
             />
           </filter>
-          <rect width="100%" height="100%" :filter="`url(#${getMyId})`" />
+          <rect
+            width="100%"
+            height="100%"
+            :filter="`url(#${getMyId})`"
+          />
         </svg>
       </div>
       <button
@@ -281,13 +289,19 @@ onMounted(() => {
           :name="formName"
           @submit="$emit('submit', $event)"
         >
-          <div v-if="hasHeader" class="cp-utilities-generic-modal-header">
+          <div
+            v-if="hasHeader"
+            class="cp-utilities-generic-modal-header"
+          >
             <slot name="header" />
           </div>
           <div class="cp-utilities-generic-modal-body">
             <slot />
           </div>
-          <div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
+          <div
+            v-if="hasFooter"
+            class="cp-utilities-generic-modal-footer"
+          >
             <slot name="footer" />
           </div>
           <button
@@ -306,14 +320,23 @@ onMounted(() => {
         </form>
       </template>
       <template v-else>
-        <div class="cp-utilities-generic-modal" :class="className">
-          <div v-if="hasHeader" class="cp-utilities-generic-modal-header">
+        <div
+          class="cp-utilities-generic-modal"
+          :class="className"
+        >
+          <div
+            v-if="hasHeader"
+            class="cp-utilities-generic-modal-header"
+          >
             <slot name="header" />
           </div>
           <div class="cp-utilities-generic-modal-body">
             <slot />
           </div>
-          <div v-if="hasFooter" class="cp-utilities-generic-modal-footer">
+          <div
+            v-if="hasFooter"
+            class="cp-utilities-generic-modal-footer"
+          >
             <slot name="footer" />
           </div>
           <button

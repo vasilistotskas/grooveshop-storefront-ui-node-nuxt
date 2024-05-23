@@ -41,7 +41,10 @@ const spider = computed(() => {
       lg:z-50
     "
   >
-    <div id="navbar-banner" class="banner">
+    <div
+      id="navbar-banner"
+      class="banner"
+    >
       <slot name="banner" />
     </div>
     <div class="bg-background-700 mx-auto w-full max-w-8xl">

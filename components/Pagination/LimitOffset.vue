@@ -152,7 +152,10 @@ const link = computed(() => {
         </Anchor>
       </li>
 
-      <li v-if="shouldDisplayFirstPage" class="first-page">
+      <li
+        v-if="shouldDisplayFirstPage"
+        class="first-page"
+      >
         <Anchor
           :to="{
             path: link,
@@ -185,7 +188,7 @@ const link = computed(() => {
         >
           <span
             :class="{
-              'text-primary-950 dark:text-primary-50 dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
+              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
           >{{ firstPageNumber }}</span>
@@ -200,7 +203,11 @@ const link = computed(() => {
         </Anchor>
       </li>
 
-      <li v-for="pageEntry in pages" :key="pageEntry" class="page">
+      <li
+        v-for="pageEntry in pages"
+        :key="pageEntry"
+        class="page"
+      >
         <Anchor
           :to="{
             path: link,
@@ -212,7 +219,7 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
+            'bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:bg-primary-900': true,
             'active': pageEntry === page,
           }"
           :text="String(pageEntry)"
@@ -242,7 +249,10 @@ const link = computed(() => {
         </Anchor>
       </li>
 
-      <li v-if="shouldDisplayLastPage" class="last-page">
+      <li
+        v-if="shouldDisplayLastPage"
+        class="last-page"
+      >
         <Anchor
           :to="{
             path: link,
@@ -285,7 +295,7 @@ const link = computed(() => {
           >...</span>
           <span
             :class="{
-              'text-primary-950 dark:text-primary-50 dark:bg-primary-900 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1': true,
+              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
           >{{ lastPageNumber }}</span>

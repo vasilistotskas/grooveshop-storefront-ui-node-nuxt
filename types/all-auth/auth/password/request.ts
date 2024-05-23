@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const ZodPasswordRequestResponse = z.object({
-  status: z.number(),
+  status: z.literal(200),
 })
 
 export const ZodPasswordRequestBody = z.object({

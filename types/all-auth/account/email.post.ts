@@ -1,10 +1,5 @@
 import { z } from 'zod'
-
-const ZodEmailAddress = z.object({
-  email: z.string().email().describe('The email address.'),
-  primary: z.boolean(),
-  verified: z.boolean(),
-})
+import { ZodEmailAddress } from '~/types/all-auth'
 
 const ZodData = z.array(ZodEmailAddress)
 
@@ -13,7 +8,7 @@ export const ZodEmailPostBody = z.object({
 })
 
 export const ZodEmailPostResponse = z.object({
-  status: z.number(),
+  status: z.literal(200),
   data: ZodData,
 })
 

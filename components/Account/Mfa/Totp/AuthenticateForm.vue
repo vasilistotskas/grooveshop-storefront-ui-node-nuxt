@@ -23,9 +23,9 @@ const formSchema: DynamicFormSchema = {
       readonly: false,
       required: true,
       placeholder: '123456',
-      type: 'text'
-    }
-  ]
+      type: 'text',
+    },
+  ],
 }
 </script>
 
@@ -38,7 +38,11 @@ const formSchema: DynamicFormSchema = {
     "
   >
     <section class="grid items-center">
-      <DynamicForm :schema="formSchema" :button-label="t('common.submit')" @submit="onSubmit" />
+      <DynamicForm
+        :schema="formSchema"
+        :button-label="t('common.submit')"
+        @submit="onSubmit"
+      />
     </section>
   </div>
 </template>

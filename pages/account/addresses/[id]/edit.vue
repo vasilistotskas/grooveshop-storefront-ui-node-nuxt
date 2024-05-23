@@ -271,7 +271,10 @@ definePageMeta({
           :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`"
         />
       </div>
-      <div v-if="address?.isMain" class="flex items-center">
+      <div
+        v-if="address?.isMain"
+        class="flex items-center"
+      >
         <span
           class="
             mr-2 text-green-500

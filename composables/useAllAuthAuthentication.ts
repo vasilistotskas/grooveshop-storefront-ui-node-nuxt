@@ -12,7 +12,6 @@ import type {
   SignupBody,
   TwoFaAuthenticateBody,
 } from '~/types/all-auth'
-import { isErrorWithNestedData } from '~/utils/error'
 
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
 
@@ -20,43 +19,50 @@ export default function () {
   async function getSession() {
     return useFetch(`${API_BASE_URL}/session`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function deleteSession() {
     return useFetch(`${API_BASE_URL}/session`, {
       method: 'DELETE',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function login(body: LoginBody) {
-    try {
-      return await $fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        body,
-      })
-    }
-    catch (error) {
-      if (!isErrorWithNestedData(error)) {
-        throw error
-      }
-      const { data } = error.data.data
-
-      if (data && data.flows) {
-        for (const flow of data.flows) {
-          if (flow.id === 'mfa_authenticate' && flow.is_pending) {
-            await navigateTo('/account/2fa/authenticate')
-            return
-          }
-        }
-      }
-    }
+    return await $fetch(`${API_BASE_URL}/login`, {
+      method: 'POST',
+      body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
   }
 
   async function signup(body: SignupBody) {
     return await $fetch(`${API_BASE_URL}/signup`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -66,6 +72,12 @@ export default function () {
       headers: {
         'X-Email-Verification-Key': key,
       },
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -73,6 +85,12 @@ export default function () {
     return useFetch(`${API_BASE_URL}/email/verify`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -80,6 +98,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/reauthenticate`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -87,12 +111,24 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/password/request`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function getPasswordReset() {
     return await $fetch(`${API_BASE_URL}/password/reset`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -100,6 +136,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/password/reset`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -107,6 +149,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/provider/redirect`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -114,6 +162,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/provider/token`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -121,6 +175,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/provider/signup`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -128,12 +188,24 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/2fa/authenticate`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function twoFaReauthenticate() {
     return await $fetch(`${API_BASE_URL}/2fa/reauthenticate`, {
       method: 'POST',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -141,6 +213,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/code/request`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
@@ -148,6 +226,12 @@ export default function () {
     return await $fetch(`${API_BASE_URL}/code/confirm`, {
       method: 'POST',
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 

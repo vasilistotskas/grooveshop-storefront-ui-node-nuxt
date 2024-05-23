@@ -47,7 +47,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <label :for="switchId" class="flex cursor-pointer">
+  <label
+    :for="switchId"
+    class="flex cursor-pointer"
+  >
     <label
       :for="switchId"
       class="

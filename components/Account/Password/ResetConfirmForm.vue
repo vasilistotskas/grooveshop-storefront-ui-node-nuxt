@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-const { passwordResetConfirm } = useAuth()
+const { passwordReset } = useAllAuthAuthentication()
 
 const { t } = useI18n()
 const route = useRoute()
@@ -85,11 +85,11 @@ const onSubmit = handleSubmit(async (values) => {
             }}</label>
             <input
               id="email"
-              type="text"
-              name="email"
-              value="..."
               autocomplete="username email"
+              name="email"
               style="display: none"
+              type="text"
+              value="..."
             >
           </div>
 
@@ -108,10 +108,10 @@ const onSubmit = handleSubmit(async (values) => {
               id="newPassword1"
               v-model="newPassword1"
               :bind="newPassword1Props"
+              :required="true"
+              autocomplete="new-password"
               name="newPassword1"
               type="password"
-              autocomplete="new-password"
-              :required="true"
             />
             <span
               v-if="errors.newPassword1 && meta.touched"
@@ -134,10 +134,10 @@ const onSubmit = handleSubmit(async (values) => {
               id="newPassword2"
               v-model="newPassword2"
               :bind="newPassword2Props"
+              :required="true"
+              autocomplete="new-password"
               name="newPassword2"
               type="password"
-              autocomplete="new-password"
-              :required="true"
             />
             <span
               v-if="errors.newPassword2"
@@ -146,14 +146,14 @@ const onSubmit = handleSubmit(async (values) => {
           </div>
 
           <UButton
-            type="submit"
-            size="sm"
-            color="primary"
-            variant="solid"
-            :label="$t('pages.account.password.reset.confirm.form.submit')"
-            :disabled="isSubmitting"
             :aria-busy="isSubmitting"
+            :disabled="isSubmitting"
+            :label="$t('pages.account.password.reset.confirm.form.submit')"
             block
+            color="primary"
+            size="sm"
+            type="submit"
+            variant="solid"
           />
         </div>
       </div>

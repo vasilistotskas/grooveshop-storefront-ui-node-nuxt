@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 setupPageHeader()
 setupCursorStates()
+
+const authStore = useAuthStore()
+const { setupConfig, setupSession } = authStore
+
+await setupConfig()
 await setupSession()
 
 const config = useRuntimeConfig()
@@ -42,7 +47,10 @@ defineOgImage(ogImageOptions)
 </script>
 
 <template>
-  <div id="#app" class="app">
+  <div
+    id="#app"
+    class="app"
+  >
     <NuxtPwaManifest />
     <LoadingIndicator />
     <NuxtLayout>

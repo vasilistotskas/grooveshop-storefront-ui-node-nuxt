@@ -4,12 +4,24 @@ export default function () {
   async function sessions() {
     return await $fetch(`${API_BASE_URL}/sessions`, {
       method: 'GET',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 
   async function deleteSession() {
     return await $fetch(`${API_BASE_URL}/sessions`, {
       method: 'DELETE',
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
     })
   }
 

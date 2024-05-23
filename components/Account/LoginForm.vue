@@ -125,7 +125,8 @@ const submitButtonLabel = computed(() => {
                 text-primary-950
 
                 dark:text-primary-50
-              " for="email"
+              "
+              for="email"
             >{{
               $t('pages.account.login.form.email.label')
             }}</label>
@@ -133,10 +134,10 @@ const submitButtonLabel = computed(() => {
               id="email"
               v-model="email"
               :bind="emailProps"
+              :required="true"
+              autocomplete="email"
               name="email"
               type="text"
-              autocomplete="email"
-              :required="true"
             />
             <span
               v-if="errors.email && meta.touched"
@@ -158,20 +159,20 @@ const submitButtonLabel = computed(() => {
                 id="password"
                 v-model="password"
                 :bind="passwordProps"
-                name="password"
+                :required="true"
                 :type="showPassword ? 'text' : 'password'"
                 autocomplete="current-password"
-                :required="true"
+                name="password"
               />
               <UButton
-                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
-                type="button"
-                color="primary"
-                variant="ghost"
+                :aria-label="$t('pages.account.login.form.password.toggle')"
                 :icon="
                   showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
-                :aria-label="$t('pages.account.login.form.password.toggle')"
+                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
+                color="primary"
+                type="button"
+                variant="ghost"
                 @click="showPassword = !showPassword"
               />
             </div>
@@ -254,26 +255,26 @@ const submitButtonLabel = computed(() => {
               </label>
             </div>
             <UButton
-              size="md"
-              type="button"
-              color="opposite"
-              variant="link"
               :label="$t('pages.account.login.form.forgot.password.reset')"
               :to="localePath('/account/password/reset')"
+              color="opposite"
+              size="md"
+              type="button"
+              variant="link"
             />
           </div>
 
           <UButton
-            size="xl"
-            type="submit"
-            color="primary"
-            variant="soft"
-            :disabled="loading || submitCount > 5"
             :aria-busy="loading"
+            :disabled="loading || submitCount > 5"
             :label="
               submitButtonLabel"
             :loading="loading"
             block
+            color="primary"
+            size="xl"
+            type="submit"
+            variant="soft"
           />
 
           <div
@@ -299,14 +300,14 @@ const submitButtonLabel = computed(() => {
 
           <div class="flex items-center justify-center gap-4">
             <UButton
-              size="xl"
-              type="button"
-              color="red"
-              variant="solid"
-              :disabled="loading"
               :aria-busy="loading"
               :aria-label="$t('pages.account.login.form.google')"
+              :disabled="loading"
               :loading="loading"
+              color="red"
+              size="xl"
+              type="button"
+              variant="solid"
               @click="() => providerSignup({
                 email: email,
               })"
@@ -316,14 +317,14 @@ const submitButtonLabel = computed(() => {
               </template>
             </UButton>
             <UButton
-              size="xl"
-              type="button"
-              color="blue"
-              variant="solid"
-              :disabled="loading"
               :aria-busy="loading"
               :aria-label="$t('pages.account.login.form.facebook')"
+              :disabled="loading"
               :loading="loading"
+              color="blue"
+              size="xl"
+              type="button"
+              variant="solid"
               @click="() => providerSignup({
                 email: email,
               })"
@@ -352,12 +353,12 @@ const submitButtonLabel = computed(() => {
             }}</span>
 
             <UButton
+              :label="$t('common.register')"
+              :to="localePath('/account/signup')"
+              color="opposite"
               size="md"
               type="button"
-              color="opposite"
               variant="link"
-              :label="$t('common.register')"
-              :to="localePath('/account/registration')"
             />
           </div>
         </div>

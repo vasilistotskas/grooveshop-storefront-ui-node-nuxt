@@ -158,13 +158,6 @@ export function setupCursorStates() {
   return useState<CursorStates>('cursorStates', () => generateInitialCursorStates())
 }
 
-export async function setupSession() {
-  const { getSession } = useAllAuthAuthentication()
-  await callOnce(async () => {
-    await getSession()
-  })
-}
-
 function unescapeTitleTemplate(titleTemplate: string, replacements: [string, string[]][]) {
   let result = titleTemplate
   for (const [replacement, entities] of replacements) {

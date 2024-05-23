@@ -8,9 +8,9 @@ const { data: categories, pending } = await useAsyncData(
     $fetch('/api/products/categories', {
       method: 'GET',
       query: {
-        language: locale.value
-      }
-    })
+        language: locale.value,
+      },
+    }),
 )
 
 const sidebar = ref(null)
@@ -27,7 +27,8 @@ const filteredCategories = computed(() => {
       const bIsSelected = selectedCategoryIds.value.includes(b.id.toString())
       if (aIsSelected && !bIsSelected) {
         return -1
-      } else if (!aIsSelected && bIsSelected) {
+      }
+      else if (!aIsSelected && bIsSelected) {
         return 1
       }
       return 0
@@ -85,7 +86,10 @@ onMounted(() => {
             ({{ categories?.count ?? 0 }})
           </span>
         </h2>
-        <label class="sr-only" for="search">
+        <label
+          class="sr-only"
+          for="search"
+        >
           {{ $t('common.search.title') }}
         </label>
         <UInput
@@ -125,12 +129,18 @@ onMounted(() => {
             :key="index"
             class="flex items-center space-x-4 p-2"
           >
-            <USkeleton class="h-12 w-20" :ui="{ rounded: 'rounded-full' }" />
+            <USkeleton
+              class="h-12 w-20"
+              :ui="{ rounded: 'rounded-full' }"
+            />
             <USkeleton class="h-[30px] w-full" />
           </li>
         </template>
       </ul>
-      <div v-if="!pending && !filteredCategories?.length" class="grid gap-4">
+      <div
+        v-if="!pending && !filteredCategories?.length"
+        class="grid gap-4"
+      >
         <p
           class="
             text-primary-950 p-2 text-center

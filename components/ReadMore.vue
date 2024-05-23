@@ -27,7 +27,10 @@ const trimmedText = computed(() => {
 </script>
 
 <template>
-  <div v-if="text && text.length > maxChars" class="relative flex flex-col">
+  <div
+    v-if="text && text.length > maxChars"
+    class="relative flex flex-col"
+  >
     <div
       v-if="!showFullText"
       class="
@@ -41,11 +44,13 @@ const trimmedText = computed(() => {
           text-sm
 
           md:text-base
-        " v-html="trimmedText"
+        "
+        v-html="trimmedText"
       />
     </div>
     <div
-      v-else class="
+      v-else
+      class="
         text-primary-950 overflow-hidden
 
         dark:text-primary-50
@@ -56,7 +61,8 @@ const trimmedText = computed(() => {
           text-sm
 
           md:text-base
-        " v-html="text"
+        "
+        v-html="text"
       />
     </div>
     <div class="bottom-0 right-0 grid justify-end">
@@ -69,7 +75,8 @@ const trimmedText = computed(() => {
     </div>
   </div>
   <span
-    v-else class="
+    v-else
+    class="
       text-primary-950 text-sm
 
       dark:text-primary-50

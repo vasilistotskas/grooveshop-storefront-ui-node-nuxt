@@ -24,7 +24,7 @@ onMounted(() => {
     :class="[
       {
         'transition-all duration-300 ease-in-out': true,
-        'sidebar lg:w-30 md:hidden md:h-fit lg:flex xl:w-60': mode === 'normal',
+        'sidebar lg:w-30 lg:flex md:hidden md:h-fit xl:w-60': mode === 'normal',
         'relative flex w-full flex-1 flex-col': mode === 'mobile',
         'relative grid w-full': route.path === '/account',
       },
@@ -72,14 +72,15 @@ onMounted(() => {
                 group-hover:ring-slate-900/10
               "
               :class="{
-                'bg-sky-500 text-primary-50 group-hover:bg-sky-500 dark:text-primary-50':
+                'bg-sky-500 text-primary-50 dark:text-primary-50 group-hover:bg-sky-500':
                   route.path === item.route?.path,
-                'dark:text-primary-50 group-hover:bg-primary-200 dark:bg-primary-900 dark:group-hover:bg-primary-600 bg-primary-100 text-slate-500':
+                'bg-primary-100 text-slate-500 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200':
                   route.path !== item.route?.path,
               }"
             >
               <Component
-                :is="item.icon" class="
+                :is="item.icon"
+                class="
                   text-2xl
 
                   md:text-xl
@@ -124,14 +125,15 @@ onMounted(() => {
                 group-hover:ring-slate-900/10
               "
               :class="{
-                'bg-sky-500 text-primary-50 group-hover:bg-sky-500 dark:text-primary-50':
+                'bg-sky-500 text-primary-50 dark:text-primary-50 group-hover:bg-sky-500':
                   item.route?.path === route.path,
-                'dark:text-primary-50 group-hover:bg-primary-200 dark:bg-primary-900 dark:group-hover:bg-primary-600 bg-primary-100 text-slate-500':
+                'bg-primary-100 text-slate-500 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200':
                   item.route?.path !== route.path,
               }"
             >
               <Component
-                :is="item.icon" class="
+                :is="item.icon"
+                class="
                   text-2xl
 
                   md:text-xl

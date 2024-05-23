@@ -216,7 +216,8 @@ definePageMeta({
   <PageWrapper class="container">
     <PageBody>
       <div
-        v-if="product" class="
+        v-if="product"
+        class="
           product mb-12
 
           md:mb-24
@@ -303,7 +304,10 @@ definePageMeta({
                     @click="startShare"
                   />
                   <template #fallback>
-                    <ClientOnlyFallback height="40px" width="40px" />
+                    <ClientOnlyFallback
+                      height="40px"
+                      width="40px"
+                    />
                   </template>
                 </ClientOnly>
                 <ClientOnly>
@@ -320,7 +324,10 @@ definePageMeta({
                     @click="openModal"
                   />
                   <template #fallback>
-                    <ClientOnlyFallback width="122px" height="40px" />
+                    <ClientOnlyFallback
+                      width="122px"
+                      height="40px"
+                    />
                   </template>
                 </ClientOnly>
                 <ProductReview
@@ -378,7 +385,10 @@ definePageMeta({
                 "
               >
                 <div class="grid">
-                  <label for="counter-input" class="sr-only">{{
+                  <label
+                    for="counter-input"
+                    class="sr-only"
+                  >{{
                     $t('pages.product.qty')
                   }}</label>
                   <div

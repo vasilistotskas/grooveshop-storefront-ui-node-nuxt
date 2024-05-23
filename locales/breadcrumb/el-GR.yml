@@ -35,7 +35,7 @@ breadcrumb:
       login:
         icon: heroicons-solid:shopping-cart
         label: Σύνδεση
-      registration:
+      signup:
         icon: heroicons-solid:shopping-cart
         label: Εγγραφή
         account_confirm_email:

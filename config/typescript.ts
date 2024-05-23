@@ -1,5 +1,5 @@
 export const typescript = {
   strict: true,
-  typeCheck: false,
+  typeCheck: true,
   builder: 'vite' as 'vite' | 'webpack' | 'shared' | false | undefined,
 }

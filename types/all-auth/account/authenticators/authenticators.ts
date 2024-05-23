@@ -9,7 +9,7 @@ const ZodAuthenticator = z.object({
 })
 
 export const ZodAuthenticatorsResponse = z.object({
-  status: z.number(),
+  status: z.literal(200),
   data: z.array(ZodAuthenticator),
 })
 

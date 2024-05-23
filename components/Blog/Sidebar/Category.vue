@@ -38,7 +38,7 @@ const categoryImageSource = computed(() => {
   <li
     :class="{
       'grid w-full rounded border border-primary-500 p-2 md:border-transparent md:p-0': true,
-      'dark:bg-primary-900 bg-primary-100': isCategorySelected,
+      'bg-primary-100 dark:bg-primary-900': isCategorySelected,
     }"
   >
     <Anchor

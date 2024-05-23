@@ -1,16 +1,9 @@
 import { z } from 'zod'
+import { ZodProvider } from '~/types/all-auth'
 
 const ZodAccountConfiguration = z.object({
   authentication_method: z.enum(['email', 'username', 'username_email']).describe('Enum: "email" "username" "username_email"'),
 }).describe('Configuration of the Django allauth.account app')
-
-const ZodProvider = z.object({
-  id: z.string().describe('The provider ID.'),
-  name: z.string().describe('The name of the provider.'),
-  client_id: z.string().optional().describe('The client ID (in case of OAuth2 or OpenID Connect based providers).'),
-  flows: z.array(z.enum(['provider_redirect', 'provider_token'])).describe('Items Enum: "provider_redirect" "provider_token"\n'
-  + 'The authentication flows the provider integration supports.'),
-})
 
 const ZodSocialAccountConfiguration = z.object({
   providers: z.array(ZodProvider),
@@ -33,7 +26,7 @@ const ZodData = z.object({
 })
 
 export const ZodConfigResponse = z.object({
-  status: z.number(),
+  status: z.literal(200),
   data: ZodData,
 })
 

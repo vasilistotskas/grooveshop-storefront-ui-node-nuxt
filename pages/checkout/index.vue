@@ -293,7 +293,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.firstName" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.firstName"
+                class="text-xs text-red-600"
+              >{{
                 errors.firstName
               }}</span>
             </div>
@@ -318,7 +321,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.lastName" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.lastName"
+                class="text-xs text-red-600"
+              >{{
                 errors.lastName
               }}</span>
             </div>
@@ -343,7 +349,10 @@ definePageMeta({
                   type="email"
                 />
               </div>
-              <span v-if="errors.email" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.email"
+                class="text-xs text-red-600"
+              >{{
                 errors.email
               }}</span>
             </div>
@@ -368,7 +377,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.phone" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.phone"
+                class="text-xs text-red-600"
+              >{{
                 errors.phone
               }}</span>
             </div>
@@ -393,7 +405,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.mobilePhone" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.mobilePhone"
+                class="text-xs text-red-600"
+              >{{
                 errors.mobilePhone
               }}</span>
             </div>
@@ -418,7 +433,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.city" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.city"
+                class="text-xs text-red-600"
+              >{{
                 errors.city
               }}</span>
             </div>
@@ -443,7 +461,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.place" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.place"
+                class="text-xs text-red-600"
+              >{{
                 errors.place
               }}</span>
             </div>
@@ -468,7 +489,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.zipcode" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.zipcode"
+                class="text-xs text-red-600"
+              >{{
                 errors.zipcode
               }}</span>
             </div>
@@ -493,7 +517,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.street" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.street"
+                class="text-xs text-red-600"
+              >{{
                 errors.street
               }}</span>
             </div>
@@ -518,7 +545,10 @@ definePageMeta({
                   type="text"
                 />
               </div>
-              <span v-if="errors.streetNumber" class="text-xs text-red-600">{{
+              <span
+                v-if="errors.streetNumber"
+                class="text-xs text-red-600"
+              >{{
                 errors.streetNumber
               }}</span>
             </div>
@@ -575,7 +605,10 @@ definePageMeta({
                   option-attribute="name"
                   :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
                 />
-                <span v-if="errors.floor" class="text-xs text-red-600">{{
+                <span
+                  v-if="errors.floor"
+                  class="text-xs text-red-600"
+                >{{
                   errors.floor
                 }}</span>
               </div>
@@ -599,7 +632,10 @@ definePageMeta({
                   option-attribute="name"
                   :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
                 />
-                <span v-if="errors.locationType" class="text-xs text-red-600">{{
+                <span
+                  v-if="errors.locationType"
+                  class="text-xs text-red-600"
+                >{{
                   errors.locationType
                 }}</span>
               </div>
@@ -629,7 +665,10 @@ definePageMeta({
                     @change.capture="onCountryChange"
                   />
                 </div>
-                <span v-if="errors.country" class="text-xs text-red-600">{{
+                <span
+                  v-if="errors.country"
+                  class="text-xs text-red-600"
+                >{{
                   errors.country
                 }}</span>
               </div>
@@ -655,7 +694,10 @@ definePageMeta({
                     :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
                   />
                 </div>
-                <span v-if="errors.region" class="text-xs text-red-600">{{
+                <span
+                  v-if="errors.region"
+                  class="text-xs text-red-600"
+                >{{
                   errors.region
                 }}</span>
               </div>

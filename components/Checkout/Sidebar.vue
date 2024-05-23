@@ -96,7 +96,10 @@ defineSlots<{
               />
             </div>
           </div>
-          <div v-if="payWayCost" class="flex gap-1">
+          <div
+            v-if="payWayCost"
+            class="flex gap-1"
+          >
             <div class="grid">
               <span
                 class="
