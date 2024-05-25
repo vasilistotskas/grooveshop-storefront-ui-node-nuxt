@@ -13,6 +13,8 @@ definePageMeta({
     "
   >
     <PageTitle :text="$t('pages.account.security.title')" />
-    <PageBody />
+    <PageBody>
+      <AccountPasswordChangeForm />
+    </PageBody>
   </PageWrapper>
 </template>

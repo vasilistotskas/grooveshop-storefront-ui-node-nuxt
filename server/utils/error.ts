@@ -1,27 +1,51 @@
 import { ZodError } from 'zod'
 import { FetchError } from 'ofetch'
 import { H3Error } from 'h3'
-import type { AllAuthError, BadResponse, InvalidSessionResponse, NotAuthenticatedResponse } from '~/types/all-auth'
-import { ZodBadResponse, ZodInvalidSessionResponse, ZodNotAuthenticatedResponse } from '~/types/all-auth'
+import type {
+  AllAuthError,
+  BadResponse,
+  ConflictResponse,
+  ForbiddenResponse,
+  InvalidSessionResponse,
+  NotAuthenticatedResponse,
+  NotFoundResponse,
+} from '~/types/all-auth'
+import {
+  ZodBadResponse,
+  ZodConflictResponse,
+  ZodForbiddenResponse,
+  ZodInvalidSessionResponse,
+  ZodNotAuthenticatedResponse,
+  ZodNotFoundResponse,
+} from '~/types/all-auth'
 
-export function isBadResponseError(error: any): error is { data: BadResponse } {
-  return ZodBadResponse.safeParse(error.data).success
-}
-
-export function isNotAuthenticatedResponseError(error: any): error is { data: NotAuthenticatedResponse } {
-  return ZodNotAuthenticatedResponse.safeParse(error.data).success
-}
-
-export function isInvalidSessionResponseError(error: any): error is { data: InvalidSessionResponse } {
-  return ZodInvalidSessionResponse.safeParse(error.data).success
-}
+export const isBadResponseError = (error: any): error is {
+  data: BadResponse
+} => ZodBadResponse.safeParse(error.data).success
+export const isNotAuthenticatedResponseError = (error: any): error is {
+  data: NotAuthenticatedResponse
+} => ZodNotAuthenticatedResponse.safeParse(error.data).success
+export const isInvalidSessionResponseError = (error: any): error is {
+  data: InvalidSessionResponse
+} => ZodInvalidSessionResponse.safeParse(error.data).success
+export const isForbiddenResponseError = (error: any): error is {
+  data: ForbiddenResponse
+} => ZodForbiddenResponse.safeParse(error.data).success
+export const isNotFoundResponseError = (error: any): error is {
+  data: NotFoundResponse
+} => ZodNotFoundResponse.safeParse(error.data).success
+export const isConflictResponseError = (error: any): error is {
+  data: ConflictResponse
+} => ZodConflictResponse.safeParse(error.data).success
 
 export function isAllAuthError(error: unknown): error is AllAuthError {
   if (typeof error !== 'object' || error === null || !('data' in error)) {
     return false
   }
 
-  return isBadResponseError(error) || isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)
+  return isBadResponseError(error) || isNotAuthenticatedResponseError(error)
+    || isInvalidSessionResponseError(error) || isForbiddenResponseError(error)
+    || isNotFoundResponseError(error) || isConflictResponseError(error)
 }
 
 export async function handleError(
@@ -60,8 +84,8 @@ export async function handleAllAuthError(
           accessToken: error.data.meta.access_token,
         })
       }
-      await allAuthHooks.callHookParallel('authChange', { detail: error.data })
     }
+    await allAuthHooks.callHookParallel('authChange', { detail: error.data })
   }
   else {
     // Handle other types of errors if necessary

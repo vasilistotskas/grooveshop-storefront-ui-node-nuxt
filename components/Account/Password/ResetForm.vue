@@ -4,14 +4,13 @@ import { z } from 'zod'
 import type { DynamicFormSchema } from '~/types/form'
 import type { PasswordRequestBody } from '~/types/all-auth'
 
-const emit = defineEmits(['passwordReset'])
+const emit = defineEmits(['passwordRequest'])
 
 const { passwordRequest } = useAllAuthAuthentication()
 const toast = useToast()
+const { t } = useI18n()
 
 const loading = ref(false)
-
-const { t } = useI18n()
 
 async function onSubmit(values: PasswordRequestBody) {
   try {
@@ -20,10 +19,10 @@ async function onSubmit(values: PasswordRequestBody) {
       email: values.email,
     })
     toast.add({
-      title: t('common.success'),
+      title: t('common.success.title'),
       color: 'green',
     })
-    emit('passwordReset')
+    emit('passwordRequest')
   }
   catch (error) {
     handleResetError()

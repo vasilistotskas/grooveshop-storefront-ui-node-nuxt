@@ -15,17 +15,17 @@ const logo = computed(() => {
 </script>
 
 <template>
-  <div class="relative">
+  <div class="container relative">
     <div class="mt-12 grid items-center justify-center">
       <NuxtImg
-        :style="{ objectFit: 'contain' }"
-        :src="logo"
-        :width="500"
-        :height="75"
         :alt="appTitle"
-        loading="eager"
-        format="webp"
+        :height="75"
+        :src="logo"
+        :style="{ objectFit: 'contain' }"
+        :width="500"
         densities="x1"
+        format="png"
+        loading="eager"
         preload
       />
     </div>

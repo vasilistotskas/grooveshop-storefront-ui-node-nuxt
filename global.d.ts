@@ -28,3 +28,19 @@ declare module '@vue/runtime-core' {
     $authState: Ref<AllAuthResponse>
   }
 }
+
+declare global {
+  interface Window {
+    google: {
+      accounts: {
+        id: {
+          initialize: (options: {
+            client_id: string
+            callback: (token: { client_id: string, credential: string }) => void
+          }) => void
+          prompt: () => void
+        }
+      }
+    }
+  }
+}

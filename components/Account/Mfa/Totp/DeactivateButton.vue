@@ -11,7 +11,6 @@ function onSubmit() {
         title: t('pages.account.security.mfa.totp.deactivate.success'),
         color: 'green',
       })
-      await fetch()
       await navigateTo('/account')
     })
     .catch(() => {
@@ -26,10 +25,10 @@ function onSubmit() {
 <template>
   <section class="grid items-center">
     <UButton
-      variant="link"
+      :label="$t('pages.account.security.mfa.totp.deactivate.button')"
       color="red"
       size="xl"
-      :label="$t('pages.account.security.mfa.totp.deactivate.button')"
+      variant="link"
       @click="onSubmit"
     />
   </section>

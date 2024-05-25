@@ -8,8 +8,8 @@ const { changePassword } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 
-function onSubmit(values: PasswordChangeBody) {
-  changePassword(values)
+const onSubmit = async (values: PasswordChangeBody) => {
+  await changePassword(values)
     .then(async () => {
       toast.add({
         title: t('components.account.security.password.change.form.success.title'),

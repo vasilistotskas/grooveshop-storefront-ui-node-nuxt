@@ -1,50 +1,59 @@
 import type {
-  AllAuthError,
   AllAuthResponse,
   AllAuthResponseError,
   BadResponse,
+  ConflictResponse,
   FlowId,
+  ForbiddenResponse,
   InvalidSessionResponse,
   NotAuthenticatedResponse,
+  NotFoundResponse,
 } from '~/types/all-auth'
 import {
   AuthChangeEvent,
   Flow2path,
   URLs,
   ZodBadResponse,
+  ZodConflictResponse,
+  ZodForbiddenResponse,
   ZodInvalidSessionResponse,
   ZodNotAuthenticatedResponse,
+  ZodNotFoundResponse,
 } from '~/types/all-auth'
 
-export const isBadResponseError = (error: any): error is { data: BadResponse } => {
-  return ZodBadResponse.safeParse(error.data).success
-}
-
-export const isNotAuthenticatedResponseError = (error: any): error is { data: NotAuthenticatedResponse } => {
-  return ZodNotAuthenticatedResponse.safeParse(error.data).success
-}
-
-export const isInvalidSessionResponseError = (error: any): error is { data: InvalidSessionResponse } => {
-  return ZodInvalidSessionResponse.safeParse(error.data).success
-}
-
-export const isAllAuthError = (error: unknown): error is AllAuthError => {
-  if (typeof error !== 'object' || error === null || !('data' in error)) {
-    return false
-  }
-
-  return isBadResponseError(error) || isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)
-}
+export const isBadResponseError = (error: any): error is {
+  data: BadResponse
+} => ZodBadResponse.safeParse(error.data).success
+export const isNotAuthenticatedResponseError = (error: any): error is {
+  data: NotAuthenticatedResponse
+} => ZodNotAuthenticatedResponse.safeParse(error.data).success
+export const isInvalidSessionResponseError = (error: any): error is {
+  data: InvalidSessionResponse
+} => ZodInvalidSessionResponse.safeParse(error.data).success
+export const isForbiddenResponseError = (error: any): error is {
+  data: ForbiddenResponse
+} => ZodForbiddenResponse.safeParse(error.data).success
+export const isNotFoundResponseError = (error: any): error is {
+  data: NotFoundResponse
+} => ZodNotFoundResponse.safeParse(error.data).success
+export const isConflictResponseError = (error: any): error is {
+  data: ConflictResponse
+} => ZodConflictResponse.safeParse(error.data).success
 
 export const onAllAuthResponse = async (response: AllAuthResponse) => {
+  if (!response) {
+    return
+  }
   const nuxtApp = useNuxtApp()
-
   if (response.status === 200 && response.meta?.is_authenticated) {
     await nuxtApp.callHook('auth:change', { detail: response })
   }
 }
 
 export const onAllAuthResponseError = async (response: { data: AllAuthResponseError }) => {
+  if (!response) {
+    return
+  }
   const nuxtApp = useNuxtApp()
   if ([401, 410].includes(response.data?.status)) {
     await nuxtApp.callHook('auth:change', { detail: response.data })
@@ -137,6 +146,7 @@ export const navigateToPendingFlow = (auth: AllAuthResponse | AllAuthResponseErr
   const nuxtApp = useNuxtApp()
   const path = pathForPendingFlow(auth)
   if (path) {
+    console.log('====== 8 ======')
     return nuxtApp.runWithContext(() => navigateTo(path))
   }
   return null
@@ -155,6 +165,7 @@ export const AuthenticatedRoute = () => {
     return
   }
   else {
+    console.log('====== 9 ======')
     return nuxtApp.runWithContext(() => navigateTo({
       path: URLs.LOGIN_URL,
       query: {
@@ -174,6 +185,7 @@ export const AnonymousRoute = () => {
     return
   }
   else {
+    console.log('====== 10 ======')
     return nuxtApp.runWithContext(() => navigateTo({
       path: URLs.LOGIN_REDIRECT_URL,
     }),

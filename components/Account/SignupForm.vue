@@ -2,6 +2,10 @@
 import { z } from 'zod'
 
 const { signup } = useAllAuthAuthentication()
+const authStore = useAuthStore()
+const { config: authConfig } = storeToRefs(authStore)
+
+const hasProviders = computed(() => authConfig.value?.data?.socialaccount?.providers?.length > 0)
 
 const { t } = useI18n()
 const toast = useToast()
@@ -69,7 +73,7 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 function handleSignupError(error: any) {
-  const defaultErrorMessage = t('pages.account.signup.account-confirm-email.resend.error.title')
+  const defaultErrorMessage = t('pages.account.verify-email.key.resend.error.title')
   if (!isErrorWithNestedData(error)) {
     throw error
   }
@@ -263,5 +267,9 @@ const submitButtonLabel = computed(() => {
         </div>
       </div>
     </form>
+    <AccountProviderList
+      v-if="hasProviders" :callback-url="localePath('/account/provider/callback')"
+      process="connect"
+    />
   </section>
 </template>

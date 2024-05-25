@@ -1,5 +1,4 @@
 import type { QueryObject } from 'ufo'
-import type { AllAuthResponse } from '~/types/all-auth'
 
 export function buildFullUrl(url: string, query: QueryObject): string {
   const valuesToExclude: (QueryObject[keyof QueryObject] | undefined)[] = [
@@ -21,60 +20,4 @@ export function buildFullUrl(url: string, query: QueryObject): string {
     }
   }
   return url
-}
-
-export function createAuthenticationHeaders(sessionToken?: string | null, sessionCookie?: string | null) {
-  const headers = {} as Record<string, string>
-
-  if (sessionCookie) {
-    headers['X-Session-Token'] = sessionCookie
-  }
-
-  if (sessionToken) {
-    headers['Authorization'] = `Bearer ${sessionToken}`
-  }
-
-  return headers
-}
-
-export async function processAllAuthSession(response: AllAuthResponse) {
-  const event = useEvent()
-
-  if (response.status === 200 && response.meta?.is_authenticated) {
-    if (response.meta?.session_token) {
-      appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
-      await setUserSession(event, {
-        sessionToken: response.meta.session_token,
-      })
-    }
-    if (response.meta?.access_token) {
-      appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
-      await setUserSession(event, {
-        accessToken: response.meta.access_token,
-      })
-    }
-  }
-}
-
-export async function getAllAuthHeaders() {
-  const session = await getUserSession(useEvent())
-  const sessionToken = session.sessionToken
-  const accessToken = session.accessToken
-
-  return createAuthenticationHeaders(sessionToken, accessToken)
-}
-
-export async function getAllAuthSessionToken() {
-  const session = await getUserSession(useEvent())
-  return session.sessionToken
-}
-
-export async function getAllAuthAccessToken() {
-  const session = await getUserSession(useEvent())
-  return session.accessToken
-}
-
-export async function requireAllAuthAccessToken() {
-  const session = await requireUserSession(useEvent())
-  return session.accessToken
 }

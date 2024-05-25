@@ -8,10 +8,8 @@ export default defineEventHandler(async (event) => {
       body: validatedBody,
       method: 'POST',
     })
-
     const signupResponse = await parseDataAs(response, ZodSignupResponse)
     await processAllAuthSession(signupResponse)
-
     return signupResponse
   }
   catch (error) {

@@ -8,7 +8,7 @@ const ZodAuthenticated = z.object({
 
 export const ZodPasswordResetPostBody = z.object({
   key: z.string(),
-  email: z.string().email(),
+  password: z.string(),
 })
 
 export const ZodPasswordResetPostResponse = z.object({

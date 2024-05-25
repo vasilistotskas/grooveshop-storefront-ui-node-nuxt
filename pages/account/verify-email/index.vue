@@ -12,7 +12,15 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.security.title')" />
-    <PageBody />
+    <PageTitle :text="$t('pages.account.verify-email.title')" />
+    <p
+      class="
+        text-primary-950 text-center
+
+        dark:text-primary-50
+      "
+    >
+      {{ $t('pages.account.verify-email.description') }}
+    </p>
   </PageWrapper>
 </template>

@@ -7,7 +7,6 @@ const { t } = useI18n()
 const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
-const { fetch } = useUserSession()
 const { providerSignup } = useAllAuthAuthentication()
 const { login } = useAllAuthAuthentication()
 const cartStore = useCartStore()
@@ -59,12 +58,11 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 async function performPostLoginActions() {
-  await fetch()
   await refreshCart()
 }
 
 async function navigateUser() {
-  const redirectPath = route.query.redirect?.toString() || '/account'
+  const redirectPath = route.query.next?.toString() || '/account'
   await navigateTo(redirectPath)
 }
 
@@ -74,7 +72,6 @@ async function handleLoginError(error: any) {
     title: errorMessage,
     color: 'red',
   })
-  await fetch()
 }
 
 async function finalizeLogin() {

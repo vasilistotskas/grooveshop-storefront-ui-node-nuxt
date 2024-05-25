@@ -1,9 +1,12 @@
 <script lang="ts" setup>
+import { AuthProcess } from '~/types/all-auth'
+
 setupPageHeader()
 setupCursorStates()
 
 const authStore = useAuthStore()
 const { setupConfig, setupSession } = authStore
+const { config: authConfig } = storeToRefs(authStore)
 
 await setupConfig()
 await setupSession()
@@ -15,6 +18,38 @@ const cartStore = useCartStore()
 const { fetchCart } = cartStore
 
 await fetchCart()
+
+const {
+  providerToken,
+} = useAllAuthAuthentication()
+
+onMounted(() => {
+  if (import.meta.client) {
+    const { loggedIn } = useUserSession()
+    const provider = authConfig.value?.data.socialaccount?.providers.find(p => p.id === 'google')
+    console.log('===== provider =====', provider)
+    if (!loggedIn.value && provider && window.google) {
+      async function handleCredentialResponse(response: { credential: string }) {
+        console.log('===== response =====', response)
+        const data = await providerToken({
+          provider: provider ? provider.id : '',
+          token: {
+            id_token: response.credential,
+            client_id: provider?.client_id ? provider.client_id : '',
+          },
+          process: AuthProcess.LOGIN,
+        })
+        console.log('===== data =====', data)
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: provider.client_id ? provider.client_id : '',
+        callback: handleCredentialResponse,
+      })
+      window.google.accounts.id.prompt()
+    }
+  }
+})
 
 const schemaOrgOptions = [
   defineOrganization({
@@ -34,7 +69,6 @@ const schemaOrgOptions = [
   }),
   defineWebPage(),
 ]
-
 const ogImageOptions = {
   title: config.public.appTitle,
   description: config.public.appDescription,

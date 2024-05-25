@@ -3,15 +3,16 @@ import { ZodProviderSignupBody, ZodProviderSignupResponse } from '~/types/all-au
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
+    const headers = await getAllAuthHeaders()
     const validatedBody = await readValidatedBody(event, ZodProviderSignupBody.parse)
     const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/provider/signup`, {
       body: validatedBody,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     })
-    return await parseDataAs(response, ZodProviderSignupResponse)
+    const providerResponse = await parseDataAs(response, ZodProviderSignupResponse)
+    await processAllAuthSession(providerResponse)
+    return providerResponse
   }
   catch (error) {
     await handleAllAuthError(error)

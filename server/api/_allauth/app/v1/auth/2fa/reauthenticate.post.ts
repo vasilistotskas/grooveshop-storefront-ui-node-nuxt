@@ -8,6 +8,8 @@ export default defineEventHandler(async () => {
       method: 'POST',
       headers,
     })
+    const reauthenticateResponse = await parseDataAs(response, ZodTwoFaReauthenticateResponse)
+    await processAllAuthSession(reauthenticateResponse)
     return await parseDataAs(response, ZodTwoFaReauthenticateResponse)
   }
   catch (error) {

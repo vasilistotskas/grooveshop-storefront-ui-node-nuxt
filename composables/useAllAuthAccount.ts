@@ -113,7 +113,7 @@ export default function () {
     })
   }
 
-  async function authenticators() {
+  async function getAuthenticators() {
     return useFetch(`${API_BASE_URL}/authenticators`, {
       method: 'GET',
       async onResponse({ response }) {
@@ -195,7 +195,7 @@ export default function () {
     changePassword,
     connectedThirdPartyProviderAccounts,
     disconnectThirdPartyProviderAccount,
-    authenticators,
+    getAuthenticators,
     totpAuthenticatorStatus,
     activateTotp,
     deactivateTotp,

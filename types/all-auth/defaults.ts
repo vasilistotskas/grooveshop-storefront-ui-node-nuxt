@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+export const AuthProcess = {
+  LOGIN: 'login',
+  CONNECT: 'connect',
+} as const
+
 export const URLs = {
   LOGIN_URL: '/account/login',
   LOGIN_REDIRECT_URL: '/account',
@@ -43,6 +48,11 @@ export const AuthChangeEvent = Object.freeze({
 })
 
 export type AuthChangeEventType = typeof AuthChangeEvent[keyof typeof AuthChangeEvent] | null
+
+export const AuthenticatorType = {
+  TOTP: 'totp',
+  RECOVERY_CODES: 'recovery_codes',
+} as const
 
 export const ZodProvider = z.object({
   id: z.string().describe('The provider ID.'),

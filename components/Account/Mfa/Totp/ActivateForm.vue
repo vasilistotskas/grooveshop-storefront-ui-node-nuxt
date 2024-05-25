@@ -16,7 +16,6 @@ function onSubmit(values: MfaTotpActivatePostBody) {
         title: t('pages.account.security.mfa.totp.activate.success'),
         color: 'green',
       })
-      await fetch()
       await navigateTo('/account')
     })
     .catch(() => {
@@ -47,9 +46,9 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="grid items-center justify-center justify-items-center">
     <DynamicForm
+      :button-label="t('common.entry')"
       :schema="formSchema"
       class="grid"
-      :button-label="t('common.entry')"
       @submit="onSubmit"
     />
   </section>

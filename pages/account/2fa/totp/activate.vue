@@ -16,7 +16,7 @@ definePageMeta({
       :text="$t('pages.account.security.mfa.totp.activate.title')"
       class="capitalize"
     />
-    <AccountSecurityNavbar />
+    <AccountAuthNavbar />
     <PageBody>
       <div
         class="

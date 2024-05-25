@@ -10,7 +10,9 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, ZodTwoFaAuthenticateResponse)
+    const authenticateResponse = await parseDataAs(response, ZodTwoFaAuthenticateResponse)
+    await processAllAuthSession(authenticateResponse)
+    return authenticateResponse
   }
   catch (error) {
     await handleAllAuthError(error)

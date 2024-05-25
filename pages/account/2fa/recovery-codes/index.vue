@@ -17,7 +17,7 @@ definePageMeta({
       :text="$t('pages.account.security.mfa.recovery.codes.title')"
       class="text-center capitalize"
     />
-    <AccountSecurityNavbar />
+    <AccountAuthNavbar />
     <PageBody>
       <AccountMfaRecoveryCodes />
     </PageBody>

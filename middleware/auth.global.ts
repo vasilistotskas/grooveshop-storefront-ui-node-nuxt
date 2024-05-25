@@ -12,29 +12,21 @@ export default defineNuxtRouteMiddleware(
       const { loggedIn } = useUserSession()
       if (!loggedIn.value) return
 
-      const returnToPath = from.query.redirect?.toString()
+      const returnToPath = from.query.next?.toString()
       const isRedirectingToLogin = returnToPath === '/account/login'
       const redirectTo = isRedirectingToLogin ? '/' : returnToPath || '/'
+      console.log('====== 1 ======')
       return nuxtApp.runWithContext(() => navigateTo(redirectTo))
     }
 
     const verifyAuthenticatedRoutes = async (
       to: RouteLocationNormalized,
     ) => {
-      const { loggedIn } = useUserSession()
-
       const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
         to.path.startsWith(prefix),
       ) || AuthenticatedRoutes.includes(to.path as typeof AuthenticatedRoutes[number])
 
       if (!isRouteProtected) return
-
-      if (!loggedIn.value) {
-        return nuxtApp.runWithContext(() => navigateTo({
-          path: '/account/login',
-          query: { redirect: to.path },
-        }))
-      }
     }
 
     if (isLoginPage(to)) {

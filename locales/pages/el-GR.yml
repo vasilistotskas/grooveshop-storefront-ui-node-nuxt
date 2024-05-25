@@ -292,6 +292,24 @@ pages:
         or: ή
         'no':
           account: Δεν έχεις λογαριασμό;
+      code:
+        title: Στείλε μου έναν κωδικό σύνδεσης
+        description: Θα λάβεις ένα email που περιέχει έναν ειδικό κωδικό.
+        confirm:
+          title: Επιβεβαίωση κωδικού
+          description: Ο κωδικός λήγει σύντομα, οπότε πρέπει να είσαι γρήγορος.
+    email:
+      title: Αλλαγή email
+    providers:
+      title: Πάροχοι
+    provider:
+      callback:
+        title: Αποτυχία σύνδεσης με τον πάροχο
+        description: Κάτι πήγε στραβά.
+      signup:
+        title: Εγγραφή
+        description: Έχετε λογαριασμό;
+        log_in_here: Συνδεθείτε εδώ
     signup:
       title: Εγγραφή
       description: Εγγραφή
@@ -330,31 +348,6 @@ pages:
         google: Εγγραφείτε στην Google
         or: ή
         already_have_account: Έχεις ήδη λογαριασμό?
-      account-confirm-email:
-        title: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
-        description: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
-        keywords: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
-        loading: Επαλήθευση του email σας...
-        success:
-          title: Το email επιβεβαιώθηκε
-          description: Το email σας επιβεβαιώθηκε, μπορείτε πλέον να συνδεθείτε.
-          button: Σύνδεση
-        error:
-          title: Σφάλμα επιβεβαίωσης email
-          description: Ίσως ο σύνδεσμος έχει λήξει ή δεν είναι έγκυρος.
-          button: Επανάληψη αποστολής συνδέσμου επιβεβαίωσης
-        resend:
-          success:
-            title: Ο σύνδεσμος επιβεβαίωσης email εστάλη
-            description: Ο σύνδεσμος επιβεβαίωσης email στάλθηκε με επιτυχία.
-          error:
-            title: Σφάλμα επαναποστολής συνδέσμου επιβεβαίωσης email
-            description: Σφάλμα επαναποστολής συνδέσμου επιβεβαίωσης email.
-          button: Επανάληψη αποστολής συνδέσμου επιβεβαίωσης
-          form:
-            email:
-              label: Email
-            submit: Επανάληψη αποστολής συνδέσμου επιβεβαίωσης
     password:
       reset:
         title: Επαναφορά κωδικού πρόσβασής
@@ -737,6 +730,50 @@ pages:
       update_error: Σφάλμα ενημέρωσης βοήθειας
       deleted: Το στοιχείο βοήθειας διαγράφηκε
       delete_error: Σφάλμα διαγραφής στοιχείου βοήθειας
+    verify-email:
+      title: Επιβεβαίωση Email
+      description: Παρακαλώ επιβεβαίωσε το email σου
+      key:
+        title: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
+        description: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
+        keywords: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
+        loading: Επαλήθευση του email σας...
+        please_confirm_that: Παρακαλώ επιβεβαιώστε ότι η διεύθυνση
+        is_an_email_address_for_user: ανήκει στον χρήστη
+        invalid_verification_url: Μη έγκυρος σύνδεσμος επαλήθευσης
+        unable_to_confirm_email: Αδυναμία επιβεβαίωσης email
+        because_it_is_already_confirmed: επειδή είναι ήδη επιβεβαιωμένο
+        success:
+          title: Το email επιβεβαιώθηκε
+          description: Το email σας επιβεβαιώθηκε, μπορείτε πλέον να συνδεθείτε.
+          button: Σύνδεση
+        error:
+          title: Σφάλμα επιβεβαίωσης email
+          description: Ίσως ο σύνδεσμος έχει λήξει ή δεν είναι έγκυρος.
+          button: Επανάληψη αποστολής συνδέσμου επιβεβαίωσης
+        resend:
+          success:
+            title: Ο σύνδεσμος επιβεβαίωσης email εστάλη
+            description: Ο σύνδεσμος επιβεβαίωσης email στάλθηκε με επιτυχία.
+          error:
+            title: Σφάλμα επαναποστολής συνδέσμου επιβεβαίωσης email
+            description: Σφάλμα επαναποστολής συνδέσμου επιβεβαίωσης email.
+          button: Επανάληψη αποστολής συνδέσμου επιβεβαίωσης
+          form:
+            email:
+              label: Email
+            submit: Επανάληψη αποστολής συνδέσμου επιβεβαίωσης
+    2fa:
+      title: Two-Factor Authentication
+      authenticator:
+        app: Εφαρμογή ελέγχου ταυτότητας
+      app: Εφαρμογή ελέγχου ταυτότητας
+      active: Η επαλήθευση με χρήση εφαρμογής ελέγχου ταυτότητας είναι ενεργή.
+      inactive: Η εφαρμογή ελέγχου ταυτότητας δεν είναι ενεργή.
+      recovery-codes:
+        title: Κωδικοί ανάκτησης
+        unset: Δεν έχουν οριστεί κωδικοί ανάκτησης
+        info: Έχετε %{unused_code_count} από τους %{total_code_count} κωδικούς ανάκτησης διαθέσιμους.
   search:
     title: Αναζήτηση
     nav: Αναζήτηση

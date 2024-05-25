@@ -27,6 +27,7 @@ export const AuthenticatedRoutePrefixes = [
 
 export const AuthenticatedRoutes = [
   '/account',
+  '/account/email',
 ] as const
 
 export const THEME_COLORS = {

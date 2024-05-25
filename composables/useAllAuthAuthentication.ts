@@ -82,7 +82,7 @@ export default function () {
   }
 
   async function emailVerify(body: EmailVerifyPostBody) {
-    return useFetch(`${API_BASE_URL}/email/verify`, {
+    return $fetch(`${API_BASE_URL}/email/verify`, {
       method: 'POST',
       body,
       async onResponse({ response }) {
@@ -120,9 +120,12 @@ export default function () {
     })
   }
 
-  async function getPasswordReset() {
-    return await $fetch(`${API_BASE_URL}/password/reset`, {
+  async function getPasswordReset(key: string) {
+    return useFetch(`${API_BASE_URL}/password/reset`, {
       method: 'GET',
+      headers: {
+        'X-Password-Reset-Key': key,
+      },
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
       },
@@ -209,7 +212,7 @@ export default function () {
     })
   }
 
-  async function codeRequest(body: CodeRequestBody) {
+  async function requestLoginCode(body: CodeRequestBody) {
     return await $fetch(`${API_BASE_URL}/code/request`, {
       method: 'POST',
       body,
@@ -222,7 +225,7 @@ export default function () {
     })
   }
 
-  async function codeConfirm(body: CodeConfirmBody) {
+  async function confirmLoginCode(body: CodeConfirmBody) {
     return await $fetch(`${API_BASE_URL}/code/confirm`, {
       method: 'POST',
       body,
@@ -251,7 +254,7 @@ export default function () {
     providerSignup,
     twoFaAuthenticate,
     twoFaReauthenticate,
-    codeRequest,
-    codeConfirm,
+    requestLoginCode,
+    confirmLoginCode,
   }
 }

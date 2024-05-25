@@ -1,19 +1,19 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-const { passwordReset } = useAllAuthAuthentication()
+const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
 
 const { t } = useI18n()
 const route = useRoute()
-const uid = route.params.uid
-const token = route.params.token
+const key = route.params.key
+
+const { data: getPasswordResetData, error: getPasswordResetError } = await getPasswordReset(key)
 
 const ZodPasswordResetConfirm = z
   .object({
     newPassword1: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
     newPassword2: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
-    uid: z.string({ required_error: t('common.validation.required') }),
-    token: z.string({ required_error: t('common.validation.required') }),
+    key: z.string({ required_error: t('common.validation.required') }),
   })
   .refine(data => data.newPassword1 === data.newPassword2, {
     message: t(
@@ -25,8 +25,7 @@ const ZodPasswordResetConfirm = z
 const initialValues = {
   newPassword1: '',
   newPassword2: '',
-  uid,
-  token,
+  key,
 }
 
 const validationSchema = toTypedSchema(ZodPasswordResetConfirm)
@@ -44,11 +43,9 @@ const [newPassword2, newPassword2Props] = defineField('newPassword2', {
 })
 
 const onSubmit = handleSubmit(async (values) => {
-  await passwordResetConfirm({
-    newPassword1: values.newPassword1,
-    newPassword2: values.newPassword2,
-    uid: values.uid,
-    token: values.token,
+  await passwordReset({
+    password: values.newPassword1,
+    key: values.key,
   })
 })
 </script>

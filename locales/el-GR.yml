@@ -1,8 +1,66 @@
 common:
+  validation:
+    min: Το πεδίο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    max: Το πεδίο πρέπει να έχει το πολύ %{max} χαρακτήρες
+    required: Απαιτούμενο
+    tooManyAttempts: Πολλές προσπάθειες
+    email:
+      required: Απαιτείται email
+      valid: Το email πρέπει να είναι έγκυρο
+      invalid: Το email δεν είναι έγκυρο
+    first_name:
+      required: Απαιτείται Όνομα
+      min: Το όνομα πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    last_name:
+      required: Το επώνυμο είναι υποχρεωτικό
+      min: Το επώνυμο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    street:
+      required: Απαιτείται οδός
+      min: Η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    street_number:
+      required: Απαιτείται αριθμός οδού
+      min: Ο αριθμός οδού πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    zipcode:
+      required: Απαιτείται ταχυδρομικός κώδικας
+      min: >-
+        Ο ταχυδρομικός κώδικας πρέπει να έχει μήκος τουλάχιστον %{min}
+        χαρακτήρων
+    place:
+      required: Η περιοχή είναι απαραίτητη
+      min: Το μέρος πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    city:
+      required: Η πόλη είναι απαραίτητη
+      min: Η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    phone:
+      required: Απαιτείται τηλέφωνο
+      min: Το τηλέφωνο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    date:
+      required_error: Επιλέξτε ημερομηνία και ώρα
+      invalid_type_error: Δεν είναι ραντεβού!
+    country:
+      required: Απαιτείται χώρα
+    region:
+      required: Απαιτείται Περιφέρεια
   home: Αρχική
   close: Κλείσιμο
   name: Όνομα
-  email: Email
+  continue: Συνέχεια
+  display: Εμφάνιση
+  uid: UID
+  connect: Σύνδεση
+  disconnect: Αποσύνδεση
+  regenerate: Αναδημιουργία
+  success:
+    title: Επιτυχία
+  email:
+    title: Email
+    add: Προσθήκη email
+    mark_as_primary: Καθορισμός ως κύριο
+    remove: Αφαίρεση email
+    request_verification: Αίτηση επαλήθευσης
+  verified: Επαληθευμένο
+  primary: Κύριο
+  actions: Ενέργειες
   message: Μήνυμα
   auth:
     login:
@@ -140,45 +198,5 @@ common:
   type: Τύπος
   total_code_count: Συνολικός αριθμός κωδικών
   unused_code_count: Αχρησιμοποίητος αριθμός κωδικών
-  validation:
-    min: Το πεδίο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    max: Το πεδίο πρέπει να έχει το πολύ %{max} χαρακτήρες
-    required: Απαιτούμενο
-    tooManyAttempts: Πολλές προσπάθειες
-    email:
-      required: Απαιτείται email
-      valid: Το email πρέπει να είναι έγκυρο
-      invalid: Το email δεν είναι έγκυρο
-    first_name:
-      required: Απαιτείται Όνομα
-      min: Το όνομα πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    last_name:
-      required: Το επώνυμο είναι υποχρεωτικό
-      min: Το επώνυμο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    street:
-      required: Απαιτείται οδός
-      min: Η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    street_number:
-      required: Απαιτείται αριθμός οδού
-      min: Ο αριθμός οδού πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    zipcode:
-      required: Απαιτείται ταχυδρομικός κώδικας
-      min: >-
-        Ο ταχυδρομικός κώδικας πρέπει να έχει μήκος τουλάχιστον %{min}
-        χαρακτήρων
-    place:
-      required: Η περιοχή είναι απαραίτητη
-      min: Το μέρος πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    city:
-      required: Η πόλη είναι απαραίτητη
-      min: Η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    phone:
-      required: Απαιτείται τηλέφωνο
-      min: Το τηλέφωνο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
-    date:
-      required_error: Επιλέξτε ημερομηνία και ώρα
-      invalid_type_error: Δεν είναι ραντεβού!
-    country:
-      required: Απαιτείται χώρα
-    region:
-      required: Απαιτείται Περιφέρεια
+  add:
+    email: Προσθήκη email
