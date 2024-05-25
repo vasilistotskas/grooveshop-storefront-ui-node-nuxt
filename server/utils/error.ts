@@ -21,22 +21,40 @@ import {
 
 export const isBadResponseError = (error: any): error is {
   data: BadResponse
-} => ZodBadResponse.safeParse(error.data).success
+} => {
+  const result = ZodBadResponse.safeParse(error.data)
+  return result.success
+}
 export const isNotAuthenticatedResponseError = (error: any): error is {
   data: NotAuthenticatedResponse
-} => ZodNotAuthenticatedResponse.safeParse(error.data).success
+} => {
+  const result = ZodNotAuthenticatedResponse.safeParse(error.data)
+  return result.success
+}
 export const isInvalidSessionResponseError = (error: any): error is {
   data: InvalidSessionResponse
-} => ZodInvalidSessionResponse.safeParse(error.data).success
+} => {
+  const result = ZodInvalidSessionResponse.safeParse(error.data)
+  return result.success
+}
 export const isForbiddenResponseError = (error: any): error is {
   data: ForbiddenResponse
-} => ZodForbiddenResponse.safeParse(error.data).success
+} => {
+  const result = ZodForbiddenResponse.safeParse(error.data)
+  return result.success
+}
 export const isNotFoundResponseError = (error: any): error is {
   data: NotFoundResponse
-} => ZodNotFoundResponse.safeParse(error.data).success
+} => {
+  const result = ZodNotFoundResponse.safeParse(error.data)
+  return result.success
+}
 export const isConflictResponseError = (error: any): error is {
   data: ConflictResponse
-} => ZodConflictResponse.safeParse(error.data).success
+} => {
+  const result = ZodConflictResponse.safeParse(error.data)
+  return result.success
+}
 
 export function isAllAuthError(error: unknown): error is AllAuthError {
   if (typeof error !== 'object' || error === null || !('data' in error)) {

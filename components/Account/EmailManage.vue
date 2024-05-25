@@ -27,16 +27,30 @@ async function addEmail(values: EmailPostBody) {
     await addEmailAddress(values)
     await refreshEmailAddresses()
     toast.add({
-      title: t('common.success.title'),
+      title: t('common.email.added'),
       color: 'green',
     })
     emit('addEmailAddress')
   }
   catch (error) {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+    if (isAllAuthClientError(error)) {
+      const errors = 'errors' in error.data.data ? error.data.data.errors : []
+      errors.forEach((error) => {
+        toast.add({
+          title: error.message,
+          color: 'red',
+        })
+      })
+    }
+    else {
+      toast.add({
+        title: t('common.error.default'),
+        color: 'red',
+      })
+    }
+  }
+  finally {
+    loading.value = false
   }
 }
 
@@ -45,16 +59,28 @@ async function emailVerificationRequest(values: EmailPutBody) {
     loading.value = true
     await requestEmailVerification(values)
     toast.add({
-      title: t('common.success.title'),
+      title: t('common.email.verification.requested'),
       color: 'green',
     })
     emit('requestEmailVerification')
   }
   catch (error) {
+    if (isAllAuthClientError(error)) {
+      if (error.data.data.status === 403) {
+        toast.add({
+          title: t('common.email.verification.too_many_requests'),
+          color: 'red',
+        })
+      }
+      return
+    }
     toast.add({
       title: t('common.error.default'),
       color: 'red',
     })
+  }
+  finally {
+    loading.value = false
   }
 }
 
@@ -64,7 +90,7 @@ async function removeEmail(values: EmailDeleteBody) {
     await removeEmailAddress(values)
     await refreshEmailAddresses()
     toast.add({
-      title: t('common.success.title'),
+      title: t('common.email.removed'),
       color: 'green',
     })
     emit('removeEmailAddress')
@@ -75,6 +101,9 @@ async function removeEmail(values: EmailDeleteBody) {
       color: 'red',
     })
   }
+  finally {
+    loading.value = false
+  }
 }
 
 async function markAsPrimaryEmail(values: EmailPatchBody) {
@@ -83,16 +112,29 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
     await changePrimaryEmailAddress(values)
     await refreshEmailAddresses()
     toast.add({
-      title: t('common.success.title'),
+      title: t('common.email.marked_as_primary'),
       color: 'green',
     })
     emit('changePrimaryEmailAddress')
   }
   catch (error) {
+    if (isAllAuthClientError(error)) {
+      console.log('error.data.data', error.data.data)
+      if (error.data.data.status === 403) {
+        toast.add({
+          title: t('common.email.verification.too_many_requests'),
+          color: 'red',
+        })
+      }
+      return
+    }
     toast.add({
       title: t('common.error.default'),
       color: 'red',
     })
+  }
+  finally {
+    loading.value = false
   }
 }
 
@@ -232,6 +274,7 @@ const formSchema: DynamicFormSchema = {
           <DynamicForm
             :button-label="t('common.submit')"
             :loading="loading"
+            :reset-on-submit="true"
             :schema="formSchema"
             @submit="addEmail"
           />

@@ -23,11 +23,20 @@ async function onSubmit(values: CodeRequestBody) {
     emit('requestLoginCode')
   }
   catch (error) {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
-    await navigateTo('/account/login/code/confirm')
+    if (isAllAuthClientError(error)) {
+      console.log('==== isAllAuthError ====')
+      toast.add({
+        title: t('common.success.title'),
+        color: 'green',
+      })
+      await navigateTo('/account/login/code/confirm')
+    }
+    else {
+      toast.add({
+        title: t('common.error.default'),
+        color: 'red',
+      })
+    }
   }
 }
 

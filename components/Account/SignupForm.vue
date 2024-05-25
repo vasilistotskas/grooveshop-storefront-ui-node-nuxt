@@ -74,8 +74,11 @@ const onSubmit = handleSubmit(async (values) => {
 
 function handleSignupError(error: any) {
   const defaultErrorMessage = t('pages.account.verify-email.key.resend.error.title')
-  if (!isErrorWithNestedData(error)) {
-    throw error
+  if (!isAllAuthClientError(error)) {
+    toast.add({
+      title: defaultErrorMessage,
+      color: 'red',
+    })
   }
   const { data } = error.data.data
 

@@ -1,7 +1,22 @@
-import type { BadResponse, InvalidSessionResponse, NotAuthenticatedResponse } from '~/types/all-auth'
+import type {
+  BadResponse,
+  ConflictResponse,
+  ForbiddenResponse,
+  InvalidSessionResponse,
+  NotAuthenticatedResponse,
+  NotFoundResponse,
+} from '~/types/all-auth'
 
 export type AllAuthError = {
-  data: BadResponse | NotAuthenticatedResponse | InvalidSessionResponse
+  data: {
+    data: BadResponse | NotAuthenticatedResponse | InvalidSessionResponse | ForbiddenResponse | NotFoundResponse | ConflictResponse
+  }
 }
 
-export type AllAuthResponseError = BadResponse | NotAuthenticatedResponse | InvalidSessionResponse
+export type AllAuthResponseError =
+  BadResponse
+  | NotAuthenticatedResponse
+  | InvalidSessionResponse
+  | ForbiddenResponse
+  | NotFoundResponse
+  | ConflictResponse

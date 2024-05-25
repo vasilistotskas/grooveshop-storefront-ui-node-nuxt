@@ -30,6 +30,7 @@ const props = withDefaults(
     buttonsPosition?: 'center' | 'left' | 'right'
     loading?: boolean
     maxSubmitCount?: number
+    resetOnSubmit?: boolean
   }>(),
   {
     id: undefined,
@@ -55,6 +56,7 @@ const props = withDefaults(
     buttonsPosition: 'right',
     loading: false,
     maxSubmitCount: 5,
+    resetOnSubmit: false,
   },
 )
 
@@ -68,6 +70,7 @@ const {
   disableSubmitUntilValid,
   loading,
   maxSubmitCount,
+  resetOnSubmit,
 } = toRefs(props)
 
 const finalID = id.value ?? useId()
@@ -183,8 +186,12 @@ const fields = createFields(schemaFieldNames)
 const emit = defineEmits(['submit'])
 
 // Define the submit event handler using handleSubmit function and emit function
-const onSubmit = handleSubmit((values) => {
+const onSubmit = handleSubmit((values, actions) => {
   emit('submit', values)
+
+  if (resetOnSubmit.value) {
+    actions.resetForm()
+  }
 })
 
 // Define the form state for Nuxt UI
@@ -233,9 +240,9 @@ formFields.forEach((field) => {
 <template>
   <UForm
     :id="finalID"
-    class="grid w-full gap-2"
     :state="fields"
     autocomplete="on"
+    class="grid w-full gap-2"
     @submit="onSubmit"
   >
     <div
@@ -262,8 +269,8 @@ formFields.forEach((field) => {
       v-model="fields[name][0].value"
       :label="label"
       :name="name"
-      v-bind="fields[name][1].value"
       class="grid"
+      v-bind="fields[name][1].value"
     >
       <label
         v-if="as === 'input'"
@@ -272,20 +279,20 @@ formFields.forEach((field) => {
       >{{ label }}</label>
       <UTextarea
         v-if="as === 'textarea'"
-        v-bind="fields[name][1].value"
         :id="groupId"
         v-model="fields[name][0].value"
-        :as="as"
-        :name="name"
-        :autocomplete="autocomplete"
         :aria-readonly="readonly"
+        :as="as"
+        :autocomplete="autocomplete"
+        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
+        :disabled="disabledFields[name]"
+        :name="name"
+        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :readonly="readonly"
         :required="required"
-        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :type="type"
-        :disabled="disabledFields[name]"
-        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
         color="primary"
+        v-bind="fields[name][1].value"
       >
         <div v-if="children && children.length > 0">
           <LazyDynamicFormChildren :children="children" />
@@ -293,22 +300,22 @@ formFields.forEach((field) => {
       </UTextarea>
       <UInput
         v-else
-        v-bind="fields[name][1].value"
         :id="groupId"
         v-model="fields[name][0].value"
-        :as="as"
-        :name="name"
-        :autocomplete="autocomplete"
+        :aria-describedby="errors[name] ? `error-${name}` : undefined"
+        :aria-invalid="errors[name] ? 'true' : 'false'"
         :aria-readonly="readonly"
+        :as="as"
+        :autocomplete="autocomplete"
+        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
+        :disabled="disabledFields[name]"
+        :name="name"
+        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :readonly="readonly"
         :required="required"
-        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :type="type"
-        :disabled="disabledFields[name]"
-        :aria-invalid="errors[name] ? 'true' : 'false'"
-        :aria-describedby="errors[name] ? `error-${name}` : undefined"
         color="primary"
-        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
+        v-bind="fields[name][1].value"
       >
         <div v-if="children && children.length > 0">
           <LazyDynamicFormChildren :children="children" />
@@ -332,22 +339,22 @@ formFields.forEach((field) => {
       <LazyUButton
         v-if="!isMultiStep && submitButton"
         :aria-busy="isSubmitting"
-        :disabled="submitButtonDisabled"
-        :type="submitButtonUi.type"
-        :variant="submitButtonUi.variant"
         :color="submitButtonUi.color"
-        :ui="submitButtonUi.ui"
-        :size="submitButtonUi.size"
+        :disabled="submitButtonDisabled"
         :label="buttonLabel"
+        :size="submitButtonUi.size"
+        :type="submitButtonUi.type"
+        :ui="submitButtonUi.ui"
+        :variant="submitButtonUi.variant"
       />
 
       <LazyUButton
         v-if="!isMultiStep && resetButton"
-        :type="resetButtonUi.type"
-        :variant="resetButtonUi.variant"
         :color="resetButtonUi.color"
-        :ui="resetButtonUi.ui"
         :size="resetButtonUi.size"
+        :type="resetButtonUi.type"
+        :ui="resetButtonUi.ui"
+        :variant="resetButtonUi.variant"
         @click="resetForm"
       >
         {{ resetLabel }}

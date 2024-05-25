@@ -33,7 +33,6 @@ async function onSubmit() {
 
 definePageMeta({
   layout: 'default',
-  middleware: 'guest',
 })
 </script>
 
@@ -43,9 +42,13 @@ definePageMeta({
       :text="$t('pages.account.verify-email.key.title')"
       class="text-center capitalize"
     />
-    <PageBody>
+    <PageBody class="grid items-center justify-center">
       <div class="flex flex-col items-center justify-center">
-        <div v-if="getVerifyEmailData?.status === 200">
+        <div
+          v-if="getVerifyEmailData?.status === 200" class="
+            flex flex-col items-center justify-center gap-4
+          "
+        >
           <p
             class="
               text-primary-950

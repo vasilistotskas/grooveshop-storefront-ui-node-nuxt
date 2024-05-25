@@ -64,7 +64,7 @@ export const ZodProvider = z.object({
 
 export const ZodMethods = z.array(
   z.object({
-    method: z.enum(['password', 'socialaccount', 'mfa']),
+    method: z.enum(['password', 'socialaccount', 'mfa', 'code']),
     at: z.number().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),
     email: z.string().email().optional().describe('The email address.'),
     username: z.string().optional().describe('The username.'),
@@ -124,7 +124,7 @@ export const ZodFlow = z.object({
     'mfa_reauthenticate',
     'mfa_authenticate',
   ]),
-  provider: ZodProvider,
+  provider: ZodProvider.optional(),
   is_pending: z.boolean().optional(),
 })
 

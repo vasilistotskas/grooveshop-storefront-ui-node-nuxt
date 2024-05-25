@@ -48,16 +48,24 @@ common:
   display: Εμφάνιση
   uid: UID
   connect: Σύνδεση
+  code: Κωδικός
   disconnect: Αποσύνδεση
   regenerate: Αναδημιουργία
+  confirm: Επιβεβαίωση
   success:
     title: Επιτυχία
   email:
+    added: Το email προστέθηκε, αλλά πρέπει να επαληθευτεί
+    removed: Το email αφαιρέθηκε
     title: Email
     add: Προσθήκη email
     mark_as_primary: Καθορισμός ως κύριο
     remove: Αφαίρεση email
     request_verification: Αίτηση επαλήθευσης
+    verification:
+      requested: Σου έχει σταλεί email επαλήθευσης
+      too_many_requests: Πολλές αιτήσεις επαλήθευσης
+      marked_as_primary: Σου έχει σταλεί email επαλήθευσης
   verified: Επαληθευμένο
   primary: Κύριο
   actions: Ενέργειες

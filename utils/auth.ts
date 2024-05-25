@@ -1,44 +1,5 @@
-import type {
-  AllAuthResponse,
-  AllAuthResponseError,
-  BadResponse,
-  ConflictResponse,
-  FlowId,
-  ForbiddenResponse,
-  InvalidSessionResponse,
-  NotAuthenticatedResponse,
-  NotFoundResponse,
-} from '~/types/all-auth'
-import {
-  AuthChangeEvent,
-  Flow2path,
-  URLs,
-  ZodBadResponse,
-  ZodConflictResponse,
-  ZodForbiddenResponse,
-  ZodInvalidSessionResponse,
-  ZodNotAuthenticatedResponse,
-  ZodNotFoundResponse,
-} from '~/types/all-auth'
-
-export const isBadResponseError = (error: any): error is {
-  data: BadResponse
-} => ZodBadResponse.safeParse(error.data).success
-export const isNotAuthenticatedResponseError = (error: any): error is {
-  data: NotAuthenticatedResponse
-} => ZodNotAuthenticatedResponse.safeParse(error.data).success
-export const isInvalidSessionResponseError = (error: any): error is {
-  data: InvalidSessionResponse
-} => ZodInvalidSessionResponse.safeParse(error.data).success
-export const isForbiddenResponseError = (error: any): error is {
-  data: ForbiddenResponse
-} => ZodForbiddenResponse.safeParse(error.data).success
-export const isNotFoundResponseError = (error: any): error is {
-  data: NotFoundResponse
-} => ZodNotFoundResponse.safeParse(error.data).success
-export const isConflictResponseError = (error: any): error is {
-  data: ConflictResponse
-} => ZodConflictResponse.safeParse(error.data).success
+import type { AllAuthResponse, AllAuthResponseError, FlowId } from '~/types/all-auth'
+import { AuthChangeEvent, Flow2path, URLs } from '~/types/all-auth'
 
 export const onAllAuthResponse = async (response: AllAuthResponse) => {
   if (!response) {

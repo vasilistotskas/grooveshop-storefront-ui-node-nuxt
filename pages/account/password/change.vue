@@ -12,7 +12,7 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.security.title')" />
+    <PageTitle :text="$t('pages.account.security.title')" class="text-center" />
     <PageBody>
       <AccountPasswordChangeForm />
     </PageBody>
