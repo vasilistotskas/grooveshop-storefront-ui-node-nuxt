@@ -1,23 +1,26 @@
 <script lang="ts" setup>
+const emit = defineEmits(['generateRecoveryCodes'])
+
 const { generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 
-function onSubmit() {
-  generateRecoveryCodes()
-    .then(async () => {
-      toast.add({
-        title: t('pages.account.security.mfa.recovery.codes.generate.success'),
-        color: 'green',
-      })
-      await navigateTo('/account/security/mfa/recovery-codes')
+const loading = ref(false)
+
+async function onSubmit() {
+  try {
+    await generateRecoveryCodes()
+    toast.add({
+      title: t('pages.account.security.mfa.recovery.codes.generate.success'),
+      color: 'green',
     })
-    .catch(() => {
-      toast.add({
-        title: t('pages.account.security.mfa.recovery.codes.generate.error'),
-        color: 'red',
-      })
+  }
+  catch {
+    toast.add({
+      title: t('pages.account.security.mfa.recovery.codes.generate.error'),
+      color: 'red',
     })
+  }
 }
 </script>
 

@@ -52,6 +52,17 @@ common:
   disconnect: Αποσύνδεση
   regenerate: Αναδημιουργία
   confirm: Επιβεβαίωση
+  activate: Ενεργοποίηση
+  generate: Δημιουργία
+  ip_address: Διεύθυνση IP
+  user_agent: Πρόγραμμα περιήγησης
+  is_current: Είναι τρέχουσα
+  logout_all_other_sessions: Αποσύνδεση από όλες τις υπόλοιπες συσκευές
+  password:
+    reset:
+      request:
+        success: Σου έχει σταλεί email επαναφοράς κωδικού
+      success: Η επαναφορά κωδικού ολοκληρώθηκε με επιτυχία
   success:
     title: Επιτυχία
   email:
@@ -125,6 +136,7 @@ common:
   previous: Προηγούμενος
   login: Σύνδεση
   logout: Αποσύνδεση
+  logged_out: Αποσυνδέθηκες
   about:
     us: Σχετικά με εμάς
     site: Τι είναι το Webside

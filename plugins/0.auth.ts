@@ -17,9 +17,8 @@ export default defineNuxtPlugin({
       await setupSessions()
     }
 
-    const prevAuth = ref(authState.value)
-
     nuxtApp.hook('auth:change', async ({ detail }) => {
+      const prevAuth = ref(authState.value)
       if (prevAuth.value) {
         const event = determineAuthChangeEvent(prevAuth.value, detail)
         console.log('===== auth:change event =====', event)
@@ -43,18 +42,18 @@ export default defineNuxtPlugin({
         switch (newVal) {
           case AuthChangeEvent.LOGGED_OUT:
             console.log('====== 4 ======')
-            return nuxtApp.runWithContext(() => navigateTo({
+            return await nuxtApp.runWithContext(() => navigateTo({
               path: URLs.LOGOUT_REDIRECT_URL,
             }))
           case AuthChangeEvent.LOGGED_IN:
             console.log('====== 5 ======')
-            return nuxtApp.runWithContext(() => navigateTo(URLs.LOGIN_REDIRECT_URL))
+            return await nuxtApp.runWithContext(() => navigateTo(URLs.LOGIN_REDIRECT_URL))
           case AuthChangeEvent.REAUTHENTICATED: {
             const router = useRouter()
             const next = router.currentRoute.value.query.next
             if (next) {
               console.log('====== 6 ======')
-              return nuxtApp.runWithContext(() => navigateTo(next as string))
+              return await nuxtApp.runWithContext(() => navigateTo(next as string))
             }
             break
           }
@@ -66,7 +65,7 @@ export default defineNuxtPlugin({
               if (flowId) {
                 const path = pathForFlow(flowId)
                 console.log('====== 7 ======')
-                return nuxtApp.runWithContext(() => navigateTo({
+                return await nuxtApp.runWithContext(() => navigateTo({
                   path,
                   query: {
                     next,
@@ -85,6 +84,7 @@ export default defineNuxtPlugin({
                 data: auth,
               })
             }
+            console.log('====== 10 ======', pendingFlow)
             return pendingFlow
           }
           default:

@@ -5,12 +5,14 @@ import { GlobalEvents } from '~/events'
 
 const { t } = useI18n()
 const toast = useToast()
-const route = useRoute()
 const localePath = useLocalePath()
 const { providerSignup } = useAllAuthAuthentication()
 const { login } = useAllAuthAuthentication()
 const cartStore = useCartStore()
 const { refreshCart } = cartStore
+
+const authStore = useAuthStore()
+const { session, hasProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
   email: z.string(
@@ -35,19 +37,17 @@ const [password, passwordProps] = defineField('password', {
 })
 
 const showPassword = ref(false)
-const rememberMe = ref(false)
 const loading = ref(false)
 
 const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
-    await login({
+    session.value = await login({
       email: values.email,
       password: values.password,
     })
     await performPostLoginActions()
-    await navigateUser()
   }
   catch (error) {
     await handleLoginError(error)
@@ -59,11 +59,6 @@ const onSubmit = handleSubmit(async (values) => {
 
 async function performPostLoginActions() {
   await refreshCart()
-}
-
-async function navigateUser() {
-  const redirectPath = route.query.next?.toString() || '/account'
-  await navigateTo(redirectPath)
 }
 
 async function handleLoginError(error: any) {
@@ -238,41 +233,56 @@ const submitButtonLabel = computed(() => {
             </p>
           </div>
 
-          <div class="flex items-center justify-center gap-4">
-            <UButton
-              :aria-busy="loading"
-              :aria-label="$t('pages.account.login.form.google')"
-              :disabled="loading"
-              :loading="loading"
-              color="red"
-              size="xl"
-              type="button"
-              variant="solid"
-              @click="() => providerSignup({
-                email: email,
-              })"
+          <div v-if="hasProviders" class="grid items-center justify-center gap-4">
+            <p
+              class="
+                text-primary-950
+
+                dark:text-primary-50
+              "
             >
-              <template #leading>
-                <IconMdi:google class="text-xl text-primary-50" />
-              </template>
-            </UButton>
-            <UButton
-              :aria-busy="loading"
-              :aria-label="$t('pages.account.login.form.facebook')"
-              :disabled="loading"
-              :loading="loading"
-              color="blue"
-              size="xl"
-              type="button"
-              variant="solid"
-              @click="() => providerSignup({
-                email: email,
-              })"
-            >
-              <template #leading>
-                <IconMdi:facebook class="text-xl text-primary-50" />
-              </template>
-            </UButton>
+              {{ $t('pages.account.login.form.social.title') }}
+            </p>
+            <div class="flex items-center justify-center gap-4">
+              <AccountProviderList
+                :callback-url="'/account/provider/callback'"
+                :process="'login'"
+              />
+              <UButton
+                :aria-busy="loading"
+                :aria-label="$t('pages.account.login.form.google')"
+                :disabled="loading"
+                :loading="loading"
+                color="red"
+                size="xl"
+                type="button"
+                variant="solid"
+                @click="() => providerSignup({
+                  email: email || '',
+                })"
+              >
+                <template #leading>
+                  <IconMdi:google class="text-xl text-primary-50" />
+                </template>
+              </UButton>
+              <UButton
+                :aria-busy="loading"
+                :aria-label="$t('pages.account.login.form.facebook')"
+                :disabled="loading"
+                :loading="loading"
+                color="blue"
+                size="xl"
+                type="button"
+                variant="solid"
+                @click="() => providerSignup({
+                  email: email || '',
+                })"
+              >
+                <template #leading>
+                  <IconMdi:facebook class="text-xl text-primary-50" />
+                </template>
+              </UButton>
+            </div>
           </div>
 
           <div

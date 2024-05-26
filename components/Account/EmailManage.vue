@@ -119,7 +119,6 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
-      console.log('error.data.data', error.data.data)
       if (error.data.data.status === 403) {
         toast.add({
           title: t('common.email.verification.too_many_requests'),

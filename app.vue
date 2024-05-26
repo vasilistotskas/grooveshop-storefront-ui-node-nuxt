@@ -27,11 +27,9 @@ onMounted(() => {
   if (import.meta.client) {
     const { loggedIn } = useUserSession()
     const provider = authConfig.value?.data.socialaccount?.providers.find(p => p.id === 'google')
-    console.log('===== provider =====', provider)
     if (!loggedIn.value && provider && window.google) {
-      async function handleCredentialResponse(response: { credential: string }) {
-        console.log('===== response =====', response)
-        const data = await providerToken({
+      function handleCredentialResponse(response: { credential: string }) {
+        providerToken({
           provider: provider ? provider.id : '',
           token: {
             id_token: response.credential,
@@ -39,7 +37,6 @@ onMounted(() => {
           },
           process: AuthProcess.LOGIN,
         })
-        console.log('===== data =====', data)
       }
 
       window.google.accounts.id.initialize({

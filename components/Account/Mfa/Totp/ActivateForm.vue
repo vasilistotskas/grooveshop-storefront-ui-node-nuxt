@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-import type { MfaTotpActivatePostBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
 const { totpActivatePost } = useAuthMfa()
-const { fetch } = useUserSession()
 const { t } = useI18n()
 const toast = useToast()
 

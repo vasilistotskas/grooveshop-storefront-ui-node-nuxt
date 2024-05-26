@@ -4,6 +4,13 @@ export const useAuthStore = defineStore('auth', () => {
   const session = ref<SessionResponse>()
   const config = ref<ConfigResponse>()
 
+  const hasProviders = computed(() => {
+    if (!config?.value || !config.value?.data || !config.value?.data?.socialaccount) {
+      return false
+    }
+    return config.value?.data?.socialaccount?.providers?.length > 0
+  })
+
   const setupSession = async () => {
     const { getSession } = useAllAuthAuthentication()
     await callOnce(async () => {
@@ -27,6 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     session,
     config,
+    hasProviders,
     setupSession,
     setupConfig,
   }

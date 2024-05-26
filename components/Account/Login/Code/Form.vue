@@ -24,7 +24,6 @@ async function onSubmit(values: CodeRequestBody) {
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
-      console.log('==== isAllAuthError ====')
       toast.add({
         title: t('common.success.title'),
         color: 'green',

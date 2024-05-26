@@ -16,6 +16,8 @@ import type {
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
 
 export default function () {
+  const { clear } = useUserSession()
+
   async function getSession() {
     return useFetch(`${API_BASE_URL}/session`, {
       method: 'GET',
@@ -24,6 +26,7 @@ export default function () {
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response._data)
+        await clear()
       },
     })
   }
@@ -33,9 +36,11 @@ export default function () {
       method: 'DELETE',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
+        await clear()
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response._data)
+        await clear()
       },
     })
   }
@@ -148,17 +153,27 @@ export default function () {
     })
   }
 
-  async function providerRedirect(body: ProviderRedirectBody) {
-    return await $fetch(`${API_BASE_URL}/provider/redirect`, {
-      method: 'POST',
-      body,
-      async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
-      },
-      async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
-      },
-    })
+  function providerRedirect(body: ProviderRedirectBody) {
+    const config = useRuntimeConfig()
+    const form = document.createElement('form')
+
+    form.method = 'POST'
+    form.action = `${config.public.djangoUrl}/_allauth/app/v1/auth/provider/redirect`
+
+    function addField(name: string, value: string) {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = name
+      input.value = value
+      form.appendChild(input)
+    }
+
+    addField('provider', body.provider)
+    addField('callback_url', body.callback_url)
+    addField('process', body.process)
+
+    document.body.appendChild(form)
+    form.submit()
   }
 
   async function providerToken(body: ProviderTokenBody) {

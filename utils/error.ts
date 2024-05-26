@@ -1,6 +1,6 @@
 import type { ErrorWithDetail } from '~/types'
 import type {
-  AllAuthError,
+  AllAuthClientError,
   BadResponse,
   ConflictResponse,
   ForbiddenResponse,
@@ -68,7 +68,7 @@ export const isConflictResponseError = (error: any): error is {
   return result.success
 }
 
-export function isAllAuthClientError(error: unknown): error is AllAuthError {
+export function isAllAuthClientError(error: unknown): error is AllAuthClientError {
   if (typeof error !== 'object' || error === null || !('data' in error)) {
     return false
   }

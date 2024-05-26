@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
-import type { MfaTotpAuthenticateBody } from '~/types/auth'
 import type { DynamicFormSchema } from '~/types/form'
 
 const { totpAuthenticate } = useAuthMfa()
@@ -39,8 +38,8 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :schema="formSchema"
         :button-label="t('common.submit')"
+        :schema="formSchema"
         @submit="onSubmit"
       />
     </section>

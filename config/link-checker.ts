@@ -3,8 +3,8 @@ export const linkChecker = {
     html: true,
     markdown: true,
   },
-  debug: process.env.NODE_ENV !== 'production',
-  enabled: process.env.NODE_ENV !== 'production',
+  debug: false, // process.env.NODE_ENV !== 'production',
+  enabled: false, // process.env.NODE_ENV !== 'production',
   excludeLinks: [
     process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
     process.env.NUXT_PUBLIC_SOCIALS_TWITTER,

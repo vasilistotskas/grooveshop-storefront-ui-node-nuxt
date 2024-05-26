@@ -15,7 +15,9 @@ const localePath = useLocalePath()
     "
   >
     <PageTitle
-      :text="$t('pages.account.provider.signup.title')" class="text-center"
+      :text="$t('pages.account.provider.signup.title')" class="
+        text-center capitalize
+      "
     />
     <div
       class="

@@ -12,7 +12,11 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.verify-email.title')" />
+    <PageTitle
+      :text="$t('pages.account.verify-email.title')" class="
+        text-center capitalize
+      "
+    />
     <p
       class="
         text-primary-950 text-center

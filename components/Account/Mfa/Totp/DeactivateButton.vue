@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 const { totpDeactivate } = useAuthMfa()
-const { fetch } = useUserSession()
 const { t } = useI18n()
 const toast = useToast()
 

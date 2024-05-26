@@ -13,7 +13,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.providers.title')" class="text-center"
+      :text="$t('pages.account.providers.title')" class="text-center capitalize"
     />
     <PageBody>
       <AccountProvidersManage />

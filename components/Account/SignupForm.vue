@@ -3,9 +3,7 @@ import { z } from 'zod'
 
 const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
-const { config: authConfig } = storeToRefs(authStore)
-
-const hasProviders = computed(() => authConfig.value?.data?.socialaccount?.providers?.length > 0)
+const { hasProviders } = storeToRefs(authStore)
 
 const { t } = useI18n()
 const toast = useToast()

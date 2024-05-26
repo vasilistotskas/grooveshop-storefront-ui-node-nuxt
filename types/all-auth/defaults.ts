@@ -151,3 +151,5 @@ export const ZodProviderAccount = z.object({
     + 'The authentication flows the provider integration supports.'),
   }),
 })
+
+export type Session = z.infer<typeof ZodSession>

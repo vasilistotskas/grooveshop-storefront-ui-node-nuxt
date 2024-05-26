@@ -19,7 +19,7 @@ async function onSubmit(values: PasswordRequestBody) {
       email: values.email,
     })
     toast.add({
-      title: t('common.success.title'),
+      title: t('common.password.reset.request.success'),
       color: 'green',
     })
     emit('passwordRequest')

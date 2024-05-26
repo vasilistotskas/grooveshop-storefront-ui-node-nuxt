@@ -1,6 +1,6 @@
 import { ZodSessionResponse } from '~/types/all-auth'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders()
@@ -14,5 +14,6 @@ export default defineEventHandler(async () => {
   }
   catch (error) {
     await handleAllAuthError(error)
+    await clearUserSession(event)
   }
 })

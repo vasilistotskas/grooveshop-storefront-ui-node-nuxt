@@ -28,9 +28,11 @@ definePageMeta({
     "
   >
     <AccountAuthNavbar />
-    <PageTitle :text="$t('pages.account.2fa.title')" />
+    <PageTitle
+      :text="$t('pages.account.2fa.title')" class="text-center capitalize"
+    />
     <PageBody>
-      <div class="grid items-center">
+      <div class="grid items-center justify-center">
         <p
           class="
             text-primary-950 text-center
@@ -40,7 +42,11 @@ definePageMeta({
         >
           {{ $t('pages.account.2fa.authenticator.app') }}
         </p>
-        <div v-if="totp" class="grid">
+        <div
+          v-if="totp" class="
+            grid items-center justify-center justify-items-center gap-4
+          "
+        >
           <p
             class="
               text-primary-950 text-center
@@ -53,12 +59,15 @@ definePageMeta({
           <UButton
             :label="$t('common.deactivate')"
             :to="localePath('/account/2fa/totp/deactivate')"
-            color="opposite"
+            color="primary"
             size="xl"
-            variant="link"
           />
         </div>
-        <div v-else class="grid">
+        <div
+          v-else class="
+            grid items-center justify-center justify-items-center gap-4
+          "
+        >
           <p
             class="
               text-primary-950 text-center
@@ -71,13 +80,12 @@ definePageMeta({
           <UButton
             :label="$t('common.activate')"
             :to="localePath('/account/2fa/totp/activate')"
-            color="opposite"
+            color="primary"
             size="xl"
-            variant="link"
           />
         </div>
       </div>
-      <div class="grid items-center">
+      <div class="grid items-center justify-center">
         <p
           class="
             text-primary-950 text-center
@@ -87,7 +95,11 @@ definePageMeta({
         >
           {{ $t('pages.account.2fa.recovery-codes.title') }}
         </p>
-        <div v-if="!recoveryCodes" class="grid">
+        <div
+          v-if="!recoveryCodes" class="
+            grid items-center justify-center justify-items-center gap-4
+          "
+        >
           <p
             class="
               text-primary-950 text-center
@@ -100,12 +112,15 @@ definePageMeta({
           <UButton
             :label="$t('common.generate')"
             :to="localePath('/account/2fa/recovery-codes/generate')"
-            color="opposite"
+            color="primary"
             size="xl"
-            variant="link"
           />
         </div>
-        <div v-else class="grid">
+        <div
+          v-else class="
+            grid items-center justify-center justify-items-center gap-4
+          "
+        >
           <p
             class="
               text-primary-950 text-center
@@ -121,16 +136,14 @@ definePageMeta({
           <UButton
             :label="$t('common.view')"
             :to="localePath('/account/2fa/recovery-codes')"
-            color="opposite"
+            color="primary"
             size="xl"
-            variant="link"
           />
           <UButton
             :label="$t('common.regenerate')"
             :to="localePath('/account/2fa/recovery-codes/generate')"
-            color="opposite"
+            color="primary"
             size="xl"
-            variant="link"
           />
         </div>
       </div>

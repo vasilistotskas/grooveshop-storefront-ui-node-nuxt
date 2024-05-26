@@ -7,12 +7,16 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      container-2xs flex flex-col gap-4 !p-0
 
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.security.title')" />
-    <PageBody />
+    <PageTitle
+      :text="$t('pages.account.sessions.title')" class="text-center"
+    />
+    <PageBody>
+      <AccountSessionsManage />
+    </PageBody>
   </PageWrapper>
 </template>

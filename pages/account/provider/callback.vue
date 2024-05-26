@@ -3,7 +3,8 @@ import { type AllAuthResponse, type AllAuthResponseError, URLs } from '~/types/a
 import { authInfo } from '~/utils/auth'
 
 const route = useRoute()
-const error = route.params.error
+const error = route.query.error
+const toast = useToast()
 
 const auth = useState<AllAuthResponse | AllAuthResponseError>('authState')
 const authStatus = authInfo(auth.value)
@@ -11,13 +12,28 @@ const authStatus = authInfo(auth.value)
 const url = ref<string>(URLs.LOGIN_URL)
 if (authStatus.isAuthenticated) {
   url.value = URLs.LOGIN_REDIRECT_URL
+  console.log('You are already logged in')
+  toast.add({
+    title: 'You are already logged in',
+    color: 'green',
+  })
 }
 else {
   url.value = pathForPendingFlow(auth.value) || url.value
+  console.log('You are not logged in', auth.value)
+  toast.add({
+    title: 'You are not logged in',
+    color: 'green',
+  })
 }
 
 if (!error) {
-  await navigateTo(url.value)
+  console.log('No error')
+  toast.add({
+    title: 'No error',
+    color: 'green',
+  })
+  // await navigateTo(url.value)
 }
 
 definePageMeta({
@@ -34,7 +50,9 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.provider.callback.title')" class="text-center"
+      :text="$t('pages.account.provider.callback.title')" class="
+        text-center capitalize
+      "
     />
     <p
       class="
@@ -48,8 +66,9 @@ definePageMeta({
     <UButton
       :label="$t('common.continue')"
       :to="url"
+      class="justify-center"
       color="opposite"
-      size="md"
+      size="xl"
       type="button"
       variant="link"
     />
