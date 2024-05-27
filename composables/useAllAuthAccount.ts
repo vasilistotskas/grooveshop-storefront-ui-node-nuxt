@@ -126,7 +126,7 @@ export default function () {
   }
 
   async function totpAuthenticatorStatus() {
-    return useFetch(`${API_BASE_URL}/authenticators/totp`, {
+    return useFetch(`${API_BASE_URL}/authenticators/totp/svg`, {
       method: 'GET',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)

@@ -7,7 +7,7 @@ const cartStore = useCartStore()
 const { getCartTotalItems, pending } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
 
-const { user, loggedIn, clear } = useUserSession()
+const { user, loggedIn } = useUserSession()
 const { t } = useI18n()
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
@@ -17,10 +17,7 @@ const onClickLogout = async () => {
   if (isRouteProtected(route.path))
     await navigateTo('/')
 
-  await Promise.all([
-    deleteSession(),
-    clear(),
-  ])
+  await deleteSession()
 
   cleanCartState()
   cleanAccountState()

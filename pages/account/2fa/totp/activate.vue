@@ -13,22 +13,18 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.security.mfa.totp.activate.title')"
-      class="capitalize"
+      :text="$t('pages.account.2fa.totp.activate.title')"
+      class="text-center capitalize"
     />
-    <AccountAuthNavbar />
     <PageBody>
       <div
         class="
-          container-2xs bg-primary-100 grid gap-4 rounded !p-4
-
-          dark:bg-primary-900
+          container-2xs grid gap-4 rounded !p-0
 
           md:px-6
         "
       >
-        <AccountMfaTotpActivate />
-        <AccountMfaTotpActivateForm />
+        <Account2FaTotpActivateForm />
       </div>
     </PageBody>
   </PageWrapper>

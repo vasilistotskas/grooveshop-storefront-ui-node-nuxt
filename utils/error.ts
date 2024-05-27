@@ -3,6 +3,7 @@ import type {
   AllAuthClientError,
   BadResponse,
   ConflictResponse,
+  Flow,
   ForbiddenResponse,
   InvalidSessionResponse,
   NotAuthenticatedResponse,
@@ -76,4 +77,20 @@ export function isAllAuthClientError(error: unknown): error is AllAuthClientErro
   return isBadResponseError(error.data) || isNotAuthenticatedResponseError(error.data)
     || isInvalidSessionResponseError(error.data) || isForbiddenResponseError(error.data)
     || isNotFoundResponseError(error.data) || isConflictResponseError(error.data)
+}
+
+export const pendingFlowInError = (error: unknown): Flow | null => {
+  if (isAllAuthClientError(error)) {
+    if (!('data' in error.data.data)) {
+      return null
+    }
+    if (!('flows' in error.data.data.data)) {
+      return null
+    }
+    const pendingFlow = error.data.data.data.flows.find(flow => flow.is_pending)
+    if (pendingFlow) {
+      return pendingFlow
+    }
+  }
+  return null
 }

@@ -74,6 +74,7 @@ const onSubmit = handleSubmit(async (values) => {
           color: 'red',
         })
       })
+      return
     }
     toast.add({
       title: t('common.error.default'),

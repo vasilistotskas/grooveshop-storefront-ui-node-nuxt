@@ -62,9 +62,16 @@ async function performPostLoginActions() {
 }
 
 async function handleLoginError(error: any) {
-  const errorMessage = error.data?.data?.nonFieldErrors?.[0] || t('common.auth.login.error')
+  const pendingFlow = pendingFlowInError(error)
+  if (pendingFlow && pendingFlow.id === 'mfa_authenticate') {
+    toast.add({
+      title: t('common.auth.pending.mfa_authenticate'),
+      color: 'blue',
+    })
+    return
+  }
   toast.add({
-    title: errorMessage,
+    title: t('common.auth.login.error'),
     color: 'red',
   })
 }

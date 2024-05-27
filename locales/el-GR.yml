@@ -52,19 +52,34 @@ common:
   disconnect: Αποσύνδεση
   regenerate: Αναδημιουργία
   confirm: Επιβεβαίωση
+  view: Προβολή
+  used: Χρησιμοποιημένο
+  deactivate: Απενεργοποίηση
+  confirm_access: Επιβεβαίωση πρόσβασης
+  reauthenticate: Παρακαλώ επαληθεύστε το λογαριασμό σας.
+  alternative_options: Εναλλακτικές επιλογές
   activate: Ενεργοποίηση
+  download_codes: Κατέβασε τους κωδικούς
   generate: Δημιουργία
   ip_address: Διεύθυνση IP
   user_agent: Πρόγραμμα περιήγησης
   is_current: Είναι τρέχουσα
   logout_all_other_sessions: Αποσύνδεση από όλες τις υπόλοιπες συσκευές
+  enter_authenticator_code: Εισάγετε τον κωδικό πολλαπλών παραγόντων
+  authenticator_code: Κωδικός πολλαπλών παραγόντων
+  authenticator_secret: Μυστικό πολλαπλών παραγόντων
+  authenticator_secret_description: Μπορείς να αποθηκεύσεις αυτό το μυστικό και να το χρησιμοποιήσεις για να επανεγκαταστήσεις την εφαρμογή πολλαπλών παραγόντων σε μεταγενέστερο χρόνο.
   password:
+    title: Κωδικός
     reset:
       request:
         success: Σου έχει σταλεί email επαναφοράς κωδικού
       success: Η επαναφορά κωδικού ολοκληρώθηκε με επιτυχία
+  codes:
+    generated: Οι κωδικοί δημιουργήθηκαν
   success:
     title: Επιτυχία
+    logged_in: Συνδέθηκες με επιτυχία
   email:
     added: Το email προστέθηκε, αλλά πρέπει να επαληθευτεί
     removed: Το email αφαιρέθηκε
@@ -92,6 +107,8 @@ common:
         title: Σφάλμα εγγραφής
         action1: Επανάληψη αποστολής επαλήθευσης
         verify_email: Σου έχει σταλεί email επαλήθευσης
+    pending:
+      mfa_authenticate: Θα πρέπει να επαληθεύσετε το λογαριασμό σας
   learn_more: Μάθε περισσότερα
   copy: αντίγραφο
   enabled: ενεργοποιημένη
@@ -135,8 +152,17 @@ common:
   next: Επόμενο
   previous: Προηγούμενος
   login: Σύνδεση
+  signup: Εγγραφή
+  verify_email: Επαλήθευση email
+  provider_redirect: Ανακατεύθυνση παρόχου
+  provider_signup: Εγγραφή παρόχου
+  provider_token: Κωδικός παρόχου
+  mfa_authenticate: Επαλήθευση πολλαπλών παραγόντων
+  mfa_reauthenticate: Επαλήθευση πολλαπλών παραγόντων
+  login_by_code: Σύνδεση με κωδικό
   logout: Αποσύνδεση
   logged_out: Αποσυνδέθηκες
+  enter_password: Εισάγετε τον κωδικό σας
   about:
     us: Σχετικά με εμάς
     site: Τι είναι το Webside

@@ -1,59 +1,5 @@
 import { z } from 'zod'
 
-export const AuthProcess = {
-  LOGIN: 'login',
-  CONNECT: 'connect',
-} as const
-
-export const URLs = {
-  LOGIN_URL: '/account/login',
-  LOGIN_REDIRECT_URL: '/account',
-  LOGOUT_REDIRECT_URL: '/',
-} as const
-
-export const Flow2path = {
-  login: '/account/login',
-  login_by_code: '/account/login/code/confirm',
-  signup: '/account/signup',
-  verify_email: '/account/verify-email',
-  provider_redirect: '/account/provider/redirect',
-  provider_signup: '/account/provider/signup',
-  provider_token: '/account/provider/token',
-  mfa_authenticate: '/account/2fa/authenticate',
-  reauthenticate: '/account/reauthenticate',
-  mfa_reauthenticate: '/account/2fa/reauthenticate',
-} as const
-
-export const Flows = {
-  LOGIN: 'login',
-  LOGIN_BY_CODE: 'login_by_code',
-  SIGNUP: 'signup',
-  VERIFY_EMAIL: 'verify_email',
-  PROVIDER_REDIRECT: 'provider_redirect',
-  PROVIDER_SIGNUP: 'provider_signup',
-  PROVIDER_TOKEN: 'provider_token',
-  MFA_AUTHENTICATE: 'mfa_authenticate',
-  REAUTHENTICATE: 'reauthenticate',
-  MFA_REAUTHENTICATE: 'mfa_reauthenticate',
-} as const
-
-export type FlowId = keyof typeof Flow2path
-
-export const AuthChangeEvent = Object.freeze({
-  LOGGED_OUT: 'LOGGED_OUT',
-  LOGGED_IN: 'LOGGED_IN',
-  REAUTHENTICATED: 'REAUTHENTICATED',
-  REAUTHENTICATION_REQUIRED: 'REAUTHENTICATION_REQUIRED',
-  FLOW_UPDATED: 'FLOW_UPDATED',
-})
-
-export type AuthChangeEventType = typeof AuthChangeEvent[keyof typeof AuthChangeEvent] | null
-
-export const AuthenticatorType = {
-  TOTP: 'totp',
-  RECOVERY_CODES: 'recovery_codes',
-} as const
-
 export const ZodProvider = z.object({
   id: z.string().describe('The provider ID.'),
   name: z.string().describe('The name of the provider.'),
@@ -129,7 +75,7 @@ export const ZodFlow = z.object({
 })
 
 export const ZodTOTPAuthenticator = z.object({
-  last_used_at: z.number().optional().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),
+  last_used_at: z.number().nullable().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),
   created_at: z.number().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),
   type: z.literal('totp'),
 })
@@ -152,4 +98,57 @@ export const ZodProviderAccount = z.object({
   }),
 })
 
+export const AuthProcess = {
+  LOGIN: 'login',
+  CONNECT: 'connect',
+} as const
+
+export const URLs = {
+  LOGIN_URL: '/account/login',
+  LOGIN_REDIRECT_URL: '/account',
+  LOGOUT_REDIRECT_URL: '/',
+} as const
+
+export const Flow2path = {
+  login: '/account/login',
+  login_by_code: '/account/login/code/confirm',
+  signup: '/account/signup',
+  verify_email: '/account/verify-email',
+  provider_redirect: '/account/provider/redirect',
+  provider_signup: '/account/provider/signup',
+  provider_token: '/account/provider/token',
+  mfa_authenticate: '/account/2fa/authenticate',
+  reauthenticate: '/account/reauthenticate',
+  mfa_reauthenticate: '/account/2fa/reauthenticate',
+} as const
+
+export const Flows = {
+  LOGIN: 'login',
+  LOGIN_BY_CODE: 'login_by_code',
+  SIGNUP: 'signup',
+  VERIFY_EMAIL: 'verify_email',
+  PROVIDER_REDIRECT: 'provider_redirect',
+  PROVIDER_SIGNUP: 'provider_signup',
+  PROVIDER_TOKEN: 'provider_token',
+  MFA_AUTHENTICATE: 'mfa_authenticate',
+  REAUTHENTICATE: 'reauthenticate',
+  MFA_REAUTHENTICATE: 'mfa_reauthenticate',
+} as const
+
+export const AuthChangeEvent = Object.freeze({
+  LOGGED_OUT: 'LOGGED_OUT',
+  LOGGED_IN: 'LOGGED_IN',
+  REAUTHENTICATED: 'REAUTHENTICATED',
+  REAUTHENTICATION_REQUIRED: 'REAUTHENTICATION_REQUIRED',
+  FLOW_UPDATED: 'FLOW_UPDATED',
+})
+
+export const AuthenticatorType = {
+  TOTP: 'totp',
+  RECOVERY_CODES: 'recovery_codes',
+} as const
+
 export type Session = z.infer<typeof ZodSession>
+export type Flow = z.infer<typeof ZodFlow>
+export type FlowId = keyof typeof Flow2path
+export type AuthChangeEventType = typeof AuthChangeEvent[keyof typeof AuthChangeEvent] | null

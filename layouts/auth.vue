@@ -15,7 +15,7 @@ const logo = computed(() => {
 </script>
 
 <template>
-  <div class="container relative">
+  <div class="container-3xs relative">
     <div class="mt-12 grid items-center justify-center">
       <NuxtImg
         :alt="appTitle"
@@ -27,6 +27,7 @@ const logo = computed(() => {
         format="png"
         loading="eager"
         preload
+        sizes="lg:500px"
       />
     </div>
     <main

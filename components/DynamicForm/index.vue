@@ -267,13 +267,13 @@ formFields.forEach((field) => {
       } in filteredFields"
       :key="name"
       v-model="fields[name][0].value"
-      :label="label"
+      :label="label ? label : undefined"
       :name="name"
       class="grid"
       v-bind="fields[name][1].value"
     >
       <label
-        v-if="as === 'input'"
+        v-if="label && as === 'input'"
         :for="name"
         class="sr-only"
       >{{ label }}</label>

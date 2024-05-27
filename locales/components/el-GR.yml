@@ -263,30 +263,3 @@ components:
     list:
       favourites:
         total: Χωρίς Αγαπημένα | 1 Αγαπημένο | %{count} Αγαπημένα
-  account:
-    security:
-      password:
-        change:
-          form:
-            current_password:
-              label: Τρέχων Κωδικός
-              placeholder: Τρέχων Κωδικός
-            new_password:
-              label: Νέος Κωδικός
-              placeholder: Νέος Κωδικός
-            newPassword1:
-              label: Νέος Κωδικός
-              placeholder: Νέος Κωδικός
-            newPassword2:
-              label: Επιβεβαιώστε τον καινούριο σας κωδικό
-              placeholder: Επιβεβαιώστε τον καινούριο σας κωδικό
-            password2:
-              validation:
-                mismatch: Οι κωδικοί πρόσβασης δεν ταιριάζουν
-            success:
-              title: Ο κωδικός άλλαξε
-              description: Ο κωδικός πρόσβασής σας άλλαξε με επιτυχία
-            error:
-              title: Σφάλμα αλλαγής κωδικού πρόσβασης
-              description: Ο κωδικός πρόσβασής σας δεν έχει αλλάξει
-              same_password: Ο νέος κωδικός πρόσβασης είναι ίδιος με τον τρέχοντα

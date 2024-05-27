@@ -4,18 +4,37 @@ import { z } from 'zod'
 import type { DynamicFormSchema } from '~/types/form'
 import type { TwoFaAuthenticateBody } from '~/types/all-auth'
 
-const { twoFaAuthenticate } = useAllAuthAuthentication()
+const emit = defineEmits(['twoFaAuthenticate'])
 
+const { twoFaAuthenticate } = useAllAuthAuthentication()
+const toast = useToast()
 const { t } = useI18n()
 
+const loading = ref(false)
+
 async function onSubmit(values: TwoFaAuthenticateBody) {
-  await twoFaAuthenticate(values)
+  try {
+    loading.value = true
+    await twoFaAuthenticate({
+      code: values.code,
+    })
+    toast.add({
+      title: t('common.success.logged_in'),
+      color: 'green',
+    })
+    emit('twoFaAuthenticate')
+  }
+  catch (error) {
+    toast.add({
+      title: t('common.error.default'),
+      color: 'red',
+    })
+  }
 }
 
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('pages.account.security.mfa.totp.authenticate.form.code.label'),
       name: 'code',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }).min(6).max(6),
@@ -39,8 +58,8 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :schema="formSchema"
         :button-label="t('common.submit')"
+        :schema="formSchema"
         @submit="onSubmit"
       />
     </section>

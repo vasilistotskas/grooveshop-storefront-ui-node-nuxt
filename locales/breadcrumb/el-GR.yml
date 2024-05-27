@@ -48,32 +48,6 @@ breadcrumb:
           confirm:
             icon: heroicons-solid:shopping-cart
             label: Επιβεβαίωση Κωδικού
-      security:
-        icon: heroicons-solid:shopping-cart
-        label: Ασφάλεια
-        general:
-          icon: heroicons-solid:shopping-cart
-          label: Γενικός
-        mfa:
-          icon: heroicons-solid:shopping-cart
-          label: Υπουργείο Εξωτερικών
-          recovery:
-            codes:
-              icon: heroicons-solid:shopping-cart
-              label: Κωδικοί ανάκτησης
-              generate:
-                icon: heroicons-solid:shopping-cart
-                label: Δημιουργήστε νέους κωδικούς
-          totp:
-            activate:
-              icon: heroicons-solid:shopping-cart
-              label: Ενεργοποίηση
-            authenticate:
-              icon: heroicons-solid:shopping-cart
-              label: Πιστοποιώ την αυθεντικότητα
-            deactivate:
-              icon: heroicons-solid:shopping-cart
-              label: Απενεργοποίηση
     account:
       icon: heroicons-solid:shopping-cart
       label: Λογαριασμός

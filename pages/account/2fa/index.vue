@@ -27,7 +27,6 @@ definePageMeta({
       md:gap-8
     "
   >
-    <AccountAuthNavbar />
     <PageTitle
       :text="$t('pages.account.2fa.title')" class="text-center capitalize"
     />

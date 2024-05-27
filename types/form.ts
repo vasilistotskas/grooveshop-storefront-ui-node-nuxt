@@ -19,7 +19,7 @@ export const ZodDynamicFormSchemaField = z.array(
       .default('input'),
     id: z.string().optional(),
     name: z.string(),
-    label: z.string(),
+    label: z.string().optional(),
     autocomplete: z.string().default('off'),
     readonly: z.boolean().default(false),
     required: z.boolean().default(false),

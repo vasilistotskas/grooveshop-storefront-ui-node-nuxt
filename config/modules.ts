@@ -13,6 +13,7 @@ export const modules = [
   '@vite-pwa/nuxt',
   '@vee-validate/nuxt',
   'unplugin-icons/nuxt',
+  'nuxt-better-optimize-deps',
   'nuxt-delay-hydration',
   'nuxt-auth-utils',
   'nuxt-time',

@@ -7,18 +7,17 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      container-3xs flex flex-col gap-4 !p-0
 
       md:gap-8
     "
   >
     <PageTitle
-      :text="$t('pages.account.security.mfa.recovery.codes.generate.title')"
+      :text="$t('pages.account.2fa.recovery-codes.generate.title')"
       class="text-center capitalize"
     />
-    <AccountAuthNavbar />
     <PageBody>
-      <AccountMfaRecoveryCodesGenerate />
+      <Account2FaRecoveryCodesGenerate />
     </PageBody>
   </PageWrapper>
 </template>

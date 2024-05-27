@@ -11,6 +11,7 @@ import type {
   ReauthenticateBody,
   SignupBody,
   TwoFaAuthenticateBody,
+  TwoFaReauthenticateBody,
 } from '~/types/all-auth'
 
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
@@ -215,9 +216,10 @@ export default function () {
     })
   }
 
-  async function twoFaReauthenticate() {
+  async function twoFaReauthenticate(body: TwoFaReauthenticateBody) {
     return await $fetch(`${API_BASE_URL}/2fa/reauthenticate`, {
       method: 'POST',
+      body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
       },

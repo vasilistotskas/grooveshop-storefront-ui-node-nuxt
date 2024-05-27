@@ -52,27 +52,36 @@ export const determineAuthChangeEvent = (
 ) => {
   let fromInfo = authInfo(fromAuth)
   const toInfo = authInfo(toAuth)
+  console.log('====== fromInfo ======', fromInfo)
+  console.log('====== toInfo ======', toInfo)
   if (toAuth.status === 410) {
+    console.log('====== LOGGED_OUT  ======')
     return AuthChangeEvent.LOGGED_OUT
   }
   if (fromInfo.user && toInfo.user && fromInfo.user?.id !== toInfo.user?.id) {
+    console.log('====== USER_CHANGED  ======')
     fromInfo = { isAuthenticated: false, requiresReauthentication: false, user: null, pendingFlow: null }
   }
   if (!fromInfo.isAuthenticated && toInfo.isAuthenticated) {
+    console.log('====== LOGGED_IN  ======')
     return AuthChangeEvent.LOGGED_IN
   }
   else if (fromInfo.isAuthenticated && !toInfo.isAuthenticated) {
+    console.log('====== LOGGED_OUT 2 ======')
     return AuthChangeEvent.LOGGED_OUT
   }
   else if (fromInfo.isAuthenticated && toInfo.isAuthenticated) {
     if (toInfo.requiresReauthentication) {
+      console.log('====== REAUTHENTICATION_REQUIRED  ======')
       return AuthChangeEvent.REAUTHENTICATION_REQUIRED
     }
     else if (fromInfo.requiresReauthentication) {
+      console.log('====== REAUTHENTICATED  ======')
       return AuthChangeEvent.REAUTHENTICATED
     }
     else if ('data' in fromAuth && 'data' in toAuth) {
       if ('methods' in fromAuth.data && 'methods' in toAuth.data && fromAuth.data?.methods.length < toAuth.data?.methods.length) {
+        console.log('====== REAUTHENTICATED 2 ======')
         return AuthChangeEvent.REAUTHENTICATED
       }
     }
@@ -81,9 +90,15 @@ export const determineAuthChangeEvent = (
     const fromFlow = fromInfo.pendingFlow
     const toFlow = toInfo.pendingFlow
     if (toFlow?.id && fromFlow?.id !== toFlow.id) {
+      console.log('====== FLOW_UPDATED  ======')
+      return AuthChangeEvent.FLOW_UPDATED
+    }
+    if (toFlow?.is_pending) {
+      console.log('====== FLOW_UPDATED 2 ======')
       return AuthChangeEvent.FLOW_UPDATED
     }
   }
+  console.log('====== null  ======')
   return null
 }
 
@@ -103,11 +118,11 @@ export const pathForPendingFlow = (auth: AllAuthResponse | AllAuthResponseError)
   return null
 }
 
-export const navigateToPendingFlow = (auth: AllAuthResponse | AllAuthResponseError) => {
+export const navigateToPendingFlow = async (auth: AllAuthResponse | AllAuthResponseError) => {
   const nuxtApp = useNuxtApp()
   const path = pathForPendingFlow(auth)
   if (path) {
-    console.log('====== 8 ======')
+    console.log('====== 8 ======', path)
     return nuxtApp.runWithContext(() => navigateTo(path))
   }
   return null
@@ -146,7 +161,7 @@ export const AnonymousRoute = () => {
     return
   }
   else {
-    console.log('====== 10 ======')
+    console.log('====== 11 ======')
     return nuxtApp.runWithContext(() => navigateTo({
       path: URLs.LOGIN_REDIRECT_URL,
     }),

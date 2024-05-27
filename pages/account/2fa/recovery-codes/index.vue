@@ -14,12 +14,11 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.security.mfa.recovery.codes.title')"
+      :text="$t('pages.account.2fa.recovery-codes.title')"
       class="text-center capitalize"
     />
-    <AccountAuthNavbar />
     <PageBody>
-      <AccountMfaRecoveryCodes />
+      <Account2FaRecoveryCodes />
     </PageBody>
   </PageWrapper>
 </template>

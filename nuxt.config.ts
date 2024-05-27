@@ -35,6 +35,10 @@ export default defineNuxtConfig({
   ssr: true,
   debug: false,
   sourcemap: true,
+  telemetry: false,
+  betterOptimizeDeps: {
+    exclude: ['@vee-validate', 'vee-validate'],
+  },
   site,
   modules,
   routeRules,
