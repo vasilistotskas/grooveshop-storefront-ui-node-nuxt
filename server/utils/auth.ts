@@ -1,14 +1,14 @@
 import { ZodUserAccount } from '~/types/user/account'
 import type { AllAuthResponse } from '~/types/all-auth'
 
-export function createAuthenticationHeaders(sessionToken?: string | null, _accessToken?: string | null) {
+export function createAuthenticationHeaders(sessionToken?: string | null, accessToken?: string | null) {
   const headers = {} as Record<string, string>
 
   headers['Content-Type'] = 'application/json'
 
   if (sessionToken) {
     headers['X-Session-Token'] = sessionToken
-    headers['Authorization'] = `Bearer ${sessionToken}`
+    headers['Authorization'] = `Bearer ${accessToken}`
   }
 
   return headers

@@ -77,6 +77,9 @@ const envVariables = z.object({
   NUXT_AUTH_REFRESH_TOKEN_DOMAIN: z.string(),
   NUXT_AUTH_TOTP_AUTHENTICATED_DOMAIN: z.string(),
   NUXT_AUTH_TOTP_ACTIVE_DOMAIN: z.string(),
+  NUXT_OAUTH_GOOGLE_CLIENT_ID: z.string(),
+  NUXT_OAUTH_GOOGLE_CLIENT_SECRET: z.string(),
+  NUXT_OAUTH_GOOGLE_SCOPES: z.string(),
 
   // Socials
   NUXT_PUBLIC_SOCIALS_FACEBOOK: z.string(),

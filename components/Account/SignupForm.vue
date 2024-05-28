@@ -2,8 +2,6 @@
 import { z } from 'zod'
 
 const { signup } = useAllAuthAuthentication()
-const authStore = useAuthStore()
-const { hasProviders } = storeToRefs(authStore)
 
 const { t } = useI18n()
 const toast = useToast()
@@ -268,9 +266,6 @@ const submitButtonLabel = computed(() => {
         </div>
       </div>
     </form>
-    <AccountProviderList
-      v-if="hasProviders" :callback-url="localePath('/account/provider/callback')"
-      process="connect"
-    />
+    <AccountProviderList />
   </section>
 </template>

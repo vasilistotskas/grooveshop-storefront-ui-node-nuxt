@@ -27,7 +27,6 @@ const logo = computed(() => {
         format="png"
         loading="eager"
         preload
-        sizes="lg:500px"
       />
     </div>
     <main

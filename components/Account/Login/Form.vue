@@ -251,10 +251,7 @@ const submitButtonLabel = computed(() => {
               {{ $t('pages.account.login.form.social.title') }}
             </p>
             <div class="flex items-center justify-center gap-4">
-              <AccountProviderList
-                :callback-url="'/account/provider/callback'"
-                :process="'login'"
-              />
+              <AccountProviderList />
               <UButton
                 :aria-busy="loading"
                 :aria-label="$t('pages.account.login.form.google')"

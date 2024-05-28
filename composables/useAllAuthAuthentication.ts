@@ -1,3 +1,4 @@
+import { resolveURL, withQuery } from 'ufo'
 import type {
   CodeConfirmBody,
   CodeRequestBody,
@@ -154,27 +155,18 @@ export default function () {
     })
   }
 
-  function providerRedirect(body: ProviderRedirectBody) {
-    const config = useRuntimeConfig()
-    const form = document.createElement('form')
+  function providerRedirect(provider: ProviderRedirectBody['provider']): void {
+    if (import.meta.client) {
+      const route = useRoute()
 
-    form.method = 'POST'
-    form.action = `${config.public.djangoUrl}/_allauth/app/v1/auth/provider/redirect`
+      const returnToPath = route.query.redirect?.toString()
 
-    function addField(name: string, value: string) {
-      const input = document.createElement('input')
-      input.type = 'hidden'
-      input.name = name
-      input.value = value
-      form.appendChild(input)
+      let redirectUrl = resolveURL('/auth', provider)
+
+      redirectUrl = withQuery(redirectUrl, { redirect: returnToPath })
+
+      window.location.replace(redirectUrl)
     }
-
-    addField('provider', body.provider)
-    addField('callback_url', body.callback_url)
-    addField('process', body.process)
-
-    document.body.appendChild(form)
-    form.submit()
   }
 
   async function providerToken(body: ProviderTokenBody) {

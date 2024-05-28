@@ -1,19 +1,4 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
-
-const props = defineProps({
-  callbackUrl: {
-    type: String,
-    required: true,
-  },
-  process: {
-    type: String as PropType<'login' | 'connect'>,
-    required: true,
-  },
-})
-
-const { callbackUrl, process } = toRefs(props)
-
 const authStore = useAuthStore()
 const { config } = storeToRefs(authStore)
 
@@ -24,6 +9,10 @@ const {
 const providers = computed(() => {
   return config.value?.data.socialaccount?.providers
 })
+
+const loginWithProvider = (provider: string) => {
+  providerRedirect(provider)
+}
 </script>
 
 <template>
@@ -33,11 +22,7 @@ const providers = computed(() => {
         :label="provider.name"
         color="primary"
         size="lg"
-        @click="providerRedirect({
-          provider: provider.id,
-          callback_url: callbackUrl,
-          process,
-        })"
+        @click="loginWithProvider(provider.id)"
       />
     </li>
   </ul>
