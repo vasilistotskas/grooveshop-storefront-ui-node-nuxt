@@ -4,6 +4,7 @@ import { AuthProcess } from '~/types/all-auth'
 setupPageHeader()
 setupCursorStates()
 
+const { loggedIn } = useUserSession()
 const authStore = useAuthStore()
 const { setupConfig, setupSession } = authStore
 const { config: authConfig } = storeToRefs(authStore)
@@ -25,7 +26,6 @@ const {
 
 onMounted(() => {
   if (import.meta.client) {
-    const { loggedIn } = useUserSession()
     const provider = authConfig.value?.data.socialaccount?.providers.find(p => p.id === 'google')
     if (!loggedIn.value && provider && window.google) {
       function handleCredentialResponse(response: { credential: string }) {

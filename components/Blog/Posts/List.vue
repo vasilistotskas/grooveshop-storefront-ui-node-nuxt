@@ -117,7 +117,20 @@ const refreshLikedPosts = async (postIds: number[]) => {
   }
 }
 
-refreshLikedPosts(postIds.value)
+await useFetch(
+  '/api/blog/posts/liked-posts',
+  {
+    method: 'POST',
+    body: { postIds: postIds },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const likedPostsIds = response._data
+      updateLikedPosts(likedPostsIds)
+    },
+  },
+)
 
 const showResults = computed(() => {
   if (paginationType.value === PaginationTypeEnum.CURSOR) {

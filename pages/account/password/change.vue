@@ -13,7 +13,9 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.security.title')" class="text-center capitalize"
+      :text="$t('pages.account.password.change.title')" class="
+        text-center capitalize
+      "
     />
     <PageBody>
       <AccountPasswordChangeForm />

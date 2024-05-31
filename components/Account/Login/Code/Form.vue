@@ -16,18 +16,10 @@ async function onSubmit(values: CodeRequestBody) {
   try {
     loading.value = true
     await requestLoginCode(values)
-    toast.add({
-      title: t('common.success.title'),
-      color: 'green',
-    })
     emit('requestLoginCode')
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
-      toast.add({
-        title: t('common.success.title'),
-        color: 'green',
-      })
       await navigateTo('/account/login/code/confirm')
     }
     else {
@@ -42,7 +34,6 @@ async function onSubmit(values: CodeRequestBody) {
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('common.email.title'),
       name: 'email',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),

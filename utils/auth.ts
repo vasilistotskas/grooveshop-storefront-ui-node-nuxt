@@ -1,5 +1,5 @@
 import type { AllAuthResponse, AllAuthResponseError, FlowId } from '~/types/all-auth'
-import { AuthChangeEvent, Flow2path, URLs } from '~/types/all-auth'
+import { AuthChangeEvent, Flow2path } from '~/types/all-auth'
 
 export const onAllAuthResponse = async (response: AllAuthResponse) => {
   if (!response) {
@@ -22,28 +22,10 @@ export const onAllAuthResponseError = async (response: { data: AllAuthResponseEr
 }
 
 export const authInfo = (auth: AllAuthResponse | AllAuthResponseError) => {
-  if (auth.status === 400 || auth.status === 401) {
-    return {
-      isAuthenticated: false,
-      requiresReauthentication: auth.status === 401 && auth.meta?.is_authenticated,
-      user: null,
-      pendingFlow: 'data' in auth ? auth.data?.flows.find(flow => flow.is_pending) : null,
-    }
-  }
-  else if (auth.status === 200) {
-    return {
-      isAuthenticated: true,
-      requiresReauthentication: false,
-      user: auth.data?.user || null,
-      pendingFlow: 'data' in auth ? auth.data?.flows?.find(flow => flow.is_pending) : null,
-    }
-  }
-  return {
-    isAuthenticated: false,
-    requiresReauthentication: false,
-    user: null,
-    pendingFlow: null,
-  }
+  const isAuthenticated = auth.status === 200 || (auth.status === 401 && auth.meta.is_authenticated)
+  const requiresReauthentication = isAuthenticated && auth.status === 401
+  const pendingFlow = 'data' in auth ? auth.data?.flows?.find(flow => flow.is_pending) : null
+  return { isAuthenticated, requiresReauthentication, user: isAuthenticated ? auth.data.user : null, pendingFlow }
 }
 
 export const determineAuthChangeEvent = (
@@ -52,18 +34,21 @@ export const determineAuthChangeEvent = (
 ) => {
   let fromInfo = authInfo(fromAuth)
   const toInfo = authInfo(toAuth)
+
   console.log('====== fromInfo ======', fromInfo)
   console.log('====== toInfo ======', toInfo)
+
   if (toAuth.status === 410) {
-    console.log('====== LOGGED_OUT  ======')
+    console.log('====== LOGGED_OUT ======')
     return AuthChangeEvent.LOGGED_OUT
   }
+
   if (fromInfo.user && toInfo.user && fromInfo.user?.id !== toInfo.user?.id) {
-    console.log('====== USER_CHANGED  ======')
     fromInfo = { isAuthenticated: false, requiresReauthentication: false, user: null, pendingFlow: null }
   }
+
   if (!fromInfo.isAuthenticated && toInfo.isAuthenticated) {
-    console.log('====== LOGGED_IN  ======')
+    console.log('====== LOGGED_IN ======')
     return AuthChangeEvent.LOGGED_IN
   }
   else if (fromInfo.isAuthenticated && !toInfo.isAuthenticated) {
@@ -71,34 +56,34 @@ export const determineAuthChangeEvent = (
     return AuthChangeEvent.LOGGED_OUT
   }
   else if (fromInfo.isAuthenticated && toInfo.isAuthenticated) {
+    console.log('====== REAUTHENTICATED ======')
     if (toInfo.requiresReauthentication) {
-      console.log('====== REAUTHENTICATION_REQUIRED  ======')
+      console.log('====== REAUTHENTICATION_REQUIRED ======')
       return AuthChangeEvent.REAUTHENTICATION_REQUIRED
     }
     else if (fromInfo.requiresReauthentication) {
-      console.log('====== REAUTHENTICATED  ======')
+      console.log('====== REAUTHENTICATED 2 ======')
       return AuthChangeEvent.REAUTHENTICATED
     }
-    else if ('data' in fromAuth && 'data' in toAuth) {
-      if ('methods' in fromAuth.data && 'methods' in toAuth.data && fromAuth.data?.methods.length < toAuth.data?.methods.length) {
-        console.log('====== REAUTHENTICATED 2 ======')
+    else if (('data' in fromAuth && 'data' in toAuth) && ('methods' in fromAuth.data && 'methods' in toAuth.data)) {
+      console.log('====== REAUTHENTICATED 3 ======')
+      if ((fromAuth.data.methods && toAuth.data.methods) && fromAuth.data.methods?.length < toAuth.data.methods?.length) {
+        console.log('====== REAUTHENTICATED 4 ======')
         return AuthChangeEvent.REAUTHENTICATED
       }
     }
   }
   else if (!fromInfo.isAuthenticated && !toInfo.isAuthenticated) {
+    console.log('====== REAUTHENTICATION_REQUIRED 2 ======')
     const fromFlow = fromInfo.pendingFlow
     const toFlow = toInfo.pendingFlow
     if (toFlow?.id && fromFlow?.id !== toFlow.id) {
-      console.log('====== FLOW_UPDATED  ======')
-      return AuthChangeEvent.FLOW_UPDATED
-    }
-    if (toFlow?.is_pending) {
-      console.log('====== FLOW_UPDATED 2 ======')
+      console.log('====== FLOW_UPDATED ======')
       return AuthChangeEvent.FLOW_UPDATED
     }
   }
-  console.log('====== null  ======')
+
+  console.log('====== UNKNOWN ======')
   return null
 }
 
@@ -111,9 +96,13 @@ export function pathForFlow(flowId: FlowId) {
 }
 
 export const pathForPendingFlow = (auth: AllAuthResponse | AllAuthResponseError) => {
-  const flow = 'data' in auth ? auth.data?.flows?.find(flow => flow.is_pending) : null
-  if (flow) {
-    return pathForFlow(flow.id)
+  const pendingFlows = 'data' in auth ? auth.data?.flows?.filter(flow => flow.is_pending) : []
+  if (!pendingFlows) {
+    return null
+  }
+  const lastPendingFlow = pendingFlows[pendingFlows.length - 1]
+  if (lastPendingFlow) {
+    return pathForFlow(lastPendingFlow.id)
   }
   return null
 }
@@ -122,49 +111,8 @@ export const navigateToPendingFlow = async (auth: AllAuthResponse | AllAuthRespo
   const nuxtApp = useNuxtApp()
   const path = pathForPendingFlow(auth)
   if (path) {
-    console.log('====== 8 ======', path)
+    console.log('====== navigateToPendingFlow ======', path)
     return nuxtApp.runWithContext(() => navigateTo(path))
   }
   return null
-}
-
-export const AuthenticatedRoute = () => {
-  const nuxtApp = useNuxtApp()
-  const route = useRoute()
-
-  const auth = useState<AllAuthResponse | AllAuthResponseError>('authState')
-  const authStatus = authInfo(auth.value)
-
-  const next = `next=${encodeURIComponent(route.fullPath)}`
-
-  if (authStatus.isAuthenticated) {
-    return
-  }
-  else {
-    console.log('====== 9 ======')
-    return nuxtApp.runWithContext(() => navigateTo({
-      path: URLs.LOGIN_URL,
-      query: {
-        next,
-      },
-    }),
-    )
-  }
-}
-
-export const AnonymousRoute = () => {
-  const nuxtApp = useNuxtApp()
-  const auth = useState<AllAuthResponse | AllAuthResponseError>('authState')
-  const authStatus = authInfo(auth.value)
-
-  if (!authStatus.isAuthenticated) {
-    return
-  }
-  else {
-    console.log('====== 11 ======')
-    return nuxtApp.runWithContext(() => navigateTo({
-      path: URLs.LOGIN_REDIRECT_URL,
-    }),
-    )
-  }
 }

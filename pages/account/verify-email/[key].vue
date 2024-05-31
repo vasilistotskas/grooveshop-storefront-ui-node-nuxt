@@ -16,11 +16,11 @@ async function onSubmit() {
     const data = await emailVerify({ key: route.params.key })
     if (data && [200, 401].includes(data.status)) {
       toast.add({
-        title: t('common.success.title'),
+        title: t('common.auth.email.verified'),
         color: 'green',
       })
       emit('emailVerify')
-      await navigateTo('/account/email')
+      await navigateTo('/account')
     }
   }
   catch (error) {
@@ -37,69 +37,77 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-2xs grid gap-12">
-    <PageTitle
-      :text="$t('pages.account.verify-email.key.title')"
-      class="text-center capitalize"
-    />
-    <PageBody class="grid items-center justify-center">
-      <div class="flex flex-col items-center justify-center">
-        <div
-          v-if="getVerifyEmailData?.status === 200" class="
-            flex flex-col items-center justify-center gap-4
-          "
-        >
+  <PageWrapper class="container-2xs grid">
+    <div
+      class="
+        flex flex-col gap-8
+
+        md:gap-12
+      "
+    >
+      <PageTitle
+        :text="$t('pages.account.verify-email.key.title')"
+        class="text-center capitalize"
+      />
+      <PageBody>
+        <div class="flex flex-col items-center justify-center">
+          <div
+            v-if="getVerifyEmailData?.status === 200" class="
+              flex flex-col items-center justify-center gap-4
+            "
+          >
+            <p
+              class="
+                text-primary-950
+
+                dark:text-primary-50
+              "
+            >
+              {{ $t('pages.account.verify-email.key.please_confirm_that') }} <a
+                :href="'mailto:' + getVerifyEmailData?.data.email"
+              >{{ getVerifyEmailData?.data.email
+              }}</a> {{ $t('pages.account.verify-email.key.is_an_email_address_for_user') }}
+              {{ getVerifyEmailData?.data.user.username || getVerifyEmailData?.data.user.display }}.
+            </p>
+            <UButton
+              :disabled="loading"
+              :label="
+                $t('common.confirm')
+              "
+              color="primary"
+              size="xl"
+              @click="onSubmit"
+            />
+          </div>
           <p
-            class="
+            v-else-if="!getVerifyEmailData?.data?.email" class="
               text-primary-950
 
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.verify-email.key.please_confirm_that') }} <a
-              :href="'mailto:' + getVerifyEmailData?.data.email"
-            >{{ getVerifyEmailData?.data.email
-            }}</a> {{ $t('pages.account.verify-email.key.is_an_email_address_for_user') }}
-            {{ getVerifyEmailData?.data.user.username || getVerifyEmailData?.data.user.display }}.
+            {{ $t('pages.account.verify-email.key.invalid_verification_url') }}
           </p>
-          <UButton
-            :disabled="loading"
-            :label="
-              $t('common.confirm')
+          <p
+            v-else class="
+              text-primary-950
+
+              dark:text-primary-50
             "
-            color="primary"
-            size="xl"
-            @click="onSubmit"
-          />
+          >
+            Unable to confirm email
+            {{ $t('pages.account.verify-email.key.unable_to_confirm_email') }}
+            <UButton
+              :external="true"
+              :label="getVerifyEmailData.data.email"
+              :to="'mailto:' + getVerifyEmailData.data.email"
+              color="opposite"
+              variant="link"
+            />
+            {{ $t('pages.account.verify-email.key.because_it_is_already_confirmed') }}
+          </p>
         </div>
-        <p
-          v-else-if="!getVerifyEmailData?.data?.email" class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
-        >
-          {{ $t('pages.account.verify-email.key.invalid_verification_url') }}
-        </p>
-        <p
-          v-else class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
-        >
-          Unable to confirm email
-          {{ $t('pages.account.verify-email.key.unable_to_confirm_email') }}
-          <UButton
-            :external="true"
-            :label="getVerifyEmailData.data.email"
-            :to="'mailto:' + getVerifyEmailData.data.email"
-            color="opposite"
-            variant="link"
-          />
-          {{ $t('pages.account.verify-email.key.because_it_is_already_confirmed') }}
-        </p>
-      </div>
-    </PageBody>
+      </PageBody>
+    </div>
   </PageWrapper>
 </template>

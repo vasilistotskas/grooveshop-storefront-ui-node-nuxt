@@ -6,33 +6,30 @@ import type { TotpPostBody } from '~/types/all-auth'
 
 const emit = defineEmits(['activateTotp'])
 
-const { activateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
+const authStore = useAuthStore()
+const { getTotpAuthenticatorStatus } = authStore
+const {
+  totpData,
+  totpSecret,
+  totpSvg,
+} = storeToRefs(authStore)
+
 const { t } = useI18n()
 const toast = useToast()
 
 const loading = ref(false)
 
-const { data, error } = await totpAuthenticatorStatus()
+await getTotpAuthenticatorStatus()
 
-if (data.value) {
+if (totpData.value) {
   await navigateTo('/account/2fa')
 }
 
-const secret = computed(() => {
-  if (!isAllAuthClientError(error.value)) return ''
-  return error.value?.data.data.meta.secret
-})
-
-const svg = computed(() => {
-  if (!isAllAuthClientError(error.value)) return ''
-  return error.value?.data.data.meta.svg
-})
-
-const { copy, isSupported } = useClipboard({ source: secret })
+const { copy, isSupported } = useClipboard({ source: totpSecret.value })
 
 const onSecretClick = () => {
   if (isSupported.value) {
-    copy(secret.value)
+    copy(totpSecret.value)
     toast.add({
       title: t('common.copied'),
       color: 'green',
@@ -49,6 +46,7 @@ async function onSubmit(values: TotpPostBody) {
       color: 'green',
     })
     emit('activateTotp')
+    await navigateTo('/account/2fa')
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
@@ -83,11 +81,15 @@ const formSchema: DynamicFormSchema = {
     },
   ],
 }
+
+onMounted(() => {
+  console.log('mounted')
+})
 </script>
 
 <template>
   <div
-    v-if="error" class="
+    v-if="totpSecret && totpSvg" class="
       grid items-center justify-center justify-items-center gap-4
 
       md:gap-8
@@ -96,12 +98,18 @@ const formSchema: DynamicFormSchema = {
     <div class="grid">
       <label class="grid items-center justify-center justify-items-center gap-2">
         {{ $t('common.authenticator_secret') }}:
-        <p v-html="svg" />
+        <span
+          class="
+            rounded-md bg-primary-200
+
+            dark:bg-primary-800
+          " v-html="totpSvg"
+        />
         <UInput
           :ui="{
             base: 'cursor-pointer text-center !px-0',
           }"
-          :value="secret" class="w-full" readonly type="text" @click="onSecretClick"
+          :value="totpSecret" class="w-full" readonly type="text" @click="onSecretClick"
         />
         <span class="text-center">{{ $t('common.authenticator_secret_description') }}</span>
       </label>

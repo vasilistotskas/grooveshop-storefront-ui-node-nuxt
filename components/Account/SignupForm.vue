@@ -2,6 +2,8 @@
 import { z } from 'zod'
 
 const { signup } = useAllAuthAuthentication()
+const authStore = useAuthStore()
+const { hasProviders } = storeToRefs(authStore)
 
 const { t } = useI18n()
 const toast = useToast()
@@ -69,10 +71,9 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 function handleSignupError(error: any) {
-  const defaultErrorMessage = t('pages.account.verify-email.key.resend.error.title')
   if (!isAllAuthClientError(error)) {
     toast.add({
-      title: defaultErrorMessage,
+      title: t('common.error.default'),
       color: 'red',
     })
   }
@@ -83,7 +84,7 @@ function handleSignupError(error: any) {
       if (flow.id === 'verify_email' && flow.is_pending) {
         toast.add({
           description: t(`common.auth.signup.error.${flow.id}`),
-          color: 'red',
+          color: 'blue',
         })
         return
       }
@@ -263,9 +264,44 @@ const submitButtonLabel = computed(() => {
               variant="link"
             />
           </div>
+
+          <div
+            class="
+              my-2 flex items-center
+
+              after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300
+
+              before:mt-0.5 before:flex-1 before:border-t
+              before:border-neutral-300
+            "
+          >
+            <p
+              class="
+                mx-4 text-center font-semibold
+
+                dark:text-neutral-200
+              "
+            >
+              {{ $t('common.or.title') }}
+            </p>
+          </div>
+
+          <div v-if="hasProviders" class="grid items-center justify-center gap-4">
+            <p
+              class="
+                text-primary-950
+
+                dark:text-primary-50
+              "
+            >
+              {{ $t('pages.account.signup.form.social.title') }}
+            </p>
+            <div class="flex items-center justify-center gap-4">
+              <AccountProviderList />
+            </div>
+          </div>
         </div>
       </div>
     </form>
-    <AccountProviderList />
   </section>
 </template>

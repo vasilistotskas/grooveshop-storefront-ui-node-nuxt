@@ -6,7 +6,6 @@ import { GlobalEvents } from '~/events'
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
-const { providerSignup } = useAllAuthAuthentication()
 const { login } = useAllAuthAuthentication()
 const cartStore = useCartStore()
 const { refreshCart } = cartStore
@@ -15,9 +14,7 @@ const authStore = useAuthStore()
 const { session, hasProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
-  email: z.string(
-    { required_error: t('common.validation.required') },
-  ),
+  email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
   password: z.string({ required_error: t('common.validation.required') }),
 })
 
@@ -67,6 +64,16 @@ async function handleLoginError(error: any) {
     toast.add({
       title: t('common.auth.pending.mfa_authenticate'),
       color: 'blue',
+    })
+    return
+  }
+  if (isAllAuthClientError(error)) {
+    const errors = 'errors' in error.data.data ? error.data.data.errors : []
+    errors.forEach((error) => {
+      toast.add({
+        title: error.message,
+        color: 'red',
+      })
     })
     return
   }
@@ -236,7 +243,7 @@ const submitButtonLabel = computed(() => {
                 dark:text-neutral-200
               "
             >
-              {{ $t('pages.account.login.form.or') }}
+              {{ $t('common.or.title') }}
             </p>
           </div>
 
@@ -252,40 +259,6 @@ const submitButtonLabel = computed(() => {
             </p>
             <div class="flex items-center justify-center gap-4">
               <AccountProviderList />
-              <UButton
-                :aria-busy="loading"
-                :aria-label="$t('pages.account.login.form.google')"
-                :disabled="loading"
-                :loading="loading"
-                color="red"
-                size="xl"
-                type="button"
-                variant="solid"
-                @click="() => providerSignup({
-                  email: email || '',
-                })"
-              >
-                <template #leading>
-                  <IconMdi:google class="text-xl text-primary-50" />
-                </template>
-              </UButton>
-              <UButton
-                :aria-busy="loading"
-                :aria-label="$t('pages.account.login.form.facebook')"
-                :disabled="loading"
-                :loading="loading"
-                color="blue"
-                size="xl"
-                type="button"
-                variant="solid"
-                @click="() => providerSignup({
-                  email: email || '',
-                })"
-              >
-                <template #leading>
-                  <IconMdi:facebook class="text-xl text-primary-50" />
-                </template>
-              </UButton>
             </div>
           </div>
 

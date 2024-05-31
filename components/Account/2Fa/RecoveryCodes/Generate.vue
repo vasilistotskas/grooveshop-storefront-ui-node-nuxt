@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 const emit = defineEmits(['generateRecoveryCodes'])
 
-const { recoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
+const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 
-const { data } = await recoveryCodes()
+const { data } = await getRecoveryCodes()
 
 const hasCodes = computed(() => {
   if (!data.value?.data?.unused_code_count) {
@@ -27,7 +27,17 @@ async function onSubmit() {
     emit('generateRecoveryCodes')
     await navigateTo('/account/2fa/recovery-codes')
   }
-  catch {
+  catch (error) {
+    if (isAllAuthClientError(error)) {
+      const errors = 'errors' in error.data.data ? error.data.data.errors : []
+      errors.forEach((error) => {
+        toast.add({
+          title: error.message,
+          color: 'red',
+        })
+      })
+      return
+    }
     toast.add({
       title: t('common.error.default'),
       color: 'red',
@@ -47,7 +57,7 @@ async function onSubmit() {
       md:px-6
     "
   >
-    <section class="grid items-center justify-center justify-items-center">
+    <section class="grid items-center justify-center justify-items-center gap-4">
       <p
         class="
           text-primary-950

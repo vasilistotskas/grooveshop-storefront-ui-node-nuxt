@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { UserAddressOrderingField } from '~/types/user/address'
-import emptyIcon from '~icons/mdi/package-variant-remove'
 import type { EntityOrdering } from '~/types/ordering'
 
 defineProps({
@@ -90,8 +89,8 @@ watch(
       <PaginationPageNumber
         v-if="pagination"
         :count="pagination.count"
-        :page-size="pagination.pageSize"
         :page="pagination.page"
+        :page-size="pagination.pageSize"
       />
       <Ordering
         :ordering="String(ordering)"
@@ -160,17 +159,5 @@ watch(
         </div>
       </div>
     </template>
-    <EmptyState
-      v-if="!pending && !addresses?.results?.length"
-      :icon="emptyIcon"
-    >
-      <template #actions>
-        <UButton
-          :label="$t('common.empty.button')"
-          :to="'index'"
-          color="primary"
-        />
-      </template>
-    </EmptyState>
   </div>
 </template>

@@ -8,11 +8,11 @@ import type {
   TotpPostBody,
 } from '~/types/all-auth'
 
-const API_BASE_URL = '/api/_allauth/app/v1/account'
+const API_ACCOUNT_BASE_URL = '/api/_allauth/app/v1/account'
 
 export default function () {
   async function getEmailAddresses() {
-    return useFetch(`${API_BASE_URL}/email`, {
+    return useFetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'GET',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -24,7 +24,7 @@ export default function () {
   }
 
   async function addEmailAddress(body: EmailPostBody) {
-    return await $fetch(`${API_BASE_URL}/email`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'POST',
       body,
       async onResponse({ response }) {
@@ -37,7 +37,7 @@ export default function () {
   }
 
   async function requestEmailVerification(body: EmailPutBody) {
-    return await $fetch(`${API_BASE_URL}/email`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PUT',
       body,
       async onResponse({ response }) {
@@ -50,7 +50,7 @@ export default function () {
   }
 
   async function changePrimaryEmailAddress(body: EmailPatchBody) {
-    return await $fetch(`${API_BASE_URL}/email`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PUT',
       body,
       async onResponse({ response }) {
@@ -63,7 +63,7 @@ export default function () {
   }
 
   async function removeEmailAddress(body: EmailDeleteBody) {
-    return await $fetch(`${API_BASE_URL}/email`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'DELETE',
       body,
       async onResponse({ response }) {
@@ -76,7 +76,7 @@ export default function () {
   }
 
   async function changePassword(body: PasswordChangeBody) {
-    return await $fetch(`${API_BASE_URL}/password/change`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/password/change`, {
       method: 'POST',
       body,
       async onResponse({ response }) {
@@ -89,7 +89,7 @@ export default function () {
   }
 
   async function connectedThirdPartyProviderAccounts() {
-    return useFetch(`${API_BASE_URL}/providers`, {
+    return useFetch(`${API_ACCOUNT_BASE_URL}/providers`, {
       method: 'GET',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -101,7 +101,7 @@ export default function () {
   }
 
   async function disconnectThirdPartyProviderAccount(body: ProvidersDeleteBody) {
-    return await $fetch(`${API_BASE_URL}/providers`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/providers`, {
       method: 'DELETE',
       body,
       async onResponse({ response }) {
@@ -114,7 +114,7 @@ export default function () {
   }
 
   async function getAuthenticators() {
-    return useFetch(`${API_BASE_URL}/authenticators`, {
+    return useFetch(`${API_ACCOUNT_BASE_URL}/authenticators`, {
       method: 'GET',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -126,7 +126,7 @@ export default function () {
   }
 
   async function totpAuthenticatorStatus() {
-    return useFetch(`${API_BASE_URL}/authenticators/totp/svg`, {
+    return useFetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp/svg`, {
       method: 'GET',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -138,7 +138,7 @@ export default function () {
   }
 
   async function activateTotp(body: TotpPostBody) {
-    return await $fetch(`${API_BASE_URL}/authenticators/totp`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
       method: 'POST',
       body,
       async onResponse({ response }) {
@@ -151,7 +151,7 @@ export default function () {
   }
 
   async function deactivateTotp() {
-    return await $fetch(`${API_BASE_URL}/authenticators/totp`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
       method: 'DELETE',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -162,8 +162,8 @@ export default function () {
     })
   }
 
-  async function recoveryCodes() {
-    return useFetch(`${API_BASE_URL}/authenticators/recovery-codes`, {
+  async function getRecoveryCodes() {
+    return useFetch(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
       method: 'GET',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -175,7 +175,7 @@ export default function () {
   }
 
   async function generateRecoveryCodes() {
-    return await $fetch(`${API_BASE_URL}/authenticators/recovery-codes`, {
+    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
       method: 'POST',
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -199,7 +199,7 @@ export default function () {
     totpAuthenticatorStatus,
     activateTotp,
     deactivateTotp,
-    recoveryCodes,
+    getRecoveryCodes,
     generateRecoveryCodes,
   }
 }

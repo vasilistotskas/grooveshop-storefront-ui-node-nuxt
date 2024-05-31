@@ -4,7 +4,7 @@ import favouritesIcon from '~icons/mdi/heart-outline'
 import helpIcon from '~icons/mdi/help-circle-outline'
 import ordersIcon from '~icons/mdi/package-variant-closed'
 import reviewsIcon from '~icons/mdi/star-outline'
-import shieldIcon from '~icons/mdi/shield-check'
+import addressesIcon from '~icons/fa6-solid/address-book'
 
 interface IMenuItem {
   type: 'link' | 'button' | 'external-link'
@@ -37,18 +37,18 @@ export const useAccountMenus = () => {
       cssClass:
         'text-primary-950 dark:text-primary-50 bg-primary-100 border-primary-500 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
     },
-    {
-      type: 'link',
-      text: t('common.security'),
-      route: { name: 'account-security', path: '/account/security' },
-      icon: shieldIcon,
-      cssClass:
-        'text-primary-950 dark:text-primary-50 bg-primary-100 border-primary-500 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
-    },
   ])
 
   if (import.meta.dev) {
     menus.value.push(
+      {
+        type: 'link',
+        text: t('pages.account.addresses.title'),
+        route: { name: 'account-addresses', path: '/account/addresses' },
+        icon: addressesIcon,
+        cssClass:
+          'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
+      },
       {
         type: 'link',
         text: t('pages.account.orders.title'),

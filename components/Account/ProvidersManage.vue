@@ -16,7 +16,6 @@ const loading = ref(false)
 const { data: providerAccounts, refresh: refreshProviderAccounts } = await connectedThirdPartyProviderAccounts()
 
 async function disconnect(values: ProvidersDeleteBody) {
-  console.log('=== disconnect ===', values)
   try {
     loading.value = true
     await disconnectThirdPartyProviderAccount(values)
@@ -84,9 +83,16 @@ const actionItems = (row: { uid: string, display: string, name: string }) => {
       md:gap-12
     "
   >
-    <UTable :columns="columns" :rows="rows">
+    <UTable
+      :columns="columns"
+      :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('common.auth.providers.empty') }"
+      :rows="rows"
+    >
       <template #actions-data="{ row }">
-        <UDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
+        <UDropdown
+          v-if="actionItems(row).length > 0"
+          :items="actionItems(row)"
+        >
           <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
         </UDropdown>
       </template>

@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 import { type AllAuthResponse, type AllAuthResponseError, type Flow, Flows } from '~/types/all-auth'
 
 const props = defineProps({
-  flow: { type: Object as PropType<Flow['id']>, required: true },
+  flow: { type: String as PropType<Flow['id']>, required: true },
 })
 
 defineSlots<{

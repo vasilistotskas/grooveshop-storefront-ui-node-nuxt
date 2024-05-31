@@ -47,7 +47,7 @@ const formSchema: DynamicFormSchema = {
 }
 
 definePageMeta({
-  layout: 'auth',
+  layout: 'default',
 })
 </script>
 

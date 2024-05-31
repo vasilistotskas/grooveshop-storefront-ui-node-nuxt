@@ -17,7 +17,7 @@ const packageVersion = pkg.version
     <div class="container mx-auto w-full">
       <div
         class="
-          flex gap-4
+          grid grid-cols-2 gap-4
 
           md:grid md:grid-cols-4 md:gap-8 md:px-6 md:py-8
         "
@@ -43,9 +43,9 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :to="'about'"
-                :title="$t('common.about.site')"
                 :text="$t('common.about.site')"
+                :title="$t('common.about.site')"
+                :to="'about'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -57,9 +57,9 @@ const packageVersion = pkg.version
             </li>
             <li class="grid">
               <Anchor
-                :to="'vision'"
-                :title="$t('common.vision')"
                 :text="$t('common.vision')"
+                :title="$t('common.vision')"
+                :to="'vision'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -92,9 +92,9 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :to="'what-is-microlearning'"
-                :title="$t('common.microlearning.what')"
                 :text="$t('common.microlearning.what')"
+                :title="$t('common.microlearning.what')"
+                :to="'what-is-microlearning'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -106,9 +106,9 @@ const packageVersion = pkg.version
             </li>
             <li class="grid">
               <Anchor
-                :to="'why-microlearning'"
-                :title="$t('common.microlearning.why')"
                 :text="$t('common.microlearning.why')"
+                :title="$t('common.microlearning.why')"
+                :to="'why-microlearning'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -141,9 +141,9 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :to="'terms-of-use'"
-                :title="$t('common.term_of_use')"
                 :text="$t('common.term_of_use')"
+                :title="$t('common.term_of_use')"
+                :to="'terms-of-use'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -155,9 +155,9 @@ const packageVersion = pkg.version
             </li>
             <li class="grid">
               <Anchor
-                :to="'privacy-policy'"
-                :title="$t('common.privacy_policy')"
                 :text="$t('common.privacy_policy')"
+                :title="$t('common.privacy_policy')"
+                :to="'privacy-policy'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -169,9 +169,9 @@ const packageVersion = pkg.version
             </li>
             <li class="grid">
               <Anchor
-                :to="'cookies-policy'"
-                :title="$t('common.cookies_policy')"
                 :text="$t('common.cookies_policy')"
+                :title="$t('common.cookies_policy')"
+                :to="'cookies-policy'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -204,9 +204,9 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :to="'contact'"
-                :title="$t('common.contact_us')"
                 :text="$t('common.contact_us')"
+                :title="$t('common.contact_us')"
+                :to="'contact'"
                 class="
                   flex-1 text-sm capitalize
 
@@ -222,55 +222,59 @@ const packageVersion = pkg.version
     </div>
     <div
       class="
-        bg-primary-100 w-full
+        bg-primary-100 w-full pt-4
 
         dark:bg-primary-900
+
+        md:pt-0
       "
     >
       <div class="container mx-auto w-full">
         <div
           class="
-            px-2 py-3
+            grid
 
             md:flex md:items-center md:justify-between md:px-4 md:py-6
           "
         >
           <span
             class="
-              text-primary-950 text-sm
+              text-primary-950 row-start-2 text-sm
 
               dark:text-primary-300
+
+              md:row-start-1
 
               sm:text-center
             "
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
-              class="p-0"
-              size="lg"
-              type="button"
-              color="opposite"
-              variant="link"
               :label="`${config.public.siteName}™.`"
               :to="config.public.siteUrl"
+              class="p-0"
+              color="opposite"
+              size="lg"
+              type="button"
+              variant="link"
             /> {{ $t('common.all_rights_reserved') }}.
           </span>
           <div
             class="
-              mt-4 flex items-center justify-between gap-12
+              mb-4 mt-4 flex flex-col items-center justify-between gap-2
 
-              md:mt-0
+              md:mb-0 md:mt-0 md:flex-row md:gap-12
             "
           >
             <div
               class="
-                flex
+                flex flex-wrap
 
                 sm:justify-center
               "
             >
               <Socials
-                :icon-class="'text-xl'"
                 :button-size="'sm'"
+                :icon-class="'text-xl'"
               />
             </div>
             <span

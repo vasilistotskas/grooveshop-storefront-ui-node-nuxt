@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, z.any())
+
+    const requestResponse = await parseDataAs(response, z.any())
+    await processAllAuthSession(requestResponse)
+    return requestResponse
   }
   catch (error) {
     await handleAllAuthError(error)

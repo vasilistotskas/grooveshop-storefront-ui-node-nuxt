@@ -8,7 +8,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      container-3xs flex flex-col gap-4 !p-0
 
       md:gap-8
     "
@@ -18,6 +18,15 @@ definePageMeta({
       class="text-center capitalize"
     />
     <PageBody>
+      <p
+        class="
+          text-primary-950 text-center
+
+          dark:text-primary-50
+        "
+      >
+        {{ $t('pages.account.password.reset.description') }}
+      </p>
       <AccountPasswordResetForm />
     </PageBody>
   </PageWrapper>

@@ -242,7 +242,7 @@ formFields.forEach((field) => {
     :id="finalID"
     :state="fields"
     autocomplete="on"
-    class="grid w-full gap-2"
+    class="grid w-full gap-4"
     @submit="onSubmit"
   >
     <div
@@ -261,15 +261,16 @@ formFields.forEach((field) => {
         autocomplete = 'off',
         readonly = false,
         required = false,
+        hidden = false,
         placeholder = '',
         type = 'text',
         children = [],
       } in filteredFields"
       :key="name"
       v-model="fields[name][0].value"
+      :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
       :label="label ? label : undefined"
       :name="name"
-      class="grid"
       v-bind="fields[name][1].value"
     >
       <label
@@ -307,8 +308,9 @@ formFields.forEach((field) => {
         :aria-readonly="readonly"
         :as="as"
         :autocomplete="autocomplete"
-        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
+        :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
         :disabled="disabledFields[name]"
+        :hidden="hidden ? 'hidden' : undefined"
         :name="name"
         :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :readonly="readonly"

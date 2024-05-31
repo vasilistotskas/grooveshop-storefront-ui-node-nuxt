@@ -33,6 +33,8 @@ export const AuthenticatedRoutes = [
   '/account',
   '/account/2fa',
   '/account/email',
+  '/account/reauthenticate',
+  '/account/2fa/reauthenticate',
 ] as const
 
 export const THEME_COLORS = {

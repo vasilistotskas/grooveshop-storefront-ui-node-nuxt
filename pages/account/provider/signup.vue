@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
-  layout: 'auth',
+  layout: 'default',
 })
 
 const localePath = useLocalePath()

@@ -17,7 +17,7 @@ async function onSubmit(values: CodeConfirmBody) {
     loading.value = true
     await confirmLoginCode(values)
     toast.add({
-      title: t('common.success.title'),
+      title: t('common.logged_in'),
       color: 'green',
     })
     emit('confirmLoginCode')
@@ -34,7 +34,6 @@ async function onSubmit(values: CodeConfirmBody) {
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('common.code'),
       name: 'code',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }),

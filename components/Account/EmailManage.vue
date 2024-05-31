@@ -59,7 +59,7 @@ async function emailVerificationRequest(values: EmailPutBody) {
     loading.value = true
     await requestEmailVerification(values)
     toast.add({
-      title: t('common.email.verification.requested'),
+      title: 'ee',
       color: 'green',
     })
     emit('requestEmailVerification')

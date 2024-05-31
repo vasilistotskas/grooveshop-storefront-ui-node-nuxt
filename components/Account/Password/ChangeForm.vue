@@ -12,7 +12,7 @@ const onSubmit = async (values: PasswordChangeBody) => {
   await changePassword(values)
     .then(async () => {
       toast.add({
-        title: t('components.account.security.password.change.form.success.title'),
+        title: t('common.auth.password.change.success'),
         color: 'green',
       })
       await navigateTo('/account')
@@ -29,7 +29,7 @@ const formSchema: DynamicFormSchema = {
   fields: [
     {
       label: t(
-        'components.account.security.password.change.form.current_password.label',
+        'common.password.current',
       ),
       name: 'current_password',
       as: 'input',
@@ -38,13 +38,13 @@ const formSchema: DynamicFormSchema = {
       readonly: false,
       required: true,
       placeholder: t(
-        'components.account.security.password.change.form.current_password.placeholder',
+        'common.password.current',
       ),
       type: 'password',
     },
     {
       label: t(
-        'components.account.security.password.change.form.new_password.label',
+        'common.password.new',
       ),
       name: 'new_password',
       as: 'input',
@@ -53,7 +53,7 @@ const formSchema: DynamicFormSchema = {
       readonly: false,
       required: true,
       placeholder: t(
-        'components.account.security.password.change.form.new_password.placeholder',
+        'common.password.new',
       ),
       type: 'password',
     },
@@ -65,7 +65,7 @@ const formSchema: DynamicFormSchema = {
     })
     .refine(data => data.current_password !== data.new_password, {
       message: t(
-        'components.account.security.password.change.form.error.same_password',
+        'common.validation.must_not_be_same', { field: t('common.password.current') },
       ),
       path: ['new_password'],
     }),
@@ -73,19 +73,19 @@ const formSchema: DynamicFormSchema = {
 </script>
 
 <template>
-  <section
+  <div
     class="
-      container-2xs bg-primary-100 rounded !p-4
-
-      dark:bg-primary-900
+      container-2xs p-0
 
       md:px-6
     "
   >
-    <DynamicForm
-      :button-label="t('common.change.title')"
-      :schema="formSchema"
-      @submit="onSubmit"
-    />
-  </section>
+    <section class="grid items-center">
+      <DynamicForm
+        :button-label="t('common.change.title')"
+        :schema="formSchema"
+        @submit="onSubmit"
+      />
+    </section>
+  </div>
 </template>

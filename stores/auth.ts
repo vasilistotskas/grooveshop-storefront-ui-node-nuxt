@@ -1,8 +1,11 @@
-import type { ConfigResponse, SessionResponse } from '~/types/all-auth'
+import type { ConfigResponse, SessionResponse, TotpGetResponse } from '~/types/all-auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const session = ref<SessionResponse>()
   const config = ref<ConfigResponse>()
+  const totpData = ref<TotpGetResponse>()
+  const totpSecret = ref('')
+  const totpSvg = ref('')
 
   const hasProviders = computed(() => {
     if (!config?.value || !config.value?.data || !config.value?.data?.socialaccount) {
@@ -31,11 +34,33 @@ export const useAuthStore = defineStore('auth', () => {
     })
   }
 
+  const getTotpAuthenticatorStatus = async () => {
+    if (totpSecret.value || totpSvg.value) return
+
+    const { totpAuthenticatorStatus } = useAllAuthAccount()
+    const { data, error } = await totpAuthenticatorStatus()
+
+    if (data.value) {
+      totpData.value = data.value
+    }
+
+    if (!isAllAuthClientError(error.value)) return
+    const secret = error.value?.data.data.meta.secret
+    const svg = error.value?.data.data.meta.svg
+    totpSecret.value = secret
+    totpSvg.value = svg
+  }
+
   return {
     session,
     config,
     hasProviders,
+    totpData,
+    totpSecret,
+    totpSvg,
     setupSession,
     setupConfig,
+    getTotpAuthenticatorStatus,
+
   }
 })

@@ -84,7 +84,9 @@ definePageMeta({
           />
         </div>
       </div>
-      <div class="grid items-center justify-center">
+      <div
+        v-if="recoveryCodes" class="grid items-center justify-center"
+      >
         <p
           class="
             text-primary-950 text-center

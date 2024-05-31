@@ -47,7 +47,7 @@ const formSchema: DynamicFormSchema = {
 }
 
 definePageMeta({
-  layout: 'auth',
+  layout: 'default',
 })
 </script>
 
@@ -78,13 +78,13 @@ definePageMeta({
           </h3>
           <section class="grid items-center">
             <DynamicForm
-              :button-label="t('common.submit')"
+              :button-label="$t('common.submit')"
               :schema="formSchema"
               @submit="onSubmit"
             />
           </section>
         </div>
       </AccountReauthenticateFlow>
-    </pagebody>
+    </PageBody>
   </PageWrapper>
 </template>

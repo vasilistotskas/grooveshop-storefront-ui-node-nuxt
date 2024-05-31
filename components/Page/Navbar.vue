@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { DropdownItem } from '#ui/types'
-
 const userStore = useUserStore()
 const { cleanAccountState } = userStore
 const cartStore = useCartStore()
@@ -25,10 +23,10 @@ const onClickLogout = async () => {
   await refreshCart()
 }
 
-const items = [
+const items = computed(() => [
   [
     {
-      label: user.value?.email,
+      label: user.value?.email ?? '',
       slot: 'account',
       disabled: true,
     },
@@ -59,7 +57,7 @@ const items = [
       click: async () => await onClickLogout(),
     },
   ],
-] as DropdownItem[][]
+])
 </script>
 
 <template>

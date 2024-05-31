@@ -1,18 +1,34 @@
 <script lang="ts" setup>
-const { recoveryCodes } = useAllAuthAccount()
+const { getRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
+const toast = useToast()
 
-const { data, error } = await recoveryCodes()
+const { data, error } = await getRecoveryCodes()
 
 if (error.value) {
-  throw createError(error.value)
+  navigateTo('/account/2fa').then(() => {
+    toast.add({
+      title: t('common.auth.mfa.required'),
+      color: 'red',
+    })
+  })
 }
 
-const unused_codes = data.value?.data.unused_codes
-const created_at = data.value?.data.created_at
-const last_used_at = data.value?.data.last_used_at
-const total_code_count = data.value?.data.total_code_count
-const unused_code_count = data.value?.data.unused_code_count
+const unused_codes = computed(() => {
+  return data.value?.data.unused_codes ?? []
+})
+const created_at = computed(() => {
+  return data.value?.data.created_at ?? ''
+})
+const last_used_at = computed(() => {
+  return data.value?.data.last_used_at ?? ''
+})
+const total_code_count = computed(() => {
+  return data.value?.data.total_code_count ?? 0
+})
+const unused_code_count = computed(() => {
+  return data.value?.data.unused_code_count ?? 0
+})
 
 const columns = [{
   key: 'code',
@@ -32,19 +48,19 @@ const columns = [{
 }]
 
 const rows = computed(() => {
-  return unused_codes?.map((code) => {
+  return unused_codes.value?.map((code) => {
     return {
       code,
       created_at,
       last_used_at,
-      used: !!last_used_at,
+      used: !!last_used_at.value,
     }
   }) ?? []
 })
 
 const downloadCodes = () => {
-  if (!unused_codes) return
-  const blob = new Blob([unused_codes.join('\n')], { type: 'text/plain' })
+  if (!unused_codes.value) return
+  const blob = new Blob([unused_codes.value.join('\n')], { type: 'text/plain' })
   const url = window.URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.download = 'recovery-codes.txt'

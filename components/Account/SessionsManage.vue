@@ -143,7 +143,7 @@ const actionItems = (session: Session) => {
     </UTable>
     <div class="grid items-center justify-center justify-items-center">
       <UButton
-        :disabled="otherSessions.length <= 1"
+        :disabled="otherSessions.length < 1"
         :loading="loading"
         color="red"
         variant="solid"
