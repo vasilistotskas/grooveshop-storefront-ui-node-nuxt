@@ -85,19 +85,15 @@ export async function handleAllAuthError(
 
   if (isAllAuthError(error)) {
     if (error.data.status === 410) {
-      console.log('Session expired')
       await clearUserSession(event)
     }
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
-      console.log('Not authenticated')
       if (error.data.meta?.session_token) {
-        console.log('Setting session token')
         await setUserSession(event, {
           sessionToken: error.data.meta.session_token,
         })
       }
       if (error.data.meta?.access_token) {
-        console.log('Setting access token')
         await setUserSession(event, {
           accessToken: error.data.meta.access_token,
         })

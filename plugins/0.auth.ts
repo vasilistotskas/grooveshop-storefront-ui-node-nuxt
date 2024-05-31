@@ -23,11 +23,7 @@ export default defineNuxtPlugin({
       const toAuth = detail
 
       if (fromAuth.value) {
-        console.log('===== fromAuth =====', fromAuth.value)
-        console.log('===== toAuth =====', toAuth)
         const event = determineAuthChangeEvent(fromAuth.value, toAuth)
-
-        console.log('===== auth:change determineAuthChangeEvent =====', event)
         authEvent.value = event
       }
 
@@ -44,18 +40,14 @@ export default defineNuxtPlugin({
       () => authEvent.value,
       async (newVal, _oldVal) => {
         const auth = authState.value
-        console.log('===== newVal =====', newVal)
-        console.log('===== _oldVal =====', _oldVal)
         switch (newVal) {
           case AuthChangeEvent.LOGGED_OUT:
-            console.log('====== 1 ======')
             await clear()
             return await nuxtApp.runWithContext(() => navigateTo({
               path: URLs.LOGOUT_REDIRECT_URL,
             }))
           case AuthChangeEvent.LOGGED_IN: {
             const route = useRouter().currentRoute.value
-            console.log('====== 2 ======')
             const returnToPath = route.query.next?.toString()
             const isRedirectingToLogin = returnToPath === '/account/login'
             const redirectTo = isRedirectingToLogin ? URLs.LOGIN_REDIRECT_URL : returnToPath || URLs.LOGIN_REDIRECT_URL
@@ -64,7 +56,6 @@ export default defineNuxtPlugin({
           case AuthChangeEvent.REAUTHENTICATED: {
             const router = useRouter()
             const next = router.currentRoute.value.query.next
-            console.log('====== 3 ======', next)
             if (next) {
               return await nuxtApp.runWithContext(() => navigateTo(next as string))
             }
@@ -73,13 +64,10 @@ export default defineNuxtPlugin({
           case AuthChangeEvent.REAUTHENTICATION_REQUIRED: {
             const router = useRouter()
             const next = router.currentRoute.value.fullPath
-            console.log('====== 4 ======')
             if ('data' in auth) {
               const flowId = auth.data.flows?.[0].id
-              console.log('====== 4 flowId ======', flowId)
               if (flowId) {
                 const path = pathForFlow(flowId)
-                console.log('====== 4 path ======', path)
                 return await nuxtApp.runWithContext(() => navigateTo({
                   path,
                   query: {
@@ -91,7 +79,6 @@ export default defineNuxtPlugin({
             break
           }
           case AuthChangeEvent.FLOW_UPDATED: {
-            console.log('====== 5 ======')
             return await navigateToPendingFlow(auth)
           }
           default:

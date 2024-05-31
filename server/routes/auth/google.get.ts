@@ -3,8 +3,6 @@ import { withQuery } from 'ufo'
 export default oauth.googleEventHandler(
   {
     async onSuccess(event, { user, tokens }) {
-      console.log('Google OAuth success user:', user)
-      console.log('Google OAuth success tokens:', tokens)
       const { access_token, id_token } = tokens
       const client_id = process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID
 

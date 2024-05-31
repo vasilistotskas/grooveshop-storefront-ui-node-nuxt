@@ -35,11 +35,7 @@ export const determineAuthChangeEvent = (
   let fromInfo = authInfo(fromAuth)
   const toInfo = authInfo(toAuth)
 
-  console.log('====== fromInfo ======', fromInfo)
-  console.log('====== toInfo ======', toInfo)
-
   if (toAuth.status === 410) {
-    console.log('====== LOGGED_OUT ======')
     return AuthChangeEvent.LOGGED_OUT
   }
 
@@ -48,42 +44,32 @@ export const determineAuthChangeEvent = (
   }
 
   if (!fromInfo.isAuthenticated && toInfo.isAuthenticated) {
-    console.log('====== LOGGED_IN ======')
     return AuthChangeEvent.LOGGED_IN
   }
   else if (fromInfo.isAuthenticated && !toInfo.isAuthenticated) {
-    console.log('====== LOGGED_OUT 2 ======')
     return AuthChangeEvent.LOGGED_OUT
   }
   else if (fromInfo.isAuthenticated && toInfo.isAuthenticated) {
-    console.log('====== REAUTHENTICATED ======')
     if (toInfo.requiresReauthentication) {
-      console.log('====== REAUTHENTICATION_REQUIRED ======')
       return AuthChangeEvent.REAUTHENTICATION_REQUIRED
     }
     else if (fromInfo.requiresReauthentication) {
-      console.log('====== REAUTHENTICATED 2 ======')
       return AuthChangeEvent.REAUTHENTICATED
     }
     else if (('data' in fromAuth && 'data' in toAuth) && ('methods' in fromAuth.data && 'methods' in toAuth.data)) {
-      console.log('====== REAUTHENTICATED 3 ======')
       if ((fromAuth.data.methods && toAuth.data.methods) && fromAuth.data.methods?.length < toAuth.data.methods?.length) {
-        console.log('====== REAUTHENTICATED 4 ======')
         return AuthChangeEvent.REAUTHENTICATED
       }
     }
   }
   else if (!fromInfo.isAuthenticated && !toInfo.isAuthenticated) {
-    console.log('====== REAUTHENTICATION_REQUIRED 2 ======')
     const fromFlow = fromInfo.pendingFlow
     const toFlow = toInfo.pendingFlow
     if (toFlow?.id && fromFlow?.id !== toFlow.id) {
-      console.log('====== FLOW_UPDATED ======')
       return AuthChangeEvent.FLOW_UPDATED
     }
   }
 
-  console.log('====== UNKNOWN ======')
   return null
 }
 
@@ -111,7 +97,6 @@ export const navigateToPendingFlow = async (auth: AllAuthResponse | AllAuthRespo
   const nuxtApp = useNuxtApp()
   const path = pathForPendingFlow(auth)
   if (path) {
-    console.log('====== navigateToPendingFlow ======', path)
     return nuxtApp.runWithContext(() => navigateTo(path))
   }
   return null

@@ -81,10 +81,6 @@ const formSchema: DynamicFormSchema = {
     },
   ],
 }
-
-onMounted(() => {
-  console.log('mounted')
-})
 </script>
 
 <template>

@@ -93,7 +93,6 @@ const actionItems = (session: Session) => {
     label: t('common.logout'),
     icon: 'i-heroicons-trash-20-solid',
     click: () => {
-      console.log('session', session)
       logout([session])
     },
   })
