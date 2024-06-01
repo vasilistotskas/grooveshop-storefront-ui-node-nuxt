@@ -5,9 +5,12 @@ definePageMeta({
 
 const { isMobileOrTablet } = useDevice()
 
-const items = [
-  '/img/main-banner.png',
-]
+const items = computed(() => [
+  isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
+])
+
+const bannerHeight = isMobileOrTablet ? 2363 : 672
+const bannerWidth = isMobileOrTablet ? 1890 : 1920
 </script>
 
 <template>
@@ -26,20 +29,20 @@ const items = [
             md:gap-8
           "
         >
-          <MobileOrTabletOnly>
-            <BlogCategoriesSlider
-              class="container-sm !pr-0"
-            />
-          </MobileOrTabletOnly>
+          <div
+            class="
+              grid gap-4
 
-          <DesktopOnly>
-            <div
-              class="
-                grid gap-4
+              md:gap-8
+            "
+          >
+            <MobileOrTabletOnly>
+              <BlogCategoriesSlider
+                class="container-sm !pr-0"
+              />
+            </MobileOrTabletOnly>
 
-                md:gap-8
-              "
-            >
+            <DesktopOnly>
               <BlogCategoriesSlider
                 class="
                   container-sm
@@ -47,43 +50,44 @@ const items = [
                   md:!p-0
                 "
               />
-              <UCarousel
-                v-slot="{ item }"
-                :items="items"
-                :ui="{ item: 'basis-full items-center justify-center justify-items-center' }"
-                class="
-                  container-sm mx-auto
+            </DesktopOnly>
 
-                  md:!p-0
-                "
-                indicators
-              >
-                <NuxtImg
-                  :alt="'website.gr'"
-                  :height="418"
-                  :src="item"
-                  :style="{ objectFit: 'contain' }"
-                  :width="1194"
-                  class="rounded-lg"
-                  densities="x1"
-                  format="webp"
-                  loading="eager"
-                  preload
-                />
-              </UCarousel>
-            </div>
-          </DesktopOnly>
+            <UCarousel
+              v-slot="{ item }"
+              :items="items"
+              :ui="{ item: 'basis-full items-center justify-center justify-items-center' }"
+              class="
+                container-sm mx-auto
 
-          <BlogPostsList
-            :page-size="6"
-            :show-ordering="false"
-            class="
-              container-sm
+                md:!p-0
+              "
+              indicators
+            >
+              <NuxtImg
+                :alt="'website.gr'"
+                :height="bannerHeight"
+                :src="item"
+                :style="{ objectFit: 'contain' }"
+                :width="bannerWidth"
+                class="rounded-lg"
+                densities="x1"
+                format="webp"
+                loading="eager"
+                preload
+              />
+            </UCarousel>
 
-              md:!p-0
-            "
-            pagination-type="cursor"
-          />
+            <BlogPostsList
+              :page-size="6"
+              :show-ordering="false"
+              class="
+                container-sm
+
+                md:!p-0
+              "
+              pagination-type="cursor"
+            />
+          </div>
         </div>
       </PageSection>
     </PageBody>
