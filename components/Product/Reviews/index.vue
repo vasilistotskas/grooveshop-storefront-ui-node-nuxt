@@ -81,7 +81,7 @@ watch(
   <div
     v-if="!pending && productReviews && productReviews?.length > 0"
     class="
-      container-sm text-primary-950 grid gap-2 border-t border-primary-500 !px-0
+      container-md text-primary-950 grid gap-2 border-t border-primary-500 !px-0
       !py-6
 
       dark:text-primary-50 dark:border-primary-500
@@ -111,10 +111,10 @@ watch(
     <div class="grid">
       <div class="grid gap-4">
         <ProductReviewsList
+          :display-image-of="displayImageOf"
+          :reviews="productReviews"
           :reviews-average="reviewsAverage"
           :reviews-count="reviewsCount"
-          :reviews="productReviews"
-          :display-image-of="displayImageOf"
         />
       </div>
     </div>

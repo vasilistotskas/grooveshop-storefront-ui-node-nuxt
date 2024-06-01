@@ -33,6 +33,18 @@
       'md': 720px,
       'lg': 960px,
       'xl': 1140px,
+      'xlplus': 1194px,
+    ));
+  }
+
+  .container-md {
+    @apply base-container;
+
+    @include responsive-width((
+      'sm': 540px,
+      'md': 720px,
+      'lg': 960px,
+      'xl': 1140px,
       'xlplus': 1320px,
     ));
   }
@@ -84,27 +96,35 @@
     h1, h2, h3, h4, h5, h6 {
       @apply font-bold;
     }
+
     h1 {
       @apply text-3xl;
     }
+
     h2 {
       @apply text-2xl;
     }
+
     h3 {
       @apply text-xl;
     }
+
     h4 {
       @apply text-lg;
     }
+
     h5 {
       @apply text-base;
     }
+
     h6 {
       @apply text-sm;
     }
+
     p {
       @apply mt-[1em] mb-[1em];
     }
+
     ol, ul, menu {
       display: block;
       margin-block-start: 1em;
@@ -114,12 +134,15 @@
       padding-inline-start: 40px;
       unicode-bidi: isolate;
     }
+
     ol {
       @apply list-decimal;
     }
+
     ul {
       @apply list-disc;
     }
+
     menu {
       @apply list-disc;
     }

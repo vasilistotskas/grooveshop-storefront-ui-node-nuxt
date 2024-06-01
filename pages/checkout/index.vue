@@ -239,7 +239,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-sm flex flex-col gap-4
+      container-md flex flex-col gap-4
 
       md:gap-8
     "
@@ -567,12 +567,12 @@ definePageMeta({
                   id="customerNotes"
                   v-model="customerNotes"
                   :as="UTextarea"
-                  v-bind="customerNotesProps"
                   :placeholder="$t('pages.checkout.form.customer_notes')"
-                  name="customerNotes"
                   :rows="4"
                   color="primary"
+                  name="customerNotes"
                   type="text"
+                  v-bind="customerNotesProps"
                 />
               </div>
             </div>
@@ -597,13 +597,13 @@ definePageMeta({
                 <VeeField
                   id="floor"
                   v-model="floor"
-                  :bind="floorProps"
-                  name="floor"
-                  color="white"
                   :as="USelect"
+                  :bind="floorProps"
                   :options="floorChoicesList"
-                  option-attribute="name"
                   :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                  color="white"
+                  name="floor"
+                  option-attribute="name"
                 />
                 <span
                   v-if="errors.floor"
@@ -624,13 +624,13 @@ definePageMeta({
                 <VeeField
                   id="locationType"
                   v-model="locationType"
-                  v-bind="locationTypeProps"
-                  name="locationType"
-                  color="white"
                   :as="USelect"
                   :options="locationChoicesList"
-                  option-attribute="name"
                   :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                  color="white"
+                  name="locationType"
+                  option-attribute="name"
+                  v-bind="locationTypeProps"
                 />
                 <span
                   v-if="errors.locationType"
@@ -655,13 +655,13 @@ definePageMeta({
                   <VeeField
                     id="country"
                     v-model="country"
-                    v-bind="countryProps"
-                    name="country"
-                    color="white"
                     :as="USelect"
                     :options="countryOptions"
-                    option-attribute="name"
                     :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                    color="white"
+                    name="country"
+                    option-attribute="name"
+                    v-bind="countryProps"
                     @change.capture="onCountryChange"
                   />
                 </div>
@@ -685,13 +685,13 @@ definePageMeta({
                   <VeeField
                     id="region"
                     v-model="region"
-                    v-bind="regionProps"
-                    name="region"
-                    color="white"
                     :as="USelect"
                     :options="regionOptions"
-                    option-attribute="name"
                     :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                    color="white"
+                    name="region"
+                    option-attribute="name"
+                    v-bind="regionProps"
                   />
                 </div>
                 <span
