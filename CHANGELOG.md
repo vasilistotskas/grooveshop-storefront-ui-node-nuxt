@@ -1,3 +1,21 @@
+# [1.124.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.123.0...v1.124.0) (2024-06-01)
+
+
+### Features
+
+* Api endpoints, composables and types implemented ([b5b3d9d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b5b3d9dc5978bd923eaf2ea3d62db07bf8e293d0))
+* auth utils, pinia store, plugin, typing improvements and more ([204f60f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/204f60f35606e5ad868d24679fabd2554095d9eb))
+* fixes and improvements ([bf4a68d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bf4a68d3bdf89acb88dee121b40553ae7b73cbe0))
+* General client bug fixes ([0d1e421](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0d1e4210914cf5cd55e2d80b7406b8c8ff51fd28))
+* init ([d08baf3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d08baf318e56fa9b9dc83e4c665f6565499eae7a))
+* progress ([7eefeca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7eefeca87d1b3793eaf436dda45cfbbc5c50b986))
+* progress ([debb4bb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/debb4bb988031692b263d060be9ca4419b305d72))
+* progress ([5a45e2e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5a45e2e9799f9e4f4cd3ccd72e67934742dfc172))
+* progress ([47e588c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/47e588cb6bfcdda2a48a450f071d17642590cd44))
+* progress ([a264227](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a264227aa752139119897d49972036c5a80a4714))
+* progress on social logins via redirects ([159e6a7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/159e6a7515bf2e3f5c69c71c01e0057c3084c04f))
+* session server improved ([836ba16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/836ba160142fcfad667787e5b5795d50506a56f5))
+
 # [1.123.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.122.0...v1.123.0) (2024-05-25)
 
 
