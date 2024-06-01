@@ -1,3 +1,10 @@
+# [1.126.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.125.0...v1.126.0) (2024-06-01)
+
+
+### Features
+
+* homepage desktop main slider ([bad4cc3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bad4cc33d1e2453b5750645c8c95ff3c17b86f37))
+
 # [1.125.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.124.1...v1.125.0) (2024-06-01)
 
 
