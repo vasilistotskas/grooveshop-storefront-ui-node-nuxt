@@ -1,3 +1,10 @@
+## [1.126.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.126.0...v1.126.1) (2024-06-01)
+
+
+### Bug Fixes
+
+* remove useless urls ([f7eb528](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f7eb528f52bef68f530b52beded656f8c3b3ea68))
+
 # [1.126.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.125.0...v1.126.0) (2024-06-01)
 
 
