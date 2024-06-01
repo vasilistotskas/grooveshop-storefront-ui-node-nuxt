@@ -13,7 +13,7 @@ defineSlots<{
 <template>
   <div
     class="
-      mt-4 text-2xl font-bold
+      mt-2 text-2xl font-bold
 
       md:mt-8 md:text-4xl
     "

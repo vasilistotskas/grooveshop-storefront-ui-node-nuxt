@@ -136,6 +136,9 @@ common:
     email:
       verify: Επαλήθευση email
       verified: Το email επαληθεύτηκε
+    error:
+      session:
+        expired: Η συνεδρία σας έχει λήξει
   learn_more: Μάθε περισσότερα
   copy: αντίγραφο
   enabled: ενεργοποιημένη

@@ -32,10 +32,16 @@ export const determineAuthChangeEvent = (
   fromAuth: AllAuthResponse | AllAuthResponseError,
   toAuth: AllAuthResponse | AllAuthResponseError,
 ) => {
+  const toast = useToast()
+  const { t } = useNuxtApp().$i18n
   let fromInfo = authInfo(fromAuth)
   const toInfo = authInfo(toAuth)
 
   if (toAuth.status === 410) {
+    toast.add({
+      title: t('common.auth.error.session.expired'),
+      color: 'yellow',
+    })
     return AuthChangeEvent.LOGGED_OUT
   }
 

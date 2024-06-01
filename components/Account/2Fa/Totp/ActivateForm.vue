@@ -7,6 +7,7 @@ import type { TotpPostBody } from '~/types/all-auth'
 const emit = defineEmits(['activateTotp'])
 
 const authStore = useAuthStore()
+const { activateTotp } = useAllAuthAccount()
 const { getTotpAuthenticatorStatus } = authStore
 const {
   totpData,

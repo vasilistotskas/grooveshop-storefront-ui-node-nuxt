@@ -88,11 +88,11 @@ const Footer = computed(() => {
       </PageHeader>
       <div
         class="
-          grid gap-6 pt-[48px]
+          grid gap-2 pt-[48px]
 
           lg:pt-[63px]
 
-          md:pt-[56px]
+          md:gap-6 md:pt-[56px]
         "
       >
         <div

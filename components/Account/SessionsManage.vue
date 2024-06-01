@@ -17,6 +17,8 @@ const userStore = useUserStore()
 const { sessions } = storeToRefs(userStore)
 const { setupSessions } = userStore
 
+await setupSessions()
+
 const otherSessions = computed(() => {
   return sessions.value?.filter(session => !session.is_current)
 })

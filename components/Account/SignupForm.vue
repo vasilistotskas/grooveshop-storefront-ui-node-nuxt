@@ -71,28 +71,25 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 function handleSignupError(error: any) {
-  if (!isAllAuthClientError(error)) {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
-  }
-  const { data } = error.data.data
-
-  if (data && data.flows) {
-    for (const flow of data.flows) {
-      if (flow.id === 'verify_email' && flow.is_pending) {
-        toast.add({
-          description: t(`common.auth.signup.error.${flow.id}`),
-          color: 'blue',
-        })
-        return
+  if (isAllAuthClientError(error)) {
+    if ('data' in error.data && 'data' in error.data.data) {
+      const { data } = error.data.data
+      if (data && data.flows) {
+        for (const flow of data.flows) {
+          if (flow.id === 'verify_email' && flow.is_pending) {
+            toast.add({
+              description: t(`common.auth.signup.error.${flow.id}`),
+              color: 'blue',
+            })
+            return navigateTo(localePath('/'))
+          }
+        }
       }
     }
   }
 
   toast.add({
-    title: defaultErrorMessage,
+    title: t('common.error.default'),
     color: 'red',
   })
 }

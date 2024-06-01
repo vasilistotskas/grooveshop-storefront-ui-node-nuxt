@@ -23,8 +23,7 @@ export default defineNuxtPlugin({
       const toAuth = detail
 
       if (fromAuth.value) {
-        const event = determineAuthChangeEvent(fromAuth.value, toAuth)
-        authEvent.value = event
+        authEvent.value = determineAuthChangeEvent(fromAuth.value, toAuth)
       }
 
       authState.value = toAuth
@@ -85,6 +84,7 @@ export default defineNuxtPlugin({
             break
         }
       },
+      { deep: true },
     )
 
     nuxtApp.provide('authState', authState)

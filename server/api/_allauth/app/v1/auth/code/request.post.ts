@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-
     const requestResponse = await parseDataAs(response, z.any())
     await processAllAuthSession(requestResponse)
     return requestResponse
