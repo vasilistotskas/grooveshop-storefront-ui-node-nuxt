@@ -45,13 +45,6 @@ const items = computed(() => [
   ],
   [
     {
-      label: t('common.security'),
-      icon: 'i-heroicons-shield-check',
-      click: async () => await navigateTo('/account/security'),
-    },
-  ],
-  [
-    {
       label: t('common.logout'),
       icon: 'i-heroicons-arrow-left-on-rectangle',
       click: async () => await onClickLogout(),

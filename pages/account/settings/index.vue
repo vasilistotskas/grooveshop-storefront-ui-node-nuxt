@@ -18,11 +18,6 @@ const recoveryCodes = computed(() => {
 
 const links = ref<HorizontalNavigationLink[]>([
   {
-    label: t('common.two_factor.authentication'),
-    icon: 'i-heroicons-lock-closed',
-    to: localePath('/account/2fa'),
-  },
-  {
     label: t('common.social_accounts'),
     icon: 'i-heroicons-user-group',
     to: localePath('/account/providers'),
