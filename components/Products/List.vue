@@ -144,7 +144,7 @@ watch(
     <ol
       class="grid grid-cols-1 justify-center gap-4"
       :class="{
-        'items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4':
+        'items-center lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4':
           status === 'pending' || products?.results?.length,
         'items-start': !(status === 'pending') && !products?.results?.length,
       }"

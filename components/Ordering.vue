@@ -82,7 +82,8 @@ const onOptionClick = async (option: OrderingOption) => {
 
 <template>
   <div
-    ref="listBox" class="
+    ref="listBox"
+    class="
       z-10 grid
 
       md:flex md:h-full md:flex-col md:items-center

@@ -2,7 +2,7 @@ import { ZodCartItem, ZodCartItemParams, ZodCartItemPutBody } from '~/types/cart
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodCartItemPutBody.parse)
     const params = await getValidatedRouterParams(event, ZodCartItemParams.parse)
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         method: 'PUT',
         body,
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

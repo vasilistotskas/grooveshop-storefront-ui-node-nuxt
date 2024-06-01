@@ -61,7 +61,10 @@ comments?.value?.sort((a) => {
       class="comments-list-summary"
     />
     <slot />
-    <div id="comment-tree" class="comments-list-items grid gap-4">
+    <div
+      id="comment-tree"
+      class="comments-list-items grid gap-4"
+    >
       <BlogPostCommentsCard
         v-for="comment in comments"
         :key="comment.id"

@@ -51,7 +51,10 @@ const filteredTags = computed(() => {
           {{ $t('common.tags') }}
         </h3>
       </div>
-      <label class="sr-only" for="search">
+      <label
+        class="sr-only"
+        for="search"
+      >
         {{ $t('common.search.title') }}
       </label>
       <UInput
@@ -77,7 +80,10 @@ const filteredTags = computed(() => {
           md:gap-4
         "
       >
-        <li v-for="tag in filteredTags" :key="tag.id">
+        <li
+          v-for="tag in filteredTags"
+          :key="tag.id"
+        >
           <UButton
             color="primary"
             variant="solid"

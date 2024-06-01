@@ -53,7 +53,10 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   >
     <div class="grid">
       <div class="image">
-        <Anchor :to="`/products${cartItem.product.absoluteUrl}`" :title="alt">
+        <Anchor
+          :to="`/products${cartItem.product.absoluteUrl}`"
+          :title="alt"
+        >
           <ImgWithFallback
             loading="lazy"
             provider="mediaStream"
@@ -88,7 +91,10 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
             dark:text-primary-50
           "
         >
-          <Anchor :to="`/products${cartItem.product.absoluteUrl}`" :title="alt">
+          <Anchor
+            :to="`/products${cartItem.product.absoluteUrl}`"
+            :title="alt"
+          >
             {{ contentShorten(alt, 50) }}
           </Anchor>
         </h3>

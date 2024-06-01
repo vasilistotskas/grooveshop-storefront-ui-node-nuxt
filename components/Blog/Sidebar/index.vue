@@ -2,14 +2,13 @@
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data: categories, pending } = await useLazyAsyncData(
-  'blogCategories',
-  () =>
-    $fetch('/api/blog/categories', {
-      method: 'GET',
-      language: locale.value,
-    }),
-)
+const { data: categories, pending } = await useLazyFetch(`/api/blog/categories`, {
+  key: `blogCategories`,
+  method: 'GET',
+  query: {
+    language: locale.value,
+  },
+})
 
 const sidebar = ref(null)
 const searchQuery = ref('')
@@ -70,7 +69,7 @@ onMounted(() => {
           dark:bg-primary-950
         "
       >
-        <h3 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
+        <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('common.categories') }}
           <span
             class="
@@ -81,7 +80,7 @@ onMounted(() => {
           >
             ({{ categories?.count ?? 0 }})
           </span>
-        </h3>
+        </h2>
       </div>
       <ul
         class="
@@ -104,12 +103,18 @@ onMounted(() => {
             :key="index"
             class="flex items-center space-x-4 p-2"
           >
-            <USkeleton class="h-12 w-20" :ui="{ rounded: 'rounded-full' }" />
+            <USkeleton
+              class="h-12 w-20"
+              :ui="{ rounded: 'rounded-full' }"
+            />
             <USkeleton class="h-[30px] w-full" />
           </li>
         </template>
       </ul>
-      <div v-if="!pending && !filteredCategories?.length" class="grid gap-4">
+      <div
+        v-if="!pending && !filteredCategories?.length"
+        class="grid gap-4"
+      >
         <p
           class="
             text-primary-950 p-2 text-center
@@ -130,6 +135,7 @@ onMounted(() => {
     top: 0;
   }
 }
+
 .sidebar-header-sticky {
   position: sticky;
   top: 0;

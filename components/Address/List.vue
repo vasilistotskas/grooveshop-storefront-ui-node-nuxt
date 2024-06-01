@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { UserAddressOrderingField } from '~/types/user/address'
-import emptyIcon from '~icons/mdi/package-variant-remove'
 import type { EntityOrdering } from '~/types/ordering'
 
 defineProps({
@@ -90,8 +89,8 @@ watch(
       <PaginationPageNumber
         v-if="pagination"
         :count="pagination.count"
-        :page-size="pagination.pageSize"
         :page="pagination.page"
+        :page-size="pagination.pageSize"
       />
       <Ordering
         :ordering="String(ordering)"
@@ -100,9 +99,8 @@ watch(
     </div>
     <div class="grid w-full items-start gap-4">
       <div
-        v-if="displayTotal && addresses?.count" class="
-          flex items-center justify-center gap-1
-        "
+        v-if="displayTotal && addresses?.count"
+        class="flex items-center justify-center gap-1"
       >
         <span
           class="
@@ -137,7 +135,11 @@ watch(
     <template v-if="pending">
       <div class="grid w-full items-start gap-4">
         <div class="flex w-full items-center justify-center">
-          <ClientOnlyFallback class="w-full" height="20px" width="100%" />
+          <ClientOnlyFallback
+            class="w-full"
+            height="20px"
+            width="100%"
+          />
         </div>
         <div
           class="
@@ -157,17 +159,5 @@ watch(
         </div>
       </div>
     </template>
-    <EmptyState
-      v-if="!pending && !addresses?.results?.length"
-      :icon="emptyIcon"
-    >
-      <template #actions>
-        <UButton
-          :label="$t('common.empty.button')"
-          :to="'index'"
-          color="primary"
-        />
-      </template>
-    </EmptyState>
   </div>
 </template>

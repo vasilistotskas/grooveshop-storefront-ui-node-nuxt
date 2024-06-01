@@ -17,8 +17,24 @@ export const floorChoicesList = Object.keys(FloorChoicesEnum)
 export const defaultSelectOptionChoose = 'choose'
 
 export const AuthenticatedRoutePrefixes = [
-  '/auth/security',
+  '/account/2fa/totp',
+  '/account/2fa/recovery-codes',
+  '/account/addresses',
+  '/account/favourites',
+  '/account/help',
+  '/account/orders',
+  '/account/providers',
+  '/account/reviews',
+  '/account/sessions',
+  '/account/settings',
+] as const
+
+export const AuthenticatedRoutes = [
   '/account',
+  '/account/2fa',
+  '/account/email',
+  '/account/reauthenticate',
+  '/account/2fa/reauthenticate',
 ] as const
 
 export const THEME_COLORS = {

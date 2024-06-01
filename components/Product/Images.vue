@@ -62,7 +62,10 @@ watch(
       "
     >
       <PlusModalLink :to="localePath(`/products/${product.id}/gallery/${selectedImageId}`)">
-        <ProductImage :image="mainImage" img-loading="eager" />
+        <ProductImage
+          :image="mainImage"
+          img-loading="eager"
+        />
       </PlusModalLink>
     </div>
 

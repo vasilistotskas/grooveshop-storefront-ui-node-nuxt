@@ -3,7 +3,7 @@ import { ZodBlogPost, ZodBlogPostParams, ZodBlogPostQuery } from '~/types/blog/p
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await requireUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(event, ZodBlogPostParams.parse)
     const query = await getValidatedQuery(event, ZodBlogPostQuery.parse)
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     return await parseDataAs(response, ZodPagination(ZodBlogPost))

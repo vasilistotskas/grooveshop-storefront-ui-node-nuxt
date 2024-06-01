@@ -41,7 +41,10 @@ const spider = computed(() => {
       lg:z-50
     "
   >
-    <div id="navbar-banner" class="banner">
+    <div
+      id="navbar-banner"
+      class="banner"
+    >
       <slot name="banner" />
     </div>
     <div class="bg-background-700 mx-auto w-full max-w-8xl">
@@ -76,7 +79,7 @@ const spider = computed(() => {
                   :src="spider"
                   :width="24"
                   :height="24"
-                  :alt="appTitle"
+                  :alt="'Website Spider'"
                   loading="eager"
                   format="webp"
                   densities="x1"
@@ -88,7 +91,7 @@ const spider = computed(() => {
                   :src="logo"
                   :width="140"
                   :height="24"
-                  :alt="appTitle"
+                  :alt="'website.gr'"
                   loading="eager"
                   format="webp"
                   densities="x1"

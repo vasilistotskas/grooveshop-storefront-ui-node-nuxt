@@ -81,7 +81,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       <div class="flex flex-col gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
-            <Anchor :to="`/products${product.absoluteUrl}`" :text="alt">
+            <Anchor
+              :to="`/products${product.absoluteUrl}`"
+              :text="alt"
+            >
               <ImgWithFallback
                 :loading="imgLoading"
                 provider="mediaStream"
@@ -144,7 +147,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                   @click="startShare"
                 />
                 <template #fallback>
-                  <ClientOnlyFallback height="40px" width="40px" />
+                  <ClientOnlyFallback
+                    height="40px"
+                    width="40px"
+                  />
                 </template>
               </ClientOnly>
               <ButtonProductAddToFavourite
@@ -173,8 +179,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               )
             }}
           </p>
-          <div v-if="showStartPrice || showVat" class="grid">
-            <div v-if="showStartPrice" class="d-flex justify-content-between">
+          <div
+            v-if="showStartPrice || showVat"
+            class="grid"
+          >
+            <div
+              v-if="showStartPrice"
+              class="d-flex justify-content-between"
+            >
               <p>
                 <span
                   class="

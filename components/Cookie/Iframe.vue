@@ -6,7 +6,10 @@
         :cookie-enabled="null"
         v-bind="$attrs"
       />
-      <div v-else class="cookie-control-BlockedIframe">
+      <div
+        v-else
+        class="cookie-control-BlockedIframe"
+      >
         <p>
           {{ $t('components.cookie.iframe_blocked') }}
           <a

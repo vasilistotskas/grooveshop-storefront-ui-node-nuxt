@@ -56,7 +56,10 @@ definePageMeta({
           </template>
         </EmptyState>
         <template #fallback>
-          <ClientOnlyFallback width="100%" height="320px" />
+          <ClientOnlyFallback
+            width="100%"
+            height="320px"
+          />
         </template>
       </ClientOnly>
     </PageBody>

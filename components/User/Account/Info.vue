@@ -59,7 +59,7 @@ const changeUserName = async () => {
     })
 
     toast.add({
-      title: response?.detail || t('common.success'),
+      title: response?.detail || t('common.success.title'),
       color: 'green',
     })
 
@@ -80,20 +80,18 @@ const changeUserName = async () => {
     <div class="user-info-container">
       <div class="user-info-avatar">
         <UserAvatar
-          :user-account="account"
-          :img-width="imgWidth"
-          :img-height="imgHeight"
-          :show-name="false"
           :background-border="true"
           :change-avatar="true"
+          :img-height="imgHeight"
+          :img-width="imgWidth"
+          :show-name="false"
+          :user-account="account"
         />
       </div>
       <div class="user-info-name relative flex w-full items-center">
         <UButton
-          size="sm"
-          color="primary"
-          :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
           :aria-label="userNameEditing ? $t('common.save') : $t('common.edit')"
+          :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
           :title="userNameEditing ? $t('common.save') : $t('common.edit')"
           :ui="{
             icon: {
@@ -103,16 +101,18 @@ const changeUserName = async () => {
               },
             },
           }"
+          color="primary"
+          size="sm"
           @click="onEditUserName"
         />
         <UInput
           v-model="username"
+          :class="!userNameEditing ? `
+            text-primary-950 text-2xl
+
+            dark:text-primary-50
+          ` : ''"
           :disabled="!userNameEditing"
-          size="sm"
-          variant="none"
-          color="primary"
-          :class="!userNameEditing ? 'text-primary-950 text-2xl dark:text-primary-50' : ''"
-          class="font-bold"
           :ui="{
             size: {
               sm: 'text-md md:text-2xl',
@@ -121,21 +121,30 @@ const changeUserName = async () => {
               sm: 'px-0 py-0',
             },
           }"
+          class="font-bold"
+          color="primary"
+          size="sm"
+          variant="none"
           @keydown.enter="onEditUserName"
         />
       </div>
       <div
-        v-if="ordersCount || productFavouritesCount || productReviewsCount" class="
-          user-info-stats
-        "
+        v-if="ordersCount || productFavouritesCount || productReviewsCount"
+        class="user-info-stats"
       >
-        <div v-if="ordersCount" class="user-info-stats-item">
+        <div
+          v-if="ordersCount"
+          class="user-info-stats-item"
+        >
           <Anchor
-            class="user-info-stats-item-link"
-            :to="`/account/orders`"
             :title="$t('pages.account.orders.title')"
+            :to="`/account/orders`"
+            class="user-info-stats-item-link"
           >
-            <UIcon name="i-heroicons-cube" class="h-6 w-6" />
+            <UIcon
+              class="h-6 w-6"
+              name="i-heroicons-cube"
+            />
             <span
               class="
                 text-primary-950
@@ -155,13 +164,19 @@ const changeUserName = async () => {
             >{{ ordersCount }}</span>
           </Anchor>
         </div>
-        <div v-if="productFavouritesCount" class="user-info-stats-item">
+        <div
+          v-if="productFavouritesCount"
+          class="user-info-stats-item"
+        >
           <Anchor
-            class="user-info-stats-item-link"
-            :to="`/account/favourites/products`"
             :title="$t('pages.account.favourites.products.title')"
+            :to="`/account/favourites/products`"
+            class="user-info-stats-item-link"
           >
-            <UIcon name="i-heroicons-heart" class="h-6 w-6" />
+            <UIcon
+              class="h-6 w-6"
+              name="i-heroicons-heart"
+            />
             <span
               class="
                 text-primary-950
@@ -180,13 +195,19 @@ const changeUserName = async () => {
             >{{ productFavouritesCount }}</span>
           </Anchor>
         </div>
-        <div v-if="productReviewsCount" class="user-info-stats-item">
+        <div
+          v-if="productReviewsCount"
+          class="user-info-stats-item"
+        >
           <Anchor
-            class="user-info-stats-item-link"
-            :to="`/account/reviews`"
             :title="$t('pages.account.reviews.title')"
+            :to="`/account/reviews`"
+            class="user-info-stats-item-link"
           >
-            <UIcon name="i-heroicons-star" class="h-6 w-6" />
+            <UIcon
+              class="h-6 w-6"
+              name="i-heroicons-star"
+            />
             <span
               class="
                 text-primary-950

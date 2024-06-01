@@ -1,33 +1,21 @@
 <script lang="ts" setup>
-import { AuthenticatedRoutePrefixes } from '~/constants'
-import type { DropdownItem } from '#ui/types'
-
 const userStore = useUserStore()
 const { cleanAccountState } = userStore
 const cartStore = useCartStore()
 const { getCartTotalItems, pending } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
 
-const { user, session, loggedIn, clear } = useUserSession()
+const { user, loggedIn } = useUserSession()
 const { t } = useI18n()
-const { logout } = useAuth()
+const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
 
 const onClickLogout = async () => {
-  const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
-    route.path.startsWith(prefix),
-  )
-
-  if (isRouteProtected)
+  if (isRouteProtected(route.path))
     await navigateTo('/')
 
-  await Promise.all([
-    logout({
-      refresh: session.value?.refreshToken,
-    }),
-    clear(),
-  ])
+  await deleteSession()
 
   cleanCartState()
   cleanAccountState()
@@ -35,10 +23,10 @@ const onClickLogout = async () => {
   await refreshCart()
 }
 
-const items = [
+const items = computed(() => [
   [
     {
-      label: user.value?.email,
+      label: user.value?.email ?? '',
       slot: 'account',
       disabled: true,
     },
@@ -59,7 +47,7 @@ const items = [
     {
       label: t('common.security'),
       icon: 'i-heroicons-shield-check',
-      click: async () => await navigateTo('/auth/security'),
+      click: async () => await navigateTo('/account/security'),
     },
   ],
   [
@@ -69,7 +57,7 @@ const items = [
       click: async () => await onClickLogout(),
     },
   ],
-] as DropdownItem[][]
+])
 </script>
 
 <template>
@@ -103,15 +91,15 @@ const items = [
               "
             >
               <Anchor
+                :text="$t('pages.search.title')"
+                :title="$t('pages.search.title')"
+                :to="'search'"
                 class="
                   flex items-center gap-4 self-center text-lg
 
                   hover:text-slate-900 hover:no-underline
                   hover:dark:text-primary-50
                 "
-                :to="'search'"
-                :title="$t('pages.search.title')"
-                :text="$t('pages.search.title')"
               >
                 <span class="capitalize">{{ $t('pages.search.title') }}</span>
                 <IconFa6Solid:magnifyingGlass />
@@ -122,9 +110,9 @@ const items = [
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
-                    :to="'products'"
-                    :title="$t('common.shop')"
                     :text="$t('common.shop')"
+                    :title="$t('common.shop')"
+                    :to="'products'"
                     class="
                       text-lg capitalize
 
@@ -139,9 +127,9 @@ const items = [
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
-                    :to="'blog'"
-                    :title="$t('common.blog')"
                     :text="$t('common.blog')"
+                    :title="$t('common.blog')"
+                    :to="'blog'"
                     class="
                       text-lg capitalize
 
@@ -177,14 +165,14 @@ const items = [
               "
             >
               <UButton
-                type="button"
-                size="xl"
-                class="p-0"
-                color="black"
-                variant="ghost"
-                icon="i-heroicons-heart"
                 :aria-label="$t('common.favourites')"
                 :to="localePath('/account/favourites/posts')"
+                class="p-0"
+                color="black"
+                icon="i-heroicons-heart"
+                size="xl"
+                type="button"
+                variant="ghost"
               />
             </li>
             <li
@@ -203,25 +191,28 @@ const items = [
                 <ClientOnly>
                   <span
                     v-if="!pending.cart"
-                    class="cart-items-count"
                     :data-count="getCartTotalItems"
+                    class="cart-items-count"
                   />
-                  <span v-if="pending.cart" class="cart-items-count" />
+                  <span
+                    v-if="pending.cart"
+                    class="cart-items-count"
+                  />
 
                   <template #fallback>
                     <span class="cart-items-count" />
                   </template>
                 </ClientOnly>
                 <Anchor
+                  :text="$t('pages.cart.title')"
+                  :title="$t('pages.cart.title')"
+                  :to="'cart'"
                   class="
                     flex items-center self-center text-[1.5rem]
 
                     hover:text-slate-900 hover:no-underline
                     hover:dark:text-primary-50
                   "
-                  :to="'cart'"
-                  :title="$t('pages.cart.title')"
-                  :text="$t('pages.cart.title')"
                 >
                   <IconFa6Solid:cartShopping />
                 </Anchor>
@@ -235,14 +226,14 @@ const items = [
               <UDropdown
                 v-if="loggedIn && user"
                 :items="items"
-                :ui="{ item: { disabled: 'cursor-text select-text' } }"
                 :popper="{ placement: 'bottom-start' }"
+                :ui="{ item: { disabled: 'cursor-text select-text' } }"
               >
                 <UserAvatar
-                  :user-account="user"
-                  :img-width="30"
                   :img-height="30"
+                  :img-width="30"
                   :show-name="false"
+                  :user-account="user"
                 />
 
                 <template #account="{ item }">
@@ -274,14 +265,14 @@ const items = [
               </UDropdown>
               <Anchor
                 v-else
+                :title="loggedIn ? $t('common.account') : $t('common.login')"
+                :to="route.path === localePath('/account/login') ? localePath('/account/login') : localePath(`/account/login?next=${route.path}`)"
                 class="
                   flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
 
                   hover:text-slate-900 hover:no-underline
                   hover:dark:text-primary-50
                 "
-                :title="loggedIn ? $t('common.account') : $t('common.login')"
-                :to="route.path === localePath('/auth/login') ? localePath('/auth/login') : localePath(`/auth/login?redirect=${route.path}`)"
               >
                 <IconFa6Solid:circleUser />
               </Anchor>

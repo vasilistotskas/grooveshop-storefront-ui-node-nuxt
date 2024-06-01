@@ -30,6 +30,7 @@ const props = withDefaults(
     buttonsPosition?: 'center' | 'left' | 'right'
     loading?: boolean
     maxSubmitCount?: number
+    resetOnSubmit?: boolean
   }>(),
   {
     id: undefined,
@@ -55,6 +56,7 @@ const props = withDefaults(
     buttonsPosition: 'right',
     loading: false,
     maxSubmitCount: 5,
+    resetOnSubmit: false,
   },
 )
 
@@ -68,19 +70,16 @@ const {
   disableSubmitUntilValid,
   loading,
   maxSubmitCount,
+  resetOnSubmit,
 } = toRefs(props)
 
 const finalID = id.value ?? useId()
 const currentStep = ref(0)
-const isMultiStep
-  = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
+const isMultiStep = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
 const lastStep = schema.value.steps?.length ? schema.value.steps.length - 1 : 0
 
 // Filter the schema fields based on the current step
-const formFields
-  = (isMultiStep
-    ? schema.value.steps?.[currentStep.value].fields
-    : schema.value.fields) ?? []
+const formFields = (isMultiStep ? schema.value.steps?.[currentStep.value].fields : schema.value.fields) ?? []
 
 // Filter the schema fields based on the condition function
 const filteredFields = formFields.filter((field) => {
@@ -98,9 +97,7 @@ const disabledFields = computed<DisabledFields>(() => {
     return {}
   }
   return formFields.reduce((acc: DisabledFields, field) => {
-    acc[field.name] = field.disabledCondition
-      ? field.disabledCondition(formState.value)
-      : false
+    acc[field.name] = field.disabledCondition ? field.disabledCondition(formState.value) : false
     return acc
   }, {})
 })
@@ -114,9 +111,7 @@ const generatedSchema = z.object(
 )
 
 // Use schema.extraValidation to generate a Zod schema object
-const extraValidationSchema = schema.value.extraValidation
-  ? schema.value.extraValidation
-  : z.object({})
+const extraValidationSchema = schema.value.extraValidation ? schema.value.extraValidation : z.object({})
 
 // Merge the generated Zod schema object with the extraValidationSchema
 const merged = computed(() => {
@@ -127,9 +122,7 @@ const merged = computed(() => {
     return generatedSchema.merge(extraValidationSchema)
   }
 
-  console.warn(
-    'extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject',
-  )
+  console.warn('extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject')
   return generatedSchema
 })
 
@@ -142,7 +135,6 @@ const initialFormValues = formFields.reduce((acc: FormValues, field) => {
   return acc
 }, {})
 
-// Define the form bindings and validation rules using VeeValidate's useForm hook
 const {
   defineField,
   handleSubmit,
@@ -150,7 +142,6 @@ const {
   errors,
   isSubmitting,
   validate,
-  values,
   submitCount,
 } = useForm({
   validationSchema,
@@ -160,12 +151,8 @@ const {
 
 const goToNextStep = async () => {
   const currentStepFields = schema.value.steps?.[currentStep.value].fields ?? []
-  const fieldsToValidate = currentStepFields.map(
-    field => field.name,
-  ) as Partial<ValidationOptions>
-  const isValid = await validate(fieldsToValidate).then(
-    result => result.valid,
-  )
+  const fieldsToValidate = currentStepFields.map(field => field.name) as Partial<ValidationOptions>
+  const isValid = await validate(fieldsToValidate).then(result => result.valid)
   if (isValid) {
     if (currentStep.value < lastStep) {
       currentStep.value++
@@ -199,8 +186,12 @@ const fields = createFields(schemaFieldNames)
 const emit = defineEmits(['submit'])
 
 // Define the submit event handler using handleSubmit function and emit function
-const onSubmit = handleSubmit(() => {
+const onSubmit = handleSubmit((values, actions) => {
   emit('submit', values)
+
+  if (resetOnSubmit.value) {
+    actions.resetForm()
+  }
 })
 
 // Define the form state for Nuxt UI
@@ -220,9 +211,7 @@ const submitButtonDisabled = computedAsync(async () => {
     .parse(formState.value)
     .then((result) => {
       const liveResultValid = result.errors.length === 0
-      return isSubmitting.value
-        || Object.keys(errors.value).length > 0
-        || disableSubmitUntilValid.value
+      return isSubmitting.value || Object.keys(errors.value).length > 0 || disableSubmitUntilValid.value
         ? !liveResultValid
         : false
     })
@@ -232,11 +221,7 @@ const submitButtonDisabled = computedAsync(async () => {
 }, disableSubmitUntilValid.value)
 
 const nextStepButtonDisabled = computed(() => {
-  return (
-    isSubmitting.value
-    || Object.keys(errors.value).length > 0
-    || disableSubmitUntilValid.value
-  )
+  return isSubmitting.value || Object.keys(errors.value).length > 0 || disableSubmitUntilValid.value
 })
 
 // Watch for changes to the disabledFields object
@@ -255,15 +240,16 @@ formFields.forEach((field) => {
 <template>
   <UForm
     :id="finalID"
-    class="grid w-full gap-2"
     :state="fields"
     autocomplete="on"
+    class="grid w-full gap-4"
     @submit="onSubmit"
   >
-    <div v-if="isMultiStep" class="grid items-center justify-center">
-      <span class="text-xl font-semibold">{{
-        schema.steps?.[currentStep].title
-      }}</span>
+    <div
+      v-if="isMultiStep"
+      class="grid items-center justify-center"
+    >
+      <span class="text-xl font-semibold">{{ schema.steps?.[currentStep].title }}</span>
     </div>
 
     <UFormGroup
@@ -275,43 +261,39 @@ formFields.forEach((field) => {
         autocomplete = 'off',
         readonly = false,
         required = false,
+        hidden = false,
         placeholder = '',
         type = 'text',
         children = [],
       } in filteredFields"
       :key="name"
       v-model="fields[name][0].value"
-      :label="label"
+      :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+      :label="label ? label : undefined"
       :name="name"
       v-bind="fields[name][1].value"
-      class="grid"
     >
-      <label v-if="as === 'input'" :for="name" class="sr-only">{{
-        label
-      }}</label>
+      <label
+        v-if="label && as === 'input'"
+        :for="name"
+        class="sr-only"
+      >{{ label }}</label>
       <UTextarea
         v-if="as === 'textarea'"
-        v-bind="fields[name][1].value"
         :id="groupId"
         v-model="fields[name][0].value"
-        :as="as"
-        :name="name"
-        :autocomplete="autocomplete"
         :aria-readonly="readonly"
+        :as="as"
+        :autocomplete="autocomplete"
+        :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
+        :disabled="disabledFields[name]"
+        :name="name"
+        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :readonly="readonly"
         :required="required"
-        :placeholder="
-          type === 'text' || type === 'password' || type === 'email'
-            ? placeholder
-            : ''
-        "
         :type="type"
-        :disabled="disabledFields[name]"
-        :class="{
-          'grid': true,
-          'gap-1': children && children.length > 0,
-        }"
         color="primary"
+        v-bind="fields[name][1].value"
       >
         <div v-if="children && children.length > 0">
           <LazyDynamicFormChildren :children="children" />
@@ -319,27 +301,23 @@ formFields.forEach((field) => {
       </UTextarea>
       <UInput
         v-else
-        v-bind="fields[name][1].value"
         :id="groupId"
         v-model="fields[name][0].value"
-        :as="as"
-        :name="name"
-        :autocomplete="autocomplete"
+        :aria-describedby="errors[name] ? `error-${name}` : undefined"
+        :aria-invalid="errors[name] ? 'true' : 'false'"
         :aria-readonly="readonly"
+        :as="as"
+        :autocomplete="autocomplete"
+        :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+        :disabled="disabledFields[name]"
+        :hidden="hidden ? 'hidden' : undefined"
+        :name="name"
+        :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
         :readonly="readonly"
         :required="required"
-        :placeholder="
-          type === 'text' || type === 'password' || type === 'email'
-            ? placeholder
-            : ''
-        "
         :type="type"
-        :disabled="disabledFields[name]"
         color="primary"
-        :class="{
-          'grid': true,
-          'gap-1': children && children.length > 0,
-        }"
+        v-bind="fields[name][1].value"
       >
         <div v-if="children && children.length > 0">
           <LazyDynamicFormChildren :children="children" />
@@ -348,12 +326,7 @@ formFields.forEach((field) => {
     </UFormGroup>
 
     <div
-      :class="{
-        'flex': true,
-        'justify-end': buttonsPosition === 'right',
-        'justify-center': buttonsPosition === 'center',
-        'justify-start': buttonsPosition === 'left',
-      }"
+      :class="{ 'flex': true, 'justify-end': buttonsPosition === 'right', 'justify-center': buttonsPosition === 'center', 'justify-start': buttonsPosition === 'left' }"
     >
       <LazyDynamicFormNavigation
         v-if="isMultiStep"
@@ -368,22 +341,22 @@ formFields.forEach((field) => {
       <LazyUButton
         v-if="!isMultiStep && submitButton"
         :aria-busy="isSubmitting"
-        :disabled="submitButtonDisabled"
-        :type="submitButtonUi.type"
-        :variant="submitButtonUi.variant"
         :color="submitButtonUi.color"
-        :ui="submitButtonUi.ui"
-        :size="submitButtonUi.size"
+        :disabled="submitButtonDisabled"
         :label="buttonLabel"
+        :size="submitButtonUi.size"
+        :type="submitButtonUi.type"
+        :ui="submitButtonUi.ui"
+        :variant="submitButtonUi.variant"
       />
 
       <LazyUButton
         v-if="!isMultiStep && resetButton"
-        :type="resetButtonUi.type"
-        :variant="resetButtonUi.variant"
         :color="resetButtonUi.color"
-        :ui="resetButtonUi.ui"
         :size="resetButtonUi.size"
+        :type="resetButtonUi.type"
+        :ui="resetButtonUi.ui"
+        :variant="resetButtonUi.variant"
         @click="resetForm"
       >
         {{ resetLabel }}

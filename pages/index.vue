@@ -7,7 +7,7 @@ const { isMobileOrTablet } = useDevice()
 </script>
 
 <template>
-  <div class="container-fluid relative !p-0">
+  <PageWrapper class="container-fluid !p-0">
     <PageBody>
       <PageSection>
         <div
@@ -34,5 +34,5 @@ const { isMobileOrTablet } = useDevice()
         </div>
       </PageSection>
     </PageBody>
-  </div>
+  </PageWrapper>
 </template>

@@ -2,7 +2,7 @@ import { ZodProductReview, ZodProductReviewUserProductReviewBody } from '~/types
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(
       event,
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body,
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

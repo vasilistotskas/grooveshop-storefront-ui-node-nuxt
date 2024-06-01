@@ -1,13 +1,13 @@
 import { ZodCart } from '~/types/cart/cart'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const response = await $fetch(`${config.public.apiBaseUrl}/cart`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     return await parseDataAs(response, ZodCart)

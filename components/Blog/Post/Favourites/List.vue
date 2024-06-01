@@ -24,8 +24,14 @@ const { locale } = useI18n()
 </script>
 
 <template>
-  <div v-if="favourites" class="grid w-full items-start gap-4">
-    <div v-if="displayTotal" class="flex items-center justify-center gap-1">
+  <div
+    v-if="favourites"
+    class="grid w-full items-start gap-4"
+  >
+    <div
+      v-if="displayTotal"
+      class="flex items-center justify-center gap-1"
+    >
       <span class="text-sm font-semibold text-secondary">
         {{ $t('components.favourite.list.favourites.total', favouritesCount) }}
       </span>
@@ -43,7 +49,10 @@ const { locale } = useI18n()
         xl:grid-cols-4
       "
     >
-      <template v-for="favourite in favourites" :key="favourite.id">
+      <template
+        v-for="favourite in favourites"
+        :key="favourite.id"
+      >
         <UCard>
           <template #header>
             <Anchor

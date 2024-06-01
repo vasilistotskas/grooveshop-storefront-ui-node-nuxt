@@ -66,7 +66,10 @@ const close = () => {
 </script>
 
 <template>
-  <TransitionRoot :show="!isDestroyed" appear>
+  <TransitionRoot
+    :show="!isDestroyed"
+    appear
+  >
     <TransitionChild
       as="template"
       enter="duration-300 ease-out"
@@ -77,29 +80,54 @@ const close = () => {
       leave-to="opacity-0"
     >
       <div
-        :class="`dark:bg-primary-900 bg-primary-100 relative space-x-6 rounded-md bg-gradient-to-r px-6 py-6 shadow-lg shadow-white/50 dark:shadow-slate-900/50 ${selectedStyle}`"
+        :class="`
+          bg-primary-100 relative space-x-6 rounded-md bg-gradient-to-r px-6
+          py-6 shadow-lg shadow-white/50
+
+          dark:bg-primary-900 dark:shadow-slate-900/50
+
+          ${selectedStyle}
+        `"
       >
         <div class="flex items-center justify-center">
           <slot name="icon">
             <UIcon
               v-if="selectedType === 'success'"
               name="i-heroicons-check-circle"
-              :class="`text-2xl ${selectedTextStyle}`"
+              :class="`
+                text-2xl
+
+                ${selectedTextStyle}
+              `"
             />
             <UIcon
               v-if="selectedType === 'danger'"
               name="i-heroicons-exclamation-circle"
-              :class="`text-2xl ${selectedTextStyle}`"
+              :class="`
+                text-2xl
+
+                ${selectedTextStyle}
+              `"
             />
             <UIcon
               v-if="selectedType === 'warning'"
               name="i-heroicons-exclamation-triangle"
-              :class="`text-2xl ${selectedTextStyle}`"
+              :class="`
+                text-2xl
+
+                ${selectedTextStyle}
+              `"
             />
           </slot>
         </div>
         <div class="flex-1">
-          <div :class="`mb-0.5 text-lg font-bold ${selectedTextStyle}`">
+          <div
+            :class="`
+              mb-0.5 text-lg font-bold
+
+              ${selectedTextStyle}
+            `"
+          >
             <slot name="title">
               {{ title }}
             </slot>
@@ -118,7 +146,10 @@ const close = () => {
             </p>
           </div>
         </div>
-        <div v-if="props.closeButton" class="absolute right-0 top-0 p-4">
+        <div
+          v-if="props.closeButton"
+          class="absolute right-0 top-0 p-4"
+        >
           <button
             type="button"
             class="
@@ -131,7 +162,10 @@ const close = () => {
             @click="close"
           >
             <span class="sr-only">{{ title }}</span>
-            <UIcon name="i-heroicons-x-circle" class="text-xl" />
+            <UIcon
+              name="i-heroicons-x-circle"
+              class="text-xl"
+            />
           </button>
         </div>
       </div>

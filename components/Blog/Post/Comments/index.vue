@@ -319,7 +319,10 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div v-if="showResults" class="grid w-full">
+    <div
+      v-if="showResults"
+      class="grid w-full"
+    >
       <div class="grid gap-4">
         <LazyBlogPostCommentsList
           :comments-count="commentsCount"
@@ -336,7 +339,10 @@ onMounted(() => {
                 : 'components.blog.post.comments.empty.title_guest'
             "
           >
-            <template v-if="loggedIn" #actions>
+            <template
+              v-if="loggedIn"
+              #actions
+            >
               <LazyDynamicForm
                 id="add-comment-form"
                 :schema="addCommentFormSchema"
@@ -359,7 +365,10 @@ onMounted(() => {
           : 'components.blog.post.comments.empty.description_guest'
       "
     >
-      <template v-if="loggedIn" #actions>
+      <template
+        v-if="loggedIn"
+        #actions
+      >
         <LazyDynamicForm
           id="add-comment-form"
           :schema="addCommentFormSchema"

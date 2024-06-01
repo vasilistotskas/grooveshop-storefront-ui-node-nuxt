@@ -258,7 +258,10 @@ definePageMeta({
                       @click="startShare"
                     />
                     <template #fallback>
-                      <ClientOnlyFallback height="40px" width="40px" />
+                      <ClientOnlyFallback
+                        height="40px"
+                        width="40px"
+                      />
                     </template>
                   </ClientOnly>
                 </div>
@@ -302,7 +305,10 @@ definePageMeta({
                   md:gap-4
                 "
               >
-                <li v-for="(tag, index) in blogPostTags" :key="index">
+                <li
+                  v-for="(tag, index) in blogPostTags"
+                  :key="index"
+                >
                   <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
                     extractTranslated(tag, 'name', locale)
                   }}</span>
@@ -316,7 +322,10 @@ definePageMeta({
                 dark:text-primary-50
               "
             >
-              <div class="article" v-html="blogPostBody" />
+              <div
+                class="article"
+                v-html="blogPostBody"
+              />
             </div>
           </div>
         </article>

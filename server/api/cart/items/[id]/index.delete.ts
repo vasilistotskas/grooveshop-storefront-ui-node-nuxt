@@ -4,7 +4,7 @@ import { ZodCartItemParams } from '~/types/cart/cart-item'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(event, ZodCartItemParams.parse)
     const response = await $fetch(
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

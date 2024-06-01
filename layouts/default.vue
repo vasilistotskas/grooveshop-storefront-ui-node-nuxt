@@ -54,7 +54,7 @@ if (!loggedIn.value && links.value) {
   links.value.push(
     {
       icon: 'i-heroicons-user',
-      to: loggedIn.value ? '/account' : `/auth/login?redirect=${route.path}`,
+      to: loggedIn.value ? '/account' : `/account/login?next=${route.path}`,
       label: t('common.account'),
       labelClass: 'sr-only',
     },
@@ -117,12 +117,6 @@ const Footer = computed(() => {
     <MobileOrTabletOnly>
       <UHorizontalNavigation
         :links="links"
-        class="
-          border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
-          w-full border-t
-
-          dark:border-primary-700 dark:bg-primary-900
-        "
         :ui="{
           container: 'flex justify-between w-full',
           inner: 'flex justify-between w-full',
@@ -137,6 +131,12 @@ const Footer = computed(() => {
             size: 'sm',
           },
         }"
+        class="
+          border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
+          w-full border-t
+
+          dark:border-primary-700 dark:bg-primary-900
+        "
       />
     </MobileOrTabletOnly>
   </div>

@@ -2,12 +2,7 @@
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering } from '~/types/ordering'
 
-import {
-  type CursorStates,
-  PaginationCursorStateEnum,
-  type PaginationType,
-  PaginationTypeEnum,
-} from '~/types'
+import { type CursorStates, PaginationCursorStateEnum, type PaginationType, PaginationTypeEnum } from '~/types'
 
 const props = defineProps({
   paginationType: {
@@ -103,12 +98,30 @@ const orderingOptions = computed(() => useOrdering<BlogPostOrderingField>(entity
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
 
-const { refresh: refreshLikedPosts } = await useFetch(
+const refreshLikedPosts = async (postIds: number[]) => {
+  if (shouldFetchLikedPosts.value) {
+    await $fetch(
+      '/api/blog/posts/liked-posts',
+      {
+        method: 'POST',
+        body: { postIds: postIds },
+        onResponse({ response }) {
+          if (!response.ok) {
+            return
+          }
+          const likedPostsIds = response._data
+          updateLikedPosts(likedPostsIds)
+        },
+      },
+    )
+  }
+}
+
+await useFetch(
   '/api/blog/posts/liked-posts',
   {
     method: 'POST',
-    body: { postIds: postIds.value },
-    immediate: shouldFetchLikedPosts.value,
+    body: { postIds: postIds },
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -135,7 +148,7 @@ watch(
   async () => {
     await refresh()
     if (shouldFetchLikedPosts.value) {
-      await refreshLikedPosts()
+      await refreshLikedPosts(postIds.value)
     }
   },
   { deep: true },
@@ -147,8 +160,17 @@ watch(
     if (!deepEqual(newVal, oldVal)) {
       await refresh()
       if (shouldFetchLikedPosts.value) {
-        await refreshLikedPosts()
+        await refreshLikedPosts(postIds.value)
       }
+    }
+  },
+)
+
+watch(
+  () => loggedIn.value,
+  async (newVal, _oldVal) => {
+    if (newVal) {
+      await refreshLikedPosts(postIds.value)
     }
   },
 )
@@ -183,20 +205,22 @@ onReactivated(() => {
   <div class="posts-list grid gap-4">
     <div
       v-if="pagination || showOrdering"
-      :class="paginationType === PaginationTypeEnum.CURSOR ? 'sr-only' : 'flex flex-row flex-wrap items-center gap-2'"
+      :class="paginationType === PaginationTypeEnum.CURSOR ? 'sr-only' : `
+        flex flex-row flex-wrap items-center gap-2
+      `"
     >
       <Pagination
         v-if="pagination"
-        :pagination-type="paginationType"
         :count="pagination.count"
-        :total-pages="pagination.totalPages"
-        :page-total-results="pagination.pageTotalResults"
-        :page-size="pagination.pageSize"
-        :page="pagination.page"
+        :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
         :links="pagination.links"
         :loading="pending"
-        :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
+        :page-total-results="pagination.pageTotalResults"
+        :pagination-type="paginationType"
         :strategy="'scroll'"
+        :total-pages="pagination.totalPages"
       />
       <Ordering
         v-if="showOrdering"
@@ -229,8 +253,8 @@ onReactivated(() => {
             :is="BlogPostCard"
             v-for="(post, index) in allPosts"
             :key="index"
-            :post="post"
             :img-loading="index > 7 ? 'lazy' : 'eager'"
+            :post="post"
           />
         </template>
         <template v-if="pending && paginationType !== PaginationTypeEnum.CURSOR">
@@ -247,10 +271,10 @@ onReactivated(() => {
     <Transition>
       <template v-if="pending && paginationType === PaginationTypeEnum.CURSOR">
         <ClientOnlyFallback
+          :text="$t('common.loading')"
+          class="grid items-center justify-items-center"
           height="75px"
           width="35%"
-          class="grid items-center justify-items-center"
-          :text="$t('common.loading')"
         />
       </template>
     </Transition>

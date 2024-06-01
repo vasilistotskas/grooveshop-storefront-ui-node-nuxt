@@ -5,16 +5,6 @@ export const runtimeConfig = {
   auth: {
     cookieDomain:
     process.env.NUXT_PUBLIC_AUTH_COOKIE_DOMAIN,
-    oauth: {
-      google: {
-        clientId: process.env.NUXT_AUTH_OAUTH_GOOGLE_CLIENT_ID,
-        clientSecret: process.env.NUXT_AUTH_OAUTH_GOOGLE_CLIENT_SECRET,
-        scopes: process.env.NUXT_AUTH_OAUTH_GOOGLE_SCOPES,
-        authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-        tokenUrl: 'https://oauth2.googleapis.com/token',
-        userUrl: 'https://www.googleapis.com/oauth2/v3/userinfo',
-      },
-    },
   },
 
   // Keys within public are also exposed client-side

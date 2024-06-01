@@ -2,7 +2,7 @@ import { ZodBlogComment, ZodBlogCommentCreateBody, ZodBlogCommentCreateQuery } f
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodBlogCommentCreateBody.parse)
     const query = await getValidatedQuery(event, ZodBlogCommentCreateQuery.parse)
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       body,
       headers: {
-        Authorization: `Bearer ${session?.token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     return await parseDataAs(response, ZodBlogComment)

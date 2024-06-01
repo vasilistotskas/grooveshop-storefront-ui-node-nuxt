@@ -2,7 +2,7 @@ import { ZodBlogComment, ZodBlogCommentParams } from '~/types/blog/comment'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await requireUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

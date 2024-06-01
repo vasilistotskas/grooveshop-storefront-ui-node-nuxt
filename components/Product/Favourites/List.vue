@@ -143,8 +143,14 @@ watch(
         :ordering-options="orderingOptions.orderingOptionsArray.value"
       />
     </div>
-    <div v-if="favourites" class="grid w-full items-start gap-4">
-      <div v-if="displayTotal" class="flex items-center justify-center gap-1">
+    <div
+      v-if="favourites"
+      class="grid w-full items-start gap-4"
+    >
+      <div
+        v-if="displayTotal"
+        class="flex items-center justify-center gap-1"
+      >
         <span class="text-sm font-semibold text-secondary">
           {{ $t('components.favourite.list.favourites.total', favourites?.count) }}
         </span>
@@ -158,7 +164,10 @@ watch(
           xl:grid-cols-4
         "
       >
-        <template v-for="favourite in favourites?.results" :key="favourite.id">
+        <template
+          v-for="favourite in favourites?.results"
+          :key="favourite.id"
+        >
           <ProductCard
             v-if="!isEntityId(favourite.product)"
             :product="favourite.product"
@@ -173,7 +182,11 @@ watch(
     <template v-if="pending">
       <div class="grid w-full items-start gap-4">
         <div class="flex w-full items-center justify-center">
-          <ClientOnlyFallback class="w-full" height="20px" width="100%" />
+          <ClientOnlyFallback
+            class="w-full"
+            height="20px"
+            width="100%"
+          />
         </div>
         <div
           class="

@@ -150,7 +150,7 @@ const fetchRegions = async () => {
   }
   catch (error) {
     toast.add({
-      title: t('common.error'),
+      title: t('common.error.default'),
       description: t('common.error_occurred'),
       color: 'red',
     })
@@ -271,7 +271,10 @@ definePageMeta({
           :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`"
         />
       </div>
-      <div v-if="address?.isMain" class="flex items-center">
+      <div
+        v-if="address?.isMain"
+        class="flex items-center"
+      >
         <span
           class="
             mr-2 text-green-500

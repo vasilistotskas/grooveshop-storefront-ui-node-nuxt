@@ -38,7 +38,7 @@ const categoryImageSource = computed(() => {
   <li
     :class="{
       'grid w-full rounded border border-primary-500 p-2 md:border-transparent md:p-0': true,
-      'dark:bg-primary-900 bg-primary-100': isCategorySelected,
+      'bg-primary-100 dark:bg-primary-900': isCategorySelected,
     }"
   >
     <Anchor
@@ -64,7 +64,7 @@ const categoryImageSource = computed(() => {
           :background="'transparent'"
           :trim-threshold="5"
           sizes="`xs:40px sm:40px md:40px lg:40px xl:40px xxl:40px 2xl:40px`"
-          :alt="categoryName"
+          :alt="`sidebar category ${categoryName}`"
           densities="x1"
         />
       </div>

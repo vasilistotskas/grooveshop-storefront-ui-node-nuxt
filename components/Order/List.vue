@@ -23,7 +23,10 @@ defineProps({
 
 <template>
   <div class="grid w-full items-start gap-4">
-    <div v-if="displayTotal" class="flex items-center justify-center gap-1">
+    <div
+      v-if="displayTotal"
+      class="flex items-center justify-center gap-1"
+    >
       <span
         class="
           text-sm font-semibold text-secondary
@@ -41,7 +44,11 @@ defineProps({
         md:gap-4
       "
     >
-      <OrderCard v-for="order in orders" :key="order.id" :order="order" />
+      <OrderCard
+        v-for="order in orders"
+        :key="order.id"
+        :order="order"
+      />
     </ol>
   </div>
 </template>

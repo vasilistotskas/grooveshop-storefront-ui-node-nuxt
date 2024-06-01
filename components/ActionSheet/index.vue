@@ -28,7 +28,10 @@ watch(
 
 <template>
   <Teleport to="#teleports">
-    <TransitionRoot :show="show" appear>
+    <TransitionRoot
+      :show="show"
+      appear
+    >
       <div>
         <ActionSheetOverlay @click="close" />
         <TransitionChild

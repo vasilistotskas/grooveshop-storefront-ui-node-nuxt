@@ -4,7 +4,7 @@ import { ZodUserAddressParams } from '~/types/user/address'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
       {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

@@ -33,7 +33,9 @@ const id = useId()
 <template>
   <ClientOnly>
     <div
-      v-if="$pwa" id="pwa" class="
+      v-if="$pwa"
+      id="pwa"
+      class="
         fixed bottom-20 right-0 w-full
 
         md:bottom-2

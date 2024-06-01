@@ -95,7 +95,8 @@ watch(
 
 <template>
   <UModal
-    v-model="isOpen" :ui="{
+    v-model="isOpen"
+    :ui="{
       width: 'w-full sm:max-w-3xl',
     }"
   >

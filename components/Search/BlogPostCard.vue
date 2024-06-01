@@ -66,7 +66,10 @@ const alt = computed(() => {
           :alt="alt"
           densities="x2"
         />
-        <div v-else class="op10 flex h-full">
+        <div
+          v-else
+          class="op10 flex h-full"
+        >
           <div class="text-4xl">
             <IconFa6Solid:circleQuestion />
           </div>

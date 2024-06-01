@@ -9,7 +9,7 @@ breadcrumb:
       label: Προϊόντα
     terms:
       icon: heroicons-solid:document
-      label: Οροι
+      label: Οροί
     about:
       icon: heroicons-solid:document
       label: Σχετικά με
@@ -21,7 +21,7 @@ breadcrumb:
       label: Μυστικότητα
     cart:
       icon: heroicons-solid:shopping-cart
-      label: Καροτσάκι
+      label: Καλάθι
     blog:
       icon: heroicons-solid:shopping-cart
       label: Blog
@@ -30,12 +30,12 @@ breadcrumb:
       label: Ολοκλήρωση αγοράς
       success:
         icon: heroicons-solid:shopping-cart
-        label: Ολοκλήρωση αγοράς Επιτυχία
+        label: Ολοκλήρωση αγοράς
     auth:
       login:
         icon: heroicons-solid:shopping-cart
         label: Σύνδεση
-      registration:
+      signup:
         icon: heroicons-solid:shopping-cart
         label: Εγγραφή
         account_confirm_email:
@@ -44,36 +44,10 @@ breadcrumb:
       password:
         reset:
           icon: heroicons-solid:shopping-cart
-          label: Επαναφέρετε τον κωδικό πρόσβασης
+          label: Επανέφερε τον κωδικό πρόσβασης
           confirm:
             icon: heroicons-solid:shopping-cart
             label: Επιβεβαίωση Κωδικού
-      security:
-        icon: heroicons-solid:shopping-cart
-        label: Ασφάλεια
-        general:
-          icon: heroicons-solid:shopping-cart
-          label: Γενικός
-        mfa:
-          icon: heroicons-solid:shopping-cart
-          label: Υπουργείο Εξωτερικών
-          recovery:
-            codes:
-              icon: heroicons-solid:shopping-cart
-              label: Κωδικοί ανάκτησης
-              generate:
-                icon: heroicons-solid:shopping-cart
-                label: Δημιουργήστε νέους κωδικούς
-          totp:
-            activate:
-              icon: heroicons-solid:shopping-cart
-              label: Ενεργοποίηση
-            authenticate:
-              icon: heroicons-solid:shopping-cart
-              label: Πιστοποιώ την αυθεντικότητα
-            deactivate:
-              icon: heroicons-solid:shopping-cart
-              label: Απενεργοποίηση
     account:
       icon: heroicons-solid:shopping-cart
       label: Λογαριασμός

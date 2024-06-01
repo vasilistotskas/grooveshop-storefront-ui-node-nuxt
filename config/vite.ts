@@ -41,16 +41,4 @@ export const vite = {
       },
     },
   },
-  optimizeDeps: {
-    include: [
-      'lottie-web',
-      'zod',
-      'v-calendar',
-      'workbox-precaching',
-      'workbox-routing',
-      'workbox-cacheable-response',
-      'workbox-strategies',
-      'workbox-expiration',
-    ],
-  },
 } satisfies ViteConfig

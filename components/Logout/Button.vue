@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { AuthenticatedRoutePrefixes } from '~/constants'
 import type { ButtonSize, ButtonVariant } from '#ui/types'
 import type { ButtonColor } from '#ui/types/button'
 
@@ -24,24 +23,14 @@ const { cleanAccountState } = userStore
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
 
-const { session, clear } = useUserSession()
-const { logout } = useAuth()
+const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 
 const onClickLogout = async () => {
-  const isRouteProtected = AuthenticatedRoutePrefixes.some(prefix =>
-    route.path.startsWith(prefix),
-  )
-
-  if (isRouteProtected)
+  if (isRouteProtected(route.path))
     await navigateTo('/')
 
-  await Promise.all([
-    logout({
-      refresh: session.value?.refreshToken,
-    }),
-    clear(),
-  ])
+  await deleteSession()
 
   cleanCartState()
   cleanAccountState()
@@ -52,13 +41,11 @@ const onClickLogout = async () => {
 
 <template>
   <UButton
-    icon="i-heroicons-arrow-left-end-on-rectangle"
-    :size="size"
-    :variant="variant"
-    :label="$t('common.logout')"
-    :title="$t('common.logout')"
     :aria-label="$t('common.logout')"
     :color="color"
+    :label="$t('common.logout')"
+    :size="size"
+    :title="$t('common.logout')"
     :ui="{
       font: 'font-semibold',
       size: {
@@ -70,6 +57,8 @@ const onClickLogout = async () => {
         },
       },
     }"
+    :variant="variant"
+    icon="i-heroicons-arrow-left-end-on-rectangle"
     @click="onClickLogout"
   />
 </template>

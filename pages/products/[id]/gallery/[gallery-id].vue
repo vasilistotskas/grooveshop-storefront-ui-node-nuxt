@@ -35,7 +35,10 @@ definePageMeta({
 <template>
   <PageWrapper class="grid">
     <PageBody>
-      <div v-if="product" class="grid items-center justify-center">
+      <div
+        v-if="product"
+        class="grid items-center justify-center"
+      >
         <UButton
           class="mb-4 w-full"
           color="primary"

@@ -3,7 +3,7 @@ import { ZodBlogPostsLikedPostsBody } from '~/types/blog/post'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodBlogPostsLikedPostsBody.parse)
     const response = await $fetch(
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body,
         headers: {
-          Authorization: `Bearer ${session?.token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     )

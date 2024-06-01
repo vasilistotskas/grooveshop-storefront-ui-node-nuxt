@@ -20,13 +20,13 @@ async function onSubmit(values: ContactBody) {
       },
     )
     toast.add({
-      title: t('common.success'),
+      title: t('common.success.title'),
       color: 'green',
     })
   }
   catch (error) {
     toast.add({
-      title: t('common.error'),
+      title: t('common.error.default'),
       color: 'red',
     })
   }
@@ -49,14 +49,14 @@ const formSchema: DynamicFormSchema = {
       type: 'text',
     },
     {
-      label: t('common.email'),
+      label: t('common.email.title'),
       name: 'email',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('common.email'),
+      placeholder: t('common.email.title'),
       type: 'email',
     },
     {
@@ -77,7 +77,10 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="container-3xs">
     <DynamicForm
-      :schema="formSchema" class="grid" :button-label="t('common.submit')" :loading="loading"
+      :button-label="t('common.submit')"
+      :loading="loading"
+      :schema="formSchema"
+      class="grid"
       @submit="onSubmit"
     />
   </section>

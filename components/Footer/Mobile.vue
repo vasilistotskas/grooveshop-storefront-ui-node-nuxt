@@ -29,17 +29,20 @@ const items = [{
       dark:bg-primary-900
     "
   >
-    <UAccordion :items="items" :ui="{ wrapper: 'flex flex-col w-full' }">
+    <UAccordion
+      :items="items"
+      :ui="{ wrapper: 'flex flex-col w-full' }"
+    >
       <template #default="{ item, open }">
         <UButton
-          color="primary"
-          variant="ghost"
+          :ui="{ rounded: 'rounded-none', padding: { sm: 'p-3' } }"
           class="
             gap-1 border-b border-primary-200 bg-secondary-light
 
             dark:border-primary-700 dark:bg-secondary-dark
           "
-          :ui="{ rounded: 'rounded-none', padding: { sm: 'p-3' } }"
+          color="primary"
+          variant="ghost"
         >
           <template #leading>
             <div
@@ -48,7 +51,8 @@ const items = [{
               "
             >
               <UIcon
-                :name="item.icon" class="
+                :name="item.icon"
+                class="
                   h-6 w-6 text-primary-50
 
                   dark:text-primary-50
@@ -88,13 +92,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('common.about.site')"
             :to="localePath('about')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
         <div
@@ -105,13 +109,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('common.vision')"
             :to="localePath('vision')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
       </template>
@@ -125,13 +129,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('common.microlearning.what')"
             :to="localePath('what-is-microlearning')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
         <div
@@ -142,13 +146,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('common.microlearning.why')"
             :to="localePath('why-microlearning')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
       </template>
@@ -162,13 +166,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('common.term_of_use')"
             :to="localePath('terms-of-use')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
         <div
@@ -179,13 +183,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('common.privacy_policy')"
             :to="localePath('privacy-policy')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
         <div
@@ -196,13 +200,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('common.cookies_policy')"
             :to="localePath('cookies-policy')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
       </template>
@@ -216,13 +220,13 @@ const items = [{
           "
         >
           <UButton
-            size="xl"
-            class="font-semibold"
-            type="button"
-            color="secondary"
-            variant="link"
             :label="$t('pages.contact.title')"
             :to="localePath('contact')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+            variant="link"
           />
         </div>
       </template>
