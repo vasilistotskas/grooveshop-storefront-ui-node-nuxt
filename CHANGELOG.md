@@ -1,3 +1,10 @@
+## [1.124.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.124.0...v1.124.1) (2024-06-01)
+
+
+### Bug Fixes
+
+* disable typecheck ([5e8cd34](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5e8cd34f0ee0652816bbd4e027f6f2fee8d26ba4))
+
 # [1.124.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.123.0...v1.124.0) (2024-06-01)
 
 
