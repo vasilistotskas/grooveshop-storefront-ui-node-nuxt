@@ -25,87 +25,82 @@ const onSubmit = async (values: PasswordChangeBody) => {
     })
     .catch((error) => {
       toast.add({
-        title: error,
+        title: error.message || t('common.error.default'),
         color: 'red',
       })
     })
 }
 
-const formSchema: DynamicFormSchema = {
-  fields: [
+const formSchema = computed((): DynamicFormSchema => {
+  const fields = [
     {
-      label: t(
-        'common.password.current',
-      ),
-      name: 'current_password',
-      as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
-      autocomplete: 'current-password',
-      readonly: false,
-      required: true,
-      placeholder: t(
-        'common.password.current',
-      ),
-      type: 'password',
-    },
-    {
-      label: t(
-        'common.password.new',
-      ),
+      label: t('common.password.new'),
       name: 'new_password',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
-      placeholder: t(
-        'common.password.new',
-      ),
+      placeholder: t('common.password.new'),
       type: 'password',
     },
     {
-      label: t(
-        'common.password.confirm',
-      ),
+      label: t('common.password.confirm'),
       name: 'confirm_password',
       as: 'input',
       rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
-      placeholder: t(
-        'common.password.confirm',
-      ),
+      placeholder: t('common.password.confirm'),
       type: 'password',
     },
-  ],
-  extraValidation: z
-    .object({
-      current_password: z.string({ required_error: t('common.validation.required') }),
-      new_password: z.string({ required_error: t('common.validation.required') }),
-      confirm_password: z.string({ required_error: t('common.validation.required') }),
-    }).superRefine((val, ctx) => {
-      if (val.new_password !== val.confirm_password) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t(
-            'common.validation.must_match', { field: t('common.password.new'), other: t('common.password.confirm') },
-          ),
-          path: ['confirm_password'],
-        })
-      }
+  ] as DynamicFormSchema['fields']
 
-      if (val.current_password === val.new_password) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t(
-            'common.validation.password.must_not_be_same',
-          ),
-          path: ['confirm_password'],
-        })
-      }
-    }),
-}
+  if (hasCurrentPassword.value) {
+    fields?.unshift({
+      label: t('common.password.current'),
+      name: 'current_password',
+      as: 'input',
+      rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
+      autocomplete: 'current-password',
+      readonly: false,
+      required: true,
+      placeholder: t('common.password.current'),
+      type: 'password',
+    })
+  }
+
+  return {
+    fields,
+    extraValidation: z
+      .object({
+        current_password: z.string({ required_error: t('common.validation.required') }).optional(),
+        new_password: z.string({ required_error: t('common.validation.required') }),
+        confirm_password: z.string({ required_error: t('common.validation.required') }),
+      }).superRefine((val, ctx) => {
+        if (val.new_password !== val.confirm_password) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t(
+              'common.validation.must_match', { field: t('common.password.new'), other: t('common.password.confirm') },
+            ),
+            path: ['confirm_password'],
+          })
+        }
+
+        if (hasCurrentPassword.value && val.current_password === val.new_password) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t(
+              'common.validation.password.must_not_be_same',
+            ),
+            path: ['confirm_password'],
+          })
+        }
+      }),
+  }
+})
 </script>
 
 <template>
