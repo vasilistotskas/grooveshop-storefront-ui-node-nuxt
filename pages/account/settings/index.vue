@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { HorizontalNavigationLink } from '#ui/types'
 import { AuthenticatorType } from '~/types/all-auth'
 
 const localePath = useLocalePath()
@@ -16,7 +15,7 @@ const recoveryCodes = computed(() => {
   return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.RECOVERY_CODES)
 })
 
-const links = ref<HorizontalNavigationLink[]>([
+const links = computed(() => [
   {
     label: t('common.social_accounts'),
     icon: 'i-heroicons-user-group',
@@ -32,41 +31,29 @@ const links = ref<HorizontalNavigationLink[]>([
     icon: 'i-heroicons-lock-closed',
     to: localePath('/account/password/change'),
   },
+  !totp.value
+    ? {
+        label: t('common.two_factor.activate'),
+        icon: 'i-heroicons-lock-open',
+        to: localePath('/account/2fa/totp/activate'),
+      }
+    : {
+        label: t('common.two_factor.deactivate'),
+        icon: 'i-heroicons-chart-bar',
+        to: localePath('/account/2fa/totp/deactivate'),
+      },
+  recoveryCodes.value
+    ? {
+        label: t('common.two_factor.recovery_codes.title'),
+        icon: 'i-heroicons-key',
+        to: localePath('/account/2fa/recovery-codes'),
+      }
+    : {
+        label: t('common.two_factor.recovery_codes.generate'),
+        icon: 'i-heroicons-key',
+        to: localePath('/account/2fa/recovery-codes/generate'),
+      },
 ])
-
-if (!totp.value) {
-  links.value.push(
-    {
-      label: t('common.two_factor.activate'),
-      icon: 'i-heroicons-lock-open',
-      to: localePath('/account/2fa/totp/activate'),
-    },
-  )
-}
-else {
-  links.value.push(
-    {
-      label: t('common.two_factor.deactivate'),
-      icon: 'i-heroicons-chart-bar',
-      to: localePath('/account/2fa/totp/deactivate'),
-    },
-  )
-}
-
-if (recoveryCodes.value) {
-  links.value.push(
-    {
-      label: t('common.two_factor.recovery_codes.title'),
-      icon: 'i-heroicons-key',
-      to: localePath('/account/2fa/recovery-codes'),
-    },
-    {
-      label: t('common.two_factor.recovery_codes.generate'),
-      icon: 'i-heroicons-key',
-      to: localePath('/account/2fa/recovery-codes/generate'),
-    },
-  )
-}
 
 definePageMeta({
   layout: 'user',

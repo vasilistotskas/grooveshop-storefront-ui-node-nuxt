@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { HorizontalNavigationLink } from '#ui/types'
-
 defineSlots<{
   default(props: object): any
   header(props: object): any
@@ -29,49 +27,49 @@ const avatarImg = img(avatarSrc.value, {
   provider: 'mediaStream',
 })
 
-const links = shallowRef<HorizontalNavigationLink[]>([
-  {
-    icon: 'i-heroicons-home',
-    to: '/',
-    label: t('common.home'),
-    labelClass: 'sr-only',
-  },
-  {
-    icon: 'i-heroicons-magnifying-glass',
-    to: '/search',
-    label: t('common.search.title'),
-    labelClass: 'sr-only',
-  },
-  {
-    icon: 'i-heroicons-heart',
-    to: '/account/favourites/posts',
-    label: t('common.favourites'),
-    labelClass: 'sr-only',
-  },
-])
-
-if (!loggedIn.value && links.value) {
-  links.value.push(
+const links = computed(() => {
+  const links = [
     {
-      icon: 'i-heroicons-user',
-      to: loggedIn.value ? '/account' : `/account/login?next=${route.path}`,
-      label: t('common.account'),
+      icon: 'i-heroicons-home',
+      to: '/',
+      label: t('common.home'),
       labelClass: 'sr-only',
     },
-  )
-}
-else {
-  links.value.push(
     {
+      icon: 'i-heroicons-magnifying-glass',
+      to: '/search',
+      label: t('common.search.title'),
+      labelClass: 'sr-only',
+    },
+    {
+      icon: 'i-heroicons-heart',
+      to: '/account/favourites/posts',
+      label: t('common.favourites'),
+      labelClass: 'sr-only',
+    },
+  ]
+
+  if (!loggedIn.value) {
+    links.push({
+      icon: 'i-heroicons-user',
+      to: `/account/login?next=${route.path}`,
+      label: t('common.account'),
+      labelClass: 'sr-only',
+    })
+  }
+  else {
+    links.push({
       to: '/account',
       label: t('common.account'),
       labelClass: 'sr-only',
       avatar: {
         src: avatarImg,
       },
-    },
-  )
-}
+    })
+  }
+
+  return links
+})
 
 const Footer = computed(() => {
   return isMobileOrTablet

@@ -141,7 +141,7 @@ const reviewButtonText = computed(() => {
   return t('components.product.review.write_review')
 })
 
-const links = [
+const links = computed(() => [
   {
     to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
     label: t('breadcrumb.items.index.label'),
@@ -161,7 +161,7 @@ const links = [
         : `/${locale.value}/products/${productId}/${product.value?.slug}`,
     label: productTitle.value,
   },
-]
+])
 
 watch(
   () => route.query,
@@ -236,11 +236,11 @@ definePageMeta({
         >
           <UBreadcrumb
             :links="links"
-            class="mb-5"
             :ui="{
               li: 'text-primary-950 dark:text-primary-50',
               base: 'text-xs md:text-md',
             }"
+            class="mb-5"
           />
           <div
             class="
@@ -294,13 +294,13 @@ definePageMeta({
                   <UButton
                     v-if="isSupported"
                     :disabled="!isSupported"
+                    :title="$t('common.share')"
+                    class="font-extrabold capitalize"
+                    color="primary"
                     icon="i-heroicons-share"
                     size="lg"
-                    color="primary"
                     square
                     variant="solid"
-                    class="font-extrabold capitalize"
-                    :title="$t('common.share')"
                     @click="startShare"
                   />
                   <template #fallback>
@@ -312,48 +312,48 @@ definePageMeta({
                 </ClientOnly>
                 <ClientOnly>
                   <UButton
+                    :label="reviewButtonText"
                     class="
                       capitalize
 
                       hover:text-slate-900 hover:no-underline
                       hover:dark:text-primary-50
                     "
-                    :label="reviewButtonText"
-                    size="lg"
                     color="primary"
+                    size="lg"
                     @click="openModal"
                   />
                   <template #fallback>
                     <ClientOnlyFallback
-                      width="122px"
                       height="40px"
+                      width="122px"
                     />
                   </template>
                 </ClientOnly>
                 <ProductReview
                   v-if="user"
-                  :user-product-review="userProductReview"
-                  :user-had-reviewed="!!userProductReview"
                   :product="product"
                   :user="user"
+                  :user-had-reviewed="!!userProductReview"
+                  :user-product-review="userProductReview"
                   @add-existing-review="onAddExistingReview"
                   @update-existing-review="onUpdateExistingReview"
                   @delete-existing-review="onDeleteExistingReview"
                 />
                 <LottieAddToFavourite
+                  :favourite-id="favouriteId"
                   :product-id="product.id"
                   :user-id="user?.id"
-                  :favourite-id="favouriteId"
                 />
               </PageSection>
               <div class="flex items-center gap-4">
                 <div>
                   <div class="bg-primary-50 flex rounded-lg px-3 py-2">
                     <I18nN
-                      tag="span"
+                      :value="product.finalPrice"
                       class="text-3xl font-bold text-indigo-600"
                       format="currency"
-                      :value="product.finalPrice"
+                      tag="span"
                     />
                   </div>
                 </div>
@@ -374,8 +374,8 @@ definePageMeta({
                 </div>
               </div>
               <ReadMore
-                :text="extractTranslated(product, 'description', locale) || ''"
                 :max-chars="100"
+                :text="extractTranslated(product, 'description', locale) || ''"
               />
               <div
                 class="
@@ -386,8 +386,8 @@ definePageMeta({
               >
                 <div class="grid">
                   <label
-                    for="counter-input"
                     class="sr-only"
+                    for="counter-input"
                   >{{
                     $t('pages.product.qty')
                   }}</label>
@@ -400,21 +400,20 @@ definePageMeta({
                   >
                     <UButton
                       id="decrement-button"
+                      :aria-label="$t('common.decrement')"
+                      :title="$t('common.decrement')"
+                      color="primary"
                       icon="i-heroicons-minus"
                       size="xl"
-                      color="primary"
-                      :title="$t('common.decrement')"
-                      :aria-label="$t('common.decrement')"
                       @click="decrementQuantity"
                     />
                     <input
                       id="counter-input"
                       v-model="selectorQuantity"
-                      type="number"
-                      :min="1"
-                      :max="productStock"
-                      :aria-label="$t('pages.product.qty')"
                       :aria-describedby="'increment-button decrement-button'"
+                      :aria-label="$t('pages.product.qty')"
+                      :max="productStock"
+                      :min="1"
                       class="
                         bg-primary-100 block w-full border-primary-500 p-2.5
                         text-sm text-primary-900 outline-none
@@ -425,14 +424,15 @@ definePageMeta({
 
                         focus:border-secondary focus:ring-secondary
                       "
+                      type="number"
                     >
                     <UButton
                       id="increment-button"
+                      :aria-label="$t('common.increment')"
+                      :title="$t('common.increment')"
+                      color="primary"
                       icon="i-heroicons-plus"
                       size="xl"
-                      color="primary"
-                      :title="$t('common.increment')"
-                      :aria-label="$t('common.increment')"
                       @click="incrementQuantity"
                     />
                   </div>

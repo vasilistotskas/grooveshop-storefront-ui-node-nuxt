@@ -8,7 +8,7 @@ const seoMetaOptions = {
   title: t('pages.blog.title'),
 } satisfies UseSeoMetaInput
 
-const links = [
+const links = computed(() => [
   {
     to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
     label: t('breadcrumb.items.index.label'),
@@ -22,7 +22,7 @@ const links = [
     label: t('breadcrumb.items.blog.label'),
     current: true,
   },
-]
+])
 
 useHydratedHead({
   title: () => t('pages.blog.title'),
@@ -39,11 +39,11 @@ definePageMeta({
     <PageBody>
       <UBreadcrumb
         :links="links"
-        class="mb-5"
         :ui="{
           li: 'text-primary-950 dark:text-primary-50',
           base: 'text-xs md:text-md',
         }"
+        class="mb-5"
       />
       <BlogPostsList>
         <template #sidebar>

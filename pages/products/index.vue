@@ -8,7 +8,7 @@ const seoMetaOptions = {
   title: t('pages.products.title'),
 } satisfies UseSeoMetaInput
 
-const links = [
+const links = computed(() => [
   {
     to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
     label: t('breadcrumb.items.index.label'),
@@ -22,7 +22,7 @@ const links = [
     label: t('breadcrumb.items.products.label'),
     current: true,
   },
-]
+])
 
 useHydratedHead({
   title: () => t('pages.products.title'),
@@ -40,15 +40,15 @@ definePageMeta({
       <div class="container !p-0">
         <UBreadcrumb
           :links="links"
+          :ui="{
+            li: 'text-primary-950 dark:text-primary-50',
+            base: 'text-xs md:text-md',
+          }"
           class="
             mb-5
 
             md:pl-[3.5rem]
           "
-          :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
-          }"
         />
       </div>
       <div class="flex gap-4">

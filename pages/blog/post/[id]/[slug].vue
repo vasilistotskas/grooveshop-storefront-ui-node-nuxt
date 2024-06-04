@@ -74,7 +74,7 @@ const blogPostImageSrc = computed(() => {
   )
 })
 
-const links = [
+const links = computed(() => [
   {
     to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
     label: t('breadcrumb.items.index.label'),
@@ -94,7 +94,7 @@ const links = [
         : `/${locale.value}/blog/post/${blogPostId}/${blogPost.value?.slug}`,
     label: blogPostTitle.value || '',
   },
-]
+])
 
 const shareOptions = reactive({
   title: blogPostTitle.value,
@@ -180,11 +180,11 @@ definePageMeta({
       >
         <UBreadcrumb
           :links="links"
-          class="mx-auto mb-5 max-w-2xl"
           :ui="{
             li: 'text-primary-950 dark:text-primary-50',
             base: 'text-xs md:text-md',
           }"
+          class="mx-auto mb-5 max-w-2xl"
         />
         <article
           class="
@@ -226,35 +226,35 @@ definePageMeta({
                   "
                 >
                   <ButtonBlogPostLike
-                    class="justify-self-start font-extrabold capitalize"
                     :blog-post-id="blogPost.id"
                     :likes-count="blogPost.likesCount"
+                    class="justify-self-start font-extrabold capitalize"
                     @update="likeClicked"
                   />
                   <UButton
-                    icon="i-heroicons-chat-bubble-oval-left"
-                    size="lg"
-                    color="primary"
-                    square
-                    variant="solid"
-                    class="justify-self-start font-extrabold capitalize"
+                    :label="String(blogPost.commentsCount)"
                     :title="$t('common.comments.count', {
                       count: blogPost.commentsCount,
                     })"
-                    :label="String(blogPost.commentsCount)"
+                    class="justify-self-start font-extrabold capitalize"
+                    color="primary"
+                    icon="i-heroicons-chat-bubble-oval-left"
+                    size="lg"
+                    square
+                    variant="solid"
                     @click="scrollToComments"
                   />
                   <ClientOnly>
                     <UButton
                       v-if="isSupported"
                       :disabled="!isSupported"
+                      :title="$t('common.share')"
+                      class="justify-self-start font-extrabold capitalize"
+                      color="primary"
                       icon="i-heroicons-share"
                       size="lg"
-                      color="primary"
                       square
                       variant="solid"
-                      class="justify-self-start font-extrabold capitalize"
-                      :title="$t('common.share')"
                       @click="startShare"
                     />
                     <template #fallback>
@@ -278,20 +278,20 @@ definePageMeta({
                 <div class="shadow-small">
                   <ImgWithFallback
                     id="blog-post-image"
-                    loading="eager"
-                    provider="mediaStream"
-                    class="blog-post-image bg-primary-100 rounded-lg"
-                    :style="{ objectFit: 'contain' }"
-                    :width="675"
-                    :height="340"
-                    :fit="'cover'"
-                    :position="'centre'"
+                    :alt="blogPostTitle"
                     :background="'transparent'"
-                    :trim-threshold="5"
+                    :fit="'cover'"
+                    :height="340"
+                    :position="'centre'"
                     :sizes="`xs:${675}px sm:${675}px md:${675}px lg:${675}px xl:${675}px xxl:${675}px 2xl:${675}px`"
                     :src="blogPostImageSrc"
-                    :alt="blogPostTitle"
+                    :style="{ objectFit: 'contain' }"
+                    :trim-threshold="5"
+                    :width="675"
+                    class="blog-post-image bg-primary-100 rounded-lg"
                     densities="x1"
+                    loading="eager"
+                    provider="mediaStream"
                   />
                 </div>
               </div>

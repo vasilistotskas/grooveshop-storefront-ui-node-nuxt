@@ -56,6 +56,7 @@ const carouselUiItemBasis = computed(() => {
           :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
           :background="'ffffff'"
           :fit="'fill'"
+          :format="'svg'"
           :height="25"
           :position="'entropy'"
           :src="

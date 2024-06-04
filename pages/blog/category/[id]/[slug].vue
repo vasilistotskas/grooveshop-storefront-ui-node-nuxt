@@ -87,7 +87,7 @@ const orderingOptions = computed(() => {
   return useOrdering(entityOrdering.value)
 })
 
-const links = [
+const links = computed(() => [
   {
     to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
     label: t('breadcrumb.items.index.label'),
@@ -101,7 +101,7 @@ const links = [
     label: categoryTitle.value || '',
     current: true,
   },
-]
+])
 
 watch(
   () => route.query,
@@ -138,15 +138,15 @@ definePageMeta({
       <div class="container !p-0">
         <UBreadcrumb
           :links="links"
+          :ui="{
+            li: 'text-primary-950 dark:text-primary-50',
+            base: 'text-xs md:text-md',
+          }"
           class="
             mb-5
 
             md:pl-[3.5rem]
           "
-          :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
-          }"
         />
       </div>
       <div class="container !p-0">
@@ -182,14 +182,14 @@ definePageMeta({
         <div class="flex flex-row flex-wrap items-center gap-2">
           <Pagination
             v-if="pagination"
-            :pagination-type="paginationType"
             :count="pagination.count"
-            :total-pages="pagination.totalPages"
-            :page-total-results="pagination.pageTotalResults"
-            :page-size="pagination.pageSize"
-            :page="pagination.page"
             :links="pagination.links"
             :loading="postStatus === 'pending'"
+            :page="pagination.page"
+            :page-size="pagination.pageSize"
+            :page-total-results="pagination.pageTotalResults"
+            :pagination-type="paginationType"
+            :total-pages="pagination.totalPages"
           />
           <Ordering
             :ordering="String(ordering)"
@@ -215,8 +215,8 @@ definePageMeta({
                 :is="BlogPostCard"
                 v-for="(post, index) in posts?.results"
                 :key="index"
-                :post="post"
                 :img-loading="index > 7 ? 'lazy' : 'eager'"
+                :post="post"
               />
             </template>
             <template v-if="postStatus === 'pending'">
