@@ -4,12 +4,18 @@ import type { DynamicFormSchema } from '~/types/form'
 import type { PasswordChangeBody } from '~/types/all-auth'
 
 const { changePassword } = useAllAuthAccount()
+const authStore = useAuthStore()
+const { hasCurrentPassword } = storeToRefs(authStore)
 
 const { t } = useI18n()
 const toast = useToast()
 
 const onSubmit = async (values: PasswordChangeBody) => {
-  await changePassword(values)
+  const body = {
+    current_password: values.current_password,
+    new_password: values.new_password,
+  }
+  await changePassword(body)
     .then(async () => {
       toast.add({
         title: t('common.auth.password.change.success'),
@@ -57,17 +63,47 @@ const formSchema: DynamicFormSchema = {
       ),
       type: 'password',
     },
+    {
+      label: t(
+        'common.password.confirm',
+      ),
+      name: 'confirm_password',
+      as: 'input',
+      rules: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
+      autocomplete: 'new-password',
+      readonly: false,
+      required: true,
+      placeholder: t(
+        'common.password.confirm',
+      ),
+      type: 'password',
+    },
   ],
   extraValidation: z
     .object({
       current_password: z.string({ required_error: t('common.validation.required') }),
       new_password: z.string({ required_error: t('common.validation.required') }),
-    })
-    .refine(data => data.current_password !== data.new_password, {
-      message: t(
-        'common.validation.must_not_be_same', { field: t('common.password.current') },
-      ),
-      path: ['new_password'],
+      confirm_password: z.string({ required_error: t('common.validation.required') }),
+    }).superRefine((val, ctx) => {
+      if (val.new_password !== val.confirm_password) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t(
+            'common.validation.must_match', { field: t('common.password.new'), other: t('common.password.confirm') },
+          ),
+          path: ['confirm_password'],
+        })
+      }
+
+      if (val.current_password === val.new_password) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t(
+            'common.validation.password.must_not_be_same',
+          ),
+          path: ['confirm_password'],
+        })
+      }
     }),
 }
 </script>
@@ -82,7 +118,7 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :button-label="t('common.change.title')"
+        :button-label="hasCurrentPassword ? t('common.change.title') : t('common.set.title')"
         :schema="formSchema"
         @submit="onSubmit"
       />

@@ -6,6 +6,9 @@ common:
     tooManyAttempts: Πολλές προσπάθειες
     passwords_not_same: Οι κωδικοί δεν ταιριάζουν
     must_not_be_same: Το πεδίο δεν πρέπει να είναι το ίδιο με το πεδίο %{field}
+    must_match: Το πεδίο %{field} πρέπει να ταιριάζει με το πεδίο %{other}
+    password:
+      must_not_be_same: Ο νέος κωδικός δεν πρέπει να είναι ίδιος με τον τρέχοντα
     email:
       required: Απαιτείται email
       valid: Το email πρέπει να είναι έγκυρο
@@ -55,10 +58,12 @@ common:
   regenerate: Αναδημιουργία
   confirm: Επιβεβαίωση
   view: Προβολή
+  set:
+    title: Αποθήκευση
   used: Χρησιμοποιημένο
   deactivate: Απενεργοποίηση
   confirm_access: Επιβεβαίωση πρόσβασης
-  reauthenticate: Παρακαλώ επαληθεύστε το λογαριασμό σας.
+  reauthenticate: Επαναπιστοποίηση.
   alternative_options: Εναλλακτικές επιλογές
   two_factor:
     authentication: Διπλή επαλήθευση (2FA)
@@ -87,6 +92,7 @@ common:
     change: Αλλαγή κωδικού
     current: Τρέχων κωδικός
     new: Νέος κωδικός
+    confirm: Επιβεβαίωση κωδικού
     reset:
       request:
         success: Σου έχει σταλεί email επαναφοράς κωδικού

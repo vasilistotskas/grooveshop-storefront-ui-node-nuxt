@@ -5,7 +5,7 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const { getAuthenticators } = useAllAuthAccount()
 
-const { data } = await getAuthenticators()
+const { data, refresh } = await getAuthenticators()
 
 const totp = computed(() => {
   return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.TOTP)
@@ -15,45 +15,54 @@ const recoveryCodes = computed(() => {
   return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.RECOVERY_CODES)
 })
 
-const links = computed(() => [
-  {
-    label: t('common.social_accounts'),
-    icon: 'i-heroicons-user-group',
-    to: localePath('/account/providers'),
-  },
-  {
-    label: t('common.sessions'),
-    icon: 'i-heroicons-signal',
-    to: localePath('/account/sessions'),
-  },
-  {
-    label: t('common.password.change'),
-    icon: 'i-heroicons-lock-closed',
-    to: localePath('/account/password/change'),
-  },
-  !totp.value
-    ? {
-        label: t('common.two_factor.activate'),
-        icon: 'i-heroicons-lock-open',
-        to: localePath('/account/2fa/totp/activate'),
-      }
-    : {
-        label: t('common.two_factor.deactivate'),
-        icon: 'i-heroicons-chart-bar',
-        to: localePath('/account/2fa/totp/deactivate'),
-      },
-  recoveryCodes.value
-    ? {
-        label: t('common.two_factor.recovery_codes.title'),
-        icon: 'i-heroicons-key',
-        to: localePath('/account/2fa/recovery-codes'),
-      }
-    : {
-        label: t('common.two_factor.recovery_codes.generate'),
-        icon: 'i-heroicons-key',
-        to: localePath('/account/2fa/recovery-codes/generate'),
-      },
-])
+const links = computed(() => {
+  const links = [
+    {
+      label: t('common.social_accounts'),
+      icon: 'i-heroicons-user-group',
+      to: localePath('/account/providers'),
+    },
+    {
+      label: t('common.sessions'),
+      icon: 'i-heroicons-signal',
+      to: localePath('/account/sessions'),
+    },
+    {
+      label: t('common.password.change'),
+      icon: 'i-heroicons-lock-closed',
+      to: localePath('/account/password/change'),
+    },
+    !totp.value
+      ? {
+          label: t('common.two_factor.activate'),
+          icon: 'i-heroicons-lock-open',
+          to: localePath('/account/2fa/totp/activate'),
+        }
+      : {
+          label: t('common.two_factor.deactivate'),
+          icon: 'i-heroicons-chart-bar',
+          to: localePath('/account/2fa/totp/deactivate'),
+        },
+  ]
+
+  if (recoveryCodes.value) {
+    links.push({
+      label: t('common.two_factor.recovery_codes.title'),
+      icon: 'i-heroicons-key',
+      to: localePath('/account/2fa/recovery-codes'),
+    }, {
+      label: t('common.two_factor.recovery_codes.generate'),
+      icon: 'i-heroicons-key',
+      to: localePath('/account/2fa/recovery-codes/generate'),
+    })
+  }
+
+  return links
+})
+
+onReactivated(() => {
+  refresh()
+})
 
 definePageMeta({
   layout: 'user',

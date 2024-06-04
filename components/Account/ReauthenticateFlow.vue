@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+import { withQuery } from 'ufo'
 import { type AllAuthResponse, type AllAuthResponseError, type Flow, Flows } from '~/types/all-auth'
 
 const props = defineProps({
@@ -12,6 +13,7 @@ defineSlots<{
 
 const { flow } = toRefs(props)
 
+const route = useRoute()
 const { t } = useI18n()
 
 const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
@@ -47,6 +49,12 @@ const flowLabels = {
   [Flows.MFA_AUTHENTICATE]: t('common.mfa_authenticate'),
   [Flows.REAUTHENTICATE]: t('common.reauthenticate'),
   [Flows.MFA_REAUTHENTICATE]: t('common.mfa_reauthenticate'),
+}
+
+const toReauthenticatePath = (flowId: Flow['id']) => {
+  return withQuery(pathForFlow(flowId), {
+    next: route.query.next,
+  })
 }
 </script>
 
@@ -86,7 +94,7 @@ const flowLabels = {
           <UButton
             v-if="flow"
             :label="flowLabels[f.id] || flow"
-            :to="pathForFlow(f.id)"
+            :to="toReauthenticatePath(f.id)"
             class="p-0"
             color="primary"
             icon="i-heroicons-arrow-right"

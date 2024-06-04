@@ -4,7 +4,7 @@ import { AuthenticatorType } from '~/types/all-auth'
 const localePath = useLocalePath()
 const { getAuthenticators } = useAllAuthAccount()
 
-const { data } = await getAuthenticators()
+const { data, refresh } = await getAuthenticators()
 
 const totp = computed(() => {
   return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.TOTP)
@@ -12,6 +12,10 @@ const totp = computed(() => {
 
 const recoveryCodes = computed(() => {
   return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.RECOVERY_CODES)
+})
+
+onReactivated(() => {
+  refresh()
 })
 
 definePageMeta({

@@ -7,10 +7,10 @@ const toast = useToast()
 
 const loading = ref(false)
 
-const { error } = await totpAuthenticatorStatus()
+const { error, refresh } = await totpAuthenticatorStatus()
 
 if (error.value) {
-  await navigateTo('/account/2fa')
+  await navigateTo('/account/settings')
 }
 
 async function onSubmit() {
@@ -22,7 +22,7 @@ async function onSubmit() {
       color: 'green',
     })
     emit('deactivateTotp')
-    await navigateTo('/account/2fa')
+    await navigateTo('/account/settings')
   }
   catch (error) {
     toast.add({
@@ -31,6 +31,10 @@ async function onSubmit() {
     })
   }
 }
+
+onReactivated(() => {
+  refresh()
+})
 
 definePageMeta({
   layout: 'user',

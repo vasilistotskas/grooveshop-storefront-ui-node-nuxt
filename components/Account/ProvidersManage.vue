@@ -73,6 +73,10 @@ const actionItems = (row: { uid: string, display: string, name: string }) => {
   })
   return [items]
 }
+
+onReactivated(() => {
+  refreshProviderAccounts()
+})
 </script>
 
 <template>

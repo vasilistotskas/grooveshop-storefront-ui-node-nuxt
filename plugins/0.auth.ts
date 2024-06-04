@@ -20,24 +20,25 @@ export default defineNuxtPlugin({
     const fromAuth = ref(authState.value)
 
     nuxtApp.hook('auth:change', async ({ detail }) => {
-      const toAuth = detail
-
       if (fromAuth.value) {
-        authEvent.value = determineAuthChangeEvent(fromAuth.value, toAuth)
+        authEvent.value = determineAuthChangeEvent(fromAuth.value, detail)
+        console.log('======== determineAuthChangeEvent ========', authEvent.value)
       }
 
-      authState.value = toAuth
+      authState.value = detail
+      console.log('======== authState.value ========', authState.value)
 
-      if (toAuth.status === 200 && toAuth.meta?.access_token && toAuth.data.user) {
+      if (detail.status === 200 && detail.meta?.access_token && detail.data.user) {
         await fetch()
       }
 
-      fromAuth.value = toAuth
+      fromAuth.value = detail
+      console.log('======== fromAuth.value ========', fromAuth.value)
     })
 
     watch(
-      () => authEvent.value,
-      async (newVal, _oldVal) => {
+      () => [authEvent.value, authState.value],
+      async ([newVal, _oldVal]) => {
         const auth = authState.value
         console.log('======== newVal ========', newVal)
         console.log('======== _oldVal ========', _oldVal)

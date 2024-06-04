@@ -14,6 +14,13 @@ export const useAuthStore = defineStore('auth', () => {
     return config.value?.data?.socialaccount?.providers?.length > 0
   })
 
+  const hasCurrentPassword = computed(() => {
+    if (!session.value || !session.value.data || !session.value.data.user) {
+      return false
+    }
+    return session.value.data.user.has_usable_password
+  })
+
   const setupSession = async () => {
     const { getSession } = useAllAuthAuthentication()
     await callOnce(async () => {
@@ -38,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (totpSecret.value || totpSvg.value) return
 
     const { totpAuthenticatorStatus } = useAllAuthAccount()
-    const { data, error } = await totpAuthenticatorStatus()
+    const { data, error, refresh } = await totpAuthenticatorStatus()
 
     if (data.value) {
       totpData.value = data.value
@@ -49,18 +56,19 @@ export const useAuthStore = defineStore('auth', () => {
     const svg = error.value?.data.data.meta.svg
     totpSecret.value = secret
     totpSvg.value = svg
+    return { data, error, refresh }
   }
 
   return {
     session,
     config,
     hasProviders,
+    hasCurrentPassword,
     totpData,
     totpSecret,
     totpSvg,
     setupSession,
     setupConfig,
     getTotpAuthenticatorStatus,
-
   }
 })

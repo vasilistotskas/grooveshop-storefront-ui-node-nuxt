@@ -3,10 +3,10 @@ const { getRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 
-const { data, error } = await getRecoveryCodes()
+const { data, refresh, error } = await getRecoveryCodes()
 
 if (error.value) {
-  navigateTo('/account/2fa').then(() => {
+  navigateTo('/account/settings').then(() => {
     toast.add({
       title: t('common.auth.mfa.required'),
       color: 'red',
@@ -67,6 +67,10 @@ const downloadCodes = () => {
   link.href = url
   link.click()
 }
+
+onReactivated(() => {
+  refresh()
+})
 </script>
 
 <template>

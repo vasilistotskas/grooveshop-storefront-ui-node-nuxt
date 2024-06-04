@@ -20,10 +20,10 @@ const toast = useToast()
 
 const loading = ref(false)
 
-await getTotpAuthenticatorStatus()
+const { refresh } = await getTotpAuthenticatorStatus()
 
 if (totpData.value) {
-  await navigateTo('/account/2fa')
+  await navigateTo('/account/settings')
 }
 
 const { copy, isSupported } = useClipboard({ source: totpSecret.value })
@@ -47,7 +47,7 @@ async function onSubmit(values: TotpPostBody) {
       color: 'green',
     })
     emit('activateTotp')
-    await navigateTo('/account/2fa')
+    await navigateTo('/account/settings')
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
@@ -82,6 +82,10 @@ const formSchema: DynamicFormSchema = {
     },
   ],
 }
+
+onReactivated(() => {
+  refresh()
+})
 </script>
 
 <template>

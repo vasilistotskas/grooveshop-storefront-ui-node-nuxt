@@ -5,7 +5,7 @@ const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 
-const { data } = await getRecoveryCodes()
+const { data, refresh } = await getRecoveryCodes()
 
 const hasCodes = computed(() => {
   if (!data.value?.data?.unused_code_count) {
@@ -47,6 +47,10 @@ async function onSubmit() {
     loading.value = false
   }
 }
+
+onReactivated(() => {
+  refresh()
+})
 </script>
 
 <template>
