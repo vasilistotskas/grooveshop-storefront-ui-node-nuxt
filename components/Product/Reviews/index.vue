@@ -52,11 +52,6 @@ const {
 
 const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   {
-    value: 'id',
-    label: t('components.product.reviews.ordering.id'),
-    options: ['ascending', 'descending'],
-  },
-  {
     value: 'createdAt',
     label: t('components.product.reviews.ordering.created_at'),
     options: ['ascending', 'descending'],

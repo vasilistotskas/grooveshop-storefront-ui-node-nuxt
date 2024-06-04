@@ -21,11 +21,6 @@ const BlogPostCard = computed(() =>
 const pageSize = ref(15)
 const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   {
-    value: 'title',
-    label: t('common.title'),
-    options: ['ascending', 'descending'],
-  },
-  {
     value: 'createdAt',
     label: t('common.ordering.created_at'),
     options: ['ascending', 'descending'],
@@ -112,7 +107,7 @@ watch(
   },
 )
 
-const seoMetaOptions = {
+const seoMetaInput = {
   title: categoryTitle.value,
   description: categoryDescription.value,
   ogImage: category.value?.mainImageAbsoluteUrl,
@@ -126,7 +121,7 @@ const seoMetaOptions = {
 useHydratedHead({
   title: () => categoryTitle.value || '',
 })
-useSeoMeta(seoMetaOptions)
+useSeoMeta(seoMetaInput)
 definePageMeta({
   layout: 'default',
 })

@@ -123,8 +123,6 @@ components:
       title: Κριτικές
       empty: Δεν υπάρχουν ακόμη κριτικές
       ordering:
-        id: ταυτότητα
-        user_id: ταυτότητα χρήστη
         product_id: Αναγνωριστικό προϊόντος
         created_at: Ημερομηνία δημιουργίας
       summary:
@@ -198,7 +196,7 @@ components:
     card:
       extra: '%{count} ακόμη προϊόντα'
       extra_one: 1 ακόμη προϊόν
-      id: ταυτότητα
+      id: ID
       address: Διεύθυνση
       pay_way: Τρόπος πληρωμής
       status: Κατάσταση

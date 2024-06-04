@@ -100,11 +100,6 @@ const {
 
 const entityOrdering = ref<EntityOrdering<BlogCommentOrderingField>>([
   {
-    value: 'id',
-    label: t('common.ordering.id'),
-    options: ['ascending', 'descending'],
-  },
-  {
     value: 'createdAt',
     label: t('common.ordering.created_at'),
     options: ['ascending', 'descending'],
@@ -285,6 +280,15 @@ watch(
   { deep: true, immediate: true },
 )
 
+watch(
+  () => route.query,
+  async (newVal, oldVal) => {
+    if (!deepEqual(newVal, oldVal)) {
+      await refresh()
+    }
+  },
+)
+
 onMounted(() => {
   scrollToComments()
 })
@@ -325,19 +329,19 @@ onMounted(() => {
     >
       <div class="grid gap-4">
         <LazyBlogPostCommentsList
-          :comments-count="commentsCount"
           :comments="allComments"
+          :comments-count="commentsCount"
           :display-image-of="displayImageOf"
           @reply-add="onReplyAdd"
         >
           <LazyEmptyState
             v-if="!userBlogPostComment"
-            class="w-full"
             :title="
               loggedIn
                 ? 'components.blog.post.comments.empty.title'
                 : 'components.blog.post.comments.empty.title_guest'
             "
+            class="w-full"
           >
             <template
               v-if="loggedIn"
@@ -345,9 +349,9 @@ onMounted(() => {
             >
               <LazyDynamicForm
                 id="add-comment-form"
+                :button-label="t('common.submit')"
                 :schema="addCommentFormSchema"
                 class="container-3xs"
-                :button-label="t('common.submit')"
                 @submit="onAddCommentSubmit"
               />
             </template>
@@ -357,13 +361,13 @@ onMounted(() => {
     </div>
     <LazyEmptyState
       v-else
-      class="w-full"
-      title="components.blog.post.comments.empty.title"
       :description="
         loggedIn
           ? 'components.blog.post.comments.empty.description'
           : 'components.blog.post.comments.empty.description_guest'
       "
+      class="w-full"
+      title="components.blog.post.comments.empty.title"
     >
       <template
         v-if="loggedIn"
@@ -371,24 +375,24 @@ onMounted(() => {
       >
         <LazyDynamicForm
           id="add-comment-form"
+          :button-label="t('common.submit')"
           :schema="addCommentFormSchema"
           class="container-3xs"
-          :button-label="t('common.submit')"
           @submit="onAddCommentSubmit"
         />
       </template>
     </LazyEmptyState>
     <Pagination
       v-if="pagination"
-      :pagination-type="paginationType"
       :count="pagination.count"
-      :total-pages="pagination.totalPages"
-      :page-total-results="pagination.pageTotalResults"
-      :page-size="pagination.pageSize"
-      :page="pagination.page"
+      :cursor-key="PaginationCursorStateEnum.BLOG_POST_COMMENTS"
       :links="pagination.links"
       :loading="pending"
-      :cursor-key="PaginationCursorStateEnum.BLOG_POST_COMMENTS"
+      :page="pagination.page"
+      :page-size="pagination.pageSize"
+      :page-total-results="pagination.pageTotalResults"
+      :pagination-type="paginationType"
+      :total-pages="pagination.totalPages"
     />
   </div>
 </template>

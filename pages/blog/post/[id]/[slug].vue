@@ -114,7 +114,7 @@ const scrollToComments = () => {
   }
 }
 
-const seoMetaOptions = {
+const seoMetaInput = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
   ogImage: blogPost.value?.mainImageAbsoluteUrl,
@@ -157,7 +157,7 @@ useHydratedHead({
   title: () => blogPostTitle.value || '',
 })
 
-useSeoMeta(seoMetaOptions)
+useSeoMeta(seoMetaInput)
 definePageMeta({
   layout: 'default',
 })

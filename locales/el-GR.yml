@@ -250,7 +250,6 @@ common:
     clear: Σαφή
     apply: Ισχύουν
   ordering:
-    id: ταυτότητα
     created_at: Ημερομηνία δημιουργίας
   like: Like
   unlike: Διαφορετικός
