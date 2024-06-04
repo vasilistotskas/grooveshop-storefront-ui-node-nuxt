@@ -1,3 +1,10 @@
+# [1.127.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.126.3...v1.127.0) (2024-06-04)
+
+
+### Features
+
+* Authentication UI/UX fixes and improvements, account password change page implemented ([1ce9862](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1ce98625e1785c684454156acf2fb92e781998da))
+
 ## [1.126.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.126.2...v1.126.3) (2024-06-04)
 
 
