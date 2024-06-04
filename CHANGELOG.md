@@ -1,3 +1,10 @@
+## [1.127.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.127.2...v1.127.3) (2024-06-04)
+
+
+### Bug Fixes
+
+* Remove useless ordering options ([69b4087](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/69b40878aceb10036f2c248f7a52ec59cb7b7601))
+
 ## [1.127.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.127.1...v1.127.2) (2024-06-04)
 
 
