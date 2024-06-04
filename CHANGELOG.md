@@ -1,3 +1,10 @@
+## [1.127.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.127.1...v1.127.2) (2024-06-04)
+
+
+### Bug Fixes
+
+* account password change form fix ([559ead8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/559ead8100273be63f54c7cef8f70833e108d2cf))
+
 ## [1.127.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.127.0...v1.127.1) (2024-06-04)
 
 
