@@ -1,3 +1,10 @@
+## [1.126.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.126.2...v1.126.3) (2024-06-04)
+
+
+### Bug Fixes
+
+* nuxt ui links as computed and add console logs for debugging temporary ([07825bf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/07825bfcbce475c88b29e3816bb9bd7e0227e138))
+
 ## [1.126.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.126.1...v1.126.2) (2024-06-01)
 
 
