@@ -48,8 +48,7 @@ const envVariables = z.object({
   NUXT_PUBLIC_FACEBOOK_APP_ID: z.string(),
 
   // Google Tag Manager
-  NUXT_PUBLIC_GOOGLE_TAG_MANAGER_ID: z.string(),
-  NUXT_PUBLIC_GOOGLE_TAG_ID: z.string(),
+  NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID: z.string(),
 
   // Storage 'cloudflare' | 'fs'
   NUXT_STORAGE_DRIVER: z.string(),

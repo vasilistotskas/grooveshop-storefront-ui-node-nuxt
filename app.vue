@@ -5,6 +5,7 @@ setupPageHeader()
 setupCursorStates()
 
 const { loggedIn } = useUserSession()
+const { gtag } = useScriptGoogleAnalytics()
 const authStore = useAuthStore()
 const { setupConfig, setupSession } = authStore
 const { config: authConfig } = storeToRefs(authStore)
@@ -23,6 +24,49 @@ await fetchCart()
 const {
   providerToken,
 } = useAllAuthAuthentication()
+
+const {
+  isConsentGiven,
+} = useCookieControl()
+
+gtag('consent', 'default', {
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  ad_storage: 'denied',
+  analytics_storage: 'denied',
+  functionality_storage: 'denied',
+  personalization_storage: 'denied',
+  security_storage: 'denied',
+})
+
+watch(
+  () => isConsentGiven.value,
+  (current, _previous) => {
+    if (current) {
+      gtag('consent', 'update', {
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
+        analytics_storage: 'granted',
+        functionality_storage: 'granted',
+        personalization_storage: 'granted',
+        security_storage: 'granted',
+      })
+    }
+    else if (_previous && !current) {
+      gtag('consent', 'update', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'denied',
+      })
+    }
+  },
+  { immediate: true },
+)
 
 onMounted(() => {
   if (import.meta.client) {

@@ -2,8 +2,7 @@
 import type { PropType } from 'vue'
 
 import { z } from 'zod'
-import type { BlogComment, BlogCommentOrderingField } from '~/types/blog/comment'
-import type { EntityOrdering } from '~/types/ordering'
+import type { BlogComment } from '~/types/blog/comment'
 
 import type { DynamicFormSchema } from '~/types/form'
 import { type CursorStates, PaginationCursorStateEnum, type PaginationType, PaginationTypeEnum } from '~/types'
@@ -52,7 +51,6 @@ const userStore = useUserStore()
 const { updateLikedComments } = userStore
 const cursorState = useState<CursorStates>('cursorStates')
 
-const ordering = computed(() => route.query.ordering || '-createdAt')
 const expand = computed(() => 'true')
 const expandFields = computed(() => 'user,post')
 const cursor = computed(
@@ -86,7 +84,6 @@ const {
   $fetch(`/api/blog/posts/${blogPostId.value}/comments`, {
     method: 'GET',
     query: {
-      ordering: ordering.value,
       cursor: cursor.value,
       expand: expand.value,
       expandFields: expandFields.value,
@@ -98,14 +95,6 @@ const {
   }),
 )
 
-const entityOrdering = ref<EntityOrdering<BlogCommentOrderingField>>([
-  {
-    value: 'createdAt',
-    label: t('common.ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-])
-
 const pagination = computed(() => {
   if (!comments.value) return
   return usePagination<BlogComment>(comments.value)
@@ -116,10 +105,6 @@ const showResults = computed(() => {
     return allComments.value.length
   }
   return !pending.value && allComments.value.length
-})
-
-const orderingOptions = computed(() => {
-  return useOrdering<BlogCommentOrderingField>(entityOrdering.value)
 })
 
 const loggedInAndHasComments = computed(() => {
@@ -252,29 +237,9 @@ watch(
   comments,
   (newValue) => {
     if (newValue && newValue.results?.length) {
-      const commentsMap = new Map(
-        allComments.value.map(comment => [comment.id, comment]),
-      )
-      newValue.results.forEach((newComment) => {
-        commentsMap.set(newComment.id, newComment)
+      allComments.value = newValue.results.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       })
-      let sortedComments
-      if (paginationType.value === 'cursor') {
-        sortedComments = [...commentsMap.values()].sort((a, b) => {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-        })
-        allComments.value = sortedComments
-      }
-      else {
-        sortedComments = newValue.results.sort((a, b) => {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-        })
-        allComments.value = sortedComments
-      }
     }
   },
   { deep: true, immediate: true },
@@ -304,24 +269,10 @@ onMounted(() => {
       dark:border-primary-500
     "
   >
-    <div class="grid gap-4">
+    <div class="grid">
       <h2 class="text-2xl font-semibold">
         {{ $t('components.blog.post.comments.title') }}
       </h2>
-      <div
-        class="
-          grid justify-start gap-4
-
-          md:flex md:items-center
-        "
-      >
-        <div class="grid">
-          <Ordering
-            :ordering="String(ordering)"
-            :ordering-options="orderingOptions.orderingOptionsArray.value"
-          />
-        </div>
-      </div>
     </div>
     <div
       v-if="showResults"
