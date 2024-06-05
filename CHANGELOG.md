@@ -1,3 +1,10 @@
+# [1.128.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.127.3...v1.128.0) (2024-06-05)
+
+
+### Features
+
+* merge config into `nuxt.config.ts` and add google analytics using nuxt scripts ([4821ef7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4821ef723e802d4a90d37d0bf24bdefd5791eec5))
+
 ## [1.127.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.127.2...v1.127.3) (2024-06-04)
 
 
