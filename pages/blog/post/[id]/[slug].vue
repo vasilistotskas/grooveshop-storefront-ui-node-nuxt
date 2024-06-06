@@ -117,7 +117,7 @@ const scrollToComments = () => {
 const seoMetaInput = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
-  ogImage: blogPost.value?.mainImageAbsoluteUrl,
+  ogImage: `https://grooveshop-static.s3.amazonaws.com/${blogPostImageSrc.value}`,
   ogType: 'article',
   ogUrl: config.public.baseUrl + route.fullPath.value,
   twitterTitle: blogPostTitle.value,
