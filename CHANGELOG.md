@@ -1,3 +1,10 @@
+## [1.129.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.129.0...v1.129.1) (2024-06-06)
+
+
+### Bug Fixes
+
+* test og image broken url ([2a75a0f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2a75a0f0c7aafd32890bd8bdbdc9b1e2665db47b))
+
 # [1.129.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.128.0...v1.129.0) (2024-06-05)
 
 
