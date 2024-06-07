@@ -47,7 +47,7 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont && \
-    pnpm exec playwright install --with-deps --browsers=chromium
+    pnpm exec playwright install --with-deps
 
 # Build the app
 RUN pnpm run build
