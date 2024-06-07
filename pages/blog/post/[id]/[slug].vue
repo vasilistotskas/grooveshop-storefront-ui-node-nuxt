@@ -135,11 +135,12 @@ useHydratedHead({
   title: () => blogPostTitle.value || '',
 })
 
-defineOgImage({
-  url: blogPost.value.mainImageAbsoluteUrl || config.public.appLogo,
-  width: 1200,
-  height: 600,
+defineOgImageScreenshot({
   alt: blogPostTitle.value,
+  screenshot: {
+    selector: '.blog-post-image',
+    mask: '.cookie-control, .pwa',
+  },
 })
 
 useSchemaOrg([

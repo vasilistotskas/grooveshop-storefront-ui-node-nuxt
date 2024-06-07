@@ -13,9 +13,7 @@ const installActions = ref<NotificationAction[]>([
   },
 ])
 
-const actions = ref<NotificationAction[]>([
-
-])
+const actions = ref<NotificationAction[]>([])
 
 if ($pwa?.needRefresh) {
   $pwa.updateServiceWorker()
@@ -36,7 +34,7 @@ const id = useId()
       v-if="$pwa"
       id="pwa"
       class="
-        fixed bottom-20 right-0 w-full
+        pwa fixed bottom-20 right-0 w-full
 
         md:bottom-2
 
@@ -48,30 +46,30 @@ const id = useId()
           $pwa?.offlineReady || $pwa?.needRefresh
         "
         :id="id"
+        :actions="actions"
         :close-button="{ id: 'actions', onClick: () => $pwa?.cancelPrompt() }"
+        :timeout="0"
+        :title="$pwa?.offlineReady ? $t('components.pwa.ready_to_work_offline') : $t('components.pwa.new_content_available')"
         class="
           m-auto w-[33%]
 
           md:w-[90%]
         "
-        :actions="actions"
-        :title="$pwa?.offlineReady ? $t('components.pwa.ready_to_work_offline') : $t('components.pwa.new_content_available')"
-        :timeout="0"
       />
       <UNotification
         v-if="
           $pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh
         "
         :id="id"
+        :actions="installActions"
         :close-button="{ id: 'installActions', onClick: () => $pwa?.cancelInstall() }"
+        :timeout="0"
+        :title="$t('components.pwa.install_pwa')"
         class="
           m-auto w-[33%]
 
           md:w-[90%]
         "
-        :actions="installActions"
-        :title="$t('components.pwa.install_pwa')"
-        :timeout="0"
       />
     </div>
     <template #fallback>
