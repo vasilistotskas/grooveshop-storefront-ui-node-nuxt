@@ -1,3 +1,10 @@
+# [1.131.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.130.1...v1.131.0) (2024-06-07)
+
+
+### Features
+
+* Bump versions add env var `NUXT_PUBLIC_DJANGO_STATIC_URL` and remove useless code ([fab8e13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fab8e1385c7854ecc549787441cd4d46cff3636d))
+
 ## [1.130.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.130.0...v1.130.1) (2024-06-07)
 
 
