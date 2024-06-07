@@ -1,3 +1,10 @@
+## [1.132.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.132.0...v1.132.1) (2024-06-07)
+
+
+### Bug Fixes
+
+* **Dockerfile:** trying to install playwright ([a5098f2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a5098f217186a46728639fb41aa3d48b84166570))
+
 # [1.132.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.131.0...v1.132.0) (2024-06-07)
 
 
