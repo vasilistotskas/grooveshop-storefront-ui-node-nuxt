@@ -12,7 +12,7 @@ const toast = useToast()
 
 const onSubmit = async (values: PasswordChangeBody) => {
   const body = {
-    current_password: values.current_password,
+    current_password: values.current_password || '',
     new_password: values.new_password,
   }
   await changePassword(body)
