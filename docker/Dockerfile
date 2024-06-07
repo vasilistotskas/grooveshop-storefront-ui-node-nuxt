@@ -40,7 +40,14 @@ ENV NUXT_PUBLIC_SITE_DESCRIPTION="Webside Description"
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Install Playwright and download browsers
-RUN pnpm exec playwright install --with-deps
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont && \
+    pnpm exec playwright install --with-deps --browsers=chromium
 
 # Build the app
 RUN pnpm run build
