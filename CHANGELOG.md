@@ -1,3 +1,10 @@
+# [1.132.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.131.0...v1.132.0) (2024-06-07)
+
+
+### Features
+
+* include playwright in dockerfile ([530ba99](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/530ba9968fc01680255a53a6dcfb6e082d497733))
+
 # [1.131.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.130.1...v1.131.0) (2024-06-07)
 
 
