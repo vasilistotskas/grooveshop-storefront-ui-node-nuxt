@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { UseSeoMetaInput } from '@unhead/schema'
 import { isClient } from '@vueuse/shared'
+import type { UseSeoMetaInput } from '@unhead/schema'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -114,17 +114,33 @@ const scrollToComments = () => {
   }
 }
 
+onMounted(() => {
+  $fetch(`/api/blog/posts/${blogPostId}/update-view-count`, {
+    method: 'POST',
+  })
+})
+
+onReactivated(() => {
+  refresh()
+})
+
 const seoMetaInput = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
-  ogImage: `https://grooveshop-static.s3.amazonaws.com/${blogPostImageSrc.value}`,
-  ogType: 'article',
-  ogUrl: config.public.baseUrl + route.fullPath.value,
-  twitterTitle: blogPostTitle.value,
-  twitterDescription: blogPostSubtitle.value,
-  twitterImage: blogPost.value?.mainImageAbsoluteUrl,
-  msapplicationTileImage: blogPost.value?.mainImageAbsoluteUrl,
 } satisfies UseSeoMetaInput
+
+useSeoMeta(seoMetaInput)
+
+useHydratedHead({
+  title: () => blogPostTitle.value || '',
+})
+
+defineOgImage({
+  url: blogPost.value.mainImageAbsoluteUrl || config.public.appLogo,
+  width: 1200,
+  height: 600,
+  alt: blogPostTitle.value,
+})
 
 useSchemaOrg([
   defineArticle({
@@ -143,21 +159,6 @@ useSchemaOrg([
   }),
 ])
 
-onMounted(() => {
-  $fetch(`/api/blog/posts/${blogPostId}/update-view-count`, {
-    method: 'POST',
-  })
-})
-
-onReactivated(() => {
-  refresh()
-})
-
-useHydratedHead({
-  title: () => blogPostTitle.value || '',
-})
-
-useSeoMeta(seoMetaInput)
 definePageMeta({
   layout: 'default',
 })

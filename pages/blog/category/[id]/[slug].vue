@@ -110,12 +110,6 @@ watch(
 const seoMetaInput = {
   title: categoryTitle.value,
   description: categoryDescription.value,
-  ogImage: category.value?.mainImageAbsoluteUrl,
-  ogUrl: config.public.baseUrl + route.fullPath,
-  twitterTitle: categoryTitle.value,
-  twitterDescription: categoryDescription.value,
-  twitterImage: category.value?.mainImageAbsoluteUrl,
-  msapplicationTileImage: category.value?.mainImageAbsoluteUrl,
 } satisfies UseSeoMetaInput
 
 useHydratedHead({

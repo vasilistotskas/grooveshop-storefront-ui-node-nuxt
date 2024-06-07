@@ -105,6 +105,8 @@ export default defineNuxtConfig({
     ],
   },
   experimental: {
+    componentIslands: true,
+    inlineRouteRules: true,
     typedPages: true,
     renderJsonPayloads: true,
     asyncContext: true,

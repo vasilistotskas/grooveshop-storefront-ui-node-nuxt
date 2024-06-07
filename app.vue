@@ -111,10 +111,10 @@ const schemaOrgOptions = [
   defineWebPage(),
 ]
 const ogImageOptions = {
-  title: config.public.appTitle,
-  description: config.public.appDescription,
   alt: config.public.appTitle,
   url: config.public.appLogo,
+  width: 1200,
+  height: 630,
 }
 
 useSchemaOrg(schemaOrgOptions)
