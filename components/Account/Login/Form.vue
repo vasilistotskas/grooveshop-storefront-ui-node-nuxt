@@ -6,6 +6,7 @@ import { GlobalEvents } from '~/events'
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
+const { clear } = useUserSession()
 const { login } = useAllAuthAuthentication()
 const cartStore = useCartStore()
 const { refreshCart } = cartStore
@@ -40,6 +41,7 @@ const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
+    await clear()
     session.value = await login({
       email: values.email,
       password: values.password,

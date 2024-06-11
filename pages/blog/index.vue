@@ -6,6 +6,8 @@ const { t, locale } = useI18n()
 
 const seoMetaInput = {
   title: t('pages.blog.title'),
+  description: t('pages.blog.description'),
+  ogDescription: t('pages.blog.description'),
 } satisfies UseSeoMetaInput
 
 const links = computed(() => [
@@ -24,10 +26,11 @@ const links = computed(() => [
   },
 ])
 
+useSeoMeta(seoMetaInput)
+
 useHydratedHead({
   title: () => t('pages.blog.title'),
 })
-useSeoMeta(seoMetaInput)
 
 definePageMeta({
   layout: 'default',

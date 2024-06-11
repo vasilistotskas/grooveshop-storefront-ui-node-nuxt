@@ -8,6 +8,8 @@ const config = useRuntimeConfig()
 const { locale, t } = useI18n()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+const { resolveImageSrc } = useImageResolver()
+const img = useImage()
 
 const paginationType = PaginationTypeEnum.PAGE_NUMBER
 const categoryId = route.params.id
@@ -82,6 +84,19 @@ const orderingOptions = computed(() => {
   return useOrdering(entityOrdering.value)
 })
 
+const categoryImageSrc = computed(() => {
+  return resolveImageSrc(
+    category.value?.mainImageFilename,
+    `media/uploads/blog/${category.value?.mainImageFilename}`,
+  )
+})
+
+const ogImage = computed(() => {
+  return img(categoryImageSrc.value, { width: 1200, height: 630, fit: 'cover' }, {
+    provider: 'mediaStream',
+  })
+})
+
 const links = computed(() => [
   {
     to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
@@ -110,12 +125,27 @@ watch(
 const seoMetaInput = {
   title: categoryTitle.value,
   description: categoryDescription.value,
+  ogDescription: categoryDescription.value,
+  ogImage: {
+    url: ogImage.value,
+    width: 1200,
+    height: 630,
+    alt: categoryDescription.value,
+  },
+  twitterImage: {
+    url: ogImage.value,
+    width: 1200,
+    height: 630,
+    alt: categoryDescription.value,
+  },
 } satisfies UseSeoMetaInput
+
+useSeoMeta(seoMetaInput)
 
 useHydratedHead({
   title: () => categoryTitle.value || '',
 })
-useSeoMeta(seoMetaInput)
+
 definePageMeta({
   layout: 'default',
 })

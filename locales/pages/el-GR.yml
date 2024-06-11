@@ -310,7 +310,9 @@ pages:
       title: Πάροχοι
     provider:
       callback:
-        title: Αποτυχία σύνδεσης με τον πάροχο
+        title:
+          error: Αποτυχία σύνδεσης με τον πάροχο
+          loading: Σύνδεση με τον πάροχο ...
         description: Κάτι πήγε στραβά.
       signup:
         title: Εγγραφή

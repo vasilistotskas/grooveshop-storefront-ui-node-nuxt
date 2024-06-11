@@ -9,6 +9,7 @@ const { loggedIn } = useUserSession()
 const { resolveImageSrc } = useImageResolver()
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
+const img = useImage()
 
 const blogPostId = Number(route.params.id)
 
@@ -73,6 +74,11 @@ const blogPostImageSrc = computed(() => {
     `media/uploads/blog/${blogPost.value?.mainImageFilename}`,
   )
 })
+const ogImage = computed(() => {
+  return img(blogPostImageSrc.value, { width: 1200, height: 630, fit: 'cover' }, {
+    provider: 'mediaStream',
+  })
+})
 
 const links = computed(() => [
   {
@@ -127,6 +133,20 @@ onReactivated(() => {
 const seoMetaInput = {
   title: blogPostTitle.value,
   description: blogPostSubtitle.value,
+  ogDescription: blogPostSubtitle.value,
+  ogImage: {
+    url: ogImage.value,
+    width: 1200,
+    height: 630,
+    alt: blogPostTitle.value,
+  },
+  ogType: 'article',
+  twitterImage: {
+    url: ogImage.value,
+    width: 1200,
+    height: 630,
+    alt: blogPostTitle.value,
+  },
 } satisfies UseSeoMetaInput
 
 useSeoMeta(seoMetaInput)
@@ -135,19 +155,11 @@ useHydratedHead({
   title: () => blogPostTitle.value || '',
 })
 
-defineOgImageScreenshot({
-  alt: blogPostTitle.value,
-  screenshot: {
-    selector: '.blog-post-image',
-    mask: '.cookie-control, .pwa',
-  },
-})
-
 useSchemaOrg([
   defineArticle({
     headline: blogPostTitle.value,
     description: blogPostSubtitle.value,
-    image: blogPost.value?.mainImageAbsoluteUrl,
+    image: ogImage.value,
     datePublished: blogPost.value?.createdAt,
     dateModified: blogPost.value?.updatedAt,
     author: {

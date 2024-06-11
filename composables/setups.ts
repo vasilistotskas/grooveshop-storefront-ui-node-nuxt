@@ -63,6 +63,14 @@ export function setupPageHeader() {
         content: 'yes',
       },
       {
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'apple-mobile-web-app-title',
+        content: publicConfig.appTitle,
+      },
+      {
         name: 'msapplication-Config',
         content: '/favicon/browserconfig.xml',
       },

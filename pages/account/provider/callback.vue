@@ -7,12 +7,19 @@ const {
 const route = useRoute()
 const { error: apiError, provider, access_token, id_token, client_id, process } = route.query
 
+const { t } = useI18n()
 const auth = useState<AllAuthResponse | AllAuthResponseError>('authState')
 const authStatus = authInfo(auth.value)
 
 const url = ref<string>(URLs.LOGIN_URL)
 const error = ref(false)
 const loading = ref(true)
+
+const title = computed(() => {
+  if (loading.value) return t('pages.account.provider.callback.title.loading')
+  if (error.value) return t('pages.account.provider.callback.title.error')
+  return ''
+})
 
 onMounted(async () => {
   if (authStatus.isAuthenticated) {
@@ -60,9 +67,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.provider.callback.title')" class="
-        text-center capitalize
-      "
+      :text="title" class="text-center capitalize"
     />
     <div
       v-if="loading" class="

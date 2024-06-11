@@ -11,6 +11,9 @@ export default defineNuxtConfig({
   debug: false,
   sourcemap: true,
   telemetry: false,
+  future: {
+    compatibilityVersion: 4,
+  },
   app: {
     keepalive: true,
     head: {
