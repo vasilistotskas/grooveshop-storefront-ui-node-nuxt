@@ -18,10 +18,12 @@ const config = useRuntimeConfig()
 
 <template>
   <UButton
-    :to="config.public.socials.instagram"
-    variant="link"
-    color="opposite"
+    :external="true"
     :size="buttonSize"
+    :to="config.public.socials.instagram"
+    color="opposite"
+    target="_blank"
+    variant="link"
   >
     <IconMdi:instagram
       :class="iconClass"
@@ -34,10 +36,12 @@ const config = useRuntimeConfig()
     <span class="sr-only">{{ $t('common.instagram') }}</span>
   </UButton>
   <UButton
-    :to="config.public.socials.tiktok"
-    variant="link"
-    color="opposite"
+    :external="true"
     :size="buttonSize"
+    :to="config.public.socials.tiktok"
+    color="opposite"
+    target="_blank"
+    variant="link"
   >
     <IconAntDesign:tikTokFilled
       :class="iconClass"
@@ -50,10 +54,12 @@ const config = useRuntimeConfig()
     <span class="sr-only">{{ $t('common.tiktok') }}</span>
   </UButton>
   <UButton
-    :to="config.public.socials.reddit"
-    variant="link"
-    color="opposite"
+    :external="true"
     :size="buttonSize"
+    :to="config.public.socials.reddit"
+    color="opposite"
+    target="_blank"
+    variant="link"
   >
     <IconMdi:reddit
       :class="iconClass"
@@ -66,10 +72,12 @@ const config = useRuntimeConfig()
     <span class="sr-only">{{ $t('common.reddit') }}</span>
   </UButton>
   <UButton
-    :to="config.public.socials.youtube"
-    variant="link"
-    color="opposite"
+    :external="true"
     :size="buttonSize"
+    :to="config.public.socials.youtube"
+    color="opposite"
+    target="_blank"
+    variant="link"
   >
     <IconMdi:youtube
       :class="iconClass"
@@ -82,10 +90,12 @@ const config = useRuntimeConfig()
     <span class="sr-only">{{ $t('common.youtube') }}</span>
   </UButton>
   <UButton
-    :to="config.public.socials.pinterest"
-    variant="link"
-    color="opposite"
+    :external="true"
     :size="buttonSize"
+    :to="config.public.socials.pinterest"
+    color="opposite"
+    target="_blank"
+    variant="link"
   >
     <IconMdi:pinterest
       :class="iconClass"
@@ -98,10 +108,12 @@ const config = useRuntimeConfig()
     <span class="sr-only">{{ $t('common.pinterest') }}</span>
   </UButton>
   <UButton
-    :to="config.public.socials.facebook"
-    variant="link"
-    color="opposite"
+    :external="true"
     :size="buttonSize"
+    :to="config.public.socials.facebook"
+    color="opposite"
+    target="_blank"
+    variant="link"
   >
     <IconMdi:facebook
       :class="iconClass"

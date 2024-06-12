@@ -293,7 +293,7 @@ const changeUserName = async () => {
           margin-left: 1rem;
 
           &.router-link-active {
-            @apply text-secondary dark:text-secondary-dark;
+            @apply text-secondary-light dark:text-secondary-dark;
           }
 
           &:first-child {

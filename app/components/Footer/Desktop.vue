@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import pkg from '~/package.json'
+import pkg from '../../../package.json'
 
 const config = useRuntimeConfig()
 
@@ -250,7 +250,7 @@ const packageVersion = pkg.version
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
               :label="`${config.public.siteName}™.`"
-              :to="config.public.siteUrl"
+              :to="'/'"
               class="p-0"
               color="opposite"
               size="lg"

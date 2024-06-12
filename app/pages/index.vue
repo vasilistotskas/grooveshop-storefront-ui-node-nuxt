@@ -9,8 +9,8 @@ const items = computed(() => [
   isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
 
-const bannerHeight = isMobileOrTablet ? 2363 : 672
-const bannerWidth = isMobileOrTablet ? 1890 : 1920
+const bannerHeight = isMobileOrTablet ? 670 : 420
+const bannerWidth = isMobileOrTablet ? 540 : 1200
 </script>
 
 <template>

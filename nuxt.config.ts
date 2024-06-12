@@ -14,6 +14,9 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+  alias: {
+    '@vue/devtools-api': '@vue/devtools-api',
+  },
   app: {
     keepalive: true,
     head: {
@@ -167,7 +170,7 @@ export default defineNuxtConfig({
         flag: '🇬🇷',
       },
     ],
-    vueI18n: 'i18n.config.ts',
+    vueI18n: 'i18n.config.mts',
     compilation: {
       strictMessage: false,
     },
@@ -328,7 +331,6 @@ export default defineNuxtConfig({
     },
   },
   image: {
-    dir: 'public',
     provider: 'ipx',
     ipx: {
       maxAge: 60 * 60 * 24 * 365,
