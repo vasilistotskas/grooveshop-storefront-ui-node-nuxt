@@ -1,3 +1,10 @@
+# [1.134.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.133.0...v1.134.0) (2024-06-12)
+
+
+### Features
+
+* Bump Versions and prepare for Nuxt4 `app` folder structure ([d7aa1e5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d7aa1e5c4a853a356139fc1013b4c651ebbcedfb))
+
 # [1.133.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.132.2...v1.133.0) (2024-06-11)
 
 
