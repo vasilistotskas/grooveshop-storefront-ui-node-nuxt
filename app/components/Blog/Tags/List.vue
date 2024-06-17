@@ -24,6 +24,7 @@ const filteredTags = computed(() => {
 
 <template>
   <aside
+    v-if="blogTags && blogTags.length > 0"
     class="
       row-start-1 hidden
 
