@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const authStore = useAuthStore()
 const { config } = storeToRefs(authStore)
+const { clear } = useUserSession()
 
 defineProps({
   loading: {
@@ -17,7 +18,8 @@ const providers = computed(() => {
   return config.value?.data.socialaccount?.providers
 })
 
-const loginWithProvider = (provider: string) => {
+const loginWithProvider = async (provider: string) => {
+  await clear()
   providerRedirect(provider)
 }
 </script>
