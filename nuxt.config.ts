@@ -4,7 +4,6 @@ import Icons from 'unplugin-icons/vite'
 import Components from 'unplugin-vue-components/vite'
 
 const sw = process.env.SW === 'true'
-type DelayHydrationMode = 'init' | 'mount' | 'manual' | false
 
 export default defineNuxtConfig({
   ssr: true,
@@ -13,9 +12,6 @@ export default defineNuxtConfig({
   telemetry: false,
   future: {
     compatibilityVersion: 4,
-  },
-  alias: {
-    '@vue/devtools-api': '@vue/devtools-api',
   },
   app: {
     keepalive: true,
@@ -130,7 +126,7 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: false, // Until vue-tsc is fixed
-    builder: 'vite' as 'vite' | 'webpack' | 'shared' | false | undefined,
+    builder: 'vite',
   },
   tailwindcss: {
     cssPath: ['~/assets/sass/tailwind.scss', { injectPosition: 'first' }],
@@ -519,7 +515,7 @@ export default defineNuxtConfig({
     },
   },
   delayHydration: {
-    mode: 'mount' as DelayHydrationMode,
+    mode: 'mount',
     debug: process.env.NODE_ENV === 'development',
   },
   ogImage: {

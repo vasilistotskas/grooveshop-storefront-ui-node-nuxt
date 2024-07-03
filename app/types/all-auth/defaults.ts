@@ -18,7 +18,7 @@ export const ZodMethods = z.array(
     provider: z.string().optional().describe('The provider ID.'),
     uid: z.string().optional().describe('The provider specific account ID.'),
     type: z.string().optional().describe('Enum: "recovery_codes" "totp"\n'
-      + 'The type of authenticator.'),
+    + 'The type of authenticator.'),
   }),
 ).describe('A list of methods used to authenticate.')
 

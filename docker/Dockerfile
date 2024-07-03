@@ -1,4 +1,4 @@
-FROM node:22.3.0-alpine as base
+FROM node:22.4.0-alpine as base
 
 # Set environment variables for pnpm
 ENV PNPM_HOME="/pnpm"

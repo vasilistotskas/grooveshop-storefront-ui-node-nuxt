@@ -21,18 +21,18 @@ export type Pagination<T> = {
 export const ZodPagination = <T>(
   resultSchema: z.Schema<T>,
 ): z.Schema<Pagination<T>> =>
-    z.object({
-      links: z.object({
-        next: z.string().nullish(),
-        prev: z.string().nullish(),
-      }),
-      count: z.number(),
-      totalPages: z.number(),
-      pageTotalResults: z.number(),
-      pageSize: z.number(),
-      page: z.number().optional(),
-      results: z.array(resultSchema),
-    })
+  z.object({
+    links: z.object({
+      next: z.string().nullish(),
+      prev: z.string().nullish(),
+    }),
+    count: z.number(),
+    totalPages: z.number(),
+    pageTotalResults: z.number(),
+    pageSize: z.number(),
+    page: z.number().optional(),
+    results: z.array(resultSchema),
+  })
 
 export type PaginationQuery = {
   page?: number | LocationQueryValue[] | undefined

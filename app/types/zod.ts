@@ -19,9 +19,9 @@ export const addEffect = <
   Input = Output,
   Base extends ZodType<Output, Def, Input> = ZodType<Output, Def, Input>,
 >(
-    base: Base,
-    effect: Effect<unknown>,
-  ) => {
+  base: Base,
+  effect: Effect<unknown>,
+) => {
   switch (effect.type) {
     case 'preprocess':
       return z.preprocess(effect.transform, base)
@@ -42,9 +42,9 @@ export const mergeWithEffect = <
   Output = objectOutputType<T, Catchall, UnknownKeys>,
   Input = objectInputType<T, Catchall, UnknownKeys>,
 >(
-    a: ZodEffects<ZodObject<T, UnknownKeys, Catchall, Output, Input>>,
-    b: Incoming,
-  ) => {
+  a: ZodEffects<ZodObject<T, UnknownKeys, Catchall, Output, Input>>,
+  b: Incoming,
+) => {
   if (!(a instanceof ZodEffects)) {
     throw new TypeError('The first argument must be a ZodEffects instance.')
   }
@@ -71,9 +71,9 @@ export const mergeWithEffects = <
     bUnknownKeys
   >,
 >(
-    a: ZodEffects<ZodObject<aT, aUnknownKeys, aCatchall, aOutput, aInput>>,
-    b: ZodEffects<ZodObject<bT, bUnknownKeys, bCatchall, bOutput, bInput>>,
-  ) => {
+  a: ZodEffects<ZodObject<aT, aUnknownKeys, aCatchall, aOutput, aInput>>,
+  b: ZodEffects<ZodObject<bT, bUnknownKeys, bCatchall, bOutput, bInput>>,
+) => {
   const base = a.innerType().merge(b.innerType())
   return addEffect(addEffect(base, a._def.effect), b._def.effect)
 }
