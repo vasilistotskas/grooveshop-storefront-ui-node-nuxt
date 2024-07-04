@@ -1,4 +1,4 @@
-import translationCache from '~/tools/translator/src/cache'
+import translationCache from '~~/tools/translator/src/cache'
 
 describe('TranslationCache', () => {
   it('handles file not existing by initializing empty cache', async () => {

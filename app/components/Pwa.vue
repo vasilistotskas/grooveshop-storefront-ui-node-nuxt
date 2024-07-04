@@ -47,7 +47,6 @@ const id = useId()
         "
         :id="id"
         :actions="actions"
-        :close-button="{ id: 'actions', onClick: () => $pwa?.cancelPrompt() }"
         :timeout="0"
         :title="$pwa?.offlineReady ? $t('components.pwa.ready_to_work_offline') : $t('components.pwa.new_content_available')"
         class="
@@ -55,6 +54,7 @@ const id = useId()
 
           md:w-[90%]
         "
+        @close="() => $pwa?.cancelPrompt()"
       />
       <UNotification
         v-if="
@@ -62,7 +62,6 @@ const id = useId()
         "
         :id="id"
         :actions="installActions"
-        :close-button="{ id: 'installActions', onClick: () => $pwa?.cancelInstall() }"
         :timeout="0"
         :title="$t('components.pwa.install_pwa')"
         class="
@@ -70,6 +69,7 @@ const id = useId()
 
           md:w-[90%]
         "
+        @close="() => $pwa?.cancelInstall()"
       />
     </div>
     <template #fallback>

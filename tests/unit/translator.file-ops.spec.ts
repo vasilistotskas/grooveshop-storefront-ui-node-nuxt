@@ -1,11 +1,8 @@
 import path from 'path'
 
-import {
-  findFileExtension,
-  getFilesFromDir,
-} from '~/tools/translator/src/file-ops'
-import { loadTranslatorConfig } from '~/tools/translator/src/config'
-import { FileExtensions } from '~/tools/translator/src/types'
+import { findFileExtension, getFilesFromDir } from '~~/tools/translator/src/file-ops'
+import { loadTranslatorConfig } from '~~/tools/translator/src/config'
+import { FileExtensions } from '~~/tools/translator/src/types'
 
 describe('translator file-ops tests', async () => {
   beforeEach(async () => {

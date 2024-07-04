@@ -44,6 +44,7 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/html-validator',
     '@nuxtjs/device',
+    '@nuxtjs/turnstile',
     '@nuxtseo/module',
     '@pinia/nuxt',
     '@vueuse/nuxt',

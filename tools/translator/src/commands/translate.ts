@@ -2,14 +2,11 @@
 import { existsSync } from 'fs'
 import { defineCommand, runMain } from 'citty'
 import { type ConsolaInstance, createConsola } from 'consola'
-import pkg from '~/package.json'
-import { mainCLI } from '~/tools/translator/src/main-cli'
-import {
-  loadTranslatorConfig,
-  type TranslatorConfig,
-} from '~/tools/translator/src/config'
-import { main as mainArgs } from '~/tools/translator/src/main'
-import { FileExtensions } from '~/tools/translator/src/types'
+import { mainCLI } from '~~/tools/translator/src/main-cli'
+import { loadTranslatorConfig, type TranslatorConfig } from '~~/tools/translator/src/config'
+import { main as mainArgs } from '~~/tools/translator/src/main'
+import { FileExtensions } from '~~/tools/translator/src/types'
+import pkg from '~~/package.json'
 
 const validateInputFile = (filePath?: string) => {
   if (filePath && !existsSync(filePath)) {

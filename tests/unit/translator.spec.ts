@@ -1,16 +1,12 @@
 import path from 'path'
 
-import { translateBundle } from '~/tools/translator/src/translator'
-import { readFileContents } from '~/tools/translator/src/file-ops'
-import { FileExtensions } from '~/tools/translator/src/types'
-import {
-  getISO6391Code,
-  retry,
-  validateDynamicKeys,
-} from '~/tools/translator/src/helpers'
+import { translateBundle } from '~~/tools/translator/src/translator'
+import { readFileContents } from '~~/tools/translator/src/file-ops'
+import { FileExtensions } from '~~/tools/translator/src/types'
+import { getISO6391Code, retry, validateDynamicKeys } from '~~/tools/translator/src/helpers'
 
 describe('translator tests', async () => {
-  vi.mock('~/tools/translator/src/helpers')
+  vi.mock('~~/tools/translator/src/helpers')
 
   afterEach(() => {
     vi.restoreAllMocks()

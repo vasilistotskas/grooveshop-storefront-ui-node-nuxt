@@ -117,6 +117,7 @@ const fetchRegions = async () => {
   }
 
   try {
+    // @ts-expect-error
     regions.value = await $fetch('/api/regions', {
       method: 'GET',
       query: {

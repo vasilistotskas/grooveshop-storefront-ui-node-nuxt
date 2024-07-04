@@ -6,12 +6,11 @@ const toast = useToast()
 const { data, refresh, error } = await getRecoveryCodes()
 
 if (error.value) {
-  navigateTo('/account/settings').then(() => {
-    toast.add({
-      title: t('common.auth.mfa.required'),
-      color: 'red',
-    })
+  toast.add({
+    title: t('common.auth.mfa.required'),
+    color: 'red',
   })
+  navigateTo('/account/settings')
 }
 
 const unused_codes = computed(() => {

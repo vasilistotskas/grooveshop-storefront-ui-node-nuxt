@@ -9,7 +9,7 @@ const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
 
-const key = route.params.key
+const key = String(route.params.key)
 
 await getPasswordReset(key)
 

@@ -1,6 +1,6 @@
 import path from 'path'
-import { access, readFile, writeFile, mkdir, constants } from 'node:fs/promises'
-import { cacheDir, cacheFile } from '~/tools/translator/src/constants'
+import { access, constants, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { cacheDir, cacheFile } from '~~/tools/translator/src/constants'
 
 const cacheFilePath = path.join(cacheDir, cacheFile)
 

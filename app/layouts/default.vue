@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { LinksOption } from '~/types'
+
 defineSlots<{
   default(props: object): any
   header(props: object): any
@@ -47,7 +49,7 @@ const links = computed(() => {
       label: t('common.favourites'),
       labelClass: 'sr-only',
     },
-  ]
+  ] as LinksOption[]
 
   if (!loggedIn.value) {
     links.push({

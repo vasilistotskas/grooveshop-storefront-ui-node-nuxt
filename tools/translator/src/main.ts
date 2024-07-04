@@ -1,15 +1,11 @@
 import path from 'path'
 import type { ConsolaInstance } from 'consola'
-import translationCache from '~/tools/translator/src/cache'
-import {
-  generateLocalePaths,
-  getFileExtension,
-  validatePathAccess,
-} from '~/tools/translator/src/file-ops'
-import { executeTranslations } from '~/tools/translator/src/translator'
-import { FileExtensions } from '~/tools/translator/src/types'
-import { filterLocales } from '~/tools/translator/src/helpers'
-import type { TranslatorConfig } from '~/tools/translator/src/config'
+import translationCache from '~~/tools/translator/src/cache'
+import { generateLocalePaths, getFileExtension, validatePathAccess } from '~~/tools/translator/src/file-ops'
+import { executeTranslations } from '~~/tools/translator/src/translator'
+import { FileExtensions } from '~~/tools/translator/src/types'
+import { filterLocales } from '~~/tools/translator/src/helpers'
+import type { TranslatorConfig } from '~~/tools/translator/src/config'
 
 export async function main(
   config: TranslatorConfig,

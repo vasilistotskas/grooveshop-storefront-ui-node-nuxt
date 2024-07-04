@@ -10,6 +10,7 @@ const toast = useToast()
 const localePath = useLocalePath()
 
 const loading = ref(false)
+const token = ref('')
 
 const ZodSignup = z
   .object({
@@ -229,6 +230,7 @@ const submitButtonLabel = computed(() => {
             >{{ errors.password2 }}</span>
           </div>
 
+          <NuxtTurnstile v-model="token" />
           <UButton
             :aria-busy="loading"
             :disabled="loading || submitCount > 5"

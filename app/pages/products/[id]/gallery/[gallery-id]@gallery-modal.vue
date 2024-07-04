@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 type MainSliderItem = {
   id: number
   src: string | null | undefined
@@ -31,14 +31,20 @@ const { data: images } = await useLazyFetch(
 const goPrevious = () => {
   const currentIndex = mainSliderItems.value.findIndex(image => image.id === imageId.value)
   if (currentIndex > 0) {
-    imageId.value = mainSliderItems.value[currentIndex - 1].id
+    const previousItem = mainSliderItems.value[currentIndex - 1]
+    if (previousItem) {
+      imageId.value = previousItem.id
+    }
   }
 }
 
 const goNext = () => {
   const currentIndex = mainSliderItems.value.findIndex(image => image.id === imageId.value)
   if (currentIndex >= 0 && currentIndex < mainSliderItems.value.length - 1) {
-    imageId.value = mainSliderItems.value[currentIndex + 1].id
+    const nextItem = mainSliderItems.value[currentIndex + 1]
+    if (nextItem) {
+      imageId.value = nextItem.id
+    }
   }
 }
 
@@ -105,15 +111,6 @@ watch(
     >
       <UCarousel
         :items="mainSliderItems"
-        :prev-button="{
-          icon: 'i-heroicons-arrow-left-20-solid',
-          onClick: () => goPrevious(),
-        }"
-        :next-button="{
-          icon: 'i-heroicons-arrow-right-20-solid',
-          onClick: () => goNext(),
-        }"
-        class="overflow-hidden rounded-lg"
         :ui="{
           item: 'basis-full',
           indicators: {
@@ -121,36 +118,60 @@ watch(
           },
         }"
         arrows
+        class="overflow-hidden rounded-lg"
         indicators
       >
+        <template #prev="{ onClick, disabled }">
+          <UButton
+            :aria-label="$t('common.prev')"
+            :disabled="disabled"
+            icon="i-heroicons-arrow-left-20-solid"
+            @click="() => {
+              onClick()
+              goPrevious()
+            }"
+          />
+        </template>
+
+        <template #next="{ onClick, disabled }">
+          <UButton
+            :aria-label="$t('common.next')"
+            :disabled="disabled"
+            icon="i-heroicons-arrow-right-20-solid"
+            @click="() => {
+              onClick()
+              goNext()
+            }"
+          />
+        </template>
         <template #default="{ item }">
           <ImgWithFallback
             :id="item.id"
-            provider="mediaStream"
-            class="h-full w-full bg-white"
-            :style="{ objectFit: 'contain' }"
+            :alt="'Main Banner'"
+            :background="'transparent'"
+            :fit="'contain'"
+            :format="'webp'"
+            :height="512"
+            :loading="item.loading"
+            :position="'entropy'"
             :src="resolveImageSrc(
               item?.src,
               `media/uploads/products/${item?.src}`,
             )"
-            :width="768"
-            :height="512"
-            :fit="'contain'"
-            :position="'entropy'"
-            :background="'transparent'"
+            :style="{ objectFit: 'contain' }"
             :trim-threshold="5"
-            :format="'webp'"
-            :alt="'Main Banner'"
+            :width="768"
+            class="h-full w-full bg-white"
             densities="x1"
-            :loading="item.loading"
+            provider="mediaStream"
           />
         </template>
         <template #indicator="{ onClick, page: pageNumber, active }">
           <UButton
             :label="String(pageNumber)"
             :variant="active ? 'solid' : 'outline'"
-            size="2xs"
             class="min-w-6 justify-center rounded-full"
+            size="2xs"
             @click="() => {
               onIndicatorClick(pageNumber)
               onClick(pageNumber)
@@ -159,13 +180,13 @@ watch(
         </template>
       </UCarousel>
       <UButton
+        :aria-label="$t('common.close')"
         class="absolute right-4 top-4 p-0"
+        color="red"
+        icon="i-heroicons-x-mark-20-solid"
         size="xl"
         type="button"
-        color="red"
         variant="ghost"
-        icon="i-heroicons-x-mark-20-solid"
-        :aria-label="$t('common.close')"
         @click="() => {
           isOpen = false
           modalRouter.close()

@@ -20,7 +20,7 @@ const toast = useToast()
 
 const loading = ref(false)
 
-const { refresh } = await getTotpAuthenticatorStatus()
+const { refresh } = await getTotpAuthenticatorStatus() ?? {}
 
 if (totpData.value) {
   await navigateTo('/account/settings')
@@ -84,7 +84,9 @@ const formSchema: DynamicFormSchema = {
 }
 
 onReactivated(() => {
-  refresh()
+  if (refresh) {
+    refresh()
+  }
 })
 </script>
 

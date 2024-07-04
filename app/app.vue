@@ -83,11 +83,13 @@ onMounted(() => {
         })
       }
 
-      window.google.accounts.id.initialize({
-        client_id: provider.client_id ? provider.client_id : '',
-        callback: handleCredentialResponse,
-      })
-      window.google.accounts.id.prompt()
+      if ('accounts' in window.google) {
+        window.google.accounts.id.initialize({
+          client_id: provider.client_id ? provider.client_id : '',
+          callback: handleCredentialResponse,
+        })
+        window.google.accounts.id.prompt()
+      }
     }
   }
 })

@@ -56,6 +56,12 @@ const items = computed<DropdownItem[][]>(() => {
   }
 
   dropDownItems.sort((a, b) => {
+    if (!a[0]) {
+      return 1
+    }
+    if (!b[0]) {
+      return -1
+    }
     if (a[0].disabled && !b[0].disabled) {
       return -1
     }
@@ -111,7 +117,6 @@ const onOptionClick = async (option: OrderingOption) => {
           "
         >
           <UDropdown
-            class="md:h-full"
             :items="items"
             :popper="{ placement: 'bottom-start' }"
             :ui="{
@@ -120,10 +125,11 @@ const onOptionClick = async (option: OrderingOption) => {
                 label: 'text-primary-800 dark:text-primary-200',
               },
             }"
+            class="md:h-full"
           >
             <UButton
-              color="primary"
               :label="selectedOrderingLabel"
+              color="primary"
               trailing-icon="i-heroicons-chevron-down-20-solid"
             />
           </UDropdown>

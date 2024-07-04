@@ -1,20 +1,9 @@
 import { Translate } from 'translate'
-import translationCache from '~/tools/translator/src/cache'
-import {
-  getISO6391Code,
-  retry,
-  validateDynamicKeys,
-} from '~/tools/translator/src/helpers'
-import {
-  type FileExtensions,
-  type LocaleFile,
-  type TranslateEngine,
-} from '~/tools/translator/src/types'
-import {
-  readFileContents,
-  writeFileContents,
-} from '~/tools/translator/src/file-ops'
-import type { TranslatorConfig } from '~/tools/translator/src/config'
+import translationCache from '~~/tools/translator/src/cache'
+import { getISO6391Code, retry, validateDynamicKeys } from '~~/tools/translator/src/helpers'
+import { type FileExtensions, type LocaleFile, type TranslateEngine } from '~~/tools/translator/src/types'
+import { readFileContents, writeFileContents } from '~~/tools/translator/src/file-ops'
+import type { TranslatorConfig } from '~~/tools/translator/src/config'
 
 export const translateBundle = async (
   inputBundle: Record<string, unknown>,
@@ -186,7 +175,7 @@ export async function executeTranslations(
     if (result.status === 'rejected') {
       const locale = localesToTranslate[index]
       console.error(
-        `Failed to translate file: ${locale.path} - ${result.reason}`,
+        `Failed to translate file: ${locale?.path} - ${result.reason}`,
       )
     }
   })

@@ -1,22 +1,10 @@
 import path from 'path'
 import { pathToFileURL } from 'url'
-import vm from 'vm'
-import { type Context } from 'vm'
-import {
-  writeFile,
-  readFile,
-  readdir,
-  stat,
-  access,
-  rename,
-} from 'node:fs/promises'
+import vm, { type Context } from 'vm'
+import { access, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises'
 import ts from 'typescript'
 import yaml from 'js-yaml'
-import {
-  FileExtensions,
-  type LocaleFile,
-  type LocaleOption,
-} from '~/tools/translator/src/types'
+import { FileExtensions, type LocaleFile, type LocaleOption } from '~~/tools/translator/src/types'
 
 async function executeTs(tsCode: string): Promise<Record<string, any>> {
   const jsCode = ts.transpileModule(tsCode, {

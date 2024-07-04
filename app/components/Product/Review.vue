@@ -139,6 +139,7 @@ const reviewScoreText = computed(() => {
       value: t('components.product.review.rating.perfect'),
     },
   ]
+
   if (
     liveReviewCountRatio.value < 0.01
     || (newSelectionRatio.value === null
@@ -146,15 +147,19 @@ const reviewScoreText = computed(() => {
   ) {
     return ''
   }
+
   const matches = breakpoints.filter((breakpoint) => {
     return breakpoint.threshold - 0.1 <= liveReviewCountRatio.value
   })
+
   if (matches.length > 0) {
-    return matches[matches.length - 1].value
+    return matches[matches.length - 1]?.value ?? ''
   }
+
   if (breakpoints.length > 0) {
-    return breakpoints[0].value
+    return breakpoints[0]?.value ?? ''
   }
+
   return ''
 })
 
@@ -417,8 +422,13 @@ watch(
 <template>
   <GenericModal
     v-if="user"
-    ref="reviewModal"
     :key="`reviewModal-${user?.id}-${product?.id}`"
+    ref="reviewModal"
+    :is-form="true"
+    :modal-close-trigger-handler-id="`modal-close-reviewModal-${user?.id}-${product?.id}`"
+    :modal-closed-trigger-handler-id="`modal-closed-reviewModal-${user?.id}-${product?.id}`"
+    :modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
+    :modal-opened-trigger-handler-id="`modal-opened-reviewModal-${user?.id}-${product?.id}`"
     class="
       bg-primary-50 p-4
 
@@ -426,21 +436,16 @@ watch(
 
       md:p-0
     "
-    unique-id="reviewModal"
     exit-modal-icon-class="fa fa-times"
-    :modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
-    :modal-close-trigger-handler-id="`modal-close-reviewModal-${user?.id}-${product?.id}`"
-    :modal-opened-trigger-handler-id="`modal-opened-reviewModal-${user?.id}-${product?.id}`"
-    :modal-closed-trigger-handler-id="`modal-closed-reviewModal-${user?.id}-${product?.id}`"
-    max-width="700px"
-    max-height="100%"
-    gap="1rem"
-    padding="2rem"
-    width="auto"
-    height="auto"
-    :is-form="true"
     form-id="reviewForm"
     form-name="reviewForm"
+    gap="1rem"
+    height="auto"
+    max-height="100%"
+    max-width="700px"
+    padding="2rem"
+    unique-id="reviewModal"
+    width="auto"
     @submit="onSubmit"
   >
     <template #header>
@@ -520,13 +525,13 @@ watch(
               id="comment"
               v-model="comment"
               :as="UTextarea"
-              color="primary"
-              v-bind="commentProps"
               :placeholder="$t('components.product.review.comment.placeholder')"
-              name="comment"
-              maxlength="10000"
               :rows="6"
+              color="primary"
+              maxlength="10000"
+              name="comment"
               type="text"
+              v-bind="commentProps"
             />
           </div>
           <span class="review_body-rating-error h-6">{{ errors.comment }}</span>
@@ -534,9 +539,9 @@ watch(
 
         <input
           v-model="rate"
+          name="rate"
           type="hidden"
           v-bind="rateProps"
-          name="rate"
         >
       </div>
     </template>
@@ -545,20 +550,20 @@ watch(
         <div class="review_footer-content">
           <UButton
             v-if="!tooManyAttempts"
-            block
             :label="reviewButtonText"
-            size="lg"
+            block
             class="review_footer-button"
             color="primary"
+            size="lg"
             @click.prevent="onSubmit"
           />
           <UButton
             v-else
-            block
-            size="lg"
             :label="$t('components.product.review.too_many_attempts')"
+            block
             color="primary"
             disabled
+            size="lg"
           />
         </div>
         <div
@@ -566,13 +571,13 @@ watch(
           class="review_footer-content"
         >
           <UButton
-            block
             :label="$t('components.product.review.delete_review')"
-            class="review_footer-button gap-2"
-            size="lg"
-            icon="i-heroicons-trash"
-            color="rose"
             :trailing="true"
+            block
+            class="review_footer-button gap-2"
+            color="rose"
+            icon="i-heroicons-trash"
+            size="lg"
             @click.prevent="deleteReviewEvent()"
           />
         </div>

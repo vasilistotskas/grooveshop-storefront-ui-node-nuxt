@@ -1,10 +1,4 @@
-import {
-  delay,
-  extractDynamicKeys,
-  getISO6391Code,
-  retry,
-  validateDynamicKeys,
-} from '~/tools/translator/src/helpers'
+import { delay, extractDynamicKeys, getISO6391Code, retry, validateDynamicKeys } from '~~/tools/translator/src/helpers'
 
 describe('translator helpers retry tests', () => {
   beforeEach(() => {

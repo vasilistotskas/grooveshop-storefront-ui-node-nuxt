@@ -148,7 +148,7 @@ watch(
           if (!document.head.querySelector(`script[src="${src}"]`)) {
             const script = document.createElement('script')
             script.src = src
-            document.getElementsByTagName('head')[0].appendChild(script)
+            document.getElementsByTagName('head')[0]?.appendChild(script)
           }
         })
       }

@@ -31,6 +31,12 @@ const items = computed<DropdownItem[][]>(() => {
   })
 
   dropDownItems.sort((a, b) => {
+    if (!a[0]) {
+      return 1
+    }
+    if (!b[0]) {
+      return -1
+    }
     if (a[0].disabled && !b[0].disabled) {
       return -1
     }
@@ -64,14 +70,14 @@ const onLocaleChange = (code: string) => {
       }"
     >
       <UButton
-        size="xl"
-        class="p-0"
-        color="primary"
-        trailing-icon="i-heroicons-language"
         :aria-current-value="locale"
         :title="$t('components.language.switcher.current_language', {
           language: locale,
         })"
+        class="p-0"
+        color="primary"
+        size="xl"
+        trailing-icon="i-heroicons-language"
       >
         <span class="sr-only">{{
           $t('components.language.switcher.change_language')

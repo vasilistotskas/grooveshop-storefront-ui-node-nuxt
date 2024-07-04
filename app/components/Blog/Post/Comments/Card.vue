@@ -298,19 +298,19 @@ watch(
 <template>
   <details
     v-show="blogPost"
-    open
     :class="commentCardClass"
     class="relative z-30"
+    open
   >
     <summary class="grid cursor-pointer grid-cols-[32px_1fr]">
       <span class="flex w-full items-center">
         <span class="flex items-center gap-2">
           <UserAvatar
             v-if="userAccount"
-            :user-account="userAccount"
-            :show-name="false"
-            :img-width="32"
             :img-height="32"
+            :img-width="32"
+            :show-name="false"
+            :user-account="userAccount"
           />
           <span
             v-if="userAccount"
@@ -331,12 +331,12 @@ watch(
               "
             >•</span>
             <NuxtTime
+              :datetime="comment.createdAt"
               class="
                 text-primary-400 w-full text-end text-xs
 
                 dark:text-primary-400
               "
-              :datetime="comment.createdAt"
             />
           </span>
         </span>
@@ -345,14 +345,14 @@ watch(
     <span class="relative grid grid-cols-[32px_1fr]">
       <span
         v-show="hasReplies"
+        aria-hidden="true"
         class="
           line absolute bottom-0 left-0 top-0 z-10 mb-[0.75rem] flex w-8
           cursor-pointer items-center justify-center
         "
-        aria-hidden="true"
+        @click="onShowMoreRepliesButtonClick"
         @mouseenter="isLineHovered = true"
         @mouseleave="isLineHovered = false"
-        @click="onShowMoreRepliesButtonClick"
       >
         <span
           :class="
@@ -399,25 +399,19 @@ watch(
           <UButton
             v-if="hasReplies"
             :aria-expanded="showReplies"
-            class="
-              button inline-flex h-[1rem] w-[1rem] items-center justify-center
-              overflow-visible px-[0.375rem]
+            :aria-label="
+              showReplies
+                ? $t('common.hide.replies')
+                : $t('common.more.replies', totalReplies)
             "
-            size="sm"
-            variant="solid"
+            :color="'primary'"
+            :disabled="pending"
             :icon="
               showReplies
                 ? 'i-heroicons-minus-circle'
                 : 'i-heroicons-plus-circle'
             "
-            :color="'primary'"
-            :disabled="pending"
             :title="
-              showReplies
-                ? $t('common.hide.replies')
-                : $t('common.more.replies', totalReplies)
-            "
-            :aria-label="
               showReplies
                 ? $t('common.hide.replies')
                 : $t('common.more.replies', totalReplies)
@@ -427,31 +421,37 @@ watch(
                 sm: 'text-xs',
               },
             }"
+            class="
+              button inline-flex h-[1rem] w-[1rem] items-center justify-center
+              overflow-visible px-[0.375rem]
+            "
+            size="sm"
+            variant="solid"
+            @click="onShowMoreRepliesButtonClick"
             @mouseenter="isLineHovered = true"
             @mouseleave="isLineHovered = false"
-            @click="onShowMoreRepliesButtonClick"
           />
         </span>
         <span class="min-w-0">
           <span class="flex flex-col">
             <span class="max-h-2xl flex items-center">
               <ButtonBlogCommentLike
-                size="sm"
-                variant="solid"
                 :aria-label="$t('common.like')"
                 :blog-comment-id="comment.id"
                 :likes-count="likes"
+                size="sm"
+                variant="solid"
                 @update="likeClicked"
               />
               <UButton
                 v-if="maxDepth > depth"
-                size="sm"
-                :label="$t('common.reply')"
-                :icon="'i-heroicons-chat-bubble-left-ellipsis'"
-                :color="'primary'"
-                variant="solid"
-                :title="$t('common.reply')"
                 :aria-label="$t('common.reply')"
+                :color="'primary'"
+                :icon="'i-heroicons-chat-bubble-left-ellipsis'"
+                :label="$t('common.reply')"
+                :title="$t('common.reply')"
+                size="sm"
+                variant="solid"
                 @click="onReplyButtonClick"
               />
             </span>
@@ -474,11 +474,11 @@ watch(
             :class="{
               'threadline-hovered': isLineHovered,
               'bg-primary-100 z-20 dark:bg-primary-900':
-                !showReplies
-                || allReplies[allReplies.length - 1].id === reply.id,
+                !showReplies || (allReplies.length > 0 && allReplies[allReplies.length - 1]?.id === reply.id),
             }"
             class="threadline-one align-start relative flex justify-end"
           >
+
             <span
               class="
                 border-primary-300 box-border h-[1rem] w-[calc(50%+0.5px)]
@@ -536,27 +536,24 @@ watch(
           class="ml-px inline-block"
         >
           <UButton
-            class="z-20"
-            size="sm"
-            :label="
+            :aria-label="
               showReplies
                 ? $t('common.hide.replies')
                 : $t('common.more.replies', totalReplies)
             "
-            variant="solid"
+            :color="'primary'"
+            :disabled="pending"
             :icon="
               showReplies
                 ? 'i-heroicons-minus-circle'
                 : 'i-heroicons-plus-circle'
             "
-            :color="'primary'"
-            :disabled="pending"
-            :title="
+            :label="
               showReplies
                 ? $t('common.hide.replies')
                 : $t('common.more.replies', totalReplies)
             "
-            :aria-label="
+            :title="
               showReplies
                 ? $t('common.hide.replies')
                 : $t('common.more.replies', totalReplies)
@@ -566,6 +563,9 @@ watch(
                 sm: 'text-xs',
               },
             }"
+            class="z-20"
+            size="sm"
+            variant="solid"
             @click="onShowMoreRepliesButtonClick"
           />
         </span>
@@ -574,7 +574,7 @@ watch(
     <LazyDynamicForm
       v-if="showReplyForm"
       :id="'reply-comment-form-' + comment.id"
-      class="reply-comment-form relative mb-2 mt-2"
+      :button-label="t('common.submit')"
       :schema="replyCommentFormSchema"
       :submit-button-ui="{
         type: 'submit',
@@ -584,20 +584,20 @@ watch(
           rounded: 'rounded-full',
         },
       }"
-      :button-label="t('common.submit')"
+      class="reply-comment-form relative mb-2 mt-2"
       @submit="onReplySubmit"
     />
     <Pagination
       v-if="pagination"
-      :pagination-type="paginationType"
       :count="pagination.count"
-      :total-pages="pagination.totalPages"
-      :page-total-results="pagination.pageTotalResults"
-      :page-size="pagination.pageSize"
-      :page="pagination.page"
-      :links="pagination.links"
       :cursor-key="cursorKey"
+      :links="pagination.links"
       :loading="pending"
+      :page="pagination.page"
+      :page-size="pagination.pageSize"
+      :page-total-results="pagination.pageTotalResults"
+      :pagination-type="paginationType"
+      :total-pages="pagination.totalPages"
     />
   </details>
 </template>

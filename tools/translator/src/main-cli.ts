@@ -1,11 +1,7 @@
 import type { ConsolaInstance } from 'consola'
-import {
-  promptForInputFile,
-  promptForLocales,
-  promptForOutputExtension,
-} from '~/tools/translator/src/prompts'
-import { main } from '~/tools/translator/src/main'
-import type { TranslatorConfig } from '~/tools/translator/src/config'
+import { promptForInputFile, promptForLocales, promptForOutputExtension } from '~~/tools/translator/src/prompts'
+import { main } from '~~/tools/translator/src/main'
+import type { TranslatorConfig } from '~~/tools/translator/src/config'
 
 export async function mainCLI(
   config: TranslatorConfig,

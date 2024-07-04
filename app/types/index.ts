@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { NotAuthenticatedResponse } from '~/types/all-auth'
+import type { Avatar } from '#ui/types/avatar'
 
 export const ZodFloorChoicesEnum = z.enum([
   'BASEMENT',
@@ -87,4 +88,12 @@ export interface ErrorResponse {
   data: {
     data: NotAuthenticatedResponse
   }
+}
+
+export interface LinksOption {
+  to: string
+  label: string
+  labelClass?: string
+  avatar?: Avatar
+  icon?: string
 }

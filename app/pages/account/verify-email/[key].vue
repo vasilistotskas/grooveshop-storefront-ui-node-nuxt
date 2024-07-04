@@ -8,12 +8,12 @@ const { t } = useI18n()
 const loading = ref(false)
 const route = useRoute()
 
-const { data: getVerifyEmailData } = await getEmailVerify(route.params.key)
+const { data: getVerifyEmailData } = await getEmailVerify(String(route.params.key))
 
 async function onSubmit() {
   try {
     loading.value = true
-    const data = await emailVerify({ key: route.params.key })
+    const data = await emailVerify({ key: String(route.params.key) })
     if (data && [200, 401].includes(data.status)) {
       toast.add({
         title: t('common.auth.email.verified'),

@@ -35,12 +35,12 @@ onMounted(async () => {
     try {
       loading.value = true
       await providerToken({
-        provider: provider,
+        provider: String(provider),
         token: {
-          id_token: id_token,
-          client_id: client_id,
+          id_token: String(id_token),
+          client_id: String(client_id),
         },
-        process: process,
+        process: process === 'login' ? 'login' : 'connect',
       })
     }
     catch (e) {
