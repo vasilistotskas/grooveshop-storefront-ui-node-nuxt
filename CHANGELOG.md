@@ -1,3 +1,10 @@
+# [1.141.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.140.0...v1.141.0) (2024-07-15)
+
+
+### Features
+
+* Bump Versions and add Cloudflare turnstile ([9497410](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/94974105e5916fefb141274f8985a745fc5b9cb7))
+
 # [1.140.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.139.0...v1.140.0) (2024-07-04)
 
 
