@@ -75,6 +75,8 @@ const {
 
 const finalID = id.value ?? useId()
 const currentStep = ref(0)
+const turnstile = ref()
+const token = ref('')
 const isMultiStep = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
 const lastStep = schema.value.steps?.length ? schema.value.steps.length - 1 : 0
 
@@ -202,8 +204,8 @@ const formState = computed(() => {
 })
 
 // Define the submit button disabled state
-const submitButtonDisabled = computedAsync(async () => {
-  if (submitCount.value >= maxSubmitCount.value || loading.value) {
+const valid = computedAsync(async () => {
+  if (submitCount.value >= maxSubmitCount.value || loading.value || !token.value) {
     return true
   }
 
@@ -237,6 +239,15 @@ formFields.forEach((field) => {
       }
     },
   )
+})
+
+onReactivated(() => {
+  token.value = ''
+  turnstile.value?.reset()
+})
+
+defineExpose({
+  valid,
 })
 </script>
 
@@ -332,6 +343,16 @@ formFields.forEach((field) => {
       </UFormGroup>
     </template>
 
+    <FormTurnstileContainer>
+      <NuxtTurnstile
+        :key="$colorMode.value"
+        ref="turnstile"
+        v-model="token"
+        :options="{ theme: $colorMode.value === 'light' ? 'light' : 'dark' }"
+        class="turnstile"
+      />
+    </FormTurnstileContainer>
+
     <div
       :class="{ 'flex': true, 'justify-end': buttonsPosition === 'right', 'justify-center': buttonsPosition === 'center', 'justify-start': buttonsPosition === 'left' }"
     >
@@ -349,7 +370,7 @@ formFields.forEach((field) => {
         v-if="!isMultiStep && submitButton"
         :aria-busy="isSubmitting"
         :color="submitButtonUi.color"
-        :disabled="submitButtonDisabled"
+        :disabled="valid"
         :label="buttonLabel"
         :size="submitButtonUi.size"
         :type="submitButtonUi.type"

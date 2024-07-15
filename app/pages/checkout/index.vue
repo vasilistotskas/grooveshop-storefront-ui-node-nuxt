@@ -82,7 +82,7 @@ const ZodCheckout = z.object({
   customerNotes: z.string({ required_error: t('common.validation.required') }).optional(),
   shippingPrice: z.number(),
   documentType: ZodDocumentTypeEnum,
-  orderItemOrder: z.array(ZodOrderCreateItem),
+  items: z.array(ZodOrderCreateItem),
   payWay: z.number({ required_error: t('common.validation.required') }),
 })
 
@@ -96,7 +96,7 @@ const { defineField, setFieldValue, handleSubmit, errors, isSubmitting }
       region: defaultSelectOptionChoose,
       floor: defaultSelectOptionChoose,
       locationType: defaultSelectOptionChoose,
-      orderItemOrder:
+      items:
       getCartItems.value?.map(item => ({
         ...item,
         product: item.product.id,

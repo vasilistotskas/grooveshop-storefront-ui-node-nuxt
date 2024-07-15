@@ -2,7 +2,7 @@
 import { z } from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
-import type { PasswordRequestBody } from '~/types/all-auth'
+import DynamicForm from '~/components/DynamicForm/index.vue'
 
 const emit = defineEmits(['passwordRequest'])
 
@@ -11,6 +11,7 @@ const toast = useToast()
 const { t } = useI18n()
 
 const loading = ref(false)
+const form = ref<InstanceType<typeof DynamicForm> | null>(null)
 
 async function onSubmit(values: PasswordRequestBody) {
   try {
@@ -62,6 +63,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="grid">
     <DynamicForm
+      ref="form"
       :button-label="t('common.reset')"
       :loading="loading"
       :schema="formSchema"

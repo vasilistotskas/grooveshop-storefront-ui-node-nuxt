@@ -33,27 +33,27 @@ definePageMeta({
     >
       <div class="grid grid-cols-auto-1fr items-center gap-4">
         <UButton
-          icon="i-heroicons-arrow-left"
-          size="sm"
           :to="'/account/orders'"
           :trailing="true"
           color="primary"
+          icon="i-heroicons-arrow-left"
+          size="sm"
         >
           <span class="sr-only">{{ $t('pages.account.order.back') }}</span>
         </UButton>
         <PageTitle
-          class="text-center"
           :text="`${$t('pages.account.order.number')}: ${order?.id}`"
+          class="text-center"
         />
       </div>
       <div class="grid items-center text-center">
         <NuxtTime
+          :datetime="order.createdAt"
           class="
             text-primary-950 text-sm
 
             dark:text-primary-50
           "
-          :datetime="order.createdAt"
         />
       </div>
     </div>
@@ -77,29 +77,29 @@ definePageMeta({
           </div>
           <div class="order-items grid gap-4">
             <div
-              v-for="item in order.orderItemOrder"
+              v-for="item in order.items"
               :key="item.product.id"
               class="order-item flex items-center gap-4"
             >
               <ImgWithFallback
-                loading="lazy"
-                provider="mediaStream"
-                class="bg-primary-100"
-                :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-                :width="100"
-                :height="100"
-                :fit="'contain'"
-                :position="'entropy'"
+                :alt="extractTranslated(item.product, 'name', locale)"
                 :background="'transparent'"
-                :trim-threshold="5"
-                sizes="`sm:100vw md:50vw lg:auto`"
+                :fit="'contain'"
+                :height="100"
+                :position="'entropy'"
                 :src="
                   resolveImageSrc(
                     item.product?.mainImageFilename,
                     `media/uploads/products/${item.product.mainImageFilename}`,
                   )
                 "
-                :alt="extractTranslated(item.product, 'name', locale)"
+                :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+                :trim-threshold="5"
+                :width="100"
+                class="bg-primary-100"
+                loading="lazy"
+                provider="mediaStream"
+                sizes="`sm:100vw md:50vw lg:auto`"
               />
               <div
                 class="
@@ -109,8 +109,8 @@ definePageMeta({
                 "
               >
                 <Anchor
-                  :to="`/products${item.product.absoluteUrl}`"
                   :title="extractTranslated(item.product, 'name', locale)"
+                  :to="`/products${item.product.absoluteUrl}`"
                   css-class="w-full"
                 >
                   <span
@@ -136,14 +136,14 @@ definePageMeta({
                   <UIcon name="i-heroicons-x-mark" />
                   <I18nN
                     v-if="item.totalPrice"
+                    :value="item.totalPrice"
                     class="
                       text-primary-950
 
                       dark:text-primary-50
                     "
-                    tag="span"
                     format="currency"
-                    :value="item.totalPrice"
+                    tag="span"
                   />
                 </div>
               </div>
@@ -270,14 +270,14 @@ definePageMeta({
                   "
                 >{{ $t('pages.account.order.product.value') }}</span>
                 <I18nN
+                  :value="order.totalPriceItems"
                   class="
                     text-primary-950
 
                     dark:text-primary-50
                   "
-                  tag="span"
                   format="currency"
-                  :value="order.totalPriceItems"
+                  tag="span"
                 />
               </div>
               <div class="flex items-center justify-between">
@@ -289,14 +289,14 @@ definePageMeta({
                   "
                 >{{ $t('pages.account.order.shipping.value') }}</span>
                 <I18nN
+                  :value="order.shippingPrice"
                   class="
                     text-primary-950
 
                     dark:text-primary-50
                   "
-                  tag="span"
                   format="currency"
-                  :value="order.shippingPrice"
+                  tag="span"
                 />
               </div>
             </div>
@@ -312,14 +312,14 @@ definePageMeta({
                   $t('pages.account.order.total')
                 }}</span>
                 <I18nN
+                  :value="order.paidAmount"
                   class="
                     text-primary-950 font-bold
 
                     dark:text-primary-50
                   "
-                  tag="span"
                   format="currency"
-                  :value="order.paidAmount"
+                  tag="span"
                 />
               </div>
             </div>

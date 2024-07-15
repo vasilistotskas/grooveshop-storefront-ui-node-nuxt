@@ -9,6 +9,7 @@ const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 
+const turnstile = ref()
 const loading = ref(false)
 const token = ref('')
 
@@ -103,6 +104,15 @@ const submitButtonLabel = computed(() => {
   return !loading.value
     ? t('pages.account.signup.form.submit')
     : t('common.loading')
+})
+
+const submitButtonDisabled = computed(() => {
+  return loading.value || submitCount.value > 5 || !token.value
+})
+
+onReactivated(() => {
+  token.value = ''
+  turnstile.value?.reset()
 })
 </script>
 
@@ -229,11 +239,18 @@ const submitButtonLabel = computed(() => {
               class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.password2 }}</span>
           </div>
-
-          <NuxtTurnstile v-model="token" />
+          <FormTurnstileContainer>
+            <NuxtTurnstile
+              :key="$colorMode.value"
+              ref="turnstile"
+              v-model="token"
+              :options="{ theme: $colorMode.value === 'light' ? 'light' : 'dark' }"
+              class="turnstile"
+            />
+          </FormTurnstileContainer>
           <UButton
             :aria-busy="loading"
-            :disabled="loading || submitCount > 5"
+            :disabled="submitButtonDisabled"
             :label="
               submitButtonLabel"
             :loading="loading"

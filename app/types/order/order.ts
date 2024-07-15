@@ -1,16 +1,8 @@
 import { z } from 'zod'
 
 import { ZodCountry } from '~/types/country'
-import {
-  FloorChoicesEnum,
-  LocationChoicesEnum,
-  ZodLanguageQuery,
-} from '~/types'
-import {
-  ZodOrderCreateItem,
-  ZodOrderCreateResponseItem,
-  ZodOrderItem,
-} from '~/types/order/order-item'
+import { FloorChoicesEnum, LocationChoicesEnum, ZodLanguageQuery } from '~/types'
+import { ZodOrderCreateItem, ZodOrderCreateResponseItem, ZodOrderItem } from '~/types/order/order-item'
 import { ZodPayWay } from '~/types/pay-way'
 import { ZodRegion } from '~/types/region'
 import { ZodOrderingQuery } from '~/types/ordering'
@@ -47,7 +39,7 @@ export const ZodOrder = z.object({
   shippingPrice: z.number(),
   paidAmount: z.number(),
   documentType: z.lazy(() => ZodDocumentTypeEnum),
-  orderItemOrder: z.array(z.lazy(() => ZodOrderItem)),
+  items: z.array(z.lazy(() => ZodOrderItem)),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
   uuid: z.string().uuid(),
@@ -88,7 +80,7 @@ export const ZodOrderCreateBody = z.object({
   customerNotes: z.string().nullish(),
   shippingPrice: z.number(),
   documentType: z.lazy(() => ZodDocumentTypeEnum),
-  orderItemOrder: z.array(z.lazy(() => ZodOrderCreateItem)),
+  items: z.array(z.lazy(() => ZodOrderCreateItem)),
 })
 
 export const ZodOrderCreateResponse = z.object({
@@ -113,7 +105,7 @@ export const ZodOrderCreateResponse = z.object({
   phone: z.string(),
   mobilePhone: z.string().nullish(),
   customerNotes: z.string().nullish(),
-  orderItemOrder: z.array(z.lazy(() => ZodOrderCreateResponseItem)),
+  items: z.array(z.lazy(() => ZodOrderCreateResponseItem)),
   shippingPrice: z.number(),
   documentType: z.lazy(() => ZodDocumentTypeEnum),
   createdAt: z.string().datetime({ offset: true }),

@@ -37,17 +37,17 @@ const { statusClass } = useOrder()
     <div class="order-card-items grid gap-2">
       <div class="flex gap-2">
         <OrderCardItem
-          v-for="item in order.orderItemOrder.slice(0, maxItems)"
+          v-for="item in order.items.slice(0, maxItems)"
           :key="item.product.id"
           :item="item"
         />
       </div>
       <div
-        v-if="order.orderItemOrder.length > maxItems"
+        v-if="order.items.length > maxItems"
         class="grid"
       >
         <span
-          v-if="order.orderItemOrder.length - maxItems === 1"
+          v-if="order.items.length - maxItems === 1"
           class="
             text-primary-950 text-xs
 
@@ -66,7 +66,7 @@ const { statusClass } = useOrder()
         >
           {{
             $t('components.order.card.extra', {
-              count: order.orderItemOrder.length - maxItems,
+              count: order.items.length - maxItems,
             })
           }}
         </span>
@@ -140,10 +140,10 @@ const { statusClass } = useOrder()
           $t('components.order.card.total_price')
         }}</span>
         <I18nN
-          tag="span"
+          :value="order.paidAmount"
           class="font-semibold"
           format="currency"
-          :value="order.paidAmount"
+          tag="span"
         />
       </div>
 
@@ -164,16 +164,16 @@ const { statusClass } = useOrder()
     <div class="order-card-footer grid gap-4">
       <div class="order-card-footer-item">
         <UButton
+          :label="$t('components.order.card.actions.details')"
+          :to="`/account/orders/${order.id}`"
           class="
             py-1.25 w-full text-sm
 
             md:py-2.5
           "
-          :label="$t('components.order.card.actions.details')"
-          :to="`/account/orders/${order.id}`"
           color="opposite"
-          variant="link"
           size="lg"
+          variant="link"
         />
       </div>
     </div>

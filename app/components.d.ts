@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     'IconAntDesign:tikTokFilled': typeof import('~icons/ant-design/tik-tok-filled')['default']
+    'IconFa6Solid:cartShopping': typeof import('~icons/fa6-solid/cart-shopping')['default']
     'IconFa6Solid:circleCheck': typeof import('~icons/fa6-solid/circle-check')['default']
     'IconFa6Solid:circleQuestion': typeof import('~icons/fa6-solid/circle-question')['default']
     'IconFa6Solid:circleUser': typeof import('~icons/fa6-solid/circle-user')['default']

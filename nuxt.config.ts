@@ -51,7 +51,6 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@vee-validate/nuxt',
     'unplugin-icons/nuxt',
-    'nuxt-delay-hydration',
     'nuxt-auth-utils',
     'nuxt-time',
     'nuxt-pages-plus',
@@ -184,7 +183,11 @@ export default defineNuxtConfig({
     // Auth
     auth: {
       cookieDomain:
-      process.env.NUXT_PUBLIC_AUTH_COOKIE_DOMAIN,
+      process.env.NUXT_AUTH_COOKIE_DOMAIN,
+    },
+
+    turnstile: {
+      secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY,
     },
 
     // Keys within public are also exposed client-side
@@ -515,10 +518,6 @@ export default defineNuxtConfig({
       ErrorMessage: 'VeeErrorMessage',
     },
   },
-  delayHydration: {
-    mode: 'mount',
-    debug: process.env.NODE_ENV === 'development',
-  },
   ogImage: {
     defaults: {
       cacheMaxAgeSeconds: 60 * 60 * 24 * 7 * 1000, // 7 days
@@ -527,5 +526,8 @@ export default defineNuxtConfig({
   colorMode: {
     preference: 'system',
     fallback: 'light',
+  },
+  turnstile: {
+    siteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY,
   },
 })

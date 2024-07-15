@@ -69,7 +69,7 @@ const envVariables = z.object({
   NUXT_WEB_SOCKET_SERVER_PORT: z.string(),
 
   // Auth
-  NUXT_PUBLIC_AUTH_COOKIE_DOMAIN: z.string(),
+  NUXT_AUTH_COOKIE_DOMAIN: z.string(),
   NUXT_AUTH_EMAIL_PROVIDER_API_KEY: z.string(),
   NUXT_AUTH_BASE_URL: z.string(),
   NUXT_AUTH_ACCESS_TOKEN_COOKIE_NAME: z.string(),
@@ -97,6 +97,10 @@ const envVariables = z.object({
   NUXT_PUBLIC_SOCIALS_DISCORD: z.string(),
   NUXT_PUBLIC_SOCIALS_REDDIT: z.string(),
   NUXT_PUBLIC_SOCIALS_PINTEREST: z.string(),
+
+  // Turnstile
+  NUXT_TURNSTILE_SECRET_KEY: z.string(),
+  NUXT_PUBLIC_TURNSTILE_SITE_KEY: z.string(),
 })
 
 declare module 'vue' {

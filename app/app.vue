@@ -137,6 +137,5 @@ defineOgImage(ogImageOptions)
     <Pwa />
     <CookieControl />
     <UNotifications />
-    <DebugTools />
   </div>
 </template>

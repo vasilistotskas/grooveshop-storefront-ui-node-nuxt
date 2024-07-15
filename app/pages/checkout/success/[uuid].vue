@@ -41,7 +41,7 @@ const orderNumber = computed(() => {
 })
 
 const orderItems = computed(() => {
-  return order.value?.orderItemOrder
+  return order.value?.items
 })
 
 const paidAmount = computed(() => {
@@ -109,12 +109,12 @@ definePageMeta({
           >
             <Lottie
               ref="lottie"
-              :text="$t('pages.checkout.success.lottie')"
               :animation-data="checkoutSuccessJSON"
-              :width="'150px'"
+              :auto-play="true"
               :height="'150px'"
               :loop="true"
-              :auto-play="true"
+              :text="$t('pages.checkout.success.lottie')"
+              :width="'150px'"
             />
             <h2 class="text-4xl font-bold">
               {{
@@ -152,26 +152,26 @@ definePageMeta({
               <thead>
                 <tr>
                   <th
-                    scope="col"
                     class="px-4 py-2"
+                    scope="col"
                   >
                     {{ $t('pages.checkout.success.image') }}
                   </th>
                   <th
-                    scope="col"
                     class="px-4 py-2"
+                    scope="col"
                   >
                     {{ $t('pages.checkout.success.product') }}
                   </th>
                   <th
-                    scope="col"
                     class="px-4 py-2"
+                    scope="col"
                   >
                     {{ $t('pages.checkout.success.quantity') }}
                   </th>
                   <th
-                    scope="col"
                     class="px-4 py-2"
+                    scope="col"
                   >
                     {{ $t('pages.checkout.success.price') }}
                   </th>
@@ -184,27 +184,27 @@ definePageMeta({
                 >
                   <td class="border px-4 py-2">
                     <ImgWithFallback
-                      loading="lazy"
-                      provider="mediaStream"
-                      class="product-img bg-primary-100"
-                      :style="{
-                        objectFit: 'contain',
-                        contentVisibility: 'auto',
-                      }"
-                      :width="100"
-                      :height="100"
-                      :fit="'contain'"
-                      :position="'entropy'"
+                      :alt="extractTranslated(item.product, 'name', locale)"
                       :background="'transparent'"
-                      :trim-threshold="5"
-                      sizes="`sm:100vw md:50vw lg:auto`"
+                      :fit="'contain'"
+                      :height="100"
+                      :position="'entropy'"
                       :src="
                         resolveImageSrc(
                           item.product.mainImageFilename,
                           `media/uploads/products/${item.product.mainImageFilename}`,
                         )
                       "
-                      :alt="extractTranslated(item.product, 'name', locale)"
+                      :style="{
+                        objectFit: 'contain',
+                        contentVisibility: 'auto',
+                      }"
+                      :trim-threshold="5"
+                      :width="100"
+                      class="product-img bg-primary-100"
+                      loading="lazy"
+                      provider="mediaStream"
+                      sizes="`sm:100vw md:50vw lg:auto`"
                     />
                   </td>
                   <td class="border px-4 py-2">
@@ -218,9 +218,9 @@ definePageMeta({
                     class="border px-4 py-2"
                   >
                     <I18nN
-                      tag="span"
-                      format="currency"
                       :value="item.totalPrice"
+                      format="currency"
+                      tag="span"
                     />
                   </td>
                 </tr>
@@ -246,9 +246,9 @@ definePageMeta({
               >
                 {{ $t('pages.checkout.success.shippingPrice') }}:
                 <I18nN
-                  tag="span"
-                  format="currency"
                   :value="shippingPrice"
+                  format="currency"
+                  tag="span"
                 />
               </p>
               <p
@@ -261,9 +261,9 @@ definePageMeta({
               >
                 {{ $t('pages.checkout.success.totalPriceItems') }}:
                 <I18nN
-                  tag="span"
-                  format="currency"
                   :value="totalPriceItems"
+                  format="currency"
+                  tag="span"
                 />
               </p>
               <p
@@ -276,9 +276,9 @@ definePageMeta({
               >
                 {{ $t('pages.checkout.success.totalPriceExtra') }}:
                 <I18nN
-                  tag="span"
-                  format="currency"
                   :value="totalPriceExtra"
+                  format="currency"
+                  tag="span"
                 />
               </p>
               <p
@@ -291,9 +291,9 @@ definePageMeta({
               >
                 {{ $t('pages.checkout.success.payWayPrice') }}:
                 <I18nN
-                  tag="span"
-                  format="currency"
                   :value="payWayPrice"
+                  format="currency"
+                  tag="span"
                 />
               </p>
             </div>
@@ -307,20 +307,20 @@ definePageMeta({
             >
               {{ $t('pages.checkout.success.total') }}:
               <I18nN
-                tag="span"
-                format="currency"
                 :value="paidAmount"
+                format="currency"
+                tag="span"
               />
             </p>
           </div>
           <UButton
-            icon="i-heroicons-home"
-            size="xl"
-            color="primary"
-            variant="solid"
             :label="$t('pages.checkout.success.button')"
             :trailing="false"
+            color="primary"
+            icon="i-heroicons-home"
+            size="xl"
             to="/"
+            variant="solid"
           />
         </div>
       </div>
