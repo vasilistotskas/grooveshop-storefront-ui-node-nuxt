@@ -49,7 +49,7 @@ const toast = useToast()
 const { resolveImageSrc } = useImageResolver()
 const { fetch } = useUserSession()
 
-const loading = ref(false)
+const loading = ref(true)
 
 const src = computed(() => {
   return resolveImageSrc(
