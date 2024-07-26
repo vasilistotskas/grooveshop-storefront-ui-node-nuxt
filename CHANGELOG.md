@@ -1,3 +1,10 @@
+# [1.143.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.142.0...v1.143.0) (2024-07-26)
+
+
+### Features
+
+* translator tool fix, locale path usage and enable `en` and `de` for dev env, product tags implement and Bump Versions ([b19e3b2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b19e3b22ad50d73728dd4ddc207d2c63929b5e46))
+
 # [1.142.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.141.0...v1.142.0) (2024-07-18)
 
 
