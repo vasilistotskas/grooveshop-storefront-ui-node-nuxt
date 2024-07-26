@@ -4,13 +4,14 @@ const emit = defineEmits(['deactivateTotp'])
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const loading = ref(false)
 
 const { error, refresh } = await totpAuthenticatorStatus()
 
 if (error.value) {
-  await navigateTo('/account/settings')
+  await navigateTo(localePath('/account/settings'))
 }
 
 async function onSubmit() {
@@ -22,7 +23,7 @@ async function onSubmit() {
       color: 'green',
     })
     emit('deactivateTotp')
-    await navigateTo('/account/settings')
+    await navigateTo(localePath('/account/settings'))
   }
   catch (error) {
     toast.add({

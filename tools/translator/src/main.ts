@@ -10,7 +10,7 @@ import type { TranslatorConfig } from '~~/tools/translator/src/config'
 export async function main(
   config: TranslatorConfig,
   consola: ConsolaInstance,
-  inputFile: string,
+  inputFilePath: string,
   selectedLocales: string[],
   outputExtension: FileExtensions,
 ) {
@@ -18,29 +18,33 @@ export async function main(
   await translationCache.init()
 
   try {
-    const localeDirPath = path.dirname(inputFile)
+    const localeDirPath = path.dirname(inputFilePath)
     await validatePathAccess(localeDirPath, 'locale directory')
 
     const inputFileExtension = getFileExtension(
-      inputFile,
+      inputFilePath,
       Object.values(FileExtensions),
     )
+    consola.info(`File Extension: ${inputFileExtension}`)
+
     if (!inputFileExtension)
-      throw new Error(`Source file ${inputFile} not found or not supported`)
+      throw new Error(`Source file ${inputFilePath} not found or not supported`)
 
     let localesToTranslate = generateLocalePaths(
       localeDirPath,
       inputFileExtension,
       config.locales.available,
     )
+
     localesToTranslate = filterLocales(
       localesToTranslate,
       selectedLocales,
-      inputFile,
+      inputFilePath,
     )
+    consola.info(`Locales To Translate: ${JSON.stringify(localesToTranslate, null, 2)}`)
 
     await executeTranslations(
-      inputFile,
+      inputFilePath,
       localesToTranslate,
       config,
       inputFileExtension,

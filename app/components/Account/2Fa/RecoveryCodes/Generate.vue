@@ -3,6 +3,7 @@ const emit = defineEmits(['generateRecoveryCodes'])
 
 const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 
 const { data, refresh } = await getRecoveryCodes()
@@ -25,7 +26,7 @@ async function onSubmit() {
       color: 'green',
     })
     emit('generateRecoveryCodes')
-    await navigateTo('/account/2fa/recovery-codes')
+    await navigateTo(localePath('/account/2fa/recovery-codes'))
   }
   catch (error) {
     if (isAllAuthClientError(error)) {

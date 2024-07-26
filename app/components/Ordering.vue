@@ -4,8 +4,6 @@ import type { PropType } from 'vue'
 import type { OrderingOption } from '~/types/ordering'
 import type { DropdownItem } from '#ui/types'
 
-const route = useRoute()
-
 const props = defineProps({
   orderingOptions: {
     type: Array as PropType<OrderingOption[]>,
@@ -21,7 +19,13 @@ const props = defineProps({
     default: true,
   },
 })
+
+const route = useRoute()
+const localePath = useLocalePath()
+
 const { ordering } = toRefs(props)
+const listBox = ref(null)
+
 const selectedOrderingLabel = computed(() => {
   if (!ordering?.value) return
   const orderingOptions = props.orderingOptions ?? []
@@ -30,7 +34,6 @@ const selectedOrderingLabel = computed(() => {
   )
   return selectedOrdering?.label
 })
-const listBox = ref(null)
 
 const path = computed(() => {
   return route.path
@@ -77,7 +80,7 @@ const items = computed<DropdownItem[][]>(() => {
 const onOptionClick = async (option: OrderingOption) => {
   if (!props.applyOrderingQuery) return
   await navigateTo({
-    path: path.value,
+    path: localePath(path.value),
     query: {
       ordering: option.value,
       category: route.query?.category,

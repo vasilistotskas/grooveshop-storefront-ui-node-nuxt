@@ -28,6 +28,7 @@ const props = defineProps({
 
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+const localePath = useLocalePath()
 
 const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
 
@@ -132,7 +133,7 @@ const link = computed(() => {
           @click="
             async () =>
               await navigateTo({
-                path: link,
+                path: localePath(link),
                 query: {
                   limit,
                   offset: isInFirstPage ? offset : offset - limit,
@@ -148,7 +149,9 @@ const link = computed(() => {
 
               dark:text-primary-50
             "
-          ><IconFaSolid:angleLeft /></span>
+          >
+            <UIcon name="i-fa-solid-angle-left" />
+          </span>
         </Anchor>
       </li>
 
@@ -176,7 +179,7 @@ const link = computed(() => {
           @click="
             async () =>
               await navigateTo({
-                path: link,
+                path: localePath(link),
                 query: {
                   limit,
                   offset: 0,
@@ -227,7 +230,7 @@ const link = computed(() => {
           @click="
             async () =>
               await navigateTo({
-                path: link,
+                path: localePath(link),
                 query: {
                   limit,
                   offset: (pageEntry - 1) * limit,
@@ -275,7 +278,7 @@ const link = computed(() => {
           @click="
             async () =>
               await navigateTo({
-                path: link,
+                path: localePath(link),
                 query: {
                   limit,
                   offset: (totalPages - 1) * limit,
@@ -326,7 +329,7 @@ const link = computed(() => {
           @click="
             async () =>
               await navigateTo({
-                path: link,
+                path: localePath(link),
                 query: {
                   limit,
                   offset: offset + limit,
@@ -342,7 +345,7 @@ const link = computed(() => {
 
               dark:text-primary-50
             "
-          ><IconFaSolid:angleRight /></span>
+          ><UIcon name="i-fa-solid-angle-right" /></span>
         </Anchor>
       </li>
     </ol>

@@ -458,7 +458,7 @@ watch(
             })
           "
         />
-        <IconFaSolid:pen />
+        <UIcon name="i-fa-solid-pen" />
       </div>
     </template>
 

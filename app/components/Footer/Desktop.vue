@@ -2,6 +2,7 @@
 import pkg from '../../../package.json'
 
 const config = useRuntimeConfig()
+const localePath = useLocalePath()
 
 const packageVersion = pkg.version
 </script>
@@ -250,7 +251,7 @@ const packageVersion = pkg.version
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
               :label="`${config.public.siteName}™.`"
-              :to="'/'"
+              :to="localePath('/')"
               class="p-0"
               color="opposite"
               size="lg"

@@ -21,7 +21,7 @@ export interface TranslatorConfig {
 
 const getDefaultConfig = () =>
   <TranslatorConfig>{
-    input: './locales/en-US.yml',
+    input: './locales/el-GR.yml',
     translate: {
       engine: 'google',
       delay: 500,

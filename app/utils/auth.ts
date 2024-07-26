@@ -102,9 +102,10 @@ export const pathForPendingFlow = (auth: AllAuthResponse | AllAuthResponseError)
 
 export const navigateToPendingFlow = async (auth: AllAuthResponse | AllAuthResponseError) => {
   const nuxtApp = useNuxtApp()
+  const localePath = useLocalePath()
   const path = pathForPendingFlow(auth)
   if (path) {
-    return nuxtApp.runWithContext(() => navigateTo(path))
+    return nuxtApp.runWithContext(() => navigateTo(localePath(path)))
   }
   return null
 }

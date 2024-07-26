@@ -38,7 +38,7 @@ const expand = computed(() => 'true')
 
 const {
   data: productReviews,
-  pending,
+  status,
   refresh,
 } = await useFetch(`/api/products/${productId.value}/reviews`, {
   key: `productReviews${productId.value}`,
@@ -74,7 +74,7 @@ watch(
 
 <template>
   <div
-    v-if="!pending && productReviews && productReviews?.length > 0"
+    v-if="status !== 'pending' && productReviews && productReviews?.length > 0"
     class="
       container-md text-primary-950 grid gap-2 border-t border-primary-500 !px-0
       !py-6

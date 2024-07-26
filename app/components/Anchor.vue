@@ -39,7 +39,8 @@ defineSlots<{
     :aria-label="text"
     :active-class="[cssClass].join(' ')"
     :inactive-class="[cssClass].join(' ')"
-    :to="href"
+    :href="href"
+    :external="true"
   >
     <slot>{{ text }}</slot>
   </ULink>

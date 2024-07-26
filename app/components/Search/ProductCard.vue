@@ -72,7 +72,7 @@ const alt = computed(() => {
           class="op10 flex h-full"
         >
           <div class="text-4xl">
-            <IconFa6Solid:circleQuestion />
+            <UIcon name="i-fa6-solid-circle-question" />
           </div>
         </div>
       </div>

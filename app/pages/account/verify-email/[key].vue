@@ -4,9 +4,10 @@ const emit = defineEmits(['emailVerify'])
 const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
+const localePath = useLocalePath()
+const route = useRoute()
 
 const loading = ref(false)
-const route = useRoute()
 
 const { data: getVerifyEmailData } = await getEmailVerify(String(route.params.key))
 
@@ -20,7 +21,7 @@ async function onSubmit() {
         color: 'green',
       })
       emit('emailVerify')
-      await navigateTo('/account')
+      await navigateTo(localePath('/account'))
     }
   }
   catch (error) {
@@ -95,7 +96,6 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            Unable to confirm email
             {{ $t('pages.account.verify-email.key.unable_to_confirm_email') }}
             <UButton
               :external="true"

@@ -25,8 +25,8 @@ const config = useRuntimeConfig()
     target="_blank"
     variant="link"
   >
-    <IconMdi:instagram
-      :class="iconClass"
+    <UIcon
+      name="i-mdi-instagram" :class="iconClass"
       class="
         text-secondary-light
 
@@ -43,8 +43,8 @@ const config = useRuntimeConfig()
     target="_blank"
     variant="link"
   >
-    <IconAntDesign:tikTokFilled
-      :class="iconClass"
+    <UIcon
+      name="i-ant-design-tik-tok-filled" :class="iconClass"
       class="
         text-secondary-light
 
@@ -61,8 +61,8 @@ const config = useRuntimeConfig()
     target="_blank"
     variant="link"
   >
-    <IconMdi:reddit
-      :class="iconClass"
+    <UIcon
+      name="i-mdi-reddit" :class="iconClass"
       class="
         text-secondary-light
 
@@ -79,8 +79,8 @@ const config = useRuntimeConfig()
     target="_blank"
     variant="link"
   >
-    <IconMdi:youtube
-      :class="iconClass"
+    <UIcon
+      name="i-mdi-youtube" :class="iconClass"
       class="
         text-secondary-light
 
@@ -97,8 +97,8 @@ const config = useRuntimeConfig()
     target="_blank"
     variant="link"
   >
-    <IconMdi:pinterest
-      :class="iconClass"
+    <UIcon
+      name="i-mdi-pinterest" :class="iconClass"
       class="
         text-secondary-light
 
@@ -115,8 +115,8 @@ const config = useRuntimeConfig()
     target="_blank"
     variant="link"
   >
-    <IconMdi:facebook
-      :class="iconClass"
+    <UIcon
+      name="i-mdi-facebook" :class="iconClass"
       class="
         text-secondary-light
 

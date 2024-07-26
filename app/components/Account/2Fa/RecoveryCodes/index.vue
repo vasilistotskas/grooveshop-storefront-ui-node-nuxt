@@ -2,6 +2,7 @@
 const { getRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const { data, refresh, error } = await getRecoveryCodes()
 
@@ -10,7 +11,7 @@ if (error.value) {
     title: t('common.auth.mfa.required'),
     color: 'red',
   })
-  navigateTo('/account/settings')
+  navigateTo(localePath('/account/settings'))
 }
 
 const unused_codes = computed(() => {

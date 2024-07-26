@@ -8,7 +8,7 @@ export async function mainCLI(
   consola: ConsolaInstance,
 ) {
   try {
-    const inputFile = await promptForInputFile(consola)
+    const inputFilePath = await promptForInputFile(consola)
     const availableLocaleOptions = config.locales.available
     availableLocaleOptions.push({ label: 'All', value: 'all' })
 
@@ -18,7 +18,7 @@ export async function mainCLI(
     )
     const outputExtension = await promptForOutputExtension(consola)
 
-    await main(config, consola, inputFile, selectedLocales, outputExtension)
+    await main(config, consola, inputFilePath, selectedLocales, outputExtension)
   }
   catch (error) {
     consola.error(error)

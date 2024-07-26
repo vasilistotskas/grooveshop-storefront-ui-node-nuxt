@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import emptyIcon from '~icons/mdi/package-variant-remove'
-
 const cartStore = useCartStore()
+const localePath = useLocalePath()
 const { cart, pending } = storeToRefs(cartStore)
 
 definePageMeta({
@@ -43,22 +42,10 @@ definePageMeta({
             />
           </div>
         </template>
-        <EmptyState
-          v-if="!pending.cart && !cart?.cartItems?.length"
-          :icon="emptyIcon"
-        >
-          <template #actions>
-            <UButton
-              :label="$t('common.empty.button')"
-              :to="'index'"
-              color="primary"
-            />
-          </template>
-        </EmptyState>
         <template #fallback>
           <ClientOnlyFallback
-            width="100%"
             height="320px"
+            width="100%"
           />
         </template>
       </ClientOnly>
@@ -67,11 +54,11 @@ definePageMeta({
       <h2 class="grid justify-items-center justify-self-end">
         <UButton
           :label="$t('pages.cart.checkout')"
+          :to="localePath('checkout')"
           class="capitalize"
           color="primary"
-          variant="soft"
           size="xl"
-          :to="'checkout'"
+          variant="soft"
         />
       </h2>
     </div>

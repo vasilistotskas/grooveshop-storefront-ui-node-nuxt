@@ -2,7 +2,7 @@
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data: categories, pending } = await useAsyncData(
+const { data: categories, status } = await useAsyncData(
   'productCategories',
   () =>
     $fetch('/api/products/categories', {
@@ -115,7 +115,7 @@ onMounted(() => {
           md:gap-4
         "
       >
-        <template v-if="!pending && filteredCategories?.length">
+        <template v-if="status !== 'pending' && filteredCategories?.length">
           <ProductsSidebarCategory
             v-for="category in filteredCategories"
             :key="category.id"
@@ -123,7 +123,7 @@ onMounted(() => {
           />
         </template>
 
-        <template v-if="pending">
+        <template v-if="status === 'pending'">
           <li
             v-for="index in 8"
             :key="index"
@@ -138,7 +138,7 @@ onMounted(() => {
         </template>
       </ul>
       <div
-        v-if="!pending && !filteredCategories?.length"
+        v-if="status !== 'pending' && !filteredCategories?.length"
         class="grid gap-4"
       >
         <p

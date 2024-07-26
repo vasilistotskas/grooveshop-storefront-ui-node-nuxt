@@ -1,3 +1,7 @@
+<script lang="ts" setup>
+const localePath = useLocalePath()
+</script>
+
 <template>
   <li
     class="
@@ -5,7 +9,7 @@
       border-2 border-dashed border-primary-500 bg-transparent text-left
       text-base font-normal leading-6 text-primary-600
 
-      md:min-h-[244px] md:min-h-[305px] md:gap-8
+      md:min-h-[244px] md:gap-8
     "
   >
     <p
@@ -22,7 +26,7 @@
         class="w-full"
         color="primary"
         :label="$t('components.address.add_new.button')"
-        :to="'/account/addresses/new'"
+        :to="localePath('/account/addresses/new')"
         size="lg"
       />
     </div>

@@ -3,13 +3,13 @@ import { isClient } from '@vueuse/shared'
 import type { UseSeoMetaInput } from '@unhead/schema'
 
 const route = useRoute()
-const config = useRuntimeConfig()
 const { t, locale } = useI18n()
 const { loggedIn } = useUserSession()
 const { resolveImageSrc } = useImageResolver()
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
 const img = useImage()
+const localePath = useLocalePath()
 
 const blogPostId = Number(route.params.id)
 
@@ -82,22 +82,16 @@ const ogImage = computed(() => {
 
 const links = computed(() => [
   {
-    to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
+    to: localePath('/'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to:
-      locale.value === config.public.defaultLocale
-        ? '/blog'
-        : `/${locale.value}/blog`,
+    to: localePath('/blog'),
     label: t('breadcrumb.items.blog.label'),
   },
   {
-    to:
-      locale.value === config.public.defaultLocale
-        ? `/blog/post/${blogPostId}/${blogPost.value?.slug}`
-        : `/${locale.value}/blog/post/${blogPostId}/${blogPost.value?.slug}`,
+    to: localePath(`/blog/post/${blogPostId}/${blogPost.value?.slug}`),
     label: blogPostTitle.value || '',
   },
 ])

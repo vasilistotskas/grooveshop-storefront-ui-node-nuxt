@@ -124,8 +124,9 @@ const categoryImageSource = computed(() => {
         >
           {{ categoryName }}
         </span>
-        <IconFa6Solid:circleCheck
+        <UIcon
           v-if="isCategorySelected"
+          name="i-fa6-solid-circle-check"
           class="
             text-green-500
 

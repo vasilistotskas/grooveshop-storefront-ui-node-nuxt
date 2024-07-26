@@ -15,15 +15,17 @@ const installActions = ref<NotificationAction[]>([
 
 const actions = ref<NotificationAction[]>([])
 
-if ($pwa?.needRefresh) {
-  $pwa.updateServiceWorker()
-  actions.value.push({
-    variant: 'outline',
-    color: 'white',
-    label: t('components.pwa.reload'),
-    click: () => $pwa?.updateServiceWorker(),
-  })
-}
+onMounted(() => {
+  if ($pwa?.needRefresh) {
+    $pwa.updateServiceWorker()
+    actions.value.push({
+      variant: 'outline',
+      color: 'white',
+      label: t('components.pwa.reload'),
+      click: () => $pwa?.updateServiceWorker(),
+    })
+  }
+})
 
 const id = useId()
 </script>
@@ -50,9 +52,9 @@ const id = useId()
         :timeout="0"
         :title="$pwa?.offlineReady ? $t('components.pwa.ready_to_work_offline') : $t('components.pwa.new_content_available')"
         class="
-          m-auto w-[33%]
+          m-auto w-[80%]
 
-          md:w-[90%]
+          md:w-[33%]
         "
         @close="() => $pwa?.cancelPrompt()"
       />
@@ -65,9 +67,9 @@ const id = useId()
         :timeout="0"
         :title="$t('components.pwa.install_pwa')"
         class="
-          m-auto w-[33%]
+          m-auto w-[80%]
 
-          md:w-[90%]
+          md:w-[33%]
         "
         @close="() => $pwa?.cancelInstall()"
       />

@@ -1,14 +1,11 @@
 import AutoImport from 'unplugin-auto-import/vite'
-import IconsResolver from 'unplugin-icons/resolver'
-import Icons from 'unplugin-icons/vite'
-import Components from 'unplugin-vue-components/vite'
 
 const sw = process.env.SW === 'true'
 
 export default defineNuxtConfig({
   ssr: true,
   debug: false,
-  sourcemap: true,
+  sourcemap: false,
   telemetry: false,
   future: {
     compatibilityVersion: 4,
@@ -45,12 +42,11 @@ export default defineNuxtConfig({
     '@nuxtjs/html-validator',
     '@nuxtjs/device',
     '@nuxtjs/turnstile',
-    '@nuxtseo/module',
+    '@nuxtjs/seo',
     '@pinia/nuxt',
     '@vueuse/nuxt',
     '@vite-pwa/nuxt',
     '@vee-validate/nuxt',
-    'unplugin-icons/nuxt',
     'nuxt-auth-utils',
     'nuxt-time',
     'nuxt-pages-plus',
@@ -165,6 +161,32 @@ export default defineNuxtConfig({
         iso: 'el-GR',
         flag: '🇬🇷',
       },
+      {
+        code: 'en',
+        name: 'English',
+        files: [
+          'en-US.yml',
+          'components/en-US.yml',
+          'pages/en-US.yml',
+          'routes/en-US.yml',
+          'breadcrumb/en-US.yml',
+        ],
+        iso: 'en-US',
+        flag: '🇺🇸',
+      },
+      {
+        code: 'de',
+        name: 'Deutsch',
+        files: [
+          'de-DE.yml',
+          'components/de-DE.yml',
+          'pages/de-DE.yml',
+          'routes/de-DE.yml',
+          'breadcrumb/de-DE.yml',
+        ],
+        iso: 'de-DE',
+        flag: '🇩🇪',
+      },
     ],
     vueI18n: 'i18n.config.mts',
     compilation: {
@@ -277,20 +299,6 @@ export default defineNuxtConfig({
   },
   vite: {
     plugins: [
-      Components({
-        deep: true,
-        dts: 'components.d.ts',
-        directoryAsNamespace: true,
-        resolvers: [
-          IconsResolver({
-            prefix: 'Icon',
-            enabledCollections: ['fa6-solid', 'fa-solid', 'mdi', 'ant-design'],
-          }),
-        ],
-      }),
-      Icons({
-        compiler: 'vue3',
-      }),
       AutoImport({
         imports: ['vitest'],
         dts: true,
@@ -445,7 +453,7 @@ export default defineNuxtConfig({
       navigateFallbackDenylist: [/^\/api(?:\/.*)?$/],
       maximumFileSizeToCacheInBytes: 3000000,
       cleanupOutdatedCaches: true,
-      sourcemap: true,
+      sourcemap: false,
     },
     injectManifest: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
@@ -529,5 +537,8 @@ export default defineNuxtConfig({
   },
   turnstile: {
     siteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY,
+  },
+  icon: {
+    serverBundle: 'remote',
   },
 })

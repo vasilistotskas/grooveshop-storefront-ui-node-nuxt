@@ -1,10 +1,10 @@
 export default {
   localePath: './locales',
-  sourceFileName: 'en-US',
+  sourceFileName: 'el-GR',
   translate: {
     engine: 'google',
-    bundleDelay: 500,
-    bundleMaxRetries: 3,
+    bundleDelay: 1000,
+    bundleMaxRetries: 5,
   },
   debug: {
     mode: 'consola',

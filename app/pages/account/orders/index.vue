@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import emptyIcon from '~icons/mdi/package-variant-remove'
 import type { Order, OrderOrderingField } from '~/types/order/order'
 import type { EntityOrdering } from '~/types/ordering'
 
@@ -8,6 +7,7 @@ const route = useRoute()
 const { user } = useUserSession()
 
 const pageSize = ref(8)
+const pending = ref(true)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -29,7 +29,7 @@ const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
   },
 ])
 
-const { data: orders, pending } = await useFetch(
+const { data: orders } = await useFetch(
   `/api/user/account/${user.value?.id}/orders`,
   {
     method: 'GET',
@@ -92,8 +92,8 @@ definePageMeta({
         <PaginationPageNumber
           v-if="pagination"
           :count="pagination.count"
-          :page-size="pagination.pageSize"
           :page="pagination.page"
+          :page-size="pagination.pageSize"
         />
         <Ordering
           :ordering="String(ordering)"
@@ -121,18 +121,6 @@ definePageMeta({
           />
         </div>
       </template>
-      <EmptyState
-        v-if="!pending && !orders?.results?.length"
-        :icon="emptyIcon"
-      >
-        <template #actions>
-          <UButton
-            :label="$t('common.empty.button')"
-            :to="'index'"
-            color="primary"
-          />
-        </template>
-      </EmptyState>
     </PageBody>
   </PageWrapper>
 </template>

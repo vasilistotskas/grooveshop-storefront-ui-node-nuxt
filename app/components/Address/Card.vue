@@ -19,6 +19,7 @@ const { address } = toRefs(props)
 const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
+const localePath = useLocalePath()
 
 const submit = async () => {
   if (address?.value && address?.value.isMain) {
@@ -73,7 +74,7 @@ const submit = async () => {
         md:right-2 md:top-1
       "
     >
-      <IconMdi:star />
+      <UIcon name="i-mdi-star" />
     </div>
     <div class="grid grid-cols-[1fr_auto] items-center justify-center gap-2">
       <div class="grid items-center gap-2">
@@ -91,7 +92,7 @@ const submit = async () => {
         <UButton
           class="grid h-[2rem] w-[2rem] place-items-center rounded-full"
           icon="i-heroicons-pencil"
-          :to="`/account/addresses/${address.id}/edit`"
+          :to="localePath(`/account/addresses/${address.id}/edit`)"
           size="sm"
           :trailing="true"
           color="primary"

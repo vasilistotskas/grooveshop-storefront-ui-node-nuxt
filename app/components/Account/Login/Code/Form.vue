@@ -9,6 +9,7 @@ const emit = defineEmits(['requestLoginCode'])
 const { requestLoginCode } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 const loading = ref(false)
 
@@ -20,7 +21,7 @@ async function onSubmit(values: CodeRequestBody) {
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
-      await navigateTo('/account/login/code/confirm')
+      await navigateTo(localePath('/account/login/code/confirm'))
     }
     else {
       toast.add({

@@ -1,16 +1,13 @@
 <script lang="ts" setup>
-import emptyIcon from '~icons/mdi/package-variant-remove'
 import type { EntityOrdering } from '~/types/ordering'
-import type {
-  ProductReview,
-  ProductReviewOrderingField,
-} from '~/types/product/review'
+import type { ProductReview, ProductReviewOrderingField } from '~/types/product/review'
 
 const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
 
 const pageSize = ref(8)
+const pending = ref(true)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -27,7 +24,7 @@ const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   },
 ])
 
-const { data: reviews, pending } = await useFetch(
+const { data: reviews } = await useFetch(
   `/api/user/account/${user.value?.id}/product-reviews`,
   {
     method: 'GET',
@@ -95,8 +92,8 @@ definePageMeta({
         <PaginationPageNumber
           v-if="pagination"
           :count="pagination.count"
-          :page-size="pagination.pageSize"
           :page="pagination.page"
+          :page-size="pagination.pageSize"
         />
         <Ordering
           :ordering="String(ordering)"
@@ -128,18 +125,6 @@ definePageMeta({
           </div>
         </div>
       </template>
-      <EmptyState
-        v-if="!pending && !reviews?.results?.length"
-        :icon="emptyIcon"
-      >
-        <template #actions>
-          <UButton
-            :label="$t('common.empty.button')"
-            :to="'index'"
-            color="primary"
-          />
-        </template>
-      </EmptyState>
     </PageBody>
   </PageWrapper>
 </template>

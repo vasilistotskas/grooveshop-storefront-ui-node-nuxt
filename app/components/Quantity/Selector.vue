@@ -57,7 +57,7 @@ const changeQuantityEvent = async (event: Event) => {
       type="button"
       @click="decreaseQuantityEvent"
     >
-      <IconFaSolid:minus />
+      <UIcon name="i-fa-solid-minus" />
     </button>
     <select
       class="
@@ -90,7 +90,7 @@ const changeQuantityEvent = async (event: Event) => {
       type="button"
       @click="increaseQuantityEvent"
     >
-      <IconFaSolid:plus />
+      <UIcon name="i-fa-solid-plus" />
     </button>
   </div>
 </template>

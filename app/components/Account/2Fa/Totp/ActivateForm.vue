@@ -17,13 +17,14 @@ const {
 
 const { t } = useI18n()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const loading = ref(false)
 
 const { refresh } = await getTotpAuthenticatorStatus() ?? {}
 
 if (totpData.value) {
-  await navigateTo('/account/settings')
+  await navigateTo(localePath('/account/settings'))
 }
 
 const { copy, isSupported } = useClipboard({ source: totpSecret.value })
@@ -47,7 +48,7 @@ async function onSubmit(values: TotpPostBody) {
       color: 'green',
     })
     emit('activateTotp')
-    await navigateTo('/account/settings')
+    await navigateTo(localePath('/account/settings'))
   }
   catch (error) {
     if (isAllAuthClientError(error)) {

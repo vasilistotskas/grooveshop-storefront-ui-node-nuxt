@@ -78,8 +78,8 @@ onMounted(() => {
                   route.path !== item.route?.path,
               }"
             >
-              <Component
-                :is="item.icon"
+              <UIcon
+                :name="item.icon"
                 class="
                   text-2xl
 

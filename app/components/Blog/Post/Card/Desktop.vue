@@ -21,6 +21,7 @@ const props = defineProps({
 
 const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
+const localePath = useLocalePath()
 
 const { post } = toRefs(props)
 
@@ -151,7 +152,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
-          :to="`/blog/post${post.absoluteUrl}#blog-post-comments`"
+          :to="localePath(`/blog/post${post.absoluteUrl}#blog-post-comments`)"
         />
         <ClientOnly>
           <UButton

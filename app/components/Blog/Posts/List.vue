@@ -53,7 +53,7 @@ const allPosts = ref<BlogPost[]>([])
 
 const {
   data: posts,
-  pending,
+  status,
   refresh,
 } = await useAsyncData('blogPosts', () =>
   $fetch('/api/blog/posts', {
@@ -122,6 +122,7 @@ await useFetch(
   {
     method: 'POST',
     body: { postIds: postIds },
+    immediate: shouldFetchLikedPosts.value,
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -136,7 +137,7 @@ const showResults = computed(() => {
   if (paginationType.value === PaginationTypeEnum.CURSOR) {
     return allPosts.value.length
   }
-  return !pending.value && allPosts.value.length
+  return status.value !== 'pending' && allPosts.value.length
 })
 
 const BlogPostCard = computed(() =>
@@ -214,7 +215,7 @@ onReactivated(() => {
         :count="pagination.count"
         :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
         :links="pagination.links"
-        :loading="pending"
+        :loading="status === 'pending'"
         :page="pagination.page"
         :page-size="pagination.pageSize"
         :page-total-results="pagination.pageTotalResults"
@@ -257,7 +258,7 @@ onReactivated(() => {
             :post="post"
           />
         </template>
-        <template v-if="pending && paginationType !== PaginationTypeEnum.CURSOR">
+        <template v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR">
           <ClientOnlyFallback
             v-for="index in 8"
             :key="index"
@@ -269,7 +270,7 @@ onReactivated(() => {
       <slot name="sidebar" />
     </section>
     <Transition>
-      <template v-if="pending && paginationType === PaginationTypeEnum.CURSOR">
+      <template v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR">
         <ClientOnlyFallback
           :text="$t('common.loading')"
           class="grid items-center justify-items-center"

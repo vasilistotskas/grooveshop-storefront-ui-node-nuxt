@@ -19,13 +19,16 @@ describe('translator tests', async () => {
   })
 
   it('translate should return a correctly translated object', async () => {
-    vi.mocked(getISO6391Code).mockReturnValue('el')
+    vi.mocked(getISO6391Code)
+      .mockReturnValue('el')
+      .mockReturnValueOnce('en')
+      .mockReturnValueOnce('el')
 
     const testDir = path.join('tests', 'data', 'locales')
     const input = path.join(testDir, 'en-US.yml')
     const inputBundle = await readFileContents(input, FileExtensions.YML)
 
-    const translatedBundle = await translateBundle(inputBundle, {
+    const translatedBundle = await translateBundle(input, inputBundle, {
       path: path.join(testDir, 'el-GR.yml'),
       langCode: 'el',
       dir: testDir,

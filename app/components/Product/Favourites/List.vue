@@ -13,10 +13,12 @@ defineProps({
 const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
+const localePath = useLocalePath()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 
 const pageSize = ref(8)
+const pending = ref(true)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -33,7 +35,7 @@ const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
   },
 ])
 
-const { data: favourites, pending } = await useFetch(
+const { data: favourites } = await useFetch(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
     method: 'GET',
@@ -135,8 +137,8 @@ watch(
       <PaginationPageNumber
         v-if="pagination"
         :count="pagination.count"
-        :page-size="pagination.pageSize"
         :page="pagination.page"
+        :page-size="pagination.pageSize"
       />
       <Ordering
         :ordering="String(ordering)"
@@ -170,10 +172,10 @@ watch(
         >
           <ProductCard
             v-if="!isEntityId(favourite.product)"
+            :img-height="150"
+            :img-width="260"
             :product="favourite.product"
             :show-add-to-cart-button="false"
-            :img-width="260"
-            :img-height="150"
             @favourite-delete="onFavouriteDelete"
           />
         </template>
@@ -212,7 +214,7 @@ watch(
       <template #actions>
         <UButton
           :label="$t('common.empty.button')"
-          :to="'index'"
+          :to="localePath('/')"
           color="primary"
         />
       </template>

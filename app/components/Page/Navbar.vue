@@ -13,7 +13,7 @@ const localePath = useLocalePath()
 
 const onClickLogout = async () => {
   if (isRouteProtected(route.path))
-    await navigateTo('/')
+    await navigateTo(localePath('/'))
 
   await deleteSession()
 
@@ -35,12 +35,12 @@ const items = computed(() => [
     {
       label: t('common.account'),
       icon: 'i-heroicons-user',
-      click: async () => await navigateTo('/account'),
+      click: async () => await navigateTo(localePath('/account')),
     },
     {
       label: t('common.settings'),
       icon: 'i-heroicons-cog-8-tooth',
-      click: async () => await navigateTo('/account/settings'),
+      click: async () => await navigateTo(localePath('/account/settings')),
     },
   ],
   [
@@ -95,7 +95,7 @@ const items = computed(() => [
                 "
               >
                 <span class="capitalize">{{ $t('pages.search.title') }}</span>
-                <IconFa6Solid:magnifyingGlass />
+                <UIcon name="i-fa6-solid-magnifying-glass" />
               </Anchor>
             </li>
 
@@ -207,7 +207,7 @@ const items = computed(() => [
                     hover:dark:text-primary-50
                   "
                 >
-                  <IconFa6Solid:cartShopping />
+                  <UIcon name="i-fa6-solid-cart-shopping" />
                 </Anchor>
               </li>
             </DevOnly>
@@ -259,7 +259,7 @@ const items = computed(() => [
               <Anchor
                 v-else
                 :title="loggedIn ? $t('common.account') : $t('common.login')"
-                :to="route.path === localePath('/account/login') ? localePath('/account/login') : localePath(`/account/login?next=${route.path}`)"
+                :to="route.path === '/account/login' ? '/account/login' : `/account/login?next=${route.path}`"
                 class="
                   flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
 
@@ -267,7 +267,7 @@ const items = computed(() => [
                   hover:dark:text-primary-50
                 "
               >
-                <IconFa6Solid:circleUser />
+                <UIcon name="i-fa6-solid-circle-user" />
               </Anchor>
             </li>
           </ul>

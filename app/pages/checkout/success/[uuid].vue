@@ -6,6 +6,7 @@ const orderUUID = route.params.uuid
 
 const { t, locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
+const localePath = useLocalePath()
 
 const { data: order, error } = await useFetch(
   `/api/orders/uuid/${orderUUID}`,
@@ -315,11 +316,11 @@ definePageMeta({
           </div>
           <UButton
             :label="$t('pages.checkout.success.button')"
+            :to="localePath('/')"
             :trailing="false"
             color="primary"
             icon="i-heroicons-home"
             size="xl"
-            to="/"
             variant="solid"
           />
         </div>

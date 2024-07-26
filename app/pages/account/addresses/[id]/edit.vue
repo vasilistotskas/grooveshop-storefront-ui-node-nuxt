@@ -10,6 +10,7 @@ import type { Region } from '~/types/region'
 const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute()
+const localePath = useLocalePath()
 
 const addressId = Number(route.params.id)
 const regions = ref<Pagination<Region> | null>(null)
@@ -205,7 +206,7 @@ const onSubmit = handleSubmit(async (values) => {
         title: t('pages.account.addresses.edit.success'),
         color: 'green',
       })
-      await navigateTo('/account/addresses')
+      await navigateTo(localePath('/account/addresses'))
     },
     onResponseError() {
       toast.add({
@@ -227,7 +228,7 @@ const onSetMain = async () => {
         title: t('pages.account.addresses.edit.main.success'),
         color: 'green',
       })
-      await navigateTo('/account/addresses')
+      await navigateTo(localePath('/account/addresses'))
     },
     onResponseError() {
       toast.add({
@@ -257,11 +258,11 @@ definePageMeta({
     >
       <div class="grid grid-cols-auto-1fr items-center gap-4">
         <UButton
-          icon="i-heroicons-arrow-left"
-          size="sm"
-          :to="'/account/addresses'"
+          :to="localePath('/account/addresses')"
           :trailing="true"
           color="primary"
+          icon="i-heroicons-arrow-left"
+          size="sm"
         >
           <span class="sr-only">{{
             $t('pages.account.addresses.edit.back')
@@ -282,7 +283,7 @@ definePageMeta({
             dark:text-green-400
           "
         >
-          <IconFa6Solid:circleCheck />
+          <UIcon name="i-fa6-circle-check" />
         </span>
         <span
           class="
@@ -296,11 +297,11 @@ definePageMeta({
       </div>
       <UButton
         v-else
-        icon="i-heroicons-check-circle"
         :label="$t('pages.account.addresses.edit.main.button')"
-        class="gap-4"
         :trailing="true"
+        class="gap-4"
         color="primary"
+        icon="i-heroicons-check-circle"
         @click="onSetMain"
       />
     </div>
@@ -308,6 +309,7 @@ definePageMeta({
       <form
         v-if="address"
         id="AddressEditForm"
+        :action="`/api/v1/user/addresses/${address.id}`"
         class="
           bg-primary-100 flex flex-col gap-4 rounded-lg p-4
 
@@ -315,9 +317,8 @@ definePageMeta({
 
           md:grid md:grid-cols-3
         "
-        name="AddressEditForm"
-        :action="`/api/v1/user/addresses/${address.id}`"
         method="post"
+        name="AddressEditForm"
         @submit="onSubmit"
       >
         <div
@@ -340,6 +341,9 @@ definePageMeta({
               id="title"
               v-model="title"
               :bind="titleProps"
+              :placeholder="$t('pages.account.addresses.edit.form.title')"
+              :required="true"
+              autocomplete="honorific-prefix"
               class="
                 text-primary-950 mb-2
 
@@ -347,9 +351,6 @@ definePageMeta({
               "
               name="title"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.title')"
-              autocomplete="honorific-prefix"
-              :required="true"
             />
           </div>
           <span
@@ -377,11 +378,11 @@ definePageMeta({
               id="firstName"
               v-model="firstName"
               :bind="firstNameProps"
+              :placeholder="$t('pages.account.addresses.edit.form.first_name')"
+              :required="true"
+              autocomplete="given-name"
               name="firstName"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.first_name')"
-              autocomplete="given-name"
-              :required="true"
             />
           </div>
           <span
@@ -409,11 +410,11 @@ definePageMeta({
               id="lastName"
               v-model="lastName"
               :bind="lastNameProps"
+              :placeholder="$t('pages.account.addresses.edit.form.last_name')"
+              :required="true"
+              autocomplete="family-name"
               name="lastName"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.last_name')"
-              autocomplete="family-name"
-              :required="true"
             />
           </div>
           <span
@@ -441,11 +442,11 @@ definePageMeta({
               id="street"
               v-model="street"
               :bind="streetProps"
+              :placeholder="$t('pages.account.addresses.edit.form.street')"
+              :required="true"
+              autocomplete="street-address"
               name="street"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.street')"
-              autocomplete="street-address"
-              :required="true"
             />
           </div>
           <span
@@ -473,13 +474,13 @@ definePageMeta({
               id="streetNumber"
               v-model="streetNumber"
               :bind="streetNumberProps"
-              name="streetNumber"
-              type="text"
               :placeholder="
                 $t('pages.account.addresses.edit.form.street_number')
               "
-              autocomplete="street-address"
               :required="true"
+              autocomplete="street-address"
+              name="streetNumber"
+              type="text"
             />
           </div>
           <span
@@ -507,11 +508,11 @@ definePageMeta({
               id="city"
               v-model="city"
               :bind="cityProps"
+              :placeholder="$t('pages.account.addresses.edit.form.city')"
+              :required="true"
+              autocomplete="address-level2"
               name="city"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.city')"
-              autocomplete="address-level2"
-              :required="true"
             />
           </div>
           <span
@@ -539,11 +540,11 @@ definePageMeta({
               id="zipcode"
               v-model="zipcode"
               :bind="zipcodeProps"
+              :placeholder="$t('pages.account.addresses.edit.form.zipcode')"
+              :required="true"
+              autocomplete="postal-code"
               name="zipcode"
               type="text"
-              :placeholder="$t('pages.account.addresses.edit.form.zipcode')"
-              autocomplete="postal-code"
-              :required="true"
             />
           </div>
           <span
@@ -571,10 +572,10 @@ definePageMeta({
               id="phone"
               v-model="phone"
               :bind="phoneProps"
-              name="phone"
-              type="text"
               :placeholder="$t('pages.account.addresses.edit.form.phone')"
               autocomplete="tel"
+              name="phone"
+              type="text"
             />
           </div>
           <span
@@ -602,12 +603,12 @@ definePageMeta({
               id="mobilePhone"
               v-model="mobilePhone"
               :bind="mobilePhoneProps"
-              name="mobilePhone"
-              type="text"
               :placeholder="
                 $t('pages.account.addresses.edit.form.mobile_phone')
               "
               autocomplete="tel"
+              name="mobilePhone"
+              type="text"
             />
           </div>
           <span
@@ -635,13 +636,13 @@ definePageMeta({
             <VeeField
               id="floor"
               v-model="floor"
-              :bind="floorProps"
-              name="floor"
-              color="white"
               :as="USelect"
+              :bind="floorProps"
               :options="floorChoicesList"
-              option-attribute="name"
               :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+              color="white"
+              name="floor"
+              option-attribute="name"
             />
             <span
               v-if="errors.floor"
@@ -662,13 +663,13 @@ definePageMeta({
             <VeeField
               id="locationType"
               v-model="locationType"
-              v-bind="locationTypeProps"
-              name="locationType"
-              color="white"
               :as="USelect"
               :options="locationChoicesList"
-              option-attribute="name"
               :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+              color="white"
+              name="locationType"
+              option-attribute="name"
+              v-bind="locationTypeProps"
             />
             <span
               v-if="errors.locationType"
@@ -697,13 +698,13 @@ definePageMeta({
               <VeeField
                 id="country"
                 v-model="country"
-                v-bind="countryProps"
-                name="country"
-                color="white"
                 :as="USelect"
                 :options="countryOptions"
-                option-attribute="name"
                 :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                color="white"
+                name="country"
+                option-attribute="name"
+                v-bind="countryProps"
                 @change.capture="onCountryChange"
               />
             </div>
@@ -725,13 +726,13 @@ definePageMeta({
               <VeeField
                 id="region"
                 v-model="region"
-                v-bind="regionProps"
-                name="region"
-                color="white"
                 :as="USelect"
                 :options="regionOptions"
-                option-attribute="name"
                 :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+                color="white"
+                name="region"
+                option-attribute="name"
+                v-bind="regionProps"
               />
             </div>
             <span
@@ -761,19 +762,20 @@ definePageMeta({
               id="notes"
               v-model="notes"
               :as="UTextarea"
-              v-bind="notesProps"
-              name="notes"
-              color="primary"
-              type="text"
-              :rows="4"
               :placeholder="$t('pages.account.addresses.edit.form.notes')"
+              :rows="4"
+              color="primary"
+              name="notes"
+              type="text"
+              v-bind="notesProps"
             />
           </div>
         </div>
 
         <div class="col-span-2 col-start-3 grid items-end justify-end">
           <button
-            type="submit"
+            :aria-busy="isSubmitting"
+            :disabled="submitButtonDisabled"
             class="
               rounded bg-secondary px-4 py-2 font-bold text-primary-50
 
@@ -781,8 +783,7 @@ definePageMeta({
 
               disabled:cursor-not-allowed disabled:opacity-50
             "
-            :disabled="submitButtonDisabled"
-            :aria-busy="isSubmitting"
+            type="submit"
           >
             {{ $t('pages.account.addresses.edit.form.update') }}
           </button>

@@ -37,7 +37,7 @@ onClickOutside(el, () => {
       title="Close"
       @click="src = null"
     >
-      <IconFa6Solid:circleXmark />
+      <UIcon name="i-fa6-solid-circle-xmark" />
     </button>
     <iframe
       ref="el"

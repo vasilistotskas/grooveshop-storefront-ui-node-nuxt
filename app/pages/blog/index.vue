@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
 
-const config = useRuntimeConfig()
-const { t, locale } = useI18n()
+const { t } = useI18n()
+const localePath = useLocalePath()
 
 const seoMetaInput = {
   title: t('pages.blog.title'),
@@ -12,15 +12,12 @@ const seoMetaInput = {
 
 const links = computed(() => [
   {
-    to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
+    to: localePath('/'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to:
-      locale.value === config.public.defaultLocale
-        ? '/blog'
-        : `/${locale.value}/blog`,
+    to: localePath('/blog'),
     label: t('breadcrumb.items.blog.label'),
     current: true,
   },

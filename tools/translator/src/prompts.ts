@@ -4,16 +4,16 @@ import { validatePathAccess } from '~~/tools/translator/src/file-ops'
 import { FileExtensions, type LocaleOption } from '~~/tools/translator/src/types'
 
 export async function promptForInputFile(consola: ConsolaInstance) {
-  const inputFile = (await consola.prompt(
+  const inputFilePath = (await consola.prompt(
     'Enter the path to the input file: ',
     {
       type: 'text',
       placeholder: 'For example: ./locales/en-US.yml',
     },
   )) as unknown as string | symbol
-  if (typeof inputFile === 'symbol') process.exit(0)
+  if (typeof inputFilePath === 'symbol') process.exit(0)
 
-  const resolvedInputFile = path.resolve(process.cwd(), inputFile)
+  const resolvedInputFile = path.resolve(process.cwd(), inputFilePath)
   await validatePathAccess(resolvedInputFile, 'input file')
   return resolvedInputFile
 }

@@ -8,9 +8,9 @@ import { capitalize } from '~/utils/str'
 const { user, loggedIn } = useUserSession()
 
 const route = useRoute()
-const config = useRuntimeConfig()
 const { t, locale } = useI18n()
 const toast = useToast()
+const localePath = useLocalePath()
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
 const userStore = useUserStore()
@@ -22,6 +22,17 @@ const { data: product, refresh: refreshProduct } = await useFetch(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
+    method: 'GET',
+    query: {
+      language: locale.value,
+    },
+  },
+)
+
+const { data: tags } = await useLazyFetch(
+  `/api/products/${productId}/tags`,
+  {
+    key: `productTags${productId}`,
     method: 'GET',
     query: {
       language: locale.value,
@@ -143,22 +154,16 @@ const reviewButtonText = computed(() => {
 
 const links = computed(() => [
   {
-    to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
+    to: localePath('/'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to:
-      locale.value === config.public.defaultLocale
-        ? '/products'
-        : `/${locale.value}/products`,
+    to: localePath('/products'),
     label: t('breadcrumb.items.products.label'),
   },
   {
-    to:
-      locale.value === config.public.defaultLocale
-        ? `/products/${productId}/${product.value?.slug}`
-        : `/${locale.value}/products/${productId}/${product.value?.slug}`,
+    to: localePath(`/products/${productId}/${product.value?.slug}`),
     label: productTitle.value,
   },
 ])
@@ -249,8 +254,9 @@ definePageMeta({
               md:grid-cols-2
             "
           >
-            <div class="overflow-hidden">
+            <div class="grid gap-4 overflow-hidden">
               <ProductImages :product="product" />
+              <TagsList v-if="tags && tags.length > 0" :tags="tags" />
             </div>
             <div
               class="

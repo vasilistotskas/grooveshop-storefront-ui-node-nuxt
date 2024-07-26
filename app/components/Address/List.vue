@@ -14,6 +14,7 @@ const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
 
+const pending = ref(true)
 const pageSize = ref(8)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-isMain')
@@ -31,7 +32,7 @@ const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
   },
 ])
 
-const { data: addresses, pending } = await useFetch(
+const { data: addresses } = await useFetch(
   `/api/user/account/${user.value?.id}/addresses`,
   {
     method: 'GET',

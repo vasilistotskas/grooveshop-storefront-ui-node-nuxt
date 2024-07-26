@@ -12,6 +12,8 @@ defineProps({
 })
 
 const { isMobile, isTablet } = useDevice()
+const localePath = useLocalePath()
+
 const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
 const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
 </script>
@@ -60,7 +62,7 @@ const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
           {{ $t('pages.error.go.home') }}
         </p>
         <NuxtLink
-          to="/"
+          :to="localePath('/')"
           class="
             mt-2 block font-bold text-secondary
 
@@ -71,11 +73,11 @@ const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
         </NuxtLink>
         <div class="grid items-center justify-center">
           <LazyLottie
-            class="mt-6 grid"
             :animation-data="Json404"
-            :width="lottieWidth"
             :height="lottieHeight"
             :show-client-loading-animation="false"
+            :width="lottieWidth"
+            class="mt-6 grid"
           />
         </div>
       </div>

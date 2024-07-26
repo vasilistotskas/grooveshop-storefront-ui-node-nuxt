@@ -10,15 +10,11 @@ defineProps({
     required: false,
     default: '',
   },
-  icon: {
-    type: Object,
-    required: false,
-    default: null,
-  },
 })
 
 defineSlots<{
   actions(props: object): any
+  icon(props: object): any
 }>()
 </script>
 
@@ -33,12 +29,7 @@ defineSlots<{
       md:p-8
     "
   >
-    <div
-      v-if="icon"
-      class="empty-state-icon"
-    >
-      <Component :is="icon" />
-    </div>
+    <slot name="icon" />
     <div class="empty-state-title text-xl font-semibold">
       {{ $t(title) }}
     </div>

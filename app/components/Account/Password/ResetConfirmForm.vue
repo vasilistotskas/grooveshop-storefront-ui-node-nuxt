@@ -8,6 +8,7 @@ const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
 const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const key = String(route.params.key)
 
@@ -65,7 +66,7 @@ const onSubmit = handleSubmit(async (values) => {
           title: t('common.password.reset.success'),
           color: 'green',
         })
-        return navigateTo('/account/login')
+        return navigateTo(localePath('/account/login'))
       }
       const errors = 'errors' in error.data.data ? error.data.data.errors : []
       errors.forEach((error) => {

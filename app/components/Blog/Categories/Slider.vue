@@ -11,6 +11,7 @@ const { locale } = useI18n()
 const { resolveImageSrc } = useImageResolver()
 const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
+const localePath = useLocalePath()
 
 const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
   key: `blogCategories`,
@@ -38,7 +39,7 @@ const carouselUiItemBasis = computed(() => {
   >
     <UButton
       :label="contentShorten(extractTranslated(item, 'name', locale), 0, 6)"
-      :to="`/blog/category/${item?.id}/${item?.slug}`"
+      :to="localePath(`/blog/category/${item?.id}/${item?.slug}`)"
       :ui="{
         rounded: 'rounded-lg',
         color: {

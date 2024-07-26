@@ -78,7 +78,7 @@ const refreshLikedComments = async (ids: number[]) => {
 
 const {
   data: comments,
-  pending,
+  status,
   refresh,
 } = await useAsyncData(`comments${blogPostId.value}`, () =>
   $fetch(`/api/blog/posts/${blogPostId.value}/comments`, {
@@ -104,7 +104,7 @@ const showResults = computed(() => {
   if (paginationType.value === 'cursor') {
     return allComments.value.length
   }
-  return !pending.value && allComments.value.length
+  return status.value !== 'pending' && allComments.value.length
 })
 
 const loggedInAndHasComments = computed(() => {
@@ -338,7 +338,7 @@ onMounted(() => {
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POST_COMMENTS"
       :links="pagination.links"
-      :loading="pending"
+      :loading="status === 'pending'"
       :page="pagination.page"
       :page-size="pagination.pageSize"
       :page-total-results="pagination.pageTotalResults"

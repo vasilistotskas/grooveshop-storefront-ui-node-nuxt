@@ -149,7 +149,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
           type="button"
           @click="deleteCartItemEvent({ cartItemId: cartItem.id })"
         >
-          <IconFaSolid:trash />
+          <UIcon name="i-fa6-solid-trash" />
         </button>
       </div>
     </div>

@@ -37,25 +37,26 @@ export default defineNuxtPlugin({
       () => [authEvent.value, authState.value],
       async ([newVal, _oldVal]) => {
         const auth = authState.value
+        const localePath = useLocalePath()
 
         switch (newVal) {
           case AuthChangeEvent.LOGGED_OUT:
             await clear()
             return nuxtApp.runWithContext(() => navigateTo({
-              path: URLs.LOGOUT_REDIRECT_URL,
+              path: localePath(URLs.LOGOUT_REDIRECT_URL),
             }))
           case AuthChangeEvent.LOGGED_IN: {
             const route = useRouter().currentRoute.value
             const returnToPath = route.query.next?.toString()
             const isRedirectingToLogin = returnToPath === '/account/login'
             const redirectTo = isRedirectingToLogin ? URLs.LOGIN_REDIRECT_URL : returnToPath || URLs.LOGIN_REDIRECT_URL
-            return nuxtApp.runWithContext(() => navigateTo(redirectTo))
+            return nuxtApp.runWithContext(() => navigateTo(localePath(redirectTo)))
           }
           case AuthChangeEvent.REAUTHENTICATED: {
             const router = useRouter()
             const next = router.currentRoute.value.query.next
             if (next) {
-              return nuxtApp.runWithContext(() => navigateTo(next as string))
+              return nuxtApp.runWithContext(() => navigateTo(localePath(next as string)))
             }
             break
           }
@@ -67,7 +68,7 @@ export default defineNuxtPlugin({
               if (flowId) {
                 const path = pathForFlow(flowId)
                 return nuxtApp.runWithContext(() => navigateTo({
-                  path,
+                  path: localePath(path),
                   query: {
                     next,
                   },

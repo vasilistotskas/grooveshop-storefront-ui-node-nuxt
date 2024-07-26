@@ -17,6 +17,7 @@ const { cleanCartState } = cartStore
 
 const { t, locale } = useI18n()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
@@ -209,7 +210,7 @@ const onSubmit = handleSubmit(async (values) => {
       })
       cleanCartState()
       await fetch()
-      await navigateTo(`/checkout/success/${response._data.uuid}`)
+      await navigateTo(localePath(`/checkout/success/${response._data.uuid}`))
     },
     onResponseError({ error }) {
       toast.add({

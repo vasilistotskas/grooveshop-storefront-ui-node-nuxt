@@ -4,12 +4,12 @@ import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering } from '~/types/ordering'
 import { PaginationTypeEnum } from '~/types'
 
-const config = useRuntimeConfig()
 const { locale, t } = useI18n()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const { resolveImageSrc } = useImageResolver()
 const img = useImage()
+const localePath = useLocalePath()
 
 const paginationType = PaginationTypeEnum.PAGE_NUMBER
 const categoryId = route.params.id
@@ -99,15 +99,12 @@ const ogImage = computed(() => {
 
 const links = computed(() => [
   {
-    to: locale.value === config.public.defaultLocale ? '/' : `/${locale.value}`,
+    to: localePath('/'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to:
-      locale.value === config.public.defaultLocale
-        ? route.fullPath
-        : `/${locale.value}${route.fullPath}`,
+    to: localePath(route.fullPath),
     label: categoryTitle.value || '',
     current: true,
   },

@@ -1,17 +1,9 @@
-import type { FunctionalComponent, SVGAttributes } from 'vue'
-import settingsIcon from '~icons/mdi/cog-outline'
-import favouritesIcon from '~icons/mdi/heart-outline'
-import helpIcon from '~icons/mdi/help-circle-outline'
-import ordersIcon from '~icons/mdi/package-variant-closed'
-import reviewsIcon from '~icons/mdi/star-outline'
-import addressesIcon from '~icons/fa6-solid/address-book'
-
 interface IMenuItem {
   type: 'link' | 'button' | 'external-link'
   text: string
   href?: string
   route?: { name: string, path: string }
-  icon?: FunctionalComponent<SVGAttributes>
+  icon?: string
   cssClass?: string
 }
 
@@ -25,7 +17,7 @@ export const useAccountMenus = () => {
         name: 'account-favourites-posts',
         path: '/account/favourites/posts',
       },
-      icon: favouritesIcon,
+      icon: 'i-mdi-heart-outline',
       cssClass:
         'text-primary-950 dark:text-primary-50 bg-primary-100 border-primary-500 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
     },
@@ -33,7 +25,7 @@ export const useAccountMenus = () => {
       type: 'link',
       text: t('pages.account.settings.title'),
       route: { name: 'account-settings', path: '/account/settings' },
-      icon: settingsIcon,
+      icon: 'i-mdi-cog-outline',
       cssClass:
         'text-primary-950 dark:text-primary-50 bg-primary-100 border-primary-500 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
     },
@@ -45,7 +37,7 @@ export const useAccountMenus = () => {
         type: 'link',
         text: t('pages.account.addresses.title'),
         route: { name: 'account-addresses', path: '/account/addresses' },
-        icon: addressesIcon,
+        icon: 'i-fa6-solid-address-book',
         cssClass:
           'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
       },
@@ -53,7 +45,7 @@ export const useAccountMenus = () => {
         type: 'link',
         text: t('pages.account.orders.title'),
         route: { name: 'account-orders', path: '/account/orders' },
-        icon: ordersIcon,
+        icon: 'i-mdi-package-variant-closed',
         cssClass:
           'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
       },
@@ -61,7 +53,7 @@ export const useAccountMenus = () => {
         type: 'link',
         text: t('pages.account.reviews.title'),
         route: { name: 'account-reviews', path: '/account/reviews' },
-        icon: reviewsIcon,
+        icon: 'i-mdi-star-outline',
         cssClass:
           'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
       },
@@ -69,7 +61,7 @@ export const useAccountMenus = () => {
         type: 'link',
         text: t('pages.account.help.title'),
         route: { name: 'account-help', path: '/account/help' },
-        icon: helpIcon,
+        icon: 'i-mdi-help-circle-outline',
         cssClass:
           'text-primary-950 dark:text-primary-50 bg-primary-100 border-gray-200 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
       },

@@ -20,6 +20,7 @@ const { order, maxItems } = toRefs(props)
 const { locale } = useI18n()
 const { contentShorten } = useText()
 const { statusClass } = useOrder()
+const localePath = useLocalePath()
 </script>
 
 <template>
@@ -84,8 +85,8 @@ const { statusClass } = useOrder()
         <span :class="statusClass(order).color">
           {{ order.status }}
         </span>
-        <Component
-          :is="statusClass(order).icon"
+        <UIcon
+          :name="statusClass(order).icon"
           :class="statusClass(order).color"
         />
       </div>
@@ -165,7 +166,7 @@ const { statusClass } = useOrder()
       <div class="order-card-footer-item">
         <UButton
           :label="$t('components.order.card.actions.details')"
-          :to="`/account/orders/${order.id}`"
+          :to="localePath(`/account/orders/${order.id}`)"
           class="
             py-1.25 w-full text-sm
 

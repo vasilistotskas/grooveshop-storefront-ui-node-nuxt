@@ -43,7 +43,7 @@ const validateOutputExtension = (extension?: FileExtensions) => {
 }
 
 const validateArgs = (args: any) => {
-  validateInputFile(args.inputFile)
+  validateInputFile(args.inputFilePath)
   validateConfigPath(args.configPath)
   validateSelectedLocales(args.selectedLocales)
   validateOutputExtension(args.outputExtension)
@@ -62,7 +62,7 @@ const main = defineCommand({
       required: false,
       default: process.cwd(),
     },
-    inputFile: {
+    inputFilePath: {
       type: 'string',
       description: 'Path to the input file',
       required: false,
@@ -91,13 +91,13 @@ const main = defineCommand({
         level: _config.debug?.mode === 'silent' ? 0 : 3,
       })
 
-      if (args.inputFile && args.selectedLocales && args.outputExtension) {
+      if (args.inputFilePath && args.selectedLocales && args.outputExtension) {
         const selectedLocales = args.selectedLocales.split(',')
         const outputExtension = args.outputExtension as FileExtensions
         await mainArgs(
           _config,
           _consola,
-          args.inputFile,
+          args.inputFilePath,
           selectedLocales,
           outputExtension,
         )

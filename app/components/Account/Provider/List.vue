@@ -40,8 +40,10 @@ const loginWithProvider = async (provider: string) => {
         @click="loginWithProvider(provider.id)"
       >
         <template #leading>
-          <IconMdi:google
-            v-if="provider.id === 'google'" class="text-xl text-primary-50"
+          <UIcon
+            v-if="provider.id === 'google'" name="i-mdi-google" class="
+              text-xl text-primary-50
+            "
           />
         </template>
       </UButton>

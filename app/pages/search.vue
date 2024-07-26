@@ -150,7 +150,7 @@ definePageMeta({
             "
           >
             <Anchor
-              :to="'index'"
+              :to="'/'"
               aria-label="index"
               class="
                 back-to-home text-md text-primary-950 flex items-center gap-3
@@ -164,8 +164,8 @@ definePageMeta({
               <span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
               <UIcon name="i-heroicons-arrow-left" />
             </Anchor>
-            <IconFa6Solid:magnifyingGlass
-              class="
+            <UIcon
+              name="i-fa-solid-magnifying-glass" class="
                 text-lg
 
                 md:text-base
@@ -253,7 +253,9 @@ definePageMeta({
                         class="flex items-center gap-3"
                         @click="() => { currentSearch = suggestion; isSuggestionsOpen = false; }"
                       >
-                        <IconFa6Solid:clockRotateLeft class="text-sm" />
+                        <UIcon
+                          name="i-fa6-solid-clock-rotate-left" class="text-sm"
+                        />
                         <span
                           class="
                             text-primary-950 truncate text-sm
@@ -290,7 +292,7 @@ definePageMeta({
                       class="flex items-center gap-3"
                       @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
                     >
-                      <IconFa6Solid:magnifyingGlass class="text-sm" />
+                      <UIcon name="i-fa6-solid-magnifying-glass" class="text-sm" />
                       <span
                         class="
                           text-primary-950 truncate text-sm
@@ -317,7 +319,7 @@ definePageMeta({
                       class="flex items-center gap-3"
                       @click="() => { currentSearch = cleanHtml(headline); isSuggestionsOpen = false; }"
                     >
-                      <IconFa6Solid:magnifyingGlass class="text-sm" />
+                      <UIcon name="i-fa6-solid-magnifying-glass" class="text-sm" />
                       <span
                         class="
                           text-primary-950 truncate text-sm

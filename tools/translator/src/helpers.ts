@@ -1,11 +1,13 @@
 import path from 'path'
 import type { LocaleFile } from '~~/tools/translator/src/types'
 
-export const getISO6391Code = (locale: string): string => {
-  if (!locale) {
-    return ''
-  }
-  const primaryLanguageCode = locale.split(/[-_]/)[0]
+export const getISO6391Code = (path: string): string => {
+  const fileName = path.split('/').pop()
+  if (!fileName) return ''
+
+  const localePart = fileName.split('.')[0]
+  const primaryLanguageCode = localePart?.split(/[-_]/)[0]
+
   if (primaryLanguageCode && primaryLanguageCode.length === 2) {
     return primaryLanguageCode.toLowerCase()
   }

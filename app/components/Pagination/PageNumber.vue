@@ -31,6 +31,7 @@ const props = defineProps({
 
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+const localePath = useLocalePath()
 const { count } = toRefs(props)
 
 const currentPage = ref(props.page)
@@ -42,7 +43,7 @@ watch(
   () => currentPage.value,
   async () => {
     await navigateTo({
-      path: route.path,
+      path: localePath(route.path),
       query: {
         page: currentPage.value,
         ordering: route.query?.ordering,

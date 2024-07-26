@@ -13,6 +13,7 @@ const { data: order } = await useFetch(`/api/orders/${orderId}`, {
 
 const { statusClass } = useOrder()
 const { resolveImageSrc } = useImageResolver()
+const localePath = useLocalePath()
 
 definePageMeta({
   layout: 'user',
@@ -33,7 +34,7 @@ definePageMeta({
     >
       <div class="grid grid-cols-auto-1fr items-center gap-4">
         <UButton
-          :to="'/account/orders'"
+          :to="localePath('/account/orders')"
           :trailing="true"
           color="primary"
           icon="i-heroicons-arrow-left"
@@ -70,8 +71,8 @@ definePageMeta({
             <span :class="statusClass(order).color">
               {{ order.status }}
             </span>
-            <Component
-              :is="statusClass(order).icon"
+            <UIcon
+              :name="statusClass(order).icon"
               :class="statusClass(order).color"
             />
           </div>

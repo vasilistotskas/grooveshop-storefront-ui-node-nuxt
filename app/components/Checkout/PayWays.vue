@@ -9,7 +9,7 @@ const { locale } = useI18n()
 
 const emit = defineEmits(['update-model'])
 
-const { data: payWays, pending } = await useAsyncData('payWays', () =>
+const { data: payWays, status } = await useAsyncData('payWays', () =>
   $fetch('/api/pay-way', {
     method: 'GET',
     language: locale.value,
@@ -46,7 +46,7 @@ watch(selectedPayWay, (value) => {
 <template>
   <div class="grid gap-4">
     <URadioGroup
-      v-if="!pending && payWays?.results?.length"
+      v-if="status !== 'pending' && payWays?.results?.length"
       v-model="selectedPayWay"
       :legend="$t('components.checkout.pay_ways.title')"
       :options="options"

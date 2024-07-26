@@ -5,6 +5,8 @@ const {
   providerToken,
 } = useAllAuthAuthentication()
 const route = useRoute()
+const localePath = useLocalePath()
+
 const { error: apiError, provider, access_token, id_token, client_id, process } = route.query
 
 const { t } = useI18n()
@@ -24,7 +26,7 @@ const title = computed(() => {
 onMounted(async () => {
   if (authStatus.isAuthenticated) {
     url.value = URLs.LOGIN_REDIRECT_URL
-    await navigateTo(url.value)
+    await navigateTo(localePath(url.value))
   }
 
   if (apiError) {
@@ -107,7 +109,7 @@ definePageMeta({
       </p>
       <UButton
         :label="$t('common.continue')"
-        :to="url"
+        :to="localePath(url)"
         class="justify-center"
         color="primary"
         size="xl"

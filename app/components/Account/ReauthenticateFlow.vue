@@ -15,6 +15,7 @@ const { flow } = toRefs(props)
 
 const route = useRoute()
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
 const flows = computed(() => {
@@ -29,7 +30,7 @@ if (!flows.value.find(f => f.id === flow.value)) {
   if (flows.value.some(f => f.is_pending)) {
     const pending_flow = flows.value.find(f => f.is_pending)
     if (pending_flow) {
-      navigateTo(pathForFlow(pending_flow.id))
+      navigateTo(localePath(pathForFlow(pending_flow.id)))
     }
   }
 }
@@ -94,7 +95,7 @@ const toReauthenticatePath = (flowId: Flow['id']) => {
           <UButton
             v-if="flow"
             :label="flowLabels[f.id] || flow"
-            :to="toReauthenticatePath(f.id)"
+            :to="localePath(toReauthenticatePath(f.id))"
             class="p-0"
             color="primary"
             icon="i-heroicons-arrow-right"

@@ -2,7 +2,6 @@
 import type { EntityOrdering } from '~/types/ordering'
 import type { Product, ProductOrderingField } from '~/types/product/product'
 
-import emptyIcon from '~icons/mdi/package-variant-remove'
 import { type PaginationType, PaginationTypeEnum } from '~/types'
 
 const props = defineProps({
@@ -127,14 +126,14 @@ watch(
     <div class="flex flex-row flex-wrap items-center gap-2">
       <Pagination
         v-if="pagination"
-        :pagination-type="paginationType"
         :count="pagination.count"
-        :total-pages="pagination.totalPages"
-        :page-total-results="pagination.pageTotalResults"
-        :page-size="pagination.pageSize"
-        :page="pagination.page"
         :links="pagination.links"
         :loading="status === 'pending'"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
+        :page-total-results="pagination.pageTotalResults"
+        :pagination-type="paginationType"
+        :total-pages="pagination.totalPages"
       />
       <Ordering
         :ordering="String(ordering)"
@@ -142,19 +141,19 @@ watch(
       />
     </div>
     <ol
-      class="grid grid-cols-1 justify-center gap-4"
       :class="{
         'items-center lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4':
           status === 'pending' || products?.results?.length,
         'items-start': !(status === 'pending') && !products?.results?.length,
       }"
+      class="grid grid-cols-1 justify-center gap-4"
     >
       <template v-if="!(status === 'pending') && products?.results?.length">
         <ProductCard
           v-for="(product, index) in products?.results"
           :key="index"
-          :product="product"
           :img-loading="index > 7 ? 'lazy' : 'eager'"
+          :product="product"
         />
       </template>
       <template v-if="status === 'pending'">
@@ -165,18 +164,6 @@ watch(
           width="100%"
         />
       </template>
-      <EmptyState
-        v-if="!(status === 'pending') && !products?.results?.length"
-        :icon="emptyIcon"
-      >
-        <template #actions>
-          <UButton
-            :label="$t('common.empty.button')"
-            :to="'index'"
-            color="primary"
-          />
-        </template>
-      </EmptyState>
     </ol>
   </div>
 </template>

@@ -6,6 +6,7 @@ import { readFileContents, writeFileContents } from '~~/tools/translator/src/fil
 import type { TranslatorConfig } from '~~/tools/translator/src/config'
 
 export const translateBundle = async (
+  inputFilePath: string,
   inputBundle: Record<string, unknown>,
   locale: LocaleFile,
   engine: TranslateEngine = 'google',
@@ -15,13 +16,15 @@ export const translateBundle = async (
 ): Promise<Record<string, unknown>> => {
   const outputBundle: Record<string, unknown> = {}
 
+  const inputLangCode = getISO6391Code(inputFilePath)
+
   const translateAndValidate = async (
     text: string,
     langCode: string,
   ): Promise<string> => {
     try {
-      const translator = Translate({ engine })
-      const translatedText = await translator(text, { to: langCode })
+      const translator = Translate({ engine, from: inputLangCode, to: langCode })
+      const translatedText = await translator(text, { from: inputLangCode, to: langCode })
 
       if (text.includes('%{') && !validateDynamicKeys(text, translatedText)) {
         console.warn(
@@ -123,7 +126,7 @@ export const reconstructNestedObject = (
 
 export async function translateLocaleFile(
   locale: LocaleFile,
-  input: string,
+  inputFilePath: string,
   inputFileExtension: FileExtensions,
   outputExtension: FileExtensions = inputFileExtension,
   engine: TranslateEngine = 'google',
@@ -131,9 +134,10 @@ export async function translateLocaleFile(
   delay: number = 1000,
 ): Promise<Record<string, unknown> | null> {
   const startTime = Date.now()
-  const inputBundle = await readFileContents(input, inputFileExtension)
+  const inputBundle = await readFileContents(inputFilePath, inputFileExtension)
 
   const translated = await translateBundle(
+    inputFilePath,
     inputBundle,
     locale,
     engine,
@@ -152,7 +156,7 @@ export async function translateLocaleFile(
 }
 
 export async function executeTranslations(
-  input: string,
+  inputFilePath: string,
   localesToTranslate: LocaleFile[],
   config: TranslatorConfig,
   inputFileExtension: FileExtensions,
@@ -161,7 +165,7 @@ export async function executeTranslations(
   const translationPromises = localesToTranslate.map(locale =>
     translateLocaleFile(
       locale,
-      input,
+      inputFilePath,
       inputFileExtension,
       outputExtension,
       config.translate?.engine,

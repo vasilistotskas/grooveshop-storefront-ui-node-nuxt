@@ -1,0 +1,286 @@
+common:
+  validation:
+    min: Das Feld muss mindestens %{min} Zeichen lang sein
+    max: Das Feld darf höchstens %{max} Zeichen lang sein
+    required: Requisit
+    tooManyAttempts: Viele Bemühungen
+    passwords_not_same: Die Codes stimmen nicht überein
+    must_not_be_same: Feld darf nicht mit %{field} identisch sein
+    must_match: Feld %{field} muss mit Feld %{other} übereinstimmen
+    password:
+      must_not_be_same: Der neue Code darf nicht mit dem aktuellen übereinstimmen
+    email:
+      required: E-Mail ist erforderlich
+      valid: Email muss gültig sein
+      invalid: Die E-Mail ist ungültig
+    first_name:
+      required: Name erforderlich
+      min: Der Name muss mindestens %{min} Zeichen lang sein
+    last_name:
+      required: Nachname ist erforderlich
+      min: Der Nachname muss mindestens %{min} Zeichen lang sein
+    street:
+      required: Straße erforderlich
+      min: Der Pfad muss mindestens %{min} Zeichen lang sein
+    street_number:
+      required: Hausnummer erforderlich
+      min: Die Straßennummer muss mindestens %{min} Zeichen lang sein
+    zipcode:
+      required: Postleitzahl erforderlich
+      min: Die Postleitzahl muss mindestens %{min} Zeichen lang sein
+    place:
+      required: Der Bereich ist wichtig
+      min: Der Teil muss mindestens %{min} Zeichen lang sein
+    city:
+      required: Die Stadt ist wichtig
+      min: Die Stadt muss mindestens %{min} Zeichen lang sein
+    phone:
+      required: Telefon erforderlich
+      min: Die Telefonnummer muss mindestens %{min} Zeichen lang sein
+    date:
+      required_error: Wählen Sie Datum und Uhrzeit aus
+      invalid_type_error: Es ist kein Date!
+    country:
+      required: Land erforderlich
+    region:
+      required: Region erforderlich
+  home: Heim
+  close: Schließung
+  name: Name
+  continue: Kontinuität
+  display: Aussehen
+  uid: UID
+  connect: Verbindung
+  code: Code
+  disconnect: Ausloggen
+  regenerate: Erholung
+  confirm: Bestätigung
+  view: Projektion
+  set:
+    title: Speichern
+  used: Gebraucht
+  deactivate: Deaktivierung
+  confirm_access: Zugriffsbestätigung
+  reauthenticate: Rezertifizierung.
+  alternative_options: Alternative Optionen
+  two_factor:
+    authentication: Zwei-Faktor-Authentifizierung (2FA)
+    activate: Aktivieren Sie 2FA
+    deactivate: Deaktivieren Sie 2FA
+    recovery_codes:
+      title: Wiederherstellungscodes
+      generate: Generieren von Wiederherstellungscodes
+  social_accounts: Soziale Konten
+  sessions: Sitzungen
+  activate: Aktivierung
+  download_codes: Laden Sie die Codes herunter
+  generate: Schaffung
+  ip_address: IP Adresse
+  user_agent: Browser
+  is_current: Es ist aktuell
+  logout_all_other_sessions: Trennen Sie die Verbindung zu allen anderen Geräten
+  enter_authenticator_code: Geben Sie Ihren Multi-Faktor-Code ein
+  authenticator_code: Multifaktor-Code
+  authenticator_secret: Multifaktor-Geheimnis
+  authenticator_secret_description: >-
+    Sie können dieses Geheimnis speichern und es verwenden, um die
+    Multi-Faktor-App zu einem späteren Zeitpunkt erneut zu installieren.
+  username:
+    title: Nutzername
+  password:
+    title: Code
+    change: Kennwort ändern
+    current: Aktueller Code
+    new: Neues Kennwort
+    confirm: Bestätige das Passwort
+    reset:
+      request:
+        success: Eine E-Mail zum Zurücksetzen des Passworts wurde an Sie gesendet
+      success: Das Zurücksetzen des Passworts wurde erfolgreich abgeschlossen
+  codes:
+    generated: Codes wurden generiert
+  success:
+    title: Erfolg
+    logged_in: Sie haben sich erfolgreich angemeldet
+  email:
+    added: E-Mail hinzugefügt, muss jedoch bestätigt werden
+    removed: E-Mail wurde entfernt
+    title: Email
+    add: E-Mail hinzufügen
+    mark_as_primary: Als Master festlegen
+    remove: E-Mail entfernen
+    request_verification: Verifizierungsanfrage
+    verification:
+      requested: Eine Bestätigungs-E-Mail wurde an Sie gesendet
+      too_many_requests: Mehrere Verifizierungsanfragen
+      marked_as_primary: Eine Bestätigungs-E-Mail wurde an Sie gesendet
+  verified: Verifiziert
+  primary: Hauptsächlich
+  actions: Aktionen
+  message: Nachricht
+  copied: Kopiert
+  auth:
+    login:
+      success: Anmeldung erfolgreich
+      error: Verbindungsfehler
+      loading: Wird geladen...
+    password:
+      change:
+        success: das Passwort wurde erfolgreich geändert
+    signup:
+      success: Registrierung erfolgreich abgeschlossen
+      error:
+        title: Registrierungsfehler
+        action1: Bestätigung erneut senden
+        verify_email: Eine Bestätigungs-E-Mail wurde an Sie gesendet
+    pending:
+      mfa_authenticate: Sie müssen Ihr Konto verifizieren
+    mfa:
+      required: Die Multi-Faktor-Verifizierung muss aktiviert sein
+    providers:
+      empty: Sie sind mit keinem Anbieter verbunden
+    email:
+      verify: E-Mail-Verifizierung
+      verified: E-Mail wurde bestätigt
+    error:
+      session:
+        expired: Deine Sitzung ist abgelaufen
+  learn_more: Lern mehr
+  copy: Kopieren
+  enabled: aktiviert
+  disabled: Deaktiviert
+  read_less: Lese weniger
+  read_more: Mehr lesen
+  choose: Wählen...
+  floor: Boden
+  location_type: Standorttyp
+  phone: Telefon
+  mobile_phone: Mobiltelefon
+  notes: Anmerkungen
+  back: Zurück
+  account: Konto
+  or:
+    title: Die
+  search:
+    title: suchen
+    clear_history: Klare Geschichte
+    clear_all: Alles löschen
+    recent: Aktuelle Suchanfragen
+  favourites: Favoriten
+  retry: Versuchen Sie es erneut
+  items:
+    count: Kein Objekt | 1 Artikel | %{count} Artikel
+  client:
+    only:
+      fallback: Nur für Clientseite
+  unknown:
+    error: Unbekannter Fehler
+  error:
+    default: Fehler
+    page:
+      not:
+        found: Seite nicht gefunden
+  errors:
+    unknown_internal_api_error: Unbekannter interner API-Fehler
+  shop: Speichern
+  cookies: Kekse
+  share: Aktie
+  comments:
+    count: Keine Kommentare | 1 Kommentar | %{count} Kommentare
+  next: Nächste
+  previous: Vorherige
+  login: Verbindung
+  logged_in: Sie sind verbunden
+  signup: Melden Sie sich an
+  verify_email: E-Mail-Verifizierung
+  provider_redirect: Anbieterumleitung
+  provider_signup: Anbieterregistrierung
+  provider_token: Anbietercode
+  mfa_authenticate: Multi-Faktor-Verifizierung
+  mfa_reauthenticate: Multi-Faktor-Verifizierung
+  login_by_code: Melde dich mit einem Passwort an
+  logout: Ausloggen
+  logged_out: Sie sind abgemeldet
+  enter_password: Geben Sie Ihr Passwort ein
+  about:
+    us: Über uns
+    site: Was ist eine Website?
+  vision: Vision
+  blog: Blog
+  company: Unternehmen
+  help_center: Hilfezentrum
+  discord_server: Zwietracht
+  contact: Kontakt
+  microlearning:
+    title: Mikrolernen
+    what: Was ist Mikrolernen?
+    why: Warum Mikrolernen
+  contact_us: Kontakt
+  terms_and_policies: Bedingungen und Richtlinien
+  twitter: X
+  instagram: Instagram
+  facebook: Facebook
+  reddit: Reddit
+  pinterest: Pinterest
+  tiktok: Tick ​​Tack
+  youtube: Youtube
+  all_rights_reserved: Alle Rechte vorbehalten
+  privacy_policy: Datenschutzrichtlinie
+  terms_conditions: Geschäftsbedingungen
+  term_of_use: Nutzungsbedingungen
+  cookies_policy: Cookie-Richtlinie
+  save: Speichern
+  edit: wird bearbeitet
+  empty:
+    title: Leer
+    description: Es liegen keine Ergebnisse vor
+    button: Nach Hause zurückkehren
+  version: Ausführung
+  upload: Hochladen
+  tags: Etiketten
+  categories: Kategorien
+  no_categories_found: Keine Kategorien gefunden
+  demo:
+    message: Dies ist eine Demo-Site, die nur zu Anzeigezwecken dient.
+  change:
+    title: Ändern
+    language: Sprache ändern
+  filters:
+    title: Filter
+    clear: Klar
+    apply: Anwenden
+  ordering:
+    created_at: Erstelldatum
+  like: Wie
+  unlike: Anders
+  reply: Antwort
+  decrement: Die Ermäßigung
+  increment: Zunahme
+  load:
+    more: Mehr
+  loading: Wird geladen...
+  more:
+    replies: Es gibt keine Antworten | 1 Antwort | %{count} Antworten
+  hide:
+    replies: Verstecken
+  register: Melden Sie sich an
+  first: Erste
+  last: Letzter
+  prev: Vorherige
+  settings: Einstellungen
+  signed_in_as: Email
+  security: Sicherheit
+  theme: Thema
+  entry: Eintrag
+  submit: Vorlage
+  reset: Zurücksetzen
+  clear: Reinigung
+  menu: Speisekarte
+  title: Titel
+  created_at: Erstelldatum
+  last_used_at: Letzte Verwendung
+  type: Typ
+  total_code_count: Gesamtzahl der Codes
+  unused_code_count: Ungenutzte Anzahl von Codes
+  add:
+    email: E-Mail hinzufügen

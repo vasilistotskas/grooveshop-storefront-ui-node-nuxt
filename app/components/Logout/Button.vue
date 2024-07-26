@@ -25,10 +25,11 @@ const { cleanCartState, refreshCart } = cartStore
 
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
+const localePath = useLocalePath()
 
 const onClickLogout = async () => {
   if (isRouteProtected(route.path))
-    await navigateTo('/')
+    await navigateTo(localePath('/'))
 
   await deleteSession()
 

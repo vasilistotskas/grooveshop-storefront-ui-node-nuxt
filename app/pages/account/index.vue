@@ -47,8 +47,8 @@ definePageMeta({
               :to="item.route ? item.route : undefined"
               :text="item.text"
             >
-              <Component
-                :is="item.icon"
+              <UIcon
+                :name="item.icon"
                 class="
                   text-2xl
 

@@ -9,6 +9,7 @@ const { hasCurrentPassword } = storeToRefs(authStore)
 
 const { t } = useI18n()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const onSubmit = async (values: PasswordChangeBody) => {
   const body = {
@@ -21,7 +22,7 @@ const onSubmit = async (values: PasswordChangeBody) => {
         title: t('common.auth.password.change.success'),
         color: 'green',
       })
-      await navigateTo('/account')
+      await navigateTo(localePath('/account'))
     })
     .catch((error) => {
       toast.add({

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const router = useRouter()
 const { locale } = useI18n()
+const localePath = useLocalePath()
 
 const productId = computed(() => router.currentRoute.value.params.id as string)
 
@@ -43,7 +44,7 @@ definePageMeta({
           class="mb-4 w-full"
           color="primary"
           :label="$t('common.back')"
-          :to="`/products${product.absoluteUrl}`"
+          :to="localePath(`/products${product.absoluteUrl}`)"
           size="xl"
         />
       </div>
