@@ -501,7 +501,7 @@ export default defineNuxtConfig({
     ],
   },
   robots: {
-    disallow: ['/account'],
+    disallow: [],
   },
   htmlValidator: {
     usePrettier: false,
