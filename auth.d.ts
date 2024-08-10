@@ -3,6 +3,7 @@ import type { Authenticated, AuthenticationMeta } from '~/types/all-auth'
 
 declare module '#auth-utils' {
   interface User extends UserAccount {
+    _dummy?: string
   }
 
   interface UserSession {
@@ -20,6 +21,8 @@ declare module '#auth-utils' {
   export interface UserSessionComposable {
     loggedIn: ComputedRef<boolean>
     user: ComputedRef<User | null>
+    sessionToken: ComputedRef<string | null>
+    accessToken: ComputedRef<string | null>
     session: Ref<UserSession>
     fetch: () => Promise<void>
     clear: () => Promise<void>

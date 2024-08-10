@@ -576,6 +576,7 @@ watch(
       :id="'reply-comment-form-' + comment.id"
       :button-label="t('common.submit')"
       :schema="replyCommentFormSchema"
+      :turnstile="false"
       :submit-button-ui="{
         type: 'submit',
         size: '2xs',

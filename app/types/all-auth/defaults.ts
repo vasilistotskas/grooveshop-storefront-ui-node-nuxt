@@ -146,6 +146,7 @@ export const AuthChangeEvent = Object.freeze({
 export const AuthenticatorType = {
   TOTP: 'totp',
   RECOVERY_CODES: 'recovery_codes',
+  WEBAUTHN: 'webauthn',
 } as const
 
 export type Session = z.infer<typeof ZodSession>

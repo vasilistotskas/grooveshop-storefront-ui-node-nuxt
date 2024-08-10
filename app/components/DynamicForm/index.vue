@@ -31,6 +31,7 @@ const props = withDefaults(
     loading?: boolean
     maxSubmitCount?: number
     resetOnSubmit?: boolean
+    turnstileEnable?: boolean
   }>(),
   {
     id: undefined,
@@ -57,6 +58,7 @@ const props = withDefaults(
     loading: false,
     maxSubmitCount: 5,
     resetOnSubmit: false,
+    turnstileEnable: true,
   },
 )
 
@@ -71,6 +73,7 @@ const {
   loading,
   maxSubmitCount,
   resetOnSubmit,
+  turnstileEnable,
 } = toRefs(props)
 
 const finalID = id.value ?? useId()
@@ -205,7 +208,11 @@ const formState = computed(() => {
 
 // Define the submit button disabled state
 const valid = computedAsync(async () => {
-  if (submitCount.value >= maxSubmitCount.value || loading.value || !token.value) {
+  if (submitCount.value >= maxSubmitCount.value || loading.value) {
+    return true
+  }
+
+  if (!token.value && turnstileEnable.value) {
     return true
   }
 
@@ -243,7 +250,9 @@ formFields.forEach((field) => {
 
 onReactivated(() => {
   token.value = ''
-  turnstile.value?.reset()
+  if (turnstileEnable.value) {
+    turnstile.value?.reset()
+  }
 })
 
 defineExpose({
@@ -343,7 +352,7 @@ defineExpose({
       </UFormGroup>
     </template>
 
-    <FormTurnstileContainer>
+    <FormTurnstileContainer v-if="turnstileEnable">
       <NuxtTurnstile
         :key="$colorMode.value"
         ref="turnstile"

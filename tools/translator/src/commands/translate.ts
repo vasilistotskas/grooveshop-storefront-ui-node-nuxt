@@ -115,4 +115,7 @@ const main = defineCommand({
   },
 })
 
-await runMain(main)
+runMain(main)
+  .then(() => console.info('test1221'))
+  .catch(() => console.info('test55523'))
+  .finally(() => process.exit(0))

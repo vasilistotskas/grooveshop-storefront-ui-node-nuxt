@@ -79,6 +79,7 @@ onMounted(() => {
               }"
             >
               <UIcon
+                v-if="item.icon"
                 :name="item.icon"
                 class="
                   text-2xl

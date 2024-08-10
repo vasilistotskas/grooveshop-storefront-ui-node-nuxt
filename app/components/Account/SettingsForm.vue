@@ -126,7 +126,7 @@ const fetchRegions = async () => {
       },
     })
   }
-  catch (error) {
+  catch {
     toast.add({
       title: t('common.error.default'),
       description: t('common.error_occurred'),

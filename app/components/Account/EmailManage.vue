@@ -95,7 +95,7 @@ async function removeEmail(values: EmailDeleteBody) {
     })
     emit('removeEmailAddress')
   }
-  catch (error) {
+  catch {
     toast.add({
       title: t('common.error.default'),
       color: 'red',

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { enabled } = useAuthPreviewMode()
+
 definePageMeta({
   layout: 'user',
 })
@@ -13,9 +15,7 @@ definePageMeta({
     "
   >
     <PageTitle :text="$t('pages.account.favourites.products.title')" />
-    <DevOnly>
-      <UserAccountFavouritesNavbar />
-    </DevOnly>
+    <UserAccountFavouritesNavbar v-if="enabled" />
     <PageBody>
       <ProductFavouritesList />
     </PageBody>

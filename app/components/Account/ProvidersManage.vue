@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type ProvidersDeleteBody } from '~/types/all-auth'
+import type { ProvidersDeleteBody } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
 
 const emit = defineEmits(['disconnectThirdPartyProviderAccount'])
@@ -26,7 +26,7 @@ async function disconnect(values: ProvidersDeleteBody) {
     })
     emit('disconnectThirdPartyProviderAccount')
   }
-  catch (error) {
+  catch {
     toast.add({
       title: t('common.error.default'),
       color: 'red',

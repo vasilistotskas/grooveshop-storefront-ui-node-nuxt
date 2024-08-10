@@ -10,6 +10,7 @@ const { t } = useI18n()
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
+const { enabled } = useAuthPreviewMode()
 
 const onClickLogout = async () => {
   if (isRouteProtected(route.path))
@@ -99,7 +100,7 @@ const items = computed(() => [
               </Anchor>
             </li>
 
-            <DevOnly>
+            <template v-if="enabled">
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
@@ -134,7 +135,7 @@ const items = computed(() => [
                   </Anchor>
                 </h2>
               </li>
-            </DevOnly>
+            </template>
           </ul>
           <ul
             class="
@@ -143,7 +144,7 @@ const items = computed(() => [
               dark:text-primary-50 dark:border-primary-500
             "
           >
-            <DevOnly>
+            <template v-if="enabled">
               <li
                 class="
                   relative grid items-center justify-center justify-items-center
@@ -151,7 +152,7 @@ const items = computed(() => [
               >
                 <LanguageSwitcher />
               </li>
-            </DevOnly>
+            </template>
             <li
               class="
                 relative grid items-center justify-center justify-items-center
@@ -175,7 +176,7 @@ const items = computed(() => [
             >
               <ThemeSwitcher />
             </li>
-            <DevOnly>
+            <template v-if="enabled">
               <li
                 class="
                   relative grid items-center justify-center justify-items-center
@@ -210,7 +211,7 @@ const items = computed(() => [
                   <UIcon name="i-fa6-solid-cart-shopping" />
                 </Anchor>
               </li>
-            </DevOnly>
+            </template>
             <li
               class="
                 relative grid items-center justify-center justify-items-center

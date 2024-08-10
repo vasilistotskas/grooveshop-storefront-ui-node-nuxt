@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import { withQuery } from 'ufo'
-import { type AllAuthResponse, type AllAuthResponseError, type Flow, Flows } from '~/types/all-auth'
+import { type AllAuthResponse, type AllAuthResponseError, AuthenticatorType, type Flow, Flows } from '~/types/all-auth'
 
 const props = defineProps({
   flow: { type: String as PropType<Flow['id']>, required: true },
@@ -40,16 +40,10 @@ const filteredFlows = computed(() => {
 })
 
 const flowLabels = {
-  [Flows.LOGIN]: t('common.login'),
-  [Flows.LOGIN_BY_CODE]: t('common.login_by_code'),
-  [Flows.SIGNUP]: t('common.signup'),
-  [Flows.VERIFY_EMAIL]: t('common.verify_email'),
-  [Flows.PROVIDER_REDIRECT]: t('common.provider_redirect'),
-  [Flows.PROVIDER_SIGNUP]: t('common.provider_signup'),
-  [Flows.PROVIDER_TOKEN]: t('common.provider_token'),
-  [Flows.MFA_AUTHENTICATE]: t('common.mfa_authenticate'),
   [Flows.REAUTHENTICATE]: t('common.reauthenticate'),
-  [Flows.MFA_REAUTHENTICATE]: t('common.mfa_reauthenticate'),
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: t('common.mfa_reauthenticate.totp'),
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: t('common.mfa_reauthenticate.recovery_codes'),
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: t('common.mfa_reauthenticate.webauthn'),
 }
 
 const toReauthenticatePath = (flowId: Flow['id']) => {

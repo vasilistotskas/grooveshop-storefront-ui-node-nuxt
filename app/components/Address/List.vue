@@ -41,6 +41,12 @@ const { data: addresses } = await useFetch(
       ordering: ordering.value,
       pageSize: pageSize.value,
     },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      pending.value = false
+    },
   },
 )
 

@@ -1,6 +1,6 @@
 import { withQuery } from 'ufo'
 
-export default oauth.googleEventHandler(
+export default oauthGoogleEventHandler(
   {
     async onSuccess(event, { tokens }) {
       const { access_token, id_token } = tokens

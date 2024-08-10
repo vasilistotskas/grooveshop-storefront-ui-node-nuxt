@@ -7,7 +7,7 @@ import type { AllAuthResponse, AllAuthResponseError } from '~/types/all-auth'
 
 export {}
 
-const envVariables = z.object({
+const _envVariables = z.object({
   NODE_ENV: z.string(),
   SW: z.string(),
   NODE_AUTH_TOKEN: z.string(),
@@ -128,7 +128,8 @@ declare module '@vue/runtime-core' {
 
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof envVariables> {
+    interface ProcessEnv extends z.infer<typeof _envVariables> {
+      _dummy?: string
     }
   }
 

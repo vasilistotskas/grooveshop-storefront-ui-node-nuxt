@@ -23,7 +23,7 @@ async function onSubmit(values: TwoFaReauthenticateBody) {
     })
     emit('reauthenticate')
   }
-  catch (error) {
+  catch {
     toast.add({
       title: t('common.error.default'),
       color: 'red',

@@ -22,7 +22,7 @@ async function onSubmit(values: ProviderSignupBody) {
     })
     emit('providerSignup')
   }
-  catch (error) {
+  catch {
     toast.add({
       title: t('common.error.default'),
       color: 'red',

@@ -1,5 +1,3 @@
-import type { Config } from 'tailwindcss'
-
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 export default {
   content: [
@@ -78,5 +76,4 @@ export default {
     'light-img': 'block dark:hidden',
     'dark-img': 'hidden dark:block',
   },
-  plugins: [require('@tailwindcss/typography')],
-} satisfies Partial<Config>
+}

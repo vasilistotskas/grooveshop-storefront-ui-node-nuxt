@@ -100,7 +100,7 @@ export async function writeFileContents(
     await access(filePath)
     console.info(`File exists, updating: ${filePath}`)
   }
-  catch (error) {
+  catch {
     console.info(`File does not exist, creating: ${filePath}`)
   }
 

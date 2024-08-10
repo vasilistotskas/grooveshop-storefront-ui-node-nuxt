@@ -45,7 +45,7 @@ onMounted(async () => {
         process: process === 'login' ? 'login' : 'connect',
       })
     }
-    catch (e) {
+    catch {
       error.value = true
     }
     finally {

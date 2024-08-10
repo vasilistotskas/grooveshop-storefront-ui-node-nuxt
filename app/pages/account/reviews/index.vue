@@ -34,6 +34,12 @@ const { data: reviews } = await useFetch(
       pageSize: pageSize.value,
       expand: 'true',
     },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      pending.value = false
+    },
   },
 )
 

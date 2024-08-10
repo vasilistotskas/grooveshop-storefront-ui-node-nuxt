@@ -5,6 +5,7 @@ import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
+const { enabled } = useAuthPreviewMode()
 
 const pageSize = ref(4)
 const pending = ref(true)
@@ -38,6 +39,12 @@ const { data: favourites } = await useFetch(
       ordering: ordering.value,
       pageSize: pageSize.value,
       expand: 'true',
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      pending.value = false
     },
   },
 )
@@ -92,9 +99,7 @@ definePageMeta({
     "
   >
     <PageTitle :text="$t('pages.account.favourites.posts.title')" />
-    <DevOnly>
-      <UserAccountFavouritesNavbar />
-    </DevOnly>
+    <UserAccountFavouritesNavbar v-if="enabled" />
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
         <PaginationPageNumber

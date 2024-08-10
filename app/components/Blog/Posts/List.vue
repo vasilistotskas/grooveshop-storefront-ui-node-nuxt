@@ -270,14 +270,13 @@ onReactivated(() => {
       <slot name="sidebar" />
     </section>
     <Transition>
-      <template v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR">
-        <ClientOnlyFallback
-          :text="$t('common.loading')"
-          class="grid items-center justify-items-center"
-          height="75px"
-          width="35%"
-        />
-      </template>
+      <ClientOnlyFallback
+        v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR"
+        :text="$t('common.loading')"
+        class="grid items-center justify-items-center"
+        height="75px"
+        width="35%"
+      />
     </Transition>
   </div>
 </template>

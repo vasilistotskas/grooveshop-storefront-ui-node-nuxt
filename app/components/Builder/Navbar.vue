@@ -9,6 +9,7 @@ defineProps({
 const navbar = ref(null)
 
 const config = useRuntimeConfig()
+const { enabled } = useAuthPreviewMode()
 
 const appTitle = computed(() => config.public.appTitle as string)
 
@@ -111,9 +112,7 @@ const spider = computed(() => {
                 lg:sr-only
               "
             >
-              <DevOnly>
-                <LanguageSwitcher />
-              </DevOnly>
+              <LanguageSwitcher v-if="enabled" />
               <ThemeSwitcher />
             </div>
           </MobileOrTabletOnly>

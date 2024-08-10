@@ -1,7 +1,7 @@
 import { Translate } from 'translate'
 import translationCache from '~~/tools/translator/src/cache'
 import { getISO6391Code, retry, validateDynamicKeys } from '~~/tools/translator/src/helpers'
-import { type FileExtensions, type LocaleFile, type TranslateEngine } from '~~/tools/translator/src/types'
+import type { FileExtensions, LocaleFile, TranslateEngine } from '~~/tools/translator/src/types'
 import { readFileContents, writeFileContents } from '~~/tools/translator/src/file-ops'
 import type { TranslatorConfig } from '~~/tools/translator/src/config'
 

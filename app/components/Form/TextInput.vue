@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BaseFieldProps, GenericObject } from 'vee-validate'
 import type { PropType } from 'vue'
-import type { ButtonSize, InputVariant } from '#ui/types'
+import type { ButtonSize, InputVariant, InputColor } from '#ui/types'
 
 defineProps({
   bind: {
@@ -43,7 +43,7 @@ defineProps({
     default: 'input',
   },
   color: {
-    type: String,
+    type: String as PropType<InputColor>,
     default: 'primary',
   },
   variant: {

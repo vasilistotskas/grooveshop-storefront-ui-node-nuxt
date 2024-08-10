@@ -38,6 +38,12 @@ const { data: orders } = await useFetch(
       ordering: ordering.value,
       pageSize: pageSize.value,
     },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      pending.value = false
+    },
   },
 )
 

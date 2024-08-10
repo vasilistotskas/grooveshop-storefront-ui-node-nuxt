@@ -13,7 +13,6 @@ defineProps({
 const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
-const localePath = useLocalePath()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 
@@ -44,6 +43,12 @@ const { data: favourites } = await useFetch(
       ordering: ordering.value,
       pageSize: pageSize.value,
       expand: 'true',
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      pending.value = false
     },
   },
 )
@@ -208,16 +213,5 @@ watch(
         </div>
       </div>
     </template>
-    <EmptyState
-      v-if="!pending && !favourites?.results?.length"
-    >
-      <template #actions>
-        <UButton
-          :label="$t('common.empty.button')"
-          :to="localePath('/')"
-          color="primary"
-        />
-      </template>
-    </EmptyState>
   </div>
 </template>

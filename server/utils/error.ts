@@ -103,7 +103,7 @@ export async function handleAllAuthError(
   }
   else {
     // Handle other types of errors if necessary
-    console.error('Unexpected AllAuth error type:', error)
+    console.error('Unexpected AllAuth error type:', error, event)
   }
 
   await handleError(error)

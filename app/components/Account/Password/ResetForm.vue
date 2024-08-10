@@ -26,7 +26,7 @@ async function onSubmit(values: PasswordRequestBody) {
     })
     emit('passwordRequest')
   }
-  catch (error) {
+  catch {
     handleResetError()
   }
   finally {

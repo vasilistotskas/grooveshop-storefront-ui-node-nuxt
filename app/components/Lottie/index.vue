@@ -154,7 +154,7 @@ export default defineComponent({
           const response = await fetch(props.animationLink)
           animationData = await response.json()
         }
-        catch (error) {
+        catch {
           return
         }
       }

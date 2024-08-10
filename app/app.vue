@@ -1,10 +1,12 @@
 <script lang="ts" setup>
+import type { UseWebNotificationOptions } from '@vueuse/core'
+import { withQuery } from 'ufo'
 import { AuthProcess } from '~/types/all-auth'
 
 setupPageHeader()
 setupCursorStates()
 
-const { loggedIn } = useUserSession()
+const { loggedIn, user, session } = useUserSession()
 const { gtag } = useScriptGoogleAnalytics()
 const authStore = useAuthStore()
 const { setupConfig, setupSession } = authStore
@@ -14,7 +16,8 @@ await setupConfig()
 await setupSession()
 
 const config = useRuntimeConfig()
-const { locales } = useI18n()
+const { locales, locale } = useI18n()
+const toast = useToast()
 
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
@@ -28,6 +31,92 @@ const {
 const {
   isConsentGiven,
 } = useCookieControl()
+
+let websocketInstance: WebSocket | null = null
+
+function initializeWebSocket() {
+  // Websocket
+  const websocketProtocol = import.meta.client && window.location.protocol === 'https:' ? 'wss' : 'ws'
+  const djangoApiHost = config.public.djangoHost
+  const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHost}/ws/notifications`, {
+    user_id: user.value?.id,
+    session_token: session.value.sessionToken,
+    access_token: session.value.accessToken,
+  })
+
+  const options: UseWebNotificationOptions = {
+    dir: 'auto',
+    lang: locale.value,
+    icon: '/logo.svg',
+    renotify: true,
+    requireInteraction: false,
+    vibrate: [200, 100, 200],
+  }
+
+  const {
+    isSupported: isBroadcastChannelSupported,
+    post,
+  } = useBroadcastChannel({ name: 'notifications' })
+
+  const {
+    isSupported: isWebNotificationSupported,
+    show,
+  } = useWebNotification(options)
+
+  websocketInstance = useWebSocket(
+    wsEndpoint,
+    {
+      autoReconnect: true,
+      onConnected: (ws) => {
+        if (import.meta.dev) {
+          console.log('WebSocket connected', ws)
+        }
+      },
+      onDisconnected: (_ws, event) => {
+        if (import.meta.dev) {
+          console.log('WebSocket disconnected', event)
+        }
+      },
+      onError: (_ws, event) => {
+        if (import.meta.dev) {
+          console.log('WebSocket error', event)
+        }
+      },
+      onMessage: (_ws, event) => {
+        if (import.meta.dev) {
+          console.log('WebSocket message', event)
+          const data = JSON.parse(event.data)
+          console.log('WebSocket data.translations[locale.value]', data.translations[locale.value])
+          toast.add({
+            title: data.translations[locale.value].title,
+            description: data.translations[locale.value].message,
+            color: 'green',
+          })
+          if (isBroadcastChannelSupported) {
+            post(data)
+          }
+          if (isWebNotificationSupported) {
+            show({
+              title: data.translations[locale.value].title,
+              body: data.translations[locale.value].message,
+              tag: data.type,
+            })
+          }
+        }
+      },
+    },
+  )
+}
+
+function closeWebSocket() {
+  if (websocketInstance) {
+    websocketInstance.close()
+    websocketInstance = null
+    if (import.meta.dev) {
+      console.log('WebSocket closed')
+    }
+  }
+}
 
 gtag('consent', 'default', {
   ad_user_data: 'denied',
@@ -84,15 +173,30 @@ onMounted(() => {
       }
 
       if ('accounts' in window.google) {
+        // @ts-ignore
         window.google.accounts.id.initialize({
           client_id: provider.client_id ? provider.client_id : '',
           callback: handleCredentialResponse,
         })
+        // @ts-ignore
         window.google.accounts.id.prompt()
       }
     }
   }
 })
+
+watch(
+  () => loggedIn.value,
+  (isLoggedIn, previous) => {
+    if (!previous && isLoggedIn) {
+      initializeWebSocket()
+    }
+    else if (previous && !isLoggedIn) {
+      closeWebSocket()
+    }
+  },
+  { immediate: true },
+)
 
 const schemaOrgOptions = [
   defineOrganization({
@@ -136,6 +240,14 @@ defineOgImage(ogImageOptions)
     </NuxtLayout>
     <Pwa />
     <CookieControl />
-    <UNotifications />
+    <UNotifications>
+      <template #title="{ title }">
+        <span v-html="title" />
+      </template>
+
+      <template #description="{ description }">
+        <span v-html="description" />
+      </template>
+    </UNotifications>
   </div>
 </template>

@@ -197,7 +197,10 @@ common:
   provider_signup: Εγγραφή παρόχου
   provider_token: Κωδικός παρόχου
   mfa_authenticate: Επαλήθευση πολλαπλών παραγόντων
-  mfa_reauthenticate: Επαλήθευση πολλαπλών παραγόντων
+  mfa_reauthenticate:
+    totp: Χρησιμοποιήστε την εφαρμογή πολλαπλών παραγόντων
+    recovery_codes: Χρησιμοποιήστε κωδικούς ανάκτησης
+    webauthn: Χρησιμοποιήστε το κλειδί ασφαλείας
   login_by_code: Σύνδεση με κωδικό
   logout: Αποσύνδεση
   logged_out: Αποσυνδέθηκες
