@@ -69,6 +69,7 @@ export const ZodFlow = z.object({
     'reauthenticate',
     'mfa_reauthenticate',
     'mfa_authenticate',
+    'mfa_login_webauthn',
   ]),
   provider: ZodProvider.optional(),
   is_pending: z.boolean().optional(),
@@ -133,6 +134,7 @@ export const Flows = {
   MFA_AUTHENTICATE: 'mfa_authenticate',
   REAUTHENTICATE: 'reauthenticate',
   MFA_REAUTHENTICATE: 'mfa_reauthenticate',
+  MFA_LOGIN_WEBAUTHN: 'mfa_login_webauthn',
 } as const
 
 export const AuthChangeEvent = Object.freeze({

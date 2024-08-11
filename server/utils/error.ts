@@ -74,7 +74,10 @@ export async function handleError(
   }
   else {
     console.error('Unexpected error type:', error)
-    throw error
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+    })
   }
 }
 
