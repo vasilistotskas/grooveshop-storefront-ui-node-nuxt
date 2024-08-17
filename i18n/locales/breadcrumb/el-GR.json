@@ -1,0 +1,91 @@
+{
+  "breadcrumb": {
+    "label": "Φρυγανιά",
+    "items": {
+      "index": {
+        "icon": "i-heroicons-home",
+        "label": "Αρχική"
+      },
+      "products": {
+        "icon": "heroicons-solid:shopping-cart",
+        "label": "Προϊόντα"
+      },
+      "terms": {
+        "icon": "heroicons-solid:document",
+        "label": "Οροί"
+      },
+      "about": {
+        "icon": "heroicons-solid:document",
+        "label": "Σχετικά με"
+      },
+      "contact": {
+        "icon": "heroicons-solid:document",
+        "label": "Επικοινωνία"
+      },
+      "privacy": {
+        "icon": "heroicons-solid:document",
+        "label": "Μυστικότητα"
+      },
+      "cart": {
+        "icon": "heroicons-solid:shopping-cart",
+        "label": "Καλάθι"
+      },
+      "blog": {
+        "icon": "heroicons-solid:shopping-cart",
+        "label": "Blog"
+      },
+      "checkout": {
+        "icon": "heroicons-solid:shopping-cart",
+        "label": "Ολοκλήρωση αγοράς",
+        "success": {
+          "icon": "heroicons-solid:shopping-cart",
+          "label": "Ολοκλήρωση αγοράς"
+        }
+      },
+      "auth": {
+        "login": {
+          "icon": "heroicons-solid:shopping-cart",
+          "label": "Σύνδεση"
+        },
+        "signup": {
+          "icon": "heroicons-solid:shopping-cart",
+          "label": "Εγγραφή",
+          "account_confirm_email": {
+            "icon": "heroicons-solid:shopping-cart",
+            "label": "Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου"
+          }
+        },
+        "password": {
+          "reset": {
+            "icon": "heroicons-solid:shopping-cart",
+            "label": "Επανέφερε τον κωδικό πρόσβασης",
+            "confirm": {
+              "icon": "heroicons-solid:shopping-cart",
+              "label": "Επιβεβαίωση Κωδικού"
+            }
+          }
+        }
+      },
+      "account": {
+        "icon": "heroicons-solid:shopping-cart",
+        "label": "Λογαριασμός",
+        "addresses": {
+          "icon": "heroicons-solid:shopping-cart",
+          "label": "Διευθύνσεις",
+          "new": {
+            "icon": "heroicons-solid:shopping-cart",
+            "label": "Νέα διεύθυνση"
+          },
+          "edit": {
+            "icon": "heroicons-solid:shopping-cart",
+            "label": "Επεξεργασία διεύθυνσης"
+          }
+        },
+        "favourites": {
+          "icon": "heroicons-solid:shopping-cart",
+          "label": "Αγαπημένα"
+        }
+      }
+    }
+  }
+}

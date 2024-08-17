@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-import { Flows, type ReauthenticateBody } from '~/types/all-auth'
+import { AuthChangeEvent, type AuthChangeEventType, Flows, type ReauthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 
 const emit = defineEmits(['reauthenticate'])
@@ -8,8 +8,14 @@ const emit = defineEmits(['reauthenticate'])
 const { reauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
+const authEvent = useState<AuthChangeEventType>('authEvent')
+const localePath = useLocalePath()
 
 const loading = ref(false)
+
+if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+  await navigateTo(localePath('/'))
+}
 
 async function onSubmit(values: ReauthenticateBody) {
   try {
@@ -65,7 +71,7 @@ definePageMeta({
       "
     />
     <PageBody>
-      <AccountReauthenticateFlow :flow="Flows.REAUTHENTICATE">
+      <Account2FaReauthenticateFlow :flow="Flows.REAUTHENTICATE">
         <div class="grid items-center justify-center gap-2">
           <h3
             class="
@@ -84,7 +90,7 @@ definePageMeta({
             />
           </section>
         </div>
-      </AccountReauthenticateFlow>
+      </Account2FaReauthenticateFlow>
     </PageBody>
   </PageWrapper>
 </template>

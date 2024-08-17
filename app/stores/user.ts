@@ -14,9 +14,16 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const setupSessions = async () => {
+    const { loggedIn } = useUserSession()
+    if (!loggedIn.value) {
+      return
+    }
     const { getSessions } = useAllAuthSessions()
     await callOnce(async () => {
-      const { data } = await getSessions()
+      const { data } = await useAsyncData(
+        'sessions',
+        () => getSessions(),
+      )
       if (data.value) {
         sessions.value = data.value.data
       }

@@ -12,7 +12,10 @@ const localePath = useLocalePath()
 
 const key = String(route.params.key)
 
-await getPasswordReset(key)
+await useAsyncData(
+  'passwordReset',
+  () => getPasswordReset(key),
+)
 
 const ZodPasswordResetConfirm = z
   .object({

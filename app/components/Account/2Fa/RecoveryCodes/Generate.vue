@@ -6,7 +6,10 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 
-const { data, refresh } = await getRecoveryCodes()
+const { data, refresh } = await useAsyncData(
+  'recoveryCodes',
+  () => getRecoveryCodes(),
+)
 
 const hasCodes = computed(() => {
   if (!data.value?.data?.unused_code_count) {
@@ -49,8 +52,8 @@ async function onSubmit() {
   }
 }
 
-onReactivated(() => {
-  refresh()
+onReactivated(async () => {
+  await refresh()
 })
 </script>
 

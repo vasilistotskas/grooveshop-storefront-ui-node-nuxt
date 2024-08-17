@@ -104,6 +104,7 @@ const refreshLikedPosts = async (postIds: number[]) => {
       '/api/blog/posts/liked-posts',
       {
         method: 'POST',
+        headers: useRequestHeaders(),
         body: { postIds: postIds },
         onResponse({ response }) {
           if (!response.ok) {
@@ -121,6 +122,7 @@ await useFetch(
   '/api/blog/posts/liked-posts',
   {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: { postIds: postIds },
     immediate: shouldFetchLikedPosts.value,
     onResponse({ response }) {
@@ -152,7 +154,7 @@ watch(
       await refreshLikedPosts(postIds.value)
     }
   },
-  { deep: true },
+  { deep: true, immediate: false },
 )
 
 watch(
@@ -165,6 +167,7 @@ watch(
       }
     }
   },
+  { immediate: false },
 )
 
 watch(
@@ -174,10 +177,11 @@ watch(
       await refreshLikedPosts(postIds.value)
     }
   },
+  { immediate: false },
 )
 
 watch(
-  posts,
+  () => posts.value,
   (newValue) => {
     if (newValue?.results?.length) {
       const postsMap = new Map(allPosts.value.map(post => [post.id, post]))
@@ -197,8 +201,8 @@ watch(
   { deep: true, immediate: true },
 )
 
-onReactivated(() => {
-  refresh()
+onReactivated(async () => {
+  await refresh()
 })
 </script>
 

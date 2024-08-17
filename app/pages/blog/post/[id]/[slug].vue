@@ -39,6 +39,7 @@ if (!blogPost.value) {
 
 await useFetch('/api/blog/posts/liked-posts', {
   method: 'POST',
+  headers: useRequestHeaders(),
   body: {
     postIds: [blogPostId],
   },
@@ -120,8 +121,8 @@ onMounted(() => {
   })
 })
 
-onReactivated(() => {
-  refresh()
+onReactivated(async () => {
+  await refresh()
 })
 
 const seoMetaInput = {

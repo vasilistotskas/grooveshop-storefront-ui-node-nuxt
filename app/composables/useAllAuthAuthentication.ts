@@ -12,7 +12,7 @@ import type {
   ReauthenticateBody,
   SignupBody,
   TwoFaAuthenticateBody,
-  TwoFaReauthenticateBody,
+  TwoFaReauthenticateBody, WebAuthnAuthenticatePostBody, WebAuthnLoginPostBody, WebAuthnReauthenticatePostBody,
 } from '~/types/all-auth'
 
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
@@ -21,8 +21,9 @@ export default function () {
   const { clear } = useUserSession()
 
   async function getSession() {
-    return useFetch(`${API_BASE_URL}/session`, {
+    return $fetch(`${API_BASE_URL}/session`, {
       method: 'GET',
+      headers: useRequestHeaders(),
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
       },
@@ -34,8 +35,9 @@ export default function () {
   }
 
   async function deleteSession() {
-    return useFetch(`${API_BASE_URL}/session`, {
+    return await $fetch(`${API_BASE_URL}/session`, {
       method: 'DELETE',
+      headers: useRequestHeaders(),
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
         await clear()
@@ -50,6 +52,7 @@ export default function () {
   async function login(body: LoginBody) {
     return await $fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -63,6 +66,7 @@ export default function () {
   async function signup(body: SignupBody) {
     return await $fetch(`${API_BASE_URL}/signup`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -74,9 +78,10 @@ export default function () {
   }
 
   async function getEmailVerify(key: string) {
-    return useFetch(`${API_BASE_URL}/email/verify`, {
+    return $fetch(`${API_BASE_URL}/email/verify`, {
       method: 'GET',
       headers: {
+        ...useRequestHeaders(),
         'X-Email-Verification-Key': key,
       },
       async onResponse({ response }) {
@@ -91,6 +96,7 @@ export default function () {
   async function emailVerify(body: EmailVerifyPostBody) {
     return $fetch(`${API_BASE_URL}/email/verify`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -104,6 +110,7 @@ export default function () {
   async function reauthenticate(body: ReauthenticateBody) {
     return await $fetch(`${API_BASE_URL}/reauthenticate`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -117,6 +124,7 @@ export default function () {
   async function passwordRequest(body: PasswordRequestBody) {
     return await $fetch(`${API_BASE_URL}/password/request`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -128,9 +136,10 @@ export default function () {
   }
 
   async function getPasswordReset(key: string) {
-    return useFetch(`${API_BASE_URL}/password/reset`, {
+    return $fetch(`${API_BASE_URL}/password/reset`, {
       method: 'GET',
       headers: {
+        ...useRequestHeaders(),
         'X-Password-Reset-Key': key,
       },
       async onResponse({ response }) {
@@ -145,6 +154,7 @@ export default function () {
   async function passwordReset(body: PasswordResetPostBody) {
     return await $fetch(`${API_BASE_URL}/password/reset`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -172,6 +182,7 @@ export default function () {
   async function providerToken(body: ProviderTokenBody) {
     return await $fetch(`${API_BASE_URL}/provider/token`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -185,6 +196,7 @@ export default function () {
   async function providerSignup(body: ProviderSignupBody) {
     return await $fetch(`${API_BASE_URL}/provider/signup`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -198,6 +210,7 @@ export default function () {
   async function twoFaAuthenticate(body: TwoFaAuthenticateBody) {
     return await $fetch(`${API_BASE_URL}/2fa/authenticate`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -211,6 +224,7 @@ export default function () {
   async function twoFaReauthenticate(body: TwoFaReauthenticateBody) {
     return await $fetch(`${API_BASE_URL}/2fa/reauthenticate`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -224,6 +238,7 @@ export default function () {
   async function requestLoginCode(body: CodeRequestBody) {
     return await $fetch(`${API_BASE_URL}/code/request`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
@@ -237,7 +252,89 @@ export default function () {
   async function confirmLoginCode(body: CodeConfirmBody) {
     return await $fetch(`${API_BASE_URL}/code/confirm`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function getWebAuthnRequestOptionsForReauthentication() {
+    return await $fetch(`${API_BASE_URL}/webauthn/reauthenticate`, {
+      method: 'GET',
+      headers: useRequestHeaders(),
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function reauthenticateUsingWebAuthn(body: WebAuthnReauthenticatePostBody) {
+    return await $fetch(`${API_BASE_URL}/webauthn/reauthenticate`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function authenticateUsingWebAuthn(body: WebAuthnAuthenticatePostBody) {
+    return await $fetch(`${API_BASE_URL}/webauthn/authenticate`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function loginUsingWebAuthn(body: WebAuthnLoginPostBody) {
+    return await $fetch(`${API_BASE_URL}/webauthn/login`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function getWebAuthnRequestOptionsForLogin() {
+    return await $fetch(`${API_BASE_URL}/webauthn/login`, {
+      method: 'GET',
+      headers: useRequestHeaders(),
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function getWebAuthnRequestOptionsForAuthentication() {
+    return await $fetch(`${API_BASE_URL}/webauthn/authenticate`, {
+      method: 'GET',
+      headers: useRequestHeaders(),
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
       },
@@ -265,5 +362,11 @@ export default function () {
     twoFaReauthenticate,
     requestLoginCode,
     confirmLoginCode,
+    getWebAuthnRequestOptionsForReauthentication,
+    reauthenticateUsingWebAuthn,
+    authenticateUsingWebAuthn,
+    loginUsingWebAuthn,
+    getWebAuthnRequestOptionsForLogin,
+    getWebAuthnRequestOptionsForAuthentication,
   }
 }

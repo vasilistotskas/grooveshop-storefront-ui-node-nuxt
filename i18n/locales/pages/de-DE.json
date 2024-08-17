@@ -1,0 +1,898 @@
+{
+  "pages": {
+    "404": {
+      "title": "Seite nicht gefunden",
+      "description": "Seite nicht gefunden",
+      "keywords": "Seite nicht gefunden"
+    },
+    "about": {
+      "title": "Was ist eine Website?",
+      "nav": "Was ist eine Website?",
+      "description": "Was ist eine Website?",
+      "keywords": "Was ist eine Website?"
+    },
+    "blog": {
+      "title": "Blog",
+      "nav": "Blog",
+      "description": "Blog",
+      "keywords": "Blog",
+      "ordering": {
+        "created_at": "Erstelldatum",
+        "updated_at": "Datum der Information",
+        "title": "Titel",
+        "published_at": "Veröffentlicht am"
+      },
+      "category": {
+        "title": "Kategorie"
+      }
+    },
+    "testing": {
+      "nav": "Tests",
+      "title": "Tests",
+      "index": {
+        "nav": "Tests",
+        "title": "Tests",
+        "description": "Dies ist eine Testseite",
+        "keywords": "Tests"
+      },
+      "blank": {
+        "nav": "Vakuum",
+        "title": "leere Seite",
+        "description": "das ist eine leere Seite",
+        "just_blank_page_with_title": "nur leere Titelseite"
+      },
+      "test": {
+        "nav": "prüfen",
+        "title": "Tests",
+        "description": "Dies ist eine Testseite",
+        "counter": "Meter",
+        "increment": "Zunahme",
+        "decrement": "die Ermäßigung",
+        "reset": "zurücksetzen",
+        "identity": "Ausweis",
+        "full_name": "vollständiger Name"
+      },
+      "setting": {
+        "nav": "Komposition",
+        "title": "Komposition",
+        "description": "Dies ist eine Einstellungsseite",
+        "sections": {
+          "validate_username": {
+            "title": "Github-Profilvalidierung",
+            "description": "Geben Sie Ihren Github-Benutzernamen ein und klicken Sie zur Bestätigung auf die Schaltfläche.",
+            "footer": "Lerne mehr über",
+            "footer_button": "bestätigen",
+            "footer_link": "Github-Benutzer-API"
+          },
+          "bot_id": {
+            "title": "Roboter-ID",
+            "description": "Dies ist Ihre Bot-ID.",
+            "footer": "Wird bei der Interaktion mit dem Bot verwendet."
+          },
+          "protection_spam": {
+            "title": "Spamschutz",
+            "description": "Aktivieren Sie diese Option, um den roten Rand zu entfernen",
+            "footer": "Wenn diese Option aktiviert ist, schützen wir Ihre Kommentare vor Spam"
+          },
+          "advanced_enable_advanced": {
+            "title": "Erweiterte Einstellungen aktivieren",
+            "description": "Sie können erweiterte Einstellungen aktivieren, um die Einstellungen zu ändern"
+          },
+          "advanced_dir_listing": {
+            "title": "Verzeichniseintrag",
+            "description": "Wenn in einem Verzeichnis keine Indexdatei vorhanden ist, wird der Inhalt des Verzeichnisses angezeigt."
+          }
+        }
+      },
+      "cache": {
+        "title": "Krypta",
+        "nav": "Krypta"
+      },
+      "ws": {
+        "title": "ws",
+        "nav": "WS"
+      }
+    },
+    "index": {
+      "nav": "Heim",
+      "add_to_cart": "In den Warenkorb legen"
+    },
+    "error": {
+      "title": "Autsch! Etwas ist schief gelaufen.",
+      "clean": "Beheben Sie den Fehler",
+      "home": "Zurück nach Hause",
+      "hmmm": "Hmmm",
+      "page": {
+        "not": {
+          "found": "Unser Hund kann die von Ihnen gesuchte Seite nicht finden."
+        }
+      },
+      "go": {
+        "home": "Aber es könnte Sie zur Startseite weiterleiten!"
+      }
+    },
+    "product": {
+      "add_to_cart": "In den Warenkorb legen",
+      "product_id": "Produkt ID",
+      "save": "Speichern",
+      "inclusive_of_taxes": "Alle Steuern sind inbegriffen.",
+      "qty": "Menge",
+      "ordering": {
+        "name": "Name",
+        "price": "Preis",
+        "created_at": "Erstelldatum",
+        "updated_at": "Datum der Information"
+      },
+      "share": "Aktie",
+      "share_not_supported": "Websharing wird in Ihrem Browser nicht unterstützt",
+      "review": {
+        "created": {
+          "success": "Bewertung erfolgreich erstellt",
+          "error": "Build-Fehler prüfen"
+        },
+        "updated": {
+          "success": "Bewertung erfolgreich aktualisiert",
+          "error": "Überprüfen Sie den Update-Fehler"
+        },
+        "deleted": {
+          "success": "Bewertung erfolgreich gelöscht",
+          "error": "Überprüfen Sie den Löschfehler"
+        }
+      },
+      "max_quantity_reached": "Maximale Menge erreicht",
+      "adjusted_to_stock": "Angepasst an den Lagerbestand %{stock}"
+    },
+    "products": {
+      "title": "Produkte",
+      "nav": "Produkte",
+      "description": "Produktliste",
+      "keywords": "Produkte"
+    },
+    "cart": {
+      "title": "Wagen",
+      "nav": "Wagen",
+      "description": "Wagen",
+      "keywords": "Wagen",
+      "updated": "Der Warenkorb wurde aktualisiert",
+      "update_error": "Fehler beim Aktualisieren des Warenkorbs",
+      "deleted": "Warenkorbartikel gelöscht",
+      "delete_error": "Fehler beim Löschen des Warenkorbprodukts",
+      "checkout": "Kasse",
+      "empty": {
+        "title": "Ihr Warenkorb ist leer",
+        "description": "Ihr Warenkorb ist leer",
+        "button": "Gehen Sie zu den Produkten"
+      }
+    },
+    "checkout": {
+      "title": "Kasse",
+      "nav": "Kasse",
+      "description": "Kasse",
+      "keywords": "Kasse",
+      "empty": "Ihr Warenkorb ist leer",
+      "form": {
+        "first_name": "Name",
+        "last_name": "Adjektiv",
+        "address": "Adresse",
+        "city": "Stadt",
+        "email": "Email",
+        "phone": "Telefon",
+        "place": "Bereich",
+        "zipcode": "Postleitzahlen",
+        "country": "Land",
+        "region": "Region",
+        "mobile_phone": "Mobiltelefon",
+        "floor": "Boden",
+        "location_type": "Standorttyp",
+        "street": "Straße",
+        "street_number": "Hausnummer",
+        "customer_notes": "Kundenhinweise",
+        "submit": {
+          "title": "Speichern",
+          "success": "Die Bestellung wurde erfolgreich erstellt",
+          "error": "Fehler beim Erstellen der Bestellung"
+        },
+        "too_many_attempts": "Zu viele Versuche. Bitte später erneut versuchen.",
+        "choose": {
+          "country": "Wähle ein Land",
+          "region": "Region wählen"
+        }
+      },
+      "success": {
+        "title": "Die Bestellung wurde erfolgreich erstellt",
+        "lottie": "Die Bestellung wurde erstellt",
+        "button": "Navigieren Sie zu Startseite",
+        "main": {
+          "title": "Vielen Dank, %{customerName}!",
+          "text": "Ihre Bestellnummer ist <strong>%{orderId}</strong>. Eine Bestätigungs-E-Mail wurde an <strong>%{customerEmail}</strong> gesendet. Wir benachrichtigen Sie, wenn Ihre Bestellung versandt wird."
+        },
+        "order": {
+          "summary": "Bestellübersicht",
+          "details": "Bestelldetails"
+        },
+        "image": "Bild",
+        "product": "Produkt",
+        "quantity": "Menge",
+        "price": "Preis",
+        "shippingPrice": "Versandkosten",
+        "totalPriceItems": "Gesamtpreis der Artikel",
+        "totalPriceExtra": "Gesamtpreis extra",
+        "payWayPrice": "Preis der Zahlungsmethode",
+        "total": "Gesamt"
+      },
+      "validation": {
+        "email": {
+          "required": "E-Mail ist erforderlich",
+          "email": "Email muss gültig sein"
+        },
+        "first_name": {
+          "required": "Name erforderlich",
+          "min": "Der Name muss mindestens %{min} Zeichen lang sein"
+        },
+        "last_name": {
+          "required": "Nachname ist erforderlich",
+          "min": "Der Nachname muss mindestens %{min} Zeichen lang sein"
+        },
+        "street": {
+          "required": "Straße erforderlich",
+          "min": "Der Pfad muss mindestens %{min} Zeichen lang sein"
+        },
+        "street_number": {
+          "required": "Hausnummer erforderlich",
+          "min": "Die Straßennummer muss mindestens %{min} Zeichen lang sein"
+        },
+        "zipcode": {
+          "required": "Postleitzahl erforderlich",
+          "min": "Die Postleitzahl muss mindestens %{min} Zeichen lang sein"
+        },
+        "place": {
+          "required": "Der Bereich ist wichtig",
+          "min": "Der Teil muss mindestens %{min} Zeichen lang sein"
+        },
+        "city": {
+          "required": "Die Stadt ist wichtig",
+          "min": "Die Stadt muss mindestens %{min} Zeichen lang sein"
+        },
+        "phone": {
+          "required": "Telefon erforderlich",
+          "min": "Die Telefonnummer muss mindestens %{min} Zeichen lang sein"
+        }
+      }
+    },
+    "terms": {
+      "title": "Bedingungen",
+      "nav": "Bedingungen",
+      "description": "Bedingungen",
+      "keywords": "Bedingungen"
+    },
+    "term_of_use": {
+      "title": "Nutzungsbedingungen",
+      "nav": "Nutzungsbedingungen",
+      "description": "Nutzungsbedingungen",
+      "keywords": "Nutzungsbedingungen"
+    },
+    "privacy-policy": {
+      "title": "Datenschutzrichtlinie",
+      "nav": "Datenschutzrichtlinie",
+      "description": "Datenschutzrichtlinie",
+      "keywords": "Datenschutzrichtlinie"
+    },
+    "return-policy": {
+      "title": "PRODUKT-RÜCKGABEBEDINGUNGEN",
+      "nav": "PRODUKT-RÜCKGABEBEDINGUNGEN",
+      "description": "PRODUKT-RÜCKGABEBEDINGUNGEN",
+      "keywords": "PRODUKT-RÜCKGABEBEDINGUNGEN"
+    },
+    "contact": {
+      "title": "Kontakt",
+      "nav": "Kontakt",
+      "description": "Kontakt",
+      "keywords": "Kontakt"
+    },
+    "feedback": {
+      "title": "Feedback geben",
+      "nav": "Rückmeldung",
+      "description": "Rückmeldung",
+      "keywords": "Rückmeldung"
+    },
+    "cookies_policy": {
+      "title": "Cookie-Richtlinie",
+      "nav": "Cookie-Richtlinie",
+      "description": "Cookie-Richtlinie",
+      "keywords": "Cookie-Richtlinie"
+    },
+    "accounts": {
+      "login": {
+        "title": "Konto"
+      },
+      "logout": {
+        "title": "Ausloggen"
+      }
+    },
+    "account": {
+      "login": {
+        "title": "Verbindung",
+        "description": "Verbindung",
+        "keywords": "Verbindung",
+        "nav": "Verbindung",
+        "form": {
+          "social": {
+            "title": "Oder stellen Sie eine Verbindung über einen Drittanbieter her"
+          },
+          "email": {
+            "label": "Email",
+            "validation": {
+              "email": "E-Mail muss eine gültige E-Mail-Adresse sein"
+            }
+          },
+          "password": {
+            "label": "Passwort",
+            "toggle": "Zeigen Sie den Code an",
+            "validation": {
+              "min": "Das Passwort muss mindestens %{min} Zeichen lang sein"
+            }
+          },
+          "remember": "Rette mich",
+          "use": {
+            "code": "Melden Sie sich mit einem Einmalpasswort an"
+          },
+          "forgot": {
+            "password": {
+              "reset": "Haben Sie Ihr Passwort vergessen;"
+            }
+          },
+          "submit": "Verbindung",
+          "facebook": "Mit Facebook verbinden",
+          "google": "Anmeldung mit Google",
+          "or": "Die",
+          "no": {
+            "account": "Haben Sie kein Konto;"
+          }
+        },
+        "code": {
+          "title": "Senden Sie mir einen Login-Code",
+          "description": "Sie erhalten eine E-Mail mit einem speziellen Code.",
+          "confirm": {
+            "title": "Bestätige das Passwort",
+            "description": "Der Code läuft bald ab, Sie müssen also schnell sein."
+          }
+        }
+      },
+      "reauthenticate": {
+        "title": "Rezertifizierung"
+      },
+      "email": {
+        "title": "Ändern Sie die E-Mail"
+      },
+      "sessions": {
+        "title": "Sitzungen"
+      },
+      "providers": {
+        "title": "Anbieter"
+      },
+      "provider": {
+        "callback": {
+          "title": {
+            "error": "Verbindung zum Anbieter fehlgeschlagen",
+            "loading": "Verbindung zum Anbieter herstellen ..."
+          },
+          "description": "Etwas ist schief gelaufen."
+        },
+        "signup": {
+          "title": "Melden Sie sich an",
+          "description": "Hast du einen Account?",
+          "log_in_here": "Hier anmelden"
+        }
+      },
+      "signup": {
+        "title": "Melden Sie sich an",
+        "description": "Melden Sie sich an",
+        "keywords": "Melden Sie sich an",
+        "nav": "Melden Sie sich an",
+        "form": {
+          "email": {
+            "label": "Email",
+            "validation": {
+              "email": "E-Mail muss eine gültige E-Mail-Adresse sein"
+            }
+          },
+          "password1": {
+            "label": "Passwort",
+            "show": "Zeigen Sie den Code an",
+            "validation": {
+              "min": "Das Passwort muss mindestens %{min} Zeichen lang sein"
+            }
+          },
+          "password2": {
+            "label": "Kennwortprüfung",
+            "show": "Zeigen Sie den Code an",
+            "validation": {
+              "min": "Die Passwortbestätigung muss mindestens %{min} Zeichen lang sein",
+              "match": "Die Passwortbestätigung muss mit dem Passwort übereinstimmen"
+            }
+          },
+          "password_confirmation": {
+            "label": "Kennwortprüfung",
+            "validation": {
+              "min": "Die Passwortbestätigung muss mindestens %{min} Zeichen lang sein"
+            }
+          },
+          "submit": "Melden Sie sich an",
+          "already_have_account": "Sie haben bereits ein Konto?",
+          "social": {
+            "title": "Oder melden Sie sich über einen Drittanbieter an"
+          }
+        }
+      },
+      "password": {
+        "change": {
+          "title": "Kennwort ändern",
+          "description": "Geben Sie das aktuelle Passwort und anschließend das neue Passwort ein."
+        },
+        "set": {
+          "title": "Legen Sie ein Passwort fest",
+          "description": "Sie haben zu diesem Zeitpunkt noch kein Passwort festgelegt. Gib dein neues Passwort ein."
+        },
+        "reset": {
+          "title": "Passwort zurücksetzen",
+          "description": "Geben Sie die verifizierte E-Mail-Adresse Ihres Benutzerkontos ein\n  um einen Link zum Zurücksetzen des Passworts zu erhalten.",
+          "keywords": "Passwort zurücksetzen",
+          "form": {
+            "email": {
+              "label": "Email",
+              "placeholder": "Geben sie ihre E-Mailadresse ein",
+              "validation": {
+                "email": "E-Mail muss eine gültige E-Mail-Adresse sein"
+              }
+            },
+            "submit": "Link zum Zurücksetzen des Passworts senden"
+          },
+          "success": {
+            "title": "Link zum Zurücksetzen des Passworts gesendet",
+            "description": "Der Link zum Zurücksetzen des Passworts wurde erfolgreich gesendet."
+          },
+          "error": {
+            "title": "Beim Senden des Links zum Zurücksetzen des Passworts ist ein Fehler aufgetreten",
+            "description": "Beim Senden des Links zum Zurücksetzen des Passworts ist ein Fehler aufgetreten."
+          },
+          "button": "Senden Sie eine E-Mail zum Zurücksetzen des Passworts",
+          "confirm": {
+            "title": "Passwort zurücksetzen",
+            "description": "Gib dein neues Passwort ein.",
+            "keywords": "Passwort zurücksetzen",
+            "form": {
+              "email": {
+                "label": "Email"
+              },
+              "newPassword1": {
+                "label": "Passwort",
+                "validation": {
+                  "min": "Das Passwort muss mindestens %{min} Zeichen lang sein"
+                }
+              },
+              "newPassword2": {
+                "label": "Kennwortprüfung",
+                "validation": {
+                  "min": "Die Passwortbestätigung muss mindestens %{min} Zeichen lang sein",
+                  "match": "Die Passwortbestätigung muss mit dem Passwort übereinstimmen"
+                },
+                "errors": {
+                  "match": "Die Passwortbestätigung muss mit dem Passwort übereinstimmen"
+                }
+              },
+              "password_confirmation": {
+                "label": "Kennwortprüfung",
+                "validation": {
+                  "min": "Die Passwortbestätigung muss mindestens %{min} Zeichen lang sein"
+                }
+              },
+              "submit": "Passwort zurücksetzen"
+            }
+          }
+        }
+      },
+      "index": {
+        "title": "Konto",
+        "nav": "Konto",
+        "description": "Konto",
+        "keywords": "Konto"
+      },
+      "orders": {
+        "title": "Aufträge",
+        "nav": "Aufträge",
+        "description": "Aufträge",
+        "keywords": "Aufträge",
+        "updated": "Bestellungen aktualisiert",
+        "update_error": "Fehler beim Aktualisieren der Bestellungen",
+        "deleted": "Bestellartikel gelöscht",
+        "delete_error": "Fehler beim Löschen der Bestelldetails",
+        "total": "Keine Bestellungen | 1 Bestellung | %{count} Bestellungen",
+        "ordering": {
+          "created_at": "Erstelldatum",
+          "updated_at": "Datum der Information",
+          "status": "Zustand"
+        },
+        "empty": {
+          "title": "Ihre Bestellungen sind leer",
+          "description": "Sie haben noch keine Bestellung aufgegeben.",
+          "button": "Geh zu dem Laden"
+        }
+      },
+      "favourites": {
+        "products": {
+          "title": "Lieblingsprodukte",
+          "nav": "Favoriten",
+          "description": "Favoriten",
+          "keywords": "Favoriten",
+          "updated": "Favoriten aktualisiert",
+          "update_error": "Fehler beim Aktualisieren der Favoriten",
+          "deleted": "Favoritenelement gelöscht",
+          "delete_error": "Fehler beim Löschen der Favoriten",
+          "ordering": {
+            "product_id": "Produkt ID",
+            "created_at": "In jüngerer Zeit",
+            "updated_at": "Datum der Information"
+          },
+          "empty": {
+            "title": "Ihre Favoriten sind leer",
+            "description": "Sie haben noch keine Lieblingsprodukte hinzugefügt.",
+            "button": "Geh zu dem Laden"
+          }
+        },
+        "posts": {
+          "title": "Lieblingsbeiträge",
+          "nav": "Favoriten",
+          "description": "Favoriten",
+          "keywords": "Favoriten",
+          "ordering": {
+            "title": "Titel",
+            "created_at": "In jüngerer Zeit",
+            "updated_at": "Datum der Information"
+          }
+        }
+      },
+      "reviews": {
+        "title": "Kritik",
+        "nav": "Kritik",
+        "description": "Kritik",
+        "keywords": "Kritik",
+        "updated": "Bewertungen wurden aktualisiert",
+        "update_error": "Fehler beim Aktualisieren der Bewertungen",
+        "deleted": "Bewertungen Artikel gelöscht",
+        "delete_error": "Bewertungen Fehler beim Löschen des Artikels",
+        "ordering": {
+          "created_at": "Erstelldatum",
+          "updated_at": "Datum der Information"
+        },
+        "empty": {
+          "title": "Ihre Bewertungen sind leer",
+          "description": "Sie haben noch keine Bewertungen hinzugefügt.",
+          "button": "Geh zu dem Laden"
+        }
+      },
+      "settings": {
+        "title": "Einstellungen",
+        "nav": "Einstellungen",
+        "description": "Einstellungen",
+        "keywords": "Einstellungen",
+        "updated": "Einstellungen aktualisiert",
+        "update_error": "Fehler beim Aktualisieren der Einstellungen",
+        "deleted": "Einstellungselement gelöscht",
+        "delete_error": "Fehler beim Löschen des Einstellungselements",
+        "validation": {
+          "email": {
+            "invalid": "Die E-Mail ist ungültig"
+          },
+          "region": {
+            "required": "Region erforderlich"
+          },
+          "first_name": {
+            "required": "Name erforderlich",
+            "min": "Der Name muss mindestens %{min} Zeichen lang sein"
+          },
+          "last_name": {
+            "required": "Nachname ist erforderlich",
+            "min": "Der Nachname muss mindestens %{min} Zeichen lang sein"
+          }
+        },
+        "form": {
+          "email": "Email",
+          "first_name": "Name",
+          "last_name": "Adjektiv",
+          "phone": "Telefon",
+          "city": "Stadt",
+          "zipcode": "Postleitzahlen",
+          "address": "Adresse",
+          "place": "Bereich",
+          "birth_date": "Geburtsdatum",
+          "country": "Land",
+          "region": "Region",
+          "submit": "Speichern",
+          "success": "Einstellungen erfolgreich aktualisiert",
+          "error": "Fehler beim Aktualisieren der Einstellungen",
+          "choose": {
+            "country": "Wähle ein Land",
+            "region": "Region wählen"
+          },
+          "date_picker": {
+            "cancel": "Stornieren",
+            "select": "Wählen",
+            "now": "Jetzt"
+          }
+        }
+      },
+      "addresses": {
+        "title": "Adressen",
+        "nav": "Adressen",
+        "description": "Adressen",
+        "keywords": "Adressen",
+        "updated": "Adressen aktualisiert",
+        "update_error": "Behebt den Update-Fehler",
+        "deleted": "Adressen Element gelöscht",
+        "delete_error": "Adressen Fehler beim Löschen des Elements",
+        "total": "Keine Adressen | 1 Adresse | %{count} Adressen",
+        "delete": "Löschen",
+        "ordering": {
+          "created_at": "Erstelldatum",
+          "updated_at": "Datum der Information",
+          "is_main": "Herr"
+        },
+        "empty": {
+          "title": "Ihre Adressen sind leer",
+          "description": "Sie haben noch keine Adressen hinzugefügt.",
+          "button": "Geh zu dem Laden"
+        },
+        "new": {
+          "title": "Neue Adresse",
+          "error": "Fehler beim Erstellen der Adresse",
+          "success": "Adresse erfolgreich erstellt",
+          "back": "Zurück zu den Adressen",
+          "main": {
+            "title": "Herr",
+            "success": "Die Primäradresse wurde erfolgreich aktualisiert",
+            "error": "Fehler beim Aktualisieren der Primäradresse"
+          },
+          "form": {
+            "title": "Adresse",
+            "first_name": "Name",
+            "last_name": "Adjektiv",
+            "street": "Straße",
+            "street_number": "Hausnummer",
+            "city": "Stadt",
+            "zipcode": "Postleitzahlen",
+            "phone": "Telefon",
+            "mobile_phone": "Mobiltelefon",
+            "notes": "Anmerkungen",
+            "floor": "Boden",
+            "location_type": "Standorttyp",
+            "country": "Land",
+            "region": "Region",
+            "submit": "Speichern"
+          },
+          "validation": {
+            "title": {
+              "min": "Der Titel muss mindestens %{min} Zeichen lang sein"
+            },
+            "first_name": {
+              "min": "Der Name muss mindestens %{min} Zeichen lang sein"
+            },
+            "last_name": {
+              "min": "Der Nachname muss mindestens %{min} Zeichen lang sein"
+            },
+            "street": {
+              "min": "Der Pfad muss mindestens %{min} Zeichen lang sein"
+            },
+            "street_number": {
+              "min": "Die Straßennummer muss mindestens %{min} Zeichen lang sein"
+            },
+            "city": {
+              "min": "Die Stadt muss mindestens %{min} Zeichen lang sein"
+            },
+            "zipcode": {
+              "min": "Die Postleitzahl muss mindestens %{min} Zeichen lang sein"
+            },
+            "region": {
+              "required": "Region erforderlich"
+            }
+          }
+        },
+        "edit": {
+          "title": "Adresse bearbeiten",
+          "error": "Fehler beim Aktualisieren der Adresse",
+          "success": "Adresse erfolgreich aktualisiert",
+          "back": "Zurück zu den Adressen",
+          "main": {
+            "title": "Herr",
+            "success": "Die Primäradresse wurde erfolgreich aktualisiert",
+            "error": "Fehler beim Aktualisieren der Primäradresse",
+            "button": "Als primäre Adresse festlegen"
+          },
+          "form": {
+            "title": "Adresse",
+            "first_name": "Name",
+            "last_name": "Adjektiv",
+            "street": "Straße",
+            "street_number": "Hausnummer",
+            "city": "Stadt",
+            "zipcode": "Postleitzahlen",
+            "phone": "Telefon",
+            "mobile_phone": "Mobiltelefon",
+            "notes": "Anmerkungen",
+            "floor": "Boden",
+            "location_type": "Standorttyp",
+            "country": "Land",
+            "region": "Region",
+            "submit": "Speichern",
+            "update": "aktualisieren"
+          },
+          "validation": {
+            "title": {
+              "min": "Der Titel muss mindestens %{min} Zeichen lang sein"
+            },
+            "first_name": {
+              "min": "Der Name muss mindestens %{min} Zeichen lang sein"
+            },
+            "last_name": {
+              "min": "Der Nachname muss mindestens %{min} Zeichen lang sein"
+            },
+            "street": {
+              "min": "Der Pfad muss mindestens %{min} Zeichen lang sein"
+            },
+            "street_number": {
+              "min": "Die Straßennummer muss mindestens %{min} Zeichen lang sein"
+            },
+            "city": {
+              "min": "Die Stadt muss mindestens %{min} Zeichen lang sein"
+            },
+            "zipcode": {
+              "min": "Die Postleitzahl muss mindestens %{min} Zeichen lang sein"
+            },
+            "region": {
+              "required": "Region erforderlich"
+            }
+          }
+        }
+      },
+      "order": {
+        "title": "Serie",
+        "nav": "Serie",
+        "description": "Serie",
+        "keywords": "Serie",
+        "updated": "Die Bestellung wurde aktualisiert",
+        "update_error": "Fehler beim Aktualisieren der Bestellung",
+        "deleted": "Die Bestellposition wurde gelöscht",
+        "delete_error": "Fehler beim Löschen der Bestellposition",
+        "back": "Zurück zu Bestellungen",
+        "number": "Bestellnummer",
+        "details": "Bestelldetails",
+        "address": "Lieferanschrift",
+        "document_type": "Dateityp",
+        "pay_way": "Zahlungsmittel",
+        "synopsis": "Zusammenfassung",
+        "total": "Gesamt",
+        "product": {
+          "value": "Produktwert"
+        },
+        "shipping": {
+          "value": "Versandwert"
+        },
+        "ordering": {
+          "created_at": "Erstelldatum",
+          "updated_at": "Datum der Information"
+        },
+        "empty": {
+          "title": "Ihre Bestellungen sind leer",
+          "description": "Sie haben noch keine Bestellungen aufgegeben.",
+          "button": "Geh zu dem Laden"
+        }
+      },
+      "help": {
+        "title": "Hilfe",
+        "nav": "Hilfe",
+        "description": "Hilfe",
+        "keywords": "Hilfe",
+        "updated": "Hilfe aktualisiert",
+        "update_error": "Fehler beim Aktualisieren der Hilfe",
+        "deleted": "Hilfeelement gelöscht",
+        "delete_error": "Fehler beim Löschen des Hilfeelements"
+      },
+      "verify-email": {
+        "title": "Email Bestätigung",
+        "description": "Bitte bestätige deine Email",
+        "key": {
+          "title": "E-Mail-Adresse bestätigen",
+          "description": "E-Mail-Adresse bestätigen",
+          "keywords": "E-Mail-Adresse bestätigen",
+          "loading": "Ihre E-Mail-Adresse wird überprüft...",
+          "please_confirm_that": "Bitte bestätigen Sie die Adresse",
+          "is_an_email_address_for_user": "gehört dem Benutzer",
+          "invalid_verification_url": "Ungültiger Bestätigungslink",
+          "unable_to_confirm_email": "E-Mail konnte nicht bestätigt werden",
+          "because_it_is_already_confirmed": "weil es bereits bestätigt ist",
+          "success": {
+            "title": "E-Mail wurde bestätigt",
+            "description": "Ihre E-Mail-Adresse wurde bestätigt, Sie können sich jetzt anmelden.",
+            "button": "Verbindung"
+          },
+          "error": {
+            "title": "Fehler bei der E-Mail-Bestätigung",
+            "description": "Möglicherweise ist der Link abgelaufen oder ungültig.",
+            "button": "Bestätigungslink erneut senden"
+          },
+          "resend": {
+            "success": {
+              "title": "E-Mail-Bestätigungslink gesendet",
+              "description": "E-Mail-Bestätigungslink erfolgreich gesendet."
+            },
+            "error": {
+              "title": "Fehler beim erneuten Senden des E-Mail-Bestätigungslinks",
+              "description": "Fehler beim erneuten Senden des E-Mail-Bestätigungslinks."
+            },
+            "button": "Bestätigungslink erneut senden",
+            "form": {
+              "email": {
+                "label": "Email"
+              },
+              "submit": "Bestätigungslink erneut senden"
+            }
+          }
+        }
+      },
+      "2fa": {
+        "title": "Zwei-Faktor-Authentifizierung",
+        "authenticator": {
+          "app": "Authentifizierungsanwendung"
+        },
+        "app": "Authentifizierungsanwendung",
+        "active": "Die Verifizierung mittels Authentifizierungs-App ist aktiv.",
+        "inactive": "Die Authentifizierungsanwendung ist nicht aktiv.",
+        "authenticate": {
+          "title": "Authentifizierungsanwendung",
+          "description": "Ihr Konto ist durch eine Zwei-Faktor-Authentifizierung geschützt. Bitte geben Sie den von der Authentifizierungsanwendung generierten Code ein."
+        },
+        "recovery-codes": {
+          "title": "Wiederherstellungscodes",
+          "unset": "Es wurden keine Wiederherstellungscodes festgelegt",
+          "info": "Ihnen stehen %{unused_code_count} von %{total_code_count} Wiederherstellungscodes zur Verfügung.",
+          "generate": {
+            "title": "Generieren von Wiederherstellungscodes",
+            "description": "Sie sind bereit, einen neuen Satz Wiederherstellungscodes für Ihr Konto zu erstellen.",
+            "invalidate": "Durch diese Aktion werden Ihre vorhandenen Passwörter ungültig.",
+            "confirm": "Bist du sicher;"
+          }
+        },
+        "reauthenticate": {
+          "title": "Überprüfung"
+        },
+        "totp": {
+          "activate": {
+            "title": "Authentifizierungsanwendung (TOTP) aktivieren"
+          },
+          "deactivate": {
+            "title": "Authentifizierungsanwendung (TOTP) deaktivieren",
+            "description": "Möchten Sie die Authentifizierungs-App wirklich deaktivieren?"
+          }
+        }
+      }
+    },
+    "search": {
+      "title": "suchen",
+      "nav": "suchen",
+      "description": "suchen",
+      "keywords": "suchen",
+      "empty": {
+        "title": "keine Ergebnisse gefunden",
+        "description": "keine Ergebnisse gefunden",
+        "button": "Geh zu dem Laden"
+      },
+      "placeholder": "Suchen...",
+      "error": "Beim Abrufen ist ein Fehler aufgetreten",
+      "results": "Suchergebnis für",
+      "start_searching": "Geben Sie ein, um mit der Suche zu beginnen",
+      "back_to_home": "Zurück nach Hause"
+    },
+    "vision": {
+      "title": "Vision"
+    }
+  }
+}

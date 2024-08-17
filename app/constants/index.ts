@@ -27,6 +27,7 @@ export const AuthenticatedRoutePrefixes = [
   '/account/reviews',
   '/account/sessions',
   '/account/settings',
+  '/account/2fa/reauthenticate',
 ] as const
 
 export const AuthenticatedRoutes = [
@@ -34,7 +35,6 @@ export const AuthenticatedRoutes = [
   '/account/2fa',
   '/account/email',
   '/account/reauthenticate',
-  '/account/2fa/reauthenticate',
 ] as const
 
 export const THEME_COLORS = {

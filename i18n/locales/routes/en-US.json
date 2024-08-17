@@ -1,0 +1,26 @@
+{
+  "routes": {
+    "el": "Greek",
+    "en": "English",
+    "de": "German",
+    "id": "Indonesian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "zh": "Chinese",
+    "setting": "Composition",
+    "test": "Test",
+    "blank": "Vacuum",
+    "testing": "Tests",
+    "products": "Products",
+    "product": "Product",
+    "home": "Home",
+    "cart": "Trolley",
+    "checkout": "Checkout",
+    "account": "Account",
+    "orders": "Orders",
+    "favourites": "Favorites",
+    "reviews": "Critics",
+    "settings": "Settings",
+    "help": "Help"
+  }
+}

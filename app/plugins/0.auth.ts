@@ -8,38 +8,28 @@ export default defineNuxtPlugin({
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
 
-    const { loggedIn, fetch, clear } = useUserSession()
+    const { fetch, clear } = useUserSession()
 
-    const userStore = useUserStore()
-    const { setupSessions } = userStore
-
-    if (loggedIn.value) {
-      await setupSessions()
-    }
-
-    const fromAuth = ref(authState.value)
+    const fromAuth = ref<AllAuthResponse | AllAuthResponseError | null>(authState.value)
 
     nuxtApp.hook('auth:change', async ({ detail }) => {
       if (fromAuth.value) {
-        authEvent.value = determineAuthChangeEvent(fromAuth.value, detail)
+        authEvent.value = determineAuthChangeEvent(detail, fromAuth.value)
       }
-
       authState.value = detail
 
       if (detail.status === 200 && detail.meta?.access_token && detail.data.user) {
         await fetch()
       }
-
       fromAuth.value = detail
     })
 
     watch(
       () => [authEvent.value, authState.value],
-      async ([newVal, _oldVal]) => {
+      async ([authEventVal, _authStateVal]) => {
         const auth = authState.value
         const localePath = useLocalePath()
-
-        switch (newVal) {
+        switch (authEventVal) {
           case AuthChangeEvent.LOGGED_OUT:
             await clear()
             return nuxtApp.runWithContext(() => navigateTo({
@@ -58,15 +48,15 @@ export default defineNuxtPlugin({
             if (next) {
               return nuxtApp.runWithContext(() => navigateTo(localePath(next as string)))
             }
-            break
+            return nuxtApp.runWithContext(() => navigateTo(localePath(URLs.LOGIN_REDIRECT_URL)))
           }
           case AuthChangeEvent.REAUTHENTICATION_REQUIRED: {
             const router = useRouter()
             const next = router.currentRoute.value.fullPath
             if ('data' in auth) {
-              const flowId = auth.data?.flows?.[0]?.id
-              if (flowId) {
-                const path = pathForFlow(flowId)
+              const flow = auth.data?.flows?.[0]
+              if (flow) {
+                const path = pathForFlow(flow)
                 return nuxtApp.runWithContext(() => navigateTo({
                   path: localePath(path),
                   query: {

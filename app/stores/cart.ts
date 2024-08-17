@@ -87,22 +87,25 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    await useFetch('/api/cart', {
-      method: 'GET',
-      onRequest() {
-        pending.value.cart = true
-      },
-      onRequestError({ error: requestError }) {
-        error.value.cart = requestError
-      },
-      onResponse({ response }) {
-        cart.value = response._data
-        pending.value.cart = false
-      },
-      onResponseError({ error: responseError }) {
-        error.value.cart = responseError
-      },
-    })
+    await useLazyAsyncData('cart', () =>
+      $fetch('/api/cart', {
+        method: 'GET',
+        headers: useRequestHeaders(),
+        onRequest() {
+          pending.value.cart = true
+        },
+        onRequestError({ error: requestError }) {
+          error.value.cart = requestError
+        },
+        onResponse({ response }) {
+          cart.value = response._data
+          pending.value.cart = false
+        },
+        onResponseError({ error: responseError }) {
+          error.value.cart = responseError
+        },
+      }),
+    )
   }
 
   async function refreshCart() {
@@ -117,6 +120,7 @@ export const useCartStore = defineStore('cart', () => {
 
     await $fetch('/api/cart', {
       method: 'GET',
+      headers: useRequestHeaders(),
       onRequest() {
         pending.value.cart = true
       },
@@ -248,6 +252,7 @@ export const useCartStore = defineStore('cart', () => {
 
     await $fetch('/api/cart/items', {
       method: 'POST',
+      headers: useRequestHeaders(),
       body: requestBody,
       onRequest() {
         pending.value.cart = true

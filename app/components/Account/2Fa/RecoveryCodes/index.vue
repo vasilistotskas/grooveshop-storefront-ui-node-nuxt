@@ -4,7 +4,10 @@ const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 
-const { data, refresh, error } = await getRecoveryCodes()
+const { data, refresh, error } = await useAsyncData(
+  'recoveryCodes',
+  () => getRecoveryCodes(),
+)
 
 if (error.value) {
   toast.add({
@@ -18,10 +21,10 @@ const unused_codes = computed(() => {
   return data.value?.data.unused_codes ?? []
 })
 const created_at = computed(() => {
-  return data.value?.data.created_at ?? ''
+  return data.value?.data.created_at ?? null
 })
 const last_used_at = computed(() => {
-  return data.value?.data.last_used_at ?? ''
+  return data.value?.data.last_used_at ?? null
 })
 const total_code_count = computed(() => {
   return data.value?.data.total_code_count ?? 0
@@ -34,16 +37,6 @@ const columns = [{
   key: 'code',
   label: t('common.code'),
 }, {
-  key: 'created_at',
-  label: t('common.created_at'),
-}, {
-  key: 'last_used_at',
-  label: t('common.last_used_at'),
-  sortable: true,
-}, {
-  key: 'used',
-  label: t('common.used'),
-}, {
   key: 'actions',
 }]
 
@@ -51,9 +44,6 @@ const rows = computed(() => {
   return unused_codes.value?.map((code) => {
     return {
       code,
-      created_at,
-      last_used_at,
-      used: !!last_used_at.value,
     }
   }) ?? []
 })
@@ -68,8 +58,8 @@ const downloadCodes = () => {
   link.click()
 }
 
-onReactivated(() => {
-  refresh()
+onReactivated(async () => {
+  await refresh()
 })
 </script>
 
@@ -107,6 +97,24 @@ onReactivated(() => {
             "
           >
             <strong>{{ $t('common.unused_code_count') }}:</strong> {{ unused_code_count }}
+          </p>
+          <p
+            class="
+              text-primary-950
+
+              dark:text-primary-50
+            "
+          >
+            <strong>{{ $t('common.created_at') }}:</strong> {{ created_at ? new Date(created_at * 1000).toLocaleString() : $t('common.unused') }}
+          </p>
+          <p
+            class="
+              text-primary-950
+
+              dark:text-primary-50
+            "
+          >
+            <strong>{{ $t('common.last_used_at') }}:</strong> {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $t('common.unused') }}
           </p>
         </div>
         <div class="grid items-center justify-center justify-items-center">

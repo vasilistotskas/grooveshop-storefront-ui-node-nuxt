@@ -11,7 +11,6 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   app: {
-    keepalive: true,
     head: {
       viewport: 'width=device-width,initial-scale=1,viewport-fit=cover',
       charset: 'utf-8',
@@ -137,8 +136,8 @@ export default defineNuxtConfig({
     lazy: true,
     defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE || 'el',
     debug: process.env.NUXT_PUBLIC_I18N_DEBUG === 'true',
-    langDir: 'locales/',
-    baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
+    baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+    restructureDir: 'i18n',
     detectBrowserLanguage: {
       useCookie: true,
       redirectOn: 'root',
@@ -152,43 +151,43 @@ export default defineNuxtConfig({
         code: 'el',
         name: 'Ελληνικά',
         files: [
-          'el-GR.yml',
-          'components/el-GR.yml',
-          'pages/el-GR.yml',
-          'routes/el-GR.yml',
-          'breadcrumb/el-GR.yml',
+          'el-GR.json',
+          'components/el-GR.json',
+          'pages/el-GR.json',
+          'routes/el-GR.json',
+          'breadcrumb/el-GR.json',
         ],
-        iso: 'el-GR',
+        language: 'el-GR',
         flag: '🇬🇷',
       },
       {
         code: 'en',
         name: 'English',
         files: [
-          'en-US.yml',
-          'components/en-US.yml',
-          'pages/en-US.yml',
-          'routes/en-US.yml',
-          'breadcrumb/en-US.yml',
+          'en-US.json',
+          'components/en-US.json',
+          'pages/en-US.json',
+          'routes/en-US.json',
+          'breadcrumb/en-US.json',
         ],
-        iso: 'en-US',
+        language: 'en-US',
         flag: '🇺🇸',
       },
       {
         code: 'de',
         name: 'Deutsch',
         files: [
-          'de-DE.yml',
-          'components/de-DE.yml',
-          'pages/de-DE.yml',
-          'routes/de-DE.yml',
-          'breadcrumb/de-DE.yml',
+          'de-DE.json',
+          'components/de-DE.json',
+          'pages/de-DE.json',
+          'routes/de-DE.json',
+          'breadcrumb/de-DE.json',
         ],
-        iso: 'de-DE',
+        language: 'de-DE',
         flag: '🇩🇪',
       },
     ],
-    vueI18n: 'i18n.config.mts',
+    vueI18n: './i18n/i18n.config.mts',
     compilation: {
       strictMessage: false,
     },
@@ -206,6 +205,13 @@ export default defineNuxtConfig({
     auth: {
       cookieDomain:
       process.env.NUXT_AUTH_COOKIE_DOMAIN,
+    },
+
+    oauth: {
+      google: {
+        clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET,
+      },
     },
 
     turnstile: {
@@ -510,10 +516,12 @@ export default defineNuxtConfig({
     options: {
       rules: {
         'unrecognized-char-ref': 'off',
+        'wcag/h30': 'warn',
         'wcag/h37': 'warn',
         'element-permitted-content': 'warn',
         'element-required-attributes': 'warn',
         'attribute-empty-style': 'off',
+        'prefer-native-element': 'off',
       },
     },
   },

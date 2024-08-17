@@ -209,9 +209,7 @@ definePageMeta({
               >
                 <p
                   v-if="!currentSearch && storageSearchHistory.length > 0"
-                  class="
-                  recent-searches flex items-center justify-between px-2
-                "
+                  class="recent-searches flex items-center justify-between px-2"
                 >
                   <span
                     class="

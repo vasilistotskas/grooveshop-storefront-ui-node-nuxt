@@ -140,6 +140,7 @@ const fetchReplies = async (cursorValue: string) => {
 async function onReplySubmit({ content }: { content: string }) {
   await $fetch('/api/blog/comments', {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: {
       post: String(blogPost.value?.id),
       user: String(user?.value?.id),

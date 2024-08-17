@@ -199,6 +199,8 @@ const onSubmit = handleSubmit((values, actions) => {
   }
 })
 
+const isDev = computed(() => import.meta.dev)
+
 // Define the form state for Nuxt UI
 const formState = computed(() => {
   return Object.fromEntries(
@@ -212,8 +214,12 @@ const valid = computedAsync(async () => {
     return true
   }
 
-  if (!token.value && turnstileEnable.value) {
-    return true
+  if (turnstileEnable.value) {
+    if (!isDev.value) {
+      if (!token.value) {
+        return true
+      }
+    }
   }
 
   return await validationSchema
@@ -294,7 +300,7 @@ defineExpose({
       <UFormGroup
         v-if="fields[name]"
         v-model="fields[name][0].value"
-        :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+        :class="{ 'items-center': true, 'grid': as !== 'checkbox', 'gap-1': children && children.length > 0, 'sr-only': hidden, 'flex': as === 'checkbox', 'gap-2': as === 'checkbox' }"
         :label="label ? label : undefined"
         :name="name"
         v-bind="fields[name][1].value"
@@ -325,6 +331,30 @@ defineExpose({
             <LazyDynamicFormChildren :children="children" />
           </div>
         </UTextarea>
+        <UCheckbox
+          v-else-if="as === 'checkbox'"
+          :id="groupId"
+          v-model="fields[name][0].value"
+          :aria-describedby="errors[name] ? `error-${name}` : undefined"
+          :aria-invalid="errors[name] ? 'true' : 'false'"
+          :aria-readonly="readonly"
+          :as="as"
+          :autocomplete="autocomplete"
+          :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+          :disabled="disabledFields[name]"
+          :hidden="hidden ? 'hidden' : undefined"
+          :name="name"
+          :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
+          :readonly="readonly"
+          :required="required"
+          :type="type"
+          color="primary"
+          v-bind="fields[name][1].value"
+        >
+          <div v-if="children && children.length > 0">
+            <LazyDynamicFormChildren :children="children" />
+          </div>
+        </UCheckbox>
         <UInput
           v-else
           :id="groupId"
@@ -352,7 +382,7 @@ defineExpose({
       </UFormGroup>
     </template>
 
-    <FormTurnstileContainer v-if="turnstileEnable">
+    <FormTurnstileContainer v-if="turnstileEnable && !isDev">
       <NuxtTurnstile
         :key="$colorMode.value"
         ref="turnstile"

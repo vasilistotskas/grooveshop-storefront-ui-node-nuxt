@@ -19,7 +19,10 @@ const { t } = useI18n()
 
 const loading = ref(false)
 
-const { data: emailAddresses, refresh: refreshEmailAddresses } = await getEmailAddresses()
+const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData(
+  'emailAddresses',
+  () => getEmailAddresses(),
+)
 
 async function addEmail(values: EmailPostBody) {
   try {

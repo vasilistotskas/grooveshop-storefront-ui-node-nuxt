@@ -9,7 +9,10 @@ const route = useRoute()
 
 const loading = ref(false)
 
-const { data: getVerifyEmailData } = await getEmailVerify(String(route.params.key))
+const { data: getVerifyEmailData } = await useAsyncData(
+  'verifyEmail',
+  () => getEmailVerify(String(route.params.key)),
+)
 
 async function onSubmit() {
   try {

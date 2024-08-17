@@ -90,9 +90,9 @@ const changeUserName = async () => {
       </div>
       <div class="user-info-name relative flex w-full items-center">
         <UButton
-          :aria-label="userNameEditing ? $t('common.save') : $t('common.edit')"
+          :aria-label="userNameEditing ? $t('common.save') : $t('common.edit.title')"
           :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
-          :title="userNameEditing ? $t('common.save') : $t('common.edit')"
+          :title="userNameEditing ? $t('common.save') : $t('common.edit.title')"
           :ui="{
             icon: {
               base: userNameEditing ? 'bg-green-500 dark:bg-green-400' : '',

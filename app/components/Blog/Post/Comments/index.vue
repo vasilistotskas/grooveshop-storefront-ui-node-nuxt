@@ -63,6 +63,7 @@ const refreshLikedComments = async (ids: number[]) => {
   if (!loggedIn.value) return
   return await $fetch('/api/blog/comments/liked-comments', {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: {
       commentIds: ids,
     },
@@ -120,6 +121,7 @@ const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
   = await useFetch('/api/blog/comments/user-blog-comment', {
     key: `userBlogPostComment${blogPostId.value}`,
     method: 'POST',
+    headers: useRequestHeaders(),
     body: {
       post: blogPostId.value,
     },
@@ -134,6 +136,7 @@ const commentIds = computed(() => {
 await useFetch('/api/blog/comments/liked-comments', {
   key: `likedComments${blogPostId.value}`,
   method: 'POST',
+  headers: useRequestHeaders(),
   body: {
     commentIds: commentIds.value,
   },
@@ -171,6 +174,7 @@ const addCommentFormSchema: DynamicFormSchema = {
 async function onAddCommentSubmit({ content }: { content: string }) {
   await $fetch('/api/blog/comments', {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: {
       post: String(blogPostId.value),
       user: String(user?.value?.id),

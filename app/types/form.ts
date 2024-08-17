@@ -26,7 +26,7 @@ export const ZodDynamicFormSchemaField = z.array(
     required: z.boolean().default(false),
     placeholder: z.string().default(''),
     type: z
-      .enum(['text', 'password', 'date', 'email', 'number'])
+      .enum(['text', 'password', 'date', 'email', 'number', 'checkbox'])
       .default('text'),
     initialValue: z.any().optional().nullish(),
     children: ZodDynamicFormSchemaChildren.optional().nullish(),

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type AllAuthResponse, type AllAuthResponseError, URLs } from '~/types/all-auth'
+import { URLs } from '~/types/all-auth'
 
 const {
   providerToken,
@@ -10,8 +10,7 @@ const localePath = useLocalePath()
 const { error: apiError, provider, access_token, id_token, client_id, process } = route.query
 
 const { t } = useI18n()
-const auth = useState<AllAuthResponse | AllAuthResponseError>('authState')
-const authStatus = authInfo(auth.value)
+const authInfo = useAuthInfo()
 
 const url = ref<string>(URLs.LOGIN_URL)
 const error = ref(false)
@@ -24,7 +23,7 @@ const title = computed(() => {
 })
 
 onMounted(async () => {
-  if (authStatus.isAuthenticated) {
+  if (authInfo.isAuthenticated) {
     url.value = URLs.LOGIN_REDIRECT_URL
     await navigateTo(localePath(url.value))
   }

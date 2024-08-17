@@ -39,7 +39,7 @@ export const ZodAuthenticationMeta = z.object({
 export const ZodUnauthenticatedMeta = z.object({
   session_token: z.string().optional().describe('The session token (app clients only).'),
   access_token: z.string().optional().describe('The access token (app clients only).'),
-  is_authenticated: z.literal(false).nullable(),
+  is_authenticated: z.boolean().nullable(),
 }).describe('Metadata available in an unauthenticated response.')
 
 export const ZodProviderToken = z.object({
@@ -70,9 +70,17 @@ export const ZodFlow = z.object({
     'mfa_reauthenticate',
     'mfa_authenticate',
     'mfa_login_webauthn',
+    'mfa_reauthenticate_webauthn',
   ]),
   provider: ZodProvider.optional(),
   is_pending: z.boolean().optional(),
+  types: z.array(z.enum(['totp', 'recovery_codes', 'webauthn'])).optional(),
+})
+
+export const ZodAuthenticated = z.object({
+  user: ZodUser,
+  methods: ZodMethods,
+  flows: z.array(ZodFlow).optional(),
 })
 
 export const ZodTOTPAuthenticator = z.object({
@@ -110,31 +118,40 @@ export const URLs = {
   LOGOUT_REDIRECT_URL: '/',
 } as const
 
-export const Flow2path = {
-  login: '/account/login',
-  login_by_code: '/account/login/code/confirm',
-  signup: '/account/signup',
-  verify_email: '/account/verify-email',
-  provider_redirect: '/account/provider/redirect',
-  provider_signup: '/account/provider/signup',
-  provider_token: '/account/provider/token',
-  mfa_authenticate: '/account/2fa/authenticate',
-  reauthenticate: '/account/reauthenticate',
-  mfa_reauthenticate: '/account/2fa/reauthenticate',
-} as const
-
 export const Flows = {
+  VERIFY_EMAIL: 'verify_email',
   LOGIN: 'login',
   LOGIN_BY_CODE: 'login_by_code',
   SIGNUP: 'signup',
-  VERIFY_EMAIL: 'verify_email',
   PROVIDER_REDIRECT: 'provider_redirect',
   PROVIDER_SIGNUP: 'provider_signup',
-  PROVIDER_TOKEN: 'provider_token',
   MFA_AUTHENTICATE: 'mfa_authenticate',
   REAUTHENTICATE: 'reauthenticate',
   MFA_REAUTHENTICATE: 'mfa_reauthenticate',
-  MFA_LOGIN_WEBAUTHN: 'mfa_login_webauthn',
+} as const
+
+export const AuthenticatorType = {
+  TOTP: 'totp',
+  RECOVERY_CODES: 'recovery_codes',
+  WEBAUTHN: 'webauthn',
+} as const
+
+export type AuthenticatorTypeKeys = keyof typeof AuthenticatorType
+export type AuthenticatorTypeValues = (typeof AuthenticatorType)[AuthenticatorTypeKeys]
+
+export const Flow2path = {
+  [Flows.LOGIN]: '/account/login',
+  [Flows.LOGIN_BY_CODE]: '/account/login/code/confirm',
+  [Flows.SIGNUP]: '/account/signup',
+  [Flows.VERIFY_EMAIL]: '/account/verify-email',
+  [Flows.PROVIDER_SIGNUP]: '/account/provider/signup',
+  [Flows.REAUTHENTICATE]: '/account/reauthenticate',
+  [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.TOTP}`]: '/account/2fa/authenticate/totp',
+  [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: '/account/2fa/authenticate/recovery-codes',
+  [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: '/account/2fa/authenticate/webauthn',
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: '/account/2fa/reauthenticate/totp',
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: '/account/2fa/reauthenticate/recovery-codes',
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: '/account/2fa/reauthenticate/webauthn',
 } as const
 
 export const AuthChangeEvent = Object.freeze({
@@ -144,12 +161,6 @@ export const AuthChangeEvent = Object.freeze({
   REAUTHENTICATION_REQUIRED: 'REAUTHENTICATION_REQUIRED',
   FLOW_UPDATED: 'FLOW_UPDATED',
 })
-
-export const AuthenticatorType = {
-  TOTP: 'totp',
-  RECOVERY_CODES: 'recovery_codes',
-  WEBAUTHN: 'webauthn',
-} as const
 
 export type Session = z.infer<typeof ZodSession>
 export type Flow = z.infer<typeof ZodFlow>

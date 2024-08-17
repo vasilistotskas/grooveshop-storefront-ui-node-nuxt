@@ -8,7 +8,6 @@ const { user } = useUserSession()
 const { enabled } = useAuthPreviewMode()
 
 const pageSize = ref(4)
-const pending = ref(true)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -30,7 +29,7 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const { data: favourites } = await useFetch(
+const { data: favourites, status } = useFetch(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
     method: 'GET',
@@ -40,17 +39,11 @@ const { data: favourites } = await useFetch(
       pageSize: pageSize.value,
       expand: 'true',
     },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      pending.value = false
-    },
   },
 )
 
 const refreshFavourites = async () => {
-  pending.value = true
+  status.value = 'pending'
   const favourites = await $fetch(
     `/api/user/account/${user.value?.id}/liked-blog-posts`,
     {
@@ -63,7 +56,7 @@ const refreshFavourites = async () => {
       },
     },
   )
-  pending.value = false
+  status.value = 'success'
   return favourites
 }
 
@@ -114,11 +107,11 @@ definePageMeta({
         />
       </div>
       <BlogPostFavouritesList
-        v-if="!pending && favourites?.results?.length"
+        v-if="status !== 'pending' && favourites?.results?.length"
         :favourites="favourites?.results"
         :favourites-count="favourites?.count"
       />
-      <template v-if="pending">
+      <template v-if="status === 'pending'">
         <div class="grid w-full items-start gap-4">
           <div class="flex w-full items-center justify-center">
             <ClientOnlyFallback

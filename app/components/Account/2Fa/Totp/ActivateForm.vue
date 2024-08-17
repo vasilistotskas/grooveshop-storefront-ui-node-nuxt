@@ -84,9 +84,9 @@ const formSchema: DynamicFormSchema = {
   ],
 }
 
-onReactivated(() => {
+onReactivated(async () => {
   if (refresh) {
-    refresh()
+    await refresh()
   }
 })
 </script>

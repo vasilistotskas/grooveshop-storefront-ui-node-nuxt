@@ -5,10 +5,17 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const { getAuthenticators } = useAllAuthAccount()
 
-const { data, refresh } = await getAuthenticators()
+const { data, refresh } = await useLazyAsyncData(
+  'authenticators',
+  () => getAuthenticators(),
+)
 
 const totp = computed(() => {
   return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.TOTP)
+})
+
+const webauthn = computed(() => {
+  return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN)
 })
 
 const recoveryCodes = computed(() => {
@@ -57,11 +64,26 @@ const links = computed(() => {
     })
   }
 
+  if (webauthn.value) {
+    links.push({
+      label: t('common.two_factor.webauthn.title'),
+      icon: 'i-heroicons-key',
+      to: localePath('/account/2fa/webauthn'),
+    })
+  }
+  else {
+    links.push({
+      label: t('common.two_factor.webauthn.add'),
+      icon: 'i-heroicons-key',
+      to: localePath('/account/2fa/webauthn/add'),
+    })
+  }
+
   return links
 })
 
-onReactivated(() => {
-  refresh()
+onReactivated(async () => {
+  await refresh()
 })
 
 definePageMeta({

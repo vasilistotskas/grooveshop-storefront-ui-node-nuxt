@@ -102,13 +102,22 @@ const submitButtonLabel = computed(() => {
     : t('common.loading')
 })
 
+const isDev = computed(() => import.meta.dev)
+
 const submitButtonDisabled = computed(() => {
-  return loading.value || submitCount.value > 5 || !token.value
+  if (!isDev.value) {
+    if (!token.value) {
+      return true
+    }
+  }
+  return loading.value || submitCount.value > 5
 })
 
 onReactivated(() => {
-  token.value = ''
-  turnstile.value?.reset()
+  if (!isDev.value) {
+    token.value = ''
+    turnstile.value?.reset()
+  }
 })
 </script>
 
@@ -226,7 +235,7 @@ onReactivated(() => {
             />
           </div>
 
-          <FormTurnstileContainer>
+          <FormTurnstileContainer v-if="!isDev">
             <NuxtTurnstile
               :key="$colorMode.value"
               ref="turnstile"
@@ -249,39 +258,42 @@ onReactivated(() => {
             variant="soft"
           />
 
-          <div
-            class="
-              my-2 flex items-center
-
-              after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300
-
-              before:mt-0.5 before:flex-1 before:border-t
-              before:border-neutral-300
-            "
-          >
-            <p
+          <div v-if="hasProviders" class="grid gap-4">
+            <div
               class="
-                mx-4 text-center font-semibold
+                my-2 flex items-center
 
-                dark:text-neutral-200
+                after:mt-0.5 after:flex-1 after:border-t
+                after:border-neutral-300
+
+                before:mt-0.5 before:flex-1 before:border-t
+                before:border-neutral-300
               "
             >
-              {{ $t('common.or.title') }}
-            </p>
-          </div>
+              <p
+                class="
+                  mx-4 text-center font-semibold
 
-          <div v-if="hasProviders" class="grid items-center justify-center gap-4">
-            <p
-              class="
-                text-primary-950
+                  dark:text-neutral-200
+                "
+              >
+                {{ $t('common.or.title') }}
+              </p>
+            </div>
+            <WebAuthnLoginButton />
+            <div class="grid items-center justify-center gap-4">
+              <p
+                class="
+                  text-primary-950
 
-                dark:text-primary-50
-              "
-            >
-              {{ $t('pages.account.login.form.social.title') }}
-            </p>
-            <div class="flex items-center justify-center gap-4">
-              <AccountProviderList />
+                  dark:text-primary-50
+                "
+              >
+                {{ $t('pages.account.login.form.social.title') }}
+              </p>
+              <div class="flex items-center justify-center gap-4">
+                <AccountProviderList />
+              </div>
             </div>
           </div>
 

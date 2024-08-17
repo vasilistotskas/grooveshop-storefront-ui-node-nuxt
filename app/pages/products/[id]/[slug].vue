@@ -54,6 +54,7 @@ const shouldFetchFavouriteProducts = computed(() => {
 
 await useFetch('/api/products/favourites/favourites-by-products', {
   method: 'POST',
+  headers: useRequestHeaders(),
   body: {
     productIds: [productId],
   },
@@ -70,6 +71,7 @@ await useFetch('/api/products/favourites/favourites-by-products', {
 const { data: userProductReview, refresh: refreshUserProductReview }
   = await useFetch('/api/products/reviews/user-product-review', {
     key: `productReviews${productId}${user.value?.id}`,
+    headers: useRequestHeaders(),
     method: 'POST',
     body: {
       product: String(productId),

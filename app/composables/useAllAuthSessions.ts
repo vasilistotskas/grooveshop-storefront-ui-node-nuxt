@@ -4,8 +4,9 @@ const API_BASE_URL = '/api/_allauth/app/v1/auth'
 
 export default function () {
   async function getSessions() {
-    return useFetch(`${API_BASE_URL}/sessions`, {
+    return $fetch(`${API_BASE_URL}/sessions`, {
       method: 'GET',
+      headers: useRequestHeaders(),
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
       },

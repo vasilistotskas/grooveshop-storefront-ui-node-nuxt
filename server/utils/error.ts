@@ -70,6 +70,7 @@ export async function handleError(
   error: unknown,
 ) {
   if (error instanceof ZodError || error instanceof FetchError || error instanceof H3Error) {
+    console.error('Error:', error)
     throw createError(error)
   }
   else {
@@ -88,9 +89,11 @@ export async function handleAllAuthError(
 
   if (isAllAuthError(error)) {
     if (error.data.status === 410) {
+      console.warn('Session expired:', error.data)
       await clearUserSession(event)
     }
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
+      console.warn('Unauthorized:', error.data)
       if (error.data.meta?.session_token) {
         await setUserSession(event, {
           sessionToken: error.data.meta.session_token,
@@ -102,11 +105,15 @@ export async function handleAllAuthError(
         })
       }
     }
+    console.info('AllAuth error:', error.data)
     await allAuthHooks.callHookParallel('authChange', { detail: error.data })
   }
   else {
-    // Handle other types of errors if necessary
     console.error('Unexpected AllAuth error type:', error, event)
+
+    if (typeof error === 'object' && error !== null && 'data' in error) {
+      console.error('Error Data:', error.data)
+    }
   }
 
   await handleError(error)

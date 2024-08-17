@@ -22,9 +22,16 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const setupSession = async () => {
+    const { loggedIn } = useUserSession()
+    if (!loggedIn.value) {
+      return
+    }
     const { getSession } = useAllAuthAuthentication()
     await callOnce(async () => {
-      const { data } = await getSession()
+      const { data } = await useAsyncData(
+        'session',
+        () => getSession(),
+      )
       if (data.value) {
         session.value = data.value
       }
@@ -34,7 +41,10 @@ export const useAuthStore = defineStore('auth', () => {
   const setupConfig = async () => {
     const { getConfig } = useAllAuthConfig()
     await callOnce(async () => {
-      const { data } = await getConfig()
+      const { data } = await useAsyncData(
+        'config',
+        () => getConfig(),
+      )
       if (data.value) {
         config.value = data.value
       }
@@ -45,17 +55,28 @@ export const useAuthStore = defineStore('auth', () => {
     if (totpSecret.value || totpSvg.value) return
 
     const { totpAuthenticatorStatus } = useAllAuthAccount()
-    const { data, error, refresh } = await totpAuthenticatorStatus()
+    const { data, error, refresh } = await useAsyncData(
+      'totpAuthenticatorStatus',
+      () => totpAuthenticatorStatus(),
+    )
 
     if (data.value) {
       totpData.value = data.value
     }
 
-    if (!isAllAuthClientError(error.value)) return
-    const secret = error.value?.data.data.meta.secret
-    const svg = error.value?.data.data.meta.svg
-    totpSecret.value = secret
-    totpSvg.value = svg
+    if (!isAllAuthClientError(error.value) || !('meta' in error.value.data.data)) return
+
+    if ('secret' in error.value.data.data.meta) {
+      totpSecret.value = error.value?.data.data.meta.secret
+    }
+
+    if ('svg' in error.value.data.data.meta) {
+      const svg = error.value?.data.data.meta.svg
+      if (typeof svg === 'string') {
+        totpSvg.value = svg
+      }
+    }
+
     return { data, error, refresh }
   }
 

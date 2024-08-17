@@ -1,4 +1,4 @@
-import type { AllAuthResponse, AllAuthResponseError, FlowId } from '~/types/all-auth'
+import type { AllAuthResponse, AllAuthResponseError, Flow } from '~/types/all-auth'
 import { AuthChangeEvent, Flow2path } from '~/types/all-auth'
 
 export const onAllAuthResponse = async (response: AllAuthResponse) => {
@@ -7,6 +7,7 @@ export const onAllAuthResponse = async (response: AllAuthResponse) => {
   }
   const nuxtApp = useNuxtApp()
   if (response.status === 200 && response.meta?.is_authenticated) {
+    console.info('Authenticated', response)
     await nuxtApp.callHook('auth:change', { detail: response })
   }
 }
@@ -17,11 +18,15 @@ export const onAllAuthResponseError = async (response: { data: AllAuthResponseEr
   }
   const nuxtApp = useNuxtApp()
   if ([401, 410].includes(response.data?.status)) {
+    console.info('Unauthorized or session expired', response.data)
     await nuxtApp.callHook('auth:change', { detail: response.data })
   }
 }
 
-export const authInfo = (auth: AllAuthResponse | AllAuthResponseError) => {
+export const authInfo = (auth?: AllAuthResponse | AllAuthResponseError | null) => {
+  if (!auth) {
+    return { isAuthenticated: false, requiresReauthentication: false, user: null, pendingFlow: null }
+  }
   const isAuthenticated = auth.status === 200 || (auth.status === 401 && auth.meta.is_authenticated)
   const requiresReauthentication = isAuthenticated && auth.status === 401
   const pendingFlow = 'data' in auth ? auth.data?.flows?.find(flow => flow.is_pending) : null
@@ -29,8 +34,8 @@ export const authInfo = (auth: AllAuthResponse | AllAuthResponseError) => {
 }
 
 export const determineAuthChangeEvent = (
-  fromAuth: AllAuthResponse | AllAuthResponseError,
   toAuth: AllAuthResponse | AllAuthResponseError,
+  fromAuth?: AllAuthResponse | AllAuthResponseError | null,
 ) => {
   const toast = useToast()
   const { t } = useNuxtApp().$i18n
@@ -63,7 +68,7 @@ export const determineAuthChangeEvent = (
     else if (fromInfo.requiresReauthentication) {
       return AuthChangeEvent.REAUTHENTICATED
     }
-    else if (('data' in fromAuth && 'data' in toAuth) && ('methods' in fromAuth.data && 'methods' in toAuth.data)) {
+    else if (fromAuth && ('data' in fromAuth && 'data' in toAuth) && ('methods' in fromAuth.data && 'methods' in toAuth.data)) {
       if ((fromAuth.data.methods && toAuth.data.methods) && fromAuth.data.methods?.length < toAuth.data.methods?.length) {
         return AuthChangeEvent.REAUTHENTICATED
       }
@@ -77,13 +82,21 @@ export const determineAuthChangeEvent = (
     }
   }
 
+  if (toInfo.pendingFlow && toInfo.pendingFlow.is_pending) {
+    return AuthChangeEvent.FLOW_UPDATED
+  }
   return null
 }
 
-export function pathForFlow(flowId: FlowId) {
-  const path = Flow2path[flowId]
+export function pathForFlow(flow: Flow, typ?: string) {
+  let key: string = flow.id
+  if (typeof flow.types !== 'undefined') {
+    typ = typ ?? flow.types[0]
+    key = `${key}:${typ}`
+  }
+  const path = Flow2path[key] ?? Flow2path[flow.id]
   if (!path) {
-    throw new Error(`Unknown path for flow: ${flowId}`)
+    throw new Error(`Unknown path for flow: ${flow}`)
   }
   return path
 }
@@ -95,7 +108,7 @@ export const pathForPendingFlow = (auth: AllAuthResponse | AllAuthResponseError)
   }
   const lastPendingFlow = pendingFlows[pendingFlows.length - 1]
   if (lastPendingFlow) {
-    return pathForFlow(lastPendingFlow.id)
+    return pathForFlow(lastPendingFlow)
   }
   return null
 }

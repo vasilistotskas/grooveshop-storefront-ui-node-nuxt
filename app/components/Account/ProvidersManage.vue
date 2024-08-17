@@ -13,7 +13,10 @@ const { t } = useI18n()
 
 const loading = ref(false)
 
-const { data: providerAccounts, refresh: refreshProviderAccounts } = await connectedThirdPartyProviderAccounts()
+const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData(
+  'providerAccounts',
+  () => connectedThirdPartyProviderAccounts(),
+)
 
 async function disconnect(values: ProvidersDeleteBody) {
   try {
@@ -74,8 +77,8 @@ const actionItems = (row: { uid: string, display: string, name: string }) => {
   return [items]
 }
 
-onReactivated(() => {
-  refreshProviderAccounts()
+onReactivated(async () => {
+  await refreshProviderAccounts()
 })
 </script>
 

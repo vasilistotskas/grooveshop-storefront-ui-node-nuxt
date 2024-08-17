@@ -1,10 +1,5 @@
 import { z } from 'zod'
-import { ZodAuthenticationMeta, ZodMethods, ZodUser } from '~/types/all-auth'
-
-const ZodAuthenticated = z.object({
-  user: ZodUser,
-  methods: ZodMethods,
-})
+import { ZodAuthenticated, ZodAuthenticationMeta } from '~/types/all-auth'
 
 export const ZodLoginBody = z.object({
   email: z.string().email().optional().describe('The email address.'),

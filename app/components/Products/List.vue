@@ -69,6 +69,7 @@ const shouldFetchFavouriteProducts = computed(() => {
 
 await useFetch('/api/products/favourites/favourites-by-products', {
   method: 'POST',
+  headers: useRequestHeaders(),
   body: {
     productIds: productIds.value,
   },
@@ -86,6 +87,7 @@ const refreshFavouriteProducts = async (ids: number[]) => {
   if (!shouldFetchFavouriteProducts.value) return
   return await $fetch('/api/products/favourites/favourites-by-products', {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: {
       productIds: ids,
     },

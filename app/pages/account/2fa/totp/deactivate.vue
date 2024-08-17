@@ -8,7 +8,10 @@ const localePath = useLocalePath()
 
 const loading = ref(false)
 
-const { error, refresh } = await totpAuthenticatorStatus()
+const { error, refresh } = await useAsyncData(
+  'totpAuthenticatorStatus',
+  () => totpAuthenticatorStatus(),
+)
 
 if (error.value) {
   await navigateTo(localePath('/account/settings'))
@@ -33,8 +36,8 @@ async function onSubmit() {
   }
 }
 
-onReactivated(() => {
-  refresh()
+onReactivated(async () => {
+  await refresh()
 })
 
 definePageMeta({

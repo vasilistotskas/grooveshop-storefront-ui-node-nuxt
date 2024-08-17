@@ -1,10 +1,5 @@
 import { z } from 'zod'
-import { ZodAuthenticationMeta, ZodMethods, ZodProviderToken, ZodUser } from '~/types/all-auth'
-
-const ZodAuthenticated = z.object({
-  user: ZodUser,
-  methods: ZodMethods,
-})
+import { ZodAuthenticationMeta, ZodProviderToken, ZodAuthenticated } from '~/types/all-auth'
 
 export const ZodProviderTokenBody = z.object({
   provider: z.string().describe('The provider ID.'),

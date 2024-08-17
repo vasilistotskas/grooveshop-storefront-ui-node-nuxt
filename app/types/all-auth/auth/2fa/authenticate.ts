@@ -1,10 +1,5 @@
 import { z } from 'zod'
-import { ZodAuthenticationMeta, ZodMethods, ZodUser } from '~/types/all-auth'
-
-const ZodAuthenticated = z.object({
-  user: ZodUser,
-  methods: ZodMethods,
-})
+import { ZodAuthenticated, ZodAuthenticationMeta } from '~/types/all-auth'
 
 export const ZodTwoFaAuthenticateBody = z.object({
   code: z.string().describe('An authenticator code.'),
