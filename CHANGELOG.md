@@ -1,3 +1,10 @@
+# [1.147.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.146.0...v1.147.0) (2024-08-19)
+
+
+### Features
+
+* Bump Versions and remove langs `en` and `de` and code minor improvements ([6ca8b01](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6ca8b013f368a80f1de30151c877fb514154c61e))
+
 # [1.146.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.145.1...v1.146.0) (2024-08-17)
 
 
