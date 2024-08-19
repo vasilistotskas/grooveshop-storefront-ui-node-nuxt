@@ -13,6 +13,7 @@ const { data: order, error } = await useFetch(
   {
     key: `order${orderUUID}`,
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },

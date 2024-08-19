@@ -36,6 +36,7 @@ const { data: addresses } = await useFetch(
   `/api/user/account/${user.value?.id}/addresses`,
   {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,
@@ -56,6 +57,7 @@ const refreshAddresses = async () => {
     `/api/user/account/${user.value?.id}/addresses`,
     {
       method: 'GET',
+      headers: useRequestHeaders(),
       query: {
         page: page.value,
         ordering: ordering.value,

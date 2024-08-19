@@ -96,6 +96,7 @@ const uploadImage = async (event: Event) => {
 
   await $fetch(`/api/user/account/${userAccount.value.id}`, {
     method: 'PATCH',
+    headers: useRequestHeaders(),
     body: formData,
     async onResponse({ response }) {
       if (!response.ok) {

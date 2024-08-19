@@ -67,7 +67,7 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value && productIds.value && productIds.value.length > 0
 })
 
-await useFetch('/api/products/favourites/favourites-by-products', {
+await useLazyFetch('/api/products/favourites/favourites-by-products', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {

@@ -181,6 +181,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   await $fetch(`/api/user/account/${userId}`, {
     method: 'PUT',
+    headers: useRequestHeaders(),
     body: {
       email: values.email,
       firstName: values.firstName,

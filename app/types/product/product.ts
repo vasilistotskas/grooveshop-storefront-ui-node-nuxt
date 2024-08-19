@@ -45,7 +45,9 @@ export const ZodProduct = z.object({
   mainImageAbsoluteUrl: z.string().nullish(),
   mainImageFilename: z.string().nullish(),
   reviewAverage: z.number(),
+  approvedReviewAverage: z.number(),
   reviewCount: z.number().int(),
+  approvedReviewCount: z.number().int(),
 })
 
 export const ZodProductCreateBody = z.object({
@@ -86,4 +88,5 @@ export type ProductOrderingField =
   | 'finalPrice'
   | 'priceSavePercent'
   | 'reviewAverage'
+  | 'approvedReviewAverage'
   | 'likesCount'

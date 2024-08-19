@@ -33,6 +33,7 @@ const { data: favourites, status } = useFetch(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,
@@ -48,6 +49,7 @@ const refreshFavourites = async () => {
     `/api/user/account/${user.value?.id}/liked-blog-posts`,
     {
       method: 'GET',
+      headers: useRequestHeaders(),
       query: {
         page: page.value,
         ordering: ordering.value,

@@ -170,6 +170,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   await $fetch(`/api/user/addresses`, {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: {
       title: updatedValues.title,
       firstName: updatedValues.firstName,

@@ -27,6 +27,7 @@ export default function () {
   async function addEmailAddress(body: EmailPostBody) {
     return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)

@@ -160,32 +160,6 @@ export default defineNuxtConfig({
         language: 'el-GR',
         flag: '🇬🇷',
       },
-      {
-        code: 'en',
-        name: 'English',
-        files: [
-          'en-US.json',
-          'components/en-US.json',
-          'pages/en-US.json',
-          'routes/en-US.json',
-          'breadcrumb/en-US.json',
-        ],
-        language: 'en-US',
-        flag: '🇺🇸',
-      },
-      {
-        code: 'de',
-        name: 'Deutsch',
-        files: [
-          'de-DE.json',
-          'components/de-DE.json',
-          'pages/de-DE.json',
-          'routes/de-DE.json',
-          'breadcrumb/de-DE.json',
-        ],
-        language: 'de-DE',
-        flag: '🇩🇪',
-      },
     ],
     vueI18n: './i18n/i18n.config.mts',
     compilation: {

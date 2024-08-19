@@ -8,17 +8,22 @@ const { locale } = useI18n()
 
 const props = defineProps({
   tags: {
-    type: Array as PropType<Tag[] | null>,
-    required: true,
+    type: Array as PropType<Tag[] | undefined>,
+    default: () => [],
   },
   search: {
     type: Boolean,
     required: false,
     default: false,
   },
+  status: {
+    type: String as PropType<'idle' | 'pending' | 'success' | 'error'>,
+    required: false,
+    default: 'idle',
+  },
 })
 
-const { tags, search } = toRefs(props)
+const { tags, search, status } = toRefs(props)
 
 const searchQuery = ref('')
 const filteredTags = computed(() => {
@@ -32,7 +37,6 @@ const filteredTags = computed(() => {
 
 <template>
   <aside
-    v-if="tags && tags.length > 0"
     class="grid"
   >
     <div
@@ -84,6 +88,7 @@ const filteredTags = computed(() => {
         />
       </template>
       <UCarousel
+        v-if="status !== 'pending' && tags?.length"
         v-slot="{ item }"
         :items="filteredTags"
         :ui="{
@@ -100,6 +105,12 @@ const filteredTags = computed(() => {
           :label="extractTranslated(item, 'label', locale)"
         />
       </UCarousel>
+      <template v-if="status === 'pending'">
+        <ClientOnlyFallback
+          height="24px"
+          width="100%"
+        />
+      </template>
     </div>
   </aside>
 </template>

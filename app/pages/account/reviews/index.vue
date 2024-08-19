@@ -28,6 +28,7 @@ const { data: reviews } = await useFetch(
   `/api/user/account/${user.value?.id}/product-reviews`,
   {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,
@@ -49,6 +50,7 @@ const refreshReviews = async () => {
     `/api/user/account/${user.value?.id}/product-reviews`,
     {
       method: 'GET',
+      headers: useRequestHeaders(),
       query: {
         page: page.value,
         ordering: ordering.value,

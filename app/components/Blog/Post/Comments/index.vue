@@ -81,7 +81,7 @@ const {
   data: comments,
   status,
   refresh,
-} = await useAsyncData(`comments${blogPostId.value}`, () =>
+} = await useLazyAsyncData(`comments${blogPostId.value}`, () =>
   $fetch(`/api/blog/posts/${blogPostId.value}/comments`, {
     method: 'GET',
     query: {
@@ -118,7 +118,7 @@ const loggedInAndHasComments = computed(() => {
 })
 
 const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
-  = await useFetch('/api/blog/comments/user-blog-comment', {
+  = await useLazyFetch('/api/blog/comments/user-blog-comment', {
     key: `userBlogPostComment${blogPostId.value}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -133,7 +133,7 @@ const commentIds = computed(() => {
   return comments.value?.results?.map(comment => comment.id)
 })
 
-await useFetch('/api/blog/comments/liked-comments', {
+await useLazyFetch('/api/blog/comments/liked-comments', {
   key: `likedComments${blogPostId.value}`,
   method: 'POST',
   headers: useRequestHeaders(),

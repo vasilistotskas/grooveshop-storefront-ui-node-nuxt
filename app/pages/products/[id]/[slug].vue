@@ -29,7 +29,7 @@ const { data: product, refresh: refreshProduct } = await useFetch(
   },
 )
 
-const { data: tags } = await useLazyFetch(
+const { data: tags, status } = await useLazyFetch(
   `/api/products/${productId}/tags`,
   {
     key: `productTags${productId}`,
@@ -52,7 +52,7 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
 
-await useFetch('/api/products/favourites/favourites-by-products', {
+await useLazyFetch('/api/products/favourites/favourites-by-products', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
@@ -258,7 +258,7 @@ definePageMeta({
           >
             <div class="grid gap-4 overflow-hidden">
               <ProductImages :product="product" />
-              <TagsList v-if="tags && tags.length > 0" :tags="tags" />
+              <TagsList :status="status" :tags="tags" />
             </div>
             <div
               class="
@@ -457,8 +457,8 @@ definePageMeta({
         </div>
         <ProductReviews
           :product-id="String(product.id)"
-          :reviews-average="product.reviewAverage"
-          :reviews-count="product.reviewCount"
+          :reviews-average="product.approvedReviewAverage"
+          :reviews-count="product.approvedReviewCount"
           display-image-of="user"
         />
       </div>

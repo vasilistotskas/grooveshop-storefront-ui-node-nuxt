@@ -19,6 +19,9 @@ export default defineNuxtPlugin({
       authState.value = detail
 
       if (detail.status === 200 && detail.meta?.access_token && detail.data.user) {
+        if (!fromAuth.value) {
+          authEvent.value = AuthChangeEvent.LOGGED_IN
+        }
         await fetch()
       }
       fromAuth.value = detail

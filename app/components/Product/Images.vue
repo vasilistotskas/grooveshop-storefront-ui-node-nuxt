@@ -14,7 +14,7 @@ const { product } = toRefs(props)
 const { locale } = useI18n()
 const localePath = useLocalePath()
 
-const { data: images } = await useFetch(
+const { data: images } = await useLazyFetch(
   `/api/products/${product.value.id}/images`,
   {
     key: `productImages${product.value.id}`,

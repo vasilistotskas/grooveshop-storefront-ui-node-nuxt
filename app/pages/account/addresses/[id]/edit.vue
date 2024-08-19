@@ -180,6 +180,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   await $fetch(`/api/user/addresses/${addressId}`, {
     method: 'PUT',
+    headers: useRequestHeaders(),
     body: {
       title: updatedValues.title,
       firstName: updatedValues.firstName,
@@ -220,6 +221,7 @@ const onSubmit = handleSubmit(async (values) => {
 const onSetMain = async () => {
   await $fetch(`/api/user/addresses/${addressId}/set-main`, {
     method: 'POST',
+    headers: useRequestHeaders(),
     async onResponse({ response }) {
       if (!response.ok) {
         return

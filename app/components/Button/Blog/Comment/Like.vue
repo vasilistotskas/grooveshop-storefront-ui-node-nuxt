@@ -56,6 +56,7 @@ const toggleFavourite = async () => {
 
   await $fetch(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
     method: 'POST',
+    headers: useRequestHeaders(),
     query: {
       expand: props.expand ? 'true' : 'false',
     },

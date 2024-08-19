@@ -199,6 +199,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   await $fetch('/api/orders', {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: updatedValues,
     async onResponse({ response }) {
       if (!response.ok) {

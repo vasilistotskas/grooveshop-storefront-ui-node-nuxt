@@ -118,7 +118,7 @@ const refreshLikedPosts = async (postIds: number[]) => {
   }
 }
 
-await useFetch(
+await useLazyFetch(
   '/api/blog/posts/liked-posts',
   {
     method: 'POST',

@@ -17,7 +17,6 @@ const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 
 const pageSize = ref(8)
-const pending = ref(true)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -34,10 +33,11 @@ const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
   },
 ])
 
-const { data: favourites } = await useFetch(
+const { data: favourites, refresh: refreshFavourites, status } = await useFetch(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,
@@ -48,28 +48,9 @@ const { data: favourites } = await useFetch(
       if (!response.ok) {
         return
       }
-      pending.value = false
     },
   },
 )
-
-const refreshFavourites = async () => {
-  pending.value = true
-  const favourites = await $fetch(
-    `/api/user/account/${user.value?.id}/favourite-products`,
-    {
-      method: 'GET',
-      query: {
-        page: page.value,
-        ordering: ordering.value,
-        pageSize: pageSize.value,
-        expand: 'true',
-      },
-    },
-  )
-  pending.value = false
-  return favourites
-}
 
 const productIds = computed(() => {
   if (!favourites.value) return []
@@ -78,13 +59,12 @@ const productIds = computed(() => {
   )
 })
 
-await useFetch('/api/products/favourites/favourites-by-products', {
+const { refresh: refreshFavouriteProducts } = await useFetch('/api/products/favourites/favourites-by-products', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
     productIds: productIds.value,
   },
-  immediate: productIds.value && productIds.value.length > 0,
   onResponse({ response }) {
     if (!response.ok) {
       return
@@ -93,28 +73,6 @@ await useFetch('/api/products/favourites/favourites-by-products', {
     updateFavouriteProducts(favourites)
   },
 })
-
-const refreshFavouriteProducts = async (ids: number[]) => {
-  if (!productIds.value || !productIds.value.length) return
-  return await $fetch('/api/products/favourites/favourites-by-products', {
-    method: 'POST',
-    headers: useRequestHeaders(),
-    body: {
-      productIds: ids,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const favourites = response._data
-      updateFavouriteProducts(favourites)
-    },
-  })
-}
-
-const onFavouriteDelete = async () => {
-  favourites.value = await refreshFavourites()
-}
 
 const pagination = computed(() => {
   if (!favourites.value) return
@@ -129,9 +87,9 @@ watch(
   () => route.query,
   async (newVal, oldVal) => {
     if (!deepEqual(newVal, oldVal)) {
-      favourites.value = await refreshFavourites()
+      await refreshFavourites()
       if (productIds.value && productIds.value.length > 0) {
-        await refreshFavouriteProducts(productIds.value)
+        await refreshFavouriteProducts()
       }
     }
   },
@@ -153,7 +111,7 @@ watch(
       />
     </div>
     <div
-      v-if="favourites"
+      v-if="status !== 'pending' && favourites"
       class="grid w-full items-start gap-4"
     >
       <div
@@ -183,12 +141,12 @@ watch(
             :img-width="260"
             :product="favourite.product"
             :show-add-to-cart-button="false"
-            @favourite-delete="onFavouriteDelete"
+            @favourite-delete="(_id) => refreshFavourites()"
           />
         </template>
       </ul>
     </div>
-    <template v-if="pending">
+    <template v-if="status === 'pending'">
       <div class="grid w-full items-start gap-4">
         <div class="flex w-full items-center justify-center">
           <ClientOnlyFallback

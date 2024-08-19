@@ -37,7 +37,7 @@ if (!blogPost.value) {
   })
 }
 
-await useFetch('/api/blog/posts/liked-posts', {
+await useLazyFetch('/api/blog/posts/liked-posts', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {

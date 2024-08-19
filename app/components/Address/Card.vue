@@ -32,6 +32,7 @@ const submit = async () => {
 
   await $fetch(`/api/user/addresses/${address?.value.id}`, {
     method: 'DELETE',
+    headers: useRequestHeaders(),
     onResponse({ response }) {
       if (!response.ok) {
         return

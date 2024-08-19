@@ -33,6 +33,7 @@ const { data: orders } = await useFetch(
   `/api/user/account/${user.value?.id}/orders`,
   {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,
@@ -51,6 +52,7 @@ const refreshOrders = async () => {
   pending.value = true
   const orders = await $fetch(`/api/user/account/${user.value?.id}/orders`, {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,

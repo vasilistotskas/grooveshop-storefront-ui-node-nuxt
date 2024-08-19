@@ -227,7 +227,9 @@ export const useCartStore = defineStore('cart', () => {
         mainImageAbsoluteUrl: body.product.mainImageAbsoluteUrl,
         mainImageFilename: body.product.mainImageFilename,
         reviewAverage: body.product.reviewAverage,
+        approvedReviewAverage: body.product.approvedReviewAverage,
         reviewCount: body.product.reviewCount,
+        approvedReviewCount: body.product.approvedReviewCount,
       }
       const newCartItem = {
         id: Date.now(),
@@ -342,6 +344,7 @@ export const useCartStore = defineStore('cart', () => {
 
     await $fetch(`/api/cart/items/${id}`, {
       method: 'DELETE',
+      headers: useRequestHeaders(),
       onRequest() {
         pending.value.cart = true
       },

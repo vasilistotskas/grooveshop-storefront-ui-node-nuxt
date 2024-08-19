@@ -118,6 +118,7 @@ const fetchReplies = async (cursorValue: string) => {
   pending.value = true
   await $fetch(`/api/blog/comments/${comment.value.id}/replies`, {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       cursor: cursorValue,
       expand: expand.value,
@@ -128,6 +129,7 @@ const fetchReplies = async (cursorValue: string) => {
     },
     onResponse({ response }) {
       if (!response.ok) {
+        showReplies.value = false
         return
       }
       replies.value = response._data
@@ -180,6 +182,7 @@ const replyIds = computed(() => {
 const fetchLikedComments = async (ids: number[]) => {
   return await $fetch(`/api/blog/comments/liked-comments`, {
     method: 'POST',
+    headers: useRequestHeaders(),
     body: {
       commentIds: ids,
     },

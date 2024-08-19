@@ -47,6 +47,7 @@ const toggleFavourite = async () => {
   if (!props.favourite) {
     await $fetch(`/api/products/favourites`, {
       method: 'POST',
+      headers: useRequestHeaders(),
       body: {
         product: String(props.productId),
         user: String(props.userId),
@@ -81,6 +82,7 @@ const toggleFavourite = async () => {
     const id = props.favourite?.id
     await $fetch(`/api/products/favourites/${id}`, {
       method: 'DELETE',
+      headers: useRequestHeaders(),
       onRequestError({ error }) {
         toast.add({
           title: error.message,

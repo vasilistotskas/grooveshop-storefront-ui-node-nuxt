@@ -40,7 +40,7 @@ const {
   data: productReviews,
   status,
   refresh,
-} = await useFetch(`/api/products/${productId.value}/reviews`, {
+} = await useLazyFetch(`/api/products/${productId.value}/reviews`, {
   key: `productReviews${productId.value}`,
   method: 'GET',
   query: {
@@ -74,7 +74,6 @@ watch(
 
 <template>
   <div
-    v-if="status !== 'pending' && productReviews && productReviews?.length > 0"
     class="
       container-md text-primary-950 grid gap-2 border-t border-primary-500 !px-0
       !py-6
@@ -105,12 +104,21 @@ watch(
     </div>
     <div class="grid">
       <div class="grid gap-4">
-        <ProductReviewsList
+        <LazyProductReviewsList
+          v-if="status !== 'pending' && productReviews?.length"
           :display-image-of="displayImageOf"
           :reviews="productReviews"
           :reviews-average="reviewsAverage"
           :reviews-count="reviewsCount"
         />
+        <template v-if="status === 'pending'">
+          <ClientOnlyFallback
+            v-for="index in 3"
+            :key="index"
+            height="92px"
+            width="100%"
+          />
+        </template>
       </div>
     </div>
   </div>
