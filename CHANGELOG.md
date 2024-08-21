@@ -1,3 +1,10 @@
+## [1.148.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.148.2...v1.148.3) (2024-08-21)
+
+
+### Bug Fixes
+
+* remove import.meta.dev from websocket ([89823e8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/89823e8b2830b6bd4e0de28c1f12fafce9792bd8))
+
 ## [1.148.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.148.1...v1.148.2) (2024-08-21)
 
 
