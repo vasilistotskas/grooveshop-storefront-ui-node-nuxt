@@ -181,7 +181,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <UserNotifications />
+              <UserNotifications v-if="loggedIn" />
             </li>
             <template v-if="enabled">
               <li

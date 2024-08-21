@@ -30,8 +30,9 @@ export const useAccountMenus = () => {
         'text-primary-950 dark:text-primary-50 bg-primary-100 border-primary-500 hover:bg-primary-300 dark:border-slate-800 dark:bg-primary-900 dark:hover:bg-primary-700',
     },
   ])
+  const { enabled } = useAuthPreviewMode()
 
-  if (import.meta.dev) {
+  if (enabled.value) {
     menus.value.push(
       {
         type: 'link',

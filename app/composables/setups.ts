@@ -196,6 +196,7 @@ export function setupWebSocket() {
   function initializeWebSocket() {
     const websocketProtocol = import.meta.client && window.location.protocol === 'https:' ? 'wss' : 'ws'
     const djangoApiHostName = config.public.djangoHostName
+    console.log('==== djangoApiHostName ====', djangoApiHostName)
     const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications`, {
       user_id: user.value?.id,
       session_token: session.value.sessionToken,
@@ -338,29 +339,27 @@ export function setupSocialLogin() {
   } = useAllAuthAuthentication()
 
   onMounted(() => {
-    if (import.meta.client) {
-      const provider = authConfig.value?.data.socialaccount?.providers.find(p => p.id === 'google')
-      if (!loggedIn.value && provider && window.google) {
-        function handleCredentialResponse(response: { credential: string }) {
-          providerToken({
-            provider: provider ? provider.id : '',
-            token: {
-              id_token: response.credential,
-              client_id: provider?.client_id ? provider.client_id : '',
-            },
-            process: AuthProcess.LOGIN,
-          })
-        }
+    const provider = authConfig.value?.data.socialaccount?.providers.find(p => p.id === 'google')
+    if (!loggedIn.value && provider && window.google) {
+      function handleCredentialResponse(response: { credential: string }) {
+        providerToken({
+          provider: provider ? provider.id : '',
+          token: {
+            id_token: response.credential,
+            client_id: provider?.client_id ? provider.client_id : '',
+          },
+          process: AuthProcess.LOGIN,
+        })
+      }
 
-        if ('accounts' in window.google) {
-          // @ts-ignore
-          window.google.accounts.id.initialize({
-            client_id: provider.client_id ? provider.client_id : '',
-            callback: handleCredentialResponse,
-          })
-          // @ts-ignore
-          window.google.accounts.id.prompt()
-        }
+      if ('accounts' in window.google) {
+        // @ts-ignore
+        window.google.accounts.id.initialize({
+          client_id: provider.client_id || '',
+          callback: handleCredentialResponse,
+        })
+        // @ts-ignore
+        window.google.accounts.id.prompt()
       }
     }
   })

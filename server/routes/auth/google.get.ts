@@ -4,7 +4,7 @@ export default oauthGoogleEventHandler(
   {
     config: {
       authorizationParams: {
-        access_type: 'offline',
+        access_type: process.dev ? 'offline' : 'online',
       },
       scope: ['email', 'openid', 'profile'],
     },

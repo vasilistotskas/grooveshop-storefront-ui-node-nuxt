@@ -83,7 +83,7 @@ function handleSignupError(error: any) {
               description: t(`common.auth.signup.error.${flow.id}`),
               color: 'blue',
             })
-            return navigateTo(localePath('/'))
+            return navigateTo(localePath('account/verify-email'))
           }
         }
       }

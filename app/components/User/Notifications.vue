@@ -19,10 +19,17 @@ const { data: unseen, status: unseenStatus, refresh: unseenRefresh } = await use
   () => getUnseenCount(),
 )
 
-const { data, status: notificationsStatus, refresh: notificationsRefresh } = await useLazyAsyncData(
+const { data, execute, status: notificationsStatus, refresh: notificationsRefresh } = await useLazyAsyncData(
   'notifications',
   () => getNotifications(notificationIds.value),
+  {
+    immediate: false,
+  },
 )
+
+if (notificationIds.value && notificationIds.value.length) {
+  execute()
+}
 
 const pending = computed(() => {
   return unseenStatus.value === 'pending' || notificationsStatus.value === 'pending'

@@ -15,7 +15,7 @@ export default defineEventHandler(async () => {
     )
     return await parseDataAs(response, z.object({
       count: z.number(),
-    }))
+    }).optional())
   }
   catch (error) {
     await handleError(error)

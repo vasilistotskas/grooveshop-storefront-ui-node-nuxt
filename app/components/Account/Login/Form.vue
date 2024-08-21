@@ -73,6 +73,20 @@ async function handleLoginError(error: any) {
   }
   if (isAllAuthClientError(error)) {
     const errors = 'errors' in error.data.data ? error.data.data.errors : []
+    if ('data' in error.data && 'data' in error.data.data) {
+      const { data } = error.data.data
+      if (data && data.flows) {
+        for (const flow of data.flows) {
+          if (flow.id === 'verify_email' && flow.is_pending) {
+            toast.add({
+              description: t(`common.auth.login.error.${flow.id}`),
+              color: 'blue',
+            })
+            return navigateTo(localePath('account/verify-email'))
+          }
+        }
+      }
+    }
     errors.forEach((error) => {
       toast.add({
         title: error.message,
@@ -82,7 +96,7 @@ async function handleLoginError(error: any) {
     return
   }
   toast.add({
-    title: t('common.auth.login.error'),
+    title: t('common.auth.login.error.title'),
     color: 'red',
   })
 }

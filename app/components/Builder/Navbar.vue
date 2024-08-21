@@ -12,11 +12,6 @@ const config = useRuntimeConfig()
 const { enabled } = useAuthPreviewMode()
 const { loggedIn } = useUserSession()
 
-const userNotificationStore = useUserNotificationStore()
-const {
-  notificationIds,
-} = storeToRefs(userNotificationStore)
-
 const appTitle = computed(() => config.public.appTitle as string)
 
 const colorModeCookie = useCookie(
@@ -120,7 +115,7 @@ const spider = computed(() => {
             >
               <LanguageSwitcher v-if="enabled" />
               <ThemeSwitcher />
-              <UserNotifications v-if="loggedIn && notificationIds.length > 0" />
+              <UserNotifications v-if="loggedIn" />
             </div>
           </MobileOrTabletOnly>
         </div>

@@ -27,6 +27,7 @@ async function onSubmit(values: {
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
+    Object.assign(jsonOptions.publicKey.rp, { id: window.location.hostname })
     const options = parseCreationOptionsFromJSON(jsonOptions)
     const credential = await create(options)
     const response = await addWebAuthnCredential({

@@ -1,5 +1,7 @@
+import { withQuery } from 'ufo'
 import type { AllAuthResponse, AllAuthResponseError, AuthChangeEventType } from '~/types/all-auth'
 import { AuthChangeEvent, URLs } from '~/types/all-auth'
+import { pathForPendingFlow } from '~/utils/auth'
 
 export default defineNuxtPlugin({
   name: 'auth',
@@ -8,7 +10,7 @@ export default defineNuxtPlugin({
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
 
-    const { fetch, clear } = useUserSession()
+    const { user, fetch, clear } = useUserSession()
 
     const fromAuth = ref<AllAuthResponse | AllAuthResponseError | null>(authState.value)
 
@@ -24,6 +26,14 @@ export default defineNuxtPlugin({
         }
         await fetch()
       }
+
+      if ((detail.status === 401 || detail.status === 410) && detail.data?.flows?.length) {
+        const path = pathForPendingFlow(detail)
+        if (!fromAuth.value && path) {
+          authEvent.value = AuthChangeEvent.FLOW_UPDATED
+        }
+      }
+
       fromAuth.value = detail
     })
 
@@ -57,15 +67,13 @@ export default defineNuxtPlugin({
             const router = useRouter()
             const next = router.currentRoute.value.fullPath
             if ('data' in auth) {
-              const flow = auth.data?.flows?.[0]
+              const flow = auth.data?.flows?.find(flow => flow.is_pending)
               if (flow) {
                 const path = pathForFlow(flow)
-                return nuxtApp.runWithContext(() => navigateTo({
-                  path: localePath(path),
-                  query: {
-                    next,
-                  },
-                }))
+                const url = withQuery(localePath(path), {
+                  next,
+                })
+                return nuxtApp.runWithContext(() => navigateTo(url))
               }
             }
             break
@@ -75,6 +83,16 @@ export default defineNuxtPlugin({
           }
           default:
             break
+        }
+      },
+      { deep: true },
+    )
+
+    watch(
+      () => user.value,
+      async (current, _previous) => {
+        if (current && current.isSuperuser) {
+          await refreshNuxtData()
         }
       },
       { deep: true },
