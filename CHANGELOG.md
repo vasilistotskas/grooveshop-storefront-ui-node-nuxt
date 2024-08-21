@@ -1,3 +1,10 @@
+## [1.148.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.148.3...v1.148.4) (2024-08-21)
+
+
+### Bug Fixes
+
+* remove then from consent analytic methods ([37df468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/37df468d929db003f0354864dbc434f55d1a32f3))
+
 ## [1.148.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.148.2...v1.148.3) (2024-08-21)
 
 
