@@ -1,3 +1,10 @@
+## [1.148.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.148.0...v1.148.1) (2024-08-21)
+
+
+### Bug Fixes
+
+* remove some console logs, catch some errors for debugging ([db983a1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db983a1484e9fe477d99c3fae0bfe2a127a46e77))
+
 # [1.148.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.147.0...v1.148.0) (2024-08-21)
 
 
