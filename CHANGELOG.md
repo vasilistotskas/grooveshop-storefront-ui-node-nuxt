@@ -1,3 +1,10 @@
+# [1.149.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.148.4...v1.149.0) (2024-08-21)
+
+
+### Features
+
+* auth improvements ([cfc80da](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cfc80da74a9d740328bd2f50ac290339406ab460))
+
 ## [1.148.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.148.3...v1.148.4) (2024-08-21)
 
 
