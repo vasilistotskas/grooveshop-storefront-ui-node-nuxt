@@ -195,8 +195,8 @@ export function setupWebSocket() {
 
   function initializeWebSocket() {
     const websocketProtocol = import.meta.client && window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const djangoApiHost = config.public.djangoHost
-    const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHost}/ws/notifications`, {
+    const djangoApiHostName = config.public.djangoHostName
+    const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications`, {
       user_id: user.value?.id,
       session_token: session.value.sessionToken,
       access_token: session.value.accessToken,

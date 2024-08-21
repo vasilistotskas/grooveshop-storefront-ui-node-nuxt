@@ -30,6 +30,7 @@ const _envVariables = z.object({
   NUXT_PUBLIC_DJANGO_URL: z.string(),
   NUXT_PUBLIC_DJANGO_CANONICAL_URL: z.string(),
   NUXT_PUBLIC_DJANGO_HOST: z.string(),
+  NUXT_PUBLIC_DJANGO_HOSTNAME: z.string(),
   NUXT_PUBLIC_DJANGO_STATIC_URL: z.string(),
   NUXT_PUBLIC_API_BASE_URL: z.string(),
   NUXT_PUBLIC_MEDIA_STREAM_DOMAIN: z.string(),
