@@ -38,6 +38,21 @@ export const useAuthStore = defineStore('auth', () => {
     })
   }
 
+  const refreshSession = async () => {
+    const { getSession } = useAllAuthAuthentication()
+    const { data } = await useAsyncData(
+      'session',
+      () => getSession(),
+    )
+    if (data.value) {
+      session.value = data.value
+    }
+  }
+
+  const clearSession = () => {
+    session.value = undefined
+  }
+
   const setupConfig = async () => {
     const { getConfig } = useAllAuthConfig()
     await callOnce(async () => {
@@ -89,6 +104,8 @@ export const useAuthStore = defineStore('auth', () => {
     totpSecret,
     totpSvg,
     setupSession,
+    refreshSession,
+    clearSession,
     setupConfig,
     getTotpAuthenticatorStatus,
   }

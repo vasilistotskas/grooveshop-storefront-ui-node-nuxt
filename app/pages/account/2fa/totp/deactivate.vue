@@ -28,11 +28,8 @@ async function onSubmit() {
     emit('deactivateTotp')
     await navigateTo(localePath('/account/settings'))
   }
-  catch {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+  catch (error) {
+    handleAllAuthClientError(error)
   }
 }
 

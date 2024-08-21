@@ -3,6 +3,8 @@ import { z } from 'zod'
 import type { DynamicFormSchema } from '~/types/form'
 import type { PasswordChangeBody } from '~/types/all-auth'
 
+const emit = defineEmits(['changePassword'])
+
 const { changePassword } = useAllAuthAccount()
 const authStore = useAuthStore()
 const { hasCurrentPassword } = storeToRefs(authStore)
@@ -16,20 +18,18 @@ const onSubmit = async (values: PasswordChangeBody) => {
     current_password: values.current_password || '',
     new_password: values.new_password,
   }
-  await changePassword(body)
-    .then(async () => {
-      toast.add({
-        title: t('common.auth.password.change.success'),
-        color: 'green',
-      })
-      await navigateTo(localePath('/account'))
+  try {
+    await changePassword(body)
+    toast.add({
+      title: t('common.auth.password.change.success'),
+      color: 'green',
     })
-    .catch((error) => {
-      toast.add({
-        title: error.message || t('common.error.default'),
-        color: 'red',
-      })
-    })
+    emit('changePassword')
+    await navigateTo(localePath('/account'))
+  }
+  catch (error) {
+    handleAllAuthClientError(error)
+  }
 }
 
 const formSchema = computed((): DynamicFormSchema => {

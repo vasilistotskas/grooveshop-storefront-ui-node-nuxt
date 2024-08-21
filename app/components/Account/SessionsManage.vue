@@ -9,7 +9,6 @@ const {
 } = useAllAuthSessions()
 const toast = useToast()
 const { t } = useI18n()
-const { clear } = useUserSession()
 
 const loading = ref(false)
 
@@ -40,20 +39,7 @@ const logout = async (fromSessions: Session[]) => {
     await setupSessions()
   }
   catch (error) {
-    if (isAllAuthClientError(error)) {
-      if (error.data.data.status === 401) {
-        toast.add({
-          title: t('common.logged_out'),
-          color: 'red',
-        })
-        await clear()
-      }
-      return
-    }
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+    handleAllAuthClientError(error)
   }
   finally {
     loading.value = false

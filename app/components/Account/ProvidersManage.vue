@@ -29,11 +29,8 @@ async function disconnect(values: ProvidersDeleteBody) {
     })
     emit('disconnectThirdPartyProviderAccount')
   }
-  catch {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+  catch (error) {
+    handleAllAuthClientError(error)
   }
 }
 

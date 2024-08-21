@@ -29,11 +29,8 @@ async function onSubmit(values: ReauthenticateBody) {
     })
     emit('reauthenticate')
   }
-  catch {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+  catch (error) {
+    handleAllAuthClientError(error)
   }
 }
 

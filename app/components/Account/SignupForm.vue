@@ -65,36 +65,12 @@ const onSubmit = handleSubmit(async (values) => {
     })
   }
   catch (error) {
-    handleSignupError(error)
+    handleAllAuthClientError(error)
   }
   finally {
     loading.value = false
   }
 })
-
-function handleSignupError(error: any) {
-  if (isAllAuthClientError(error)) {
-    if ('data' in error.data && 'data' in error.data.data) {
-      const { data } = error.data.data
-      if (data && data.flows) {
-        for (const flow of data.flows) {
-          if (flow.id === 'verify_email' && flow.is_pending) {
-            toast.add({
-              description: t(`common.auth.signup.error.${flow.id}`),
-              color: 'blue',
-            })
-            return navigateTo(localePath('account/verify-email'))
-          }
-        }
-      }
-    }
-  }
-
-  toast.add({
-    title: t('common.error.default'),
-    color: 'red',
-  })
-}
 
 const submitButtonLabel = computed(() => {
   if (submitCount.value > 5) {

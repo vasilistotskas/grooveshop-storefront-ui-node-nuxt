@@ -22,11 +22,8 @@ async function onSubmit(values: ProviderSignupBody) {
     })
     emit('providerSignup')
   }
-  catch {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+  catch (error) {
+    handleAllAuthClientError(error)
   }
 }
 

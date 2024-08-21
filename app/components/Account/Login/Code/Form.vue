@@ -7,9 +7,7 @@ import type { CodeRequestBody } from '~/types/all-auth'
 const emit = defineEmits(['requestLoginCode'])
 
 const { requestLoginCode } = useAllAuthAuthentication()
-const toast = useToast()
 const { t } = useI18n()
-const localePath = useLocalePath()
 
 const loading = ref(false)
 
@@ -20,15 +18,7 @@ async function onSubmit(values: CodeRequestBody) {
     emit('requestLoginCode')
   }
   catch (error) {
-    if (isAllAuthClientError(error)) {
-      await navigateTo(localePath('/account/login/code/confirm'))
-    }
-    else {
-      toast.add({
-        title: t('common.error.default'),
-        color: 'red',
-      })
-    }
+    handleAllAuthClientError(error)
   }
 }
 

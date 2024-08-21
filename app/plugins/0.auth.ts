@@ -10,7 +10,7 @@ export default defineNuxtPlugin({
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
 
-    const { user, fetch, clear } = useUserSession()
+    const { user, fetch, loggedIn, clear } = useUserSession()
 
     const fromAuth = ref<AllAuthResponse | AllAuthResponseError | null>(authState.value)
 
@@ -42,21 +42,27 @@ export default defineNuxtPlugin({
       async ([authEventVal, _authStateVal]) => {
         const auth = authState.value
         const localePath = useLocalePath()
+        const router = useRouter()
+        const authStore = useAuthStore()
+        const { refreshSession, clearSession } = authStore
+
         switch (authEventVal) {
-          case AuthChangeEvent.LOGGED_OUT:
-            await clear()
-            return nuxtApp.runWithContext(() => navigateTo({
-              path: localePath(URLs.LOGOUT_REDIRECT_URL),
-            }))
+          case AuthChangeEvent.LOGGED_OUT: {
+            clearSession()
+            if (loggedIn.value) {
+              await clear()
+            }
+            return nuxtApp.runWithContext(() => navigateTo(localePath(URLs.LOGIN_REDIRECT_URL)))
+          }
           case AuthChangeEvent.LOGGED_IN: {
-            const route = useRouter().currentRoute.value
+            const route = router.currentRoute.value
             const returnToPath = route.query.next?.toString()
             const isRedirectingToLogin = returnToPath === '/account/login'
             const redirectTo = isRedirectingToLogin ? URLs.LOGIN_REDIRECT_URL : returnToPath || URLs.LOGIN_REDIRECT_URL
+            await refreshSession()
             return nuxtApp.runWithContext(() => navigateTo(localePath(redirectTo)))
           }
           case AuthChangeEvent.REAUTHENTICATED: {
-            const router = useRouter()
             const next = router.currentRoute.value.query.next
             if (next) {
               return nuxtApp.runWithContext(() => navigateTo(localePath(next as string)))
@@ -64,7 +70,6 @@ export default defineNuxtPlugin({
             return nuxtApp.runWithContext(() => navigateTo(localePath(URLs.LOGIN_REDIRECT_URL)))
           }
           case AuthChangeEvent.REAUTHENTICATION_REQUIRED: {
-            const router = useRouter()
             const next = router.currentRoute.value.fullPath
             if ('data' in auth) {
               const flow = auth.data?.flows?.find(flow => flow.is_pending)

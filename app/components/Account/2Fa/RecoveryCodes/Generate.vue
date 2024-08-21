@@ -32,20 +32,7 @@ async function onSubmit() {
     await navigateTo(localePath('/account/2fa/recovery-codes'))
   }
   catch (error) {
-    if (isAllAuthClientError(error)) {
-      const errors = 'errors' in error.data.data ? error.data.data.errors : []
-      errors.forEach((error) => {
-        toast.add({
-          title: error.message,
-          color: 'red',
-        })
-      })
-      return
-    }
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+    handleAllAuthClientError(error)
   }
   finally {
     loading.value = false

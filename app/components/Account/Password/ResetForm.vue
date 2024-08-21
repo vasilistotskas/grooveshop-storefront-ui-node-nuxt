@@ -26,19 +26,12 @@ async function onSubmit(values: PasswordRequestBody) {
     })
     emit('passwordRequest')
   }
-  catch {
-    handleResetError()
+  catch (error) {
+    handleAllAuthClientError(error)
   }
   finally {
     finalizeReset()
   }
-}
-
-function handleResetError() {
-  toast.add({
-    title: t('common.error.default'),
-    color: 'red',
-  })
 }
 
 function finalizeReset() {

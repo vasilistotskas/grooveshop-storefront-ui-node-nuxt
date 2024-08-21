@@ -43,8 +43,8 @@ async function onSubmit(values: {
     const to = response?.meta.recovery_codes_generated ? '/account/2fa/recovery-codes' : '/account/2fa/webauthn'
     await navigateTo(localePath(to))
   }
-  catch (e) {
-    console.error('=== Error ===', e)
+  catch (error) {
+    console.error('=== Error ===', error)
     toast.add({
       title: t('common.error.default'),
       color: 'red',

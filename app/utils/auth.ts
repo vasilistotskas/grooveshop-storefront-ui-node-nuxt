@@ -23,14 +23,14 @@ export const onAllAuthResponseError = async (response: { data: AllAuthResponseEr
   }
 }
 
-export const authInfo = (auth?: AllAuthResponse | AllAuthResponseError | null) => {
-  if (!auth) {
+export const authInfo = (response?: AllAuthResponse | AllAuthResponseError | null) => {
+  if (!response) {
     return { isAuthenticated: false, requiresReauthentication: false, user: null, pendingFlow: null }
   }
-  const isAuthenticated = auth.status === 200 || (auth.status === 401 && auth.meta.is_authenticated)
-  const requiresReauthentication = isAuthenticated && auth.status === 401
-  const pendingFlow = 'data' in auth ? auth.data?.flows?.find(flow => flow.is_pending) : null
-  return { isAuthenticated, requiresReauthentication, user: isAuthenticated ? auth.data.user : null, pendingFlow }
+  const isAuthenticated = response.status === 200 || (response.status === 401 && response.meta.is_authenticated)
+  const requiresReauthentication = isAuthenticated && response.status === 401
+  const pendingFlow = 'data' in response ? response.data?.flows?.find(flow => flow.is_pending) : null
+  return { isAuthenticated, requiresReauthentication, user: isAuthenticated ? response.data.user : null, pendingFlow }
 }
 
 export const determineAuthChangeEvent = (
@@ -101,8 +101,24 @@ export function pathForFlow(flow: Flow, typ?: string) {
   return path
 }
 
-export const pathForPendingFlow = (auth: AllAuthResponse | AllAuthResponseError) => {
-  const pendingFlows = 'data' in auth ? auth.data?.flows?.filter(flow => flow.is_pending) : []
+export const hasPendingFlows = (response: AllAuthResponse | AllAuthResponseError) => {
+  return 'data' in response && response.data?.flows?.some(flow => flow.is_pending)
+}
+
+export const getPendingFlows = (response: AllAuthResponse | AllAuthResponseError) => {
+  return 'data' in response ? response.data?.flows?.filter(flow => flow.is_pending) : []
+}
+
+export const getPendingFlow = (response: AllAuthResponse | AllAuthResponseError) => {
+  const pendingFlows = getPendingFlows(response)
+  if (!pendingFlows) {
+    return null
+  }
+  return pendingFlows[pendingFlows.length - 1]
+}
+
+export const pathForPendingFlow = (response: AllAuthResponse | AllAuthResponseError) => {
+  const pendingFlows = getPendingFlows(response)
   if (!pendingFlows) {
     return null
   }
@@ -113,10 +129,10 @@ export const pathForPendingFlow = (auth: AllAuthResponse | AllAuthResponseError)
   return null
 }
 
-export const navigateToPendingFlow = async (auth: AllAuthResponse | AllAuthResponseError) => {
+export const navigateToPendingFlow = async (response: AllAuthResponse | AllAuthResponseError) => {
   const nuxtApp = useNuxtApp()
   const localePath = useLocalePath()
-  const path = pathForPendingFlow(auth)
+  const path = pathForPendingFlow(response)
   if (path) {
     return nuxtApp.runWithContext(() => navigateTo(localePath(path)))
   }

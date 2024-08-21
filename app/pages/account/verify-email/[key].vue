@@ -27,11 +27,8 @@ async function onSubmit() {
       await navigateTo(localePath('/account'))
     }
   }
-  catch {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+  catch (error) {
+    handleAllAuthClientError(error)
   }
 }
 

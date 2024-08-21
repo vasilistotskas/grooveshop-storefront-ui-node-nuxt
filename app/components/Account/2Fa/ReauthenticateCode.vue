@@ -27,11 +27,8 @@ async function onSubmit(values: TwoFaReauthenticateBody) {
     })
     emit('twoFaReauthenticate')
   }
-  catch {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+  catch (error) {
+    handleAllAuthClientError(error)
   }
 }
 

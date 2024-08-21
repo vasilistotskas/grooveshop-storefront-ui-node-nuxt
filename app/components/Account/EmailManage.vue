@@ -4,6 +4,7 @@ import { z } from 'zod'
 import type { DynamicFormSchema } from '~/types/form'
 import type { EmailDeleteBody, EmailPatchBody, EmailPostBody, EmailPutBody } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
+import { handleAllAuthClientError } from '~/utils/error'
 
 const emit = defineEmits(['addEmailAddress', 'requestEmailVerification', 'removeEmailAddress', 'changePrimaryEmailAddress'])
 
@@ -36,21 +37,7 @@ async function addEmail(values: EmailPostBody) {
     emit('addEmailAddress')
   }
   catch (error) {
-    if (isAllAuthClientError(error)) {
-      const errors = 'errors' in error.data.data ? error.data.data.errors : []
-      errors.forEach((error) => {
-        toast.add({
-          title: error.message,
-          color: 'red',
-        })
-      })
-    }
-    else {
-      toast.add({
-        title: t('common.error.default'),
-        color: 'red',
-      })
-    }
+    handleAllAuthClientError(error)
   }
   finally {
     loading.value = false
@@ -68,19 +55,7 @@ async function emailVerificationRequest(values: EmailPutBody) {
     emit('requestEmailVerification')
   }
   catch (error) {
-    if (isAllAuthClientError(error)) {
-      if (error.data.data.status === 403) {
-        toast.add({
-          title: t('common.email.verification.too_many_requests'),
-          color: 'red',
-        })
-      }
-      return
-    }
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+    handleAllAuthClientError(error)
   }
   finally {
     loading.value = false
@@ -98,11 +73,8 @@ async function removeEmail(values: EmailDeleteBody) {
     })
     emit('removeEmailAddress')
   }
-  catch {
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+  catch (error) {
+    handleAllAuthClientError(error)
   }
   finally {
     loading.value = false
@@ -121,19 +93,7 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
     emit('changePrimaryEmailAddress')
   }
   catch (error) {
-    if (isAllAuthClientError(error)) {
-      if (error.data.data.status === 403) {
-        toast.add({
-          title: t('common.email.verification.too_many_requests'),
-          color: 'red',
-        })
-      }
-      return
-    }
-    toast.add({
-      title: t('common.error.default'),
-      color: 'red',
-    })
+    handleAllAuthClientError(error)
   }
   finally {
     loading.value = false

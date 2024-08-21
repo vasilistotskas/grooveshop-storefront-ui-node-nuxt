@@ -18,8 +18,6 @@ import type {
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
 
 export default function () {
-  const { clear } = useUserSession()
-
   async function getSession() {
     return $fetch(`${API_BASE_URL}/session`, {
       method: 'GET',
@@ -29,7 +27,6 @@ export default function () {
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response._data)
-        await clear()
       },
     })
   }
@@ -40,11 +37,9 @@ export default function () {
       headers: useRequestHeaders(),
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
-        await clear()
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response._data)
-        await clear()
       },
     })
   }

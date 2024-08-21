@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { GlobalEvents } from '~/events'
 
 const { t } = useI18n()
-const toast = useToast()
 const localePath = useLocalePath()
 const { clear } = useUserSession()
 const { login } = useAllAuthAuthentication()
@@ -51,7 +50,7 @@ const onSubmit = handleSubmit(async (values) => {
     await performPostLoginActions()
   }
   catch (error) {
-    await handleLoginError(error)
+    handleAllAuthClientError(error)
   }
   finally {
     await finalizeLogin()
@@ -60,45 +59,6 @@ const onSubmit = handleSubmit(async (values) => {
 
 async function performPostLoginActions() {
   await refreshCart()
-}
-
-async function handleLoginError(error: any) {
-  const pendingFlow = pendingFlowInError(error)
-  if (pendingFlow && pendingFlow.id === 'mfa_authenticate') {
-    toast.add({
-      title: t('common.auth.pending.mfa_authenticate'),
-      color: 'blue',
-    })
-    return
-  }
-  if (isAllAuthClientError(error)) {
-    const errors = 'errors' in error.data.data ? error.data.data.errors : []
-    if ('data' in error.data && 'data' in error.data.data) {
-      const { data } = error.data.data
-      if (data && data.flows) {
-        for (const flow of data.flows) {
-          if (flow.id === 'verify_email' && flow.is_pending) {
-            toast.add({
-              description: t(`common.auth.login.error.${flow.id}`),
-              color: 'blue',
-            })
-            return navigateTo(localePath('account/verify-email'))
-          }
-        }
-      }
-    }
-    errors.forEach((error) => {
-      toast.add({
-        title: error.message,
-        color: 'red',
-      })
-    })
-    return
-  }
-  toast.add({
-    title: t('common.auth.login.error.title'),
-    color: 'red',
-  })
 }
 
 async function finalizeLogin() {
