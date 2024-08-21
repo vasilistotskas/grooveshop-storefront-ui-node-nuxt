@@ -37,7 +37,8 @@ async function onSubmit() {
     emit('getWebAuthnRequestOptionsForAuthentication')
     emit('authenticateUsingWebAuthn')
   }
-  catch {
+  catch (e) {
+    console.error('=== Error ===', e)
     toast.add({
       title: t('common.error.default'),
       color: 'red',

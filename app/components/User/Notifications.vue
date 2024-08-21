@@ -16,12 +16,12 @@ const toggleButton = ref<HTMLButtonElement>()
 
 const { data: unseen, status: unseenStatus, refresh: unseenRefresh } = await useLazyAsyncData(
   'unseenNotificationsCount',
-  () => getUnseenCount()
+  () => getUnseenCount(),
 )
 
 const { data, status: notificationsStatus, refresh: notificationsRefresh } = await useLazyAsyncData(
   'notifications',
-  () => getNotifications(notificationIds.value)
+  () => getNotifications(notificationIds.value),
 )
 
 const pending = computed(() => {
@@ -42,8 +42,6 @@ const userNotifications = computed(() => {
   if (!data.value) {
     return []
   }
-  console.log('====== data ======', data)
-  console.log('====== data.value ======', data.value)
   return notifications.value?.results?.map((notification) => {
     return {
       ...notification,
