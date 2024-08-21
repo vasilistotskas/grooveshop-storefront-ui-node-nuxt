@@ -298,8 +298,6 @@ export function setupGoogleAnalyticsConsent() {
     functionality_storage: 'denied',
     personalization_storage: 'denied',
     security_storage: 'denied',
-  }).then(() => {
-    console.log('Google Analytics consent default')
   })
 
   watch(
@@ -314,8 +312,6 @@ export function setupGoogleAnalyticsConsent() {
           functionality_storage: 'granted',
           personalization_storage: 'granted',
           security_storage: 'granted',
-        }).then(() => {
-          console.log('Google Analytics consent granted')
         })
       }
       else if (_previous && !current) {
@@ -327,8 +323,6 @@ export function setupGoogleAnalyticsConsent() {
           functionality_storage: 'denied',
           personalization_storage: 'denied',
           security_storage: 'denied',
-        }).then(() => {
-          console.log('Google Analytics consent denied')
         })
       }
     },
