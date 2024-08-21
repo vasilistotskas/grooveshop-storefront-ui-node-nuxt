@@ -226,40 +226,32 @@ export function setupWebSocket() {
       {
         autoReconnect: true,
         onConnected: (ws) => {
-          if (import.meta.dev) {
-            console.log('WebSocket connected', ws)
-          }
+          console.log('WebSocket connected', ws)
         },
         onDisconnected: (_ws, event) => {
-          if (import.meta.dev) {
-            console.log('WebSocket disconnected', event)
-          }
+          console.log('WebSocket disconnected', event)
         },
         onError: (_ws, event) => {
-          if (import.meta.dev) {
-            console.log('WebSocket error', event)
-          }
+          console.log('WebSocket error', event)
         },
         onMessage: async (_ws, event) => {
-          if (import.meta.dev) {
-            console.log('WebSocket message', event)
-            const data = JSON.parse(event.data)
-            console.log('WebSocket data.translations[locale.value]', data.translations[locale.value])
-            toast.add({
+          console.log('WebSocket message', event)
+          const data = JSON.parse(event.data)
+          console.log('WebSocket data.translations[locale.value]', data.translations[locale.value])
+          toast.add({
+            title: data.translations[locale.value].title,
+            description: data.translations[locale.value].message,
+            color: 'green',
+          })
+          if (isBroadcastChannelSupported) {
+            post(data)
+          }
+          if (isWebNotificationSupported) {
+            await show({
               title: data.translations[locale.value].title,
-              description: data.translations[locale.value].message,
-              color: 'green',
+              body: data.translations[locale.value].message,
+              tag: data.type,
             })
-            if (isBroadcastChannelSupported) {
-              post(data)
-            }
-            if (isWebNotificationSupported) {
-              await show({
-                title: data.translations[locale.value].title,
-                body: data.translations[locale.value].message,
-                tag: data.type,
-              })
-            }
           }
         },
       },
@@ -270,9 +262,7 @@ export function setupWebSocket() {
     if (websocketInstance.value) {
       websocketInstance.value.close()
       websocketInstance.value = null
-      if (import.meta.dev) {
-        console.log('WebSocket closed')
-      }
+      console.log('WebSocket closed')
     }
   }
 
@@ -308,6 +298,8 @@ export function setupGoogleAnalyticsConsent() {
     functionality_storage: 'denied',
     personalization_storage: 'denied',
     security_storage: 'denied',
+  }).then(() => {
+    console.log('Google Analytics consent default')
   })
 
   watch(
@@ -322,6 +314,8 @@ export function setupGoogleAnalyticsConsent() {
           functionality_storage: 'granted',
           personalization_storage: 'granted',
           security_storage: 'granted',
+        }).then(() => {
+          console.log('Google Analytics consent granted')
         })
       }
       else if (_previous && !current) {
@@ -333,6 +327,8 @@ export function setupGoogleAnalyticsConsent() {
           functionality_storage: 'denied',
           personalization_storage: 'denied',
           security_storage: 'denied',
+        }).then(() => {
+          console.log('Google Analytics consent denied')
         })
       }
     },

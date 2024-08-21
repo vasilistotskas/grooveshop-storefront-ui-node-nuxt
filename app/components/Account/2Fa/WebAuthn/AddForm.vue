@@ -80,19 +80,11 @@ const formSchema: DynamicFormSchema = {
 </script>
 
 <template>
-  <div
-    class="
-      container-2xs p-0
-
-      md:px-6
-    "
-  >
-    <section class="grid items-center">
-      <DynamicForm
-        :button-label="t('common.submit')"
-        :schema="formSchema"
-        @submit="onSubmit"
-      />
-    </section>
-  </div>
+  <section class="grid items-center">
+    <DynamicForm
+      :button-label="t('common.submit')"
+      :schema="formSchema"
+      @submit="onSubmit"
+    />
+  </section>
 </template>
