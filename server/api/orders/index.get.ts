@@ -1,4 +1,4 @@
-import { ZodOrder, ZodOrderQuery } from '~/types/order/order'
+import { ZodOrder, ZodOrderQuery } from '~/types/order'
 import { ZodPagination } from '~/types/pagination'
 
 export default defineEventHandler(async (event) => {

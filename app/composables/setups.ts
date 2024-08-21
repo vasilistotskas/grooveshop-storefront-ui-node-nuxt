@@ -297,10 +297,10 @@ export function setupWebSocket() {
 }
 
 export function setupGoogleAnalyticsConsent() {
-  const { gtag } = useScriptGoogleAnalytics()
+  const { proxy } = useScriptGoogleAnalytics()
   const { isConsentGiven } = useCookieControl()
 
-  gtag('consent', 'default', {
+  proxy.gtag('consent', 'default', {
     ad_user_data: 'denied',
     ad_personalization: 'denied',
     ad_storage: 'denied',
@@ -314,7 +314,7 @@ export function setupGoogleAnalyticsConsent() {
     () => isConsentGiven.value,
     (current, _previous) => {
       if (current) {
-        gtag('consent', 'update', {
+        proxy.gtag('consent', 'update', {
           ad_storage: 'granted',
           ad_user_data: 'granted',
           ad_personalization: 'granted',
@@ -325,7 +325,7 @@ export function setupGoogleAnalyticsConsent() {
         })
       }
       else if (_previous && !current) {
-        gtag('consent', 'update', {
+        proxy.gtag('consent', 'update', {
           ad_storage: 'denied',
           ad_user_data: 'denied',
           ad_personalization: 'denied',

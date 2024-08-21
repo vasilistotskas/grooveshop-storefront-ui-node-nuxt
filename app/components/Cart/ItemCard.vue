@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { CartItem } from '~/types/cart/cart-item'
+import type { Item } from '~/types/cart/item'
 
 const props = defineProps({
-  cartItem: { type: Object as PropType<CartItem>, required: true },
+  cartItem: { type: Object as PropType<Item>, required: true },
 })
 
 const cartStore = useCartStore()

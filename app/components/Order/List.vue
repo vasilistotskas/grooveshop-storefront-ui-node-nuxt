@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { Order } from '~/types/order/order'
+import type { Index } from '~/types/order'
 
 defineProps({
   orders: {
-    type: Array as PropType<Order[] | null>,
+    type: Array as PropType<Index[] | null>,
     required: true,
   },
   ordersTotal: {

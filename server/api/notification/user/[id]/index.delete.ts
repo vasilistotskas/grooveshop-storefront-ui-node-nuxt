@@ -1,14 +1,14 @@
 import { z } from 'zod'
 
-import { ZodCartItemParams } from '~/types/cart/item'
+import { ZodNotificationUserParams } from '~/types/notification/user'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, ZodCartItemParams.parse)
+    const params = await getValidatedRouterParams(event, ZodNotificationUserParams.parse)
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/cart/item/${params.id}`,
+      `${config.public.apiBaseUrl}/notification/user/${params.id}`,
       {
         method: 'DELETE',
         headers: {

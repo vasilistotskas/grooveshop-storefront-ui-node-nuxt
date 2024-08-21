@@ -1,4 +1,4 @@
-import { ZodOrderCreateBody, ZodOrderCreateResponse } from '~/types/order/order'
+import { ZodOrderCreateBody, ZodOrderCreateResponse } from '~/types/order'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

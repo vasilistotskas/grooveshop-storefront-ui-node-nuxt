@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { ZodCartItem } from '~/types/cart/cart-item'
+import { ZodCartItem } from '~/types/cart/item'
 
 export const ZodCart = z.object({
   id: z.number(),
@@ -16,4 +16,4 @@ export const ZodCart = z.object({
   uuid: z.string().uuid(),
 })
 
-export type Cart = Readonly<z.infer<typeof ZodCart>>
+export type Index = Readonly<z.infer<typeof ZodCart>>

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { ZodProductImage } from '~/types/product/image'
-import { ZodProductParams, ZodProductQuery } from '~/types/product/product'
+import { ZodProductParams, ZodProductQuery } from '~/types/product'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

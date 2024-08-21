@@ -176,40 +176,36 @@ const items = computed(() => [
             >
               <ThemeSwitcher />
             </li>
+            <li
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
+            >
+              <UserNotifications />
+            </li>
             <template v-if="enabled">
               <li
                 class="
                   relative grid items-center justify-center justify-items-center
                 "
               >
-                <ClientOnly>
-                  <span
-                    v-if="!pending.cart"
-                    :data-count="getCartTotalItems"
-                    class="cart-items-count"
-                  />
-                  <span
-                    v-if="pending.cart"
-                    class="cart-items-count"
-                  />
-
-                  <template #fallback>
-                    <span class="cart-items-count" />
-                  </template>
-                </ClientOnly>
-                <Anchor
-                  :text="$t('pages.cart.title')"
-                  :title="$t('pages.cart.title')"
-                  :to="'cart'"
-                  class="
-                    flex items-center self-center text-[1.5rem]
-
-                    hover:text-slate-900 hover:no-underline
-                    hover:dark:text-primary-50
-                  "
+                <UChip
+                  :key="'cart'"
+                  size="xl"
+                  color="green"
+                  :show="!pending.cart"
+                  :text="getCartTotalItems"
                 >
-                  <UIcon name="i-fa6-solid-cart-shopping" />
-                </Anchor>
+                  <UButton
+                    class="p-0"
+                    icon="i-heroicons-shopping-cart"
+                    size="xl"
+                    :color="'primary'"
+                    :aria-label="$t('pages.cart.title')"
+                    :title="$t('pages.cart.title')"
+                    :to="localePath('cart')"
+                  />
+                </UChip>
               </li>
             </template>
             <li
@@ -287,8 +283,8 @@ const items = computed(() => [
     top: -5px;
     align-items: center;
     justify-content: center;
-    width: 70%;
-    height: 70%;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: #eb2e2b;
     cursor: pointer;
@@ -297,7 +293,7 @@ const items = computed(() => [
     pointer-events: none;
     right: -5px;
     z-index: 10;
-    line-height: 16px;
+    line-height: 18px;
   }
 }
 </style>

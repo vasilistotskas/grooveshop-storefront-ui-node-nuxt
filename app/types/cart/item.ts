@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { ZodProduct } from '~/types/product/product'
+import { ZodProduct } from '~/types/product'
 
 export const ZodCartItem = z.object({
   id: z.number(),
@@ -46,7 +46,7 @@ export const ZodCartItemParams = z.object({
   id: z.string(),
 })
 
-export type CartItem = Readonly<z.infer<typeof ZodCartItem>>
+export type Item = Readonly<z.infer<typeof ZodCartItem>>
 export type CartItemAddBody = z.infer<typeof ZodCartItemAddBody>
 export type CartItemCreateBody = z.infer<typeof ZodCartItemCreateBody>
 export type CartItemPutBody = z.infer<typeof ZodCartItemPutBody>

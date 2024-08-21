@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
-import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order/order'
+import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
 import type { PayWay } from '~/types/pay-way'
 import type { Pagination } from '~/types/pagination'

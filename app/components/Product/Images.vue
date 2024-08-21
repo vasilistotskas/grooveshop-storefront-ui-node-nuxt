@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { Product } from '~/types/product/product'
+import type { Index } from '~/types/product'
 
 const props = defineProps({
   product: {
-    type: Object as PropType<Product>,
+    type: Object as PropType<Index>,
     required: true,
   },
 })

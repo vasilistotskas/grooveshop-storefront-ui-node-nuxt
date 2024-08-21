@@ -2,13 +2,13 @@ import { StorageSerializers } from '@vueuse/core'
 import type { IFetchError } from 'ofetch'
 import { v4 as uuidv4 } from 'uuid'
 
-import type { Cart } from '~/types/cart/cart'
+import type { Index } from '~/types/cart'
 import type {
-  CartItem,
+  Item,
   CartItemAddBody,
   CartItemCreateBody,
   CartItemPutBody,
-} from '~/types/cart/cart-item'
+} from '~/types/cart/item'
 
 interface ErrorRecord {
   cart: IFetchError | null | undefined
@@ -27,11 +27,11 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useCartStore = defineStore('cart', () => {
-  const cart = ref<Cart | null>(null)
+  const cart = ref<Index | null>(null)
   const pending = ref<PendingRecord>(pendingFactory())
   const error = ref<ErrorRecord>(errorsFactory())
   const { loggedIn } = useUserSession()
-  const storage = useLocalStorage<Cart>('cart', null, {
+  const storage = useLocalStorage<Index>('cart', null, {
     deep: true,
     listenToStorageChanges: true,
     serializer: StorageSerializers.object,
@@ -52,7 +52,7 @@ export const useCartStore = defineStore('cart', () => {
   const getCartItemByProductId = (productId: number) => {
     return (cart.value?.cartItems
       .map(item => item.product)
-      .find(product => product.id === productId) ?? null) as CartItem | null
+      .find(product => product.id === productId) ?? null) as Item | null
   }
 
   function fetchCartFromLocalStorage() {
@@ -138,8 +138,8 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   function updateLocalStorageCartTotals(
-    cartFromLocalStorage: Cart,
-    cartItems: CartItem[],
+    cartFromLocalStorage: Index,
+    cartItems: Item[],
   ) {
     const totalPrice = cartItems.reduce(
       (acc, item) => acc + (item?.finalPrice ?? 0) * (item?.quantity ?? 0),
@@ -171,7 +171,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function createCartItemToLocalStorage(cartItem: CartItem) {
+  function createCartItemToLocalStorage(cartItem: Item) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
       console.error('Cart not found in Local Storage')

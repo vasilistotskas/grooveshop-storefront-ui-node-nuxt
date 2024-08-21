@@ -1,4 +1,4 @@
-import { ZodProduct, ZodProductParams } from '~/types/product/product'
+import { ZodProduct, ZodProductParams } from '~/types/product'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

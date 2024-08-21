@@ -1,4 +1,4 @@
-import { ZodOrder, ZodOrderUUIDParams } from '~/types/order/order'
+import { ZodOrder, ZodOrderUUIDParams } from '~/types/order'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

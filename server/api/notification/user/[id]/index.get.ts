@@ -1,14 +1,14 @@
+import { ZodNotificationUser, ZodNotificationUserQuery, ZodNotificationUserParams } from '~/types/notification/user'
 import { ZodPagination } from '~/types/pagination'
-import { ZodOrder, ZodOrderParams, ZodOrderQuery } from '~/types/order'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
-    const query = await getValidatedQuery(event, ZodOrderQuery.parse)
+    const params = await getValidatedRouterParams(event, ZodNotificationUserParams.parse)
+    const query = await getValidatedQuery(event, ZodNotificationUserQuery.parse)
     const url = buildFullUrl(
-      `${config.public.apiBaseUrl}/user/account/${params.id}/orders`,
+      `${config.public.apiBaseUrl}/blog/post/${params.id}`,
       query,
     )
     const response = await $fetch(url, {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodPagination(ZodOrder))
+    return await parseDataAs(response, ZodPagination(ZodNotificationUser))
   }
   catch (error) {
     await handleError(error)

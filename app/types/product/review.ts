@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { ZodProduct } from '~/types/product/product'
+import { ZodProduct } from '~/types/product'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'

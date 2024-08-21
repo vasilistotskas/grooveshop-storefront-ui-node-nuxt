@@ -10,6 +10,12 @@ const navbar = ref(null)
 
 const config = useRuntimeConfig()
 const { enabled } = useAuthPreviewMode()
+const { loggedIn } = useUserSession()
+
+const userNotificationStore = useUserNotificationStore()
+const {
+  notificationIds,
+} = storeToRefs(userNotificationStore)
 
 const appTitle = computed(() => config.public.appTitle as string)
 
@@ -114,6 +120,7 @@ const spider = computed(() => {
             >
               <LanguageSwitcher v-if="enabled" />
               <ThemeSwitcher />
+              <UserNotifications v-if="loggedIn && notificationIds.length > 0" />
             </div>
           </MobileOrTabletOnly>
         </div>

@@ -1,4 +1,4 @@
-import { ZodCartItem, ZodCartItemParams, ZodCartItemPutBody } from '~/types/cart/cart-item'
+import { ZodCartItem, ZodCartItemParams, ZodCartItemPutBody } from '~/types/cart/item'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
