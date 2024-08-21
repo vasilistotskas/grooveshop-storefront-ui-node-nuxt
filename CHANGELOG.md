@@ -1,3 +1,10 @@
+# [1.148.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.147.0...v1.148.0) (2024-08-21)
+
+
+### Features
+
+* user notifications wip ([816d3f4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/816d3f460e9e32a5c80ae0aae7fc2875468d3cb4))
+
 # [1.147.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.146.0...v1.147.0) (2024-08-19)
 
 
