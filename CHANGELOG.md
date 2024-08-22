@@ -1,3 +1,10 @@
+## [1.151.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.151.0...v1.151.1) (2024-08-22)
+
+
+### Bug Fixes
+
+* django hostname in websocket ([e937e89](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e937e89a037f5a4fcdd101ba8092b0b2338ed32d))
+
 # [1.151.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.150.0...v1.151.0) (2024-08-22)
 
 
