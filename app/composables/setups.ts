@@ -194,69 +194,71 @@ export function setupWebSocket() {
   const { user, session, loggedIn } = useUserSession()
 
   function initializeWebSocket() {
-    const websocketProtocol = import.meta.client && window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
-    console.log('==== djangoApiHostName ====', djangoApiHostName)
-    const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications`, {
-      user_id: user.value?.id,
-      session_token: session.value.sessionToken,
-      access_token: session.value.accessToken,
-    })
+    if (import.meta.client) {
+      const websocketProtocol = import.meta.client && window.location.protocol === 'https:' ? 'wss' : 'ws'
+      const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
+      console.log('==== djangoApiHostName ====', djangoApiHostName)
+      const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications`, {
+        user_id: user.value?.id,
+        session_token: session.value.sessionToken,
+        access_token: session.value.accessToken,
+      })
 
-    const options: UseWebNotificationOptions = {
-      dir: 'auto',
-      lang: locale.value,
-      icon: '/logo.svg',
-      renotify: true,
-      requireInteraction: false,
-      vibrate: [200, 100, 200],
-    }
+      const options: UseWebNotificationOptions = {
+        dir: 'auto',
+        lang: locale.value,
+        icon: '/logo.svg',
+        renotify: true,
+        requireInteraction: false,
+        vibrate: [200, 100, 200],
+      }
 
-    const {
-      isSupported: isBroadcastChannelSupported,
-      post,
-    } = useBroadcastChannel({ name: 'notifications' })
+      const {
+        isSupported: isBroadcastChannelSupported,
+        post,
+      } = useBroadcastChannel({ name: 'notifications' })
 
-    const {
-      isSupported: isWebNotificationSupported,
-      show,
-    } = useWebNotification(options)
+      const {
+        isSupported: isWebNotificationSupported,
+        show,
+      } = useWebNotification(options)
 
-    websocketInstance.value = useWebSocket(
-      wsEndpoint,
-      {
-        autoReconnect: true,
-        onConnected: (ws) => {
-          console.log('WebSocket connected', ws)
-        },
-        onDisconnected: (_ws, event) => {
-          console.log('WebSocket disconnected', event)
-        },
-        onError: (_ws, event) => {
-          console.log('WebSocket error', event)
-        },
-        onMessage: async (_ws, event) => {
-          console.log('WebSocket message', event)
-          const data = JSON.parse(event.data)
-          console.log('WebSocket data.translations[locale.value]', data.translations[locale.value])
-          toast.add({
-            title: data.translations[locale.value].title,
-            description: data.translations[locale.value].message,
-            color: 'green',
-          })
-          if (isBroadcastChannelSupported) {
-            post(data)
-          }
-          if (isWebNotificationSupported) {
-            await show({
+      websocketInstance.value = useWebSocket(
+        wsEndpoint,
+        {
+          autoReconnect: true,
+          onConnected: (ws) => {
+            console.log('WebSocket connected', ws)
+          },
+          onDisconnected: (_ws, event) => {
+            console.log('WebSocket disconnected', event)
+          },
+          onError: (_ws, event) => {
+            console.log('WebSocket error', event)
+          },
+          onMessage: async (_ws, event) => {
+            console.log('WebSocket message', event)
+            const data = JSON.parse(event.data)
+            console.log('WebSocket data.translations[locale.value]', data.translations[locale.value])
+            toast.add({
               title: data.translations[locale.value].title,
-              body: data.translations[locale.value].message,
-              tag: data.type,
+              description: data.translations[locale.value].message,
+              color: 'green',
             })
-          }
+            if (isBroadcastChannelSupported) {
+              post(data)
+            }
+            if (isWebNotificationSupported) {
+              await show({
+                title: data.translations[locale.value].title,
+                body: data.translations[locale.value].message,
+                tag: data.type,
+              })
+            }
+          },
         },
-      },
-    )
+      )
+    }
   }
 
   function closeWebSocket() {
