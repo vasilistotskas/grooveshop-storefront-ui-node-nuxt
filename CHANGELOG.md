@@ -1,3 +1,10 @@
+## [1.151.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.151.1...v1.151.2) (2024-08-22)
+
+
+### Bug Fixes
+
+* setup initializeWebSocket fix ([2dfc4ac](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2dfc4ac6a396a69de9b2c96abc150df9a50bbdb7))
+
 ## [1.151.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.151.0...v1.151.1) (2024-08-22)
 
 
