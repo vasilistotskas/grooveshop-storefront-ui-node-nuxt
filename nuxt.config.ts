@@ -5,7 +5,10 @@ const sw = process.env.SW === 'true'
 export default defineNuxtConfig({
   ssr: true,
   debug: false,
-  sourcemap: false,
+  sourcemap: {
+    server: false,
+    client: true,
+  },
   telemetry: false,
   future: {
     compatibilityVersion: 4,
