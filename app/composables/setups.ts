@@ -195,7 +195,7 @@ export function setupWebSocket() {
 
   function initializeWebSocket() {
     const websocketProtocol = import.meta.client && window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const djangoApiHostName = config.public.djangoHostName
+    const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
     console.log('==== djangoApiHostName ====', djangoApiHostName)
     const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications`, {
       user_id: user.value?.id,
