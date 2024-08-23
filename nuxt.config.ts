@@ -306,7 +306,10 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
-    compressPublicAssets: { gzip: true },
+    compressPublicAssets: {
+      gzip: true,
+      brotli: true,
+    },
     prerender: {
       crawlLinks: false,
       routes: [],

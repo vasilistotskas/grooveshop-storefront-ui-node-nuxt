@@ -19,19 +19,21 @@ const loading = ref(false)
 
 async function onSubmit() {
   try {
-    loading.value = true
-    await clear()
-    const optResp = await getWebAuthnRequestOptionsForLogin()
-    const jsonOptions = optResp?.data.request_options
-    if (!jsonOptions) {
-      throw new Error('No creation options')
+    if (import.meta.client) {
+      loading.value = true
+      await clear()
+      const optResp = await getWebAuthnRequestOptionsForLogin()
+      const jsonOptions = optResp?.data.request_options
+      if (!jsonOptions) {
+        throw new Error('No creation options')
+      }
+      const options = parseRequestOptionsFromJSON(jsonOptions)
+      const credential = await get(options)
+      session.value = await loginUsingWebAuthn({
+        credential,
+      })
+      await performPostLoginActions()
     }
-    const options = parseRequestOptionsFromJSON(jsonOptions)
-    const credential = await get(options)
-    session.value = await loginUsingWebAuthn({
-      credential,
-    })
-    await performPostLoginActions()
   }
   catch (error) {
     console.error('=== Error ===', error)
