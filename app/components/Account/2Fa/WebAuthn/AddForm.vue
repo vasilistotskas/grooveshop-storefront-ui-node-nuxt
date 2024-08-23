@@ -21,28 +21,26 @@ async function onSubmit(values: {
   passwordless: boolean
 }) {
   try {
-    if (import.meta.client) {
-      loading.value = true
-      const optResp = await getWebAuthnCreateOptions(values.passwordless)
-      const jsonOptions = optResp?.data.creation_options
-      if (!jsonOptions) {
-        throw new Error('No creation options')
-      }
-      const options = parseCreationOptionsFromJSON(jsonOptions)
-      const credential = await create(options)
-      const response = await addWebAuthnCredential({
-        name: values.name,
-        credential,
-      })
-      toast.add({
-        title: t('common.success.title'),
-        color: 'green',
-      })
-      emit('getWebAuthnCreateOptions')
-      emit('addWebAuthnCredential')
-      const to = response?.meta.recovery_codes_generated ? '/account/2fa/recovery-codes' : '/account/2fa/webauthn'
-      await navigateTo(localePath(to))
+    loading.value = true
+    const optResp = await getWebAuthnCreateOptions(values.passwordless)
+    const jsonOptions = optResp?.data.creation_options
+    if (!jsonOptions) {
+      throw new Error('No creation options')
     }
+    const options = parseCreationOptionsFromJSON(jsonOptions)
+    const credential = await create(options)
+    const response = await addWebAuthnCredential({
+      name: values.name,
+      credential,
+    })
+    toast.add({
+      title: t('common.success.title'),
+      color: 'green',
+    })
+    emit('getWebAuthnCreateOptions')
+    emit('addWebAuthnCredential')
+    const to = response?.meta.recovery_codes_generated ? '/account/2fa/recovery-codes' : '/account/2fa/webauthn'
+    await navigateTo(localePath(to))
   }
   catch (error) {
     console.error('=== Error ===', error)
