@@ -1,3 +1,10 @@
+## [1.152.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.152.0...v1.152.1) (2024-08-23)
+
+
+### Bug Fixes
+
+* webauthn ([023206f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/023206ff3f648de1d2dc6ea3a2ba7fff9d9bb11d))
+
 # [1.152.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.151.2...v1.152.0) (2024-08-22)
 
 
