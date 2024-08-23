@@ -1,3 +1,10 @@
+# [1.153.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.152.1...v1.153.0) (2024-08-23)
+
+
+### Features
+
+* pass X-Forwarded-Host to backend API from nuxt server ([cbbd55e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cbbd55ece08ed97325e50b339ce0f2a5ee653c40))
+
 ## [1.152.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.152.0...v1.152.1) (2024-08-23)
 
 
