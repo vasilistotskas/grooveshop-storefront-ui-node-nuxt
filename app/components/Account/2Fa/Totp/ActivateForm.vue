@@ -6,14 +6,8 @@ import type { TotpPostBody } from '~/types/all-auth'
 
 const emit = defineEmits(['activateTotp'])
 
-const authStore = useAuthStore()
-const { activateTotp } = useAllAuthAccount()
-const { getTotpAuthenticatorStatus } = authStore
-const {
-  totpData,
-  totpSecret,
-  totpSvg,
-} = storeToRefs(authStore)
+const nuxtApp = useNuxtApp()
+const { activateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 
 const { t } = useI18n()
 const toast = useToast()
@@ -21,9 +15,31 @@ const localePath = useLocalePath()
 
 const loading = ref(false)
 
-const { refresh } = await getTotpAuthenticatorStatus() ?? {}
+const { data, error } = await useAsyncData(
+  'totpAuthenticatorStatus',
+  () => totpAuthenticatorStatus(),
+  {
+    getCachedData(key) {
+      return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+    },
+  },
+)
 
-if (totpData.value) {
+const totpSecret = computed(() => {
+  if (!('meta' in data.value)) {
+    return ''
+  }
+  return data.value?.meta.secret
+})
+
+const totpSvg = computed(() => {
+  if (!('meta' in data.value)) {
+    return ''
+  }
+  return data.value?.meta.totp_svg
+})
+
+if (error.value) {
   await navigateTo(localePath('/account/settings'))
 }
 
@@ -70,12 +86,6 @@ const formSchema: DynamicFormSchema = {
     },
   ],
 }
-
-onReactivated(async () => {
-  if (refresh) {
-    await refresh()
-  }
-})
 </script>
 
 <template>

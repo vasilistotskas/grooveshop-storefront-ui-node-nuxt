@@ -227,18 +227,18 @@ export function setupWebSocket() {
         {
           autoReconnect: true,
           onConnected: (ws) => {
-            console.log('WebSocket connected', ws)
+            console.info('WebSocket connected', ws)
           },
           onDisconnected: (_ws, event) => {
-            console.log('WebSocket disconnected', event)
+            console.info('WebSocket disconnected', event)
           },
           onError: (_ws, event) => {
-            console.log('WebSocket error', event)
+            console.info('WebSocket error', event)
           },
           onMessage: async (_ws, event) => {
-            console.log('WebSocket message', event)
+            console.info('WebSocket message', event)
             const data = JSON.parse(event.data)
-            console.log('WebSocket data.translations[locale.value]', data.translations[locale.value])
+            console.info('WebSocket data.translations[locale.value]', data.translations[locale.value])
             toast.add({
               title: data.translations[locale.value].title,
               description: data.translations[locale.value].message,
@@ -264,7 +264,7 @@ export function setupWebSocket() {
     if (websocketInstance.value) {
       websocketInstance.value.close()
       websocketInstance.value = null
-      console.log('WebSocket closed')
+      console.info('WebSocket closed')
     }
   }
 

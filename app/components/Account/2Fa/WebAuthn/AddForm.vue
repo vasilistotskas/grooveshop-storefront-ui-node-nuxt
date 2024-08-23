@@ -42,8 +42,7 @@ async function onSubmit(values: {
     const to = response?.meta.recovery_codes_generated ? '/account/2fa/recovery-codes' : '/account/2fa/webauthn'
     await navigateTo(localePath(to))
   }
-  catch (error) {
-    console.error('=== Error ===', error)
+  catch {
     toast.add({
       title: t('common.error.default'),
       color: 'red',
@@ -74,6 +73,7 @@ const formSchema: DynamicFormSchema = {
       required: false,
       placeholder: t('common.passwordless'),
       type: 'checkbox',
+      initialValue: false,
     },
   ],
 }

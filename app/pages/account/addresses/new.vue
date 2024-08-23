@@ -362,7 +362,7 @@ definePageMeta({
               :bind="streetProps"
               :placeholder="$t('pages.account.addresses.new.form.street')"
               :required="true"
-              autocomplete="street-address"
+              autocomplete="address-line1"
               name="street"
               type="text"
             />
@@ -396,7 +396,7 @@ definePageMeta({
                 $t('pages.account.addresses.new.form.street_number')
               "
               :required="true"
-              autocomplete="street-address"
+              autocomplete="address-line1"
               name="streetNumber"
               type="text"
             />

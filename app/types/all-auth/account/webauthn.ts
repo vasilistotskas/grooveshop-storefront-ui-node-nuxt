@@ -1,34 +1,15 @@
 import { z } from 'zod'
+import { ZodAuthenticator } from '~/types/all-auth'
+
+export const ZodWebAuthnCredentialCreationOptions = z.object({
+  creation_options: z.object({
+    publicKey: z.any(),
+  }),
+})
 
 export const ZodWebAuthnGetResponse = z.object({
   status: z.literal(200),
-  data: z.object({
-    creation_options: z.object({
-      publicKey: z.object({
-        rp: z.object({
-          id: z.string().optional(),
-          name: z.string(),
-        }).optional(),
-        user: z.object({
-          id: z.string(),
-          name: z.string(),
-          displayName: z.string(),
-        }).optional(),
-        challenge: z.string(),
-        pubKeyCredParams: z.array(z.object({
-          type: z.enum(['public-key']),
-          alg: z.number(),
-        })).optional(),
-        rpId: z.string().optional(),
-        allowCredentials: z.array(z.object({
-          type: z.literal('public-key'),
-          id: z.string(),
-          transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-        })).optional(),
-        userVerification: z.enum(['discouraged', 'preferred', 'required']).optional(),
-      }),
-    }),
-  }),
+  data: ZodWebAuthnCredentialCreationOptions,
 })
 
 export const ZodWebAuthnDeleteBody = z.object({
@@ -45,35 +26,15 @@ export const ZodWebAuthnPostBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
+    response: z.any(),
     authenticatorAttachment: z.string().nullish(),
-    response: z.object({
-      clientDataJSON: z.any(),
-      transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-      attestationObject: z.any().optional(),
-      authenticatorData: z.string().optional(),
-      signature: z.string().optional(),
-      userHandle: z.string().optional(),
-    }),
-    clientExtensionResults: z.object({
-      appid: z.string().optional(),
-      appidExclude: z.string().optional(),
-      credProps: z.object({
-        rk: z.boolean(),
-      }).optional(),
-    }).optional(),
+    clientExtensionResults: z.any().optional(),
   }),
 })
 
 export const ZodWebAuthnPostResponse = z.object({
   status: z.literal(200),
-  data: z.object({
-    last_used_at: z.number().nullable(),
-    created_at: z.number(),
-    type: z.string(),
-    id: z.number(),
-    name: z.string(),
-    is_passwordless: z.boolean().optional(),
-  }),
+  data: ZodAuthenticator,
   meta: z.object({
     recovery_codes_generated: z.boolean(),
   }),
@@ -86,14 +47,7 @@ export const ZodWebAuthnPutBody = z.object({
 
 export const ZodWebAuthnPutResponse = z.object({
   status: z.literal(200),
-  data: z.object({
-    last_used_at: z.number(),
-    created_at: z.number(),
-    type: z.string(),
-    id: z.number(),
-    name: z.string(),
-    is_passwordless: z.boolean().optional(),
-  }),
+  data: ZodAuthenticator,
 })
 
 export type WebAuthnGetResponse = z.infer<typeof ZodWebAuthnGetResponse>

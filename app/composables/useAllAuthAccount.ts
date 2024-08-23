@@ -25,7 +25,7 @@ export default function () {
   }
 
   async function addEmailAddress(body: EmailPostBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -39,7 +39,7 @@ export default function () {
   }
 
   async function requestEmailVerification(body: EmailPutBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PUT',
       headers: useRequestHeaders(),
       body,
@@ -53,7 +53,7 @@ export default function () {
   }
 
   async function changePrimaryEmailAddress(body: EmailPatchBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PUT',
       headers: useRequestHeaders(),
       body,
@@ -67,7 +67,7 @@ export default function () {
   }
 
   async function removeEmailAddress(body: EmailDeleteBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       body,
@@ -81,7 +81,7 @@ export default function () {
   }
 
   async function changePassword(body: PasswordChangeBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/password/change`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/password/change`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -108,7 +108,7 @@ export default function () {
   }
 
   async function disconnectThirdPartyProviderAccount(body: ProvidersDeleteBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/providers`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/providers`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       body,
@@ -148,7 +148,7 @@ export default function () {
   }
 
   async function activateTotp(body: TotpPostBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -162,7 +162,7 @@ export default function () {
   }
 
   async function deactivateTotp() {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -188,7 +188,7 @@ export default function () {
   }
 
   async function generateRecoveryCodes() {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
       method: 'POST',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -201,7 +201,7 @@ export default function () {
   }
 
   async function getWebAuthnCreateOptions(passwordless: boolean) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'GET',
       headers: useRequestHeaders(),
       query: {
@@ -217,7 +217,7 @@ export default function () {
   }
 
   async function addWebAuthnCredential(body: WebAuthnPostBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -231,7 +231,7 @@ export default function () {
   }
 
   async function deleteWebAuthnCredential(body: WebAuthnDeleteBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       body,
@@ -245,7 +245,7 @@ export default function () {
   }
 
   async function updateWebAuthnCredential(body: WebAuthnPutBody) {
-    return await $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'PUT',
       headers: useRequestHeaders(),
       body,

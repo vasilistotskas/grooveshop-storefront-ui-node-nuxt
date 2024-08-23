@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const ZodAuthenticator = z.object({
+export const ZodAuthenticator = z.object({
   id: z.number().optional().describe('The unique identifier for the authenticator.'),
   name: z.string().optional().describe('The name of the authenticator.'),
   last_used_at: z.number().nullable().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),

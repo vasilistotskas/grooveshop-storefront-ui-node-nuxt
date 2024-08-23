@@ -105,7 +105,6 @@ export async function handleAllAuthError(
         })
       }
     }
-    console.info('AllAuth error:', error.data)
     await allAuthHooks.callHookParallel('authChange', { detail: error.data })
   }
   else {

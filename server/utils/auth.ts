@@ -8,13 +8,15 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   headers['Content-Type'] = 'application/json'
 
   const host = getRequestHost(event, { xForwardedHost: true })
-  console.debug('getRequestHost ->', host)
   if (host) {
     headers['X-Forwarded-Host'] = host
   }
 
   if (sessionToken) {
     headers['X-Session-Token'] = sessionToken
+  }
+
+  if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`
   }
 

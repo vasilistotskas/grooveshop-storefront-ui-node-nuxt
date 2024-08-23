@@ -5,16 +5,7 @@ export const ZodWebAuthnAuthenticateGetResponse = z.object({
   status: z.literal(200),
   data: z.object({
     request_options: z.object({
-      publicKey: z.object({
-        challenge: z.string(),
-        rpId: z.string().optional(),
-        allowCredentials: z.array(z.object({
-          type: z.literal('public-key'),
-          id: z.string(),
-          transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-        })).optional(),
-        userVerification: z.enum(['discouraged', 'preferred', 'required']).optional(),
-      }),
+      publicKey: z.any(),
     }),
   }),
 })
@@ -30,22 +21,9 @@ export const ZodWebAuthnAuthenticatePostBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
+    response: z.any(),
     authenticatorAttachment: z.string().nullish(),
-    response: z.object({
-      clientDataJSON: z.any(),
-      transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-      attestationObject: z.any().optional(),
-      authenticatorData: z.string().optional(),
-      signature: z.string().optional(),
-      userHandle: z.string().optional(),
-    }),
-    clientExtensionResults: z.object({
-      appid: z.string().optional(),
-      appidExclude: z.string().optional(),
-      credProps: z.object({
-        rk: z.boolean(),
-      }).optional(),
-    }).optional(),
+    clientExtensionResults: z.any().optional(),
   }),
 })
 
@@ -53,16 +31,7 @@ export const ZodWebAuthnReauthenticateGetResponse = z.object({
   status: z.literal(200),
   data: z.object({
     request_options: z.object({
-      publicKey: z.object({
-        challenge: z.string(),
-        rpId: z.string().optional(),
-        allowCredentials: z.array(z.object({
-          type: z.literal('public-key'),
-          id: z.string(),
-          transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-        })).optional(),
-        userVerification: z.enum(['discouraged', 'preferred', 'required']).optional(),
-      }),
+      publicKey: z.any(),
     }),
   }),
 })
@@ -72,22 +41,9 @@ export const ZodWebAuthnReauthenticatePostBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
+    response: z.any(),
     authenticatorAttachment: z.string().nullish(),
-    response: z.object({
-      clientDataJSON: z.any(),
-      transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-      attestationObject: z.any().optional(),
-      authenticatorData: z.string().optional(),
-      signature: z.string().optional(),
-      userHandle: z.string().optional(),
-    }),
-    clientExtensionResults: z.object({
-      appid: z.string().optional(),
-      appidExclude: z.string().optional(),
-      credProps: z.object({
-        rk: z.boolean(),
-      }).optional(),
-    }).optional(),
+    clientExtensionResults: z.any().optional(),
   }),
 })
 
@@ -101,18 +57,10 @@ export const ZodWebAuthnLoginGetResponse = z.object({
   status: z.literal(200),
   data: z.object({
     request_options: z.object({
-      publicKey: z.object({
-        challenge: z.string(),
-        rpId: z.string().optional(),
-        allowCredentials: z.array(z.object({
-          type: z.literal('public-key'),
-          id: z.string(),
-          transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-        })).optional(),
-        userVerification: z.enum(['discouraged', 'preferred', 'required']).optional(),
-      }),
+      publicKey: z.any(),
     }),
   }),
+  meta: ZodAuthenticationMeta,
 })
 
 export const ZodWebAuthnLoginPostBody = z.object({
@@ -120,22 +68,9 @@ export const ZodWebAuthnLoginPostBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
+    response: z.any(),
     authenticatorAttachment: z.string().nullish(),
-    response: z.object({
-      clientDataJSON: z.any(),
-      transports: z.array(z.enum(['ble', 'hybrid', 'internal', 'nfc', 'usb'])).optional(),
-      attestationObject: z.any().optional(),
-      authenticatorData: z.string().optional(),
-      signature: z.string().optional(),
-      userHandle: z.string().optional(),
-    }),
-    clientExtensionResults: z.object({
-      appid: z.string().optional(),
-      appidExclude: z.string().optional(),
-      credProps: z.object({
-        rk: z.boolean(),
-      }).optional(),
-    }).optional(),
+    clientExtensionResults: z.any().optional(),
   }),
 })
 

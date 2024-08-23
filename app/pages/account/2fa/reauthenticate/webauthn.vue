@@ -40,8 +40,7 @@ async function onSubmit() {
     emit('getWebAuthnRequestOptionsForReauthentication')
     emit('reauthenticateUsingWebAuthn')
   }
-  catch (error) {
-    console.error('=== Error ===', error)
+  catch {
     toast.add({
       title: t('common.error.default'),
       color: 'red',

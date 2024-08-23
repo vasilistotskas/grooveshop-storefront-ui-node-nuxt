@@ -17,7 +17,7 @@ export default function () {
   }
 
   async function deleteSession(body: SessionsDeleteBody) {
-    return await $fetch(`${API_BASE_URL}/sessions`, {
+    return $fetch(`${API_BASE_URL}/sessions`, {
       method: 'DELETE',
       body,
       async onResponse({ response }) {

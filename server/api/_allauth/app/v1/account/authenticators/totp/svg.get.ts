@@ -1,4 +1,4 @@
-import { ZodTotpGetResponse } from '~/types/all-auth'
+import { ZodTotpGetResponse, ZodTotpGetResponseError } from '~/types/all-auth'
 
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
@@ -11,6 +11,11 @@ export default defineEventHandler(async () => {
     return await parseDataAs(response, ZodTotpGetResponse)
   }
   catch (error) {
+    if (isAllAuthError(error)) {
+      if (error.data.status === 404 && 'meta' in error.data) {
+        return await parseDataAs(error.data, ZodTotpGetResponseError)
+      }
+    }
     await handleAllAuthError(error)
   }
 })

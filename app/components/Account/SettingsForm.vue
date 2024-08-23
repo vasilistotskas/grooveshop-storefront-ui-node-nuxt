@@ -388,7 +388,7 @@ const submitButtonDisabled = computed(() => {
           v-model="address"
           :bind="addressProps"
           :placeholder="$t('pages.account.settings.form.address')"
-          autocomplete="street-address"
+          autocomplete="address-line1"
           name="address"
           type="text"
         />

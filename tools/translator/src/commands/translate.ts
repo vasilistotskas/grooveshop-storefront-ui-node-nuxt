@@ -116,6 +116,6 @@ const main = defineCommand({
 })
 
 runMain(main)
-  .then(() => console.info('test1221'))
-  .catch(() => console.info('test55523'))
+  .then(() => console.info('Translation process completed.'))
+  .catch(() => process.exit(1))
   .finally(() => process.exit(0))

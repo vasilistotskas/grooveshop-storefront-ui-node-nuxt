@@ -9,6 +9,7 @@ const {
   notificationIds,
   notifications,
 } = storeToRefs(userNotificationStore)
+const { loggedIn } = useUserSession()
 
 const isDropdownVisible = ref(false)
 const dropdown = ref<HTMLDivElement>()
@@ -75,6 +76,15 @@ onClickOutside(dropdown, () => {
 }, {
   ignore: [toggleButton],
 })
+
+watch(
+  () => loggedIn.value,
+  (isLoggedIn, previous) => {
+    if (!previous && isLoggedIn) {
+      execute()
+    }
+  },
+)
 </script>
 
 <template>

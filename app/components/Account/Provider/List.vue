@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const authStore = useAuthStore()
 const { config } = storeToRefs(authStore)
-const { clear } = useUserSession()
 
 defineProps({
   loading: {
@@ -19,7 +18,6 @@ const providers = computed(() => {
 })
 
 const loginWithProvider = async (provider: string) => {
-  await clear()
   providerRedirect(provider)
 }
 </script>

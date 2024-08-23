@@ -67,7 +67,7 @@ const resolveLinkEntryText = (entry: [string, unknown]) => (typeof entry[1] === 
 
 const init = () => {
   if (import.meta.env.NODE_ENV !== 'production') {
-    console.log('Cookies Initialized')
+    console.debug('Cookies Initialized')
   }
 }
 

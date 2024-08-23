@@ -95,6 +95,7 @@ const rows = computed(() => {
       type: key.type,
       created_at: key.created_at,
       last_used_at: key.last_used_at,
+      is_passwordless: key.is_passwordless ?? undefined,
     }
   }) ?? []
 })

@@ -17,7 +17,7 @@ const { data: getVerifyEmailData } = await useAsyncData(
 async function onSubmit() {
   try {
     loading.value = true
-    const data = await emailVerify({ key: String(route.params.key) })
+    const { data } = await emailVerify({ key: String(route.params.key) })
     if (data && [200, 401].includes(data.status)) {
       toast.add({
         title: t('common.auth.email.verified'),

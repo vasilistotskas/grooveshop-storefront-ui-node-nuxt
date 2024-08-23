@@ -1,6 +1,6 @@
 import { withQuery } from 'ufo'
 import type { AllAuthResponse, AllAuthResponseError, AuthChangeEventType } from '~/types/all-auth'
-import { AuthChangeEvent, URLs } from '~/types/all-auth'
+import { AuthChangeEvent, Flow2path, URLs } from '~/types/all-auth'
 import { pathForPendingFlow } from '~/utils/auth'
 
 export default defineNuxtPlugin({
@@ -10,7 +10,7 @@ export default defineNuxtPlugin({
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
 
-    const { user, fetch, loggedIn, clear } = useUserSession()
+    const { fetch, loggedIn, clear } = useUserSession()
 
     const fromAuth = ref<AllAuthResponse | AllAuthResponseError | null>(authState.value)
 
@@ -29,8 +29,12 @@ export default defineNuxtPlugin({
 
       if ((detail.status === 401 || detail.status === 410) && detail.data?.flows?.length) {
         const path = pathForPendingFlow(detail)
+        const isReauthenticateFlow = detail.data.flows.some(flow => flow.id === 'reauthenticate')
         if (!fromAuth.value && path) {
           authEvent.value = AuthChangeEvent.FLOW_UPDATED
+        }
+        else if (!fromAuth.value && isReauthenticateFlow) {
+          authEvent.value = AuthChangeEvent.REAUTHENTICATION_REQUIRED
         }
       }
 
@@ -80,6 +84,16 @@ export default defineNuxtPlugin({
                 })
                 return nuxtApp.runWithContext(() => navigateTo(url))
               }
+              else {
+                const isReauthenticateFlow = auth.data?.flows?.some(flow => flow.id === 'reauthenticate')
+                if (isReauthenticateFlow) {
+                  const flow = Flow2path['reauthenticate']
+                  const url = withQuery(localePath(flow), {
+                    next,
+                  })
+                  return nuxtApp.runWithContext(() => navigateTo(url))
+                }
+              }
             }
             break
           }
@@ -94,13 +108,10 @@ export default defineNuxtPlugin({
     )
 
     watch(
-      () => user.value,
-      async (current, _previous) => {
-        if (current && current.isSuperuser) {
-          await refreshNuxtData()
-        }
+      () => loggedIn.value,
+      async () => {
+        await refreshNuxtData()
       },
-      { deep: true },
     )
 
     nuxtApp.provide('authState', authState)
