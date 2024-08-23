@@ -1,3 +1,10 @@
+# [1.154.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.153.1...v1.154.0) (2024-08-23)
+
+
+### Features
+
+* Improve all auth and add cache headers `cache-control` in Nuxt ([a6ecb08](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a6ecb0824bab853c184c1f7526c8b33dcd298650))
+
 ## [1.153.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.153.0...v1.153.1) (2024-08-23)
 
 
