@@ -1,10 +1,17 @@
 import { ZodUserAccount } from '~/types/user/account'
 import type { AllAuthResponse } from '~/types/all-auth'
 
-export function createAuthenticationHeaders(sessionToken?: string | null, accessToken?: string | null) {
+export function createHeaders(sessionToken?: string | null, accessToken?: string | null) {
+  const event = useEvent()
   const headers = {} as Record<string, string>
 
   headers['Content-Type'] = 'application/json'
+
+  const host = getRequestHost(event, { xForwardedHost: true })
+  console.debug('getRequestHost ->', host)
+  if (host) {
+    headers['X-Forwarded-Host'] = host
+  }
 
   if (sessionToken) {
     headers['X-Session-Token'] = sessionToken
@@ -17,19 +24,17 @@ export function createAuthenticationHeaders(sessionToken?: string | null, access
 export async function processAllAuthSession(response: AllAuthResponse) {
   const event = useEvent()
 
-  if (response.status === 200 && response.meta?.is_authenticated) {
-    if (response.meta?.session_token) {
-      appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
-      await setUserSession(event, {
-        sessionToken: response.meta.session_token,
-      })
-    }
-    if (response.meta?.access_token) {
-      appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
-      await setUserSession(event, {
-        accessToken: response.meta.access_token,
-      })
-    }
+  if (response.meta?.session_token) {
+    appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
+    await setUserSession(event, {
+      sessionToken: response.meta.session_token,
+    })
+  }
+  if (response.meta?.access_token) {
+    appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
+    await setUserSession(event, {
+      accessToken: response.meta.access_token,
+    })
   }
 
   if (response.status === 200 && response.meta?.access_token && response.data.user) {
@@ -42,7 +47,7 @@ export async function getAllAuthHeaders() {
   const sessionToken = session.sessionToken
   const accessToken = session.accessToken
 
-  return createAuthenticationHeaders(sessionToken, accessToken)
+  return createHeaders(sessionToken, accessToken)
 }
 
 export async function getAllAuthSessionToken() {
