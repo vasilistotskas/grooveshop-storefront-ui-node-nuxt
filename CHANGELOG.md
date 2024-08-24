@@ -1,3 +1,10 @@
+# [1.155.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.154.0...v1.155.0) (2024-08-24)
+
+
+### Features
+
+* Bump Versions, loading fallback component improve ([d39b4e5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d39b4e5f399461dd4b0354d610e091186d5e6e61))
+
 # [1.154.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.153.1...v1.154.0) (2024-08-23)
 
 
