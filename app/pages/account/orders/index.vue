@@ -113,22 +113,17 @@ definePageMeta({
         :orders="orders?.results"
         :orders-total="orders?.count"
       />
-      <template v-if="pending">
-        <div
-          class="
-            grid gap-2
+      <ClientOnlyFallback
+        v-if="pending"
+        class="
+          grid gap-2
 
-            md:gap-4
-          "
-        >
-          <ClientOnlyFallback
-            v-for="index in 4"
-            :key="index"
-            height="202px"
-            width="100%"
-          />
-        </div>
-      </template>
+          md:gap-4
+        "
+        :count="orders?.results?.length"
+        height="202px"
+        width="100%"
+      />
     </PageBody>
   </PageWrapper>
 </template>

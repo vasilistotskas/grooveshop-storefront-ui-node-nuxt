@@ -241,6 +241,7 @@ onReactivated(async () => {
       "
     >
       <ol
+        v-if="showResults"
         class="
           row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4
 
@@ -253,24 +254,31 @@ onReactivated(async () => {
           xl:grid-cols-3
         "
       >
-        <template v-if="showResults">
-          <Component
-            :is="BlogPostCard"
-            v-for="(post, index) in allPosts"
-            :key="index"
-            :img-loading="index > 7 ? 'lazy' : 'eager'"
-            :post="post"
-          />
-        </template>
-        <template v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR">
-          <ClientOnlyFallback
-            v-for="index in 8"
-            :key="index"
-            height="411px"
-            width="100%"
-          />
-        </template>
+        <Component
+          :is="BlogPostCard"
+          v-for="(post, index) in allPosts"
+          :key="index"
+          :img-loading="index > 7 ? 'lazy' : 'eager'"
+          :post="post"
+        />
       </ol>
+      <ClientOnlyFallback
+        v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
+        class="
+          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4
+
+          lg:grid-cols-2
+
+          md:row-start-1 md:grid-cols-2
+
+          sm:grid-cols-2
+
+          xl:grid-cols-3
+        "
+        :count="allPosts.length"
+        height="411px"
+        width="100%"
+      />
       <slot name="sidebar" />
     </section>
     <Transition>

@@ -148,14 +148,12 @@ watch(
     </div>
     <template v-if="status === 'pending'">
       <div class="grid w-full items-start gap-4">
-        <div class="flex w-full items-center justify-center">
-          <ClientOnlyFallback
-            class="w-full"
-            height="20px"
-            width="100%"
-          />
-        </div>
-        <div
+        <ClientOnlyFallback
+          class="flex w-full items-center justify-center"
+          height="20px"
+          width="100%"
+        />
+        <ClientOnlyFallback
           class="
             grid grid-cols-2 gap-4
 
@@ -163,14 +161,10 @@ watch(
 
             xl:grid-cols-4
           "
-        >
-          <ClientOnlyFallback
-            v-for="index in 4"
-            :key="index"
-            height="295px"
-            width="100%"
-          />
-        </div>
+          :count="favourites?.results?.length"
+          height="295px"
+          width="100%"
+        />
       </div>
     </template>
   </div>

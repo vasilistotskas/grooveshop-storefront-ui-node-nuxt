@@ -116,21 +116,17 @@ definePageMeta({
       />
       <template v-if="pending">
         <div class="grid gap-4">
-          <div class="flex items-center justify-center">
-            <ClientOnlyFallback
-              class="w-full"
-              height="20px"
-              width="100%"
-            />
-          </div>
-          <div class="grid gap-4">
-            <ClientOnlyFallback
-              v-for="index in 4"
-              :key="index"
-              height="126px"
-              width="100%"
-            />
-          </div>
+          <ClientOnlyFallback
+            class="flex items-center justify-center"
+            height="20px"
+            width="100%"
+          />
+          <ClientOnlyFallback
+            class="grid gap-4"
+            :count="reviews?.results?.length"
+            height="126px"
+            width="100%"
+          />
         </div>
       </template>
     </PageBody>

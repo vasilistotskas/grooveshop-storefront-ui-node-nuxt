@@ -15,16 +15,20 @@ const isDropdownVisible = ref(false)
 const dropdown = ref<HTMLDivElement>()
 const toggleButton = ref<HTMLButtonElement>()
 
-const { data: unseen, status: unseenStatus, refresh: unseenRefresh } = await useLazyAsyncData(
+const { data: unseen, status: unseenStatus } = await useLazyAsyncData(
   'unseenNotificationsCount',
   () => getUnseenCount(),
+  {
+    watch: [notificationIds],
+  },
 )
 
-const { data, execute, status: notificationsStatus, refresh: notificationsRefresh } = await useLazyAsyncData(
+const { data, execute, status: notificationsStatus } = await useLazyAsyncData(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
     immediate: false,
+    watch: [notificationIds],
   },
 )
 
@@ -61,10 +65,6 @@ const userNotifications = computed(() => {
 const onNotificationClick = async (id: number) => {
   await markAsSeen([id])
   await refreshNotifications()
-  await Promise.all([
-    unseenRefresh(),
-    notificationsRefresh(),
-  ])
 }
 
 const toggleDropdown = () => {
@@ -166,8 +166,8 @@ watch(
           </template>
           <template v-else-if="pending">
             <ClientOnlyFallback
-              v-for="index in 2"
-              :key="index" height="90px"
+              :count="userNotifications?.length"
+              height="90px"
             />
           </template>
           <template v-else-if="!userNotifications?.length">

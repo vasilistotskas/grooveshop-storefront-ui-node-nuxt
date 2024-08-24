@@ -47,7 +47,6 @@ const icon = computed(() => colorMode.value === 'dark' ? modes[0].icon : modes[1
     />
     <template #fallback>
       <ClientOnlyFallback
-        class="max-h-[24px] max-w-[24px]"
         width="24px"
         height="24px"
       />

@@ -143,29 +143,43 @@ watch(
       />
     </div>
     <ol
-      :class="{
-        'items-center lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4':
-          status === 'pending' || products?.results?.length,
-        'items-start': !(status === 'pending') && !products?.results?.length,
-      }"
-      class="grid grid-cols-1 justify-center gap-4"
+      v-if="!(status === 'pending') && products?.results?.length"
+      class="
+        grid grid-cols-1 items-center justify-center gap-4
+
+        lg:grid-cols-3
+
+        md:grid-cols-3
+
+        sm:grid-cols-2
+
+        xl:grid-cols-4
+      "
     >
-      <template v-if="!(status === 'pending') && products?.results?.length">
-        <ProductCard
-          v-for="(product, index) in products?.results"
-          :key="index"
-          :img-loading="index > 7 ? 'lazy' : 'eager'"
-          :product="product"
-        />
-      </template>
-      <template v-if="status === 'pending'">
-        <ClientOnlyFallback
-          v-for="index in 8"
-          :key="index"
-          height="402px"
-          width="100%"
-        />
-      </template>
+      <ProductCard
+        v-for="(product, index) in products?.results"
+        :key="index"
+        :img-loading="index > 7 ? 'lazy' : 'eager'"
+        :product="product"
+      />
     </ol>
+    <template v-if="status === 'pending'">
+      <ClientOnlyFallback
+        class="
+          grid grid-cols-1 items-center justify-center gap-4
+
+          lg:grid-cols-3
+
+          md:grid-cols-3
+
+          sm:grid-cols-2
+
+          xl:grid-cols-4
+        "
+        :count="products?.results?.length"
+        height="402px"
+        width="100%"
+      />
+    </template>
   </div>
 </template>

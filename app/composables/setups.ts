@@ -192,6 +192,8 @@ export function setupWebSocket() {
   const { locale } = useI18n()
   const toast = useToast()
   const { user, session, loggedIn } = useUserSession()
+  const userNotificationStore = useUserNotificationStore()
+  const { refreshNotifications } = userNotificationStore
 
   function initializeWebSocket() {
     if (import.meta.client) {
@@ -239,6 +241,7 @@ export function setupWebSocket() {
             console.info('WebSocket message', event)
             const data = JSON.parse(event.data)
             console.info('WebSocket data.translations[locale.value]', data.translations[locale.value])
+            await refreshNotifications()
             toast.add({
               title: data.translations[locale.value].title,
               description: data.translations[locale.value].message,

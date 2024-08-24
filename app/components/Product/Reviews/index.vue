@@ -103,23 +103,23 @@ watch(
       </div>
     </div>
     <div class="grid">
-      <div class="grid gap-4">
+      <div
+        v-if="status !== 'pending' && productReviews?.length" class="grid gap-4"
+      >
         <LazyProductReviewsList
-          v-if="status !== 'pending' && productReviews?.length"
           :display-image-of="displayImageOf"
           :reviews="productReviews"
           :reviews-average="reviewsAverage"
           :reviews-count="reviewsCount"
         />
-        <template v-if="status === 'pending'">
-          <ClientOnlyFallback
-            v-for="index in 3"
-            :key="index"
-            height="92px"
-            width="100%"
-          />
-        </template>
       </div>
+      <ClientOnlyFallback
+        v-if="status === 'pending'"
+        class="grid gap-4"
+        :count="productReviews?.length"
+        height="92px"
+        width="100%"
+      />
     </div>
   </div>
 </template>

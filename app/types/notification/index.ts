@@ -15,6 +15,7 @@ export const ZodNotification = z.object({
   id: z.number(),
   link: z.string().nullish(),
   kind: z.enum(['error', 'success', 'info', 'warning', 'danger']),
+  expiryDate: z.string().datetime({ offset: true }).nullish(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
   uuid: z.string().uuid(),

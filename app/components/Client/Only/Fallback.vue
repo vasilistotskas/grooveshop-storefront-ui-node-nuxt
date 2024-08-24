@@ -32,6 +32,7 @@ const props = withDefaults(
     textColor?: string
     spinner?: Spinner
     modal?: boolean
+    count?: number
   }>(),
   {
     width: 'auto',
@@ -42,6 +43,7 @@ const props = withDefaults(
     textColor: undefined,
     spinner: undefined,
     modal: false,
+    count: 1,
   },
 )
 
@@ -64,55 +66,63 @@ const spinnerPositionClass = computed(() => {
 })
 
 const GenericModal = resolveComponent('GenericModal')
+
+const loadingPlaceholders = computed(() => {
+  return Math.max(1, props.count > 0 ? props.count : 1)
+})
 </script>
 
 <template>
-  <Component
-    :is="modal ? GenericModal : 'div'"
-    :ref="modal ? 'fallbackModal' : undefined"
-    :class="modal ? undefined : 'relative grid'"
-    :unique-id="modal ? 'fallbackModal' : undefined"
-    :should-modal-start-in-open-state="modal ? true : undefined"
-    :has-header="modal ? false : undefined"
-    :has-footer="modal ? false : undefined"
-    :close-btn="modal ? false : undefined"
-    :close-on-click-outside="modal ? false : undefined"
-    :modal-open-trigger-handler-id="modal ? 'fallbackModalOpen' : undefined"
-    :modal-close-trigger-handler-id="modal ? 'fallbackModalClose' : undefined"
-  >
-    <USkeleton
-      class="grid"
-      :style="{
-        width: width,
-        height: height,
-        borderRadius: borderRadius,
-      }"
-      :ui="{
-        background: showAnimation
-          ? 'bg-primary-300 dark:bg-primary-600'
-          : 'bg-transparent dark:bg-transparent',
-      }"
-    />
-    <p
-      v-if="text"
-      class="
-        text-primary-950 absolute left-1/2 top-1/2 grid -translate-x-1/2
-        -translate-y-1/2 transform place-items-center font-semibold
-
-        dark:text-primary-50
-      "
-      :style="{ color: textColor }"
-      v-text="text"
-    />
-    <div
-      v-if="spinnerWithDefaults?.enabled"
-      :class="['absolute', spinnerPositionClass]"
+  <div>
+    <Component
+      :is="modal ? GenericModal : 'div'"
+      v-for="index in loadingPlaceholders"
+      :key="index"
+      :ref="modal ? 'fallbackModal' : undefined"
+      :class="modal ? undefined : 'relative grid'"
+      :unique-id="modal ? 'fallbackModal' : undefined"
+      :should-modal-start-in-open-state="modal ? true : undefined"
+      :has-header="modal ? false : undefined"
+      :has-footer="modal ? false : undefined"
+      :close-btn="modal ? false : undefined"
+      :close-on-click-outside="modal ? false : undefined"
+      :modal-open-trigger-handler-id="modal ? 'fallbackModalOpen' : undefined"
+      :modal-close-trigger-handler-id="modal ? 'fallbackModalClose' : undefined"
     >
-      <UIcon
-        :name="spinnerWithDefaults?.icon"
-        class="animate-spin"
-        :style="{ fontSize: spinnerWithDefaults?.fontSize }"
+      <USkeleton
+        class="grid"
+        :style="{
+          width: width,
+          height: height,
+          borderRadius: borderRadius,
+        }"
+        :ui="{
+          background: showAnimation
+            ? 'bg-primary-300 dark:bg-primary-600'
+            : 'bg-transparent dark:bg-transparent',
+        }"
       />
-    </div>
-  </Component>
+      <p
+        v-if="text"
+        class="
+          text-primary-950 absolute left-1/2 top-1/2 grid -translate-x-1/2
+          -translate-y-1/2 transform place-items-center font-semibold
+
+          dark:text-primary-50
+        "
+        :style="{ color: textColor }"
+        v-text="text"
+      />
+      <div v-if="spinnerWithDefaults.enabled" :class="['absolute', spinnerPositionClass]">
+        <UIcon
+          :name="spinnerWithDefaults.icon"
+          class="animate-spin"
+          :style="{ fontSize: spinnerWithDefaults.fontSize }"
+          role="status"
+          aria-live="polite"
+          :aria-label="$t('common.loading')"
+        />
+      </div>
+    </Component>
+  </div>
 </template>
