@@ -1,3 +1,10 @@
+## [1.155.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.155.0...v1.155.1) (2024-08-25)
+
+
+### Bug Fixes
+
+* rebuild pnpm ([9983f12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9983f12dfa22b58546c7f1b8a5ad8c631ed493b5))
+
 # [1.155.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.154.0...v1.155.0) (2024-08-24)
 
 
