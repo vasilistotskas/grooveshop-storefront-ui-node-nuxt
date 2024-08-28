@@ -13,7 +13,12 @@ export default defineNuxtModule({
         if (!id.endsWith('.vue') || !code.includes('<!--')) return
 
         const s = new MagicString(code)
-        s.replace(/<!--(?:.*?)-->/gs, '')
+        let previousCode
+
+        do {
+          previousCode = s.toString()
+          s.replace(/<!--.*?-->/gs, '')
+        } while (previousCode !== s.toString())
 
         if (s.hasChanged()) {
           return {

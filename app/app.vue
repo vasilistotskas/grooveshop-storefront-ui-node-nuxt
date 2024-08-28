@@ -58,8 +58,8 @@ defineOgImage(ogImageOptions)
     class="app"
   >
     <NuxtPwaManifest />
-    <LoadingIndicator />
     <NuxtRouteAnnouncer />
+    <LoadingIndicator />
     <NuxtLayout>
       <PlusModalNuxtPage />
     </NuxtLayout>

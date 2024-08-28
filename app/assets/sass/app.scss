@@ -50,13 +50,6 @@ body
   @apply bg-zinc-50 text-primary-950 dark:bg-zinc-950 dark:text-primary-50;
 }
 
-app {
-	overflow: hidden;
-	width: 100%;
-	height: 100%;
-	display: grid;
-}
-
 img {
 	image-rendering: crisp-edges;
 	content-visibility: auto;
