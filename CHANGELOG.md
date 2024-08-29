@@ -1,3 +1,10 @@
+# [1.158.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.157.0...v1.158.0) (2024-08-29)
+
+
+### Features
+
+* Bump Versions ([ff0228b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ff0228b678ee817d061970270a8b842f64876e74))
+
 # [1.157.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.156.0...v1.157.0) (2024-08-28)
 
 
