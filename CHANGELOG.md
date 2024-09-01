@@ -1,3 +1,15 @@
+# [1.160.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.159.0...v1.160.0) (2024-09-01)
+
+
+### Bug Fixes
+
+* remove useless vars ([25bfb8f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/25bfb8ff4a5acaaf1614857ce2f5b182b3fc3679))
+
+
+### Features
+
+* New search, `watchEffect` usage and Bump Versions ([57e197f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/57e197f2901c381358736ccc2c7aa96830bb5daa))
+
 # [1.159.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.158.0...v1.159.0) (2024-08-29)
 
 
