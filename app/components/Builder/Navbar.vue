@@ -11,6 +11,7 @@ const navbar = ref(null)
 const config = useRuntimeConfig()
 const { enabled } = useAuthPreviewMode()
 const { loggedIn } = useUserSession()
+const { isMobileOrTablet } = useDevice()
 
 const appTitle = computed(() => config.public.appTitle as string)
 
@@ -49,20 +50,29 @@ const spider = computed(() => {
     >
       <slot name="banner" />
     </div>
-    <div class="bg-background-700 mx-auto w-full max-w-8xl">
+    <div class="mx-auto w-full max-w-8xl">
       <div
         class="
-          ml-2 mr-4 flex gap-2 py-3
+          ml-2 mr-2 flex gap-2 py-3
 
           lg:mx-0 lg:px-8
 
-          md:py-4
+          md:block md:py-4
         "
       >
         <MobileOrTabletOnly>
           <BackButton />
         </MobileOrTabletOnly>
-        <div class="relative flex w-full items-center justify-between gap-4">
+        <div
+          class="
+            relative grid w-full items-center gap-4
+
+            lg:grid-cols-[1fr_2fr_1fr]
+
+            md:grid-cols-[1fr_2fr]
+          "
+          :class="{ 'grid-cols-[1fr_2fr_auto]': isMobileOrTablet }"
+        >
           <!-- title -->
           <slot name="title">
             <h1>
@@ -76,7 +86,6 @@ const spider = computed(() => {
                 "
               >
                 <NuxtImg
-                  class="h-full w-full"
                   :style="{ objectFit: 'contain' }"
                   :src="spider"
                   :width="24"
@@ -88,7 +97,6 @@ const spider = computed(() => {
                   preload
                 />
                 <NuxtImg
-                  class="h-full w-full"
                   :style="{ objectFit: 'contain' }"
                   :src="logo"
                   :width="140"

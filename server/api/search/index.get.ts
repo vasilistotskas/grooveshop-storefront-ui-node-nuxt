@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { ZodSearchBlogPostResult, ZodSearchProductResult, ZodSearchQuery, ZodSearchResults } from '~/types/search'
+import { ZodSearchBlogPostResult, ZodSearchProductResult, ZodSearchQuery, ZodSearchResponse } from '~/types/search'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
       blogPosts: blogPostsParsedData || null,
     }
 
-    return await parseDataAs(results, ZodSearchResults)
+    return await parseDataAs(results, ZodSearchResponse)
   }
   catch (error) {
     await handleError(error)

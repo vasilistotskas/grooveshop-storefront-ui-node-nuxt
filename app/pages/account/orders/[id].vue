@@ -12,7 +12,6 @@ const { data: order } = await useFetch(`/api/orders/${orderId}`, {
 })
 
 const { statusClass } = useOrder()
-const { resolveImageSrc } = useImageResolver()
 const localePath = useLocalePath()
 
 definePageMeta({
@@ -88,12 +87,7 @@ definePageMeta({
                 :fit="'contain'"
                 :height="100"
                 :position="'entropy'"
-                :src="
-                  resolveImageSrc(
-                    item.product?.mainImageFilename,
-                    `media/uploads/products/${item.product.mainImageFilename}`,
-                  )
-                "
+                :src="item.product?.mainImagePath"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
                 :trim-threshold="5"
                 :width="100"
@@ -111,7 +105,7 @@ definePageMeta({
               >
                 <Anchor
                   :title="extractTranslated(item.product, 'name', locale)"
-                  :to="`/products${item.product.absoluteUrl}`"
+                  :to="item.product.absoluteUrl"
                   css-class="w-full"
                 >
                   <span

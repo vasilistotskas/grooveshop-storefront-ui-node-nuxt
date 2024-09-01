@@ -11,7 +11,6 @@ const emit = defineEmits<{
 
 const { category } = toRefs(props)
 const { locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
 
 const route = useRoute()
 
@@ -24,13 +23,6 @@ const isCategorySelected = computed(() => {
     ? route.query.category.toString().split('_')
     : []
   return existingCategoryIds.includes(category.value?.id.toString())
-})
-
-const categoryImageSource = computed(() => {
-  return resolveImageSrc(
-    category.value?.mainImageFilename,
-    `media/uploads/blog/${category.value?.mainImageFilename}`,
-  )
 })
 </script>
 
@@ -56,7 +48,7 @@ const categoryImageSource = computed(() => {
           provider="mediaStream"
           class="object-cover"
           :style="{ contentVisibility: 'auto' }"
-          :src="categoryImageSource"
+          :src="category.mainImagePath"
           :width="40"
           :height="40"
           :fit="'contain'"

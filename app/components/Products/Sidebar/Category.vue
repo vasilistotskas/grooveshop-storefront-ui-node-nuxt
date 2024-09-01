@@ -11,7 +11,6 @@ const emit = defineEmits<{
 
 const { category } = toRefs(props)
 const { locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
 
 const route = useRoute()
 
@@ -61,13 +60,6 @@ const isCategorySelected = computed(() => {
     : []
   return existingCategoryIds.includes(category.value?.id.toString())
 })
-
-const categoryImageSource = computed(() => {
-  return resolveImageSrc(
-    category.value?.categoryMenuImageOneFilename,
-    `media/uploads/categories/${category.value?.categoryMenuImageOneFilename}`,
-  )
-})
 </script>
 
 <template>
@@ -102,7 +94,7 @@ const categoryImageSource = computed(() => {
             dark:bg-primary-900
           "
           :style="{ contentVisibility: 'auto' }"
-          :src="categoryImageSource"
+          :src="category.categoryMenuImageOneFilename"
           :width="48"
           :height="48"
           :fit="'contain'"

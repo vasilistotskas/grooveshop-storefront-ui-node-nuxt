@@ -12,9 +12,8 @@ const props = defineProps({
 
 const { product } = toRefs(props)
 const { locale } = useI18n()
-const localePath = useLocalePath()
 
-const { data: images } = await useLazyFetch(
+const { data: images } = await useFetch(
   `/api/products/${product.value.id}/images`,
   {
     key: `productImages${product.value.id}`,
@@ -25,26 +24,18 @@ const { data: images } = await useLazyFetch(
   },
 )
 
-const mainImage = ref(images.value?.find(image => image.isMain))
-
-const selectedImageId = useState<number>(
-  `${product.value.uuid}-imageID`,
-  () => {
-    if (!images.value) {
-      return 0
-    }
-    return mainImage.value?.id || images.value[0]?.id || 0
-  },
-)
+const selectedImage = ref(images.value?.find(image => image.isMain))
+const selectedImageId = ref(selectedImage.value?.id)
 
 watch(
   () => selectedImageId.value,
   (value) => {
     const image = images.value?.find(image => image.id === value)
     if (image) {
-      mainImage.value = image
+      selectedImage.value = image
     }
   },
+  { deep: true, immediate: true },
 )
 </script>
 
@@ -61,15 +52,11 @@ watch(
         dark:bg-primary-900
       "
     >
-      <PlusModalLink :to="localePath(`/products/${product.id}/gallery/${selectedImageId}`)">
-        <ProductImage
-          :image="mainImage"
-          img-loading="eager"
-        />
-      </PlusModalLink>
+      <ProductImage
+        :image="selectedImage"
+        img-loading="eager"
+      />
     </div>
-
-    <PlusModalPage name="gallery-modal" />
 
     <UCarousel
       v-if="images && images?.length > 1"

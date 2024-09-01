@@ -60,3 +60,7 @@ a {
 		@apply bg-primary-100 dark:bg-primary-900;
 	}
 }
+
+mark {
+  @apply bg-transparent text-secondary-light dark:text-secondary-dark;
+}

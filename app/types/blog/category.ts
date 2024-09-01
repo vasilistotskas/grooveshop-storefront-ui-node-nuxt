@@ -23,8 +23,7 @@ export const ZodBlogCategory = z.object({
   updatedAt: z.string().datetime({ offset: true }),
   sortOrder: z.number().nullish(),
   uuid: z.string().uuid(),
-  mainImageAbsoluteUrl: z.string().nullish(),
-  mainImageFilename: z.string().nullish(),
+  mainImagePath: z.string().nullish(),
 })
 
 export const ZodBlogCategoryQuery = z

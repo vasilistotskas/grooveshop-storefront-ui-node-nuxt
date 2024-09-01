@@ -73,6 +73,9 @@ export async function handleError(
     console.error('Error:', error)
     throw createError(error)
   }
+  if (typeof error === 'object' && error !== null && 'data' in error) {
+    console.error('Error Data:', error.data)
+  }
   else {
     console.error('Unexpected error type:', error)
     throw createError({
@@ -109,10 +112,6 @@ export async function handleAllAuthError(
   }
   else {
     console.error('Unexpected AllAuth error type:', error, event)
-
-    if (typeof error === 'object' && error !== null && 'data' in error) {
-      console.error('Error Data:', error.data)
-    }
   }
 
   await handleError(error)

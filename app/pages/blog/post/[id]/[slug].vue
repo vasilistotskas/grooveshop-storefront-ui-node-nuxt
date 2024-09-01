@@ -5,7 +5,6 @@ import type { UseSeoMetaInput } from '@unhead/schema'
 const route = useRoute()
 const { t, locale } = useI18n()
 const { loggedIn } = useUserSession()
-const { resolveImageSrc } = useImageResolver()
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
 const img = useImage()
@@ -69,14 +68,12 @@ const blogPostAuthorUser = computed(() =>
 const blogPostTags = computed(() =>
   getEntityObjectsFromArray(blogPost.value?.tags),
 )
-const blogPostImageSrc = computed(() => {
-  return resolveImageSrc(
-    blogPost.value?.mainImageFilename,
-    `media/uploads/blog/${blogPost.value?.mainImageFilename}`,
-  )
-})
+
 const ogImage = computed(() => {
-  return img(blogPostImageSrc.value, { width: 1200, height: 630, fit: 'cover' }, {
+  if (!blogPost.value || !blogPost.value.mainImagePath) {
+    return ''
+  }
+  return img(blogPost.value.mainImagePath, { width: 1200, height: 630, fit: 'cover' }, {
     provider: 'mediaStream',
   })
 })
@@ -293,7 +290,7 @@ definePageMeta({
                     :height="340"
                     :position="'centre'"
                     :sizes="`xs:${675}px sm:${675}px md:${675}px lg:${675}px xl:${675}px xxl:${675}px 2xl:${675}px`"
-                    :src="blogPostImageSrc"
+                    :src="blogPost.mainImagePath"
                     :style="{ objectFit: 'contain' }"
                     :trim-threshold="5"
                     :width="675"

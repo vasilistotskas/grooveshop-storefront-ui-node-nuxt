@@ -8,7 +8,6 @@ const props = defineProps({
 
 const { max } = toRefs(props)
 const { locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
 const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
@@ -60,12 +59,7 @@ const carouselUiItemBasis = computed(() => {
           :format="'svg'"
           :height="25"
           :position="'entropy'"
-          :src="
-            resolveImageSrc(
-              item?.mainImageFilename,
-              `media/uploads/blog/${item?.mainImageFilename}`,
-            )
-          "
+          :src="item?.mainImagePath"
           :trim-threshold="5"
           :width="25"
           densities="x1"

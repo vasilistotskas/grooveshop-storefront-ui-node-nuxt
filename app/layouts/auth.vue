@@ -7,6 +7,8 @@ const colorModeCookie = useCookie(
   'color-mode',
 )
 
+const searchBarFocused = useState<boolean>('searchBarFocused')
+
 const logo = computed(() => {
   return colorModeCookie.value === 'dark'
     ? '/img/logo-dark-mode.png'
@@ -47,6 +49,9 @@ const logo = computed(() => {
 
         md:pt-[56px]
       "
+      :class="{
+        'opacity-70': searchBarFocused,
+      }"
     >
       <PageSection class="flex flex-col">
         <div class="flex w-full flex-1 flex-col">

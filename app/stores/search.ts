@@ -1,6 +1,6 @@
 import type { IFetchError } from 'ofetch'
 
-import type { SearchResults } from '~/types/search'
+import type { SearchResponse } from '~/types/search'
 
 interface ErrorRecord {
   results: IFetchError | null
@@ -19,32 +19,30 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useSearchStore = defineStore('search', () => {
-  const results = ref<SearchResults | null>(null)
+  const results = ref<SearchResponse | null>(null)
   const searchHistory = useStorageAsync<string[]>('searchHistory', [])
   const pending = ref<PendingRecord>(pendingFactory())
   const error = ref<ErrorRecord>(errorsFactory())
 
-  const totalCount = computed(() => {
-    const totalProductsCount = results.value?.products?.resultCount || 0
-    const totalBlogPostsCount = results.value?.blogPosts?.resultCount || 0
-    return totalProductsCount + totalBlogPostsCount
-  })
-
   const totalProductsCount = computed(() => {
-    return results.value?.products?.resultCount || 0
+    return results.value?.products?.estimatedTotalHits || 0
   })
 
   const totalBlogPostsCount = computed(() => {
-    return results.value?.blogPosts?.resultCount || 0
+    return results.value?.blogPosts?.estimatedTotalHits || 0
+  })
+
+  const totalCount = computed(() => {
+    return totalProductsCount.value + totalBlogPostsCount.value
   })
 
   const resultsEmpty = computed(() => {
     if (!results.value) {
       return true
     }
-    const totalProductsCount = results.value?.products?.resultCount || 0
+    const totalProductsCount = results.value?.products?.estimatedTotalHits || 0
     const totalBlogPostsCount
-      = results.value?.blogPosts?.resultCount || 0
+      = results.value?.blogPosts?.estimatedTotalHits || 0
     return totalProductsCount + totalBlogPostsCount === 0
   })
 
@@ -54,14 +52,6 @@ export const useSearchStore = defineStore('search', () => {
 
   const blogPostSearchItems = computed(() => {
     return results.value?.blogPosts?.results || []
-  })
-
-  const productHeadlines = computed(() => {
-    return results.value?.products?.headlines || {}
-  })
-
-  const blogPostHeadlines = computed(() => {
-    return results.value?.blogPosts?.headlines || {}
   })
 
   const addToSearchHistory = (query: string) => {
@@ -97,8 +87,6 @@ export const useSearchStore = defineStore('search', () => {
     resultsEmpty,
     productSearchItems,
     blogPostSearchItems,
-    productHeadlines,
-    blogPostHeadlines,
     addToSearchHistory,
     clearSearchHistory,
     clearSearchHistoryItem,

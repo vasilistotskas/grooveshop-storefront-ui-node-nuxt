@@ -12,14 +12,6 @@ const props = defineProps({
 
 const { item } = toRefs(props)
 const { locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
-
-const src = computed(() => {
-  return resolveImageSrc(
-    item.value.product?.mainImageFilename,
-    `media/uploads/products/${item.value.product.mainImageFilename}`,
-  )
-})
 
 const alt = computed(() => {
   return extractTranslated(item.value.product, 'name', locale.value)
@@ -39,7 +31,7 @@ const alt = computed(() => {
       :position="'entropy'"
       :background="'transparent'"
       :trim-threshold="5"
-      :src="src"
+      :src="item.product.mainImagePath"
       :alt="alt"
     />
   </div>

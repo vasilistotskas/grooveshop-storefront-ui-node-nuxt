@@ -34,20 +34,12 @@ const { getFavouriteByProductId } = userStore
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
-const { resolveImageSrc } = useImageResolver()
 
 const { product } = toRefs(props)
 
 const productUrl = computed(() => {
   if (!props.product) return ''
   return `/products/${product.value.id}/${product.value.slug}`
-})
-
-const src = computed(() => {
-  return resolveImageSrc(
-    product.value?.mainImageFilename,
-    `media/uploads/products/${product.value?.mainImageFilename}`,
-  )
 })
 
 const alt = computed(() => {
@@ -82,7 +74,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <div class="max-w-full">
           <div class="grid">
             <Anchor
-              :to="`/products${product.absoluteUrl}`"
+              :to="product.absoluteUrl"
               :text="alt"
             >
               <ImgWithFallback
@@ -90,7 +82,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                 provider="mediaStream"
                 class="bg-primary-100 bg-transparent"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-                :src="src"
+                :src="product.mainImagePath"
                 :width="imgWidth"
                 :height="imgHeight"
                 :fit="'contain'"
@@ -114,7 +106,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           >
             <h2 class="text-lg font-semibold leading-6">
               <Anchor
-                :to="`/products${product.absoluteUrl}`"
+                :to="product.absoluteUrl"
                 :text="alt"
                 class="
                   text-primary-950

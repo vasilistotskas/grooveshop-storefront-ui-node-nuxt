@@ -1,25 +1,22 @@
 import { z } from 'zod'
 import { ZodLanguageQuery } from '~/types'
+import { ZodPaginationQuery } from '~/types/pagination'
 
 export interface SearchResult<T> {
+  limit: number
+  offset: number
+  estimatedTotalHits: number
   results: T[]
-  headlines: Record<string, string>
-  searchRanks: Record<string, number>
-  resultCount: number
-  similarities: Record<string, number>
-  distances: Record<string, number>
 }
 
 export function ZodSearchResult<T>(
   zodSchema: z.ZodType<T>,
 ): z.ZodType<SearchResult<T>> {
   return z.object({
+    limit: z.number(),
+    offset: z.number(),
+    estimatedTotalHits: z.number(),
     results: z.array(zodSchema),
-    headlines: z.record(z.string()),
-    searchRanks: z.record(z.number()),
-    resultCount: z.number(),
-    similarities: z.record(z.number()),
-    distances: z.record(z.number()),
   })
 }
 
@@ -28,49 +25,53 @@ export const ZodSearchQuery = z
     query: z.string().nullish(),
   })
   .merge(ZodLanguageQuery)
-
-const ZodSearchProductTranslations = z.record(
-  z.object({
-    name: z.string().nullish(),
-    description: z.string().nullish(),
-    searchDocument: z.string().nullish(),
-    searchVector: z.string().nullish(),
-    searchDocumentDirty: z.boolean().nullish(),
-    searchVectorDirty: z.boolean().nullish(),
-  }),
-)
-
-const ZodSearchBlogPostTranslations = z.record(
-  z.object({
-    title: z.string().nullish(),
-    subtitle: z.string().nullish(),
-    body: z.string().nullish(),
-    searchVector: z.string().nullish(),
-    searchDocumentDirty: z.boolean().nullish(),
-    searchVectorDirty: z.boolean().nullish(),
-  }),
-)
+  .merge(ZodPaginationQuery)
 
 export const ZodSearchProduct = z.object({
   id: z.number(),
-  slug: z.string(),
-  mainImageFilename: z.string().nullish(),
+  languageCode: z.string(),
+  name: z.string(),
+  description: z.string().nullish(),
   absoluteUrl: z.string(),
-  translations: ZodSearchProductTranslations,
-  searchRank: z.number(),
-  headline: z.string(),
-  similarity: z.number(),
+  mainImagePath: z.string().nullish(),
+  matchesPosition: z.object({
+    body: z.array(z.object({
+      start: z.number(),
+      length: z.number(),
+    })).nullish(),
+  }).nullish(),
+  rankingScore: z.number().nullish(),
+  formatted: z.object({
+    name: z.string(),
+    description: z.string().nullish(),
+    languageCode: z.string(),
+    id: z.string(),
+  }).nullish(),
 })
 
 export const ZodSearchBlogPost = z.object({
   id: z.number(),
-  slug: z.string(),
-  mainImageFilename: z.string().nullish(),
+  languageCode: z.string(),
+  title: z.string(),
+  subtitle: z.string().nullish(),
+  body: z.string(),
+  master: z.number(),
   absoluteUrl: z.string(),
-  translations: ZodSearchBlogPostTranslations,
-  searchRank: z.number(),
-  headline: z.string(),
-  similarity: z.number(),
+  mainImagePath: z.string().nullish(),
+  matchesPosition: z.object({
+    body: z.array(z.object({
+      start: z.number(),
+      length: z.number(),
+    })).nullish(),
+  }).nullish(),
+  rankingScore: z.number().nullish(),
+  formatted: z.object({
+    title: z.string(),
+    subtitle: z.string().nullish(),
+    body: z.string(),
+    languageCode: z.string(),
+    id: z.string(),
+  }).nullish(),
 })
 
 export const ZodSearchProductResult = ZodSearchResult(ZodSearchProduct)
@@ -78,8 +79,12 @@ export const ZodSearchBlogPostResult = ZodSearchResult(
   ZodSearchBlogPost,
 )
 
-export const ZodSearchResults = z.object({
-  products: z.union([z.undefined(), z.null(), ZodSearchProductResult]),
+export const ZodSearchResponse = z.object({
+  products: z.union([
+    z.undefined(),
+    z.null(),
+    ZodSearchProductResult,
+  ]),
   blogPosts: z.union([
     z.undefined(),
     z.null(),
@@ -87,6 +92,6 @@ export const ZodSearchResults = z.object({
   ]),
 })
 
-export type SearchResults = z.infer<typeof ZodSearchResults>
+export type SearchResponse = z.infer<typeof ZodSearchResponse>
 export type SearchProduct = z.infer<typeof ZodSearchProduct>
 export type SearchBlogPost = z.infer<typeof ZodSearchBlogPost>

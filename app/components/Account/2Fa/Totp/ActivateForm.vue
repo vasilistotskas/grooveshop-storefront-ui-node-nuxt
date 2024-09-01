@@ -26,6 +26,9 @@ const { data, error } = await useAsyncData(
 )
 
 const totpSecret = computed(() => {
+  if (!data.value) {
+    return ''
+  }
   if (!('meta' in data.value)) {
     return ''
   }
@@ -33,15 +36,20 @@ const totpSecret = computed(() => {
 })
 
 const totpSvg = computed(() => {
+  if (!data.value) {
+    return ''
+  }
   if (!('meta' in data.value)) {
     return ''
   }
   return data.value?.meta.totp_svg
 })
 
-if (error.value) {
-  await navigateTo(localePath('/account/settings'))
-}
+watchEffect(async () => {
+  if (error.value) {
+    await navigateTo(localePath('/account/settings'))
+  }
+})
 
 const { copy, isSupported } = useClipboard({ source: totpSecret.value })
 

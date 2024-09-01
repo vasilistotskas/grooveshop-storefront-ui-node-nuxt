@@ -7,7 +7,6 @@ import { PaginationTypeEnum } from '~/types'
 const { locale, t } = useI18n()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
-const { resolveImageSrc } = useImageResolver()
 const img = useImage()
 const localePath = useLocalePath()
 
@@ -84,15 +83,11 @@ const orderingOptions = computed(() => {
   return useOrdering(entityOrdering.value)
 })
 
-const categoryImageSrc = computed(() => {
-  return resolveImageSrc(
-    category.value?.mainImageFilename,
-    `media/uploads/blog/${category.value?.mainImageFilename}`,
-  )
-})
-
 const ogImage = computed(() => {
-  return img(categoryImageSrc.value, { width: 1200, height: 630, fit: 'cover' }, {
+  if (!category.value || !category.value.mainImagePath) {
+    return ''
+  }
+  return img(category.value.mainImagePath, { width: 1200, height: 630, fit: 'cover' }, {
     provider: 'mediaStream',
   })
 })

@@ -46,17 +46,9 @@ const {
 
 const { t } = useI18n()
 const toast = useToast()
-const { resolveImageSrc } = useImageResolver()
 const { fetch } = useUserSession()
 
 const loading = ref(false)
-
-const src = computed(() => {
-  return resolveImageSrc(
-    userAccount.value?.mainImageFilename,
-    `media/uploads/users/${userAccount.value?.mainImageFilename}`,
-  )
-})
 
 const alt = computed(() => {
   return userAccount.value?.firstName + ' ' + userAccount.value?.lastName
@@ -148,7 +140,7 @@ const uploadImage = async (event: Event) => {
         :height="imgHeight"
         :position="'entropy'"
         :sizes="`xs:${imgWidth}px sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px`"
-        :src="src"
+        :src="userAccount.mainImagePath"
         :style="{ objectFit: 'contain' }"
         :trim-threshold="5"
         :width="imgWidth"

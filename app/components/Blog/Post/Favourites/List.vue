@@ -19,7 +19,6 @@ defineProps({
   },
 })
 
-const { resolveImageSrc } = useImageResolver()
 const { locale } = useI18n()
 </script>
 
@@ -56,7 +55,7 @@ const { locale } = useI18n()
         <UCard>
           <template #header>
             <Anchor
-              :to="`/blog/post${favourite.absoluteUrl}`"
+              :to="favourite.absoluteUrl"
               :text="extractTranslated(favourite, 'title', locale)"
               css-class="grid justify-center"
             >
@@ -64,10 +63,7 @@ const { locale } = useI18n()
                 provider="mediaStream"
                 class="rounded-lg"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-                :src="resolveImageSrc(
-                  favourite.mainImageFilename,
-                  `media/uploads/blog/${favourite.mainImageFilename}`,
-                )"
+                :src="favourite.mainImagePath"
                 :width="370"
                 :height="370"
                 :fit="'cover'"
@@ -81,7 +77,7 @@ const { locale } = useI18n()
           </template>
 
           <Anchor
-            :to="`/blog/post${favourite.absoluteUrl}`"
+            :to="favourite.absoluteUrl"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
               flex text-lg font-bold tracking-tight text-primary-950

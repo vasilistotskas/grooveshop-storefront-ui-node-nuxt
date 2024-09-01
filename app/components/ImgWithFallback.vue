@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
   src: undefined,
   fallback: '/img/placeholder.png',
   quality: 100,
+  ismap: true,
 })
 
 const attrs = useAttrs()
@@ -28,10 +29,15 @@ const propsWithoutFallbackAndSrc = computed(() => {
   return { ...attrs, ...restProps }
 })
 
+const imgSrc = computed(() => {
+  if (!props.src) return props.fallback
+  return props.src
+})
+
 const hasError = ref(false)
 
-const handleError = (data: any) => {
-  emit('error', data)
+const handleError = (error: any) => {
+  emit('error', error)
   hasError.value = true
 }
 </script>
@@ -40,7 +46,8 @@ const handleError = (data: any) => {
   <NuxtImg
     v-if="!hasError || !fallback"
     v-bind="propsWithoutFallbackAndSrc"
-    :src="src"
+    :src="imgSrc"
+    :provider="!props.src ? 'ipx' : propsWithoutFallbackAndSrc.provider"
     @error="handleError"
     @load="emit('load', $event)"
   />
@@ -49,5 +56,6 @@ const handleError = (data: any) => {
     v-bind="propsWithoutFallbackAndSrc"
     :src="fallback"
     alt="fallback"
+    provider="ipx"
   />
 </template>

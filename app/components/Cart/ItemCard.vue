@@ -12,16 +12,8 @@ const { refreshCart, deleteCartItem } = cartStore
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
-const { resolveImageSrc } = useImageResolver()
 
 const { cartItem } = toRefs(props)
-
-const src = computed(() => {
-  return resolveImageSrc(
-    cartItem?.value?.product?.mainImageFilename,
-    `media/uploads/products/${cartItem?.value?.product.mainImageFilename}`,
-  )
-})
 
 const alt = computed(() => {
   return extractTranslated(cartItem?.value?.product, 'name', locale.value)
@@ -54,7 +46,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
     <div class="grid">
       <div class="image">
         <Anchor
-          :to="`/products${cartItem.product.absoluteUrl}`"
+          :to="cartItem.product.absoluteUrl"
           :title="alt"
         >
           <ImgWithFallback
@@ -69,7 +61,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
             :background="'transparent'"
             :trim-threshold="5"
             sizes="`xs:237px sm:237px md:109px lg:152px xl:195px xxl:237px 2xl:237px`"
-            :src="src"
+            :src="cartItem.product.mainImagePath"
             :alt="alt"
             densities="x1"
           />
@@ -92,7 +84,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
           "
         >
           <Anchor
-            :to="`/products${cartItem.product.absoluteUrl}`"
+            :to="cartItem.product.absoluteUrl"
             :title="alt"
           >
             {{ contentShorten(alt, 50) }}

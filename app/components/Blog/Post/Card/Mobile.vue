@@ -20,20 +20,12 @@ const props = defineProps({
 })
 
 const { locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
 
 const { post } = toRefs(props)
 
 const postUrl = computed(() => {
   if (!props.post) return ''
   return `/blog/post/${post.value.id}/${post.value.slug}`
-})
-
-const src = computed(() => {
-  return resolveImageSrc(
-    post.value?.mainImageFilename,
-    `media/uploads/blog/${post.value?.mainImageFilename}`,
-  )
 })
 
 const alt = computed(() => {
@@ -68,7 +60,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   >
     <div class="relative grid">
       <Anchor
-        :to="`/blog/post${post.absoluteUrl}`"
+        :to="post.absoluteUrl"
         :text="alt"
         css-class="grid justify-center"
       >
@@ -77,7 +69,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           provider="mediaStream"
           class="bg-primary-100 rounded-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-          :src="src"
+          :src="post.mainImagePath"
           :width="imgWidth"
           :height="imgHeight"
           :fit="'outside'"

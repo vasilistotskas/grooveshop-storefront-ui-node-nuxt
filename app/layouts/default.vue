@@ -11,22 +11,21 @@ const { loggedIn, user } = useUserSession()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const { t } = useI18n()
-const { resolveImageSrc } = useImageResolver()
 const img = useImage()
 
-const avatarSrc = computed(() => {
-  return resolveImageSrc(
-    user.value?.mainImageFilename,
-    `media/uploads/users/${user.value?.mainImageFilename}`,
-  )
-})
+const searchBarFocused = useState<boolean>('searchBarFocused')
 
-const avatarImg = img(avatarSrc.value, {
-  width: 32,
-  height: 32,
-  fit: 'cover',
-}, {
-  provider: 'mediaStream',
+const avatarImg = computed(() => {
+  if (!user.value || !user.value?.mainImagePath) {
+    return ''
+  }
+  return img(user.value.mainImagePath, {
+    width: 32,
+    height: 32,
+    fit: 'cover',
+  }, {
+    provider: 'mediaStream',
+  })
 })
 
 const links = computed(() => {
@@ -65,7 +64,7 @@ const links = computed(() => {
       label: t('common.account'),
       labelClass: 'sr-only',
       avatar: {
-        src: avatarImg,
+        src: avatarImg.value,
       },
     })
   }
@@ -95,6 +94,9 @@ const Footer = computed(() => {
 
         md:pt-[56px]
       "
+      :class="{
+        'opacity-70': searchBarFocused,
+      }"
     >
       <PageSection class="flex flex-col">
         <div class="flex w-full flex-1 flex-col">

@@ -51,7 +51,6 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
     'nuxt-time',
-    'nuxt-pages-plus',
   ],
   routeRules: {
     '/api/**': { cors: true },

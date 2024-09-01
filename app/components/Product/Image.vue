@@ -6,9 +6,9 @@ import type { ProductImage } from '~/types/product/image'
 
 const props = defineProps({
   image: {
-    type: Object as PropType<ProductImage | null>,
+    type: Object as PropType<ProductImage>,
     required: false,
-    default: null,
+    default: undefined,
   },
   width: {
     type: Number,
@@ -31,15 +31,8 @@ const props = defineProps({
   },
 })
 
+const { image } = toRefs(props)
 const { locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
-
-const src = computed(() => {
-  return resolveImageSrc(
-    props.image?.mainImageFilename,
-    `media/uploads/products/${props.image?.mainImageFilename}`,
-  )
-})
 
 const alt = computed(() => {
   return (
@@ -59,7 +52,7 @@ const alt = computed(() => {
     :background="'ffffff'"
     :trim-threshold="5"
     :sizes="sizes"
-    :src="src"
+    :src="image?.mainImagePath"
     :alt="alt"
     densities="x1"
   />

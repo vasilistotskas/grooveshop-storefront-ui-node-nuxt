@@ -13,9 +13,11 @@ const { error, refresh } = await useAsyncData(
   () => totpAuthenticatorStatus(),
 )
 
-if (error.value) {
-  await navigateTo(localePath('/account/settings'))
-}
+watchEffect(async () => {
+  if (error.value) {
+    await navigateTo(localePath('/account/settings'))
+  }
+})
 
 async function onSubmit() {
   try {

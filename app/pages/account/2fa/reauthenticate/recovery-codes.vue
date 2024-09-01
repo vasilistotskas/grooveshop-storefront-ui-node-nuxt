@@ -4,9 +4,11 @@ import { AuthChangeEvent, type AuthChangeEventType } from '~/types/all-auth'
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
-if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('/'))
-}
+watchEffect(async () => {
+  if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+    await navigateTo(localePath('/'))
+  }
+})
 
 definePageMeta({
   layout: 'default',

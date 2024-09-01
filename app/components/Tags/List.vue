@@ -37,6 +37,7 @@ const filteredTags = computed(() => {
 
 <template>
   <aside
+    v-if="tags && tags.length"
     class="grid"
   >
     <div
@@ -88,7 +89,7 @@ const filteredTags = computed(() => {
         />
       </template>
       <UCarousel
-        v-if="status !== 'pending' && tags?.length"
+        v-if="status !== 'pending'"
         v-slot="{ item }"
         :items="filteredTags"
         :ui="{

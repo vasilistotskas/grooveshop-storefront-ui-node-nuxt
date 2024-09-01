@@ -24,9 +24,11 @@ const loading = ref(false)
 const { twoFaAuthenticate } = useAllAuthAuthentication()
 const { authenticatorType } = toRefs(props)
 
-if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
-  await navigateTo(localePath('/'))
-}
+watchEffect(async () => {
+  if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
+    await navigateTo(localePath('/'))
+  }
+})
 
 const formSchema: DynamicFormSchema = {
   fields: [

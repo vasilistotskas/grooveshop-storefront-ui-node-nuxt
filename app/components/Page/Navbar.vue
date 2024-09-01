@@ -12,6 +12,8 @@ const route = useRoute()
 const localePath = useLocalePath()
 const { enabled } = useAuthPreviewMode()
 
+const searchBarFocused = useState<boolean>('searchBarFocused', () => false)
+
 const onClickLogout = async () => {
   if (isRouteProtected(route.path))
     await navigateTo(localePath('/'))
@@ -63,6 +65,7 @@ const items = computed(() => [
     "
   >
     <template #menu>
+      <SearchBar v-model:searchBarFocused="searchBarFocused" />
       <div
         class="
           relative ml-auto hidden items-center
@@ -78,28 +81,7 @@ const items = computed(() => [
             dark:text-primary-50
           "
         >
-          <ul class="flex items-center space-x-8">
-            <li
-              class="
-                relative grid items-center justify-center justify-items-center
-              "
-            >
-              <Anchor
-                :text="$t('pages.search.title')"
-                :title="$t('pages.search.title')"
-                :to="'search'"
-                class="
-                  flex items-center gap-4 self-center text-lg
-
-                  hover:text-slate-900 hover:no-underline
-                  hover:dark:text-primary-50
-                "
-              >
-                <span class="capitalize">{{ $t('pages.search.title') }}</span>
-                <UIcon name="i-fa6-solid-magnifying-glass" />
-              </Anchor>
-            </li>
-
+          <ul class="flex items-center gap-4">
             <template v-if="enabled">
               <li class="flex w-full gap-4">
                 <h2>
@@ -110,7 +92,6 @@ const items = computed(() => [
                     class="
                       text-lg capitalize
 
-                      hover:text-slate-900 hover:no-underline
                       hover:dark:text-primary-50
                     "
                   >
@@ -127,7 +108,6 @@ const items = computed(() => [
                     class="
                       text-lg capitalize
 
-                      hover:text-slate-900 hover:no-underline
                       hover:dark:text-primary-50
                     "
                   >
@@ -139,7 +119,7 @@ const items = computed(() => [
           </ul>
           <ul
             class="
-              text-primary-950 ml-6 flex items-center gap-3 pl-6
+              text-primary-950 flex items-center gap-3 pl-6
 
               dark:text-primary-50 dark:border-primary-500
             "
@@ -260,7 +240,6 @@ const items = computed(() => [
                 class="
                   flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
 
-                  hover:text-slate-900 hover:no-underline
                   hover:dark:text-primary-50
                 "
               >

@@ -9,20 +9,7 @@ const props = defineProps({
     required: true,
   },
 })
-const { locale } = useI18n()
 const { item } = toRefs(props)
-const { resolveImageSrc } = useImageResolver()
-
-const src = computed(() => {
-  return resolveImageSrc(
-    item.value?.mainImageFilename,
-    `media/uploads/blog/${item.value?.mainImageFilename}`,
-  )
-})
-
-const alt = computed(() => {
-  return extractTranslated(item.value, 'title', locale.value)
-})
 </script>
 
 <template>
@@ -34,9 +21,9 @@ const alt = computed(() => {
     "
   >
     <Anchor
-      :to="`/blog/post${item.absoluteUrl}`"
+      :to="item.absoluteUrl"
       class="pb-2"
-      :text="extractTranslated(item, 'title', locale)"
+      :text="item.title"
     >
       <div
         class="
@@ -48,7 +35,6 @@ const alt = computed(() => {
         "
       >
         <ImgWithFallback
-          v-if="src"
           loading="lazy"
           provider="mediaStream"
           class="bg-primary-100 aspect-square h-full w-full object-cover"
@@ -62,21 +48,13 @@ const alt = computed(() => {
           :position="'attention'"
           :background="'ffffff'"
           :trim-threshold="5"
-          :src="src"
-          :alt="alt"
+          :src="item.mainImagePath"
+          :alt="item.title"
           densities="x2"
         />
-        <div
-          v-else
-          class="op10 flex h-full"
-        >
-          <div class="text-4xl">
-            <UIcon name="i-fa6-solid-circle-question" />
-          </div>
-        </div>
       </div>
       <div class="mt-2">
-        {{ extractTranslated(item, 'title', locale) }}
+        {{ item.title }}
       </div>
     </Anchor>
   </UCard>

@@ -20,7 +20,6 @@ const props = defineProps({
 })
 
 const { locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
 const localePath = useLocalePath()
 
 const { post } = toRefs(props)
@@ -28,13 +27,6 @@ const { post } = toRefs(props)
 const postUrl = computed(() => {
   if (!props.post) return ''
   return `/blog/post/${post.value.id}/${post.value.slug}`
-})
-
-const src = computed(() => {
-  return resolveImageSrc(
-    post.value?.mainImageFilename,
-    `media/uploads/blog/${post.value?.mainImageFilename}`,
-  )
 })
 
 const alt = computed(() => {
@@ -70,7 +62,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   >
     <div class="grid">
       <Anchor
-        :to="`/blog/post${post.absoluteUrl}`"
+        :to="post.absoluteUrl"
         :text="alt"
         css-class="grid justify-center"
       >
@@ -79,7 +71,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           provider="mediaStream"
           class="bg-primary-100 rounded-t-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-          :src="src"
+          :src="post.mainImagePath"
           :width="imgWidth"
           :height="imgHeight"
           :fit="'cover'"
@@ -104,7 +96,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       >
         <h3 class="grid h-20">
           <Anchor
-            :to="`/blog/post${post.absoluteUrl}`"
+            :to="post.absoluteUrl"
             :text="alt"
             class="
               text-2xl font-bold tracking-tight text-primary-950
@@ -152,7 +144,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
-          :to="localePath(`/blog/post${post.absoluteUrl}#blog-post-comments`)"
+          :to="localePath(`${post.absoluteUrl}#blog-post-comments`)"
         />
         <ClientOnly>
           <UButton

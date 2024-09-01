@@ -13,9 +13,11 @@ const localePath = useLocalePath()
 
 const loading = ref(false)
 
-if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('/'))
-}
+watchEffect(async () => {
+  if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+    await navigateTo(localePath('/'))
+  }
+})
 
 async function onSubmit(values: ReauthenticateBody) {
   try {

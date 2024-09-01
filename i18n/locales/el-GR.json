@@ -395,6 +395,20 @@
     "notifications": {
       "title": "Ειδοποιήσεις",
       "no_notifications": "Δεν έχεις ειδοποιήσεις"
-    }
+    },
+    "sections": {
+      "products": "Προϊόντα",
+      "blogPosts": "Αναρτήσεις Blog"
+    },
+    "fields": {
+      "name": "Όνομα",
+      "title": "Τίτλος",
+      "subtitle": "Υπότιτλος",
+      "description": "Περιγραφή",
+      "content": "Περιεχόμενο",
+      "body": "Κείμενο"
+    },
+    "approx_results": "Περίπου %{count} αποτελέσματα",
+    "results_left": "Ακόμα %{count} αποτελέσματα"
   }
 }

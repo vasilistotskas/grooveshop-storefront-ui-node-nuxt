@@ -121,9 +121,11 @@ const actionItems = (row: { name: string, type: string, created_at: string, last
   return [items]
 }
 
-if (!keys.value?.length && !loading.value) {
-  await navigateTo(localePath('/account/2fa'))
-}
+watchEffect(async () => {
+  if (!keys.value?.length && !loading.value) {
+    await navigateTo(localePath('/account/2fa'))
+  }
+})
 
 onReactivated(async () => {
   keys.value = (await getAuthenticators())?.data.filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN)

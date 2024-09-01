@@ -61,7 +61,7 @@ defineOgImage(ogImageOptions)
     <NuxtRouteAnnouncer />
     <LoadingIndicator />
     <NuxtLayout>
-      <PlusModalNuxtPage />
+      <NuxtPage />
     </NuxtLayout>
     <Pwa />
     <CookieControl />

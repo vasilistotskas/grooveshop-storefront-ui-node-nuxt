@@ -3,7 +3,7 @@ import type { NotificationUserBody } from '~/types/notification/user'
 const API_BASE_URL = '/api/notification/user'
 
 export default function () {
-  async function getNotifications(userId: number, seen: boolean = false) {
+  async function getNotifications(userId?: number, seen: boolean = false) {
     return $fetch(`/api/user/account/${userId}/notifications`, {
       method: 'GET',
       headers: useRequestHeaders(),

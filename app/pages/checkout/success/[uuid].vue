@@ -5,7 +5,6 @@ const route = useRoute()
 const orderUUID = route.params.uuid
 
 const { t, locale } = useI18n()
-const { resolveImageSrc } = useImageResolver()
 const localePath = useLocalePath()
 
 const { data: order, error } = await useFetch(
@@ -191,12 +190,7 @@ definePageMeta({
                       :fit="'contain'"
                       :height="100"
                       :position="'entropy'"
-                      :src="
-                        resolveImageSrc(
-                          item.product.mainImageFilename,
-                          `media/uploads/products/${item.product.mainImageFilename}`,
-                        )
-                      "
+                      :src="item.product.mainImagePath"
                       :style="{
                         objectFit: 'contain',
                         contentVisibility: 'auto',

@@ -9,20 +9,7 @@ const props = defineProps({
     required: true,
   },
 })
-const { locale } = useI18n()
 const { item } = toRefs(props)
-const { resolveImageSrc } = useImageResolver()
-
-const src = computed(() => {
-  return resolveImageSrc(
-    item.value?.mainImageFilename,
-    `media/uploads/products/${item.value?.mainImageFilename}`,
-  )
-})
-
-const alt = computed(() => {
-  return extractTranslated(item.value, 'name', locale.value)
-})
 </script>
 
 <template>
@@ -34,9 +21,9 @@ const alt = computed(() => {
     "
   >
     <Anchor
-      :to="`/products${item.absoluteUrl}`"
+      :to="item.absoluteUrl"
       class="pb-2"
-      :text="extractTranslated(item, 'name', locale)"
+      :text="item.name"
     >
       <div
         class="
@@ -48,7 +35,6 @@ const alt = computed(() => {
         "
       >
         <ImgWithFallback
-          v-if="src"
           loading="lazy"
           provider="mediaStream"
           class="bg-primary-100 aspect-square h-full w-full object-cover"
@@ -61,23 +47,14 @@ const alt = computed(() => {
           :fit="'contain'"
           :position="'entropy'"
           :background="'ffffff'"
-          :trim-threshold="5"
           :sizes="`xs:532px sm:520px md:288px lg:253px xl:236px xxl:300px 2xl:300px`"
-          :src="src"
-          :alt="alt"
+          :src="item.mainImagePath"
+          :alt="item.name"
           densities="x1"
         />
-        <div
-          v-else
-          class="op10 flex h-full"
-        >
-          <div class="text-4xl">
-            <UIcon name="i-fa6-solid-circle-question" />
-          </div>
-        </div>
       </div>
       <div class="mt-2">
-        {{ extractTranslated(item, 'name', locale) }}
+        {{ item.name }}
       </div>
     </Anchor>
   </UCard>

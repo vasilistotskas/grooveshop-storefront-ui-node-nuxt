@@ -20,24 +20,13 @@ const { review, displayImageOf } = toRefs(props)
 const product = computed(() => getEntityObject(review?.value?.product))
 const userAccount = computed(() => getEntityObject(review?.value?.user))
 
-const { resolveImageSrc } = useImageResolver()
 const { locale } = useI18n()
 const { contentShorten } = useText()
 
 const src = computed(() => {
-  const path
-    = displayImageOf.value === 'user'
-      ? `media/uploads/users/`
-      : `media/uploads/products/`
-  return resolveImageSrc(
-    displayImageOf.value === 'user'
-      ? userAccount.value?.mainImageFilename
-      : product.value?.mainImageFilename,
-    path
-    + (displayImageOf.value === 'user'
-      ? userAccount.value?.mainImageFilename
-      : product.value?.mainImageFilename),
-  )
+  return displayImageOf.value === 'user'
+    ? userAccount.value?.mainImagePath
+    : product.value?.mainImagePath
 })
 
 const alt = computed(() => {
@@ -84,7 +73,7 @@ const reviewComment = computed(() => {
           class="grid gap-2"
         >
           <Anchor
-            :to="`/products${product.absoluteUrl}`"
+            :to="product.absoluteUrl"
             :text="productName"
           >
             <ImgWithFallback
@@ -107,7 +96,7 @@ const reviewComment = computed(() => {
       >
         <Anchor
           v-if="displayImageOf === 'product' && product"
-          :to="`/products${product.absoluteUrl}`"
+          :to="product.absoluteUrl"
           :text="productName"
         >
           <span class="text-lg font-medium">{{ productName }}</span>

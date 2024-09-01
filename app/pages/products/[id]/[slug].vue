@@ -206,7 +206,6 @@ useSchemaOrg([
     name: () => extractTranslated(product.value, 'name', locale.value) || '',
     description: () =>
       extractTranslated(product.value, 'description', locale.value) || '',
-    image: () => [product.value?.mainImageAbsoluteUrl || ''],
     sku: () => product.value?.uuid || '',
     offer: {
       price: () => (product.value?.price || 0).toFixed(2),
@@ -324,7 +323,6 @@ definePageMeta({
                     class="
                       capitalize
 
-                      hover:text-slate-900 hover:no-underline
                       hover:dark:text-primary-50
                     "
                     color="primary"

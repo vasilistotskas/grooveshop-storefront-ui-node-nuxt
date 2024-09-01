@@ -20,9 +20,11 @@ const localePath = useLocalePath()
 
 const flow = computed(() => authInfo?.pendingFlow)
 
-if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
-  await navigateTo(localePath('/'))
-}
+watchEffect(async () => {
+  if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
+    await navigateTo(localePath('/'))
+  }
+})
 
 const labels = {
   [AuthenticatorType.TOTP]: t('common.mfa_reauthenticate.totp'),
