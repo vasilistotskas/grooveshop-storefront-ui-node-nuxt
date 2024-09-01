@@ -5,7 +5,6 @@ import SearchingJson from '~/assets/lotties/searching.json'
 const searchStore = useSearchStore()
 const {
   results,
-  searchHistory,
   totalCount,
   productSearchItems,
   blogPostSearchItems,
@@ -58,13 +57,6 @@ if (currentSearch.value && currentSearch.value.length >= 3) {
 const throttledSearch = useDebounceFn(async () => {
   await searchRequest(currentSearch.value)
 }, 250)
-
-const storageSearchHistory = computed(() => {
-  const query = currentSearch.value.toLowerCase()
-  return searchHistory.value.filter(
-    (item: string) => item.toLowerCase().includes(query) && item !== query,
-  )
-})
 
 const showResults = computed(() => (productSearchItems.value.length > 0 || blogPostSearchItems.value.length > 0) && !pending.value && !error.value)
 const showStartSearching = computed(() => !currentSearch.value && !pending.value)
