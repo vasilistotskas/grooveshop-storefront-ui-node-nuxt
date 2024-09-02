@@ -136,7 +136,7 @@ function sectionExtraResults(section: SearchResult<SearchProduct | SearchBlogPos
   return Math.max(remainingResults, 0)
 }
 
-async function loadMoreSectionResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number): void {
+async function loadMoreSectionResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number): Promise<void> {
   await execute()
   offset.value = Number(offset.value) + Number(limit)
 }
@@ -166,6 +166,7 @@ watch(query, () => {
     data.value = undefined
     return
   }
+  allResults.value = undefined
   execute()
 })
 
@@ -180,11 +181,17 @@ watch(
       Object.entries(results).forEach(([key, section]) => {
         if (!section || !section.results) return
         if (!allResults.value) return
-        if (!allResults.value[key]) {
-          allResults.value[key] = section
+        const sectionKey = key as keyof SearchResponse
+        if (!allResults.value[sectionKey]) {
+          Object.assign(allResults.value, { [sectionKey]: section })
         }
         else {
-          allResults.value[key].results = allResults.value[key].results.concat(section.results)
+          const existingIds = new Set(allResults.value[sectionKey].results.map(r => r.id))
+          const newResults = section.results.filter(r => !existingIds.has(r.id))
+          Object.assign(allResults.value[sectionKey], {
+            results: allResults.value[sectionKey].results.concat(newResults),
+            estimatedTotalHits: section.estimatedTotalHits,
+          })
         }
       })
     }
@@ -260,7 +267,7 @@ onClickOutside(autocomplete, () => {
     <!-- Autocomplete -->
     <ClientOnly>
       <div
-        v-if="allResults && hasResults && query.length !== 0"
+        v-if="searchBarFocused && allResults && hasResults && query.length !== 0"
         ref="autocomplete"
         class="
           shadow-4xl absolute right-0 top-12 flex max-h-[calc(100vh-80px)]
