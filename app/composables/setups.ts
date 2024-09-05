@@ -37,14 +37,12 @@ export function setupPageHeader() {
       dir: () => localeMap[locale.value] ?? 'ltr',
       class: () => [],
     },
-    script: [
-      {
-        id: 'google',
-        async: true,
-        defer: true,
-        src: '//accounts.google.com/gsi/client',
-      },
-    ],
+  })
+
+  useScript({
+    src: '//accounts.google.com/gsi/client',
+    async: true,
+    defer: true,
   })
 
   useHydratedHead({

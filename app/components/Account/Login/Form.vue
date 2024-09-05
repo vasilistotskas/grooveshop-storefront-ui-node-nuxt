@@ -34,8 +34,6 @@ const [password, passwordProps] = defineField('password', {
 
 const showPassword = ref(false)
 const loading = ref(false)
-const turnstile = ref()
-const token = ref('')
 
 const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const onSubmit = handleSubmit(async (values) => {
@@ -74,22 +72,8 @@ const submitButtonLabel = computed(() => {
     : t('common.loading')
 })
 
-const isDev = computed(() => import.meta.dev)
-
 const submitButtonDisabled = computed(() => {
-  if (!isDev.value) {
-    if (!token.value) {
-      return true
-    }
-  }
   return loading.value || submitCount.value > 5
-})
-
-onReactivated(() => {
-  if (!isDev.value) {
-    token.value = ''
-    turnstile.value?.reset()
-  }
 })
 </script>
 
@@ -206,16 +190,6 @@ onReactivated(() => {
               variant="link"
             />
           </div>
-
-          <FormTurnstileContainer v-if="!isDev">
-            <NuxtTurnstile
-              :key="$colorMode.value"
-              ref="turnstile"
-              v-model="token"
-              :options="{ theme: $colorMode.value === 'light' ? 'light' : 'dark' }"
-              class="turnstile"
-            />
-          </FormTurnstileContainer>
 
           <UButton
             :aria-busy="loading"

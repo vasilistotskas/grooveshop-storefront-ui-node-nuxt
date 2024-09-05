@@ -62,12 +62,15 @@ function searchBlur(): void {
 function searchGo(cleanQuery: boolean): void {
   if (query.value.length === 0) return
 
-  router.push(`/search?query=${query.value}`)
   searchBarFocused.value = false
-  if (cleanQuery) {
-    query.value = ''
-  }
-  document.getElementById('search')?.blur()
+
+  setTimeout(() => {
+    router.push(`/search?query=${query.value}`)
+    if (cleanQuery) {
+      query.value = ''
+    }
+    document.getElementById('search')?.blur()
+  }, 0)
 }
 
 function searchGoTo(id: string, cleanQuery: boolean): void {
@@ -254,22 +257,22 @@ onClickOutside(autocomplete, () => {
       >
         <template #trailing>
           <UButton
-            type="link"
+            type="button"
             icon="i-heroicons-magnifying-glass-20-solid"
             size="sm"
             color="white"
             variant="ghost"
             :padded="false"
             :aria-label="$t('common.search.title')"
-            :to="`/search?query=${query}`"
+            @click="searchGo(false)"
           />
         </template>
       </UInput>
     </div>
     <SearchAutoComplete
-      v-if="!isMobileOrTablet && localePath(route.path) !== '/search'"
-      v-model:searchBarFocused="searchBarFocused"
-      v-model:keepFocus="keepFocus"
+      v-if="searchBarFocused && !isMobileOrTablet && localePath(route.path) !== '/search'"
+      v-model:search-bar-focused="searchBarFocused"
+      v-model:keep-focus="keepFocus"
       v-model:highlighted="highlighted"
       class="
         absolute right-0 top-12 max-h-[calc(100vh-80px)] rounded border p-3.5
@@ -289,14 +292,14 @@ onClickOutside(autocomplete, () => {
     />
     <UButton
       v-if="isMobileOrTablet"
-      type="link"
+      type="button"
       icon="i-heroicons-magnifying-glass-20-solid"
       size="sm"
       color="white"
       variant="ghost"
       :padded="false"
       :aria-label="$t('common.search.title')"
-      :to="`/search?query=${query}`"
+      @click="searchGo(true)"
     />
   </div>
 </template>

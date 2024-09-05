@@ -1,4 +1,10 @@
 <script lang="ts" setup>
+setupPageHeader()
+setupGoogleAnalyticsConsent()
+setupCursorStates()
+setupSocialLogin()
+setupWebSocket()
+
 const config = useRuntimeConfig()
 const { locales } = useI18n()
 
@@ -16,12 +22,6 @@ await setupSession()
 await setupSessions()
 await setupNotifications()
 await fetchCart()
-
-setupPageHeader()
-setupCursorStates()
-setupGoogleAnalyticsConsent()
-setupSocialLogin()
-setupWebSocket()
 
 const schemaOrgOptions = [
   defineOrganization({

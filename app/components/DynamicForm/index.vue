@@ -58,7 +58,7 @@ const props = withDefaults(
     loading: false,
     maxSubmitCount: 5,
     resetOnSubmit: false,
-    turnstileEnable: true,
+    turnstileEnable: false,
   },
 )
 
@@ -408,22 +408,22 @@ defineExpose({
       <LazyUButton
         v-if="!isMultiStep && submitButton"
         :aria-busy="isSubmitting"
-        :color="submitButtonUi.color"
+        :color="submitButtonUi?.color"
         :disabled="valid"
         :label="buttonLabel"
-        :size="submitButtonUi.size"
-        :type="submitButtonUi.type"
-        :ui="submitButtonUi.ui"
-        :variant="submitButtonUi.variant"
+        :size="submitButtonUi?.size"
+        :type="submitButtonUi?.type"
+        :ui="submitButtonUi?.ui"
+        :variant="submitButtonUi?.variant"
       />
 
       <LazyUButton
         v-if="!isMultiStep && resetButton"
-        :color="resetButtonUi.color"
-        :size="resetButtonUi.size"
-        :type="resetButtonUi.type"
-        :ui="resetButtonUi.ui"
-        :variant="resetButtonUi.variant"
+        :color="resetButtonUi?.color"
+        :size="resetButtonUi?.size"
+        :type="resetButtonUi?.type"
+        :ui="resetButtonUi?.ui"
+        :variant="resetButtonUi?.variant"
         @click="resetForm"
       >
         {{ resetLabel }}

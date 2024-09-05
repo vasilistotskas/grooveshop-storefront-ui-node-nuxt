@@ -9,9 +9,7 @@ const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 
-const turnstile = ref()
 const loading = ref(false)
-const token = ref('')
 
 const ZodSignup = z
   .object({
@@ -82,22 +80,8 @@ const submitButtonLabel = computed(() => {
     : t('common.loading')
 })
 
-const isDev = computed(() => import.meta.dev)
-
 const submitButtonDisabled = computed(() => {
-  if (!isDev.value) {
-    if (!token.value) {
-      return true
-    }
-  }
   return loading.value || submitCount.value > 5
-})
-
-onReactivated(() => {
-  if (!isDev.value) {
-    token.value = ''
-    turnstile.value?.reset()
-  }
 })
 </script>
 
@@ -224,15 +208,6 @@ onReactivated(() => {
               class="relative px-4 py-3 text-xs text-red-600"
             >{{ errors.password2 }}</span>
           </div>
-          <FormTurnstileContainer v-if="!isDev">
-            <NuxtTurnstile
-              :key="$colorMode.value"
-              ref="turnstile"
-              v-model="token"
-              :options="{ theme: $colorMode.value === 'light' ? 'light' : 'dark' }"
-              class="turnstile"
-            />
-          </FormTurnstileContainer>
           <UButton
             :aria-busy="loading"
             :disabled="submitButtonDisabled"

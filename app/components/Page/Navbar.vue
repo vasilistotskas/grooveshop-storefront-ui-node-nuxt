@@ -65,7 +65,7 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <SearchBar v-model:searchBarFocused="searchBarFocused" />
+      <SearchBar v-model:search-bar-focused="searchBarFocused" />
       <div
         class="
           relative ml-auto hidden items-center

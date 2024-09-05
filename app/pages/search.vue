@@ -155,6 +155,8 @@ definePageMeta({
   pageTransition: false,
   layout: 'default',
 })
+
+await preloadComponents('SearchAutoComplete')
 </script>
 
 <template>
@@ -270,7 +272,7 @@ definePageMeta({
               show-last
             />
             <SearchAutoComplete
-              v-model:keepFocus="keepFocus"
+              v-model:keep-focus="keepFocus"
               v-model:highlighted="highlighted"
               class="relative"
               :query="query"

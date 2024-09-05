@@ -71,6 +71,8 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
   console.log('onLoadMore', section, lim, off)
   emit('load-more', { lim, off })
 }
+
+await preloadComponents('SearchResultItem')
 </script>
 
 <template>
@@ -84,12 +86,14 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
       <div
         v-if="allResults && hasResults && query.length !== 0" class="grid gap-4"
       >
-        <div
-          v-for="([key, section]) in Object.entries(allResults)" :key="key" class="
-            flex flex-col gap-2
-          "
+        <template
+          v-for="([key, section]) in Object.entries(allResults)" :key="key"
         >
-          <template v-if="section && section.results && section.results.length > 0">
+          <div
+            v-if="section && section.results && section.results.length > 0" class="
+              flex flex-col gap-2
+            "
+          >
             <div class="flex items-center">
               <span
                 class="
@@ -136,8 +140,8 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
                 {{ section.estimatedTotalHits > Number(limit) ? $t("common.approx_results", section.estimatedTotalHits) : $t("results", section.estimatedTotalHits) }}
               </span>
             </div>
-          </template>
-        </div>
+          </div>
+        </template>
       </div>
     </Transition>
   </div>
