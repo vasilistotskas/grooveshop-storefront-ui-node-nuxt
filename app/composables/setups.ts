@@ -39,12 +39,6 @@ export function setupPageHeader() {
     },
   })
 
-  useScript({
-    src: '//accounts.google.com/gsi/client',
-    async: true,
-    defer: true,
-  })
-
   useHydratedHead({
     meta: [
       ...(i18nHead.value.meta || []),
@@ -340,9 +334,22 @@ export function setupSocialLogin() {
     providerToken,
   } = useAllAuthAuthentication()
 
-  onMounted(() => {
+  const gsi = useScript({
+    src: '//accounts.google.com/gsi/client',
+    async: true,
+    defer: true,
+    referrerpolicy: false,
+    crossorigin: false,
+  }, {
+    use() {
+      // @ts-ignore
+      return window.google?.accounts?.id
+    },
+  })
+
+  gsi.onLoaded(() => {
     const provider = authConfig.value?.data.socialaccount?.providers.find(p => p.id === 'google')
-    if (!loggedIn.value && provider && window.google) {
+    if (!loggedIn.value && provider && gsi.instance) {
       function handleCredentialResponse(response: { credential: string }) {
         providerToken({
           provider: provider ? provider.id : '',
@@ -354,14 +361,12 @@ export function setupSocialLogin() {
         })
       }
 
-      if ('accounts' in window.google) {
-        // @ts-ignore
-        window.google.accounts.id.initialize({
+      if (gsi.instance) {
+        gsi.proxy.initialize({
           client_id: provider.client_id || '',
           callback: handleCredentialResponse,
         })
-        // @ts-ignore
-        window.google.accounts.id.prompt()
+        gsi.proxy.prompt()
       }
     }
   })
