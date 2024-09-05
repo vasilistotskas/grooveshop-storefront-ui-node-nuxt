@@ -68,14 +68,19 @@ const imgAlt = computed(() => {
     >
       <div class="flex gap-4">
         <ImgWithFallback
+          class="object-contain"
           loading="lazy"
           provider="mediaStream"
-          :width="80"
-          :height="80"
-          :fit="'contain'"
-          :position="'entropy'"
+          :width="100"
+          :height="90"
+          :fit="'cover'"
+          :background="'transparent'"
           :src="item.mainImagePath"
           :alt="imgAlt"
+          :modifiers="{
+            position: 'attention',
+            trimThreshold: 5,
+          }"
           densities="x1"
         />
         <div class="flex flex-col">

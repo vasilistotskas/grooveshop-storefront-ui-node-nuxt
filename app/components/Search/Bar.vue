@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import type { SearchBlogPost, SearchProduct, SearchResponse, SearchResult } from '~/types/search'
+import type { SearchResponse } from '~/types/search'
 
 const searchBarFocused = defineModel<boolean>('searchBarFocused', {
   required: true,
 })
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const keepFocus = ref(false)
 const router = useRouter()
 const route = useRoute()
+const { isMobileOrTablet } = useDevice()
+const localePath = useLocalePath()
+
 const query = ref(Array.isArray(route.query.query) ? (route.query.query[0] ?? '') : (route.query.query ?? ''))
 const limit = ref(Array.isArray(route.query.limit) ? (route.query.limit[0] ?? 3) : (route.query.limit ?? 3))
 const offset = ref(Array.isArray(route.query.offset) ? (route.query.offset[0] ?? 0) : (route.query.offset ?? 0))
@@ -127,21 +130,14 @@ function onKeyDown(e: KeyboardEvent): void {
   }
 }
 
-function showMoreSectionResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number): boolean {
-  return section.estimatedTotalHits > Number(limit)
-}
-
-function sectionExtraResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number, offset: number): number {
-  const remainingResults = section.estimatedTotalHits - offset - limit
-  return Math.max(remainingResults, 0)
-}
-
-async function loadMoreSectionResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number): Promise<void> {
+async function loadMoreSectionResults(
+  { lim, off }: { lim: number, off: number },
+): Promise<void> {
+  offset.value = off + lim
   await execute()
-  offset.value = Number(offset.value) + Number(limit)
 }
 
-const { data, execute } = await useLazyAsyncData(
+const { data, execute, status } = await useLazyAsyncData(
   'search',
   () => $fetch('/api/search', {
     method: 'GET',
@@ -161,13 +157,17 @@ const { data, execute } = await useLazyAsyncData(
   },
 )
 
-watch(query, () => {
+const debouncedExecute = useDebounceFn(async () => {
   if (query.value.length < 3) {
     data.value = undefined
     return
   }
   allResults.value = undefined
-  execute()
+  await execute()
+}, 250)
+
+watch(query, async () => {
+  await debouncedExecute()
 })
 
 watch(
@@ -215,24 +215,25 @@ onClickOutside(autocomplete, () => {
       md:relative
     "
   >
-    <form
-      action="/search" autocomplete="off" method="GET" role="search" class="
+    <div
+      v-if="!isMobileOrTablet && localePath(route.path) !== '/search'"
+      class="
         relative grid w-full items-center
 
-        lg:justify-center lg:justify-items-center
-      " @submit="searchGo(false)"
+        lg:justify-items-center
+      "
     >
       <UInput
         id="search"
         ref="search"
         v-model="query"
-        class="w-full"
+        class="w-full max-w-[calc(100%-23rem)]"
         size="xs"
         color="white"
-        :name="t('common.search.title')"
+        :name="$t('common.search.title')"
         :trailing="false"
-        :placeholder="t('common.search.title')"
-        :aria-label="t('common.search.title')"
+        :placeholder="$t('common.search.title')"
+        :aria-label="$t('common.search.title')"
         :ui="{
           icon: {
             trailing: {
@@ -253,83 +254,49 @@ onClickOutside(autocomplete, () => {
       >
         <template #trailing>
           <UButton
-            type="submit"
+            type="link"
             icon="i-heroicons-magnifying-glass-20-solid"
             size="sm"
             color="white"
             variant="ghost"
             :padded="false"
-            :aria-label="t('common.search.title')"
+            :aria-label="$t('common.search.title')"
+            :to="`/search?query=${query}`"
           />
         </template>
       </UInput>
-    </form>
-    <!-- Autocomplete -->
-    <ClientOnly>
-      <div
-        v-if="searchBarFocused && allResults && hasResults && query.length !== 0"
-        ref="autocomplete"
-        class="
-          shadow-4xl absolute right-0 top-12 flex max-h-[calc(100vh-80px)]
-          w-full flex-col gap-4 overflow-auto rounded border p-3.5
-          border-primary-300 bg-primary-100
+    </div>
+    <SearchAutoComplete
+      v-if="!isMobileOrTablet && localePath(route.path) !== '/search'"
+      v-model:searchBarFocused="searchBarFocused"
+      v-model:keepFocus="keepFocus"
+      v-model:highlighted="highlighted"
+      class="
+        absolute right-0 top-12 max-h-[calc(100vh-80px)] rounded border p-3.5
+        border-primary-300 bg-primary-100
 
-          dark:border-primary-500 dark:bg-primary-900
+        dark:border-primary-500 dark:bg-primary-900
 
-          md:top-10
-        "
-      >
-        <div class="grid">
-          <div
-            v-for="([key, section]) in Object.entries(allResults)" :key="key" class="
-              flex flex-col gap-2
-            "
-          >
-            <template v-if="section && section.results && section.results.length > 0">
-              <div class="flex items-center">
-                <span
-                  class="
-                    text-md me-4 flex-shrink text-primary-950
-
-                    dark:text-primary-50
-                  "
-                >
-                  {{ t(`common.sections.${key}`) }}
-                </span>
-                <div
-                  class="
-                    flex-grow border-t border-primary-300
-
-                    dark:border-primary-500
-                  "
-                />
-              </div>
-
-              <ul v-for="result in section?.results" :key="result.id">
-                <SearchResultItem
-                  :highlighted="highlighted ? highlighted === String(result.id) : false"
-                  :item="result"
-                  @click="searchBarFocused = false"
-                  @mousedown="keepFocus = true"
-                  @mouseover="highlighted = undefined"
-                />
-              </ul>
-
-              <div
-                v-if="showMoreSectionResults(section, Number(limit))"
-                class="-mt-2"
-              >
-                <UButton v-if="sectionExtraResults(section, Number(limit), Number(offset)) > 0" variant="link" size="sm" @mousedown="keepFocus = true" @click="loadMoreSectionResults(section, Number(limit))">
-                  {{ t("common.results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
-                </UButton>
-                <span class="text-sm text-primary-400">
-                  {{ section.estimatedTotalHits > Number(limit) ? t("common.approx_results", section.estimatedTotalHits) : t("results", section.estimatedTotalHits) }}
-                </span>
-              </div>
-            </template>
-          </div>
-        </div>
-      </div>
-    </ClientOnly>
+        md:top-10
+      "
+      :query="query"
+      :limit="limit"
+      :offset="offset"
+      :all-results="allResults"
+      :status="status"
+      :has-results="hasResults"
+      @load-more="loadMoreSectionResults"
+    />
+    <UButton
+      v-if="isMobileOrTablet"
+      type="link"
+      icon="i-heroicons-magnifying-glass-20-solid"
+      size="sm"
+      color="white"
+      variant="ghost"
+      :padded="false"
+      :aria-label="$t('common.search.title')"
+      :to="`/search?query=${query}`"
+    />
   </div>
 </template>
