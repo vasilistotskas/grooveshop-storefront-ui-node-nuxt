@@ -1,3 +1,10 @@
+# [1.163.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.162.2...v1.163.0) (2024-09-05)
+
+
+### Features
+
+* turnstile disabled by default, search ux updates, `useScript` for gsi client and `@nuxt/eslint` and `vue` versions bump ([b4f015a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b4f015a5da3a481b1856cc1b3a1c1aa6c8103633))
+
 ## [1.162.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.162.1...v1.162.2) (2024-09-05)
 
 
