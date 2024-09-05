@@ -1,3 +1,10 @@
+## [1.162.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.162.0...v1.162.1) (2024-09-05)
+
+
+### Bug Fixes
+
+* search result item prefetch on interaction only ([e4eaddc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e4eaddc074ac6ae299459a8a9c68f278316c4916))
+
 # [1.162.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.161.0...v1.162.0) (2024-09-05)
 
 
