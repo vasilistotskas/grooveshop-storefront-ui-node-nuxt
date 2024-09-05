@@ -84,7 +84,7 @@ const imgAlt = computed(() => {
           }"
           densities="x1"
         />
-        <div class="flex flex-col">
+        <div class="grid overflow-hidden">
           <div v-for="([key, value], index) in sortedFields" :key="index">
             <span
               class="

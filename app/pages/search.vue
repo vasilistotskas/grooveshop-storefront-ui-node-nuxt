@@ -95,8 +95,6 @@ const total = computed(() => {
   return total
 })
 
-const pageCount = computed(() => Math.ceil(total.value / Number(limit.value)))
-
 const size = computed(() => {
   if (isMobileOrTablet) return 'sm'
   return 'md'
@@ -223,7 +221,7 @@ definePageMeta({
           </div>
         </div>
         <div class="grid gap-4">
-          <PageTitle>
+          <PageTitle class="text-lg">
             <span :class="{ 'opacity-0': !query }">
               <span>{{ $t('pages.search.results') }}:</span>
               <span
@@ -265,9 +263,8 @@ definePageMeta({
                 color: 'primary',
               }"
               :total="total"
-              :page-count="pageCount"
               :max="max"
-              :disabled="status === 'pending'"
+              :disabled="!hasResults || status === 'pending'"
               :size="size"
               show-first
               show-last
