@@ -1,3 +1,10 @@
+## [1.163.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.163.0...v1.163.1) (2024-09-05)
+
+
+### Bug Fixes
+
+* update google gsi client onMounted with gsi.onLoaded ([9428ca7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9428ca7089b228baf4d99d17e35026bce04445f8))
+
 # [1.163.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.162.2...v1.163.0) (2024-09-05)
 
 
