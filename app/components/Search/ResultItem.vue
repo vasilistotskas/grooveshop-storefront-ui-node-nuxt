@@ -62,6 +62,7 @@ const imgAlt = computed(() => {
 
         md:gap-3
       "
+      :prefetch-on="{ visibility: false, interaction: true }"
       @click="() => emit('click')"
       @mousedown="() => emit('mousedown')"
       @mouseover="() => emit('mouseover')"
