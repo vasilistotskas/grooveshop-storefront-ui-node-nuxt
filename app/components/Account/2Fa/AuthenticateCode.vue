@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { type AuthenticatorTypeValues, Flows, type TwoFaAuthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 
-const props = defineProps({
+defineProps({
   authenticatorType: { type: String as PropType<AuthenticatorTypeValues>, required: true },
 })
 
