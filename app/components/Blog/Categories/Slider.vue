@@ -21,7 +21,7 @@ const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
   },
 })
 
-const categoryResults = ref(categories.value?.results || [])
+const categoryResults = shallowRef(categories.value?.results ?? [])
 
 const carouselUiItemBasis = computed(() => {
   return isMobileOrTablet ? 'basis-[33%]' : 'basis-[17%]'

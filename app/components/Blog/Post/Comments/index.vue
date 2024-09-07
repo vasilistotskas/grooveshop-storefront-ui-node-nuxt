@@ -40,7 +40,7 @@ const emit = defineEmits<{
   (e: 'reply-add', data: BlogComment): void
 }>()
 
-const { blogPostId, commentsCount, displayImageOf, paginationType, pageSize }
+const { blogPostId, paginationType, pageSize }
   = toRefs(props)
 
 const { t, locale } = useI18n()

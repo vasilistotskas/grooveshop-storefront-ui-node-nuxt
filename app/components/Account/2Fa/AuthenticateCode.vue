@@ -22,7 +22,6 @@ const localePath = useLocalePath()
 const loading = ref(false)
 
 const { twoFaAuthenticate } = useAllAuthAuthentication()
-const { authenticatorType } = toRefs(props)
 
 watchEffect(async () => {
   if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {

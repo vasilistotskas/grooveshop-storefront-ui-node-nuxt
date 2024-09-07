@@ -24,7 +24,7 @@ const { locale } = useI18n()
 const { post } = toRefs(props)
 
 const postUrl = computed(() => {
-  if (!props.post) return ''
+  if (!post.value) return ''
   return `/blog/post/${post.value.id}/${post.value.slug}`
 })
 

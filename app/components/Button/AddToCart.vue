@@ -15,7 +15,7 @@ const props = defineProps({
 const cartStore = useCartStore()
 const { refreshCart, createCartItem } = cartStore
 
-const { product, quantity, text } = toRefs(props)
+const { product, quantity } = toRefs(props)
 const { t } = useI18n()
 const toast = useToast()
 

@@ -80,39 +80,41 @@ const finalID = id.value ?? useId()
 const currentStep = ref(0)
 const turnstile = ref()
 const token = ref('')
-const isMultiStep = Array.isArray(schema.value.steps) && schema.value.steps.length > 0
-const lastStep = schema.value.steps?.length ? schema.value.steps.length - 1 : 0
+const isMultiStep = ref(Array.isArray(schema.value.steps) && schema.value.steps.length > 0)
+const lastStep = ref(schema.value.steps?.length ? schema.value.steps.length - 1 : 0)
 
 // Filter the schema fields based on the current step
-const formFields = (isMultiStep ? schema.value?.steps?.[currentStep.value]?.fields : schema.value.fields) ?? []
+const formFields = shallowRef((isMultiStep.value ? schema.value?.steps?.[currentStep.value]?.fields : schema.value.fields) ?? [])
 
 // Filter the schema fields based on the condition function
-const filteredFields = formFields.filter((field) => {
-  // If no condition is specified, always show the field
-  if (!field.condition) {
-    return true
-  }
-  // Otherwise, evaluate the condition function with the current form state
-  return field.condition(formState.value)
+const filteredFields = computed(() => {
+  return formFields.value.filter((field) => {
+    // If no condition is specified, always show the field
+    if (!field.condition) {
+      return true
+    }
+    // Otherwise, evaluate the condition function with the current form state
+    return field.condition(formState.value)
+  })
 })
 
 // Create an object of disabled fields based on the disabledCondition function
 const disabledFields = computed<DisabledFields>(() => {
-  if (!formFields) {
+  if (!formFields.value) {
     return {}
   }
-  return formFields.reduce((acc: DisabledFields, field) => {
+  return formFields.value.reduce((acc: DisabledFields, field) => {
     acc[field.name] = field.disabledCondition ? field.disabledCondition(formState.value) : false
     return acc
   }, {})
 })
 
 // Create an array of field names from the schema object
-const schemaFieldNames = formFields.map(field => field.name)
+const schemaFieldNames = shallowRef(formFields.value.map(field => field.name))
 
 // Use schema.fields to generate a Zod schema object
 const generatedSchema = z.object(
-  Object.fromEntries(formFields.map(field => [field.name, field.rules])),
+  Object.fromEntries(formFields.value.map(field => [field.name, field.rules])),
 )
 
 // Use schema.extraValidation to generate a Zod schema object
@@ -135,10 +137,10 @@ const merged = computed(() => {
 const validationSchema = toTypedSchema(merged.value)
 
 // Create an object of initial form values from the schema object
-const initialFormValues = formFields.reduce((acc: FormValues, field) => {
+const initialFormValues = reactive(formFields.value.reduce((acc: FormValues, field) => {
   acc[field.name] = field.initialValue
   return acc
-}, {})
+}, {}))
 
 const {
   defineField,
@@ -151,7 +153,7 @@ const {
 } = useForm({
   validationSchema,
   initialValues: initialFormValues,
-  keepValuesOnUnmount: isMultiStep,
+  keepValuesOnUnmount: isMultiStep.value,
 })
 
 const goToNextStep = async () => {
@@ -159,7 +161,7 @@ const goToNextStep = async () => {
   const fieldsToValidate = currentStepFields.map(field => field.name) as Partial<ValidationOptions>
   const isValid = await validate(fieldsToValidate).then(result => result.valid)
   if (isValid) {
-    if (currentStep.value < lastStep) {
+    if (currentStep.value < lastStep.value) {
       currentStep.value++
     }
   }
@@ -185,7 +187,7 @@ function createFields(keys: string[] | undefined): DynamicFormFields {
   return fieldValues
 }
 
-const fields = reactive(createFields(schemaFieldNames))
+const fields = reactive(createFields(schemaFieldNames.value))
 
 // Define the submit event emitter using defineEmits function
 const emit = defineEmits(['submit'])
@@ -240,7 +242,7 @@ const nextStepButtonDisabled = computed(() => {
 })
 
 // Watch for changes to the disabledFields object
-formFields.forEach((field) => {
+formFields.value.forEach((field) => {
   watch(
     () => disabledFields.value?.[field.name],
     (newVal, oldVal) => {
