@@ -15,7 +15,7 @@ const { isMobile, isTablet } = useDevice()
 const localePath = useLocalePath()
 
 const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
-const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
+const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '500px'))
 </script>
 
 <template>
@@ -38,7 +38,13 @@ const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
         md:pt-[56px]
       "
     >
-      <div class="flex flex-col items-center justify-center gap-2 p-6">
+      <div
+        class="
+          flex flex-col items-center gap-2 p-4
+
+          md:justify-center
+        "
+      >
         <h2
           class="
             text-primary-950 mb-2 grid items-center justify-center
@@ -48,13 +54,13 @@ const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '600px'))
           "
         >
           <strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
-          <span>
+          <span class="text-center">
             {{ $t('pages.error.page.not.found') }}
           </span>
         </h2>
         <p
           class="
-            text-primary-950
+            text-primary-950 text-center
 
             dark:text-primary-50
           "

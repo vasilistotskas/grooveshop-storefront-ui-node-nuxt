@@ -43,14 +43,16 @@ const onReplyAdd = (data: BlogComment) => {
   emit('reply-add', data)
 }
 
-comments?.value?.sort((a) => {
-  if (loggedIn.value && user.value) {
-    const userId = isEntityId(a.user) ? a.user : a.user.id
-    if (userId === user.value.id) {
-      return -1
+watchEffect(() => {
+  comments?.value?.sort((a) => {
+    if (loggedIn.value && user.value) {
+      const userId = isEntityId(a.user) ? a.user : a.user.id
+      if (userId === user.value.id) {
+        return -1
+      }
     }
-  }
-  return 0
+    return 0
+  })
 })
 </script>
 

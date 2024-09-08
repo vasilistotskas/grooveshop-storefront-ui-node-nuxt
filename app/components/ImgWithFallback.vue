@@ -12,6 +12,7 @@ const emit = defineEmits<Emits>()
 type Props = ExtractPropTypes<typeof baseImageProps> & {
   src?: string
   fallback?: string
+  ismap?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {

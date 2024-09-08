@@ -15,7 +15,7 @@ const props = defineProps({
     required: true,
   },
   allResults: {
-    type: Object as PropType<SearchResponse | undefined>,
+    type: Object as PropType<SearchResponse | undefined | null>,
     default: undefined,
   },
   status: {

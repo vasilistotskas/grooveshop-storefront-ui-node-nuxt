@@ -93,6 +93,7 @@ export default defineNuxtConfig({
         'Cache-Control': 'max-age=31536000',
       },
     },
+    '/_ipx/**': { headers: { 'cache-control': 'max-age=31536000' } },
   },
   build: {
     transpile: ['@iconify', '@unocss'],
