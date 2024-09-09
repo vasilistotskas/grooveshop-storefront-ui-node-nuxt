@@ -1,3 +1,10 @@
+# [1.166.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.165.0...v1.166.0) (2024-09-09)
+
+
+### Features
+
+* Bump Versions, Zod reusable models to avoid dry and app improvements ([e4dce13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e4dce135b5e9e35a2d963adca231a8f183502822))
+
 # [1.165.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.164.0...v1.165.0) (2024-09-09)
 
 
