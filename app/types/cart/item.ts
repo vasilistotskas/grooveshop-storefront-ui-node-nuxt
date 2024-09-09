@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { ZodProduct } from '~/types/product'
+import { ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 export const ZodCartItem = z.object({
   id: z.number(),
@@ -16,10 +17,7 @@ export const ZodCartItem = z.object({
   vatValue: z.number().nullish(),
   totalPrice: z.number().nullish(),
   totalDiscountValue: z.number().nullish(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodCartItemAddBody = z.object({
   product: z.lazy(() => ZodProduct),

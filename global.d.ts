@@ -17,6 +17,7 @@ const _envVariables = z.object({
   NUXT_PUBLIC_ENVIRONMENT: z.enum(['development', 'production', 'demo']),
   NUXT_PUBLIC_APP_TITLE: z.string(),
   NUXT_PUBLIC_APP_DESCRIPTION: z.string(),
+  NUXT_PUBLIC_APP_KEYWORDS: z.string(),
   NUXT_PUBLIC_SITE_DESCRIPTION: z.string(),
   NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION: z.string(),
   NUXT_PUBLIC_TWITTER_USERNAME: z.string(),

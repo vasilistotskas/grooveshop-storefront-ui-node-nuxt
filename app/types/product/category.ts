@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ZodSeoModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 const ZodProductCategoryTranslations = z.record(
   z.object({
@@ -19,13 +20,7 @@ export const ZodProductCategoryBase = z.object({
   treeId: z.number(),
   absoluteUrl: z.string(),
   recursiveProductCount: z.number(),
-  seoTitle: z.string().nullish(),
-  seoDescription: z.string().nullish(),
-  seoKeywords: z.string().nullish(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSeoModel)
 
 export type ProductCategory = z.infer<typeof ZodProductCategoryBase> & {
   children?: ProductCategory[] | null

@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { ZodCountry } from '~/types/country'
 import { ZodRegion } from '~/types/region'
+import { ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 export const ZodUserAccount = z.object({
   pk: z.number().nullish(),
@@ -31,10 +32,7 @@ export const ZodUserAccount = z.object({
   bio: z.string().nullish(),
   mainImagePath: z.string().nullish(),
   isSuperuser: z.boolean().nullish(),
-  createdAt: z.string().datetime({ offset: true }).nullish(),
-  updatedAt: z.string().datetime({ offset: true }).nullish(),
-  uuid: z.string().uuid().nullish(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodUserAccountParams = z.object({
   id: z.string(),

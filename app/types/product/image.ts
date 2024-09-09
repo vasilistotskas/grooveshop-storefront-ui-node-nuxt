@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodLanguageQuery } from '~/types'
+import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 const ZodProductImageTranslations = z.record(
   z.object({
@@ -18,11 +18,7 @@ export const ZodProductImage = z.object({
   thumbnail: z.string().nullish(),
   isMain: z.boolean(),
   mainImagePath: z.string().nullish(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-  sortOrder: z.number().nullish(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodProductImageParams = z.object({
   id: z.string(),

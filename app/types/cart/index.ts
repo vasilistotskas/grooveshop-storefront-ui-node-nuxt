@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { ZodCartItem } from '~/types/cart/item'
+import { ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 export const ZodCart = z.object({
   id: z.number(),
@@ -11,9 +12,6 @@ export const ZodCart = z.object({
   totalItems: z.number(),
   totalItemsUnique: z.number(),
   cartItems: z.array(z.lazy(() => ZodCartItem)),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export type Index = Readonly<z.infer<typeof ZodCart>>

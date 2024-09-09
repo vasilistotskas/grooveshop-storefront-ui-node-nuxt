@@ -41,7 +41,7 @@
 	@apply md:flex-row-reverse;
 
 	button {
-		@apply whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium  transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
+		@apply whitespace-nowrap rounded-lg border px-3 md:px-5 py-2.5 text-sm font-medium  transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4;
 		@apply border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700;
 
 		&:nth-child(1) {
@@ -180,7 +180,7 @@
 }
 
 .cookie-control-Bar {
-	@apply fixed bottom-20 left-0 right-0 z-50 mx-auto border px-6 py-4 shadow-xl max-w-sm sm:max-w-xl lg:max-w-4xl rounded-md;
+	@apply fixed bottom-20 left-0 right-0 z-50 mx-auto border px-4 md:px-6 py-4 shadow-xl max-w-sm sm:max-w-xl lg:max-w-4xl rounded-md;
 	@apply border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800;
 	@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;
 }

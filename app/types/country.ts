@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodLanguageQuery } from '~/types'
+import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 const ZodCountryTranslations = z.record(
   z.object({
@@ -16,11 +16,7 @@ export const ZodCountry = z.object({
   alpha3: z.string().min(3),
   isoCc: z.number().nullish(),
   phoneCode: z.number().nullish(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  sortOrder: z.number().nullish(),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodCountriesQuery = z
   .object({

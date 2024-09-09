@@ -4,7 +4,7 @@ import { ZodProduct } from '~/types/product'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
+import { ZodExpandQuery, ZodLanguageQuery, ZodPublishableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 export const ZodProductReviewStatusEnum = z.enum(['NEW', 'TRUE', 'FALSE'])
 
@@ -21,12 +21,7 @@ export const ZodProductReview = z.object({
   user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
   rate: z.number(),
   status: z.lazy(() => ZodProductReviewStatusEnum),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  publishedAt: z.string().datetime({ offset: true }).nullish(),
-  isPublished: z.boolean(),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodPublishableModel)
 
 export const ZodProductReviewQuery = z
   .object({

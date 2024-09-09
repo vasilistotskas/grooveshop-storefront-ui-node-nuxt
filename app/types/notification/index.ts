@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
+import { ZodExpandQuery, ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 
@@ -16,10 +16,7 @@ export const ZodNotification = z.object({
   link: z.string().nullish(),
   kind: z.enum(['error', 'success', 'info', 'warning', 'danger']),
   expiryDate: z.string().datetime({ offset: true }).nullish(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodNotificationParams = z.object({
   id: z.string(),

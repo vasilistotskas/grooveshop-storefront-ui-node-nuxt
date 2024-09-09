@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import {
   ZodExpandQuery,
-  ZodLanguageQuery,
+  ZodLanguageQuery, ZodSeoModel, ZodTimeStampModel, ZodUUIDModel,
   ZodWeight,
 } from '~/types'
 import { ZodOrderingQuery } from '~/types/ordering'
@@ -33,21 +33,15 @@ export const ZodProduct = z.object({
   stock: z.number().int(),
   active: z.boolean(),
   weight: ZodWeight.nullish(),
-  seoTitle: z.string().nullish(),
-  seoDescription: z.string().nullish(),
-  seoKeywords: z.string().nullish(),
-  uuid: z.string().uuid(),
   discountPercent: z.number(),
   discountValue: z.number(),
   priceSavePercent: z.number(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
   mainImagePath: z.string().nullish(),
   reviewAverage: z.number(),
   approvedReviewAverage: z.number(),
   reviewCount: z.number().int(),
   approvedReviewCount: z.number().int(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSeoModel)
 
 export const ZodProductCreateBody = z.object({
   name: z.string(),
@@ -60,11 +54,8 @@ export const ZodProductCreateBody = z.object({
   stock: z.number().int().nullish(),
   active: z.boolean().nullish(),
   weight: ZodWeight.nullish(),
-  seoTitle: z.string().nullish(),
-  seoDescription: z.string().nullish(),
-  seoKeywords: z.string().nullish(),
   discountPercent: z.number().nullish(),
-})
+}).merge(ZodSeoModel)
 
 export const ZodProductParams = z.object({
   id: z.string(),

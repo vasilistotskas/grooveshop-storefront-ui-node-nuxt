@@ -26,8 +26,8 @@ RUN apk add --no-cache git && \
 FROM base AS build
 
 # Set environment variables
-ENV NUXT_PUBLIC_APP_TITLE="Webside"
-ENV NUXT_PUBLIC_SITE_DESCRIPTION="Webside Description"
+ENV NUXT_PUBLIC_APP_TITLE="Webside - Το side της τεχνολογίας"
+ENV NUXT_PUBLIC_SITE_DESCRIPTION="Μπες στο side της τεχνολογίας, εύκολα, δωρεάν και με ασφάλεια."
 
 # Install npm && build the app
 RUN npm ci && \

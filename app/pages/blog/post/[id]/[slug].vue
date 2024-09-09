@@ -10,16 +10,16 @@ const { updateLikedPosts } = userStore
 const img = useImage()
 const localePath = useLocalePath()
 
-const blogPostId = Number(route.params.id)
+const blogPostId = ref(Number('id' in route.params ? route.params.id : null))
 
 const shouldFetchLikedPosts = computed(() => {
   return loggedIn.value
 })
 
 const { data: blogPost, refresh } = await useFetch(
-  `/api/blog/posts/${blogPostId}`,
+  `/api/blog/posts/${blogPostId.value}`,
   {
-    key: `blogPost${blogPostId}`,
+    key: `blogPost${blogPostId.value}`,
     method: 'GET',
     query: {
       expand: 'true',
@@ -40,7 +40,7 @@ await useLazyFetch('/api/blog/posts/liked-posts', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
-    postIds: [blogPostId],
+    postIds: [blogPostId.value],
   },
   immediate: shouldFetchLikedPosts.value,
   onResponse({ response }) {
@@ -89,7 +89,7 @@ const links = computed(() => [
     label: t('breadcrumb.items.blog.label'),
   },
   {
-    to: localePath(`/blog/post/${blogPostId}/${blogPost.value?.slug}`),
+    to: localePath(`/blog/post/${blogPostId.value}/${blogPost.value?.slug}`),
     label: blogPostTitle.value || '',
   },
 ])
@@ -113,7 +113,7 @@ const scrollToComments = () => {
 }
 
 onMounted(() => {
-  $fetch(`/api/blog/posts/${blogPostId}/update-view-count`, {
+  $fetch(`/api/blog/posts/${blogPostId.value}/update-view-count`, {
     method: 'POST',
   })
 })
@@ -123,34 +123,35 @@ onReactivated(async () => {
 })
 
 const seoMetaInput = {
-  title: blogPostTitle.value,
-  description: blogPostSubtitle.value,
-  ogDescription: blogPostSubtitle.value,
+  title: blogPost.value.seoTitle || blogPostTitle.value,
+  description: blogPost.value.seoDescription || blogPostSubtitle.value,
+  ogDescription: blogPost.value.seoDescription || blogPostSubtitle.value,
   ogImage: {
     url: ogImage.value,
     width: 1200,
     height: 630,
-    alt: blogPostTitle.value,
+    alt: blogPost.value.seoTitle || blogPostTitle.value,
   },
   ogType: 'article',
+  ogUrl: route.fullPath,
+  twitterTitle: blogPost.value.seoTitle || blogPostTitle.value,
+  twitterDescription: blogPost.value.seoDescription || blogPostSubtitle.value,
   twitterImage: {
     url: ogImage.value,
     width: 1200,
     height: 630,
-    alt: blogPostTitle.value,
+    alt: blogPost.value.seoTitle || blogPostTitle.value,
   },
 } satisfies UseSeoMetaInput
 
 useSeoMeta(seoMetaInput)
-
 useHydratedHead({
-  title: () => blogPostTitle.value || '',
+  title: () => blogPost.value?.seoTitle || blogPostTitle.value || '',
 })
-
 useSchemaOrg([
   defineArticle({
-    headline: blogPostTitle.value,
-    description: blogPostSubtitle.value,
+    headline: blogPost.value.seoTitle || blogPostTitle.value,
+    description: blogPost.value.seoDescription || blogPostSubtitle.value,
     image: ogImage.value,
     datePublished: blogPost.value?.createdAt,
     dateModified: blogPost.value?.updatedAt,
@@ -163,7 +164,12 @@ useSchemaOrg([
     },
   }),
 ])
-
+defineOgImage({
+  alt: blogPost.value.seoTitle || blogPostTitle.value,
+  url: ogImage.value,
+  width: 1200,
+  height: 630,
+})
 definePageMeta({
   layout: 'default',
 })

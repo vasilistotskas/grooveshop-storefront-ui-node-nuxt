@@ -1,18 +1,15 @@
 import { z } from 'zod'
 
 import { ZodProduct } from '~/types/product'
+import { ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 export const ZodOrderItem = z.object({
   id: z.number(),
   price: z.number().nullish(),
   product: ZodProduct,
   quantity: z.number(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-  sortOrder: z.number().nullish(),
   totalPrice: z.number().nullish(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodOrderCreateItem = z.object({
   id: z.number(),
@@ -28,10 +25,7 @@ export const ZodOrderCreateItem = z.object({
   vatValue: z.number().nullish(),
   totalPrice: z.number().nullish(),
   totalDiscountValue: z.number().nullish(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodOrderCreateResponseItem = z.object({
   id: z.number(),

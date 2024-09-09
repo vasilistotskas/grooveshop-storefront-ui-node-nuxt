@@ -4,16 +4,13 @@ import { ZodProduct } from '~/types/product'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
+import { ZodExpandQuery, ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 export const ZodProductFavourite = z.object({
   id: z.number(),
   product: z.union([z.number(), z.lazy(() => ZodProduct)]),
   user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodProductFavouriteQuery = z
   .object({

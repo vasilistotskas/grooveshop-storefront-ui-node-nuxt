@@ -75,18 +75,9 @@ const expandFields = computed(() => 'user,post')
 
 const toast = useToast()
 const { t, locale } = useI18n()
-const { contentShorten } = useText()
 const { user, loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedComments } = userStore
-
-const commentContent = computed(() => {
-  return contentShorten(
-    extractTranslated(comment?.value, 'content', locale.value),
-    0,
-    120,
-  )
-})
 
 const likeClicked = (event: { blogCommentId: number, liked: boolean }) => {
   if (event.liked) {
@@ -378,15 +369,10 @@ watch(
 
       <span class="contents">
         <span />
-        <span class="min-w-0">
-          <span class="relative">
-            <span class="md text-14 rounded-[8px] pb-2">
-              <span class="mx-2 inline-block max-w-full py-0">
-                {{ commentContent }}
-              </span>
-            </span>
-          </span>
-        </span>
+        <ReadMore
+          :max-chars="100"
+          :text="extractTranslated(comment, 'content', locale) || ''"
+        />
       </span>
 
       <span class="contents">

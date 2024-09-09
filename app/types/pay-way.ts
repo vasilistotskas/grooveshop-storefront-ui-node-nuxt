@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodLanguageQuery } from '~/types'
+import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 export enum PayWayEnum {
   CREDIT_CARD = 'Credit Card',
@@ -23,11 +23,7 @@ export const ZodPayWay = z.object({
   icon: z.string().nullish(),
   iconAbsoluteUrl: z.string().nullish(),
   iconFilename: z.string().nullish(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  sortOrder: z.number().nullish(),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodPayWayQuery = z
   .object({

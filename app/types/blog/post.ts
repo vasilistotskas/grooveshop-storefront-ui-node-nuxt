@@ -6,7 +6,14 @@ import { ZodBlogTag } from '~/types/blog/tag'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
+import {
+  ZodExpandQuery,
+  ZodLanguageQuery,
+  ZodPublishableModel,
+  ZodSeoModel,
+  ZodTimeStampModel,
+  ZodUUIDModel,
+} from '~/types'
 
 export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 
@@ -29,17 +36,15 @@ export const ZodBlogPost = z.object({
   status: z.lazy(() => ZodBlogPostStatusEnum),
   featured: z.boolean(),
   viewCount: z.number().int(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  publishedAt: z.string().datetime({ offset: true }).nullish(),
-  isPublished: z.boolean(),
-  uuid: z.string().uuid(),
   mainImagePath: z.string().nullish(),
   likesCount: z.number().int(),
   commentsCount: z.number().int(),
   tagsCount: z.number().int(),
   absoluteUrl: z.string(),
-})
+}).merge(ZodTimeStampModel)
+  .merge(ZodSeoModel)
+  .merge(ZodPublishableModel)
+  .merge(ZodUUIDModel)
 
 export const ZodBlogPostQuery = z
   .object({

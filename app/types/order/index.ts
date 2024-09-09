@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { ZodCountry } from '~/types/country'
-import { FloorChoicesEnum, LocationChoicesEnum, ZodLanguageQuery } from '~/types'
+import { FloorChoicesEnum, LocationChoicesEnum, ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 import { ZodOrderCreateItem, ZodOrderCreateResponseItem, ZodOrderItem } from '~/types/order/order-item'
 import { ZodPayWay } from '~/types/pay-way'
 import { ZodRegion } from '~/types/region'
@@ -40,13 +40,10 @@ export const ZodOrder = z.object({
   paidAmount: z.number(),
   documentType: z.lazy(() => ZodDocumentTypeEnum),
   items: z.array(z.lazy(() => ZodOrderItem)),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
   totalPriceItems: z.number(),
   totalPriceExtra: z.number(),
   fullAddress: z.string(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodOrderQuery = z
   .object({
@@ -108,13 +105,10 @@ export const ZodOrderCreateResponse = z.object({
   items: z.array(z.lazy(() => ZodOrderCreateResponseItem)),
   shippingPrice: z.number(),
   documentType: z.lazy(() => ZodDocumentTypeEnum),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
   totalPriceItems: z.number(),
   totalPriceExtra: z.number(),
   fullAddress: z.string(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodOrderParams = z.object({
   id: z.string(),

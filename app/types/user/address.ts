@@ -5,7 +5,7 @@ import {
   FloorChoicesEnum,
   LocationChoicesEnum,
   ZodExpandQuery,
-  ZodLanguageQuery,
+  ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel,
 } from '~/types'
 import { ZodRegion } from '~/types/region'
 import { ZodUserAccount } from '~/types/user/account'
@@ -14,9 +14,6 @@ import { ZodPaginationQuery } from '~/types/pagination'
 
 export const ZodUserAddress = z.object({
   id: z.number(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
   title: z.string(),
   firstName: z.string(),
   lastName: z.string(),
@@ -35,7 +32,7 @@ export const ZodUserAddress = z.object({
   user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
   country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
   region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodUserAddressQuery = z
   .object({

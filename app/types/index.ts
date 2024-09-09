@@ -1,6 +1,30 @@
 import { z } from 'zod'
-import type { NotAuthenticatedResponse } from '~/types/all-auth'
 import type { Avatar } from '#ui/types/avatar'
+
+export const ZodTimeStampModel = z.object({
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+})
+
+export const ZodSeoModel = z.object({
+  seoTitle: z.string().nullish(),
+  seoDescription: z.string().nullish(),
+  seoKeywords: z.string().nullish(),
+})
+
+export const ZodPublishableModel = z.object({
+  publishedAt: z.string().datetime({ offset: true }).nullish(),
+  isPublished: z.boolean(),
+  isVisible: z.boolean(),
+})
+
+export const ZodSortableModel = z.object({
+  sortOrder: z.number().int(),
+})
+
+export const ZodUUIDModel = z.object({
+  uuid: z.string().uuid(),
+})
 
 export const ZodFloorChoicesEnum = z.enum([
   'BASEMENT',
@@ -72,21 +96,11 @@ export const ZodLanguageQuery = z.object({
   language: z.string().nullish(),
 })
 
-export type ErrorWithMessage = {
-  message: string
-}
-
 export type ErrorWithDetail = {
   data: {
     data: {
       detail: string
     }
-  }
-}
-
-export interface ErrorResponse {
-  data: {
-    data: NotAuthenticatedResponse
   }
 }
 

@@ -3,6 +3,7 @@ import { withQuery } from 'ufo'
 import type { UseWebNotificationOptions } from '@vueuse/core'
 import type { CursorStates } from '~/types'
 import { AuthProcess } from '~/types/all-auth'
+import { THEME_COLORS } from '~/constants'
 
 function unescapeTitleTemplate(titleTemplate: string, replacements: [string, string[]][]) {
   let result = titleTemplate
@@ -30,6 +31,10 @@ export function setupPageHeader() {
     acc[l.code!] = l.dir ?? 'ltr'
     return acc
   }, {} as Record<string, Directions>)
+
+  const colorMode = useColorMode()
+  const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
+  const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
 
   useSeoMeta({
     ogImage: publicConfig.appLogo,
@@ -60,6 +65,10 @@ export function setupPageHeader() {
       {
         name: 'description',
         content: publicConfig.appDescription,
+      },
+      {
+        name: 'keywords',
+        content: publicConfig.appKeywords,
       },
       {
         name: 'application-name',
@@ -148,6 +157,21 @@ export function setupPageHeader() {
       {
         property: 'fb:app:id',
         content: publicConfig.facebookAppId,
+      },
+      {
+        id: 'theme-color',
+        name: 'theme-color',
+        content: themeColor.value,
+      },
+      {
+        id: 'color-scheme',
+        name: 'color-scheme',
+        content: colorScheme.value,
+      },
+      {
+        id: 'msapplication-TileColor',
+        name: 'msapplication-TileColor',
+        content: themeColor.value,
       },
     ],
     titleTemplate: (title?: string) => {

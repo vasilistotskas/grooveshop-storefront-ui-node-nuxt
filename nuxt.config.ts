@@ -197,6 +197,7 @@ export default defineNuxtConfig({
     // Keys within public are also exposed client-side
     public: {
       appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION,
+      appKeywords: process.env.NUXT_PUBLIC_APP_KEYWORDS,
       appLogo: process.env.NUXT_PUBLIC_APP_LOGO,
       appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
@@ -488,22 +489,6 @@ export default defineNuxtConfig({
   },
   robots: {
     disallow: [],
-  },
-  htmlValidator: {
-    usePrettier: false,
-    logLevel: 'verbose',
-    failOnError: false,
-    options: {
-      rules: {
-        'unrecognized-char-ref': 'off',
-        'wcag/h30': 'warn',
-        'wcag/h37': 'warn',
-        'element-permitted-content': 'warn',
-        'element-required-attributes': 'warn',
-        'attribute-empty-style': 'off',
-        'prefer-native-element': 'off',
-      },
-    },
   },
   veeValidate: {
     autoImports: true,

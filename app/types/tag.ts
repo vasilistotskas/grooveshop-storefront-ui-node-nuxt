@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types/index'
 
 const ZodTagTranslations = z.record(
   z.object({
@@ -10,10 +11,6 @@ export const ZodTag = z.object({
   translations: ZodTagTranslations,
   id: z.number(),
   active: z.boolean(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  sortOrder: z.number().nullish(),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export type Tag = z.infer<typeof ZodTag>

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodLanguageQuery } from '~/types'
+import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
 const ZodBlogTagTranslations = z.record(
   z.object({
@@ -13,11 +13,7 @@ export const ZodBlogTag = z.object({
   translations: ZodBlogTagTranslations,
   id: z.number().int(),
   active: z.boolean(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  sortOrder: z.number().nullish(),
-  uuid: z.string().uuid(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodBlogTagQuery = z
   .object({

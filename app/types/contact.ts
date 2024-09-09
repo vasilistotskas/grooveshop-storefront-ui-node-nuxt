@@ -1,14 +1,12 @@
 import { z } from 'zod'
+import { ZodTimeStampModel, ZodUUIDModel } from '~/types/index'
 
 export const ZodContact = z.object({
   id: z.number(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  uuid: z.string(),
   name: z.string(),
   email: z.string().email(),
   message: z.string(),
-})
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodContactBody = z.object({
   name: z.string(),

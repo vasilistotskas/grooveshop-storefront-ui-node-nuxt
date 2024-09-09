@@ -4,7 +4,7 @@ import { ZodBlogPost } from '~/types/blog/post'
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
-import { ZodExpandQuery, ZodLanguageQuery } from '~/types'
+import { ZodExpandQuery, ZodLanguageQuery, ZodTimeStampModel } from '~/types'
 
 const ZodBlogCommentTranslations = z.record(
   z.object({
@@ -22,12 +22,9 @@ export const ZodBlogCommentBase = z.object({
   likes: z.union([z.array(z.number()), z.array(z.lazy(() => ZodUserAccount))]),
   user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
   post: z.union([z.number(), z.lazy(() => ZodBlogPost)]),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  uuid: z.string().uuid(),
   likesCount: z.number().int(),
   repliesCount: z.number().int(),
-})
+}).merge(ZodTimeStampModel)
 
 export const ZodBlogCommentQuery = z
   .object({
