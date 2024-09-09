@@ -39,7 +39,6 @@ jobs:
           node-version: '22.x'
           registry-url: 'https://npm.pkg.github.com'
           cache: 'npm'
-          cache-dependency-path: "**/package-lock.yaml"
           # Defaults to the user or organization that owns the workflow file
           scope: '@vasilistotskas'
       - name: Install dependencies
