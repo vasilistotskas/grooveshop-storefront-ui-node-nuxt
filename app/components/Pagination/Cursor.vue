@@ -84,8 +84,7 @@ const loadMore = async () => {
 const showButton = computed(() => {
   if (strategy.value === 'scroll' || totalPages.value === 1) return false
   if (loading.value) return true
-  if (nextCursor.value !== currentCursor.value) return true
-  return false
+  return nextCursor.value !== currentCursor.value
 })
 
 watch(

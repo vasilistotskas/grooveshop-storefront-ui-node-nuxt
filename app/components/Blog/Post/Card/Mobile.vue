@@ -82,7 +82,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         />
         <div class="absolute bottom-12 right-0 grid w-full">
           <span class="grid justify-center justify-items-start">
-            <span
+            <h2
               class="
                 m-auto block w-[70%] text-3xl font-bold tracking-tight
                 text-primary-50
@@ -97,7 +97,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
               "
             >
               {{ extractTranslated(post, 'title', locale) }}
-            </span>
+            </h2>
           </span>
         </div>
       </Anchor>

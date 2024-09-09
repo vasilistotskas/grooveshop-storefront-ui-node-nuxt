@@ -1,12 +1,5 @@
 FROM node:22.8.0-alpine as base
 
-# Set environment variables for pnpm
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
-# Enable corepack
-RUN corepack enable
-
 # Set up the work directory
 WORKDIR /app
 
@@ -36,11 +29,9 @@ FROM base AS build
 ENV NUXT_PUBLIC_APP_TITLE="Webside"
 ENV NUXT_PUBLIC_SITE_DESCRIPTION="Webside Description"
 
-# Install pnpm
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-
-# Build the app
-RUN pnpm run build
+# Install npm && build the app
+RUN npm ci && \
+    npm run build
 
 FROM base
 
@@ -66,4 +57,4 @@ RUN chmod -R 777 /app && \
 USER node
 
 # Define the entrypoint command
-CMD ["pnpm", "run", "start"]
+ENTRYPOINT ["node", ".output/server/index.mjs"]

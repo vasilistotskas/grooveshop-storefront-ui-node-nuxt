@@ -17,7 +17,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
-    "dev:all": "ncu -u && pnpm i && pnpm run build && pnpm run lint:fix && pnpm run dev",
+    "dev:all": "ncu -u && npm i && npm run build && npm run lint:fix && npm run dev",
     "prepare": "nuxt prepare",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -29,7 +29,7 @@
     "analyze": "npx nuxt analyze",
     "test:dev": "nuxt dev --no-fork NUXT_VITEST_DEV_TEST=true",
     "test:unit": "vitest run",
-    "test": "pnpm test:unit --run && pnpm test:types",
+    "test": "npm test:unit --run && npm test:types",
     "semantic-release": "semantic-release"
   },
   "devDependencies": {
@@ -46,7 +46,6 @@
     "@nuxt/types": "2.18.1",
     "@nuxt/ui": "2.18.4",
     "@nuxtjs/device": "3.2.2",
-    "@nuxtjs/html-validator": "1.8.2",
     "@nuxtjs/i18n": "8.5.2",
     "@nuxtjs/seo": "2.0.0-rc.21",
     "@nuxtjs/tailwindcss": "6.12.1",
@@ -83,7 +82,6 @@
     "eslint": "9.10.0",
     "eslint-plugin-readable-tailwind": "1.8.0",
     "h3": "1.12.0",
-    "happy-dom": "15.7.3",
     "hookable": "5.5.3",
     "js-yaml": "4.1.0",
     "lottie-web": "5.12.2",
@@ -180,8 +178,6 @@
   },
   "engines": {
     "node": ">=22.8.0",
-    "npm": ">=10.8.2",
-    "pnpm": "^9.9.0"
-  },
-  "packageManager": "pnpm@9.9.0"
+    "npm": ">=10.8.2"
+  }
 }

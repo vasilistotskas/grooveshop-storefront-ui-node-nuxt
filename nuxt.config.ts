@@ -41,7 +41,6 @@ export default defineNuxtConfig({
     '@nuxt/scripts',
     '@nuxtjs/i18n',
     '@nuxtjs/tailwindcss',
-    '@nuxtjs/html-validator',
     '@nuxtjs/device',
     '@nuxtjs/turnstile',
     '@nuxtjs/seo',

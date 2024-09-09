@@ -31,12 +31,27 @@ export function setupPageHeader() {
     return acc
   }, {} as Record<string, Directions>)
 
+  useSeoMeta({
+    ogImage: publicConfig.appLogo,
+    twitterTitle: publicConfig.appTitle,
+    twitterDescription: publicConfig.appDescription,
+    twitterImage: publicConfig.appLogo,
+    twitterCard: 'summary',
+  })
+
   useHead({
     htmlAttrs: {
       lang: () => locale.value,
       dir: () => localeMap[locale.value] ?? 'ltr',
       class: () => [],
     },
+    link: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: '/favicon.png',
+      },
+    ],
   })
 
   useHydratedHead({
@@ -166,9 +181,9 @@ export function setupPageHeader() {
     link: [
       ...(i18nHead.value.link || []),
       {
-        key: 'webmanifest',
-        rel: 'manifest',
-        href: '/manifest.webmanifest',
+        rel: 'icon',
+        type: 'image/png',
+        href: '/favicon/favicon-16x16.png',
       },
     ],
   })

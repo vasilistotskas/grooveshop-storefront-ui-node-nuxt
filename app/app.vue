@@ -41,12 +41,12 @@ const schemaOrgOptions = [
   }),
   defineWebPage(),
 ]
-const ogImageOptions = {
+const ogImageOptions = reactive({
   alt: config.public.appTitle,
   url: config.public.appLogo,
   width: 1200,
   height: 630,
-}
+})
 
 useSchemaOrg(schemaOrgOptions)
 defineOgImage(ogImageOptions)

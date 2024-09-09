@@ -1,21 +1,26 @@
 <script lang="ts" setup>
-import type { IFetchError } from 'ofetch'
-
 import Json404 from '~/assets/lotties/404.json'
+import type { NuxtError } from '#app'
 
 defineProps({
-  error: {
-    type: Object as PropType<IFetchError | null>,
-    required: false,
-    default: null,
-  },
+  error: Object as () => NuxtError,
 })
 
 const { isMobile, isTablet } = useDevice()
 const localePath = useLocalePath()
+const config = useRuntimeConfig()
 
 const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
 const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '500px'))
+
+const ogImageOptions = reactive({
+  alt: 'Page not found ⚠️',
+  url: config.public.appLogo,
+  width: 1200,
+  height: 630,
+})
+
+defineOgImage(ogImageOptions)
 </script>
 
 <template>

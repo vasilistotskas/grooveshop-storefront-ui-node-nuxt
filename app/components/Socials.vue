@@ -125,4 +125,22 @@ const config = useRuntimeConfig()
     />
     <span class="sr-only">{{ $t('common.facebook') }}</span>
   </UButton>
+  <UButton
+    :external="true"
+    :size="buttonSize"
+    :to="config.public.socials.discord"
+    color="opposite"
+    target="_blank"
+    variant="link"
+  >
+    <UIcon
+      name="i-mdi-discord" :class="iconClass"
+      class="
+        text-secondary-light
+
+        dark:text-secondary-dark
+      "
+    />
+    <span class="sr-only">{{ $t('common.discord') }}</span>
+  </UButton>
 </template>

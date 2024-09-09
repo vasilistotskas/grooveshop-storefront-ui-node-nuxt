@@ -94,7 +94,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           md:gap-x-12
         "
       >
-        <h3 class="grid h-20">
+        <h2 class="grid h-20">
           <Anchor
             :to="post.absoluteUrl"
             :text="alt"
@@ -108,7 +108,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           >
             {{ contentShorten(extractTranslated(post, 'title', locale), 100) }}
           </Anchor>
-        </h3>
+        </h2>
       </div>
       <div class="flex justify-end gap-6">
         <ButtonBlogPostLike

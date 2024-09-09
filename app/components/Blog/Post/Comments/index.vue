@@ -241,7 +241,10 @@ watch(
   comments,
   (newValue) => {
     if (newValue && newValue.results?.length) {
-      allComments.value = newValue.results.sort((a, b) => {
+      const newComments = newValue.results.filter(
+        newComment => !allComments.value.some(existingComment => existingComment.id === newComment.id),
+      )
+      allComments.value = [...allComments.value, ...newComments].sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       })
     }
