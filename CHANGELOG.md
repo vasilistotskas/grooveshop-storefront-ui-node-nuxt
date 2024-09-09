@@ -1,3 +1,15 @@
+# [1.165.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.164.0...v1.165.0) (2024-09-09)
+
+
+### Bug Fixes
+
+* ci fix ([b1decda](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1decdafc3aef9b50845b63aa4887aab6ad97a0d))
+
+
+### Features
+
+* replace `pnpm` with `npm` and app improvements ([37e8da3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/37e8da3ff48216f6e239320a2f96f0def7ca3d80))
+
 # [1.164.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.163.2...v1.164.0) (2024-09-08)
 
 
