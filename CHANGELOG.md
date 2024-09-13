@@ -1,3 +1,10 @@
+# [1.167.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.166.0...v1.167.0) (2024-09-13)
+
+
+### Features
+
+* New Auth providers and support for web only providers, Bump Versions ([86f59ab](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/86f59ab0e381c6909129ef122e9559b726252ea7))
+
 # [1.166.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.165.0...v1.166.0) (2024-09-09)
 
 
