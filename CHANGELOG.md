@@ -1,3 +1,10 @@
+# [1.169.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.168.0...v1.169.0) (2024-09-13)
+
+
+### Features
+
+* vitalizer disablePreloadLinks and disableStylesheets ([edb69dd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/edb69ddc129ccd012c73c4ba8f2c6c860909a097))
+
 # [1.168.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.167.0...v1.168.0) (2024-09-13)
 
 
