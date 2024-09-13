@@ -20,6 +20,12 @@ const providers = computed(() => {
   return config.value?.data.socialaccount?.providers
 })
 
+const availableProviders = computed(() => {
+  return providers.value?.filter((provider: Provider) => {
+    return provider.client_id !== ''
+  })
+})
+
 const loginWithProvider = async (provider: Provider) => {
   let webOnly = false
 
@@ -59,8 +65,8 @@ const providerColor = (provider: string) => {
 </script>
 
 <template>
-  <ul v-if="providers" class="flex gap-4">
-    <li v-for="provider in providers" :key="provider.id">
+  <ul v-if="availableProviders" class="flex gap-4">
+    <li v-for="provider in availableProviders" :key="provider.id">
       <UButton
         :aria-busy="loading"
         :aria-label="provider.name"

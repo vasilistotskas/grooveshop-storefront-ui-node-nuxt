@@ -204,7 +204,9 @@ const submitButtonDisabled = computed(() => {
             variant="soft"
           />
 
-          <div v-if="hasProviders && status.config === 'success'" class="grid gap-4">
+          <div
+            v-if="hasProviders && status.config === 'success'" class="grid gap-4"
+          >
             <div
               class="
                 my-2 flex items-center
