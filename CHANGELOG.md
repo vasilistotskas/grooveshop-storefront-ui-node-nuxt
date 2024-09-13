@@ -1,3 +1,10 @@
+## [1.169.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.169.0...v1.169.1) (2024-09-13)
+
+
+### Bug Fixes
+
+* only show available providers ([09b3079](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/09b3079ab53bd14e556775f353beea27aa76ae66))
+
 # [1.169.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.168.0...v1.169.0) (2024-09-13)
 
 
