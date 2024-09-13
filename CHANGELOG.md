@@ -1,3 +1,10 @@
+# [1.168.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.167.0...v1.168.0) (2024-09-13)
+
+
+### Features
+
+* remove `NUXT_PUBLIC_DJANGO_CANONICAL_URL` and add `NUXT_DJANGO_URL` + usage ([4ca1c1b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4ca1c1b3ce145a6fbfee251b51faa5a3fb07cb12))
+
 # [1.167.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.166.0...v1.167.0) (2024-09-13)
 
 
