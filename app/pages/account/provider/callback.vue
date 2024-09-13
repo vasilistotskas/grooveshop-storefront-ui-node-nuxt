@@ -3,11 +3,21 @@ import { URLs } from '~/types/all-auth'
 
 const {
   providerToken,
+  getSession,
 } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
 
-const { error: apiError, provider, access_token, id_token, client_id, process } = route.query
+const {
+  error: apiError,
+  provider,
+  access_token,
+  id_token,
+  client_id,
+  process,
+  messages,
+  encrypted_token,
+} = route.query
 
 const { t } = useI18n()
 const authInfo = useAuthInfo()
@@ -19,16 +29,28 @@ const loading = ref(true)
 const title = computed(() => {
   if (loading.value) return t('pages.account.provider.callback.title.loading')
   if (error.value) return t('pages.account.provider.callback.title.error')
+  if (messages) return messages
   return ''
 })
 
 onMounted(async () => {
+  if (encrypted_token) {
+    try {
+      await getSession(String(encrypted_token))
+    }
+    catch (error) {
+      console.log('==== error 1 ====', error)
+      error.value = true
+    }
+  }
+
   if (authInfo.isAuthenticated) {
     url.value = URLs.LOGIN_REDIRECT_URL
     await navigateTo(localePath(url.value))
   }
 
   if (apiError) {
+    console.log('==== error 2 ====', apiError)
     error.value = true
   }
 
@@ -45,11 +67,17 @@ onMounted(async () => {
       })
     }
     catch {
+      console.log('==== error 3 ====', error)
       error.value = true
     }
     finally {
       loading.value = false
     }
+  }
+  else {
+    console.log('==== error 4 ====', error)
+    error.value = true
+    loading.value = false
   }
 })
 

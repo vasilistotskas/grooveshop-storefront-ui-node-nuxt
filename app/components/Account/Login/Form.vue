@@ -10,7 +10,7 @@ const cartStore = useCartStore()
 const { refreshCart } = cartStore
 
 const authStore = useAuthStore()
-const { session, hasProviders } = storeToRefs(authStore)
+const { session, status, hasProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
   email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
@@ -204,7 +204,7 @@ const submitButtonDisabled = computed(() => {
             variant="soft"
           />
 
-          <div v-if="hasProviders" class="grid gap-4">
+          <div v-if="hasProviders && status.config === 'success'" class="grid gap-4">
             <div
               class="
                 my-2 flex items-center
@@ -242,7 +242,21 @@ const submitButtonDisabled = computed(() => {
               </div>
             </div>
           </div>
-
+          <div v-else-if="status.config === 'pending'" class="grid gap-4">
+            <ClientOnlyFallback
+              class="my-2"
+              height="24px"
+              width="100%"
+            />
+            <ClientOnlyFallback
+              height="36px"
+              width="100%"
+            />
+            <ClientOnlyFallback
+              height="80px"
+              width="100%"
+            />
+          </div>
           <div
             class="
               flex flex-col items-center justify-end

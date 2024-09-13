@@ -143,7 +143,7 @@ const reviewScoreText = computed(() => {
   if (
     liveReviewCountRatio.value < 0.01
     || (newSelectionRatio.value === null
-    && (reviewCount.value === null || userProductReview?.value?.rate === 0))
+      && (reviewCount.value === null || userProductReview?.value?.rate === 0))
   ) {
     return ''
   }

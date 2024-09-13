@@ -12,7 +12,7 @@ const ZodSocialAccountConfiguration = z.object({
 
 const ZodMFAConfiguration = z.object({
   supported_types: z.array(z.enum(['recovery_codes', 'totp', 'webauthn'])).describe('Items Enum: "recovery_codes" "totp"\n'
-  + 'Matches settings.MFA_SUPPORTED_TYPES.'),
+    + 'Matches settings.MFA_SUPPORTED_TYPES.'),
   passkey_login_enabled: z.boolean().optional().describe('Matches settings.MFA_PASSKEY_LOGIN_ENABLED.'),
 }).optional().describe('Configuration of the Django allauth.mfa app.')
 

@@ -5,7 +5,7 @@ export const ZodProvider = z.object({
   name: z.string().describe('The name of the provider.'),
   client_id: z.string().optional().describe('The client ID (in case of OAuth2 or OpenID Connect based providers).'),
   flows: z.array(z.enum(['provider_redirect', 'provider_token'])).describe('Items Enum: "provider_redirect" "provider_token"\n'
-  + 'The authentication flows the provider integration supports.'),
+    + 'The authentication flows the provider integration supports.'),
 })
 
 export const ZodMethods = z.array(
@@ -18,7 +18,7 @@ export const ZodMethods = z.array(
     provider: z.string().optional().describe('The provider ID.'),
     uid: z.string().optional().describe('The provider specific account ID.'),
     type: z.string().optional().describe('Enum: "recovery_codes" "totp"\n'
-    + 'The type of authenticator.'),
+      + 'The type of authenticator.'),
   }),
 ).describe('A list of methods used to authenticate.')
 
@@ -103,7 +103,7 @@ export const ZodProviderAccount = z.object({
     name: z.string().describe('The name of the provider.'),
     client_id: z.string().optional().describe('The client ID (in case of OAuth2 or OpenID Connect based providers)'),
     flows: z.array(z.enum(['provider_redirect', 'provider_token'])).describe('Items Enum: "provider_redirect" "provider_token"\n'
-    + 'The authentication flows the provider integration supports.'),
+      + 'The authentication flows the provider integration supports.'),
   }),
 })
 
@@ -162,6 +162,7 @@ export const AuthChangeEvent = Object.freeze({
   FLOW_UPDATED: 'FLOW_UPDATED',
 })
 
+export type Provider = z.infer<typeof ZodProvider>
 export type Session = z.infer<typeof ZodSession>
 export type Flow = z.infer<typeof ZodFlow>
 export type FlowId = keyof typeof Flow2path

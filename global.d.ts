@@ -13,6 +13,9 @@ const _envVariables = z.object({
   NODE_AUTH_TOKEN: z.string(),
   VITEST_DOM_ENV: z.string(),
 
+  // App
+  NUXT_APP_SECRET_KEY: z.string(),
+
   // Info
   NUXT_PUBLIC_ENVIRONMENT: z.enum(['development', 'production', 'demo']),
   NUXT_PUBLIC_APP_TITLE: z.string(),
@@ -20,7 +23,6 @@ const _envVariables = z.object({
   NUXT_PUBLIC_APP_KEYWORDS: z.string(),
   NUXT_PUBLIC_SITE_DESCRIPTION: z.string(),
   NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION: z.string(),
-  NUXT_PUBLIC_TWITTER_USERNAME: z.string(),
   NUXT_PUBLIC_APP_LOGO: z.string(),
 
   // Public
@@ -67,28 +69,17 @@ const _envVariables = z.object({
   // Experimental
   NUXT_PUBLIC_EXPERIMENTAL_WATCHER: z.string(),
 
-  // Websocket
-  NUXT_WEB_SOCKET_SERVER_PORT: z.string(),
-
   // Auth
   NUXT_AUTH_COOKIE_DOMAIN: z.string(),
-  NUXT_AUTH_EMAIL_PROVIDER_API_KEY: z.string(),
   NUXT_AUTH_BASE_URL: z.string(),
-  NUXT_AUTH_ACCESS_TOKEN_COOKIE_NAME: z.string(),
-  NUXT_AUTH_REFRESH_TOKEN_COOKIE_NAME: z.string(),
-  NUXT_AUTH_SESSION_COOKIE_NAME: z.string(),
-  NUXT_AUTH_CSRFTOKEN_COOKIE_NAME: z.string(),
-  NUXT_AUTH_TOTP_AUTHENTICATED_COOKIE_NAME: z.string(),
-  NUXT_AUTH_TOTP_ACTIVE_COOKIE_NAME: z.string(),
-  NUXT_AUTH_SESSION_DOMAIN: z.string(),
-  NUXT_AUTH_CSRFTOKEN_DOMAIN: z.string(),
-  NUXT_AUTH_ACCESS_TOKEN_DOMAIN: z.string(),
-  NUXT_AUTH_REFRESH_TOKEN_DOMAIN: z.string(),
-  NUXT_AUTH_TOTP_AUTHENTICATED_DOMAIN: z.string(),
-  NUXT_AUTH_TOTP_ACTIVE_DOMAIN: z.string(),
   NUXT_OAUTH_GOOGLE_CLIENT_ID: z.string(),
   NUXT_OAUTH_GOOGLE_CLIENT_SECRET: z.string(),
-  NUXT_OAUTH_GOOGLE_SCOPES: z.string(),
+  NUXT_OAUTH_DISCORD_CLIENT_ID: z.string(),
+  NUXT_OAUTH_DISCORD_CLIENT_SECRET: z.string(),
+  NUXT_OAUTH_GITHUB_CLIENT_ID: z.string(),
+  NUXT_OAUTH_GITHUB_CLIENT_SECRET: z.string(),
+  NUXT_OAUTH_FACEBOOK_CLIENT_ID: z.string(),
+  NUXT_OAUTH_FACEBOOK_CLIENT_SECRET: z.string(),
 
   // Socials
   NUXT_PUBLIC_SOCIALS_FACEBOOK: z.string(),

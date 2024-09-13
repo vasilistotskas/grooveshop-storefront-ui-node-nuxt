@@ -61,10 +61,20 @@ export default {
         6: '16.666667%',
       },
       colors: {
-        secondary: {
+        'secondary': {
           light: '#003DFF',
           DEFAULT: '#003DFF',
           dark: '#3364FF',
+        },
+        'full-black': {
+          light: '#000000',
+          DEFAULT: '#000000',
+          dark: '#1A1A1A',
+        },
+        'full-white': {
+          light: '#FFFFFF',
+          DEFAULT: '#FFFFFF',
+          dark: '#F0F0F0',
         },
       },
     },

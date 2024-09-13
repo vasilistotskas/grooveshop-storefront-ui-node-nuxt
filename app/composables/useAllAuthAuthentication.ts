@@ -5,7 +5,7 @@ import type {
   EmailVerifyPostBody,
   LoginBody,
   PasswordRequestBody,
-  PasswordResetPostBody,
+  PasswordResetPostBody, Provider,
   ProviderRedirectBody,
   ProviderSignupBody,
   ProviderTokenBody,
@@ -18,10 +18,16 @@ import type {
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
 
 export default function () {
-  async function getSession() {
+  async function getSession(encrypted_token: string | null = null) {
+    const headers = useRequestHeaders()
+    if (encrypted_token) {
+      Object.assign(headers, {
+        'X-Encrypted-Token': encrypted_token,
+      })
+    }
     return $fetch(`${API_BASE_URL}/session`, {
       method: 'GET',
-      headers: useRequestHeaders(),
+      headers,
       async onResponse({ response }) {
         await onAllAuthResponse(response._data)
       },
@@ -160,18 +166,46 @@ export default function () {
     })
   }
 
-  function providerRedirect(provider: ProviderRedirectBody['provider']): void {
+  function providerRedirect(provider: Provider): void {
     if (import.meta.client) {
       const route = useRoute()
 
       const returnToPath = route.query.redirect?.toString()
 
-      let redirectUrl = resolveURL('/auth', provider)
+      let redirectUrl = resolveURL('/auth', provider.id)
 
       redirectUrl = withQuery(redirectUrl, { redirect: returnToPath })
 
       window.location.replace(redirectUrl)
     }
+  }
+
+  async function browserProviderRedirect(body: ProviderRedirectBody) {
+    const config = useRuntimeConfig()
+    const csrfToken = useCookie('csrftoken').value
+
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = `${config.public.djangoUrl}/_allauth/browser/v1/auth/provider/redirect`
+
+    for (const [key, value] of Object.entries(body)) {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = key
+      input.value = value
+      form.appendChild(input)
+    }
+
+    if (csrfToken) {
+      const csrfInput = document.createElement('input')
+      csrfInput.type = 'hidden'
+      csrfInput.name = 'csrfmiddlewaretoken'
+      csrfInput.value = csrfToken
+      form.appendChild(csrfInput)
+    }
+
+    document.body.appendChild(form)
+    form.submit()
   }
 
   async function providerToken(body: ProviderTokenBody) {
@@ -351,6 +385,7 @@ export default function () {
     getPasswordReset,
     passwordReset,
     providerRedirect,
+    browserProviderRedirect,
     providerToken,
     providerSignup,
     twoFaAuthenticate,

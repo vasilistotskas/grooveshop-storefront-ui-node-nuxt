@@ -54,7 +54,7 @@ export function setupPageHeader() {
       {
         rel: 'icon',
         type: 'image/png',
-        href: '/favicon.png',
+        href: '/favicon/favicon-16x16.png',
       },
     ],
   })

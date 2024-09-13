@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SearchBlogPost, SearchProduct, SearchResponse, SearchResult } from '~/types/search'
+import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 
 const props = defineProps({
   query: {
@@ -19,7 +20,7 @@ const props = defineProps({
     default: undefined,
   },
   status: {
-    type: String as PropType<'idle' | 'pending' | 'success' | 'error'>,
+    type: String as PropType<AsyncDataRequestStatus>,
     required: false,
     default: 'idle',
   },

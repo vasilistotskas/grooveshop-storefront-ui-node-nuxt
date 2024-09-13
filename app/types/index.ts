@@ -19,7 +19,7 @@ export const ZodPublishableModel = z.object({
 })
 
 export const ZodSortableModel = z.object({
-  sortOrder: z.number().int(),
+  sortOrder: z.number().int().nullish(),
 })
 
 export const ZodUUIDModel = z.object({

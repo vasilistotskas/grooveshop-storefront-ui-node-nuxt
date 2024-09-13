@@ -12,6 +12,10 @@ export default defineNuxtConfig({
   telemetry: false,
   future: {
     compatibilityVersion: 4,
+    typescriptBundlerResolution: true,
+  },
+  features: {
+    inlineStyles: true,
   },
   app: {
     head: {
@@ -50,6 +54,7 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
     'nuxt-time',
+    'nuxt-vitalizer',
   ],
   routeRules: {
     '/api/**': { cors: true },
@@ -176,6 +181,7 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     buildDate: new Date().toISOString(),
+    secretKey: process.env.NUXT_APP_SECRET_KEY,
 
     // Auth
     auth: {
@@ -187,6 +193,18 @@ export default defineNuxtConfig({
       google: {
         clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID,
         clientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET,
+      },
+      discord: {
+        clientId: process.env.NUXT_OAUTH_DISCORD_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_DISCORD_CLIENT_SECRET,
+      },
+      github: {
+        clientId: process.env.NUXT_OAUTH_GITHUB_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET,
+      },
+      facebook: {
+        clientId: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET,
       },
     },
 
@@ -513,5 +531,8 @@ export default defineNuxtConfig({
   },
   icon: {
     serverBundle: 'remote',
+  },
+  vitalizer: {
+    disablePrefetchLinks: true,
   },
 })

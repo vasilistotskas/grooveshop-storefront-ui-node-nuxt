@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
-const { hasProviders } = storeToRefs(authStore)
+const { hasProviders, status } = storeToRefs(authStore)
 
 const { t } = useI18n()
 const toast = useToast()
@@ -241,7 +241,7 @@ const submitButtonDisabled = computed(() => {
             />
           </div>
 
-          <div v-if="hasProviders" class="grid gap-4">
+          <div v-if="hasProviders && status.config === 'success'" class="grid gap-4">
             <div
               class="
                 my-2 flex items-center
@@ -277,6 +277,17 @@ const submitButtonDisabled = computed(() => {
                 <AccountProviderList />
               </div>
             </div>
+          </div>
+          <div v-else-if="status.config === 'pending'" class="grid gap-4">
+            <ClientOnlyFallback
+              class="my-2"
+              height="24px"
+              width="100%"
+            />
+            <ClientOnlyFallback
+              height="80px"
+              width="100%"
+            />
           </div>
         </div>
       </div>

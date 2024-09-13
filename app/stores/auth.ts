@@ -1,8 +1,29 @@
+import type { IFetchError } from 'ofetch'
 import type { ConfigResponse, SessionResponse } from '~/types/all-auth'
+import type { NuxtError } from '#app'
+import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
+
+interface ErrorRecord {
+  config: NuxtError | IFetchError | null | undefined
+}
+
+interface StatusRecord {
+  config: AsyncDataRequestStatus
+}
+
+const errorsFactory = (): ErrorRecord => ({
+  config: null,
+})
+
+const statusFactory = (): StatusRecord => ({
+  config: 'idle',
+})
 
 export const useAuthStore = defineStore('auth', () => {
   const session = ref<SessionResponse>()
   const config = ref<ConfigResponse>()
+  const status = ref<StatusRecord>(statusFactory())
+  const error = ref<ErrorRecord>(errorsFactory())
 
   const hasProviders = computed(() => {
     if (!config?.value || !config.value?.data || !config.value?.data?.socialaccount) {
@@ -48,21 +69,35 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const setupConfig = async () => {
-    const { getConfig } = useAllAuthConfig()
-    await callOnce(async () => {
-      const { data } = await useAsyncData(
-        'config',
-        () => getConfig(),
-      )
-      if (data.value) {
-        config.value = data.value
-      }
-    })
+    const publicConfig = useRuntimeConfig().public
+    status.value.config = 'pending'
+    await useFetch(
+      `${publicConfig.djangoUrl}/_allauth/browser/v1/config`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        server: false,
+        onResponse({ response }) {
+          if (!response.ok) {
+            return
+          }
+          config.value = response._data
+          status.value.config = 'success'
+        },
+        onResponseError(context) {
+          config.value = undefined
+          status.value.config = 'error'
+          error.value.config = context.error
+        },
+      },
+    )
   }
 
   return {
     session,
     config,
+    status,
+    error,
     hasProviders,
     hasCurrentPassword,
     setupSession,
