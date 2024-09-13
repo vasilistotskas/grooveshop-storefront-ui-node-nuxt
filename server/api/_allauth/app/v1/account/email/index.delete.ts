@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   try {
     const headers = await getAllAuthHeaders()
     const validatedBody = await readValidatedBody(event, ZodEmailDeleteBody.parse)
-    const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/account/email`, {
+    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/account/email`, {
       body: validatedBody,
       method: 'DELETE',
       headers,

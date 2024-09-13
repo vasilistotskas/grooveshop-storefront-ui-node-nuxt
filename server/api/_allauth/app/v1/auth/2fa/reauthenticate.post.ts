@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   try {
     const headers = await getAllAuthHeaders()
     const validatedBody = await readValidatedBody(event, ZodTwoFaReauthenticateBody.parse)
-    const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/2fa/reauthenticate`, {
+    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/2fa/reauthenticate`, {
       body: validatedBody,
       method: 'POST',
       headers,

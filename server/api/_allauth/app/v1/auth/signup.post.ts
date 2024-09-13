@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const validatedBody = await readValidatedBody(event, ZodSignupBody.parse)
-    const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/signup`, {
+    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/signup`, {
       body: validatedBody,
       method: 'POST',
     })

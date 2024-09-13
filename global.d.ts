@@ -14,6 +14,7 @@ const _envVariables = z.object({
   VITEST_DOM_ENV: z.string(),
 
   // App
+  NUXT_DJANGO_URL: z.string(),
   NUXT_APP_SECRET_KEY: z.string(),
 
   // Info
@@ -31,7 +32,6 @@ const _envVariables = z.object({
   NUXT_PUBLIC_CANONICAL_URL: z.string(),
   NUXT_PUBLIC_BASE_URL: z.string(),
   NUXT_PUBLIC_DJANGO_URL: z.string(),
-  NUXT_PUBLIC_DJANGO_CANONICAL_URL: z.string(),
   NUXT_PUBLIC_DJANGO_HOST: z.string(),
   NUXT_PUBLIC_DJANGO_HOSTNAME: z.string(),
   NUXT_PUBLIC_DJANGO_STATIC_URL: z.string(),

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     headers['X-Email-Verification-Key'] = emailVerificationKeyHeader
   }
   try {
-    const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/email/verify`, {
+    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/email/verify`, {
       method: 'GET',
       headers,
     })

@@ -4,7 +4,7 @@ export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders()
-    const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/account/authenticators`, {
+    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/account/authenticators`, {
       method: 'GET',
       headers,
     })

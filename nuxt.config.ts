@@ -182,6 +182,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     buildDate: new Date().toISOString(),
     secretKey: process.env.NUXT_APP_SECRET_KEY,
+    djangoUrl: process.env.NUXT_DJANGO_URL,
 
     // Auth
     auth: {

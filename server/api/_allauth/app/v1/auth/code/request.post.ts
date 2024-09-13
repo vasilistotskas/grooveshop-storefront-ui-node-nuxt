@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   try {
     const headers = await getAllAuthHeaders()
     const validatedBody = await readValidatedBody(event, ZodCodeRequestBody.parse)
-    const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/code/request`, {
+    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/code/request`, {
       body: validatedBody,
       method: 'POST',
       headers,

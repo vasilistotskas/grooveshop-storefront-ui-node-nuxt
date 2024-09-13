@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const headers = {
       'X-Password-Reset-Key': key,
     } as Record<string, string>
-    const response = await $fetch(`${config.public.djangoUrl}/_allauth/app/v1/auth/password/reset`, {
+    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/password/reset`, {
       method: 'GET',
       headers,
     })
