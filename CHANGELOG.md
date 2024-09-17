@@ -1,3 +1,15 @@
+# [1.170.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.169.1...v1.170.0) (2024-09-17)
+
+
+### Bug Fixes
+
+* unused var ([ee4c8c2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ee4c8c2f4fc3cb80acdcbe1b04eae4aca17d13b6))
+
+
+### Features
+
+* Auth improved, i18n refactor, cache some api endpoints and Bump Versions ([84c249e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/84c249ecf2ac9dc9fb179c3bbedcd844fd51d454))
+
 ## [1.169.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.169.0...v1.169.1) (2024-09-13)
 
 
