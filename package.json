@@ -87,7 +87,7 @@
     "magic-string": "0.30.11",
     "nuxt": "3.13.2",
     "nuxt-auth-utils": "0.3.8",
-    "nuxt-time": "1.0.0",
+    "nuxt-time": "0.1.3",
     "nuxt-vitalizer": "0.10.0",
     "ofetch": "1.3.4",
     "pinia": "2.2.2",
