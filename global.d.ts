@@ -46,6 +46,7 @@ const _envVariables = z.object({
   NUXT_PUBLIC_SITE_URL: z.string(),
   NUXT_PUBLIC_TRAILING_SLASH: z.string(),
   NUXT_PUBLIC_SITE_NAME: z.string(),
+  NUXT_PUBLIC_GOOGLE_GSI_ENABLE: z.string(),
 
   // Locales
   NUXT_PUBLIC_LOCALES: z.string(),

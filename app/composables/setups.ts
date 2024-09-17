@@ -367,6 +367,9 @@ export function setupGoogleAnalyticsConsent() {
 }
 
 export function setupSocialLogin() {
+  const config = useRuntimeConfig()
+  const gsiEnabled = config.public.googleGsiEnable === 'true'
+  if (!gsiEnabled) return
   const { loggedIn } = useUserSession()
   const { config: authConfig } = storeToRefs(useAuthStore())
   const {

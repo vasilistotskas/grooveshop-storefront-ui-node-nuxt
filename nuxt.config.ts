@@ -52,8 +52,7 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
-    'nuxt-time',
-    'nuxt-vitalizer',
+    'nuxt-time'
   ],
   routeRules: {
     '/api/**': { cors: true },
@@ -239,6 +238,7 @@ export default defineNuxtConfig({
       mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
       siteDescription: process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
       siteName: process.env.NUXT_PUBLIC_SITE_NAME,
+      googleGsiEnable: process.env.NUXT_PUBLIC_GOOGLE_GSI_ENABLE,
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
       socials: {
         discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD,
@@ -521,10 +521,5 @@ export default defineNuxtConfig({
   },
   icon: {
     serverBundle: 'remote',
-  },
-  vitalizer: {
-    disablePrefetchLinks: true,
-    disablePreloadLinks: true,
-    disableStylesheets: 'entry',
-  },
+  }
 })
