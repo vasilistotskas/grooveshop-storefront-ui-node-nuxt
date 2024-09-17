@@ -1,3 +1,10 @@
+# [1.172.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.171.0...v1.172.0) (2024-09-17)
+
+
+### Features
+
+* cookies and Google Analytics improvements ([e59cba7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e59cba780af4c6061448f6d83f21a7f28f4c5fdc))
+
 # [1.171.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.170.1...v1.171.0) (2024-09-17)
 
 
