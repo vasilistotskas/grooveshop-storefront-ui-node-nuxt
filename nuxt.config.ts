@@ -52,7 +52,7 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
-    'nuxt-time'
+    'nuxt-time',
   ],
   routeRules: {
     '/api/**': { cors: true },
@@ -266,31 +266,51 @@ export default defineNuxtConfig({
           id: 'n',
           name: 'cookies.necessary',
           description: 'cookies.necessary_description',
-          targetCookieIds: ['NEC'],
+          targetCookieIds: ['csrftoken', 'i18n_redirected', 'ncc_c', 'ncc_e'],
         },
       ],
       optional: [
         {
-          id: 'an',
-          name: 'cookies.analytics',
-          description: 'cookies.analytics_description',
-          targetCookieIds: ['_ga', '_gat', '_gid'],
+          id: 'ad_storage',
+          name: 'cookies.ad_storage',
+          description: 'cookies.ad_storage_description',
+          targetCookieIds: [],
         },
         {
-          id: 'ad',
-          name: 'cookies.advertising',
-          description: 'cookies.advertising_description',
-          links: {
-            ['/privacy-policy']:
-              'cookies.optional_links.privacy_policy',
-          },
-          targetCookieIds: ['_fbp', 'fr', 'tr'],
+          id: 'ad_user_data',
+          name: 'cookies.ad_user_data',
+          description: 'cookies.ad_user_data_description',
+          targetCookieIds: [],
         },
         {
-          id: 'fu',
-          name: 'cookies.functional',
-          description: 'cookies.functional_description',
-          targetCookieIds: ['_fbc', 'fbsr_'],
+          id: 'ad_personalization',
+          name: 'cookies.ad_personalization',
+          description: 'cookies.ad_personalization_description',
+          targetCookieIds: [],
+        },
+        {
+          id: 'analytics_storage',
+          name: 'cookies.analytics_storage',
+          description: 'cookies.analytics_storage_description',
+          targetCookieIds: [],
+        },
+        {
+          id: 'functionality_storage',
+          name: 'cookies.functionality_storage',
+          description: 'cookies.functionality_storage_description',
+          targetCookieIds: [],
+        },
+        {
+          id: 'personalization_storage',
+          name: 'cookies.personalization_storage',
+          description: 'cookies.personalization_storage_description',
+          targetCookieIds: [],
+        },
+        {
+          id: 'security_storage',
+          name: 'cookies.security_storage',
+          description: 'cookies.security_storage_description',
+          targetCookieIds: [],
         },
       ],
     },
@@ -481,11 +501,6 @@ export default defineNuxtConfig({
     sitemaps: true,
     exclude: ['/account', '/account/**'],
   },
-  scripts: {
-    registry: {
-      googleAnalytics: true,
-    },
-  },
   linkChecker: {
     report: {
       html: true,
@@ -521,5 +536,5 @@ export default defineNuxtConfig({
   },
   icon: {
     serverBundle: 'remote',
-  }
+  },
 })

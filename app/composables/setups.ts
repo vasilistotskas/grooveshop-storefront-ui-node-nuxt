@@ -323,38 +323,28 @@ export function setupWebSocket() {
 }
 
 export function setupGoogleAnalyticsConsent() {
-  const { proxy } = useScriptGoogleAnalytics()
-  const { isConsentGiven } = useCookieControl()
-
-  proxy.gtag('consent', 'default', {
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    ad_storage: 'denied',
-    analytics_storage: 'denied',
-    functionality_storage: 'denied',
-    personalization_storage: 'denied',
-    security_storage: 'denied',
+  const config = useRuntimeConfig()
+  const { load, status, proxy } = useScriptGoogleAnalytics({
+    id: config.public.scripts.googleAnalytics.id,
+    scriptOptions: {
+      trigger: 'manual',
+      bundle: true,
+    },
   })
 
+  const {
+    cookiesEnabledIds,
+    isConsentGiven,
+  } = useCookieControl()
+
   watch(
-    () => isConsentGiven.value,
+    () => status.value,
     (current, _previous) => {
-      if (current) {
-        proxy.gtag('consent', 'update', {
-          ad_storage: 'granted',
-          ad_user_data: 'granted',
-          ad_personalization: 'granted',
-          analytics_storage: 'granted',
-          functionality_storage: 'granted',
-          personalization_storage: 'granted',
-          security_storage: 'granted',
-        })
-      }
-      else if (_previous && !current) {
-        proxy.gtag('consent', 'update', {
-          ad_storage: 'denied',
+      if (current === 'loaded') {
+        proxy.gtag('consent', 'default', {
           ad_user_data: 'denied',
           ad_personalization: 'denied',
+          ad_storage: 'denied',
           analytics_storage: 'denied',
           functionality_storage: 'denied',
           personalization_storage: 'denied',
@@ -363,6 +353,28 @@ export function setupGoogleAnalyticsConsent() {
       }
     },
     { immediate: true },
+  )
+
+  watch(
+    () => cookiesEnabledIds.value,
+    async (current, _previous) => {
+      if (isConsentGiven.value) {
+        if (status.value !== 'loaded') {
+          await load()
+        }
+        const consentFieldStatus = (field: string) => current?.includes(field) ? 'granted' : 'denied'
+        proxy.gtag('consent', 'update', {
+          ad_storage: consentFieldStatus('ad_storage'),
+          ad_user_data: consentFieldStatus('ad_user_data'),
+          ad_personalization: consentFieldStatus('ad_personalization'),
+          analytics_storage: consentFieldStatus('analytics_storage'),
+          functionality_storage: consentFieldStatus('functionality_storage'),
+          personalization_storage: consentFieldStatus('personalization_storage'),
+          security_storage: consentFieldStatus('security_storage'),
+        })
+      }
+    },
+    { deep: true, immediate: true },
   )
 }
 

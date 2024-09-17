@@ -41,7 +41,7 @@ const trimmedText = computed(() => {
     >
       <span
         class="
-          text-sm
+          block text-sm
 
           md:text-base
         "
@@ -58,7 +58,7 @@ const trimmedText = computed(() => {
     >
       <span
         class="
-          text-sm
+          block text-sm
 
           md:text-base
         "
@@ -77,7 +77,7 @@ const trimmedText = computed(() => {
   <span
     v-else
     class="
-      text-primary-950 text-sm
+      block text-primary-950 text-sm
 
       dark:text-primary-50
 

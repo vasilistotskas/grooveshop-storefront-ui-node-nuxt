@@ -51,7 +51,7 @@ export const DEFAULTS: Required<ModuleOptions> = {
   },
   isAcceptNecessaryButtonEnabled: true,
   isControlButtonEnabled: true,
-  isCookieIdVisible: false,
+  isCookieIdVisible: true,
   isCssEnabled: true,
   isDashInDescriptionEnabled: true,
   isIframeBlocked: false,
