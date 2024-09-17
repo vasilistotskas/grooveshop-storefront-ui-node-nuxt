@@ -210,6 +210,12 @@ export default defineNuxtConfig({
       secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY,
     },
 
+    redis: {
+      port: process.env.NUXT_REDIS_PORT,
+      host: process.env.NUXT_REDIS_HOST,
+      ttl: process.env.NUXT_CACHE_MAX_AGE,
+    },
+
     // Keys within public are also exposed client-side
     public: {
       appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION,
