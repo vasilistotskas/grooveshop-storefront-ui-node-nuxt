@@ -1,3 +1,10 @@
+## [1.170.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.170.0...v1.170.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* remove redis storage for now ([4a74c83](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a74c83f3cbec614b45c09ad01e55aa9bba9efa7))
+
 # [1.170.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.169.1...v1.170.0) (2024-09-17)
 
 
