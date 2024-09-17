@@ -4,11 +4,9 @@ import { AuthChangeEvent, type AuthChangeEventType } from '~/types/all-auth'
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
-watchEffect(async () => {
-  if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-    await navigateTo(localePath('/'))
-  }
-})
+if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+  await navigateTo(localePath('/'))
+}
 
 definePageMeta({
   layout: 'default',
@@ -17,6 +15,6 @@ definePageMeta({
 
 <template>
   <Account2FaReauthenticateCode>
-    <p>{{ $t('common.reauthenticate.recovery_code') }}:</p>
+    <p>{{ $t('reauthenticate.recovery_code') }}:</p>
   </Account2FaReauthenticateCode>
 </template>

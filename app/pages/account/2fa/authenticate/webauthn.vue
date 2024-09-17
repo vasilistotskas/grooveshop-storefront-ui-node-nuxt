@@ -5,15 +5,15 @@ import { AuthChangeEvent, type AuthChangeEventType, AuthenticatorType } from '~/
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
 
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
+const authStore = useAuthStore()
+const { session } = storeToRefs(authStore)
 
-watchEffect(async () => {
-  if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-    await navigateTo(localePath('/'))
-  }
-})
+if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
+  await navigateTo(localePath('/'))
+}
 
 const loading = ref(false)
 
@@ -29,11 +29,11 @@ async function onSubmit() {
     }
     const options = parseRequestOptionsFromJSON(jsonOptions)
     const credential = await get(options)
-    await authenticateUsingWebAuthn({
+    session.value = await authenticateUsingWebAuthn({
       credential,
     })
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('getWebAuthnRequestOptionsForAuthentication')
@@ -41,7 +41,7 @@ async function onSubmit() {
   }
   catch {
     toast.add({
-      title: t('common.error.default'),
+      title: t('error.default'),
       color: 'red',
     })
   }
@@ -64,7 +64,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('common.use.security.key')"
+      :text="t('use.security.key')"
       class="text-center capitalize"
     />
     <PageBody>
@@ -72,7 +72,7 @@ definePageMeta({
         <div class="grid items-center justify-center">
           <UButton
             :label="
-              $t('common.submit')
+              $t('submit')
             "
             color="primary"
             size="xl"
@@ -84,3 +84,10 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  use:
+    security:
+      key: Χρησιμοποιήστε το κλειδί ασφαλείας
+</i18n>

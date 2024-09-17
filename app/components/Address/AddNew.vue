@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const localePath = useLocalePath()
+const { t } = useI18n({ useScope: 'local' })
 </script>
 
 <template>
@@ -19,16 +20,23 @@ const localePath = useLocalePath()
         dark:text-primary-50
       "
     >
-      {{ $t('components.address.add_new.title') }}
+      {{ t('title') }}
     </p>
     <div class="grid items-center justify-center">
       <UButton
         class="w-full"
         color="primary"
-        :label="$t('components.address.add_new.button')"
+        :label="t('button')"
         :to="localePath('/account/addresses/new')"
         size="lg"
       />
     </div>
   </li>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Μπορείς να προσθέσεις μια νέα διεύθυνση και να τη χρησιμοποιήσεις σε
+    όλες τις επόμενες αγορές σου.
+  button: Προσθήκη
+</i18n>

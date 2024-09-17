@@ -18,23 +18,23 @@ const authInfo = useAuthInfo()
 const toast = useToast()
 const { t } = useI18n()
 const localePath = useLocalePath()
+const authStore = useAuthStore()
+const { session } = storeToRefs(authStore)
 
 const loading = ref(false)
 
 const { twoFaAuthenticate } = useAllAuthAuthentication()
 
-watchEffect(async () => {
-  if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
-    await navigateTo(localePath('/'))
-  }
-})
+if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
+  await navigateTo(localePath('/'))
+}
 
 const formSchema: DynamicFormSchema = {
   fields: [
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
@@ -47,11 +47,11 @@ const formSchema: DynamicFormSchema = {
 async function onSubmit(values: TwoFaAuthenticateBody) {
   try {
     loading.value = true
-    await twoFaAuthenticate({
+    session.value = await twoFaAuthenticate({
       code: values.code,
     })
     toast.add({
-      title: t('common.success.logged_in'),
+      title: t('success.logged_in'),
       color: 'green',
     })
     emit('twoFaAuthenticate')
@@ -66,7 +66,7 @@ async function onSubmit(values: TwoFaAuthenticateBody) {
   <Account2FaAuthenticateFlow :authenticator-type="authenticatorType">
     <slot />
     <DynamicForm
-      :button-label="t('common.entry')"
+      :button-label="t('entry')"
       :schema="formSchema"
       class="grid"
       @submit="onSubmit"

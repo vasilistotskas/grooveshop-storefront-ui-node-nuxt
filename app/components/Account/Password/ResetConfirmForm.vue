@@ -5,7 +5,8 @@ const emit = defineEmits(['passwordReset'])
 
 const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
+
 const route = useRoute()
 const toast = useToast()
 const localePath = useLocalePath()
@@ -19,13 +20,13 @@ await useAsyncData(
 
 const ZodPasswordResetConfirm = z
   .object({
-    newPassword1: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
-    newPassword2: z.string({ required_error: t('common.validation.required') }).min(8).max(255),
-    key: z.string({ required_error: t('common.validation.required') }),
+    newPassword1: z.string({ required_error: t('validation.required') }).min(8).max(255),
+    newPassword2: z.string({ required_error: t('validation.required') }).min(8).max(255),
+    key: z.string({ required_error: t('validation.required') }),
   })
   .refine(data => data.newPassword1 === data.newPassword2, {
     message: t(
-      'pages.account.password.reset.confirm.form.newPassword2.errors.match',
+      'form.newPassword2.errors.match',
     ),
     path: ['newPassword2'],
   })
@@ -57,7 +58,7 @@ const onSubmit = handleSubmit(async (values) => {
       key: values.key,
     })
     toast.add({
-      title: t('common.password.reset.success'),
+      title: t('password.reset.success'),
       color: 'green',
     })
     emit('passwordReset')
@@ -66,7 +67,7 @@ const onSubmit = handleSubmit(async (values) => {
     if (isAllAuthClientError(error)) {
       if (error.data.data.status === 401) {
         toast.add({
-          title: t('common.password.reset.success'),
+          title: t('password.reset.success'),
           color: 'green',
         })
         return navigateTo(localePath('/account/login'))
@@ -81,7 +82,7 @@ const onSubmit = handleSubmit(async (values) => {
       return
     }
     toast.add({
-      title: t('common.error.default'),
+      title: t('error.default'),
       color: 'red',
     })
   }
@@ -123,7 +124,7 @@ const onSubmit = handleSubmit(async (values) => {
           <div class="grid gap-4">
             <div class="sr-only">
               <label for="email">{{
-                $t('pages.account.password.reset.confirm.form.email.label')
+                t('form.email.label')
               }}</label>
               <input
                 id="email"
@@ -144,7 +145,7 @@ const onSubmit = handleSubmit(async (values) => {
                 "
                 for="newPassword1"
               >{{
-                $t('pages.account.password.reset.confirm.form.newPassword1.label')
+                t('form.newPassword1.label')
               }}</label>
               <FormTextInput
                 id="newPassword1"
@@ -170,7 +171,7 @@ const onSubmit = handleSubmit(async (values) => {
                 "
                 for="newPassword2"
               >{{
-                $t('pages.account.password.reset.confirm.form.newPassword2.label')
+                t('form.newPassword2.label')
               }}</label>
               <FormTextInput
                 id="newPassword2"
@@ -190,7 +191,7 @@ const onSubmit = handleSubmit(async (values) => {
           <UButton
             :aria-busy="isSubmitting"
             :disabled="isSubmitting"
-            :label="$t('pages.account.password.reset.confirm.form.submit')"
+            :label="t('form.submit')"
             :trailing="true"
             class="ml-0 justify-center"
             color="primary"
@@ -203,3 +204,18 @@ const onSubmit = handleSubmit(async (values) => {
     </form>
   </section>
 </template>
+
+<i18n lang="yaml">
+el:
+  form:
+    email:
+      label: Email
+    newPassword1:
+      label: Κωδικός πρόσβασης
+    newPassword2:
+      label: Επιβεβαίωση κωδικού πρόσβασης
+      errors:
+        match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον
+          κωδικό πρόσβασης
+    submit: Επαναφέρετε τον κωδικό πρόσβασης
+</i18n>

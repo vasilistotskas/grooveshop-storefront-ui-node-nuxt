@@ -40,25 +40,29 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const setupSession = async () => {
-    const { loggedIn } = useUserSession()
+    const { loggedIn, clear } = useUserSession()
     if (!loggedIn.value) {
       return
     }
+    console.log('Setting up session...')
     const { getSession } = useAllAuthAuthentication()
-    await callOnce(async () => {
-      const { data } = await useAsyncData(
-        'session',
-        () => getSession(),
-      )
-      if (data.value) {
-        session.value = data.value
-      }
-    })
+    const { data, error } = await useAsyncData(
+      'session',
+      () => getSession(),
+    )
+    console.log('Session data:', data.value)
+    if (error.value) {
+      await clear()
+    }
+    if (data.value) {
+      session.value = data.value
+    }
   }
 
-  const refreshSession = async () => {
+  const refreshSession = async (encrypted_token: string | null = null) => {
+    console.log('Refreshing session...')
     const { getSession } = useAllAuthAuthentication()
-    const data = await getSession()
+    const data = await getSession(encrypted_token)
     if (data) {
       session.value = data
     }

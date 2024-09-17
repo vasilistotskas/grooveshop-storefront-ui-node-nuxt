@@ -17,7 +17,7 @@ async function onSubmit(values: ProviderSignupBody) {
     loading.value = true
     await providerSignup(values)
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('providerSignup')
@@ -30,14 +30,14 @@ async function onSubmit(values: ProviderSignupBody) {
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('common.email.title'),
+      label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
+      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('common.email.title'),
+      placeholder: t('email.title'),
       type: 'email',
     },
   ],
@@ -54,7 +54,7 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :button-label="t('common.submit')"
+        :button-label="t('submit')"
         :schema="formSchema"
         @submit="onSubmit"
       />

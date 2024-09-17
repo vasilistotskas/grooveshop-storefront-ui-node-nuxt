@@ -1,7 +1,9 @@
 import { ZodPagination } from '~/types/pagination'
 import { ZodPayWay, ZodPayWayQuery } from '~/types/pay-way'
 
-export default defineEventHandler(async (event) => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodPayWayQuery.parse)
@@ -14,4 +16,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'PayWayViewSet' })

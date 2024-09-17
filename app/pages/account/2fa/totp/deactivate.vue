@@ -2,7 +2,7 @@
 const emit = defineEmits(['deactivateTotp'])
 
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
 
@@ -24,7 +24,7 @@ async function onSubmit() {
     loading.value = true
     await deactivateTotp()
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('deactivateTotp')
@@ -53,7 +53,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.2fa.totp.deactivate.title')"
+      :text="t('title')"
       class="text-center capitalize"
     />
     <p
@@ -63,14 +63,14 @@ definePageMeta({
         dark:text-primary-50
       "
     >
-      {{ $t('pages.account.2fa.totp.deactivate.description') }}
+      {{ t('description') }}
     </p>
     <PageBody>
       <div
         class="grid items-center justify-center justify-items-center"
       >
         <UButton
-          :label="$t('common.deactivate')"
+          :label="$t('deactivate')"
           color="red"
           size="lg"
           @click="onSubmit"
@@ -79,3 +79,10 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Απενεργοποίηση εφαρμογής ελέγχου ταυτότητας (TOTP)
+  description: Είσαι σίγουρος ότι θέλεις να απενεργοποιήσεις την εφαρμογή
+    ελέγχου ταυτότητας;
+</i18n>

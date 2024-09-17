@@ -74,7 +74,7 @@ const expand = computed(() => 'true')
 const expandFields = computed(() => 'user,post')
 
 const toast = useToast()
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const { user, loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedComments } = userStore
@@ -95,11 +95,11 @@ const replyCommentFormSchema: DynamicFormSchema = {
       id: `content-${comment.value.id}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string({ required_error: t('common.validation.required') }).max(1000),
+      rules: z.string({ required_error: t('validation.required') }).max(1000),
       autocomplete: 'on',
       readonly: false,
       required: true,
-      placeholder: t('components.blog.post.comments.reply.placeholder'),
+      placeholder: t('reply.placeholder'),
       type: 'text',
     },
   ],
@@ -158,7 +158,7 @@ async function onReplySubmit({ content }: { content: string }) {
     },
     onResponseError() {
       toast.add({
-        title: t('components.blog.post.comments.add.error'),
+        title: t('add.error'),
         color: 'red',
       })
     },
@@ -200,7 +200,7 @@ const commentCardClass = computed(() => {
 const onReplyButtonClick = async () => {
   if (!loggedIn.value) {
     toast.add({
-      title: t('components.blog.post.comments.reply.login'),
+      title: t('reply.login'),
       color: 'red',
     })
     return
@@ -391,8 +391,8 @@ watch(
             :aria-expanded="showReplies"
             :aria-label="
               showReplies
-                ? $t('common.hide.replies')
-                : $t('common.more.replies', totalReplies)
+                ? $t('hide.replies')
+                : $t('more.replies', totalReplies)
             "
             :color="'primary'"
             :disabled="pending"
@@ -403,8 +403,8 @@ watch(
             "
             :title="
               showReplies
-                ? $t('common.hide.replies')
-                : $t('common.more.replies', totalReplies)
+                ? $t('hide.replies')
+                : $t('more.replies', totalReplies)
             "
             :ui="{
               size: {
@@ -426,7 +426,7 @@ watch(
           <span class="flex flex-col">
             <span class="max-h-2xl flex items-center">
               <ButtonBlogCommentLike
-                :aria-label="$t('common.like')"
+                :aria-label="$t('like')"
                 :blog-comment-id="comment.id"
                 :likes-count="likes"
                 size="sm"
@@ -435,11 +435,11 @@ watch(
               />
               <UButton
                 v-if="maxDepth > depth"
-                :aria-label="$t('common.reply')"
+                :aria-label="$t('reply')"
                 :color="'primary'"
                 :icon="'i-heroicons-chat-bubble-left-ellipsis'"
-                :label="$t('common.reply')"
-                :title="$t('common.reply')"
+                :label="$t('reply')"
+                :title="$t('reply')"
                 size="sm"
                 variant="solid"
                 @click="onReplyButtonClick"
@@ -528,8 +528,8 @@ watch(
           <UButton
             :aria-label="
               showReplies
-                ? $t('common.hide.replies')
-                : $t('common.more.replies', totalReplies)
+                ? $t('hide.replies')
+                : $t('more.replies', totalReplies)
             "
             :color="'primary'"
             :disabled="pending"
@@ -540,13 +540,13 @@ watch(
             "
             :label="
               showReplies
-                ? $t('common.hide.replies')
-                : $t('common.more.replies', totalReplies)
+                ? $t('hide.replies')
+                : $t('more.replies', totalReplies)
             "
             :title="
               showReplies
-                ? $t('common.hide.replies')
-                : $t('common.more.replies', totalReplies)
+                ? $t('hide.replies')
+                : $t('more.replies', totalReplies)
             "
             :ui="{
               size: {
@@ -564,9 +564,8 @@ watch(
     <LazyDynamicForm
       v-if="showReplyForm"
       :id="'reply-comment-form-' + comment.id"
-      :button-label="t('common.submit')"
+      :button-label="t('submit')"
       :schema="replyCommentFormSchema"
-      :turnstile="false"
       :submit-button-ui="{
         type: 'submit',
         size: '2xs',
@@ -600,3 +599,12 @@ watch(
   }
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  add:
+    error: Σφάλμα δημιουργίας σχολίου
+  reply:
+    login: Συνδέσου για να απαντήσεις
+    placeholder: Γράψε κάτι...
+</i18n>

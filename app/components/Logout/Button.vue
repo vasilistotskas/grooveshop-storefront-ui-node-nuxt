@@ -42,11 +42,11 @@ const onClickLogout = async () => {
 
 <template>
   <UButton
-    :aria-label="$t('common.logout')"
+    :aria-label="$t('logout')"
     :color="color"
-    :label="$t('common.logout')"
+    :label="$t('logout')"
     :size="size"
-    :title="$t('common.logout')"
+    :title="$t('logout')"
     :ui="{
       font: 'font-semibold',
       size: {

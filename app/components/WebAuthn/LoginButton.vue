@@ -35,7 +35,7 @@ async function onSubmit() {
   }
   catch {
     toast.add({
-      title: t('common.error.default'),
+      title: t('error.default'),
       color: 'red',
     })
   }
@@ -60,8 +60,8 @@ const submitButtonDisabled = computed(() => {
 
 const submitButtonLabel = computed(() => {
   return !loading.value
-    ? t('common.webauthn.login')
-    : t('common.loading')
+    ? t('webauthn.login')
+    : t('loading')
 })
 </script>
 

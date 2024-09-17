@@ -46,7 +46,6 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/device',
-    '@nuxtjs/turnstile',
     '@nuxtjs/seo',
     '@pinia/nuxt',
     '@vueuse/nuxt',
@@ -159,9 +158,6 @@ export default defineNuxtConfig({
         name: 'Ελληνικά',
         files: [
           'el-GR.json',
-          'components/el-GR.json',
-          'pages/el-GR.json',
-          'routes/el-GR.json',
           'breadcrumb/el-GR.json',
         ],
         language: 'el-GR',
@@ -181,8 +177,10 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     buildDate: new Date().toISOString(),
-    secretKey: process.env.NUXT_APP_SECRET_KEY,
+    secretKey: process.env.NUXT_SECRET_KEY,
     djangoUrl: process.env.NUXT_DJANGO_URL,
+    cacheBase: process.env.NUXT_CACHE_BASE,
+    cacheMaxAge: process.env.NUXT_CACHE_MAX_AGE,
 
     // Auth
     auth: {
@@ -266,32 +264,32 @@ export default defineNuxtConfig({
       necessary: [
         {
           id: 'n',
-          name: 'components.cookie.cookies.necessary',
-          description: 'components.cookie.cookies.necessary_description',
+          name: 'cookies.necessary',
+          description: 'cookies.necessary_description',
           targetCookieIds: ['NEC'],
         },
       ],
       optional: [
         {
           id: 'an',
-          name: 'components.cookie.cookies.analytics',
-          description: 'components.cookie.cookies.analytics_description',
+          name: 'cookies.analytics',
+          description: 'cookies.analytics_description',
           targetCookieIds: ['_ga', '_gat', '_gid'],
         },
         {
           id: 'ad',
-          name: 'components.cookie.cookies.advertising',
-          description: 'components.cookie.cookies.advertising_description',
+          name: 'cookies.advertising',
+          description: 'cookies.advertising_description',
           links: {
             ['/privacy-policy']:
-              'components.cookie.cookies.optional_links.privacy_policy',
+              'cookies.optional_links.privacy_policy',
           },
           targetCookieIds: ['_fbp', 'fr', 'tr'],
         },
         {
           id: 'fu',
-          name: 'components.cookie.cookies.functional',
-          description: 'components.cookie.cookies.functional_description',
+          name: 'cookies.functional',
+          description: 'cookies.functional_description',
           targetCookieIds: ['_fbc', 'fbsr_'],
         },
       ],
@@ -336,6 +334,15 @@ export default defineNuxtConfig({
     },
     experimental: {
       asyncContext: true,
+    },
+    storage: {
+      redis: {
+        driver: 'redis',
+        port: process.env.NUXT_REDIS_PORT,
+        host: process.env.NUXT_REDIS_HOST,
+        username: '',
+        password: '',
+      },
     },
   },
   eslint: {
@@ -510,13 +517,7 @@ export default defineNuxtConfig({
     disallow: [],
   },
   veeValidate: {
-    autoImports: true,
-    componentNames: {
-      Form: 'VeeForm',
-      Field: 'VeeField',
-      FieldArray: 'VeeFieldArray',
-      ErrorMessage: 'VeeErrorMessage',
-    },
+    typedSchemaPackage: 'zod',
   },
   ogImage: {
     defaults: {
@@ -526,9 +527,6 @@ export default defineNuxtConfig({
   colorMode: {
     preference: 'system',
     fallback: 'light',
-  },
-  turnstile: {
-    siteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY,
   },
   icon: {
     serverBundle: 'remote',

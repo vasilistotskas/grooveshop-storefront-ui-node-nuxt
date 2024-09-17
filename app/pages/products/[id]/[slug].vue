@@ -8,7 +8,7 @@ import { capitalize } from '~/utils/str'
 const { user, loggedIn } = useUserSession()
 
 const route = useRoute()
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
@@ -43,7 +43,7 @@ const { data: tags, status } = await useLazyFetch(
 if (!product.value) {
   throw createError({
     statusCode: 404,
-    message: t('common.error.page.not.found'),
+    message: t('error.page.not.found'),
     fatal: true,
   })
 }
@@ -108,7 +108,7 @@ const incrementQuantity = () => {
   }
   else {
     toast.add({
-      title: t('pages.product.max_quantity_reached'),
+      title: t('max_quantity_reached'),
       color: 'red',
     })
   }
@@ -141,7 +141,7 @@ const openModal = () => {
   }
   else {
     toast.add({
-      title: t('components.product.review.must_be_logged_in'),
+      title: t('must_be_logged_in'),
       color: 'red',
     })
   }
@@ -149,9 +149,9 @@ const openModal = () => {
 
 const reviewButtonText = computed(() => {
   if (user.value && userProductReview.value) {
-    return t('components.product.review.update_review')
+    return t('update_review')
   }
-  return t('components.product.review.write_review')
+  return t('write_review')
 })
 
 const links = computed(() => [
@@ -184,7 +184,7 @@ watch(selectorQuantity, (newValue) => {
   if (newValue > maxQuantity) {
     selectorQuantity.value = maxQuantity
     toast.add({
-      title: t('pages.product.adjusted_to_stock', {
+      title: t('adjusted_to_stock', {
         stock: maxQuantity,
       }),
       color: 'blue',
@@ -285,7 +285,7 @@ definePageMeta({
                   dark:text-primary-50
                 "
               >
-                <span>{{ $t('pages.product.product_id') }}: </span>
+                <span>{{ t('product_id') }}: </span>
                 <span
                   class="
                     text-indigo-700
@@ -301,7 +301,7 @@ definePageMeta({
                   <UButton
                     v-if="isSupported"
                     :disabled="!isSupported"
-                    :title="$t('common.share')"
+                    :title="$t('share')"
                     class="font-extrabold capitalize"
                     color="primary"
                     icon="i-heroicons-share"
@@ -353,19 +353,17 @@ definePageMeta({
                 />
               </PageSection>
               <div class="flex items-center gap-4">
-                <div>
-                  <div class="bg-primary-50 flex rounded-lg px-3 py-2">
-                    <I18nN
-                      :value="product.finalPrice"
-                      class="text-3xl font-bold text-indigo-600"
-                      format="currency"
-                      tag="span"
-                    />
-                  </div>
+                <div class="bg-primary-50 flex rounded-lg px-3 py-2">
+                  <I18nN
+                    :value="product.finalPrice"
+                    class="text-3xl font-bold text-indigo-600"
+                    format="currency"
+                    tag="span"
+                  />
                 </div>
                 <div class="flex-1">
                   <p class="text-xl font-semibold text-green-500">
-                    {{ $t('pages.product.save') }}
+                    {{ t('save') }}
                     {{ product.priceSavePercent }}%
                   </p>
                   <p
@@ -375,7 +373,7 @@ definePageMeta({
                       dark:text-primary-50
                     "
                   >
-                    {{ $t('pages.product.inclusive_of_taxes') }}
+                    {{ t('inclusive_of_taxes') }}
                   </p>
                 </div>
               </div>
@@ -395,7 +393,7 @@ definePageMeta({
                     class="sr-only"
                     for="counter-input"
                   >{{
-                    $t('pages.product.qty')
+                    t('qty')
                   }}</label>
                   <div
                     class="
@@ -406,8 +404,8 @@ definePageMeta({
                   >
                     <UButton
                       id="decrement-button"
-                      :aria-label="$t('common.decrement')"
-                      :title="$t('common.decrement')"
+                      :aria-label="$t('decrement')"
+                      :title="$t('decrement')"
                       color="primary"
                       icon="i-heroicons-minus"
                       size="xl"
@@ -417,7 +415,7 @@ definePageMeta({
                       id="counter-input"
                       v-model="selectorQuantity"
                       :aria-describedby="'increment-button decrement-button'"
-                      :aria-label="$t('pages.product.qty')"
+                      :aria-label="t('qty')"
                       :max="productStock"
                       :min="1"
                       class="
@@ -434,8 +432,8 @@ definePageMeta({
                     >
                     <UButton
                       id="increment-button"
-                      :aria-label="$t('common.increment')"
-                      :title="$t('common.increment')"
+                      :aria-label="$t('increment')"
+                      :title="$t('increment')"
                       color="primary"
                       icon="i-heroicons-plus"
                       size="xl"
@@ -447,7 +445,7 @@ definePageMeta({
                 <ButtonProductAddToCart
                   :product="product"
                   :quantity="selectorQuantity || 1"
-                  :text="$t('pages.product.add_to_cart')"
+                  :text="$t('add_to_cart')"
                 />
               </div>
             </div>
@@ -463,3 +461,17 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  product_id: Αναγνωριστικό προϊόντος
+  save: Αποθήκευση
+  inclusive_of_taxes: Συμπεριλαμβάνονται όλοι οι φόροι.
+  qty: Ποσ
+  share: Μερίδιο
+  max_quantity_reached: Επιτεύχθηκε η μέγιστη ποσότητα
+  adjusted_to_stock: Προσαρμόστηκε στο απόθεμα %{stock}
+  must_be_logged_in: Πρέπει να συνδεθείς
+  update_review: Ενημέρωση κριτικής
+  write_review: Γράψε κριτική
+</i18n>

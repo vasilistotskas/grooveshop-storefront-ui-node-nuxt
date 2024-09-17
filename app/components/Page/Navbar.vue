@@ -6,7 +6,7 @@ const { getCartTotalItems, pending } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
 
 const { user, loggedIn } = useUserSession()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
@@ -18,7 +18,12 @@ const onClickLogout = async () => {
   if (isRouteProtected(route.path))
     await navigateTo(localePath('/'))
 
-  await deleteSession()
+  try {
+    await deleteSession()
+  }
+  catch {
+    // do nothing
+  }
 
   cleanCartState()
   cleanAccountState()
@@ -36,19 +41,19 @@ const items = computed(() => [
   ],
   [
     {
-      label: t('common.account'),
+      label: t('account'),
       icon: 'i-heroicons-user',
       click: async () => await navigateTo(localePath('/account')),
     },
     {
-      label: t('common.settings'),
+      label: t('settings'),
       icon: 'i-heroicons-cog-8-tooth',
       click: async () => await navigateTo(localePath('/account/settings')),
     },
   ],
   [
     {
-      label: t('common.logout'),
+      label: t('logout'),
       icon: 'i-heroicons-arrow-left-on-rectangle',
       click: async () => await onClickLogout(),
     },
@@ -86,8 +91,8 @@ const items = computed(() => [
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
-                    :text="$t('common.shop')"
-                    :title="$t('common.shop')"
+                    :text="$t('shop')"
+                    :title="$t('shop')"
                     :to="'products'"
                     class="
                       text-lg capitalize
@@ -95,15 +100,15 @@ const items = computed(() => [
                       hover:dark:text-primary-50
                     "
                   >
-                    {{ $t('common.shop') }}
+                    {{ $t('shop') }}
                   </Anchor>
                 </h2>
               </li>
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
-                    :text="$t('common.blog')"
-                    :title="$t('common.blog')"
+                    :text="$t('blog')"
+                    :title="$t('blog')"
                     :to="'blog'"
                     class="
                       text-lg capitalize
@@ -111,7 +116,7 @@ const items = computed(() => [
                       hover:dark:text-primary-50
                     "
                   >
-                    {{ $t('common.blog') }}
+                    {{ $t('blog') }}
                   </Anchor>
                 </h2>
               </li>
@@ -139,7 +144,7 @@ const items = computed(() => [
               "
             >
               <UButton
-                :aria-label="$t('common.favourites')"
+                :aria-label="$t('favourites')"
                 :to="localePath('/account/favourites/posts')"
                 class="p-0"
                 color="black"
@@ -181,8 +186,8 @@ const items = computed(() => [
                     icon="i-heroicons-shopping-cart"
                     size="xl"
                     :color="'primary'"
-                    :aria-label="$t('pages.cart.title')"
-                    :title="$t('pages.cart.title')"
+                    :aria-label="t('cart')"
+                    :title="t('cart')"
                     :to="localePath('cart')"
                   />
                 </UChip>
@@ -208,7 +213,7 @@ const items = computed(() => [
 
                 <template #account="{ item }">
                   <div class="text-left">
-                    <p>{{ $t('common.signed_in_as') }}</p>
+                    <p>{{ $t('signed_in_as') }}</p>
                     <p
                       class="
                         text-primary-900 truncate font-medium
@@ -235,7 +240,7 @@ const items = computed(() => [
               </UDropdown>
               <Anchor
                 v-else
-                :title="loggedIn ? $t('common.account') : $t('common.login')"
+                :title="loggedIn ? $t('account') : $t('login')"
                 :to="route.path === '/account/login' ? '/account/login' : `/account/login?next=${route.path}`"
                 class="
                   flex h-[30px] w-[30px] items-center self-center text-[1.5rem]
@@ -276,3 +281,8 @@ const items = computed(() => [
   }
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  cart: Καλάθι
+</i18n>

@@ -15,7 +15,11 @@ const _envVariables = z.object({
 
   // App
   NUXT_DJANGO_URL: z.string(),
-  NUXT_APP_SECRET_KEY: z.string(),
+  NUXT_SECRET_KEY: z.string(),
+  NUXT_CACHE_BASE: z.string(),
+  NUXT_CACHE_MAX_AGE: z.string(),
+  NUXT_REDIS_HOST: z.string(),
+  NUXT_REDIS_PORT: z.string(),
 
   // Info
   NUXT_PUBLIC_ENVIRONMENT: z.enum(['development', 'production', 'demo']),

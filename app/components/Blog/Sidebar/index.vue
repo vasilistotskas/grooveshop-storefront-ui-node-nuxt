@@ -70,7 +70,7 @@ onMounted(() => {
         "
       >
         <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
-          {{ $t('common.categories') }}
+          {{ $t('categories') }}
           <span
             class="
               text-primary-950 text-sm font-normal
@@ -122,7 +122,7 @@ onMounted(() => {
             dark:text-primary-50
           "
         >
-          {{ $t('common.no_categories_found') }}
+          {{ $t('no_categories_found') }}
         </p>
       </div>
     </div>

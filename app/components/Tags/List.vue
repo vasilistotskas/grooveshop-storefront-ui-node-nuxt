@@ -63,7 +63,7 @@ const filteredTags = computed(() => {
           "
         >
           <UIcon name="i-heroicons-tag" />
-          {{ $t('common.tags') }}
+          {{ $t('tags') }}
         </h3>
       </div>
       <template v-if="search">
@@ -71,7 +71,7 @@ const filteredTags = computed(() => {
           class="sr-only"
           for="search"
         >
-          {{ $t('common.search.title') }}
+          {{ $t('search.title') }}
         </label>
         <UInput
           id="search"
@@ -86,7 +86,7 @@ const filteredTags = computed(() => {
           color="primary"
           :trailing="false"
           variant="outline"
-          :placeholder="`${$t('common.search.title')}...`"
+          :placeholder="`${$t('search.title')}...`"
         />
       </template>
       <UCarousel

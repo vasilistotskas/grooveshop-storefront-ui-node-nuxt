@@ -29,7 +29,7 @@ const props = defineProps({
 const { productId, reviewsAverage, reviewsCount, displayImageOf }
   = toRefs(props)
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { locale } = useI18n()
 
@@ -53,7 +53,7 @@ const {
 const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   {
     value: 'createdAt',
-    label: t('components.product.reviews.ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -85,7 +85,7 @@ watch(
   >
     <div class="grid gap-4">
       <h2 class="text-2xl font-semibold">
-        {{ $t('components.product.reviews.title') }}
+        {{ t('title') }}
       </h2>
       <div
         class="
@@ -123,3 +123,8 @@ watch(
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Κριτικές
+</i18n>

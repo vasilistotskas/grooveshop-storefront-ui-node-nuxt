@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
 const authStore = useAuthStore()
 const { hasCurrentPassword } = storeToRefs(authStore)
 
@@ -16,7 +17,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="hasCurrentPassword ? $t('pages.account.password.change.title') : $t('pages.account.password.set.title')"
+      :text="hasCurrentPassword ? t('change.title') : t('set.title')"
       class="text-center capitalize"
     />
     <PageBody>
@@ -27,10 +28,22 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        {{ hasCurrentPassword ? $t('pages.account.password.change.description') : $t('pages.account.password.set.description')
+        {{ hasCurrentPassword ? t('change.description') : t('set.description')
         }}
       </p>
       <AccountPasswordChangeForm />
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  change:
+    title: Αλλαγή κωδικού πρόσβασης
+    description: Εισήγαγε τον τρέχον κωδικό πρόσβασης, ακολουθούμενο από τον νέο
+      κωδικό πρόσβασης.
+  set:
+    title: Όρισε έναν κωδικό πρόσβασης
+    description: Αυτή τη στιγμή δεν έχεις καθορίσει κωδικό πρόσβασης. Εισήγαγε
+      τον (νέο) κωδικό πρόσβασης.
+</i18n>

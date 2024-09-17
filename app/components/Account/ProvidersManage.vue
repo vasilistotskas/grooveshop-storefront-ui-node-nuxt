@@ -24,7 +24,7 @@ async function disconnect(values: ProvidersDeleteBody) {
     await disconnectThirdPartyProviderAccount(values)
     await refreshProviderAccounts()
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('disconnectThirdPartyProviderAccount')
@@ -36,13 +36,13 @@ async function disconnect(values: ProvidersDeleteBody) {
 
 const columns = [{
   key: 'uid',
-  label: t('common.uid'),
+  label: t('uid'),
 }, {
   key: 'display',
-  label: t('common.display'),
+  label: t('display'),
 }, {
   key: 'name',
-  label: t('common.name'),
+  label: t('name'),
 }, {
   key: 'actions',
 }]
@@ -60,7 +60,7 @@ const rows = computed(() => {
 const actionItems = (row: { uid: string, display: string, name: string }) => {
   const items: DropdownItem[] = []
   items.push({
-    label: t('common.disconnect'),
+    label: t('disconnect'),
     icon: 'i-heroicons-trash-20-solid',
     click: async () => {
       const account = providerAccounts.value?.data.find(item => item.uid === row.uid)
@@ -89,7 +89,7 @@ onReactivated(async () => {
   >
     <UTable
       :columns="columns"
-      :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('common.auth.providers.empty') }"
+      :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('auth.providers.empty') }"
       :rows="rows"
     >
       <template #actions-data="{ row }">

@@ -140,7 +140,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
             hover:bg-transparent
           "
-          :title="$t('common.comments.count', {
+          :title="$t('comments.count', {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
@@ -155,7 +155,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             color="primary"
             square
             variant="ghost"
-            :title="$t('common.share')"
+            :title="$t('share')"
             class="
               text-primary-950 flex-col justify-self-start p-0 font-extrabold
               capitalize

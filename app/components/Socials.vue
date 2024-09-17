@@ -33,7 +33,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('common.instagram') }}</span>
+    <span class="sr-only">{{ $t('instagram') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -51,7 +51,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('common.tiktok') }}</span>
+    <span class="sr-only">{{ $t('tiktok') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -69,7 +69,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('common.reddit') }}</span>
+    <span class="sr-only">{{ $t('reddit') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -87,7 +87,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('common.youtube') }}</span>
+    <span class="sr-only">{{ $t('youtube') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -105,7 +105,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('common.pinterest') }}</span>
+    <span class="sr-only">{{ $t('pinterest') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -123,7 +123,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('common.facebook') }}</span>
+    <span class="sr-only">{{ $t('facebook') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -141,6 +141,6 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('common.discord') }}</span>
+    <span class="sr-only">{{ $t('discord') }}</span>
   </UButton>
 </template>

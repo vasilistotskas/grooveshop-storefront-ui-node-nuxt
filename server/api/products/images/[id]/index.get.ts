@@ -1,6 +1,8 @@
 import { ZodProductImage, ZodProductImageParams, ZodProductImageQuery } from '~/types/product/image'
 
-export default defineEventHandler(async (event) => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(event, ZodProductImageParams.parse)
@@ -17,4 +19,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'ProductImageViewSet' })

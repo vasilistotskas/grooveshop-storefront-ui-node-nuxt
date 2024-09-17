@@ -28,7 +28,7 @@ const props = defineProps({
 const { account } = toRefs(props)
 const { isMobileOrTablet } = useDevice()
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const { fetch } = useUserSession()
 
 const userNameEditing = ref(false)
@@ -46,7 +46,7 @@ const onEditUserName = async () => {
 const changeUserName = async () => {
   if (!username.value) {
     toast.add({
-      title: t('pages.account.username.edit.empty'),
+      title: t('username.empty'),
       color: 'red',
     })
     return
@@ -60,7 +60,7 @@ const changeUserName = async () => {
     })
 
     toast.add({
-      title: response?.detail || t('common.success.title'),
+      title: response?.detail || t('success.title'),
       color: 'green',
     })
 
@@ -69,7 +69,7 @@ const changeUserName = async () => {
   }
   catch (error) {
     toast.add({
-      title: isErrorWithDetail(error) ? error.data.data.detail : t('common.unknown.error'),
+      title: isErrorWithDetail(error) ? error.data.data.detail : t('unknown.error'),
       color: 'red',
     })
   }
@@ -91,9 +91,9 @@ const changeUserName = async () => {
       </div>
       <div class="user-info-name relative flex w-full items-center">
         <UButton
-          :aria-label="userNameEditing ? $t('common.save') : $t('common.edit.title')"
+          :aria-label="userNameEditing ? $t('save') : $t('edit.title')"
           :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
-          :title="userNameEditing ? $t('common.save') : $t('common.edit.title')"
+          :title="userNameEditing ? $t('save') : $t('edit.title')"
           :ui="{
             icon: {
               base: userNameEditing ? 'bg-green-500 dark:bg-green-400' : '',
@@ -138,7 +138,7 @@ const changeUserName = async () => {
           class="user-info-stats-item"
         >
           <Anchor
-            :title="$t('pages.account.orders.title')"
+            :title="t('orders')"
             :to="`/account/orders`"
             class="user-info-stats-item-link"
           >
@@ -153,7 +153,7 @@ const changeUserName = async () => {
                 dark:text-primary-50
               "
             >{{
-              $t('pages.account.orders.title')
+              t('orders')
             }}</span>
 
             <span
@@ -170,7 +170,7 @@ const changeUserName = async () => {
           class="user-info-stats-item"
         >
           <Anchor
-            :title="$t('pages.account.favourites.products.title')"
+            :title="t('favourite.products')"
             :to="`/account/favourites/products`"
             class="user-info-stats-item-link"
           >
@@ -185,7 +185,7 @@ const changeUserName = async () => {
                 dark:text-primary-50
               "
             >{{
-              $t('pages.account.favourites.products.title')
+              t('favourite.products')
             }}</span>
             <span
               class="
@@ -201,7 +201,7 @@ const changeUserName = async () => {
           class="user-info-stats-item"
         >
           <Anchor
-            :title="$t('pages.account.reviews.title')"
+            :title="t('reviews')"
             :to="`/account/reviews`"
             class="user-info-stats-item-link"
           >
@@ -216,7 +216,7 @@ const changeUserName = async () => {
                 dark:text-primary-50
               "
             >{{
-              $t('pages.account.reviews.title')
+              t('reviews')
             }}</span>
             <span
               class="
@@ -318,3 +318,13 @@ const changeUserName = async () => {
   }
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  orders: Παραγγελίες
+  username:
+    empty: Το όνομα χρήστη δεν μπορεί να είναι κενό
+  favourite:
+    products: Αγαπημένα προϊόντα
+  reviews: Κριτικές
+</i18n>

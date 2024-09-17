@@ -28,7 +28,6 @@ export default defineEventHandler(async (event) => {
     if (signedToken) {
       try {
         decodedToken = decryptToken(signedToken)
-        console.log('Decoded token:', decodedToken)
       }
       catch (error) {
         console.error('Error verifying signed token:', error)
@@ -36,23 +35,23 @@ export default defineEventHandler(async (event) => {
     }
 
     const headers = await getAllAuthHeaders()
+    let sessionId: string | undefined
 
     if (decodedToken) {
       const cookieHeader = getRequestHeader(event, 'cookie')
-      const sessionId = cookieHeader?.match(/sessionid=([^;]*)/)?.[1]
-      console.log('Session ID:', sessionId)
+      sessionId = cookieHeader?.match(/sessionid=([^;]*)/)?.[1]
       Object.assign(headers, {
         'Authorization': `Bearer ${decodedToken}`,
         'X-Session-Token': sessionId,
       })
     }
-    console.log('Headers:', headers)
+
     const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/session`, {
       method: 'GET',
       headers,
     })
     const sessionResponse = await parseDataAs(response, ZodSessionResponse)
-    await processAllAuthSession(sessionResponse)
+    await processAllAuthSession(sessionResponse, decodedToken, sessionId)
     return sessionResponse
   }
   catch (error) {

@@ -1,6 +1,8 @@
 import { ZodBlogPost, ZodBlogPostParams, ZodBlogPostQuery } from '~/types/blog/post'
 
-export default defineEventHandler(async (event) => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(event, ZodBlogPostParams.parse)
@@ -17,4 +19,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'BlogPostViewSet' })

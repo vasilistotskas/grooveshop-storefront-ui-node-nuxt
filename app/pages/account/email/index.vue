@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'user',
 })
@@ -13,10 +15,15 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.email.title')" class="text-center"
+      :text="t('title')" class="text-center"
     />
     <PageBody>
       <AccountEmailManage />
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Αλλαγή email
+</i18n>

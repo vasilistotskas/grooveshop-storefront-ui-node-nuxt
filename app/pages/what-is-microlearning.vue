@@ -7,7 +7,7 @@ definePageMeta({
 <template>
   <PageWrapper class="container flex flex-col">
     <PageTitle
-      :text="$t('common.microlearning.what')"
+      :text="$t('microlearning.what')"
       class="mb-4 text-center capitalize"
     />
     <PageBody>

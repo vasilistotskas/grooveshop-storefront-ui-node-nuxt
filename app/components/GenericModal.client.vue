@@ -202,6 +202,7 @@ const {
 
 const isModalCurrentlyOpen = ref(shouldModalStartInOpenState.value)
 const getMyId = computed(() => `modal-${uniqueId.value}`)
+const { t } = useI18n({ useScope: 'local' })
 
 const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
@@ -278,7 +279,7 @@ onMounted(() => {
         aria-label="Close"
         @click="closeModal"
       >
-        <span class="sr-only">{{ $t('components.generic_modal.close') }}</span>
+        <span class="sr-only">{{ t('close') }}</span>
         <UIcon name="i-heroicons-x-circle" />
       </button>
       <template v-if="isForm">
@@ -313,7 +314,7 @@ onMounted(() => {
             @click="closeModal"
           >
             <span class="sr-only">{{
-              $t('components.generic_modal.close')
+              t('close')
             }}</span>
             <UIcon name="i-heroicons-x-circle" />
           </button>
@@ -348,7 +349,7 @@ onMounted(() => {
             @click="closeModal"
           >
             <span class="sr-only">{{
-              $t('components.generic_modal.close')
+              t('close')
             }}</span>
             <UIcon name="i-heroicons-x-circle" />
           </button>
@@ -476,3 +477,8 @@ $transitional-profile-1: all 0.2s ease-out;
   }
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  close: Κλείσιμο
+</i18n>

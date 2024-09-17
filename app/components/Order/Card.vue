@@ -17,7 +17,7 @@ const props = defineProps({
 
 const { order, maxItems } = toRefs(props)
 
-const { locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 const { statusClass } = useOrder()
 const localePath = useLocalePath()
@@ -48,28 +48,15 @@ const localePath = useLocalePath()
         class="grid"
       >
         <span
-          v-if="order.items.length - maxItems === 1"
           class="
             text-primary-950 text-xs
 
             dark:text-primary-50
           "
         >
-          {{ $t('components.order.card.extra_one') }}
-        </span>
-        <span
-          v-else
-          class="
-            text-primary-950 text-xs
-
-            dark:text-primary-50
-          "
-        >
-          {{
-            $t('components.order.card.extra', {
-              count: order.items.length - maxItems,
-            })
-          }}
+          {{ t('extra', {
+            count: order.items.length - maxItems,
+          }) }}
         </span>
       </div>
     </div>
@@ -99,7 +86,7 @@ const localePath = useLocalePath()
             dark:text-primary-50
           "
         >{{
-          $t('components.order.card.id')
+          t('id')
         }}</span>
         <span class="font-semibold">{{ order.id }}</span>
       </div>
@@ -112,7 +99,7 @@ const localePath = useLocalePath()
             dark:text-primary-50
           "
         >{{
-          $t('components.order.card.address')
+          t('address')
         }}</span>
         <span>{{ contentShorten(order.fullAddress, 0, 45) }}</span>
       </div>
@@ -125,7 +112,7 @@ const localePath = useLocalePath()
             dark:text-primary-50
           "
         >{{
-          $t('components.order.card.pay_way')
+          t('pay_way')
         }}</span>
         <span>{{ extractTranslated(order.payWay, 'name', locale) }}</span>
       </div>
@@ -138,7 +125,7 @@ const localePath = useLocalePath()
             dark:text-primary-50
           "
         >{{
-          $t('components.order.card.total_price')
+          t('total_price')
         }}</span>
         <I18nN
           :value="order.paidAmount"
@@ -156,7 +143,7 @@ const localePath = useLocalePath()
             dark:text-primary-50
           "
         >{{
-          $t('components.order.card.created_at')
+          t('ordering.created_at')
         }}</span>
         <NuxtTime :datetime="order.createdAt" />
       </div>
@@ -165,7 +152,7 @@ const localePath = useLocalePath()
     <div class="order-card-footer grid gap-4">
       <div class="order-card-footer-item">
         <UButton
-          :label="$t('components.order.card.actions.details')"
+          :label="t('actions.details')"
           :to="localePath(`/account/orders/${order.id}`)"
           class="
             py-1.25 w-full text-sm
@@ -180,3 +167,14 @@ const localePath = useLocalePath()
     </div>
   </li>
 </template>
+
+<i18n lang="yaml">
+el:
+  extra: Κανένα προϊόν | 1 προϊόν | %{count} ακόμη προϊόντα
+  id: ID
+  address: Διεύθυνση
+  pay_way: Τρόπος πληρωμής
+  total_price: Συνολικό ποσό
+  actions:
+    details: Λεπτομέρειες
+</i18n>

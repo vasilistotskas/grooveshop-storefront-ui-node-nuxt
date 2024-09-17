@@ -44,7 +44,7 @@ const {
   changeAvatar,
 } = toRefs(props)
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { fetch } = useUserSession()
 
@@ -66,14 +66,14 @@ const uploadImage = async (event: Event) => {
   if (!file) {
     loading.value = false
     return toast.add({
-      title: t('components.user.avatar.no_file_selected'),
+      title: t('no_file_selected'),
       color: 'red',
     })
   }
   if (!fileExtensionAllowed) {
     loading.value = false
     return toast.add({
-      title: t('components.user.avatar.file_extension_not_allowed'),
+      title: t('file_extension_not_allowed'),
       color: 'red',
     })
   }
@@ -95,14 +95,14 @@ const uploadImage = async (event: Event) => {
         return
       }
       toast.add({
-        title: t('components.user.avatar.image.updated'),
+        title: t('image.updated'),
         color: 'green',
       })
       await fetch()
     },
     onResponseError() {
       toast.add({
-        title: t('components.user.avatar.image.upload.error'),
+        title: t('image.upload.error'),
         color: 'red',
       })
     },
@@ -153,7 +153,7 @@ const uploadImage = async (event: Event) => {
 
       <form
         v-if="changeAvatar"
-        :title="$t('components.user.avatar.change')"
+        :title="t('change')"
         class="user-avatar-change absolute inset-0 z-10"
         enctype="multipart/form-data"
         name="uploadImageForm"
@@ -207,7 +207,7 @@ const uploadImage = async (event: Event) => {
               />
             </g>
           </svg>
-          <span class="sr-only">{{ $t('components.user.avatar.change') }}</span>
+          <span class="sr-only">{{ t('change') }}</span>
         </label>
         <input
           id="selfie"
@@ -223,7 +223,7 @@ const uploadImage = async (event: Event) => {
           class="sr-only"
           type="submit"
         >
-          {{ $t('common.upload') }}
+          {{ t('upload') }}
         </button>
       </form>
     </div>
@@ -290,3 +290,14 @@ const uploadImage = async (event: Event) => {
   height: v-bind(imgHeight);
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  change: Αλλαγή
+  no_file_selected: Κανένα επιλεγμένο αρχείο
+  file_extension_not_allowed: Δεν επιτρέπεται η επέκταση αρχείου
+  image:
+    updated: Η εικόνα ενημερώθηκε
+    upload:
+      error: Σφάλμα ανέβασμα εικόνας
+</i18n>

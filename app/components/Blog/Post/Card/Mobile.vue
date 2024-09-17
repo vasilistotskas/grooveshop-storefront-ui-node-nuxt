@@ -8,8 +8,8 @@ import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 600 },
-  imgHeight: { type: Number, required: false, default: 750 },
+  imgWidth: { type: Number, required: false, default: 540 },
+  imgHeight: { type: Number, required: false, default: 670 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -53,7 +53,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 <template>
   <li
     class="
-      bg-primary-100 container grid w-full gap-4 rounded-lg !p-0
+      min-h-60 bg-primary-100 container grid w-full gap-4 rounded-lg !p-0
 
       dark:bg-primary-900 dark:text-primary-950
     "
@@ -76,9 +76,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :position="'attention'"
           :background="'transparent'"
           :trim-threshold="5"
-          sizes="`xs:600px sm:600px md:360px lg:600px xl:600px`"
           :alt="`Image - ${alt}`"
-          densities="x1"
         />
         <div class="absolute bottom-12 right-0 grid w-full">
           <span class="grid justify-center justify-items-start">
@@ -131,7 +129,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
             hover:bg-transparent
           "
-          :title="$t('common.comments.count', {
+          :title="$t('comments.count', {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
@@ -152,7 +150,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             color="primary"
             square
             variant="ghost"
-            :title="$t('common.share')"
+            :title="$t('share')"
             class="
               flex-col justify-self-start p-0 font-extrabold capitalize
               text-primary-50

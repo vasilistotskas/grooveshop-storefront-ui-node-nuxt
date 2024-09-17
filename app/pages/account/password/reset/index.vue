@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'default',
   middleware: 'guest',
@@ -14,7 +16,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.password.reset.title')"
+      :text="t('title')"
       class="text-center capitalize"
     />
     <PageBody>
@@ -25,9 +27,17 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        {{ $t('pages.account.password.reset.description') }}
+        {{ t('description') }}
       </p>
       <AccountPasswordResetForm />
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επαναφορά κωδικού πρόσβασης
+  description: |-
+    Εισήγαγε την επαληθευμένη διεύθυνση email του λογαριασμού χρήστη σου
+      για να λάβεις έναν σύνδεσμο επαναφοράς κωδικού πρόσβασης.
+</i18n>

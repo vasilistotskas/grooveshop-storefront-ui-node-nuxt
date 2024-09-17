@@ -5,7 +5,7 @@ const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
 const { hasProviders, status } = storeToRefs(authStore)
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
 
@@ -13,20 +13,20 @@ const loading = ref(false)
 
 const ZodSignup = z
   .object({
-    email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
-    password: z.string({ required_error: t('common.validation.required') }).min(8, {
-      message: t('pages.account.signup.form.password1.validation.min', {
+    email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+    password: z.string({ required_error: t('validation.required') }).min(8, {
+      message: t('validation.min', {
         min: 8,
       }),
     }),
-    password2: z.string({ required_error: t('common.validation.required') }).min(8, {
-      message: t('pages.account.signup.form.password2.validation.min', {
+    password2: z.string({ required_error: t('validation.required') }).min(8, {
+      message: t('validation.min', {
         min: 8,
       }),
     }),
   })
   .refine(data => data.password === data.password2, {
-    message: t('pages.account.signup.form.password2.validation.match'),
+    message: t('password2.validation.match'),
     path: ['password2'],
   })
 
@@ -58,7 +58,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     await signup({ email: values.email, password: values.password })
     toast.add({
-      title: t('common.auth.signup.success'),
+      title: t('auth.signup.success'),
       color: 'green',
     })
   }
@@ -72,12 +72,12 @@ const onSubmit = handleSubmit(async (values) => {
 
 const submitButtonLabel = computed(() => {
   if (submitCount.value > 5) {
-    return t('common.validation.tooManyAttempts')
+    return t('validation.too_many_attempts')
   }
 
   return !loading.value
-    ? t('pages.account.signup.form.submit')
-    : t('common.loading')
+    ? t('submit')
+    : t('loading')
 })
 
 const submitButtonDisabled = computed(() => {
@@ -119,7 +119,7 @@ const submitButtonDisabled = computed(() => {
               "
               for="email"
             >{{
-              $t('pages.account.signup.form.email.label')
+              t('email.label')
             }}</label>
             <FormTextInput
               id="email"
@@ -143,7 +143,7 @@ const submitButtonDisabled = computed(() => {
                 dark:text-primary-50
               "
               for="password"
-            >{{ $t('pages.account.signup.form.password1.label') }}</label>
+            >{{ t('password1.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password"
@@ -155,7 +155,7 @@ const submitButtonDisabled = computed(() => {
                 name="password"
               />
               <UButton
-                :aria-label="$t('pages.account.signup.form.password1.show')"
+                :aria-label="t('password1.show')"
                 :icon="
                   showPassword1 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
@@ -180,7 +180,7 @@ const submitButtonDisabled = computed(() => {
                 dark:text-primary-50
               "
               for="password2"
-            >{{ $t('pages.account.signup.form.password2.label') }}</label>
+            >{{ t('password2.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password2"
@@ -192,7 +192,7 @@ const submitButtonDisabled = computed(() => {
                 name="password2"
               />
               <UButton
-                :aria-label="$t('pages.account.signup.form.password2.show')"
+                :aria-label="t('password2.show')"
                 :icon="
                   showPassword2 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
@@ -229,10 +229,10 @@ const submitButtonDisabled = computed(() => {
                 dark:text-primary-50
               "
             >{{
-              $t('pages.account.signup.form.already_have_account')
+              t('already_have_account')
             }}</span>
             <UButton
-              :label="$t('pages.account.login.title')"
+              :label="t('login')"
               :to="localePath('/account/login')"
               color="opposite"
               size="lg"
@@ -262,7 +262,7 @@ const submitButtonDisabled = computed(() => {
                   dark:text-neutral-200
                 "
               >
-                {{ $t('common.or.title') }}
+                {{ $t('or.title') }}
               </p>
             </div>
             <div class="grid items-center justify-center gap-4">
@@ -273,7 +273,7 @@ const submitButtonDisabled = computed(() => {
                   dark:text-primary-50
                 "
               >
-                {{ $t('pages.account.signup.form.social.title') }}
+                {{ t('social.title') }}
               </p>
               <div class="flex items-center justify-center gap-4">
                 <AccountProviderList />
@@ -296,3 +296,30 @@ const submitButtonDisabled = computed(() => {
     </form>
   </section>
 </template>
+
+<i18n lang="yaml">
+el:
+  login: Σύνδεση
+  email:
+    label: Email
+    validation:
+      email: Το email πρέπει να είναι έγκυρη διεύθυνση email
+  password1:
+    label: Κωδικός πρόσβασης
+    show: Δείξε τον κωδικό
+    validation:
+      min: Ο κωδικός πρόσβασης πρέπει να αποτελείται από τουλάχιστον %{min}
+        χαρακτήρες
+  password2:
+    label: Επιβεβαίωση κωδικού πρόσβασης
+    show: Δείξε τον κωδικό
+    validation:
+      min: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να αποτελείται από τουλάχιστον
+        %{min} χαρακτήρες
+      match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον κωδικό
+        πρόσβασης
+  submit: Εγγραφή
+  already_have_account: Έχεις ήδη λογαριασμό?
+  social:
+    title: Ή εγγράψου μέσω ενός τρίτου παρόχου
+</i18n>

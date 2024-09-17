@@ -1,7 +1,9 @@
 import { ZodBlogCategory, ZodBlogCategoryQuery } from '~/types/blog/category'
 import { ZodPagination } from '~/types/pagination'
 
-export default defineEventHandler(async (event) => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodBlogCategoryQuery.parse)
@@ -14,4 +16,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'BlogCategoryViewSet' })

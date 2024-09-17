@@ -7,7 +7,7 @@ const { reset, addToSearchHistory } = searchStore
 
 const route = useRoute()
 const router = useRouter()
-const { locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const { isMobileOrTablet } = useDevice()
 
 const query = ref(Array.isArray(route.query.query) ? (route.query.query[0] ?? '') : (route.query.query ?? ''))
@@ -161,6 +161,10 @@ await preloadComponents('SearchAutoComplete')
 
 <template>
   <PageWrapper class="container flex flex-col gap-10 p-0">
+    <PageTitle
+      :text="t('title')"
+      class="hidden text-center"
+    />
     <PageBody>
       <div class="mt-10 grid">
         <div
@@ -195,7 +199,7 @@ await preloadComponents('SearchAutoComplete')
                 md:w-auto md:pr-8
               "
             >
-              <span class="sr-only">{{ $t('pages.search.back_to_home') }}</span>
+              <span class="sr-only">{{ t('back_to_home') }}</span>
               <UIcon name="i-heroicons-arrow-left" />
             </Anchor>
             <UIcon
@@ -208,12 +212,12 @@ await preloadComponents('SearchAutoComplete')
             <label
               class="sr-only"
               for="search"
-            >{{ $t('pages.search.placeholder') }}</label>
+            >{{ t('placeholder') }}</label>
             <UInput
               id="search"
               v-model="currentSearch"
               v-focus
-              :placeholder="$t('pages.search.placeholder')"
+              :placeholder="t('placeholder')"
               class="w-full bg-transparent text-xl outline-none"
               type="text"
               variant="none"
@@ -225,7 +229,7 @@ await preloadComponents('SearchAutoComplete')
         <div class="grid gap-4">
           <PageTitle class="text-lg">
             <span :class="{ 'opacity-0': !query }">
-              <span>{{ $t('pages.search.results') }}:</span>
+              <span>{{ t('results') }}:</span>
               <span
                 v-if="query"
                 class="font-bold"
@@ -244,24 +248,24 @@ await preloadComponents('SearchAutoComplete')
               }"
               :first-button="{
                 icon: 'i-heroicons-arrow-long-left-20-solid',
-                label: !isMobileOrTablet ? $t('common.first') : undefined,
+                label: !isMobileOrTablet ? $t('first') : undefined,
                 color: 'primary',
               }"
               :last-button="{
                 icon: 'i-heroicons-arrow-long-right-20-solid',
                 trailing: true,
-                label: !isMobileOrTablet ? $t('common.last') : undefined,
+                label: !isMobileOrTablet ? $t('last') : undefined,
                 color: 'primary',
               }"
               :prev-button="{
                 icon: 'i-heroicons-arrow-small-left-20-solid',
-                label: !isMobileOrTablet ? $t('common.prev') : undefined,
+                label: !isMobileOrTablet ? $t('prev') : undefined,
                 color: 'primary',
               }"
               :next-button="{
                 icon: 'i-heroicons-arrow-small-right-20-solid',
                 trailing: true,
-                label: !isMobileOrTablet ? $t('common.next') : undefined,
+                label: !isMobileOrTablet ? $t('next') : undefined,
                 color: 'primary',
               }"
               :total="total"
@@ -290,3 +294,11 @@ await preloadComponents('SearchAutoComplete')
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Αναζήτηση
+  placeholder: Αναζήτηση...
+  results: Αποτέλεσμα αναζήτησης για
+  back_to_home: Πίσω στην Αρχική
+</i18n>

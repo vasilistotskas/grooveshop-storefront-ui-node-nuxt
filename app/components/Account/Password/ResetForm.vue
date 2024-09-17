@@ -9,7 +9,7 @@ const emit = defineEmits(['passwordRequest'])
 
 const { passwordRequest } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 
 const loading = ref(false)
 const form = ref<InstanceType<typeof DynamicForm> | null>(null)
@@ -21,7 +21,7 @@ async function onSubmit(values: PasswordRequestBody) {
       email: values.email,
     })
     toast.add({
-      title: t('common.password.reset.request.success'),
+      title: t('password.reset.request.success'),
       color: 'green',
     })
     emit('passwordRequest')
@@ -43,11 +43,11 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
+      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('common.email.title'),
+      placeholder: t('email.title'),
       type: 'email',
     },
   ],
@@ -58,7 +58,7 @@ const formSchema: DynamicFormSchema = {
   <section class="grid">
     <DynamicForm
       ref="form"
-      :button-label="t('common.reset')"
+      :button-label="t('reset')"
       :loading="loading"
       :schema="formSchema"
       @submit="onSubmit"

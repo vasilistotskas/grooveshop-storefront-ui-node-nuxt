@@ -37,7 +37,7 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -48,7 +48,7 @@ const liked = computed(() => blogCommentLiked(props.blogCommentId))
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
     toast.add({
-      title: t('components.like_button.not_authenticated'),
+      title: t('not_authenticated'),
       color: 'red',
     })
     return
@@ -96,7 +96,7 @@ const toggleFavourite = async () => {
     :color="'primary'"
     square
     :variant="variant"
-    :title="$t('common.like')"
+    :title="$t('like')"
     :label="String(likesCount)"
     :ui="{
       size: {
@@ -113,3 +113,8 @@ const toggleFavourite = async () => {
     @click="toggleFavourite"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  not_authenticated: Πρέπει να είσαι συνδεδεμένος για να κάνεις like
+</i18n>

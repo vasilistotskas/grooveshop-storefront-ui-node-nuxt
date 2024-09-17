@@ -1,3 +1,7 @@
+<script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+</script>
+
 <template>
   <nav
     class="
@@ -15,8 +19,8 @@
       >
         <Anchor
           :to="`/account/favourites/products`"
-          :aria-label="$t('pages.account.favourites.products.title')"
-          :title="$t('pages.account.favourites.products.title')"
+          :aria-label="t('favourite.products')"
+          :title="t('favourite.products')"
           class="
             block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
           "
@@ -28,7 +32,7 @@
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.favourites.products.title') }}
+            {{ t('favourite.products') }}
           </span>
         </Anchor>
       </li>
@@ -38,8 +42,8 @@
       >
         <Anchor
           :to="`/account/favourites/posts`"
-          :aria-label="$t('pages.account.favourites.posts.title')"
-          :title="$t('pages.account.favourites.posts.title')"
+          :aria-label="t('favourite.posts')"
+          :title="t('favourite.posts')"
           class="
             block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
           "
@@ -51,7 +55,7 @@
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.favourites.posts.title') }}
+            {{ t('favourite.posts') }}
           </span>
         </Anchor>
       </li>
@@ -59,4 +63,9 @@
   </nav>
 </template>
 
-<script setup lang="ts"></script>
+<i18n lang="yaml">
+el:
+  favourite:
+    products: Αγαπημένα Προϊόντα
+    posts: Αγαπημένες Δημοσιεύσεις
+</i18n>

@@ -1,6 +1,8 @@
 import { ZodProductCategory, ZodProductCategoryParams } from '~/types/product/category'
 
-export default defineEventHandler(async (event) => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(
@@ -18,4 +20,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'ProductCategoryViewSet' })

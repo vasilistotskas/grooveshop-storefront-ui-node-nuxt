@@ -23,7 +23,7 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   return headers
 }
 
-export async function processAllAuthSession(response: AllAuthResponse) {
+export async function processAllAuthSession(response: AllAuthResponse, accessToken?: string | null, sessionToken?: string | null) {
   const event = useEvent()
 
   if (response.meta?.session_token) {
@@ -32,15 +32,27 @@ export async function processAllAuthSession(response: AllAuthResponse) {
       sessionToken: response.meta.session_token,
     })
   }
+  else if (sessionToken) {
+    appendResponseHeader(event, 'X-Session-Token', sessionToken)
+    await setUserSession(event, {
+      sessionToken,
+    })
+  }
   if (response.meta?.access_token) {
     appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
     await setUserSession(event, {
       accessToken: response.meta.access_token,
     })
   }
+  else if (accessToken) {
+    appendResponseHeader(event, 'Authorization', `Bearer ${accessToken}`)
+    await setUserSession(event, {
+      accessToken,
+    })
+  }
 
-  if (response.status === 200 && response.meta?.access_token && response.data.user) {
-    await fetchUserData(response)
+  if ((response.status === 200 && response.meta?.access_token && response.data.user) || response.meta?.is_authenticated) {
+    await fetchUserData(response, accessToken)
   }
 }
 
@@ -67,13 +79,18 @@ export async function requireAllAuthAccessToken() {
   return session.accessToken
 }
 
-export async function fetchUserData(response: AllAuthResponse) {
+export async function fetchUserData(response: AllAuthResponse, accessToken?: string | null) {
   const config = useRuntimeConfig()
+  const token = accessToken || response.meta?.access_token
+  let headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  }
+  if (response.meta?.is_authenticated && !token) {
+    headers = await getAllAuthHeaders()
+  }
   const user = await $fetch(`${config.public.apiBaseUrl}/user/account/${response.data.user.id}`, {
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${response.meta?.access_token}`,
-    },
+    headers,
   })
 
   const userResponse = await parseDataAs(user, ZodUserAccount)

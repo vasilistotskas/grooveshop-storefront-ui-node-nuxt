@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import { GlobalEvents } from '~/events'
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const { login } = useAllAuthAuthentication()
 const cartStore = useCartStore()
@@ -13,8 +13,8 @@ const authStore = useAuthStore()
 const { session, status, hasProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
-  email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
-  password: z.string({ required_error: t('common.validation.required') }),
+  email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+  password: z.string({ required_error: t('validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodLogin)
@@ -64,12 +64,12 @@ async function finalizeLogin() {
 
 const submitButtonLabel = computed(() => {
   if (submitCount.value > 5) {
-    return t('common.validation.tooManyAttempts')
+    return t('validation.too_many_attempts')
   }
 
   return !loading.value
-    ? t('pages.account.login.form.submit')
-    : t('common.loading')
+    ? t('submit')
+    : t('loading')
 })
 
 const submitButtonDisabled = computed(() => {
@@ -112,7 +112,7 @@ const submitButtonDisabled = computed(() => {
               "
               for="email"
             >{{
-              $t('pages.account.login.form.email.label')
+              t('email.label')
             }}</label>
             <FormTextInput
               id="email"
@@ -137,7 +137,7 @@ const submitButtonDisabled = computed(() => {
                 dark:text-primary-50
               "
               for="password"
-            >{{ $t('pages.account.login.form.password.label') }}</label>
+            >{{ t('password.label') }}</label>
             <div class="relative grid items-center gap-2">
               <FormTextInput
                 id="password"
@@ -149,7 +149,7 @@ const submitButtonDisabled = computed(() => {
                 name="password"
               />
               <UButton
-                :aria-label="$t('pages.account.login.form.password.toggle')"
+                :aria-label="t('password.toggle')"
                 :icon="
                   showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
@@ -174,7 +174,7 @@ const submitButtonDisabled = computed(() => {
             "
           >
             <UButton
-              :label="$t('pages.account.login.form.use.code')"
+              :label="t('use.code')"
               :to="localePath('/account/login/code')"
               color="opposite"
               size="md"
@@ -182,7 +182,7 @@ const submitButtonDisabled = computed(() => {
               variant="link"
             />
             <UButton
-              :label="$t('pages.account.login.form.forgot.password.reset')"
+              :label="t('forgot.password.reset')"
               :to="localePath('/account/password/reset')"
               color="opposite"
               size="md"
@@ -225,7 +225,7 @@ const submitButtonDisabled = computed(() => {
                   dark:text-neutral-200
                 "
               >
-                {{ $t('common.or.title') }}
+                {{ $t('or.title') }}
               </p>
             </div>
             <WebAuthnLoginButton />
@@ -237,7 +237,7 @@ const submitButtonDisabled = computed(() => {
                   dark:text-primary-50
                 "
               >
-                {{ $t('pages.account.login.form.social.title') }}
+                {{ t('social.title') }}
               </p>
               <div class="flex items-center justify-center gap-4">
                 <AccountProviderList />
@@ -273,11 +273,11 @@ const submitButtonDisabled = computed(() => {
                 dark:text-primary-50
               "
             >{{
-              $t('pages.account.login.form.no.account')
+              t('no.account')
             }}</span>
 
             <UButton
-              :label="$t('common.register')"
+              :label="$t('register')"
               :to="localePath('/account/signup')"
               color="opposite"
               size="md"
@@ -290,3 +290,25 @@ const submitButtonDisabled = computed(() => {
     </form>
   </section>
 </template>
+
+<i18n lang="yaml">
+el:
+  social:
+    title: Ή συνδέσου μέσω ενός τρίτου παρόχου
+  email:
+    label: Email
+    validation:
+      email: Το email πρέπει να είναι έγκυρη διεύθυνση email
+  password:
+    label: Κωδικός πρόσβασης
+    toggle: Δείξε τον κωδικό
+  use:
+    code: Σύνδεση με κωδικό μιας χρήσης
+  forgot:
+    password:
+      reset: Ξέχασες τον κωδικό σου;
+  submit: Σύνδεση
+  or: ή
+  no:
+    account: Δεν έχεις λογαριασμό;
+</i18n>

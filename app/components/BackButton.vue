@@ -10,7 +10,7 @@ const router = useRouter()
     color="primary"
     variant="ghost"
     icon="i-heroicons-arrow-left-circle"
-    :aria-label="$t('common.back')"
+    :aria-label="$t('back')"
     :ui="{
       icon: {
         size: {

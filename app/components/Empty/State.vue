@@ -3,7 +3,7 @@ defineProps({
   title: {
     type: String,
     required: false,
-    default: 'common.empty.title',
+    default: 'Empty',
   },
   description: {
     type: String,
@@ -31,13 +31,13 @@ defineSlots<{
   >
     <slot name="icon" />
     <div class="empty-state-title text-xl font-semibold">
-      {{ $t(title) }}
+      {{ title }}
     </div>
     <div
       v-if="description"
       class="empty-state-description text-sm"
     >
-      {{ $t(description) }}
+      {{ description }}
     </div>
     <slot name="actions" />
   </div>

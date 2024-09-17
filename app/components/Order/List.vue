@@ -19,6 +19,8 @@ defineProps({
     default: true,
   },
 })
+
+const { t } = useI18n({ useScope: 'local' })
 </script>
 
 <template>
@@ -34,7 +36,7 @@ defineProps({
           dark:text-secondary-dark
         "
       >
-        {{ $t('pages.account.orders.total', ordersTotal) }}
+        {{ t('total', ordersTotal) }}
       </span>
     </div>
     <ol
@@ -52,3 +54,8 @@ defineProps({
     </ol>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  total: Χωρίς παραγγελίες | 1 Παραγγελία | %{count} Παραγγελίες
+</i18n>

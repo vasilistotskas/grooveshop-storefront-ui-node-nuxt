@@ -100,7 +100,7 @@ export const handleAllAuthClientError = (error: unknown): void => {
       const flows = getPendingFlows(error.data.data)
       if (!flows) {
         toast.add({
-          title: t('common.auth.error.not_authenticated'),
+          title: t('auth.error.not_authenticated'),
           color: 'red',
         })
         return
@@ -108,14 +108,14 @@ export const handleAllAuthClientError = (error: unknown): void => {
       flows.forEach((flow) => {
         if (flow.id === 'verify_email') {
           toast.add({
-            title: t('common.auth.error.verify_email'),
+            title: t('auth.error.verify_email'),
             color: 'red',
           })
           return
         }
         else if (flow.id === 'mfa_authenticate') {
           toast.add({
-            title: t('common.auth.error.mfa_authenticate'),
+            title: t('auth.error.mfa_authenticate'),
             color: 'red',
           })
           return

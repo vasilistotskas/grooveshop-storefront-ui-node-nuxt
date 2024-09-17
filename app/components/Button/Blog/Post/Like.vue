@@ -37,7 +37,7 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -48,7 +48,7 @@ const liked = computed(() => blogPostLiked(props.blogPostId))
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
     toast.add({
-      title: t('components.like_button.not_authenticated'),
+      title: t('not_authenticated'),
       color: 'red',
     })
     return
@@ -71,7 +71,7 @@ const toggleFavourite = async () => {
         })
         addLikedPost(props.blogPostId)
         toast.add({
-          title: t('components.add_to_favourite_button.added'),
+          title: t('added'),
           color: 'green',
         })
       }
@@ -82,7 +82,7 @@ const toggleFavourite = async () => {
         })
         removeLikedPost(props.blogPostId)
         toast.add({
-          title: t('components.add_to_favourite_button.removed'),
+          title: t('removed'),
           color: 'red',
         })
       }
@@ -98,8 +98,8 @@ const toggleFavourite = async () => {
 
 const buttonAreaLabel = computed(() => {
   return liked.value
-    ? t('components.like_button.liked')
-    : t('components.like_button.like')
+    ? t('liked')
+    : t('like')
 })
 </script>
 
@@ -128,3 +128,12 @@ const buttonAreaLabel = computed(() => {
     @click="toggleFavourite"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  not_authenticated: Πρέπει να είσαι συνδεδεμένος για να κάνεις like
+  liked: Άρεσε
+  like: Like
+  added: Προστέθηκε στα αγαπημένα
+  removed: Αφαιρέθηκε από τα αγαπημένα
+</i18n>

@@ -120,7 +120,7 @@ const loadingPlaceholders = computed(() => {
           :style="{ fontSize: spinnerWithDefaults.fontSize }"
           role="status"
           aria-live="polite"
-          :aria-label="$t('common.loading')"
+          :aria-label="$t('loading')"
         />
       </div>
     </Component>

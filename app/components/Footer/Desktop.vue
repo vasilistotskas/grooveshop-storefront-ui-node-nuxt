@@ -33,7 +33,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('common.about.us') }}
+            {{ $t('about.us') }}
           </span>
           <ul
             class="
@@ -44,8 +44,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('common.about.site')"
-                :title="$t('common.about.site')"
+                :text="$t('about.site')"
+                :title="$t('about.site')"
                 :to="'about'"
                 class="
                   flex-1 text-sm capitalize
@@ -53,13 +53,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.about.site') }}
+                {{ $t('about.site') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('common.vision')"
-                :title="$t('common.vision')"
+                :text="$t('vision')"
+                :title="$t('vision')"
                 :to="'vision'"
                 class="
                   flex-1 text-sm capitalize
@@ -67,7 +67,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.vision') }}
+                {{ $t('vision') }}
               </Anchor>
             </li>
           </ul>
@@ -82,7 +82,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('common.microlearning.title') }}
+            {{ $t('microlearning.title') }}
           </span>
           <ul
             class="
@@ -93,8 +93,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('common.microlearning.what')"
-                :title="$t('common.microlearning.what')"
+                :text="$t('microlearning.what')"
+                :title="$t('microlearning.what')"
                 :to="'what-is-microlearning'"
                 class="
                   flex-1 text-sm capitalize
@@ -102,13 +102,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.microlearning.what') }}
+                {{ $t('microlearning.what') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('common.microlearning.why')"
-                :title="$t('common.microlearning.why')"
+                :text="$t('microlearning.why')"
+                :title="$t('microlearning.why')"
                 :to="'why-microlearning'"
                 class="
                   flex-1 text-sm capitalize
@@ -116,7 +116,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.microlearning.why') }}
+                {{ $t('microlearning.why') }}
               </Anchor>
             </li>
           </ul>
@@ -131,7 +131,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('common.terms_conditions') }}
+            {{ $t('terms_conditions') }}
           </span>
           <ul
             class="
@@ -142,8 +142,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('common.term_of_use')"
-                :title="$t('common.term_of_use')"
+                :text="$t('term_of_use')"
+                :title="$t('term_of_use')"
                 :to="'terms-of-use'"
                 class="
                   flex-1 text-sm capitalize
@@ -151,13 +151,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.term_of_use') }}
+                {{ $t('term_of_use') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('common.privacy_policy')"
-                :title="$t('common.privacy_policy')"
+                :text="$t('privacy_policy')"
+                :title="$t('privacy_policy')"
                 :to="'privacy-policy'"
                 class="
                   flex-1 text-sm capitalize
@@ -165,13 +165,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.privacy_policy') }}
+                {{ $t('privacy_policy') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('common.cookies_policy')"
-                :title="$t('common.cookies_policy')"
+                :text="$t('cookies_policy')"
+                :title="$t('cookies_policy')"
                 :to="'cookies-policy'"
                 class="
                   flex-1 text-sm capitalize
@@ -179,7 +179,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.cookies_policy') }}
+                {{ $t('cookies_policy') }}
               </Anchor>
             </li>
           </ul>
@@ -194,7 +194,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('common.help_center') }}
+            {{ $t('help_center') }}
           </span>
           <ul
             class="
@@ -205,8 +205,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('common.contact_us')"
-                :title="$t('common.contact_us')"
+                :text="$t('contact_us')"
+                :title="$t('contact_us')"
                 :to="'contact'"
                 class="
                   flex-1 text-sm capitalize
@@ -214,7 +214,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('common.contact_us') }}
+                {{ $t('contact_us') }}
               </Anchor>
             </li>
           </ul>
@@ -257,7 +257,7 @@ const packageVersion = pkg.version
               size="lg"
               type="button"
               variant="link"
-            /> {{ $t('common.all_rights_reserved') }}.
+            /> {{ $t('all_rights_reserved') }}.
           </span>
           <div
             class="

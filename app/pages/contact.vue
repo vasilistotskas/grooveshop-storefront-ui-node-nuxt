@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'default',
 })
@@ -7,7 +9,7 @@ definePageMeta({
 <template>
   <PageWrapper class="container flex flex-col">
     <PageTitle
-      :text="$t('pages.contact.title')"
+      :text="t('title')"
       class="mb-4 text-center capitalize"
     />
     <PageBody>
@@ -47,3 +49,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επικοινωνία
+</i18n>

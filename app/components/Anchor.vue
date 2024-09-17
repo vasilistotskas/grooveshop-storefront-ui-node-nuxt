@@ -19,28 +19,36 @@ defineProps({
     default: '',
   },
 })
+
+const attrs = useAttrs()
+const localePath = useLocalePath()
+
 defineSlots<{
   default(props: object): any
 }>()
 </script>
 
 <template>
-  <NuxtLinkLocale
+  <NuxtLink
     v-if="to"
+    v-bind="attrs"
     tag="a"
-    :to="to"
+    :to="localePath(to)"
     :aria-label="text"
     :class="cssClass"
+    :prefetch="false"
   >
     <slot>{{ text }}</slot>
-  </NuxtLinkLocale>
+  </NuxtLink>
   <ULink
     v-else
+    v-bind="attrs"
     :aria-label="text"
     :active-class="[cssClass].join(' ')"
     :inactive-class="[cssClass].join(' ')"
     :href="href"
     :external="true"
+    :prefetch="false"
   >
     <slot>{{ text }}</slot>
   </ULink>

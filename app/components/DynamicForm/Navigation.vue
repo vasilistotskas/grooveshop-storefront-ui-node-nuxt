@@ -9,7 +9,7 @@
       v-if="currentStep > 0"
       icon="i-heroicons-arrow-long-left"
       color="primary"
-      :label="$t('common.previous')"
+      :label="$t('previous')"
       @click="emit('goToPreviousStep')"
     />
 
@@ -18,7 +18,7 @@
       icon="i-heroicons-arrow-long-right"
       :disabled="nextStepButtonDisabled"
       color="primary"
-      :label="$t('common.next')"
+      :label="$t('next')"
       @click="emit('goToNextStep')"
     />
 

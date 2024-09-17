@@ -16,6 +16,8 @@ defineProps({
     default: 10,
   },
 })
+
+const { t } = useI18n({ useScope: 'local' })
 </script>
 
 <template>
@@ -47,8 +49,14 @@ defineProps({
           dark:text-secondary-dark
         "
       >
-        {{ $t('components.product.reviews.summary.reviews', reviewsCount) }}
+        {{ t('reviews.summary', reviewsCount) }}
       </span>
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  reviews:
+    summary: Δεν υπάρχουν Αξιολογήσεις | 1 Αξιολόγηση | {n} Αξιολογήσεις
+</i18n>

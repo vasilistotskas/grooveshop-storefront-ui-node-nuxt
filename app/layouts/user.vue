@@ -33,19 +33,19 @@ const links = computed(() => {
     {
       icon: 'i-heroicons-home',
       to: '/',
-      label: t('common.home'),
+      label: t('home'),
       labelClass: 'sr-only',
     },
     {
       icon: 'i-heroicons-magnifying-glass',
       to: '/search',
-      label: t('common.search.title'),
+      label: t('search.title'),
       labelClass: 'sr-only',
     },
     {
       icon: 'i-heroicons-heart',
       to: '/account/favourites/posts',
-      label: t('common.favourites'),
+      label: t('favourites'),
       labelClass: 'sr-only',
     },
   ] as LinksOption[]
@@ -54,14 +54,14 @@ const links = computed(() => {
     links.push({
       icon: 'i-heroicons-user',
       to: `/account/login?next=${route.path}`,
-      label: t('common.account'),
+      label: t('account'),
       labelClass: 'sr-only',
     })
   }
   else {
     links.push({
       to: '/account',
-      label: t('common.account'),
+      label: t('account'),
       labelClass: 'sr-only',
       avatar: {
         src: avatarImg.value,

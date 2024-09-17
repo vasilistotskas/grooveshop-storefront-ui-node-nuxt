@@ -25,6 +25,7 @@ export default function () {
         'X-Encrypted-Token': encrypted_token,
       })
     }
+
     return $fetch(`${API_BASE_URL}/session`, {
       method: 'GET',
       headers,

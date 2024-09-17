@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { URLs } from '~/types/all-auth'
+import { AuthChangeEvent, type AuthChangeEventType, URLs } from '~/types/all-auth'
 
 const {
   providerToken,
-  getSession,
 } = useAllAuthAuthentication()
+const authStore = useAuthStore()
+const { refreshSession } = authStore
+
 const route = useRoute()
 const localePath = useLocalePath()
 
@@ -19,7 +21,7 @@ const {
   encrypted_token,
 } = route.query
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const authInfo = useAuthInfo()
 
 const url = ref<string>(URLs.LOGIN_URL)
@@ -27,8 +29,8 @@ const error = ref(false)
 const loading = ref(true)
 
 const title = computed(() => {
-  if (loading.value) return t('pages.account.provider.callback.title.loading')
-  if (error.value) return t('pages.account.provider.callback.title.error')
+  if (loading.value) return t('title.loading')
+  if (error.value) return t('title.error')
   if (messages) return messages
   return ''
 })
@@ -36,10 +38,11 @@ const title = computed(() => {
 onMounted(async () => {
   if (encrypted_token) {
     try {
-      await getSession(String(encrypted_token))
+      await refreshSession(String(encrypted_token))
+      const authEvent = useState<AuthChangeEventType>('authEvent')
+      authEvent.value = AuthChangeEvent.LOGGED_IN
     }
-    catch (error) {
-      console.log('==== error 1 ====', error)
+    catch (e) {
       error.value = true
     }
   }
@@ -47,10 +50,10 @@ onMounted(async () => {
   if (authInfo.isAuthenticated) {
     url.value = URLs.LOGIN_REDIRECT_URL
     await navigateTo(localePath(url.value))
+    return
   }
 
   if (apiError) {
-    console.log('==== error 2 ====', apiError)
     error.value = true
   }
 
@@ -67,7 +70,6 @@ onMounted(async () => {
       })
     }
     catch {
-      console.log('==== error 3 ====', error)
       error.value = true
     }
     finally {
@@ -75,9 +77,11 @@ onMounted(async () => {
     }
   }
   else {
-    console.log('==== error 4 ====', error)
-    error.value = true
     loading.value = false
+  }
+
+  if (!encrypted_token && !(provider && access_token && id_token && process)) {
+    error.value = true
   }
 })
 
@@ -96,7 +100,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="title" class="text-center capitalize"
+      :text="String(title)" class="text-center capitalize"
     />
     <div
       v-if="loading" class="
@@ -122,7 +126,7 @@ definePageMeta({
           fill="currentFill"
         />
       </svg>
-      <span class="sr-only">{{ $t('common.loading') }}</span>
+      <span class="sr-only">{{ $t('loading') }}</span>
     </div>
     <div v-if="error" class="grid items-center justify-center gap-4">
       <p
@@ -132,10 +136,10 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        {{ $t('pages.account.provider.callback.description') }}
+        {{ t('description') }}
       </p>
       <UButton
-        :label="$t('common.continue')"
+        :label="$t('continue')"
         :to="localePath(url)"
         class="justify-center"
         color="primary"
@@ -145,3 +149,11 @@ definePageMeta({
     </div>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title:
+    error: Αποτυχία σύνδεσης με τον πάροχο
+    loading: Σύνδεση με τον πάροχο ...
+  description: Κάτι πήγε στραβά.
+</i18n>

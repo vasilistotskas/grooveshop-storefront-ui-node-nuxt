@@ -32,7 +32,7 @@ const { user } = useUserSession()
 const userStore = useUserStore()
 const { getFavouriteByProductId } = userStore
 
-const { locale } = useI18n()
+const { locale, t } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { product } = toRefs(props)
@@ -128,14 +128,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                 <UButton
                   v-if="isSupported && showShareButton"
                   :disabled="!isSupported"
-                  :aria-label="$t('components.product.card.share')"
+                  :aria-label="t('share')"
                   icon="i-heroicons-share"
                   size="lg"
                   color="gray"
                   square
                   variant="ghost"
                   class="font-extrabold capitalize"
-                  :title="$t('common.share')"
+                  :title="t('share')"
                   @click="startShare"
                 />
                 <template #fallback>
@@ -187,7 +187,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                     dark:text-primary-50
                   "
                 >{{
-                  $t('components.product.card.price')
+                  t('price')
                 }}</span><span
                   class="
                     text-primary-950
@@ -211,7 +211,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                     dark:text-primary-50
                   "
                 >{{
-                  $t('components.product.card.vat_percent')
+                  t('vat_percent')
                 }}</span><span
                   class="
                     text-primary-950
@@ -239,7 +239,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                   dark:text-primary-50
                 "
               >
-                {{ $t('components.product.card.total_price') }}
+                {{ t('total_price') }}
               </span>
               <I18nN
                 tag="span"
@@ -259,10 +259,19 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             v-if="showAddToCartButton"
             :product="product"
             :quantity="1"
-            :text="$t('components.product.card.add_to_cart')"
+            :text="t('add_to_cart')"
           />
         </div>
       </div>
     </div>
   </li>
 </template>
+
+<i18n lang="yaml">
+el:
+  price: Τιμή
+  vat_percent: Ποσοστό ΦΠΑ
+  total_price: Συνολικό ποσό
+  share: Share
+  add_to_cart: Προσθήκη στο καλάθι
+</i18n>

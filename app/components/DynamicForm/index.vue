@@ -31,7 +31,6 @@ const props = withDefaults(
     loading?: boolean
     maxSubmitCount?: number
     resetOnSubmit?: boolean
-    turnstileEnable?: boolean
   }>(),
   {
     id: undefined,
@@ -58,7 +57,6 @@ const props = withDefaults(
     loading: false,
     maxSubmitCount: 5,
     resetOnSubmit: false,
-    turnstileEnable: false,
   },
 )
 
@@ -73,13 +71,10 @@ const {
   loading,
   maxSubmitCount,
   resetOnSubmit,
-  turnstileEnable,
 } = toRefs(props)
 
 const finalID = id.value ?? useId()
 const currentStep = ref(0)
-const turnstile = ref()
-const token = ref('')
 const isMultiStep = ref(Array.isArray(schema.value.steps) && schema.value.steps.length > 0)
 const lastStep = ref(schema.value.steps?.length ? schema.value.steps.length - 1 : 0)
 
@@ -201,8 +196,6 @@ const onSubmit = handleSubmit((values, actions) => {
   }
 })
 
-const isDev = computed(() => import.meta.dev)
-
 // Define the form state for Nuxt UI
 const formState = computed(() => {
   return Object.fromEntries(
@@ -214,14 +207,6 @@ const formState = computed(() => {
 const valid = computedAsync(async () => {
   if (submitCount.value >= maxSubmitCount.value || loading.value) {
     return true
-  }
-
-  if (turnstileEnable.value) {
-    if (!isDev.value) {
-      if (!token.value) {
-        return true
-      }
-    }
   }
 
   return await validationSchema
@@ -254,13 +239,6 @@ formFields.value.forEach((field) => {
       }
     },
   )
-})
-
-onReactivated(() => {
-  token.value = ''
-  if (turnstileEnable.value) {
-    turnstile.value?.reset()
-  }
 })
 
 defineExpose({
@@ -383,16 +361,6 @@ defineExpose({
         </UInput>
       </UFormGroup>
     </template>
-
-    <FormTurnstileContainer v-if="turnstileEnable && !isDev">
-      <NuxtTurnstile
-        :key="$colorMode.value"
-        ref="turnstile"
-        v-model="token"
-        :options="{ theme: $colorMode.value === 'light' ? 'light' : 'dark' }"
-        class="turnstile"
-      />
-    </FormTurnstileContainer>
 
     <div
       :class="{ 'flex': true, 'justify-end': buttonsPosition === 'right', 'justify-center': buttonsPosition === 'center', 'justify-start': buttonsPosition === 'left' }"

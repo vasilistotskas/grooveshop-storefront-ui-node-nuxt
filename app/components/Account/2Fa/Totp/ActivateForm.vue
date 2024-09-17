@@ -57,7 +57,7 @@ const onSecretClick = () => {
   if (isSupported.value) {
     copy(totpSecret.value)
     toast.add({
-      title: t('common.copied'),
+      title: t('copied'),
       color: 'green',
     })
   }
@@ -68,7 +68,7 @@ async function onSubmit(values: TotpPostBody) {
     loading.value = true
     await activateTotp(values)
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('activateTotp')
@@ -82,10 +82,10 @@ async function onSubmit(values: TotpPostBody) {
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('common.authenticator_code'),
+      label: t('authenticator_code'),
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }).min(6).max(6),
+      rules: z.string({ required_error: t('validation.required') }).min(6).max(6),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
@@ -106,7 +106,7 @@ const formSchema: DynamicFormSchema = {
   >
     <div class="grid">
       <label class="grid items-center justify-center justify-items-center gap-2">
-        {{ $t('common.authenticator_secret') }}:
+        {{ $t('authenticator_secret') }}:
         <span
           class="
             rounded-md bg-primary-200
@@ -120,12 +120,12 @@ const formSchema: DynamicFormSchema = {
           }"
           :value="totpSecret" class="w-full" readonly type="text" @click="onSecretClick"
         />
-        <span class="text-center">{{ $t('common.authenticator_secret_description') }}</span>
+        <span class="text-center">{{ $t('authenticator_secret_description') }}</span>
       </label>
     </div>
     <section class="grid items-center justify-center justify-items-center">
       <DynamicForm
-        :button-label="t('common.entry')"
+        :button-label="t('entry')"
         :schema="formSchema"
         class="grid"
         @submit="onSubmit"

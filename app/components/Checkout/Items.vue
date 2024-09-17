@@ -15,7 +15,7 @@ const { locale } = useI18n()
           dark:text-primary-50
         "
       >
-        {{ $t('components.checkout.items.title') }}
+        {{ $t('items') }}
       </h3>
     </div>
     <ClientOnly>

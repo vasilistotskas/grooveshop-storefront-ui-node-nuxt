@@ -12,7 +12,7 @@ export const useAccountMenus = () => {
   const menus = shallowRef<IMenuItem[]>([
     {
       type: 'link',
-      text: t('common.favourites'),
+      text: t('favourites'),
       route: {
         name: 'account-favourites-posts',
         path: '/account/favourites/posts',
@@ -23,7 +23,7 @@ export const useAccountMenus = () => {
     },
     {
       type: 'link',
-      text: t('pages.account.settings.title'),
+      text: t('settings'),
       route: { name: 'account-settings', path: '/account/settings' },
       icon: 'i-mdi-cog-outline',
       cssClass:
@@ -36,7 +36,7 @@ export const useAccountMenus = () => {
     menus.value.push(
       {
         type: 'link',
-        text: t('pages.account.addresses.title'),
+        text: t('addresses'),
         route: { name: 'account-addresses', path: '/account/addresses' },
         icon: 'i-fa6-solid-address-book',
         cssClass:
@@ -44,7 +44,7 @@ export const useAccountMenus = () => {
       },
       {
         type: 'link',
-        text: t('pages.account.orders.title'),
+        text: t('orders'),
         route: { name: 'account-orders', path: '/account/orders' },
         icon: 'i-mdi-package-variant-closed',
         cssClass:
@@ -52,7 +52,7 @@ export const useAccountMenus = () => {
       },
       {
         type: 'link',
-        text: t('pages.account.reviews.title'),
+        text: t('reviews'),
         route: { name: 'account-reviews', path: '/account/reviews' },
         icon: 'i-mdi-star-outline',
         cssClass:
@@ -60,7 +60,7 @@ export const useAccountMenus = () => {
       },
       {
         type: 'link',
-        text: t('pages.account.help.title'),
+        text: t('help'),
         route: { name: 'account-help', path: '/account/help' },
         icon: 'i-mdi-help-circle-outline',
         cssClass:

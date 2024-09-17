@@ -16,7 +16,7 @@ const emit = defineEmits<{
 
 const { address } = toRefs(props)
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { contentShorten } = useText()
 const localePath = useLocalePath()
@@ -24,7 +24,7 @@ const localePath = useLocalePath()
 const submit = async () => {
   if (address?.value && address?.value.isMain) {
     toast.add({
-      title: t('components.address.card.delete.cant_delete_main'),
+      title: t('cant_delete_main'),
       color: 'red',
     })
     return
@@ -38,14 +38,14 @@ const submit = async () => {
         return
       }
       toast.add({
-        title: t('components.address.card.delete.success'),
+        title: t('success'),
         color: 'green',
       })
       emit('address-delete', address?.value.id)
     },
     onResponseError() {
       toast.add({
-        title: t('components.address.card.delete.error'),
+        title: t('error'),
         color: 'red',
       })
     },
@@ -170,7 +170,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('common.floor') }}: {{ address.floor }}
+          {{ $t('floor') }}: {{ address.floor }}
         </span>
         <span
           v-if="address.locationType"
@@ -180,7 +180,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('common.location_type') }}: {{ address.locationType }}
+          {{ $t('location_type') }}: {{ address.locationType }}
         </span>
         <span
           v-if="address.phone"
@@ -190,7 +190,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('common.phone') }}: {{ address.phone }}
+          {{ $t('phone') }}: {{ address.phone }}
         </span>
         <span
           v-if="address.mobilePhone"
@@ -200,7 +200,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('common.mobile_phone') }}: {{ address.mobilePhone }}
+          {{ $t('mobile_phone') }}: {{ address.mobilePhone }}
         </span>
         <span
           v-if="address.notes"
@@ -210,9 +210,17 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('common.notes') }}: {{ address.notes }}
+          {{ $t('notes') }}: {{ address.notes }}
         </span>
       </div>
     </div>
   </li>
 </template>
+
+<i18n lang="yaml">
+el:
+  success: Η διεύθυνση διαγράφηκε
+  error: Η διεύθυνση δεν διαγράφηκε
+  cant_delete_main: Δεν μπορείς να διαγράψεις την κύρια διεύθυνσή σου, όρισε
+    μια άλλη διεύθυνση ως κύρια και ξαναπροσπάθησε.
+</i18n>

@@ -34,7 +34,7 @@ async function onSubmit(values: {
       credential,
     })
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('getWebAuthnCreateOptions')
@@ -44,7 +44,7 @@ async function onSubmit(values: {
   }
   catch {
     toast.add({
-      title: t('common.error.default'),
+      title: t('error.default'),
       color: 'red',
     })
   }
@@ -53,25 +53,25 @@ async function onSubmit(values: {
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('common.name'),
+      label: t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'name',
       readonly: false,
       required: true,
-      placeholder: t('common.name'),
+      placeholder: t('name'),
       type: 'text',
     },
     {
-      label: t('common.passwordless'),
+      label: t('passwordless'),
       name: 'passwordless',
       as: 'checkbox',
       rules: z.boolean(),
       autocomplete: 'passwordless',
       readonly: false,
       required: false,
-      placeholder: t('common.passwordless'),
+      placeholder: t('passwordless'),
       type: 'checkbox',
       initialValue: false,
     },
@@ -82,7 +82,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="grid items-center">
     <DynamicForm
-      :button-label="t('common.submit')"
+      :button-label="t('submit')"
       :schema="formSchema"
       @submit="onSubmit"
     />

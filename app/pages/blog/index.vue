@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const seoMetaInput = {
-  title: t('pages.blog.title'),
-  description: t('pages.blog.description'),
-  ogDescription: t('pages.blog.description'),
+  title: t('title'),
+  description: t('description'),
+  ogDescription: t('description'),
 } satisfies UseSeoMetaInput
 
 const links = computed(() => [
@@ -26,7 +26,7 @@ const links = computed(() => [
 useSeoMeta(seoMetaInput)
 
 useHydratedHead({
-  title: () => t('pages.blog.title'),
+  title: () => t('title'),
 })
 
 definePageMeta({
@@ -53,3 +53,9 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Blog
+  description: Ανακάλυψε τα τελευταία νέα και τις τεχνολογικές εξελίξεις στον κόσμο της τεχνολογίας.
+</i18n>

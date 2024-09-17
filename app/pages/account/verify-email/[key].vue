@@ -3,7 +3,7 @@ const emit = defineEmits(['emailVerify'])
 
 const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const route = useRoute()
 
@@ -20,7 +20,7 @@ async function onSubmit() {
     const data = await emailVerify({ key: String(route.params.key) })
     if (data && [200, 401].includes(data.status)) {
       toast.add({
-        title: t('common.auth.email.verified'),
+        title: t('auth.email.verified'),
         color: 'green',
       })
       emit('emailVerify')
@@ -47,7 +47,7 @@ definePageMeta({
       "
     >
       <PageTitle
-        :text="$t('pages.account.verify-email.key.title')"
+        :text="t('title')"
         class="text-center capitalize"
       />
       <PageBody>
@@ -64,16 +64,16 @@ definePageMeta({
                 dark:text-primary-50
               "
             >
-              {{ $t('pages.account.verify-email.key.please_confirm_that') }} <a
+              {{ t('please_confirm_that') }} <a
                 :href="'mailto:' + getVerifyEmailData?.data.email"
               >{{ getVerifyEmailData?.data.email
-              }}</a> {{ $t('pages.account.verify-email.key.is_an_email_address_for_user') }}
+              }}</a> {{ t('is_an_email_address_for_user') }}
               {{ getVerifyEmailData?.data.user.username || getVerifyEmailData?.data.user.display }}.
             </p>
             <UButton
               :disabled="loading"
               :label="
-                $t('common.confirm')
+                $t('confirm')
               "
               color="primary"
               size="xl"
@@ -87,7 +87,7 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.verify-email.key.invalid_verification_url') }}
+            {{ t('invalid_verification_url') }}
           </p>
           <p
             v-else class="
@@ -96,7 +96,7 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.verify-email.key.unable_to_confirm_email') }}
+            {{ t('unable_to_confirm_email') }}
             <UButton
               :external="true"
               :label="getVerifyEmailData.data.email"
@@ -104,10 +104,20 @@ definePageMeta({
               color="opposite"
               variant="link"
             />
-            {{ $t('pages.account.verify-email.key.because_it_is_already_confirmed') }}
+            {{ t('because_it_is_already_confirmed') }}
           </p>
         </div>
       </PageBody>
     </div>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
+  please_confirm_that: Παρακαλώ επιβεβαιώστε ότι η διεύθυνση
+  is_an_email_address_for_user: ανήκει στον χρήστη
+  invalid_verification_url: Μη έγκυρος σύνδεσμος επαλήθευσης
+  unable_to_confirm_email: Αδυναμία επιβεβαίωσης email
+  because_it_is_already_confirmed: επειδή είναι ήδη επιβεβαιωμένο
+</i18n>

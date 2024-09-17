@@ -26,7 +26,7 @@ const props = defineProps({
   },
 })
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -37,7 +37,7 @@ const lottie = ref<InstanceType<typeof Lottie>>()
 const toggleFavourite = async () => {
   if (!loggedIn.value || !props.userId) {
     toast.add({
-      title: t('components.add_to_favourite_button.not_authenticated'),
+      title: t('not_authenticated'),
       color: 'red',
     })
     return
@@ -66,7 +66,7 @@ const toggleFavourite = async () => {
         addFavouriteProduct(response._data)
         lottie.value?.play()
         toast.add({
-          title: t('components.add_to_favourite_button.added'),
+          title: t('added'),
           color: 'green',
         })
       },
@@ -96,7 +96,7 @@ const toggleFavourite = async () => {
         removeFavouriteProduct(props.productId)
         lottie.value?.goToAndStop(0)
         toast.add({
-          title: t('components.add_to_favourite_button.removed'),
+          title: t('removed'),
           color: 'red',
         })
       },
@@ -112,14 +112,14 @@ const toggleFavourite = async () => {
 
 const buttonLabel = computed(() => {
   return props.favouriteId
-    ? t('components.add_to_favourite_button.remove')
-    : t('components.add_to_favourite_button.add')
+    ? t('remove')
+    : t('add')
 })
 
 const buttonAreaLabel = computed(() => {
   return props.favouriteId
-    ? t('components.add_to_favourite_button.remove')
-    : t('components.add_to_favourite_button.add')
+    ? t('remove')
+    : t('add')
 })
 
 const onAnimationLoaded = () => {
@@ -149,3 +149,12 @@ const onAnimationLoaded = () => {
     @click="toggleFavourite"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  not_authenticated: Πρέπει να είσαι συνδεδεμένος για να προσθέσεις στα αγαπημένα
+  added: Προστέθηκε στα αγαπημένα
+  removed: Αφαιρέθηκε από τα αγαπημένα
+  add: Προσθήκη στα αγαπημένα
+  remove: Αφαίρεση από τα αγαπημένα
+</i18n>

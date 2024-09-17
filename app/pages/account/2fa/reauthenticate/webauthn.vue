@@ -10,15 +10,15 @@ const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reaut
 
 const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
+const authStore = useAuthStore()
+const { session } = storeToRefs(authStore)
 
-watchEffect(async () => {
-  if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-    await navigateTo(localePath('/'))
-  }
-})
+if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+  await navigateTo(localePath('/'))
+}
 
 const loading = ref(false)
 
@@ -32,11 +32,11 @@ async function onSubmit() {
     }
     const options = parseRequestOptionsFromJSON(jsonOptions)
     const credential = await get(options)
-    await reauthenticateUsingWebAuthn({
+    session.value = await reauthenticateUsingWebAuthn({
       credential,
     })
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('getWebAuthnRequestOptionsForReauthentication')
@@ -44,7 +44,7 @@ async function onSubmit() {
   }
   catch {
     toast.add({
-      title: t('common.error.default'),
+      title: t('error.default'),
       color: 'red',
     })
   }
@@ -67,16 +67,14 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.2fa.reauthenticate.title')" class="
-        text-center capitalize
-      "
+      :text="t('title')" class="text-center capitalize"
     />
     <PageBody>
       <Account2FaReauthenticateFlow :flow="Flows.MFA_REAUTHENTICATE">
         <div class="grid items-center justify-center">
           <UButton
             :label="
-              $t('common.use.security.key')
+              t('use.security.key')
             "
             color="primary"
             size="xl"
@@ -88,3 +86,11 @@ definePageMeta({
     </pagebody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επαλήθευση
+  use:
+    security:
+      key: Χρησιμοποιήστε το κλειδί ασφαλείας
+</i18n>

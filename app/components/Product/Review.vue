@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import { z } from 'zod'
+import { Field } from 'vee-validate'
 
 import { GlobalEvents } from '~/events'
 import type { Index } from '~/types/product'
@@ -43,7 +44,7 @@ const emit = defineEmits([
   'delete-existing-review',
 ])
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const toast = useToast()
 
@@ -73,9 +74,9 @@ const ratingBoard = ref<HTMLElement | null>(null)
 
 const reviewButtonText = computed(() => {
   if (!userHadReviewed.value) {
-    return t('components.product.review.write_review')
+    return t('write_review')
   }
-  return t('components.product.review.update_review')
+  return t('update_review')
 })
 
 const reviewCount = computed(() => {
@@ -112,31 +113,31 @@ const reviewScoreText = computed(() => {
   const breakpoints = [
     {
       threshold: 0.2,
-      value: t('components.product.review.rating.bad'),
+      value: t('rating.bad'),
     },
     {
       threshold: 0.3,
-      value: t('components.product.review.rating.not_that_good'),
+      value: t('rating.not_that_good'),
     },
     {
       threshold: 0.5,
-      value: t('components.product.review.rating.meh'),
+      value: t('rating.meh'),
     },
     {
       threshold: 0.6,
-      value: t('components.product.review.rating.its_ok'),
+      value: t('rating.its_ok'),
     },
     {
       threshold: 0.7,
-      value: t('components.product.review.rating.good'),
+      value: t('rating.good'),
     },
     {
       threshold: 0.9,
-      value: t('components.product.review.rating.very_good'),
+      value: t('rating.very_good'),
     },
     {
       threshold: 1.0,
-      value: t('components.product.review.rating.perfect'),
+      value: t('rating.perfect'),
     },
   ]
 
@@ -232,22 +233,22 @@ const ZodReviewSchema = z.object({
   comment: z
     .string()
     .min(10, {
-      message: t('components.product.review.validation.comment.min', {
+      message: t('validation.min', {
         min: 10,
       }),
     })
     .max(1000, {
-      message: t('components.product.review.validation.comment.max', {
+      message: t('validation.max', {
         max: 1000,
       }),
     }),
   rate: z
     .number()
     .min(1, {
-      message: t('components.product.review.validation.rate.min', { min: 1 }),
+      message: t('validation.min', { min: 1 }),
     })
     .max(10, {
-      message: t('components.product.review.validation.rate.max', { max: 10 }),
+      message: t('validation.min', { max: 10 }),
     }),
 })
 
@@ -302,13 +303,13 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
       await refresh()
       emit('add-existing-review', userProductReview?.value)
       toast.add({
-        title: t('components.product.review.add.success'),
+        title: t('add.success'),
         color: 'green',
       })
     },
     onResponseError() {
       toast.add({
-        title: t('components.product.review.add.error'),
+        title: t('add.error'),
         color: 'red',
       })
     },
@@ -341,13 +342,13 @@ const updateReviewEvent = async (event: { comment: string, rate: number }) => {
       await refresh()
       emit('update-existing-review', userProductReview?.value)
       toast.add({
-        title: t('components.product.review.update.success'),
+        title: t('update.success'),
         color: 'green',
       })
     },
     onResponseError() {
       toast.add({
-        title: t('components.product.review.update.error'),
+        title: t('update.error'),
         color: 'red',
       })
     },
@@ -372,13 +373,13 @@ const deleteReviewEvent = async () => {
         emit('delete-existing-review', userProductReview?.value)
         await refresh()
         toast.add({
-          title: t('components.product.review.delete.success'),
+          title: t('delete.success'),
           color: 'green',
         })
       },
       onResponseError() {
         toast.add({
-          title: t('components.product.review.delete.error'),
+          title: t('delete.error'),
           color: 'red',
         })
       },
@@ -386,7 +387,7 @@ const deleteReviewEvent = async () => {
   }
   else {
     toast.add({
-      title: t('components.product.review.must_be_logged_in'),
+      title: t('must_be_logged_in'),
       color: 'green',
     })
   }
@@ -403,7 +404,7 @@ const onSubmit = handleSubmit(async (event) => {
   }
   else {
     toast.add({
-      title: t('components.product.review.must_be_logged_in'),
+      title: t('must_be_logged_in'),
       color: 'red',
     })
   }
@@ -456,7 +457,7 @@ watch(
         <span
           class="review_header-title"
           v-html="
-            $t('components.product.review.write_review_for_product', {
+            t('write_review_for_product', {
               product: extractTranslated(product, 'name', locale),
             })
           "
@@ -469,7 +470,7 @@ watch(
       <div class="review_body">
         <div class="review_body-rating">
           <div class="review_body-rating-title">
-            <p>{{ $t('components.product.review.rating.title') }}</p>
+            <p>{{ t('rating.title') }}</p>
           </div>
           <div class="review_body-rating-content">
             <div
@@ -519,16 +520,16 @@ watch(
           <div class="review_body-comment-title">
             <p class="review_body-comment-title-text">
               <label for="comment">{{
-                $t('components.product.review.comment.label')
+                t('comment.label')
               }}</label>
             </p>
           </div>
           <div class="review_body-comment-content">
-            <VeeField
+            <Field
               id="comment"
               v-model="comment"
               :as="UTextarea"
-              :placeholder="$t('components.product.review.comment.placeholder')"
+              :placeholder="t('comment.placeholder')"
               :rows="6"
               color="primary"
               maxlength="10000"
@@ -562,7 +563,7 @@ watch(
           />
           <UButton
             v-else
-            :label="$t('components.product.review.too_many_attempts')"
+            :label="$t('validation.too_many_attempts')"
             block
             color="primary"
             disabled
@@ -574,7 +575,7 @@ watch(
           class="review_footer-content"
         >
           <UButton
-            :label="$t('components.product.review.delete_review')"
+            :label="t('delete_review')"
             :trailing="true"
             block
             class="review_footer-button gap-2"
@@ -715,3 +716,33 @@ watch(
   }
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  write_review: Γράψτε μια κριτική
+  update_review: Ενημέρωση κριτικής
+  delete_review: Διαγραφή κριτικής
+  must_be_logged_in: Πρέπει να συνδεθείς για να γράψεις μία κριτική
+  write_review_for_product: Γράψτε μια κριτική για το προϊόν %{product}
+  add:
+    error: Έλεγξε το σφάλμα δημιουργίας
+    success: Η κριτική δημιουργήθηκε με επιτυχία
+  update:
+    error: Ελέγξτε το σφάλμα ενημέρωσης
+    success: Η κριτική ενημερώθηκε με επιτυχία
+  delete:
+    success: Η κριτική διαγράφηκε με επιτυχία
+    error: Έλεγξε το σφάλμα διαγραφής
+  rating:
+    title: Βαθμολογία
+    bad: Κακό
+    not_that_good: Όχι και τόσο καλό
+    meh: Meh
+    its_ok: Είναι εντάξει
+    good: Καλός
+    very_good: Πολύ καλό
+    perfect: Τέλειο!
+  comment:
+    placeholder: Μοιράσου την εμπειρία σου...
+    label: Σχόλιο
+</i18n>

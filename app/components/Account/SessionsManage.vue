@@ -32,7 +32,7 @@ const logout = async (fromSessions: Session[]) => {
       sessions.value = newSessions.data
     }
     toast.add({
-      title: t('common.session.logged_out'),
+      title: t('session.logged_out'),
       color: 'green',
     })
     emit('deleteSession')
@@ -48,16 +48,16 @@ const logout = async (fromSessions: Session[]) => {
 
 const columns = [{
   key: 'created_at',
-  label: t('common.created_at'),
+  label: t('ordering.created_at'),
 }, {
   key: 'ip',
-  label: t('common.ip_address'),
+  label: t('ip_address'),
 }, {
   key: 'user_agent',
-  label: t('common.user_agent'),
+  label: t('user_agent'),
 }, {
   key: 'is_current',
-  label: t('common.is_current'),
+  label: t('is_current'),
   sortable: true,
 }, {
   key: 'actions',
@@ -78,7 +78,7 @@ const rows = computed(() => {
 const actionItems = (session: Session) => {
   const items: DropdownItem[] = []
   items.push({
-    label: t('common.logout'),
+    label: t('logout'),
     icon: 'i-heroicons-trash-20-solid',
     click: () => {
       logout([session])
@@ -136,7 +136,7 @@ const actionItems = (session: Session) => {
         variant="solid"
         @click="logout(otherSessions)"
       >
-        {{ $t('common.logout_all_other_sessions') }}
+        {{ $t('logout_all_other_sessions') }}
       </UButton>
     </div>
   </div>

@@ -4,7 +4,7 @@ import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
 const route = useRoute()
 const orderUUID = route.params.uuid
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const { data: order, error } = await useFetch(
@@ -22,7 +22,7 @@ const { data: order, error } = await useFetch(
 if (!order.value || error.value) {
   throw createError({
     statusCode: 404,
-    message: t('common.error.page.not.found'),
+    message: t('error.page.not.found'),
     fatal: true,
   })
 }
@@ -85,7 +85,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.checkout.success.title')"
+      :text="t('title')"
       class="text-center capitalize"
     />
     <PageBody>
@@ -114,12 +114,12 @@ definePageMeta({
               :auto-play="true"
               :height="'150px'"
               :loop="true"
-              :text="$t('pages.checkout.success.lottie')"
+              :text="t('lottie')"
               :width="'150px'"
             />
             <h2 class="text-4xl font-bold">
               {{
-                $t('pages.checkout.success.main.title', {
+                t('main.title', {
                   customerName: customerName,
                 })
               }}
@@ -131,7 +131,7 @@ definePageMeta({
                 dark:text-primary-50
               "
               v-html="
-                $t('pages.checkout.success.main.text', {
+                t('main.text', {
                   orderId: orderNumber,
                   customerEmail: customerEmail,
                 })
@@ -143,7 +143,7 @@ definePageMeta({
             class="grid items-center justify-center justify-items-center gap-4"
           >
             <h2 class="w-full text-center text-2xl font-semibold">
-              {{ $t('pages.checkout.success.order.summary') }}
+              {{ t('order.summary') }}
             </h2>
 
             <table
@@ -156,25 +156,25 @@ definePageMeta({
                     class="px-4 py-2"
                     scope="col"
                   >
-                    {{ $t('pages.checkout.success.image') }}
+                    {{ t('image') }}
                   </th>
                   <th
                     class="px-4 py-2"
                     scope="col"
                   >
-                    {{ $t('pages.checkout.success.product') }}
+                    {{ t('product') }}
                   </th>
                   <th
                     class="px-4 py-2"
                     scope="col"
                   >
-                    {{ $t('pages.checkout.success.quantity') }}
+                    {{ t('quantity') }}
                   </th>
                   <th
                     class="px-4 py-2"
                     scope="col"
                   >
-                    {{ $t('pages.checkout.success.price') }}
+                    {{ t('price') }}
                   </th>
                 </tr>
               </thead>
@@ -230,7 +230,7 @@ definePageMeta({
               "
             >
               <h3 class="text-xl font-semibold">
-                {{ $t('pages.checkout.success.order.details') }}
+                {{ t('order.details') }}
               </h3>
               <p
                 v-if="shippingPrice"
@@ -240,7 +240,7 @@ definePageMeta({
                   dark:text-primary-50
                 "
               >
-                {{ $t('pages.checkout.success.shippingPrice') }}:
+                {{ t('shippingPrice') }}:
                 <I18nN
                   :value="shippingPrice"
                   format="currency"
@@ -255,7 +255,7 @@ definePageMeta({
                   dark:text-primary-50
                 "
               >
-                {{ $t('pages.checkout.success.totalPriceItems') }}:
+                {{ t('totalPriceItems') }}:
                 <I18nN
                   :value="totalPriceItems"
                   format="currency"
@@ -270,7 +270,7 @@ definePageMeta({
                   dark:text-primary-50
                 "
               >
-                {{ $t('pages.checkout.success.totalPriceExtra') }}:
+                {{ t('totalPriceExtra') }}:
                 <I18nN
                   :value="totalPriceExtra"
                   format="currency"
@@ -285,7 +285,7 @@ definePageMeta({
                   dark:text-primary-50
                 "
               >
-                {{ $t('pages.checkout.success.payWayPrice') }}:
+                {{ t('payWayPrice') }}:
                 <I18nN
                   :value="payWayPrice"
                   format="currency"
@@ -301,7 +301,7 @@ definePageMeta({
                 dark:text-primary-50
               "
             >
-              {{ $t('pages.checkout.success.total') }}:
+              {{ t('total') }}:
               <I18nN
                 :value="paidAmount"
                 format="currency"
@@ -310,7 +310,7 @@ definePageMeta({
             </p>
           </div>
           <UButton
-            :label="$t('pages.checkout.success.button')"
+            :label="t('button')"
             :to="localePath('/')"
             :trailing="false"
             color="primary"
@@ -323,3 +323,27 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Η παραγγελία δημιουργήθηκε με επιτυχία
+  lottie: Η παραγγελία δημιουργήθηκε
+  button: Πλοηγηθείτε στην Αρχική
+  main:
+    title: Σας ευχαριστούμε, %{customerName}!
+    text: Ο αριθμός παραγγελίας σας είναι %{orderId}. Ένα email
+      επιβεβαίωσης έχει σταλεί στο %{customerEmail}. Θα σας ειδοποιήσουμε
+      όταν η παραγγελία σας αποσταλεί.
+  order:
+    summary: Σύνοψη Παραγγελίας
+    details: Λεπτομέρειες Παραγγελίας
+  image: Εικόνα
+  product: Προϊόν
+  quantity: Ποσότητα
+  price: Τιμή
+  shippingPrice: Κόστος αποστολής
+  totalPriceItems: Είδη Συνολικής Τιμής
+  totalPriceExtra: Συνολική Τιμή Επιπλέον
+  payWayPrice: Τιμή τρόπου πληρωμής
+  total: Σύνολο
+</i18n>

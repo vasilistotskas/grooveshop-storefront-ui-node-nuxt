@@ -10,10 +10,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
     const numericValue = Number(value)
     if (numericValue < min) {
-      return $t('common.validation.max', { max })
+      return $t('validation.max', { max })
     }
     if (numericValue > max) {
-      return $t('common.validation.min', { min })
+      return $t('validation.min', { min })
     }
     return true
   })

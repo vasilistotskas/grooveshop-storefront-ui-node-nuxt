@@ -31,7 +31,7 @@ const { data: blogPost, refresh } = await useFetch(
 if (!blogPost.value) {
   throw createError({
     statusCode: 404,
-    message: t('common.error.page.not.found'),
+    message: t('error.page.not.found'),
     fatal: true,
   })
 }
@@ -245,7 +245,7 @@ definePageMeta({
                   />
                   <UButton
                     :label="String(blogPost.commentsCount)"
-                    :title="$t('common.comments.count', {
+                    :title="$t('comments.count', {
                       count: blogPost.commentsCount,
                     })"
                     class="justify-self-start font-extrabold capitalize"
@@ -260,7 +260,7 @@ definePageMeta({
                     <UButton
                       v-if="isSupported"
                       :disabled="!isSupported"
-                      :title="$t('common.share')"
+                      :title="$t('share')"
                       class="justify-self-start font-extrabold capitalize"
                       color="primary"
                       icon="i-heroicons-share"

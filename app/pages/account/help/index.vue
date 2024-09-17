@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'user',
 })
@@ -12,7 +14,12 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.help.title')" />
+    <PageTitle :text="t('title')" />
     <PageBody />
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Βοήθεια
+</i18n>

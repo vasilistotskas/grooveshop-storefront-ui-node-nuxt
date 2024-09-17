@@ -11,18 +11,20 @@ defineSlots<{
 
 const { twoFaReauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
+const authStore = useAuthStore()
+const { session } = storeToRefs(authStore)
 
 const loading = ref(false)
 
 async function onSubmit(values: TwoFaReauthenticateBody) {
   try {
     loading.value = true
-    await twoFaReauthenticate({
+    session.value = await twoFaReauthenticate({
       code: values.code,
     })
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('twoFaReauthenticate')
@@ -37,11 +39,11 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
-      placeholder: t('common.code'),
+      placeholder: t('code'),
       type: 'text',
     },
   ],
@@ -57,9 +59,7 @@ const formSchema: DynamicFormSchema = {
     "
   >
     <PageTitle
-      :text="$t('pages.account.2fa.reauthenticate.title')" class="
-        text-center capitalize
-      "
+      :text="t('title')" class="text-center capitalize"
     />
     <PageBody>
       <Account2FaReauthenticateFlow>
@@ -72,11 +72,11 @@ const formSchema: DynamicFormSchema = {
               dark:text-primary-50
             "
           >
-            {{ $t('common.enter_authenticator_code') }}
+            {{ t('enter_authenticator_code') }}
           </h3>
           <section class="grid items-center">
             <DynamicForm
-              :button-label="t('common.submit')"
+              :button-label="t('submit')"
               :schema="formSchema"
               @submit="onSubmit"
             />
@@ -86,3 +86,9 @@ const formSchema: DynamicFormSchema = {
     </pagebody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επαλήθευση
+  enter_authenticator_code: Εισάγετε τον κωδικό πολλαπλών παραγόντων
+</i18n>

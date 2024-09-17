@@ -1,6 +1,8 @@
 import { ZodBlogTag, ZodBlogTagParams } from '~/types/blog/tag'
 
-export default defineEventHandler(async (event) => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(event, ZodBlogTagParams.parse)
@@ -15,4 +17,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'BlogTagViewSet' })

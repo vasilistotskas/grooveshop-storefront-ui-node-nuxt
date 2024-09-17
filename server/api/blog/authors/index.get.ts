@@ -1,7 +1,9 @@
 import { ZodBlogAuthor, ZodBlogAuthorQuery } from '~/types/blog/author'
 import { ZodPagination } from '~/types/pagination'
 
-export default defineEventHandler(async (event) => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodBlogAuthorQuery.parse)
@@ -14,4 +16,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'BlogAuthorViewSet' })

@@ -11,6 +11,8 @@ defineProps({
     default: 10,
   },
 })
+
+const { t } = useI18n({ useScope: 'local' })
 </script>
 
 <template>
@@ -24,9 +26,15 @@ defineProps({
         "
       >
         {{
-          $t('components.blog.post.comments.summary.comments', commentsCount)
+          t('comments.count', commentsCount)
         }}
       </span>
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  comments:
+    count: Κανένα σχόλιο | 1 σχόλιο | %{count} Σχόλια
+</i18n>

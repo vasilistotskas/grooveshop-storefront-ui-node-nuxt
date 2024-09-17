@@ -9,6 +9,7 @@ defineProps({
 const { isMobile, isTablet } = useDevice()
 const localePath = useLocalePath()
 const config = useRuntimeConfig()
+const { t } = useI18n({ useScope: 'local' })
 
 const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
 const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '500px'))
@@ -58,9 +59,9 @@ defineOgImage(ogImageOptions)
             dark:text-primary-50
           "
         >
-          <strong class="text-5xl">{{ $t('pages.error.hmmm') }}</strong>
+          <strong class="text-5xl">{{ t('hmmm') }}</strong>
           <span class="text-center">
-            {{ $t('pages.error.page.not.found') }}
+            {{ t('page.not.found') }}
           </span>
         </h2>
         <p
@@ -70,9 +71,9 @@ defineOgImage(ogImageOptions)
             dark:text-primary-50
           "
         >
-          {{ $t('pages.error.go.home') }}
+          {{ t('go.home') }}
         </p>
-        <NuxtLink
+        <Anchor
           :to="localePath('/')"
           class="
             mt-2 block font-bold text-secondary
@@ -80,8 +81,8 @@ defineOgImage(ogImageOptions)
             hover:underline
           "
         >
-          {{ $t('pages.error.home') }}
-        </NuxtLink>
+          {{ t('home') }}
+        </Anchor>
         <div class="grid items-center justify-center">
           <LazyLottie
             :animation-data="Json404"
@@ -95,3 +96,14 @@ defineOgImage(ogImageOptions)
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  home: Πίσω στην Αρχική
+  hmmm: Χμμμ
+  page:
+    not:
+      found: H αράχνη δεν μπόρεσε να βρει την σελίδα που ψάχνεις.
+  go:
+    home: Μπορεί όμως να σε οδηγήσει στην αρχική σελίδα!
+</i18n>

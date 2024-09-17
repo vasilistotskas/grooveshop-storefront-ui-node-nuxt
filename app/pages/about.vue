@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'default',
 })
@@ -7,7 +9,7 @@ definePageMeta({
 <template>
   <PageWrapper class="container flex flex-col">
     <PageTitle
-      :text="$t('pages.about.title')"
+      :text="t('title')"
       class="mb-4 text-center capitalize"
     />
     <PageBody>
@@ -21,7 +23,6 @@ definePageMeta({
             alt="Webside"
             loading="eager"
             format="png"
-            densities="x1"
             quality="100"
             preload
           />
@@ -86,3 +87,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Τι Είναι Το Webside
+</i18n>

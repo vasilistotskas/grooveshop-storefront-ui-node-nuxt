@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+import { Field } from 'vee-validate'
 
 import { defaultSelectOptionChoose } from '~/constants'
 import type { Pagination } from '~/types/pagination'
@@ -20,24 +21,24 @@ const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
-  email: z.string({ required_error: t('common.validation.required') }).email({
-    message: t('pages.account.settings.validation.email.invalid'),
+  email: z.string({ required_error: t('validation.required') }).email({
+    message: t('validation.email.invalid'),
   }),
-  firstName: z.string({ required_error: t('common.validation.required') }),
-  lastName: z.string({ required_error: t('common.validation.required') }),
-  phone: z.string({ required_error: t('common.validation.required') }),
-  city: z.string({ required_error: t('common.validation.required') }),
-  zipcode: z.string({ required_error: t('common.validation.required') }),
-  address: z.string({ required_error: t('common.validation.required') }),
-  place: z.string({ required_error: t('common.validation.required') }),
+  firstName: z.string({ required_error: t('validation.required') }),
+  lastName: z.string({ required_error: t('validation.required') }),
+  phone: z.string({ required_error: t('validation.required') }),
+  city: z.string({ required_error: t('validation.required') }),
+  zipcode: z.string({ required_error: t('validation.required') }),
+  address: z.string({ required_error: t('validation.required') }),
+  place: z.string({ required_error: t('validation.required') }),
   birthDate: z.coerce
     .date({
-      required_error: t('common.validation.date.required_error'),
-      invalid_type_error: t('common.validation.date.invalid_type_error'),
+      required_error: t('validation.date.required_error'),
+      invalid_type_error: t('validation.date.invalid_type_error'),
     })
     .optional(),
-  country: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).optional(),
-  region: z.string({ required_error: t('common.validation.required') }).default(defaultSelectOptionChoose).optional(),
+  country: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
+  region: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
 })
 
 const validationSchema = toTypedSchema(ZodAccountSettings)
@@ -117,7 +118,6 @@ const fetchRegions = async () => {
   }
 
   try {
-    // @ts-expect-error
     regions.value = await $fetch('/api/regions', {
       method: 'GET',
       query: {
@@ -128,8 +128,8 @@ const fetchRegions = async () => {
   }
   catch {
     toast.add({
-      title: t('common.error.default'),
-      description: t('common.error_occurred'),
+      title: t('error.default'),
+      description: t('error_occurred'),
       color: 'red',
     })
   }
@@ -201,12 +201,12 @@ const onSubmit = handleSubmit(async (values) => {
       }
       await fetch()
       toast.add({
-        title: t('pages.account.settings.form.success'),
+        title: t('form.success'),
         color: 'green',
       })
     },
     onResponseError() {
-      toast.add({ title: t('pages.account.settings.form.error'), color: 'red' })
+      toast.add({ title: t('form.error'), color: 'red' })
     },
   })
 })
@@ -224,7 +224,7 @@ const submitButtonDisabled = computed(() => {
 
         dark:text-primary-50
       "
-    >{{ $t('common.email.title') }}: </span>
+    >{{ $t('email.title') }}: </span>
     <UInput
       :placeholder="email"
       :ui="{
@@ -254,13 +254,13 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="firstName"
-      >{{ $t('pages.account.settings.form.first_name') }}</label>
+      >{{ t('form.first_name') }}</label>
       <div class="grid">
         <FormTextInput
           id="firstName"
           v-model="firstName"
           :bind="firstNameProps"
-          :placeholder="$t('pages.account.settings.form.first_name')"
+          :placeholder="t('form.first_name')"
           :required="true"
           autocomplete="given-name"
           name="firstName"
@@ -280,13 +280,13 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="lastName"
-      >{{ $t('pages.account.settings.form.last_name') }}</label>
+      >{{ t('form.last_name') }}</label>
       <div class="grid">
         <FormTextInput
           id="lastName"
           v-model="lastName"
           :bind="lastNameProps"
-          :placeholder="$t('pages.account.settings.form.last_name')"
+          :placeholder="t('form.last_name')"
           :required="true"
           autocomplete="family-name"
           name="lastName"
@@ -306,13 +306,13 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="phone"
-      >{{ $t('pages.account.settings.form.phone') }}</label>
+      >{{ t('form.phone') }}</label>
       <div class="grid">
         <FormTextInput
           id="phone"
           v-model="phone"
           :bind="phoneProps"
-          :placeholder="$t('pages.account.settings.form.phone')"
+          :placeholder="t('form.phone')"
           autocomplete="tel"
           name="phone"
           type="text"
@@ -331,13 +331,13 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="city"
-      >{{ $t('pages.account.settings.form.city') }}</label>
+      >{{ t('form.city') }}</label>
       <div class="grid">
         <FormTextInput
           id="city"
           v-model="city"
           :bind="cityProps"
-          :placeholder="$t('pages.account.settings.form.city')"
+          :placeholder="t('form.city')"
           autocomplete="address-level2"
           name="city"
           type="text"
@@ -356,13 +356,13 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="zipcode"
-      >{{ $t('pages.account.settings.form.zipcode') }}</label>
+      >{{ t('form.zipcode') }}</label>
       <div class="grid">
         <FormTextInput
           id="zipcode"
           v-model="zipcode"
           :bind="zipcodeProps"
-          :placeholder="$t('pages.account.settings.form.zipcode')"
+          :placeholder="t('form.zipcode')"
           autocomplete="postal-code"
           name="zipcode"
           type="text"
@@ -381,13 +381,13 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="address"
-      >{{ $t('pages.account.settings.form.address') }}</label>
+      >{{ t('form.address') }}</label>
       <div class="grid">
         <FormTextInput
           id="address"
           v-model="address"
           :bind="addressProps"
-          :placeholder="$t('pages.account.settings.form.address')"
+          :placeholder="t('form.address')"
           autocomplete="address-line1"
           name="address"
           type="text"
@@ -406,13 +406,13 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="place"
-      >{{ $t('pages.account.settings.form.place') }}</label>
+      >{{ t('form.place') }}</label>
       <div class="grid">
         <FormTextInput
           id="place"
           v-model="place"
           :bind="placeProps"
-          :placeholder="$t('pages.account.settings.form.place')"
+          :placeholder="t('form.place')"
           autocomplete="address-level3"
           name="place"
           type="text"
@@ -431,7 +431,7 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="birthDate"
-      >{{ $t('pages.account.settings.form.birth_date') }}</label>
+      >{{ t('form.birth_date') }}</label>
       <div class="grid">
         <UPopover :popper="{ placement: 'bottom-start' }">
           <UButton
@@ -460,9 +460,9 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="country"
-      >{{ $t('pages.account.settings.form.country') }}</label>
+      >{{ t('form.country') }}</label>
       <div class="grid">
-        <VeeField
+        <Field
           id="country"
           v-model="country"
           :as="USelect"
@@ -488,9 +488,9 @@ const submitButtonDisabled = computed(() => {
           dark:text-primary-50
         "
         for="region"
-      >{{ $t('pages.account.settings.form.region') }}</label>
+      >{{ t('form.region') }}</label>
       <div class="grid">
-        <VeeField
+        <Field
           id="region"
           v-model="region"
           :as="USelect"
@@ -521,8 +521,24 @@ const submitButtonDisabled = computed(() => {
         "
         type="submit"
       >
-        {{ $t('pages.account.settings.form.submit') }}
+        {{ t('form.submit') }}
       </button>
     </div>
   </form>
 </template>
+
+<i18n lang="yaml">
+el:
+  form:
+    first_name: Όνομα
+    last_name: Επώνυμο
+    phone: Τηλέφωνο
+    city: Πόλη
+    zipcode: Ταχυδρομικός κώδικας
+    address: Διεύθυνση
+    place: Τοποθεσία
+    birth_date: Ημερομηνία γέννησης
+    country: Χώρα
+    region: Περιοχή
+    submit: Υποβολή
+</i18n>

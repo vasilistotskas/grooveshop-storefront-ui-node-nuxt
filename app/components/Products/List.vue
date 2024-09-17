@@ -30,12 +30,12 @@ const category = computed(() => route.query.category)
 const entityOrdering = ref<EntityOrdering<ProductOrderingField>>([
   {
     value: 'finalPrice',
-    label: t('pages.product.ordering.price'),
+    label: t('ordering.price'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'createdAt',
-    label: t('pages.product.ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
 ])

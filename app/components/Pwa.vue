@@ -2,13 +2,13 @@
 import type { NotificationAction } from '#ui/types'
 
 const { $pwa } = useNuxtApp()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 
 const installActions = ref<NotificationAction[]>([
   {
     variant: 'outline',
     color: 'white',
-    label: t('components.pwa.install'),
+    label: t('install'),
     click: () => $pwa?.install(),
   },
 ])
@@ -21,7 +21,7 @@ onMounted(() => {
     actions.value.push({
       variant: 'outline',
       color: 'white',
-      label: t('components.pwa.reload'),
+      label: t('reload'),
       click: () => $pwa?.updateServiceWorker(),
     })
   }
@@ -50,7 +50,7 @@ const id = useId()
         :id="id"
         :actions="actions"
         :timeout="0"
-        :title="$pwa?.offlineReady ? $t('components.pwa.ready_to_work_offline') : $t('components.pwa.new_content_available')"
+        :title="$pwa?.offlineReady ? t('ready_to_work_offline') : t('new_content_available')"
         class="
           m-auto w-[80%]
 
@@ -65,7 +65,7 @@ const id = useId()
         :id="id"
         :actions="installActions"
         :timeout="0"
-        :title="$t('components.pwa.install_pwa')"
+        :title="t('install_pwa')"
         class="
           m-auto w-[80%]
 
@@ -79,3 +79,14 @@ const id = useId()
     </template>
   </ClientOnly>
 </template>
+
+<i18n lang="yaml">
+el:
+  ready_to_work_offline: Η εφαρμογή είναι έτοιμη να λειτουργήσει εκτός σύνδεσης.
+  new_content_available: Νέο διαθέσιμο περιεχόμενο, κάντε κλικ στο κουμπί επαναφόρτωσης
+    για να ανανεώσετε την εφαρμογή.
+  reload: Επαναφόρτωση
+  close: Κλείσιμο
+  install_pwa: Εγκατέστησε την εφαρμογή μας
+  install: Εγκατάσταση
+</i18n>

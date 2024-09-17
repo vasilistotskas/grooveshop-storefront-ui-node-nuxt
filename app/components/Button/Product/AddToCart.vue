@@ -16,7 +16,7 @@ const cartStore = useCartStore()
 const { refreshCart, createCartItem } = cartStore
 
 const { product, quantity } = toRefs(props)
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 
 const addToCartEvent = async () => {
@@ -26,7 +26,7 @@ const addToCartEvent = async () => {
   })
   await refreshCart()
   toast.add({
-    title: t('components.add_to_cart_button.added_to_cart'),
+    title: t('added_to_cart'),
     color: 'green',
   })
 }
@@ -48,3 +48,8 @@ const addToCartEvent = async () => {
     @click.prevent="addToCartEvent"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  added_to_cart: Προστέθηκε στο καλάθι
+</i18n>

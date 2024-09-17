@@ -43,7 +43,7 @@ const emit = defineEmits<{
 const { blogPostId, paginationType, pageSize }
   = toRefs(props)
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const route = useRoute()
 const { loggedIn, user } = useUserSession()
@@ -161,7 +161,7 @@ const addCommentFormSchema: DynamicFormSchema = {
       id: `content-${blogPostId.value}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string({ required_error: t('common.validation.required') }).max(1000),
+      rules: z.string({ required_error: t('validation.required') }).max(1000),
       autocomplete: 'on',
       readonly: false,
       required: true,
@@ -195,13 +195,13 @@ async function onAddCommentSubmit({ content }: { content: string }) {
       await refresh()
       await refreshUserBlogPostComment()
       toast.add({
-        title: t('components.blog.post.comments.add.success'),
+        title: t('add.success'),
         color: 'green',
       })
     },
     onResponseError() {
       toast.add({
-        title: t('components.blog.post.comments.add.error'),
+        title: t('add.error'),
         color: 'red',
       })
     },
@@ -278,7 +278,7 @@ onMounted(() => {
   >
     <div class="grid">
       <h2 class="text-2xl font-semibold">
-        {{ $t('components.blog.post.comments.title') }}
+        {{ t('title') }}
       </h2>
     </div>
     <div
@@ -296,8 +296,8 @@ onMounted(() => {
             v-if="!userBlogPostComment"
             :title="
               loggedIn
-                ? 'components.blog.post.comments.empty.title'
-                : 'components.blog.post.comments.empty.title_guest'
+                ? t('empty.title')
+                : t('empty.title_guest')
             "
             class="w-full"
           >
@@ -307,7 +307,7 @@ onMounted(() => {
             >
               <LazyDynamicForm
                 id="add-comment-form"
-                :button-label="t('common.submit')"
+                :button-label="t('submit')"
                 :schema="addCommentFormSchema"
                 class="container-3xs"
                 @submit="onAddCommentSubmit"
@@ -321,11 +321,11 @@ onMounted(() => {
       v-else
       :description="
         loggedIn
-          ? 'components.blog.post.comments.empty.description'
-          : 'components.blog.post.comments.empty.description_guest'
+          ? t('empty.description')
+          : t('empty.description_guest')
       "
       class="w-full"
-      title="components.blog.post.comments.empty.title"
+      :title="t('empty.title')"
     >
       <template
         v-if="loggedIn"
@@ -333,7 +333,7 @@ onMounted(() => {
       >
         <LazyDynamicForm
           id="add-comment-form"
-          :button-label="t('common.submit')"
+          :button-label="t('submit')"
           :schema="addCommentFormSchema"
           class="container-3xs"
           @submit="onAddCommentSubmit"
@@ -354,3 +354,21 @@ onMounted(() => {
     />
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Σχόλια
+  summary:
+    comments: Κανένα σχόλιο | 1 σχόλιο | %{count} Σχόλια
+  empty:
+    title: Γράψε ένα σχόλιο
+    title_guest: Συνδέσου για να γράψεις ένα σχόλιο
+    description: Γίνε ο πρώτος που θα σχολιάσει
+    description_guest: Συνδέσου για να σχολιάσεις
+  add:
+    error: Σφάλμα δημιουργίας σχολίου
+    success: Το σχόλιο δημιουργήθηκε με επιτυχία
+  reply:
+    login: Συνδέσου για να απαντήσεις
+    placeholder: Γράψε κάτι...
+</i18n>

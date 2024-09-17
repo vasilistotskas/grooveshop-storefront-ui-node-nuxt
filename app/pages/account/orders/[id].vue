@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const orderId = route.params.id
 
@@ -39,10 +39,10 @@ definePageMeta({
           icon="i-heroicons-arrow-left"
           size="sm"
         >
-          <span class="sr-only">{{ $t('pages.account.order.back') }}</span>
+          <span class="sr-only">{{ t('back') }}</span>
         </UButton>
         <PageTitle
-          :text="`${$t('pages.account.order.number')}: ${order?.id}`"
+          :text="`${t('number')}: ${order?.id}`"
           class="text-center"
         />
       </div>
@@ -167,7 +167,7 @@ definePageMeta({
                 dark:text-primary-50
               "
             >
-              {{ $t('pages.account.order.details') }}
+              {{ t('details') }}
             </span>
             <div class="flex flex-col gap-4">
               <div class="grid gap-2">
@@ -178,7 +178,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
                 >{{
-                  $t('pages.account.order.address')
+                  t('address')
                 }}</span>
                 <span
                   class="
@@ -198,7 +198,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
                 >{{
-                  $t('pages.account.order.document_type')
+                  t('document_type')
                 }}</span>
                 <span
                   class="
@@ -218,7 +218,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
                 >{{
-                  $t('pages.account.order.pay_way')
+                  t('pay_way')
                 }}</span>
                 <span
                   class="
@@ -247,7 +247,7 @@ definePageMeta({
                 dark:text-primary-50
               "
             >
-              {{ $t('pages.account.order.synopsis') }}
+              {{ t('synopsis') }}
             </span>
             <div
               class="
@@ -263,7 +263,7 @@ definePageMeta({
 
                     dark:text-primary-50
                   "
-                >{{ $t('pages.account.order.product.value') }}</span>
+                >{{ t('product.value') }}</span>
                 <I18nN
                   :value="order.totalPriceItems"
                   class="
@@ -282,7 +282,7 @@ definePageMeta({
 
                     dark:text-primary-50
                   "
-                >{{ $t('pages.account.order.shipping.value') }}</span>
+                >{{ t('shipping.value') }}</span>
                 <I18nN
                   :value="order.shippingPrice"
                   class="
@@ -304,7 +304,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
                 >{{
-                  $t('pages.account.order.total')
+                  t('total')
                 }}</span>
                 <I18nN
                   :value="order.paidAmount"
@@ -324,3 +324,19 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  back: Επιστροφή στις παραγγελίες
+  number: Αριθμός παραγγελίας
+  details: Λεπτομέρειες Παραγγελίας
+  address: Διεύθυνση αποστολής
+  document_type: Είδος αρχείου
+  pay_way: Τρόπος πληρωμής
+  synopsis: Περίληψη
+  total: Σύνολο
+  product:
+    value: Αξία προϊόντος
+  shipping:
+    value: Αξία αποστολής
+</i18n>

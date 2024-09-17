@@ -2,8 +2,8 @@
 import type { EntityOrdering } from '~/types/ordering'
 import type { ProductReview, ProductReviewOrderingField } from '~/types/product/review'
 
-const { t } = useI18n()
 const route = useRoute()
+const { t } = useI18n({ useScope: 'local' })
 const { user } = useUserSession()
 
 const pageSize = ref(8)
@@ -14,12 +14,12 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   {
     value: 'createdAt',
-    label: t('pages.account.reviews.ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: t('pages.account.reviews.ordering.updated_at'),
+    label: t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -94,7 +94,7 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.reviews.title')" />
+    <PageTitle :text="t('title')" />
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
         <PaginationPageNumber
@@ -132,3 +132,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Κριτικές
+</i18n>

@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { z } from 'zod'
 
+import { Field } from 'vee-validate'
 import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodUserAccount } from '~/types/user/account'
 import type { Pagination } from '~/types/pagination'
 import type { Region } from '~/types/region'
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
@@ -27,24 +28,24 @@ const { data: address } = await useFetch(`/api/user/addresses/${addressId}`, {
 })
 
 const ZodUserAddress = z.object({
-  title: z.string({ required_error: t('common.validation.required') }),
-  firstName: z.string({ required_error: t('common.validation.required') }),
-  lastName: z.string({ required_error: t('common.validation.required') }),
-  street: z.string({ required_error: t('common.validation.required') }),
-  streetNumber: z.string({ required_error: t('common.validation.required') }),
-  city: z.string({ required_error: t('common.validation.required') }),
-  zipcode: z.string({ required_error: t('common.validation.required') }),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).optional(),
+  title: z.string({ required_error: t('validation.required') }),
+  firstName: z.string({ required_error: t('validation.required') }),
+  lastName: z.string({ required_error: t('validation.required') }),
+  street: z.string({ required_error: t('validation.required') }),
+  streetNumber: z.string({ required_error: t('validation.required') }),
+  city: z.string({ required_error: t('validation.required') }),
+  zipcode: z.string({ required_error: t('validation.required') }),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('validation.required') })]).optional(),
   locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('common.validation.required') })])
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('validation.required') })])
     .optional(),
-  phone: z.string({ required_error: t('common.validation.required') }).optional(),
-  mobilePhone: z.string({ required_error: t('common.validation.required') }).optional(),
-  notes: z.string({ required_error: t('common.validation.required') }).optional(),
+  phone: z.string({ required_error: t('validation.required') }).optional(),
+  mobilePhone: z.string({ required_error: t('validation.required') }).optional(),
+  notes: z.string({ required_error: t('validation.required') }).optional(),
   isMain: z.boolean().optional(),
   user: z.union([z.number(), ZodUserAccount]),
-  country: z.string({ required_error: t('common.validation.required') }).optional(),
-  region: z.string({ required_error: t('common.validation.required') }).optional(),
+  country: z.string({ required_error: t('validation.required') }).optional(),
+  region: z.string({ required_error: t('validation.required') }).optional(),
 })
 const validationSchema = toTypedSchema(ZodUserAddress)
 const initialValues = ZodUserAddress.parse({
@@ -151,8 +152,8 @@ const fetchRegions = async () => {
   }
   catch {
     toast.add({
-      title: t('common.error.default'),
-      description: t('common.error_occurred'),
+      title: t('error.default'),
+      description: t('error_occurred'),
       color: 'red',
     })
   }
@@ -204,14 +205,14 @@ const onSubmit = handleSubmit(async (values) => {
         return
       }
       toast.add({
-        title: t('pages.account.addresses.edit.success'),
+        title: t('success'),
         color: 'green',
       })
       await navigateTo(localePath('/account/addresses'))
     },
     onResponseError() {
       toast.add({
-        title: t('pages.account.addresses.edit.error'),
+        title: t('error'),
         color: 'red',
       })
     },
@@ -227,14 +228,14 @@ const onSetMain = async () => {
         return
       }
       toast.add({
-        title: t('pages.account.addresses.edit.main.success'),
+        title: t('main.success'),
         color: 'green',
       })
       await navigateTo(localePath('/account/addresses'))
     },
     onResponseError() {
       toast.add({
-        title: t('pages.account.addresses.edit.main.error'),
+        title: t('main.error'),
         color: 'red',
       })
     },
@@ -267,11 +268,11 @@ definePageMeta({
           size="sm"
         >
           <span class="sr-only">{{
-            $t('pages.account.addresses.edit.back')
+            t('back')
           }}</span>
         </UButton>
         <PageTitle
-          :text="`${$t('pages.account.addresses.edit.title')} ${address?.id}`"
+          :text="`${t('title')} ${address?.id}`"
         />
       </div>
       <div
@@ -294,12 +295,12 @@ definePageMeta({
             dark:text-green-400
           "
         >
-          {{ $t('pages.account.addresses.edit.main.title') }}
+          {{ t('main.title') }}
         </span>
       </div>
       <UButton
         v-else
-        :label="$t('pages.account.addresses.edit.main.button')"
+        :label="t('main.button')"
         :trailing="true"
         class="gap-4"
         color="primary"
@@ -337,13 +338,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="title"
-          >{{ $t('pages.account.addresses.edit.form.title') }}</label>
+          >{{ t('form.title') }}</label>
           <div class="grid">
             <FormTextInput
               id="title"
               v-model="title"
               :bind="titleProps"
-              :placeholder="$t('pages.account.addresses.edit.form.title')"
+              :placeholder="t('form.title')"
               :required="true"
               autocomplete="honorific-prefix"
               class="
@@ -374,13 +375,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="firstName"
-          >{{ $t('pages.account.addresses.edit.form.first_name') }}</label>
+          >{{ t('form.first_name') }}</label>
           <div class="grid">
             <FormTextInput
               id="firstName"
               v-model="firstName"
               :bind="firstNameProps"
-              :placeholder="$t('pages.account.addresses.edit.form.first_name')"
+              :placeholder="t('form.first_name')"
               :required="true"
               autocomplete="given-name"
               name="firstName"
@@ -406,13 +407,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="lastName"
-          >{{ $t('pages.account.addresses.edit.form.last_name') }}</label>
+          >{{ t('form.last_name') }}</label>
           <div class="grid">
             <FormTextInput
               id="lastName"
               v-model="lastName"
               :bind="lastNameProps"
-              :placeholder="$t('pages.account.addresses.edit.form.last_name')"
+              :placeholder="t('form.last_name')"
               :required="true"
               autocomplete="family-name"
               name="lastName"
@@ -438,13 +439,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="street"
-          >{{ $t('pages.account.addresses.edit.form.street') }}</label>
+          >{{ t('form.street') }}</label>
           <div class="grid">
             <FormTextInput
               id="street"
               v-model="street"
               :bind="streetProps"
-              :placeholder="$t('pages.account.addresses.edit.form.street')"
+              :placeholder="t('form.street')"
               :required="true"
               autocomplete="address-line1"
               name="street"
@@ -470,14 +471,14 @@ definePageMeta({
               dark:text-primary-50
             "
             for="streetNumber"
-          >{{ $t('pages.account.addresses.edit.form.street_number') }}</label>
+          >{{ t('form.street_number') }}</label>
           <div class="grid">
             <FormTextInput
               id="streetNumber"
               v-model="streetNumber"
               :bind="streetNumberProps"
               :placeholder="
-                $t('pages.account.addresses.edit.form.street_number')
+                t('form.street_number')
               "
               :required="true"
               autocomplete="address-line2"
@@ -504,13 +505,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="city"
-          >{{ $t('pages.account.addresses.edit.form.city') }}</label>
+          >{{ t('form.city') }}</label>
           <div class="grid">
             <FormTextInput
               id="city"
               v-model="city"
               :bind="cityProps"
-              :placeholder="$t('pages.account.addresses.edit.form.city')"
+              :placeholder="t('form.city')"
               :required="true"
               autocomplete="address-level2"
               name="city"
@@ -536,13 +537,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="zipcode"
-          >{{ $t('pages.account.addresses.edit.form.zipcode') }}</label>
+          >{{ t('form.zipcode') }}</label>
           <div class="grid">
             <FormTextInput
               id="zipcode"
               v-model="zipcode"
               :bind="zipcodeProps"
-              :placeholder="$t('pages.account.addresses.edit.form.zipcode')"
+              :placeholder="t('form.zipcode')"
               :required="true"
               autocomplete="postal-code"
               name="zipcode"
@@ -568,13 +569,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="phone"
-          >{{ $t('pages.account.addresses.edit.form.phone') }}</label>
+          >{{ t('form.phone') }}</label>
           <div class="grid">
             <FormTextInput
               id="phone"
               v-model="phone"
               :bind="phoneProps"
-              :placeholder="$t('pages.account.addresses.edit.form.phone')"
+              :placeholder="t('form.phone')"
               autocomplete="tel"
               name="phone"
               type="text"
@@ -599,14 +600,14 @@ definePageMeta({
               dark:text-primary-50
             "
             for="mobilePhone"
-          >{{ $t('pages.account.addresses.edit.form.mobile_phone') }}</label>
+          >{{ t('form.mobile_phone') }}</label>
           <div class="grid">
             <FormTextInput
               id="mobilePhone"
               v-model="mobilePhone"
               :bind="mobilePhoneProps"
               :placeholder="
-                $t('pages.account.addresses.edit.form.mobile_phone')
+                t('form.mobile_phone')
               "
               autocomplete="tel"
               name="mobilePhone"
@@ -634,8 +635,8 @@ definePageMeta({
                 dark:text-primary-50
               "
               for="floor"
-            >{{ $t('pages.account.addresses.edit.form.floor') }}</label>
-            <VeeField
+            >{{ t('form.floor') }}</label>
+            <Field
               id="floor"
               v-model="floor"
               :as="USelect"
@@ -660,9 +661,9 @@ definePageMeta({
               "
               for="locationType"
             >{{
-              $t('pages.account.addresses.edit.form.location_type')
+              t('form.location_type')
             }}</label>
-            <VeeField
+            <Field
               id="locationType"
               v-model="locationType"
               :as="USelect"
@@ -695,9 +696,9 @@ definePageMeta({
                 dark:text-primary-50
               "
               for="country"
-            >{{ $t('pages.account.addresses.edit.form.country') }}</label>
+            >{{ t('form.country') }}</label>
             <div class="grid">
-              <VeeField
+              <Field
                 id="country"
                 v-model="country"
                 :as="USelect"
@@ -723,9 +724,9 @@ definePageMeta({
                 dark:text-primary-50
               "
               for="region"
-            >{{ $t('pages.account.addresses.edit.form.region') }}</label>
+            >{{ t('form.region') }}</label>
             <div class="grid">
-              <VeeField
+              <Field
                 id="region"
                 v-model="region"
                 :as="USelect"
@@ -758,13 +759,13 @@ definePageMeta({
               dark:text-primary-50
             "
             for="notes"
-          >{{ $t('pages.account.addresses.edit.form.notes') }}</label>
+          >{{ t('form.notes') }}</label>
           <div class="grid">
-            <VeeField
+            <Field
               id="notes"
               v-model="notes"
               :as="UTextarea"
-              :placeholder="$t('pages.account.addresses.edit.form.notes')"
+              :placeholder="t('form.notes')"
               :rows="4"
               color="primary"
               name="notes"
@@ -787,10 +788,57 @@ definePageMeta({
             "
             type="submit"
           >
-            {{ $t('pages.account.addresses.edit.form.update') }}
+            {{ t('form.update') }}
           </button>
         </div>
       </form>
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επεξεργασία διεύθυνσης
+  error: Σφάλμα ενημέρωσης διεύθυνσης
+  success: Η διεύθυνση ενημερώθηκε με επιτυχία
+  back: Επιστροφή στις διευθύνσεις
+  main:
+    title: Κύριος
+    success: Η κύρια διεύθυνση ενημερώθηκε με επιτυχία
+    error: Σφάλμα ενημέρωσης κύριας διεύθυνσης
+    button: Ορισμός ως κύρια διεύθυνση
+  form:
+    title: Διεύθυνση
+    first_name: Όνομα
+    last_name: Επίθετο
+    street: Δρόμος
+    street_number: Αριθμός δρόμου
+    city: Πόλη
+    zipcode: Ταχυδρομικός Κώδικας
+    phone: Τηλέφωνο
+    mobile_phone: Κινητό τηλέφωνο
+    notes: Σημειώσεις
+    floor: Πάτωμα
+    location_type: Τύπος τοποθεσίας
+    country: Χώρα
+    region: Περιφέρεια
+    submit: Αποθήκευση
+    update: Ενημέρωση
+  validation:
+    title:
+      min: Ο τίτλος πρέπει να αποτελείται από τουλάχιστον %{min} χαρακτήρες
+    first_name:
+      min: Το όνομα πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+    last_name:
+      min: Το επώνυμο πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+    street:
+      min: Η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    street_number:
+      min: Ο αριθμός οδού πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+    city:
+      min: Η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    zipcode:
+      min: Ο ταχυδρομικός κώδικας πρέπει να είναι τουλάχιστον %{min} χαρακτήρες
+    region:
+      required: Απαιτείται Περιφέρεια
+</i18n>

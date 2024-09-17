@@ -34,8 +34,8 @@ const logo = computed(() => {
           :src="logo"
           :style="{ objectFit: 'contain' }"
           :width="500"
-          densities="x1"
           format="png"
+          quality="100"
           loading="eager"
           preload
         />

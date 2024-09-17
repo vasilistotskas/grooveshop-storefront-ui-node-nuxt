@@ -106,8 +106,8 @@ watch(
         :icon="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
         size="xl"
         :color="'primary'"
-        :aria-label="$t('common.notifications.title')"
-        :title="$t('common.notifications.title')"
+        :aria-label="$t('notifications.title')"
+        :title="$t('notifications.title')"
         @click="toggleDropdown"
       />
     </UChip>
@@ -183,7 +183,7 @@ watch(
             >
               <UIcon name="i-heroicons-bell-alert" class="h-12 w-12" />
               <p class="text-center text-sm">
-                {{ $t('common.notifications.no_notifications') }}
+                {{ $t('notifications.no_notifications') }}
               </p>
             </div>
           </template>

@@ -50,12 +50,12 @@ const spider = computed(() => {
     >
       <slot name="banner" />
     </div>
-    <div class="mx-auto w-full max-w-8xl">
+    <div class="container-sm !p-0">
       <div
         class="
           ml-2 mr-2 flex gap-2 py-3
 
-          lg:mx-0 lg:px-8
+          lg:mx-0
 
           md:block md:py-4
         "
@@ -93,6 +93,7 @@ const spider = computed(() => {
                   :alt="'Website Spider'"
                   loading="eager"
                   format="webp"
+                  quality="100"
                   densities="x1"
                   preload
                 />
@@ -104,6 +105,7 @@ const spider = computed(() => {
                   :alt="'website.gr'"
                   loading="eager"
                   format="webp"
+                  quality="100"
                   densities="x1"
                   preload
                 />

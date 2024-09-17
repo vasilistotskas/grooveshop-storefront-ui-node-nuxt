@@ -11,7 +11,7 @@ const { data, refresh, error } = await useAsyncData(
 
 if (error.value) {
   toast.add({
-    title: t('common.auth.mfa.required'),
+    title: t('auth.mfa.required'),
     color: 'red',
   })
   navigateTo(localePath('/account/settings'))
@@ -35,7 +35,7 @@ const unused_code_count = computed(() => {
 
 const columns = [{
   key: 'code',
-  label: t('common.code'),
+  label: t('code'),
 }, {
   key: 'actions',
 }]
@@ -87,7 +87,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('common.total_code_count') }}:</strong> {{ total_code_count }}
+            <strong>{{ $t('total_code_count') }}:</strong> {{ total_code_count }}
           </p>
           <p
             class="
@@ -96,7 +96,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('common.unused_code_count') }}:</strong> {{ unused_code_count }}
+            <strong>{{ $t('unused_code_count') }}:</strong> {{ unused_code_count }}
           </p>
           <p
             class="
@@ -105,7 +105,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('common.created_at') }}:</strong> {{ created_at ? new Date(created_at * 1000).toLocaleString() : $t('common.unused') }}
+            <strong>{{ $t('ordering.created_at') }}:</strong> {{ created_at ? new Date(created_at * 1000).toLocaleString() : $t('unused') }}
           </p>
           <p
             class="
@@ -114,7 +114,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('common.last_used_at') }}:</strong> {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $t('common.unused') }}
+            <strong>{{ $t('last_used_at') }}:</strong> {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $t('unused') }}
           </p>
         </div>
         <div class="grid items-center justify-center justify-items-center">
@@ -123,7 +123,7 @@ onReactivated(async () => {
             icon="i-heroicons-arrow-down-on-square"
             @click="downloadCodes"
           >
-            {{ $t('common.download_codes') }}
+            {{ $t('download_codes') }}
           </UButton>
         </div>
       </div>

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'default',
   middleware: 'guest',
@@ -14,9 +16,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.verify-email.title')" class="
-        text-center capitalize
-      "
+      :text="t('title')" class="text-center capitalize"
     />
     <p
       class="
@@ -25,7 +25,13 @@ definePageMeta({
         dark:text-primary-50
       "
     >
-      {{ $t('pages.account.verify-email.description') }}
+      {{ t('description') }}
     </p>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επιβεβαίωση Email
+  description: Θα πρέπει να επιβεβαιώσεις το email σου πριν συνεχίσεις.
+</i18n>

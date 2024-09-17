@@ -20,16 +20,14 @@ const localePath = useLocalePath()
 
 const flow = computed(() => authInfo?.pendingFlow)
 
-watchEffect(async () => {
-  if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
-    await navigateTo(localePath('/'))
-  }
-})
+if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
+  await navigateTo(localePath('/'))
+}
 
 const labels = {
-  [AuthenticatorType.TOTP]: t('common.mfa_reauthenticate.totp'),
-  [AuthenticatorType.RECOVERY_CODES]: t('common.mfa_reauthenticate.recovery_codes'),
-  [AuthenticatorType.WEBAUTHN]: t('common.mfa_reauthenticate.webauthn'),
+  [AuthenticatorType.TOTP]: t('mfa_reauthenticate.totp'),
+  [AuthenticatorType.RECOVERY_CODES]: t('mfa_reauthenticate.recovery_codes'),
+  [AuthenticatorType.WEBAUTHN]: t('mfa_reauthenticate.webauthn'),
 }
 
 const filteredFlows = computed(() => {
@@ -63,10 +61,10 @@ const filteredFlows = computed(() => {
           dark:text-primary-50
         "
       >
-        {{ $t('common.2fa.title') }}
+        {{ $t('2fa.title') }}
       </h3>
       <p>
-        {{ $t('common.2fa.subtitle') }}
+        {{ $t('2fa.subtitle') }}
       </p>
     </div>
 
@@ -77,7 +75,7 @@ const filteredFlows = computed(() => {
         grid items-center justify-center gap-2
       "
     >
-      <p>{{ $t('common.alternative_options') }}</p>
+      <p>{{ $t('alternative_options') }}</p>
       <ul class="grid items-center">
         <li
           v-for="f in filteredFlows"

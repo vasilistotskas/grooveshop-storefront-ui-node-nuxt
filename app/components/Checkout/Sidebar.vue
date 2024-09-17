@@ -8,6 +8,7 @@ const props = defineProps({
 const cartStore = useCartStore()
 const { cart, getCartItems } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
+const { t } = useI18n({ useScope: 'local' })
 
 const payWayCost = computed(() => {
   if (!payWay?.value?.freeForOrderAmount) return 0
@@ -43,7 +44,7 @@ defineSlots<{
               dark:text-primary-50
             "
           >
-            {{ $t('components.checkout.sidebar.title') }}
+            {{ t('title') }}
           </h3>
         </div>
         <div v-if="cart && getCartItems?.length">
@@ -56,7 +57,7 @@ defineSlots<{
                   dark:text-primary-50
                 "
               >
-                {{ $t('components.checkout.sidebar.items_unique') }}:
+                {{ t('items_unique') }}:
               </span>
             </div>
             <div class="grid">
@@ -80,7 +81,7 @@ defineSlots<{
                   dark:text-primary-50
                 "
               >
-                {{ $t('components.checkout.sidebar.shipping') }}:
+                {{ t('shipping') }}:
               </span>
             </div>
             <div class="grid">
@@ -108,7 +109,7 @@ defineSlots<{
                   dark:text-primary-50
                 "
               >
-                {{ $t('components.checkout.sidebar.pay_way_fee') }}:
+                {{ t('pay_way_fee') }}:
               </span>
             </div>
             <div class="grid">
@@ -133,7 +134,7 @@ defineSlots<{
                   dark:text-primary-50
                 "
               >
-                {{ $t('components.checkout.sidebar.total') }}:
+                {{ t('total') }}:
               </span>
             </div>
             <div class="grid">
@@ -158,3 +159,12 @@ defineSlots<{
     <slot name="button" />
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Ολοκλήρωση αγοράς
+  items_unique: Είδη
+  shipping: Αποστολή
+  total: Σύνολο
+  pay_way_fee: Προμήθεια Τρόπου πληρωμής
+</i18n>

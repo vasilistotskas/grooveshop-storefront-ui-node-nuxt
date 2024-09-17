@@ -23,12 +23,12 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
   {
     value: 'createdAt',
-    label: t('pages.account.favourites.products.ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: t('pages.account.favourites.products.ordering.updated_at'),
+    label: t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -119,7 +119,7 @@ watch(
         class="flex items-center justify-center gap-1"
       >
         <span class="text-sm font-semibold text-secondary">
-          {{ $t('components.favourite.list.favourites.total', favourites?.count) }}
+          {{ t('total.count', favourites?.count) }}
         </span>
       </div>
       <ul
@@ -169,3 +169,9 @@ watch(
     </template>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  total:
+    count: Κανένα σχόλιο | 1 σχόλιο | %{count} Σχόλια
+</i18n>

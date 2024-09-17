@@ -19,7 +19,7 @@ defineProps({
   },
 })
 
-const { locale } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 </script>
 
 <template>
@@ -32,7 +32,7 @@ const { locale } = useI18n()
       class="flex items-center justify-center gap-1"
     >
       <span class="text-sm font-semibold text-secondary">
-        {{ $t('components.favourite.list.favourites.total', favouritesCount) }}
+        {{ t('favourites.count', favouritesCount) }}
       </span>
     </div>
     <ul
@@ -94,3 +94,9 @@ const { locale } = useI18n()
     </ul>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  favourites:
+    count: Κανένα Αγαπημένο | 1 Αγαπημένο | %{count} Αγαπημένα
+</i18n>

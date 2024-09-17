@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'user',
 })
@@ -13,10 +15,15 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.sessions.title')" class="text-center"
+      :text="t('title')" class="text-center"
     />
     <PageBody>
       <AccountSessionsManage />
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Sessions
+</i18n>

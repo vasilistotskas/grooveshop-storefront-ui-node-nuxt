@@ -10,7 +10,7 @@ const props = defineProps({
 const cartStore = useCartStore()
 const { refreshCart, deleteCartItem } = cartStore
 
-const { locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { cartItem } = toRefs(props)
@@ -134,7 +134,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
             dark:text-primary-50
           "
           :title="
-            $t('components.cart.item_card.remove_from_cart', {
+            t('remove_from_cart', {
               name: alt,
             })
           "
@@ -147,3 +147,8 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  remove_from_cart: Αφαίρεση από το καλάθι %{name}
+</i18n>

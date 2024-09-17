@@ -27,11 +27,11 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
+      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('common.email.title'),
+      placeholder: t('email.title'),
       type: 'email',
     },
   ],
@@ -48,7 +48,7 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :button-label="t('common.submit')"
+        :button-label="t('submit')"
         :schema="formSchema"
         @submit="onSubmit"
       />

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+const localePath = useLocalePath()
+
 definePageMeta({
   layout: 'default',
 })
-
-const localePath = useLocalePath()
 </script>
 
 <template>
@@ -15,9 +16,7 @@ const localePath = useLocalePath()
     "
   >
     <PageTitle
-      :text="$t('pages.account.provider.signup.title')" class="
-        text-center capitalize
-      "
+      :text="t('title')" class="text-center capitalize"
     />
     <div
       class="
@@ -33,11 +32,11 @@ const localePath = useLocalePath()
           dark:text-primary-50
         "
       >{{
-        $t('pages.account.provider.signup.description')
+        t('description')
       }}</span>
 
       <UButton
-        :label="$t('common.login')"
+        :label="$t('login')"
         :to="localePath('/account/login')"
         color="opposite"
         size="md"
@@ -50,3 +49,9 @@ const localePath = useLocalePath()
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Εγγραφή
+  description: Έχεις λογαριασμό;
+</i18n>

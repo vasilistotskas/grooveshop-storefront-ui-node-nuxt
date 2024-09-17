@@ -1,6 +1,8 @@
 import { ZodConfigResponse } from '~/types/all-auth'
 
-export default defineEventHandler(async () => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/config`, {
@@ -11,4 +13,4 @@ export default defineEventHandler(async () => {
   catch (error) {
     await handleAllAuthError(error)
   }
-})
+}, { maxAge, base, name: 'AllAuthConfig' })

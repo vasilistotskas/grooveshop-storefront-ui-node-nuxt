@@ -32,14 +32,14 @@ const props = defineProps({
 const colorMode = useColorMode()
 const isDark = computed(() => colorMode.value === 'dark')
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { loggedIn } = useUserSession()
 
 const toggleFavourite = async () => {
   if (!loggedIn.value || !props.userId) {
     toast.add({
-      title: t('components.add_to_favourite_button.not_authenticated'),
+      title: t('not_authenticated'),
       color: 'red',
     })
     return
@@ -66,7 +66,7 @@ const toggleFavourite = async () => {
           return
         }
         toast.add({
-          title: t('components.add_to_favourite_button.added'),
+          title: t('added'),
           color: 'green',
         })
       },
@@ -94,7 +94,7 @@ const toggleFavourite = async () => {
           return
         }
         toast.add({
-          title: t('components.add_to_favourite_button.removed'),
+          title: t('removed'),
           color: 'red',
         })
       },
@@ -111,14 +111,14 @@ const toggleFavourite = async () => {
 const buttonLabel = computed(() => {
   if (!props.showLabel) return ''
   return props.favourite
-    ? t('components.add_to_favourite_button.remove')
-    : t('components.add_to_favourite_button.add')
+    ? t('remove')
+    : t('add')
 })
 
 const buttonAreaLabel = computed(() => {
   return props.favourite
-    ? t('components.add_to_favourite_button.remove')
-    : t('components.add_to_favourite_button.add')
+    ? t('remove')
+    : t('add')
 })
 
 const backgroundColor = computed(() => {
@@ -144,3 +144,12 @@ const backgroundColor = computed(() => {
   background-color: v-bind(backgroundColor);
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  not_authenticated: Πρέπει να είσαι συνδεδεμένος για να προσθέσεις στα αγαπημένα
+  added: Προστέθηκε στα αγαπημένα
+  removed: Αφαιρέθηκε από τα αγαπημένα
+  add: Προσθήκη στα αγαπημένα
+  remove: Αφαίρεση από τα αγαπημένα
+</i18n>

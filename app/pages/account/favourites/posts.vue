@@ -2,7 +2,7 @@
 import type { EntityOrdering } from '~/types/ordering'
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { user } = useUserSession()
 const { enabled } = useAuthPreviewMode()
@@ -14,17 +14,17 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   {
     value: 'title',
-    label: t('pages.account.favourites.posts.ordering.title'),
+    label: t('ordering.title'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'createdAt',
-    label: t('pages.account.favourites.posts.ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: t('pages.account.favourites.posts.ordering.updated_at'),
+    label: t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -93,7 +93,7 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.favourites.posts.title')" />
+    <PageTitle :text="t('title')" />
     <UserAccountFavouritesNavbar v-if="enabled" />
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
@@ -137,3 +137,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Αγαπημένες Δημοσιεύσεις
+</i18n>

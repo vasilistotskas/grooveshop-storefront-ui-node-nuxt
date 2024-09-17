@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'default',
   middleware: 'guest',
@@ -14,7 +16,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.login.code.confirm.title')" class="text-center"
+      :text="t('title')" class="text-center"
     />
     <p
       class="
@@ -23,10 +25,16 @@ definePageMeta({
         dark:text-primary-50
       "
     >
-      {{ $t('pages.account.login.code.confirm.description') }}
+      {{ t('description') }}
     </p>
     <PageBody>
       <AccountLoginCodeConfirmForm />
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επιβεβαίωση κωδικού
+  description: Ο κωδικός λήγει σύντομα, οπότε πρέπει να είσαι γρήγορος.
+</i18n>

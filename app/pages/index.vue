@@ -3,14 +3,17 @@ definePageMeta({
   layout: 'default',
 })
 
+const config = useRuntimeConfig()
 const { isMobileOrTablet } = useDevice()
+
+const appTitle = computed(() => config.public.appTitle as string)
 
 const items = computed(() => [
   isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
 
-const bannerHeight = ref(isMobileOrTablet ? 2363 : 672)
-const bannerWidth = ref(isMobileOrTablet ? 1890 : 1920)
+const bannerWidth = ref(isMobileOrTablet ? 510 : 1200)
+const bannerHeight = ref(isMobileOrTablet ? 638 : 420)
 </script>
 
 <template>
@@ -64,13 +67,13 @@ const bannerWidth = ref(isMobileOrTablet ? 1890 : 1920)
               indicators
             >
               <NuxtImg
-                :alt="'website.gr'"
+                :alt="appTitle"
                 :height="bannerHeight"
                 :src="item"
                 :style="{ objectFit: 'contain' }"
                 :width="bannerWidth"
+                quality="100"
                 class="rounded-lg"
-                densities="x1"
                 format="webp"
                 loading="eager"
                 preload

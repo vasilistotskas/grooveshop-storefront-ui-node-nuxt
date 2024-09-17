@@ -233,10 +233,10 @@ onClickOutside(autocomplete, () => {
         class="w-full max-w-[calc(100%-23rem)]"
         size="xs"
         color="white"
-        :name="$t('common.search.title')"
+        :name="$t('search.title')"
         :trailing="false"
-        :placeholder="$t('common.search.title')"
-        :aria-label="$t('common.search.title')"
+        :placeholder="$t('search.title')"
+        :aria-label="$t('search.title')"
         :ui="{
           icon: {
             trailing: {
@@ -263,7 +263,7 @@ onClickOutside(autocomplete, () => {
             color="white"
             variant="ghost"
             :padded="false"
-            :aria-label="$t('common.search.title')"
+            :aria-label="$t('search.title')"
             @click="searchGo(false)"
           />
         </template>
@@ -298,7 +298,7 @@ onClickOutside(autocomplete, () => {
       color="white"
       variant="ghost"
       :padded="false"
-      :aria-label="$t('common.search.title')"
+      :aria-label="$t('search.title')"
       @click="searchGo(true)"
     />
   </div>

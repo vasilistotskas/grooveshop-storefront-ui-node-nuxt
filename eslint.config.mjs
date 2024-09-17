@@ -14,6 +14,7 @@ export default withNuxt({
     'vue/no-v-html': 'off',
     'vue/no-watch-after-await': 'warn',
     'vue/no-lifecycle-after-await': 'warn',
+    'vue/attribute-hyphenation': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     ...eslintPluginReadableTailwind.configs.warning.rules,

@@ -2,7 +2,7 @@
 const emit = defineEmits(['generateRecoveryCodes'])
 
 const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const toast = useToast()
 
@@ -25,7 +25,7 @@ async function onSubmit() {
     loading.value = true
     await generateRecoveryCodes()
     toast.add({
-      title: t('common.codes.generated'),
+      title: t('codes.generated'),
       color: 'green',
     })
     emit('generateRecoveryCodes')
@@ -60,14 +60,14 @@ onReactivated(async () => {
           dark:text-primary-50
         "
       >
-        {{ $t('pages.account.2fa.recovery-codes.generate.description') }}
-        {{ hasCodes ? $t('pages.account.2fa.recovery-codes.generate.invalidate') : '' }}
-        {{ $t('pages.account.2fa.recovery-codes.generate.confirm') }}
+        {{ t('description') }}
+        {{ hasCodes ? t('invalidate') : '' }}
+        {{ t('confirm') }}
       </p>
 
       <UButton
         :label="
-          $t('common.generate')
+          $t('generate')
         "
         color="primary"
         size="xl"
@@ -76,3 +76,11 @@ onReactivated(async () => {
     </section>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  description: Είσαι έτοιμος να δημιουργήσεις ένα νέο σύνολο κωδικών ανάκτησης
+    για το λογαριασμό σας.
+  invalidate: Αυτή η ενέργεια θα ακυρώσει τους υπάρχοντες κωδικούς σας.
+  confirm: Είσαι σίγουρος;
+</i18n>

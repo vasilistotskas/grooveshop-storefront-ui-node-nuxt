@@ -14,7 +14,7 @@
 
         md:text-sm
       "
-    >{{ $t('common.demo.message') }}</span>
+    >{{ $t('demo.message') }}</span>
   </div>
 </template>
 

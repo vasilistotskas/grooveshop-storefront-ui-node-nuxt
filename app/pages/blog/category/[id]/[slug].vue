@@ -23,7 +23,7 @@ const pageSize = ref(15)
 const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   {
     value: 'createdAt',
-    label: t('common.ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -57,7 +57,7 @@ const {
 if (!category.value) {
   throw createError({
     statusCode: 404,
-    message: t('common.error.page.not.found'),
+    message: t('error.page.not.found'),
     fatal: true,
   })
 }

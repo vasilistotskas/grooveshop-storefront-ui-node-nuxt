@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
 
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const seoMetaInput = {
-  title: t('pages.products.title'),
+  title: t('title'),
 } satisfies UseSeoMetaInput
 
 const links = computed(() => [
@@ -22,7 +22,7 @@ const links = computed(() => [
 ])
 
 useHydratedHead({
-  title: () => t('pages.products.title'),
+  title: () => t('title'),
 })
 useSeoMeta(seoMetaInput)
 
@@ -55,3 +55,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Προϊόντα
+</i18n>

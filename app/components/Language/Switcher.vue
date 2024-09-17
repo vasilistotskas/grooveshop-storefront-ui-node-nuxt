@@ -13,7 +13,7 @@ defineProps({
   },
 })
 
-const { locale, locales, setLocale } = useI18n()
+const { locale, locales, t, setLocale } = useI18n({ useScope: 'local' })
 
 const allLocales = locales.value as unknown as Locale[]
 
@@ -71,7 +71,7 @@ const onLocaleChange = (code: string) => {
     >
       <UButton
         :aria-current-value="locale"
-        :title="$t('components.language.switcher.current_language', {
+        :title="t('current_language', {
           language: locale,
         })"
         class="p-0"
@@ -80,9 +80,15 @@ const onLocaleChange = (code: string) => {
         trailing-icon="i-heroicons-language"
       >
         <span class="sr-only">{{
-          $t('components.language.switcher.change_language')
+          t('change_language')
         }}</span>
       </UButton>
     </UDropdown>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  change_language: Άλλαξε γλώσσα
+  current_language: Τρέχουσα γλώσσα %{language}
+</i18n>

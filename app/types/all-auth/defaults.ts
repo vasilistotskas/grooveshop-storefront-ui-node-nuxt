@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { AllAuthResponse } from '~/types/all-auth/response'
 
 export const ZodProvider = z.object({
   id: z.string().describe('The provider ID.'),
@@ -161,6 +162,13 @@ export const AuthChangeEvent = Object.freeze({
   REAUTHENTICATION_REQUIRED: 'REAUTHENTICATION_REQUIRED',
   FLOW_UPDATED: 'FLOW_UPDATED',
 })
+
+export type AuthInfo = {
+  isAuthenticated: boolean
+  requiresReauthentication: boolean
+  user: AllAuthResponse['data']['user'] | null
+  pendingFlow: Flow | null
+}
 
 export type Provider = z.infer<typeof ZodProvider>
 export type Session = z.infer<typeof ZodSession>

@@ -77,17 +77,17 @@ const {
 const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   {
     value: 'createdAt',
-    label: t('pages.blog.ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'title',
-    label: t('pages.blog.ordering.title'),
+    label: t('title'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'publishedAt',
-    label: t('pages.blog.ordering.published_at'),
+    label: t('ordering.published_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -249,7 +249,7 @@ onReactivated(async () => {
 
           md:row-start-1 md:grid-cols-2
 
-          sm:grid-cols-2
+          sm:grid-cols-1
 
           xl:grid-cols-3
         "
@@ -284,7 +284,7 @@ onReactivated(async () => {
     <Transition>
       <ClientOnlyFallback
         v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR"
-        :text="$t('common.loading')"
+        :text="$t('loading')"
         class="grid items-center justify-items-center"
         height="75px"
         width="35%"

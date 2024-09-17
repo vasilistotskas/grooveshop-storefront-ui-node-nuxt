@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'default',
   middleware: 'guest',
@@ -14,7 +16,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.signup.title')"
+      :text="t('title')"
       class="text-center capitalize"
     />
     <PageBody>
@@ -22,3 +24,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Εγγραφή
+</i18n>

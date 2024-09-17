@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { AuthenticatorType } from '~/types/all-auth'
 
+const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const { getAuthenticators } = useAllAuthAccount()
 
@@ -35,7 +36,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.2fa.title')" class="text-center capitalize"
+      :text="t('title')" class="text-center capitalize"
     />
     <PageBody>
       <div class="grid items-center justify-center">
@@ -46,7 +47,7 @@ definePageMeta({
             dark:text-primary-50
           "
         >
-          {{ $t('pages.account.2fa.authenticator.app') }}
+          {{ t('authenticator.app') }}
         </p>
         <div
           v-if="totp" class="
@@ -60,10 +61,10 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.2fa.active') }}
+            {{ t('active') }}
           </p>
           <UButton
-            :label="$t('common.deactivate')"
+            :label="$t('deactivate')"
             :to="localePath('/account/2fa/totp/deactivate')"
             color="primary"
             size="xl"
@@ -81,10 +82,10 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.2fa.inactive') }}
+            {{ t('inactive') }}
           </p>
           <UButton
-            :label="$t('common.activate')"
+            :label="$t('activate')"
             :to="localePath('/account/2fa/totp/activate')"
             color="primary"
             size="xl"
@@ -101,7 +102,7 @@ definePageMeta({
             dark:text-primary-50
           "
         >
-          {{ $t('pages.account.2fa.recovery-codes.title') }}
+          {{ t('recovery-codes.title') }}
         </p>
         <div
           v-if="!recoveryCodes" class="
@@ -115,10 +116,10 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.2fa.recovery-codes.unset') }}
+            {{ t('recovery-codes.unset') }}
           </p>
           <UButton
-            :label="$t('common.generate')"
+            :label="$t('generate')"
             :to="localePath('/account/2fa/recovery-codes/generate')"
             color="primary"
             size="xl"
@@ -136,19 +137,19 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            {{ $t('pages.account.2fa.recovery-codes.info', {
+            {{ t('recovery-codes.info', {
               unused_code_count: recoveryCodes.unused_code_count,
               total_code_count: recoveryCodes.total_code_count,
             }) }}
           </p>
           <UButton
-            :label="$t('common.view')"
+            :label="$t('view')"
             :to="localePath('/account/2fa/recovery-codes')"
             color="primary"
             size="xl"
           />
           <UButton
-            :label="$t('common.regenerate')"
+            :label="$t('regenerate')"
             :to="localePath('/account/2fa/recovery-codes/generate')"
             color="primary"
             size="xl"
@@ -158,3 +159,17 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Two-Factor Authentication
+  authenticator:
+    app: Εφαρμογή ελέγχου ταυτότητας
+  active: Η επαλήθευση με χρήση εφαρμογής ελέγχου ταυτότητας είναι ενεργή.
+  inactive: Η εφαρμογή ελέγχου ταυτότητας δεν είναι ενεργή.
+  recovery-codes:
+    title: Κωδικοί ανάκτησης
+    unset: Δεν έχουν οριστεί κωδικοί ανάκτησης
+    info: Έχεις %{unused_code_count} από τους %{total_code_count} κωδικούς ανάκτησης
+      διαθέσιμους.
+</i18n>

@@ -1,21 +1,21 @@
 <script lang="ts" setup>
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 
 const items = [{
-  label: t('common.about.us'),
+  label: t('about.us'),
   icon: 'i-heroicons-information-circle',
   slot: 'about',
 }, {
-  label: t('common.microlearning.title'),
+  label: t('microlearning.title'),
   icon: 'i-heroicons-light-bulb',
   slot: 'micro-learning',
 }, {
-  label: t('common.terms_conditions'),
+  label: t('terms_conditions'),
   icon: 'i-heroicons-rectangle-group',
   slot: 'terms-conditions',
 }, {
-  label: t('common.help_center'),
+  label: t('help_center'),
   icon: 'i-heroicons-chat-bubble-oval-left',
   slot: 'contact',
 }]
@@ -92,7 +92,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('common.about.site')"
+            :label="$t('about.site')"
             :to="localePath('about')"
             class="font-semibold"
             color="secondary"
@@ -109,7 +109,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('common.vision')"
+            :label="$t('vision')"
             :to="localePath('vision')"
             class="font-semibold"
             color="secondary"
@@ -129,7 +129,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('common.microlearning.what')"
+            :label="$t('microlearning.what')"
             :to="localePath('what-is-microlearning')"
             class="font-semibold"
             color="secondary"
@@ -146,7 +146,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('common.microlearning.why')"
+            :label="$t('microlearning.why')"
             :to="localePath('why-microlearning')"
             class="font-semibold"
             color="secondary"
@@ -166,7 +166,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('common.term_of_use')"
+            :label="$t('term_of_use')"
             :to="localePath('terms-of-use')"
             class="font-semibold"
             color="secondary"
@@ -183,7 +183,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('common.privacy_policy')"
+            :label="$t('privacy_policy')"
             :to="localePath('privacy-policy')"
             class="font-semibold"
             color="secondary"
@@ -200,7 +200,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('common.cookies_policy')"
+            :label="$t('cookies_policy')"
             :to="localePath('cookies-policy')"
             class="font-semibold"
             color="secondary"
@@ -220,7 +220,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('pages.contact.title')"
+            :label="t('title')"
             :to="localePath('contact')"
             class="font-semibold"
             color="secondary"
@@ -233,3 +233,8 @@ const items = [{
     </UAccordion>
   </footer>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επικοινωνία
+</i18n>

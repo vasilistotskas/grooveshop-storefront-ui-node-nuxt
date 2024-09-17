@@ -31,7 +31,7 @@ async function addEmail(values: EmailPostBody) {
     await addEmailAddress(values)
     await refreshEmailAddresses()
     toast.add({
-      title: t('common.email.added'),
+      title: t('email.added'),
       color: 'green',
     })
     emit('addEmailAddress')
@@ -68,7 +68,7 @@ async function removeEmail(values: EmailDeleteBody) {
     await removeEmailAddress(values)
     await refreshEmailAddresses()
     toast.add({
-      title: t('common.email.removed'),
+      title: t('email.removed'),
       color: 'green',
     })
     emit('removeEmailAddress')
@@ -87,7 +87,7 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
     await changePrimaryEmailAddress(values)
     await refreshEmailAddresses()
     toast.add({
-      title: t('common.email.marked_as_primary'),
+      title: t('email.marked_as_primary'),
       color: 'green',
     })
     emit('changePrimaryEmailAddress')
@@ -102,13 +102,13 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
 
 const columns = [{
   key: 'email',
-  label: t('common.email.title'),
+  label: t('email.title'),
 }, {
   key: 'verified',
-  label: t('common.verified'),
+  label: t('verified'),
 }, {
   key: 'primary',
-  label: t('common.primary'),
+  label: t('primary'),
 }, {
   key: 'actions',
 }]
@@ -127,19 +127,19 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
   const items: DropdownItem[] = []
   if (!row.primary) {
     items.push({
-      label: t('common.email.mark_as_primary'),
+      label: t('email.mark_as_primary'),
       icon: 'i-heroicons-star-20-solid',
       click: () => markAsPrimaryEmail({ email: row.email, primary: true }),
     })
     items.push({
-      label: t('common.email.remove'),
+      label: t('email.remove'),
       icon: 'i-heroicons-trash-20-solid',
       click: () => removeEmail({ email: row.email }),
     })
   }
   if (!row.verified) {
     items.push({
-      label: t('common.email.request_verification'),
+      label: t('email.request_verification'),
       icon: 'i-heroicons-mail-20-solid',
       click: () => emailVerificationRequest({ email: row.email }),
     })
@@ -154,14 +154,14 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('common.email.title'),
+      label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
+      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('common.email.title'),
+      placeholder: t('email.title'),
       type: 'email',
     },
   ],
@@ -223,7 +223,7 @@ const formSchema: DynamicFormSchema = {
           dark:text-primary-50
         "
       >
-        {{ $t('common.email.add') }}
+        {{ $t('email.add') }}
       </h2>
       <div
         class="
@@ -234,7 +234,7 @@ const formSchema: DynamicFormSchema = {
       >
         <section class="grid items-center">
           <DynamicForm
-            :button-label="t('common.submit')"
+            :button-label="t('submit')"
             :loading="loading"
             :reset-on-submit="true"
             :schema="formSchema"

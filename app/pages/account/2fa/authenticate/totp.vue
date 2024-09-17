@@ -4,11 +4,9 @@ import { AuthChangeEvent, type AuthChangeEventType, AuthenticatorType } from '~/
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
-watchEffect(async () => {
-  if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-    await navigateTo(localePath('/'))
-  }
-})
+if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
+  await navigateTo(localePath('/'))
+}
 
 definePageMeta({
   layout: 'default',
@@ -24,7 +22,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('common.authenticate.totp')"
+      :text="$t('authenticate.totp')"
       class="text-center capitalize"
     />
     <PageBody>

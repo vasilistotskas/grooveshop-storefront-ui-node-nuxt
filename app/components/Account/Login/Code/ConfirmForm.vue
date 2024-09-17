@@ -17,7 +17,7 @@ async function onSubmit(values: CodeConfirmBody) {
     loading.value = true
     await confirmLoginCode(values)
     toast.add({
-      title: t('common.logged_in'),
+      title: t('logged_in'),
       color: 'green',
     })
     emit('confirmLoginCode')
@@ -32,11 +32,11 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
-      placeholder: t('common.code'),
+      placeholder: t('code'),
       type: 'text',
     },
   ],
@@ -53,7 +53,7 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :button-label="t('common.submit')"
+        :button-label="t('submit')"
         :schema="formSchema"
         @submit="onSubmit"
       />

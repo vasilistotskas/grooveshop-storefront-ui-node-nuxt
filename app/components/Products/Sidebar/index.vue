@@ -65,7 +65,7 @@ onMounted(() => {
       "
     >
       <h2 class="flex items-center gap-2 p-2 text-center text-2xl font-bold">
-        {{ $t('common.filters.title') }}
+        {{ $t('filters.title') }}
       </h2>
       <div
         class="
@@ -75,7 +75,7 @@ onMounted(() => {
         "
       >
         <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
-          {{ $t('common.categories') }}
+          {{ $t('categories') }}
           <span
             class="
               text-primary-950 text-sm font-normal
@@ -90,7 +90,7 @@ onMounted(() => {
           class="sr-only"
           for="search"
         >
-          {{ $t('common.search.title') }}
+          {{ $t('search.title') }}
         </label>
         <UInput
           id="search"
@@ -105,7 +105,7 @@ onMounted(() => {
           color="primary"
           :trailing="false"
           variant="outline"
-          :placeholder="`${$t('common.search.title')}...`"
+          :placeholder="`${$t('search.title')}...`"
         />
       </div>
       <ul
@@ -148,7 +148,7 @@ onMounted(() => {
             dark:text-primary-50
           "
         >
-          {{ $t('common.no_categories_found') }}
+          {{ $t('no_categories_found') }}
         </p>
       </div>
     </div>

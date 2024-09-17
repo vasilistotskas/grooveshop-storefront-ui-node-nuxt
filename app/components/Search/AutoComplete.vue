@@ -103,7 +103,7 @@ await preloadComponents('SearchResultItem')
                   dark:text-primary-50
                 "
               >
-                {{ $t(`common.sections.${key}`) }}
+                {{ $t(`sections.${key}`) }}
               </span>
               <div
                 class="
@@ -135,10 +135,10 @@ await preloadComponents('SearchResultItem')
                 @mousedown="keepFocus = true"
                 @click="onLoadMore(section, Number(limit), Number(offset))"
               >
-                {{ $t("common.results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
+                {{ $t("results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
               </UButton>
               <span class="text-sm text-primary-400">
-                {{ section.estimatedTotalHits > Number(limit) ? $t("common.approx_results", section.estimatedTotalHits) : $t("results", section.estimatedTotalHits) }}
+                {{ section.estimatedTotalHits > Number(limit) ? $t("approx_results", section.estimatedTotalHits) : $t("results", section.estimatedTotalHits) }}
               </span>
             </div>
           </div>

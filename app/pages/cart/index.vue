@@ -2,6 +2,7 @@
 const cartStore = useCartStore()
 const localePath = useLocalePath()
 const { cart, pending } = storeToRefs(cartStore)
+const { t } = useI18n({ useScope: 'local' })
 
 definePageMeta({
   layout: 'default',
@@ -53,7 +54,7 @@ definePageMeta({
     <div class="grid items-center">
       <h2 class="grid justify-items-center justify-self-end">
         <UButton
-          :label="$t('pages.cart.checkout')"
+          :label="t('checkout')"
           :to="localePath('checkout')"
           class="capitalize"
           color="primary"
@@ -64,3 +65,8 @@ definePageMeta({
     </div>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  checkout: Ολοκλήρωση αγοράς
+</i18n>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { z } from 'zod'
-
+import { Field } from 'vee-validate'
 import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order'
@@ -15,7 +15,7 @@ const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 const { cleanCartState } = cartStore
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
 
@@ -48,43 +48,43 @@ const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
 const ZodCheckout = z.object({
-  user: z.string({ required_error: t('common.validation.required') }).optional(),
-  country: z.string({ required_error: t('common.validation.required') }).optional(),
-  region: z.string({ required_error: t('common.validation.required') }).optional(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('common.validation.required') })]).optional(),
+  user: z.string({ required_error: t('validation.required') }).optional(),
+  country: z.string({ required_error: t('validation.required') }).optional(),
+  region: z.string({ required_error: t('validation.required') }).optional(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('validation.required') })]).optional(),
   locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('common.validation.required') })])
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('validation.required') })])
     .optional(),
   street: z
     .string()
-    .min(3, t('pages.checkout.validation.street.min', { min: 3 })),
+    .min(3, t('validation.street.min', { min: 3 })),
   streetNumber: z
     .string()
-    .min(1, t('pages.checkout.validation.street_number.min', { min: 1 })),
+    .min(1, t('validation.street_number.min', { min: 1 })),
   status: ZodOrderStatusEnum.optional(),
   firstName: z
     .string()
-    .min(3, t('pages.checkout.validation.first_name.min', { min: 3 })),
+    .min(3, t('validation.first_name.min', { min: 3 })),
   lastName: z
     .string()
-    .min(3, t('pages.checkout.validation.last_name.min', { min: 3 })),
-  email: z.string({ required_error: t('common.validation.required') }).email(t('common.validation.email.valid')),
+    .min(3, t('validation.last_name.min', { min: 3 })),
+  email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
   zipcode: z
     .string()
-    .min(3, t('pages.checkout.validation.zipcode.min', { min: 3 })),
+    .min(3, t('validation.zipcode.min', { min: 3 })),
   place: z
     .string()
-    .min(3, t('pages.checkout.validation.place.min', { min: 3 })),
-  city: z.string({ required_error: t('common.validation.required') }).min(3, t('pages.checkout.validation.city.min', { min: 3 })),
+    .min(3, t('validation.place.min', { min: 3 })),
+  city: z.string({ required_error: t('validation.required') }).min(3, t('validation.city.min', { min: 3 })),
   phone: z
     .string()
-    .min(3, t('pages.checkout.validation.phone.min', { min: 3 })),
-  mobilePhone: z.string({ required_error: t('common.validation.required') }).optional(),
-  customerNotes: z.string({ required_error: t('common.validation.required') }).optional(),
+    .min(3, t('validation.phone.min', { min: 3 })),
+  mobilePhone: z.string({ required_error: t('validation.required') }).optional(),
+  customerNotes: z.string({ required_error: t('validation.required') }).optional(),
   shippingPrice: z.number(),
   documentType: ZodDocumentTypeEnum,
   items: z.array(ZodOrderCreateItem),
-  payWay: z.number({ required_error: t('common.validation.required') }),
+  payWay: z.number({ required_error: t('validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)
@@ -170,8 +170,8 @@ const fetchRegions = async () => {
   }
   catch {
     toast.add({
-      title: t('common.error.default'),
-      description: t('common.error_occurred'),
+      title: t('error.default'),
+      description: t('error_occurred'),
       color: 'red',
     })
   }
@@ -206,7 +206,7 @@ const onSubmit = handleSubmit(async (values) => {
         return
       }
       toast.add({
-        title: t('pages.checkout.form.submit.success'),
+        title: t('form.submit.success'),
         color: 'green',
       })
       cleanCartState()
@@ -283,13 +283,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="firstName"
-              >{{ $t('pages.checkout.form.first_name') }}</label>
+              >{{ t('form.first_name') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="firstName"
                   v-model="firstName"
                   :bind="firstNameProps"
-                  :placeholder="$t('pages.checkout.form.first_name')"
+                  :placeholder="t('form.first_name')"
                   autocomplete="given-name"
                   name="firstName"
                   type="text"
@@ -311,13 +311,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="lastName"
-              >{{ $t('pages.checkout.form.last_name') }}</label>
+              >{{ t('form.last_name') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="lastName"
                   v-model="lastName"
                   :bind="lastNameProps"
-                  :placeholder="$t('pages.checkout.form.last_name')"
+                  :placeholder="t('form.last_name')"
                   autocomplete="family-name"
                   name="lastName"
                   type="text"
@@ -339,13 +339,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="email"
-              >{{ $t('pages.checkout.form.email') }}</label>
+              >{{ t('form.email') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="email"
                   v-model="email"
                   :bind="emailProps"
-                  :placeholder="$t('pages.checkout.form.email')"
+                  :placeholder="t('form.email')"
                   autocomplete="email"
                   name="email"
                   type="email"
@@ -367,13 +367,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="phone"
-              >{{ $t('pages.checkout.form.phone') }}</label>
+              >{{ t('form.phone') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="phone"
                   v-model="phone"
                   :bind="phoneProps"
-                  :placeholder="$t('pages.checkout.form.phone')"
+                  :placeholder="t('form.phone')"
                   autocomplete="tel"
                   name="phone"
                   type="text"
@@ -395,13 +395,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="mobilePhone"
-              >{{ $t('pages.checkout.form.mobile_phone') }}</label>
+              >{{ t('form.mobile_phone') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="mobilePhone"
                   v-model="mobilePhone"
                   :bind="mobilePhoneProps"
-                  :placeholder="$t('pages.checkout.form.mobile_phone')"
+                  :placeholder="t('form.mobile_phone')"
                   autocomplete="tel"
                   name="mobilePhone"
                   type="text"
@@ -423,13 +423,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="city"
-              >{{ $t('pages.checkout.form.city') }}</label>
+              >{{ t('form.city') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="city"
                   v-model="city"
                   :bind="cityProps"
-                  :placeholder="$t('pages.checkout.form.city')"
+                  :placeholder="t('form.city')"
                   autocomplete="address-level2"
                   name="city"
                   type="text"
@@ -451,13 +451,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="place"
-              >{{ $t('pages.checkout.form.place') }}</label>
+              >{{ t('form.place') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="place"
                   v-model="place"
                   :bind="placeProps"
-                  :placeholder="$t('pages.checkout.form.place')"
+                  :placeholder="t('form.place')"
                   autocomplete="address-level2"
                   name="place"
                   type="text"
@@ -479,13 +479,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="zipcode"
-              >{{ $t('pages.checkout.form.zipcode') }}</label>
+              >{{ t('form.zipcode') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="zipcode"
                   v-model="zipcode"
                   :bind="zipcodeProps"
-                  :placeholder="$t('pages.checkout.form.zipcode')"
+                  :placeholder="t('form.zipcode')"
                   autocomplete="postal-code"
                   name="zipcode"
                   type="text"
@@ -507,13 +507,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="street"
-              >{{ $t('pages.checkout.form.street') }}</label>
+              >{{ t('form.street') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="street"
                   v-model="street"
                   :bind="streetProps"
-                  :placeholder="$t('pages.checkout.form.street')"
+                  :placeholder="t('form.street')"
                   autocomplete="address-line1"
                   name="street"
                   type="text"
@@ -535,13 +535,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="streetNumber"
-              >{{ $t('pages.checkout.form.street_number') }}</label>
+              >{{ t('form.street_number') }}</label>
               <div class="grid">
                 <FormTextInput
                   id="streetNumber"
                   v-model="streetNumber"
                   :bind="streetNumberProps"
-                  :placeholder="$t('pages.checkout.form.street_number')"
+                  :placeholder="t('form.street_number')"
                   autocomplete="address-line2"
                   name="streetNumber"
                   type="text"
@@ -563,13 +563,13 @@ definePageMeta({
                   dark:text-primary-50
                 "
                 for="customerNotes"
-              >{{ $t('pages.checkout.form.customer_notes') }}</label>
+              >{{ t('form.customer_notes') }}</label>
               <div class="grid">
-                <VeeField
+                <Field
                   id="customerNotes"
                   v-model="customerNotes"
                   :as="UTextarea"
-                  :placeholder="$t('pages.checkout.form.customer_notes')"
+                  :placeholder="t('form.customer_notes')"
                   :rows="4"
                   color="primary"
                   name="customerNotes"
@@ -595,8 +595,8 @@ definePageMeta({
                     dark:text-primary-50
                   "
                   for="floor"
-                >{{ $t('pages.checkout.form.floor') }}</label>
-                <VeeField
+                >{{ t('form.floor') }}</label>
+                <Field
                   id="floor"
                   v-model="floor"
                   :as="USelect"
@@ -622,8 +622,8 @@ definePageMeta({
                     dark:text-primary-50
                   "
                   for="locationType"
-                >{{ $t('pages.checkout.form.location_type') }}</label>
-                <VeeField
+                >{{ t('form.location_type') }}</label>
+                <Field
                   id="locationType"
                   v-model="locationType"
                   :as="USelect"
@@ -652,9 +652,9 @@ definePageMeta({
                     dark:text-primary-50
                   "
                   for="country"
-                >{{ $t('pages.checkout.form.country') }}</label>
+                >{{ t('form.country') }}</label>
                 <div class="grid">
-                  <VeeField
+                  <Field
                     id="country"
                     v-model="country"
                     :as="USelect"
@@ -682,9 +682,9 @@ definePageMeta({
                     dark:text-primary-50
                   "
                   for="region"
-                >{{ $t('pages.checkout.form.region') }}</label>
+                >{{ t('form.region') }}</label>
                 <div class="grid">
-                  <VeeField
+                  <Field
                     id="region"
                     v-model="region"
                     :as="USelect"
@@ -743,7 +743,7 @@ definePageMeta({
                 "
                 type="submit"
               >
-                {{ $t('pages.checkout.form.submit.title') }}
+                {{ t('form.submit.title') }}
               </button>
             </div>
           </template>
@@ -752,3 +752,47 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Ολοκλήρωση αγοράς
+  form:
+    first_name: Ονομα
+    last_name: Επίθετο
+    email: Email
+    phone: Τηλέφωνο
+    place: Περιοχή
+    zipcode: Ταχυδρομικός Κώδικας
+    country: Χώρα
+    region: Περιφέρεια
+    mobile_phone: Κινητό τηλέφωνο
+    floor: Πάτωμα
+    location_type: Τύπος τοποθεσίας
+    street: Δρόμος
+    street_number: Αριθμός δρόμου
+    customer_notes: Σημειώσεις Πελατών
+    submit:
+      title: Αποθήκευση
+      success: Η παραγγελία δημιουργήθηκε με επιτυχία
+      error: Σφάλμα δημιουργίας παραγγελίας
+  validation:
+    email:
+      required: Απαιτείται email
+      email: Το email πρέπει να είναι έγκυρο
+    first_name:
+      min: Το όνομα πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    last_name:
+      min: Το επώνυμο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    street:
+      min: Η οδός πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    street_number:
+      min: Ο αριθμός οδού πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    zipcode:
+      min: Ο ταχυδρομικός κώδικας πρέπει να έχει μήκος τουλάχιστον %{min} χαρακτήρων
+    place:
+      min: Το μέρος πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    city:
+      min: Η πόλη πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+    phone:
+      min: Το τηλέφωνο πρέπει να έχει τουλάχιστον %{min} χαρακτήρες
+</i18n>

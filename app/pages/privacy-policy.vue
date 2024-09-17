@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
 definePageMeta({
   layout: 'default',
 })
@@ -7,7 +9,7 @@ definePageMeta({
 <template>
   <PageWrapper class="container flex flex-col">
     <PageTitle
-      :text="$t('pages.privacy-policy.title')"
+      :text="t('title')"
       class="text-center capitalize"
     />
     <PageBody>
@@ -128,3 +130,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Πολιτική Απορρήτου
+</i18n>

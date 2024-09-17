@@ -17,13 +17,14 @@ const { t } = useI18n()
 const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
 
 const flowLabels = {
-  [Flows.REAUTHENTICATE]: t('common.reauthenticate.title'),
-  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: t('common.mfa_reauthenticate.totp'),
-  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: t('common.mfa_reauthenticate.recovery_codes'),
-  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: t('common.mfa_reauthenticate.webauthn'),
+  [Flows.REAUTHENTICATE]: t('reauthenticate.title'),
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: t('mfa_reauthenticate.totp'),
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: t('mfa_reauthenticate.recovery_codes'),
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: t('mfa_reauthenticate.webauthn'),
 }
 
 const flows = computed(() => {
+  if (!authState.value) return []
   if ('data' in authState.value && 'flows' in authState.value.data) {
     return authState.value.data.flows || []
   }
@@ -78,17 +79,17 @@ const filteredMethods = computed(() => {
           dark:text-primary-50
         "
       >
-        {{ $t('common.confirm_access') }}
+        {{ $t('confirm_access') }}
       </h3>
       <p>
-        {{ $t('common.reauthenticate.title') }}
+        {{ $t('reauthenticate.title') }}
       </p>
     </div>
 
     <slot />
 
     <div v-if="methods.length > 1" class="grid items-center justify-center gap-2">
-      <p>{{ $t('common.alternative_options') }}</p>
+      <p>{{ $t('alternative_options') }}</p>
       <ul class="grid items-center">
         <li
           v-for="f in filteredMethods"

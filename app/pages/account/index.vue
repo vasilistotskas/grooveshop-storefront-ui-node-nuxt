@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const { menus } = useAccountMenus()
+const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 
 definePageMeta({
@@ -16,14 +17,14 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.index.title')"
+      :text="t('title')"
       class="account-header-title"
     />
     <PageBody>
       <MobileOrTabletOnly>
         <ul
           role="tablist"
-          :aria-label="$t('common.menu')"
+          :aria-label="$t('menu')"
           class="
             grid grid-cols-2 gap-3
 
@@ -93,3 +94,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Λογαριασμός
+</i18n>

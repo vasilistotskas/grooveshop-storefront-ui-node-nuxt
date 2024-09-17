@@ -114,9 +114,9 @@ onUnmounted(() => {
       v-if="nextCursor && showButton && strategy === 'button' && totalPages > 1"
       size="md"
       variant="soft"
-      :label="$t('common.load.more')"
+      :label="$t('load.more')"
       :color="'primary'"
-      :aria-label="$t('common.load.more')"
+      :aria-label="$t('load.more')"
       :loading="loading"
       @click="loadMore"
     />

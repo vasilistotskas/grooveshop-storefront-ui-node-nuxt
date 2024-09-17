@@ -1,7 +1,9 @@
 import { ZodPagination } from '~/types/pagination'
 import { ZodProductCategory } from '~/types/product/category'
 
-export default defineEventHandler(async () => {
+const { maxAge, base } = getCachedEventHandlerOptions()
+
+export default defineCachedEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const response = await $fetch(
@@ -15,4 +17,4 @@ export default defineEventHandler(async () => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { maxAge, base, name: 'ProductCategoryViewSet' })

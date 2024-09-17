@@ -2,7 +2,7 @@
 import { AuthenticatorType } from '~/types/all-auth'
 
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const { getAuthenticators } = useAllAuthAccount()
 
 const { data, refresh } = await useLazyAsyncData(
@@ -25,28 +25,28 @@ const recoveryCodes = computed(() => {
 const links = computed(() => {
   const links = [
     {
-      label: t('common.social_accounts'),
+      label: t('social_accounts'),
       icon: 'i-heroicons-user-group',
       to: localePath('/account/providers'),
     },
     {
-      label: t('common.sessions'),
+      label: t('sessions'),
       icon: 'i-heroicons-signal',
       to: localePath('/account/sessions'),
     },
     {
-      label: t('common.password.change'),
+      label: t('password.change'),
       icon: 'i-heroicons-lock-closed',
       to: localePath('/account/password/change'),
     },
     !totp.value
       ? {
-          label: t('common.two_factor.activate'),
+          label: t('two_factor.activate'),
           icon: 'i-heroicons-lock-open',
           to: localePath('/account/2fa/totp/activate'),
         }
       : {
-          label: t('common.two_factor.deactivate'),
+          label: t('two_factor.deactivate'),
           icon: 'i-heroicons-chart-bar',
           to: localePath('/account/2fa/totp/deactivate'),
         },
@@ -54,11 +54,11 @@ const links = computed(() => {
 
   if (recoveryCodes.value) {
     links.push({
-      label: t('common.two_factor.recovery_codes.title'),
+      label: t('two_factor.recovery_codes.title'),
       icon: 'i-heroicons-key',
       to: localePath('/account/2fa/recovery-codes'),
     }, {
-      label: t('common.two_factor.recovery_codes.generate'),
+      label: t('two_factor.recovery_codes.generate'),
       icon: 'i-heroicons-key',
       to: localePath('/account/2fa/recovery-codes/generate'),
     })
@@ -66,14 +66,14 @@ const links = computed(() => {
 
   if (webauthn.value) {
     links.push({
-      label: t('common.two_factor.webauthn.title'),
+      label: t('two_factor.webauthn.title'),
       icon: 'i-heroicons-key',
       to: localePath('/account/2fa/webauthn'),
     })
   }
   else {
     links.push({
-      label: t('common.two_factor.webauthn.add'),
+      label: t('two_factor.webauthn.add'),
       icon: 'i-heroicons-key',
       to: localePath('/account/2fa/webauthn/add'),
     })
@@ -99,7 +99,7 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('pages.account.settings.title')" />
+    <PageTitle :text="$t('title')" />
     <PageBody>
       <AccountSettingsForm>
         <UVerticalNavigation
@@ -118,3 +118,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Ρυθμίσεις
+</i18n>

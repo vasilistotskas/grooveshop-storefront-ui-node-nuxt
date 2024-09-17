@@ -29,6 +29,7 @@ const props = defineProps({
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
+const { t } = useI18n({ useScope: 'local' })
 
 const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
 
@@ -127,8 +128,8 @@ const link = computed(() => {
             disabled: isInFirstPage,
             active: isInFirstPage,
           }"
-          :text="$t('components.pagination.previous_page')"
-          :title="$t('components.pagination.previous_page')"
+          :text="t('previous_page')"
+          :title="t('previous_page')"
           :disabled="isInFirstPage"
           @click="
             async () =>
@@ -173,8 +174,8 @@ const link = computed(() => {
             'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
             'disabled': isInFirstPage,
           }"
-          :text="$t('components.pagination.first_page')"
-          :title="$t('components.pagination.first_page')"
+          :text="t('first_page')"
+          :title="t('first_page')"
           :disabled="isInFirstPage"
           @click="
             async () =>
@@ -226,7 +227,7 @@ const link = computed(() => {
             'active': pageEntry === page,
           }"
           :text="String(pageEntry)"
-          :title="$t('components.pagination.go_to_page', { page: pageEntry })"
+          :title="t('go_to_page', { page: pageEntry })"
           @click="
             async () =>
               await navigateTo({
@@ -273,7 +274,7 @@ const link = computed(() => {
           }"
           :text="String(lastPageNumber)"
           :title="
-            $t('components.pagination.go_to_page', { page: lastPageNumber })
+            t('go_to_page', { page: lastPageNumber })
           "
           @click="
             async () =>
@@ -320,11 +321,11 @@ const link = computed(() => {
             disabled: isInLastPage,
             active: isInLastPage,
           }"
-          :text="$t('components.pagination.next_page')"
+          :text="t('next_page')"
           :title="
             isInLastPage
-              ? $t('components.pagination.you_are_on_last_page')
-              : $t('components.pagination.next_page')
+              ? t('you_are_on_last_page')
+              : t('next_page')
           "
           @click="
             async () =>
@@ -359,3 +360,13 @@ const link = computed(() => {
   }
 }
 </style>
+
+<i18n lang="yaml">
+el:
+  previous_page: Προηγούμενη σελίδα
+  next_page: Επόμενη σελίδα
+  first_page: Πρώτη σελίδα
+  last_page: Τελευταία σελίδα
+  go_to_page: Μετάβαση στη σελίδα %{page}
+  you_are_on_last_page: Είστε στην τελευταία σελίδα
+</i18n>

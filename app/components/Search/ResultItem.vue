@@ -54,7 +54,7 @@ const imgAlt = computed(() => {
       hover:bg-primary-200
     "
   >
-    <NuxtLink
+    <Anchor
       :class="{ 'bg-primary-200 dark:bg-primary-800': highlighted }"
       :to="item.absoluteUrl"
       class="
@@ -93,7 +93,7 @@ const imgAlt = computed(() => {
                 dark:text-primary-50
               "
             >
-              {{ $t(`common.fields.${key}`) }}:
+              {{ $t(`fields.${key}`) }}:
             </span>
             <span
               class="
@@ -105,6 +105,6 @@ const imgAlt = computed(() => {
           </div>
         </div>
       </div>
-    </NuxtLink>
+    </Anchor>
   </li>
 </template>

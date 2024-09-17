@@ -5,7 +5,7 @@ defineSlots<{
   error(props: object): any
 }>()
 
-const { locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 
 const emit = defineEmits(['update-model'])
 
@@ -48,7 +48,7 @@ watch(selectedPayWay, (value) => {
     <URadioGroup
       v-if="status !== 'pending' && payWays?.results?.length"
       v-model="selectedPayWay"
-      :legend="$t('components.checkout.pay_ways.title')"
+      :legend="t('title')"
       :options="options"
       :ui="{
         fieldset: 'w-full',
@@ -57,3 +57,8 @@ watch(selectedPayWay, (value) => {
     <slot name="error" />
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επιλέξτε τον τρόπο πληρωμής
+</i18n>

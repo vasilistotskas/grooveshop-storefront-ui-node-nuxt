@@ -27,7 +27,7 @@ async function optimisticSetKeys(newKeys: any[], op: () => Promise<boolean>) {
       keys.value = oldKeys
     }
     toast.add({
-      title: ok ? t('common.success.title') : t('common.error.default'),
+      title: ok ? t('success.title') : t('error.default'),
       color: ok ? 'green' : 'red',
     })
   }
@@ -69,20 +69,20 @@ async function onSave(key: any, name: string) {
 
 const columns = [{
   key: 'id',
-  label: t('common.id'),
+  label: t('id'),
 }, {
   key: 'name',
-  label: t('common.name'),
+  label: t('name'),
 }, {
   key: 'type',
-  label: t('common.type'),
+  label: t('type'),
 }, {
   key: 'created_at',
-  label: t('common.created_at'),
+  label: t('.created_at'),
   sortable: true,
 }, {
   key: 'last_used_at',
-  label: t('common.last_used_at'),
+  label: t('last_used_at'),
 }, {
   key: 'actions',
 }]
@@ -104,13 +104,13 @@ const actionItems = (row: { name: string, type: string, created_at: string, last
   const items: DropdownItem[] = []
 
   items.push({
-    label: t('common.delete.title'),
+    label: t('delete.title'),
     icon: 'i-heroicons-trash-20-solid',
     click: () => deleteKey(keys.value?.find(key => key.name === row.name)),
   })
 
   items.push({
-    label: t('common.edit.title'),
+    label: t('edit.title'),
     icon: 'i-heroicons-pencil-20-solid',
     click: () => editId.value = keys.value?.find(key => key.name === row.name)?.id ?? null,
   })
@@ -143,7 +143,7 @@ onReactivated(async () => {
     >
       <UTable
         :columns="columns"
-        :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('common.empty.title') }"
+        :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('empty.title') }"
         :rows="rows"
       >
         <template #name-data="{ row }">
@@ -175,7 +175,7 @@ onReactivated(async () => {
         </template>
         <template #type-data="{ row }">
           <span>
-            {{ typeof row.is_passwordless === 'undefined' ? $t('common.type_unspecified') : (row.is_passwordless ? $t('common.passkey') : $t('common.security_key')) }}
+            {{ typeof row.is_passwordless === 'undefined' ? $t('type_unspecified') : (row.is_passwordless ? $t('passkey') : $t('security_key')) }}
           </span>
         </template>
 
@@ -185,7 +185,7 @@ onReactivated(async () => {
 
         <template #last_used_at-data="{ row }">
           <span>
-            {{ row.last_used_at ? new Date(row.last_used_at * 1000).toLocaleString() : $t('common.unused') }}
+            {{ row.last_used_at ? new Date(row.last_used_at * 1000).toLocaleString() : $t('unused') }}
           </span>
         </template>
         <template #actions-data="{ row }">
@@ -200,7 +200,7 @@ onReactivated(async () => {
     </section>
     <div class="grid justify-end">
       <UButton
-        :label="$t('common.add.title')"
+        :label="$t('add.title')"
         :to="localePath('/account/2fa/webauthn/add')"
         color="opposite"
         size="md"

@@ -7,17 +7,15 @@ const emit = defineEmits(['reauthenticate'])
 
 const { reauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useI18n({ useScope: 'local' })
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
 const loading = ref(false)
 
-watchEffect(async () => {
-  if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-    await navigateTo(localePath('/'))
-  }
-})
+if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+  await navigateTo(localePath('/'))
+}
 
 async function onSubmit(values: ReauthenticateBody) {
   try {
@@ -26,7 +24,7 @@ async function onSubmit(values: ReauthenticateBody) {
       password: values.password,
     })
     toast.add({
-      title: t('common.success.title'),
+      title: t('success.title'),
       color: 'green',
     })
     emit('reauthenticate')
@@ -41,11 +39,11 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'password',
       as: 'input',
-      rules: z.string({ required_error: t('common.validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'current-password',
       readonly: false,
       required: true,
-      placeholder: t('common.password.title'),
+      placeholder: t('password.title'),
       type: 'password',
     },
   ],
@@ -65,9 +63,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('pages.account.reauthenticate.title')" class="
-        text-center capitalize
-      "
+      :text="t('title')" class="text-center capitalize"
     />
     <PageBody>
       <Account2FaReauthenticateFlow :flow="Flows.REAUTHENTICATE">
@@ -79,11 +75,11 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            {{ $t('common.enter_password') }}
+            {{ $t('enter_password') }}
           </h3>
           <section class="grid items-center">
             <DynamicForm
-              :button-label="$t('common.submit')"
+              :button-label="$t('submit')"
               :schema="formSchema"
               @submit="onSubmit"
             />
@@ -93,3 +89,8 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  title: Επαναπιστοποίηση
+</i18n>
