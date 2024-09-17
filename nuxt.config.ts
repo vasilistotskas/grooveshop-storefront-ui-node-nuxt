@@ -53,6 +53,7 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
     'nuxt-time',
+    'nuxt-vitalizer',
   ],
   routeRules: {
     '/api/**': { cors: true },
@@ -98,7 +99,7 @@ export default defineNuxtConfig({
     '/_ipx/**': { headers: { 'cache-control': 'max-age=31536000' } },
   },
   build: {
-    transpile: ['@iconify', '@unocss'],
+    transpile: ['@iconify', '@unocss', '@unhead'],
   },
   imports: {
     autoImport: true,
@@ -542,5 +543,10 @@ export default defineNuxtConfig({
   },
   icon: {
     serverBundle: 'remote',
+  },
+  vitalizer: {
+    disablePrefetchLinks: true,
+    disablePreloadLinks: true,
+    disableStylesheets: 'entry',
   },
 })
