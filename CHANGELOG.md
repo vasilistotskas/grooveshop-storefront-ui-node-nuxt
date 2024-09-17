@@ -1,3 +1,10 @@
+# [1.171.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.170.1...v1.171.0) (2024-09-17)
+
+
+### Features
+
+* remove `nuxt-vitalizer` and NUXT_PUBLIC_GOOGLE_GSI_ENABLE config ([3e3a439](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3e3a439793d3139d74b79af6dd6b4af5401cd275))
+
 ## [1.170.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.170.0...v1.170.1) (2024-09-17)
 
 
