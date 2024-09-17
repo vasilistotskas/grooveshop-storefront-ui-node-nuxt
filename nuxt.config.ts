@@ -335,15 +335,6 @@ export default defineNuxtConfig({
     experimental: {
       asyncContext: true,
     },
-    storage: {
-      redis: {
-        driver: 'redis',
-        port: process.env.NUXT_REDIS_PORT,
-        host: process.env.NUXT_REDIS_HOST,
-        username: '',
-        password: '',
-      },
-    },
   },
   eslint: {
     checker: true,
