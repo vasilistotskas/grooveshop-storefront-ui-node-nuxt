@@ -42,7 +42,7 @@ onMounted(async () => {
       const authEvent = useState<AuthChangeEventType>('authEvent')
       authEvent.value = AuthChangeEvent.LOGGED_IN
     }
-    catch (e) {
+    catch {
       error.value = true
     }
   }
