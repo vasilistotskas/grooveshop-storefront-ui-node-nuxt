@@ -1,3 +1,10 @@
+# [1.173.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.172.0...v1.173.0) (2024-09-17)
+
+
+### Features
+
+* redis cache ([27c0188](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27c018814b065bd67ab581365d81983440976a9e))
+
 # [1.172.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.171.0...v1.172.0) (2024-09-17)
 
 
