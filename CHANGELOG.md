@@ -1,3 +1,10 @@
+## [1.174.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.174.0...v1.174.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* revert nuxt time ([23ea1cf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/23ea1cfe946acc0898275156605b14658c4fa181))
+
 # [1.174.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.173.0...v1.174.0) (2024-09-17)
 
 
