@@ -51,11 +51,9 @@ const isCategorySelected = computed(() => {
           :src="category.mainImagePath"
           :width="40"
           :height="40"
-          :fit="'contain'"
-          :position="'entropy'"
+          fit="contain"
           :background="'transparent'"
-          :trim-threshold="5"
-          sizes="`xs:40px sm:40px md:40px lg:40px xl:40px xxl:40px 2xl:40px`"
+          sizes="sm:40px md:40px lg:40px xl:40px xxl:40px 2xl:40px"
           :alt="`sidebar category ${categoryName}`"
           densities="x1"
         />

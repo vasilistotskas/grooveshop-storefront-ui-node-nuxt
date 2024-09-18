@@ -8,8 +8,8 @@ import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 540 },
-  imgHeight: { type: Number, required: false, default: 670 },
+  imgWidth: { type: Number, required: false, default: 340 },
+  imgHeight: { type: Number, required: false, default: 620 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -70,13 +70,16 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           class="bg-primary-100 rounded-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
-          :width="imgWidth"
           :height="imgHeight"
-          :fit="'outside'"
-          :position="'attention'"
+          sizes="xs:510px sm:510px md:562px"
+          fit="cover"
+          :modifiers="{
+            position: 'attention',
+            trimThreshold: 5,
+          }"
           :background="'transparent'"
-          :trim-threshold="5"
           :alt="`Image - ${alt}`"
+          densities="x1"
         />
         <div class="absolute bottom-12 right-0 grid w-full">
           <span class="grid justify-center justify-items-start">

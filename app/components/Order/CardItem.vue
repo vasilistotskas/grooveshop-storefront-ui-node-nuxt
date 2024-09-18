@@ -27,10 +27,8 @@ const alt = computed(() => {
       :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
       :width="120"
       :height="120"
-      :fit="'contain'"
-      :position="'entropy'"
+      fit="contain"
       :background="'transparent'"
-      :trim-threshold="5"
       :src="item.product.mainImagePath"
       :alt="alt"
     />

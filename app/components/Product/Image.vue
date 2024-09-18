@@ -27,7 +27,7 @@ const props = defineProps({
   sizes: {
     type: String,
     required: false,
-    default: 'xs:604px sm:562px md:349px lg:461px xl:589px xxl:300px 2xl:604px',
+    default: 'sm:562px md:349px lg:461px xl:589px xxl:300px 2xl:604px',
   },
 })
 
@@ -47,10 +47,8 @@ const alt = computed(() => {
     provider="mediaStream"
     :width="width"
     :height="height"
-    :fit="'contain'"
-    :position="'entropy'"
+    fit="contain"
     :background="'ffffff'"
-    :trim-threshold="5"
     :sizes="sizes"
     :src="image?.mainImagePath"
     :alt="alt"

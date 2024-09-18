@@ -136,13 +136,11 @@ const uploadImage = async (event: Event) => {
         :class="{
           'blur-sm filter': loading,
         }"
-        :fit="'cover'"
+        fit="cover"
         :height="imgHeight"
-        :position="'entropy'"
-        :sizes="`xs:${imgWidth}px sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px`"
+        sizes="sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px"
         :src="userAccount.mainImagePath"
         :style="{ objectFit: 'contain' }"
-        :trim-threshold="5"
         :width="imgWidth"
         class="user-avatar-img bg-primary-100 rounded-full"
         densities="x1"

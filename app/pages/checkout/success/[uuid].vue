@@ -187,20 +187,18 @@ definePageMeta({
                     <ImgWithFallback
                       :alt="extractTranslated(item.product, 'name', locale)"
                       :background="'transparent'"
-                      :fit="'contain'"
+                      fit="contain"
                       :height="100"
-                      :position="'entropy'"
                       :src="item.product.mainImagePath"
                       :style="{
                         objectFit: 'contain',
                         contentVisibility: 'auto',
                       }"
-                      :trim-threshold="5"
                       :width="100"
                       class="product-img bg-primary-100"
                       loading="lazy"
                       provider="mediaStream"
-                      sizes="`sm:100vw md:50vw lg:auto`"
+                      sizes="sm:100vw md:50vw lg:auto"
                     />
                   </td>
                   <td class="border px-4 py-2">

@@ -44,10 +44,12 @@ const { item } = toRefs(props)
           }"
           :width="600"
           :height="600"
-          :fit="'outside'"
-          :position="'attention'"
+          fit="outside"
+          :modifiers="{
+            position: 'attention',
+            trimThreshold: 5,
+          }"
           :background="'ffffff'"
-          :trim-threshold="5"
           :src="item.mainImagePath"
           :alt="item.title"
           densities="x2"

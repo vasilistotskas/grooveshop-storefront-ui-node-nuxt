@@ -85,11 +85,9 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                 :src="product.mainImagePath"
                 :width="imgWidth"
                 :height="imgHeight"
-                :fit="'contain'"
-                :position="'entropy'"
+                fit="contain"
                 :background="'transparent'"
-                :trim-threshold="5"
-                sizes="`xs:580px sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px`"
+                sizes="sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px"
                 :alt="alt"
                 densities="x1"
               />

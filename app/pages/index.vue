@@ -56,7 +56,6 @@ const bannerHeight = ref(isMobileOrTablet ? 638 : 420)
             </DesktopOnly>
 
             <UCarousel
-              v-if="!isMobileOrTablet"
               v-slot="{ item }"
               :items="items"
               :ui="{ item: 'basis-full items-center justify-center justify-items-center' }"

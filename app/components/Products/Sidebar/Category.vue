@@ -97,11 +97,9 @@ const isCategorySelected = computed(() => {
           :src="category.categoryMenuImageOneFilename"
           :width="48"
           :height="48"
-          :fit="'contain'"
-          :position="'entropy'"
+          fit="contain"
           :background="'transparent'"
-          :trim-threshold="5"
-          sizes="`xs:48px sm:48px md:48px lg:48px xl:48px xxl:48px 2xl:48px`"
+          sizes="sm:48px md:48px lg:48px xl:48px xxl:48px 2xl:48px"
           :alt="categoryName"
           densities="x1"
         />

@@ -66,10 +66,8 @@ const { t } = useI18n({ useScope: 'local' })
                 :src="favourite.mainImagePath"
                 :width="370"
                 :height="370"
-                :fit="'cover'"
-                :position="'center'"
+                fit="cover"
                 :background="'transparent'"
-                :trim-threshold="5"
                 :alt="`Image - ${extractTranslated(favourite, 'title', locale)}`"
                 densities="x2"
               />

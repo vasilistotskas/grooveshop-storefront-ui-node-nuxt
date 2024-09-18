@@ -74,7 +74,7 @@ const imgAlt = computed(() => {
           provider="mediaStream"
           :width="100"
           :height="90"
-          :fit="'cover'"
+          fit="cover"
           :background="'transparent'"
           :src="item.mainImagePath"
           :alt="imgAlt"

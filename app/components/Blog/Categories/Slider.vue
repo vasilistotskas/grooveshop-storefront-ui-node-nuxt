@@ -55,12 +55,10 @@ const carouselUiItemBasis = computed(() => {
         <ImgWithFallback
           :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
           :background="'ffffff'"
-          :fit="'fill'"
+          fit="fill"
           :format="'svg'"
           :height="25"
-          :position="'entropy'"
           :src="item?.mainImagePath"
-          :trim-threshold="5"
           :width="25"
           densities="x1"
           provider="mediaStream"

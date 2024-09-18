@@ -90,7 +90,7 @@ watch(
             :image="item"
             :width="201"
             :height="128"
-            :sizes="`xs:305px sm:281px md:160px lg:153px xl:195px xxl:201px 2xl:201px`"
+            sizes="sm:281px md:160px lg:153px xl:195px xxl:201px 2xl:201px"
             img-loading="lazy"
           />
         </button>

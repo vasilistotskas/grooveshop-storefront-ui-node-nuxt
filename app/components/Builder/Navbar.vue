@@ -88,8 +88,8 @@ const spider = computed(() => {
                 <NuxtImg
                   :style="{ objectFit: 'contain' }"
                   :src="spider"
-                  :width="24"
-                  :height="24"
+                  :width="23"
+                  :height="23"
                   :alt="'Website Spider'"
                   loading="eager"
                   format="webp"
@@ -100,13 +100,16 @@ const spider = computed(() => {
                 <NuxtImg
                   :style="{ objectFit: 'contain' }"
                   :src="logo"
-                  :width="140"
-                  :height="24"
+                  :width="114"
+                  :height="23"
                   :alt="'website.gr'"
+                  :modifiers="{
+                    position: 'center',
+                    trimThreshold: 5,
+                  }"
                   loading="eager"
                   format="webp"
                   quality="100"
-                  densities="x1"
                   preload
                 />
                 <span class="sr-only">{{ appTitle }}</span>
