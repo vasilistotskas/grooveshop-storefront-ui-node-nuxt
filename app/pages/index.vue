@@ -12,8 +12,8 @@ const items = computed(() => [
   isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
 
-const bannerWidth = ref(isMobileOrTablet ? 510 : 1200)
-const bannerHeight = ref(isMobileOrTablet ? 638 : 420)
+const bannerWidth = ref(isMobileOrTablet ? 510 : 1194)
+const bannerHeight = ref(isMobileOrTablet ? 638 : 418)
 </script>
 
 <template>
@@ -72,7 +72,7 @@ const bannerHeight = ref(isMobileOrTablet ? 638 : 420)
                 :style="{ objectFit: 'contain' }"
                 :height="bannerHeight"
                 :width="bannerWidth"
-                sizes="xs:382px sm:352px md:545px lg:562px xl:387px xxl:387px 2xl:387px"
+                sizes="xs:382px sm:352px md:545px lg:1194px xl:1194px xxl:1194px 2xl:1194px"
                 fit="cover"
                 quality="100"
                 class="rounded-lg"
