@@ -1,3 +1,10 @@
+## [1.175.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.175.2...v1.175.3) (2024-09-18)
+
+
+### Bug Fixes
+
+* mobile image size ([f8b68d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f8b68d9349d801971acb2e8f8b594baa5170ad9d))
+
 ## [1.175.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.175.1...v1.175.2) (2024-09-18)
 
 
