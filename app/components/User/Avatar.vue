@@ -138,7 +138,7 @@ const uploadImage = async (event: Event) => {
         }"
         fit="cover"
         :height="imgHeight"
-        sizes="sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px"
+        :sizes="`sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px`"
         :src="userAccount.mainImagePath"
         :style="{ objectFit: 'contain' }"
         :width="imgWidth"

@@ -68,10 +68,12 @@ const bannerHeight = ref(isMobileOrTablet ? 638 : 420)
             >
               <NuxtImg
                 :alt="appTitle"
-                :height="bannerHeight"
                 :src="item"
                 :style="{ objectFit: 'contain' }"
+                :height="bannerHeight"
                 :width="bannerWidth"
+                sizes="xs:382px sm:352px md:545px lg:562px xl:387px xxl:387px 2xl:387px"
+                fit="cover"
                 quality="100"
                 class="rounded-lg"
                 format="webp"

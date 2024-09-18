@@ -115,10 +115,10 @@ const formSchema: DynamicFormSchema = {
           " v-html="totpSvg"
         />
         <UInput
+          v-model="totpSecret"
           :ui="{
             base: 'cursor-pointer text-center !px-0',
-          }"
-          :value="totpSecret" class="w-full" readonly type="text" @click="onSecretClick"
+          }" class="w-full" readonly type="text" @click="onSecretClick"
         />
         <span class="text-center">{{ $t('authenticator_secret_description') }}</span>
       </label>

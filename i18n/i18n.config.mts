@@ -3,6 +3,7 @@ export default defineI18nConfig(() => ({
   availableLocales: ['el'],
   locale: 'el',
   fallbackLocale: 'el',
+  silentFallbackWarn: true,
   numberFormats: {
     el: {
       currency: {
