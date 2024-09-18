@@ -1,3 +1,11 @@
+## [1.175.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.175.1...v1.175.2) (2024-09-18)
+
+
+### Bug Fixes
+
+* image optimizations ([92c40c4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/92c40c426acb0e71fa6fea1c37710360c0f9e7fc))
+* package lock update ([49b1474](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/49b14749279b5b6b2485e93a9c1dde07cf5a85e7))
+
 ## [1.175.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.175.0...v1.175.1) (2024-09-18)
 
 
