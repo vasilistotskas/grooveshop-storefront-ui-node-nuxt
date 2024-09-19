@@ -211,7 +211,7 @@ definePageMeta({
               mx-auto flex max-w-2xl flex-col items-start justify-center gap-4
             "
           >
-            <h2
+            <h1
               class="
                 text-primary-950 text-3xl font-bold tracking-tight
 
@@ -221,7 +221,7 @@ definePageMeta({
               "
             >
               {{ blogPostTitle }}
-            </h2>
+            </h1>
             <div
               class="
                 grid w-full grid-cols-2 items-center gap-2

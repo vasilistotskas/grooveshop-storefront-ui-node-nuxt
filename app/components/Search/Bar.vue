@@ -212,6 +212,7 @@ onClickOutside(autocomplete, () => {
 
 <template>
   <div
+    v-if="!isMobileOrTablet && localePath(route.path) !== '/search'"
     class="
       grid
 
@@ -219,7 +220,6 @@ onClickOutside(autocomplete, () => {
     "
   >
     <div
-      v-if="!isMobileOrTablet && localePath(route.path) !== '/search'"
       class="
         relative grid w-full items-center
 
@@ -270,7 +270,7 @@ onClickOutside(autocomplete, () => {
       </UInput>
     </div>
     <SearchAutoComplete
-      v-if="searchBarFocused && !isMobileOrTablet && localePath(route.path) !== '/search'"
+      v-if="searchBarFocused"
       v-model:search-bar-focused="searchBarFocused"
       v-model:keep-focus="keepFocus"
       v-model:highlighted="highlighted"
@@ -289,17 +289,6 @@ onClickOutside(autocomplete, () => {
       :status="status"
       :has-results="hasResults"
       @load-more="loadMoreSectionResults"
-    />
-    <UButton
-      v-if="isMobileOrTablet"
-      type="button"
-      icon="i-heroicons-magnifying-glass-20-solid"
-      size="sm"
-      color="white"
-      variant="ghost"
-      :padded="false"
-      :aria-label="$t('search.title')"
-      @click="searchGo(true)"
     />
   </div>
 </template>

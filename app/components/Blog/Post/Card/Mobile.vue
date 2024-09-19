@@ -78,6 +78,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             position: 'attention',
             trimThreshold: 5,
           }"
+          quality="100"
           :background="'transparent'"
           :alt="`Image - ${alt}`"
         />

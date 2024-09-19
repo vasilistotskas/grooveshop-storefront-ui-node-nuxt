@@ -60,8 +60,12 @@ const carouselUiItemBasis = computed(() => {
           :height="25"
           :src="item?.mainImagePath"
           :width="25"
-          densities="x1"
           provider="mediaStream"
+          quality="100"
+          :modifiers="{
+            position: 'entropy',
+            trimThreshold: 5,
+          }"
         />
       </template>
     </UButton>
