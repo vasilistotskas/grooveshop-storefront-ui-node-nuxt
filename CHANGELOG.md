@@ -1,3 +1,10 @@
+# [1.176.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.175.4...v1.176.0) (2024-09-19)
+
+
+### Features
+
+* Add compatibilityDate in nuxt config ([65cbfda](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/65cbfda48628d43cfed517ad1cea156356f97ff8))
+
 ## [1.175.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.175.3...v1.175.4) (2024-09-19)
 
 
