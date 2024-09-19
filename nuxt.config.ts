@@ -3,6 +3,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 const sw = process.env.SW === 'true'
 
 export default defineNuxtConfig({
+  compatibilityDate: '2024-09-19',
   ssr: true,
   debug: false,
   sourcemap: {
