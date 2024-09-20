@@ -113,7 +113,11 @@ const Footer = computed(() => {
           />
         </div>
         <main
-          class="container md:!p-0" :class="{
+          class="
+            container
+
+            md:!p-0
+          " :class="{
             'opacity-70': searchBarFocused,
           }"
         >

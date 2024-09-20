@@ -65,11 +65,11 @@ const spider = computed(() => {
         </MobileOrTabletOnly>
         <div
           class="
-            relative flex md:grid w-full items-center gap-4
+            relative flex w-full items-center gap-4
 
             lg:grid-cols-[1fr_2fr_1fr]
 
-            md:grid-cols-[1fr_2fr]
+            md:grid md:grid-cols-[1fr_2fr]
           "
           :class="{ 'grid-cols-[1fr_auto_auto]': isMobileOrTablet }"
         >

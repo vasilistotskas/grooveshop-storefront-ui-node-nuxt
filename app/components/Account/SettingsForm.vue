@@ -233,27 +233,33 @@ const submitButtonDisabled = computed(() => {
       disabled
     />
   </div>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+
+      lg:flex
+    "
+  >
     <slot />
     <form
       id="accountSettingsForm"
       class="
-      _form bg-primary-100 flex flex-col gap-4 rounded p-4
+        _form bg-primary-100 flex flex-col gap-4 rounded p-4
 
-      dark:bg-primary-900
+        dark:bg-primary-900
 
-      md:grid md:grid-cols-2
-    "
+        md:grid md:grid-cols-2
+      "
       name="accountSettingsForm"
       @submit="onSubmit"
     >
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="firstName"
         >{{ t('form.first_name') }}</label>
         <div class="grid">
@@ -276,10 +282,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="lastName"
         >{{ t('form.last_name') }}</label>
         <div class="grid">
@@ -302,10 +308,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="phone"
         >{{ t('form.phone') }}</label>
         <div class="grid">
@@ -327,10 +333,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="city"
         >{{ t('form.city') }}</label>
         <div class="grid">
@@ -352,10 +358,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="zipcode"
         >{{ t('form.zipcode') }}</label>
         <div class="grid">
@@ -377,10 +383,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="address"
         >{{ t('form.address') }}</label>
         <div class="grid">
@@ -402,10 +408,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="place"
         >{{ t('form.place') }}</label>
         <div class="grid">
@@ -427,10 +433,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="birthDate"
         >{{ t('form.birth_date') }}</label>
         <div class="grid">
@@ -456,10 +462,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="country"
         >{{ t('form.country') }}</label>
         <div class="grid">
@@ -484,10 +490,10 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-          text-primary-950 mb-2
+            text-primary-950 mb-2
 
-          dark:text-primary-50
-        "
+            dark:text-primary-50
+          "
           for="region"
         >{{ t('form.region') }}</label>
         <div class="grid">
@@ -514,12 +520,12 @@ const submitButtonDisabled = computed(() => {
           :aria-busy="isSubmitting"
           :disabled="submitButtonDisabled"
           class="
-          rounded bg-secondary px-4 py-2 font-bold text-primary-50
+            rounded bg-secondary px-4 py-2 font-bold text-primary-50
 
-          dark:bg-secondary-dark
+            dark:bg-secondary-dark
 
-          disabled:cursor-not-allowed disabled:opacity-50
-        "
+            disabled:cursor-not-allowed disabled:opacity-50
+          "
           type="submit"
         >
           {{ t('form.submit') }}

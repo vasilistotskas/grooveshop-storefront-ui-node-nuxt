@@ -230,7 +230,11 @@ onClickOutside(autocomplete, () => {
         id="search"
         ref="search"
         v-model="query"
-        class="w-full md:max-w-[calc(100%-10rem)]"
+        class="
+          w-full
+
+          md:max-w-[calc(100%-10rem)]
+        "
         size="xs"
         color="white"
         :name="$t('search.title')"
