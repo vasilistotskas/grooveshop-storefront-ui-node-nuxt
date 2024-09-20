@@ -99,13 +99,13 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="$t('title')" />
+    <PageTitle :text="t('title')" />
     <PageBody>
       <AccountSettingsForm>
         <UVerticalNavigation
           :links="links"
           :ui="{
-            base: 'text-primary-950 dark:text-primary-50',
+            base: 'text-primary-950 dark:text-primary-50 pl-0',
             inactive: 'text-primary-400 dark:text-primary-400',
             size: 'text-lg md:text-xl',
             icon: {

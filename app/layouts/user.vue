@@ -109,11 +109,11 @@ const Footer = computed(() => {
             :orders-count="0"
             :product-favourites-count="0"
             :product-reviews-count="0"
-            class="container mx-auto w-full !p-0"
+            class="container-md mx-auto w-full !p-0"
           />
         </div>
         <main
-          class="container" :class="{
+          class="container md:!p-0" :class="{
             'opacity-70': searchBarFocused,
           }"
         >

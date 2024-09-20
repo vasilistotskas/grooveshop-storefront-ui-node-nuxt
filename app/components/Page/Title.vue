@@ -15,7 +15,7 @@ defineSlots<{
     class="
       mt-2 text-2xl font-bold
 
-      md:mt-8 md:text-4xl
+      md:text-4xl
     "
   >
     <h2

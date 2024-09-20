@@ -57,7 +57,7 @@ const spider = computed(() => {
 
           lg:mx-0
 
-          md:block md:py-4
+          md:flex md:py-4
         "
       >
         <MobileOrTabletOnly>
@@ -65,7 +65,7 @@ const spider = computed(() => {
         </MobileOrTabletOnly>
         <div
           class="
-            relative grid w-full items-center gap-4
+            relative flex md:grid w-full items-center gap-4
 
             lg:grid-cols-[1fr_2fr_1fr]
 
