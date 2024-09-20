@@ -136,6 +136,9 @@ export const determineAuthChangeEvent = (
       console.log('Flow updated')
       return AuthChangeEvent.FLOW_UPDATED
     }
+    else {
+      return AuthChangeEvent.LOGGED_OUT
+    }
   }
 
   return null
@@ -212,6 +215,7 @@ export const navigateToPendingFlow = async (
   const path = pathForPendingFlow(response)
   if (path) {
     const url = localePath(path)
+    console.log('========== navigateToPendingFlow ==========')
     await nuxtApp.runWithContext(() => navigateTo(url))
   }
   else {

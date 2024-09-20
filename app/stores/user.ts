@@ -31,6 +31,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const cleanAccountState = () => {
+    sessions.value = []
     favouriteProducts.value = []
     blogLikedPosts.value = []
     blogLikedComments.value = []

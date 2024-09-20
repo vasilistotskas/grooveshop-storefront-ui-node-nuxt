@@ -3,11 +3,6 @@ import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-export enum PayWayEnum {
-  CREDIT_CARD = 'Credit Card',
-  PAY_ON_DELIVERY = 'Pay On Delivery',
-}
-
 const ZodPayWayTranslations = z.record(
   z.object({
     name: z.string().nullish(),

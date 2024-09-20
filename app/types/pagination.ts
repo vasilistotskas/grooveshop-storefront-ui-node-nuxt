@@ -1,5 +1,6 @@
 import type { LocationQueryValue } from 'vue-router'
 import { z } from 'zod'
+import type { PaginationCursorStateEnum } from '~/types/enum'
 
 export type Pagination<T> = {
   links: {
@@ -58,3 +59,11 @@ export const ZodPaginationQuery = z.object({
     ])
     .nullish(),
 })
+
+export type PaginationCursorStateType = `${PaginationCursorStateEnum}-${string}`
+
+export type CursorStates = {
+  [key in PaginationCursorStateEnum | PaginationCursorStateType]?: string | null
+}
+
+export type PaginationType = 'pageNumber' | 'cursor' | 'limitOffset'

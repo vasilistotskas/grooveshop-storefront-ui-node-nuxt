@@ -1,4 +1,4 @@
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
+import { FloorChoicesEnum, LocationChoicesEnum, Size } from '~/types'
 
 export const locationChoicesList = Object.keys(LocationChoicesEnum)
   .filter(key => isNaN(Number(key)))
@@ -42,4 +42,11 @@ export const THEME_COLORS = {
   themeLight: '#ffffff',
   backgroundDark: '#ffffff',
   backgroundLight: '#1a202c',
+} as const
+
+export const defaultScreenConfig = {
+  [Size.SMALL]: 576,
+  [Size.MEDIUM]: 768,
+  [Size.LARGE]: 992,
+  [Size.EXTRA_LARGE]: 1200,
 } as const

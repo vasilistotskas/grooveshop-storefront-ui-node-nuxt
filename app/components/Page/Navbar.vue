@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-const userStore = useUserStore()
-const { cleanAccountState } = userStore
 const cartStore = useCartStore()
 const { getCartTotalItems, pending } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
@@ -26,7 +24,6 @@ const onClickLogout = async () => {
   }
 
   cleanCartState()
-  cleanAccountState()
 
   await refreshCart()
 }

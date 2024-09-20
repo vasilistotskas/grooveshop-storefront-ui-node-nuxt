@@ -10,15 +10,20 @@ export default defineNuxtPlugin({
   name: 'auth',
   parallel: true,
   async setup(nuxtApp) {
+    const { fetch, loggedIn, clear } = useUserSession()
     const authStore = useAuthStore()
-    const { clearSession } = authStore
+    const { setupSession, clearSession } = authStore
+    const userStore = useUserStore()
+    const { cleanAccountState } = userStore
+
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
+
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
       authState.value,
     )
 
-    const { fetch, loggedIn, clear } = useUserSession()
+    await setupSession()
 
     nuxtApp.hook('auth:change', ({ detail: newAuthState }) => {
       console.log('Auth state:', newAuthState)
@@ -60,6 +65,7 @@ export default defineNuxtPlugin({
     async function handleLoggedOut() {
       try {
         clearSession()
+        cleanAccountState()
         console.log('Logged out', loggedIn.value)
         if (loggedIn.value) {
           await clear()
@@ -120,6 +126,7 @@ export default defineNuxtPlugin({
       try {
         const localePath = useLocalePath()
         const url = localePath(path)
+        console.log('========== navigateToUrl ==========')
         return nuxtApp.runWithContext(() => navigateTo(url))
       }
       catch (error) {

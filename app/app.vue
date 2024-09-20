@@ -9,7 +9,7 @@ const config = useRuntimeConfig()
 const { locales } = useI18n()
 
 const authStore = useAuthStore()
-const { setupConfig, setupSession } = authStore
+const { setupConfig } = authStore
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
 const userStore = useUserStore()
@@ -18,7 +18,6 @@ const userNotificationStore = useUserNotificationStore()
 const { setupNotifications } = userNotificationStore
 
 await setupConfig()
-await setupSession()
 await setupSessions()
 await setupNotifications()
 await fetchCart()

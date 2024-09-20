@@ -18,8 +18,6 @@ defineProps({
   },
 })
 
-const userStore = useUserStore()
-const { cleanAccountState } = userStore
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
 
@@ -34,7 +32,6 @@ const onClickLogout = async () => {
   await deleteSession()
 
   cleanCartState()
-  cleanAccountState()
 
   await refreshCart()
 }
