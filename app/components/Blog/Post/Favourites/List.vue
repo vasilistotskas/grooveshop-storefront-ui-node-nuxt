@@ -19,7 +19,7 @@ defineProps({
   },
 })
 
-const { t } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n({ useScope: 'local' })
 </script>
 
 <template>
@@ -68,6 +68,10 @@ const { t } = useI18n({ useScope: 'local' })
                 :height="370"
                 fit="cover"
                 :background="'transparent'"
+                :modifiers="{
+                  position: 'attention',
+                  trimThreshold: 5,
+                }"
                 :alt="`Image - ${extractTranslated(favourite, 'title', locale)}`"
                 densities="x2"
               />
