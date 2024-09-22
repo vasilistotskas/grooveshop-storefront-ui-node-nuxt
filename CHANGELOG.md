@@ -1,3 +1,10 @@
+# [1.181.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.180.0...v1.181.0) (2024-09-22)
+
+
+### Features
+
+* split setup and auth plugins, UI and store improvements and Bump Versions ([60688b0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/60688b090e9f9b4d8b82d30c41e95d0af6368d0c))
+
 # [1.180.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.179.2...v1.180.0) (2024-09-22)
 
 
