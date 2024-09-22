@@ -8,12 +8,9 @@ setupWebSocket()
 const config = useRuntimeConfig()
 const { locales } = useI18n()
 
-const authStore = useAuthStore()
-const { setupConfig } = authStore
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
 
-await setupConfig()
 await fetchCart()
 
 const schemaOrgOptions = [

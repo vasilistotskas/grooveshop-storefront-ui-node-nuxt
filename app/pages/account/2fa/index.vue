@@ -1,25 +1,12 @@
 <script lang="ts" setup>
-import { AuthenticatorType } from '~/types/all-auth'
-
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
-const { getAuthenticators } = useAllAuthAccount()
-
-const { data, refresh } = await useAsyncData(
-  'authenticators',
-  () => getAuthenticators(),
-)
-
-const totp = computed(() => {
-  return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.TOTP)
-})
-
-const recoveryCodes = computed(() => {
-  return data.value?.data.find(authenticator => authenticator.type === AuthenticatorType.RECOVERY_CODES)
-})
+const authStore = useAuthStore()
+const { setupAuthenticators } = authStore
+const { totpAuthenticator, recoveryCodesAuthenticator } = storeToRefs(authStore)
 
 onReactivated(async () => {
-  await refresh()
+  await setupAuthenticators()
 })
 
 definePageMeta({
@@ -50,7 +37,7 @@ definePageMeta({
           {{ t('authenticator.app') }}
         </p>
         <div
-          v-if="totp" class="
+          v-if="totpAuthenticator" class="
             grid items-center justify-center justify-items-center gap-4
           "
         >
@@ -93,7 +80,9 @@ definePageMeta({
         </div>
       </div>
       <div
-        v-if="recoveryCodes" class="grid items-center justify-center"
+        v-if="recoveryCodesAuthenticator" class="
+          grid items-center justify-center
+        "
       >
         <p
           class="
@@ -105,7 +94,7 @@ definePageMeta({
           {{ t('recovery-codes.title') }}
         </p>
         <div
-          v-if="!recoveryCodes" class="
+          v-if="!recoveryCodesAuthenticator" class="
             grid items-center justify-center justify-items-center gap-4
           "
         >
@@ -138,8 +127,8 @@ definePageMeta({
             "
           >
             {{ t('recovery-codes.info', {
-              unused_code_count: recoveryCodes.unused_code_count,
-              total_code_count: recoveryCodes.total_code_count,
+              unused_code_count: recoveryCodesAuthenticator.unused_code_count,
+              total_code_count: recoveryCodesAuthenticator.total_code_count,
             }) }}
           </p>
           <UButton

@@ -16,18 +16,12 @@ definePageMeta({
   >
     <PageTitle
       :text="t('title')"
-      class="text-center capitalize"
+      class="hidden"
     />
     <PageBody>
-      <div
-        class="
-          container-2xs grid gap-4 rounded !p-0
-
-          md:px-6
-        "
-      >
-        <Account2FaTotpActivateForm />
-      </div>
+      <Account2FaTotpActivateForm>
+        <AccountAuthSettingsNavigation />
+      </Account2FaTotpActivateForm>
     </PageBody>
   </PageWrapper>
 </template>

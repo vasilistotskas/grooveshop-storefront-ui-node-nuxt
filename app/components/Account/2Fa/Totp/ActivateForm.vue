@@ -98,38 +98,49 @@ const formSchema: DynamicFormSchema = {
 
 <template>
   <div
-    v-if="totpSecret && totpSvg" class="
-      grid items-center justify-center justify-items-center gap-4
+    class="
+      grid gap-4
 
-      md:gap-8
+      lg:flex
     "
   >
-    <div class="grid">
-      <label class="grid items-center justify-center justify-items-center gap-2">
-        {{ $t('authenticator_secret') }}:
-        <span
-          class="
-            rounded-md bg-primary-200
+    <slot />
+    <div
+      v-if="totpSecret && totpSvg" class="
+        grid items-center justify-center justify-items-center gap-4
 
-            dark:bg-primary-800
-          " v-html="totpSvg"
+        md:gap-8
+      "
+    >
+      <div class="grid">
+        <label
+          class="grid items-center justify-center justify-items-center gap-2"
+        >
+          {{ $t('authenticator_secret') }}:
+          <span
+            class="
+              rounded-md bg-primary-200
+
+              dark:bg-primary-800
+            " v-html="totpSvg"
+          />
+          <UInput
+            v-model="totpSecret"
+            :ui="{
+              base: 'cursor-pointer text-center !px-0',
+            }" class="w-full" readonly type="text" @click="onSecretClick"
+          />
+          <span class="text-center">{{ $t('authenticator_secret_description') }}</span>
+        </label>
+      </div>
+      <section class="grid items-center justify-center justify-items-center">
+        <DynamicForm
+          :button-label="t('entry')"
+          :schema="formSchema"
+          class="grid"
+          @submit="onSubmit"
         />
-        <UInput
-          v-model="totpSecret"
-          :ui="{
-            base: 'cursor-pointer text-center !px-0',
-          }" class="w-full" readonly type="text" @click="onSecretClick"
-        />
-        <span class="text-center">{{ $t('authenticator_secret_description') }}</span>
-      </label>
+      </section>
     </div>
-    <section class="grid items-center justify-center justify-items-center">
-      <DynamicForm
-        :button-label="t('entry')"
-        :schema="formSchema"
-        class="grid"
-        @submit="onSubmit"
-      />
-    </section>
   </div>
 </template>

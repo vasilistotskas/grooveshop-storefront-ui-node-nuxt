@@ -129,6 +129,10 @@ export const determineAuthChangeEvent = (
       console.log('Reauthenticated with new method')
       return AuthChangeEvent.REAUTHENTICATED
     }
+    if (wasReauthRequired && isReauthRequired) {
+      console.log('Reauthentication still required')
+      return AuthChangeEvent.REAUTHENTICATION_REQUIRED
+    }
   }
 
   if (!wasAuthenticated && !isAuthenticated) {

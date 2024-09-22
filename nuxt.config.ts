@@ -231,7 +231,6 @@ export default defineNuxtConfig({
         name: process.env.NUXT_PUBLIC_AUTHOR_NAME,
       },
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-      canonicalUrl: process.env.NUXT_PUBLIC_CANONICAL_URL,
       defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE,
       djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST,
       djangoHostName: process.env.NUXT_PUBLIC_DJANGO_HOSTNAME,

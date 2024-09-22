@@ -12,11 +12,9 @@ export default defineNuxtPlugin({
   async setup(nuxtApp) {
     const { fetch, loggedIn, clear } = useUserSession()
     const authStore = useAuthStore()
-    const { setupSession, clearSession } = authStore
+    const { clearAuthState } = authStore
     const userStore = useUserStore()
-    const { setupSessions, cleanAccountState } = userStore
-    const userNotificationStore = useUserNotificationStore()
-    const { setupNotifications } = userNotificationStore
+    const { clearAccountState } = userStore
 
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
@@ -24,12 +22,6 @@ export default defineNuxtPlugin({
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
       authState.value,
     )
-
-    await Promise.all([
-      setupSession(),
-      setupSessions(),
-      setupNotifications(),
-    ])
 
     nuxtApp.hook('auth:change', ({ detail: newAuthState }) => {
       console.log('Auth state:', newAuthState)
@@ -70,8 +62,8 @@ export default defineNuxtPlugin({
 
     async function handleLoggedOut() {
       try {
-        clearSession()
-        cleanAccountState()
+        clearAuthState()
+        clearAccountState()
         console.log('Logged out', loggedIn.value)
         if (loggedIn.value) {
           await clear()
@@ -117,7 +109,7 @@ export default defineNuxtPlugin({
         const flowPath = getReauthenticationFlowPath(authState.value)
         if (flowPath) {
           const url = withQuery(flowPath, { next })
-          return navigateToUrl(url)
+          return navigateToUrl(url, true)
         }
         else {
           console.warn('No reauthentication flow found')
@@ -128,12 +120,12 @@ export default defineNuxtPlugin({
       }
     }
 
-    function navigateToUrl(path: string) {
+    function navigateToUrl(path: string, replace = false) {
       try {
         const localePath = useLocalePath()
         const url = localePath(path)
         console.log('========== navigateToUrl ==========')
-        return nuxtApp.runWithContext(() => navigateTo(url))
+        return nuxtApp.runWithContext(() => navigateTo(url, { replace }))
       }
       catch (error) {
         console.error('Error navigating to URL:', error)

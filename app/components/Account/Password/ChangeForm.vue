@@ -107,12 +107,23 @@ const formSchema = computed((): DynamicFormSchema => {
 <template>
   <div
     class="
-      container-2xs p-0
+      grid gap-4
 
-      md:px-6
+      lg:flex
     "
   >
-    <section class="grid items-center">
+    <slot />
+    <section class="grid w-full items-center">
+      <p
+        class="
+          text-primary-950 text-center
+
+          dark:text-primary-50
+        "
+      >
+        {{ hasCurrentPassword ? t('change.description') : t('set.description')
+        }}
+      </p>
       <DynamicForm
         :button-label="hasCurrentPassword ? t('change.title') : t('set.title')"
         :schema="formSchema"
@@ -121,3 +132,15 @@ const formSchema = computed((): DynamicFormSchema => {
     </section>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  change:
+    title: Αλλαγή κωδικού πρόσβασης
+    description: Εισήγαγε τον τρέχον κωδικό πρόσβασης, ακολουθούμενο από τον νέο
+      κωδικό πρόσβασης.
+  set:
+    title: Όρισε έναν κωδικό πρόσβασης
+    description: Αυτή τη στιγμή δεν έχεις καθορίσει κωδικό πρόσβασης. Εισήγαγε
+      τον (νέο) κωδικό πρόσβασης.
+</i18n>

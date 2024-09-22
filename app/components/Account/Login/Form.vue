@@ -10,7 +10,7 @@ const cartStore = useCartStore()
 const { refreshCart } = cartStore
 
 const authStore = useAuthStore()
-const { session, status, hasProviders } = storeToRefs(authStore)
+const { session, status, hasSocialaccountProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
   email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
@@ -205,7 +205,9 @@ const submitButtonDisabled = computed(() => {
           />
 
           <div
-            v-if="hasProviders && status.config === 'success'" class="grid gap-4"
+            v-if="hasSocialaccountProviders && status.config === 'success'" class="
+              grid gap-4
+            "
           >
             <div
               class="

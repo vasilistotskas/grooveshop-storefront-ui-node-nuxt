@@ -33,7 +33,6 @@ const _envVariables = z.object({
   // Public
   NUXT_PUBLIC_TITLE_SEPARATOR: z.string(),
   NUXT_PUBLIC_DOMAIN_NAME: z.string(),
-  NUXT_PUBLIC_CANONICAL_URL: z.string(),
   NUXT_PUBLIC_BASE_URL: z.string(),
   NUXT_PUBLIC_DJANGO_URL: z.string(),
   NUXT_PUBLIC_DJANGO_HOST: z.string(),
@@ -66,10 +65,6 @@ const _envVariables = z.object({
 
   // Google Tag Manager
   NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID: z.string(),
-
-  // Storage 'cloudflare' | 'fs'
-  NUXT_STORAGE_DRIVER: z.string(),
-  NUXT_STORAGE_FS_BASE: z.string(),
 
   // Experimental
   NUXT_PUBLIC_EXPERIMENTAL_WATCHER: z.string(),

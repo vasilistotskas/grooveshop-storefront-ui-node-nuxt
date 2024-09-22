@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
-const { hasProviders, status } = storeToRefs(authStore)
+const { hasSocialaccountProviders, status } = storeToRefs(authStore)
 
 const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
@@ -242,7 +242,9 @@ const submitButtonDisabled = computed(() => {
           </div>
 
           <div
-            v-if="hasProviders && status.config === 'success'" class="grid gap-4"
+            v-if="hasSocialaccountProviders && status.config === 'success'" class="
+              grid gap-4
+            "
           >
             <div
               class="

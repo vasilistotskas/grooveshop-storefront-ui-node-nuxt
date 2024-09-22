@@ -72,7 +72,7 @@ onMounted(() => {
                 group-hover:ring-slate-900/10
               "
               :class="{
-                'bg-sky-500 text-primary-50 dark:text-primary-50 group-hover:bg-sky-500':
+                'bg-secondary text-primary-50 dark:bg-secondary-dark dark:text-primary-50':
                   route.path === item.route?.path,
                 'bg-primary-100 text-slate-500 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200':
                   route.path !== item.route?.path,
@@ -97,7 +97,7 @@ onMounted(() => {
                 md:text-lg
               "
               :class="{
-                'font-extrabold text-sky-500 dark:text-sky-400':
+                'font-extrabold text-secondary dark:text-secondary-dark':
                   route.path === item.route?.path,
               }"
             >
@@ -126,7 +126,7 @@ onMounted(() => {
                 group-hover:ring-slate-900/10
               "
               :class="{
-                'bg-sky-500 text-primary-50 dark:text-primary-50 group-hover:bg-sky-500':
+                'bg-secondary text-primary-50 dark:bg-secondary-dark dark:text-primary-50':
                   item.route?.path === route.path,
                 'bg-primary-100 text-slate-500 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200':
                   item.route?.path !== route.path,
@@ -150,7 +150,7 @@ onMounted(() => {
                 md:text-lg
               "
               :class="{
-                'font-extrabold text-sky-500 dark:text-sky-400':
+                'font-extrabold text-secondary dark:text-secondary-dark':
                   item.route?.path === route.path,
               }"
             >

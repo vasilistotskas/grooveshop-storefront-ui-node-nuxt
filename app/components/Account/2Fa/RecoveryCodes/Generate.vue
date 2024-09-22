@@ -47,12 +47,13 @@ onReactivated(async () => {
 <template>
   <div
     class="
-      container-2xs p-0
+      grid gap-4
 
-      md:px-6
+      lg:flex
     "
   >
-    <section class="grid items-center justify-center justify-items-center gap-4">
+    <slot />
+    <section class="flex w-full flex-col items-center gap-4">
       <p
         class="
           text-primary-950

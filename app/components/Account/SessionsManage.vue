@@ -12,15 +12,8 @@ const { t } = useI18n()
 
 const loading = ref(false)
 
-const userStore = useUserStore()
-const { sessions } = storeToRefs(userStore)
-const { setupSessions } = userStore
-
-await setupSessions()
-
-const otherSessions = computed(() => {
-  return sessions.value?.filter(session => !session.is_current)
-})
+const authStore = useAuthStore()
+const { sessions, otherSessions } = storeToRefs(authStore)
 
 const logout = async (fromSessions: Session[]) => {
   try {
@@ -36,7 +29,6 @@ const logout = async (fromSessions: Session[]) => {
       color: 'green',
     })
     emit('deleteSession')
-    await setupSessions()
   }
   catch (error) {
     handleAllAuthClientError(error)
@@ -93,51 +85,54 @@ const actionItems = (session: Session) => {
     class="
       grid gap-4
 
-      md:gap-12
+      lg:flex
     "
   >
-    <UTable :columns="columns" :rows="rows">
-      <template #actions-data="{ row }">
-        <UDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
-          <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
-        </UDropdown>
-      </template>
+    <slot />
+    <div class="grid w-full gap-4">
+      <UTable :columns="columns" :rows="rows">
+        <template #actions-data="{ row }">
+          <UDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
+            <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
+          </UDropdown>
+        </template>
 
-      <template #created_at-data="{ row }">
-        <NuxtTime :date-style="'medium'" :datetime="new Date(row.created_at * 1000)" :time-style="'medium'" />
-      </template>
+        <template #created_at-data="{ row }">
+          <NuxtTime :date-style="'medium'" :datetime="new Date(row.created_at * 1000)" :time-style="'medium'" />
+        </template>
 
-      <template #is_current-data="{ row }">
-        <UIcon
-          v-if="row.is_current"
-          :name="'i-heroicons-star-solid'"
-          class="
-            h-6 w-6 text-yellow-500
+        <template #is_current-data="{ row }">
+          <UIcon
+            v-if="row.is_current"
+            :name="'i-heroicons-star-solid'"
+            class="
+              h-6 w-6 text-yellow-500
 
-            dark:text-yellow-400
-          "
-        />
-        <UIcon
-          v-else
-          :name="'i-heroicons-star'"
-          class="
-            h-6 w-6 text-gray-400
+              dark:text-yellow-400
+            "
+          />
+          <UIcon
+            v-else
+            :name="'i-heroicons-star'"
+            class="
+              h-6 w-6 text-gray-400
 
-            dark:text-gray-500
-          "
-        />
-      </template>
-    </UTable>
-    <div class="grid items-center justify-center justify-items-center">
-      <UButton
-        :disabled="otherSessions.length < 1"
-        :loading="loading"
-        color="red"
-        variant="solid"
-        @click="logout(otherSessions)"
-      >
-        {{ $t('logout_all_other_sessions') }}
-      </UButton>
+              dark:text-gray-500
+            "
+          />
+        </template>
+      </UTable>
+      <div class="grid items-center justify-center justify-items-center">
+        <UButton
+          :disabled="otherSessions.length < 1"
+          :loading="loading"
+          color="red"
+          variant="solid"
+          @click="logout(otherSessions)"
+        >
+          {{ $t('logout_all_other_sessions') }}
+        </UButton>
+      </div>
     </div>
   </div>
 </template>

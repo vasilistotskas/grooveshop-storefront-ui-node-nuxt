@@ -66,7 +66,7 @@ definePageMeta({
                   md:text-lg
                 "
                 :class="{
-                  'font-extrabold text-sky-500 dark:text-sky-400':
+                  'font-extrabold text-secondary dark:text-secondary-dark':
                     route.path === item.route?.path,
                 }"
               >

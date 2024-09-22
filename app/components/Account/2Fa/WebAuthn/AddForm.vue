@@ -80,8 +80,16 @@ const formSchema: DynamicFormSchema = {
 </script>
 
 <template>
-  <section class="grid items-center">
+  <section
+    class="
+      grid gap-4
+
+      lg:flex
+    "
+  >
+    <slot />
     <DynamicForm
+      class="!flex flex-col"
       :button-label="t('submit')"
       :schema="formSchema"
       @submit="onSubmit"

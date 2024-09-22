@@ -1,12 +1,20 @@
 import { ZodConfigResponse } from '~/types/all-auth'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/config`, {
+    const response = await $fetch.raw(`${config.djangoUrl}/_allauth/browser/v1/config`, {
       method: 'GET',
+      credentials: 'include',
     })
-    return await parseDataAs(response, ZodConfigResponse)
+
+    const csrfCookie = response.headers.get('set-cookie')?.split(';').find(cookie => cookie.trim().startsWith('csrftoken'))
+
+    if (csrfCookie) {
+      setResponseHeader(event, 'X-CSRFToken', csrfCookie.split('=')[1])
+    }
+
+    return await parseDataAs(response._data, ZodConfigResponse)
   }
   catch (error) {
     await handleAllAuthError(error)

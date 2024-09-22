@@ -18,20 +18,12 @@ definePageMeta({
   >
     <PageTitle
       :text="hasCurrentPassword ? t('change.title') : t('set.title')"
-      class="text-center capitalize"
+      class="hidden"
     />
     <PageBody>
-      <p
-        class="
-          text-primary-950 text-center
-
-          dark:text-primary-50
-        "
-      >
-        {{ hasCurrentPassword ? t('change.description') : t('set.description')
-        }}
-      </p>
-      <AccountPasswordChangeForm />
+      <AccountPasswordChangeForm>
+        <AccountAuthSettingsNavigation />
+      </AccountPasswordChangeForm>
     </PageBody>
   </PageWrapper>
 </template>
@@ -40,10 +32,6 @@ definePageMeta({
 el:
   change:
     title: Αλλαγή κωδικού πρόσβασης
-    description: Εισήγαγε τον τρέχον κωδικό πρόσβασης, ακολουθούμενο από τον νέο
-      κωδικό πρόσβασης.
   set:
     title: Όρισε έναν κωδικό πρόσβασης
-    description: Αυτή τη στιγμή δεν έχεις καθορίσει κωδικό πρόσβασης. Εισήγαγε
-      τον (νέο) κωδικό πρόσβασης.
 </i18n>

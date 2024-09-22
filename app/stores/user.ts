@@ -1,8 +1,6 @@
 import type { ProductFavourite } from '~/types/product/favourite'
-import type { SessionsGetResponse } from '~/types/all-auth'
 
 export const useUserStore = defineStore('user', () => {
-  const sessions = ref<SessionsGetResponse['data']>([])
   const favouriteProducts = ref<ProductFavourite[]>([])
   const blogLikedPosts = ref<number[]>([])
   const blogLikedComments = ref<number[]>([])
@@ -13,25 +11,7 @@ export const useUserStore = defineStore('user', () => {
     )
   }
 
-  const setupSessions = async () => {
-    const { loggedIn } = useUserSession()
-    if (!loggedIn.value) {
-      return
-    }
-    const { getSessions } = useAllAuthSessions()
-    await callOnce(async () => {
-      const { data } = await useAsyncData(
-        'sessions',
-        () => getSessions(),
-      )
-      if (data.value) {
-        sessions.value = data.value.data
-      }
-    })
-  }
-
-  const cleanAccountState = () => {
-    sessions.value = []
+  const clearAccountState = () => {
     favouriteProducts.value = []
     blogLikedPosts.value = []
     blogLikedComments.value = []
@@ -95,12 +75,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return {
-    sessions,
     favouriteProducts,
     blogLikedPosts,
     blogLikedComments,
-    setupSessions,
-    cleanAccountState,
+    clearAccountState,
     getFavouriteByProductId,
     addFavouriteProduct,
     removeFavouriteProduct,

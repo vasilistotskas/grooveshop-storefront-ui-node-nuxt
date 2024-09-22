@@ -84,10 +84,12 @@ onReactivated(async () => {
     class="
       grid gap-4
 
-      md:gap-12
+      lg:flex
     "
   >
+    <slot />
     <UTable
+      class="w-full"
       :columns="columns"
       :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('auth.providers.empty') }"
       :rows="rows"

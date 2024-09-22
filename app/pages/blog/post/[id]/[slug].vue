@@ -298,6 +298,10 @@ definePageMeta({
                     :src="blogPost.mainImagePath"
                     :style="{ objectFit: 'contain' }"
                     :width="675"
+                    :modifiers="{
+                      position: 'attention',
+                      trimThreshold: 5,
+                    }"
                     class="blog-post-image bg-primary-100 rounded-lg"
                     densities="x1"
                     loading="eager"

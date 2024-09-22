@@ -63,7 +63,6 @@ const { defineField, handleSubmit, errors, isSubmitting } = useForm({
   initialValues,
 })
 
-const [email] = defineField('email')
 const [firstName, firstNameProps] = defineField('firstName', {
   validateOnModelUpdate: true,
 })
@@ -217,22 +216,6 @@ const submitButtonDisabled = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-start gap-4">
-    <span
-      class="
-        text-primary-950
-
-        dark:text-primary-50
-      "
-    >{{ $t('email.title') }}: </span>
-    <UInput
-      :placeholder="email"
-      :ui="{
-        placeholder: 'placeholder-primary-700 dark:placeholder-primary-300',
-      }"
-      disabled
-    />
-  </div>
   <div
     class="
       grid gap-4

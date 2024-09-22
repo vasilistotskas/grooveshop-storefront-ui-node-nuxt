@@ -17,7 +17,7 @@ const {
 } = useAllAuthAuthentication()
 
 const providers = computed(() => {
-  return config.value?.data.socialaccount?.providers
+  return config.value?.socialaccount?.providers
 })
 
 const availableProviders = computed(() => {

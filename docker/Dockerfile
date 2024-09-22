@@ -28,6 +28,10 @@ FROM base AS build
 # Set environment variables
 ENV NUXT_PUBLIC_APP_TITLE="Webside - Το side της τεχνολογίας"
 ENV NUXT_PUBLIC_SITE_DESCRIPTION="Μπες στο side της τεχνολογίας, εύκολα, δωρεάν και με ασφάλεια."
+ENV NUXT_PUBLIC_APP_LOGO="https://webside.gr/img/logo.png"
+ENV NUXT_PUBLIC_BASE_URL="https://webside.gr"
+ENV NUXT_PUBLIC_SITE_URL="https://webside.gr"
+ENV NUXT_PUBLIC_SITE_NAME="Webside"
 
 # Install npm && build the app
 RUN npm ci && \

@@ -64,10 +64,17 @@ onReactivated(async () => {
 </script>
 
 <template>
-  <div class="container-2xs mx-auto p-4">
+  <div
+    class="
+      grid gap-4
+
+      lg:flex
+    "
+  >
+    <slot />
     <section
       class="
-        mt-6 grid gap-4
+        grid w-full gap-4
 
         md:gap-8
       "

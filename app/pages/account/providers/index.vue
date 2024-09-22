@@ -9,16 +9,19 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 !p-0
+      container flex flex-col gap-4 !p-0
 
       md:gap-8
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      class="hidden"
+      :text="t('title')"
     />
     <PageBody>
-      <AccountProvidersManage />
+      <AccountProvidersManage>
+        <AccountAuthSettingsNavigation />
+      </AccountProvidersManage>
     </PageBody>
   </PageWrapper>
 </template>

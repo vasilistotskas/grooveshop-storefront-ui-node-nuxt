@@ -9,17 +9,19 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 !p-0
+      container flex flex-col gap-4 !p-0
 
       md:gap-8
     "
   >
     <PageTitle
       :text="t('title')"
-      class="text-center capitalize"
+      class="hidden"
     />
     <PageBody>
-      <Account2FaRecoveryCodesGenerate />
+      <Account2FaRecoveryCodesGenerate>
+        <AccountAuthSettingsNavigation />
+      </Account2FaRecoveryCodesGenerate>
     </PageBody>
   </PageWrapper>
 </template>

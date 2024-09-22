@@ -16,10 +16,12 @@ definePageMeta({
   >
     <PageTitle
       :text="t('title')"
-      class="text-center capitalize"
+      class="hidden"
     />
     <PageBody>
-      <Account2FaRecoveryCodes />
+      <Account2FaRecoveryCodes>
+        <AccountAuthSettingsNavigation />
+      </Account2FaRecoveryCodes>
     </PageBody>
   </PageWrapper>
 </template>
