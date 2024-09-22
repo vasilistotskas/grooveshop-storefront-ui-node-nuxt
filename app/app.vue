@@ -12,14 +12,8 @@ const authStore = useAuthStore()
 const { setupConfig } = authStore
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
-const userStore = useUserStore()
-const { setupSessions } = userStore
-const userNotificationStore = useUserNotificationStore()
-const { setupNotifications } = userNotificationStore
 
 await setupConfig()
-await setupSessions()
-await setupNotifications()
 await fetchCart()
 
 const schemaOrgOptions = [

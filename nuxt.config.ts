@@ -509,6 +509,16 @@ export default defineNuxtConfig({
   sitemap: {
     sitemaps: true,
     exclude: ['/account', '/account/**'],
+    sources: [
+      '/api/__sitemap__/urls',
+    ],
+    cacheTtl: 1000 * 60 * 60 * 24,
+    runtimeCacheStorage: {
+      driver: 'redis',
+      port: process.env.NUXT_REDIS_PORT || 6379,
+      host: process.env.NUXT_REDIS_HOST || 'redis-standalone',
+      db: 0,
+    },
   },
   linkChecker: {
     report: {

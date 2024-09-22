@@ -14,7 +14,9 @@ export default defineNuxtPlugin({
     const authStore = useAuthStore()
     const { setupSession, clearSession } = authStore
     const userStore = useUserStore()
-    const { cleanAccountState } = userStore
+    const { setupSessions, cleanAccountState } = userStore
+    const userNotificationStore = useUserNotificationStore()
+    const { setupNotifications } = userNotificationStore
 
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
@@ -23,7 +25,11 @@ export default defineNuxtPlugin({
       authState.value,
     )
 
-    await setupSession()
+    await Promise.all([
+      setupSession(),
+      setupSessions(),
+      setupNotifications(),
+    ])
 
     nuxtApp.hook('auth:change', ({ detail: newAuthState }) => {
       console.log('Auth state:', newAuthState)

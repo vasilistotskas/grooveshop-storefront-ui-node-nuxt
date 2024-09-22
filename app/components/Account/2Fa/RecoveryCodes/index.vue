@@ -109,12 +109,25 @@ onReactivated(async () => {
           </p>
           <p
             class="
-              text-primary-950
+              flex gap-1 text-primary-950
 
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('last_used_at') }}:</strong> {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $t('unused') }}
+            <strong>{{ $t('last_used_at') }}:</strong>
+            <span
+              :class="last_used_at ? `
+                text-red-500
+
+                dark:text-red-400
+              ` : `
+                text-green-500
+
+                dark:text-green-400
+              `"
+            >
+              {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $t('unused') }}
+            </span>
           </p>
         </div>
         <div class="grid items-center justify-center justify-items-center">
