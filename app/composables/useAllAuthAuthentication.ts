@@ -5,14 +5,19 @@ import type {
   EmailVerifyPostBody,
   LoginBody,
   PasswordRequestBody,
-  PasswordResetPostBody, Provider,
+  PasswordResetPostBody,
+  Provider,
   ProviderRedirectBody,
   ProviderSignupBody,
   ProviderTokenBody,
   ReauthenticateBody,
   SignupBody,
   TwoFaAuthenticateBody,
-  TwoFaReauthenticateBody, WebAuthnAuthenticatePostBody, WebAuthnLoginPostBody, WebAuthnReauthenticatePostBody,
+  TwoFaReauthenticateBody,
+  WebAuthnAuthenticatePostBody,
+  WebAuthnLoginPostBody,
+  WebAuthnReauthenticatePostBody,
+  WebAuthnSignupPostBody, WebAuthnSignupPutBody,
 } from '~/types/all-auth'
 
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
@@ -374,6 +379,47 @@ export default function () {
     })
   }
 
+  async function signUpByPasskey(body: WebAuthnSignupPostBody) {
+    return $fetch(`${API_BASE_URL}/webauthn/signup`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function getWebAuthnCreateOptionsAtSignup() {
+    return $fetch(`${API_BASE_URL}/webauthn/signup`, {
+      method: 'GET',
+      headers: useRequestHeaders(),
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
+  async function signupWebAuthnCredential(body: WebAuthnSignupPutBody) {
+    return $fetch(`${API_BASE_URL}/webauthn/signup`, {
+      method: 'PUT',
+      headers: useRequestHeaders(),
+      body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response._data)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response._data)
+      },
+    })
+  }
+
   return {
     getSession,
     deleteSession,
@@ -399,5 +445,8 @@ export default function () {
     loginUsingWebAuthn,
     getWebAuthnRequestOptionsForLogin,
     getWebAuthnRequestOptionsForAuthentication,
+    signUpByPasskey,
+    getWebAuthnCreateOptionsAtSignup,
+    signupWebAuthnCredential,
   }
 }

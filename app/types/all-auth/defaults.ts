@@ -72,6 +72,7 @@ export const ZodFlow = z.object({
     'mfa_authenticate',
     'mfa_login_webauthn',
     'mfa_reauthenticate_webauthn',
+    'mfa_signup_webauthn',
   ]),
   provider: ZodProvider.optional(),
   is_pending: z.boolean().optional(),
@@ -129,6 +130,7 @@ export const Flows = {
   MFA_AUTHENTICATE: 'mfa_authenticate',
   REAUTHENTICATE: 'reauthenticate',
   MFA_REAUTHENTICATE: 'mfa_reauthenticate',
+  MFA_WEBAUTHN_SIGNUP: 'mfa_signup_webauthn',
 } as const
 
 export const AuthenticatorType = {
@@ -147,6 +149,7 @@ export const Flow2path = {
   [Flows.VERIFY_EMAIL]: '/account/verify-email',
   [Flows.PROVIDER_SIGNUP]: '/account/provider/signup',
   [Flows.REAUTHENTICATE]: '/account/reauthenticate',
+  [Flows.MFA_WEBAUTHN_SIGNUP]: '/account/signup/passkey/create',
   [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.TOTP}`]: '/account/2fa/authenticate/totp',
   [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: '/account/2fa/authenticate/recovery-codes',
   [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: '/account/2fa/authenticate/webauthn',

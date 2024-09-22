@@ -111,7 +111,7 @@ export async function handleAllAuthError(
     await allAuthHooks.callHookParallel('authChange', { detail: error.data })
   }
   else {
-    console.error('Unexpected AllAuth error type:', error, event)
+    console.error('Unexpected AllAuth error type:', error)
   }
 
   await handleError(error)

@@ -10,7 +10,7 @@ export default defineNuxtPlugin({
   name: 'auth',
   parallel: true,
   async setup(nuxtApp) {
-    const { fetch, loggedIn, clear } = useUserSession()
+    const { loggedIn, clear } = useUserSession()
     const authStore = useAuthStore()
     const { clearAuthState } = authStore
     const userStore = useUserStore()
@@ -84,7 +84,6 @@ export default defineNuxtPlugin({
         const redirectTo = isRedirectingToLogin || !returnToPath
           ? URLs.LOGIN_REDIRECT_URL
           : returnToPath
-        await fetch()
         return navigateToUrl(redirectTo)
       }
       catch (error) {

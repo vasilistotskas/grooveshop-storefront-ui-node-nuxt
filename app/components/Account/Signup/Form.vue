@@ -221,24 +221,43 @@ const submitButtonDisabled = computed(() => {
             variant="soft"
           />
 
-          <div class="flex items-center justify-end gap-2">
-            <span
-              class="
-                text-primary-950 text-sm
+          <div
+            class="
+              flex w-full flex-col
 
-                dark:text-primary-50
-              "
-            >{{
-              t('already_have_account')
-            }}</span>
-            <UButton
-              :label="t('login')"
-              :to="localePath('/account/login')"
-              color="opposite"
-              size="lg"
-              type="submit"
-              variant="link"
-            />
+              md:flex-row md:justify-between
+            "
+          >
+            <div class="flex items-center justify-end">
+              <UButton
+                :label="t('passkey_login')"
+                :to="localePath('/account/signup/passkey')"
+                color="opposite"
+                size="lg"
+                type="submit"
+                variant="link"
+              />
+            </div>
+            <div class="flex items-center justify-end gap-2">
+              <span
+                class="
+                  text-primary-950 text-sm
+
+                  dark:text-primary-50
+                "
+              >{{
+                t('already_have_account')
+              }}</span>
+              <UButton
+                class="!px-0"
+                :label="t('login')"
+                :to="localePath('/account/login')"
+                color="opposite"
+                size="lg"
+                type="submit"
+                variant="link"
+              />
+            </div>
           </div>
 
           <div
@@ -302,6 +321,7 @@ const submitButtonDisabled = computed(() => {
 <i18n lang="yaml">
 el:
   login: Σύνδεση
+  passkey_login: Εγγραφή με κωδικό μιας χρήσης
   email:
     label: Email
     validation:
