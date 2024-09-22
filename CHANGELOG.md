@@ -1,3 +1,10 @@
+# [1.180.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.179.2...v1.180.0) (2024-09-22)
+
+
+### Features
+
+* Sitemap for blog posts and categories, setups moved from `app.vue` to plugin and Bump Versions ([7c25319](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7c253198c7692ccd79d183a387c61639b4c51c9a))
+
 ## [1.179.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.179.1...v1.179.2) (2024-09-20)
 
 
