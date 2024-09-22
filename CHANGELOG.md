@@ -1,3 +1,10 @@
+# [1.182.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.181.0...v1.182.0) (2024-09-22)
+
+
+### Features
+
+* Added support for signup using a passkey ([a50cc54](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a50cc544fc55ce67112637ed4ff70311fe4a9e65))
+
 # [1.181.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.180.0...v1.181.0) (2024-09-22)
 
 
