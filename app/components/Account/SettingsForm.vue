@@ -227,7 +227,7 @@ const submitButtonDisabled = computed(() => {
     <form
       id="accountSettingsForm"
       class="
-        _form bg-primary-100 flex flex-col gap-4 rounded p-4
+        _form w-full bg-primary-100 flex flex-col gap-4 rounded p-4
 
         dark:bg-primary-900
 

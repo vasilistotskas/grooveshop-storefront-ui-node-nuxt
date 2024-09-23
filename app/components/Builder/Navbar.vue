@@ -71,7 +71,7 @@ const spider = computed(() => {
 
             md:grid md:grid-cols-[1fr_2fr]
           "
-          :class="{ 'grid-cols-[1fr_auto_auto]': isMobileOrTablet }"
+          :class="{ 'justify-between': isMobileOrTablet }"
         >
           <!-- title -->
           <slot name="title">
