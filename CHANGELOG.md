@@ -1,3 +1,10 @@
+# [1.184.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.183.0...v1.184.0) (2024-09-24)
+
+
+### Features
+
+* Bump Versions, include `User-Agent` and `X-Forwarded-For` in all auth API requests, Added nuxt-security and console logs removed ([8a8458b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8a8458bd8cdf955569dbd8ba6163c0317365e2fe))
+
 # [1.183.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.182.0...v1.183.0) (2024-09-23)
 
 
