@@ -402,7 +402,7 @@ export function setupSocialLogin() {
   })
 
   gsi.onLoaded(() => {
-    const provider = authConfig.value?.data.socialaccount?.providers.find(p => p.id === 'google')
+    const provider = authConfig.value?.socialaccount?.providers.find(p => p.id === 'google')
     if (!loggedIn.value && provider && gsi.instance) {
       function handleCredentialResponse(response: { credential: string }) {
         providerToken({

@@ -565,6 +565,14 @@ export default defineNuxtConfig({
     headers: {
       contentSecurityPolicy: {
         'img-src': ['\'self\'', 'data:', process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003'],
+        'script-src': [
+          '\'self\'',
+          'https:',
+          '\'unsafe-inline\'',
+          '\'strict-dynamic\'',
+          '\'nonce-{{nonce}}\'',
+          'https://static.cloudflareinsights.com'
+        ],
         'script-src-attr': ['\'self\'', '\'unsafe-inline\''],
       },
     },
@@ -573,4 +581,5 @@ export default defineNuxtConfig({
       interval: process.env.NODE_ENV === 'production' ? 150000 : 60000,
     },
   },
+
 })

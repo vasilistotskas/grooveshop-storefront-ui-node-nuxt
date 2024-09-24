@@ -45,7 +45,7 @@ const id = useId()
     >
       <UNotification
         v-if="
-          $pwa?.offlineReady || $pwa?.needRefresh
+          ($pwa?.offlineReady || $pwa?.needRefresh) && id
         "
         :id="id"
         :actions="actions"
