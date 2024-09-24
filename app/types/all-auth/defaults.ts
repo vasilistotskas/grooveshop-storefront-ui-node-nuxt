@@ -174,6 +174,7 @@ export type AuthInfo = {
 }
 
 export type Provider = z.infer<typeof ZodProvider>
+export type ProviderToken = z.infer<typeof ZodProviderToken>
 export type Session = z.infer<typeof ZodSession>
 export type Flow = z.infer<typeof ZodFlow>
 export type FlowId = keyof typeof Flow2path

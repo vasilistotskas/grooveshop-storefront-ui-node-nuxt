@@ -69,15 +69,24 @@ export function isAllAuthError(error: unknown): error is AllAuthError {
 export async function handleError(
   error: unknown,
 ) {
+  if (typeof error === 'object' && error !== null && 'data' in error) {
+    if (error.data instanceof ZodError) {
+      console.error('Zod Message:', error.data.message)
+    }
+  }
   if (error instanceof ZodError || error instanceof FetchError || error instanceof H3Error) {
-    console.error('Error:', error)
+    if (error instanceof ZodError) {
+      console.error('Zod Message:', error.message)
+    }
+    else if (error instanceof FetchError) {
+      console.error('Fetch Error:', error.message)
+    }
+    else {
+      console.error('H3 Error:', error.message)
+    }
     throw createError(error)
   }
-  if (typeof error === 'object' && error !== null && 'data' in error) {
-    console.error('Error Data:', error.data)
-  }
   else {
-    console.error('Unexpected error type:', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',
@@ -92,11 +101,9 @@ export async function handleAllAuthError(
 
   if (isAllAuthError(error)) {
     if (error.data.status === 410) {
-      console.warn('Session expired:', error.data)
       await clearUserSession(event)
     }
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
-      console.warn('Unauthorized:', error.data)
       if (error.data.meta?.session_token) {
         await setUserSession(event, {
           sessionToken: error.data.meta.session_token,

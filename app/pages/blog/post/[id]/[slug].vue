@@ -25,6 +25,20 @@ const { data: blogPost, refresh } = await useFetch(
       expand: 'true',
       language: locale.value,
     },
+    pick: [
+      'id',
+      'translations',
+      'author',
+      'tags',
+      'mainImagePath',
+      'seoTitle',
+      'seoDescription',
+      'slug',
+      'likesCount',
+      'commentsCount',
+      'createdAt',
+      'updatedAt',
+    ],
   },
 )
 

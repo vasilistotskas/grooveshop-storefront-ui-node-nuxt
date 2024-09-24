@@ -20,9 +20,10 @@ const loading = ref(false)
 async function onSubmit(values: TwoFaReauthenticateBody) {
   try {
     loading.value = true
-    session.value = await twoFaReauthenticate({
+    const response = await twoFaReauthenticate({
       code: values.code,
     })
+    session.value = response?.data
     toast.add({
       title: t('success.title'),
       color: 'green',

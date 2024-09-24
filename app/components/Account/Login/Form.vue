@@ -39,10 +39,11 @@ const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
-    session.value = await login({
+    const response = await login({
       email: values.email,
       password: values.password,
     })
+    session.value = response?.data
     await performPostLoginActions()
   }
   catch (error) {

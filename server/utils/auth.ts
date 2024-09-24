@@ -3,6 +3,8 @@ import type { AllAuthResponse } from '~/types/all-auth'
 
 export function createHeaders(sessionToken?: string | null, accessToken?: string | null) {
   const event = useEvent()
+
+  const requestHeaders = getRequestHeaders(event)
   const headers = {} as Record<string, string>
 
   headers['Content-Type'] = 'application/json'
@@ -20,7 +22,17 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
     headers['Authorization'] = `Bearer ${accessToken}`
   }
 
-  return headers
+  if (requestHeaders['user-agent']) {
+    headers['User-Agent'] = requestHeaders['user-agent']
+  }
+
+  if (requestHeaders['x-forwarded-for']) {
+    headers['X-Forwarded-For'] = requestHeaders['x-forwarded-for']
+  }
+
+  return {
+    ...headers,
+  }
 }
 
 export async function processAllAuthSession(response: AllAuthResponse, accessToken?: string | null, sessionToken?: string | null) {

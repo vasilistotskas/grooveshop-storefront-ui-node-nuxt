@@ -69,7 +69,6 @@ function sectionExtraResults(section: SearchResult<SearchProduct | SearchBlogPos
 }
 
 function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: number, off: number): void {
-  console.log('onLoadMore', section, lim, off)
   emit('load-more', { lim, off })
 }
 

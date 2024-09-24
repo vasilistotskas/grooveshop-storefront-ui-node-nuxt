@@ -32,6 +32,7 @@ ENV NUXT_PUBLIC_APP_LOGO="https://webside.gr/img/logo.png"
 ENV NUXT_PUBLIC_BASE_URL="https://webside.gr"
 ENV NUXT_PUBLIC_SITE_URL="https://webside.gr"
 ENV NUXT_PUBLIC_SITE_NAME="Webside"
+ENV NUXT_PUBLIC_MEDIA_STREAM_ORIGIN="https://assets.webside.gr"
 
 # Install npm && build the app
 RUN npm ci && \

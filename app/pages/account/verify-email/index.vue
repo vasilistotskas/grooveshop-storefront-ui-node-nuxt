@@ -88,4 +88,5 @@ definePageMeta({
 el:
   title: Επιβεβαίωση Email
   description: Θα πρέπει να επιβεβαιώσεις το email σου πριν συνεχίσεις.
+  key: Κωδικός
 </i18n>

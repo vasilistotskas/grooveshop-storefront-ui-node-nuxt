@@ -55,6 +55,7 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     'nuxt-time',
     'nuxt-vitalizer',
+    'nuxt-security',
   ],
   routeRules: {
     '/api/**': { cors: true },
@@ -274,7 +275,7 @@ export default defineNuxtConfig({
           id: 'n',
           name: 'cookies.necessary',
           description: 'cookies.necessary_description',
-          targetCookieIds: ['csrftoken', 'i18n_redirected', 'ncc_c', 'ncc_e'],
+          targetCookieIds: ['i18n_redirected', 'ncc_c', 'ncc_e'],
         },
       ],
       optional: [
@@ -559,5 +560,17 @@ export default defineNuxtConfig({
     disablePrefetchLinks: true,
     disablePreloadLinks: true,
     disableStylesheets: 'entry',
+  },
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'img-src': ['\'self\'', 'data:', process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003'],
+        'script-src-attr': ['\'self\'', '\'unsafe-inline\''],
+      },
+    },
+    rateLimiter: {
+      tokensPerInterval: process.env.NODE_ENV === 'production' ? 500 : 10000,
+      interval: process.env.NODE_ENV === 'production' ? 150000 : 60000,
+    },
   },
 })

@@ -22,7 +22,6 @@ async function onSubmit(values: {
     loading.value = true
     const optResp = await getWebAuthnCreateOptionsAtSignup()
     const jsonOptions = optResp?.data.creation_options
-    console.log('===== optResp?.data =====', optResp?.data)
     if (!jsonOptions) {
       throw new Error('No creation options')
     }

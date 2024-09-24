@@ -24,17 +24,14 @@ export default defineNuxtPlugin({
     )
 
     nuxtApp.hook('auth:change', ({ detail: newAuthState }) => {
-      console.log('Auth state:', newAuthState)
       authState.value = newAuthState
       authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
-      console.log('Auth event 1:', authEvent.value)
       previousAuthState.value = newAuthState
     })
 
     watch(
       () => [authEvent.value, authState.value],
       async ([authEventVal, _authStateVal]) => {
-        console.log('Auth event 2:', authEventVal)
 
         switch (authEventVal) {
           case AuthChangeEvent.LOGGED_OUT:
@@ -64,7 +61,6 @@ export default defineNuxtPlugin({
       try {
         clearAuthState()
         clearAccountState()
-        console.log('Logged out', loggedIn.value)
         if (loggedIn.value) {
           await clear()
         }
@@ -123,7 +119,6 @@ export default defineNuxtPlugin({
       try {
         const localePath = useLocalePath()
         const url = localePath(path)
-        console.log('========== navigateToUrl ==========')
         return nuxtApp.runWithContext(() => navigateTo(url, { replace }))
       }
       catch (error) {

@@ -12,9 +12,12 @@ defineSlots<{
 
 const { flow } = toRefs(props)
 
+const router = useRouter()
 const { t } = useI18n()
 
 const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
+
+const next = router.currentRoute.value.query.next as string | undefined
 
 const flowLabels = {
   [Flows.REAUTHENTICATE]: t('reauthenticate.title'),
@@ -98,7 +101,10 @@ const filteredMethods = computed(() => {
         >
           <UButton
             :label="f.label"
-            :to="f.path"
+            :to="{
+              path: f.path,
+              query: { next },
+            }"
             class="p-0"
             color="primary"
             icon="i-heroicons-arrow-right"

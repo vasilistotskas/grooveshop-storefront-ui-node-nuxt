@@ -28,9 +28,10 @@ async function onSubmit() {
     }
     const options = parseRequestOptionsFromJSON(jsonOptions)
     const credential = await get(options)
-    session.value = await loginUsingWebAuthn({
+    const response = await loginUsingWebAuthn({
       credential,
     })
+    session.value = response?.data
     await performPostLoginActions()
   }
   catch {

@@ -19,6 +19,7 @@ const authInfo = useAuthInfo()
 const localePath = useLocalePath()
 
 const flow = computed(() => authInfo?.pendingFlow)
+const next = router.currentRoute.value.query.next as string | undefined
 
 if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
   await navigateTo(localePath('/'))
@@ -84,7 +85,10 @@ const filteredFlows = computed(() => {
         >
           <UButton
             :label="f.label"
-            :to="f.path"
+            :to="{
+              path: f.path,
+              query: { next },
+            }"
             class="p-0"
             color="primary"
             icon="i-heroicons-arrow-right"

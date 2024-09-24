@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AuthChangeEvent, type AuthChangeEventType, URLs } from '~/types/all-auth'
+import { AuthChangeEvent, type AuthChangeEventType, type ProviderToken, URLs } from '~/types/all-auth'
 
 const {
   providerToken,
@@ -57,15 +57,21 @@ onMounted(async () => {
     error.value = true
   }
 
-  if (provider && access_token && id_token && process) {
+  if (provider && process && client_id) {
     try {
       loading.value = true
+      const token: ProviderToken = {
+        client_id: String(client_id),
+      }
+      if (id_token) {
+        Object.assign(token, { id_token: String(id_token) })
+      }
+      if (access_token) {
+        Object.assign(token, { access_token: String(access_token) })
+      }
       await providerToken({
         provider: String(provider),
-        token: {
-          id_token: String(id_token),
-          client_id: String(client_id),
-        },
+        token,
         process: process === 'login' ? 'login' : 'connect',
       })
     }

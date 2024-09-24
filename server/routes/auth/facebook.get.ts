@@ -3,15 +3,13 @@ import { withQuery } from 'ufo'
 export default oauthFacebookEventHandler(
   {
     config: {
+      clientId: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET,
       scope: ['email', 'public_profile'],
       authorizationURL: 'https://www.facebook.com/v20.0/dialog/oauth',
       tokenURL: 'https://graph.facebook.com/v20.0/oauth/access_token',
-      authorizationParams: {
-        access_type: process.dev ? 'offline' : 'online',
-      },
     },
     async onSuccess(event, { tokens }) {
-      console.log('Facebook OAuth tokens:', tokens)
       const { access_token, id_token } = tokens
       const client_id = process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID
 
@@ -26,7 +24,6 @@ export default oauthFacebookEventHandler(
       return await sendRedirect(event, redirectUrl)
     },
     async onError(event, error) {
-      console.error('Facebook OAuth error:', error)
       const redirectUrl = withQuery('/account/provider/callback', {
         provider: 'facebook',
         error: error.name,

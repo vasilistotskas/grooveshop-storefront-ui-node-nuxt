@@ -73,18 +73,8 @@ export const useAuthStore = defineStore('auth', () => {
           headers: useRequestHeaders(),
           credentials: 'include',
           onResponse({ response }) {
-            const csrfCookie = response.headers.get('x-csrftoken')
             if (!response.ok) {
               return
-            }
-            if (csrfCookie) {
-              const csrf = useCookie(
-                'csrftoken',
-                {
-                  sameSite: 'lax',
-                },
-              )
-              csrf.value = csrfCookie
             }
           },
           onResponseError(context) {

@@ -47,9 +47,10 @@ const formSchema: DynamicFormSchema = {
 async function onSubmit(values: TwoFaAuthenticateBody) {
   try {
     loading.value = true
-    session.value = await twoFaAuthenticate({
+    const response = await twoFaAuthenticate({
       code: values.code,
     })
+    session.value = response?.data
     toast.add({
       title: t('success.logged_in'),
       color: 'green',

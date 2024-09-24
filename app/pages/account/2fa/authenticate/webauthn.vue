@@ -29,9 +29,10 @@ async function onSubmit() {
     }
     const options = parseRequestOptionsFromJSON(jsonOptions)
     const credential = await get(options)
-    session.value = await authenticateUsingWebAuthn({
+    const response = await authenticateUsingWebAuthn({
       credential,
     })
+    session.value = response?.data
     toast.add({
       title: t('success.title'),
       color: 'green',
