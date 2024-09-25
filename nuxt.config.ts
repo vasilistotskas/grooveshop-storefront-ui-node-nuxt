@@ -572,7 +572,7 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
-        'script-src-attr': ['\'self\'', '\'unsafe-inline\''],
+        'default-src': ['\'self\'', 'www.youtube.com', 'https:'],
         'script-src': [
           '\'self\'',
           'https:',
@@ -593,15 +593,13 @@ export default defineNuxtConfig({
           'data:',
           '*.facebook.com',
           '*.google-analytics.com',
-          '*.google.*',
           process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
           process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
         ],
         'frame-src': ['\'self\'', 'www.youtube.com'],
-        'media-src': [
-          '\'self\'',
-          'https://www.youtube.com',
-        ],
+        'child-src': ['\'self\'', 'www.youtube.com'],
+        'media-src': ['\'self\'', 'https://www.youtube.com'],
+        'object-src': ['\'self\'', 'www.youtube.com'],
       },
     },
     rateLimiter: {
