@@ -1,4 +1,4 @@
-FROM node:22.8.0-alpine as base
+FROM node:22.9.0-alpine as base
 
 # Set up the work directory
 WORKDIR /app

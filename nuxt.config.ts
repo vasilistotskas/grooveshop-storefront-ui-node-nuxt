@@ -350,6 +350,13 @@ export default defineNuxtConfig({
         },
       },
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+        },
+      },
+    },
   },
   nitro: {
     compressPublicAssets: {
@@ -569,9 +576,8 @@ export default defineNuxtConfig({
           '\'self\'',
           'https:',
           '\'unsafe-inline\'',
-          '\'strict-dynamic\'',
           '\'nonce-{{nonce}}\'',
-          'https://static.cloudflareinsights.com'
+          'https://static.cloudflareinsights.com',
         ],
         'script-src-attr': ['\'self\'', '\'unsafe-inline\''],
       },
@@ -581,5 +587,4 @@ export default defineNuxtConfig({
       interval: process.env.NODE_ENV === 'production' ? 150000 : 60000,
     },
   },
-
 })
