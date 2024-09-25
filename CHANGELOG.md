@@ -1,3 +1,10 @@
+## [1.184.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.184.2...v1.184.3) (2024-09-25)
+
+
+### Bug Fixes
+
+* include NUXT_PUBLIC_STATIC_ORIGIN  in security ([64da6b5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/64da6b5cc8743f50b5738619291769ab6b709a54))
+
 ## [1.184.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.184.1...v1.184.2) (2024-09-25)
 
 
