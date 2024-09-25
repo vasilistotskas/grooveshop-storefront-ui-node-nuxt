@@ -586,6 +586,18 @@ export default defineNuxtConfig({
           'https://static.cloudflareinsights.com',
         ],
         'script-src-attr': ['\'self\'', '\'unsafe-inline\''],
+        'frame-src': [
+          '\'self\'',
+          'https://www.youtube.com',
+        ],
+        'media-src': [
+          '\'self\'',
+          'https://www.youtube.com',
+        ],
+        'connect-src': [
+          '\'self\'',
+          'https://www.youtube.com',
+        ],
       },
     },
     rateLimiter: {
