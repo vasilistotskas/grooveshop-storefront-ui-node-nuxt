@@ -1,3 +1,10 @@
+## [1.184.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.184.1...v1.184.2) (2024-09-25)
+
+
+### Bug Fixes
+
+* contentSecurityPolicy remove strict-dynamic and Bump Versions ([6f02add](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6f02addd4278927aeee9cf4bfd25f4cf50e9b0c9))
+
 ## [1.184.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.184.0...v1.184.1) (2024-09-24)
 
 
