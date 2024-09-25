@@ -41,6 +41,7 @@ const _envVariables = z.object({
   NUXT_PUBLIC_API_BASE_URL: z.string(),
   NUXT_PUBLIC_MEDIA_STREAM_DOMAIN: z.string(),
   NUXT_PUBLIC_MEDIA_STREAM_ORIGIN: z.string(),
+  NUXT_PUBLIC_STATIC_ORIGIN: z.string(),
   NUXT_PUBLIC_MEDIA_STREAM_PATH: z.string(),
   NUXT_PUBLIC_SITE_URL: z.string(),
   NUXT_PUBLIC_TRAILING_SLASH: z.string(),

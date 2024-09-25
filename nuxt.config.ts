@@ -244,6 +244,7 @@ export default defineNuxtConfig({
       language: process.env.NUXT_PUBLIC_LANGUAGE,
       mediaStreamDomain: process.env.NUXT_PUBLIC_MEDIA_STREAM_DOMAIN,
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
+      staticOrigin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
       siteDescription: process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
       siteName: process.env.NUXT_PUBLIC_SITE_NAME,
@@ -571,7 +572,12 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
-        'img-src': ['\'self\'', 'data:', process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003'],
+        'img-src': [
+          '\'self\'',
+          'data:',
+          process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
+          process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
+        ],
         'script-src': [
           '\'self\'',
           'https:',
