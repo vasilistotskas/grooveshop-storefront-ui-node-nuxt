@@ -1,3 +1,10 @@
+## [1.184.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.184.3...v1.184.4) (2024-09-25)
+
+
+### Bug Fixes
+
+* allow youtube ([c44f9ec](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c44f9ec017107fa02b3e1ab1643068cb8db9fe7c))
+
 ## [1.184.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.184.2...v1.184.3) (2024-09-25)
 
 
