@@ -572,29 +572,33 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
-        'img-src': [
-          '\'self\'',
-          'data:',
-          process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
-          process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
-        ],
+        'script-src-attr': ['\'self\'', '\'unsafe-inline\''],
         'script-src': [
           '\'self\'',
           'https:',
           '\'unsafe-inline\'',
           '\'nonce-{{nonce}}\'',
+          '*.googletagmanager.com',
+          '*.google-analytics.com',
           'https://static.cloudflareinsights.com',
         ],
-        'script-src-attr': ['\'self\'', '\'unsafe-inline\''],
-        'frame-src': [
-          '\'self\'',
-          'https://www.youtube.com',
-        ],
-        'media-src': [
-          '\'self\'',
-          'https://www.youtube.com',
-        ],
         'connect-src': [
+          '\'self\'',
+          '*.facebook.com',
+          '*.google-analytics.com',
+          '*.doubleclick.net',
+        ],
+        'img-src': [
+          '\'self\'',
+          'data:',
+          '*.facebook.com',
+          '*.google-analytics.com',
+          '*.google.*',
+          process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
+          process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
+        ],
+        'frame-src': ['\'self\'', 'www.youtube.com'],
+        'media-src': [
           '\'self\'',
           'https://www.youtube.com',
         ],
