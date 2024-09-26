@@ -584,7 +584,6 @@ export default defineNuxtConfig({
           '\'self\'',
           'https:',
           '\'nonce-{{nonce}}\'',
-          '\'strict-dynamic\'',
           'https://www.googletagmanager.com',
           'https://www.google-analytics.com',
           'https://static.cloudflareinsights.com',
