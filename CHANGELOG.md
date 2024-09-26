@@ -1,3 +1,10 @@
+## [1.185.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.185.5...v1.185.6) (2024-09-26)
+
+
+### Bug Fixes
+
+* security 'script-src-attr' add nonce-{{nonce}} ([a3cb7eb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a3cb7ebf09e3497bbebc1b8c7b223c792c8741f9))
+
 ## [1.185.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.185.4...v1.185.5) (2024-09-26)
 
 
