@@ -582,12 +582,12 @@ export default defineNuxtConfig({
         ],
         'style-src': [
           '\'self\'',
-          'https:'
+          '\'nonce-{{nonce}}\'',
+          'https:',
         ],
         'script-src': [
           '\'self\'',
           'https:',
-          '\'unsafe-inline\'',
           '\'nonce-{{nonce}}\'',
           '\'strict-dynamic\'',
           'https://www.googletagmanager.com',
@@ -595,7 +595,11 @@ export default defineNuxtConfig({
           'https://static.cloudflareinsights.com',
         ],
         'script-src-attr': ['\'self\''],
-        'script-src-elem': ['https://static.cloudflareinsights.com', '\'self\''],
+        'script-src-elem': [
+          'https://static.cloudflareinsights.com',
+          '\'self\'',
+          '\'nonce-{{nonce}}\'',
+        ],
       },
     },
     rateLimiter: {
