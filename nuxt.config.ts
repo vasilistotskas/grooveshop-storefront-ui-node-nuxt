@@ -580,11 +580,6 @@ export default defineNuxtConfig({
           process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
           process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
         ],
-        'style-src': [
-          '\'self\'',
-          '\'nonce-{{nonce}}\'',
-          'https:',
-        ],
         'script-src': [
           '\'self\'',
           'https:',
@@ -593,6 +588,7 @@ export default defineNuxtConfig({
           'https://www.googletagmanager.com',
           'https://www.google-analytics.com',
           'https://static.cloudflareinsights.com',
+          `${process.env.NUXT_PUBLIC_SITE_URL}/cdn-cgi/speculation`,
         ],
         'script-src-attr': ['\'self\''],
         'script-src-elem': [
