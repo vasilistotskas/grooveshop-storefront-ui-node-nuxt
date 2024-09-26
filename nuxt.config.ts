@@ -571,52 +571,26 @@ export default defineNuxtConfig({
   },
   security: {
     headers: {
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: 'same-origin-allow-popups',
       contentSecurityPolicy: {
-        'default-src': ['\'none\''],
-        'script-src': [
-          '\'self\'',
-          '\'nonce-{{nonce}}\'',
-          'www.googletagmanager.com',
-          'www.google-analytics.com',
-          'static.cloudflareinsights.com',
-        ],
-        'style-src': [
-          '\'self\'',
-          '\'nonce-{{nonce}}\'',
-          'fonts.googleapis.com',
-        ],
         'img-src': [
           '\'self\'',
           'data:',
-          'www.google-analytics.com',
           process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
           process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
         ],
-        'connect-src': [
+        'script-src': [
           '\'self\'',
-          'www.facebook.com',
-          'www.google-analytics.com',
-          'stats.g.doubleclick.net',
+          'https:',
+          '\'unsafe-inline\'',
+          '\'nonce-{{nonce}}\'',
+          '\'strict-dynamic\'',
+          'https://www.googletagmanager.com',
+          'https://www.google-analytics.com',
+          'https://static.cloudflareinsights.com',
         ],
-        'font-src': [
-          '\'self\'',
-          'fonts.gstatic.com',
-          'data:',
-        ],
-        'frame-src': [
-          '\'self\'',
-          'www.youtube.com',
-        ],
-        'media-src': [
-          '\'self\'',
-          'www.youtube.com',
-        ],
-        'object-src': ['\'none\''],
-        'base-uri': ['\'self\''],
-        'form-action': ['\'self\''],
-        'frame-ancestors': ['\'self\''],
-        'manifest-src': ['\'self\''],
-        'worker-src': ['\'self\''],
+        'script-src-attr': ['\'self\''],
       },
     },
     rateLimiter: {
