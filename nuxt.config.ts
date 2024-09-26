@@ -589,7 +589,10 @@ export default defineNuxtConfig({
           'https://static.cloudflareinsights.com',
           `${process.env.NUXT_PUBLIC_SITE_URL}/cdn-cgi/speculation`,
         ],
-        'script-src-attr': ['\'self\''],
+        'script-src-attr': [
+          '\'self\'',
+          '\'nonce-{{nonce}}\'',
+        ],
         'script-src-elem': [
           'https://static.cloudflareinsights.com',
           '\'self\'',
