@@ -1,3 +1,10 @@
+## [1.185.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.185.1...v1.185.2) (2024-09-26)
+
+
+### Bug Fixes
+
+* `style-src` and `script-src-elem` ([1ece26a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1ece26a62c187d446835dc4bd235a5267ee2b2ee))
+
 ## [1.185.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.185.0...v1.185.1) (2024-09-26)
 
 
