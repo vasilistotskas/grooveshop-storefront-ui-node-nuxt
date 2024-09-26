@@ -580,6 +580,10 @@ export default defineNuxtConfig({
           process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
           process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
         ],
+        'style-src': [
+          '\'self\'',
+          'https:'
+        ],
         'script-src': [
           '\'self\'',
           'https:',
@@ -591,6 +595,7 @@ export default defineNuxtConfig({
           'https://static.cloudflareinsights.com',
         ],
         'script-src-attr': ['\'self\''],
+        'script-src-elem': ['https://static.cloudflareinsights.com', '\'self\''],
       },
     },
     rateLimiter: {
