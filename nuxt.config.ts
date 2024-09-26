@@ -572,34 +572,51 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
-        'default-src': ['\'self\'', 'www.youtube.com', 'https:'],
+        'default-src': ['\'none\''],
         'script-src': [
           '\'self\'',
-          'https:',
-          '\'unsafe-inline\'',
           '\'nonce-{{nonce}}\'',
-          '*.googletagmanager.com',
-          '*.google-analytics.com',
-          'https://static.cloudflareinsights.com',
+          'www.googletagmanager.com',
+          'www.google-analytics.com',
+          'static.cloudflareinsights.com',
         ],
-        'connect-src': [
+        'style-src': [
           '\'self\'',
-          '*.facebook.com',
-          '*.google-analytics.com',
-          '*.doubleclick.net',
+          '\'nonce-{{nonce}}\'',
+          'fonts.googleapis.com',
         ],
         'img-src': [
           '\'self\'',
           'data:',
-          '*.facebook.com',
-          '*.google-analytics.com',
+          'www.google-analytics.com',
           process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
           process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
         ],
-        'frame-src': ['\'self\'', 'www.youtube.com'],
-        'child-src': ['\'self\'', 'www.youtube.com'],
-        'media-src': ['\'self\'', 'https://www.youtube.com'],
-        'object-src': ['\'self\'', 'www.youtube.com'],
+        'connect-src': [
+          '\'self\'',
+          'www.facebook.com',
+          'www.google-analytics.com',
+          'stats.g.doubleclick.net',
+        ],
+        'font-src': [
+          '\'self\'',
+          'fonts.gstatic.com',
+          'data:',
+        ],
+        'frame-src': [
+          '\'self\'',
+          'www.youtube.com',
+        ],
+        'media-src': [
+          '\'self\'',
+          'www.youtube.com',
+        ],
+        'object-src': ['\'none\''],
+        'base-uri': ['\'self\''],
+        'form-action': ['\'self\''],
+        'frame-ancestors': ['\'self\''],
+        'manifest-src': ['\'self\''],
+        'worker-src': ['\'self\''],
       },
     },
     rateLimiter: {
