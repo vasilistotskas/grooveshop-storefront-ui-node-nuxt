@@ -1,3 +1,10 @@
+## [1.185.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.185.4...v1.185.5) (2024-09-26)
+
+
+### Bug Fixes
+
+* security ([546d82a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/546d82a28bfa4c7168d1f64086b2278cc18fdb51))
+
 ## [1.185.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.185.3...v1.185.4) (2024-09-26)
 
 
