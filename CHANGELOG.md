@@ -1,3 +1,10 @@
+## [1.187.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.187.0...v1.187.1) (2024-09-27)
+
+
+### Bug Fixes
+
+* lazy load some components and remove some `experimental` from config ([60502bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/60502bd169aefb02470798d98fd3871415a07c2c))
+
 # [1.187.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.186.0...v1.187.0) (2024-09-27)
 
 
