@@ -291,8 +291,8 @@ defineExpose({
                       <div class="cookie-control-ModalInputWrapper">
                         <input
                           v-if="cookieType === ZodCookieTypeEnum.enum.necessary && getName(cookie.name) === $t('cookies.necessary')"
-                          class="sr-only"
                           :id="cookie.id"
+                          class="sr-only"
                           :name="getName(cookie.name)"
                           :placeholder="getName(cookie.name)"
                           checked

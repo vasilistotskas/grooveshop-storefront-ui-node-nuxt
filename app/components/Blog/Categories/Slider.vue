@@ -43,7 +43,7 @@ const carouselUiItemBasis = computed(() => {
         rounded: 'rounded-lg',
         color: {
           secondary: {
-            solid: 'shadow-sm bg-secondary dark:bg-secondary-dark text-primary-100',
+            solid: 'shadow-sm bg-secondary text-primary-100',
           },
         },
       }"

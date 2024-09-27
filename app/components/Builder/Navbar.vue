@@ -60,9 +60,6 @@ const spider = computed(() => {
           md:flex md:py-4
         "
       >
-        <MobileOrTabletOnly>
-          <BackButton />
-        </MobileOrTabletOnly>
         <div
           class="
             relative flex w-full items-center gap-4
