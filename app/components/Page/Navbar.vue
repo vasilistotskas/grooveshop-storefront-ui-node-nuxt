@@ -7,6 +7,7 @@ const { user, loggedIn } = useUserSession()
 const { t } = useI18n({ useScope: 'local' })
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
+const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 const { enabled } = useAuthPreviewMode()
 
@@ -67,7 +68,7 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <SearchBar v-model:search-bar-focused="searchBarFocused" />
+      <LazySearchBar v-if="!isMobileOrTablet && localePath(route.path) !== '/search'" v-model:search-bar-focused="searchBarFocused" />
       <div
         class="
           relative ml-auto hidden items-center
@@ -163,7 +164,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <UserNotifications v-if="loggedIn" />
+              <LazyUserNotifications v-if="loggedIn" />
             </li>
             <template v-if="enabled">
               <li
@@ -195,7 +196,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <UDropdown
+              <LazyUDropdown
                 v-if="loggedIn && user"
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
@@ -234,7 +235,7 @@ const items = computed(() => [
                     "
                   />
                 </template>
-              </UDropdown>
+              </LazyUDropdown>
               <Anchor
                 v-else
                 :title="loggedIn ? $t('account') : $t('login')"

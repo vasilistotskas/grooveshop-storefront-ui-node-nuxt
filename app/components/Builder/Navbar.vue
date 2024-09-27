@@ -123,9 +123,9 @@ const spider = computed(() => {
                 lg:sr-only
               "
             >
-              <LanguageSwitcher v-if="enabled" />
+              <LazyLanguageSwitcher v-if="enabled" />
               <ThemeSwitcher />
-              <UserNotifications v-if="loggedIn" />
+              <LazyUserNotifications v-if="loggedIn" />
             </div>
           </MobileOrTabletOnly>
         </div>

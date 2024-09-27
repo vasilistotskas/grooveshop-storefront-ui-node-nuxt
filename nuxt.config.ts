@@ -110,10 +110,7 @@ export default defineNuxtConfig({
     ],
   },
   experimental: {
-    componentIslands: true,
-    inlineRouteRules: true,
     typedPages: true,
-    renderJsonPayloads: true,
     asyncContext: true,
     cookieStore: true,
     watcher: (process.env.NUXT_PUBLIC_EXPERIMENTAL_WATCHER || 'parcel') as
@@ -336,6 +333,7 @@ export default defineNuxtConfig({
       }),
     ],
     build: {
+      sourcemap: true,
       rollupOptions: {
         output: {
           manualChunks(id: string) {

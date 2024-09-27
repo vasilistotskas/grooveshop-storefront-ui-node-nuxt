@@ -214,7 +214,7 @@ onReactivated(async () => {
         flex flex-row flex-wrap items-center gap-2
       `"
     >
-      <Pagination
+      <LazyPagination
         v-if="pagination"
         :count="pagination.count"
         :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
@@ -227,7 +227,7 @@ onReactivated(async () => {
         :strategy="'scroll'"
         :total-pages="pagination.totalPages"
       />
-      <Ordering
+      <LazyOrdering
         v-if="showOrdering"
         :ordering="String(ordering)"
         :ordering-options="orderingOptions.orderingOptionsArray.value"
