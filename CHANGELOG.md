@@ -1,3 +1,16 @@
+# [1.188.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.187.1...v1.188.0) (2024-09-27)
+
+
+### Bug Fixes
+
+* clear package-lock ([f3a9c83](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f3a9c83b0fa11c48dc5e46be1ab8cd4c2f484552))
+
+
+### Features
+
+* Add Lazy to components ([17cf607](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/17cf60763050e9a0d899f4db41f31da57b9da2ea))
+* Bump Versions ([1cdd806](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1cdd8062ecd5c086e01619cfe44279954283f577))
+
 ## [1.187.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.187.0...v1.187.1) (2024-09-27)
 
 
