@@ -1,3 +1,10 @@
+# [1.187.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.186.0...v1.187.0) (2024-09-27)
+
+
+### Features
+
+* sitemap exclude and robots disallow pages ([f169b5c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f169b5ccebee3d9291eb13d0393444036210856e))
+
 # [1.186.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.185.6...v1.186.0) (2024-09-27)
 
 
