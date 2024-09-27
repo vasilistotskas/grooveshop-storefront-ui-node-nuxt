@@ -128,7 +128,7 @@ watch(
       >
         <div class="notifications-list relative grid gap-2 p-2">
           <template v-if="!pending && userNotifications?.length">
-            <UNotification
+            <LazyUNotification
               v-for="userNotification in userNotifications"
               :id="userNotification.id"
               :key="userNotification.uuid"
@@ -167,7 +167,7 @@ watch(
               <template #description="{ description }">
                 <span class="notification-description text-xs" v-html="description" />
               </template>
-            </UNotification>
+            </LazyUNotification>
           </template>
           <template v-else-if="pending">
             <ClientOnlyFallback

@@ -340,7 +340,7 @@ onMounted(() => {
         />
       </template>
     </LazyEmptyState>
-    <Pagination
+    <LazyPagination
       v-if="pagination"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POST_COMMENTS"

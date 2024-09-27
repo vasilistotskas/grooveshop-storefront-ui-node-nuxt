@@ -270,7 +270,7 @@ onClickOutside(autocomplete, () => {
         </template>
       </UInput>
     </div>
-    <SearchAutoComplete
+    <LazySearchAutoComplete
       v-if="searchBarFocused"
       v-model:search-bar-focused="searchBarFocused"
       v-model:keep-focus="keepFocus"

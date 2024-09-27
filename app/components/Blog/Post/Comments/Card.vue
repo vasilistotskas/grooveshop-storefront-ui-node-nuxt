@@ -300,7 +300,7 @@ watch(
     <summary class="grid cursor-pointer grid-cols-[32px_1fr]">
       <span class="flex w-full items-center">
         <span class="flex items-center gap-2">
-          <UserAvatar
+          <LazyUserAvatar
             v-if="userAccount"
             :img-height="32"
             :img-width="32"
@@ -386,7 +386,7 @@ watch(
             dark:bg-primary-900
           "
         >
-          <UButton
+          <LazyUButton
             v-if="hasReplies"
             :aria-expanded="showReplies"
             :aria-label="
@@ -433,7 +433,7 @@ watch(
                 variant="solid"
                 @update="likeClicked"
               />
-              <UButton
+              <LazyUButton
                 v-if="maxDepth > depth"
                 :aria-label="$t('reply')"
                 :color="'primary'"
@@ -577,7 +577,7 @@ watch(
       class="reply-comment-form relative mb-2 mt-2"
       @submit="onReplySubmit"
     />
-    <Pagination
+    <LazyPagination
       v-if="pagination"
       :count="pagination.count"
       :cursor-key="cursorKey"

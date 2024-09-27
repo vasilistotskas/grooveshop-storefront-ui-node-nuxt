@@ -43,12 +43,12 @@ definePageMeta({
               dark:bg-primary-900 dark:border-primary-500
             "
           >
-            <Anchor
+            <LazyAnchor
               v-if="item.type === 'link'"
               :to="item.route ? item.route : undefined"
               :text="item.text"
             >
-              <UIcon
+              <LazyUIcon
                 v-if="item.icon"
                 :name="item.icon"
                 class="
@@ -72,7 +72,7 @@ definePageMeta({
               >
                 {{ item.text }}
               </span>
-            </Anchor>
+            </LazyAnchor>
           </li>
           <li
             class="

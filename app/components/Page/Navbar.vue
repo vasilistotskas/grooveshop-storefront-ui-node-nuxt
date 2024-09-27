@@ -133,7 +133,7 @@ const items = computed(() => [
                   relative grid items-center justify-center justify-items-center
                 "
               >
-                <LanguageSwitcher />
+                <LazyLanguageSwitcher />
               </li>
             </template>
             <li
@@ -172,14 +172,14 @@ const items = computed(() => [
                   relative grid items-center justify-center justify-items-center
                 "
               >
-                <UChip
+                <LazyUChip
                   :key="'cart'"
                   size="xl"
                   color="green"
                   :show="!pending.cart"
                   :text="getCartTotalItems"
                 >
-                  <UButton
+                  <LazyUButton
                     class="p-0"
                     icon="i-heroicons-shopping-cart"
                     size="xl"
@@ -188,7 +188,7 @@ const items = computed(() => [
                     :title="t('cart')"
                     :to="localePath('cart')"
                   />
-                </UChip>
+                </LazyUChip>
               </li>
             </template>
             <li
@@ -202,7 +202,7 @@ const items = computed(() => [
                 :popper="{ placement: 'bottom-start' }"
                 :ui="{ item: { disabled: 'cursor-text select-text' } }"
               >
-                <UserAvatar
+                <LazyUserAvatar
                   :img-height="30"
                   :img-width="30"
                   :show-name="false"

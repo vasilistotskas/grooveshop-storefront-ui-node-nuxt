@@ -99,7 +99,7 @@ watch(
 <template>
   <div class="product-favourites-list grid gap-4">
     <div class="flex flex-row flex-wrap items-center gap-2">
-      <PaginationPageNumber
+      <LazyPaginationPageNumber
         v-if="pagination"
         :count="pagination.count"
         :page="pagination.page"
@@ -135,7 +135,7 @@ watch(
           v-for="favourite in favourites?.results"
           :key="favourite.id"
         >
-          <ProductCard
+          <LazyProductCard
             v-if="!isEntityId(favourite.product)"
             :img-height="150"
             :img-width="260"

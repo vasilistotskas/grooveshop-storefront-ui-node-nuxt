@@ -277,7 +277,7 @@ defineExpose({
       } in filteredFields"
       :key="name"
     >
-      <UFormGroup
+      <LazyUFormGroup
         v-if="fields[name]"
         v-model="fields[name][0].value"
         :class="{ 'items-center': true, 'grid': as !== 'checkbox', 'gap-1': children && children.length > 0, 'sr-only': hidden, 'flex': as === 'checkbox', 'gap-2': as === 'checkbox' }"
@@ -290,7 +290,7 @@ defineExpose({
           :for="name"
           class="sr-only"
         >{{ label }}</label>
-        <UTextarea
+        <LazyUTextarea
           v-if="as === 'textarea'"
           :id="groupId"
           v-model="fields[name][0].value"
@@ -310,7 +310,7 @@ defineExpose({
           <div v-if="children && children.length > 0">
             <LazyDynamicFormChildren :children="children" />
           </div>
-        </UTextarea>
+        </LazyUTextarea>
         <UCheckbox
           v-else-if="as === 'checkbox'"
           :id="groupId"
@@ -355,11 +355,9 @@ defineExpose({
           color="primary"
           v-bind="fields[name][1].value"
         >
-          <div v-if="children && children.length > 0">
-            <LazyDynamicFormChildren :children="children" />
-          </div>
+          <LazyDynamicFormChildren v-if="children && children.length > 0" :children="children" />
         </UInput>
-      </UFormGroup>
+      </LazyUFormGroup>
     </template>
 
     <div

@@ -651,8 +651,8 @@ export default defineNuxtConfig({
       },
     },
     rateLimiter: {
-      tokensPerInterval: process.env.NODE_ENV === 'production' ? 500 : 10000,
-      interval: process.env.NODE_ENV === 'production' ? 150000 : 60000,
+      tokensPerInterval: process.env.NODE_ENV === 'production' ? 1500 : 10000,
+      interval: process.env.NODE_ENV === 'production' ? 300000 : 60000,
     },
   },
 })

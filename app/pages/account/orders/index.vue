@@ -97,7 +97,7 @@ definePageMeta({
     <PageTitle :text="t('title')" />
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
-        <PaginationPageNumber
+        <LazyPaginationPageNumber
           v-if="pagination"
           :count="pagination.count"
           :page="pagination.page"

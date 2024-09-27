@@ -92,9 +92,9 @@ const actionItems = (session: Session) => {
     <div class="grid w-full gap-4">
       <UTable :columns="columns" :rows="rows">
         <template #actions-data="{ row }">
-          <UDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
+          <LazyUDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
             <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
-          </UDropdown>
+          </LazyUDropdown>
         </template>
 
         <template #created_at-data="{ row }">

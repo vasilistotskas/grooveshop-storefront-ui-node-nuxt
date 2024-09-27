@@ -58,7 +58,7 @@ watch(
       />
     </div>
 
-    <UCarousel
+    <LazyUCarousel
       v-if="images && images?.length > 1"
       v-slot="{ item }"
       :items="images"
@@ -95,6 +95,6 @@ watch(
           />
         </button>
       </div>
-    </UCarousel>
+    </LazyUCarousel>
   </div>
 </template>

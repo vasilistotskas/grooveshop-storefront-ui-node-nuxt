@@ -29,7 +29,7 @@ const carouselUiItemBasis = computed(() => {
 </script>
 
 <template>
-  <UCarousel
+  <LazyUCarousel
     v-if="categoryResults && categoryResults?.length > 1"
     v-slot="{ item }"
     :items="categoryResults"
@@ -69,5 +69,5 @@ const carouselUiItemBasis = computed(() => {
         />
       </template>
     </UButton>
-  </UCarousel>
+  </LazyUCarousel>
 </template>

@@ -143,7 +143,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                   />
                 </template>
               </ClientOnly>
-              <ButtonProductAddToFavourite
+              <LazyButtonProductAddToFavourite
                 v-if="showAddToFavouriteButton"
                 :product-id="product.id"
                 :user-id="user?.id"
@@ -253,7 +253,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           </div>
         </div>
         <div class="grid items-center">
-          <ButtonProductAddToCart
+          <LazyButtonProductAddToCart
             v-if="showAddToCartButton"
             :product="product"
             :quantity="1"

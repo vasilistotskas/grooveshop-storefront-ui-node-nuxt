@@ -64,7 +64,7 @@ const reviewComment = computed(() => {
       "
     >
       <div class="h-auto w-auto">
-        <UserAvatar
+        <LazyUserAvatar
           v-if="userAccount && displayImageOf === 'user'"
           :user-account="userAccount"
         />
@@ -94,13 +94,13 @@ const reviewComment = computed(() => {
           md:gap-4
         "
       >
-        <Anchor
+        <LazyAnchor
           v-if="displayImageOf === 'product' && product"
           :to="product.absoluteUrl"
           :text="productName"
         >
           <span class="text-lg font-medium">{{ productName }}</span>
-        </Anchor>
+        </LazyAnchor>
         <Rating :rate="review.rate" />
       </div>
     </div>

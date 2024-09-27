@@ -89,7 +89,7 @@ const filteredTags = computed(() => {
           :placeholder="`${$t('search.title')}...`"
         />
       </template>
-      <UCarousel
+      <LazyUCarousel
         v-if="status !== 'pending'"
         v-slot="{ item }"
         :items="filteredTags"
@@ -106,7 +106,7 @@ const filteredTags = computed(() => {
           size="2xs"
           :label="extractTranslated(item, 'label', locale)"
         />
-      </UCarousel>
+      </LazyUCarousel>
       <template v-if="status === 'pending'">
         <ClientOnlyFallback
           height="24px"

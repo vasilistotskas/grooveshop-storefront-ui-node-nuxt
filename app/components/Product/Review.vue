@@ -424,7 +424,7 @@ watch(
 </script>
 
 <template>
-  <GenericModal
+  <LazyGenericModal
     v-if="user"
     :key="`reviewModal-${user?.id}-${product?.id}`"
     ref="reviewModal"
@@ -552,7 +552,7 @@ watch(
     <template #footer>
       <div class="review_footer">
         <div class="review_footer-content">
-          <UButton
+          <LazyUButton
             v-if="!tooManyAttempts"
             :label="reviewButtonText"
             block
@@ -587,7 +587,7 @@ watch(
         </div>
       </div>
     </template>
-  </GenericModal>
+  </LazyGenericModal>
 </template>
 
 <style lang="scss" scoped>

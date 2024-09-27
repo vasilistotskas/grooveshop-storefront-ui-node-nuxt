@@ -298,7 +298,7 @@ definePageMeta({
               </h3>
               <PageSection class="actions flex items-center gap-4">
                 <ClientOnly>
-                  <UButton
+                  <LazyUButton
                     v-if="isSupported"
                     :disabled="!isSupported"
                     :title="$t('share')"
@@ -336,7 +336,7 @@ definePageMeta({
                     />
                   </template>
                 </ClientOnly>
-                <ProductReview
+                <LazyProductReview
                   v-if="user"
                   :product="product"
                   :user="user"

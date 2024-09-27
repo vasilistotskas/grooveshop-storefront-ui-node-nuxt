@@ -271,7 +271,7 @@ definePageMeta({
                     @click="scrollToComments"
                   />
                   <ClientOnly>
-                    <UButton
+                    <LazyUButton
                       v-if="isSupported"
                       :disabled="!isSupported"
                       :title="$t('share')"

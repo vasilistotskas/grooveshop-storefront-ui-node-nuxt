@@ -114,7 +114,7 @@ const isCategorySelected = computed(() => {
         >
           {{ categoryName }}
         </span>
-        <UIcon
+        <LazyUIcon
           v-if="isCategorySelected"
           name="i-fa6-solid-circle-check"
           class="

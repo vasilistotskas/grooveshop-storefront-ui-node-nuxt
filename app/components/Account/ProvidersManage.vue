@@ -95,12 +95,12 @@ onReactivated(async () => {
       :rows="rows"
     >
       <template #actions-data="{ row }">
-        <UDropdown
+        <LazyUDropdown
           v-if="actionItems(row).length > 0"
           :items="actionItems(row)"
         >
           <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
-        </UDropdown>
+        </LazyUDropdown>
       </template>
     </UTable>
   </div>

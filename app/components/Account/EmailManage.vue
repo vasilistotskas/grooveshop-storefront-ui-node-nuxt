@@ -178,9 +178,9 @@ const formSchema: DynamicFormSchema = {
   >
     <UTable :columns="columns" :rows="rows">
       <template #actions-data="{ row }">
-        <UDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
+        <LazyUDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
           <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
-        </UDropdown>
+        </LazyUDropdown>
       </template>
 
       <template #verified-data="{ row }">

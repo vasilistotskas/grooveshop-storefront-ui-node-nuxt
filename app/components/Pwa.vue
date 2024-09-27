@@ -43,7 +43,7 @@ const id = useId()
         sm:bottom-20
       "
     >
-      <UNotification
+      <LazyUNotification
         v-if="
           ($pwa?.offlineReady || $pwa?.needRefresh) && id
         "
@@ -58,7 +58,7 @@ const id = useId()
         "
         @close="() => $pwa?.cancelPrompt()"
       />
-      <UNotification
+      <LazyUNotification
         v-if="
           $pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh
         "

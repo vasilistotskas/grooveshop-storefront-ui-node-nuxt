@@ -94,7 +94,7 @@ definePageMeta({
     "
   >
     <PageTitle :text="t('title')" />
-    <UserAccountFavouritesNavbar v-if="enabled" />
+    <LazyUserAccountFavouritesNavbar v-if="enabled" />
     <PageBody>
       <div class="flex flex-row flex-wrap items-center gap-2">
         <PaginationPageNumber
@@ -108,7 +108,7 @@ definePageMeta({
           :ordering-options="orderingOptions.orderingOptionsArray.value"
         />
       </div>
-      <BlogPostFavouritesList
+      <LazyBlogPostFavouritesList
         v-if="status !== 'pending' && favourites?.results?.length"
         :favourites="favourites?.results"
         :favourites-count="favourites?.count"

@@ -50,7 +50,7 @@ onMounted(() => {
             md:dark:bg-transparent
           "
         >
-          <Anchor
+          <LazyAnchor
             v-if="item.type === 'link'"
             :to="item.route ? item.route : undefined"
             :text="item.text"
@@ -78,7 +78,7 @@ onMounted(() => {
                   route.path !== item.route?.path,
               }"
             >
-              <UIcon
+              <LazyUIcon
                 v-if="item.icon"
                 :name="item.icon"
                 class="
@@ -103,7 +103,7 @@ onMounted(() => {
             >
               {{ item.text }}
             </span>
-          </Anchor>
+          </LazyAnchor>
           <Anchor
             v-else-if="item.type === 'external-link'"
             :href="item.href"

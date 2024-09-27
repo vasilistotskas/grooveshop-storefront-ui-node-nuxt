@@ -147,7 +147,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :to="localePath(`${post.absoluteUrl}#blog-post-comments`)"
         />
         <ClientOnly>
-          <UButton
+          <LazyUButton
             v-if="isSupported && showShareButton"
             :disabled="!isSupported"
             icon="i-heroicons-share"
