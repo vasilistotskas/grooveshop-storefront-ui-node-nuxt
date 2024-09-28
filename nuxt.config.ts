@@ -173,7 +173,6 @@ export default defineNuxtConfig({
     '~/assets/sass/app.scss',
     '~/assets/sass/_cookies.scss',
     '~/assets/sass/_variables.scss',
-    'v-calendar/style.css',
   ],
   runtimeConfig: {
     buildDate: new Date().toISOString(),
@@ -337,7 +336,7 @@ export default defineNuxtConfig({
       rollupOptions: {
         output: {
           manualChunks(id: string) {
-            const chunks = ['v-calendar', 'zod', 'lottie']
+            const chunks = ['zod', 'lottie']
             if (id.includes('/node_modules/')) {
               for (const chunkName of chunks) {
                 if (id.includes(chunkName)) {

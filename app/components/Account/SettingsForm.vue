@@ -12,7 +12,7 @@ defineSlots<{
 
 const { user, fetch } = useUserSession()
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 
 const USelect = resolveComponent('USelect')
@@ -31,12 +31,17 @@ const ZodAccountSettings = z.object({
   zipcode: z.string({ required_error: t('validation.required') }),
   address: z.string({ required_error: t('validation.required') }),
   place: z.string({ required_error: t('validation.required') }),
-  birthDate: z.coerce
-    .date({
-      required_error: t('validation.date.required_error'),
-      invalid_type_error: t('validation.date.invalid_type_error'),
-    })
-    .optional(),
+  birthDate: z.preprocess((input) => {
+    if (typeof input === 'string' || input instanceof Date) {
+      const date = new Date(input)
+      return isNaN(date.getTime()) ? undefined : date
+    }
+    return undefined
+  },
+  z.date({
+    required_error: t('validation.date.required_error'),
+    invalid_type_error: t('validation.date.invalid_type_error'),
+  }).optional()),
   country: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
   region: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
 })
@@ -52,8 +57,7 @@ const initialValues = ZodAccountSettings.parse({
   zipcode: user.value?.zipcode || '',
   address: user.value?.address || '',
   place: user.value?.place || '',
-  birthDate:
-    user.value?.birthDate || new Date('2000-01-01').toISOString().slice(0, 10),
+  birthDate: user.value?.birthDate ? new Date(user.value.birthDate) : undefined,
   country: user.value?.country || defaultSelectOptionChoose,
   region: user.value?.region || defaultSelectOptionChoose,
 })
@@ -88,9 +92,9 @@ const [country, countryProps] = defineField('country', {
 const [region, regionProps] = defineField('region', {
   validateOnModelUpdate: true,
 })
-const [birthDate] = defineField('birthDate')
-
-const date = ref(new Date())
+const [birthDate] = defineField('birthDate', {
+  validateOnModelUpdate: true,
+})
 
 const { data: countries } = await useAsyncData('countries', () =>
   $fetch('/api/countries', {
@@ -152,12 +156,7 @@ const label = computed(() => {
       day: 'numeric',
     })
   }
-  return date.value.toLocaleDateString('en-us', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  return t('form.birth_date')
 })
 
 const onCountryChange = async (event: Event) => {
@@ -176,6 +175,9 @@ const onSubmit = handleSubmit(async (values) => {
     values.country = undefined
   }
 
+  console.log('===== values.birthDate =====', values.birthDate)
+  console.log('===== values.birthDate?.toISOString() =====', values.birthDate?.toISOString())
+  console.log('===== values.birthDate?.toISOString().split =====', values.birthDate?.toISOString().split('T')[0])
   if (!userId) return
 
   await $fetch(`/api/user/account/${userId}`, {
@@ -190,7 +192,7 @@ const onSubmit = handleSubmit(async (values) => {
       zipcode: values.zipcode,
       address: values.address,
       place: values.place,
-      birthDate: values.birthDate?.toISOString().slice(0, 10),
+      birthDate: values.birthDate?.toISOString().split('T')[0],
       country: values.country,
       region: values.region,
     },
@@ -430,7 +432,7 @@ const submitButtonDisabled = computed(() => {
               icon="i-heroicons-calendar-days-20-solid"
             />
             <template #panel="{ close }">
-              <DatePicker
+              <LazyDatePicker
                 v-model="birthDate"
                 @close="close"
               />
@@ -532,5 +534,6 @@ el:
     country: Χώρα
     region: Περιοχή
     submit: Υποβολή
-    success: Τα στοιχεία αποθηκεϋτηκαν επιτυχώς
+    success: Τα στοιχεία αποθηκεύτηκαν επιτυχώς
+    error: Σφάλμα
 </i18n>

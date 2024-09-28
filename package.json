@@ -35,7 +35,7 @@
   "devDependencies": {
     "@github/webauthn-json": "2.1.1",
     "@headlessui/vue": "1.7.23",
-    "@iconify/json": "2.2.253",
+    "@iconify/json": "2.2.254",
     "@nuxt/devtools": "1.5.1",
     "@nuxt/eslint": "0.5.7",
     "@nuxt/image": "1.8.0",
@@ -93,7 +93,7 @@
     "ofetch": "1.4.0",
     "pinia": "2.2.2",
     "playwright": "1.47.2",
-    "sass": "1.79.3",
+    "sass": "1.79.4",
     "semantic-release": "24.1.2",
     "string-replace-loader": "3.1.0",
     "tailwindcss": "3.4.13",

@@ -160,11 +160,12 @@ const items = computed(() => [
               <ThemeSwitcher />
             </li>
             <li
+              v-if="loggedIn"
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyUserNotifications v-if="loggedIn" />
+              <LazyUserNotifications />
             </li>
             <template v-if="enabled">
               <li
@@ -192,12 +193,13 @@ const items = computed(() => [
               </li>
             </template>
             <li
+              v-if="loggedIn && user"
+
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
               <LazyUDropdown
-                v-if="loggedIn && user"
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
                 :ui="{ item: { disabled: 'cursor-text select-text' } }"
@@ -236,8 +238,14 @@ const items = computed(() => [
                   />
                 </template>
               </LazyUDropdown>
+            </li>
+            <li
+              v-else
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
+            >
               <Anchor
-                v-else
                 :title="loggedIn ? $t('account') : $t('login')"
                 :to="route.path === '/account/login' ? '/account/login' : `/account/login?next=${route.path}`"
                 class="
