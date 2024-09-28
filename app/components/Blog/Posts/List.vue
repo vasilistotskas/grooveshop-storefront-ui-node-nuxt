@@ -146,6 +146,13 @@ const BlogPostCard = computed(() =>
   isMobileOrTablet ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
 )
 
+const imgLoading = (index: number) => {
+  if (isMobileOrTablet) {
+    return index > 0 ? 'lazy' : 'eager'
+  }
+  return index > 7 ? 'lazy' : 'eager'
+}
+
 watch(
   () => cursorState.value,
   async () => {
@@ -258,7 +265,7 @@ onReactivated(async () => {
           :is="BlogPostCard"
           v-for="(post, index) in allPosts"
           :key="index"
-          :img-loading="index > 7 ? 'lazy' : 'eager'"
+          :img-loading="imgLoading(index)"
           :post="post"
         />
       </ol>
