@@ -1,3 +1,10 @@
+# [1.190.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.189.0...v1.190.0) (2024-09-28)
+
+
+### Features
+
+* clean package-lock, bump `c12`  and `imgLoading ` at BlogPostsList.vue ([0010242](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0010242b19a98c192cf23020a382059c0b816aba))
+
 # [1.189.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.188.0...v1.189.0) (2024-09-28)
 
 
