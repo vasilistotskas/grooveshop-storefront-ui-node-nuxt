@@ -125,7 +125,7 @@ const spider = computed(() => {
             >
               <LazyLanguageSwitcher v-if="enabled" />
               <ThemeSwitcher />
-              <LazyUserNotifications v-if="loggedIn" />
+              <LazyUserNotificationsBell v-if="loggedIn" />
             </div>
           </MobileOrTabletOnly>
         </div>

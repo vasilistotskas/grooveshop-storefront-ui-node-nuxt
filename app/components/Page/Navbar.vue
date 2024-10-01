@@ -165,7 +165,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyUserNotifications />
+              <LazyUserNotificationsBell />
             </li>
             <template v-if="enabled">
               <li
