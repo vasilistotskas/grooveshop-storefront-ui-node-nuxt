@@ -284,8 +284,8 @@ onClickOutside(autocomplete, () => {
         md:top-10
       "
       :query="query"
-      :limit="limit"
-      :offset="offset"
+      :limit="Number(limit)"
+      :offset="Number(offset)"
       :all-results="allResults"
       :status="status"
       :has-results="hasResults"

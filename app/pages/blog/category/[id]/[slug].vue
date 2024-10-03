@@ -11,7 +11,9 @@ const img = useImage()
 const localePath = useLocalePath()
 
 const paginationType = PaginationTypeEnum.PAGE_NUMBER
-const categoryId = route.params.id
+const categoryId = 'id' in route.params
+  ? route.params.id
+  : undefined
 
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')

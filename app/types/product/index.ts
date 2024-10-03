@@ -36,7 +36,7 @@ export const ZodProduct = z.object({
   discountPercent: z.number(),
   discountValue: z.number(),
   priceSavePercent: z.number(),
-  mainImagePath: z.string().nullish(),
+  mainImagePath: z.string().optional(),
   reviewAverage: z.number(),
   approvedReviewAverage: z.number(),
   reviewCount: z.number().int(),
@@ -70,7 +70,6 @@ export const ZodProductQuery = z
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export type Index = Readonly<z.infer<typeof ZodProduct>>
 export type ProductOrderingField =
   | 'price'
   | 'createdAt'
@@ -80,3 +79,5 @@ export type ProductOrderingField =
   | 'reviewAverage'
   | 'approvedReviewAverage'
   | 'likesCount'
+
+export type Product = z.infer<typeof ZodProduct>

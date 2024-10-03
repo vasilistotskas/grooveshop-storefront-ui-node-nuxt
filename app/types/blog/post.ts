@@ -36,7 +36,7 @@ export const ZodBlogPost = z.object({
   status: z.lazy(() => ZodBlogPostStatusEnum),
   featured: z.boolean(),
   viewCount: z.number().int(),
-  mainImagePath: z.string().nullish(),
+  mainImagePath: z.string().optional(),
   likesCount: z.number().int(),
   commentsCount: z.number().int(),
   tagsCount: z.number().int(),

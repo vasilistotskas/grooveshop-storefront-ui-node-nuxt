@@ -19,6 +19,11 @@ const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
     pageSize: max.value,
     language: locale.value,
   },
+  default: () => {
+    return {
+      results: [],
+    }
+  },
 })
 
 const categoryResults = shallowRef(categories.value?.results ?? [])

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { EntityOrdering } from '~/types/ordering'
-import type { Index, ProductOrderingField } from '~/types/product'
+import type { Product, ProductOrderingField } from '~/types/product'
 
 import { type PaginationType, PaginationTypeEnum } from '~/types'
 
@@ -103,7 +103,7 @@ const refreshFavouriteProducts = async (ids: number[]) => {
 
 const pagination = computed(() => {
   if (!products.value) return
-  return usePagination<Index>(products.value)
+  return usePagination<Product>(products.value)
 })
 
 const orderingOptions = computed(() => {

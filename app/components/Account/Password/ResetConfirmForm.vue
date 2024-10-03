@@ -11,11 +11,17 @@ const route = useRoute()
 const toast = useToast()
 const localePath = useLocalePath()
 
-const key = String(route.params.key)
+const key = 'key' in route.params
+  ? route.params.key
+  : undefined
+
+if (!key) {
+  navigateTo(localePath('/account/password/reset'))
+}
 
 await useAsyncData(
   'passwordReset',
-  () => getPasswordReset(key),
+  () => getPasswordReset(String(key)),
 )
 
 const ZodPasswordResetConfirm = z

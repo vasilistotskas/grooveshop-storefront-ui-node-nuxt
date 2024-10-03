@@ -1,4 +1,3 @@
-import { asSitemapUrl, defineSitemapEventHandler } from '#imports'
 import type { BlogPost } from '~/types/blog/post'
 import type { Pagination } from '~/types'
 import type { BlogCategory } from '~/types/blog/category'

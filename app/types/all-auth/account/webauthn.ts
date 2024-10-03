@@ -3,7 +3,7 @@ import { ZodAuthenticator } from '~/types/all-auth'
 
 export const ZodWebAuthnCredentialCreationOptions = z.object({
   creation_options: z.object({
-    publicKey: z.any(),
+    publicKey: z.record(z.any()),
   }),
 })
 

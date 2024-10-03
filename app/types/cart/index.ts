@@ -14,4 +14,4 @@ export const ZodCart = z.object({
   cartItems: z.array(z.lazy(() => ZodCartItem)),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export type Index = Readonly<z.infer<typeof ZodCart>>
+export type Cart = z.infer<typeof ZodCart>

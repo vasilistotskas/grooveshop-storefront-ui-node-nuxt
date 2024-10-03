@@ -19,7 +19,7 @@ export const ZodBlogCategory = z.object({
   treeId: z.number().nullish(),
   absoluteUrl: z.string().nullish(),
   recursivePostCount: z.number().int(),
-  mainImagePath: z.string().nullish(),
+  mainImagePath: z.string().optional(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodBlogCategoryQuery = z

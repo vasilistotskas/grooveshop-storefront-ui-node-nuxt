@@ -4,7 +4,7 @@ import { ZodSessionResponse } from '~/types/all-auth'
 
 function decryptToken(encryptedToken: string): string {
   const config = useRuntimeConfig()
-  const secret_key = config.secretKey
+  const secret_key = String(config.secretKey)
   const key = createHash('sha256').update(secret_key).digest()
   const tokenBuffer = Buffer.from(encryptedToken, 'base64')
 

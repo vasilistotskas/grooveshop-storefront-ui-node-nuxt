@@ -17,7 +17,7 @@ export const ZodProductImage = z.object({
   image: z.string(),
   thumbnail: z.string().nullish(),
   isMain: z.boolean(),
-  mainImagePath: z.string().nullish(),
+  mainImagePath: z.string().optional(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodProductImageParams = z.object({

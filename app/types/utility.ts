@@ -1,5 +1,7 @@
 import type { Size } from '~/types/enum'
 
+export type EntityOrPrimitive<T> = T | number
+
 export type DeepKeys<T> =
   T extends Record<string, any>
     ? {

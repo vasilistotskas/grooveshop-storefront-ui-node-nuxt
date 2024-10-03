@@ -1,6 +1,4 @@
-import type { ExtractIfTranslationObject } from '~/utils/translate'
-
-type EntityOrPrimitive<T> = T | number
+import type { EntityOrPrimitive, ExtractIfTranslationObject } from '~/types'
 
 export function isEntityId<T>(entity: EntityOrPrimitive<T>): entity is number {
   return typeof entity === 'number'

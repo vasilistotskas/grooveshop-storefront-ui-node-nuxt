@@ -9,15 +9,19 @@ const route = useRoute()
 
 const loading = ref(false)
 
+const key = 'key' in route.params
+  ? route.params.key
+  : undefined
+
 const { data: getVerifyEmailData } = await useAsyncData(
   'verifyEmail',
-  () => getEmailVerify(String(route.params.key)),
+  () => getEmailVerify(String(key)),
 )
 
 async function onSubmit() {
   try {
     loading.value = true
-    const data = await emailVerify({ key: String(route.params.key) })
+    const data = await emailVerify({ key: String(key) })
     if (data && [200, 401].includes(data.status)) {
       toast.add({
         title: t('auth.email.verified'),

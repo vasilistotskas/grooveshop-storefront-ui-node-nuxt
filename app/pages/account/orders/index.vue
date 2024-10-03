@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Index, OrderOrderingField } from '~/types/order'
+import type { Order, OrderOrderingField } from '~/types/order'
 import type { EntityOrdering } from '~/types/ordering'
 
 const { t } = useI18n({ useScope: 'local' })
@@ -65,7 +65,7 @@ const refreshOrders = async () => {
 
 const pagination = computed(() => {
   if (!orders.value) return
-  return usePagination<Index>(orders.value)
+  return usePagination<Order>(orders.value)
 })
 
 const orderingOptions = computed(() => {

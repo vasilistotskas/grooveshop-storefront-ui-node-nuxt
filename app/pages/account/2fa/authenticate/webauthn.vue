@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { get, parseRequestOptionsFromJSON } from '@github/webauthn-json/browser-ponyfill'
+import type { CredentialRequestOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'
 import { AuthChangeEvent, type AuthChangeEventType, AuthenticatorType } from '~/types/all-auth'
 
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
@@ -23,7 +24,7 @@ async function onSubmit() {
   try {
     loading.value = true
     const optResp = await getWebAuthnRequestOptionsForAuthentication()
-    const jsonOptions = optResp?.data.request_options
+    const jsonOptions = optResp?.data.request_options as CredentialRequestOptionsJSON
     if (!jsonOptions) {
       throw new Error('No creation options')
     }

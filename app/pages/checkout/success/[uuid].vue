@@ -2,7 +2,9 @@
 import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
 
 const route = useRoute()
-const orderUUID = route.params.uuid
+const orderUUID = 'uuid' in route.params
+  ? route.params.uuid
+  : undefined
 
 const { t, locale } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()

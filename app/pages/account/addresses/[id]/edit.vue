@@ -13,7 +13,9 @@ const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
 
-const addressId = Number(route.params.id)
+const addressId = 'id' in route.params
+  ? route.params.id
+  : undefined
 const regions = ref<Pagination<Region> | null>(null)
 
 const UTextarea = resolveComponent('UTextarea')

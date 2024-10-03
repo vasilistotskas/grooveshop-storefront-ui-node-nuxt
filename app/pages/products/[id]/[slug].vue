@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useShare } from '@vueuse/core'
 import { isClient } from '@vueuse/shared'
-
+import type { Product } from '~/types/product'
 import { GlobalEvents } from '~/events'
 import { capitalize } from '~/utils/str'
 
@@ -16,9 +16,11 @@ const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const userStore = useUserStore()
 const { getFavouriteByProductId, updateFavouriteProducts } = userStore
 
-const productId = Number(route.params.id)
+const productId = 'id' in route.params
+  ? route.params.id
+  : undefined
 
-const { data: product, refresh: refreshProduct } = await useFetch(
+const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
@@ -56,7 +58,7 @@ await useLazyFetch('/api/products/favourites/favourites-by-products', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
-    productIds: [productId],
+    productIds: [Number(productId)],
   },
   immediate: shouldFetchFavouriteProducts.value,
   onResponse({ response }) {

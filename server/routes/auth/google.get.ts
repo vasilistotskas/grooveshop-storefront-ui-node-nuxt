@@ -1,6 +1,6 @@
 import { withQuery } from 'ufo'
 
-export default oauthGoogleEventHandler(
+export default defineOAuthGoogleEventHandler(
   {
     config: {
       clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID,

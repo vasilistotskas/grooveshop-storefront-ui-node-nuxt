@@ -3,6 +3,7 @@ import {
   parseRequestOptionsFromJSON,
   get,
 } from '@github/webauthn-json/browser-ponyfill'
+import type { CredentialRequestOptionsJSON } from '@github/webauthn-json/src/webauthn-json/basic/json'
 
 const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAuthn'])
 
@@ -22,7 +23,7 @@ async function onSubmit() {
     loading.value = true
     await clear()
     const optResp = await getWebAuthnRequestOptionsForLogin()
-    const jsonOptions = optResp?.data.request_options
+    const jsonOptions = optResp?.data.request_options as CredentialRequestOptionsJSON
     if (!jsonOptions) {
       throw new Error('No creation options')
     }

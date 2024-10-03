@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { Field } from 'vee-validate'
 
 import { GlobalEvents } from '~/events'
-import type { Index } from '~/types/product'
+import type { Product } from '~/types/product'
 import type { ProductReview } from '~/types/product/review'
 import { ZodProductReviewStatusEnum } from '~/types/product/review'
 import type { UserAccount } from '~/types/user/account'
@@ -26,7 +26,7 @@ const props = defineProps({
     default: null,
   },
   product: {
-    type: Object as PropType<Index>,
+    type: Object as PropType<Product>,
     required: true,
   },
   user: {

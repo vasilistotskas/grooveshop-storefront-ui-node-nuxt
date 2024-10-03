@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { Index } from '~/types/order'
+import type { Order } from '~/types/order'
 
 const props = defineProps({
   order: {
-    type: Object as PropType<Index>,
+    type: Object as PropType<Order>,
     required: true,
   },
   maxItems: {

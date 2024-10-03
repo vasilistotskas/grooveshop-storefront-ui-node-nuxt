@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
-const orderId = route.params.id
+const orderId = 'id' in route.params
+  ? route.params.id
+  : undefined
 
 const { data: order } = await useFetch(`/api/orders/${orderId}`, {
   key: `order${orderId}`,

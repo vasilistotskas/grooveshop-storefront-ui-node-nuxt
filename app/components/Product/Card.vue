@@ -4,10 +4,10 @@ import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
 
 import type { ImageLoading } from '~/types'
-import type { Index } from '~/types/product'
+import type { Product } from '~/types/product'
 
 const props = defineProps({
-  product: { type: Object as PropType<Index>, required: true },
+  product: { type: Object as PropType<Product>, required: true },
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },

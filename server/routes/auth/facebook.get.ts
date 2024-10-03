@@ -1,6 +1,6 @@
 import { withQuery } from 'ufo'
 
-export default oauthFacebookEventHandler(
+export default defineOAuthFacebookEventHandler(
   {
     config: {
       clientId: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID,

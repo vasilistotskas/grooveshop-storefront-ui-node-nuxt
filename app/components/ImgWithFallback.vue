@@ -44,7 +44,7 @@ const handleError = (error: any) => {
 </script>
 
 <template>
-  <NuxtImg
+  <LazyNuxtImg
     v-if="!hasError || !fallback"
     v-bind="propsWithoutFallbackAndSrc"
     :src="imgSrc"
@@ -52,7 +52,7 @@ const handleError = (error: any) => {
     @error="handleError"
     @load="emit('load', $event)"
   />
-  <NuxtImg
+  <LazyNuxtImg
     v-else
     v-bind="propsWithoutFallbackAndSrc"
     :src="fallback"

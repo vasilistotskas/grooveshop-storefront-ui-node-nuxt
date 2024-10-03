@@ -3,6 +3,7 @@ import {
   parseRequestOptionsFromJSON,
   get,
 } from '@github/webauthn-json/browser-ponyfill'
+import type { CredentialRequestOptionsJSON } from '@github/webauthn-json/src/webauthn-json/basic/json'
 import { AuthChangeEvent, type AuthChangeEventType } from '~/types/all-auth'
 import { Flows } from '~/types/all-auth'
 
@@ -26,7 +27,7 @@ async function onSubmit() {
   try {
     loading.value = true
     const optResp = await getWebAuthnRequestOptionsForReauthentication()
-    const jsonOptions = optResp?.data.request_options
+    const jsonOptions = optResp?.data.request_options as CredentialRequestOptionsJSON
     if (!jsonOptions) {
       throw new Error('No creation options')
     }

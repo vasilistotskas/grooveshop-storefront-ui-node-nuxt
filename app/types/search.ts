@@ -33,7 +33,7 @@ export const ZodSearchProduct = z.object({
   name: z.string(),
   description: z.string().nullish(),
   absoluteUrl: z.string(),
-  mainImagePath: z.string().nullish(),
+  mainImagePath: z.string().optional(),
   matchesPosition: z.object({
     body: z.array(z.object({
       start: z.number(),
@@ -57,7 +57,7 @@ export const ZodSearchBlogPost = z.object({
   body: z.string(),
   master: z.number(),
   absoluteUrl: z.string(),
-  mainImagePath: z.string().nullish(),
+  mainImagePath: z.string().optional(),
   matchesPosition: z.object({
     body: z.array(z.object({
       start: z.number(),

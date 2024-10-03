@@ -30,7 +30,7 @@ export const ZodUserAccount = z.object({
   youtube: z.string().nullish(),
   github: z.string().nullish(),
   bio: z.string().nullish(),
-  mainImagePath: z.string().nullish(),
+  mainImagePath: z.string().optional(),
   isSuperuser: z.boolean().nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 

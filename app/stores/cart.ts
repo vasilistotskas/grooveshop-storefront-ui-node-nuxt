@@ -1,8 +1,7 @@
 import { StorageSerializers } from '@vueuse/core'
 import type { IFetchError } from 'ofetch'
 import { v4 as uuidv4 } from 'uuid'
-
-import type { Index } from '~/types/cart'
+import type { Cart } from '~/types/cart'
 import type {
   Item,
   CartItemAddBody,
@@ -27,11 +26,11 @@ const pendingFactory = (): PendingRecord => ({
 })
 
 export const useCartStore = defineStore('cart', () => {
-  const cart = ref<Index | null>(null)
+  const cart = ref<Cart | null>(null)
   const pending = ref<PendingRecord>(pendingFactory())
   const error = ref<ErrorRecord>(errorsFactory())
   const { loggedIn } = useUserSession()
-  const storage = useLocalStorage<Index>('cart', null, {
+  const storage = useLocalStorage<Cart>('cart', null, {
     deep: true,
     listenToStorageChanges: true,
     serializer: StorageSerializers.object,
@@ -138,7 +137,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   function updateLocalStorageCartTotals(
-    cartFromLocalStorage: Index,
+    cartFromLocalStorage: Cart,
     cartItems: Item[],
   ) {
     const totalPrice = cartItems.reduce(

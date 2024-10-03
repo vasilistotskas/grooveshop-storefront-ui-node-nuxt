@@ -148,7 +148,7 @@ const regionOptions = computed(() => {
 })
 
 const label = computed(() => {
-  if (birthDate.value) {
+  if (birthDate.value && birthDate.value instanceof Date) {
     return birthDate.value.toLocaleDateString('en-us', {
       weekday: 'long',
       year: 'numeric',
@@ -156,7 +156,12 @@ const label = computed(() => {
       day: 'numeric',
     })
   }
-  return t('form.birth_date')
+  else if (birthDate.value) {
+    return birthDate.value
+  }
+  else {
+    return t('form.birth_date')
+  }
 })
 
 const onCountryChange = async (event: Event) => {
