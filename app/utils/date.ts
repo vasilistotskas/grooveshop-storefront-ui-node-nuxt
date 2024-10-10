@@ -18,7 +18,6 @@ export function formatTime(minutes: number) {
 
   // mins
   const mins = Math.floor(secondsLeft / 60)
-  secondsLeft = secondsLeft % 60
 
   return `${hours ? `${hours}h` : ''} ${mins}min`
 }

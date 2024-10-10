@@ -1,12 +1,12 @@
 import type { H3Event } from 'h3'
-import type { z } from 'zod'
+import type { ZodTypeAny } from 'zod'
 
-const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(
+const apiValidateWithSchema = <ZodSchema extends ZodTypeAny>(
   data: any,
   schema: ZodSchema,
   statusCode: number,
   statusMessage: string,
-): z.infer<ZodSchema> => {
+) => {
   try {
     return schema.parse(data)
   }
@@ -25,11 +25,11 @@ const apiValidateWithSchema = <ZodSchema extends z.ZodTypeAny>(
  * Cookies are part of the HTTP standard and may be sent with a request.
  *
  * @param {H3Event} event - Input to parse using the passed `schema`
- * @param {ZodSchema} schema - Error code of error if parsing fails
+ * @param {ZodTypeAny} schema - Error code of error if parsing fails
  * @param {string} [errorCode=422] - Optional error message if parsing fails
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
-async function parseBodyAs<ZodSchema extends z.ZodTypeAny>(
+async function parseBodyAs<ZodSchema extends ZodTypeAny>(
   event: H3Event,
   schema: ZodSchema,
   errorCode = 422,
@@ -45,11 +45,11 @@ async function parseBodyAs<ZodSchema extends z.ZodTypeAny>(
  * For example `/[test].get.ts` binds the parameter `test` to a value, for example `/1` then results in `test = 1`
  *
  * @param {H3Event} event - Input to parse using the passed `schema`
- * @param {ZodSchema} schema - Error code of error if parsing fails
+ * @param {ZodTypeAny} schema - Error code of error if parsing fails
  * @param {string} [errorCode=422] - Optional error message if parsing fails
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
-function parseParamsAs<ZodSchema extends z.ZodTypeAny>(
+function parseParamsAs<ZodSchema extends ZodTypeAny>(
   event: H3Event,
   schema: ZodSchema,
   errorCode = 422,
@@ -65,11 +65,11 @@ function parseParamsAs<ZodSchema extends z.ZodTypeAny>(
  * For example `/bar?sort=ASC` binds the query value `sort = "ASC"`
  *
  * @param {H3Event} event - Input to parse using the passed `schema`
- * @param {ZodSchema} schema - Error code of error if parsing fails
+ * @param {ZodTypeAny} schema - Error code of error if parsing fails
  * @param {string} [errorCode=422] - Optional error message if parsing fails
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
-function parseQueryAs<ZodSchema extends z.ZodTypeAny>(
+function parseQueryAs<ZodSchema extends ZodTypeAny>(
   event: H3Event,
   schema: ZodSchema,
   errorCode = 422,
@@ -85,11 +85,11 @@ function parseQueryAs<ZodSchema extends z.ZodTypeAny>(
  * Cookies are part of the HTTP standard and send with every request.
  *
  * @param {H3Event} event - Input to parse using the passed `schema`
- * @param {ZodSchema} schema - Error code of error if parsing fails
+ * @param {ZodTypeAny} schema - Error code of error if parsing fails
  * @param {string} [errorCode=422] - Optional error message if parsing fails
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
-function parseCookieAs<ZodSchema extends z.ZodTypeAny>(
+function parseCookieAs<ZodSchema extends ZodTypeAny>(
   event: H3Event,
   schema: ZodSchema,
   errorCode = 422,
@@ -105,11 +105,11 @@ function parseCookieAs<ZodSchema extends z.ZodTypeAny>(
  * Cookies are part of the HTTP standard and send with every request.
  *
  * @param {H3Event} event - Input to parse using the passed `schema`
- * @param {ZodSchema} schema - Error code of error if parsing fails
+ * @param {ZodTypeAny} schema - Error code of error if parsing fails
  * @param {string} [errorCode=422] - Optional error message if parsing fails
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
-function parseHeaderAs<ZodSchema extends z.ZodTypeAny>(
+function parseHeaderAs<ZodSchema extends ZodTypeAny>(
   event: H3Event,
   schema: ZodSchema,
   errorCode = 422,
@@ -126,7 +126,7 @@ function parseHeaderAs<ZodSchema extends z.ZodTypeAny>(
  *
  * E.g.:
  * ```
- * const parsedData = await parseDataAs({ test: "1" }, z.object({ test: z.number() )}))
+ * const parsedData = await parseDataAs({ test: "1" }, object({ test: number() )}))
  *
  * console.log(parsedData)
  * // -> output: `1` (as a number, as `z` also deserializes)
@@ -135,18 +135,18 @@ function parseHeaderAs<ZodSchema extends z.ZodTypeAny>(
  * Also works with async data, e.g., when fetching from another API or DB:
  * ```
  * const fakeDatabaseQuery = async () => { test: "1" }
- * const parsedData = await parseDataAs(fakeDatabaseQuery, z.object({ test: z.number() )}))
+ * const parsedData = await parseDataAs(fakeDatabaseQuery, object({ test: number() )}))
  *
  * console.log(parsedData)
  * // -> output: `1` (as a number, as `z` also deserializes)
  * ```
  *
  * @param {any | Promise<any>} dataOrPromise - Input to parse using the passed `schema`
- * @param {ZodSchema} schema - Error code of error if parsing fails
+ * @param {ZodTypeAny} schema - Error code of error if parsing fails
  * @param {string} [errorCode=422] - Optional error message if parsing fails
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
-async function parseDataAs<ZodSchema extends z.ZodTypeAny>(
+async function parseDataAs<ZodSchema extends ZodTypeAny>(
   dataOrPromise: any | Promise<any>,
   schema: ZodSchema,
   errorCode = 422,
@@ -159,7 +159,7 @@ async function parseDataAs<ZodSchema extends z.ZodTypeAny>(
 /**
  * Make a data transformer based on a schema. All data passed into it will be turned into data of that schema (or the transformer will throw during parsing)
  * This method will throw an exception (like 422 unprocessable Entity) if data validation fails. The error code and message can be customized.
- * @param {z.ZodTypeAny} schema - message to return to client if parsing and validating `D` fails
+ * @param {ZodTypeAny} schema - message to return to client if parsing and validating `D` fails
  * @param {number} errorCode - error code of error if parsing fails
  * @param {string} errorMessage - error message if parsing fails
  *
@@ -167,8 +167,8 @@ async function parseDataAs<ZodSchema extends z.ZodTypeAny>(
  *
  * The returned parser can then be used like this:
  * ```ts
- * const transform = makeParser(z.object({
- *  createdAt: z.date()
+ * const transform = makeParser(object({
+ *  createdAt: date()
  * }))
  *
  * const { data } = useFetch('/example/1', { transform })
@@ -180,7 +180,7 @@ async function parseDataAs<ZodSchema extends z.ZodTypeAny>(
  * // -> output: `object` (this is a parsed date, not a date string!)
  * ```
  */
-function makeParser<ZodSchema extends z.ZodTypeAny>(
+function makeParser<ZodSchema extends ZodTypeAny>(
   schema: ZodSchema,
   errorCode = 422,
   errorMessage = 'Data parsing failed',
@@ -201,8 +201,8 @@ function makeParser<ZodSchema extends z.ZodTypeAny>(
 
 /**
  * Make a data transformer based on a schema. All data passed into it will be turned into data of that schema (or the transformer will throw during parsing)
- * This method will throw an exception (like 422 Unprocessible Entity) if data validation fails. The error code and message can be customized.
- * @param {z.ZodTypeAny} schema - message to return to client if parsing and validating `D` fails
+ * This method will throw an exception (like 422 Unprocessable Entity) if data validation fails. The error code and message can be customized.
+ * @param {ZodTypeAny} schema - message to return to client if parsing and validating `D` fails
  * @param {number} errorCode - error code of error if parsing fails
  * @param {string} errorMessage - error message if parsing fails
  *
@@ -210,8 +210,8 @@ function makeParser<ZodSchema extends z.ZodTypeAny>(
  *
  * The returned parser can then be used like this:
  * ```ts
- * const parseDbPromise = makeParser(z.object({
- *  createdAt: z.date()
+ * const parseDbPromise = makeParser(object({
+ *  createdAt: date()
  * }))
  *
  * const fakeDatabaseQuery = async () => { test: "1" }
@@ -222,7 +222,7 @@ function makeParser<ZodSchema extends z.ZodTypeAny>(
  * // -> output: `1` (as a number, as `z` also deserializes)
  * ```
  */
-function makePromiseParser<ZodSchema extends z.ZodTypeAny>(
+function makePromiseParser<ZodSchema extends ZodTypeAny>(
   schema: ZodSchema,
   errorCode = 422,
   errorMessage = 'Data-promise parsing failed',
