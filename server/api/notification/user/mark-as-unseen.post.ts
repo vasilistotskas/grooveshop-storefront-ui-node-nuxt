@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { object, boolean } from 'zod'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -14,8 +14,8 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, z.object({
-      success: z.boolean(),
+    return await parseDataAs(response, object({
+      success: boolean(),
     }))
   }
   catch (error) {

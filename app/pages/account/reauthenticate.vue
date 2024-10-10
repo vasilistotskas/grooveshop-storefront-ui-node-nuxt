@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import { string } from 'zod'
 import { AuthChangeEvent, type AuthChangeEventType, Flows, type ReauthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 
@@ -39,7 +39,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'password',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }),
+      rules: string({ required_error: t('validation.required') }),
       autocomplete: 'current-password',
       readonly: false,
       required: true,

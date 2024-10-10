@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { any } from 'zod'
 import { ZodPasswordChangeBody } from '~/types/all-auth'
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, z.any())
+    return await parseDataAs(response, any())
   }
   catch (error) {
     await handleAllAuthError(error)

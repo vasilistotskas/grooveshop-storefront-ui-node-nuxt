@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import { string } from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
 import type { ProviderSignupBody } from '~/types/all-auth'
@@ -33,7 +33,7 @@ const formSchema: DynamicFormSchema = {
       label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,

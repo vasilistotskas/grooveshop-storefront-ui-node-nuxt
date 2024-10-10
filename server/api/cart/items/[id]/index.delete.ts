@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { any } from 'zod'
 
 import { ZodCartItemParams } from '~/types/cart/item'
 
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, z.any())
+    return await parseDataAs(response, any())
   }
   catch (error) {
     await handleError(error)

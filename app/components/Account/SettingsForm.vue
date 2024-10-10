@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import { string, date, preprocess, object, optional } from 'zod'
 import { Field } from 'vee-validate'
 
 import { defaultSelectOptionChoose } from '~/constants'
@@ -20,30 +20,30 @@ const USelect = resolveComponent('USelect')
 const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
-const ZodAccountSettings = z.object({
-  email: z.string({ required_error: t('validation.required') }).email({
+const ZodAccountSettings = object({
+  email: string({ required_error: t('validation.required') }).email({
     message: t('validation.email.invalid'),
   }),
-  firstName: z.string({ required_error: t('validation.required') }),
-  lastName: z.string({ required_error: t('validation.required') }),
-  phone: z.string({ required_error: t('validation.required') }),
-  city: z.string({ required_error: t('validation.required') }),
-  zipcode: z.string({ required_error: t('validation.required') }),
-  address: z.string({ required_error: t('validation.required') }),
-  place: z.string({ required_error: t('validation.required') }),
-  birthDate: z.preprocess((input) => {
+  firstName: string({ required_error: t('validation.required') }),
+  lastName: string({ required_error: t('validation.required') }),
+  phone: string({ required_error: t('validation.required') }),
+  city: string({ required_error: t('validation.required') }),
+  zipcode: string({ required_error: t('validation.required') }),
+  address: string({ required_error: t('validation.required') }),
+  place: string({ required_error: t('validation.required') }),
+  birthDate: preprocess((input) => {
     if (typeof input === 'string' || input instanceof Date) {
       const date = new Date(input)
       return isNaN(date.getTime()) ? undefined : date
     }
     return undefined
   },
-  z.date({
+  optional(date({
     required_error: t('validation.date.required_error'),
     invalid_type_error: t('validation.date.invalid_type_error'),
-  }).optional()),
-  country: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
-  region: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
+  }))),
+  country: optional(string({ required_error: t('validation.required') })).default(defaultSelectOptionChoose),
+  region: optional(string({ required_error: t('validation.required') })).default(defaultSelectOptionChoose),
 })
 
 const validationSchema = toTypedSchema(ZodAccountSettings)

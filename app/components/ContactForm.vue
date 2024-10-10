@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import { string } from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
 import type { ContactBody } from '~/types/contact'
@@ -41,7 +41,7 @@ const formSchema: DynamicFormSchema = {
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).min(2),
+      rules: string({ required_error: t('validation.required') }).min(2),
       autocomplete: 'name',
       readonly: false,
       required: true,
@@ -52,7 +52,7 @@ const formSchema: DynamicFormSchema = {
       label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
@@ -63,7 +63,7 @@ const formSchema: DynamicFormSchema = {
       label: t('message'),
       name: 'message',
       as: 'textarea',
-      rules: z.string({ required_error: t('validation.required') }).min(10),
+      rules: string({ required_error: t('validation.required') }).min(10),
       autocomplete: 'message',
       readonly: false,
       required: true,

@@ -2,7 +2,6 @@
 import type { PropType } from 'vue'
 
 import heartJSON from '~/assets/lotties/heart.json'
-import type Lottie from '~/components/Lottie/index.vue'
 import type { ButtonSize } from '#ui/types'
 
 const props = defineProps({

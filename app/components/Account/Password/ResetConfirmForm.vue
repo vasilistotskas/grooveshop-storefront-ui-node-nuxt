@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import { object, string } from 'zod'
 
 const emit = defineEmits(['passwordReset'])
 
@@ -24,12 +24,11 @@ await useAsyncData(
   () => getPasswordReset(String(key)),
 )
 
-const ZodPasswordResetConfirm = z
-  .object({
-    newPassword1: z.string({ required_error: t('validation.required') }).min(8).max(255),
-    newPassword2: z.string({ required_error: t('validation.required') }).min(8).max(255),
-    key: z.string({ required_error: t('validation.required') }),
-  })
+const ZodPasswordResetConfirm = object({
+  newPassword1: string({ required_error: t('validation.required') }).min(8).max(255),
+  newPassword2: string({ required_error: t('validation.required') }).min(8).max(255),
+  key: string({ required_error: t('validation.required') }),
+})
   .refine(data => data.newPassword1 === data.newPassword2, {
     message: t(
       'form.newPassword2.errors.match',

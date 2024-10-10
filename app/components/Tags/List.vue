@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import { ref, computed, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import type { Tag } from '~/types/tag'
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 

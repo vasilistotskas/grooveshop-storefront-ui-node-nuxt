@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { array } from 'zod'
 import { ZodNotification } from '~/types/notification'
 
 export default defineEventHandler(async (event) => {
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, z.array(ZodNotification))
+    return await parseDataAs(response, array(ZodNotification))
   }
   catch (error) {
     await handleError(error)

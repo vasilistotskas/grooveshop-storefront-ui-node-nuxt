@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { any } from 'zod'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       headers,
     })
     await clearUserSession(event)
-    return await parseDataAs(response, z.any())
+    return await parseDataAs(response, any())
   }
   catch (error) {
     await handleAllAuthError(error)

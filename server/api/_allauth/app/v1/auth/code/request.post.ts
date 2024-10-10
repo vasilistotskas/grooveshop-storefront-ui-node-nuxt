@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { any } from 'zod'
 import { ZodCodeRequestBody } from '~/types/all-auth'
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    const requestResponse = await parseDataAs(response, z.any())
+    const requestResponse = await parseDataAs(response, any())
     await processAllAuthSession(requestResponse)
     return requestResponse
   }

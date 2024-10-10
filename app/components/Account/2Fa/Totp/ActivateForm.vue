@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import { string } from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
 import type { TotpPostBody } from '~/types/all-auth'
@@ -85,7 +85,7 @@ const formSchema: DynamicFormSchema = {
       label: t('authenticator_code'),
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).min(6).max(6),
+      rules: string({ required_error: t('validation.required') }).min(6).max(6),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { any } from 'zod'
 
 import { ZodBlogCommentParams } from '~/types/blog/comment'
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return parseDataAs(response, z.any())
+    return parseDataAs(response, any())
   }
   catch (error) {
     await handleError(error)

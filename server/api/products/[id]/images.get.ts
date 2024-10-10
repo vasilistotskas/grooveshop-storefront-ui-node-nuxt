@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { array } from 'zod'
 import { ZodProductImage } from '~/types/product/image'
 import { ZodProductParams, ZodProductQuery } from '~/types/product'
 
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url, {
       method: 'GET',
     })
-    return await parseDataAs(response, z.array(ZodProductImage))
+    return await parseDataAs(response, array(ZodProductImage))
   }
   catch (error) {
     await handleError(error)

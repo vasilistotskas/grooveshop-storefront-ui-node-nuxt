@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import { object, string } from 'zod'
 
 const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
@@ -11,20 +11,19 @@ const localePath = useLocalePath()
 
 const loading = ref(false)
 
-const ZodSignup = z
-  .object({
-    email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
-    password: z.string({ required_error: t('validation.required') }).min(8, {
-      message: t('validation.min', {
-        min: 8,
-      }),
+const ZodSignup = object({
+  email: string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+  password: string({ required_error: t('validation.required') }).min(8, {
+    message: t('validation.min', {
+      min: 8,
     }),
-    password2: z.string({ required_error: t('validation.required') }).min(8, {
-      message: t('validation.min', {
-        min: 8,
-      }),
+  }),
+  password2: string({ required_error: t('validation.required') }).min(8, {
+    message: t('validation.min', {
+      min: 8,
     }),
-  })
+  }),
+})
   .refine(data => data.password === data.password2, {
     message: t('password2.validation.match'),
     path: ['password2'],

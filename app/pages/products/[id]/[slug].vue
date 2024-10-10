@@ -3,7 +3,6 @@ import { useShare } from '@vueuse/core'
 import { isClient } from '@vueuse/shared'
 import type { Product } from '~/types/product'
 import { GlobalEvents } from '~/events'
-import { capitalize } from '~/utils/str'
 
 const { user, loggedIn } = useUserSession()
 
