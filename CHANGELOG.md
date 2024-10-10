@@ -1,3 +1,10 @@
+# [1.194.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.193.0...v1.194.0) (2024-10-10)
+
+
+### Features
+
+* Bump Versions and tree shake zod (components, pages, server) ([f29ac2a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f29ac2a112f5703041e3a427f63b2339c3fd5bb3))
+
 # [1.193.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.192.0...v1.193.0) (2024-10-04)
 
 
