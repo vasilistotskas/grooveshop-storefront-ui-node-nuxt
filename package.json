@@ -27,9 +27,7 @@
     "cleanup": "nuxt cleanup",
     "generate:locales": "tsx ./tools/translator/src/commands/translate.ts --inputFilePath app/locales/el-GR.yml --selectedLocales en-US --outputExtension yml",
     "analyze": "npx nuxt analyze",
-    "test:dev": "nuxt dev --no-fork NUXT_VITEST_DEV_TEST=true",
     "test:unit": "vitest run",
-    "test": "npm test:unit --run && npm test:types",
     "semantic-release": "semantic-release"
   },
   "devDependencies": {

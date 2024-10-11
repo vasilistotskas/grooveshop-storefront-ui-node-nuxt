@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import { object, string, number } from 'zod'
-import { Field } from 'vee-validate'
+import { Field, useForm } from 'vee-validate'
 
+import { toTypedSchema } from '@vee-validate/zod'
 import { GlobalEvents } from '~/events'
 import type { Product } from '~/types/product'
 import type { ProductReview } from '~/types/product/review'
