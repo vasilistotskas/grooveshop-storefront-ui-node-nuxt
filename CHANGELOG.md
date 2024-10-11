@@ -1,3 +1,10 @@
+## [1.195.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.195.0...v1.195.1) (2024-10-11)
+
+
+### Bug Fixes
+
+* missing import ([6b5f8ed](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6b5f8ed71e936b822b069a5e272e34b6ae67240b))
+
 # [1.195.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.194.2...v1.195.0) (2024-10-11)
 
 
