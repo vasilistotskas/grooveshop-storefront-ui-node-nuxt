@@ -604,6 +604,7 @@ export default defineNuxtConfig({
   },
   veeValidate: {
     typedSchemaPackage: 'zod',
+    autoImports: false,
   },
   ogImage: {
     defaults: {

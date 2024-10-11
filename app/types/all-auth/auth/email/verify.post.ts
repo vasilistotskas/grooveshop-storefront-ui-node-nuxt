@@ -1,15 +1,15 @@
-import { z } from 'zod'
+import { object, literal, string } from 'zod'
 import { ZodAuthenticationMeta, ZodAuthenticated } from '~/types/all-auth'
 
-export const ZodEmailVerifyPostResponse = z.object({
-  status: z.literal(200),
+export const ZodEmailVerifyPostResponse = object({
+  status: literal(200),
   data: ZodAuthenticated,
   meta: ZodAuthenticationMeta,
 })
 
-export const ZodEmailVerifyPostBody = z.object({
-  key: z.string(),
+export const ZodEmailVerifyPostBody = object({
+  key: string(),
 })
 
-export type EmailVerifyPostResponse = z.infer<typeof ZodEmailVerifyPostResponse>
-export type EmailVerifyPostBody = z.infer<typeof ZodEmailVerifyPostBody>
+export type EmailVerifyPostResponse = typeof ZodEmailVerifyPostResponse._type
+export type EmailVerifyPostBody = typeof ZodEmailVerifyPostBody._type

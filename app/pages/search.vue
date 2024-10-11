@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { SearchResponse } from '~/types/search'
+
 const searchStore = useSearchStore()
 const {
   results,
@@ -27,7 +29,7 @@ const offset = computed({
   },
 })
 
-const { data, execute, status, refresh } = await useAsyncData(
+const { data, execute, status, refresh } = await useAsyncData<SearchResponse>(
   'search',
   () => $fetch('/api/search', {
     method: 'GET',

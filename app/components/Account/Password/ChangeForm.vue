@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { object, string, ZodIssueCode } from 'zod'
+import { object, string, optional, ZodIssueCode } from 'zod'
 import type { DynamicFormSchema } from '~/types/form'
 import type { PasswordChangeBody } from '~/types/all-auth'
 
@@ -75,7 +75,7 @@ const formSchema = computed((): DynamicFormSchema => {
   return {
     fields,
     extraValidation: object({
-      current_password: string({ required_error: t('validation.required') }).optional(),
+      current_password: optional(string({ required_error: t('validation.required') })),
       new_password: string({ required_error: t('validation.required') }),
       confirm_password: string({ required_error: t('validation.required') }),
     }).superRefine((val, ctx) => {

@@ -30,7 +30,7 @@ const sortedFields = computed(() => {
     fields.sort(([keyA], [keyB]) => (keyA === 'title' ? -1 : keyB === 'title' ? 1 : 0))
   }
 
-  return fields
+  return fields.map(([key, value]) => [key, stripHtml(value)])
 })
 
 const imgAlt = computed(() => {
@@ -100,8 +100,10 @@ const imgAlt = computed(() => {
                 line-clamp-1 text-primary-950 text-sm
 
                 dark:text-primary-50
-              " v-html="value"
-            />
+              "
+            >
+              {{ value }}
+            </span>
           </div>
         </div>
       </div>

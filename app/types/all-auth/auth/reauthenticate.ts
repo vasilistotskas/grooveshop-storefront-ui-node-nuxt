@@ -1,15 +1,15 @@
-import { z } from 'zod'
+import { object, string, literal } from 'zod'
 import { ZodAuthenticationMeta, ZodAuthenticated } from '~/types/all-auth'
 
-export const ZodReauthenticateBody = z.object({
-  password: z.string().describe('The password.'),
+export const ZodReauthenticateBody = object({
+  password: string().describe('The password.'),
 })
 
-export const ZodReauthenticateResponse = z.object({
-  status: z.literal(200),
+export const ZodReauthenticateResponse = object({
+  status: literal(200),
   data: ZodAuthenticated,
   meta: ZodAuthenticationMeta,
 })
 
-export type ReauthenticateBody = z.infer<typeof ZodReauthenticateBody>
-export type ReauthenticateResponse = z.infer<typeof ZodReauthenticateResponse>
+export type ReauthenticateBody = typeof ZodReauthenticateBody._type
+export type ReauthenticateResponse = typeof ZodReauthenticateResponse._type

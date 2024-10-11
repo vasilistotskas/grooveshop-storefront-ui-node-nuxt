@@ -1,4 +1,5 @@
-import { z } from 'zod'
+import type { ZodType } from 'zod'
+import { object, string, number, array, union, optional } from 'zod'
 import { ZodLanguageQuery } from '~/types'
 import { ZodPaginationQuery } from '~/types/pagination'
 
@@ -10,88 +11,81 @@ export interface SearchResult<T> {
 }
 
 export function ZodSearchResult<T>(
-  zodSchema: z.ZodType<T>,
-): z.ZodType<SearchResult<T>> {
-  return z.object({
-    limit: z.number(),
-    offset: z.number(),
-    estimatedTotalHits: z.number(),
-    results: z.array(zodSchema),
+  zodSchema: ZodType<T>,
+): ZodType<SearchResult<T>> {
+  return object({
+    limit: number(),
+    offset: number(),
+    estimatedTotalHits: number(),
+    results: array(zodSchema),
   })
 }
 
-export const ZodSearchQuery = z
-  .object({
-    query: z.string().nullish(),
-  })
+export const ZodSearchQuery = object({
+  query: string().nullish(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodSearchProduct = z.object({
-  id: z.number(),
-  languageCode: z.string(),
-  name: z.string(),
-  description: z.string().nullish(),
-  absoluteUrl: z.string(),
-  mainImagePath: z.string().optional(),
-  matchesPosition: z.object({
-    body: z.array(z.object({
-      start: z.number(),
-      length: z.number(),
-    })).nullish(),
+export const ZodSearchProduct = object({
+  id: number(),
+  languageCode: string(),
+  name: string(),
+  description: string().nullish(),
+  absoluteUrl: string(),
+  mainImagePath: optional(string()),
+  matchesPosition: object({
+    body: array(
+      object({
+        start: number(),
+        length: number(),
+      }),
+    ).nullish(),
   }).nullish(),
-  rankingScore: z.number().nullish(),
-  formatted: z.object({
-    name: z.string(),
-    description: z.string().nullish(),
-    languageCode: z.string(),
-    id: z.string(),
+  rankingScore: number().nullish(),
+  formatted: object({
+    name: string(),
+    description: string().nullish(),
+    languageCode: string(),
+    id: string(),
   }).nullish(),
 })
 
-export const ZodSearchBlogPost = z.object({
-  id: z.number(),
-  languageCode: z.string(),
-  title: z.string(),
-  subtitle: z.string().nullish(),
-  body: z.string(),
-  master: z.number(),
-  absoluteUrl: z.string(),
-  mainImagePath: z.string().optional(),
-  matchesPosition: z.object({
-    body: z.array(z.object({
-      start: z.number(),
-      length: z.number(),
-    })).nullish(),
+export const ZodSearchBlogPost = object({
+  id: number(),
+  languageCode: string(),
+  title: string(),
+  subtitle: string().nullish(),
+  body: string(),
+  master: number(),
+  absoluteUrl: string(),
+  mainImagePath: optional(string()),
+  matchesPosition: object({
+    body: array(
+      object({
+        start: number(),
+        length: number(),
+      }),
+    ).nullish(),
   }).nullish(),
-  rankingScore: z.number().nullish(),
-  formatted: z.object({
-    title: z.string(),
-    subtitle: z.string().nullish(),
-    body: z.string(),
-    languageCode: z.string(),
-    id: z.string(),
+  rankingScore: number().nullish(),
+  formatted: object({
+    title: string(),
+    subtitle: string().nullish(),
+    body: string(),
+    languageCode: string(),
+    id: string(),
   }).nullish(),
 })
 
 export const ZodSearchProductResult = ZodSearchResult(ZodSearchProduct)
-export const ZodSearchBlogPostResult = ZodSearchResult(
-  ZodSearchBlogPost,
-)
+export const ZodSearchBlogPostResult = ZodSearchResult(ZodSearchBlogPost)
 
-export const ZodSearchResponse = z.object({
-  products: z.union([
-    z.undefined(),
-    z.null(),
-    ZodSearchProductResult,
-  ]),
-  blogPosts: z.union([
-    z.undefined(),
-    z.null(),
-    ZodSearchBlogPostResult,
-  ]),
+export const ZodSearchResponse = object({
+  products: union([ZodSearchProductResult, optional(ZodSearchProductResult)]),
+  blogPosts: union([ZodSearchBlogPostResult, optional(ZodSearchBlogPostResult)]),
 })
 
-export type SearchResponse = z.infer<typeof ZodSearchResponse>
-export type SearchProduct = z.infer<typeof ZodSearchProduct>
-export type SearchBlogPost = z.infer<typeof ZodSearchBlogPost>
+export type SearchResponse = typeof ZodSearchResponse._type
+export type SearchProduct = typeof ZodSearchProduct._type
+export type SearchBlogPost = typeof ZodSearchBlogPost._type

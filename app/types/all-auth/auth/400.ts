@@ -1,16 +1,16 @@
-import { z } from 'zod'
+import { object, string, optional, array, literal } from 'zod'
 
-const ZodError = z.object({
-  code: z.string(),
-  param: z.string().optional(),
-  message: z.string(),
+const ZodError = object({
+  code: string(),
+  param: optional(string()),
+  message: string(),
 })
 
-const ZodErrors = z.array(ZodError)
+const ZodErrors = array(ZodError)
 
-export const ZodBadResponse = z.object({
-  status: z.literal(400),
+export const ZodBadResponse = object({
+  status: literal(400),
   errors: ZodErrors,
 })
 
-export type BadResponse = z.infer<typeof ZodBadResponse>
+export type BadResponse = typeof ZodBadResponse._type

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { object, string, number, boolean, array, union, lazy, record, enum as zEnum, literal, optional } from 'zod'
 
 import { ZodBlogAuthor } from '~/types/blog/author'
 import { ZodBlogCategory } from '~/types/blog/category'
@@ -15,59 +15,59 @@ import {
   ZodUUIDModel,
 } from '~/types'
 
-export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
+export const ZodBlogPostStatusEnum = zEnum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 
-const ZodBlogPostTranslations = z.record(
-  z.object({
-    title: z.string().nullish(),
-    subtitle: z.string().nullish(),
-    body: z.string().nullish(),
+const ZodBlogPostTranslations = record(
+  object({
+    title: string().nullish(),
+    subtitle: string().nullish(),
+    body: string().nullish(),
   }),
 )
 
-export const ZodBlogPost = z.object({
+export const ZodBlogPost = object({
   translations: ZodBlogPostTranslations,
-  id: z.number().int(),
-  slug: z.string().nullish(),
-  likes: z.union([z.array(z.number()), z.array(z.lazy(() => ZodUserAccount))]),
-  category: z.union([z.number(), z.lazy(() => ZodBlogCategory)]),
-  tags: z.union([z.array(z.number()), z.array(z.lazy(() => ZodBlogTag))]),
-  author: z.union([z.number(), z.lazy(() => ZodBlogAuthor)]),
-  status: z.lazy(() => ZodBlogPostStatusEnum),
-  featured: z.boolean(),
-  viewCount: z.number().int(),
-  mainImagePath: z.string().optional(),
-  likesCount: z.number().int(),
-  commentsCount: z.number().int(),
-  tagsCount: z.number().int(),
-  absoluteUrl: z.string(),
-}).merge(ZodTimeStampModel)
+  id: number().int(),
+  slug: string().nullish(),
+  likes: union([array(number()), array(lazy(() => ZodUserAccount))]),
+  category: union([number(), lazy(() => ZodBlogCategory)]),
+  tags: union([array(number()), array(lazy(() => ZodBlogTag))]),
+  author: union([number(), lazy(() => ZodBlogAuthor)]),
+  status: lazy(() => ZodBlogPostStatusEnum),
+  featured: boolean(),
+  viewCount: number().int(),
+  mainImagePath: optional(string()),
+  likesCount: number().int(),
+  commentsCount: number().int(),
+  tagsCount: number().int(),
+  absoluteUrl: string(),
+})
+  .merge(ZodTimeStampModel)
   .merge(ZodSeoModel)
   .merge(ZodPublishableModel)
   .merge(ZodUUIDModel)
 
-export const ZodBlogPostQuery = z
-  .object({
-    id: z.string().nullish(),
-    author: z.string().nullish(),
-    slug: z.string().nullish(),
-    tags: z.string().nullish(),
-    parent: z.literal('none').nullish(),
-  })
+export const ZodBlogPostQuery = object({
+  id: string().nullish(),
+  author: string().nullish(),
+  slug: string().nullish(),
+  tags: string().nullish(),
+  parent: literal('none').nullish(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodBlogPostParams = z.object({
-  id: z.string(),
+export const ZodBlogPostParams = object({
+  id: string(),
 })
 
-export const ZodBlogPostsLikedPostsBody = z.object({
-  postIds: z.array(z.number()),
+export const ZodBlogPostsLikedPostsBody = object({
+  postIds: array(number()),
 })
 
-export type BlogPost = z.infer<typeof ZodBlogPost>
+export type BlogPost = typeof ZodBlogPost._type
 export type BlogPostOrderingField =
   | 'title'
   | 'createdAt'

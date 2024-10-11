@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { object, string, number, boolean, union, nativeEnum, lazy } from 'zod'
 
 import { ZodCountry } from '~/types/country'
 import {
@@ -12,81 +12,78 @@ import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 
-export const ZodUserAddress = z.object({
-  id: z.number(),
-  title: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  street: z.string(),
-  streetNumber: z.string(),
-  city: z.string(),
-  zipcode: z.string(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-  locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
-    .nullish(),
-  phone: z.string().nullish(),
-  mobilePhone: z.string().nullish(),
-  notes: z.string().nullish(),
-  isMain: z.boolean().nullish(),
-  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
-  country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
-  region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
+export const ZodUserAddress = object({
+  id: number(),
+  title: string(),
+  firstName: string(),
+  lastName: string(),
+  street: string(),
+  streetNumber: string(),
+  city: string(),
+  zipcode: string(),
+  floor: union([nativeEnum(FloorChoicesEnum), string()]).nullish(),
+  locationType: union([nativeEnum(LocationChoicesEnum), string()]).nullish(),
+  phone: string().nullish(),
+  mobilePhone: string().nullish(),
+  notes: string().nullish(),
+  isMain: boolean().nullish(),
+  user: union([number(), lazy(() => ZodUserAccount)]),
+  country: union([string(), lazy(() => ZodCountry)]).nullish(),
+  region: union([string(), lazy(() => ZodRegion)]).nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodUserAddressQuery = z
-  .object({
-    id: z.string().nullish(),
-    user: z.string().nullish(),
-  })
+export const ZodUserAddressQuery = object({
+  id: string().nullish(),
+  user: string().nullish(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodUserAddressCreateBody = z.object({
-  title: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  street: z.string(),
-  streetNumber: z.string(),
-  city: z.string(),
-  zipcode: z.string(),
-  floor: z.nativeEnum(FloorChoicesEnum).nullish(),
-  locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
-  phone: z.string().nullish(),
-  mobilePhone: z.string().nullish(),
-  notes: z.string().nullish(),
-  isMain: z.boolean().nullish(),
-  user: z.number().nullish(),
-  country: z.string().nullish(),
-  region: z.string().nullish(),
+export const ZodUserAddressCreateBody = object({
+  title: string(),
+  firstName: string(),
+  lastName: string(),
+  street: string(),
+  streetNumber: string(),
+  city: string(),
+  zipcode: string(),
+  floor: nativeEnum(FloorChoicesEnum).nullish(),
+  locationType: nativeEnum(LocationChoicesEnum).nullish(),
+  phone: string().nullish(),
+  mobilePhone: string().nullish(),
+  notes: string().nullish(),
+  isMain: boolean().nullish(),
+  user: number().nullish(),
+  country: string().nullish(),
+  region: string().nullish(),
 })
 
-export const ZodUserAddressParams = z.object({
-  id: z.string(),
+export const ZodUserAddressParams = object({
+  id: string(),
 })
 
-export const ZodUserAddressPutBody = z.object({
-  title: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  street: z.string(),
-  streetNumber: z.string(),
-  city: z.string(),
-  zipcode: z.string(),
-  floor: z.nativeEnum(FloorChoicesEnum).nullish(),
-  locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
-  phone: z.string().nullish(),
-  mobilePhone: z.string().nullish(),
-  notes: z.string().nullish(),
-  isMain: z.boolean().nullish(),
-  user: z.number().nullish(),
-  country: z.string().nullish(),
-  region: z.string().nullish(),
+export const ZodUserAddressPutBody = object({
+  title: string(),
+  firstName: string(),
+  lastName: string(),
+  street: string(),
+  streetNumber: string(),
+  city: string(),
+  zipcode: string(),
+  floor: nativeEnum(FloorChoicesEnum).nullish(),
+  locationType: nativeEnum(LocationChoicesEnum).nullish(),
+  phone: string().nullish(),
+  mobilePhone: string().nullish(),
+  notes: string().nullish(),
+  isMain: boolean().nullish(),
+  user: number().nullish(),
+  country: string().nullish(),
+  region: string().nullish(),
 })
 
-export type UserAddress = z.infer<typeof ZodUserAddress>
+export type UserAddress = typeof ZodUserAddress._type
 export type UserAddressOrderingField =
   | 'id'
   | 'country'

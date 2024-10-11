@@ -1,4 +1,4 @@
-import { object, number } from 'zod'
+import { object, number, optional } from 'zod'
 
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
@@ -13,9 +13,9 @@ export default defineEventHandler(async () => {
         },
       },
     )
-    return await parseDataAs(response, object({
+    return await parseDataAs(response, optional(object({
       count: number(),
-    }).optional())
+    })))
   }
   catch (error) {
     await handleError(error)

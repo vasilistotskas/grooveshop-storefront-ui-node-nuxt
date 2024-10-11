@@ -1,36 +1,37 @@
-import { z } from 'zod'
+import { object, string, number, boolean } from 'zod'
 import { ZodExpandQuery, ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 
-export const ZodNotificationUser = z.object({
-  id: z.number(),
-  user: z.number(),
-  notification: z.number(),
-  seen: z.boolean(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
+export const ZodNotificationUser = object({
+  id: number(),
+  user: number(),
+  notification: number(),
+  seen: boolean(),
+})
+  .merge(ZodUUIDModel)
+  .merge(ZodTimeStampModel)
 
-export const ZodNotificationUserParams = z.object({
-  id: z.string(),
+export const ZodNotificationUserParams = object({
+  id: string(),
 })
 
-export const ZodNotificationUserQuery = z
-  .object({
-    seen: z.string().nullish(),
-    notificationKind: z.string().nullish(),
-  })
+export const ZodNotificationUserQuery = object({
+  seen: string().nullish(),
+  notificationKind: string().nullish(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodNotificationUserBody = z.object({
-  user: z.string(),
-  notification: z.string(),
-  seen: z.boolean(),
+export const ZodNotificationUserBody = object({
+  user: string(),
+  notification: string(),
+  seen: boolean(),
 })
 
-export type NotificationUser = Readonly<z.infer<typeof ZodNotificationUser>>
-export type NotificationUserParams = z.infer<typeof ZodNotificationUserParams>
-export type NotificationUserQuery = z.infer<typeof ZodNotificationUserQuery>
-export type NotificationUserBody = z.infer<typeof ZodNotificationUserBody>
+export type NotificationUser = typeof ZodNotificationUser._type
+export type NotificationUserParams = typeof ZodNotificationUserParams._type
+export type NotificationUserQuery = typeof ZodNotificationUserQuery._type
+export type NotificationUserBody = typeof ZodNotificationUserBody._type

@@ -1,12 +1,12 @@
-import { z } from 'zod'
+import { object, literal, string } from 'zod'
 
-export const ZodPasswordRequestResponse = z.object({
-  status: z.literal(200),
+export const ZodPasswordRequestResponse = object({
+  status: literal(200),
 })
 
-export const ZodPasswordRequestBody = z.object({
-  email: z.string().email().describe('The email address.'),
+export const ZodPasswordRequestBody = object({
+  email: string().email().describe('The email address.'),
 })
 
-export type PasswordRequestBody = z.infer<typeof ZodPasswordRequestBody>
-export type PasswordRequestResponse = z.infer<typeof ZodPasswordRequestResponse>
+export type PasswordRequestBody = typeof ZodPasswordRequestBody._type
+export type PasswordRequestResponse = typeof ZodPasswordRequestResponse._type

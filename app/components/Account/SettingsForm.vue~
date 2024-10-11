@@ -148,7 +148,7 @@ const regionOptions = computed(() => {
   }) || []
 })
 
-const label = computed<string>(() => {
+const label = computed(() => {
   if (birthDate.value && birthDate.value instanceof Date) {
     return birthDate.value.toLocaleDateString('en-us', {
       weekday: 'long',

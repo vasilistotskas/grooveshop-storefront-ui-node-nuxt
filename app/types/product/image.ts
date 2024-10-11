@@ -1,37 +1,39 @@
-import { z } from 'zod'
+import { object, string, number, boolean, record, optional } from 'zod'
 
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-const ZodProductImageTranslations = z.record(
-  z.object({
-    title: z.string().nullish(),
+const ZodProductImageTranslations = record(
+  object({
+    title: string().nullish(),
   }),
 )
 
-export const ZodProductImage = z.object({
-  id: z.number(),
+export const ZodProductImage = object({
+  id: number(),
   translations: ZodProductImageTranslations,
-  product: z.number(),
-  image: z.string(),
-  thumbnail: z.string().nullish(),
-  isMain: z.boolean(),
-  mainImagePath: z.string().optional(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
+  product: number(),
+  image: string(),
+  thumbnail: string().nullish(),
+  isMain: boolean(),
+  mainImagePath: optional(string()),
+})
+  .merge(ZodUUIDModel)
+  .merge(ZodTimeStampModel)
+  .merge(ZodSortableModel)
 
-export const ZodProductImageParams = z.object({
-  id: z.string(),
+export const ZodProductImageParams = object({
+  id: string(),
 })
 
-export const ZodProductImageQuery = z
-  .object({
-    id: z.string().nullish(),
-    product: z.string().nullish(),
-    isMain: z.string().nullish(),
-  })
+export const ZodProductImageQuery = object({
+  id: string().nullish(),
+  product: string().nullish(),
+  isMain: string().nullish(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export type ProductImage = z.infer<typeof ZodProductImage>
+export type ProductImage = typeof ZodProductImage._type

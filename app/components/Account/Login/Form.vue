@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { object, string } from 'zod'
 
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { GlobalEvents } from '~/events'
 
 const { t } = useI18n({ useScope: 'local' })

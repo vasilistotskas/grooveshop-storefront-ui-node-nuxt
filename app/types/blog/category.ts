@@ -1,37 +1,39 @@
-import { z } from 'zod'
+import { object, string, number, optional, record } from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-const ZodBlogCategoryTranslations = z.record(
-  z.object({
-    name: z.string().nullish(),
-    description: z.string().nullish(),
+const ZodBlogCategoryTranslations = record(
+  object({
+    name: string().nullish(),
+    description: string().nullish(),
   }),
 )
 
-export const ZodBlogCategory = z.object({
+export const ZodBlogCategory = object({
   translations: ZodBlogCategoryTranslations,
-  id: z.number().int(),
-  slug: z.string().nullish(),
-  parent: z.number().nullish(),
-  level: z.number().nullish(),
-  treeId: z.number().nullish(),
-  absoluteUrl: z.string().nullish(),
-  recursivePostCount: z.number().int(),
-  mainImagePath: z.string().optional(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
+  id: number().int(),
+  slug: string().nullish(),
+  parent: number().nullish(),
+  level: number().nullish(),
+  treeId: number().nullish(),
+  absoluteUrl: string().nullish(),
+  recursivePostCount: number().int(),
+  mainImagePath: optional(string()),
+})
+  .merge(ZodUUIDModel)
+  .merge(ZodTimeStampModel)
+  .merge(ZodSortableModel)
 
-export const ZodBlogCategoryQuery = z
-  .object({
-    id: z.string().nullish(),
-  })
+export const ZodBlogCategoryQuery = object({
+  id: string().nullish(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodBlogCategoryParams = z.object({
-  id: z.string(),
+export const ZodBlogCategoryParams = object({
+  id: string(),
 })
 
-export type BlogCategory = z.infer<typeof ZodBlogCategory>
+export type BlogCategory = typeof ZodBlogCategory._type

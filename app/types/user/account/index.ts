@@ -1,83 +1,83 @@
-import { z } from 'zod'
+import { object, string, number, boolean, union, lazy, optional } from 'zod'
 
 import { ZodCountry } from '~/types/country'
 import { ZodRegion } from '~/types/region'
 import { ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-export const ZodUserAccount = z.object({
-  pk: z.number().nullish(),
-  id: z.number().nullish(),
-  email: z.string().email().nullish(),
-  username: z.string().nullish(),
-  image: z.string().nullish(),
-  firstName: z.string().nullish(),
-  lastName: z.string().nullish(),
-  phone: z.string().nullish(),
-  city: z.string().nullish(),
-  zipcode: z.string().nullish(),
-  address: z.string().nullish(),
-  place: z.string().nullish(),
-  country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
-  region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
-  isActive: z.boolean().nullish(),
-  isStaff: z.boolean().nullish(),
-  birthDate: z.string().nullish(),
-  twitter: z.string().nullish(),
-  linkedin: z.string().nullish(),
-  facebook: z.string().nullish(),
-  instagram: z.string().nullish(),
-  website: z.string().nullish(),
-  youtube: z.string().nullish(),
-  github: z.string().nullish(),
-  bio: z.string().nullish(),
-  mainImagePath: z.string().optional(),
-  isSuperuser: z.boolean().nullish(),
+export const ZodUserAccount = object({
+  pk: number().nullish(),
+  id: number().nullish(),
+  email: string().email().nullish(),
+  username: string().nullish(),
+  image: string().nullish(),
+  firstName: string().nullish(),
+  lastName: string().nullish(),
+  phone: string().nullish(),
+  city: string().nullish(),
+  zipcode: string().nullish(),
+  address: string().nullish(),
+  place: string().nullish(),
+  country: union([string(), lazy(() => ZodCountry)]).nullish(),
+  region: union([string(), lazy(() => ZodRegion)]).nullish(),
+  isActive: boolean().nullish(),
+  isStaff: boolean().nullish(),
+  birthDate: string().nullish(),
+  twitter: string().nullish(),
+  linkedin: string().nullish(),
+  facebook: string().nullish(),
+  instagram: string().nullish(),
+  website: string().nullish(),
+  youtube: string().nullish(),
+  github: string().nullish(),
+  bio: string().nullish(),
+  mainImagePath: optional(string()),
+  isSuperuser: boolean().nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodUserAccountParams = z.object({
-  id: z.string(),
+export const ZodUserAccountParams = object({
+  id: string(),
 })
 
-export const ZodUserAccountPatchBody = z.object({
-  email: z.string().nullish(),
-  image: z.string().nullish(),
-  firstName: z.string().nullish(),
-  lastName: z.string().nullish(),
-  phone: z.string().nullish(),
-  city: z.string().nullish(),
-  zipcode: z.string().nullish(),
-  address: z.string().nullish(),
-  place: z.string().nullish(),
-  country: z.string().nullish(),
-  region: z.string().nullish(),
-  isActive: z.boolean().nullish(),
-  isStaff: z.boolean().nullish(),
-  birthDate: z.string().nullish(),
+export const ZodUserAccountPatchBody = object({
+  email: string().nullish(),
+  image: string().nullish(),
+  firstName: string().nullish(),
+  lastName: string().nullish(),
+  phone: string().nullish(),
+  city: string().nullish(),
+  zipcode: string().nullish(),
+  address: string().nullish(),
+  place: string().nullish(),
+  country: string().nullish(),
+  region: string().nullish(),
+  isActive: boolean().nullish(),
+  isStaff: boolean().nullish(),
+  birthDate: string().nullish(),
 })
 
-export const ZodUserAccountPutBody = z.object({
-  email: z.string(),
-  image: z.string().nullish(),
-  firstName: z.string().nullish(),
-  lastName: z.string().nullish(),
-  phone: z.string().nullish(),
-  city: z.string().nullish(),
-  zipcode: z.string().nullish(),
-  address: z.string().nullish(),
-  place: z.string().nullish(),
-  country: z.string().nullish(),
-  region: z.string().nullish(),
-  isActive: z.boolean().nullish(),
-  isStaff: z.boolean().nullish(),
-  birthDate: z.string().nullish(),
+export const ZodUserAccountPutBody = object({
+  email: string(),
+  image: string().nullish(),
+  firstName: string().nullish(),
+  lastName: string().nullish(),
+  phone: string().nullish(),
+  city: string().nullish(),
+  zipcode: string().nullish(),
+  address: string().nullish(),
+  place: string().nullish(),
+  country: string().nullish(),
+  region: string().nullish(),
+  isActive: boolean().nullish(),
+  isStaff: boolean().nullish(),
+  birthDate: string().nullish(),
 })
 
-export const ZodChangeUserNameBody = z.object({
-  username: z.string().max(30),
+export const ZodChangeUserNameBody = object({
+  username: string().max(30),
 })
 
-export const ZodChangeUserNameResponse = z.object({
-  detail: z.string().min(1),
+export const ZodChangeUserNameResponse = object({
+  detail: string().min(1),
 })
 
-export type UserAccount = z.infer<typeof ZodUserAccount>
+export type UserAccount = typeof ZodUserAccount._type

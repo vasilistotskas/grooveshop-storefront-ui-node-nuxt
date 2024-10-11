@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { object, string, number, array, union, lazy, nativeEnum } from 'zod'
 
 import { ZodCountry } from '~/types/country'
 import { FloorChoicesEnum, LocationChoicesEnum, ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel } from '~/types'
@@ -8,115 +8,114 @@ import { ZodRegion } from '~/types/region'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 
-export const ZodOrderStatusEnum = z.enum([
-  'SENT',
-  'PAID_AND_SENT',
-  'CANCELED',
-  'PENDING',
-])
-export const ZodDocumentTypeEnum = z.enum(['RECEIPT', 'INVOICE'])
+export const ZodOrderStatusEnum = nativeEnum({
+  SENT: 'SENT',
+  PAID_AND_SENT: 'PAID_AND_SENT',
+  CANCELED: 'CANCELED',
+  PENDING: 'PENDING',
+})
 
-export const ZodOrder = z.object({
-  id: z.number(),
-  user: z.number().nullish(),
-  payWay: z.lazy(() => ZodPayWay),
-  country: z.lazy(() => ZodCountry),
-  region: z.lazy(() => ZodRegion),
-  floor: z.nativeEnum(FloorChoicesEnum).nullish(),
-  locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
-  email: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  street: z.string(),
-  streetNumber: z.string(),
-  zipcode: z.string(),
-  place: z.string().nullish(),
-  city: z.string(),
-  phone: z.string(),
-  mobilePhone: z.string().nullish(),
-  status: z.lazy(() => ZodOrderStatusEnum),
-  customerNotes: z.string().nullish(),
-  shippingPrice: z.number(),
-  paidAmount: z.number(),
-  documentType: z.lazy(() => ZodDocumentTypeEnum),
-  items: z.array(z.lazy(() => ZodOrderItem)),
-  totalPriceItems: z.number(),
-  totalPriceExtra: z.number(),
-  fullAddress: z.string(),
+export const ZodDocumentTypeEnum = nativeEnum({
+  RECEIPT: 'RECEIPT',
+  INVOICE: 'INVOICE',
+})
+
+export const ZodOrder = object({
+  id: number(),
+  user: number().nullish(),
+  payWay: lazy(() => ZodPayWay),
+  country: lazy(() => ZodCountry),
+  region: lazy(() => ZodRegion),
+  floor: nativeEnum(FloorChoicesEnum).nullish(),
+  locationType: nativeEnum(LocationChoicesEnum).nullish(),
+  email: string(),
+  firstName: string(),
+  lastName: string(),
+  street: string(),
+  streetNumber: string(),
+  zipcode: string(),
+  place: string().nullish(),
+  city: string(),
+  phone: string(),
+  mobilePhone: string().nullish(),
+  status: lazy(() => ZodOrderStatusEnum),
+  customerNotes: string().nullish(),
+  shippingPrice: number(),
+  paidAmount: number(),
+  documentType: lazy(() => ZodDocumentTypeEnum),
+  items: array(lazy(() => ZodOrderItem)),
+  totalPriceItems: number(),
+  totalPriceExtra: number(),
+  fullAddress: string(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodOrderQuery = z
-  .object({
-    userId: z.string().nullish(),
-    status: z.string().nullish(),
-  })
+export const ZodOrderQuery = object({
+  userId: string().nullish(),
+  status: string().nullish(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodOrderCreateBody = z.object({
-  user: z.union([z.number(), z.string()]).nullish(),
-  country: z.string(),
-  region: z.string(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-  locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
-    .nullish(),
-  street: z.string(),
-  streetNumber: z.string(),
-  payWay: z.number(),
-  status: z.lazy(() => ZodOrderStatusEnum).nullish(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
-  zipcode: z.string(),
-  place: z.string().nullish(),
-  city: z.string(),
-  phone: z.string(),
-  mobilePhone: z.string().nullish(),
-  customerNotes: z.string().nullish(),
-  shippingPrice: z.number(),
-  documentType: z.lazy(() => ZodDocumentTypeEnum),
-  items: z.array(z.lazy(() => ZodOrderCreateItem)),
+export const ZodOrderCreateBody = object({
+  user: union([number(), string()]).nullish(),
+  country: string(),
+  region: string(),
+  floor: union([nativeEnum(FloorChoicesEnum), string()]).nullish(),
+  locationType: union([nativeEnum(LocationChoicesEnum), string()]).nullish(),
+  street: string(),
+  streetNumber: string(),
+  payWay: number(),
+  status: lazy(() => ZodOrderStatusEnum).nullish(),
+  firstName: string(),
+  lastName: string(),
+  email: string().email(),
+  zipcode: string(),
+  place: string().nullish(),
+  city: string(),
+  phone: string(),
+  mobilePhone: string().nullish(),
+  customerNotes: string().nullish(),
+  shippingPrice: number(),
+  documentType: lazy(() => ZodDocumentTypeEnum),
+  items: array(lazy(() => ZodOrderCreateItem)),
 })
 
-export const ZodOrderCreateResponse = z.object({
-  id: z.number(),
-  user: z.union([z.number(), z.string()]).nullish(),
-  country: z.string(),
-  region: z.string(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-  locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
-    .nullish(),
-  street: z.string(),
-  streetNumber: z.string(),
-  payWay: z.number(),
-  status: z.lazy(() => ZodOrderStatusEnum).nullish(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
-  zipcode: z.string(),
-  place: z.string().nullish(),
-  city: z.string(),
-  phone: z.string(),
-  mobilePhone: z.string().nullish(),
-  customerNotes: z.string().nullish(),
-  items: z.array(z.lazy(() => ZodOrderCreateResponseItem)),
-  shippingPrice: z.number(),
-  documentType: z.lazy(() => ZodDocumentTypeEnum),
-  totalPriceItems: z.number(),
-  totalPriceExtra: z.number(),
-  fullAddress: z.string(),
+export const ZodOrderCreateResponse = object({
+  id: number(),
+  user: union([number(), string()]).nullish(),
+  country: string(),
+  region: string(),
+  floor: union([nativeEnum(FloorChoicesEnum), string()]).nullish(),
+  locationType: union([nativeEnum(LocationChoicesEnum), string()]).nullish(),
+  street: string(),
+  streetNumber: string(),
+  payWay: number(),
+  status: lazy(() => ZodOrderStatusEnum).nullish(),
+  firstName: string(),
+  lastName: string(),
+  email: string().email(),
+  zipcode: string(),
+  place: string().nullish(),
+  city: string(),
+  phone: string(),
+  mobilePhone: string().nullish(),
+  customerNotes: string().nullish(),
+  items: array(lazy(() => ZodOrderCreateResponseItem)),
+  shippingPrice: number(),
+  documentType: lazy(() => ZodDocumentTypeEnum),
+  totalPriceItems: number(),
+  totalPriceExtra: number(),
+  fullAddress: string(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodOrderParams = z.object({
-  id: z.string(),
+export const ZodOrderParams = object({
+  id: string(),
 })
 
-export const ZodOrderUUIDParams = z.object({
-  uuid: z.string(),
+export const ZodOrderUUIDParams = object({
+  uuid: string(),
 })
 
 export type OrderOrderingField = 'status' | 'createdAt' | 'updatedAt'
-export type Order = z.infer<typeof ZodOrder>
+export type Order = typeof ZodOrder._type

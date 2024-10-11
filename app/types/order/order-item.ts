@@ -1,36 +1,41 @@
-import { z } from 'zod'
+import { object, number } from 'zod'
 
 import { ZodProduct } from '~/types/product'
 import { ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-export const ZodOrderItem = z.object({
-  id: z.number(),
-  price: z.number().nullish(),
+export const ZodOrderItem = object({
+  id: number(),
+  price: number().nullish(),
   product: ZodProduct,
-  quantity: z.number(),
-  totalPrice: z.number().nullish(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
+  quantity: number(),
+  totalPrice: number().nullish(),
+})
+  .merge(ZodUUIDModel)
+  .merge(ZodTimeStampModel)
+  .merge(ZodSortableModel)
 
-export const ZodOrderCreateItem = z.object({
-  id: z.number(),
-  cart: z.number(),
-  product: z.number(),
-  quantity: z.number(),
-  price: z.number().nullish(),
-  finalPrice: z.number().nullish(),
-  discountValue: z.number().nullish(),
-  priceSavePercent: z.number().nullish(),
-  discountPercent: z.number().nullish(),
-  vatPercent: z.number().nullish(),
-  vatValue: z.number().nullish(),
-  totalPrice: z.number().nullish(),
-  totalDiscountValue: z.number().nullish(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
+export const ZodOrderCreateItem = object({
+  id: number(),
+  cart: number(),
+  product: number(),
+  quantity: number(),
+  price: number().nullish(),
+  finalPrice: number().nullish(),
+  discountValue: number().nullish(),
+  priceSavePercent: number().nullish(),
+  discountPercent: number().nullish(),
+  vatPercent: number().nullish(),
+  vatValue: number().nullish(),
+  totalPrice: number().nullish(),
+  totalDiscountValue: number().nullish(),
+})
+  .merge(ZodUUIDModel)
+  .merge(ZodTimeStampModel)
 
-export const ZodOrderCreateResponseItem = z.object({
-  id: z.number(),
-  product: z.number(),
-  quantity: z.number(),
+export const ZodOrderCreateResponseItem = object({
+  id: number(),
+  product: number(),
+  quantity: number(),
 })
 
-export type OrderItem = z.infer<typeof ZodOrderItem>
+export type OrderItem = typeof ZodOrderItem._type

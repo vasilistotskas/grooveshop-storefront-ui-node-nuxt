@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { object, string } from 'zod'
 
-export const ZodCodeRequestBody = z.object({
-  email: z.string().email().describe('The email address.'),
+export const ZodCodeRequestBody = object({
+  email: string().email().describe('The email address.'),
 })
 
-export type CodeRequestBody = z.infer<typeof ZodCodeRequestBody>
+export type CodeRequestBody = typeof ZodCodeRequestBody._type

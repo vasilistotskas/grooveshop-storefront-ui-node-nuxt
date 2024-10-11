@@ -1,36 +1,39 @@
-import { z } from 'zod'
+import type { ZodType } from 'zod'
+import { object, string, number, record, lazy } from 'zod'
 import { ZodSeoModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-const ZodProductCategoryTranslations = z.record(
-  z.object({
-    name: z.string().nullish(),
-    description: z.string().nullish(),
+const ZodProductCategoryTranslations = record(
+  object({
+    name: string().nullish(),
+    description: string().nullish(),
   }),
 )
 
-export const ZodProductCategoryBase = z.object({
+export const ZodProductCategoryBase = object({
   translations: ZodProductCategoryTranslations,
-  id: z.number(),
-  slug: z.string(),
-  categoryMenuImageOneFilename: z.string().nullish(),
-  categoryMenuImageTwoFilename: z.string().nullish(),
-  categoryMenuMainBannerFilename: z.string().nullish(),
-  parent: z.number().nullish(),
-  level: z.number(),
-  treeId: z.number(),
-  absoluteUrl: z.string(),
-  recursiveProductCount: z.number(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSeoModel)
+  id: number(),
+  slug: string(),
+  categoryMenuImageOneFilename: string().nullish(),
+  categoryMenuImageTwoFilename: string().nullish(),
+  categoryMenuMainBannerFilename: string().nullish(),
+  parent: number().nullish(),
+  level: number(),
+  treeId: number(),
+  absoluteUrl: string(),
+  recursiveProductCount: number(),
+})
+  .merge(ZodUUIDModel)
+  .merge(ZodTimeStampModel)
+  .merge(ZodSeoModel)
 
-export type ProductCategory = z.infer<typeof ZodProductCategoryBase> & {
+export type ProductCategory = typeof ZodProductCategoryBase._type & {
   children?: ProductCategory[] | null
 }
 
-export const ZodProductCategory: z.ZodType<ProductCategory>
-  = ZodProductCategoryBase.extend({
-    children: z.lazy(() => ZodProductCategory.array().nullish()),
-  })
+export const ZodProductCategory: ZodType<ProductCategory> = ZodProductCategoryBase.extend({
+  children: lazy(() => ZodProductCategory.array().nullish()),
+})
 
-export const ZodProductCategoryParams = z.object({
-  id: z.string(),
+export const ZodProductCategoryParams = object({
+  id: string(),
 })

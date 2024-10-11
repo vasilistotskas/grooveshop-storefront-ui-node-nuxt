@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { object, literal } from 'zod'
 
-export const ZodTotpDeleteResponse = z.object({
-  status: z.literal(200),
+export const ZodTotpDeleteResponse = object({
+  status: literal(200),
 })
 
-export type TotpDeleteResponse = z.infer<typeof ZodTotpDeleteResponse>
+export type TotpDeleteResponse = typeof ZodTotpDeleteResponse._type

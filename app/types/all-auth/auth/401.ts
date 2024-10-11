@@ -1,17 +1,17 @@
-import { z } from 'zod'
+import { array, any, literal, object, optional } from 'zod'
 import { ZodFlow, ZodUnauthenticatedMeta } from '~/types/all-auth'
 
-const ZodNotAuthenticatedData = z.object({
-  flows: z.array(ZodFlow),
-  methods: z.array(z.any()).optional(),
-  user: z.any().optional(),
+const ZodNotAuthenticatedData = object({
+  flows: array(ZodFlow),
+  methods: optional(array(any())),
+  user: optional(any()),
 })
 
-export const ZodNotAuthenticatedResponse = z.object({
-  status: z.literal(401),
+export const ZodNotAuthenticatedResponse = object({
+  status: literal(401),
   data: ZodNotAuthenticatedData,
   meta: ZodUnauthenticatedMeta,
 })
 
-export type NotAuthenticatedData = z.infer<typeof ZodNotAuthenticatedData>
-export type NotAuthenticatedResponse = z.infer<typeof ZodNotAuthenticatedResponse>
+export type NotAuthenticatedData = typeof ZodNotAuthenticatedData._type
+export type NotAuthenticatedResponse = typeof ZodNotAuthenticatedResponse._type

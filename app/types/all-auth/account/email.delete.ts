@@ -1,16 +1,16 @@
-import { z } from 'zod'
+import { object, literal, array, string } from 'zod'
 import { ZodEmailAddress } from '~/types/all-auth'
 
-const ZodData = z.array(ZodEmailAddress)
+const ZodData = array(ZodEmailAddress)
 
-export const ZodEmailDeleteResponse = z.object({
-  status: z.literal(200),
+export const ZodEmailDeleteResponse = object({
+  status: literal(200),
   data: ZodData,
 })
 
-export const ZodEmailDeleteBody = z.object({
-  email: z.string().email().describe('An email address.'),
+export const ZodEmailDeleteBody = object({
+  email: string().email().describe('An email address.'),
 })
 
-export type EmailDeleteBody = z.infer<typeof ZodEmailDeleteBody>
-export type EmailDeleteResponse = z.infer<typeof ZodEmailDeleteResponse>
+export type EmailDeleteBody = typeof ZodEmailDeleteBody._type
+export type EmailDeleteResponse = typeof ZodEmailDeleteResponse._type

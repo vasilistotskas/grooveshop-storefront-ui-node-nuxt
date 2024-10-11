@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { literal, object } from 'zod'
 
-export const ZodForbiddenResponse = z.object({
-  status: z.literal(403),
+export const ZodForbiddenResponse = object({
+  status: literal(403),
 })
 
-export type ForbiddenResponse = z.infer<typeof ZodForbiddenResponse>
+export type ForbiddenResponse = typeof ZodForbiddenResponse._type

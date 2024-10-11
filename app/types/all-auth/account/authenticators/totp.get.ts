@@ -1,20 +1,20 @@
-import { z } from 'zod'
+import { object, string, optional, literal } from 'zod'
 import { ZodTOTPAuthenticator } from '~/types/all-auth'
 
-export const ZodTotpGetResponse = z.object({
-  status: z.literal(200),
+export const ZodTotpGetResponse = object({
+  status: literal(200),
   data: ZodTOTPAuthenticator,
 })
 
-export const ZodTotpGetResponseError = z.object({
-  meta: z.object({
-    secret: z.string().optional(),
-    totp_url: z.string().optional(),
-    totp_svg: z.string().optional(),
-    totp_svg_data_uri: z.string().optional(),
+export const ZodTotpGetResponseError = object({
+  meta: object({
+    secret: optional(string()),
+    totp_url: optional(string()),
+    totp_svg: optional(string()),
+    totp_svg_data_uri: optional(string()),
   }),
-  status: z.literal(404),
+  status: literal(404),
 })
 
-export type TotpGetResponse = z.infer<typeof ZodTotpGetResponse>
-export type TotpGetResponseError = z.infer<typeof ZodTotpGetResponseError>
+export type TotpGetResponse = typeof ZodTotpGetResponse._type
+export type TotpGetResponseError = typeof ZodTotpGetResponseError._type

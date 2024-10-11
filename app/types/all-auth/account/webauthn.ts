@@ -1,59 +1,59 @@
-import { z } from 'zod'
+import { object, string, number, literal, boolean, array, any, record, optional } from 'zod'
 import { ZodAuthenticator } from '~/types/all-auth'
 
-export const ZodWebAuthnCredentialCreationOptions = z.object({
-  creation_options: z.object({
-    publicKey: z.record(z.any()),
+export const ZodWebAuthnCredentialCreationOptions = object({
+  creation_options: object({
+    publicKey: record(any()),
   }),
 })
 
-export const ZodWebAuthnGetResponse = z.object({
-  status: z.literal(200),
+export const ZodWebAuthnGetResponse = object({
+  status: literal(200),
   data: ZodWebAuthnCredentialCreationOptions,
 })
 
-export const ZodWebAuthnDeleteBody = z.object({
-  authenticators: z.array(z.number()),
+export const ZodWebAuthnDeleteBody = object({
+  authenticators: array(number()),
 })
 
-export const ZodWebAuthnDeleteResponse = z.object({
-  status: z.literal(200),
+export const ZodWebAuthnDeleteResponse = object({
+  status: literal(200),
 })
 
-export const ZodWebAuthnPostBody = z.object({
-  name: z.string(),
-  credential: z.object({
-    type: z.string(),
-    id: z.string(),
-    rawId: z.any(),
-    response: z.any(),
-    authenticatorAttachment: z.string().nullish(),
-    clientExtensionResults: z.any().optional(),
+export const ZodWebAuthnPostBody = object({
+  name: string(),
+  credential: object({
+    type: string(),
+    id: string(),
+    rawId: any(),
+    response: any(),
+    authenticatorAttachment: string().nullish(),
+    clientExtensionResults: optional(any()),
   }),
 })
 
-export const ZodWebAuthnPostResponse = z.object({
-  status: z.literal(200),
+export const ZodWebAuthnPostResponse = object({
+  status: literal(200),
   data: ZodAuthenticator,
-  meta: z.object({
-    recovery_codes_generated: z.boolean(),
+  meta: object({
+    recovery_codes_generated: boolean(),
   }),
 })
 
-export const ZodWebAuthnPutBody = z.object({
-  id: z.number(),
-  name: z.string(),
+export const ZodWebAuthnPutBody = object({
+  id: number(),
+  name: string(),
 })
 
-export const ZodWebAuthnPutResponse = z.object({
-  status: z.literal(200),
+export const ZodWebAuthnPutResponse = object({
+  status: literal(200),
   data: ZodAuthenticator,
 })
 
-export type WebAuthnGetResponse = z.infer<typeof ZodWebAuthnGetResponse>
-export type WebAuthnDeleteBody = z.infer<typeof ZodWebAuthnDeleteBody>
-export type WebAuthnDeleteResponse = z.infer<typeof ZodWebAuthnDeleteResponse>
-export type WebAuthnPostBody = z.infer<typeof ZodWebAuthnPostBody>
-export type WebAuthnPostResponse = z.infer<typeof ZodWebAuthnPostResponse>
-export type WebAuthnPutBody = z.infer<typeof ZodWebAuthnPutBody>
-export type WebAuthnPutResponse = z.infer<typeof ZodWebAuthnPutResponse>
+export type WebAuthnGetResponse = typeof ZodWebAuthnGetResponse._type
+export type WebAuthnDeleteBody = typeof ZodWebAuthnDeleteBody._type
+export type WebAuthnDeleteResponse = typeof ZodWebAuthnDeleteResponse._type
+export type WebAuthnPostBody = typeof ZodWebAuthnPostBody._type
+export type WebAuthnPostResponse = typeof ZodWebAuthnPostResponse._type
+export type WebAuthnPutBody = typeof ZodWebAuthnPutBody._type
+export type WebAuthnPutResponse = typeof ZodWebAuthnPutResponse._type
