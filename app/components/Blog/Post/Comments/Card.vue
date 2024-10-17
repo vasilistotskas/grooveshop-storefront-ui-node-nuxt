@@ -525,7 +525,7 @@ watch(
           v-if="hasReplies && !repliesFetched"
           class="ml-px inline-block"
         >
-          <UButton
+          <LazyUButton
             :aria-label="
               showReplies
                 ? $t('hide.replies')

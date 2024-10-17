@@ -141,7 +141,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <UButton
+              <LazyUButton
                 :aria-label="$t('favourites')"
                 :to="localePath('/account/favourites/posts')"
                 class="p-0"

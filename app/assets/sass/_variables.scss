@@ -32,7 +32,7 @@ $container-sizes: (
 
 @mixin responsive-width($breakpoints-map) {
   @each $breakpoint, $width in $breakpoints-map {
-    @media (min-width: map-get($grid-breakpoints, $breakpoint)) {
+    @media (min-width: map.get($grid-breakpoints, $breakpoint)) {
       max-width: $width;
     }
   }

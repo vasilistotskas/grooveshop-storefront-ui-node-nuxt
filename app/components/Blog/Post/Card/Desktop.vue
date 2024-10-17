@@ -126,7 +126,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :likes-count="post.likesCount"
           @update="likeClicked"
         />
-        <UButton
+        <LazyUButton
           icon="i-heroicons-chat-bubble-oval-left"
           size="xl"
           color="primary"

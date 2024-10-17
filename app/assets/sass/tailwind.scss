@@ -1,4 +1,4 @@
-@import 'variables';
+@use 'variables';
 
 @tailwind base;
 @tailwind components;
@@ -28,7 +28,7 @@
   .container-sm {
     @apply base-container;
 
-    @include responsive-width((
+    @include variables.responsive-width((
       'sm': 540px,
       'md': 720px,
       'lg': 960px,
@@ -40,7 +40,7 @@
   .container-md {
     @apply base-container;
 
-    @include responsive-width((
+    @include variables.responsive-width((
       'sm': 540px,
       'md': 720px,
       'lg': 960px,
@@ -52,7 +52,7 @@
   .container-xs {
     @apply base-container;
 
-    @include responsive-width((
+    @include variables.responsive-width((
       'md': 480px,
       'lg': 540px,
       'xl': 720px,
@@ -63,7 +63,7 @@
   .container-2xs {
     @apply base-container;
 
-    @include responsive-width((
+    @include variables.responsive-width((
       'sm': 360px,
       'md': 480px,
       'lg': 480px,
@@ -75,7 +75,7 @@
   .container-3xs {
     @apply base-container;
 
-    @include responsive-width((
+    @include variables.responsive-width((
       'sm': 360px,
       'md': 480px,
       'lg': 480px,

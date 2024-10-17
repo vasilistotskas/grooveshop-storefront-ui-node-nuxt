@@ -257,7 +257,7 @@ definePageMeta({
                     class="justify-self-start font-extrabold capitalize"
                     @update="likeClicked"
                   />
-                  <UButton
+                  <LazyUButton
                     :label="String(blogPost.commentsCount)"
                     :title="$t('comments.count', {
                       count: blogPost.commentsCount,

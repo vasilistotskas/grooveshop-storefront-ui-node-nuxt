@@ -1,9 +1,11 @@
 // @ts-check
+import eslintPluginTailwindCSS from 'eslint-plugin-tailwindcss'
 import eslintPluginReadableTailwind from 'eslint-plugin-readable-tailwind'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt({
   plugins: {
+    'tailwindcss': eslintPluginTailwindCSS,
     'readable-tailwind': eslintPluginReadableTailwind,
   },
   rules: {
@@ -19,6 +21,7 @@ export default withNuxt({
     '@typescript-eslint/ban-ts-comment': 'off',
     ...eslintPluginReadableTailwind.configs.warning.rules,
     ...eslintPluginReadableTailwind.configs.error.rules,
+    'readable-tailwind/sort-classes': 'off',
   },
   ignores: ['auto-imports.d.ts', 'components.d.ts', 'auth.d.ts'],
 })

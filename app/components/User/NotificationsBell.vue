@@ -149,7 +149,7 @@ watch(
             >
               <template #title="{ title }">
                 <div class="relative w-full">
-                  <UChip
+                  <LazyUChip
                     :id="`notification-${userNotification.notification?.id}`"
                     :key="`notification-${userNotification.notification?.id}`"
                     class="w-full"
@@ -161,7 +161,7 @@ watch(
                     }"
                   >
                     <span class="notification-title truncate text-sm" v-html="title" />
-                  </UChip>
+                  </LazyUChip>
                 </div>
               </template>
               <template #description="{ description }">
