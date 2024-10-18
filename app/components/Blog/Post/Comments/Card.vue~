@@ -386,7 +386,7 @@ watch(
             dark:bg-primary-900
           "
         >
-          <UButton
+          <LazyUButton
             v-if="hasReplies"
             :aria-expanded="showReplies"
             :aria-label="
@@ -433,7 +433,7 @@ watch(
                 variant="solid"
                 @update="likeClicked"
               />
-              <UButton
+              <LazyUButton
                 v-if="maxDepth > depth"
                 :aria-label="$t('reply')"
                 :color="'primary'"
@@ -525,7 +525,7 @@ watch(
           v-if="hasReplies && !repliesFetched"
           class="ml-px inline-block"
         >
-          <UButton
+          <LazyUButton
             :aria-label="
               showReplies
                 ? $t('hide.replies')

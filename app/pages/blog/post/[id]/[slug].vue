@@ -257,7 +257,7 @@ definePageMeta({
                     class="justify-self-start font-extrabold capitalize"
                     @update="likeClicked"
                   />
-                  <LazyUButton
+                  <UButton
                     :label="String(blogPost.commentsCount)"
                     :title="$t('comments.count', {
                       count: blogPost.commentsCount,
@@ -271,7 +271,7 @@ definePageMeta({
                     @click="scrollToComments"
                   />
                   <ClientOnly>
-                    <LazyUButton
+                    <UButton
                       v-if="isSupported"
                       :disabled="!isSupported"
                       :title="$t('share')"

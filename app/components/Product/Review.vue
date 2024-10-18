@@ -551,7 +551,7 @@ watch(
     <template #footer>
       <div class="review_footer">
         <div class="review_footer-content">
-          <LazyUButton
+          <UButton
             v-if="!tooManyAttempts"
             :label="reviewButtonText"
             block
@@ -560,7 +560,7 @@ watch(
             size="lg"
             @click.prevent="onSubmit"
           />
-          <LazyUButton
+          <UButton
             v-else
             :label="$t('validation.too_many_attempts')"
             block
@@ -573,7 +573,7 @@ watch(
           v-if="userProductReview"
           class="review_footer-content"
         >
-          <LazyUButton
+          <UButton
             :label="t('delete_review')"
             :trailing="true"
             block

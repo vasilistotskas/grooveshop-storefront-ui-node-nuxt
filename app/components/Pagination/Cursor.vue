@@ -110,7 +110,7 @@ onUnmounted(() => {
 
 <template>
   <div class="cursor-pagination">
-    <LazyUButton
+    <UButton
       v-if="nextCursor && showButton && strategy === 'button' && totalPages > 1"
       size="md"
       variant="soft"

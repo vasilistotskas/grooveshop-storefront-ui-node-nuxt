@@ -8,8 +8,8 @@ import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 387 },
-  imgHeight: { type: Number, required: false, default: 275 },
+  imgWidth: { type: Number, required: false, default: 575 },
+  imgHeight: { type: Number, required: false, default: 670 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -20,7 +20,6 @@ const props = defineProps({
 })
 
 const { locale } = useI18n()
-const localePath = useLocalePath()
 
 const { post } = toRefs(props)
 
@@ -54,13 +53,12 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 <template>
   <li
     class="
-      bg-primary-100 container grid w-full gap-6 rounded-lg !p-0
-      text-primary-950
+      min-h-60 bg-primary-100 container grid w-full gap-4 rounded-lg !p-0
 
-      dark:text-primary-50 dark:bg-primary-900
+      dark:bg-primary-900 dark:text-primary-950
     "
   >
-    <div class="grid">
+    <div class="relative grid">
       <Anchor
         :to="post.absoluteUrl"
         :text="alt"
@@ -69,74 +67,69 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <ImgWithFallback
           :loading="imgLoading"
           provider="mediaStream"
-          class="bg-primary-100 rounded-t-lg"
+          class="bg-primary-100 rounded-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
+          :width="imgWidth"
           :height="imgHeight"
+          sizes="xs:382px sm:352px md:545px lg:562px xl:387px xxl:387px 2xl:387px"
           fit="cover"
-          sizes="sm:510px md:472px lg:562px xl:387px 2xl:387px"
           :modifiers="{
             position: 'attention',
             trimThreshold: 5,
           }"
+          quality="100"
           :background="'transparent'"
           :alt="`Image - ${alt}`"
         />
+        <div class="absolute bottom-12 right-0 grid w-full">
+          <span class="grid justify-center justify-items-start">
+            <h2
+              class="
+                m-auto block w-[70%] text-3xl font-bold tracking-tight
+                text-primary-50
+
+                dark:text-primary-50
+
+                lg:w-[76%]
+
+                md:w-[66%] md:text-4xl
+
+                sm:w-[60%]
+              "
+            >
+              {{ extractTranslated(post, 'title', locale) }}
+            </h2>
+          </span>
+        </div>
       </Anchor>
-    </div>
-    <div class="grid p-5">
-      <div
-        class="
-          flex flex-col gap-4
-
-          lg:gap-x-6
-
-          md:gap-x-12
-        "
-      >
-        <h2 class="grid h-20">
-          <Anchor
-            :to="post.absoluteUrl"
-            :text="alt"
-            class="
-              text-2xl font-bold tracking-tight text-primary-950
-
-              dark:text-primary-50
-
-              md:text-3xl
-            "
-          >
-            {{ contentShorten(extractTranslated(post, 'title', locale), 100) }}
-          </Anchor>
-        </h2>
-      </div>
-      <div class="flex justify-end gap-6">
+      <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike
           class="
-            text-primary-950 flex-col justify-self-start p-0 font-extrabold
-            capitalize
+            flex-col justify-self-start p-0 font-extrabold capitalize
+            text-primary-50
 
-            dark:text-primary-50 dark:hover:bg-transparent
+            dark:hover:bg-transparent dark:text-primary-50
 
             hover:bg-transparent
           "
-          size="lg"
+          size="xl"
           variant="ghost"
           :blog-post-id="post.id"
           :likes-count="post.likesCount"
           @update="likeClicked"
         />
-        <UButton
+        <LazyUButton
           icon="i-heroicons-chat-bubble-oval-left"
           size="xl"
           color="primary"
           square
           variant="ghost"
           class="
-            text-primary-950 flex-col justify-self-start p-0 font-extrabold
-            capitalize
+            flex-col justify-self-start p-0 font-extrabold capitalize
+            text-primary-50
 
-            dark:text-primary-50 dark:hover:bg-transparent
+            dark:hover:bg-transparent dark:text-primary-50
 
             hover:bg-transparent
           "
@@ -144,10 +137,16 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
-          :to="localePath(`${post.absoluteUrl}#blog-post-comments`)"
+          :ui="{
+            icon: {
+              size: {
+                xl: 'h-12 w-12',
+              },
+            },
+          }"
         />
         <ClientOnly>
-          <UButton
+          <LazyUButton
             v-if="isSupported && showShareButton"
             :disabled="!isSupported"
             icon="i-heroicons-share"
@@ -157,19 +156,26 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             variant="ghost"
             :title="$t('share')"
             class="
-              text-primary-950 flex-col justify-self-start p-0 font-extrabold
-              capitalize
+              flex-col justify-self-start p-0 font-extrabold capitalize
+              text-primary-50
 
-              dark:text-primary-50 dark:hover:bg-transparent
+              dark:hover:bg-transparent dark:text-primary-50
 
               hover:bg-transparent
             "
+            :ui="{
+              icon: {
+                size: {
+                  xl: 'h-12 w-12',
+                },
+              },
+            }"
             @click="startShare"
           />
           <template #fallback>
             <ClientOnlyFallback
-              height="24px"
-              width="24px"
+              height="48px"
+              width="48px"
             />
           </template>
         </ClientOnly>

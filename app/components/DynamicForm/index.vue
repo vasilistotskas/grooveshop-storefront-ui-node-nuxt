@@ -374,7 +374,7 @@ defineExpose({
         @go-to-previous-step="goToPreviousStep"
       />
 
-      <LazyUButton
+      <UButton
         v-if="!isMultiStep && submitButton"
         :aria-busy="isSubmitting"
         :color="submitButtonUi?.color"
@@ -386,7 +386,7 @@ defineExpose({
         :variant="submitButtonUi?.variant"
       />
 
-      <LazyUButton
+      <UButton
         v-if="!isMultiStep && resetButton"
         :color="resetButtonUi?.color"
         :size="resetButtonUi?.size"
@@ -396,7 +396,7 @@ defineExpose({
         @click="resetForm"
       >
         {{ resetLabel }}
-      </LazyUButton>
+      </UButton>
     </div>
   </UForm>
 </template>

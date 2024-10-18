@@ -299,7 +299,7 @@ definePageMeta({
               </h3>
               <PageSection class="actions flex items-center gap-4">
                 <ClientOnly>
-                  <UButton
+                  <LazyUButton
                     v-if="isSupported"
                     :disabled="!isSupported"
                     :title="$t('share')"
@@ -319,7 +319,7 @@ definePageMeta({
                   </template>
                 </ClientOnly>
                 <ClientOnly>
-                  <UButton
+                  <LazyUButton
                     :label="reviewButtonText"
                     class="
                       capitalize
@@ -403,7 +403,7 @@ definePageMeta({
                       dark:bg-primary-900
                     "
                   >
-                    <UButton
+                    <LazyUButton
                       id="decrement-button"
                       :aria-label="$t('decrement')"
                       :title="$t('decrement')"
@@ -431,7 +431,7 @@ definePageMeta({
                       "
                       type="number"
                     >
-                    <UButton
+                    <LazyUButton
                       id="increment-button"
                       :aria-label="$t('increment')"
                       :title="$t('increment')"

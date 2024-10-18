@@ -153,8 +153,16 @@ onMounted(() => {
   isSuggestionsOpen.value = false
 })
 
+const seoMetaInput = {
+  title: t('title'),
+}
+
+useSeoMeta(seoMetaInput)
+useHydratedHead({
+  title: () => t('title'),
+})
+
 definePageMeta({
-  pageTransition: false,
   layout: 'default',
 })
 

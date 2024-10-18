@@ -119,7 +119,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :likes-count="post.likesCount"
           @update="likeClicked"
         />
-        <LazyUButton
+        <UButton
           icon="i-heroicons-chat-bubble-oval-left"
           size="xl"
           color="primary"
@@ -146,7 +146,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           }"
         />
         <ClientOnly>
-          <LazyUButton
+          <UButton
             v-if="isSupported && showShareButton"
             :disabled="!isSupported"
             icon="i-heroicons-share"

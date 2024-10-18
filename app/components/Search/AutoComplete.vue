@@ -127,7 +127,7 @@ await preloadComponents('SearchResultItem')
               v-if="loadMore && showMoreSectionResults(section, Number(limit))"
               class="-mt-2"
             >
-              <LazyUButton
+              <UButton
                 v-if="sectionExtraResults(section, Number(limit), Number(offset)) > 0"
                 variant="link"
                 size="sm"
@@ -135,7 +135,7 @@ await preloadComponents('SearchResultItem')
                 @click="onLoadMore(section, Number(limit), Number(offset))"
               >
                 {{ $t("results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
-              </LazyUButton>
+              </UButton>
               <span class="text-sm text-primary-400">
                 {{ section.estimatedTotalHits > Number(limit) ? $t("approx_results", section.estimatedTotalHits) : $t("results", section.estimatedTotalHits) }}
               </span>

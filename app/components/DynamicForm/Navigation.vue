@@ -5,7 +5,7 @@
       'flex',
     ]"
   >
-    <LazyUButton
+    <UButton
       v-if="currentStep > 0"
       icon="i-heroicons-arrow-long-left"
       color="primary"
@@ -13,7 +13,7 @@
       @click="emit('goToPreviousStep')"
     />
 
-    <LazyUButton
+    <UButton
       v-if="currentStep < lastStep"
       icon="i-heroicons-arrow-long-right"
       :disabled="nextStepButtonDisabled"
@@ -22,7 +22,7 @@
       @click="emit('goToNextStep')"
     />
 
-    <LazyUButton
+    <UButton
       v-if="currentStep === lastStep"
       type="submit"
       color="primary"

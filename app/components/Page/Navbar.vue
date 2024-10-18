@@ -141,7 +141,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyUButton
+              <UButton
                 :aria-label="$t('favourites')"
                 :to="localePath('/account/favourites/posts')"
                 class="p-0"
@@ -180,7 +180,7 @@ const items = computed(() => [
                   :show="!pending.cart"
                   :text="getCartTotalItems"
                 >
-                  <LazyUButton
+                  <UButton
                     class="p-0"
                     icon="i-heroicons-shopping-cart"
                     size="xl"
