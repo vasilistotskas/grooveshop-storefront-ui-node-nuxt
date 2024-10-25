@@ -100,21 +100,26 @@ export async function handleAllAuthError(
   const event = useEvent()
 
   if (isAllAuthError(error)) {
+    console.debug('Is all auth error')
     if (error.data.status === 410) {
+      console.debug('Clearing user session')
       await clearUserSession(event)
     }
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
       if (error.data.meta?.session_token) {
+        console.debug('Setting user session')
         await setUserSession(event, {
           sessionToken: error.data.meta.session_token,
         })
       }
       if (error.data.meta?.access_token) {
+        console.debug('Setting user access token')
         await setUserSession(event, {
           accessToken: error.data.meta.access_token,
         })
       }
     }
+    clearResponseHeaders(event, ['X-Session-Token', 'Authorization'])
     await allAuthHooks.callHookParallel('authChange', { detail: error.data })
   }
   else {

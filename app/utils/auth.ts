@@ -205,3 +205,11 @@ export const navigateToPendingFlow = async (
     console.warn('No pending flow to navigate to')
   }
 }
+
+export function isAllAuthResponseSuccess(response: AllAuthResponse | AllAuthResponseError): response is AllAuthResponse {
+  return response.status === 200
+}
+
+export function isAllAuthResponseError(response: AllAuthResponse | AllAuthResponseError): response is AllAuthResponseError {
+  return response.status !== 200
+}

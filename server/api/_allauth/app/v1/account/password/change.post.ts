@@ -11,7 +11,9 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, any())
+    const passwordChangeResponse = await parseDataAs(response, any())
+    await processAllAuthSession(passwordChangeResponse)
+    return passwordChangeResponse
   }
   catch (error) {
     await handleAllAuthError(error)

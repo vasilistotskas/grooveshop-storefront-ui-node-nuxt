@@ -10,11 +10,13 @@ export default defineNuxtPlugin({
   name: 'auth',
   parallel: true,
   async setup(nuxtApp) {
-    const { loggedIn, clear } = useUserSession()
+    const { loggedIn, fetch, clear } = useUserSession()
     const authStore = useAuthStore()
-    const { clearAuthState } = authStore
     const userStore = useUserStore()
+    const userNotificationStore = useUserNotificationStore()
+    const { setupSessions, setupAuthenticators, clearAuthState } = authStore
     const { clearAccountState } = userStore
+    const { setupNotifications } = userNotificationStore
 
     const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
     const authEvent = useState<AuthChangeEventType>('authEvent')
@@ -23,9 +25,23 @@ export default defineNuxtPlugin({
       authState.value,
     )
 
-    nuxtApp.hook('auth:change', ({ detail: newAuthState }) => {
+    nuxtApp.hook('auth:change', async ({ detail: newAuthState }) => {
       authState.value = newAuthState
       authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
+
+      if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
+        console.debug('Authenticated')
+        await fetch()
+        if (!previousAuthState.value || (previousAuthState.value && isAllAuthResponseError(previousAuthState.value))) {
+          console.debug('First time authenticated')
+          await Promise.all([
+            setupSessions(),
+            setupAuthenticators(),
+            setupNotifications(),
+          ])
+        }
+      }
+
       previousAuthState.value = newAuthState
     })
 
@@ -34,21 +50,27 @@ export default defineNuxtPlugin({
       async ([authEventVal, _authStateVal]) => {
         switch (authEventVal) {
           case AuthChangeEvent.LOGGED_OUT:
+            console.debug('Logged out')
             await handleLoggedOut()
             break
           case AuthChangeEvent.LOGGED_IN:
+            console.debug('Logged in')
             await handleLoggedIn()
             break
           case AuthChangeEvent.REAUTHENTICATED:
+            console.debug('Reauthenticated')
             await handleReauthenticated()
             break
           case AuthChangeEvent.REAUTHENTICATION_REQUIRED:
+            console.debug('Reauthentication required')
             await handleReauthenticationRequired()
             break
           case AuthChangeEvent.FLOW_UPDATED:
+            console.debug('Flow updated')
             await navigateToPendingFlow(authState.value)
             break
           default:
+            console.debug('Unhandled auth event:', authEventVal)
             break
         }
       },
@@ -61,6 +83,7 @@ export default defineNuxtPlugin({
         clearAuthState()
         clearAccountState()
         if (loggedIn.value) {
+          console.debug('Logged out, clearing user session')
           await clear()
         }
         return navigateToUrl(URLs.LOGIN_REDIRECT_URL)
@@ -102,6 +125,7 @@ export default defineNuxtPlugin({
         const next = useRouter().currentRoute.value.fullPath
         const flowPath = getReauthenticationFlowPath(authState.value)
         if (flowPath) {
+          console.debug('Reauthentication required, navigating to reauthentication flow')
           const url = withQuery(flowPath, { next })
           return navigateToUrl(url, true)
         }

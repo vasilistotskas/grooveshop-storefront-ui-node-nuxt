@@ -39,24 +39,28 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
   const event = useEvent()
 
   if (response.meta?.session_token) {
+    console.debug('Setting session token from response')
     appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
     await setUserSession(event, {
       sessionToken: response.meta.session_token,
     })
   }
   else if (sessionToken) {
+    console.debug('Setting session token from parameter')
     appendResponseHeader(event, 'X-Session-Token', sessionToken)
     await setUserSession(event, {
       sessionToken,
     })
   }
   if (response.meta?.access_token) {
+    console.debug('Setting access token from response')
     appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
     await setUserSession(event, {
       accessToken: response.meta.access_token,
     })
   }
   else if (accessToken) {
+    console.debug('Setting access token from parameter')
     appendResponseHeader(event, 'Authorization', `Bearer ${accessToken}`)
     await setUserSession(event, {
       accessToken,
@@ -64,6 +68,7 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
   }
 
   if ((response.status === 200 && response.meta?.access_token && response.data.user) || response.meta?.is_authenticated) {
+    console.debug('Fetching user data')
     await fetchUserData(response, accessToken)
   }
 }
