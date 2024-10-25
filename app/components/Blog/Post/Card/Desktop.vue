@@ -97,7 +97,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <h2 class="grid h-20">
           <Anchor
             :to="post.absoluteUrl"
-            :text="alt"
+            :text="contentShorten(extractTranslated(post, 'title', locale), 0, 44)"
             class="
               text-2xl font-bold tracking-tight text-primary-950
 
@@ -105,9 +105,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
               md:text-3xl
             "
-          >
-            {{ contentShorten(extractTranslated(post, 'title', locale), 100) }}
-          </Anchor>
+          />
         </h2>
       </div>
       <div class="flex justify-end gap-6">

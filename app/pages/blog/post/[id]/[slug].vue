@@ -9,6 +9,7 @@ const userStore = useUserStore()
 const { updateLikedPosts } = userStore
 const img = useImage()
 const localePath = useLocalePath()
+const { isMobileOrTablet } = useDevice()
 
 const blogPostId = ref(Number('id' in route.params ? route.params.id : null))
 
@@ -65,6 +66,16 @@ await useLazyFetch('/api/blog/posts/liked-posts', {
     updateLikedPosts(likedPostsIds)
   },
 })
+const { data: relatedPosts, status: relatedPostsStatus } = await useLazyFetch(
+  `/api/blog/posts/${blogPostId.value}/related-posts`,
+  {
+    key: `relatedPosts${blogPostId.value}`,
+    method: 'GET',
+    query: {
+      language: locale.value,
+    },
+  },
+)
 
 const blogPostBody = computed(() => {
   return extractTranslated(blogPost.value, 'body', locale.value)
@@ -362,6 +373,36 @@ definePageMeta({
           :comments-count="blogPost.commentsCount"
           display-image-of="user"
         />
+        <LazyBlogPostsCarousel
+          v-if="relatedPostsStatus !== 'pending' && relatedPosts?.length"
+          :posts="relatedPosts"
+          :title="$t('related.sections')"
+        />
+        <div
+          v-if="relatedPostsStatus === 'pending'"
+          :class="{
+            'relative w-full flex rounded-lg': true,
+            'pl-8 pr-8': !isMobileOrTablet,
+          }"
+        >
+          <ClientOnlyFallback
+            v-for="index in 3"
+            :key="index"
+            class="
+              flex flex-none snap-center basis-full
+
+              md:basis-1/2
+
+              lg:basis-1/2
+
+              xl:basis-1/3
+
+              pl-4 pr-4
+            "
+            :height="isMobileOrTablet ? '670px' : '442px'"
+            width="100%"
+          />
+        </div>
       </div>
     </PageBody>
   </PageWrapper>

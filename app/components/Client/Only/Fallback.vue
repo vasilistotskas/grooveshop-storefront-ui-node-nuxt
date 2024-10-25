@@ -79,7 +79,7 @@ const loadingPlaceholders = computed(() => {
       v-for="index in loadingPlaceholders"
       :key="index"
       :ref="modal ? 'fallbackModal' : undefined"
-      :class="modal ? undefined : 'relative grid'"
+      :class="modal ? undefined : 'relative grid w-full'"
       :unique-id="modal ? 'fallbackModal' : undefined"
       :should-modal-start-in-open-state="modal ? true : undefined"
       :has-header="modal ? false : undefined"

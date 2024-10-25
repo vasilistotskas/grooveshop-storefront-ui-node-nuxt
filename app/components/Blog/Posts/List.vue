@@ -205,7 +205,7 @@ onReactivated(async () => {
       <ol
         v-if="showResults"
         class="
-          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4
+          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-8
 
           lg:grid-cols-2
 
@@ -227,7 +227,7 @@ onReactivated(async () => {
       <ClientOnlyFallback
         v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
         class="
-          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-4
+          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-8
 
           lg:grid-cols-2
 
