@@ -133,9 +133,12 @@ const changeUserName = async () => {
         <!-- User Email Info       -->
         <span
           class="
-            text-sm truncate font-medium
+            text-sm truncate font-medium items-center w-full px-1.5 py-1.5
+            text-gray-700
 
-            items-center w-full px-1.5 py-1.5 text-gray-700 dark:text-gray-200 opacity-50 cursor-text select-text
+            dark:text-gray-200
+
+            opacity-50 cursor-text select-text
           "
         >
           {{ account.email }}

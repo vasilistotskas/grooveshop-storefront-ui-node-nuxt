@@ -93,7 +93,6 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
 ])
 
 const pagination = computed(() => posts.value && usePagination<BlogPost>(posts.value))
-const orderingOptions = computed(() => useOrdering<BlogPostOrderingField>(entityOrdering.value))
 
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
