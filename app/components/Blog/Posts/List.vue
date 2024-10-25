@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
-import type { EntityOrdering } from '~/types/ordering'
+import type { BlogPost } from '~/types/blog/post'
 
 import { type CursorStates, PaginationCursorStateEnum, type PaginationType, PaginationTypeEnum } from '~/types'
 
@@ -31,7 +30,7 @@ defineSlots<{
 const { paginationType, pageSize } = toRefs(props)
 
 const route = useRoute()
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
 const { loggedIn } = useUserSession()
 const cursorState = useState<CursorStates>('cursorStates')
@@ -73,24 +72,6 @@ const {
     },
   }),
 )
-
-const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
-  {
-    value: 'createdAt',
-    label: t('ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-  {
-    value: 'title',
-    label: t('title'),
-    options: ['ascending', 'descending'],
-  },
-  {
-    value: 'publishedAt',
-    label: t('ordering.published_at'),
-    options: ['ascending', 'descending'],
-  },
-])
 
 const pagination = computed(() => posts.value && usePagination<BlogPost>(posts.value))
 
