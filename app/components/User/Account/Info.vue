@@ -89,45 +89,57 @@ const changeUserName = async () => {
           :user-account="account"
         />
       </div>
-      <div class="user-info-name relative flex w-full items-center">
-        <UButton
-          :aria-label="userNameEditing ? $t('save') : $t('edit.title')"
-          :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
-          :title="userNameEditing ? $t('save') : $t('edit.title')"
-          :ui="{
-            icon: {
-              base: userNameEditing ? 'bg-green-500 dark:bg-green-400' : '',
-              size: {
-                sm: 'h-4 w-4 md:h-5 md:w-5',
+      <div class="user-info-name relative flex flex-col w-full">
+        <div class="flex items-center">
+          <UButton
+            :aria-label="userNameEditing ? $t('save') : $t('edit.title')"
+            :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
+            :title="userNameEditing ? $t('save') : $t('edit.title')"
+            :ui="{
+              icon: {
+                base: userNameEditing ? 'bg-green-500 dark:bg-green-400' : '',
+                size: {
+                  sm: 'h-4 w-4 md:h-5 md:w-5',
+                },
               },
-            },
-          }"
-          color="primary"
-          size="sm"
-          @click="onEditUserName"
-        />
-        <UInput
-          v-model="username"
-          :class="!userNameEditing ? `
-            text-primary-950 text-2xl
+            }"
+            color="primary"
+            size="sm"
+            @click="onEditUserName"
+          />
+          <UInput
+            v-model="username"
+            :class="!userNameEditing ? `
+              text-primary-950 text-2xl
 
-            dark:text-primary-50
-          ` : ''"
-          :disabled="!userNameEditing"
-          :ui="{
-            size: {
-              sm: 'text-md md:text-2xl',
-            },
-            padding: {
-              sm: 'px-0 py-0',
-            },
-          }"
-          class="font-bold"
-          color="primary"
-          size="sm"
-          variant="none"
-          @keydown.enter="onEditUserName"
-        />
+              dark:text-primary-50
+            ` : ''"
+            :disabled="!userNameEditing"
+            :ui="{
+              size: {
+                sm: 'text-md md:text-2xl',
+              },
+              padding: {
+                sm: 'px-0 py-0',
+              },
+            }"
+            class="font-bold"
+            color="primary"
+            size="sm"
+            variant="none"
+            @keydown.enter="onEditUserName"
+          />
+        </div>
+        <!-- User Email Info       -->
+        <span
+          class="
+            text-sm truncate font-medium
+
+            items-center w-full px-1.5 py-1.5 text-gray-700 dark:text-gray-200 opacity-50 cursor-text select-text
+          "
+        >
+          {{ account.email }}
+        </span>
       </div>
       <div
         v-if="ordersCount || productFavouritesCount || productReviewsCount"

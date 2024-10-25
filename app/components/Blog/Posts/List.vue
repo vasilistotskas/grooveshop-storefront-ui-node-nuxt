@@ -215,31 +215,6 @@ onReactivated(async () => {
 
 <template>
   <div class="posts-list grid gap-4">
-    <div
-      v-if="pagination || showOrdering"
-      :class="paginationType === PaginationTypeEnum.CURSOR ? 'sr-only' : `
-        flex flex-row flex-wrap items-center gap-2
-      `"
-    >
-      <LazyPagination
-        v-if="pagination"
-        :count="pagination.count"
-        :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
-        :links="pagination.links"
-        :loading="status === 'pending'"
-        :page="pagination.page"
-        :page-size="pagination.pageSize"
-        :page-total-results="pagination.pageTotalResults"
-        :pagination-type="paginationType"
-        :strategy="'scroll'"
-        :total-pages="pagination.totalPages"
-      />
-      <LazyOrdering
-        v-if="showOrdering"
-        :ordering="String(ordering)"
-        :ordering-options="orderingOptions.orderingOptionsArray.value"
-      />
-    </div>
     <section
       class="
         flex gap-4
@@ -297,6 +272,19 @@ onReactivated(async () => {
         width="35%"
       />
     </Transition>
+    <LazyPagination
+      v-if="pagination"
+      :count="pagination.count"
+      :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
+      :links="pagination.links"
+      :loading="status === 'pending'"
+      :page="pagination.page"
+      :page-size="pagination.pageSize"
+      :page-total-results="pagination.pageTotalResults"
+      :pagination-type="paginationType"
+      :strategy="'scroll'"
+      :total-pages="pagination.totalPages"
+    />
   </div>
 </template>
 

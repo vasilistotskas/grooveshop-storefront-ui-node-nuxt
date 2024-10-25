@@ -1,6 +1,19 @@
 <script lang="ts" setup>
+import { ref, computed, onMounted, onUnmounted, watch, toRefs } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import type { PropType } from 'vue'
 import type { CursorStates, PaginationCursorStateEnum } from '~/types'
+
+const getCursorFromUrl = (url: string): string => {
+  try {
+    const params = new URLSearchParams(url.split('?')[1])
+    return params.get('cursor') || ''
+  }
+  catch {
+    console.error('Invalid URL for cursor extraction:', url)
+    return ''
+  }
+}
 
 const props = defineProps({
   cursorKey: {
@@ -41,26 +54,35 @@ const route = useRoute()
 
 const cursorState = useState<CursorStates>('cursorStates')
 
-const currentState = computed(() => {
-  return { ...cursorState.value }
-})
-const currentCursor = computed(() => {
-  return currentState.value[cursorKey.value]
-})
+const currentState = computed(() => ({ ...cursorState.value }))
+const currentCursor = computed(() => currentState.value[cursorKey.value])
 
 const nextCursor = computed(() => {
   if (!links.value?.next) return ''
   return getCursorFromUrl(links.value.next)
 })
 
-const handleScroll = () => {
-  if (strategy.value !== 'scroll' || totalPages.value === 1) return
+const hasMore = computed(() => {
+  return nextCursor.value !== '' && totalPages.value > 1
+})
 
-  const { scrollTop, scrollHeight, clientHeight } = document.documentElement
-  if (scrollTop + clientHeight >= scrollHeight - 5) {
-    loadMore()
-  }
-}
+const showButton = computed(() => {
+  if (strategy.value === 'scroll' || totalPages.value === 1) return false
+  if (loading.value) return true
+  return nextCursor.value !== currentCursor.value
+})
+
+const showLoadMoreButton = computed(() => {
+  return (
+    nextCursor.value
+    && showButton.value
+    && strategy.value === 'button'
+    && totalPages.value > 1
+  )
+})
+
+const infiniteScrollTrigger = ref<HTMLElement | null>(null)
+let observer: IntersectionObserver | null = null
 
 const loadMore = async () => {
   if (!nextCursor.value || loading.value) return
@@ -70,55 +92,125 @@ const loadMore = async () => {
     cursorState.value = currentState.value
 
     if (useRouteQuery.value) {
-      await router.push({
-        path: route.path,
-        query: {
-          ...route.query,
-          cursor: nextCursor.value,
-        },
-      })
+      try {
+        await router.push({
+          path: route.path,
+          query: {
+            ...route.query,
+            cursor: nextCursor.value,
+          },
+        })
+      }
+      catch (error) {
+        console.error('Router push failed:', error)
+      }
     }
   }
 }
 
-const showButton = computed(() => {
-  if (strategy.value === 'scroll' || totalPages.value === 1) return false
-  if (loading.value) return true
-  return nextCursor.value !== currentCursor.value
+const createObserver = () => {
+  if (strategy.value !== 'scroll' || !infiniteScrollTrigger.value || !hasMore.value) return
+
+  if ('IntersectionObserver' in window) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            loadMore()
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.25,
+      },
+    )
+
+    observer.observe(infiniteScrollTrigger.value)
+  }
+  else {
+    console.warn('IntersectionObserver is not supported by this browser.')
+    loadMore()
+  }
+}
+
+const destroyObserver = () => {
+  if (observer && infiniteScrollTrigger.value) {
+    observer.unobserve(infiniteScrollTrigger.value)
+    observer.disconnect()
+    observer = null
+  }
+}
+
+const handleResize = () => {
+  if (observer) {
+    destroyObserver()
+    createObserver()
+  }
+}
+
+const debouncedHandleResize = useDebounceFn(() => {
+  handleResize()
+}, 300)
+
+onMounted(() => {
+  createObserver()
+  window.addEventListener('resize', debouncedHandleResize)
 })
 
 watch(
   () => strategy.value,
   (newStrategy) => {
-    if (import.meta.client) {
-      if (newStrategy === 'scroll') {
-        window.addEventListener('scroll', handleScroll)
-      }
-      else {
-        window.removeEventListener('scroll', handleScroll)
-      }
+    destroyObserver()
+    if (newStrategy === 'scroll') {
+      createObserver()
     }
   },
   { immediate: true },
 )
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
+  destroyObserver()
+  window.removeEventListener('resize', debouncedHandleResize)
   clearCursorStates()
 })
 </script>
 
 <template>
   <div class="cursor-pagination">
+    <div
+      v-if="strategy === 'scroll' && hasMore"
+      ref="infiniteScrollTrigger"
+      class="infinite-scroll-trigger"
+    />
     <UButton
-      v-if="nextCursor && showButton && strategy === 'button' && totalPages > 1"
+      v-if="showLoadMoreButton"
       size="md"
       variant="soft"
       :label="$t('load.more')"
-      :color="'primary'"
-      :aria-label="$t('load.more')"
+      color="primary"
+      aria-label="Load more posts"
       :loading="loading"
       @click="loadMore"
     />
   </div>
 </template>
+
+<style scoped lang="scss">
+.cursor-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem 0;
+
+  .infinite-scroll-trigger {
+    width: 100%;
+    height: 1px;
+  }
+
+  button {
+    margin-top: 1rem;
+  }
+}
+</style>
