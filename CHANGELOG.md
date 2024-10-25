@@ -1,3 +1,16 @@
+# [1.202.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.201.0...v1.202.0) (2024-10-25)
+
+
+### Bug Fixes
+
+* lint ([4330c64](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4330c647a13115da2da829f98081c8ca9c4a0448))
+* lint and package-lock ([5cde9eb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5cde9eb8fec9d58bf9f8336cf9a7c8c820d87590))
+
+
+### Features
+
+* Introduce observer for better scrolling behavior ([9b79671](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9b7967166426a4dff8923809d753a3bc6c222ff5))
+
 # [1.201.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.200.0...v1.201.0) (2024-10-24)
 
 
