@@ -29,7 +29,7 @@ const BlogPostCard = computed(() =>
     <h2
       v-if="title"
       class="
-        mx-auto flex max-w-2xl text-primary-950 text-xl font-semibold
+        mx-auto flex max-w-2xl text-primary-950 text-2xl font-semibold
 
         dark:text-primary-50
       "
@@ -47,12 +47,12 @@ const BlogPostCard = computed(() =>
       }"
       :prev-button="{
         color: 'gray',
-        icon: 'i-heroicons-arrow-left-20-solid',
+        icon: 'i-heroicons-chevron-left',
         class: '-start-2 md:-start-12',
       }"
       :next-button="{
         color: 'gray',
-        icon: 'i-heroicons-arrow-right-20-solid',
+        icon: 'i-heroicons-chevron-right',
         class: '-end-2 md:-end-12',
       }"
       indicators
@@ -75,9 +75,18 @@ const BlogPostCard = computed(() =>
 
       <template #indicator="{ onClick, page, active }">
         <UButton
-          :variant="active ? 'solid' : 'outline'" size="2xs" class="
-            rounded-full min-w-6 min-h-6 justify-center
-          " @click="onClick(page)"
+          :variant="active ? 'solid' : 'outline'"
+          size="2xs"
+          class="
+            rounded-full min-w-4 min-h-4 justify-center transition-colors
+            duration-300 ease-in-out
+          "
+          :style="{
+            backgroundColor: active ? '#2d3748' : '#a0aec0',
+            opacity: active ? '1' : '0.5',
+            transform: active ? 'scale(1.4)' : 'scale(1)',
+          }"
+          @click="onClick(page)"
         />
       </template>
     </UCarousel>

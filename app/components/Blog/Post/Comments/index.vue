@@ -276,8 +276,14 @@ onMounted(() => {
       dark:border-primary-500
     "
   >
-    <div class="grid">
-      <h2 class="text-2xl font-semibold">
+    <div class="grid w-full">
+      <h2
+        class="
+          mx-auto flex max-w-2xl text-primary-950 text-2xl font-semibold
+
+          dark:text-primary-50
+        "
+      >
         {{ t('title') }}
       </h2>
     </div>
