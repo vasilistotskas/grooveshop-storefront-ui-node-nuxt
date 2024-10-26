@@ -319,10 +319,10 @@ definePageMeta({
                     :background="'transparent'"
                     fit="cover"
                     :height="340"
-                    :sizes="`sm:${675}px md:${675}px lg:${675}px xl:${675}px xxl:${675}px 2xl:${675}px`"
+                    :sizes="`sm:${672}px md:${672}px lg:${672}px xl:${672}px xxl:${672}px 2xl:${672}px`"
                     :src="blogPost.mainImagePath"
                     :style="{ objectFit: 'contain' }"
-                    :width="675"
+                    :width="672"
                     :modifiers="{
                       position: 'attention',
                       trimThreshold: 5,

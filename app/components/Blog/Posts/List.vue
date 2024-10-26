@@ -238,7 +238,7 @@ onReactivated(async () => {
           xl:grid-cols-3
         "
         :count="allPosts.length"
-        height="411px"
+        height="478px"
         width="100%"
       />
       <slot name="sidebar" />
@@ -247,9 +247,7 @@ onReactivated(async () => {
       <ClientOnlyFallback
         v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR"
         :text="$t('loading')"
-        class="grid items-center justify-items-center"
-        height="75px"
-        width="35%"
+        class="pt-4 grid items-center justify-items-center"
       />
     </Transition>
     <LazyPagination
