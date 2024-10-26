@@ -8,8 +8,8 @@ import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 387 },
-  imgHeight: { type: Number, required: false, default: 275 },
+  imgWidth: { type: Number, required: false, default: 377 },
+  imgHeight: { type: Number, required: false, default: 267 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -73,8 +73,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
           :height="imgHeight"
+          :width="imgWidth"
           fit="cover"
-          sizes="sm:510px md:472px lg:562px xl:387px 2xl:387px"
+          sizes="sm:510px md:472px lg:562px xl:377px 2xl:377px"
           :modifiers="{
             position: 'attention',
             trimThreshold: 5,
@@ -84,7 +85,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         />
       </Anchor>
     </div>
-    <div class="grid p-5">
+    <div class="grid gap-2 p-4">
       <div
         class="
           flex flex-col gap-4
@@ -97,7 +98,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <h2 class="grid h-20">
           <Anchor
             :to="post.absoluteUrl"
-            :text="contentShorten(extractTranslated(post, 'title', locale), 0, 44)"
+            :text="contentShorten(extractTranslated(post, 'title', locale), 0, 39)"
             class="
               text-2xl font-bold tracking-tight text-primary-950
 
@@ -108,7 +109,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           />
         </h2>
       </div>
-      <div class="flex justify-end gap-6">
+      <div class="flex justify-end gap-6 pt-4">
         <ButtonBlogPostLike
           class="
             text-primary-950 flex-col justify-self-start p-0 font-extrabold
