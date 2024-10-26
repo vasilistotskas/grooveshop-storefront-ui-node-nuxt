@@ -1,3 +1,10 @@
+# [1.207.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.206.1...v1.207.0) (2024-10-26)
+
+
+### Features
+
+* Add published date in blog post page ([3a26f0c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3a26f0c614feb4adaed7a3f841e2ec8b2bb2f8d6))
+
 ## [1.206.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.206.0...v1.206.1) (2024-10-26)
 
 
