@@ -39,6 +39,8 @@ const { data: blogPost, refresh } = await useFetch(
       'commentsCount',
       'createdAt',
       'updatedAt',
+      'isPublished',
+      'publishedAt',
     ],
   },
 )
@@ -178,7 +180,7 @@ useSchemaOrg([
     headline: blogPost.value.seoTitle || blogPostTitle.value,
     description: blogPost.value.seoDescription || blogPostSubtitle.value,
     image: ogImage.value,
-    datePublished: blogPost.value?.createdAt,
+    datePublished: blogPost.value?.publishedAt,
     dateModified: blogPost.value?.updatedAt,
     author: {
       name:
@@ -306,33 +308,45 @@ definePageMeta({
             </div>
             <div
               class="
-                w-full
+                flex flex-col gap-2 w-full
 
                 sm:mx-0
               "
             >
               <div class="sm:mx-0">
-                <div class="shadow-small">
-                  <ImgWithFallback
-                    id="blog-post-image"
-                    :alt="blogPostTitle"
-                    :background="'transparent'"
-                    fit="cover"
-                    :height="340"
-                    :sizes="`sm:${672}px md:${672}px lg:${672}px xl:${672}px xxl:${672}px 2xl:${672}px`"
-                    :src="blogPost.mainImagePath"
-                    :style="{ objectFit: 'contain' }"
-                    :width="672"
-                    :modifiers="{
-                      position: 'attention',
-                      trimThreshold: 5,
-                    }"
-                    class="blog-post-image bg-primary-100 rounded-lg"
-                    densities="x1"
-                    loading="eager"
-                    provider="mediaStream"
-                  />
-                </div>
+                <ImgWithFallback
+                  id="blog-post-image"
+                  :alt="blogPostTitle"
+                  :background="'transparent'"
+                  fit="cover"
+                  :height="340"
+                  :sizes="`sm:${672}px md:${672}px lg:${672}px xl:${672}px xxl:${672}px 2xl:${672}px`"
+                  :src="blogPost.mainImagePath"
+                  :style="{ objectFit: 'contain' }"
+                  :width="672"
+                  :modifiers="{
+                    position: 'attention',
+                    trimThreshold: 5,
+                  }"
+                  class="blog-post-image bg-primary-100 rounded-lg"
+                  densities="x1"
+                  loading="eager"
+                  provider="mediaStream"
+                />
+              </div>
+              <div
+                v-if="blogPost.isPublished && blogPost.publishedAt" class="
+                  flex gap-2
+                "
+              >
+                <span class="text-sm font-semibold">{{ $t('published') }}: </span>
+                <NuxtTime
+                  class="text-sm"
+                  :locale="locale"
+                  :date-style="'medium'"
+                  :time-style="'medium'"
+                  :datetime="blogPost.publishedAt"
+                />
               </div>
             </div>
             <div class="grid">

@@ -123,6 +123,14 @@
 
     p {
       @apply mt-[1em] mb-[1em];
+
+      &:first-child {
+        @apply mt-0;
+      }
+
+      &:last-child {
+        @apply mb-0;
+      }
     }
 
     ol, ul, menu {
