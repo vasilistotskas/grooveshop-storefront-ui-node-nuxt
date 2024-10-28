@@ -1,3 +1,10 @@
+## [1.208.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.208.0...v1.208.1) (2024-10-28)
+
+
+### Bug Fixes
+
+* revert uuid to v10 until fixed ([22e8564](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/22e856488ea72002df3a15aef178d371c30ffdaa))
+
 # [1.208.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.207.0...v1.208.0) (2024-10-28)
 
 
