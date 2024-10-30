@@ -1,3 +1,10 @@
+## [1.209.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.209.0...v1.209.1) (2024-10-30)
+
+
+### Performance Improvements
+
+* revert zod import commit [#1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/1) ([d9933af](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d9933afcc8b29ce763a10425dbc9484ad69b5554))
+
 # [1.209.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.208.1...v1.209.0) (2024-10-29)
 
 
