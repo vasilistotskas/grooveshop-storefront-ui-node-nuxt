@@ -1,3 +1,10 @@
+# [1.210.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.209.2...v1.210.0) (2024-10-30)
+
+
+### Features
+
+* typehint improvements ([f981793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f98179323a6552062d515f36c47d9268173a2e04))
+
 ## [1.209.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.209.1...v1.209.2) (2024-10-30)
 
 
