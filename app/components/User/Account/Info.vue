@@ -268,7 +268,7 @@ const changeUserName = async () => {
       gap: 2rem;
 
       @media screen and (width <= 767px) {
-        display: grid;
+        display: flex;
         justify-items: center;
         align-items: center;
         justify-content: center;

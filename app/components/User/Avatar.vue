@@ -130,7 +130,7 @@ const uploadImage = async (event: Event) => {
         justify-items-center
       "
     >
-      <NuxtImg
+      <ImgWithFallback
         :alt="alt"
         :background="'transparent'"
         :class="{

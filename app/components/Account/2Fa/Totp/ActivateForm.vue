@@ -2,10 +2,10 @@
 import * as z from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
-import {
-  type TotpGetResponse,
-  type TotpGetResponseError,
-  type TotpPostBody,
+import type {
+  TotpGetResponse,
+  TotpGetResponseError,
+  TotpPostBody,
 } from '~/types/all-auth'
 
 const emit = defineEmits(['activateTotp'])

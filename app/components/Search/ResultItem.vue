@@ -85,26 +85,28 @@ const imgAlt = computed(() => {
           densities="x1"
         />
         <div class="grid overflow-hidden">
-          <div v-for="([key, value], index) in sortedFields" :key="index">
-            <span
-              class="
-                text-sm font-semibold text-primary-950
+          <ClientOnly>
+            <div v-for="([key, value], index) in sortedFields" :key="index">
+              <span
+                class="
+                  text-sm font-semibold text-primary-950
 
-                dark:text-primary-50
-              "
-            >
-              {{ $t(`fields.${key}`) }}:
-            </span>
-            <span
-              class="
-                line-clamp-1 text-primary-950 text-sm
+                  dark:text-primary-50
+                "
+              >
+                {{ $t(`fields.${key}`) }}:
+              </span>
+              <span
+                class="
+                  line-clamp-1 text-primary-950 text-sm
 
-                dark:text-primary-50
-              "
-            >
-              {{ value }}
-            </span>
-          </div>
+                  dark:text-primary-50
+                "
+              >
+                {{ value }}
+              </span>
+            </div>
+          </ClientOnly>
         </div>
       </div>
     </Anchor>
