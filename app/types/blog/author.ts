@@ -1,37 +1,36 @@
-import { object, string, number, union, record, lazy } from 'zod'
+import * as z from 'zod'
 
 import { ZodUserAccount } from '~/types/user/account'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-const ZodBlogAuthorTranslations = record(
-  object({
-    bio: string().nullish(),
+const ZodBlogAuthorTranslations = z.record(
+  z.object({
+    bio: z.string().nullish(),
   }),
 )
 
-export const ZodBlogAuthor = object({
+export const ZodBlogAuthor = z.object({
   translations: ZodBlogAuthorTranslations,
-  id: number().int(),
-  user: union([number(), lazy(() => ZodUserAccount)]),
-  website: string().nullish(),
-  numberOfPosts: number().int(),
-  totalLikesReceived: number().int(),
-})
-  .merge(ZodUUIDModel)
-  .merge(ZodTimeStampModel)
+  id: z.number().int(),
+  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
+  website: z.string().nullish(),
+  numberOfPosts: z.number().int(),
+  totalLikesReceived: z.number().int(),
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodBlogAuthorQuery = object({
-  id: string().nullish(),
-  user: string().nullish(),
-})
+export const ZodBlogAuthorQuery = z
+  .object({
+    id: z.string().nullish(),
+    user: z.string().nullish(),
+  })
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodBlogAuthorParams = object({
-  id: string(),
+export const ZodBlogAuthorParams = z.object({
+  id: z.string(),
 })
 
-export type BlogAuthor = typeof ZodBlogAuthor._type
+export type BlogAuthor = z.infer<typeof ZodBlogAuthor>

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import { ZodProductParams, ZodProductQuery } from '~/types/product'
 import { ZodTag } from '~/types/tag'
 

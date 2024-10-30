@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import { ZodBlogPostsLikedPostsBody } from '~/types/blog/post'
 
 export default defineEventHandler(async (event) => {

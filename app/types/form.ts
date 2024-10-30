@@ -1,52 +1,77 @@
 import type { BaseFieldProps, GenericObject } from 'vee-validate'
 import type { Ref } from 'vue'
-import { object, string, boolean, array, any, enum as zEnum, function as zFunction, tuple, optional } from 'zod'
+import * as z from 'zod'
 
-export const ZodDynamicFormSchemaChildren = optional(
-  array(
-    object({
-      tag: string(),
-      text: string(),
-      as: string(),
+export const ZodDynamicFormSchemaChildren = z
+  .array(
+    z.object({
+      tag: z.string(),
+      text: z.string(),
+      as: z.string(),
     }),
-  ),
-)
+  )
+  .optional()
 
-export const ZodDynamicFormSchemaField = array(
-  object({
-    as: zEnum(['input', 'textarea', 'select', 'radio', 'checkbox']).default('input'),
-    id: optional(string()),
-    name: string(),
-    label: optional(string()),
-    autocomplete: string().default('off'),
-    hidden: optional(boolean().default(false)),
-    readonly: boolean().default(false),
-    required: boolean().default(false),
-    placeholder: string().default(''),
-    type: zEnum(['text', 'password', 'date', 'email', 'number', 'checkbox']).default('text'),
-    initialValue: any().nullish(),
-    children: ZodDynamicFormSchemaChildren.nullish(),
-    rules: any(),
-    condition: zFunction(tuple([any()]), boolean()).nullish(),
-    disabledCondition: zFunction(tuple([any()]), boolean()).nullish(),
+export const ZodDynamicFormSchemaField = z.array(
+  z.object({
+    as: z
+      .enum(['input', 'textarea', 'select', 'radio', 'checkbox'])
+      .default('input'),
+    id: z.string().optional(),
+    name: z.string(),
+    label: z.string().optional(),
+    autocomplete: z.string().default('off'),
+    hidden: z.boolean().default(false).optional(),
+    readonly: z.boolean().default(false),
+    required: z.boolean().default(false),
+    placeholder: z.string().default(''),
+    type: z
+      .enum(['text', 'password', 'date', 'email', 'number', 'checkbox'])
+      .default('text'),
+    initialValue: z.any().optional().nullish(),
+    children: ZodDynamicFormSchemaChildren.optional().nullish(),
+    rules: z.any(),
+    condition: z
+      .function(z.tuple([z.any()]), z.boolean())
+      .optional()
+      .nullish(),
+    disabledCondition: z
+      .function(z.tuple([z.any()]), z.boolean())
+      .optional()
+      .nullish(),
   }),
 )
 
-export const ZodDynamicFormSchema = object({
-  fields: optional(ZodDynamicFormSchemaField),
-  extraValidation: optional(any()),
-  steps: optional(
-    array(
-      object({
-        title: optional(string()),
+export const ZodDynamicFormSchema = z.object({
+  fields: ZodDynamicFormSchemaField.optional(),
+  extraValidation: z.any().optional(),
+  steps: z
+    .array(
+      z.object({
+        title: z.string().optional(),
         fields: ZodDynamicFormSchemaField,
       }),
-    ),
-  ),
+    )
+    .optional(),
 })
 
-export type DynamicFormSchema = typeof ZodDynamicFormSchema._type
-export type DynamicFormSchemaChildren = typeof ZodDynamicFormSchemaChildren._type
+export type DynamicFormSchema = z.infer<typeof ZodDynamicFormSchema>
+
+export type DynamicFormSchemaChildren = z.infer<
+  typeof ZodDynamicFormSchemaChildren
+>
+
+export type DynamicFormSchemaField = z.infer<typeof ZodDynamicFormSchemaField>
+
+export interface DynamicFormProps {
+  id?: string
+  schema: DynamicFormSchema
+  submitButton?: boolean
+  resetButton?: boolean
+  buttonLabel?: string
+  resetLabel?: string
+  disableSubmitUntilValid?: boolean
+}
 
 export type DynamicFormState = {
   errors: string[]

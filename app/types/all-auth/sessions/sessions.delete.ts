@@ -1,14 +1,14 @@
-import { object, array, number, literal } from 'zod'
+import * as z from 'zod'
 import { ZodSession } from '~/types/all-auth'
 
-export const ZodSessionsDeleteBody = object({
-  sessions: array(number()),
+export const ZodSessionsDeleteBody = z.object({
+  sessions: z.array(z.number()),
 })
 
-export const ZodSessionsDeleteResponse = object({
-  status: literal(200),
-  data: array(ZodSession),
+export const ZodSessionsDeleteResponse = z.object({
+  status: z.literal(200),
+  data: z.array(ZodSession),
 })
 
-export type SessionsDeleteBody = typeof ZodSessionsDeleteBody._type
-export type SessionsDeleteResponse = typeof ZodSessionsDeleteResponse._type
+export type SessionsDeleteBody = z.infer<typeof ZodSessionsDeleteBody>
+export type SessionsDeleteResponse = z.infer<typeof ZodSessionsDeleteResponse>

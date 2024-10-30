@@ -1,10 +1,10 @@
-import { object, literal, optional } from 'zod'
+import * as z from 'zod'
 import { ZodAuthenticationMeta, ZodAuthenticated } from '~/types/all-auth'
 
-export const ZodAllAuthResponse = object({
-  status: literal(200),
+export const ZodAllAuthResponse = z.object({
+  status: z.literal(200),
   data: ZodAuthenticated,
-  meta: optional(ZodAuthenticationMeta),
+  meta: ZodAuthenticationMeta.optional(),
 })
 
-export type AllAuthResponse = typeof ZodAllAuthResponse._type
+export type AllAuthResponse = z.infer<typeof ZodAllAuthResponse>

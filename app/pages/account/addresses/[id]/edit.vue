@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import * as z from 'zod'
 
 import { Field, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'

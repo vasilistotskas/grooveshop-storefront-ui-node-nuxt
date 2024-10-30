@@ -1,10 +1,10 @@
-import { literal, object, string } from 'zod'
+import * as z from 'zod'
 
-export const ZodNotFoundResponse = object({
-  status: literal(404),
-  meta: object({
-    secret: string(),
+export const ZodNotFoundResponse = z.object({
+  status: z.literal(404),
+  meta: z.object({
+    secret: z.string(),
   }),
 })
 
-export type NotFoundResponse = typeof ZodNotFoundResponse._type
+export type NotFoundResponse = z.infer<typeof ZodNotFoundResponse>

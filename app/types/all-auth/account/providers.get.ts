@@ -1,11 +1,11 @@
-import { array, object, literal } from 'zod'
+import * as z from 'zod'
 import { ZodProviderAccount } from '~/types/all-auth'
 
-const ZodData = array(ZodProviderAccount)
+const ZodData = z.array(ZodProviderAccount)
 
-export const ZodProvidersGetResponse = object({
-  status: literal(200),
+export const ZodProvidersGetResponse = z.object({
+  status: z.literal(200),
   data: ZodData,
 })
 
-export type ProvidersGetResponse = typeof ZodProvidersGetResponse._type
+export type ProvidersGetResponse = z.infer<typeof ZodProvidersGetResponse>

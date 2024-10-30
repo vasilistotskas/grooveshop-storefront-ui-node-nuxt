@@ -1,11 +1,8 @@
-import { object, string, number, boolean, union, lazy, record, optional } from 'zod'
+import * as z from 'zod'
 
 import {
   ZodExpandQuery,
-  ZodLanguageQuery,
-  ZodSeoModel,
-  ZodTimeStampModel,
-  ZodUUIDModel,
+  ZodLanguageQuery, ZodSeoModel, ZodTimeStampModel, ZodUUIDModel,
   ZodWeight,
 } from '~/types'
 import { ZodOrderingQuery } from '~/types/ordering'
@@ -13,63 +10,61 @@ import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodProductCategory } from '~/types/product/category'
 import { ZodVat } from '~/types/vat'
 
-const ZodProductTranslations = record(
-  object({
-    name: string().nullish(),
-    description: string().nullish(),
+const ZodProductTranslations = z.record(
+  z.object({
+    name: z.string().nullish(),
+    description: z.string().nullish(),
   }),
 )
 
-export const ZodProduct = object({
+export const ZodProduct = z.object({
   translations: ZodProductTranslations,
-  id: number().int(),
-  slug: string(),
-  category: union([number(), lazy(() => ZodProductCategory)]),
-  absoluteUrl: string(),
-  price: number(),
-  vat: union([number(), lazy(() => ZodVat)]),
-  vatPercent: number(),
-  vatValue: number(),
-  finalPrice: number(),
-  viewCount: number().int(),
-  likesCount: number().int(),
-  stock: number().int(),
-  active: boolean(),
+  id: z.number().int(),
+  slug: z.string(),
+  category: z.union([z.number(), z.lazy(() => ZodProductCategory)]),
+  absoluteUrl: z.string(),
+  price: z.number(),
+  vat: z.union([z.number(), z.lazy(() => ZodVat)]),
+  vatPercent: z.number(),
+  vatValue: z.number(),
+  finalPrice: z.number(),
+  viewCount: z.number().int(),
+  likesCount: z.number().int(),
+  stock: z.number().int(),
+  active: z.boolean(),
   weight: ZodWeight.nullish(),
-  discountPercent: number(),
-  discountValue: number(),
-  priceSavePercent: number(),
-  mainImagePath: optional(string()),
-  reviewAverage: number(),
-  approvedReviewAverage: number(),
-  reviewCount: number().int(),
-  approvedReviewCount: number().int(),
-})
-  .merge(ZodUUIDModel)
-  .merge(ZodTimeStampModel)
-  .merge(ZodSeoModel)
+  discountPercent: z.number(),
+  discountValue: z.number(),
+  priceSavePercent: z.number(),
+  mainImagePath: z.string().optional(),
+  reviewAverage: z.number(),
+  approvedReviewAverage: z.number(),
+  reviewCount: z.number().int(),
+  approvedReviewCount: z.number().int(),
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSeoModel)
 
-export const ZodProductCreateBody = object({
-  name: string(),
-  slug: string(),
-  category: number().int(),
-  description: string().nullish(),
-  price: number(),
-  vat: number(),
-  viewCount: number().int().nullish(),
-  stock: number().int().nullish(),
-  active: boolean().nullish(),
+export const ZodProductCreateBody = z.object({
+  name: z.string(),
+  slug: z.string(),
+  category: z.number().int(),
+  description: z.string().nullish(),
+  price: z.number(),
+  vat: z.number(),
+  viewCount: z.number().int().nullish(),
+  stock: z.number().int().nullish(),
+  active: z.boolean().nullish(),
   weight: ZodWeight.nullish(),
-  discountPercent: number().nullish(),
+  discountPercent: z.number().nullish(),
 }).merge(ZodSeoModel)
 
-export const ZodProductParams = object({
-  id: string(),
+export const ZodProductParams = z.object({
+  id: z.string(),
 })
 
-export const ZodProductQuery = object({
-  category: union([number(), string()]).nullish(),
-})
+export const ZodProductQuery = z
+  .object({
+    category: z.union([z.number(), z.string()]).nullish(),
+  })
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
@@ -85,4 +80,4 @@ export type ProductOrderingField =
   | 'approvedReviewAverage'
   | 'likesCount'
 
-export type Product = typeof ZodProduct._type
+export type Product = z.infer<typeof ZodProduct>

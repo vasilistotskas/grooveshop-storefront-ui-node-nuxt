@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Field, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
+import * as z from 'zod'
 import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order'

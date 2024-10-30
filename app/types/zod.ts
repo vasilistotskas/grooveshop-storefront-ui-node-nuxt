@@ -1,16 +1,17 @@
-import type {
-  AnyZodObject,
-  Effect,
-  objectInputType,
-  objectOutputType,
-  UnknownKeysParam,
-  ZodObject,
-  ZodRawShape,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
+import {
+  type AnyZodObject,
+  type Effect,
+  type objectInputType,
+  type objectOutputType,
+  type UnknownKeysParam,
+  z,
+  ZodEffects,
+  type ZodObject,
+  type ZodRawShape,
+  type ZodType,
+  type ZodTypeAny,
+  type ZodTypeDef,
 } from 'zod'
-import { preprocess, ZodEffects } from 'zod'
 
 export const addEffect = <
   Output = unknown,
@@ -23,7 +24,7 @@ export const addEffect = <
 ) => {
   switch (effect.type) {
     case 'preprocess':
-      return preprocess(effect.transform, base)
+      return z.preprocess(effect.transform, base)
     case 'transform':
       return base.transform(effect.transform)
     case 'refinement':

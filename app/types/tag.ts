@@ -1,19 +1,16 @@
-import { object, string, number, boolean, record } from 'zod'
+import * as z from 'zod'
 import { ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types/index'
 
-const ZodTagTranslations = record(
-  object({
-    label: string().nullish(),
+const ZodTagTranslations = z.record(
+  z.object({
+    label: z.string().nullish(),
   }),
 )
 
-export const ZodTag = object({
+export const ZodTag = z.object({
   translations: ZodTagTranslations,
-  id: number(),
-  active: boolean(),
-})
-  .merge(ZodUUIDModel)
-  .merge(ZodTimeStampModel)
-  .merge(ZodSortableModel)
+  id: z.number(),
+  active: z.boolean(),
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
-export type Tag = typeof ZodTag._type
+export type Tag = z.infer<typeof ZodTag>

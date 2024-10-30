@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Field, useForm } from 'vee-validate'
-import { z } from 'zod'
+import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import { defaultSelectOptionChoose } from '~/constants'
@@ -148,7 +148,7 @@ const regionOptions = computed(() => {
   }) || []
 })
 
-const label = computed<string>(() => {
+const label = computed(() => {
   if (birthDate.value && birthDate.value instanceof Date) {
     return birthDate.value.toLocaleDateString('en-us', {
       weekday: 'long',
@@ -181,6 +181,9 @@ const onSubmit = handleSubmit(async (values) => {
     values.country = undefined
   }
 
+  console.log('===== values.birthDate =====', values.birthDate)
+  console.log('===== values.birthDate?.toISOString() =====', values.birthDate?.toISOString())
+  console.log('===== values.birthDate?.toISOString().split =====', values.birthDate?.toISOString().split('T')[0])
   if (!userId) return
 
   await $fetch(`/api/user/account/${userId}`, {

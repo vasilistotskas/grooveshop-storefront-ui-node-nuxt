@@ -3,7 +3,7 @@ import {
   create,
   parseCreationOptionsFromJSON,
 } from '@github/webauthn-json/browser-ponyfill'
-import { z } from 'zod'
+import * as z from 'zod'
 import type { CredentialCreationOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'
 import type { DynamicFormSchema } from '~/types/form'
 

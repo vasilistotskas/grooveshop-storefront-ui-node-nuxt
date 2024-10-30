@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import { z } from 'zod'
+import * as z from 'zod'
 import type { BlogComment } from '~/types/blog/comment'
 
 import type { DynamicFormSchema } from '~/types/form'

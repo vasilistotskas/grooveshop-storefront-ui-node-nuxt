@@ -1,6 +1,5 @@
 import type { LocationQueryValue } from 'vue-router'
-import type { Schema } from 'zod'
-import { object, string, number, array, union, literal, optional } from 'zod'
+import * as z from 'zod'
 import type { PaginationCursorStateEnum } from '~/types/enum'
 
 export type Pagination<T> = {
@@ -21,19 +20,19 @@ export type Pagination<T> = {
 }
 
 export const ZodPagination = <T>(
-  resultSchema: Schema<T>,
-): Schema<Pagination<T>> =>
-  object({
-    links: object({
-      next: string().nullish(),
-      prev: string().nullish(),
+  resultSchema: z.Schema<T>,
+): z.Schema<Pagination<T>> =>
+  z.object({
+    links: z.object({
+      next: z.string().nullish(),
+      prev: z.string().nullish(),
     }),
-    count: number(),
-    totalPages: number(),
-    pageTotalResults: number(),
-    pageSize: number(),
-    page: optional(number()),
-    results: array(resultSchema),
+    count: z.number(),
+    totalPages: z.number(),
+    pageTotalResults: z.number(),
+    pageSize: z.number(),
+    page: z.number().optional(),
+    results: z.array(resultSchema),
   })
 
 export type PaginationQuery = {
@@ -45,18 +44,20 @@ export type PaginationQuery = {
   pageSize?: number | LocationQueryValue[] | undefined
 }
 
-export const ZodPaginationQuery = object({
-  pagination: union([literal('true'), literal('false')]).nullish(),
-  page: union([number(), string()]).nullish(),
-  offset: union([number(), string()]).nullish(),
-  limit: union([number(), string()]).nullish(),
-  cursor: union([number(), string()]).nullish(),
-  pageSize: union([number(), string()]).nullish(),
-  paginationType: union([
-    literal('pageNumber'),
-    literal('limitOffset'),
-    literal('cursor'),
-  ]).nullish(),
+export const ZodPaginationQuery = z.object({
+  pagination: z.union([z.literal('true'), z.literal('false')]).nullish(),
+  page: z.union([z.number(), z.string()]).nullish(),
+  offset: z.union([z.number(), z.string()]).nullish(),
+  limit: z.union([z.number(), z.string()]).nullish(),
+  cursor: z.union([z.number(), z.string()]).nullish(),
+  pageSize: z.union([z.number(), z.string()]).nullish(),
+  paginationType: z
+    .union([
+      z.literal('pageNumber'),
+      z.literal('limitOffset'),
+      z.literal('cursor'),
+    ])
+    .nullish(),
 })
 
 export type PaginationCursorStateType = `${PaginationCursorStateEnum}-${string}`

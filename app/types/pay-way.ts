@@ -1,35 +1,33 @@
-import { object, string, number, boolean, record } from 'zod'
+import * as z from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-const ZodPayWayTranslations = record(
-  object({
-    name: string().nullish(),
+const ZodPayWayTranslations = z.record(
+  z.object({
+    name: z.string().nullish(),
   }),
 )
 
-export const ZodPayWay = object({
+export const ZodPayWay = z.object({
   translations: ZodPayWayTranslations,
-  id: number(),
-  active: boolean(),
-  cost: number(),
-  freeForOrderAmount: number(),
-  icon: string().nullish(),
-  iconAbsoluteUrl: string().nullish(),
-  iconFilename: string().nullish(),
-})
-  .merge(ZodUUIDModel)
-  .merge(ZodTimeStampModel)
-  .merge(ZodSortableModel)
+  id: z.number(),
+  active: z.boolean(),
+  cost: z.number(),
+  freeForOrderAmount: z.number(),
+  icon: z.string().nullish(),
+  iconAbsoluteUrl: z.string().nullish(),
+  iconFilename: z.string().nullish(),
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
-export const ZodPayWayQuery = object({
-  active: string().nullish(),
-  cost: string().nullish(),
-  freeForOrderAmount: string().nullish(),
-})
+export const ZodPayWayQuery = z
+  .object({
+    active: z.string().nullish(),
+    cost: z.string().nullish(),
+    freeForOrderAmount: z.string().nullish(),
+  })
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export type PayWay = typeof ZodPayWay._type
+export type PayWay = z.infer<typeof ZodPayWay>

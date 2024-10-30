@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import * as z from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
-import DynamicForm from '~/components/DynamicForm/index.vue'
 import type { PasswordRequestBody } from '~/types/all-auth'
 import type DynamicForm from '~/components/DynamicForm/index.vue'
 

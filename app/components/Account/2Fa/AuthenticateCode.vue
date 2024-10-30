@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { z } from 'zod'
+import * as z from 'zod'
 import { type AuthenticatorTypeValues, Flows, type TwoFaAuthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 

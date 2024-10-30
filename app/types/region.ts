@@ -1,32 +1,30 @@
-import { object, string, record, union, lazy } from 'zod'
+import * as z from 'zod'
 
 import { ZodCountry } from '~/types/country'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-const ZodRegionTranslations = record(
-  object({
-    name: string().nullish(),
+const ZodRegionTranslations = z.record(
+  z.object({
+    name: z.string().nullish(),
   }),
 )
 
-export const ZodRegion = object({
+export const ZodRegion = z.object({
   translations: ZodRegionTranslations,
-  alpha: string().min(3),
-  country: union([string(), lazy(() => ZodCountry)]).nullish(),
-})
-  .merge(ZodUUIDModel)
-  .merge(ZodTimeStampModel)
-  .merge(ZodSortableModel)
+  alpha: z.string().min(3),
+  country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
-export const ZodRegionsQuery = object({
-  name: string().nullish(),
-  alpha: string().nullish(),
-  country: string().nullish(),
-})
+export const ZodRegionsQuery = z
+  .object({
+    name: z.string().nullish(),
+    alpha: z.string().nullish(),
+    country: z.string().nullish(),
+  })
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export type Region = typeof ZodRegion._type
+export type Region = z.infer<typeof ZodRegion>

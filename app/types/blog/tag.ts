@@ -1,33 +1,31 @@
-import { object, string, number, boolean, record } from 'zod'
+import * as z from 'zod'
 import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodLanguageQuery, ZodSortableModel, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-const ZodBlogTagTranslations = record(
-  object({
-    name: string().nullish(),
+const ZodBlogTagTranslations = z.record(
+  z.object({
+    name: z.string().nullish(),
   }),
 )
 
-export const ZodBlogTag = object({
+export const ZodBlogTag = z.object({
   translations: ZodBlogTagTranslations,
-  id: number().int(),
-  active: boolean(),
-})
-  .merge(ZodUUIDModel)
-  .merge(ZodTimeStampModel)
-  .merge(ZodSortableModel)
+  id: z.number().int(),
+  active: z.boolean(),
+}).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
-export const ZodBlogTagQuery = object({
-  id: string().nullish(),
-  active: string().nullish(),
-})
+export const ZodBlogTagQuery = z
+  .object({
+    id: z.string().nullish(),
+    active: z.string().nullish(),
+  })
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodBlogTagParams = object({
-  id: string(),
+export const ZodBlogTagParams = z.object({
+  id: z.string(),
 })
 
-export type BlogTag = typeof ZodBlogTag._type
+export type BlogTag = z.infer<typeof ZodBlogTag>

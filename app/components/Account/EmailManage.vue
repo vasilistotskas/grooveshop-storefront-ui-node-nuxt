@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import * as z from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
 import type { EmailDeleteBody, EmailPatchBody, EmailPostBody, EmailPutBody } from '~/types/all-auth'

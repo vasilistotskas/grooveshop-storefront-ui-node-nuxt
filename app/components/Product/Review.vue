@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import { Field, useForm } from 'vee-validate'
-import { z } from 'zod'
+import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import { GlobalEvents } from '~/events'

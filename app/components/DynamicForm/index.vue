@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useForm, type ValidationOptions } from 'vee-validate'
-import type { ValidationOptions } from 'vee-validate'
-import { z } from 'zod'
+import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import type { DisabledFields, DynamicFormFields, DynamicFormSchema, DynamicFormState, FormValues } from '~/types/form'

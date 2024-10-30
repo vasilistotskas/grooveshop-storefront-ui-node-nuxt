@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import * as z from 'zod'
 import { AuthChangeEvent, type AuthChangeEventType, Flows, type ReauthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 

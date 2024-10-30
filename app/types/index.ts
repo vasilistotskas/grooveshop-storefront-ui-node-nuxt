@@ -1,54 +1,54 @@
-import { object, string, number, boolean, union, literal, enum as zEnum } from 'zod'
+import * as z from 'zod'
 import type { Avatar } from '#ui/types/avatar'
 
 export * from './enum'
 export * from './utility'
 export * from './pagination'
 
-const WeightUnits = zEnum(['g', 'lb', 'oz', 'kg', 'tonne'], {
+const WeightUnits = z.enum(['g', 'lb', 'oz', 'kg', 'tonne'], {
   description: 'A type representing various weight units',
 })
 
-export const ZodWeight = object({
+export const ZodWeight = z.object({
   unit: WeightUnits,
-  value: number(),
+  value: z.number(),
 })
 
-export const ZodExpandQuery = object({
-  expand: union([literal('true'), literal('false')]).nullish(),
-  expandFields: string().nullish(),
+export const ZodExpandQuery = z.object({
+  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
+  expandFields: z.string().nullish(),
 })
 
-export const ZodLanguageQuery = object({
-  language: string().nullish(),
+export const ZodLanguageQuery = z.object({
+  language: z.string().nullish(),
 })
 
-export const ZodTimeStampModel = object({
-  createdAt: string().datetime({ offset: true }),
-  updatedAt: string().datetime({ offset: true }),
+export const ZodTimeStampModel = z.object({
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 })
 
-export const ZodSeoModel = object({
-  seoTitle: string().nullish(),
-  seoDescription: string().nullish(),
-  seoKeywords: string().nullish(),
+export const ZodSeoModel = z.object({
+  seoTitle: z.string().nullish(),
+  seoDescription: z.string().nullish(),
+  seoKeywords: z.string().nullish(),
 })
 
-export const ZodPublishableModel = object({
-  publishedAt: string().datetime({ offset: true }).nullish(),
-  isPublished: boolean(),
-  isVisible: boolean(),
+export const ZodPublishableModel = z.object({
+  publishedAt: z.string().datetime({ offset: true }).nullish(),
+  isPublished: z.boolean(),
+  isVisible: z.boolean(),
 })
 
-export const ZodSortableModel = object({
-  sortOrder: number().int().nullish(),
+export const ZodSortableModel = z.object({
+  sortOrder: z.number().int().nullish(),
 })
 
-export const ZodUUIDModel = object({
-  uuid: string().uuid(),
+export const ZodUUIDModel = z.object({
+  uuid: z.string().uuid(),
 })
 
-export const ZodFloorChoicesEnum = zEnum([
+export const ZodFloorChoicesEnum = z.enum([
   'BASEMENT',
   'GROUND_FLOOR',
   'FIRST_FLOOR',
@@ -59,7 +59,7 @@ export const ZodFloorChoicesEnum = zEnum([
   'SIXTH_FLOOR_PLUS',
 ])
 
-export const ZodLocationChoicesEnum = zEnum(['HOME', 'OFFICE', 'OTHER'])
+export const ZodLocationChoicesEnum = z.enum(['HOME', 'OFFICE', 'OTHER'])
 
 export interface LinksOption {
   to: string
@@ -69,5 +69,5 @@ export interface LinksOption {
   icon?: string
 }
 
-export type FloorChoicesEnumType = typeof ZodFloorChoicesEnum._type
-export type LocationChoicesEnumType = typeof ZodLocationChoicesEnum._type
+export type FloorChoicesEnumType = z.infer<typeof ZodFloorChoicesEnum>
+export type LocationChoicesEnumType = z.infer<typeof ZodLocationChoicesEnum>

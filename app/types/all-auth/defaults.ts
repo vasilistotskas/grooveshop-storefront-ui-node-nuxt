@@ -1,65 +1,65 @@
-import { object, string, number, boolean, array, union, literal, enum as zEnum, optional } from 'zod'
+import * as z from 'zod'
 import type { AllAuthResponse } from '~/types/all-auth/response'
 
-export const ZodProvider = object({
-  id: string().describe('The provider ID.'),
-  name: string().describe('The name of the provider.'),
-  client_id: optional(string()).describe('The client ID (in case of OAuth2 or OpenID Connect based providers).'),
-  flows: array(zEnum(['provider_redirect', 'provider_token'])).describe(
-    'Items Enum: "provider_redirect" "provider_token"\nThe authentication flows the provider integration supports.',
-  ),
+export const ZodProvider = z.object({
+  id: z.string().describe('The provider ID.'),
+  name: z.string().describe('The name of the provider.'),
+  client_id: z.string().optional().describe('The client ID (in case of OAuth2 or OpenID Connect based providers).'),
+  flows: z.array(z.enum(['provider_redirect', 'provider_token'])).describe('Items Enum: "provider_redirect" "provider_token"\n'
+    + 'The authentication flows the provider integration supports.'),
 })
 
-export const ZodMethods = array(
-  object({
-    method: zEnum(['password', 'socialaccount', 'mfa', 'code']),
-    at: number().describe('An epoch based timestamp (trivial to parse using: new Date(value) * 1000)'),
-    email: optional(string().email()).describe('The email address.'),
-    username: optional(string()).describe('The username.'),
-    reauthenticated: optional(boolean()),
-    provider: optional(string()).describe('The provider ID.'),
-    uid: optional(string()).describe('The provider specific account ID.'),
-    type: optional(string()).describe('Enum: "recovery_codes" "totp"\nThe type of authenticator.'),
+export const ZodMethods = z.array(
+  z.object({
+    method: z.enum(['password', 'socialaccount', 'mfa', 'code']),
+    at: z.number().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),
+    email: z.string().email().optional().describe('The email address.'),
+    username: z.string().optional().describe('The username.'),
+    reauthenticated: z.boolean().optional(),
+    provider: z.string().optional().describe('The provider ID.'),
+    uid: z.string().optional().describe('The provider specific account ID.'),
+    type: z.string().optional().describe('Enum: "recovery_codes" "totp"\n'
+      + 'The type of authenticator.'),
   }),
 ).describe('A list of methods used to authenticate.')
 
-export const ZodUser = object({
-  id: union([string(), number()]).describe('The user ID.'),
-  display: optional(string()).describe('The display name for the user.'),
-  has_usable_password: optional(boolean()).describe('Whether or not the account has a password set.'),
-  email: optional(string().email()).describe('The email address.'),
-  username: optional(string()).describe('The username.'),
+export const ZodUser = z.object({
+  id: z.union([z.string(), z.number()]).describe('The user ID.'),
+  display: z.string().optional().describe('The display name for the user.'),
+  has_usable_password: z.boolean().optional().describe('Whether or not the account has a password set.'),
+  email: z.string().email().optional().describe('The email address.'),
+  username: z.string().optional().describe('The username.'),
 })
 
-export const ZodAuthenticationMeta = object({
-  session_token: optional(string()).describe('The session token (app clients only).'),
-  access_token: optional(string()).describe('The access token (app clients only).'),
-  is_authenticated: optional(boolean()),
+export const ZodAuthenticationMeta = z.object({
+  session_token: z.string().optional().describe('The session token (app clients only).'),
+  access_token: z.string().optional().describe('The access token (app clients only).'),
+  is_authenticated: z.boolean().optional(),
 }).describe('Metadata available in an authentication related response.')
 
-export const ZodUnauthenticatedMeta = object({
-  session_token: optional(string()).describe('The session token (app clients only).'),
-  access_token: optional(string()).describe('The access token (app clients only).'),
-  is_authenticated: boolean().nullable(),
+export const ZodUnauthenticatedMeta = z.object({
+  session_token: z.string().optional().describe('The session token (app clients only).'),
+  access_token: z.string().optional().describe('The access token (app clients only).'),
+  is_authenticated: z.boolean().nullable(),
 }).describe('Metadata available in an unauthenticated response.')
 
-export const ZodProviderToken = object({
-  client_id: string().describe('The client ID (in case of OAuth2 or OpenID Connect based providers)'),
-  id_token: optional(string()).describe('The ID token.'),
-  access_token: optional(string()).describe('The access token.'),
+export const ZodProviderToken = z.object({
+  client_id: z.string().describe('The client ID (in case of OAuth2 or OpenID Connect based providers)'),
+  id_token: z.string().optional().describe('The ID token.'),
+  access_token: z.string().optional().describe('The access token.'),
 })
 
-export const ZodSession = object({
-  user_agent: string(),
-  ip: string(),
-  created_at: number(),
-  is_current: boolean(),
-  id: number(),
-  last_seen_at: optional(number()),
+export const ZodSession = z.object({
+  user_agent: z.string(),
+  ip: z.string(),
+  created_at: z.number(),
+  is_current: z.boolean(),
+  id: z.number(),
+  last_seen_at: z.number().optional(),
 })
 
-export const ZodFlow = object({
-  id: zEnum([
+export const ZodFlow = z.object({
+  id: z.enum([
     'verify_email',
     'login',
     'login_by_code',
@@ -74,39 +74,38 @@ export const ZodFlow = object({
     'mfa_reauthenticate_webauthn',
     'mfa_signup_webauthn',
   ]),
-  provider: optional(ZodProvider),
-  is_pending: optional(boolean()),
-  types: optional(array(zEnum(['totp', 'recovery_codes', 'webauthn']))),
+  provider: ZodProvider.optional(),
+  is_pending: z.boolean().optional(),
+  types: z.array(z.enum(['totp', 'recovery_codes', 'webauthn'])).optional(),
 })
 
-export const ZodAuthenticated = object({
+export const ZodAuthenticated = z.object({
   user: ZodUser,
   methods: ZodMethods,
-  flows: optional(array(ZodFlow)),
+  flows: z.array(ZodFlow).optional(),
 })
 
-export const ZodTOTPAuthenticator = object({
-  last_used_at: number().nullable().describe('An epoch based timestamp (trivial to parse using: new Date(value) * 1000)'),
-  created_at: number().describe('An epoch based timestamp (trivial to parse using: new Date(value) * 1000)'),
-  type: literal('totp'),
+export const ZodTOTPAuthenticator = z.object({
+  last_used_at: z.number().nullable().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),
+  created_at: z.number().describe('An epoch based timestamp (trivial to parse using: new Date(value)*1000)'),
+  type: z.literal('totp'),
 })
 
-export const ZodEmailAddress = object({
-  email: string().email().describe('The email address.'),
-  primary: boolean(),
-  verified: boolean(),
+export const ZodEmailAddress = z.object({
+  email: z.string().email().describe('The email address.'),
+  primary: z.boolean(),
+  verified: z.boolean(),
 })
 
-export const ZodProviderAccount = object({
-  uid: string().describe('The provider specific account ID.'),
-  display: string().describe('A name derived from the third-party provider account data.'),
-  provider: object({
-    id: string().describe('The provider ID.'),
-    name: string().describe('The name of the provider.'),
-    client_id: optional(string()).describe('The client ID (in case of OAuth2 or OpenID Connect based providers)'),
-    flows: array(zEnum(['provider_redirect', 'provider_token'])).describe(
-      'Items Enum: "provider_redirect" "provider_token"\nThe authentication flows the provider integration supports.',
-    ),
+export const ZodProviderAccount = z.object({
+  uid: z.string().describe('The provider specific account ID.'),
+  display: z.string().describe('A name derived from the third-party provider account data.'),
+  provider: z.object({
+    id: z.string().describe('The provider ID.'),
+    name: z.string().describe('The name of the provider.'),
+    client_id: z.string().optional().describe('The client ID (in case of OAuth2 or OpenID Connect based providers)'),
+    flows: z.array(z.enum(['provider_redirect', 'provider_token'])).describe('Items Enum: "provider_redirect" "provider_token"\n'
+      + 'The authentication flows the provider integration supports.'),
   }),
 })
 
@@ -174,9 +173,9 @@ export type AuthInfo = {
   pendingFlow: Flow | null
 }
 
-export type Provider = typeof ZodProvider._type
-export type ProviderToken = typeof ZodProviderToken._type
-export type Session = typeof ZodSession._type
-export type Flow = typeof ZodFlow._type
+export type Provider = z.infer<typeof ZodProvider>
+export type ProviderToken = z.infer<typeof ZodProviderToken>
+export type Session = z.infer<typeof ZodSession>
+export type Flow = z.infer<typeof ZodFlow>
 export type FlowId = keyof typeof Flow2path
 export type AuthChangeEventType = typeof AuthChangeEvent[keyof typeof AuthChangeEvent] | null

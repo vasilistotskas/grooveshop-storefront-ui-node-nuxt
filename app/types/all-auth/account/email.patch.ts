@@ -1,17 +1,17 @@
-import { object, string, boolean, literal, array } from 'zod'
+import * as z from 'zod'
 import { ZodEmailAddress } from '~/types/all-auth'
 
-const ZodData = array(ZodEmailAddress)
+const ZodData = z.array(ZodEmailAddress)
 
-export const ZodEmailPatchResponse = object({
-  status: literal(200),
+export const ZodEmailPatchResponse = z.object({
+  status: z.literal(200),
   data: ZodData,
 })
 
-export const ZodEmailPatchBody = object({
-  email: string().email().describe('An email address.'),
-  primary: boolean().describe('Primary flag.'),
+export const ZodEmailPatchBody = z.object({
+  email: z.string().email().describe('An email address.'),
+  primary: z.boolean().describe('Primary flag.'),
 })
 
-export type EmailPatchBody = typeof ZodEmailPatchBody._type
-export type EmailPatchResponse = typeof ZodEmailPatchResponse._type
+export type EmailPatchBody = z.infer<typeof ZodEmailPatchBody>
+export type EmailPatchResponse = z.infer<typeof ZodEmailPatchResponse>

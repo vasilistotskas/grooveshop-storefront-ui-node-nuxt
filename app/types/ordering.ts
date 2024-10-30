@@ -1,4 +1,4 @@
-import { object, union, number, string } from 'zod'
+import * as z from 'zod'
 import type { Avatar } from '#ui/types/avatar'
 
 export interface OrderingOption {
@@ -21,6 +21,6 @@ export type EntityOrdering<OrderingField extends string> = {
   options: ('ascending' | 'descending')[]
 }[]
 
-export const ZodOrderingQuery = object({
-  ordering: union([number(), string()]).nullish(),
+export const ZodOrderingQuery = z.object({
+  ordering: z.union([z.number(), z.string()]).nullish(),
 })

@@ -1,15 +1,15 @@
-import { object, string, literal } from 'zod'
+import * as z from 'zod'
 import { ZodAuthenticated, ZodAuthenticationMeta } from '~/types/all-auth'
 
-export const ZodTwoFaAuthenticateBody = object({
-  code: string().describe('An authenticator code.'),
+export const ZodTwoFaAuthenticateBody = z.object({
+  code: z.string().describe('An authenticator code.'),
 })
 
-export const ZodTwoFaAuthenticateResponse = object({
-  status: literal(200),
+export const ZodTwoFaAuthenticateResponse = z.object({
+  status: z.literal(200),
   data: ZodAuthenticated,
   meta: ZodAuthenticationMeta,
 })
 
-export type TwoFaAuthenticateBody = typeof ZodTwoFaAuthenticateBody._type
-export type TwoFaAuthenticateResponse = typeof ZodTwoFaAuthenticateResponse._type
+export type TwoFaAuthenticateBody = z.infer<typeof ZodTwoFaAuthenticateBody>
+export type TwoFaAuthenticateResponse = z.infer<typeof ZodTwoFaAuthenticateResponse>

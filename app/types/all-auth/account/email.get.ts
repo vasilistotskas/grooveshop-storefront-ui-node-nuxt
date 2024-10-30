@@ -1,11 +1,11 @@
-import { object, literal, array } from 'zod'
+import * as z from 'zod'
 import { ZodEmailAddress } from '~/types/all-auth'
 
-const ZodData = array(ZodEmailAddress)
+const ZodData = z.array(ZodEmailAddress)
 
-export const ZodEmailGetResponse = object({
-  status: literal(200),
+export const ZodEmailGetResponse = z.object({
+  status: z.literal(200),
   data: ZodData,
 })
 
-export type EmailGetResponse = typeof ZodEmailGetResponse._type
+export type EmailGetResponse = z.infer<typeof ZodEmailGetResponse>

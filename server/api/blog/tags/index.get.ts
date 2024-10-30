@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import { ZodBlogTag, ZodBlogTagQuery } from '~/types/blog/tag'
 
 const { maxAge, base } = getCachedEventHandlerOptions()

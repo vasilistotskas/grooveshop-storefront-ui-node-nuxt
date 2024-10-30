@@ -1,4 +1,4 @@
-import { object, string, number, union, lazy, array } from 'zod'
+import * as z from 'zod'
 
 import { ZodProduct } from '~/types/product'
 import { ZodUserAccount } from '~/types/user/account'
@@ -6,36 +6,37 @@ import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodExpandQuery, ZodLanguageQuery, ZodTimeStampModel, ZodUUIDModel } from '~/types'
 
-export const ZodProductFavourite = object({
-  id: number(),
-  product: union([number(), lazy(() => ZodProduct)]),
-  user: union([number(), lazy(() => ZodUserAccount)]),
+export const ZodProductFavourite = z.object({
+  id: z.number(),
+  product: z.union([z.number(), z.lazy(() => ZodProduct)]),
+  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodProductFavouriteQuery = object({
-  id: string().nullish(),
-  userId: string().nullish(),
-  productId: string().nullish(),
-})
+export const ZodProductFavouriteQuery = z
+  .object({
+    id: z.string().nullish(),
+    userId: z.string().nullish(),
+    productId: z.string().nullish(),
+  })
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodProductFavouriteCreateBody = object({
-  user: string(),
-  product: string(),
+export const ZodProductFavouriteCreateBody = z.object({
+  user: z.string(),
+  product: z.string(),
 })
 
-export const ZodProductFavouritesByProductsBody = object({
-  productIds: array(number()),
+export const ZodProductFavouritesByProductsBody = z.object({
+  productIds: z.array(z.number()),
 })
 
-export const ZodProductFavouriteParams = object({
-  id: string(),
+export const ZodProductFavouriteParams = z.object({
+  id: z.string(),
 })
 
-export type ProductFavourite = typeof ZodProductFavourite._type
+export type ProductFavourite = z.infer<typeof ZodProductFavourite>
 export type ProductFavouriteOrderingField =
   | 'id'
   | 'productId'

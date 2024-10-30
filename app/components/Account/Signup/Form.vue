@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { z } from 'zod'
+import * as z from 'zod'
 
 const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()

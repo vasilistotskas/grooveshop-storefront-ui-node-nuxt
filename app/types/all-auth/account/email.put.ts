@@ -1,12 +1,12 @@
-import { object, string, literal } from 'zod'
+import * as z from 'zod'
 
-export const ZodEmailPutResponse = object({
-  status: literal(200),
+export const ZodEmailPutResponse = z.object({
+  status: z.literal(200),
 })
 
-export const ZodEmailPutBody = object({
-  email: string().email().describe('An email address.'),
+export const ZodEmailPutBody = z.object({
+  email: z.string().email().describe('An email address.'),
 })
 
-export type EmailPutBody = typeof ZodEmailPutBody._type
-export type EmailPutResponse = typeof ZodEmailPutResponse._type
+export type EmailPutBody = z.infer<typeof ZodEmailPutBody>
+export type EmailPutResponse = z.infer<typeof ZodEmailPutResponse>

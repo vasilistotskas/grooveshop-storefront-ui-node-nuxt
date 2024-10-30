@@ -1,18 +1,18 @@
-import { object, string, number } from 'zod'
+import * as z from 'zod'
 import { ZodTimeStampModel, ZodUUIDModel } from '~/types/index'
 
-export const ZodContact = object({
-  id: number(),
-  name: string(),
-  email: string().email(),
-  message: string(),
+export const ZodContact = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+  message: z.string(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodContactBody = object({
-  name: string(),
-  email: string().email(),
-  message: string(),
+export const ZodContactBody = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  message: z.string(),
 })
 
-export type Contact = typeof ZodContact._type
-export type ContactBody = typeof ZodContactBody._type
+export type Contact = z.infer<typeof ZodContact>
+export type ContactBody = z.infer<typeof ZodContactBody>

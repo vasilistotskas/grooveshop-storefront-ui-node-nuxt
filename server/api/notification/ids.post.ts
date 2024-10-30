@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import { ZodNotification } from '~/types/notification'
 
 export default defineEventHandler(async (event) => {

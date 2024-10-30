@@ -1,5 +1,4 @@
-import type { ZodType } from 'zod'
-import { object, string, number, boolean, array, union, record, lazy } from 'zod'
+import * as z from 'zod'
 
 import { ZodBlogPost } from '~/types/blog/post'
 import { ZodUserAccount } from '~/types/user/account'
@@ -7,72 +6,76 @@ import { ZodOrderingQuery } from '~/types/ordering'
 import { ZodPaginationQuery } from '~/types/pagination'
 import { ZodExpandQuery, ZodLanguageQuery, ZodTimeStampModel } from '~/types'
 
-const ZodBlogCommentTranslations = record(
-  object({
-    content: string().nullish(),
+const ZodBlogCommentTranslations = z.record(
+  z.object({
+    content: z.string().nullish(),
   }),
 )
 
-export const ZodBlogCommentBase = object({
+export const ZodBlogCommentBase = z.object({
   translations: ZodBlogCommentTranslations,
-  id: number().int(),
-  isApproved: boolean(),
-  parent: number().nullish(),
-  level: number().nullish(),
-  treeId: number().nullish(),
-  likes: union([array(number()), array(lazy(() => ZodUserAccount))]),
-  user: union([number(), lazy(() => ZodUserAccount)]),
-  post: union([number(), lazy(() => ZodBlogPost)]),
-  likesCount: number().int(),
-  repliesCount: number().int(),
+  id: z.number().int(),
+  isApproved: z.boolean(),
+  parent: z.number().nullish(),
+  level: z.number().nullish(),
+  treeId: z.number().nullish(),
+  likes: z.union([z.array(z.number()), z.array(z.lazy(() => ZodUserAccount))]),
+  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
+  post: z.union([z.number(), z.lazy(() => ZodBlogPost)]),
+  likesCount: z.number().int(),
+  repliesCount: z.number().int(),
 }).merge(ZodTimeStampModel)
 
-export const ZodBlogCommentQuery = object({
-  id: string().nullish(),
-  user: string().nullish(),
-  post: string().nullish(),
-})
+export const ZodBlogCommentQuery = z
+  .object({
+    id: z.string().nullish(),
+    user: z.string().nullish(),
+    post: z.string().nullish(),
+  })
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodBlogCommentParams = object({
-  id: string(),
+export const ZodBlogCommentParams = z.object({
+  id: z.string(),
 })
 
-export const ZodBlogCommentCreateBody = object({
-  post: string(),
-  user: string(),
+export const ZodBlogCommentCreateBody = z.object({
+  post: z.string(),
+  user: z.string(),
   translations: ZodBlogCommentTranslations,
-  parent: number().nullish(),
+  parent: z.number().nullish(),
 })
 
-export const ZodBlogCommentCreateQuery = object({})
+export const ZodBlogCommentCreateQuery = z
+  .object({})
   .merge(ZodLanguageQuery)
   .merge(ZodExpandQuery)
 
-export const ZodBlogCommentPutBody = object({
-  product: string(),
-  user: string(),
+export const ZodBlogCommentPutBody = z.object({
+  product: z.string(),
+  user: z.string(),
   translations: ZodBlogCommentTranslations,
 })
 
-export const ZodBlogCommentUserBlogCommentBody = object({
-  post: string(),
+export const ZodBlogCommentUserBlogCommentBody = z.object({
+  post: z.string(),
 })
 
-export const ZodBlogCommentsLikedCommentsBody = object({
-  commentIds: array(number()),
+export const ZodBlogCommentsLikedCommentsBody = z.object({
+  commentIds: z.array(z.number()),
 })
 
-export type BlogComment = typeof ZodBlogCommentBase._type & {
+export type BlogComment = z.infer<typeof ZodBlogCommentBase> & {
   children?: BlogComment[] | null | number[]
 }
 export type BlogCommentOrderingField = 'id' | 'userId' | 'postId' | 'createdAt'
 
-export const ZodBlogComment: ZodType<BlogComment> = ZodBlogCommentBase.extend({
-  children: lazy(() =>
-    union([ZodBlogComment.array().nullish(), array(number())]),
-  ),
-})
+export const ZodBlogComment: z.ZodType<BlogComment> = ZodBlogCommentBase.extend(
+  {
+    children: z.lazy(() =>
+      z.union([ZodBlogComment.array().nullish(), z.array(z.number())]),
+    ),
+  },
+)

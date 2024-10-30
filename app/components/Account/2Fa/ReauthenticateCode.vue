@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import * as z from 'zod'
 import type { TwoFaReauthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 

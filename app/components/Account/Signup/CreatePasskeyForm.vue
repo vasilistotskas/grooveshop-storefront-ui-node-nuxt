@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import * as z from 'zod'
 
 import { create, parseCreationOptionsFromJSON } from '@github/webauthn-json/browser-ponyfill'
 import type { CredentialCreationOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'

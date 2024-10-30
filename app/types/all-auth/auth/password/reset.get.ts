@@ -1,13 +1,13 @@
-import { object, literal } from 'zod'
+import * as z from 'zod'
 import { ZodUser } from '~/types/all-auth'
 
-const ZodData = object({
+const ZodData = z.object({
   user: ZodUser,
 })
 
-export const ZodPasswordResetGetResponse = object({
-  status: literal(200),
+export const ZodPasswordResetGetResponse = z.object({
+  status: z.literal(200),
   data: ZodData,
 })
 
-export type PasswordResetGetResponse = typeof ZodPasswordResetGetResponse._type
+export type PasswordResetGetResponse = z.infer<typeof ZodPasswordResetGetResponse>
