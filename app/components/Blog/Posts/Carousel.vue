@@ -68,6 +68,7 @@ const BlogPostCard = computed(() =>
       <template #default="{ item }">
         <Component
           :is="BlogPostCard"
+          :as="'div'"
           :post="item"
           :img-loading="'lazy'"
         />
@@ -76,6 +77,8 @@ const BlogPostCard = computed(() =>
       <template #indicator="{ onClick, page, active }">
         <UButton
           :variant="active ? 'solid' : 'outline'"
+          :aria-label="'dot'"
+          role="tab"
           size="2xs"
           class="
             rounded-full min-w-4 min-h-4 justify-center transition-colors
@@ -86,6 +89,7 @@ const BlogPostCard = computed(() =>
             opacity: active ? '1' : '0.5',
             transform: active ? 'scale(1.4)' : 'scale(1)',
           }"
+          :aria-selected="active"
           @click="onClick(page)"
         />
       </template>

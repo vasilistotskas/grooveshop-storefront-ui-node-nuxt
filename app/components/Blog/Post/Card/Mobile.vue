@@ -17,6 +17,10 @@ const props = defineProps({
     default: undefined,
     validator: (value: string) => ['lazy', 'eager'].includes(value),
   },
+  as: {
+    type: String,
+    default: 'li',
+  },
 })
 
 const { locale } = useI18n()
@@ -51,7 +55,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 </script>
 
 <template>
-  <li
+  <Component
+    :is="as"
     class="
       min-h-60 bg-primary-100 container grid w-full gap-4 rounded-lg !p-0
 
@@ -181,5 +186,5 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         </ClientOnly>
       </div>
     </div>
-  </li>
+  </Component>
 </template>
