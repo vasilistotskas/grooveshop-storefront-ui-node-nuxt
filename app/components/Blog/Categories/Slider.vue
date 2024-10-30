@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import type { Pagination } from '~/types'
+import type { BlogCategory } from '~/types/blog/category'
+
 const props = defineProps({
   max: {
     type: Number,
@@ -12,17 +15,12 @@ const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
+const { data: categories } = await useLazyFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
   key: `blogCategories`,
   method: 'GET',
   query: {
     pageSize: max.value,
     language: locale.value,
-  },
-  default: () => {
-    return {
-      results: [],
-    }
   },
 })
 
@@ -57,7 +55,7 @@ const carouselUiItemBasis = computed(() => {
       size="lg"
     >
       <template #leading>
-        <ImgWithFallback
+        <NuxtImg
           :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
           :background="'ffffff'"
           fit="fill"

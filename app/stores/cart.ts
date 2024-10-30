@@ -3,10 +3,10 @@ import type { IFetchError } from 'ofetch'
 import { v4 as uuidv4 } from 'uuid'
 import type { Cart } from '~/types/cart'
 import type {
-  Item,
+  CartItem,
   CartItemAddBody,
   CartItemCreateBody,
-  CartItemPutBody,
+  CartItemPutBody, CartItemCreateResponse,
 } from '~/types/cart/item'
 
 interface ErrorRecord {
@@ -51,7 +51,7 @@ export const useCartStore = defineStore('cart', () => {
   const getCartItemByProductId = (productId: number) => {
     return (cart.value?.cartItems
       .map(item => item.product)
-      .find(product => product.id === productId) ?? null) as Item | null
+      .find(product => product.id === productId) ?? null) as CartItem | null
   }
 
   function fetchCartFromLocalStorage() {
@@ -86,8 +86,8 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    await useLazyAsyncData('cart', () =>
-      $fetch('/api/cart', {
+    await useLazyAsyncData<Cart>('cart', () =>
+      $fetch<Cart>('/api/cart', {
         method: 'GET',
         headers: useRequestHeaders(),
         onRequest() {
@@ -117,7 +117,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    await $fetch('/api/cart', {
+    await $fetch<Cart>('/api/cart', {
       method: 'GET',
       headers: useRequestHeaders(),
       onRequest() {
@@ -138,7 +138,7 @@ export const useCartStore = defineStore('cart', () => {
 
   function updateLocalStorageCartTotals(
     cartFromLocalStorage: Cart,
-    cartItems: Item[],
+    cartItems: CartItem[],
   ) {
     const totalPrice = cartItems.reduce(
       (acc, item) => acc + (item?.finalPrice ?? 0) * (item?.quantity ?? 0),
@@ -170,7 +170,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function createCartItemToLocalStorage(cartItem: Item) {
+  function createCartItemToLocalStorage(cartItem: CartItem) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
       console.error('Cart not found in Local Storage')
@@ -250,7 +250,7 @@ export const useCartStore = defineStore('cart', () => {
       quantity: body.quantity.toString(),
     }
 
-    await $fetch('/api/cart/items', {
+    await $fetch<CartItemCreateResponse>('/api/cart/items', {
       method: 'POST',
       headers: useRequestHeaders(),
       body: requestBody,
@@ -296,7 +296,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    await $fetch(`/api/cart/items/${id}`, {
+    await $fetch<CartItem>(`/api/cart/items/${id}`, {
       method: 'PUT',
       body,
       onRequest() {

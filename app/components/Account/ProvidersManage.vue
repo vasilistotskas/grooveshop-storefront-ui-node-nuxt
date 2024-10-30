@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ProvidersDeleteBody } from '~/types/all-auth'
+import type { ProvidersDeleteBody, ProvidersGetResponse } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
 
 const emit = defineEmits(['disconnectThirdPartyProviderAccount'])
@@ -13,7 +13,7 @@ const { t } = useI18n()
 
 const loading = ref(false)
 
-const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData(
+const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData<ProvidersGetResponse>(
   'providerAccounts',
   () => connectedThirdPartyProviderAccounts(),
 )

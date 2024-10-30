@@ -2,7 +2,7 @@
 import * as z from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
-import type { ContactBody } from '~/types/contact'
+import type { Contact, ContactBody } from '~/types/contact'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -12,7 +12,7 @@ const loading = ref(false)
 async function onSubmit(values: ContactBody) {
   loading.value = true
   try {
-    await $fetch(
+    await $fetch<Contact>(
       'api/contact',
       {
         method: 'POST',

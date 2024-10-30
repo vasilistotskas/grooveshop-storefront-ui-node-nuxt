@@ -1,10 +1,12 @@
 <script lang="ts" setup>
+import type { RecoveryCodesGetResponse } from '~/types/all-auth'
+
 const { getRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 
-const { data, refresh, error } = await useAsyncData(
+const { data, refresh, error } = await useAsyncData<RecoveryCodesGetResponse>(
   'recoveryCodes',
   () => getRecoveryCodes(),
 )

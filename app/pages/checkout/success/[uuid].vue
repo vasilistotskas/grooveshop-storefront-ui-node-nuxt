@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
+import type { Order } from '~/types/order'
 
 const route = useRoute()
 const orderUUID = 'uuid' in route.params
@@ -9,7 +10,7 @@ const orderUUID = 'uuid' in route.params
 const { t, locale } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
-const { data: order, error } = await useFetch(
+const { data: order, error } = await useFetch<Order>(
   `/api/orders/uuid/${orderUUID}`,
   {
     key: `order${orderUUID}`,
@@ -186,7 +187,7 @@ definePageMeta({
                   :key="index"
                 >
                   <td class="border px-4 py-2">
-                    <ImgWithFallback
+                    <NuxtImg
                       :alt="extractTranslated(item.product, 'name', locale)"
                       :background="'transparent'"
                       fit="contain"

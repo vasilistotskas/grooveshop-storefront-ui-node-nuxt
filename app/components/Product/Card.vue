@@ -77,7 +77,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               :to="product.absoluteUrl"
               :text="alt"
             >
-              <ImgWithFallback
+              <NuxtImg
                 :loading="imgLoading"
                 provider="mediaStream"
                 class="bg-primary-100 bg-transparent"

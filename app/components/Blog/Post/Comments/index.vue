@@ -5,7 +5,13 @@ import * as z from 'zod'
 import type { BlogComment } from '~/types/blog/comment'
 
 import type { DynamicFormSchema } from '~/types/form'
-import { type CursorStates, PaginationCursorStateEnum, type PaginationType, PaginationTypeEnum } from '~/types'
+import {
+  type CursorStates,
+  type Pagination,
+  PaginationCursorStateEnum,
+  type PaginationType,
+  PaginationTypeEnum,
+} from '~/types'
 
 const props = defineProps({
   blogPostId: {
@@ -61,7 +67,7 @@ const allComments = ref<BlogComment[]>([])
 
 const refreshLikedComments = async (ids: number[]) => {
   if (!loggedIn.value) return
-  return await $fetch('/api/blog/comments/liked-comments', {
+  return await $fetch<number[]>('/api/blog/comments/liked-comments', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
@@ -81,8 +87,8 @@ const {
   data: comments,
   status,
   refresh,
-} = await useLazyAsyncData(`comments${blogPostId.value}`, () =>
-  $fetch(`/api/blog/posts/${blogPostId.value}/comments`, {
+} = await useLazyAsyncData<Pagination<BlogComment>>(`comments${blogPostId.value}`, () =>
+  $fetch<Pagination<BlogComment>>(`/api/blog/posts/${blogPostId.value}/comments`, {
     method: 'GET',
     query: {
       cursor: cursor.value,
@@ -118,7 +124,7 @@ const loggedInAndHasComments = computed(() => {
 })
 
 const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
-  = await useLazyFetch('/api/blog/comments/user-blog-comment', {
+  = await useLazyFetch<BlogComment>('/api/blog/comments/user-blog-comment', {
     key: `userBlogPostComment${blogPostId.value}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -133,7 +139,7 @@ const commentIds = computed(() => {
   return comments.value?.results?.map(comment => comment.id)
 })
 
-await useLazyFetch('/api/blog/comments/liked-comments', {
+await useLazyFetch<number[]>('/api/blog/comments/liked-comments', {
   key: `likedComments${blogPostId.value}`,
   method: 'POST',
   headers: useRequestHeaders(),
@@ -172,7 +178,7 @@ const addCommentFormSchema: DynamicFormSchema = {
 }
 
 async function onAddCommentSubmit({ content }: { content: string }) {
-  await $fetch('/api/blog/comments', {
+  await $fetch<BlogComment>('/api/blog/comments', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {

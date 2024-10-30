@@ -52,7 +52,7 @@ const toast = useToast()
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const expand = computed(() => 'true')
 
-const { refresh } = await useLazyFetch(
+const { refresh } = await useLazyFetch<ProductReview[]>(
   `/api/products/${product.value?.id}/reviews`,
   {
     key: `productReviews${product.value?.id}`,
@@ -283,7 +283,7 @@ const tooManyAttempts = computed(() => {
 })
 
 const createReviewEvent = async (event: { comment: string, rate: number }) => {
-  await $fetch(`/api/products/reviews`, {
+  await $fetch<ProductReview>(`/api/products/reviews`, {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
@@ -319,7 +319,7 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
 
 const updateReviewEvent = async (event: { comment: string, rate: number }) => {
   if (!userProductReview?.value) return
-  await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
+  await $fetch<ProductReview>(`/api/products/reviews/${userProductReview?.value.id}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {

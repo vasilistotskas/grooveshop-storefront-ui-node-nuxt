@@ -19,7 +19,7 @@ export const useUserNotificationStore = defineStore('userNotification', () => {
     }
     const { getNotifications } = useUserNotification()
     await callOnce(async () => {
-      const { data } = await useAsyncData(
+      const { data } = await useAsyncData<Pagination<NotificationUser>>(
         'userNotifications',
         () => getNotifications(user.value?.id),
       )
@@ -34,7 +34,7 @@ export const useUserNotificationStore = defineStore('userNotification', () => {
       return
     }
     const { getNotifications } = useUserNotification()
-    const { data } = await useAsyncData(
+    const { data } = await useAsyncData<Pagination<NotificationUser>>(
       'userNotifications',
       () => getNotifications(user.value?.id),
     )

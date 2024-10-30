@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { EntityOrdering } from '~/types/ordering'
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
+import type { Pagination } from '~/types'
 
 const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
@@ -29,7 +30,7 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const { data: favourites, status } = useFetch(
+const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
     method: 'GET',
@@ -45,7 +46,7 @@ const { data: favourites, status } = useFetch(
 
 const refreshFavourites = async () => {
   status.value = 'pending'
-  const favourites = await $fetch(
+  const favourites = await $fetch<Pagination<BlogPost>>(
     `/api/user/account/${user.value?.id}/liked-blog-posts`,
     {
       method: 'GET',

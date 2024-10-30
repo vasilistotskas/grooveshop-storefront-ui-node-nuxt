@@ -107,7 +107,7 @@ const replyCommentFormSchema: DynamicFormSchema = {
 
 const fetchReplies = async (cursorValue: string) => {
   pending.value = true
-  await $fetch(`/api/blog/comments/${comment.value.id}/replies`, {
+  await $fetch<Pagination<BlogComment>>(`/api/blog/comments/${comment.value.id}/replies`, {
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -131,7 +131,7 @@ const fetchReplies = async (cursorValue: string) => {
 }
 
 async function onReplySubmit({ content }: { content: string }) {
-  await $fetch('/api/blog/comments', {
+  await $fetch<BlogComment>('/api/blog/comments', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
@@ -171,7 +171,7 @@ const replyIds = computed(() => {
 })
 
 const fetchLikedComments = async (ids: number[]) => {
-  return await $fetch(`/api/blog/comments/liked-comments`, {
+  return await $fetch<number[]>(`/api/blog/comments/liked-comments`, {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { EmailVerifyGetResponse } from '~/types/all-auth'
+
 const emit = defineEmits(['emailVerify'])
 
 const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
@@ -13,7 +15,7 @@ const key = 'key' in route.params
   ? route.params.key
   : undefined
 
-const { data: getVerifyEmailData } = await useAsyncData(
+const { data: getVerifyEmailData } = await useAsyncData<EmailVerifyGetResponse>(
   'verifyEmail',
   () => getEmailVerify(String(key)),
 )

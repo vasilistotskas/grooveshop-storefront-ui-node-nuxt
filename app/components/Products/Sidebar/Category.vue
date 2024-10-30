@@ -86,7 +86,7 @@ const isCategorySelected = computed(() => {
           dark:bg-primary-900
         "
       >
-        <ImgWithFallback
+        <NuxtImg
           provider="mediaStream"
           class="
             bg-primary-100 rounded-full object-cover

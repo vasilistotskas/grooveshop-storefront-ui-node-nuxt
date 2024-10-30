@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { RecoveryCodesGetResponse } from '~/types/all-auth'
+
 const emit = defineEmits(['generateRecoveryCodes'])
 
 const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
@@ -6,7 +8,7 @@ const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const toast = useToast()
 
-const { data, refresh } = await useAsyncData(
+const { data, refresh } = await useAsyncData<RecoveryCodesGetResponse>(
   'recoveryCodes',
   () => getRecoveryCodes(),
 )

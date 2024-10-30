@@ -64,9 +64,9 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const setupConfig = async () => {
-    const { data, status: configStatus } = await useAsyncData(
+    const { data, status: configStatus } = await useAsyncData<ConfigResponse>(
       'config',
-      () => $fetch(
+      () => $fetch<ConfigResponse>(
         `/api/_allauth/app/v1/config`,
         {
           method: 'GET',
@@ -97,7 +97,7 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     const { getSession } = useAllAuthAuthentication()
-    const { data, error } = await useAsyncData(
+    const { data, error } = await useAsyncData<SessionResponse>(
       'session',
       () => getSession(),
     )
@@ -115,7 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     const { getSessions } = useAllAuthSessions()
-    const { data } = await useAsyncData(
+    const { data } = await useAsyncData<SessionsGetResponse>(
       'sessions',
       () => getSessions(),
     )
@@ -130,7 +130,7 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     const { getAuthenticators } = useAllAuthAccount()
-    const { data } = await useAsyncData(
+    const { data } = await useAsyncData<AuthenticatorsResponse>(
       'authenticators',
       () => getAuthenticators(),
     )

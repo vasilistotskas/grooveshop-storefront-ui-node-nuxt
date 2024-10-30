@@ -1,7 +1,13 @@
 <script lang="ts" setup>
 import type { BlogPost } from '~/types/blog/post'
 
-import { type CursorStates, PaginationCursorStateEnum, type PaginationType, PaginationTypeEnum } from '~/types'
+import {
+  type CursorStates,
+  type Pagination,
+  PaginationCursorStateEnum,
+  type PaginationType,
+  PaginationTypeEnum,
+} from '~/types'
 
 const props = defineProps({
   paginationType: {
@@ -54,8 +60,8 @@ const {
   data: posts,
   status,
   refresh,
-} = await useAsyncData('blogPosts', () =>
-  $fetch('/api/blog/posts', {
+} = await useAsyncData<Pagination<BlogPost>>('blogPosts', () =>
+  $fetch<Pagination<BlogPost>>('/api/blog/posts', {
     method: 'GET',
     query: {
       page: page.value,
@@ -80,7 +86,7 @@ const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.len
 
 const refreshLikedPosts = async (postIds: number[]) => {
   if (shouldFetchLikedPosts.value) {
-    await $fetch(
+    await $fetch<number[]>(
       '/api/blog/posts/liked-posts',
       {
         method: 'POST',
@@ -98,7 +104,7 @@ const refreshLikedPosts = async (postIds: number[]) => {
   }
 }
 
-await useLazyFetch(
+await useLazyFetch<number[]>(
   '/api/blog/posts/liked-posts',
   {
     method: 'POST',

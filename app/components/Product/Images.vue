@@ -2,6 +2,7 @@
 import type { PropType } from 'vue'
 
 import type { Product } from '~/types/product'
+import type { ProductImage } from '~/types/product/image'
 
 const props = defineProps({
   product: {
@@ -13,7 +14,7 @@ const props = defineProps({
 const { product } = toRefs(props)
 const { locale } = useI18n()
 
-const { data: images } = await useFetch(
+const { data: images } = await useFetch<ProductImage[]>(
   `/api/products/${product.value.id}/images`,
   {
     key: `productImages${product.value.id}`,

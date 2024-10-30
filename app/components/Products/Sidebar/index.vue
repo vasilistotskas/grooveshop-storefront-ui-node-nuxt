@@ -1,11 +1,14 @@
 <script lang="ts" setup>
+import type { ProductCategory } from '~/types/product/category'
+import type { Pagination } from '~/types'
+
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data: categories, status } = await useAsyncData(
+const { data: categories, status } = await useAsyncData<Pagination<ProductCategory>>(
   'productCategories',
   () =>
-    $fetch('/api/products/categories', {
+    $fetch<Pagination<ProductCategory>>('/api/products/categories', {
       method: 'GET',
       query: {
         language: locale.value,

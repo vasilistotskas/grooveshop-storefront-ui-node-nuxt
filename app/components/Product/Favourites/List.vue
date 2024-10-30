@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ProductFavourite, ProductFavouriteOrderingField } from '~/types/product/favourite'
 import type { EntityOrdering } from '~/types/ordering'
+import type { Pagination } from '~/types'
 
 defineProps({
   displayTotal: {
@@ -33,7 +34,7 @@ const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
   },
 ])
 
-const { data: favourites, refresh: refreshFavourites, status } = await useFetch(
+const { data: favourites, refresh: refreshFavourites, status } = await useFetch<Pagination<ProductFavourite>>(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
     method: 'GET',
@@ -59,7 +60,7 @@ const productIds = computed(() => {
   )
 })
 
-const { refresh: refreshFavouriteProducts } = await useFetch('/api/products/favourites/favourites-by-products', {
+const { refresh: refreshFavouriteProducts } = await useFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {

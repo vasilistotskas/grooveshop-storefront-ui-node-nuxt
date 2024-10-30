@@ -1,8 +1,11 @@
 <script lang="ts" setup>
+import type { Pagination } from '~/types'
+import type { BlogCategory } from '~/types/blog/category'
+
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data: categories, status } = await useLazyFetch(`/api/blog/categories`, {
+const { data: categories, status } = await useLazyFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
   key: `blogCategories`,
   method: 'GET',
   query: {

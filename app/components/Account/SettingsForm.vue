@@ -6,6 +6,8 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { defaultSelectOptionChoose } from '~/constants'
 import type { Pagination } from '~/types/pagination'
 import type { Region } from '~/types/region'
+import type { Country } from '~/types/country'
+import type { UserAccount } from '~/types/user/account'
 
 defineSlots<{
   default(props: object): any
@@ -97,8 +99,8 @@ const [birthDate] = defineField('birthDate', {
   validateOnModelUpdate: true,
 })
 
-const { data: countries } = await useAsyncData('countries', () =>
-  $fetch('/api/countries', {
+const { data: countries } = await useAsyncData<Pagination<Country>>('countries', () =>
+  $fetch<Pagination<Country>>('/api/countries', {
     method: 'GET',
     query: {
       language: locale.value,
@@ -122,7 +124,7 @@ const fetchRegions = async () => {
   }
 
   try {
-    regions.value = await $fetch('/api/regions', {
+    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
@@ -150,18 +152,18 @@ const regionOptions = computed(() => {
 
 const label = computed(() => {
   if (birthDate.value && birthDate.value instanceof Date) {
-    return birthDate.value.toLocaleDateString('en-us', {
+    return String(birthDate.value.toLocaleDateString('en-us', {
       weekday: 'long',
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-    })
+    }))
   }
   else if (birthDate.value) {
-    return birthDate.value
+    return String(birthDate.value)
   }
   else {
-    return t('form.birth_date')
+    return String(t('form.birth_date'))
   }
 })
 
@@ -181,12 +183,9 @@ const onSubmit = handleSubmit(async (values) => {
     values.country = undefined
   }
 
-  console.log('===== values.birthDate =====', values.birthDate)
-  console.log('===== values.birthDate?.toISOString() =====', values.birthDate?.toISOString())
-  console.log('===== values.birthDate?.toISOString().split =====', values.birthDate?.toISOString().split('T')[0])
   if (!userId) return
 
-  await $fetch(`/api/user/account/${userId}`, {
+  await $fetch<UserAccount>(`/api/user/account/${userId}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {

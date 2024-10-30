@@ -76,7 +76,7 @@ const reviewComment = computed(() => {
             :to="product.absoluteUrl"
             :text="productName"
           >
-            <ImgWithFallback
+            <NuxtImg
               loading="lazy"
               provider="mediaStream"
               class="product-img w-30 bg-primary-100 h-20 object-cover"

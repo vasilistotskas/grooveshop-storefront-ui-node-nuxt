@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { isClient } from '@vueuse/shared'
 import type { UseSeoMetaInput } from '@unhead/schema'
+import type { BlogPost } from '~/types/blog/post'
 
 const route = useRoute()
 const { t, locale } = useI18n()
@@ -17,7 +18,7 @@ const shouldFetchLikedPosts = computed(() => {
   return loggedIn.value
 })
 
-const { data: blogPost, refresh } = await useFetch(
+const { data: blogPost, refresh } = await useFetch<BlogPost>(
   `/api/blog/posts/${blogPostId.value}`,
   {
     key: `blogPost${blogPostId.value}`,
@@ -53,7 +54,7 @@ if (!blogPost.value) {
   })
 }
 
-await useLazyFetch('/api/blog/posts/liked-posts', {
+await useLazyFetch<number[]>('/api/blog/posts/liked-posts', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
@@ -68,7 +69,7 @@ await useLazyFetch('/api/blog/posts/liked-posts', {
     updateLikedPosts(likedPostsIds)
   },
 })
-const { data: relatedPosts, status: relatedPostsStatus } = await useLazyFetch(
+const { data: relatedPosts, status: relatedPostsStatus } = await useLazyFetch<BlogPost[]>(
   `/api/blog/posts/${blogPostId.value}/related-posts`,
   {
     key: `relatedPosts${blogPostId.value}`,
@@ -121,6 +122,13 @@ const links = computed(() => [
   },
 ])
 
+const blogAuthor = reactive({
+  name: blogPostAuthorUser.value?.firstName
+    + ' '
+    + blogPostAuthorUser.value?.lastName,
+  url: blogPostAuthor.value?.website,
+})
+
 const shareOptions = reactive({
   title: blogPostTitle.value,
   text: blogPostSubtitle.value || '',
@@ -140,7 +148,7 @@ const scrollToComments = () => {
 }
 
 onMounted(() => {
-  $fetch(`/api/blog/posts/${blogPostId.value}/update-view-count`, {
+  $fetch<BlogPost>(`/api/blog/posts/${blogPostId.value}/update-view-count`, {
     method: 'POST',
   })
 })
@@ -182,13 +190,7 @@ useSchemaOrg([
     image: ogImage.value,
     datePublished: blogPost.value?.publishedAt,
     dateModified: blogPost.value?.updatedAt,
-    author: {
-      name:
-        blogPostAuthorUser.value?.firstName
-        + ' '
-        + blogPostAuthorUser.value?.lastName,
-      url: blogPostAuthor.value?.website,
-    },
+    author: blogAuthor,
   }),
 ])
 defineOgImage({
@@ -314,7 +316,7 @@ definePageMeta({
               "
             >
               <div class="sm:mx-0">
-                <ImgWithFallback
+                <NuxtImg
                   id="blog-post-image"
                   :alt="blogPostTitle"
                   :background="'transparent'"

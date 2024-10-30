@@ -1,11 +1,13 @@
 <script lang="ts" setup>
+import type { Order } from '~/types/order'
+
 const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const orderId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: order } = await useFetch(`/api/orders/${orderId}`, {
+const { data: order } = await useFetch<Order>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
   query: {
@@ -83,7 +85,7 @@ definePageMeta({
               :key="item.product.id"
               class="order-item flex items-center gap-4"
             >
-              <ImgWithFallback
+              <NuxtImg
                 :alt="extractTranslated(item.product, 'name', locale)"
                 :background="'transparent'"
                 fit="contain"

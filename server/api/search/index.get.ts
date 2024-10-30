@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
 
     const blogPostsParsedData = await parseDataAs(
       blogPostResponse,
-      union([undefined(), ZodSearchBlogPostResult]),
+      z.union([z.undefined(), ZodSearchBlogPostResult]),
     )
 
     const results = {

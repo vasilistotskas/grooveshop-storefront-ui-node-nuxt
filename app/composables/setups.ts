@@ -341,6 +341,7 @@ export function setupGoogleAnalyticsConsent() {
     () => status.value,
     (current, _previous) => {
       if (current === 'loaded') {
+        // @ts-ignore
         proxy.gtag('consent', 'default', {
           ad_user_data: 'denied',
           ad_personalization: 'denied',
@@ -363,6 +364,7 @@ export function setupGoogleAnalyticsConsent() {
           await load()
         }
         const consentFieldStatus = (field: string) => current?.includes(field) ? 'granted' : 'denied'
+        // @ts-ignore
         proxy.gtag('consent', 'update', {
           ad_storage: consentFieldStatus('ad_storage'),
           ad_user_data: consentFieldStatus('ad_user_data'),

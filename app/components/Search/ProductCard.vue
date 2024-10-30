@@ -34,7 +34,7 @@ const { item } = toRefs(props)
           hover:scale-105
         "
       >
-        <ImgWithFallback
+        <NuxtImg
           loading="lazy"
           provider="mediaStream"
           class="bg-primary-100 aspect-square h-full w-full object-cover"

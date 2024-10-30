@@ -2,7 +2,8 @@
 import type { EntityOrdering } from '~/types/ordering'
 import type { Product, ProductOrderingField } from '~/types/product'
 
-import { type PaginationType, PaginationTypeEnum } from '~/types'
+import { type Pagination, type PaginationType, PaginationTypeEnum } from '~/types'
+import type { ProductFavourite } from '~/types/product/favourite'
 
 const props = defineProps({
   paginationType: {
@@ -44,8 +45,8 @@ const {
   data: products,
   status,
   refresh,
-} = await useAsyncData('products', () =>
-  $fetch('/api/products', {
+} = await useAsyncData<Pagination<Product>>('products', () =>
+  $fetch<Pagination<Product>>('/api/products', {
     method: 'GET',
     query: {
       page: page.value,
@@ -67,7 +68,7 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value && productIds.value && productIds.value.length > 0
 })
 
-await useLazyFetch('/api/products/favourites/favourites-by-products', {
+await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
@@ -85,7 +86,7 @@ await useLazyFetch('/api/products/favourites/favourites-by-products', {
 
 const refreshFavouriteProducts = async (ids: number[]) => {
   if (!shouldFetchFavouriteProducts.value) return
-  return await $fetch('/api/products/favourites/favourites-by-products', {
+  return await $fetch<Pagination<ProductFavourite>>('/api/products/favourites/favourites-by-products', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {

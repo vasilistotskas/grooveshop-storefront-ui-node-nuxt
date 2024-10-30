@@ -2,7 +2,11 @@
 import * as z from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
-import type { TotpPostBody } from '~/types/all-auth'
+import {
+  type TotpGetResponse,
+  type TotpGetResponseError,
+  type TotpPostBody,
+} from '~/types/all-auth'
 
 const emit = defineEmits(['activateTotp'])
 
@@ -15,7 +19,7 @@ const localePath = useLocalePath()
 
 const loading = ref(false)
 
-const { data, error } = await useAsyncData(
+const { data, error } = await useAsyncData<TotpGetResponse | TotpGetResponseError>(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
   {

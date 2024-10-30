@@ -4,6 +4,7 @@ import type { PropType } from 'vue'
 import heartJSON from '~/assets/lotties/heart.json'
 import type Lottie from '~/components/Lottie/index.vue'
 import type { ButtonSize } from '#ui/types'
+import type { ProductFavourite } from '~/types/product/favourite'
 
 const props = defineProps({
   productId: {
@@ -43,7 +44,7 @@ const toggleFavourite = async () => {
     return
   }
   if (!props.favouriteId) {
-    await $fetch(`/api/products/favourites`, {
+    await $fetch<ProductFavourite>(`/api/products/favourites`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body: {

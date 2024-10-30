@@ -2,7 +2,8 @@
 import type { UseSeoMetaInput } from '@unhead/schema'
 import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
 import type { EntityOrdering } from '~/types/ordering'
-import { PaginationTypeEnum } from '~/types'
+import { type Pagination, PaginationTypeEnum } from '~/types'
+import type { BlogCategory } from '~/types/blog/category'
 
 const { locale, t } = useI18n()
 const route = useRoute()
@@ -32,8 +33,8 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
 
 const {
   data: category, status: categoryStatus,
-} = await useAsyncData(`category${categoryId}`, () =>
-  $fetch(`/api/blog/categories/${categoryId}`, {
+} = await useAsyncData<BlogCategory>(`category${categoryId}`, () =>
+  $fetch<BlogCategory>(`/api/blog/categories/${categoryId}`, {
     method: 'GET',
     query: {
       language: locale.value,
@@ -43,8 +44,8 @@ const {
 
 const {
   data: posts, status: postStatus, refresh: refreshPosts,
-} = useLazyAsyncData(`blogCategoryPosts${categoryId}`, () =>
-  $fetch(`/api/blog/categories/${categoryId}/posts`, {
+} = useLazyAsyncData<Pagination<BlogPost>>(`blogCategoryPosts${categoryId}`, () =>
+  $fetch<Pagination<BlogPost>>(`/api/blog/categories/${categoryId}/posts`, {
     method: 'GET',
     query: {
       pageSize: pageSize.value,

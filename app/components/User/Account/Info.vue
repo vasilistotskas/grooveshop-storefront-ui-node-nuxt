@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { UserAccount } from '~/types/user/account'
+import type { ChangeUserNameResponse, UserAccount } from '~/types/user/account'
 
 const props = defineProps({
   account: {
@@ -53,7 +53,7 @@ const changeUserName = async () => {
   }
 
   try {
-    const response = await $fetch(`/api/user/account/${account.value.id}/change-username`, {
+    const response = await $fetch<ChangeUserNameResponse>(`/api/user/account/${account.value.id}/change-username`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body: { username: username.value },

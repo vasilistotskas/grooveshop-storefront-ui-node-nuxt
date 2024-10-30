@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PayWay } from '~/types/pay-way'
+import type { Pagination } from '~/types'
 
 defineSlots<{
   error(props: object): any
@@ -9,10 +10,12 @@ const { t, locale } = useI18n({ useScope: 'local' })
 
 const emit = defineEmits(['update-model'])
 
-const { data: payWays, status } = await useAsyncData('payWays', () =>
-  $fetch('/api/pay-way', {
+const { data: payWays, status } = await useAsyncData<Pagination<PayWay>>('payWays', () =>
+  $fetch<Pagination<PayWay>>('/api/pay-way', {
     method: 'GET',
-    language: locale.value,
+    query: {
+      language: locale.value,
+    },
   }),
 )
 

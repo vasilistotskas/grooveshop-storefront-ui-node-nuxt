@@ -2,6 +2,7 @@
 import type { PropType } from 'vue'
 
 import type { ButtonSize, ButtonVariant } from '#ui/types'
+import type { BlogComment } from '~/types/blog/comment'
 
 const props = defineProps({
   blogCommentId: {
@@ -54,7 +55,7 @@ const toggleFavourite = async () => {
     return
   }
 
-  await $fetch(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
+  await $fetch<BlogComment>(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
     method: 'POST',
     headers: useRequestHeaders(),
     query: {

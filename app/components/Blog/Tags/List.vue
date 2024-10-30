@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import type { BlogTag } from '~/types/blog/tag'
+
 const { locale } = useI18n()
 
-const { data: blogTags } = await useAsyncData('blogTags', () =>
-  $fetch('/api/blog/tags', {
+const { data: blogTags } = await useAsyncData<BlogTag[]>('blogTags', () =>
+  $fetch<BlogTag[]>('/api/blog/tags', {
     method: 'GET',
     query: {
       active: 'true',

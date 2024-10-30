@@ -42,7 +42,7 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <ImgWithFallback
+  <NuxtImg
     :loading="imgLoading"
     provider="mediaStream"
     :width="width"

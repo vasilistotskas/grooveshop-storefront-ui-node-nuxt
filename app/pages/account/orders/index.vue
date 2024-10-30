@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Order, OrderOrderingField } from '~/types/order'
 import type { EntityOrdering } from '~/types/ordering'
+import type { Pagination } from '~/types'
 
 const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
@@ -29,7 +30,7 @@ const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
   },
 ])
 
-const { data: orders } = await useFetch(
+const { data: orders } = await useFetch<Pagination<Order>>(
   `/api/user/account/${user.value?.id}/orders`,
   {
     method: 'GET',
@@ -50,7 +51,7 @@ const { data: orders } = await useFetch(
 
 const refreshOrders = async () => {
   pending.value = true
-  const orders = await $fetch(`/api/user/account/${user.value?.id}/orders`, {
+  const orders = await $fetch<Pagination<Order>>(`/api/user/account/${user.value?.id}/orders`, {
     method: 'GET',
     headers: useRequestHeaders(),
     query: {

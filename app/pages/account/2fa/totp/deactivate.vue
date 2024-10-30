@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { TotpGetResponse, TotpGetResponseError } from '~/types/all-auth'
+
 const emit = defineEmits(['deactivateTotp'])
 
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
@@ -8,7 +10,7 @@ const localePath = useLocalePath()
 
 const loading = ref(false)
 
-const { error, refresh } = await useAsyncData(
+const { error, refresh } = await useAsyncData<TotpGetResponse | TotpGetResponseError>(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
 )

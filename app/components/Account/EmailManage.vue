@@ -2,7 +2,7 @@
 import * as z from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
-import type { EmailDeleteBody, EmailPatchBody, EmailPostBody, EmailPutBody } from '~/types/all-auth'
+import type { EmailDeleteBody, EmailGetResponse, EmailPatchBody, EmailPostBody, EmailPutBody } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
 import { handleAllAuthClientError } from '~/utils/error'
 
@@ -20,7 +20,7 @@ const { t } = useI18n()
 
 const loading = ref(false)
 
-const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData(
+const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData<EmailGetResponse>(
   'emailAddresses',
   () => getEmailAddresses(),
 )

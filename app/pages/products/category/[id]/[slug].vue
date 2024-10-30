@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { ProductCategory } from '~/types/product/category'
+
 const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 
@@ -6,7 +8,7 @@ const categoryId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: category } = await useFetch(
+const { data: category } = await useFetch<ProductCategory>(
   `/api/products/categories/${categoryId}`,
   {
     key: `category${categoryId}`,

@@ -20,7 +20,7 @@ const alt = computed(() => {
 
 <template>
   <div class="order-card-items-image">
-    <ImgWithFallback
+    <NuxtImg
       loading="lazy"
       provider="mediaStream"
       class="product-img bg-primary-100"

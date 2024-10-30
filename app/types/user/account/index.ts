@@ -81,3 +81,4 @@ export const ZodChangeUserNameResponse = z.object({
 })
 
 export type UserAccount = z.infer<typeof ZodUserAccount>
+export type ChangeUserNameResponse = z.infer<typeof ZodChangeUserNameResponse>

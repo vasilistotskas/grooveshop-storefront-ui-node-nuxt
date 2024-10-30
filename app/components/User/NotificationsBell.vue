@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { Notification } from '~/types/notification'
+
 const { locale } = useI18n()
 const { getUnseenCount, markAsSeen } = useUserNotification()
 const { getNotifications } = useNotification()
@@ -24,7 +26,7 @@ const { data: unseen, execute: executeUnseenCount, status: unseenStatus } = awai
   },
 )
 
-const { data, execute, status: notificationsStatus } = await useLazyAsyncData(
+const { data, execute, status: notificationsStatus } = await useLazyAsyncData<Notification[]>(
   'notifications',
   () => getNotifications(notificationIds.value),
   {

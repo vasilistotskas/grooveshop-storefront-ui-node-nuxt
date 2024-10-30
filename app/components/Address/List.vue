@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import type { UserAddressOrderingField } from '~/types/user/address'
+import type { UserAddress, UserAddressOrderingField } from '~/types/user/address'
 import type { EntityOrdering } from '~/types/ordering'
+import type { Pagination } from '~/types'
 
 defineProps({
   displayTotal: {
@@ -32,7 +33,7 @@ const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
   },
 ])
 
-const { data: addresses } = await useFetch(
+const { data: addresses } = await useFetch<Pagination<UserAddress>>(
   `/api/user/account/${user.value?.id}/addresses`,
   {
     method: 'GET',
@@ -53,7 +54,7 @@ const { data: addresses } = await useFetch(
 
 const refreshAddresses = async () => {
   pending.value = true
-  const addresses = await $fetch(
+  const addresses = await $fetch<Pagination<UserAddress>>(
     `/api/user/account/${user.value?.id}/addresses`,
     {
       method: 'GET',

@@ -30,7 +30,7 @@ const sortedFields = computed(() => {
     fields.sort(([keyA], [keyB]) => (keyA === 'title' ? -1 : keyB === 'title' ? 1 : 0))
   }
 
-  return fields.map(([key, value]) => [key, stripHtml(value)])
+  return fields.map(([key, value]) => [key, value ? stripHtml(value) : ''])
 })
 
 const imgAlt = computed(() => {
@@ -68,7 +68,7 @@ const imgAlt = computed(() => {
       @mouseover="() => emit('mouseover')"
     >
       <div class="flex gap-4">
-        <ImgWithFallback
+        <NuxtImg
           class="object-contain"
           loading="lazy"
           provider="mediaStream"

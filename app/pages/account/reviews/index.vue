@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { EntityOrdering } from '~/types/ordering'
 import type { ProductReview, ProductReviewOrderingField } from '~/types/product/review'
+import type { Pagination } from '~/types'
 
 const route = useRoute()
 const { t } = useI18n({ useScope: 'local' })
@@ -24,7 +25,7 @@ const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   },
 ])
 
-const { data: reviews } = await useFetch(
+const { data: reviews } = await useFetch<Pagination<ProductReview>>(
   `/api/user/account/${user.value?.id}/product-reviews`,
   {
     method: 'GET',
@@ -46,7 +47,7 @@ const { data: reviews } = await useFetch(
 
 const refreshReviews = async () => {
   pending.value = true
-  const reviews = await $fetch(
+  const reviews = await $fetch<Pagination<ProductReview>>(
     `/api/user/account/${user.value?.id}/product-reviews`,
     {
       method: 'GET',

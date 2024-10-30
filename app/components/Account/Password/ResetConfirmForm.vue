@@ -2,6 +2,7 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
+import type { PasswordResetGetResponse } from '~/types/all-auth'
 
 const emit = defineEmits(['passwordReset'])
 
@@ -21,7 +22,7 @@ if (!key) {
   navigateTo(localePath('/account/password/reset'))
 }
 
-await useAsyncData(
+await useAsyncData<PasswordResetGetResponse>(
   'passwordReset',
   () => getPasswordReset(String(key)),
 )

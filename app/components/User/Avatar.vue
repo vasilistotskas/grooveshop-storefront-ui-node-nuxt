@@ -86,7 +86,7 @@ const uploadImage = async (event: Event) => {
     return
   }
 
-  await $fetch(`/api/user/account/${userAccount.value.id}`, {
+  await $fetch<UserAccount>(`/api/user/account/${userAccount.value.id}`, {
     method: 'PATCH',
     headers: useRequestHeaders(),
     body: formData,
@@ -130,7 +130,7 @@ const uploadImage = async (event: Event) => {
         justify-items-center
       "
     >
-      <ImgWithFallback
+      <NuxtImg
         :alt="alt"
         :background="'transparent'"
         :class="{

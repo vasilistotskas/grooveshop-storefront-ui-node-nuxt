@@ -1,6 +1,4 @@
-import * as z from 'zod'
-
-import { ZodUserAddressParams } from '~/types/user/address'
+import { ZodUserAddress, ZodUserAddressParams } from '~/types/user/address'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -19,7 +17,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, z.any())
+    return await parseDataAs(response, ZodUserAddress)
   }
   catch (error) {
     await handleError(error)

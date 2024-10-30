@@ -138,9 +138,9 @@ async function loadMoreSectionResults(
   await execute()
 }
 
-const { data, execute, status } = await useLazyAsyncData(
+const { data, execute, status } = await useLazyAsyncData<SearchResponse>(
   'search',
-  () => $fetch('/api/search', {
+  () => $fetch<SearchResponse>('/api/search', {
     method: 'GET',
     credentials: 'omit',
     retry: 120,

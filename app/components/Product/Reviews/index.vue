@@ -2,7 +2,7 @@
 import type { PropType } from 'vue'
 
 import type { EntityOrdering } from '~/types/ordering'
-import type { ProductReviewOrderingField } from '~/types/product/review'
+import type { ProductReview, ProductReviewOrderingField } from '~/types/product/review'
 
 const props = defineProps({
   productId: {
@@ -40,7 +40,7 @@ const {
   data: productReviews,
   status,
   refresh,
-} = await useLazyFetch(`/api/products/${productId.value}/reviews`, {
+} = await useLazyFetch<ProductReview[]>(`/api/products/${productId.value}/reviews`, {
   key: `productReviews${productId.value}`,
   method: 'GET',
   query: {

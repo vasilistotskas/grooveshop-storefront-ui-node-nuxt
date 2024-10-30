@@ -4,11 +4,12 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
-import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order'
+import { type OrderCreateResponse, ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order'
 import { ZodOrderCreateItem } from '~/types/order/order-item'
 import type { PayWay } from '~/types/pay-way'
 import type { Pagination } from '~/types/pagination'
 import type { Region } from '~/types/region'
+import type { Country } from '~/types/country'
 
 const { user, fetch } = useUserSession()
 
@@ -26,8 +27,8 @@ const USelect = resolveComponent('USelect')
 const payWay = useState<PayWay | null>('selectedPayWay')
 const regions = ref<Pagination<Region> | null>(null)
 
-const { data: countries } = await useAsyncData('countries', () =>
-  $fetch('/api/countries', {
+const { data: countries } = await useAsyncData<Pagination<Country>>('countries', () =>
+  $fetch<Pagination<Country>>('/api/countries', {
     method: 'GET',
     query: {
       language: locale.value,
@@ -161,7 +162,7 @@ const fetchRegions = async () => {
   }
 
   try {
-    regions.value = await $fetch('/api/regions', {
+    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
@@ -198,7 +199,7 @@ const onCountryChange = async (event: Event) => {
 const onSubmit = handleSubmit(async (values) => {
   const updatedValues = processValues(values)
 
-  await $fetch('/api/orders', {
+  await $fetch<OrderCreateResponse>('/api/orders', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: updatedValues,

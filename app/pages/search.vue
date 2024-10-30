@@ -31,7 +31,7 @@ const offset = computed({
 
 const { data, execute, status, refresh } = await useAsyncData<SearchResponse>(
   'search',
-  () => $fetch('/api/search', {
+  () => $fetch<SearchResponse>('/api/search', {
     method: 'GET',
     credentials: 'omit',
     retry: 120,

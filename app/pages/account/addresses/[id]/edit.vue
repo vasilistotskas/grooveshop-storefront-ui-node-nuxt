@@ -8,6 +8,8 @@ import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodUserAccount } from '~/types/user/account'
 import type { Pagination } from '~/types/pagination'
 import type { Region } from '~/types/region'
+import type { Country } from '~/types/country'
+import type { UserAddress } from '~/types/user/address'
 
 const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
@@ -22,7 +24,7 @@ const regions = ref<Pagination<Region> | null>(null)
 const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
 
-const { data: address } = await useFetch(`/api/user/addresses/${addressId}`, {
+const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
   key: `address${addressId}`,
   method: 'GET',
   query: {
@@ -120,8 +122,8 @@ defineField('isMain', {
   validateOnModelUpdate: true,
 })
 
-const { data: countries } = await useAsyncData('countries', () =>
-  $fetch('/api/countries', {
+const { data: countries } = await useAsyncData<Pagination<Country>>('countries', () =>
+  $fetch<Pagination<Country>>('/api/countries', {
     method: 'GET',
     query: {
       language: locale.value,
@@ -145,7 +147,7 @@ const fetchRegions = async () => {
   }
 
   try {
-    regions.value = await $fetch('/api/regions', {
+    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
@@ -182,7 +184,7 @@ const onCountryChange = async (event: Event) => {
 const onSubmit = handleSubmit(async (values) => {
   const updatedValues = processValues(values)
 
-  await $fetch(`/api/user/addresses/${addressId}`, {
+  await $fetch<UserAddress>(`/api/user/addresses/${addressId}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {

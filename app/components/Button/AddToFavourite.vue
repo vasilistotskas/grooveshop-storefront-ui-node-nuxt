@@ -45,7 +45,7 @@ const toggleFavourite = async () => {
     return
   }
   if (!props.favourite) {
-    await $fetch(`/api/products/favourites`, {
+    await $fetch<ProductFavourite>(`/api/products/favourites`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body: {

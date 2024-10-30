@@ -4,6 +4,9 @@ import { isClient } from '@vueuse/shared'
 import type { Product } from '~/types/product'
 import { GlobalEvents } from '~/events'
 import { capitalize } from '~/utils/str'
+import type { ProductReview } from '~/types/product/review'
+import type { Tag } from '~/types/tag'
+import type { ProductFavourite } from '~/types/product/favourite'
 
 const { user, loggedIn } = useUserSession()
 
@@ -31,7 +34,7 @@ const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   },
 )
 
-const { data: tags, status } = await useLazyFetch(
+const { data: tags, status } = await useLazyFetch<Tag[]>(
   `/api/products/${productId}/tags`,
   {
     key: `productTags${productId}`,
@@ -54,7 +57,7 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
 
-await useLazyFetch('/api/products/favourites/favourites-by-products', {
+await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
@@ -71,7 +74,7 @@ await useLazyFetch('/api/products/favourites/favourites-by-products', {
 })
 
 const { data: userProductReview, refresh: refreshUserProductReview }
-  = await useFetch('/api/products/reviews/user-product-review', {
+  = await useFetch<ProductReview>('/api/products/reviews/user-product-review', {
     key: `productReviews${productId}${user.value?.id}`,
     headers: useRequestHeaders(),
     method: 'POST',
@@ -198,7 +201,7 @@ watch(selectorQuantity, (newValue) => {
 })
 
 onMounted(() => {
-  $fetch(`/api/products/${productId}/update-view-count`, {
+  $fetch<Product>(`/api/products/${productId}/update-view-count`, {
     method: 'POST',
   })
 })

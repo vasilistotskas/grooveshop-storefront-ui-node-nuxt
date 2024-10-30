@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { Item } from '~/types/cart/item'
+import type { CartItem } from '~/types/cart/item'
 
 const props = defineProps({
-  cartItem: { type: Object as PropType<Item>, required: true },
+  cartItem: { type: Object as PropType<CartItem>, required: true },
 })
 
 const cartStore = useCartStore()
@@ -49,7 +49,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
           :to="cartItem.product.absoluteUrl"
           :title="alt"
         >
-          <ImgWithFallback
+          <NuxtImg
             loading="lazy"
             provider="mediaStream"
             class="product-img bg-primary-100"
