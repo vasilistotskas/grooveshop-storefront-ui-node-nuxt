@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { string } from 'zod'
+import { z } from 'zod'
 import type { TwoFaReauthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 
@@ -40,7 +40,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'code',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,

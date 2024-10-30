@@ -1,11 +1,11 @@
-import { object, array, number, boolean } from 'zod'
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, object({
-      notificationUserIds: array(number()),
+    const body = await readValidatedBody(event, z.object({
+      notificationUserIds: z.array(z.number()),
     }).parse)
     const response = await $fetch(`${config.public.apiBaseUrl}/notification/user/mark_as_unseen`, {
       method: 'POST',
@@ -14,8 +14,8 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, object({
-      success: boolean(),
+    return await parseDataAs(response, z.object({
+      success: z.boolean(),
     }))
   }
   catch (error) {

@@ -1,4 +1,4 @@
-import { array } from 'zod'
+import { z } from 'zod'
 import { ZodBlogTag, ZodBlogTagQuery } from '~/types/blog/tag'
 
 const { maxAge, base } = getCachedEventHandlerOptions()
@@ -11,7 +11,7 @@ export default defineCachedEventHandler(async (event) => {
     const response = await $fetch(url, {
       method: 'GET',
     })
-    return await parseDataAs(response, array(ZodBlogTag))
+    return await parseDataAs(response, z.array(ZodBlogTag))
   }
   catch (error) {
     await handleError(error)

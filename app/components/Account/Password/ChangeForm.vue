@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { object, string, optional, ZodIssueCode } from 'zod'
+import { z } from 'zod'
 import type { DynamicFormSchema } from '~/types/form'
 import type { PasswordChangeBody } from '~/types/all-auth'
 
@@ -38,7 +38,7 @@ const formSchema = computed((): DynamicFormSchema => {
       label: t('password.new'),
       name: 'new_password',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }).min(8).max(255),
+      rules: z.string({ required_error: t('validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -49,7 +49,7 @@ const formSchema = computed((): DynamicFormSchema => {
       label: t('password.confirm'),
       name: 'confirm_password',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }).min(8).max(255),
+      rules: z.string({ required_error: t('validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -63,7 +63,7 @@ const formSchema = computed((): DynamicFormSchema => {
       label: t('password.current'),
       name: 'current_password',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }).min(8).max(255),
+      rules: z.string({ required_error: t('validation.required') }).min(8).max(255),
       autocomplete: 'current-password',
       readonly: false,
       required: true,
@@ -74,31 +74,32 @@ const formSchema = computed((): DynamicFormSchema => {
 
   return {
     fields,
-    extraValidation: object({
-      current_password: optional(string({ required_error: t('validation.required') })),
-      new_password: string({ required_error: t('validation.required') }),
-      confirm_password: string({ required_error: t('validation.required') }),
-    }).superRefine((val, ctx) => {
-      if (val.new_password !== val.confirm_password) {
-        ctx.addIssue({
-          code: ZodIssueCode.custom,
-          message: t(
-            'validation.must_match', { field: t('password.new'), other: t('password.confirm') },
-          ),
-          path: ['confirm_password'],
-        })
-      }
+    extraValidation: z
+      .object({
+        current_password: z.string({ required_error: t('validation.required') }).optional(),
+        new_password: z.string({ required_error: t('validation.required') }),
+        confirm_password: z.string({ required_error: t('validation.required') }),
+      }).superRefine((val, ctx) => {
+        if (val.new_password !== val.confirm_password) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t(
+              'validation.must_match', { field: t('password.new'), other: t('password.confirm') },
+            ),
+            path: ['confirm_password'],
+          })
+        }
 
-      if (hasCurrentPassword.value && val.current_password === val.new_password) {
-        ctx.addIssue({
-          code: ZodIssueCode.custom,
-          message: t(
-            'validation.password.must_not_be_same',
-          ),
-          path: ['confirm_password'],
-        })
-      }
-    }),
+        if (hasCurrentPassword.value && val.current_password === val.new_password) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t(
+              'validation.password.must_not_be_same',
+            ),
+            path: ['confirm_password'],
+          })
+        }
+      }),
   }
 })
 </script>

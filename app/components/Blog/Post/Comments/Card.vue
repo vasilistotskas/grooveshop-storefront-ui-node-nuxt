@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import { string } from 'zod'
+import { z } from 'zod'
 import type { BlogComment } from '~/types/blog/comment'
 import type { DynamicFormSchema } from '~/types/form'
 import {
@@ -95,7 +95,7 @@ const replyCommentFormSchema: DynamicFormSchema = {
       id: `content-${comment.value.id}`,
       name: 'content',
       as: 'textarea',
-      rules: string({ required_error: t('validation.required') }).max(1000),
+      rules: z.string({ required_error: t('validation.required') }).max(1000),
       autocomplete: 'on',
       readonly: false,
       required: true,

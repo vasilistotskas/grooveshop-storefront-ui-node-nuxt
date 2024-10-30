@@ -1,4 +1,4 @@
-import { array, number } from 'zod'
+import { z } from 'zod'
 import { ZodBlogPostsLikedPostsBody } from '~/types/blog/post'
 
 export default defineEventHandler(async (event) => {
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, array(number()))
+    return await parseDataAs(response, z.array(z.number()))
   }
   catch (error) {
     await handleError(error)

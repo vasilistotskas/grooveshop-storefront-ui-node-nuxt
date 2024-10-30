@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useForm, type ValidationOptions } from 'vee-validate'
-import { object, ZodEffects, ZodObject } from 'zod'
+import type { ValidationOptions } from 'vee-validate'
+import { z } from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import type { DisabledFields, DynamicFormFields, DynamicFormSchema, DynamicFormState, FormValues } from '~/types/form'
@@ -109,23 +110,23 @@ const disabledFields = computed<DisabledFields>(() => {
 const schemaFieldNames = shallowRef(formFields.value.map(field => field.name))
 
 // Use schema.fields to generate a Zod schema object
-const generatedSchema = object(
+const generatedSchema = z.object(
   Object.fromEntries(formFields.value.map(field => [field.name, field.rules])),
 )
 
 // Use schema.extraValidation to generate a Zod schema object
-const extraValidationSchema = schema.value.extraValidation ? schema.value.extraValidation : object({})
+const extraValidationSchema = schema.value.extraValidation ? schema.value.extraValidation : z.object({})
 
 // Merge the generated Zod schema object with the extraValidationSchema
 const merged = computed(() => {
-  if (extraValidationSchema instanceof ZodEffects) {
+  if (extraValidationSchema instanceof z.ZodEffects) {
     return mergeWithEffect(extraValidationSchema, generatedSchema)
   }
-  else if (extraValidationSchema instanceof ZodObject) {
+  else if (extraValidationSchema instanceof z.ZodObject) {
     return generatedSchema.merge(extraValidationSchema)
   }
 
-  console.warn('extraValidationSchema is not an instance of ZodEffects or ZodObject')
+  console.warn('extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject')
   return generatedSchema
 })
 

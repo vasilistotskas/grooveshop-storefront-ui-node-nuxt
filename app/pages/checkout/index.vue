@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { string, number, array, union, object, optional, nativeEnum } from 'zod'
 import { Field, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
+import { z } from 'zod'
 import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order'
@@ -48,30 +48,44 @@ const countryOptions = computed(() => {
 const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
-const ZodCheckout = object({
-  user: optional(string({ required_error: t('validation.required') })),
-  country: optional(string({ required_error: t('validation.required') })),
-  region: optional(string({ required_error: t('validation.required') })),
-  floor: optional(union([nativeEnum(FloorChoicesEnum), string({ required_error: t('validation.required') })])),
-  locationType: optional(
-    union([nativeEnum(LocationChoicesEnum), string({ required_error: t('validation.required') })]),
-  ),
-  street: string().min(3, t('validation.street.min', { min: 3 })),
-  streetNumber: string().min(1, t('validation.street_number.min', { min: 1 })),
-  status: optional(ZodOrderStatusEnum),
-  firstName: string().min(3, t('validation.first_name.min', { min: 3 })),
-  lastName: string().min(3, t('validation.last_name.min', { min: 3 })),
-  email: string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
-  zipcode: string().min(3, t('validation.zipcode.min', { min: 3 })),
-  place: string().min(3, t('validation.place.min', { min: 3 })),
-  city: string({ required_error: t('validation.required') }).min(3, t('validation.city.min', { min: 3 })),
-  phone: string().min(3, t('validation.phone.min', { min: 3 })),
-  mobilePhone: optional(string({ required_error: t('validation.required') })),
-  customerNotes: optional(string({ required_error: t('validation.required') })),
-  shippingPrice: number(),
+const ZodCheckout = z.object({
+  user: z.string({ required_error: t('validation.required') }).optional(),
+  country: z.string({ required_error: t('validation.required') }).optional(),
+  region: z.string({ required_error: t('validation.required') }).optional(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('validation.required') })]).optional(),
+  locationType: z
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('validation.required') })])
+    .optional(),
+  street: z
+    .string()
+    .min(3, t('validation.street.min', { min: 3 })),
+  streetNumber: z
+    .string()
+    .min(1, t('validation.street_number.min', { min: 1 })),
+  status: ZodOrderStatusEnum.optional(),
+  firstName: z
+    .string()
+    .min(3, t('validation.first_name.min', { min: 3 })),
+  lastName: z
+    .string()
+    .min(3, t('validation.last_name.min', { min: 3 })),
+  email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+  zipcode: z
+    .string()
+    .min(3, t('validation.zipcode.min', { min: 3 })),
+  place: z
+    .string()
+    .min(3, t('validation.place.min', { min: 3 })),
+  city: z.string({ required_error: t('validation.required') }).min(3, t('validation.city.min', { min: 3 })),
+  phone: z
+    .string()
+    .min(3, t('validation.phone.min', { min: 3 })),
+  mobilePhone: z.string({ required_error: t('validation.required') }).optional(),
+  customerNotes: z.string({ required_error: t('validation.required') }).optional(),
+  shippingPrice: z.number(),
   documentType: ZodDocumentTypeEnum,
-  items: array(ZodOrderCreateItem),
-  payWay: number({ required_error: t('validation.required') }),
+  items: z.array(ZodOrderCreateItem),
+  payWay: z.number({ required_error: t('validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)

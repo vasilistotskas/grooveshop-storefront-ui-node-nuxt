@@ -1,4 +1,4 @@
-import { any } from 'zod'
+import { z } from 'zod'
 
 import { ZodUserAddressParams } from '~/types/user/address'
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, any())
+    return await parseDataAs(response, z.any())
   }
   catch (error) {
     await handleError(error)

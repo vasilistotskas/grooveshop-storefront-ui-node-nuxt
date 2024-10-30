@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { object, string, number } from 'zod'
 import { Field, useForm } from 'vee-validate'
+import { z } from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import { GlobalEvents } from '~/events'
@@ -230,8 +230,9 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
 
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
-const ZodReviewSchema = object({
-  comment: string()
+const ZodReviewSchema = z.object({
+  comment: z
+    .string()
     .min(10, {
       message: t('validation.min', {
         min: 10,
@@ -242,7 +243,8 @@ const ZodReviewSchema = object({
         max: 1000,
       }),
     }),
-  rate: number()
+  rate: z
+    .number()
     .min(1, {
       message: t('validation.min', { min: 1 }),
     })

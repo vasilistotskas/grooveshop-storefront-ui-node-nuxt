@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { string } from 'zod'
+import { z } from 'zod'
 import { type AuthenticatorTypeValues, Flows, type TwoFaAuthenticateBody } from '~/types/all-auth'
 import type { DynamicFormSchema } from '~/types/form'
 
@@ -34,7 +34,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'code',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,

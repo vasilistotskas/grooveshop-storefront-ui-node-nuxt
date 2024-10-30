@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { string, boolean, union, object, number, nativeEnum, optional } from 'zod'
 import { Field, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
+import { z } from 'zod'
 import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
 import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
 import { ZodUserAccount } from '~/types/user/account'
@@ -18,33 +18,36 @@ const USelect = resolveComponent('USelect')
 
 const regions = ref<Pagination<Region> | null>(null)
 
-const ZodUserAddress = object({
-  title: string({ required_error: t('validation.required') }),
-  firstName: string({ required_error: t('validation.required') }),
-  lastName: string({ required_error: t('validation.required') }),
-  street: string({ required_error: t('validation.required') }),
-  streetNumber: string({ required_error: t('validation.required') }),
-  city: string({ required_error: t('validation.required') }),
-  zipcode: string({ required_error: t('validation.required') }),
-  floor: optional(union([nativeEnum(FloorChoicesEnum), string({ required_error: t('validation.required') })])),
-  locationType: optional(union([nativeEnum(LocationChoicesEnum), string({ required_error: t('validation.required') })])),
-  phone: optional(string({ required_error: t('validation.required') })),
-  mobilePhone: optional(string({ required_error: t('validation.required') })),
-  notes: optional(string({ required_error: t('validation.required') })),
-  isMain: optional(boolean()),
-  user: optional(union([number(), ZodUserAccount])),
-  country: optional(
-    string().refine(value => value !== defaultSelectOptionChoose, {
+const ZodUserAddress = z.object({
+  title: z.string({ required_error: t('validation.required') }),
+  firstName: z.string({ required_error: t('validation.required') }),
+  lastName: z.string({ required_error: t('validation.required') }),
+  street: z.string({ required_error: t('validation.required') }),
+  streetNumber: z.string({ required_error: t('validation.required') }),
+  city: z.string({ required_error: t('validation.required') }),
+  zipcode: z.string({ required_error: t('validation.required') }),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('validation.required') })]).optional(),
+  locationType: z
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('validation.required') })])
+    .optional(),
+  phone: z.string({ required_error: t('validation.required') }).optional(),
+  mobilePhone: z.string({ required_error: t('validation.required') }).optional(),
+  notes: z.string({ required_error: t('validation.required') }).optional(),
+  isMain: z.boolean().optional(),
+  user: z.union([z.number(), ZodUserAccount]).optional(),
+  country: z
+    .string()
+    .refine(value => value !== defaultSelectOptionChoose, {
       message: t('validation.region.required'),
-    }),
-  ),
-  region: optional(
-    string().refine(value => value !== defaultSelectOptionChoose, {
+    })
+    .optional(),
+  region: z
+    .string()
+    .refine(value => value !== defaultSelectOptionChoose, {
       message: t('validation.region.required'),
-    }),
-  ),
+    })
+    .optional(),
 })
-
 const validationSchema = toTypedSchema(ZodUserAddress)
 const { defineField, handleSubmit, errors, isSubmitting } = useForm({
   validationSchema,

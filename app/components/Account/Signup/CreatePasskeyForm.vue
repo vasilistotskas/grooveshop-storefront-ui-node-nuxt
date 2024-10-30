@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { string } from 'zod'
+import { z } from 'zod'
 
 import { create, parseCreationOptionsFromJSON } from '@github/webauthn-json/browser-ponyfill'
 import type { CredentialCreationOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'
@@ -55,7 +55,7 @@ const formSchema: DynamicFormSchema = {
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'name',
       readonly: false,
       required: true,

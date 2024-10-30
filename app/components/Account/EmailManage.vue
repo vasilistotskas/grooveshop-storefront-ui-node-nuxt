@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { string } from 'zod'
+import { z } from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
 import type { EmailDeleteBody, EmailPatchBody, EmailPostBody, EmailPutBody } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
+import { handleAllAuthClientError } from '~/utils/error'
 
 const emit = defineEmits(['addEmailAddress', 'requestEmailVerification', 'removeEmailAddress', 'changePrimaryEmailAddress'])
 
@@ -156,7 +157,7 @@ const formSchema: DynamicFormSchema = {
       label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,

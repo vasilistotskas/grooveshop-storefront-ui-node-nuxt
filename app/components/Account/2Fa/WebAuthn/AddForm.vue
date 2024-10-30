@@ -3,7 +3,7 @@ import {
   create,
   parseCreationOptionsFromJSON,
 } from '@github/webauthn-json/browser-ponyfill'
-import { string, boolean } from 'zod'
+import { z } from 'zod'
 import type { CredentialCreationOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'
 import type { DynamicFormSchema } from '~/types/form'
 
@@ -57,7 +57,7 @@ const formSchema: DynamicFormSchema = {
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: t('validation.required') }),
       autocomplete: 'name',
       readonly: false,
       required: true,
@@ -68,7 +68,7 @@ const formSchema: DynamicFormSchema = {
       label: t('passwordless'),
       name: 'passwordless',
       as: 'checkbox',
-      rules: boolean(),
+      rules: z.boolean(),
       autocomplete: 'passwordless',
       readonly: false,
       required: false,

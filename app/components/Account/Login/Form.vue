@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { object, string } from 'zod'
+import { z } from 'zod'
 
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -14,9 +14,9 @@ const { refreshCart } = cartStore
 const authStore = useAuthStore()
 const { session, status, hasSocialaccountProviders } = storeToRefs(authStore)
 
-const ZodLogin = object({
-  email: string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
-  password: string({ required_error: t('validation.required') }),
+const ZodLogin = z.object({
+  email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+  password: z.string({ required_error: t('validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodLogin)

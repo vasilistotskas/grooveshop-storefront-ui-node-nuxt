@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { string } from 'zod'
+import { z } from 'zod'
 
 import type { DynamicFormSchema } from '~/types/form'
+import DynamicForm from '~/components/DynamicForm/index.vue'
 import type { PasswordRequestBody } from '~/types/all-auth'
 import type DynamicForm from '~/components/DynamicForm/index.vue'
 
@@ -43,7 +44,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'email',
       as: 'input',
-      rules: string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,

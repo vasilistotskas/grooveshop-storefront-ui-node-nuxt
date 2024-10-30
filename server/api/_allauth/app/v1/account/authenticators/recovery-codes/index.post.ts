@@ -1,4 +1,4 @@
-import { any } from 'zod'
+import { z } from 'zod'
 
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
@@ -8,7 +8,7 @@ export default defineEventHandler(async () => {
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, any())
+    return await parseDataAs(response, z.any())
   }
   catch (error) {
     await handleAllAuthError(error)

@@ -1,4 +1,4 @@
-import { array } from 'zod'
+import { z } from 'zod'
 import { ZodProductFavourite, ZodProductFavouritesByProductsBody } from '~/types/product/favourite'
 
 export default defineEventHandler(async (event) => {
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, array(ZodProductFavourite))
+    return await parseDataAs(response, z.array(ZodProductFavourite))
   }
   catch (error) {
     await handleError(error)

@@ -1,4 +1,4 @@
-import { union, undefined } from 'zod'
+import { z } from 'zod'
 
 import { ZodSearchBlogPostResult, ZodSearchProductResult, ZodSearchQuery, ZodSearchResponse } from '~/types/search'
 
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const productsParsedData = await parseDataAs(
       productResponse,
-      union([undefined(), ZodSearchProductResult]),
+      z.union([z.undefined(), ZodSearchProductResult]),
     )
 
     const blogPostUrl = buildFullUrl(
