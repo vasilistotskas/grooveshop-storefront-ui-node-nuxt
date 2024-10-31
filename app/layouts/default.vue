@@ -129,6 +129,10 @@ const Footer = computed(() => {
             inactive:
               'text-primary-950 dark:text-primary-50 group-hover:text-primary-950 dark:group-hover:text-primary-950',
           },
+          avatar: {
+            base: 'w-8 h-8',
+            size: 'sm',
+          },
         }"
         class="
           border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
