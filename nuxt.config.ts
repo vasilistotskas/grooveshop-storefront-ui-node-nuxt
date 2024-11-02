@@ -221,7 +221,7 @@ export default defineNuxtConfig({
     | 'chokidar-granular'
     | 'parcel'
     | undefined,
-  }, compatibilityDate: '2024-09-19',
+  }, compatibilityDate: '2024-11-01',
   nitro: {
     compressPublicAssets: {
       gzip: true,
