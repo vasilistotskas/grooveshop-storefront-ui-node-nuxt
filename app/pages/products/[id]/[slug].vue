@@ -475,7 +475,7 @@ el:
   qty: Ποσ
   share: Μερίδιο
   max_quantity_reached: Επιτεύχθηκε η μέγιστη ποσότητα
-  adjusted_to_stock: Προσαρμόστηκε στο απόθεμα %{stock}
+  adjusted_to_stock: Προσαρμόστηκε στο απόθεμα {stock}
   must_be_logged_in: Πρέπει να συνδεθείς
   update_review: Ενημέρωση κριτικής
   write_review: Γράψε κριτική

@@ -371,7 +371,7 @@ onMounted(() => {
 el:
   title: Σχόλια
   summary:
-    comments: Κανένα σχόλιο | 1 σχόλιο | %{count} Σχόλια
+    comments: Κανένα σχόλιο | 1 σχόλιο | {count} Σχόλια
   empty:
     title: Γράψε ένα σχόλιο
     title_guest: Συνδέσου για να γράψεις ένα σχόλιο

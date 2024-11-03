@@ -90,5 +90,5 @@ const onLocaleChange = (code: string) => {
 <i18n lang="yaml">
 el:
   change_language: Άλλαξε γλώσσα
-  current_language: Τρέχουσα γλώσσα %{language}
+  current_language: Τρέχουσα γλώσσα {language}
 </i18n>

@@ -159,6 +159,6 @@ el:
   recovery-codes:
     title: Κωδικοί ανάκτησης
     unset: Δεν έχουν οριστεί κωδικοί ανάκτησης
-    info: Έχεις %{unused_code_count} από τους %{total_code_count} κωδικούς ανάκτησης
+    info: Έχεις {unused_code_count} από τους {total_code_count} κωδικούς ανάκτησης
       διαθέσιμους.
 </i18n>

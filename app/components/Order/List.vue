@@ -57,5 +57,5 @@ const { t } = useI18n({ useScope: 'local' })
 
 <i18n lang="yaml">
 el:
-  total: Χωρίς παραγγελίες | 1 Παραγγελία | %{count} Παραγγελίες
+  total: Χωρίς παραγγελίες | 1 Παραγγελία | {count} Παραγγελίες
 </i18n>

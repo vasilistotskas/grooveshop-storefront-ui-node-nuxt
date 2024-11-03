@@ -367,6 +367,6 @@ el:
   next_page: Επόμενη σελίδα
   first_page: Πρώτη σελίδα
   last_page: Τελευταία σελίδα
-  go_to_page: Μετάβαση στη σελίδα %{page}
+  go_to_page: Μετάβαση στη σελίδα {page}
   you_are_on_last_page: Είστε στην τελευταία σελίδα
 </i18n>

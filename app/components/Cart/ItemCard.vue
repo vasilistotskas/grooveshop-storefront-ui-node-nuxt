@@ -148,5 +148,5 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 
 <i18n lang="yaml">
 el:
-  remove_from_cart: Αφαίρεση από το καλάθι %{name}
+  remove_from_cart: Αφαίρεση από το καλάθι {name}
 </i18n>

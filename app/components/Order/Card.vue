@@ -170,7 +170,7 @@ const localePath = useLocalePath()
 
 <i18n lang="yaml">
 el:
-  extra: Κανένα προϊόν | 1 προϊόν | %{count} ακόμη προϊόντα
+  extra: Κανένα προϊόν | 1 προϊόν | {count} ακόμη προϊόντα
   id: ID
   address: Διεύθυνση
   pay_way: Τρόπος πληρωμής

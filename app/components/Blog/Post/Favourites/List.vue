@@ -100,5 +100,5 @@ const { t, locale } = useI18n({ useScope: 'local' })
 <i18n lang="yaml">
 el:
   favourites:
-    count: Κανένα Αγαπημένο | 1 Αγαπημένο | %{count} Αγαπημένα
+    count: Κανένα Αγαπημένο | 1 Αγαπημένο | {count} Αγαπημένα
 </i18n>

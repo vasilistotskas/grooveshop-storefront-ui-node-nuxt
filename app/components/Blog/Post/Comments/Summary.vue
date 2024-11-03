@@ -36,5 +36,5 @@ const { t } = useI18n({ useScope: 'local' })
 <i18n lang="yaml">
 el:
   comments:
-    count: Κανένα σχόλιο | 1 σχόλιο | %{count} Σχόλια
+    count: Κανένα σχόλιο | 1 σχόλιο | {count} Σχόλια
 </i18n>

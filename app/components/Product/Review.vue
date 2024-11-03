@@ -724,7 +724,7 @@ el:
   update_review: Ενημέρωση κριτικής
   delete_review: Διαγραφή κριτικής
   must_be_logged_in: Πρέπει να συνδεθείς για να γράψεις μία κριτική
-  write_review_for_product: Γράψτε μια κριτική για το προϊόν %{product}
+  write_review_for_product: Γράψτε μια κριτική για το προϊόν {product}
   add:
     error: Έλεγξε το σφάλμα δημιουργίας
     success: Η κριτική δημιουργήθηκε με επιτυχία
