@@ -1,10 +1,5 @@
 <script lang="ts" setup>
-import type { LocaleObject } from 'vue-i18n-routing'
 import type { DropdownItem } from '#ui/types'
-
-type Locale = LocaleObject & {
-  flag: string
-}
 
 defineProps({
   type: {
@@ -15,11 +10,9 @@ defineProps({
 
 const { locale, locales, t, setLocale } = useI18n({ useScope: 'local' })
 
-const allLocales = locales.value as unknown as Locale[]
-
 const items = computed<DropdownItem[][]>(() => {
   const dropDownItems: DropdownItem[][] = []
-  allLocales.forEach((option) => {
+  locales?.forEach((option) => {
     dropDownItems.push([
       {
         label: option.name || '',
