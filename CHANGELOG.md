@@ -1,3 +1,10 @@
+# [1.224.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.223.1...v1.224.0) (2024-11-16)
+
+
+### Features
+
+* blog rss, `createCachedFetcher` util, `entity` util moved to `shared` folder ([2679996](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/26799962e1b056d147ecf3f49efe4bb3544f8474))
+
 ## [1.223.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.223.0...v1.223.1) (2024-11-16)
 
 
