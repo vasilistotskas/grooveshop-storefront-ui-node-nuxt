@@ -1,3 +1,10 @@
+# [1.223.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.222.3...v1.223.0) (2024-11-16)
+
+
+### Features
+
+* redirect `/index` path to home ([18ee41d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/18ee41d9adad843bc360e39a1d4a69fd22986855))
+
 ## [1.222.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.222.2...v1.222.3) (2024-11-16)
 
 
