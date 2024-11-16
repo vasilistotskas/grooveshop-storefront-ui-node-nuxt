@@ -1,3 +1,10 @@
+## [1.224.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.224.1...v1.224.2) (2024-11-16)
+
+
+### Bug Fixes
+
+* **rss:** update 'Content-Type' header UTF-8 ([c7dc2f1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c7dc2f1bce83ac2cd7ef016786524f7d338522b1))
+
 ## [1.224.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.224.0...v1.224.1) (2024-11-16)
 
 
