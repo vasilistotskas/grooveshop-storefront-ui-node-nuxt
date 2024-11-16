@@ -8,6 +8,7 @@ const {
 } = useAllAuthSessions()
 const toast = useToast()
 const { t } = useI18n()
+const { contentShorten } = useText()
 
 const loading = ref(false)
 
@@ -38,8 +39,9 @@ const logout = async (fromSessions: Session[]) => {
 }
 
 const columns = [{
-  key: 'created_at',
-  label: t('ordering.created_at'),
+  key: 'is_current',
+  label: t('is_current'),
+  sortable: true,
 }, {
   key: 'ip',
   label: t('ip_address'),
@@ -47,9 +49,8 @@ const columns = [{
   key: 'user_agent',
   label: t('user_agent'),
 }, {
-  key: 'is_current',
-  label: t('is_current'),
-  sortable: true,
+  key: 'created_at',
+  label: t('ordering.created_at'),
 }, {
   key: 'actions',
 }]
@@ -57,11 +58,11 @@ const columns = [{
 const rows = computed(() => {
   return sessions.value?.map((session) => {
     return {
-      id: session.id,
-      created_at: session.created_at,
+      is_current: session.is_current,
       ip: session.ip,
       user_agent: session.user_agent,
-      is_current: session.is_current,
+      created_at: session.created_at,
+      id: session.id,
     }
   })
 })
@@ -95,11 +96,6 @@ const actionItems = (session: Session) => {
             <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
           </LazyUDropdown>
         </template>
-
-        <template #created_at-data="{ row }">
-          <NuxtTime :date-style="'medium'" :datetime="new Date(row.created_at * 1000)" :time-style="'medium'" />
-        </template>
-
         <template #is_current-data="{ row }">
           <UIcon
             v-if="row.is_current"
@@ -119,6 +115,12 @@ const actionItems = (session: Session) => {
               dark:text-gray-500
             "
           />
+        </template>
+        <template #user_agent-data="{ row }">
+          <span :title="row.user_agent">{{ contentShorten(row.user_agent, 0, 40) }}</span>
+        </template>
+        <template #created_at-data="{ row }">
+          <NuxtTime :date-style="'medium'" :datetime="new Date(row.created_at * 1000)" :time-style="'medium'" />
         </template>
       </UTable>
       <div class="grid items-center justify-center justify-items-center">

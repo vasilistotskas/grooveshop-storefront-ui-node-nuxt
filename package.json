@@ -43,6 +43,7 @@
     "@nuxt/test-utils": "3.14.4",
     "@nuxt/types": "2.18.1",
     "@nuxt/ui": "2.19.2",
+    "@nuxt/fonts": "0.10.2",
     "@nuxtjs/device": "3.2.4",
     "@nuxtjs/i18n": "9.0.0",
     "@nuxtjs/seo": "2.0.0-rc.23",
@@ -180,8 +181,5 @@
   "engines": {
     "node": ">=23.1.0",
     "npm": ">=10.9.0"
-  },
-  "dependencies": {
-    "@nuxt/fonts": "^0.10.2"
   }
 }

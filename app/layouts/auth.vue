@@ -3,17 +3,7 @@ const config = useRuntimeConfig()
 
 const appTitle = computed(() => config.public.appTitle as string)
 
-const colorModeCookie = useCookie(
-  'color-mode',
-)
-
 const searchBarFocused = useState<boolean>('searchBarFocused')
-
-const logo = computed(() => {
-  return colorModeCookie.value === 'dark'
-    ? '/img/logo-dark-mode.png'
-    : '/img/logo-light-mode.png'
-})
 </script>
 
 <template>
@@ -29,14 +19,12 @@ const logo = computed(() => {
         to="index"
       >
         <NuxtImg
-          :alt="appTitle"
-          :height="75"
-          :src="logo"
           :style="{ objectFit: 'contain' }"
-          :width="500"
-          format="png"
+          :src="'/img/logo-navbar.svg'"
+          :width="145"
+          :height="30"
+          :alt="appTitle"
           quality="100"
-          loading="eager"
           preload
         />
       </Anchor>
