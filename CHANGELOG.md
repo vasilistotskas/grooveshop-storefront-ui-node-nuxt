@@ -1,3 +1,10 @@
+## [1.222.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.222.0...v1.222.1) (2024-11-16)
+
+
+### Bug Fixes
+
+* pwa icons and lang ([910effc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/910effc1517c5a2e68793aebd96223dc3d93c9f1))
+
 # [1.222.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.221.1...v1.222.0) (2024-11-16)
 
 
