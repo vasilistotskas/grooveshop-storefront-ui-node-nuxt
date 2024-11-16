@@ -1,3 +1,10 @@
+# [1.222.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.221.1...v1.222.0) (2024-11-16)
+
+
+### Features
+
+* **middleware:** redirect www host requrests to non www ([e34c4a4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e34c4a409e7b757cfc6075c94ac94764731d8696))
+
 ## [1.221.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.221.0...v1.221.1) (2024-11-16)
 
 
