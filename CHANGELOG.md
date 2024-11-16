@@ -1,3 +1,10 @@
+## [1.222.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.222.1...v1.222.2) (2024-11-16)
+
+
+### Bug Fixes
+
+* **middleware:** redirect ([24393a7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/24393a7ebdb6bf506f8859d130d7af3552f377cd))
+
 ## [1.222.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.222.0...v1.222.1) (2024-11-16)
 
 
