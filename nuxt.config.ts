@@ -202,6 +202,7 @@ export default defineNuxtConfig({
       },
     },
     '/_ipx/**': { headers: { 'cache-control': 'max-age=31536000' } },
+    '/index': { redirect: '/' },
   },
   sourcemap: {
     server: false,
