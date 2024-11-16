@@ -237,8 +237,8 @@ export default defineNuxtConfig({
     },
     prerender: {
       crawlLinks: false,
-      routes: [],
-      ignore: ['/api', '/account', '/auth', '/checkout', '/cart'],
+      routes: ['/rss.xml'],
+      ignore: [],
     },
     experimental: {
       asyncContext: true,

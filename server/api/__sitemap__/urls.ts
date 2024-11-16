@@ -1,48 +1,12 @@
-const cachedBlogPosts = defineCachedFunction(async (url: string): Promise<BlogPost[]> => {
-  const fetchAllBlogPosts = async (url: string, allPosts: BlogPost[] = []): Promise<BlogPost[]> => {
-    const response = await $fetch<Pagination<BlogPost>>(url, { method: 'GET' })
-    const { results, links } = response
+const cachedBlogPosts = createCachedFetcher<BlogPost>(
+  'cachedBlogPosts',
+  60 * 60,
+)
 
-    if (results) {
-      allPosts.push(...results)
-    }
-
-    if (links?.next) {
-      return await fetchAllBlogPosts(links.next, allPosts)
-    }
-
-    return allPosts
-  }
-
-  return await fetchAllBlogPosts(url)
-}, {
-  maxAge: 60 * 60,
-  name: 'cachedBlogPosts',
-  getKey: (url: string) => url,
-})
-
-const cachedBlogCategories = defineCachedFunction(async (url: string): Promise<BlogCategory[]> => {
-  const fetchAllBlogCategories = async (url: string, allCategories: BlogCategory[] = []): Promise<BlogCategory[]> => {
-    const response = await $fetch<Pagination<BlogCategory>>(url, { method: 'GET' })
-    const { results, links } = response
-
-    if (results) {
-      allCategories.push(...results)
-    }
-
-    if (links?.next) {
-      return await fetchAllBlogCategories(links.next, allCategories)
-    }
-
-    return allCategories
-  }
-
-  return await fetchAllBlogCategories(url)
-}, {
-  maxAge: 60 * 60,
-  name: 'cachedBlogCategories',
-  getKey: (url: string) => url,
-})
+const cachedBlogCategories = createCachedFetcher<BlogCategory>(
+  'cachedBlogCategories',
+  60 * 60,
+)
 
 export default defineSitemapEventHandler(async () => {
   const config = useRuntimeConfig()
