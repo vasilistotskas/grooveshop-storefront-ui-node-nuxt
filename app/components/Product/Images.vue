@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { Product } from '~/types/product'
-import type { ProductImage } from '~/types/product/image'
-
 const props = defineProps({
   product: {
     type: Object as PropType<Product>,
@@ -47,10 +44,11 @@ watch(
   >
     <div
       class="
-        bg-primary-100 grid items-center justify-center justify-items-center
-        rounded-lg
+        bg-primary-100
 
         dark:bg-primary-900
+
+        grid items-center justify-center justify-items-center rounded-lg
       "
     >
       <ProductImage
@@ -74,10 +72,11 @@ watch(
           }"
           type="button"
           class="
-            bg-primary-100 flex w-full items-center justify-center rounded-lg
-            p-2
+            bg-primary-100
 
             dark:bg-primary-900
+
+            flex w-full items-center justify-center rounded-lg p-2
 
             focus:outline-none
 

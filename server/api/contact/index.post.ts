@@ -1,5 +1,3 @@
-import { ZodContact, ZodContactBody } from '~/types/contact'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {

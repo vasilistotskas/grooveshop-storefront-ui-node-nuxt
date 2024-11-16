@@ -1,10 +1,6 @@
 import { withQuery } from 'ufo'
-import type {
-  AllAuthResponse,
-  AllAuthResponseError,
-  AuthChangeEventType,
-} from '~/types/all-auth'
-import { AuthChangeEvent, Flow2path, URLs } from '~/types/all-auth'
+import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+import type { RouteLocationAsRelativeI18n } from 'vue-router'
 
 export default defineNuxtPlugin({
   name: 'auth',
@@ -98,7 +94,7 @@ export default defineNuxtPlugin({
         const router = useRouter()
         const route = router.currentRoute.value
         const returnToPath = route.query.next?.toString()
-        const isRedirectingToLogin = returnToPath === '/account/login'
+        const isRedirectingToLogin = returnToPath === 'account-login'
         const redirectTo = isRedirectingToLogin || !returnToPath
           ? URLs.LOGIN_REDIRECT_URL
           : returnToPath
@@ -141,7 +137,7 @@ export default defineNuxtPlugin({
     function navigateToUrl(path: string, replace = false) {
       try {
         const localePath = useLocalePath()
-        const url = localePath(path)
+        const url = localePath(path as keyof RouteNamedMapI18n | (Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined }))
         return nuxtApp.runWithContext(() => navigateTo(url, { replace }))
       }
       catch (error) {

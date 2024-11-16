@@ -1,5 +1,3 @@
-import { ZodProductCategory, ZodProductCategoryParams } from '~/types/product/category'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

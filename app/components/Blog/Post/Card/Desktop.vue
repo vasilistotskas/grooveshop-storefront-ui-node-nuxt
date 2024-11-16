@@ -1,10 +1,6 @@
 <script lang="ts" setup>
 import { useShare } from '@vueuse/core'
-import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
-
-import type { BlogPost } from '~/types/blog/post'
-import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
@@ -40,10 +36,17 @@ const alt = computed(() => {
 const shareOptions = reactive({
   title: extractTranslated(post.value, 'title', locale.value),
   text: extractTranslated(post.value, 'subtitle', locale.value) || '',
-  url: isClient ? postUrl : '',
+  url: import.meta.client ? postUrl : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch(err => err)
+const startShare = async () => {
+  try {
+    await share()
+  }
+  catch (err) {
+    console.error('Share failed:', err)
+  }
+}
 
 const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   if (event.liked) {
@@ -59,15 +62,16 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      bg-primary-100 container grid w-full gap-6 rounded-lg !p-0
-      text-primary-950
+      bg-primary-100 text-primary-950
 
       dark:text-primary-50 dark:bg-primary-900
+
+      container grid w-full gap-6 rounded-lg !p-0
     "
   >
     <div class="grid">
       <Anchor
-        :to="post.absoluteUrl"
+        :to="{ path: post.absoluteUrl }"
         :text="alt"
         css-class="grid justify-center"
       >
@@ -95,19 +99,21 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         class="
           flex flex-col gap-4
 
-          lg:gap-x-6
-
           md:gap-x-12
+
+          lg:gap-x-6
         "
       >
         <h2 class="grid h-20">
           <Anchor
-            :to="post.absoluteUrl"
+            :to="{ path: post.absoluteUrl }"
             :text="contentShorten(extractTranslated(post, 'title', locale), 0, 39)"
             class="
-              text-2xl font-bold tracking-tight text-primary-950
+              text-primary-950
 
               dark:text-primary-50
+
+              text-2xl font-bold tracking-tight
 
               md:text-3xl
             "
@@ -117,12 +123,15 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <div class="flex justify-end gap-6 pt-5">
         <ButtonBlogPostLike
           class="
-            text-primary-950 flex-col justify-self-start p-0 font-extrabold
-            capitalize
+            text-primary-950
 
-            dark:text-primary-50 dark:hover:bg-transparent
+            dark:text-primary-50
+
+            flex-col justify-self-start p-0 font-extrabold capitalize
 
             hover:bg-transparent
+
+            dark:hover:bg-transparent
           "
           size="lg"
           variant="ghost"
@@ -137,18 +146,21 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           square
           variant="ghost"
           class="
-            text-primary-950 flex-col justify-self-start p-0 font-extrabold
-            capitalize
+            text-primary-950
 
-            dark:text-primary-50 dark:hover:bg-transparent
+            dark:text-primary-50
+
+            flex-col justify-self-start p-0 font-extrabold capitalize
 
             hover:bg-transparent
+
+            dark:hover:bg-transparent
           "
           :title="$t('comments.count', {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
-          :to="localePath(`${post.absoluteUrl}#blog-post-comments`)"
+          :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
         />
         <ClientOnly>
           <UButton
@@ -161,12 +173,15 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             variant="ghost"
             :title="$t('share')"
             class="
-              text-primary-950 flex-col justify-self-start p-0 font-extrabold
-              capitalize
+              text-primary-950
 
-              dark:text-primary-50 dark:hover:bg-transparent
+              dark:text-primary-50
+
+              flex-col justify-self-start p-0 font-extrabold capitalize
 
               hover:bg-transparent
+
+              dark:hover:bg-transparent
             "
             @click="startShare"
           />

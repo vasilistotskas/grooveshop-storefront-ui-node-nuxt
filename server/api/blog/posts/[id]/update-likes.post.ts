@@ -1,5 +1,3 @@
-import { ZodBlogPost, ZodBlogPostParams } from '~/types/blog/post'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

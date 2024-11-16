@@ -1,3 +1,4 @@
+@use 'variables';
 // components
 ::-webkit-scrollbar {
 	width: 16px;
@@ -63,4 +64,155 @@ a {
 
 mark {
   @apply bg-transparent text-secondary-light dark:text-secondary-dark;
+}
+
+.base-container {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 15px;
+  width: 100%;
+}
+
+.container {
+  @apply base-container;
+}
+
+.container-fluid {
+  @apply container;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 15px;
+  width: 100%;
+  max-width: 1920px;
+}
+
+.container-sm {
+  @apply base-container;
+
+  @include variables.responsive-width((
+    'sm': 540px,
+    'md': 720px,
+    'lg': 960px,
+    'xl': 1140px,
+    'xlplus': 1194px,
+  ));
+}
+
+.container-md {
+  @apply base-container;
+
+  @include variables.responsive-width((
+    'sm': 540px,
+    'md': 720px,
+    'lg': 960px,
+    'xl': 1140px,
+    'xlplus': 1320px,
+  ));
+}
+
+.container-xs {
+  @apply base-container;
+
+  @include variables.responsive-width((
+    'md': 480px,
+    'lg': 540px,
+    'xl': 720px,
+    'xlplus': 960px,
+  ));
+}
+
+.container-2xs {
+  @apply base-container;
+
+  @include variables.responsive-width((
+    'sm': 360px,
+    'md': 480px,
+    'lg': 480px,
+    'xl': 640px,
+    'xlplus': 800px,
+  ));
+}
+
+.container-3xs {
+  @apply base-container;
+
+  @include variables.responsive-width((
+    'sm': 360px,
+    'md': 480px,
+    'lg': 480px,
+    'xl': 640px,
+    'xlplus': 640px,
+  ));
+}
+
+.circle {
+  @apply w-8 h-8 rounded-full;
+}
+
+.form-select {
+  @apply block w-full text-base px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500;
+}
+
+.article {
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+
+  h5 {
+    @apply text-base;
+  }
+
+  h6 {
+    @apply text-sm;
+  }
+
+  p {
+    @apply mt-[1em] mb-[1em];
+
+    &:first-child {
+      @apply mt-0;
+    }
+
+    &:last-child {
+      @apply mb-0;
+    }
+  }
+
+  ol, ul, menu {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    padding-inline-start: 40px;
+    unicode-bidi: isolate;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  menu {
+    @apply list-disc;
+  }
 }

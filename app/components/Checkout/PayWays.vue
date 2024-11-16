@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import type { PayWay } from '~/types/pay-way'
-import type { Pagination } from '~/types'
-
 defineSlots<{
   error(props: object): any
 }>()

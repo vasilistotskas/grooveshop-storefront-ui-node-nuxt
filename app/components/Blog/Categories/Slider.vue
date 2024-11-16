@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import type { Pagination } from '~/types'
-import type { BlogCategory } from '~/types/blog/category'
-
 const props = defineProps({
   max: {
     type: Number,
@@ -41,7 +38,7 @@ const carouselUiItemBasis = computed(() => {
   >
     <UButton
       :label="contentShorten(extractTranslated(item, 'name', locale), 0, 6)"
-      :to="localePath(`/blog/category/${item?.id}/${item?.slug}`)"
+      :to="localePath({ name: 'blog-category-id-slug', params: { id: item?.id, slug: item?.slug } })"
       :ui="{
         rounded: 'rounded-lg',
         color: {

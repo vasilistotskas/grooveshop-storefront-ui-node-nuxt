@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { SearchResponse } from '~/types/search'
-
 const searchStore = useSearchStore()
 const {
   results,
@@ -153,11 +151,6 @@ onMounted(() => {
   isSuggestionsOpen.value = false
 })
 
-const seoMetaInput = {
-  title: t('title'),
-}
-
-useSeoMeta(seoMetaInput)
 useHydratedHead({
   title: () => t('title'),
 })
@@ -180,14 +173,15 @@ await preloadComponents('SearchAutoComplete')
         <div
           v-focus
           class="
-            search-bar bg-primary-50 fixed left-0 top-[48px] z-20 grid w-full
-            items-center gap-4 p-[8px]
+            search-bar bg-primary-50
 
             dark:bg-primary-900
 
-            lg:top-[63px]
+            fixed left-0 top-[48px] z-20 grid w-full items-center gap-4 p-[8px]
 
             md:top-[56px] md:p-[12px]
+
+            lg:top-[63px]
           "
         >
           <div
@@ -198,13 +192,15 @@ await preloadComponents('SearchAutoComplete')
             "
           >
             <Anchor
-              :to="'/'"
+              :to="'index'"
               aria-label="index"
               class="
-                back-to-home text-md text-primary-950 flex items-center gap-3
-                overflow-hidden border-r-2 border-primary-500 pr-2 font-bold
+                back-to-home text-md text-primary-950 border-primary-500
 
                 dark:text-primary-50 dark:border-primary-500
+
+                flex items-center gap-3 overflow-hidden border-r-2 pr-2
+                font-bold
 
                 md:w-auto md:pr-8
               "

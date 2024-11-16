@@ -1,7 +1,5 @@
 import * as z from 'zod'
 
-import { ZodCartItemParams } from '~/types/cart/item'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

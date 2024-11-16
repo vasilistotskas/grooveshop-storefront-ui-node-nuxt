@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { BlogPost } from '~/types/blog/post'
 
 defineProps({
   favourites: {
@@ -39,11 +38,11 @@ const { t, locale } = useI18n({ useScope: 'local' })
       class="
         grid grid-cols-1 gap-4
 
-        lg:grid-cols-3
+        sm:grid-cols-2
 
         md:grid-cols-2
 
-        sm:grid-cols-2
+        lg:grid-cols-3
 
         xl:grid-cols-4
       "
@@ -55,7 +54,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
         <UCard>
           <template #header>
             <Anchor
-              :to="favourite.absoluteUrl"
+              :to="{ path: favourite.absoluteUrl }"
               :text="extractTranslated(favourite, 'title', locale)"
               css-class="grid justify-center"
             >
@@ -79,12 +78,14 @@ const { t, locale } = useI18n({ useScope: 'local' })
           </template>
 
           <Anchor
-            :to="favourite.absoluteUrl"
+            :to="{ path: favourite.absoluteUrl }"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
-              flex text-lg font-bold tracking-tight text-primary-950
+              text-primary-950
 
               dark:text-primary-50
+
+              flex text-lg font-bold tracking-tight
 
               md:h-14
             "

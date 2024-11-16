@@ -63,10 +63,14 @@ onMounted(() => {
         ref="input"
         type="checkbox"
         class="
-          switch-checkbox bg-primary-100 absolute block h-6 w-6 cursor-pointer
-          appearance-none rounded-full border-2 border-slate-300
+          switch-checkbox bg-primary-100
 
-          dark:bg-primary-900 dark:border-slate-600
+          dark:bg-primary-900
+
+          absolute block size-6 cursor-pointer appearance-none rounded-full
+          border-2 border-slate-300
+
+          dark:border-slate-600
         "
         :checked="checked"
         name="switch"
@@ -76,10 +80,14 @@ onMounted(() => {
       <label
         :for="switchId"
         class="
-          switch-label bg-primary-100 block h-6 cursor-pointer overflow-hidden
-          rounded-full border border-slate-300
+          switch-label bg-primary-100
 
-          dark:bg-primary-900 dark:border-slate-500
+          dark:bg-primary-900
+
+          block h-6 cursor-pointer overflow-hidden rounded-full border
+          border-slate-300
+
+          dark:border-slate-500
         "
       />
     </label>

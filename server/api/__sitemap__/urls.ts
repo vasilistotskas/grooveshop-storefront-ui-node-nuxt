@@ -1,7 +1,3 @@
-import type { BlogPost } from '~/types/blog/post'
-import type { Pagination } from '~/types'
-import type { BlogCategory } from '~/types/blog/category'
-
 const cachedBlogPosts = defineCachedFunction(async (url: string): Promise<BlogPost[]> => {
   const fetchAllBlogPosts = async (url: string, allPosts: BlogPost[] = []): Promise<BlogPost[]> => {
     const response = await $fetch<Pagination<BlogPost>>(url, { method: 'GET' })

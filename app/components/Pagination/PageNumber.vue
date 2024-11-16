@@ -42,23 +42,14 @@ const items = ref(Array(count.value))
 watch(
   () => currentPage.value,
   async () => {
-    await navigateTo({
-      path: localePath(route.path),
-      query: {
-        page: currentPage.value,
-        ordering: route.query?.ordering,
-        category: route.query?.category,
-      },
-    })
+    await navigateTo(localePath({ path: route.path, query: { page: currentPage.value, ordering: route.query?.ordering, category: route.query?.category } }))
   },
 )
 
 watch(
   () => route.query,
-  (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      currentPage.value = Number(route.query.page) || 1
-    }
+  () => {
+    currentPage.value = Number(route.query.page) || 1
   },
 )
 </script>

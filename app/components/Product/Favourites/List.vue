@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import type { ProductFavourite, ProductFavouriteOrderingField } from '~/types/product/favourite'
-import type { EntityOrdering } from '~/types/ordering'
-import type { Pagination } from '~/types'
-
 defineProps({
   displayTotal: {
     type: Boolean,
@@ -86,12 +82,10 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      await refreshFavourites()
-      if (productIds.value && productIds.value.length > 0) {
-        await refreshFavouriteProducts()
-      }
+  async () => {
+    await refreshFavourites()
+    if (productIds.value && productIds.value.length > 0) {
+      await refreshFavouriteProducts()
     }
   },
 )

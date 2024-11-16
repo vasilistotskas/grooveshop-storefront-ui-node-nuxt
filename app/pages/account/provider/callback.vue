@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { AuthChangeEvent, type AuthChangeEventType, type ProviderToken, URLs } from '~/types/all-auth'
-
 const {
   providerToken,
 } = useAllAuthAuthentication()
@@ -24,7 +22,7 @@ const {
 const { t } = useI18n({ useScope: 'local' })
 const authInfo = useAuthInfo()
 
-const url = ref<string>(URLs.LOGIN_URL)
+const url = ref<typeof URLs[keyof typeof URLs]>(URLs.LOGIN_URL)
 const error = ref(false)
 const loading = ref(true)
 
@@ -110,14 +108,14 @@ definePageMeta({
     />
     <div
       v-if="loading" class="
-        grid h-full w-full items-center justify-center justify-items-center pt-4
+        grid size-full items-center justify-center justify-items-center pt-4
 
         md:pt-8
       " role="status"
     >
       <svg
         aria-hidden="true" class="
-          inline h-24 w-24 animate-spin fill-blue-600 text-gray-200
+          inline size-24 animate-spin fill-blue-600 text-gray-200
 
           dark:text-gray-600
         "
@@ -137,9 +135,11 @@ definePageMeta({
     <div v-if="error" class="grid items-center justify-center gap-4">
       <p
         class="
-          text-primary-950 text-center
+          text-primary-950
 
           dark:text-primary-50
+
+          text-center
         "
       >
         {{ t('description') }}

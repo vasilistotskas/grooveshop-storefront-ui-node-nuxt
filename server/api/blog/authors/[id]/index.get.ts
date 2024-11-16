@@ -1,5 +1,3 @@
-import { ZodBlogAuthor, ZodBlogAuthorParams } from '~/types/blog/author'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

@@ -1,6 +1,3 @@
-import type { NotificationUser, NotificationUserBody } from '~/types/notification/user'
-import type { Pagination } from '~/types'
-
 const API_BASE_URL = '/api/notification/user'
 
 export default function () {

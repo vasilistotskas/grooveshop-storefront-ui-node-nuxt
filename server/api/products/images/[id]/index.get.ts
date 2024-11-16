@@ -1,5 +1,3 @@
-import { ZodProductImage, ZodProductImageParams, ZodProductImageQuery } from '~/types/product/image'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

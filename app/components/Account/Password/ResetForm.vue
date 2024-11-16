@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type { DynamicFormSchema } from '~/types/form'
-import type { PasswordRequestBody } from '~/types/all-auth'
 import type DynamicForm from '~/components/DynamicForm/index.vue'
 
 const emit = defineEmits(['passwordRequest'])

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { ExtractPropTypes } from 'vue'
-
 import type { baseImageProps } from '#image/components/_base'
 
 interface Emits {
@@ -9,7 +8,7 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
-type Props = ExtractPropTypes<typeof baseImageProps> & {
+type Props = Omit<ExtractPropTypes<typeof baseImageProps>, 'ismap'> & {
   src?: string
   fallback?: string
   ismap?: boolean
@@ -26,7 +25,6 @@ const attrs = useAttrs()
 
 const propsWithoutFallbackAndSrc = computed(() => {
   const { fallback, src, ...restProps } = props
-
   return { ...attrs, ...restProps }
 })
 

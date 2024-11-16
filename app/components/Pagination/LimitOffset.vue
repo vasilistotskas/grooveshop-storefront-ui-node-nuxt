@@ -133,15 +133,15 @@ const link = computed(() => {
           :disabled="isInFirstPage"
           @click="
             async () =>
-              await navigateTo({
-                path: localePath(link),
+              await navigateTo(localePath({
+                path: route.path,
                 query: {
                   limit,
                   offset: isInFirstPage ? offset : offset - limit,
                   ordering: route.query?.ordering,
                   category: route.query?.category,
                 },
-              })
+              }))
           "
         >
           <span
@@ -179,29 +179,31 @@ const link = computed(() => {
           :disabled="isInFirstPage"
           @click="
             async () =>
-              await navigateTo({
-                path: localePath(link),
+              await navigateTo(localePath({
+                path: route.path,
                 query: {
                   limit,
                   offset: 0,
                   ordering: route.query?.ordering,
                   category: route.query?.category,
                 },
-              })
+              }))
           "
         >
           <span
             :class="{
-              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
+              'text-primary-950 bg-primary-100 dark:text-primary-50 dark:bg-primary-900 grid w-full items-center justify-center rounded px-2 py-1': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
           >{{ firstPageNumber }}</span>
           <span
             v-if="shouldDisplayPreviousTripleDots"
             class="
-              text-primary-950 grid self-end justify-self-start text-sm
+              text-primary-950
 
               dark:text-primary-50
+
+              grid self-end justify-self-start text-sm
             "
           >...</span>
         </Anchor>
@@ -223,22 +225,14 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:bg-primary-900': true,
+            'bg-primary-100 dark:bg-primary-900 grid w-full items-center justify-center rounded px-2 py-1': true,
             'active': pageEntry === page,
           }"
           :text="String(pageEntry)"
           :title="t('go_to_page', { page: pageEntry })"
           @click="
             async () =>
-              await navigateTo({
-                path: localePath(link),
-                query: {
-                  limit,
-                  offset: (pageEntry - 1) * limit,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
+              await navigateTo(localePath({ path: link, query: { limit, offset: (pageEntry - 1) * limit, ordering: route.query?.ordering, category: route.query?.category } }))
           "
         >
           <span
@@ -278,28 +272,22 @@ const link = computed(() => {
           "
           @click="
             async () =>
-              await navigateTo({
-                path: localePath(link),
-                query: {
-                  limit,
-                  offset: (totalPages - 1) * limit,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
+              await navigateTo(localePath({ path: link, query: { limit, offset: (totalPages - 1) * limit, ordering: route.query?.ordering, category: route.query?.category } }))
           "
         >
           <span
             v-if="shouldDisplayNextTripleDots"
             class="
-              text-primary-950 grid self-end justify-self-end text-sm
+              text-primary-950
 
               dark:text-primary-50
+
+              grid self-end justify-self-end text-sm
             "
           >...</span>
           <span
             :class="{
-              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
+              'text-primary-950 bg-primary-100 dark:text-primary-50 dark:bg-primary-900 grid w-full items-center justify-center rounded px-2 py-1': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
           >{{ lastPageNumber }}</span>
@@ -329,15 +317,7 @@ const link = computed(() => {
           "
           @click="
             async () =>
-              await navigateTo({
-                path: localePath(link),
-                query: {
-                  limit,
-                  offset: offset + limit,
-                  ordering: route.query?.ordering,
-                  category: route.query?.category,
-                },
-              })
+              await navigateTo(localePath({ path: link, query: { limit, offset: offset + limit, ordering: route.query?.ordering, category: route.query?.category } }))
           "
         >
           <span

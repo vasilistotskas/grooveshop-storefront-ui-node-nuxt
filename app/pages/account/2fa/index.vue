@@ -29,9 +29,11 @@ definePageMeta({
       <div class="grid items-center justify-center">
         <p
           class="
-            text-primary-950 text-center
+            text-primary-950
 
             dark:text-primary-50
+
+            text-center
           "
         >
           {{ t('authenticator.app') }}
@@ -43,16 +45,18 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950 text-center
+              text-primary-950
 
               dark:text-primary-50
+
+              text-center
             "
           >
             {{ t('active') }}
           </p>
           <UButton
             :label="$t('deactivate')"
-            :to="localePath('/account/2fa/totp/deactivate')"
+            :to="localePath('account-2fa-totp-deactivate')"
             color="primary"
             size="xl"
           />
@@ -64,16 +68,18 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950 text-center
+              text-primary-950
 
               dark:text-primary-50
+
+              text-center
             "
           >
             {{ t('inactive') }}
           </p>
           <UButton
             :label="$t('activate')"
-            :to="localePath('/account/2fa/totp/activate')"
+            :to="localePath('account-2fa-totp-activate')"
             color="primary"
             size="xl"
           />
@@ -86,9 +92,11 @@ definePageMeta({
       >
         <p
           class="
-            text-primary-950 text-center
+            text-primary-950
 
             dark:text-primary-50
+
+            text-center
           "
         >
           {{ t('recovery-codes.title') }}
@@ -100,16 +108,18 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950 text-center
+              text-primary-950
 
               dark:text-primary-50
+
+              text-center
             "
           >
             {{ t('recovery-codes.unset') }}
           </p>
           <UButton
             :label="$t('generate')"
-            :to="localePath('/account/2fa/recovery-codes/generate')"
+            :to="localePath('account-2fa-recovery-codes-generate')"
             color="primary"
             size="xl"
           />
@@ -121,9 +131,11 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950 text-center
+              text-primary-950
 
               dark:text-primary-50
+
+              text-center
             "
           >
             {{ t('recovery-codes.info', {
@@ -133,13 +145,13 @@ definePageMeta({
           </p>
           <UButton
             :label="$t('view')"
-            :to="localePath('/account/2fa/recovery-codes')"
+            :to="localePath('account-2fa-recovery-codes')"
             color="primary"
             size="xl"
           />
           <UButton
             :label="$t('regenerate')"
-            :to="localePath('/account/2fa/recovery-codes/generate')"
+            :to="localePath('account-2fa-recovery-codes-generate')"
             color="primary"
             size="xl"
           />

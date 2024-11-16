@@ -10,9 +10,11 @@ const { locale } = useI18n()
     <div class="sr-only items-center justify-center">
       <h3
         class="
-          text-primary-950 text-md font-bold
+          text-primary-950 text-md
 
           dark:text-primary-50
+
+          font-bold
         "
       >
         {{ $t('items') }}
@@ -21,7 +23,7 @@ const { locale } = useI18n()
     <ClientOnly>
       <div
         v-if="getCartItems?.length"
-        class="h-[185px] overflow-auto border-b border-t border-primary-500 py-4"
+        class="border-primary-500 h-[185px] overflow-auto border-y py-4"
       >
         <div
           v-for="item in getCartItems"
@@ -36,13 +38,15 @@ const { locale } = useI18n()
             <div class="flex items-center">
               <Anchor
                 :title="extractTranslated(item.product, 'name', locale)"
-                :to="item.product.absoluteUrl"
+                :to="{ path: item.product.absoluteUrl }"
               >
                 <span
                   class="
-                    text-primary-950 text-sm font-bold
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    text-sm font-bold
                   "
                 >
                   {{ extractTranslated(item.product, 'name', locale) }}
@@ -54,9 +58,11 @@ const { locale } = useI18n()
                 v-if="item.finalPrice"
                 tag="span"
                 class="
-                  text-primary-950 text-sm
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-sm
                 "
                 format="currency"
                 :value="item.finalPrice"
@@ -65,9 +71,11 @@ const { locale } = useI18n()
             <div class="flex items-center">
               <span
                 class="
-                  text-primary-950 text-sm
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-sm
                 "
               >
                 {{ item.quantity }}x
@@ -77,17 +85,21 @@ const { locale } = useI18n()
               <span
                 v-if="item.finalPrice"
                 class="
-                  text-primary-950 text-sm
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-sm
                 "
               >
                 <I18nN
                   tag="span"
                   class="
-                    text-primary-950 text-sm
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    text-sm
                   "
                   format="currency"
                   :value="item.finalPrice * item.quantity"

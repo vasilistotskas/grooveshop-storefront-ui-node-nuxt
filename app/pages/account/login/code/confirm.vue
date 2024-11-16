@@ -20,9 +20,11 @@ definePageMeta({
     />
     <p
       class="
-        text-primary-950 text-center
+        text-primary-950
 
         dark:text-primary-50
+
+        text-center
       "
     >
       {{ t('description') }}

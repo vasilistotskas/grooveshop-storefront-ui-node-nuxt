@@ -1,7 +1,5 @@
 import * as z from 'zod'
 
-import { ZodUserAddressParams } from '~/types/user/address'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

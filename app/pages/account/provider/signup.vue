@@ -27,9 +27,11 @@ definePageMeta({
     >
       <span
         class="
-          text-primary-950 text-sm
+          text-primary-950
 
           dark:text-primary-50
+
+          text-sm
         "
       >{{
         t('description')
@@ -37,7 +39,7 @@ definePageMeta({
 
       <UButton
         :label="$t('login')"
-        :to="localePath('/account/login')"
+        :to="localePath('account-login')"
         color="opposite"
         size="md"
         type="button"

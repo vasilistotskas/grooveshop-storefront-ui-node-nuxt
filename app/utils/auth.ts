@@ -1,12 +1,3 @@
-import type {
-  AllAuthResponse,
-  AllAuthResponseError,
-  AuthChangeEventType,
-  Flow,
-  AuthInfo,
-} from '~/types/all-auth'
-import { AuthChangeEvent, Flow2path } from '~/types/all-auth'
-
 export const onAllAuthResponse = async (response: AllAuthResponse) => {
   if (!response) return
   const nuxtApp = useNuxtApp()
@@ -27,14 +18,14 @@ export const onAllAuthResponseError = async (response: {
 
 export const authInfo = (
   response?: AllAuthResponse | AllAuthResponseError | null,
-): AuthInfo => {
+) => {
   if (!response) {
     return {
       isAuthenticated: false,
       requiresReauthentication: false,
       user: null,
       pendingFlow: null,
-    }
+    } satisfies AuthInfo
   }
   const isAuthenticated = response.status === 200 || (response.status === 401 && response.meta?.is_authenticated)
   const requiresReauthentication = isAuthenticated && response.status === 401
@@ -47,7 +38,7 @@ export const authInfo = (
     requiresReauthentication: requiresReauthentication || false,
     user,
     pendingFlow,
-  }
+  } satisfies AuthInfo
 }
 
 export const determineAuthChangeEvent = (
@@ -157,7 +148,7 @@ function hasFlowUpdated(
   return currentFlow?.is_pending ?? false
 }
 
-export const pathForFlow = (flow: Flow, type?: string): string => {
+export const pathForFlow = (flow: Flow, type?: string) => {
   const key = flow.types && flow.types.length
     ? `${flow.id}:${type ?? flow.types[0]}`
     : flow.id
@@ -186,7 +177,7 @@ export const getPendingFlow = (
 
 export const pathForPendingFlow = (
   response: AllAuthResponse | AllAuthResponseError,
-): string | null => {
+) => {
   const pendingFlow = getPendingFlow(response)
   return pendingFlow ? pathForFlow(pendingFlow) : null
 }

@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ProductReview } from '~/types/product/review'
-
 defineProps({
   reviewsAverage: {
     type: Number,
@@ -40,9 +38,11 @@ defineProps({
         :review="review"
         :display-image-of="displayImageOf"
         class="
-          reviews-list-item bg-primary-100 rounded border border-primary-500 p-4
+          reviews-list-item bg-primary-100 border-primary-500
 
           dark:bg-primary-900 dark:border-primary-500
+
+          rounded border p-4
         "
       />
     </div>

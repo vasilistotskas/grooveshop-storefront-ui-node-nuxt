@@ -1,9 +1,5 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import {
-  AuthenticatorType,
-  type AuthenticatorTypeValues, Flows,
-} from '~/types/all-auth'
 
 defineProps({
   authenticatorType: { type: String as PropType<AuthenticatorTypeValues>, required: true },
@@ -22,7 +18,7 @@ const flow = computed(() => authInfo?.pendingFlow)
 const next = router.currentRoute.value.query.next as string | undefined
 
 if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
-  await navigateTo(localePath('/'))
+  await navigateTo(localePath('index'))
 }
 
 const labels = {
@@ -57,9 +53,11 @@ const filteredFlows = computed(() => {
     <div class="grid items-center justify-center justify-items-center">
       <h3
         class="
-          text-2xl font-bold text-primary-950
+          text-primary-950
 
           dark:text-primary-50
+
+          text-2xl font-bold
         "
       >
         {{ $t('2fa.title') }}

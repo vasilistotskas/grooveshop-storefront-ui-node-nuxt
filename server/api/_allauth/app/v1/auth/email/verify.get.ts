@@ -1,5 +1,3 @@
-import { ZodEmailVerifyGetResponse } from '~/types/all-auth'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const emailVerificationKeyHeader = getRequestHeader(event, 'X-Email-Verification-Key')

@@ -1,5 +1,4 @@
 import * as z from 'zod'
-import { ZodBlogPost, ZodBlogPostParams, ZodBlogPostQuery } from '~/types/blog/post'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

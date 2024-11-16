@@ -1,5 +1,3 @@
-import { ZodOrder, ZodOrderParams, ZodOrderQuery } from '~/types/order'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {

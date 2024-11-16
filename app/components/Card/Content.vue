@@ -5,7 +5,7 @@ defineSlots<{
 </script>
 
 <template>
-  <div class="card-content relative px-6 py-6">
+  <div class="card-content relative p-6">
     <slot />
   </div>
 </template>

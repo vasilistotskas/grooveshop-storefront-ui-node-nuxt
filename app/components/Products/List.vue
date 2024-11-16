@@ -1,10 +1,4 @@
 <script lang="ts" setup>
-import type { EntityOrdering } from '~/types/ordering'
-import type { Product, ProductOrderingField } from '~/types/product'
-
-import { type Pagination, type PaginationType, PaginationTypeEnum } from '~/types'
-import type { ProductFavourite } from '~/types/product/favourite'
-
 const props = defineProps({
   paginationType: {
     type: String as PropType<PaginationType>,
@@ -113,12 +107,10 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      await refresh()
-      if (loggedIn.value && productIds.value && productIds.value.length > 0) {
-        await refreshFavouriteProducts(productIds.value)
-      }
+  async () => {
+    await refresh()
+    if (loggedIn.value && productIds.value && productIds.value.length > 0) {
+      await refreshFavouriteProducts(productIds.value)
     }
   },
 )
@@ -148,11 +140,11 @@ watch(
       class="
         grid grid-cols-1 items-center justify-center gap-4
 
-        lg:grid-cols-3
+        sm:grid-cols-2
 
         md:grid-cols-3
 
-        sm:grid-cols-2
+        lg:grid-cols-3
 
         xl:grid-cols-4
       "
@@ -169,11 +161,11 @@ watch(
         class="
           grid grid-cols-1 items-center justify-center gap-4
 
-          lg:grid-cols-3
+          sm:grid-cols-2
 
           md:grid-cols-3
 
-          sm:grid-cols-2
+          lg:grid-cols-3
 
           xl:grid-cols-4
         "

@@ -1,14 +1,4 @@
 <script lang="ts" setup>
-import type { BlogPost } from '~/types/blog/post'
-
-import {
-  type CursorStates,
-  type Pagination,
-  PaginationCursorStateEnum,
-  type PaginationType,
-  PaginationTypeEnum,
-} from '~/types'
-
 const props = defineProps({
   paginationType: {
     type: String as PropType<PaginationType>,
@@ -152,12 +142,10 @@ watch(
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      await refresh()
-      if (shouldFetchLikedPosts.value) {
-        await refreshLikedPosts(postIds.value)
-      }
+  async () => {
+    await refresh()
+    if (shouldFetchLikedPosts.value) {
+      await refreshLikedPosts(postIds.value)
     }
   },
   { immediate: false },
@@ -211,15 +199,17 @@ onReactivated(async () => {
       <ol
         v-if="showResults"
         class="
-          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-8
+          xl:grid-cols-3
 
           lg:grid-cols-2
 
-          md:row-start-1 md:grid-cols-2
+          row-start-2 grid w-full
 
           sm:grid-cols-1
 
-          xl:grid-cols-3
+          grid-cols-1 items-center justify-center gap-8
+
+          md:row-start-1 md:grid-cols-2
         "
       >
         <Component
@@ -235,11 +225,11 @@ onReactivated(async () => {
         class="
           row-start-2 grid w-full grid-cols-1 items-center justify-center gap-8
 
-          lg:grid-cols-2
+          sm:grid-cols-2
 
           md:row-start-1 md:grid-cols-2
 
-          sm:grid-cols-2
+          lg:grid-cols-2
 
           xl:grid-cols-3
         "
@@ -253,7 +243,7 @@ onReactivated(async () => {
       <ClientOnlyFallback
         v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR"
         :text="$t('loading')"
-        class="pt-4 grid items-center justify-items-center"
+        class="grid items-center justify-items-center pt-4"
       />
     </Transition>
     <LazyPagination

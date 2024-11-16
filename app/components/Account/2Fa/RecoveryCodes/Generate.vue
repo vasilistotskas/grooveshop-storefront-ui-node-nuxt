@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { RecoveryCodesGetResponse } from '~/types/all-auth'
-
 const emit = defineEmits(['generateRecoveryCodes'])
 
 const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
@@ -31,7 +29,7 @@ async function onSubmit() {
       color: 'green',
     })
     emit('generateRecoveryCodes')
-    await navigateTo(localePath('/account/2fa/recovery-codes'))
+    await navigateTo(localePath('account-2fa-recovery-codes'))
   }
   catch (error) {
     handleAllAuthClientError(error)

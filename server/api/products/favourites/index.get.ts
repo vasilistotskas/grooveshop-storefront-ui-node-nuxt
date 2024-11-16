@@ -1,6 +1,3 @@
-import { ZodPagination } from '~/types/pagination'
-import { ZodProductFavourite, ZodProductFavouriteQuery } from '~/types/product/favourite'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

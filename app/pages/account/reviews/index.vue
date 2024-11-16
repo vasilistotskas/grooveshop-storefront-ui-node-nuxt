@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import type { EntityOrdering } from '~/types/ordering'
-import type { ProductReview, ProductReviewOrderingField } from '~/types/product/review'
-import type { Pagination } from '~/types'
-
 const route = useRoute()
 const { t } = useI18n({ useScope: 'local' })
 const { user } = useUserSession()
@@ -75,10 +71,8 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      reviews.value = await refreshReviews()
-    }
+  async () => {
+    reviews.value = await refreshReviews()
   },
 )
 

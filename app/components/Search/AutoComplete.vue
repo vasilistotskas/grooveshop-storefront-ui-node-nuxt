@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { SearchBlogPost, SearchProduct, SearchResponse, SearchResult } from '~/types/search'
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 
 const props = defineProps({
@@ -97,18 +96,22 @@ await preloadComponents('SearchResultItem')
             <div class="flex items-center">
               <span
                 class="
-                  text-md me-4 flex-shrink text-primary-950
+                  text-md text-primary-950
 
                   dark:text-primary-50
+
+                  me-4 shrink
                 "
               >
                 {{ $t(`sections.${key}`) }}
               </span>
               <div
                 class="
-                  flex-grow border-t border-primary-300
+                  border-primary-300
 
                   dark:border-primary-500
+
+                  grow border-t
                 "
               />
             </div>
@@ -136,7 +139,7 @@ await preloadComponents('SearchResultItem')
               >
                 {{ $t("results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
               </UButton>
-              <span class="text-sm text-primary-400">
+              <span class="text-primary-400 text-sm">
                 {{ section.estimatedTotalHits > Number(limit) ? $t("approx_results", section.estimatedTotalHits) : $t("results", section.estimatedTotalHits) }}
               </span>
             </div>

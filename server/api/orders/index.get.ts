@@ -1,6 +1,3 @@
-import { ZodOrder, ZodOrderQuery } from '~/types/order'
-import { ZodPagination } from '~/types/pagination'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {

@@ -1,5 +1,3 @@
-import type { Pagination } from '~/types/pagination'
-
 export const usePagination = <T>(results: Pagination<T>) => {
   const count = results.count
 

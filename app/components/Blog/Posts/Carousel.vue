@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { BlogPost } from '~/types/blog/post'
 
 defineProps({
   posts: {
@@ -29,9 +28,11 @@ const BlogPostCard = computed(() =>
     <h2
       v-if="title"
       class="
-        mx-auto flex max-w-2xl text-primary-950 text-2xl font-semibold
+        text-primary-950
 
         dark:text-primary-50
+
+        mx-auto flex max-w-2xl text-2xl font-semibold
       "
     >
       {{ title }}
@@ -58,11 +59,9 @@ const BlogPostCard = computed(() =>
       indicators
       arrows
       class="
-        relative mx-auto
+        relative mx-auto max-w-4xl
 
         md:w-[43rem]
-
-        max-w-4xl
       "
     >
       <template #default="{ item }">
@@ -81,7 +80,7 @@ const BlogPostCard = computed(() =>
           role="tab"
           size="2xs"
           class="
-            rounded-full min-w-4 min-h-4 justify-center transition-colors
+            min-h-4 min-w-4 justify-center rounded-full transition-colors
             duration-300 ease-in-out
           "
           :style="{

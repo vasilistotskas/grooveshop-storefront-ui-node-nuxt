@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { ProvidersDeleteBody, ProvidersGetResponse } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
 
 const emit = defineEmits(['disconnectThirdPartyProviderAccount'])

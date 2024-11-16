@@ -1,7 +1,5 @@
 import type { IFetchError } from 'ofetch'
 
-import type { SearchResponse } from '~/types/search'
-
 interface ErrorRecord {
   results: IFetchError | null
 }

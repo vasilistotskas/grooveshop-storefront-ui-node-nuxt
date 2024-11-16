@@ -1,6 +1,3 @@
-import { ZodPagination } from '~/types/pagination'
-import { ZodRegion, ZodRegionsQuery } from '~/types/region'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

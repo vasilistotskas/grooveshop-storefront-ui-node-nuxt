@@ -1,10 +1,6 @@
 <script lang="ts" setup>
 import { useShare } from '@vueuse/core'
-import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
-
-import type { ImageLoading } from '~/types'
-import type { Product } from '~/types/product'
 
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },
@@ -49,10 +45,17 @@ const alt = computed(() => {
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value),
   text: extractTranslated(product.value, 'description', locale.value) || '',
-  url: isClient ? productUrl : '',
+  url: import.meta.client ? productUrl : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch(err => err)
+const startShare = async () => {
+  try {
+    await share()
+  }
+  catch (err) {
+    console.error('Share failed:', err)
+  }
+}
 
 const favouriteId = computed(
   () => getFavouriteByProductId(product.value.id)?.id,
@@ -65,16 +68,18 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
   <li class="product-card relative">
     <div
       class="
-        bg-primary-100 container rounded-lg
+        bg-primary-100
 
         dark:bg-primary-900
+
+        container rounded-lg
       "
     >
       <div class="flex flex-col gap-4 py-5">
         <div class="max-w-full">
           <div class="grid">
             <Anchor
-              :to="product.absoluteUrl"
+              :to="{ path: product.absoluteUrl }"
               :text="alt"
             >
               <NuxtImg
@@ -104,7 +109,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           >
             <h2 class="text-lg font-semibold leading-6">
               <Anchor
-                :to="product.absoluteUrl"
+                :to="{ path: product.absoluteUrl }"
                 :text="alt"
                 class="
                   text-primary-950
@@ -156,9 +161,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <p
             v-if="showDescription"
             class="
-              text-primary-950 text-muted min-h-[3.75rem] text-sm leading-6
+              text-primary-950 text-muted
 
               dark:text-primary-50
+
+              min-h-[3.75rem] text-sm leading-6
             "
           >
             {{
@@ -232,9 +239,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             >
               <span
                 class="
-                  text-primary-950 text-sm leading-6
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-sm leading-6
                 "
               >
                 {{ t('total_price') }}
@@ -242,9 +251,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950 text-lg leading-6
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-lg leading-6
                 "
                 format="currency"
                 :value="product.finalPrice"

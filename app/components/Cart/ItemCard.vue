@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { CartItem } from '~/types/cart/item'
-
 const props = defineProps({
   cartItem: { type: Object as PropType<CartItem>, required: true },
 })
@@ -34,11 +32,12 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   <div
     v-if="cartItem"
     class="
-      bg-primary-100 relative grid grid-cols-auto-1fr items-center
-      justify-center justify-items-center gap-4 rounded-md border
-      border-primary-500
+      bg-primary-100 border-primary-500
 
       dark:bg-primary-900 dark:border-primary-500
+
+      relative grid grid-cols-auto-1fr items-center justify-center
+      justify-items-center gap-4 rounded-md border
 
       md:p-4
     "
@@ -46,7 +45,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
     <div class="grid">
       <div class="image">
         <Anchor
-          :to="cartItem.product.absoluteUrl"
+          :to="{ path: cartItem.product.absoluteUrl }"
           :title="alt"
         >
           <NuxtImg
@@ -82,7 +81,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
           "
         >
           <Anchor
-            :to="cartItem.product.absoluteUrl"
+            :to="{ path: cartItem.product.absoluteUrl }"
             :title="alt"
           >
             {{ contentShorten(alt, 50) }}

@@ -1,5 +1,4 @@
 import * as z from 'zod'
-import { ZodNotification } from '~/types/notification'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

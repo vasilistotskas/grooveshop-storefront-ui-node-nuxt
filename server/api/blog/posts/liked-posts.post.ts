@@ -1,5 +1,4 @@
 import * as z from 'zod'
-import { ZodBlogPostsLikedPostsBody } from '~/types/blog/post'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

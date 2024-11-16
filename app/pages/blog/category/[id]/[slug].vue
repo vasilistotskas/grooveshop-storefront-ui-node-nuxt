@@ -1,9 +1,5 @@
 <script lang="ts" setup>
 import type { UseSeoMetaInput } from '@unhead/schema'
-import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
-import type { EntityOrdering } from '~/types/ordering'
-import { type Pagination, PaginationTypeEnum } from '~/types'
-import type { BlogCategory } from '~/types/blog/category'
 
 const { locale, t } = useI18n()
 const route = useRoute()
@@ -97,12 +93,12 @@ const ogImage = computed(() => {
 
 const links = computed(() => [
   {
-    to: localePath('/'),
+    to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to: localePath(route.fullPath),
+    to: localePath({ path: route.fullPath }),
     label: categoryTitle.value || '',
     current: true,
   },
@@ -110,15 +106,12 @@ const links = computed(() => [
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      await refreshPosts()
-    }
+  async () => {
+    await refreshPosts()
   },
 )
 
 const seoMetaInput = {
-  title: categoryTitle.value,
   description: categoryDescription.value,
   ogDescription: categoryDescription.value,
   ogImage: {
@@ -136,7 +129,6 @@ const seoMetaInput = {
 } satisfies UseSeoMetaInput
 
 useSeoMeta(seoMetaInput)
-
 useHydratedHead({
   title: () => categoryTitle.value || '',
 })
@@ -159,7 +151,7 @@ definePageMeta({
           class="
             mb-5
 
-            md:pl-[3.5rem]
+            md:pl-14
           "
         />
       </div>
@@ -169,9 +161,11 @@ definePageMeta({
         >
           <span
             class="
-              text-2xl font-bold text-primary-950 capitalize
+              text-primary-950
 
               dark:text-primary-50
+
+              text-2xl font-bold capitalize
 
               md:text-3xl
             "
@@ -181,18 +175,20 @@ definePageMeta({
           <span
             v-if="totalPosts"
             class="
-              text-sm text-primary-950
+              text-primary-950
 
               dark:text-primary-50
 
               md:text-md
+
+              text-sm
             "
           >
             ({{ totalPosts }})
           </span>
         </h2>
       </div>
-      <div class="container posts-list flex w-full flex-col gap-4">
+      <div class="posts-list container flex w-full flex-col gap-4">
         <div class="flex flex-row flex-wrap items-center gap-2">
           <LazyPagination
             v-if="pagination"
@@ -215,11 +211,11 @@ definePageMeta({
             class="
               grid grid-cols-1 items-center justify-center gap-4
 
-              lg:grid-cols-3
+              sm:grid-cols-2
 
               md:grid-cols-3
 
-              sm:grid-cols-2
+              lg:grid-cols-3
 
               xl:grid-cols-3
             "

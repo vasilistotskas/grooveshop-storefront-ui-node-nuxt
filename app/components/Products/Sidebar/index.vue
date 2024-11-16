@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import type { ProductCategory } from '~/types/product/category'
-import type { Pagination } from '~/types'
-
 const { locale } = useI18n()
 const route = useRoute()
 
@@ -62,7 +59,7 @@ onMounted(() => {
   >
     <div
       class="
-        grid w-full flex-1 gap-2 overflow-y-auto pl-4 pr-4
+        grid w-full flex-1 gap-2 overflow-y-auto px-4
 
         lg:pl-0
       "
@@ -72,18 +69,22 @@ onMounted(() => {
       </h2>
       <div
         class="
-          sidebar-header-sticky bg-primary-100 grid
+          sidebar-header-sticky bg-primary-100
 
           dark:bg-primary-950
+
+          grid
         "
       >
         <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('categories') }}
           <span
             class="
-              text-primary-950 text-sm font-normal
+              text-primary-950
 
               dark:text-primary-50
+
+              text-sm font-normal
             "
           >
             ({{ categories?.count ?? 0 }})
@@ -146,9 +147,11 @@ onMounted(() => {
       >
         <p
           class="
-            text-primary-950 p-2 text-center
+            text-primary-950
 
             dark:text-primary-50
+
+            p-2 text-center
           "
         >
           {{ $t('no_categories_found') }}

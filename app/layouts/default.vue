@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { LinksOption } from '~/types'
-
 defineSlots<{
   default(props: object): any
   header(props: object): any
@@ -90,9 +88,9 @@ const Footer = computed(() => {
       class="
         pt-[48px]
 
-        lg:pt-[63px]
-
         md:pt-[56px]
+
+        lg:pt-[63px]
       "
       :class="{
         'opacity-70': searchBarFocused,
@@ -107,7 +105,7 @@ const Footer = computed(() => {
     <slot name="footer">
       <MobileOrTabletOnly>
         <div
-          class="mb-6 mt-6 flex flex-wrap items-center justify-center"
+          class="my-6 flex flex-wrap items-center justify-center"
         >
           <Socials />
         </div>
@@ -131,14 +129,15 @@ const Footer = computed(() => {
           },
           avatar: {
             base: 'w-8 h-8',
-            size: 'sm',
+            size: 'sm' as '2xs',
           },
         }"
         class="
-          border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50
-          w-full border-t
+          border-primary-200 bg-primary-50
 
           dark:border-primary-700 dark:bg-primary-900
+
+          fixed inset-x-0 bottom-0 z-50 w-full border-t
         "
       />
     </MobileOrTabletOnly>

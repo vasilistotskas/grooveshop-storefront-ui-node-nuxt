@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type { DynamicFormSchema } from '~/types/form'
-import type { WebAuthnSignupPostBody } from '~/types/all-auth'
-
 const emit = defineEmits(['signUpByPasskey'])
 
 const { signUpByPasskey } = useAllAuthAuthentication()
@@ -42,22 +39,24 @@ const formSchema: DynamicFormSchema = {
 <template>
   <div
     class="
-      grid gap-1 container-2xs p-0
+      container-2xs grid gap-1 p-0
 
       md:px-6
     "
   >
     <p
       class="
-        flex items-center text-primary-950 text-center
+        text-primary-950
 
         dark:text-primary-50
+
+        flex items-center text-center
       "
     >
       {{ t('description') }}
       <UButton
         :label="t('login_here')"
-        :to="localePath('/account/login')"
+        :to="localePath('account-login')"
         color="opposite"
         size="lg"
         type="submit"
@@ -75,7 +74,7 @@ const formSchema: DynamicFormSchema = {
       <UButton
         class="!px-0"
         :label="t('using_password')"
-        :to="localePath('/account/signup')"
+        :to="localePath('account-signup')"
         color="opposite"
         size="lg"
         type="submit"

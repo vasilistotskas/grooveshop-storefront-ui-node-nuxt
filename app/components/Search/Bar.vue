@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { SearchResponse } from '~/types/search'
-
 const searchBarFocused = defineModel<boolean>('searchBarFocused', {
   required: true,
 })
@@ -276,10 +274,11 @@ onClickOutside(autocomplete, () => {
       v-model:keep-focus="keepFocus"
       v-model:highlighted="highlighted"
       class="
-        absolute right-0 top-12 max-h-[calc(100vh-80px)] rounded border p-3.5
         border-primary-300 bg-primary-100
 
         dark:border-primary-500 dark:bg-primary-900
+
+        absolute right-0 top-12 max-h-[calc(100vh-80px)] rounded border p-3.5
 
         md:top-10
       "

@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { TwoFaReauthenticateBody } from '~/types/all-auth'
-import type { DynamicFormSchema } from '~/types/form'
 
 const emit = defineEmits(['twoFaReauthenticate'])
 
@@ -68,9 +66,11 @@ const formSchema: DynamicFormSchema = {
         <div class="grid items-center justify-center gap-2">
           <h3
             class="
-              text-2xl font-bold text-primary-950
+              text-primary-950
 
               dark:text-primary-50
+
+              text-2xl font-bold
             "
           >
             {{ t('enter_authenticator_code') }}

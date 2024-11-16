@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { Order } from '~/types/order'
-
 defineProps({
   orders: {
     type: Array as PropType<Order[] | null>,

@@ -1,17 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-
 import * as z from 'zod'
-import type { BlogComment } from '~/types/blog/comment'
-import type { DynamicFormSchema } from '~/types/form'
-import {
-  type CursorStates,
-  PaginationCursorStateEnum,
-  type PaginationCursorStateType,
-  type PaginationType,
-  PaginationTypeEnum,
-} from '~/types'
-import type { Pagination } from '~/types/pagination'
 
 const props = defineProps({
   comment: {
@@ -310,9 +299,11 @@ watch(
           <span
             v-if="userAccount"
             class="
-              text-primary-950 font-bold
+              text-primary-950
 
               dark:text-primary-50
+
+              font-bold
             "
           >
             {{ userAccount?.username }}
@@ -320,17 +311,21 @@ watch(
           <span class="flex items-center">
             <span
               class="
-                text-12 text-primary-400 mx-2 my-0 inline-block font-bold
+                text-12 text-primary-400
 
                 dark:text-primary-400
+
+                mx-2 my-0 inline-block font-bold
               "
             >•</span>
             <NuxtTime
               :datetime="comment.createdAt"
               class="
-                text-primary-400 w-full text-end text-xs
+                text-primary-400
 
                 dark:text-primary-400
+
+                w-full text-end text-xs
               "
             />
           </span>
@@ -342,8 +337,8 @@ watch(
         v-show="hasReplies"
         aria-hidden="true"
         class="
-          line absolute bottom-0 left-0 top-0 z-10 mb-[0.75rem] flex w-8
-          cursor-pointer items-center justify-center
+          line absolute inset-y-0 left-0 z-10 mb-3 flex w-8 cursor-pointer
+          items-center justify-center
         "
         @click="onShowMoreRepliesButtonClick"
         @mouseenter="isLineHovered = true"
@@ -363,7 +358,7 @@ watch(
                 dark:bg-primary-600
               `
           "
-          class="h-full w-[1px]"
+          class="h-full w-px"
         />
       </span>
 
@@ -380,10 +375,11 @@ watch(
         <span
           v-show="repliesFetched"
           class="
-            bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start
-            py-[2px]
+            bg-primary-100
 
             dark:bg-primary-900
+
+            relative z-20 mt-[6px] flex justify-center self-start py-[2px]
           "
         >
           <UButton
@@ -412,8 +408,8 @@ watch(
               },
             }"
             class="
-              button inline-flex h-[1rem] w-[1rem] items-center justify-center
-              overflow-visible px-[0.375rem]
+              button inline-flex size-4 items-center justify-center
+              overflow-visible px-1.5
             "
             size="sm"
             variant="solid"
@@ -463,7 +459,7 @@ watch(
             :aria-hidden="!showReplies"
             :class="{
               'threadline-hovered': isLineHovered,
-              'bg-primary-100 z-20 dark:bg-primary-900':
+              'bg-primary-100 dark:bg-primary-900 z-20':
                 !showReplies || (allReplies.length > 0 && allReplies[allReplies.length - 1]?.id === reply.id),
             }"
             class="threadline-one align-start relative flex justify-end"
@@ -471,19 +467,22 @@ watch(
 
             <span
               class="
-                border-primary-300 box-border h-[1rem] w-[calc(50%+0.5px)]
-                cursor-pointer rounded-bl-[12px] border-0 border-b-[1px]
-                border-l-[1px] border-solid
+                border-primary-300
 
                 dark:border-primary-600
+
+                box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
+                rounded-bl-[12px] border-0 border-b border-l border-solid
               "
             />
             <span
               class="
-                border-primary-300 absolute right-[-8px] box-border h-[1rem]
-                w-[0.5rem] cursor-pointer border-0 border-b-[1px] border-solid
+                border-primary-300
 
                 dark:border-primary-600
+
+                absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
+                border-b border-solid
               "
             />
           </span>
@@ -499,25 +498,28 @@ watch(
           :aria-hidden="!showReplies"
           :class="{
             'threadline-hovered': isLineHovered,
-            'bg-primary-100 z-20 dark:bg-primary-900': !showReplies || pending,
+            'bg-primary-100 dark:bg-primary-900 z-20': !showReplies || pending,
           }"
           class="threadline-two align-start relative flex justify-end"
         >
           <span
             class="
-              border-primary-300 box-border h-[1rem] w-[calc(50%+0.5px)]
-              cursor-pointer rounded-bl-[12px] border-0 border-b-[1px]
-              border-l-[1px] border-solid
+              border-primary-300
 
               dark:border-primary-600
+
+              box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
+              rounded-bl-[12px] border-0 border-b border-l border-solid
             "
           />
           <span
             class="
-              border-primary-300 absolute right-[-8px] box-border h-[1rem]
-              w-[0.5rem] cursor-pointer border-0 border-b-[1px] border-solid
+              border-primary-300
 
               dark:border-primary-600
+
+              absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
+              border-b border-solid
             "
           />
         </span>
@@ -574,7 +576,7 @@ watch(
           rounded: 'rounded-full',
         },
       }"
-      class="reply-comment-form relative mb-2 mt-2"
+      class="reply-comment-form relative my-2"
       @submit="onReplySubmit"
     />
     <LazyPagination

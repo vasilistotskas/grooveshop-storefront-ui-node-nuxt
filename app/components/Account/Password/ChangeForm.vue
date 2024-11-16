@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { DynamicFormSchema } from '~/types/form'
-import type { PasswordChangeBody } from '~/types/all-auth'
 
 const emit = defineEmits(['changePassword'])
 
@@ -25,7 +23,7 @@ const onSubmit = async (values: PasswordChangeBody) => {
       color: 'green',
     })
     emit('changePassword')
-    await navigateTo(localePath('/account'))
+    await navigateTo(localePath('account'))
   }
   catch (error) {
     handleAllAuthClientError(error)
@@ -116,9 +114,11 @@ const formSchema = computed((): DynamicFormSchema => {
     <section class="grid w-full items-center">
       <p
         class="
-          text-primary-950 text-center
+          text-primary-950
 
           dark:text-primary-50
+
+          text-center
         "
       >
         {{ hasCurrentPassword ? t('change.description') : t('set.description')

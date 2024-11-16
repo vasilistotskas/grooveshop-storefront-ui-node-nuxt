@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { Order } from '~/types/order'
-
 const props = defineProps({
   order: {
     type: Object as PropType<Order>,
@@ -27,10 +25,11 @@ const localePath = useLocalePath()
   <li
     v-if="order"
     class="
-      order-card text-primary-950 bg-primary-100 flex flex-col items-center
-      justify-between gap-4 rounded border border-primary-500 p-4
+      order-card text-primary-950 bg-primary-100 border-primary-500
 
       dark:text-primary-50 dark:bg-primary-900 dark:border-primary-500
+
+      flex flex-col items-center justify-between gap-4 rounded border p-4
 
       md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-10
     "
@@ -49,9 +48,11 @@ const localePath = useLocalePath()
       >
         <span
           class="
-            text-primary-950 text-xs
+            text-primary-950
 
             dark:text-primary-50
+
+            text-xs
           "
         >
           {{ t('extra', {
@@ -81,9 +82,11 @@ const localePath = useLocalePath()
       <div class="order-card-body-id grid">
         <span
           class="
-            text-primary-950 text-xs
+            text-primary-950
 
             dark:text-primary-50
+
+            text-xs
           "
         >{{
           t('id')
@@ -94,9 +97,11 @@ const localePath = useLocalePath()
       <div class="order-card-body-address grid">
         <span
           class="
-            text-primary-950 text-xs
+            text-primary-950
 
             dark:text-primary-50
+
+            text-xs
           "
         >{{
           t('address')
@@ -107,9 +112,11 @@ const localePath = useLocalePath()
       <div class="order-card-body-pay_way grid">
         <span
           class="
-            text-primary-950 text-xs
+            text-primary-950
 
             dark:text-primary-50
+
+            text-xs
           "
         >{{
           t('pay_way')
@@ -120,9 +127,11 @@ const localePath = useLocalePath()
       <div class="order-card-body-total_price grid">
         <span
           class="
-            text-primary-950 text-xs
+            text-primary-950
 
             dark:text-primary-50
+
+            text-xs
           "
         >{{
           t('total_price')
@@ -138,9 +147,11 @@ const localePath = useLocalePath()
       <div class="order-card-body-created_at grid">
         <span
           class="
-            text-primary-950 text-xs
+            text-primary-950
 
             dark:text-primary-50
+
+            text-xs
           "
         >{{
           t('ordering.created_at')
@@ -153,7 +164,7 @@ const localePath = useLocalePath()
       <div class="order-card-footer-item">
         <UButton
           :label="t('actions.details')"
-          :to="localePath(`/account/orders/${order.id}`)"
+          :to="localePath({ name: 'account-orders-id', params: { id: order.id } })"
           class="
             py-1.25 w-full text-sm
 

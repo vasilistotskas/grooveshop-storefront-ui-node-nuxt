@@ -1,11 +1,29 @@
 <script lang="ts" setup>
-import { useForm, type ValidationOptions } from 'vee-validate'
+import { type BaseFieldProps, type GenericObject, useForm, type ValidationOptions } from 'vee-validate'
 import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
-import type { DisabledFields, DynamicFormFields, DynamicFormSchema, DynamicFormState, FormValues } from '~/types/form'
-import { mergeWithEffect } from '~/types/zod'
+import type { Ref } from 'vue'
 import type { Button } from '#ui/types/button'
+
+type DynamicFormState = {
+  errors: string[]
+}
+
+type DynamicFormFields<
+  TValue = any,
+  TExtras extends GenericObject = GenericObject,
+> = {
+  [key: string]: [Ref<TValue>, Ref<BaseFieldProps & TExtras>]
+}
+
+type FormValues = {
+  [key: string]: unknown
+}
+
+interface DisabledFields {
+  [key: string]: boolean
+}
 
 // Define the UI configuration for Nuxt-UI
 const nuxtUiConfig = (state: DynamicFormState) => {

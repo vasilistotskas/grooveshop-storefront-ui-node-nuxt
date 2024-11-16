@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { type AllAuthResponse, type AllAuthResponseError, AuthenticatorType, type Flow, Flows } from '~/types/all-auth'
 
 const props = defineProps({
   flow: { type: String as PropType<Flow['id']>, required: false },
@@ -77,9 +76,11 @@ const filteredMethods = computed(() => {
     <div class="grid items-center justify-center justify-items-center">
       <h3
         class="
-          text-2xl font-bold text-primary-950
+          text-primary-950
 
           dark:text-primary-50
+
+          text-2xl font-bold
         "
       >
         {{ $t('confirm_access') }}
@@ -91,7 +92,9 @@ const filteredMethods = computed(() => {
 
     <slot />
 
-    <div v-if="methods.length > 1" class="grid items-center justify-center gap-2">
+    <div
+      v-if="methods.length > 1" class="grid items-center justify-center gap-2"
+    >
       <p>{{ $t('alternative_options') }}</p>
       <ul class="grid items-center">
         <li

@@ -9,28 +9,28 @@ const links = computed(() => {
     {
       label: t('social_accounts'),
       icon: 'i-heroicons-user-group',
-      to: localePath('/account/providers'),
+      to: localePath('account-providers'),
     },
     {
       label: t('sessions'),
       icon: 'i-heroicons-signal',
-      to: localePath('/account/sessions'),
+      to: localePath('account-sessions'),
     },
     {
       label: t('password.change'),
       icon: 'i-heroicons-lock-closed',
-      to: localePath('/account/password/change'),
+      to: localePath('account-password-change'),
     },
     !totpAuthenticator.value
       ? {
           label: t('two_factor.activate'),
           icon: 'i-heroicons-lock-open',
-          to: localePath('/account/2fa/totp/activate'),
+          to: localePath('account-2fa-totp-activate'),
         }
       : {
           label: t('two_factor.deactivate'),
           icon: 'i-heroicons-chart-bar',
-          to: localePath('/account/2fa/totp/deactivate'),
+          to: localePath('account-2fa-totp-deactivate'),
         },
   ]
 
@@ -38,11 +38,11 @@ const links = computed(() => {
     links.push({
       label: t('two_factor.recovery_codes.title'),
       icon: 'i-heroicons-key',
-      to: localePath('/account/2fa/recovery-codes'),
+      to: localePath('account-2fa-recovery-codes'),
     }, {
       label: t('two_factor.recovery_codes.generate'),
       icon: 'i-heroicons-key',
-      to: localePath('/account/2fa/recovery-codes/generate'),
+      to: localePath('account-2fa-recovery-codes-generate'),
     })
   }
 
@@ -50,14 +50,14 @@ const links = computed(() => {
     links.push({
       label: t('two_factor.webauthn.title'),
       icon: 'i-heroicons-key',
-      to: localePath('/account/2fa/webauthn'),
+      to: localePath('account-2fa-webauthn'),
     })
   }
   else {
     links.push({
       label: t('two_factor.webauthn.add'),
       icon: 'i-heroicons-key',
-      to: localePath('/account/2fa/webauthn/add'),
+      to: localePath('account-2fa-webauthn-add'),
     })
   }
 

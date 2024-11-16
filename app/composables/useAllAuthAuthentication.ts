@@ -1,24 +1,4 @@
 import { resolveURL, withQuery } from 'ufo'
-import type {
-  CodeConfirmBody, CodeConfirmResponse,
-  CodeRequestBody, EmailVerifyGetResponse,
-  EmailVerifyPostBody, EmailVerifyPostResponse,
-  LoginBody, LoginResponse,
-  PasswordRequestBody, PasswordRequestResponse, PasswordResetGetResponse,
-  PasswordResetPostBody, PasswordResetPostResponse,
-  Provider,
-  ProviderRedirectBody,
-  ProviderSignupBody, ProviderSignupResponse,
-  ProviderTokenBody, ProviderTokenResponse,
-  ReauthenticateBody, ReauthenticateResponse, SessionResponse,
-  SignupBody, SignupResponse,
-  TwoFaAuthenticateBody, TwoFaAuthenticateResponse,
-  TwoFaReauthenticateBody, TwoFaReauthenticateResponse, WebAuthnAuthenticateGetResponse,
-  WebAuthnAuthenticatePostBody, WebAuthnAuthenticatePostResponse, WebAuthnLoginGetResponse,
-  WebAuthnLoginPostBody, WebAuthnLoginPostResponse, WebAuthnReauthenticateGetResponse,
-  WebAuthnReauthenticatePostBody, WebAuthnReauthenticatePostResponse, WebAuthnSignupGetResponse,
-  WebAuthnSignupPostBody, WebAuthnSignupPostResponse, WebAuthnSignupPutBody, WebAuthnSignupPutResponse,
-} from '~/types/all-auth'
 
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
 

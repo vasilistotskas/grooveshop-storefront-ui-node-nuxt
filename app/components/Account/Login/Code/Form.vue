@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type { DynamicFormSchema } from '~/types/form'
-import type { CodeRequestBody } from '~/types/all-auth'
-
 const emit = defineEmits(['requestLoginCode'])
 
 const { requestLoginCode } = useAllAuthAuthentication()

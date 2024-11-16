@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { SearchBlogPost, SearchProduct } from '~/types/search'
-
 const isSearchProduct = (item: SearchProduct | SearchBlogPost): item is SearchProduct => {
   return item.formatted !== undefined && item.formatted !== null && 'name' in item.formatted
 }
@@ -47,18 +45,20 @@ const imgAlt = computed(() => {
 <template>
   <li
     class="
-      rounded-sm border border-primary-300 bg-primary-100
+      border-primary-300 bg-primary-100
 
       dark:bg-primary-900 dark:hover:bg-primary-800 dark:border-primary-500
 
       hover:bg-primary-200
+
+      rounded-sm border
     "
   >
     <Anchor
       :class="{ 'bg-primary-200 dark:bg-primary-800': highlighted }"
-      :to="item.absoluteUrl"
+      :to="{ path: item.absoluteUrl }"
       class="
-        focusable flex gap-1 px-2 py-2
+        focusable flex gap-1 p-2
 
         md:gap-3
       "
@@ -89,18 +89,22 @@ const imgAlt = computed(() => {
             <div v-for="([key, value], index) in sortedFields" :key="index">
               <span
                 class="
-                  text-sm font-semibold text-primary-950
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-sm font-semibold
                 "
               >
                 {{ $t(`fields.${key}`) }}:
               </span>
               <span
                 class="
-                  line-clamp-1 text-primary-950 text-sm
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  line-clamp-1 text-sm
                 "
               >
                 {{ value }}

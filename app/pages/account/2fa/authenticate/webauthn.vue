@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { get, parseRequestOptionsFromJSON } from '@github/webauthn-json/browser-ponyfill'
-import type { CredentialRequestOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'
-import { AuthChangeEvent, type AuthChangeEventType, AuthenticatorType } from '~/types/all-auth'
+import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
 
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
 
@@ -13,7 +12,7 @@ const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
 
 if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-  await navigateTo(localePath('/'))
+  await navigateTo(localePath('index'))
 }
 
 const loading = ref(false)

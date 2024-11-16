@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { AuthenticatorType } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
 
 const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
@@ -121,7 +120,7 @@ const actionItems = (row: { name: string, type: string, created_at: string, last
 
 watchEffect(async () => {
   if (!keys.value?.length && !loading.value) {
-    await navigateTo(localePath('/account/2fa'))
+    await navigateTo(localePath('account-2fa'))
   }
 })
 
@@ -207,7 +206,7 @@ onReactivated(async () => {
       <div class="grid justify-end">
         <UButton
           :label="$t('add.title')"
-          :to="localePath('/account/2fa/webauthn/add')"
+          :to="localePath('account-2fa-webauthn-add')"
           color="opposite"
           size="md"
           type="button"

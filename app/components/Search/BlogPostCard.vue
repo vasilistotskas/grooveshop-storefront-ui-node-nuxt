@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { SearchBlogPost } from '~/types/search'
-
 const props = defineProps({
   item: {
     type: Object as PropType<SearchBlogPost>,
@@ -21,15 +19,17 @@ const { item } = toRefs(props)
     "
   >
     <Anchor
-      :to="item.absoluteUrl"
+      :to="{ path: item.absoluteUrl }"
       class="pb-2"
       :text="item.title"
     >
       <div
         class="
-          duration-400 z-10 block p-1 transition
+          duration-400
 
           bg-zinc4:10
+
+          z-10 block p-1 transition
 
           hover:scale-105
         "
@@ -37,7 +37,7 @@ const { item } = toRefs(props)
         <NuxtImg
           loading="lazy"
           provider="mediaStream"
-          class="bg-primary-100 aspect-square h-full w-full object-cover"
+          class="bg-primary-100 aspect-square size-full object-cover"
           :style="{
             'view-transition-name': `item-${item.id}`,
             'aspectRatio': '1/1',

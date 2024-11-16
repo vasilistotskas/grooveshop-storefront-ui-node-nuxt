@@ -1,6 +1,3 @@
-import { ZodPagination } from '~/types/pagination'
-import { ZodPayWay, ZodPayWayQuery } from '~/types/pay-way'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

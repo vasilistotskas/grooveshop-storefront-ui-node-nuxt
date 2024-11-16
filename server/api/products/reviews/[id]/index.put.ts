@@ -1,10 +1,3 @@
-import {
-  ZodProductReview,
-  ZodProductReviewParams,
-  ZodProductReviewPutBody,
-  ZodProductReviewPutQuery,
-} from '~/types/product/review'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

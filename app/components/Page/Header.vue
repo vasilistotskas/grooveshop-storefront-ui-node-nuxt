@@ -5,7 +5,7 @@ defineSlots<{
 </script>
 
 <template>
-  <header class="fixed left-0 right-0 top-0 z-50 w-full">
+  <header class="fixed inset-x-0 top-0 z-50 w-full">
     <slot />
   </header>
 </template>

@@ -1,7 +1,3 @@
-import { ZodBlogComment } from '~/types/blog/comment'
-import { ZodBlogPostParams, ZodBlogPostQuery } from '~/types/blog/post'
-import { ZodPagination } from '~/types/pagination'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {

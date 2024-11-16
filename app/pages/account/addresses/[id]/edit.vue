@@ -3,13 +3,6 @@ import * as z from 'zod'
 
 import { Field, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
-import { ZodUserAccount } from '~/types/user/account'
-import type { Pagination } from '~/types/pagination'
-import type { Region } from '~/types/region'
-import type { Country } from '~/types/country'
-import type { UserAddress } from '~/types/user/address'
 
 const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
@@ -213,7 +206,7 @@ const onSubmit = handleSubmit(async (values) => {
         title: t('success'),
         color: 'green',
       })
-      await navigateTo(localePath('/account/addresses'))
+      await navigateTo(localePath('account-addresses'))
     },
     onResponseError() {
       toast.add({
@@ -236,7 +229,7 @@ const onSetMain = async () => {
         title: t('main.success'),
         color: 'green',
       })
-      await navigateTo(localePath('/account/addresses'))
+      await navigateTo(localePath('account-addresses'))
     },
     onResponseError() {
       toast.add({
@@ -266,7 +259,7 @@ definePageMeta({
     >
       <div class="grid grid-cols-auto-1fr items-center gap-4">
         <UButton
-          :to="localePath('/account/addresses')"
+          :to="localePath('account-addresses')"
           :trailing="true"
           color="primary"
           icon="i-heroicons-arrow-left"
@@ -319,9 +312,11 @@ definePageMeta({
         id="AddressEditForm"
         :action="`/api/v1/user/addresses/${address.id}`"
         class="
-          bg-primary-100 flex flex-col gap-4 rounded-lg p-4
+          bg-primary-100
 
           dark:bg-primary-900
+
+          flex flex-col gap-4 rounded-lg p-4
 
           md:grid md:grid-cols-3
         "
@@ -338,9 +333,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="title"
           >{{ t('form.title') }}</label>
@@ -353,9 +350,11 @@ definePageMeta({
               :required="true"
               autocomplete="honorific-prefix"
               class="
-                text-primary-950 mb-2
+                text-primary-950
 
                 dark:text-primary-50
+
+                mb-2
               "
               name="title"
               type="text"
@@ -375,9 +374,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="firstName"
           >{{ t('form.first_name') }}</label>
@@ -407,9 +408,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="lastName"
           >{{ t('form.last_name') }}</label>
@@ -439,9 +442,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="street"
           >{{ t('form.street') }}</label>
@@ -471,9 +476,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="streetNumber"
           >{{ t('form.street_number') }}</label>
@@ -505,9 +512,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="city"
           >{{ t('form.city') }}</label>
@@ -537,9 +546,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="zipcode"
           >{{ t('form.zipcode') }}</label>
@@ -569,9 +580,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="phone"
           >{{ t('form.phone') }}</label>
@@ -600,9 +613,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="mobilePhone"
           >{{ t('form.mobile_phone') }}</label>
@@ -635,9 +650,11 @@ definePageMeta({
           <div class="grid">
             <label
               class="
-                text-primary-950 mb-2
+                text-primary-950
 
                 dark:text-primary-50
+
+                mb-2
               "
               for="floor"
             >{{ t('form.floor') }}</label>
@@ -660,9 +677,11 @@ definePageMeta({
           <div class="grid">
             <label
               class="
-                text-primary-950 mb-2
+                text-primary-950
 
                 dark:text-primary-50
+
+                mb-2
               "
               for="locationType"
             >{{
@@ -696,9 +715,11 @@ definePageMeta({
           <div class="grid">
             <label
               class="
-                text-primary-950 mb-2
+                text-primary-950
 
                 dark:text-primary-50
+
+                mb-2
               "
               for="country"
             >{{ t('form.country') }}</label>
@@ -724,9 +745,11 @@ definePageMeta({
           <div class="grid">
             <label
               class="
-                text-primary-950 mb-2
+                text-primary-950
 
                 dark:text-primary-50
+
+                mb-2
               "
               for="region"
             >{{ t('form.region') }}</label>
@@ -759,9 +782,11 @@ definePageMeta({
         >
           <label
             class="
-              text-primary-950 mb-2
+              text-primary-950
 
               dark:text-primary-50
+
+              mb-2
             "
             for="notes"
           >{{ t('form.notes') }}</label>
@@ -785,11 +810,11 @@ definePageMeta({
             :aria-busy="isSubmitting"
             :disabled="submitButtonDisabled"
             class="
-              rounded bg-secondary px-4 py-2 font-bold text-primary-50
-
-              dark:bg-secondary-dark
+              text-primary-50 rounded bg-secondary px-4 py-2 font-bold
 
               disabled:cursor-not-allowed disabled:opacity-50
+
+              dark:bg-secondary-dark
             "
             type="submit"
           >

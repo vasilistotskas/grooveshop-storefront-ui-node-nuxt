@@ -4,6 +4,6 @@ export default defineNuxtRouteMiddleware(() => {
   const localePath = useLocalePath()
 
   if (loggedIn.value) {
-    return nuxtApp.runWithContext(() => navigateTo(localePath('/')))
+    return nuxtApp.runWithContext(() => navigateTo(localePath('index')))
   }
 })

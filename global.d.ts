@@ -2,9 +2,6 @@
 // global.d.ts
 import type { HookResult } from '@nuxt/schema'
 import type { Ref } from 'vue'
-import type { AllAuthResponse, AllAuthResponseError } from '~/types/all-auth'
-
-export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
@@ -44,3 +41,5 @@ declare global {
     }
   }
 }
+
+export {}

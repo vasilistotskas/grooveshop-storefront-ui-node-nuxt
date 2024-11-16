@@ -1,5 +1,3 @@
-import { ZodNotificationUser, ZodNotificationUserBody, ZodNotificationUserParams } from '~/types/notification/user'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

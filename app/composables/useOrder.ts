@@ -1,5 +1,3 @@
-import type { Order } from '~/types/order'
-
 export const useOrder = () => {
   const statusClass = (order: Order) => {
     switch (order.status) {

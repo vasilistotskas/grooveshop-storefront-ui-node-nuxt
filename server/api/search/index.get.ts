@@ -1,7 +1,5 @@
 import * as z from 'zod'
 
-import { ZodSearchBlogPostResult, ZodSearchProductResult, ZodSearchQuery, ZodSearchResponse } from '~/types/search'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 

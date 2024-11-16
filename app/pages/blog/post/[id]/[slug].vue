@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { isClient } from '@vueuse/shared'
 import type { UseSeoMetaInput } from '@unhead/schema'
-import type { BlogPost } from '~/types/blog/post'
 
 const route = useRoute()
 const { t, locale } = useI18n()
@@ -54,47 +52,49 @@ if (!blogPost.value) {
   })
 }
 
-await useLazyFetch<number[]>('/api/blog/posts/liked-posts', {
-  method: 'POST',
-  headers: useRequestHeaders(),
-  body: {
-    postIds: [blogPostId.value],
-  },
-  immediate: shouldFetchLikedPosts.value,
-  onResponse({ response }) {
-    if (!response.ok) {
-      return
-    }
-    const likedPostsIds = response._data
-    updateLikedPosts(likedPostsIds)
-  },
-})
-const { data: relatedPosts, status: relatedPostsStatus } = await useLazyFetch<BlogPost[]>(
-  `/api/blog/posts/${blogPostId.value}/related-posts`,
-  {
-    key: `relatedPosts${blogPostId.value}`,
-    method: 'GET',
-    query: {
-      language: locale.value,
+const [{ data: likedPostsData }, { data: relatedPosts, status: relatedPostsStatus }] = await Promise.all([
+  useFetch<number[]>('/api/blog/posts/liked-posts', {
+    key: `likedPosts${blogPostId.value}`,
+    method: 'POST',
+    headers: useRequestHeaders(),
+    body: {
+      postIds: [blogPostId.value],
     },
-  },
-)
+    immediate: shouldFetchLikedPosts.value,
+  }),
+  useFetch<BlogPost[]>(
+    `/api/blog/posts/${blogPostId.value}/related-posts`, {
+      key: `relatedPosts${blogPostId.value}`,
+      method: 'GET',
+      query: {
+        language: locale.value,
+      },
+    },
+  ),
+])
 
-const blogPostBody = computed(() => {
-  return extractTranslated(blogPost.value, 'body', locale.value)
-})
-const blogPostSubtitle = computed(() => {
-  return extractTranslated(blogPost.value, 'subtitle', locale.value)
-})
-const blogPostTitle = computed(() => {
-  return extractTranslated(blogPost.value, 'title', locale.value)
-})
+if (likedPostsData.value) {
+  updateLikedPosts(likedPostsData.value)
+}
+
+const blogPostBody = computed(() => extractTranslated(blogPost.value, 'body', locale.value) ?? '')
+const blogPostTitle = computed(() => extractTranslated(blogPost.value, 'title', locale.value) ?? '')
+const blogPostSubtitle = computed(() => extractTranslated(blogPost.value, 'subtitle', locale.value) ?? '')
 const blogPostAuthor = computed(() => getEntityObject(blogPost?.value?.author))
 const blogPostAuthorUser = computed(() =>
   getEntityObject(blogPostAuthor?.value?.user),
 )
 const blogPostTags = computed(() =>
   getEntityObjectsFromArray(blogPost.value?.tags),
+)
+const blogPostCategoryName = computed(() => extractTranslated(getEntityObject(blogPost.value?.category), 'name', locale.value) || '')
+const blogAuthorFullName = computed(() => blogPostAuthorUser.value?.firstName + ' ' + blogPostAuthorUser.value?.lastName)
+
+const socialPlatforms = ['twitter', 'linkedin', 'facebook', 'instagram', 'youtube', 'github']
+const sameAs = computed(() =>
+  socialPlatforms
+    .map(platform => blogPostAuthorUser.value?.[platform as keyof typeof blogPostAuthorUser.value])
+    .filter(url => url) as string[],
 )
 
 const ogImage = computed(() => {
@@ -108,34 +108,35 @@ const ogImage = computed(() => {
 
 const links = computed(() => [
   {
-    to: localePath('/'),
+    to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to: localePath('/blog'),
+    to: localePath('blog'),
     label: t('breadcrumb.items.blog.label'),
   },
   {
-    to: localePath(`/blog/post/${blogPostId.value}/${blogPost.value?.slug}`),
+    to: localePath({ name: 'blog-post-id-slug', params: { id: blogPostId.value, slug: blogPost.value?.slug } }),
     label: blogPostTitle.value || '',
   },
 ])
 
-const blogAuthor = reactive({
-  name: blogPostAuthorUser.value?.firstName
-    + ' '
-    + blogPostAuthorUser.value?.lastName,
-  url: blogPostAuthor.value?.website,
-})
-
 const shareOptions = reactive({
   title: blogPostTitle.value,
   text: blogPostSubtitle.value || '',
-  url: isClient ? route.fullPath : '',
+  url: import.meta.client ? route.fullPath : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch(err => err)
+const startShare = async () => {
+  try {
+    await share()
+  }
+  catch (err) {
+    console.error('Share failed:', err)
+  }
+}
+
 const likeClicked = async () => {
   await refresh()
 }
@@ -158,7 +159,6 @@ onReactivated(async () => {
 })
 
 const seoMetaInput = {
-  title: blogPost.value.seoTitle || blogPostTitle.value,
   description: blogPost.value.seoDescription || blogPostSubtitle.value,
   ogDescription: blogPost.value.seoDescription || blogPostSubtitle.value,
   ogImage: {
@@ -184,13 +184,22 @@ useHydratedHead({
   title: () => blogPost.value?.seoTitle || blogPostTitle.value || '',
 })
 useSchemaOrg([
+  definePerson({
+    '@id': '#author',
+    'name': blogAuthorFullName.value,
+    'sameAs': sameAs.value,
+    'url': blogPostAuthorUser.value?.website,
+    'image': blogPostAuthorUser.value?.image,
+  }),
   defineArticle({
+    author: { '@id': '#author' },
+    keywords: [blogPost.value?.seoKeywords || ''],
     headline: blogPost.value.seoTitle || blogPostTitle.value,
     description: blogPost.value.seoDescription || blogPostSubtitle.value,
     image: ogImage.value,
     datePublished: blogPost.value?.publishedAt,
     dateModified: blogPost.value?.updatedAt,
-    author: blogAuthor,
+    articleSection: [blogPostCategoryName.value],
   }),
 ])
 defineOgImage({
@@ -212,11 +221,11 @@ definePageMeta({
         class="
           mx-auto max-w-7xl pb-6
 
-          lg:px-8
+          sm:px-6
 
           md:px-4
 
-          sm:px-6
+          lg:px-8
         "
       >
         <UBreadcrumb
@@ -229,10 +238,11 @@ definePageMeta({
         />
         <article
           class="
-            mx-auto flex max-w-2xl flex-col items-start justify-center
-            border-primary-500 pb-6
+            border-primary-500
 
             dark:border-primary-500
+
+            mx-auto flex max-w-2xl flex-col items-start justify-center pb-6
           "
         >
           <div
@@ -242,9 +252,11 @@ definePageMeta({
           >
             <h1
               class="
-                text-primary-950 text-3xl font-bold tracking-tight
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-3xl font-bold tracking-tight
 
                 md:text-4xl
               "
@@ -310,7 +322,7 @@ definePageMeta({
             </div>
             <div
               class="
-                flex flex-col gap-2 w-full
+                flex w-full flex-col gap-2
 
                 sm:mx-0
               "
@@ -372,9 +384,11 @@ definePageMeta({
             </div>
             <div
               class="
-                text-primary-950 mx-auto max-w-2xl
+                text-primary-950
 
                 dark:text-primary-50
+
+                mx-auto max-w-2xl
               "
             >
               <div
@@ -397,23 +411,21 @@ definePageMeta({
         <div
           v-if="relatedPostsStatus === 'pending'"
           :class="{
-            'relative w-full flex rounded-lg': true,
-            'pl-8 pr-8': !isMobileOrTablet,
+            'relative flex w-full rounded-lg': true,
+            'px-8': !isMobileOrTablet,
           }"
         >
           <ClientOnlyFallback
             v-for="index in 3"
             :key="index"
             class="
-              flex flex-none snap-center basis-full
+              flex flex-none basis-full snap-center px-4
 
               md:basis-1/2
 
               lg:basis-1/2
 
               xl:basis-1/3
-
-              pl-4 pr-4
             "
             :height="isMobileOrTablet ? '670px' : '442px'"
             width="100%"

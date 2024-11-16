@@ -26,7 +26,7 @@ const logo = computed(() => {
 
           md:w-auto
         "
-        to="/"
+        to="index"
       >
         <NuxtImg
           :alt="appTitle"
@@ -45,9 +45,9 @@ const logo = computed(() => {
       class="
         pt-[48px]
 
-        lg:pt-[63px]
-
         md:pt-[56px]
+
+        lg:pt-[63px]
       "
       :class="{
         'opacity-70': searchBarFocused,

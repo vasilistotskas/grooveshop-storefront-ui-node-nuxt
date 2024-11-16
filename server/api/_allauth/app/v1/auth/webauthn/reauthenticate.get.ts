@@ -1,5 +1,3 @@
-import { ZodWebAuthnReauthenticateGetResponse } from '~/types/all-auth'
-
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   try {

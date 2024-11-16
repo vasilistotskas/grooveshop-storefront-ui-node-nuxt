@@ -180,7 +180,7 @@
 }
 
 .cookie-control-Bar {
-	@apply fixed bottom-20 left-0 right-0 z-50 mx-auto border px-4 md:px-6 py-4 shadow-xl max-w-sm sm:max-w-xl lg:max-w-4xl rounded-md;
+	@apply fixed bottom-2 left-0 right-0 z-50 mx-auto border px-4 md:px-6 py-4 shadow-xl max-w-sm sm:max-w-xl lg:max-w-4xl rounded-md;
 	@apply border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800;
 	@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;
 }

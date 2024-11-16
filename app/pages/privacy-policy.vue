@@ -17,9 +17,11 @@ definePageMeta({
         <div class="article container-xs">
           <p
             class="
-              text-primary-950 text-xl font-semibold
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xl font-semibold
             "
           >
             Εισαγωγή
@@ -45,9 +47,11 @@ definePageMeta({
           </p>
           <p
             class="
-              text-primary-950 text-xl font-semibold
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xl font-semibold
             "
           >
             Ποιες κατηγορίες προσωπικών δεδομένων επεξεργαζόμαστε;
@@ -84,9 +88,11 @@ definePageMeta({
 
           <p
             class="
-              text-primary-950 text-xl font-semibold
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xl font-semibold
             "
           >
             Για τη δημιουργία λογαριασμού στο webside.gr
@@ -104,9 +110,11 @@ definePageMeta({
           </p>
           <p
             class="
-              text-primary-950 text-xl font-semibold
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xl font-semibold
             "
           >
             Για να σας ενημερώσουμε για τα νέα και τις προσφορές μας

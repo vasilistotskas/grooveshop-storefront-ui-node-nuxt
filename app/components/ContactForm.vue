@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type { DynamicFormSchema } from '~/types/form'
-import type { Contact, ContactBody } from '~/types/contact'
-
 const { t } = useI18n()
 const toast = useToast()
 

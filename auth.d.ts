@@ -1,6 +1,3 @@
-import type { UserAccount } from '~/types/user/account'
-import type { Authenticated, AuthenticationMeta } from '~/types/all-auth'
-
 declare module '#auth-utils' {
   interface User extends UserAccount {
     _dummy?: string

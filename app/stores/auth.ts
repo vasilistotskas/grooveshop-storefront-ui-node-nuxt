@@ -1,11 +1,4 @@
 import type { IFetchError } from 'ofetch'
-import {
-  type AuthenticatorsResponse,
-  AuthenticatorType,
-  type ConfigResponse,
-  type SessionResponse,
-  type SessionsGetResponse,
-} from '~/types/all-auth'
 import type { NuxtError } from '#app'
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 

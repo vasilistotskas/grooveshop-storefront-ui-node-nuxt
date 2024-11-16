@@ -21,10 +21,12 @@ defineSlots<{
 <template>
   <div
     class="
-      empty-state text-primary-950 flex flex-col items-center justify-center
-      gap-4 rounded-lg border border-primary-500 p-4 text-center
+      empty-state text-primary-950 border-primary-500
 
       dark:text-primary-50 dark:border-primary-500
+
+      flex flex-col items-center justify-center gap-4 rounded-lg border p-4
+      text-center
 
       md:p-8
     "

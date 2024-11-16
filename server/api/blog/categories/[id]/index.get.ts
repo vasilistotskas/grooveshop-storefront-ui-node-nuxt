@@ -1,5 +1,3 @@
-import { ZodBlogCategory, ZodBlogCategoryParams } from '~/types/blog/category'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { BlogCategory } from '~/types/blog/category'
-
 const props = defineProps({
   category: { type: Object as PropType<BlogCategory>, required: true },
 })
@@ -29,12 +27,12 @@ const isCategorySelected = computed(() => {
 <template>
   <li
     :class="{
-      'grid w-full rounded border border-primary-500 p-2 md:border-transparent md:p-0': true,
+      'border-primary-500 grid w-full rounded border p-2 md:border-transparent md:p-0': true,
       'bg-primary-100 dark:bg-primary-900': isCategorySelected,
     }"
   >
     <Anchor
-      :to="`/blog/category/${category?.id}/${category?.slug}`"
+      :to="{ name: 'blog-category-id-slug', params: { id: category?.id, slug: category?.slug } }"
       :text="categoryName"
       class="
         group grid w-full grid-cols-auto-1fr items-center gap-4 p-2
@@ -43,7 +41,7 @@ const isCategorySelected = computed(() => {
       "
       @click.prevent="() => emit('categoryClick', category)"
     >
-      <div class="flex h-[40px] w-[40px] items-center rounded-full">
+      <div class="flex size-[40px] items-center rounded-full">
         <NuxtImg
           provider="mediaStream"
           class="object-cover"
@@ -61,9 +59,11 @@ const isCategorySelected = computed(() => {
       <div class="flex items-center">
         <span
           class="
-            text-primary-950 w-full capitalize
+            text-primary-950
 
             dark:text-primary-50
+
+            w-full capitalize
           "
         >
           {{ categoryName }}

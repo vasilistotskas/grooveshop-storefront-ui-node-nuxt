@@ -1,6 +1,5 @@
 import { createHash, createDecipheriv } from 'node:crypto'
 import { Buffer } from 'buffer'
-import { ZodSessionResponse } from '~/types/all-auth'
 
 function decryptToken(encryptedToken: string): string {
   const config = useRuntimeConfig()

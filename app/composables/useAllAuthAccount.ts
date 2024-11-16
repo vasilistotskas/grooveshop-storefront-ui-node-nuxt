@@ -1,28 +1,3 @@
-import type {
-  AuthenticatorsResponse,
-  EmailDeleteBody,
-  EmailDeleteResponse,
-  EmailGetResponse,
-  EmailPatchBody,
-  EmailPatchResponse,
-  EmailPostBody,
-  EmailPostResponse,
-  EmailPutBody,
-  EmailPutResponse,
-  PasswordChangeBody,
-  ProvidersDeleteBody,
-  ProvidersDeleteResponse,
-  ProvidersGetResponse,
-  RecoveryCodesGetResponse,
-  TotpDeleteResponse,
-  TotpGetResponse, TotpGetResponseError,
-  TotpPostBody,
-  TotpPostResponse,
-  WebAuthnDeleteBody, WebAuthnDeleteResponse, WebAuthnGetResponse,
-  WebAuthnPostBody, WebAuthnPostResponse,
-  WebAuthnPutBody, WebAuthnPutResponse,
-} from '~/types/all-auth'
-
 const API_ACCOUNT_BASE_URL = '/api/_allauth/app/v1/account' as const
 
 export default function () {

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { TotpGetResponse, TotpGetResponseError } from '~/types/all-auth'
-
 const emit = defineEmits(['deactivateTotp'])
 
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
@@ -17,7 +15,7 @@ const { error, refresh } = await useAsyncData<TotpGetResponse | TotpGetResponseE
 
 watchEffect(async () => {
   if (error.value) {
-    await navigateTo(localePath('/account/settings'))
+    await navigateTo(localePath('account-settings'))
   }
 })
 
@@ -30,7 +28,7 @@ async function onSubmit() {
       color: 'green',
     })
     emit('deactivateTotp')
-    await navigateTo(localePath('/account/settings'))
+    await navigateTo(localePath('account-settings'))
   }
   catch (error) {
     handleAllAuthClientError(error)
@@ -60,9 +58,11 @@ definePageMeta({
     />
     <p
       class="
-        text-primary-950 text-center
+        text-primary-950
 
         dark:text-primary-50
+
+        text-center
       "
     >
       {{ t('description') }}

@@ -1,5 +1,3 @@
-import { ZodProductFavourite, ZodProductFavouriteCreateBody, ZodProductFavouriteQuery } from '~/types/product/favourite'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

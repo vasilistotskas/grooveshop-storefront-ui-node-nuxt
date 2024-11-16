@@ -1,5 +1,3 @@
-import { defaultSelectOptionChoose } from '~/constants'
-
 const excludedOptions = [defaultSelectOptionChoose]
 
 export const processValues = (

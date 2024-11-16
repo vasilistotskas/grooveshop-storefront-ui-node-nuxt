@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { UserAccount } from '~/types/user/account'
-
 const props = defineProps({
   userAccount: {
     type: Object as PropType<UserAccount>,
@@ -14,7 +12,7 @@ const props = defineProps({
     default: true,
   },
   imgWidth: {
-    type: [Number, String],
+    type: Number,
     required: false,
     default: 50,
   },
@@ -117,13 +115,13 @@ const uploadImage = async (event: Event) => {
   >
     <div
       :class="{
-        'inline-block h-[135px] w-[135px] shrink-0 text-center align-middle':
+        'inline-block size-[135px] shrink-0 text-center align-middle':
           backgroundBorder,
         'loading': loading,
       }"
       :style="{
-        width: typeof imgWidth === 'number' ? imgWidth + 'px' : imgWidth,
-        height: typeof imgHeight === 'number' ? imgHeight + 'px' : imgHeight,
+        width: imgWidth + 'px',
+        height: imgHeight + 'px',
       }"
       class="
         user-avatar relative grid items-center justify-center
@@ -134,7 +132,7 @@ const uploadImage = async (event: Event) => {
         :alt="alt"
         :background="'transparent'"
         :class="{
-          'blur-sm filter': loading,
+          'blur-sm': loading,
         }"
         fit="cover"
         :height="imgHeight"
@@ -231,9 +229,11 @@ const uploadImage = async (event: Event) => {
     >
       <span
         class="
-          text-primary-950 font-bold
+          text-primary-950
 
           dark:text-primary-50
+
+          font-bold
         "
       >
         {{ userAccount?.firstName }}

@@ -2,7 +2,6 @@
 import type { PropType } from 'vue'
 
 import type { ButtonSize } from '#ui/types'
-import type { ProductFavourite } from '~/types/product/favourite'
 
 const props = defineProps({
   productId: {

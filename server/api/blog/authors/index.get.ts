@@ -1,6 +1,3 @@
-import { ZodBlogAuthor, ZodBlogAuthorQuery } from '~/types/blog/author'
-import { ZodPagination } from '~/types/pagination'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

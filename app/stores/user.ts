@@ -1,5 +1,3 @@
-import type { ProductFavourite } from '~/types/product/favourite'
-
 export const useUserStore = defineStore('user', () => {
   const favouriteProducts = ref<ProductFavourite[]>([])
   const blogLikedPosts = ref<number[]>([])

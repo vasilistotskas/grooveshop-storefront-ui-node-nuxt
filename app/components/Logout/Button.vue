@@ -27,7 +27,7 @@ const localePath = useLocalePath()
 
 const onClickLogout = async () => {
   if (isRouteProtected(route.path))
-    await navigateTo(localePath('/'))
+    await navigateTo(localePath('index'))
 
   await deleteSession()
 

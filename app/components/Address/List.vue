@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import type { UserAddress, UserAddressOrderingField } from '~/types/user/address'
-import type { EntityOrdering } from '~/types/ordering'
-import type { Pagination } from '~/types'
-
 defineProps({
   displayTotal: {
     type: Boolean,
@@ -85,10 +81,8 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      addresses.value = await refreshAddresses()
-    }
+  async () => {
+    addresses.value = await refreshAddresses()
   },
 )
 </script>
@@ -126,9 +120,9 @@ watch(
         class="
           grid grid-cols-1 gap-4
 
-          lg:grid-cols-3
-
           md:grid-cols-2
+
+          lg:grid-cols-3
 
           xl:grid-cols-4
         "

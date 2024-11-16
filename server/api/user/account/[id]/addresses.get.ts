@@ -1,6 +1,3 @@
-import { ZodPagination } from '~/types/pagination'
-import { ZodUserAddress, ZodUserAddressParams, ZodUserAddressQuery } from '~/types/user/address'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

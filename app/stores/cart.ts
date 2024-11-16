@@ -1,13 +1,6 @@
 import { StorageSerializers } from '@vueuse/core'
 import type { IFetchError } from 'ofetch'
 import { v4 as uuidv4 } from 'uuid'
-import type { Cart } from '~/types/cart'
-import type {
-  CartItem,
-  CartItemAddBody,
-  CartItemCreateBody,
-  CartItemPutBody, CartItemCreateResponse,
-} from '~/types/cart/item'
 
 interface ErrorRecord {
   cart: IFetchError | null | undefined

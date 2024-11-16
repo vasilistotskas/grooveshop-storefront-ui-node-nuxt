@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { EmailVerifyGetResponse } from '~/types/all-auth'
-
 const emit = defineEmits(['emailVerify'])
 
 const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
@@ -30,7 +28,7 @@ async function onSubmit() {
         color: 'green',
       })
       emit('emailVerify')
-      await navigateTo(localePath('/account'))
+      await navigateTo(localePath('account'))
     }
   }
   catch (error) {

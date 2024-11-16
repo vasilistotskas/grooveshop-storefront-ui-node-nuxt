@@ -2,16 +2,6 @@
 import type { PropType } from 'vue'
 
 import * as z from 'zod'
-import type { BlogComment } from '~/types/blog/comment'
-
-import type { DynamicFormSchema } from '~/types/form'
-import {
-  type CursorStates,
-  type Pagination,
-  PaginationCursorStateEnum,
-  type PaginationType,
-  PaginationTypeEnum,
-} from '~/types'
 
 const props = defineProps({
   blogPostId: {
@@ -260,10 +250,8 @@ watch(
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      await refresh()
-    }
+  async () => {
+    await refresh()
   },
 )
 
@@ -276,18 +264,22 @@ onMounted(() => {
   <div
     id="blog-post-comments"
     class="
-      mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t
-      border-primary-500 pb-6 pt-6
+      border-primary-500
 
       dark:border-primary-500
+
+      mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t
+      py-6
     "
   >
     <div class="grid w-full">
       <h2
         class="
-          mx-auto flex max-w-2xl text-primary-950 text-2xl font-semibold
+          text-primary-950
 
           dark:text-primary-50
+
+          mx-auto flex max-w-2xl text-2xl font-semibold
         "
       >
         {{ t('title') }}

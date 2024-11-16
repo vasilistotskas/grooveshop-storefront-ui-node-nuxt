@@ -101,14 +101,18 @@ const submitButtonDisabled = computed(() => {
     >
       <div
         class="
-          bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-[0.5rem] p-4 shadow-[0_4px_9px_-4px_#0000000d]
+          bg-primary-100
 
-          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
+          dark:bg-primary-900
 
-          lg:justify-between
+          flex h-full flex-wrap items-center justify-center rounded-lg p-4
+          shadow-[0_4px_9px_-4px_#0000000d]
+
+          dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           md:p-8
+
+          lg:justify-between
         "
       >
         <div class="relative grid w-full gap-4">
@@ -161,7 +165,7 @@ const submitButtonDisabled = computed(() => {
                 :icon="
                   showPassword1 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
-                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
+                class="absolute right-2 top-1/2 -translate-y-1/2"
                 color="primary"
                 type="button"
                 variant="ghost"
@@ -198,7 +202,7 @@ const submitButtonDisabled = computed(() => {
                 :icon="
                   showPassword2 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
-                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
+                class="absolute right-2 top-1/2 -translate-y-1/2"
                 color="primary"
                 type="button"
                 variant="ghost"
@@ -233,7 +237,7 @@ const submitButtonDisabled = computed(() => {
             <div class="flex items-center justify-end">
               <UButton
                 :label="t('passkey_login')"
-                :to="localePath('/account/signup/passkey')"
+                :to="localePath('account-signup-passkey')"
                 color="opposite"
                 size="lg"
                 type="submit"
@@ -243,9 +247,11 @@ const submitButtonDisabled = computed(() => {
             <div class="flex items-center justify-end gap-2">
               <span
                 class="
-                  text-primary-950 text-sm
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-sm
                 "
               >{{
                 t('already_have_account')
@@ -253,7 +259,7 @@ const submitButtonDisabled = computed(() => {
               <UButton
                 class="!px-0"
                 :label="t('login')"
-                :to="localePath('/account/login')"
+                :to="localePath('account-login')"
                 color="opposite"
                 size="lg"
                 type="submit"
@@ -271,11 +277,11 @@ const submitButtonDisabled = computed(() => {
               class="
                 my-2 flex items-center
 
-                after:mt-0.5 after:flex-1 after:border-t
-                after:border-neutral-300
-
                 before:mt-0.5 before:flex-1 before:border-t
                 before:border-neutral-300
+
+                after:mt-0.5 after:flex-1 after:border-t
+                after:border-neutral-300
               "
             >
               <p

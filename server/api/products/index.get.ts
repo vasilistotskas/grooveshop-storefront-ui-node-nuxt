@@ -1,6 +1,3 @@
-import { ZodPagination } from '~/types/pagination'
-import { ZodProduct, ZodProductQuery } from '~/types/product'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {

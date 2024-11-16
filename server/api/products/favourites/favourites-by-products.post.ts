@@ -1,5 +1,4 @@
 import * as z from 'zod'
-import { ZodProductFavourite, ZodProductFavouritesByProductsBody } from '~/types/product/favourite'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

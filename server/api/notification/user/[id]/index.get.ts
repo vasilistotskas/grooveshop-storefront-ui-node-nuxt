@@ -1,6 +1,3 @@
-import { ZodNotificationUser, ZodNotificationUserQuery, ZodNotificationUserParams } from '~/types/notification/user'
-import { ZodPagination } from '~/types/pagination'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

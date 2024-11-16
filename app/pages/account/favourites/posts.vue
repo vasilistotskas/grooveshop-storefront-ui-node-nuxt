@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import type { EntityOrdering } from '~/types/ordering'
-import type { BlogPost, BlogPostOrderingField } from '~/types/blog/post'
-import type { Pagination } from '~/types'
-
 const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { user } = useUserSession()
@@ -13,11 +9,6 @@ const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
-  {
-    value: 'title',
-    label: t('ordering.title'),
-    options: ['ascending', 'descending'],
-  },
   {
     value: 'createdAt',
     label: t('ordering.created_at'),
@@ -74,10 +65,8 @@ const orderingOptions = computed(() => {
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      favourites.value = await refreshFavourites()
-    }
+  async () => {
+    favourites.value = await refreshFavourites()
   },
 )
 

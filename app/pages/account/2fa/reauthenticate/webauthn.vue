@@ -3,9 +3,7 @@ import {
   parseRequestOptionsFromJSON,
   get,
 } from '@github/webauthn-json/browser-ponyfill'
-import type { CredentialRequestOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'
-import { AuthChangeEvent, type AuthChangeEventType } from '~/types/all-auth'
-import { Flows } from '~/types/all-auth'
+import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
 
 const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reauthenticateUsingWebAuthn'])
 
@@ -18,7 +16,7 @@ const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
 
 if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('/'))
+  await navigateTo(localePath('index'))
 }
 
 const loading = ref(false)

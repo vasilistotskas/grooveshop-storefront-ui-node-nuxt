@@ -1,5 +1,3 @@
-import type { DeepKeys, TranslationObject } from '~/types'
-
 export function extractTranslated<T>(
   object: TranslationObject<T> | undefined | null,
   field: DeepKeys<T>,

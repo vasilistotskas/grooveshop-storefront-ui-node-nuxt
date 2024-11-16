@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Notification } from '~/types/notification'
+import type { ZNotification } from '#shared/types/notification'
 
 const { locale } = useI18n()
 const { getUnseenCount, markAsSeen } = useUserNotification()
@@ -26,7 +26,7 @@ const { data: unseen, execute: executeUnseenCount, status: unseenStatus } = awai
   },
 )
 
-const { data, execute, status: notificationsStatus } = await useLazyAsyncData<Notification[]>(
+const { data, execute, status: notificationsStatus } = await useLazyAsyncData<ZNotification[]>(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
@@ -118,14 +118,18 @@ watch(
         v-if="isDropdownVisible"
         ref="dropdown"
         class="
-          bg-primary-50 absolute right-0 top-12 w-80 rounded-lg border
-          border-gray-200 shadow-md
+          bg-primary-50
 
-          dark:border-gray-800 dark:bg-primary-900
+          dark:bg-primary-900
 
-          lg:-right-12
+          absolute right-0 top-12 w-80 rounded-lg border border-gray-200
+          shadow-md
+
+          dark:border-gray-800
 
           md:top-14
+
+          lg:-right-12
         "
       >
         <div class="notifications-list relative grid gap-2 p-2">
@@ -135,11 +139,11 @@ watch(
               :id="userNotification.id"
               :key="userNotification.uuid"
               class="
-                cursor-pointer
-
                 dark:hover:bg-primary-800
 
                 hover:bg-primary-100
+
+                cursor-pointer
               "
               :close-button="{
                 icon: '',
@@ -183,7 +187,7 @@ watch(
                 grid items-center justify-center justify-items-center gap-2 p-2
               "
             >
-              <UIcon name="i-heroicons-bell-alert" class="h-12 w-12" />
+              <UIcon name="i-heroicons-bell-alert" class="size-12" />
               <p class="text-center text-sm">
                 {{ $t('notifications.no_notifications') }}
               </p>

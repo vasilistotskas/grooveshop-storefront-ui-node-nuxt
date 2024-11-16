@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { NuxtLinkProps } from '#app'
+import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+import type { RouteLocationAsRelativeI18n } from 'vue-router'
 
 defineProps({
   text: {
@@ -7,7 +8,7 @@ defineProps({
     default: '',
   },
   to: {
-    type: [String, Object] as PropType<NuxtLinkProps['to']>,
+    type: [String, Object] as PropType<keyof RouteNamedMapI18n | (Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined })>,
     default: undefined,
   },
   href: {
@@ -21,7 +22,6 @@ defineProps({
 })
 
 const attrs = useAttrs()
-const localePath = useLocalePath()
 
 defineSlots<{
   default(props: object): any
@@ -29,17 +29,17 @@ defineSlots<{
 </script>
 
 <template>
-  <NuxtLink
+  <NuxtLinkLocale
     v-if="to"
     v-bind="attrs"
     tag="a"
-    :to="localePath(to)"
+    :to="to"
     :aria-label="text"
     :class="cssClass"
     :prefetch="false"
   >
     <slot>{{ text }}</slot>
-  </NuxtLink>
+  </NuxtLinkLocale>
   <ULink
     v-else
     v-bind="attrs"

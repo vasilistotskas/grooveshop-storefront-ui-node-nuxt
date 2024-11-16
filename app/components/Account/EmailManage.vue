@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type { DynamicFormSchema } from '~/types/form'
-import type { EmailDeleteBody, EmailGetResponse, EmailPatchBody, EmailPostBody, EmailPutBody } from '~/types/all-auth'
 import type { DropdownItem } from '#ui/types'
 import { handleAllAuthClientError } from '~/utils/error'
 
@@ -195,7 +193,7 @@ const formSchema: DynamicFormSchema = {
             dark:text-red-400
           `"
           :name="row.verified ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
-          class="h-6 w-6"
+          class="size-6"
         />
       </template>
       <template #primary-data="{ row }">
@@ -210,7 +208,7 @@ const formSchema: DynamicFormSchema = {
             dark:text-red-400
           `"
           :name="row.primary ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
-          class="h-6 w-6"
+          class="size-6"
         />
       </template>
     </UTable>
@@ -218,9 +216,11 @@ const formSchema: DynamicFormSchema = {
     <div class="grid">
       <h2
         class="
-          text-primary-950 text-center
+          text-primary-950
 
           dark:text-primary-50
+
+          text-center
         "
       >
         {{ $t('email.add') }}

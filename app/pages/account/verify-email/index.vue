@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { EmailVerifyPostBody } from '~/types/all-auth'
-import type { DynamicFormSchema } from '~/types/form'
 
 const emit = defineEmits(['emailVerify'])
 
@@ -23,7 +21,7 @@ async function onSubmit(values: EmailVerifyPostBody) {
         color: 'green',
       })
       emit('emailVerify')
-      await navigateTo(localePath('/account'))
+      await navigateTo(localePath('account'))
     }
   }
   catch (error) {
@@ -66,9 +64,11 @@ definePageMeta({
     />
     <p
       class="
-        text-primary-950 text-center
+        text-primary-950
 
         dark:text-primary-50
+
+        text-center
       "
     >
       {{ t('description') }}

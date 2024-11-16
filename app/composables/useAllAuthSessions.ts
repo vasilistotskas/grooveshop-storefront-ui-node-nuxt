@@ -1,5 +1,3 @@
-import type { SessionsDeleteBody, SessionsDeleteResponse, SessionsGetResponse } from '~/types/all-auth'
-
 const API_BASE_URL = '/api/_allauth/app/v1/auth'
 
 export default function () {

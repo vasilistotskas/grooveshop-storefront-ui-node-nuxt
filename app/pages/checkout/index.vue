@@ -2,14 +2,6 @@
 import { Field, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import { defaultSelectOptionChoose, floorChoicesList, locationChoicesList } from '~/constants'
-import { FloorChoicesEnum, LocationChoicesEnum } from '~/types'
-import { type OrderCreateResponse, ZodDocumentTypeEnum, ZodOrderStatusEnum } from '~/types/order'
-import { ZodOrderCreateItem } from '~/types/order/order-item'
-import type { PayWay } from '~/types/pay-way'
-import type { Pagination } from '~/types/pagination'
-import type { Region } from '~/types/region'
-import type { Country } from '~/types/country'
 
 const { user, fetch } = useUserSession()
 
@@ -213,7 +205,7 @@ const onSubmit = handleSubmit(async (values) => {
       })
       cleanCartState()
       await fetch()
-      await navigateTo(localePath(`/checkout/success/${response._data.uuid}`))
+      await navigateTo(localePath({ name: 'checkout-success-uuid', params: { uuid: response._data.uuid } }))
     },
     onResponseError({ error }) {
       toast.add({
@@ -254,18 +246,20 @@ definePageMeta({
         class="
           _form grid gap-2
 
-          lg:grid-cols-[2fr,0.75fr]
-
           md:gap-4
+
+          lg:grid-cols-[2fr,0.75fr]
         "
         name="checkoutForm"
         @submit="onSubmit"
       >
         <div
           class="
-            bg-primary-100 container grid gap-4 rounded-lg !p-6 text-primary-50
+            bg-primary-100 text-primary-50
 
             dark:bg-primary-900 dark:text-primary-950
+
+            container grid gap-4 rounded-lg !p-6
 
             md:p-10
           "
@@ -280,9 +274,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="firstName"
               >{{ t('form.first_name') }}</label>
@@ -308,9 +304,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="lastName"
               >{{ t('form.last_name') }}</label>
@@ -336,9 +334,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="email"
               >{{ t('form.email') }}</label>
@@ -364,9 +364,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="phone"
               >{{ t('form.phone') }}</label>
@@ -392,9 +394,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="mobilePhone"
               >{{ t('form.mobile_phone') }}</label>
@@ -420,9 +424,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="city"
               >{{ t('form.city') }}</label>
@@ -448,9 +454,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="place"
               >{{ t('form.place') }}</label>
@@ -476,9 +484,11 @@ definePageMeta({
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="zipcode"
               >{{ t('form.zipcode') }}</label>
@@ -504,9 +514,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="street"
               >{{ t('form.street') }}</label>
@@ -532,9 +544,11 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="streetNumber"
               >{{ t('form.street_number') }}</label>
@@ -560,9 +574,11 @@ definePageMeta({
             <div class="col-span-2 grid">
               <label
                 class="
-                  text-primary-950 sr-only mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  sr-only mb-2
                 "
                 for="customerNotes"
               >{{ t('form.customer_notes') }}</label>
@@ -592,9 +608,11 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950 mb-2
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    mb-2
                   "
                   for="floor"
                 >{{ t('form.floor') }}</label>
@@ -619,9 +637,11 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950 mb-2
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    mb-2
                   "
                   for="locationType"
                 >{{ t('form.location_type') }}</label>
@@ -649,9 +669,11 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950 mb-2
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    mb-2
                   "
                   for="country"
                 >{{ t('form.country') }}</label>
@@ -679,9 +701,11 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950 mb-2
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    mb-2
                   "
                   for="region"
                 >{{ t('form.region') }}</label>
@@ -711,9 +735,11 @@ definePageMeta({
         <CheckoutSidebar
           :shipping-price="shippingPrice"
           class="
-            bg-primary-100 container rounded-lg !p-6 text-primary-50
+            bg-primary-100 text-primary-50
 
             dark:bg-primary-900 dark:text-primary-950
+
+            container rounded-lg !p-6
 
             md:p-8
           "
@@ -737,11 +763,11 @@ definePageMeta({
                 :aria-busy="isSubmitting"
                 :disabled="submitButtonDisabled"
                 class="
-                  rounded bg-secondary px-4 py-2 font-bold text-primary-50
-
-                  dark:bg-secondary-dark
+                  text-primary-50 rounded bg-secondary px-4 py-2 font-bold
 
                   disabled:cursor-not-allowed disabled:opacity-50
+
+                  dark:bg-secondary-dark
                 "
                 type="submit"
               >

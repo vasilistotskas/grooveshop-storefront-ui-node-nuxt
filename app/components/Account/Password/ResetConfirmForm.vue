@@ -2,7 +2,6 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import type { PasswordResetGetResponse } from '~/types/all-auth'
 
 const emit = defineEmits(['passwordReset'])
 
@@ -19,7 +18,7 @@ const key = 'key' in route.params
   : undefined
 
 if (!key) {
-  navigateTo(localePath('/account/password/reset'))
+  navigateTo(localePath('account-password-reset'))
 }
 
 await useAsyncData<PasswordResetGetResponse>(
@@ -79,7 +78,7 @@ const onSubmit = handleSubmit(async (values) => {
           title: t('password.reset.success'),
           color: 'green',
         })
-        return navigateTo(localePath('/account/login'))
+        return navigateTo(localePath('account-login'))
       }
       const errors = 'errors' in error.data.data ? error.data.data.errors : []
       errors.forEach((error) => {
@@ -113,14 +112,18 @@ const onSubmit = handleSubmit(async (values) => {
     >
       <div
         class="
-          bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-[0.5rem] p-4 shadow-[0_4px_9px_-4px_#0000000d]
+          bg-primary-100
 
-          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
+          dark:bg-primary-900
 
-          lg:justify-between
+          flex h-full flex-wrap items-center justify-center rounded-lg p-4
+          shadow-[0_4px_9px_-4px_#0000000d]
+
+          dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           md:p-8
+
+          lg:justify-between
         "
       >
         <div
@@ -148,9 +151,11 @@ const onSubmit = handleSubmit(async (values) => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950 mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  mb-2
                 "
                 for="newPassword1"
               >{{
@@ -174,9 +179,11 @@ const onSubmit = handleSubmit(async (values) => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950 mb-2
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  mb-2
                 "
                 for="newPassword2"
               >{{

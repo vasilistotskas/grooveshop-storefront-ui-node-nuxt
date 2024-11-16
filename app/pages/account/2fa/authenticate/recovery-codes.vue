@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import { AuthChangeEvent, type AuthChangeEventType, AuthenticatorType } from '~/types/all-auth'
-
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
 if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-  await navigateTo(localePath('/'))
+  await navigateTo(localePath('index'))
 }
 
 definePageMeta({

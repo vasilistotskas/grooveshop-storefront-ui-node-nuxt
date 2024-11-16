@@ -1,5 +1,3 @@
-import type { EntityOrdering, OrderingOption } from '~/types/ordering'
-
 export const useOrdering = <T extends string>(ordering: EntityOrdering<T>) => {
   const orderingOptions = computed(() => {
     const fields: Partial<Record<T, OrderingOption[]>> = {}

@@ -1,8 +1,3 @@
-import {
-  type CursorStates,
-  PaginationCursorStateEnum,
-} from '~/types'
-
 export function getCursorFromUrl(
   url: string,
   cursorQueryParam: string = 'cursor',

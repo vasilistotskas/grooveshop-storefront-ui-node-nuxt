@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { OrderingOption } from '~/types/ordering'
 import type { DropdownItem } from '#ui/types'
 
 const props = defineProps({
@@ -33,10 +32,6 @@ const selectedOrderingLabel = computed(() => {
     o => o.value === ordering.value,
   )
   return selectedOrdering?.label
-})
-
-const path = computed(() => {
-  return route.path
 })
 
 const items = computed<DropdownItem[][]>(() => {
@@ -79,13 +74,7 @@ const items = computed<DropdownItem[][]>(() => {
 
 const onOptionClick = async (option: OrderingOption) => {
   if (!props.applyOrderingQuery) return
-  await navigateTo({
-    path: localePath(path.value),
-    query: {
-      ordering: option.value,
-      category: route.query?.category,
-    },
-  })
+  await navigateTo(localePath({ path: route.path, query: { ordering: option.value, category: route.query?.category } }))
 }
 </script>
 

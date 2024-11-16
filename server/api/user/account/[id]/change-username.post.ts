@@ -1,8 +1,6 @@
-import { ZodChangeUserNameBody, ZodChangeUserNameResponse, ZodUserAccountParams } from '~/types/user/account'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = await getUserSession(event)
+  const session = await requireUserSession(event)
   const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(event, ZodChangeUserNameBody.parse)

@@ -1,6 +1,3 @@
-import { ZodPagination } from '~/types/pagination'
-import { ZodProductImage, ZodProductImageQuery } from '~/types/product/image'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

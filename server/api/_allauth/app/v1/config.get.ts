@@ -1,5 +1,3 @@
-import { ZodConfigResponse } from '~/types/all-auth'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async () => {

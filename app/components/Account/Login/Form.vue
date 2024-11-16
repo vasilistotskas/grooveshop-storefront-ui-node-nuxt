@@ -95,14 +95,18 @@ const submitButtonDisabled = computed(() => {
     >
       <div
         class="
-          bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-[0.5rem] p-4 shadow-[0_4px_9px_-4px_#0000000d]
+          bg-primary-100
 
-          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
+          dark:bg-primary-900
 
-          lg:justify-between
+          flex h-full flex-wrap items-center justify-center rounded-lg p-4
+          shadow-[0_4px_9px_-4px_#0000000d]
+
+          dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           md:p-8
+
+          lg:justify-between
         "
       >
         <div class="relative grid w-full gap-4">
@@ -156,7 +160,7 @@ const submitButtonDisabled = computed(() => {
                 :icon="
                   showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                 "
-                class="absolute right-2 top-1/2 -translate-y-1/2 transform"
+                class="absolute right-2 top-1/2 -translate-y-1/2"
                 color="primary"
                 type="button"
                 variant="ghost"
@@ -178,7 +182,7 @@ const submitButtonDisabled = computed(() => {
           >
             <UButton
               :label="t('use.code')"
-              :to="localePath('/account/login/code')"
+              :to="localePath('account-login-code')"
               color="opposite"
               size="md"
               type="button"
@@ -186,7 +190,7 @@ const submitButtonDisabled = computed(() => {
             />
             <UButton
               :label="t('forgot.password.reset')"
-              :to="localePath('/account/password/reset')"
+              :to="localePath('account-password-reset')"
               color="opposite"
               size="md"
               type="button"
@@ -216,11 +220,11 @@ const submitButtonDisabled = computed(() => {
               class="
                 my-2 flex items-center
 
-                after:mt-0.5 after:flex-1 after:border-t
-                after:border-neutral-300
-
                 before:mt-0.5 before:flex-1 before:border-t
                 before:border-neutral-300
+
+                after:mt-0.5 after:flex-1 after:border-t
+                after:border-neutral-300
               "
             >
               <p
@@ -273,9 +277,11 @@ const submitButtonDisabled = computed(() => {
           >
             <span
               class="
-                text-primary-950 text-sm
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-sm
               "
             >{{
               t('no.account')
@@ -283,7 +289,7 @@ const submitButtonDisabled = computed(() => {
 
             <UButton
               :label="$t('register')"
-              :to="localePath('/account/signup')"
+              :to="localePath('account-signup')"
               color="opposite"
               size="md"
               type="button"

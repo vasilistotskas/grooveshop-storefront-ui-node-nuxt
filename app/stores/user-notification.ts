@@ -1,6 +1,3 @@
-import type { NotificationUser } from '~/types/notification/user'
-import type { Pagination } from '~/types/pagination'
-
 export const useUserNotificationStore = defineStore('userNotification', () => {
   const { loggedIn, user } = useUserSession()
 

@@ -2,7 +2,6 @@
 import type { PropType } from 'vue'
 
 import type { ButtonSize, ButtonVariant } from '#ui/types'
-import type { BlogPost } from '~/types/blog/post'
 
 const props = defineProps({
   blogPostId: {

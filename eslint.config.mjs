@@ -22,6 +22,8 @@ export default withNuxt({
     ...eslintPluginReadableTailwind.configs.warning.rules,
     ...eslintPluginReadableTailwind.configs.error.rules,
     'readable-tailwind/sort-classes': 'off',
+    'readable-tailwind/multiline': 'off',
+    'readable-tailwind/no-unnecessary-whitespace': 'off',
   },
   ignores: ['auto-imports.d.ts', 'components.d.ts', 'auth.d.ts'],
 })

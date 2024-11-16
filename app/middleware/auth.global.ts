@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware(
       to: RouteLocationNormalized,
     ) => {
       if (loggedIn.value || !isRouteProtected(to.path)) return
-      return nuxtApp.runWithContext(() => navigateTo(localePath('/')))
+      return nuxtApp.runWithContext(() => navigateTo(localePath('index')))
     }
 
     return await verifyAuthenticatedRoutes(to)

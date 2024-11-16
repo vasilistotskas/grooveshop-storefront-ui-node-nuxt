@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import { AuthChangeEvent, type AuthChangeEventType, Flows, type ReauthenticateBody } from '~/types/all-auth'
-import type { DynamicFormSchema } from '~/types/form'
 
 const emit = defineEmits(['reauthenticate'])
 
@@ -14,7 +12,7 @@ const localePath = useLocalePath()
 const loading = ref(false)
 
 if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('/'))
+  await navigateTo(localePath('index'))
 }
 
 async function onSubmit(values: ReauthenticateBody) {
@@ -70,9 +68,11 @@ definePageMeta({
         <div class="grid items-center justify-center gap-2">
           <h3
             class="
-              text-2xl font-bold text-primary-950
+              text-primary-950
 
               dark:text-primary-50
+
+              text-2xl font-bold
             "
           >
             {{ $t('enter_password') }}

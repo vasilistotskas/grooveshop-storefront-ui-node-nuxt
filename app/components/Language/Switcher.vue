@@ -12,16 +12,18 @@ const { locale, locales, t, setLocale } = useI18n({ useScope: 'local' })
 
 const items = computed<DropdownItem[][]>(() => {
   const dropDownItems: DropdownItem[][] = []
-  locales?.forEach((option) => {
-    dropDownItems.push([
-      {
-        label: option.name || '',
-        disabled: option.code === locale.value,
-        icon: option.code === locale.value ? 'i-heroicons-check' : '',
-        click: () => onLocaleChange(option.code),
-      },
-    ])
-  })
+  if (Array.isArray(locales)) {
+    locales?.forEach((option) => {
+      dropDownItems.push([
+        {
+          label: option.name || '',
+          disabled: option.code === locale.value,
+          icon: option.code === locale.value ? 'i-heroicons-check' : '',
+          click: () => onLocaleChange(option.code),
+        },
+      ])
+    })
+  }
 
   dropDownItems.sort((a, b) => {
     if (!a[0]) {
@@ -43,6 +45,7 @@ const items = computed<DropdownItem[][]>(() => {
 })
 
 const navigateToLocale = (code: string) => {
+  // @ts-ignore
   setLocale(code)
 }
 const onLocaleChange = (code: string) => {

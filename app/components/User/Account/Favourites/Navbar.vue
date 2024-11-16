@@ -5,7 +5,7 @@ const { t } = useI18n({ useScope: 'local' })
 <template>
   <nav
     class="
-      static z-10 w-auto border-b border-primary-500 bg-transparent px-0
+      border-primary-500 static z-10 w-auto border-b bg-transparent px-0
       shadow-none
     "
   >
@@ -18,11 +18,11 @@ const { t } = useI18n({ useScope: 'local' })
         class="shrink-0"
       >
         <Anchor
-          :to="`/account/favourites/products`"
+          :to="'account-favourites-products'"
           :aria-label="t('favourite.products')"
           :title="t('favourite.products')"
           class="
-            block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
+            text-primary-600 block whitespace-nowrap py-4 text-sm outline-none
           "
         >
           <span
@@ -41,11 +41,11 @@ const { t } = useI18n({ useScope: 'local' })
         class="shrink-0"
       >
         <Anchor
-          :to="`/account/favourites/posts`"
+          :to="'account-favourites-posts'"
           :aria-label="t('favourite.posts')"
           :title="t('favourite.posts')"
           class="
-            block whitespace-nowrap py-4 text-sm text-primary-600 outline-none
+            text-primary-600 block whitespace-nowrap py-4 text-sm outline-none
           "
         >
           <span

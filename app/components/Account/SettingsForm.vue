@@ -3,11 +3,6 @@ import { Field, useForm } from 'vee-validate'
 import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
-import { defaultSelectOptionChoose } from '~/constants'
-import type { Pagination } from '~/types/pagination'
-import type { Region } from '~/types/region'
-import type { Country } from '~/types/country'
-import type { UserAccount } from '~/types/user/account'
 
 defineSlots<{
   default(props: object): any
@@ -234,9 +229,11 @@ const submitButtonDisabled = computed(() => {
     <form
       id="accountSettingsForm"
       class="
-        _form w-full bg-primary-100 flex flex-col gap-4 rounded p-4
+        _form bg-primary-100
 
         dark:bg-primary-900
+
+        flex w-full flex-col gap-4 rounded p-4
 
         md:grid md:grid-cols-2
       "
@@ -246,9 +243,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="firstName"
         >{{ t('form.first_name') }}</label>
@@ -272,9 +271,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="lastName"
         >{{ t('form.last_name') }}</label>
@@ -298,9 +299,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="phone"
         >{{ t('form.phone') }}</label>
@@ -323,9 +326,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="city"
         >{{ t('form.city') }}</label>
@@ -348,9 +353,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="zipcode"
         >{{ t('form.zipcode') }}</label>
@@ -373,9 +380,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="address"
         >{{ t('form.address') }}</label>
@@ -398,9 +407,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="place"
         >{{ t('form.place') }}</label>
@@ -423,9 +434,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="birthDate"
         >{{ t('form.birth_date') }}</label>
@@ -452,9 +465,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="country"
         >{{ t('form.country') }}</label>
@@ -480,9 +495,11 @@ const submitButtonDisabled = computed(() => {
       <div class="grid">
         <label
           class="
-            text-primary-950 mb-2
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2
           "
           for="region"
         >{{ t('form.region') }}</label>
@@ -510,11 +527,11 @@ const submitButtonDisabled = computed(() => {
           :aria-busy="isSubmitting"
           :disabled="submitButtonDisabled"
           class="
-            rounded bg-secondary px-4 py-2 font-bold text-primary-50
-
-            dark:bg-secondary-dark
+            text-primary-50 rounded bg-secondary px-4 py-2 font-bold
 
             disabled:cursor-not-allowed disabled:opacity-50
+
+            dark:bg-secondary-dark
           "
           type="submit"
         >

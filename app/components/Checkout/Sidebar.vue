@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { PayWay } from '~/types/pay-way'
-
 const props = defineProps({
   shippingPrice: { type: Number, required: true },
 })
@@ -63,9 +61,11 @@ defineSlots<{
             <div class="grid">
               <span
                 class="
-                  text-primary-950 font-bold
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  font-bold
                 "
               >
                 {{ cart.totalItemsUnique }}
@@ -88,9 +88,11 @@ defineSlots<{
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950 font-bold
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  font-bold
                 "
                 format="currency"
                 :value="shippingPrice"
@@ -116,9 +118,11 @@ defineSlots<{
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950 font-bold
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  font-bold
                 "
                 format="currency"
                 :value="payWayCost"
@@ -141,9 +145,11 @@ defineSlots<{
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950 font-bold
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  font-bold
                 "
                 format="currency"
                 :value="checkoutTotal"

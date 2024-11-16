@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { ProductCategory } from '~/types/product/category'
-
 const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 

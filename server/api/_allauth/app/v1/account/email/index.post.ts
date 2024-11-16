@@ -1,5 +1,3 @@
-import { ZodEmailPostBody, ZodEmailPostResponse } from '~/types/all-auth'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {

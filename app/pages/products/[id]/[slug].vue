@@ -1,12 +1,7 @@
 <script lang="ts" setup>
 import { useShare } from '@vueuse/core'
-import { isClient } from '@vueuse/shared'
-import type { Product } from '~/types/product'
 import { GlobalEvents } from '~/events'
 import { capitalize } from '~/utils/str'
-import type { ProductReview } from '~/types/product/review'
-import type { Tag } from '~/types/tag'
-import type { ProductFavourite } from '~/types/product/favourite'
 
 const { user, loggedIn } = useUserSession()
 
@@ -128,10 +123,17 @@ const decrementQuantity = () => {
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value),
   text: extractTranslated(product.value, 'description', locale.value) || '',
-  url: isClient ? `/products/${product.value?.id}/${product.value?.slug}` : '',
+  url: import.meta.client ? `/products/${product.value?.id}/${product.value?.slug}` : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch(err => err)
+const startShare = async () => {
+  try {
+    await share()
+  }
+  catch (err) {
+    console.error('Share failed:', err)
+  }
+}
 
 const favouriteId = computed(() => {
   if (!product.value) return
@@ -161,26 +163,24 @@ const reviewButtonText = computed(() => {
 
 const links = computed(() => [
   {
-    to: localePath('/'),
+    to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to: localePath('/products'),
+    to: localePath('products'),
     label: t('breadcrumb.items.products.label'),
   },
   {
-    to: localePath(`/products/${productId}/${product.value?.slug}`),
+    to: localePath({ name: 'products-id-slug', params: { id: productId, slug: product.value?.slug } }),
     label: productTitle.value,
   },
 ])
 
 watch(
   () => route.query,
-  async (newVal, oldVal) => {
-    if (!deepEqual(newVal, oldVal)) {
-      await refreshProduct()
-    }
+  async () => {
+    await refreshProduct()
   },
 )
 
@@ -238,11 +238,11 @@ definePageMeta({
           class="
             mx-auto max-w-7xl pb-6
 
-            lg:px-8
+            sm:px-6
 
             md:px-4
 
-            sm:px-6
+            lg:px-8
           "
         >
           <UBreadcrumb
@@ -273,10 +273,11 @@ definePageMeta({
             >
               <h2
                 class="
-                  text-primary-950 text-2xl font-bold leading-tight
-                  tracking-tight
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-2xl font-bold leading-tight tracking-tight
 
                   md:text-3xl
                 "
@@ -285,9 +286,11 @@ definePageMeta({
               </h2>
               <h3
                 class="
-                  text-primary-950 text-sm
+                  text-primary-950
 
                   dark:text-primary-50
+
+                  text-sm
                 "
               >
                 <span>{{ t('product_id') }}: </span>
@@ -295,9 +298,9 @@ definePageMeta({
                   class="
                     text-indigo-700
 
-                    dark:text-indigo-200
-
                     hover:underline
+
+                    dark:text-indigo-200
                   "
                 >{{ product.id }}</span>
               </h3>
@@ -326,9 +329,9 @@ definePageMeta({
                   <UButton
                     :label="reviewButtonText"
                     class="
-                      capitalize
-
                       hover:dark:text-primary-50
+
+                      capitalize
                     "
                     color="primary"
                     size="lg"
@@ -373,9 +376,11 @@ definePageMeta({
                   </p>
                   <p
                     class="
-                      text-primary-950 text-sm
+                      text-primary-950
 
                       dark:text-primary-50
+
+                      text-sm
                     "
                   >
                     {{ t('inclusive_of_taxes') }}
@@ -402,9 +407,11 @@ definePageMeta({
                   }}</label>
                   <div
                     class="
-                      bg-primary-100 relative flex items-center rounded-lg
+                      bg-primary-100
 
                       dark:bg-primary-900
+
+                      relative flex items-center rounded-lg
                     "
                   >
                     <UButton
@@ -424,14 +431,16 @@ definePageMeta({
                       :max="productStock"
                       :min="1"
                       class="
-                        bg-primary-100 block w-full border-primary-500 p-2.5
-                        text-sm text-primary-900 outline-none
+                        bg-primary-100 border-primary-500 text-primary-900
 
                         dark:bg-primary-900 dark:border-primary-500
-                        dark:text-primary-50 dark:placeholder-primary-400
-                        dark:focus:border-blue-500 dark:focus:ring-blue-500
+                        dark:text-primary-50 dark:placeholder:text-primary-400
+
+                        block w-full p-2.5 text-sm outline-none
 
                         focus:border-secondary focus:ring-secondary
+
+                        dark:focus:border-blue-500 dark:focus:ring-blue-500
                       "
                       type="number"
                     >

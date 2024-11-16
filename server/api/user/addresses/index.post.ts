@@ -1,5 +1,3 @@
-import { ZodUserAddress, ZodUserAddressCreateBody } from '~/types/user/address'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

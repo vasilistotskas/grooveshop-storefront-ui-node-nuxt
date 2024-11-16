@@ -7,7 +7,6 @@ defineProps({
 })
 
 const { isMobile, isTablet } = useDevice()
-const localePath = useLocalePath()
 const config = useRuntimeConfig()
 const { t } = useI18n({ useScope: 'local' })
 
@@ -27,9 +26,11 @@ defineOgImage(ogImageOptions)
 <template>
   <div
     class="
-      bg-primary-100 grid
+      bg-primary-100
 
       dark:bg-primary-900
+
+      grid
     "
   >
     <PageHeader>
@@ -39,9 +40,9 @@ defineOgImage(ogImageOptions)
       class="
         grid min-h-screen pt-[48px]
 
-        lg:pt-[63px]
-
         md:pt-[56px]
+
+        lg:pt-[63px]
       "
     >
       <div
@@ -53,10 +54,12 @@ defineOgImage(ogImageOptions)
       >
         <h2
           class="
-            text-primary-950 mb-2 grid items-center justify-center
-            justify-items-center gap-4 text-xl
+            text-primary-950
 
             dark:text-primary-50
+
+            mb-2 grid items-center justify-center justify-items-center gap-4
+            text-xl
           "
         >
           <strong class="text-5xl">{{ t('hmmm') }}</strong>
@@ -66,15 +69,17 @@ defineOgImage(ogImageOptions)
         </h2>
         <p
           class="
-            text-primary-950 text-center
+            text-primary-950
 
             dark:text-primary-50
+
+            text-center
           "
         >
           {{ t('go.home') }}
         </p>
         <Anchor
-          :to="localePath('/')"
+          :to="'index'"
           class="
             mt-2 block font-bold text-secondary
 

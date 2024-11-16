@@ -1,13 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type { DynamicFormSchema } from '~/types/form'
-import type {
-  TotpGetResponse,
-  TotpGetResponseError,
-  TotpPostBody,
-} from '~/types/all-auth'
-
 const emit = defineEmits(['activateTotp'])
 
 const nuxtApp = useNuxtApp()
@@ -51,7 +44,7 @@ const totpSvg = computed(() => {
 
 watchEffect(async () => {
   if (error.value) {
-    await navigateTo(localePath('/account/settings'))
+    await navigateTo(localePath('account-settings'))
   }
 })
 
@@ -76,7 +69,7 @@ async function onSubmit(values: TotpPostBody) {
       color: 'green',
     })
     emit('activateTotp')
-    await navigateTo(localePath('/account/settings'))
+    await navigateTo(localePath('account-settings'))
   }
   catch (error) {
     handleAllAuthClientError(error)
@@ -123,9 +116,11 @@ const formSchema: DynamicFormSchema = {
           {{ $t('authenticator_secret') }}:
           <span
             class="
-              rounded-md bg-primary-200
+              bg-primary-200
 
               dark:bg-primary-800
+
+              rounded-md
             " v-html="totpSvg"
           />
           <UInput

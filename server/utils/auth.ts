@@ -1,6 +1,3 @@
-import { ZodUserAccount } from '~/types/user/account'
-import type { AllAuthResponse } from '~/types/all-auth'
-
 export function createHeaders(sessionToken?: string | null, accessToken?: string | null) {
   const event = useEvent()
 

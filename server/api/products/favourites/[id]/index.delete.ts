@@ -1,7 +1,5 @@
 import * as z from 'zod'
 
-import { ZodProductFavouriteParams } from '~/types/product/favourite'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

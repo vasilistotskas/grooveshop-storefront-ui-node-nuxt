@@ -23,16 +23,18 @@ onClickOutside(el, () => {
   <div
     v-if="src"
     class="
-      fixed bottom-0 left-0 right-0 top-0 z-10 flex
-
       bg-black:90
+
+      fixed inset-0 z-10 flex
     "
   >
     <button
       class="
-        z-100 p3 n-link absolute right-1 top-1 rounded-full text-3xl
+        z-100 p3 n-link
 
         bg-black:60
+
+        absolute right-1 top-1 rounded-full text-3xl
       "
       title="Close"
       @click="src = null"
@@ -45,9 +47,11 @@ onClickOutside(el, () => {
       allowfullscreen
       :src="src"
       class="
-        m5 w-full border-none
+        m5
 
         lg:m20
+
+        w-full border-none
       "
     />
   </div>

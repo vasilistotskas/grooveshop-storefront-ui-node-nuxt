@@ -10,9 +10,11 @@ const packageVersion = pkg.version
 <template>
   <footer
     class="
-      bg-primary-50 mt-6 w-full border-t-2 border-primary-500 pt-2
+      bg-primary-50 border-primary-500
 
       dark:bg-primary-900
+
+      mt-6 w-full border-t-2 pt-2
     "
   >
     <div class="container mx-auto w-full">
@@ -26,9 +28,11 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-xs font-semibold uppercase text-primary-950
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -37,9 +41,11 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              grid gap-2 text-primary-950 font-medium
+              text-primary-950
 
               dark:text-primary-400
+
+              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -75,9 +81,11 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-xs font-semibold uppercase text-primary-950
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -86,9 +94,11 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              grid gap-2 text-primary-950 font-medium
+              text-primary-950
 
               dark:text-primary-400
+
+              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -124,9 +134,11 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950 text-xs font-semibold uppercase
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -135,9 +147,11 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              grid gap-2 text-primary-950 font-medium
+              text-primary-950
 
               dark:text-primary-400
+
+              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -187,9 +201,11 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-xs font-semibold uppercase text-primary-950
+              text-primary-950
 
               dark:text-primary-50
+
+              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -198,9 +214,11 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              grid gap-2 text-primary-950 font-medium
+              text-primary-950
 
               dark:text-primary-400
+
+              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -223,9 +241,11 @@ const packageVersion = pkg.version
     </div>
     <div
       class="
-        bg-primary-100 w-full pt-4
+        bg-primary-100
 
         dark:bg-primary-900
+
+        w-full pt-4
 
         md:pt-0
       "
@@ -240,18 +260,20 @@ const packageVersion = pkg.version
         >
           <span
             class="
-              text-primary-950 row-start-2 text-sm
+              text-primary-950
 
               dark:text-primary-300
 
-              md:row-start-1
+              row-start-2 text-sm
 
               sm:text-center
+
+              md:row-start-1
             "
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
               :label="`${config.public.siteName}™.`"
-              :to="localePath('/')"
+              :to="localePath('index')"
               class="p-0"
               color="opposite"
               size="lg"
@@ -261,9 +283,9 @@ const packageVersion = pkg.version
           </span>
           <div
             class="
-              mb-4 mt-4 flex flex-col items-center justify-between gap-2
+              my-4 flex flex-col items-center justify-between gap-2
 
-              md:mb-0 md:mt-0 md:flex-row md:gap-12
+              md:my-0 md:flex-row md:gap-12
             "
           >
             <div
@@ -280,9 +302,11 @@ const packageVersion = pkg.version
             </div>
             <span
               class="
-                text-primary-950 text-xs
+                text-primary-950
 
                 dark:text-primary-300
+
+                text-xs
 
                 sm:text-center
               "

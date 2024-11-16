@@ -1,10 +1,6 @@
 <script lang="ts" setup>
 import { useShare } from '@vueuse/core'
-import { isClient } from '@vueuse/shared'
 import type { PropType } from 'vue'
-
-import type { BlogPost } from '~/types/blog/post'
-import type { ImageLoading } from '~/types'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
@@ -39,10 +35,17 @@ const alt = computed(() => {
 const shareOptions = reactive({
   title: extractTranslated(post.value, 'title', locale.value),
   text: extractTranslated(post.value, 'subtitle', locale.value) || '',
-  url: isClient ? postUrl : '',
+  url: import.meta.client ? postUrl : '',
 })
 const { share, isSupported } = useShare(shareOptions)
-const startShare = () => share().catch(err => err)
+const startShare = async () => {
+  try {
+    await share()
+  }
+  catch (err) {
+    console.error('Share failed:', err)
+  }
+}
 
 const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   if (event.liked) {
@@ -58,14 +61,16 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      min-h-60 bg-primary-100 container grid w-full gap-4 rounded-lg !p-0
+      bg-primary-100
 
       dark:bg-primary-900 dark:text-primary-950
+
+      container grid min-h-60 w-full gap-4 rounded-lg !p-0
     "
   >
     <div class="relative grid">
       <Anchor
-        :to="post.absoluteUrl"
+        :to="{ path: post.absoluteUrl }"
         :text="alt"
         css-class="grid justify-center"
       >
@@ -91,16 +96,17 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           <span class="grid justify-center justify-items-start">
             <h2
               class="
-                m-auto block w-[70%] text-3xl font-bold tracking-tight
                 text-primary-50
 
                 dark:text-primary-50
 
-                lg:w-[76%]
+                m-auto block w-[70%] text-3xl font-bold tracking-tight
+
+                sm:w-3/5
 
                 md:w-[66%] md:text-4xl
 
-                sm:w-[60%]
+                lg:w-[76%]
               "
             >
               {{ extractTranslated(post, 'title', locale) }}
@@ -111,12 +117,15 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike
           class="
-            flex-col justify-self-start p-0 font-extrabold capitalize
             text-primary-50
 
-            dark:hover:bg-transparent dark:text-primary-50
+            dark:text-primary-50
+
+            flex-col justify-self-start p-0 font-extrabold capitalize
 
             hover:bg-transparent
+
+            dark:hover:bg-transparent
           "
           size="xl"
           variant="ghost"
@@ -131,12 +140,15 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           square
           variant="ghost"
           class="
-            flex-col justify-self-start p-0 font-extrabold capitalize
             text-primary-50
 
-            dark:hover:bg-transparent dark:text-primary-50
+            dark:text-primary-50
+
+            flex-col justify-self-start p-0 font-extrabold capitalize
 
             hover:bg-transparent
+
+            dark:hover:bg-transparent
           "
           :title="$t('comments.count', {
             count: post.commentsCount,
@@ -161,12 +173,15 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             variant="ghost"
             :title="$t('share')"
             class="
-              flex-col justify-self-start p-0 font-extrabold capitalize
               text-primary-50
 
-              dark:hover:bg-transparent dark:text-primary-50
+              dark:text-primary-50
+
+              flex-col justify-self-start p-0 font-extrabold capitalize
 
               hover:bg-transparent
+
+              dark:hover:bg-transparent
             "
             :ui="{
               icon: {

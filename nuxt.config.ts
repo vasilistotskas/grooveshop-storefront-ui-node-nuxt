@@ -10,8 +10,8 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
     '@nuxt/scripts',
+    '@nuxt/fonts',
     '@nuxtjs/i18n',
-    '@nuxtjs/tailwindcss',
     '@nuxtjs/device',
     '@nuxtjs/seo',
     '@pinia/nuxt',
@@ -28,18 +28,24 @@ export default defineNuxtConfig({
     autoImport: true,
     dirs: [
       'stores/**',
+      '../shared/constants/**',
+      '../shared/schemas/**',
+      '../shared/types/**',
+      '../shared/utils/**',
     ],
   },
   devtools: {
     enabled: process.env.NODE_ENV !== 'production',
-    timeline: { enabled: false },
+    timeline: { enabled: true },
   },
   app: {
     head: {
       viewport: 'width=device-width,initial-scale=1,viewport-fit=cover',
       charset: 'utf-8',
+      titleTemplate: '%s %separator %siteName',
       templateParams: {
-        separator: '-',
+        siteName: process.env.NUXT_PUBLIC_SITE_NAME,
+        separator: '—',
       },
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
@@ -49,7 +55,6 @@ export default defineNuxtConfig({
     },
   },
   css: [
-    '~/assets/sass/tailwind.scss',
     '~/assets/sass/app.scss',
     '~/assets/sass/_cookies.scss',
     '~/assets/sass/_variables.scss',
@@ -58,7 +63,7 @@ export default defineNuxtConfig({
     url: process.env.NUXT_PUBLIC_SITE_URL,
     name: process.env.NUXT_PUBLIC_SITE_NAME,
     description: process.env.NUXT_PUBLIC_SITE_DESCRIPTION,
-    defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE,
+    defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE || 'el',
   },
   colorMode: {
     preference: 'system',
@@ -118,7 +123,7 @@ export default defineNuxtConfig({
         name: process.env.NUXT_PUBLIC_AUTHOR_NAME,
       },
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-      defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE,
+      defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE || 'el',
       djangoHost: process.env.NUXT_PUBLIC_DJANGO_HOST,
       djangoHostName: process.env.NUXT_PUBLIC_DJANGO_HOSTNAME,
       djangoStaticUrl: process.env.NUXT_PUBLIC_DJANGO_STATIC_URL,
@@ -127,7 +132,7 @@ export default defineNuxtConfig({
       environment: process.env.NUXT_PUBLIC_ENVIRONMENT,
       facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID,
       googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-      language: process.env.NUXT_PUBLIC_LANGUAGE,
+      language: process.env.NUXT_PUBLIC_LANGUAGE || 'el',
       mediaStreamDomain: process.env.NUXT_PUBLIC_MEDIA_STREAM_DOMAIN,
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
       staticOrigin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
@@ -223,6 +228,14 @@ export default defineNuxtConfig({
     | undefined,
   }, compatibilityDate: '2024-11-01',
   nitro: {
+    imports: {
+      dirs: [
+        'shared/constants/**',
+        'shared/schemas/**',
+        'shared/types/**',
+        'shared/utils/**',
+      ],
+    },
     compressPublicAssets: {
       gzip: true,
       brotli: true,
@@ -350,7 +363,7 @@ export default defineNuxtConfig({
   i18n: {
     strategy: 'prefix_except_default',
     lazy: true,
-    defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE || 'el',
+    defaultLocale: process.env.NUXT_PUBLIC_LANGUAGE as 'el' || 'el',
     debug: process.env.NUXT_PUBLIC_I18N_DEBUG === 'true',
     baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
     restructureDir: 'i18n',
@@ -647,14 +660,6 @@ export default defineNuxtConfig({
       host: process.env.NUXT_REDIS_HOST || 'redis-standalone',
       db: 0,
     },
-  },
-  tailwindcss: {
-    cssPath: ['~/assets/sass/tailwind.scss', { injectPosition: 'first' }],
-    configPath: './tailwind.config.mjs',
-    exposeConfig: {
-      level: 1,
-    },
-    viewer: true,
   },
   veeValidate: {
     typedSchemaPackage: 'zod',

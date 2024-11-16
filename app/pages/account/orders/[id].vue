@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { Order } from '~/types/order'
-
 const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const orderId = 'id' in route.params
@@ -37,7 +35,7 @@ definePageMeta({
     >
       <div class="grid grid-cols-auto-1fr items-center gap-4">
         <UButton
-          :to="localePath('/account/orders')"
+          :to="localePath('account-orders')"
           :trailing="true"
           color="primary"
           icon="i-heroicons-arrow-left"
@@ -54,9 +52,11 @@ definePageMeta({
         <NuxtTime
           :datetime="order.createdAt"
           class="
-            text-primary-950 text-sm
+            text-primary-950
 
             dark:text-primary-50
+
+            text-sm
           "
         />
       </div>
@@ -65,9 +65,11 @@ definePageMeta({
       <section class="flex flex-col gap-4">
         <div
           class="
-            order-items bg-primary-100 grid gap-4 rounded-lg p-4
+            order-items bg-primary-100
 
             dark:bg-primary-900
+
+            grid gap-4 rounded-lg p-4
           "
         >
           <div class="order-status flex items-center gap-2.5">
@@ -107,7 +109,9 @@ definePageMeta({
               >
                 <Anchor
                   :title="extractTranslated(item.product, 'name', locale)"
-                  :to="item.product.absoluteUrl"
+                  :to="{
+                    path: item.product.absoluteUrl,
+                  }"
                   css-class="w-full"
                 >
                   <span
@@ -156,17 +160,20 @@ definePageMeta({
         >
           <div
             class="
-              order-synopsis-info bg-primary-100 flex flex-col gap-4 rounded-lg
-              p-4
+              order-synopsis-info bg-primary-100
 
               dark:bg-primary-900
+
+              flex flex-col gap-4 rounded-lg p-4
             "
           >
             <span
               class="
-                text-primary-950 text-2xl font-bold
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-2xl font-bold
               "
             >
               {{ t('details') }}
@@ -175,9 +182,11 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="
-                    text-primary-950 font-bold
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    font-bold
                   "
                 >{{
                   t('address')
@@ -195,9 +204,11 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="
-                    text-primary-950 font-bold
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    font-bold
                   "
                 >{{
                   t('document_type')
@@ -215,9 +226,11 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="
-                    text-primary-950 font-bold
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    font-bold
                   "
                 >{{
                   t('pay_way')
@@ -236,34 +249,41 @@ definePageMeta({
           </div>
           <div
             class="
-              order-synopsis-prices bg-primary-100 flex flex-col gap-4
-              rounded-lg p-4
+              order-synopsis-prices bg-primary-100
 
               dark:bg-primary-900
+
+              flex flex-col gap-4 rounded-lg p-4
             "
           >
             <span
               class="
-                text-primary-950 text-2xl font-bold
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-2xl font-bold
               "
             >
               {{ t('synopsis') }}
             </span>
             <div
               class="
-                grid gap-2 border-b border-primary-500 pb-4
+                border-primary-500
 
                 dark:border-primary-500
+
+                grid gap-2 border-b pb-4
               "
             >
               <div class="flex items-center justify-between">
                 <span
                   class="
-                    text-primary-950 font-light
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    font-light
                   "
                 >{{ t('product.value') }}</span>
                 <I18nN
@@ -280,9 +300,11 @@ definePageMeta({
               <div class="flex items-center justify-between">
                 <span
                   class="
-                    text-primary-950 font-light
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    font-light
                   "
                 >{{ t('shipping.value') }}</span>
                 <I18nN
@@ -301,9 +323,11 @@ definePageMeta({
               <div class="flex items-center justify-between">
                 <span
                   class="
-                    text-primary-950 font-bold
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    font-bold
                   "
                 >{{
                   t('total')
@@ -311,9 +335,11 @@ definePageMeta({
                 <I18nN
                   :value="order.paidAmount"
                   class="
-                    text-primary-950 font-bold
+                    text-primary-950
 
                     dark:text-primary-50
+
+                    font-bold
                   "
                   format="currency"
                   tag="span"

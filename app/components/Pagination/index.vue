@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { type PaginationType, PaginationTypeEnum } from '~/types'
-
 const props = defineProps({
   paginationType: {
     type: String as PropType<PaginationType>,

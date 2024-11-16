@@ -1,5 +1,3 @@
-import { ZodBlogComment, ZodBlogCommentParams } from '~/types/blog/comment'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

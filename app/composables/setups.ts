@@ -1,9 +1,5 @@
-import type { Directions, LocaleObject } from '@nuxtjs/i18n'
 import { withQuery } from 'ufo'
 import type { UseWebNotificationOptions } from '@vueuse/core'
-import type { CursorStates } from '~/types'
-import { AuthProcess } from '~/types/all-auth'
-import { THEME_COLORS } from '~/constants'
 
 function unescapeTitleTemplate(titleTemplate: string, replacements: [string, string[]][]) {
   let result = titleTemplate
@@ -19,24 +15,23 @@ export function setupPageHeader() {
   const { locale, locales } = useI18n()
 
   const i18nHead = useLocaleHead({
-    addDirAttribute: true,
-    addSeoAttributes: true,
-    identifierAttribute: 'hid',
-    route: useRoute(),
-    router: useRouter(),
-    i18n: useI18n(),
+    dir: true,
+    lang: true,
+    seo: true,
+    key: 'hid',
   })
 
-  const localeMap = (locales.value as LocaleObject[]).reduce((acc, l) => {
+  const localeMap = (locales.value).reduce((acc, l) => {
     acc[l.code!] = l.dir ?? 'ltr'
     return acc
-  }, {} as Record<string, Directions>)
+  }, {})
 
   const colorMode = useColorMode()
   const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
 
   useSeoMeta({
+    ogTitle: '%s',
     ogImage: publicConfig.appLogo,
     twitterTitle: publicConfig.appTitle,
     twitterDescription: publicConfig.appDescription,

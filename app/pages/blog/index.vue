@@ -5,26 +5,24 @@ const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const seoMetaInput = {
-  title: t('title'),
   description: t('description'),
   ogDescription: t('description'),
 } satisfies UseSeoMetaInput
 
 const links = computed(() => [
   {
-    to: localePath('/'),
+    to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to: localePath('/blog'),
+    to: localePath('blog'),
     label: t('breadcrumb.items.blog.label'),
     current: true,
   },
 ])
 
 useSeoMeta(seoMetaInput)
-
 useHydratedHead({
   title: () => t('title'),
 })

@@ -1,8 +1,10 @@
+import type { RouteLocationAsRelativeI18n } from 'vue-router'
+
 interface IMenuItem {
   type: 'link' | 'button' | 'external-link'
   text: string
   href?: string
-  route?: { name: string, path: string }
+  route?: Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined }
   icon?: string
   cssClass?: string
 }

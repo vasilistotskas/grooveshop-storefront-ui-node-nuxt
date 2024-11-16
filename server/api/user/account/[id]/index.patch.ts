@@ -1,5 +1,3 @@
-import { ZodUserAccount, ZodUserAccountParams } from '~/types/user/account'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

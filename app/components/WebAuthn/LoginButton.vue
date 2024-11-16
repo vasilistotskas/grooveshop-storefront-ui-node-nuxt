@@ -3,7 +3,7 @@ import {
   parseRequestOptionsFromJSON,
   get,
 } from '@github/webauthn-json/browser-ponyfill'
-import type { CredentialRequestOptionsJSON } from '@github/webauthn-json/src/webauthn-json/basic/json'
+import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
 
 const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAuthn'])
 

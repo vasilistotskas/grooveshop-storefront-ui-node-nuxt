@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, onUnmounted, watch, toRefs } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { PropType } from 'vue'
-import type { CursorStates, PaginationCursorStateEnum } from '~/types'
 
 const getCursorFromUrl = (url: string): string => {
   try {

@@ -4,8 +4,7 @@ import {
   parseCreationOptionsFromJSON,
 } from '@github/webauthn-json/browser-ponyfill'
 import * as z from 'zod'
-import type { CredentialCreationOptionsJSON } from '@github/webauthn-json/dist/types/basic/json'
-import type { DynamicFormSchema } from '~/types/form'
+import type { CredentialCreationOptionsJSON } from '@github/webauthn-json'
 
 const emit = defineEmits(['getWebAuthnCreateOptions', 'addWebAuthnCredential'])
 
@@ -40,7 +39,7 @@ async function onSubmit(values: {
     })
     emit('getWebAuthnCreateOptions')
     emit('addWebAuthnCredential')
-    const to = response?.meta.recovery_codes_generated ? '/account/2fa/recovery-codes' : '/account/2fa/webauthn'
+    const to = response?.meta.recovery_codes_generated ? 'account-2fa-recovery-codes' : 'account-2fa-webauthn'
     await navigateTo(localePath(to))
   }
   catch {

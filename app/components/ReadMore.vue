@@ -34,9 +34,11 @@ const trimmedText = computed(() => {
     <div
       v-if="!showFullText"
       class="
-        text-primary-950 overflow-hidden
+        text-primary-950
 
         dark:text-primary-50
+
+        overflow-hidden
       "
     >
       <span
@@ -51,9 +53,11 @@ const trimmedText = computed(() => {
     <div
       v-else
       class="
-        text-primary-950 overflow-hidden
+        text-primary-950
 
         dark:text-primary-50
+
+        overflow-hidden
       "
     >
       <span
@@ -77,9 +81,11 @@ const trimmedText = computed(() => {
   <span
     v-else
     class="
-      block text-primary-950 text-sm
+      text-primary-950
 
       dark:text-primary-50
+
+      block text-sm
 
       md:text-base
     "

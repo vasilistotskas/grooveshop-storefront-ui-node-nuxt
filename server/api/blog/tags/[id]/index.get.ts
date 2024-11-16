@@ -1,5 +1,3 @@
-import { ZodBlogTag, ZodBlogTagParams } from '~/types/blog/tag'
-
 const { maxAge, base } = getCachedEventHandlerOptions()
 
 export default defineCachedEventHandler(async (event) => {

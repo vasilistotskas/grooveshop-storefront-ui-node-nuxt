@@ -1,5 +1,3 @@
-import { ZodCart } from '~/types/cart'
-
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()

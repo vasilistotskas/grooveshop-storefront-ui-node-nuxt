@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { DropdownItem } from '#ui/types'
-import type { Session } from '~/types/all-auth'
 
 const emit = defineEmits(['deleteSession'])
 
@@ -106,7 +105,7 @@ const actionItems = (session: Session) => {
             v-if="row.is_current"
             :name="'i-heroicons-star-solid'"
             class="
-              h-6 w-6 text-yellow-500
+              size-6 text-yellow-500
 
               dark:text-yellow-400
             "
@@ -115,7 +114,7 @@ const actionItems = (session: Session) => {
             v-else
             :name="'i-heroicons-star'"
             class="
-              h-6 w-6 text-gray-400
+              size-6 text-gray-400
 
               dark:text-gray-500
             "

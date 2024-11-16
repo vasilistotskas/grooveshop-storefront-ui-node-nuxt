@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ChangeUserNameResponse, UserAccount } from '~/types/user/account'
-
 const props = defineProps({
   account: {
     type: Object as PropType<UserAccount>,
@@ -89,7 +87,7 @@ const changeUserName = async () => {
           :user-account="account"
         />
       </div>
-      <div class="user-info-name relative flex flex-col w-full">
+      <div class="user-info-name relative flex w-full flex-col">
         <div class="flex items-center">
           <UButton
             :aria-label="userNameEditing ? $t('save') : $t('edit.title')"
@@ -133,12 +131,10 @@ const changeUserName = async () => {
         <!-- User Email Info       -->
         <span
           class="
-            text-sm truncate font-medium items-center w-full px-1.5 py-1.5
-            text-gray-700
+            w-full cursor-text select-text items-center truncate p-1.5 text-sm
+            font-medium text-gray-700 opacity-50
 
             dark:text-gray-200
-
-            opacity-50 cursor-text select-text
           "
         >
           {{ account.email }}
@@ -154,11 +150,11 @@ const changeUserName = async () => {
         >
           <Anchor
             :title="t('orders')"
-            :to="`/account/orders`"
+            :to="'account-orders'"
             class="user-info-stats-item-link"
           >
             <UIcon
-              class="h-6 w-6"
+              class="size-6"
               name="i-heroicons-cube"
             />
             <span
@@ -173,9 +169,11 @@ const changeUserName = async () => {
 
             <span
               class="
-                text-primary-950 text-2xl font-bold
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-2xl font-bold
               "
             >{{ ordersCount }}</span>
           </Anchor>
@@ -186,11 +184,11 @@ const changeUserName = async () => {
         >
           <Anchor
             :title="t('favourite.products')"
-            :to="`/account/favourites/products`"
+            :to="'account-favourites-products'"
             class="user-info-stats-item-link"
           >
             <UIcon
-              class="h-6 w-6"
+              class="size-6"
               name="i-heroicons-heart"
             />
             <span
@@ -204,9 +202,11 @@ const changeUserName = async () => {
             }}</span>
             <span
               class="
-                text-primary-950 text-2xl font-bold
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-2xl font-bold
               "
             >{{ productFavouritesCount }}</span>
           </Anchor>
@@ -217,11 +217,11 @@ const changeUserName = async () => {
         >
           <Anchor
             :title="t('reviews')"
-            :to="`/account/reviews`"
+            :to="'account-reviews'"
             class="user-info-stats-item-link"
           >
             <UIcon
-              class="h-6 w-6"
+              class="size-6"
               name="i-heroicons-star"
             />
             <span
@@ -235,9 +235,11 @@ const changeUserName = async () => {
             }}</span>
             <span
               class="
-                text-primary-950 text-2xl font-bold
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-2xl font-bold
               "
             >{{ productReviewsCount }}</span>
           </Anchor>

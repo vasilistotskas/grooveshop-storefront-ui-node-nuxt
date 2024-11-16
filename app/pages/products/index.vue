@@ -1,21 +1,15 @@
 <script lang="ts" setup>
-import type { UseSeoMetaInput } from '@unhead/schema'
-
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
-const seoMetaInput = {
-  title: t('title'),
-} satisfies UseSeoMetaInput
-
 const links = computed(() => [
   {
-    to: localePath('/'),
+    to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
     icon: 'i-heroicons-home',
   },
   {
-    to: localePath('/products'),
+    to: localePath('products'),
     label: t('breadcrumb.items.products.label'),
     current: true,
   },
@@ -24,7 +18,6 @@ const links = computed(() => [
 useHydratedHead({
   title: () => t('title'),
 })
-useSeoMeta(seoMetaInput)
 
 definePageMeta({
   layout: 'default',
@@ -44,7 +37,7 @@ definePageMeta({
           class="
             mb-5
 
-            md:pl-[3.5rem]
+            md:pl-14
           "
         />
       </div>

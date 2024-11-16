@@ -24,7 +24,7 @@ onMounted(() => {
     :class="[
       {
         'transition-all duration-300 ease-in-out': true,
-        'sidebar lg:w-30 lg:flex md:hidden md:h-fit xl:w-60': mode === 'normal',
+        'sidebar lg:w-30 md:hidden md:h-fit lg:flex xl:w-60': mode === 'normal',
         'relative flex w-full flex-1 flex-col': mode === 'mobile',
         'relative grid w-full': route.path === '/account',
       },
@@ -42,17 +42,19 @@ onMounted(() => {
           v-for="(item, i) in menus"
           :key="i"
           class="
-            bg-primary-100 rounded border border-primary-500 p-2
+            bg-primary-100 border-primary-500
 
             dark:bg-primary-900
+
+            rounded border p-2
 
             md:border-transparent md:bg-transparent md:p-0
             md:dark:bg-transparent
           "
         >
           <LazyAnchor
-            v-if="item.type === 'link'"
-            :to="item.route ? item.route : undefined"
+            v-if="item.route && item.type === 'link'"
+            :to="item.route"
             :text="item.text"
             class="
               group grid grid-cols-auto-1fr items-center gap-4 p-2
@@ -62,19 +64,20 @@ onMounted(() => {
           >
             <div
               class="
-                flex items-center rounded-md px-1 py-1 shadow-sm ring-1
-                ring-slate-900/5
-
                 dark:group-hover:highlight-white/10 dark:highlight-white/10
-                dark:shadow-none dark:ring-0 dark:group-hover:shadow-none
+
+                flex items-center rounded-md p-1 shadow-sm ring-1
+                ring-slate-900/5
 
                 group-hover:shadow group-hover:shadow-sky-200
                 group-hover:ring-slate-900/10
+
+                dark:shadow-none dark:ring-0 dark:group-hover:shadow-none
               "
               :class="{
-                'bg-secondary text-primary-50 dark:bg-secondary-dark dark:text-primary-50':
+                'text-primary-50 dark:text-primary-50 bg-secondary dark:bg-secondary-dark':
                   route.path === item.route?.path,
-                'bg-primary-100 text-slate-500 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200':
+                'bg-primary-100 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200 text-slate-500':
                   route.path !== item.route?.path,
               }"
             >
@@ -90,9 +93,11 @@ onMounted(() => {
             </div>
             <span
               class="
-                text-primary-950 text-xl font-semibold capitalize
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-xl font-semibold capitalize
 
                 md:text-lg
               "
@@ -116,19 +121,20 @@ onMounted(() => {
           >
             <div
               class="
-                flex items-center rounded-md px-1 py-1 shadow-sm ring-1
-                ring-slate-900/5
-
                 dark:group-hover:highlight-white/10 dark:highlight-white/10
-                dark:shadow-none dark:ring-0 dark:group-hover:shadow-none
+
+                flex items-center rounded-md p-1 shadow-sm ring-1
+                ring-slate-900/5
 
                 group-hover:shadow group-hover:shadow-sky-200
                 group-hover:ring-slate-900/10
+
+                dark:shadow-none dark:ring-0 dark:group-hover:shadow-none
               "
               :class="{
-                'bg-secondary text-primary-50 dark:bg-secondary-dark dark:text-primary-50':
+                'text-primary-50 dark:text-primary-50 bg-secondary dark:bg-secondary-dark':
                   item.route?.path === route.path,
-                'bg-primary-100 text-slate-500 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200':
+                'bg-primary-100 dark:text-primary-50 dark:bg-primary-900 dark:group-hover:bg-primary-600 group-hover:bg-primary-200 text-slate-500':
                   item.route?.path !== route.path,
               }"
             >
@@ -143,9 +149,11 @@ onMounted(() => {
             </div>
             <span
               class="
-                text-primary-950 text-xl font-semibold capitalize
+                text-primary-950
 
                 dark:text-primary-50
+
+                text-xl font-semibold capitalize
 
                 md:text-lg
               "
@@ -160,9 +168,11 @@ onMounted(() => {
         </li>
         <li
           class="
-            bg-primary-100 rounded border border-primary-500 p-2
+            bg-primary-100 border-primary-500
 
             dark:bg-primary-900
+
+            rounded border p-2
 
             md:border-transparent md:bg-transparent md:p-0
             md:dark:bg-transparent

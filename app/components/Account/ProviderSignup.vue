@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type { DynamicFormSchema } from '~/types/form'
-import type { ProviderSignupBody } from '~/types/all-auth'
-
 const emit = defineEmits(['providerSignup'])
 
 const { providerSignup } = useAllAuthAuthentication()
