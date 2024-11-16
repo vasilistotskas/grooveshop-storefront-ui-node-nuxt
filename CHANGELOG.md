@@ -1,3 +1,10 @@
+## [1.224.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.224.0...v1.224.1) (2024-11-16)
+
+
+### Bug Fixes
+
+* remove prerender rss ([e03a335](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e03a335ac916d877e00238053715cb65d3822c83))
+
 # [1.224.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.223.1...v1.224.0) (2024-11-16)
 
 
