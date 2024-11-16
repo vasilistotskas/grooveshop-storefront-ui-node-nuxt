@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
 
     const feedString = feed.xml({ indent: true })
 
-    event.node.res.setHeader('Content-Type', 'application/rss+xml')
+    event.node.res.setHeader('Content-Type', 'application/rss+xml; charset=UTF-8')
     event.node.res.end(feedString)
   }
   catch (error) {
