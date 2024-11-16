@@ -129,6 +129,7 @@ export default defineNuxtConfig({
       environment: process.env.NUXT_PUBLIC_ENVIRONMENT,
       facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID,
       googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+      domainVerifyId: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID,
       language: process.env.NUXT_PUBLIC_LANGUAGE || 'el',
       mediaStreamDomain: process.env.NUXT_PUBLIC_MEDIA_STREAM_DOMAIN,
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,

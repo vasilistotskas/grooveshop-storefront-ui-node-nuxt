@@ -102,6 +102,10 @@ export function setupPageHeader() {
         content: publicConfig.appLogo,
       },
       {
+        name: 'p:domain_verify',
+        content: publicConfig.domainVerifyId,
+      },
+      {
         name: 'google-site-verification',
         content: publicConfig.googleSiteVerification,
       },
