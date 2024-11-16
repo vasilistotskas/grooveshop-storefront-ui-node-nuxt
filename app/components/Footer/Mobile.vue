@@ -249,6 +249,7 @@ const items = [{
 el:
   title: Επικοινωνία
   microlearning:
+    title: Microlearning
     why: Γιατί Microlearning
     what: Τι είναι το Microlearning
 </i18n>
