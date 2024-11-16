@@ -1,3 +1,10 @@
+## [1.221.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.221.0...v1.221.1) (2024-11-16)
+
+
+### Bug Fixes
+
+* hide article published date ([eafda2f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eafda2f227770092427c0f589cc710821d83d32c))
+
 # [1.221.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.220.0...v1.221.0) (2024-11-16)
 
 
