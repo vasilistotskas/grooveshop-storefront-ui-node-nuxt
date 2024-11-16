@@ -346,7 +346,7 @@ definePageMeta({
               </div>
               <div
                 v-if="blogPost.isPublished && blogPost.publishedAt" class="
-                  flex gap-2
+                  sr-only flex gap-2
                 "
               >
                 <span class="text-sm font-semibold">{{ $t('published') }}: </span>
