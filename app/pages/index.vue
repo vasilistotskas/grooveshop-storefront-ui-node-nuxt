@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-definePageMeta({
-  layout: 'default',
-})
-
 const config = useRuntimeConfig()
 const { isMobileOrTablet } = useDevice()
 
@@ -14,6 +10,10 @@ const items = computed(() => [
 
 const bannerWidth = ref(isMobileOrTablet ? 510 : 1194)
 const bannerHeight = ref(isMobileOrTablet ? 638 : 418)
+
+definePageMeta({
+  layout: 'default',
+})
 </script>
 
 <template>

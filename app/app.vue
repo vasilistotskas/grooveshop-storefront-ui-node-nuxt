@@ -13,13 +13,6 @@ const { fetchCart } = cartStore
 
 await fetchCart()
 
-const ogImageOptions = reactive({
-  alt: config.public.appTitle,
-  url: config.public.appLogo,
-  width: 1200,
-  height: 630,
-})
-
 useSchemaOrg([
   defineWebPage(),
   defineWebSite({
@@ -38,7 +31,12 @@ useSchemaOrg([
     ],
   }),
 ])
-defineOgImage(ogImageOptions)
+defineOgImage({
+  alt: config.public.appTitle,
+  url: config.public.appLogo,
+  width: 1200,
+  height: 630,
+})
 </script>
 
 <template>

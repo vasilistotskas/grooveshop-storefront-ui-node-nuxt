@@ -151,8 +151,11 @@ onMounted(() => {
   isSuggestionsOpen.value = false
 })
 
+useSeoMeta({
+  title: t('title'),
+})
 useHydratedHead({
-  title: () => t('title'),
+  title: t('title'),
 })
 
 definePageMeta({

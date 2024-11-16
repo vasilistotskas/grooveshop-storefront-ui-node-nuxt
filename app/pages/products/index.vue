@@ -16,7 +16,7 @@ const links = computed(() => [
 ])
 
 useHydratedHead({
-  title: () => t('title'),
+  title: t('title'),
 })
 
 definePageMeta({

@@ -1,6 +1,13 @@
 <script lang="ts" setup>
 const { t } = useI18n({ useScope: 'local' })
 
+useSeoMeta({
+  title: t('title'),
+})
+useHydratedHead({
+  title: t('title'),
+})
+
 definePageMeta({
   layout: 'default',
 })
@@ -10,7 +17,7 @@ definePageMeta({
   <PageWrapper class="container flex flex-col">
     <PageTitle
       :text="t('title')"
-      class="text-center capitalize"
+      class="mb-4 text-center capitalize"
     />
     <PageBody>
       <PageBody>
