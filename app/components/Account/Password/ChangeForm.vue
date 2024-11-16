@@ -111,7 +111,7 @@ const formSchema = computed((): DynamicFormSchema => {
     "
   >
     <slot />
-    <section class="grid w-full items-center">
+    <section class="grid w-full items-center gap-4">
       <p
         class="
           text-primary-950

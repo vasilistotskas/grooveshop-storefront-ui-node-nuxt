@@ -118,7 +118,7 @@ definePageMeta({
           />
           <ClientOnlyFallback
             class="grid gap-4"
-            :count="reviews?.results?.length"
+            :count="reviews?.results?.length || 4"
             height="126px"
             width="100%"
           />

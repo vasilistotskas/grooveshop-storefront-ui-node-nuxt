@@ -151,7 +151,7 @@ watch(
 
             xl:grid-cols-4
           "
-          :count="addresses?.results?.length"
+          :count="addresses?.results?.length || 4"
           height="360px"
           width="100%"
         />

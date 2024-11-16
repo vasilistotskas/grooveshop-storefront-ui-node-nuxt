@@ -115,7 +115,7 @@ definePageMeta({
 
           md:gap-4
         "
-        :count="orders?.results?.length"
+        :count="orders?.results?.length || 4"
         height="202px"
         width="100%"
       />

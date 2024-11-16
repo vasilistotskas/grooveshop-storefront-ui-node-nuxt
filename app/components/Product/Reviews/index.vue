@@ -112,7 +112,7 @@ watch(
       <ClientOnlyFallback
         v-if="status === 'pending'"
         class="grid gap-4"
-        :count="productReviews?.length"
+        :count="productReviews?.length || 4"
         height="92px"
         width="100%"
       />

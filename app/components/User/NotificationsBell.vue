@@ -177,7 +177,7 @@ watch(
           </template>
           <template v-else-if="pending">
             <ClientOnlyFallback
-              :count="userNotifications?.length"
+              :count="userNotifications?.length || 4"
               height="90px"
             />
           </template>

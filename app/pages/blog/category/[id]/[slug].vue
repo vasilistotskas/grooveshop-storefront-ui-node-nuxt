@@ -219,7 +219,7 @@ definePageMeta({
             </template>
             <template v-if="postStatus === 'pending'">
               <ClientOnlyFallback
-                :count="posts?.results?.length"
+                :count="posts?.results?.length || 4"
                 :height="skeletonHeight"
                 width="100%"
               />

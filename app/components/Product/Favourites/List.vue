@@ -156,7 +156,7 @@ watch(
 
             xl:grid-cols-4
           "
-          :count="favourites?.results?.length"
+          :count="favourites?.results?.length || 4"
           height="295px"
           width="100%"
         />

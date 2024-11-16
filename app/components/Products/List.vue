@@ -169,7 +169,7 @@ watch(
 
           xl:grid-cols-4
         "
-        :count="products?.results?.length"
+        :count="products?.results?.length || 4"
         height="402px"
         width="100%"
       />
