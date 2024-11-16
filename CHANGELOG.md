@@ -1,3 +1,10 @@
+## [1.219.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.219.0...v1.219.1) (2024-11-16)
+
+
+### Bug Fixes
+
+* new logo and session table UI improved ([64d3abd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/64d3abd258fb37a40f4ebb95f54d3030cbf648b1))
+
 # [1.219.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.218.0...v1.219.0) (2024-11-06)
 
 
