@@ -14,7 +14,7 @@ const shouldFetchLikedPosts = computed(() => {
   return loggedIn.value
 })
 
-const { data: blogPost, refresh } = await useFetch<BlogPost>(
+const { data: blogPost, refresh, error } = await useFetch<BlogPost>(
   `/api/blog/posts/${blogPostId.value}`,
   {
     key: `blogPost${blogPostId.value}`,
@@ -42,7 +42,7 @@ const { data: blogPost, refresh } = await useFetch<BlogPost>(
   },
 )
 
-if (!blogPost.value) {
+if (error.value || !blogPost.value) {
   throw createError({
     statusCode: 404,
     message: t('error.page.not.found'),
@@ -169,12 +169,12 @@ useSeoMeta({
   title: () => blogPostSeoTitle.value,
   description: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
   ogDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
-  ogImage: () => ogImage.value,
+  ogImage: ogImage.value,
   ogType: 'article',
   ogUrl: () => route.fullPath,
   twitterTitle: () => blogPost.value?.seoTitle || blogPostTitle.value,
   twitterDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
-  twitterImage: () => ogImage.value,
+  twitterImage: ogImage.value,
 })
 useHydratedHead({
   title: blogPostSeoTitle,

@@ -25,16 +25,23 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const {
-  data: category, status: categoryStatus,
-} = await useAsyncData<BlogCategory>(`category${categoryId}`, () =>
-  $fetch<BlogCategory>(`/api/blog/categories/${categoryId}`, {
+const { data: category, status: categoryStatus, error } = await useFetch<BlogCategory>(
+  `/api/blog/categories/${categoryId}`,
+  {
     method: 'GET',
     query: {
       language: locale.value,
     },
-  }),
+  },
 )
+
+if (error.value || !category.value) {
+  throw createError({
+    statusCode: 404,
+    message: t('error.page.not.found'),
+    fatal: true,
+  })
+}
 
 const {
   data: posts, status: postStatus, refresh: refreshPosts,
@@ -51,20 +58,12 @@ const {
   }),
 )
 
-if (!category.value) {
-  throw createError({
-    statusCode: 404,
-    message: t('error.page.not.found'),
-    fatal: true,
-  })
-}
-
 const categoryTitle = computed(() => {
   return extractTranslated(category?.value, 'name', locale.value) || ''
 })
 
 const categoryDescription = computed(() => {
-  return extractTranslated(category?.value, 'description', locale.value)
+  return extractTranslated(category?.value, 'description', locale.value) || ''
 })
 
 const totalPosts = computed(() => category.value?.recursivePostCount || 0)
@@ -81,7 +80,7 @@ const orderingOptions = computed(() => {
 })
 
 const ogImage = computed(() => {
-  if (!category.value || !category.value.mainImagePath) {
+  if (!category || !category.value || !category.value.mainImagePath) {
     return ''
   }
   return img(category.value.mainImagePath, { width: 1200, height: 630, fit: 'cover' }, {
@@ -110,11 +109,11 @@ watch(
 )
 
 useSeoMeta({
-  title: () => categoryTitle.value || '',
+  title: () => categoryTitle.value,
   description: () => categoryDescription.value,
   ogDescription: () => categoryDescription.value,
-  ogImage: () => ogImage.value,
-  twitterImage: () => ogImage.value,
+  ogImage: ogImage.value,
+  twitterImage: ogImage.value,
 })
 
 useHydratedHead({
