@@ -1,3 +1,10 @@
+## [1.223.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.223.0...v1.223.1) (2024-11-16)
+
+
+### Bug Fixes
+
+* change logo banner ([f24eccd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f24eccd09ad565a4d9168c81b39bbd6e62448d5f))
+
 # [1.223.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.222.3...v1.223.0) (2024-11-16)
 
 
