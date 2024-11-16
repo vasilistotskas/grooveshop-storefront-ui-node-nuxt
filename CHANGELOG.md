@@ -1,3 +1,10 @@
+# [1.225.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.224.3...v1.225.0) (2024-11-16)
+
+
+### Features
+
+* add domain verify id meta ([666e45a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/666e45a7b42bd2b1aa29b7f342b75a4704720e66))
+
 ## [1.224.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.224.2...v1.224.3) (2024-11-16)
 
 
