@@ -3,6 +3,7 @@ import pkg from '../../../package.json'
 
 const config = useRuntimeConfig()
 const localePath = useLocalePath()
+const { t } = useI18n({ useScope: 'local' })
 
 const packageVersion = pkg.version
 </script>
@@ -90,7 +91,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('microlearning.title') }}
+            {{ t('microlearning.title') }}
           </span>
           <ul
             class="
@@ -103,8 +104,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('microlearning.what')"
-                :title="$t('microlearning.what')"
+                :text="t('microlearning.what')"
+                :title="t('microlearning.what')"
                 :to="'what-is-microlearning'"
                 class="
                   flex-1 text-sm capitalize
@@ -112,13 +113,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('microlearning.what') }}
+                {{ t('microlearning.what') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('microlearning.why')"
-                :title="$t('microlearning.why')"
+                :text="t('microlearning.why')"
+                :title="t('microlearning.why')"
                 :to="'why-microlearning'"
                 class="
                   flex-1 text-sm capitalize
@@ -126,7 +127,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('microlearning.why') }}
+                {{ t('microlearning.why') }}
               </Anchor>
             </li>
           </ul>
@@ -317,3 +318,11 @@ const packageVersion = pkg.version
     </div>
   </footer>
 </template>
+
+<i18n lang="yaml">
+el:
+  microlearning:
+    title: Microlearning
+    why: Γιατί Microlearning
+    what: Τι είναι το Microlearning
+</i18n>

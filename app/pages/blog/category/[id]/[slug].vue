@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { UseSeoMetaInput } from '@unhead/schema'
-
 const { locale, t } = useI18n()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
@@ -62,7 +60,7 @@ if (!category.value) {
 }
 
 const categoryTitle = computed(() => {
-  return extractTranslated(category?.value, 'name', locale.value)
+  return extractTranslated(category?.value, 'name', locale.value) || ''
 })
 
 const categoryDescription = computed(() => {
@@ -111,26 +109,16 @@ watch(
   },
 )
 
-const seoMetaInput = {
-  description: categoryDescription.value,
-  ogDescription: categoryDescription.value,
-  ogImage: {
-    url: ogImage.value,
-    width: 1200,
-    height: 630,
-    alt: categoryDescription.value,
-  },
-  twitterImage: {
-    url: ogImage.value,
-    width: 1200,
-    height: 630,
-    alt: categoryDescription.value,
-  },
-} satisfies UseSeoMetaInput
-
-useSeoMeta(seoMetaInput)
-useHydratedHead({
+useSeoMeta({
   title: () => categoryTitle.value || '',
+  description: () => categoryDescription.value,
+  ogDescription: () => categoryDescription.value,
+  ogImage: () => ogImage.value,
+  twitterImage: () => ogImage.value,
+})
+
+useHydratedHead({
+  title: categoryTitle,
 })
 
 definePageMeta({

@@ -1,4 +1,14 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
+useSeoMeta({
+  title: t('microlearning.title'),
+  description: t('microlearning.what'),
+})
+useHydratedHead({
+  title: t('microlearning.title'),
+})
+
 definePageMeta({
   layout: 'default',
 })
@@ -7,7 +17,7 @@ definePageMeta({
 <template>
   <PageWrapper class="container flex flex-col">
     <PageTitle
-      :text="$t('microlearning.what')"
+      :text="t('microlearning.what')"
       class="mb-4 text-center capitalize"
     />
     <PageBody>
@@ -121,3 +131,10 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  microlearning:
+    title: Microlearning
+    what: Τι είναι το Microlearning
+</i18n>

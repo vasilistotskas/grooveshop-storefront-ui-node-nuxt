@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { UseSeoMetaInput } from '@unhead/schema'
-
 const route = useRoute()
 const { t, locale } = useI18n()
 const { loggedIn } = useUserSession()
@@ -80,6 +78,15 @@ if (likedPostsData.value) {
 const blogPostBody = computed(() => extractTranslated(blogPost.value, 'body', locale.value) ?? '')
 const blogPostTitle = computed(() => extractTranslated(blogPost.value, 'title', locale.value) ?? '')
 const blogPostSubtitle = computed(() => extractTranslated(blogPost.value, 'subtitle', locale.value) ?? '')
+const blogPostSeoTitle = computed(() => {
+  if (blogPost.value && blogPost.value.seoTitle) {
+    return blogPost.value.seoTitle
+  }
+  else if (blogPostTitle.value) {
+    return blogPostTitle.value
+  }
+  return ''
+})
 const blogPostAuthor = computed(() => getEntityObject(blogPost?.value?.author))
 const blogPostAuthorUser = computed(() =>
   getEntityObject(blogPostAuthor?.value?.user),
@@ -158,30 +165,19 @@ onReactivated(async () => {
   await refresh()
 })
 
-const seoMetaInput = {
-  description: blogPost.value.seoDescription || blogPostSubtitle.value,
-  ogDescription: blogPost.value.seoDescription || blogPostSubtitle.value,
-  ogImage: {
-    url: ogImage.value,
-    width: 1200,
-    height: 630,
-    alt: blogPost.value.seoTitle || blogPostTitle.value,
-  },
+useSeoMeta({
+  title: () => blogPostSeoTitle.value,
+  description: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
+  ogDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
+  ogImage: () => ogImage.value,
   ogType: 'article',
-  ogUrl: route.fullPath,
-  twitterTitle: blogPost.value.seoTitle || blogPostTitle.value,
-  twitterDescription: blogPost.value.seoDescription || blogPostSubtitle.value,
-  twitterImage: {
-    url: ogImage.value,
-    width: 1200,
-    height: 630,
-    alt: blogPost.value.seoTitle || blogPostTitle.value,
-  },
-} satisfies UseSeoMetaInput
-
-useSeoMeta(seoMetaInput)
+  ogUrl: () => route.fullPath,
+  twitterTitle: () => blogPost.value?.seoTitle || blogPostTitle.value,
+  twitterDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
+  twitterImage: () => ogImage.value,
+})
 useHydratedHead({
-  title: () => blogPost.value?.seoTitle || blogPostTitle.value || '',
+  title: blogPostSeoTitle,
 })
 useSchemaOrg([
   definePerson({

@@ -28,10 +28,7 @@ export default defineNuxtConfig({
     autoImport: true,
     dirs: [
       'stores/**',
-      '../shared/constants/**',
-      '../shared/schemas/**',
-      '../shared/types/**',
-      '../shared/utils/**',
+      '../shared/**',
     ],
   },
   devtools: {
@@ -230,10 +227,7 @@ export default defineNuxtConfig({
   nitro: {
     imports: {
       dirs: [
-        'shared/constants/**',
-        'shared/schemas/**',
-        'shared/types/**',
-        'shared/utils/**',
+        'shared/**',
       ],
     },
     compressPublicAssets: {

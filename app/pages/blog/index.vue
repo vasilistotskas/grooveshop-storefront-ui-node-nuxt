@@ -1,13 +1,6 @@
 <script lang="ts" setup>
-import type { UseSeoMetaInput } from '@unhead/schema'
-
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
-
-const seoMetaInput = {
-  description: t('description'),
-  ogDescription: t('description'),
-} satisfies UseSeoMetaInput
 
 const links = computed(() => [
   {
@@ -22,9 +15,12 @@ const links = computed(() => [
   },
 ])
 
-useSeoMeta(seoMetaInput)
+useSeoMeta({
+  description: t('description'),
+  ogDescription: t('description'),
+})
 useHydratedHead({
-  title: () => t('title'),
+  title: t('title'),
 })
 
 definePageMeta({

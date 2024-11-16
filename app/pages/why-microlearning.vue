@@ -1,4 +1,10 @@
 <script lang="ts" setup>
+const { t } = useI18n({ useScope: 'local' })
+
+useHydratedHead({
+  title: t('microlearning.why'),
+})
+
 definePageMeta({
   layout: 'default',
 })
@@ -7,7 +13,7 @@ definePageMeta({
 <template>
   <PageWrapper class="container flex flex-col">
     <PageTitle
-      :text="$t('microlearning.why')"
+      :text="t('microlearning.why')"
       class="text-center capitalize"
     />
     <PageBody>
@@ -121,3 +127,9 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  microlearning:
+    why: Γιατί Microlearning
+</i18n>

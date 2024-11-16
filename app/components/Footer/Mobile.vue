@@ -140,7 +140,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('microlearning.what')"
+            :label="t('microlearning.what')"
             :to="localePath('what-is-microlearning')"
             class="font-semibold"
             color="secondary"
@@ -157,7 +157,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('microlearning.why')"
+            :label="t('microlearning.why')"
             :to="localePath('why-microlearning')"
             class="font-semibold"
             color="secondary"
@@ -248,4 +248,7 @@ const items = [{
 <i18n lang="yaml">
 el:
   title: Επικοινωνία
+  microlearning:
+    why: Γιατί Microlearning
+    what: Τι είναι το Microlearning
 </i18n>

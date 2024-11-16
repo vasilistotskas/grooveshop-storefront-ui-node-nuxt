@@ -13,7 +13,21 @@ const { fetchCart } = cartStore
 
 await fetchCart()
 
-const schemaOrgOptions = [
+const ogImageOptions = reactive({
+  alt: config.public.appTitle,
+  url: config.public.appLogo,
+  width: 1200,
+  height: 630,
+})
+
+useSchemaOrg([
+  defineWebPage(),
+  defineWebSite({
+    url: config.public.baseUrl,
+    name: config.public.appTitle,
+    description: config.public.appDescription,
+    inLanguage: locales.value.map((l: any) => l.language),
+  }),
   defineOrganization({
     name: config.public.appTitle,
     logo: config.public.appLogo,
@@ -23,22 +37,7 @@ const schemaOrgOptions = [
       config.public.socials.instagram,
     ],
   }),
-  defineWebSite({
-    url: config.public.baseUrl,
-    name: config.public.appTitle,
-    description: config.public.appDescription,
-    inLanguage: locales.value.map((l: any) => l.language),
-  }),
-  defineWebPage(),
-]
-const ogImageOptions = reactive({
-  alt: config.public.appTitle,
-  url: config.public.appLogo,
-  width: 1200,
-  height: 630,
-})
-
-useSchemaOrg(schemaOrgOptions)
+])
 defineOgImage(ogImageOptions)
 </script>
 
