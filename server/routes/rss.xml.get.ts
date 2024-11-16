@@ -34,9 +34,8 @@ export default defineEventHandler(async (event) => {
       }
 
       const postUrl = new URL(post.absoluteUrl, siteUrl).toString()
-      const mainImageUrl = post.mainImagePath ? new URL(post.mainImagePath, siteUrl).toString() : undefined
+      const mainImageUrl = config.public.mediaStreamPath + '/' + post.mainImagePath + '/472/311/cover/attention/transparent/5/webp/100'
       const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
-
       let description = translation.subtitle || ''
       if (mainImageUrl) {
         description = `<img src="${mainImageUrl}" alt="${translation.title}" />\n` + description
