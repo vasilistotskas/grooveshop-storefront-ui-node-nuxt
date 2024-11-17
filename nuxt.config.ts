@@ -44,9 +44,14 @@ export default defineNuxtConfig({
         siteName: process.env.NUXT_PUBLIC_SITE_NAME,
         separator: '—',
       },
+      meta: [
+        { name: 'p:domain_verify', content: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID },
+      ],
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
         { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
+        { rel: 'icon', type: 'image/png', href: '/favicon/favicon-16x16.png' },
         { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
       ],
     },
@@ -618,6 +623,9 @@ export default defineNuxtConfig({
       tokensPerInterval: process.env.NODE_ENV === 'production' ? 1500 : 10000,
       interval: process.env.NODE_ENV === 'production' ? 300000 : 60000,
     },
+  },
+  seo: {
+    redirectToCanonicalSiteUrl: true,
   },
   sitemap: {
     sitemaps: true,

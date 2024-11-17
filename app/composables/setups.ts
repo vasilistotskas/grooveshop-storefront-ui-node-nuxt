@@ -1,15 +1,6 @@
 import { withQuery } from 'ufo'
 import type { UseWebNotificationOptions } from '@vueuse/core'
 
-function unescapeTitleTemplate(titleTemplate: string, replacements: [string, string[]][]) {
-  let result = titleTemplate
-  for (const [replacement, entities] of replacements) {
-    for (const e of entities)
-      result = result.replaceAll(e, replacement)
-  }
-  return result.trim()
-}
-
 export function setupPageHeader() {
   const publicConfig = useRuntimeConfig().public
   const { locale, locales } = useI18n()
@@ -21,195 +12,51 @@ export function setupPageHeader() {
     key: 'hid',
   })
 
-  const localeMap = (locales.value).reduce((acc, l) => {
-    acc[l.code!] = l.dir ?? 'ltr'
-    return acc
-  }, {})
-
   const colorMode = useColorMode()
   const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
+  const ogLocalesAlternate = computed(() => locales.value.map((l: any) => l.language))
 
   useSeoMeta({
     ogTitle: '%s',
+    ogType: 'website',
+    ogSiteName: publicConfig.appTitle,
     ogImage: publicConfig.appLogo,
     twitterTitle: publicConfig.appTitle,
     twitterDescription: publicConfig.appDescription,
     twitterImage: publicConfig.appLogo,
     twitterCard: 'summary',
+    applicationName: publicConfig.appTitle,
+    author: publicConfig.author.name,
+    creator: publicConfig.author.name,
+    publisher: publicConfig.author.name,
+    mobileWebAppCapable: 'yes',
+    appleMobileWebAppCapable: 'yes',
+    msapplicationConfig: '/favicon/browserconfig.xml',
+    msapplicationTileImage: '/favicon/ms-icon-150x150.png',
+    googleSiteVerification: publicConfig.googleSiteVerification,
+    themeColor: themeColor,
+    colorScheme: colorScheme,
+    msapplicationTileColor: themeColor,
+    ogLocale: locale,
+    ogLocaleAlternate: ogLocalesAlternate,
   })
 
-  useHead({
+  useHead(() => ({
     htmlAttrs: {
-      lang: () => locale.value,
-      dir: () => localeMap[locale.value] ?? 'ltr',
-      class: () => [],
+      lang: i18nHead.value.htmlAttrs!.lang,
     },
-    link: [
-      {
-        rel: 'icon',
-        type: 'image/png',
-        href: '/favicon/favicon-16x16.png',
-      },
-    ],
-  })
+    link: [...(i18nHead.value.link || [])],
+    meta: [...(i18nHead.value.meta || [])],
+  }))
 
-  useHydratedHead({
-    meta: [
-      ...(i18nHead.value.meta || []),
-      {
-        name: 'description',
-        content: publicConfig.appDescription,
-      },
-      {
-        name: 'keywords',
-        content: publicConfig.appKeywords,
-      },
-      {
-        name: 'application-name',
-        content: publicConfig.appTitle,
-      },
-      {
-        name: 'author',
-        content: publicConfig.author.name,
-      },
-      {
-        name: 'creator',
-        content: publicConfig.author.name,
-      },
-      {
-        name: 'publisher',
-        content: publicConfig.author.name,
-      },
-      {
-        name: 'mobile-web-app-capable',
-        content: 'yes',
-      },
-      {
-        name: 'apple-mobile-web-app-capable',
-        content: 'yes',
-      },
-      {
-        name: 'apple-mobile-web-app-title',
-        content: publicConfig.appTitle,
-      },
-      {
-        name: 'msapplication-Config',
-        content: '/favicon/browserconfig.xml',
-      },
-      {
-        name: 'msapplication-TileImage',
-        content: publicConfig.appLogo,
-      },
-      {
-        name: 'p:domain_verify',
-        content: publicConfig.domainVerifyId,
-      },
-      {
-        name: 'google-site-verification',
-        content: publicConfig.googleSiteVerification,
-      },
-      {
-        name: 'twitter:card',
-        content: 'summary_large_image',
-      },
-      {
-        name: 'twitter:title',
-        content: publicConfig.appTitle,
-      },
-      {
-        name: 'twitter:description',
-        content: publicConfig.appDescription,
-      },
-      {
-        name: 'twitter:image',
-        content: publicConfig.appLogo,
-      },
-      {
-        property: 'og:url',
-        content: useRoute().fullPath,
-      },
-      {
-        property: 'og:type',
-        content: 'website',
-      },
-      {
-        property: 'og:site:name',
-        content: publicConfig.appTitle,
-      },
-      {
-        property: 'og:title',
-        content: publicConfig.appTitle,
-      },
-      {
-        property: 'og:description',
-        content: publicConfig.appDescription,
-      },
-      {
-        property: 'og:locale',
-        content: locale.value,
-      },
-      {
-        property: 'og:locale:alternate',
-        content: locales.value.map((l: any) => l.language),
-      },
-      {
-        property: 'fb:app:id',
-        content: publicConfig.facebookAppId,
-      },
-      {
-        id: 'theme-color',
-        name: 'theme-color',
-        content: themeColor.value,
-      },
-      {
-        id: 'color-scheme',
-        name: 'color-scheme',
-        content: colorScheme.value,
-      },
-      {
-        id: 'msapplication-TileColor',
-        name: 'msapplication-TileColor',
-        content: themeColor.value,
-      },
-    ],
-    titleTemplate: (title?: string) => {
-      let titleTemplate = title ?? ''
-
-      if (titleTemplate.match(/&[a-z0-9#]+;/gi)) {
-        titleTemplate = unescapeTitleTemplate(titleTemplate, [
-          ['"', ['&#34;', '&quot;']],
-          ['&', ['&#38;', '&amp;']],
-          ['\'', ['&#39;', '&apos;']],
-          ['\u003C', ['&#60;', '&lt;']],
-          ['\u003E', ['&#62;', '&gt;']],
-        ])
-        if (titleTemplate.length > 60)
-          titleTemplate = `${titleTemplate.slice(0, 60)}...${titleTemplate.endsWith('"') ? '"' : ''}`
-
-        if (!titleTemplate.includes('"'))
-          titleTemplate = `"${titleTemplate}"`
-      }
-      else if (titleTemplate.length > 60) {
-        titleTemplate = `${titleTemplate.slice(0, 60)}...${titleTemplate.endsWith('"') ? '"' : ''}`
-      }
-
-      if (titleTemplate.length)
-        titleTemplate += publicConfig.titleSeparator
-
-      titleTemplate += publicConfig.appTitle
-
-      return titleTemplate
+  useHydratedHead(() => ({
+    htmlAttrs: {
+      lang: i18nHead.value.htmlAttrs!.lang,
     },
-    link: [
-      ...(i18nHead.value.link || []),
-      {
-        rel: 'icon',
-        type: 'image/png',
-        href: '/favicon/favicon-16x16.png',
-      },
-    ],
-  })
+    link: [...(i18nHead.value.link || [])],
+    meta: [...(i18nHead.value.meta || [])],
+  }))
 }
 
 export function setupCursorStates() {
