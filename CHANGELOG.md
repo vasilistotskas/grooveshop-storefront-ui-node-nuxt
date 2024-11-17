@@ -1,3 +1,10 @@
+# [1.228.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.227.2...v1.228.0) (2024-11-17)
+
+
+### Features
+
+* new UI in login and register pages and tailwind lint fix ([59316d8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/59316d8ec11faf2a432a34f92fbee92ef7187f0f))
+
 ## [1.227.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.227.1...v1.227.2) (2024-11-17)
 
 
