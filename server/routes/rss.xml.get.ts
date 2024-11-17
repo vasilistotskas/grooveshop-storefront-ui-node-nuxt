@@ -8,7 +8,7 @@ const cachedBlogPosts = createCachedFetcher<BlogPost>(
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const locale = config.public.defaultLocale || 'en'
+    const locale = config.public.defaultLocale || 'el'
     const siteUrl = config.public.siteUrl
     const apiBaseUrl = config.public.apiBaseUrl
 
@@ -17,11 +17,12 @@ export default defineEventHandler(async (event) => {
 
     const feed = new RSS({
       title: config.public.appTitle,
+      description: config.public.appDescription,
       site_url: siteUrl,
       feed_url: `${siteUrl}/rss.xml`,
-      description: config.public.appDescription,
       language: locale,
       pubDate: new Date().toISOString(),
+      image_url: `${siteUrl}/screenshots/1024x593.png`,
       ttl: 60,
     })
 
