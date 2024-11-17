@@ -1,3 +1,10 @@
+# [1.227.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.226.0...v1.227.0) (2024-11-17)
+
+
+### Features
+
+* **rss:** Update feed `image_url` ([d68cb09](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d68cb09a405c6619f7926342394ffaae8ef6a044))
+
 # [1.226.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.225.0...v1.226.0) (2024-11-17)
 
 
