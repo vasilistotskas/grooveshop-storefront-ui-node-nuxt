@@ -1,3 +1,10 @@
+## [1.227.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.227.1...v1.227.2) (2024-11-17)
+
+
+### Bug Fixes
+
+* env vars (this should be resolved) ([59c139c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/59c139c0f224c4572e8bd428fea8559b7db743fd))
+
 ## [1.227.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.227.0...v1.227.1) (2024-11-17)
 
 
