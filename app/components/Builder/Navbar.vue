@@ -77,7 +77,6 @@ const appTitle = computed(() => config.public.appTitle as string)
                   quality="100"
                   preload
                 />
-                <span class="sr-only">{{ appTitle }}</span>
               </Anchor>
             </h1>
           </slot>

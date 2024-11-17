@@ -45,7 +45,7 @@ export default defineNuxtConfig({
         separator: '—',
       },
       meta: [
-        { name: 'p:domain_verify', content: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID },
+        { name: 'p:domain_verify', content: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID || '' },
       ],
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
