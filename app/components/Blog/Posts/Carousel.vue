@@ -28,11 +28,9 @@ const BlogPostCard = computed(() =>
     <h2
       v-if="title"
       class="
-        text-primary-950
+        text-primary-950 mx-auto flex max-w-2xl text-2xl font-semibold
 
         dark:text-primary-50
-
-        mx-auto flex max-w-2xl text-2xl font-semibold
       "
     >
       {{ title }}

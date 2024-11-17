@@ -85,11 +85,11 @@ const Footer = computed(() => {
       </PageHeader>
       <div
         class="
-          grid gap-2 pt-[48px]
-
-          md:gap-6 md:pt-[56px]
+          grid gap-2 pt-[55px]
 
           lg:pt-[63px]
+
+          md:gap-6 md:pt-[63px]
         "
       >
         <div
@@ -138,9 +138,9 @@ const Footer = computed(() => {
                   `
                     relative mx-auto flex h-full flex-1 flex-col
 
-                    md:w-full
-
                     lg:flex-row lg:gap-8
+
+                    md:w-full
 
                     xl:gap-0
                   `,
@@ -199,11 +199,10 @@ const Footer = computed(() => {
           },
         }"
         class="
-          border-primary-200 bg-primary-50
+          border-primary-200 bg-primary-50 fixed inset-x-0 bottom-0 z-50 w-full
+          border-t
 
           dark:border-primary-700 dark:bg-primary-900
-
-          fixed inset-x-0 bottom-0 z-50 w-full border-t
         "
       />
     </MobileOrTabletOnly>

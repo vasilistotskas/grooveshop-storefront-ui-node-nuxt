@@ -38,9 +38,9 @@ const id = useId()
       class="
         pwa fixed bottom-20 right-0 w-full
 
-        sm:bottom-20
-
         md:bottom-2
+
+        sm:bottom-20
       "
     >
       <UNotification

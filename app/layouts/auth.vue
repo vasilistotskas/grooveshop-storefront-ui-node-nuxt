@@ -31,11 +31,11 @@ const searchBarFocused = useState<boolean>('searchBarFocused')
     </div>
     <main
       class="
-        pt-[48px]
-
-        md:pt-[56px]
+        pt-[55px]
 
         lg:pt-[63px]
+
+        md:pt-[63px]
       "
       :class="{
         'opacity-70': searchBarFocused,

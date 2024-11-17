@@ -28,9 +28,9 @@ const filteredTags = computed(() => {
     class="
       row-start-1 hidden
 
-      md:row-start-2
-
       lg:grid
+
+      md:row-start-2
     "
   >
     <div

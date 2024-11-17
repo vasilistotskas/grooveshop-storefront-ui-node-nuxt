@@ -105,12 +105,10 @@ const loadingPlaceholders = computed(() => {
       <p
         v-if="text"
         class="
-          text-primary-950
+          text-primary-950 absolute left-1/2 top-1/2 grid -translate-x-1/2
+          -translate-y-1/2 place-items-center font-semibold
 
           dark:text-primary-50
-
-          absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2
-          place-items-center font-semibold
         "
         :style="{ color: textColor }"
         v-text="text"

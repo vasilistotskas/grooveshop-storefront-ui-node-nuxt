@@ -20,12 +20,10 @@ const appTitle = computed(() => config.public.appTitle as string)
   <div
     ref="navbar"
     class="
-      border-primary-500
+      border-primary-500 top-0 z-50 w-full flex-none border-b backdrop-blur-md
+      transition-colors duration-300
 
       dark:border-primary-500
-
-      top-0 z-50 w-full flex-none border-b backdrop-blur-md transition-colors
-      duration-300
 
       lg:z-50
     "
@@ -41,18 +39,18 @@ const appTitle = computed(() => config.public.appTitle as string)
         class="
           mx-2 flex gap-2 py-3
 
-          md:flex md:py-4
-
           lg:mx-0
+
+          md:flex md:py-4
         "
       >
         <div
           class="
             relative flex w-full items-center gap-4
 
-            md:grid md:grid-cols-[1fr_2fr]
-
             lg:grid-cols-[1fr_2fr_1fr]
+
+            md:grid md:grid-cols-[1fr_2fr]
           "
           :class="{ 'justify-between': isMobileOrTablet }"
         >

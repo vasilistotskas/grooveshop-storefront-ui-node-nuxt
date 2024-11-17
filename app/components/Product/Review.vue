@@ -431,11 +431,9 @@ watch(
     :modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
     :modal-opened-trigger-handler-id="`modal-opened-reviewModal-${user?.id}-${product?.id}`"
     class="
-      bg-primary-50
+      bg-primary-50 p-4
 
       dark:bg-primary-950
-
-      p-4
 
       md:p-0
     "

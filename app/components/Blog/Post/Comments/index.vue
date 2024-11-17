@@ -264,22 +264,18 @@ onMounted(() => {
   <div
     id="blog-post-comments"
     class="
-      border-primary-500
+      border-primary-500 mx-auto flex max-w-2xl flex-col items-start
+      justify-center gap-4 border-t py-6
 
       dark:border-primary-500
-
-      mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t
-      py-6
     "
   >
     <div class="grid w-full">
       <h2
         class="
-          text-primary-950
+          text-primary-950 mx-auto flex max-w-2xl text-2xl font-semibold
 
           dark:text-primary-50
-
-          mx-auto flex max-w-2xl text-2xl font-semibold
         "
       >
         {{ t('title') }}

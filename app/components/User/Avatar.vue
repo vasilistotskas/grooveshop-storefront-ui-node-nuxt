@@ -229,11 +229,9 @@ const uploadImage = async (event: Event) => {
     >
       <span
         class="
-          text-primary-950
+          text-primary-950 font-bold
 
           dark:text-primary-50
-
-          font-bold
         "
       >
         {{ userAccount?.firstName }}

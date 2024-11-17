@@ -68,11 +68,9 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
   <li class="product-card relative">
     <div
       class="
-        bg-primary-100
+        bg-primary-100 container rounded-lg
 
         dark:bg-primary-900
-
-        container rounded-lg
       "
     >
       <div class="flex flex-col gap-4 py-5">
@@ -161,11 +159,9 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <p
             v-if="showDescription"
             class="
-              text-primary-950 text-muted
+              text-primary-950 text-muted min-h-[3.75rem] text-sm leading-6
 
               dark:text-primary-50
-
-              min-h-[3.75rem] text-sm leading-6
             "
           >
             {{
@@ -239,11 +235,9 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             >
               <span
                 class="
-                  text-primary-950
+                  text-primary-950 text-sm leading-6
 
                   dark:text-primary-50
-
-                  text-sm leading-6
                 "
               >
                 {{ t('total_price') }}
@@ -251,11 +245,9 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950
+                  text-primary-950 text-lg leading-6
 
                   dark:text-primary-50
-
-                  text-lg leading-6
                 "
                 format="currency"
                 :value="product.finalPrice"

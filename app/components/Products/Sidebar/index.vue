@@ -69,22 +69,18 @@ onMounted(() => {
       </h2>
       <div
         class="
-          sidebar-header-sticky bg-primary-100
+          sidebar-header-sticky bg-primary-100 grid
 
           dark:bg-primary-950
-
-          grid
         "
       >
         <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
           {{ $t('categories') }}
           <span
             class="
-              text-primary-950
+              text-primary-950 text-sm font-normal
 
               dark:text-primary-50
-
-              text-sm font-normal
             "
           >
             ({{ categories?.count ?? 0 }})
@@ -147,11 +143,9 @@ onMounted(() => {
       >
         <p
           class="
-            text-primary-950
+            text-primary-950 p-2 text-center
 
             dark:text-primary-50
-
-            p-2 text-center
           "
         >
           {{ $t('no_categories_found') }}

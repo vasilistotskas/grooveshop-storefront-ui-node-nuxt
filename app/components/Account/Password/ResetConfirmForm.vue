@@ -112,18 +112,14 @@ const onSubmit = handleSubmit(async (values) => {
     >
       <div
         class="
-          bg-primary-100
+          bg-primary-100 flex h-full flex-wrap items-center justify-center
+          rounded-lg p-4 shadow-[0_4px_9px_-4px_#0000000d]
 
-          dark:bg-primary-900
-
-          flex h-full flex-wrap items-center justify-center rounded-lg p-4
-          shadow-[0_4px_9px_-4px_#0000000d]
-
-          dark:shadow-[0_4px_9px_-4px_#0000000d]
-
-          md:p-8
+          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
 
           lg:justify-between
+
+          md:p-8
         "
       >
         <div
@@ -151,11 +147,9 @@ const onSubmit = handleSubmit(async (values) => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 mb-2
 
                   dark:text-primary-50
-
-                  mb-2
                 "
                 for="newPassword1"
               >{{
@@ -179,11 +173,9 @@ const onSubmit = handleSubmit(async (values) => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 mb-2
 
                   dark:text-primary-50
-
-                  mb-2
                 "
                 for="newPassword2"
               >{{

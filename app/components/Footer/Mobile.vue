@@ -24,11 +24,9 @@ const items = [{
 <template>
   <footer
     class="
-      bg-primary-50
+      bg-primary-50 w-full pb-[3.75rem]
 
       dark:bg-primary-900
-
-      w-full pb-[3.75rem]
     "
   >
     <UAccordion
@@ -39,13 +37,9 @@ const items = [{
         <UButton
           :ui="{ rounded: 'rounded-none', padding: { sm: 'p-3' } }"
           class="
-            border-primary-200
+            border-primary-200 gap-1 border-b bg-secondary-light
 
-            dark:border-primary-700
-
-            gap-1 border-b bg-secondary-light
-
-            dark:bg-secondary-dark
+            dark:border-primary-700 dark:bg-secondary-dark
           "
           color="primary"
           variant="ghost"
@@ -59,11 +53,9 @@ const items = [{
               <UIcon
                 :name="item.icon"
                 class="
-                  text-primary-50
+                  text-primary-50 size-6
 
                   dark:text-primary-50
-
-                  size-6
                 "
               />
             </div>
@@ -71,11 +63,9 @@ const items = [{
 
           <span
             class="
-              text-primary-50
+              text-primary-50 truncate text-2xl
 
               dark:text-primary-50
-
-              truncate text-2xl
             "
           >{{ item.label }}</span>
 
@@ -83,11 +73,9 @@ const items = [{
             <UIcon
               :name="open ? 'i-heroicons-chevron-up-20-solid' : 'i-heroicons-chevron-down-20-solid'"
               class="
-                text-primary-50
+                text-primary-50 ms-auto size-6 transition-transform duration-200
 
                 dark:text-primary-50
-
-                ms-auto size-6 transition-transform duration-200
               "
             />
           </template>

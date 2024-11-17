@@ -153,11 +153,11 @@ const close = () => {
           <button
             type="button"
             class="
+              font-bold text-slate-600 transition-colors duration-300
+
               :hover:font-bold
 
               dark:text-primary-400
-
-              font-bold text-slate-600 transition-colors duration-300
             "
             @click="close"
           >

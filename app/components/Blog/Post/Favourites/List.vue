@@ -38,11 +38,11 @@ const { t, locale } = useI18n({ useScope: 'local' })
       class="
         grid grid-cols-1 gap-4
 
-        sm:grid-cols-2
+        lg:grid-cols-3
 
         md:grid-cols-2
 
-        lg:grid-cols-3
+        sm:grid-cols-2
 
         xl:grid-cols-4
       "
@@ -81,11 +81,9 @@ const { t, locale } = useI18n({ useScope: 'local' })
             :to="{ path: favourite.absoluteUrl }"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
-              text-primary-950
+              text-primary-950 flex text-lg font-bold tracking-tight
 
               dark:text-primary-50
-
-              flex text-lg font-bold tracking-tight
 
               md:h-14
             "

@@ -238,11 +238,11 @@ definePageMeta({
           class="
             mx-auto max-w-7xl pb-6
 
-            sm:px-6
+            lg:px-8
 
             md:px-4
 
-            lg:px-8
+            sm:px-6
           "
         >
           <UBreadcrumb
@@ -273,11 +273,10 @@ definePageMeta({
             >
               <h2
                 class="
-                  text-primary-950
+                  text-primary-950 text-2xl font-bold leading-tight
+                  tracking-tight
 
                   dark:text-primary-50
-
-                  text-2xl font-bold leading-tight tracking-tight
 
                   md:text-3xl
                 "
@@ -286,11 +285,9 @@ definePageMeta({
               </h2>
               <h3
                 class="
-                  text-primary-950
+                  text-primary-950 text-sm
 
                   dark:text-primary-50
-
-                  text-sm
                 "
               >
                 <span>{{ t('product_id') }}: </span>
@@ -298,9 +295,9 @@ definePageMeta({
                   class="
                     text-indigo-700
 
-                    hover:underline
-
                     dark:text-indigo-200
+
+                    hover:underline
                   "
                 >{{ product.id }}</span>
               </h3>
@@ -329,9 +326,9 @@ definePageMeta({
                   <UButton
                     :label="reviewButtonText"
                     class="
-                      hover:dark:text-primary-50
-
                       capitalize
+
+                      hover:dark:text-primary-50
                     "
                     color="primary"
                     size="lg"
@@ -376,11 +373,9 @@ definePageMeta({
                   </p>
                   <p
                     class="
-                      text-primary-950
+                      text-primary-950 text-sm
 
                       dark:text-primary-50
-
-                      text-sm
                     "
                   >
                     {{ t('inclusive_of_taxes') }}
@@ -407,11 +402,9 @@ definePageMeta({
                   }}</label>
                   <div
                     class="
-                      bg-primary-100
+                      bg-primary-100 relative flex items-center rounded-lg
 
                       dark:bg-primary-900
-
-                      relative flex items-center rounded-lg
                     "
                   >
                     <UButton
@@ -431,16 +424,14 @@ definePageMeta({
                       :max="productStock"
                       :min="1"
                       class="
-                        bg-primary-100 border-primary-500 text-primary-900
+                        bg-primary-100 border-primary-500 text-primary-900 block
+                        w-full p-2.5 text-sm outline-none
 
                         dark:bg-primary-900 dark:border-primary-500
                         dark:text-primary-50 dark:placeholder:text-primary-400
-
-                        block w-full p-2.5 text-sm outline-none
+                        dark:focus:border-blue-500 dark:focus:ring-blue-500
 
                         focus:border-secondary focus:ring-secondary
-
-                        dark:focus:border-blue-500 dark:focus:ring-blue-500
                       "
                       type="number"
                     >

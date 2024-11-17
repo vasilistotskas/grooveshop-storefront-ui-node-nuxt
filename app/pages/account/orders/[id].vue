@@ -52,11 +52,9 @@ definePageMeta({
         <NuxtTime
           :datetime="order.createdAt"
           class="
-            text-primary-950
+            text-primary-950 text-sm
 
             dark:text-primary-50
-
-            text-sm
           "
         />
       </div>
@@ -65,11 +63,9 @@ definePageMeta({
       <section class="flex flex-col gap-4">
         <div
           class="
-            order-items bg-primary-100
+            order-items bg-primary-100 grid gap-4 rounded-lg p-4
 
             dark:bg-primary-900
-
-            grid gap-4 rounded-lg p-4
           "
         >
           <div class="order-status flex items-center gap-2.5">
@@ -160,20 +156,17 @@ definePageMeta({
         >
           <div
             class="
-              order-synopsis-info bg-primary-100
+              order-synopsis-info bg-primary-100 flex flex-col gap-4 rounded-lg
+              p-4
 
               dark:bg-primary-900
-
-              flex flex-col gap-4 rounded-lg p-4
             "
           >
             <span
               class="
-                text-primary-950
+                text-primary-950 text-2xl font-bold
 
                 dark:text-primary-50
-
-                text-2xl font-bold
               "
             >
               {{ t('details') }}
@@ -182,11 +175,9 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="
-                    text-primary-950
+                    text-primary-950 font-bold
 
                     dark:text-primary-50
-
-                    font-bold
                   "
                 >{{
                   t('address')
@@ -204,11 +195,9 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="
-                    text-primary-950
+                    text-primary-950 font-bold
 
                     dark:text-primary-50
-
-                    font-bold
                   "
                 >{{
                   t('document_type')
@@ -226,11 +215,9 @@ definePageMeta({
               <div class="grid gap-2">
                 <span
                   class="
-                    text-primary-950
+                    text-primary-950 font-bold
 
                     dark:text-primary-50
-
-                    font-bold
                   "
                 >{{
                   t('pay_way')
@@ -249,41 +236,34 @@ definePageMeta({
           </div>
           <div
             class="
-              order-synopsis-prices bg-primary-100
+              order-synopsis-prices bg-primary-100 flex flex-col gap-4
+              rounded-lg p-4
 
               dark:bg-primary-900
-
-              flex flex-col gap-4 rounded-lg p-4
             "
           >
             <span
               class="
-                text-primary-950
+                text-primary-950 text-2xl font-bold
 
                 dark:text-primary-50
-
-                text-2xl font-bold
               "
             >
               {{ t('synopsis') }}
             </span>
             <div
               class="
-                border-primary-500
+                border-primary-500 grid gap-2 border-b pb-4
 
                 dark:border-primary-500
-
-                grid gap-2 border-b pb-4
               "
             >
               <div class="flex items-center justify-between">
                 <span
                   class="
-                    text-primary-950
+                    text-primary-950 font-light
 
                     dark:text-primary-50
-
-                    font-light
                   "
                 >{{ t('product.value') }}</span>
                 <I18nN
@@ -300,11 +280,9 @@ definePageMeta({
               <div class="flex items-center justify-between">
                 <span
                   class="
-                    text-primary-950
+                    text-primary-950 font-light
 
                     dark:text-primary-50
-
-                    font-light
                   "
                 >{{ t('shipping.value') }}</span>
                 <I18nN
@@ -323,11 +301,9 @@ definePageMeta({
               <div class="flex items-center justify-between">
                 <span
                   class="
-                    text-primary-950
+                    text-primary-950 font-bold
 
                     dark:text-primary-50
-
-                    font-bold
                   "
                 >{{
                   t('total')
@@ -335,11 +311,9 @@ definePageMeta({
                 <I18nN
                   :value="order.paidAmount"
                   class="
-                    text-primary-950
+                    text-primary-950 font-bold
 
                     dark:text-primary-50
-
-                    font-bold
                   "
                   format="currency"
                   tag="span"

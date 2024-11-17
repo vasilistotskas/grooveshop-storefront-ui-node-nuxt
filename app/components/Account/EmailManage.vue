@@ -216,11 +216,9 @@ const formSchema: DynamicFormSchema = {
     <div class="grid">
       <h2
         class="
-          text-primary-950
+          text-primary-950 text-center
 
           dark:text-primary-50
-
-          text-center
         "
       >
         {{ $t('email.add') }}

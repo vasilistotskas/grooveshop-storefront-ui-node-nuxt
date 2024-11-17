@@ -274,11 +274,10 @@ onClickOutside(autocomplete, () => {
       v-model:keep-focus="keepFocus"
       v-model:highlighted="highlighted"
       class="
-        border-primary-300 bg-primary-100
+        border-primary-300 bg-primary-100 absolute right-0 top-12
+        max-h-[calc(100vh-80px)] rounded border p-3.5
 
         dark:border-primary-500 dark:bg-primary-900
-
-        absolute right-0 top-12 max-h-[calc(100vh-80px)] rounded border p-3.5
 
         md:top-10
       "

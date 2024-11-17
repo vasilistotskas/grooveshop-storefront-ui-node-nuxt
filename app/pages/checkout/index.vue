@@ -246,20 +246,18 @@ definePageMeta({
         class="
           _form grid gap-2
 
-          md:gap-4
-
           lg:grid-cols-[2fr,0.75fr]
+
+          md:gap-4
         "
         name="checkoutForm"
         @submit="onSubmit"
       >
         <div
           class="
-            bg-primary-100 text-primary-50
+            bg-primary-100 text-primary-50 container grid gap-4 rounded-lg !p-6
 
             dark:bg-primary-900 dark:text-primary-950
-
-            container grid gap-4 rounded-lg !p-6
 
             md:p-10
           "
@@ -274,11 +272,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="firstName"
               >{{ t('form.first_name') }}</label>
@@ -304,11 +300,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="lastName"
               >{{ t('form.last_name') }}</label>
@@ -334,11 +328,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="email"
               >{{ t('form.email') }}</label>
@@ -364,11 +356,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="phone"
               >{{ t('form.phone') }}</label>
@@ -394,11 +384,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="mobilePhone"
               >{{ t('form.mobile_phone') }}</label>
@@ -424,11 +412,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="city"
               >{{ t('form.city') }}</label>
@@ -454,11 +440,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="place"
               >{{ t('form.place') }}</label>
@@ -484,11 +468,9 @@ definePageMeta({
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="zipcode"
               >{{ t('form.zipcode') }}</label>
@@ -514,11 +496,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="street"
               >{{ t('form.street') }}</label>
@@ -544,11 +524,9 @@ definePageMeta({
             <div class="grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="streetNumber"
               >{{ t('form.street_number') }}</label>
@@ -574,11 +552,9 @@ definePageMeta({
             <div class="col-span-2 grid">
               <label
                 class="
-                  text-primary-950
+                  text-primary-950 sr-only mb-2
 
                   dark:text-primary-50
-
-                  sr-only mb-2
                 "
                 for="customerNotes"
               >{{ t('form.customer_notes') }}</label>
@@ -608,11 +584,9 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950
+                    text-primary-950 mb-2
 
                     dark:text-primary-50
-
-                    mb-2
                   "
                   for="floor"
                 >{{ t('form.floor') }}</label>
@@ -637,11 +611,9 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950
+                    text-primary-950 mb-2
 
                     dark:text-primary-50
-
-                    mb-2
                   "
                   for="locationType"
                 >{{ t('form.location_type') }}</label>
@@ -669,11 +641,9 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950
+                    text-primary-950 mb-2
 
                     dark:text-primary-50
-
-                    mb-2
                   "
                   for="country"
                 >{{ t('form.country') }}</label>
@@ -701,11 +671,9 @@ definePageMeta({
               <div class="grid">
                 <label
                   class="
-                    text-primary-950
+                    text-primary-950 mb-2
 
                     dark:text-primary-50
-
-                    mb-2
                   "
                   for="region"
                 >{{ t('form.region') }}</label>
@@ -735,11 +703,9 @@ definePageMeta({
         <CheckoutSidebar
           :shipping-price="shippingPrice"
           class="
-            bg-primary-100 text-primary-50
+            bg-primary-100 text-primary-50 container rounded-lg !p-6
 
             dark:bg-primary-900 dark:text-primary-950
-
-            container rounded-lg !p-6
 
             md:p-8
           "
@@ -765,9 +731,9 @@ definePageMeta({
                 class="
                   text-primary-50 rounded bg-secondary px-4 py-2 font-bold
 
-                  disabled:cursor-not-allowed disabled:opacity-50
-
                   dark:bg-secondary-dark
+
+                  disabled:cursor-not-allowed disabled:opacity-50
                 "
                 type="submit"
               >

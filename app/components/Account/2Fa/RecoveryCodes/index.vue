@@ -116,11 +116,9 @@ onReactivated(async () => {
           </p>
           <p
             class="
-              text-primary-950
+              text-primary-950 flex gap-1
 
               dark:text-primary-50
-
-              flex gap-1
             "
           >
             <strong>{{ $t('last_used_at') }}:</strong>

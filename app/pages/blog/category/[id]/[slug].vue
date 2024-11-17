@@ -148,11 +148,9 @@ definePageMeta({
         >
           <span
             class="
-              text-primary-950
+              text-primary-950 text-2xl font-bold capitalize
 
               dark:text-primary-50
-
-              text-2xl font-bold capitalize
 
               md:text-3xl
             "
@@ -162,13 +160,11 @@ definePageMeta({
           <span
             v-if="totalPosts"
             class="
-              text-primary-950
+              text-primary-950 text-sm
 
               dark:text-primary-50
 
               md:text-md
-
-              text-sm
             "
           >
             ({{ totalPosts }})
@@ -198,11 +194,11 @@ definePageMeta({
             class="
               grid grid-cols-1 items-center justify-center gap-4
 
-              sm:grid-cols-2
+              lg:grid-cols-3
 
               md:grid-cols-3
 
-              lg:grid-cols-3
+              sm:grid-cols-2
 
               xl:grid-cols-3
             "

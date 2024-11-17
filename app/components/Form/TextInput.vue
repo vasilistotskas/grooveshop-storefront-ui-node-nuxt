@@ -102,6 +102,7 @@ const modelValue = defineModel<string | number | undefined>('modelValue', {
     :disabled="disabled"
     :loading="loading"
     :padded="padded"
+    :size="size"
     :ui="ui"
   />
 </template>

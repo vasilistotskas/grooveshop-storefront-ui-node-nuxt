@@ -93,11 +93,9 @@ definePageMeta({
     <PageBody>
       <div
         class="
-          container-2xs bg-primary-100
+          container-2xs bg-primary-100 rounded !p-4 shadow-md
 
           dark:bg-primary-900
-
-          rounded !p-4 shadow-md
 
           md:px-6
         "
@@ -130,11 +128,9 @@ definePageMeta({
             </h2>
             <p
               class="
-                text-primary-950
+                text-primary-950 text-center
 
                 dark:text-primary-50
-
-                text-center
               "
               v-html="
                 t('main.text', {
@@ -300,11 +296,9 @@ definePageMeta({
             <p
               v-if="paidAmount"
               class="
-                text-primary-950
+                text-primary-950 font-bold
 
                 dark:text-primary-50
-
-                font-bold
               "
             >
               {{ t('total') }}:

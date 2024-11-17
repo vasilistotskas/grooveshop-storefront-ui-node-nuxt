@@ -10,11 +10,9 @@ const { locale } = useI18n()
     <div class="sr-only items-center justify-center">
       <h3
         class="
-          text-primary-950 text-md
+          text-primary-950 text-md font-bold
 
           dark:text-primary-50
-
-          font-bold
         "
       >
         {{ $t('items') }}
@@ -42,11 +40,9 @@ const { locale } = useI18n()
               >
                 <span
                   class="
-                    text-primary-950
+                    text-primary-950 text-sm font-bold
 
                     dark:text-primary-50
-
-                    text-sm font-bold
                   "
                 >
                   {{ extractTranslated(item.product, 'name', locale) }}
@@ -58,11 +54,9 @@ const { locale } = useI18n()
                 v-if="item.finalPrice"
                 tag="span"
                 class="
-                  text-primary-950
+                  text-primary-950 text-sm
 
                   dark:text-primary-50
-
-                  text-sm
                 "
                 format="currency"
                 :value="item.finalPrice"
@@ -71,11 +65,9 @@ const { locale } = useI18n()
             <div class="flex items-center">
               <span
                 class="
-                  text-primary-950
+                  text-primary-950 text-sm
 
                   dark:text-primary-50
-
-                  text-sm
                 "
               >
                 {{ item.quantity }}x
@@ -85,21 +77,17 @@ const { locale } = useI18n()
               <span
                 v-if="item.finalPrice"
                 class="
-                  text-primary-950
+                  text-primary-950 text-sm
 
                   dark:text-primary-50
-
-                  text-sm
                 "
               >
                 <I18nN
                   tag="span"
                   class="
-                    text-primary-950
+                    text-primary-950 text-sm
 
                     dark:text-primary-50
-
-                    text-sm
                   "
                   format="currency"
                   :value="item.finalPrice * item.quantity"

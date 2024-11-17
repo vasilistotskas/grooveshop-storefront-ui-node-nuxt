@@ -37,11 +37,10 @@ definePageMeta({
             v-for="(item, i) in menus"
             :key="i"
             class="
-              bg-primary-100 border-primary-500
+              bg-primary-100 border-primary-500 grid gap-2 rounded-[16px] border
+              p-4
 
               dark:bg-primary-900 dark:border-primary-500
-
-              grid gap-2 rounded-[16px] border p-4
             "
           >
             <LazyAnchor
@@ -60,11 +59,9 @@ definePageMeta({
               />
               <span
                 class="
-                  text-primary-950
+                  text-primary-950 text-xl font-semibold capitalize
 
                   dark:text-primary-50
-
-                  text-xl font-semibold capitalize
 
                   md:text-lg
                 "
@@ -79,11 +76,10 @@ definePageMeta({
           </li>
           <li
             class="
-              bg-primary-100 border-primary-500
+              bg-primary-100 border-primary-500 col-span-2 grid gap-2
+              rounded-[16px] border p-4
 
               dark:bg-primary-900 dark:border-primary-500
-
-              col-span-2 grid gap-2 rounded-[16px] border p-4
             "
           >
             <LogoutButton

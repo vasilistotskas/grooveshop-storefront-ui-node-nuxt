@@ -59,11 +59,9 @@ const isCategorySelected = computed(() => {
       <div class="flex items-center">
         <span
           class="
-            text-primary-950
+            text-primary-950 w-full capitalize
 
             dark:text-primary-50
-
-            w-full capitalize
           "
         >
           {{ categoryName }}

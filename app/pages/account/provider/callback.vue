@@ -135,11 +135,9 @@ definePageMeta({
     <div v-if="error" class="grid items-center justify-center gap-4">
       <p
         class="
-          text-primary-950
+          text-primary-950 text-center
 
           dark:text-primary-50
-
-          text-center
         "
       >
         {{ t('description') }}

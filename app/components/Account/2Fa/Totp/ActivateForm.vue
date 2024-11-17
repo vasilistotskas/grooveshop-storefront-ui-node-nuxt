@@ -116,11 +116,9 @@ const formSchema: DynamicFormSchema = {
           {{ $t('authenticator_secret') }}:
           <span
             class="
-              bg-primary-200
+              bg-primary-200 rounded-md
 
               dark:bg-primary-800
-
-              rounded-md
             " v-html="totpSvg"
           />
           <UInput

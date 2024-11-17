@@ -26,11 +26,9 @@ defineOgImage(ogImageOptions)
 <template>
   <div
     class="
-      bg-primary-100
+      bg-primary-100 grid
 
       dark:bg-primary-900
-
-      grid
     "
   >
     <PageHeader>
@@ -38,11 +36,11 @@ defineOgImage(ogImageOptions)
     </PageHeader>
     <div
       class="
-        grid min-h-screen pt-[48px]
-
-        md:pt-[56px]
+        grid min-h-screen pt-[55px]
 
         lg:pt-[63px]
+
+        md:pt-[63px]
       "
     >
       <div
@@ -54,12 +52,10 @@ defineOgImage(ogImageOptions)
       >
         <h2
           class="
-            text-primary-950
+            text-primary-950 mb-2 grid items-center justify-center
+            justify-items-center gap-4 text-xl
 
             dark:text-primary-50
-
-            mb-2 grid items-center justify-center justify-items-center gap-4
-            text-xl
           "
         >
           <strong class="text-5xl">{{ t('hmmm') }}</strong>
@@ -69,11 +65,9 @@ defineOgImage(ogImageOptions)
         </h2>
         <p
           class="
-            text-primary-950
+            text-primary-950 text-center
 
             dark:text-primary-50
-
-            text-center
           "
         >
           {{ t('go.home') }}

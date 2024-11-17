@@ -61,11 +61,9 @@ defineSlots<{
             <div class="grid">
               <span
                 class="
-                  text-primary-950
+                  text-primary-950 font-bold
 
                   dark:text-primary-50
-
-                  font-bold
                 "
               >
                 {{ cart.totalItemsUnique }}
@@ -88,11 +86,9 @@ defineSlots<{
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950
+                  text-primary-950 font-bold
 
                   dark:text-primary-50
-
-                  font-bold
                 "
                 format="currency"
                 :value="shippingPrice"
@@ -118,11 +114,9 @@ defineSlots<{
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950
+                  text-primary-950 font-bold
 
                   dark:text-primary-50
-
-                  font-bold
                 "
                 format="currency"
                 :value="payWayCost"
@@ -145,11 +139,9 @@ defineSlots<{
               <I18nN
                 tag="span"
                 class="
-                  text-primary-950
+                  text-primary-950 font-bold
 
                   dark:text-primary-50
-
-                  font-bold
                 "
                 format="currency"
                 :value="checkoutTotal"

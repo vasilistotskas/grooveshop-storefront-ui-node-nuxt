@@ -44,11 +44,10 @@ watch(
   >
     <div
       class="
-        bg-primary-100
+        bg-primary-100 grid items-center justify-center justify-items-center
+        rounded-lg
 
         dark:bg-primary-900
-
-        grid items-center justify-center justify-items-center rounded-lg
       "
     >
       <ProductImage
@@ -72,11 +71,10 @@ watch(
           }"
           type="button"
           class="
-            bg-primary-100
+            bg-primary-100 flex w-full items-center justify-center rounded-lg
+            p-2
 
             dark:bg-primary-900
-
-            flex w-full items-center justify-center rounded-lg p-2
 
             focus:outline-none
 

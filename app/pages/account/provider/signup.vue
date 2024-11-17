@@ -27,11 +27,9 @@ definePageMeta({
     >
       <span
         class="
-          text-primary-950
+          text-primary-950 text-sm
 
           dark:text-primary-50
-
-          text-sm
         "
       >{{
         t('description')

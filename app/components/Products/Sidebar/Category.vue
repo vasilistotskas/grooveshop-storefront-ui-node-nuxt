@@ -79,21 +79,17 @@ const isCategorySelected = computed(() => {
     >
       <div
         class="
-          bg-primary-100
+          bg-primary-100 flex size-[48px] items-center rounded-full
 
           dark:bg-primary-900
-
-          flex size-[48px] items-center rounded-full
         "
       >
         <NuxtImg
           provider="mediaStream"
           class="
-            bg-primary-100
+            bg-primary-100 rounded-full object-cover
 
             dark:bg-primary-900
-
-            rounded-full object-cover
           "
           :style="{ contentVisibility: 'auto' }"
           :src="category.categoryMenuImageOneFilename"
@@ -109,11 +105,9 @@ const isCategorySelected = computed(() => {
       <div class="flex items-center">
         <span
           class="
-            text-primary-950
+            text-primary-950 w-full capitalize
 
             dark:text-primary-50
-
-            w-full capitalize
           "
         >
           {{ categoryName }}

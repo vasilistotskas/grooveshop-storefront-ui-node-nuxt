@@ -9,6 +9,12 @@
       },
       "blog": {
         "label": "Blog"
+      },
+      "account-login": {
+        "label": "Σύνδεση"
+      },
+      "account-signup": {
+        "label": "Εγγραφή"
       }
     }
   }

@@ -29,11 +29,9 @@ definePageMeta({
       <div class="grid items-center justify-center">
         <p
           class="
-            text-primary-950
+            text-primary-950 text-center
 
             dark:text-primary-50
-
-            text-center
           "
         >
           {{ t('authenticator.app') }}
@@ -45,11 +43,9 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950
+              text-primary-950 text-center
 
               dark:text-primary-50
-
-              text-center
             "
           >
             {{ t('active') }}
@@ -68,11 +64,9 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950
+              text-primary-950 text-center
 
               dark:text-primary-50
-
-              text-center
             "
           >
             {{ t('inactive') }}
@@ -92,11 +86,9 @@ definePageMeta({
       >
         <p
           class="
-            text-primary-950
+            text-primary-950 text-center
 
             dark:text-primary-50
-
-            text-center
           "
         >
           {{ t('recovery-codes.title') }}
@@ -108,11 +100,9 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950
+              text-primary-950 text-center
 
               dark:text-primary-50
-
-              text-center
             "
           >
             {{ t('recovery-codes.unset') }}
@@ -131,11 +121,9 @@ definePageMeta({
         >
           <p
             class="
-              text-primary-950
+              text-primary-950 text-center
 
               dark:text-primary-50
-
-              text-center
             "
           >
             {{ t('recovery-codes.info', {

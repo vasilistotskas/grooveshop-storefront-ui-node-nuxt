@@ -217,11 +217,11 @@ definePageMeta({
         class="
           mx-auto max-w-7xl pb-6
 
-          sm:px-6
+          lg:px-8
 
           md:px-4
 
-          lg:px-8
+          sm:px-6
         "
       >
         <UBreadcrumb
@@ -234,11 +234,10 @@ definePageMeta({
         />
         <article
           class="
-            border-primary-500
+            border-primary-500 mx-auto flex max-w-2xl flex-col items-start
+            justify-center pb-6
 
             dark:border-primary-500
-
-            mx-auto flex max-w-2xl flex-col items-start justify-center pb-6
           "
         >
           <div
@@ -248,11 +247,9 @@ definePageMeta({
           >
             <h1
               class="
-                text-primary-950
+                text-primary-950 text-3xl font-bold tracking-tight
 
                 dark:text-primary-50
-
-                text-3xl font-bold tracking-tight
 
                 md:text-4xl
               "
@@ -380,11 +377,9 @@ definePageMeta({
             </div>
             <div
               class="
-                text-primary-950
+                text-primary-950 mx-auto max-w-2xl
 
                 dark:text-primary-50
-
-                mx-auto max-w-2xl
               "
             >
               <div
@@ -417,9 +412,9 @@ definePageMeta({
             class="
               flex flex-none basis-full snap-center px-4
 
-              md:basis-1/2
-
               lg:basis-1/2
+
+              md:basis-1/2
 
               xl:basis-1/3
             "

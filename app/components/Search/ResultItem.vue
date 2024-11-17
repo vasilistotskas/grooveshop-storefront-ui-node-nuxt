@@ -45,13 +45,11 @@ const imgAlt = computed(() => {
 <template>
   <li
     class="
-      border-primary-300 bg-primary-100
+      border-primary-300 bg-primary-100 rounded-sm border
 
       dark:bg-primary-900 dark:hover:bg-primary-800 dark:border-primary-500
 
       hover:bg-primary-200
-
-      rounded-sm border
     "
   >
     <Anchor
@@ -89,22 +87,18 @@ const imgAlt = computed(() => {
             <div v-for="([key, value], index) in sortedFields" :key="index">
               <span
                 class="
-                  text-primary-950
+                  text-primary-950 text-sm font-semibold
 
                   dark:text-primary-50
-
-                  text-sm font-semibold
                 "
               >
                 {{ $t(`fields.${key}`) }}:
               </span>
               <span
                 class="
-                  text-primary-950
+                  text-primary-950 line-clamp-1 text-sm
 
                   dark:text-primary-50
-
-                  line-clamp-1 text-sm
                 "
               >
                 {{ value }}

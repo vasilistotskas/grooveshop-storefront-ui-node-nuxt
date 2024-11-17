@@ -18,11 +18,9 @@ definePageMeta({
     <PageTitle :text="t('title')" class="text-center" />
     <p
       class="
-        text-primary-950
+        text-primary-950 flex items-center text-center
 
         dark:text-primary-50
-
-        flex items-center text-center
       "
     >
       {{ t('description') }}

@@ -114,11 +114,9 @@ const formSchema = computed((): DynamicFormSchema => {
     <section class="grid w-full items-center gap-4">
       <p
         class="
-          text-primary-950
+          text-primary-950 text-center
 
           dark:text-primary-50
-
-          text-center
         "
       >
         {{ hasCurrentPassword ? t('change.description') : t('set.description')

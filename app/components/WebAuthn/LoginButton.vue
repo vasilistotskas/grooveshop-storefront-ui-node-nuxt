@@ -69,17 +69,21 @@ const submitButtonLabel = computed(() => {
 
 <template>
   <UButton
+    icon="i-heroicons-solid:lock-closed"
+    class="
+      text-white bg-secondary font-semibold
+
+      dark:bg-secondary-dark
+    "
     :aria-busy="loading"
     :disabled="submitButtonDisabled"
     :label="
       submitButtonLabel"
     :loading="loading"
     block
-    color="primary"
-    size="md"
+    size="lg"
     type="submit"
-    variant="soft"
-    icon="i-heroicons-solid:lock-closed"
+    variant="solid"
     @click="onSubmit"
   />
 </template>

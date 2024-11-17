@@ -13,12 +13,10 @@ defineSlots<{
 <template>
   <div
     class="
-      card bg-primary-100 border-primary-500
+      card bg-primary-100 border-primary-500 relative w-full overflow-hidden
+      rounded border transition-colors duration-300
 
       dark:bg-primary-900 dark:border-primary-500
-
-      relative w-full overflow-hidden rounded border transition-colors
-      duration-300
     "
   >
     <div

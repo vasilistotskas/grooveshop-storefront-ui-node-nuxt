@@ -25,11 +25,10 @@ const localePath = useLocalePath()
   <li
     v-if="order"
     class="
-      order-card text-primary-950 bg-primary-100 border-primary-500
+      order-card text-primary-950 bg-primary-100 border-primary-500 flex
+      flex-col items-center justify-between gap-4 rounded border p-4
 
       dark:text-primary-50 dark:bg-primary-900 dark:border-primary-500
-
-      flex flex-col items-center justify-between gap-4 rounded border p-4
 
       md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-10
     "
@@ -48,11 +47,9 @@ const localePath = useLocalePath()
       >
         <span
           class="
-            text-primary-950
+            text-primary-950 text-xs
 
             dark:text-primary-50
-
-            text-xs
           "
         >
           {{ t('extra', {
@@ -82,11 +79,9 @@ const localePath = useLocalePath()
       <div class="order-card-body-id grid">
         <span
           class="
-            text-primary-950
+            text-primary-950 text-xs
 
             dark:text-primary-50
-
-            text-xs
           "
         >{{
           t('id')
@@ -97,11 +92,9 @@ const localePath = useLocalePath()
       <div class="order-card-body-address grid">
         <span
           class="
-            text-primary-950
+            text-primary-950 text-xs
 
             dark:text-primary-50
-
-            text-xs
           "
         >{{
           t('address')
@@ -112,11 +105,9 @@ const localePath = useLocalePath()
       <div class="order-card-body-pay_way grid">
         <span
           class="
-            text-primary-950
+            text-primary-950 text-xs
 
             dark:text-primary-50
-
-            text-xs
           "
         >{{
           t('pay_way')
@@ -127,11 +118,9 @@ const localePath = useLocalePath()
       <div class="order-card-body-total_price grid">
         <span
           class="
-            text-primary-950
+            text-primary-950 text-xs
 
             dark:text-primary-50
-
-            text-xs
           "
         >{{
           t('total_price')
@@ -147,11 +136,9 @@ const localePath = useLocalePath()
       <div class="order-card-body-created_at grid">
         <span
           class="
-            text-primary-950
+            text-primary-950 text-xs
 
             dark:text-primary-50
-
-            text-xs
           "
         >{{
           t('ordering.created_at')

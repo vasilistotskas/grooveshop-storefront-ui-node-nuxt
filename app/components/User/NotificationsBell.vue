@@ -118,18 +118,14 @@ watch(
         v-if="isDropdownVisible"
         ref="dropdown"
         class="
-          bg-primary-50
+          bg-primary-50 absolute right-0 top-12 w-80 rounded-lg border
+          border-gray-200 shadow-md
 
-          dark:bg-primary-900
-
-          absolute right-0 top-12 w-80 rounded-lg border border-gray-200
-          shadow-md
-
-          dark:border-gray-800
-
-          md:top-14
+          dark:bg-primary-900 dark:border-gray-800
 
           lg:-right-12
+
+          md:top-14
         "
       >
         <div class="notifications-list relative grid gap-2 p-2">
@@ -139,11 +135,11 @@ watch(
               :id="userNotification.id"
               :key="userNotification.uuid"
               class="
+                cursor-pointer
+
                 dark:hover:bg-primary-800
 
                 hover:bg-primary-100
-
-                cursor-pointer
               "
               :close-button="{
                 icon: '',

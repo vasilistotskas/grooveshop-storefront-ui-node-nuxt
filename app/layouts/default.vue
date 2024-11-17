@@ -86,11 +86,11 @@ const Footer = computed(() => {
     </slot>
     <main
       class="
-        pt-[48px]
-
-        md:pt-[56px]
+        pt-[55px]
 
         lg:pt-[63px]
+
+        md:pt-[63px]
       "
       :class="{
         'opacity-70': searchBarFocused,
@@ -133,11 +133,10 @@ const Footer = computed(() => {
           },
         }"
         class="
-          border-primary-200 bg-primary-50
+          border-primary-200 bg-primary-50 fixed inset-x-0 bottom-0 z-50 w-full
+          border-t
 
           dark:border-primary-700 dark:bg-primary-900
-
-          fixed inset-x-0 bottom-0 z-50 w-full border-t
         "
       />
     </MobileOrTabletOnly>

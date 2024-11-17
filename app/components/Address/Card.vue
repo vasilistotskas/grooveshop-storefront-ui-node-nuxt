@@ -55,15 +55,14 @@ const submit = async () => {
   <li
     v-if="address"
     class="
-      bg-primary-100 text-primary-950
+      bg-primary-100 text-primary-950 relative grid w-full items-start gap-8
+      rounded-lg p-2
 
       dark:text-primary-50 dark:bg-primary-900
 
-      relative grid w-full items-start gap-8 rounded-lg p-2
+      md:p-5
 
       sm:px-4 sm:py-10
-
-      md:p-5
     "
   >
     <div
@@ -80,11 +79,9 @@ const submit = async () => {
       <div class="grid items-center gap-2">
         <h3
           class="
-            text-primary-950
+            text-primary-950 text-center text-xl font-bold
 
             dark:text-primary-50
-
-            text-center text-xl font-bold
           "
         >
           {{ contentShorten(address.title, 0, 25) }}
@@ -126,11 +123,9 @@ const submit = async () => {
         <span
           v-if="address.firstName || address.lastName"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ address.firstName }} {{ address.lastName }}
@@ -138,11 +133,9 @@ const submit = async () => {
         <span
           v-if="address.street || address.streetNumber"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ address.street }} {{ address.streetNumber }}
@@ -150,11 +143,9 @@ const submit = async () => {
         <span
           v-if="address.city || address.zipcode"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ address.city }} {{ address.zipcode }}
@@ -162,11 +153,9 @@ const submit = async () => {
         <span
           v-if="address.country || address.region"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ address.country }} {{ address.region }}
@@ -174,11 +163,9 @@ const submit = async () => {
         <span
           v-if="address.floor"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ $t('floor') }}: {{ address.floor }}
@@ -186,11 +173,9 @@ const submit = async () => {
         <span
           v-if="address.locationType"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ $t('location_type') }}: {{ address.locationType }}
@@ -198,11 +183,9 @@ const submit = async () => {
         <span
           v-if="address.phone"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ $t('phone') }}: {{ address.phone }}
@@ -210,11 +193,9 @@ const submit = async () => {
         <span
           v-if="address.mobilePhone"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ $t('mobile_phone') }}: {{ address.mobilePhone }}
@@ -222,11 +203,9 @@ const submit = async () => {
         <span
           v-if="address.notes"
           class="
-            text-primary-950
+            text-primary-950 text-sm font-bold
 
             dark:text-primary-50
-
-            text-sm font-bold
           "
         >
           {{ $t('notes') }}: {{ address.notes }}

@@ -78,11 +78,9 @@ definePageMeta({
         </p>
         <p
           class="
-            text-primary-950
+            text-primary-950 text-xl font-semibold
 
             dark:text-primary-50
-
-            text-xl font-semibold
           "
         >
           Ειδικότερη κατηγοριοποίηση των Cookies ως προς τη λειτουργία τους:
@@ -116,11 +114,9 @@ definePageMeta({
         </ul>
         <p
           class="
-            text-primary-950
+            text-primary-950 text-xl font-semibold
 
             dark:text-primary-50
-
-            text-xl font-semibold
           "
         >
           Πώς να ελέγξεις τα cookies

@@ -25,11 +25,9 @@ const { item } = toRefs(props)
     >
       <div
         class="
-          duration-400
+          duration-400 z-10 block p-1 transition
 
           bg-zinc4:10
-
-          z-10 block p-1 transition
 
           hover:scale-105
         "

@@ -11,11 +11,9 @@ const packageVersion = pkg.version
 <template>
   <footer
     class="
-      bg-primary-50 border-primary-500
+      bg-primary-50 border-primary-500 mt-6 w-full border-t-2 pt-2
 
       dark:bg-primary-900
-
-      mt-6 w-full border-t-2 pt-2
     "
   >
     <div class="container mx-auto w-full">
@@ -29,11 +27,9 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950
+              text-primary-950 text-xs font-semibold uppercase
 
               dark:text-primary-50
-
-              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -42,11 +38,9 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              text-primary-950
+              text-primary-950 grid gap-2 font-medium
 
               dark:text-primary-400
-
-              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -82,11 +76,9 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950
+              text-primary-950 text-xs font-semibold uppercase
 
               dark:text-primary-50
-
-              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -95,11 +87,9 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              text-primary-950
+              text-primary-950 grid gap-2 font-medium
 
               dark:text-primary-400
-
-              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -135,11 +125,9 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950
+              text-primary-950 text-xs font-semibold uppercase
 
               dark:text-primary-50
-
-              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -148,11 +136,9 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              text-primary-950
+              text-primary-950 grid gap-2 font-medium
 
               dark:text-primary-400
-
-              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -202,11 +188,9 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950
+              text-primary-950 text-xs font-semibold uppercase
 
               dark:text-primary-50
-
-              text-xs font-semibold uppercase
 
               md:text-sm
             "
@@ -215,11 +199,9 @@ const packageVersion = pkg.version
           </span>
           <ul
             class="
-              text-primary-950
+              text-primary-950 grid gap-2 font-medium
 
               dark:text-primary-400
-
-              grid gap-2 font-medium
             "
           >
             <li class="grid">
@@ -242,11 +224,9 @@ const packageVersion = pkg.version
     </div>
     <div
       class="
-        bg-primary-100
+        bg-primary-100 w-full pt-4
 
         dark:bg-primary-900
-
-        w-full pt-4
 
         md:pt-0
       "
@@ -261,15 +241,13 @@ const packageVersion = pkg.version
         >
           <span
             class="
-              text-primary-950
+              text-primary-950 row-start-2 text-sm
 
               dark:text-primary-300
 
-              row-start-2 text-sm
+              md:row-start-1
 
               sm:text-center
-
-              md:row-start-1
             "
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
@@ -303,11 +281,9 @@ const packageVersion = pkg.version
             </div>
             <span
               class="
-                text-primary-950
+                text-primary-950 text-xs
 
                 dark:text-primary-300
-
-                text-xs
 
                 sm:text-center
               "

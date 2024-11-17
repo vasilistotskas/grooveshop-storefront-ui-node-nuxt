@@ -66,11 +66,9 @@ const formSchema: DynamicFormSchema = {
         <div class="grid items-center justify-center gap-2">
           <h3
             class="
-              text-primary-950
+              text-primary-950 text-2xl font-bold
 
               dark:text-primary-50
-
-              text-2xl font-bold
             "
           >
             {{ t('enter_authenticator_code') }}

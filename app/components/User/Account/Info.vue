@@ -169,11 +169,9 @@ const changeUserName = async () => {
 
             <span
               class="
-                text-primary-950
+                text-primary-950 text-2xl font-bold
 
                 dark:text-primary-50
-
-                text-2xl font-bold
               "
             >{{ ordersCount }}</span>
           </Anchor>
@@ -202,11 +200,9 @@ const changeUserName = async () => {
             }}</span>
             <span
               class="
-                text-primary-950
+                text-primary-950 text-2xl font-bold
 
                 dark:text-primary-50
-
-                text-2xl font-bold
               "
             >{{ productFavouritesCount }}</span>
           </Anchor>
@@ -235,11 +231,9 @@ const changeUserName = async () => {
             }}</span>
             <span
               class="
-                text-primary-950
+                text-primary-950 text-2xl font-bold
 
                 dark:text-primary-50
-
-                text-2xl font-bold
               "
             >{{ productReviewsCount }}</span>
           </Anchor>

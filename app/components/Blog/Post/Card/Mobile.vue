@@ -61,11 +61,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      bg-primary-100
+      bg-primary-100 container grid min-h-60 w-full gap-4 rounded-lg !p-0
 
       dark:bg-primary-900 dark:text-primary-950
-
-      container grid min-h-60 w-full gap-4 rounded-lg !p-0
     "
   >
     <div class="relative grid">
@@ -96,17 +94,16 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           <span class="grid justify-center justify-items-start">
             <h2
               class="
-                text-primary-50
+                text-primary-50 m-auto block w-[70%] text-3xl font-bold
+                tracking-tight
 
                 dark:text-primary-50
 
-                m-auto block w-[70%] text-3xl font-bold tracking-tight
-
-                sm:w-3/5
+                lg:w-[76%]
 
                 md:w-[66%] md:text-4xl
 
-                lg:w-[76%]
+                sm:w-3/5
               "
             >
               {{ extractTranslated(post, 'title', locale) }}
@@ -117,15 +114,12 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike
           class="
-            text-primary-50
+            text-primary-50 flex-col justify-self-start p-0 font-extrabold
+            capitalize
 
-            dark:text-primary-50
-
-            flex-col justify-self-start p-0 font-extrabold capitalize
+            dark:text-primary-50 dark:hover:bg-transparent
 
             hover:bg-transparent
-
-            dark:hover:bg-transparent
           "
           size="xl"
           variant="ghost"
@@ -140,15 +134,12 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           square
           variant="ghost"
           class="
-            text-primary-50
+            text-primary-50 flex-col justify-self-start p-0 font-extrabold
+            capitalize
 
-            dark:text-primary-50
-
-            flex-col justify-self-start p-0 font-extrabold capitalize
+            dark:text-primary-50 dark:hover:bg-transparent
 
             hover:bg-transparent
-
-            dark:hover:bg-transparent
           "
           :title="$t('comments.count', {
             count: post.commentsCount,
@@ -173,15 +164,12 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             variant="ghost"
             :title="$t('share')"
             class="
-              text-primary-50
+              text-primary-50 flex-col justify-self-start p-0 font-extrabold
+              capitalize
 
-              dark:text-primary-50
-
-              flex-col justify-self-start p-0 font-extrabold capitalize
+              dark:text-primary-50 dark:hover:bg-transparent
 
               hover:bg-transparent
-
-              dark:hover:bg-transparent
             "
             :ui="{
               icon: {

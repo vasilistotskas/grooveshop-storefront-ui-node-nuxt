@@ -15,11 +15,9 @@ const { t } = useI18n({ useScope: 'local' })
   >
     <p
       class="
-        text-primary-950
+        text-primary-950 p-4
 
         dark:text-primary-50
-
-        p-4
       "
     >
       {{ t('title') }}

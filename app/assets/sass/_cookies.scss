@@ -1,3 +1,7 @@
+.cookie-control {
+  @apply relative z-20
+}
+
 .cookie-control-ModalCookieName {
 	@apply font-bold;
 	@apply text-primary-600 dark:border-primary-700 dark:text-primary-100;

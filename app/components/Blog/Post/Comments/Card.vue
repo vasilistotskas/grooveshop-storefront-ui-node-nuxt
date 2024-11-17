@@ -299,11 +299,9 @@ watch(
           <span
             v-if="userAccount"
             class="
-              text-primary-950
+              text-primary-950 font-bold
 
               dark:text-primary-50
-
-              font-bold
             "
           >
             {{ userAccount?.username }}
@@ -311,21 +309,17 @@ watch(
           <span class="flex items-center">
             <span
               class="
-                text-12 text-primary-400
+                text-12 text-primary-400 mx-2 my-0 inline-block font-bold
 
                 dark:text-primary-400
-
-                mx-2 my-0 inline-block font-bold
               "
             >•</span>
             <NuxtTime
               :datetime="comment.createdAt"
               class="
-                text-primary-400
+                text-primary-400 w-full text-end text-xs
 
                 dark:text-primary-400
-
-                w-full text-end text-xs
               "
             />
           </span>
@@ -375,11 +369,10 @@ watch(
         <span
           v-show="repliesFetched"
           class="
-            bg-primary-100
+            bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start
+            py-[2px]
 
             dark:bg-primary-900
-
-            relative z-20 mt-[6px] flex justify-center self-start py-[2px]
           "
         >
           <UButton
@@ -459,7 +452,7 @@ watch(
             :aria-hidden="!showReplies"
             :class="{
               'threadline-hovered': isLineHovered,
-              'bg-primary-100 dark:bg-primary-900 z-20':
+              'bg-primary-100 z-20 dark:bg-primary-900':
                 !showReplies || (allReplies.length > 0 && allReplies[allReplies.length - 1]?.id === reply.id),
             }"
             class="threadline-one align-start relative flex justify-end"
@@ -467,22 +460,19 @@ watch(
 
             <span
               class="
-                border-primary-300
+                border-primary-300 box-border h-4 w-[calc(50%+0.5px)]
+                cursor-pointer rounded-bl-[12px] border-0 border-b border-l
+                border-solid
 
                 dark:border-primary-600
-
-                box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
-                rounded-bl-[12px] border-0 border-b border-l border-solid
               "
             />
             <span
               class="
-                border-primary-300
+                border-primary-300 absolute right-[-8px] box-border h-4 w-2
+                cursor-pointer border-0 border-b border-solid
 
                 dark:border-primary-600
-
-                absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
-                border-b border-solid
               "
             />
           </span>
@@ -498,28 +488,25 @@ watch(
           :aria-hidden="!showReplies"
           :class="{
             'threadline-hovered': isLineHovered,
-            'bg-primary-100 dark:bg-primary-900 z-20': !showReplies || pending,
+            'bg-primary-100 z-20 dark:bg-primary-900': !showReplies || pending,
           }"
           class="threadline-two align-start relative flex justify-end"
         >
           <span
             class="
-              border-primary-300
+              border-primary-300 box-border h-4 w-[calc(50%+0.5px)]
+              cursor-pointer rounded-bl-[12px] border-0 border-b border-l
+              border-solid
 
               dark:border-primary-600
-
-              box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
-              rounded-bl-[12px] border-0 border-b border-l border-solid
             "
           />
           <span
             class="
-              border-primary-300
+              border-primary-300 absolute right-[-8px] box-border h-4 w-2
+              cursor-pointer border-0 border-b border-solid
 
               dark:border-primary-600
-
-              absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
-              border-b border-solid
             "
           />
         </span>

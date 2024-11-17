@@ -96,22 +96,18 @@ await preloadComponents('SearchResultItem')
             <div class="flex items-center">
               <span
                 class="
-                  text-md text-primary-950
+                  text-md text-primary-950 me-4 shrink
 
                   dark:text-primary-50
-
-                  me-4 shrink
                 "
               >
                 {{ $t(`sections.${key}`) }}
               </span>
               <div
                 class="
-                  border-primary-300
+                  border-primary-300 grow border-t
 
                   dark:border-primary-500
-
-                  grow border-t
                 "
               />
             </div>

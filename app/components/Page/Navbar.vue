@@ -79,11 +79,9 @@ const items = computed(() => [
         <nav
           aria-label="Main Navigation"
           class="
-            text-primary-950
+            text-primary-950 flex items-center text-lg font-semibold leading-6
 
             dark:text-primary-50
-
-            flex items-center text-lg font-semibold leading-6
           "
         >
           <ul class="flex items-center gap-4">
@@ -95,9 +93,9 @@ const items = computed(() => [
                     :title="$t('shop')"
                     :to="'products'"
                     class="
-                      hover:dark:text-primary-50
-
                       text-lg capitalize
+
+                      hover:dark:text-primary-50
                     "
                   >
                     {{ $t('shop') }}
@@ -111,9 +109,9 @@ const items = computed(() => [
                     :title="$t('blog')"
                     :to="'blog'"
                     class="
-                      hover:dark:text-primary-50
-
                       text-lg capitalize
+
+                      hover:dark:text-primary-50
                     "
                   >
                     {{ $t('blog') }}
@@ -124,11 +122,9 @@ const items = computed(() => [
           </ul>
           <ul
             class="
-              text-primary-950
+              text-primary-950 flex items-center gap-3 pl-6
 
               dark:text-primary-50 dark:border-primary-500
-
-              flex items-center gap-3 pl-6
             "
           >
             <template v-if="enabled">
@@ -220,11 +216,9 @@ const items = computed(() => [
                     <p>{{ $t('signed_in_as') }}</p>
                     <p
                       class="
-                        text-primary-900
+                        text-primary-900 truncate font-medium
 
                         dark:text-primary-50
-
-                        truncate font-medium
                       "
                     >
                       {{ item.label }}
@@ -237,11 +231,9 @@ const items = computed(() => [
                   <UIcon
                     :name="item.icon"
                     class="
-                      text-primary-900
+                      text-primary-900 ms-auto size-4 shrink-0
 
                       dark:text-primary-100
-
-                      ms-auto size-4 shrink-0
                     "
                   />
                 </template>
@@ -257,9 +249,9 @@ const items = computed(() => [
                 :title="loggedIn ? $t('account') : $t('login')"
                 :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
                 class="
-                  hover:dark:text-primary-50
-
                   flex size-[30px] items-center self-center text-[1.5rem]
+
+                  hover:dark:text-primary-50
                 "
               >
                 <UIcon name="i-fa6-solid-circle-user" />

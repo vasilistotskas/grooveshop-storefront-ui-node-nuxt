@@ -61,11 +61,9 @@ const changeQuantityEvent = async (event: Event) => {
     </button>
     <select
       class="
-        text-primary-950 bg-primary-100 border-primary-500
+        text-primary-950 bg-primary-100 border-primary-500 w-full border
 
         dark:text-primary-50 dark:bg-primary-900
-
-        w-full border
       "
       :value="cartItemQuantity"
       :aria-label="'quantity'"
