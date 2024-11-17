@@ -1,3 +1,10 @@
+## [1.228.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.228.0...v1.228.1) (2024-11-17)
+
+
+### Bug Fixes
+
+* increase cookies z-index ([16f7ca1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/16f7ca168234fb39aee565d915b83027ff116d57))
+
 # [1.228.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.227.2...v1.228.0) (2024-11-17)
 
 
