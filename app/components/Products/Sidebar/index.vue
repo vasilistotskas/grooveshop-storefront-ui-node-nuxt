@@ -116,7 +116,7 @@ onMounted(() => {
         "
       >
         <template v-if="status !== 'pending' && filteredCategories?.length">
-          <LazyProductsSidebarCategory
+          <ProductsSidebarCategory
             v-for="category in filteredCategories"
             :key="category.id"
             :category="category"

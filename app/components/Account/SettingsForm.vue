@@ -432,7 +432,7 @@ const submitButtonDisabled = computed(() => {
               icon="i-heroicons-calendar-days-20-solid"
             />
             <template #panel="{ close }">
-              <LazyDatePicker
+              <DatePicker
                 v-model="birthDate"
                 @close="close"
               />

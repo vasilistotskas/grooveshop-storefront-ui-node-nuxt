@@ -98,16 +98,14 @@ watch(
       </div>
     </div>
     <div class="grid">
-      <div
-        v-if="status !== 'pending' && productReviews?.length" class="grid gap-4"
-      >
-        <LazyProductReviewsList
-          :display-image-of="displayImageOf"
-          :reviews="productReviews"
-          :reviews-average="reviewsAverage"
-          :reviews-count="reviewsCount"
-        />
-      </div>
+      <LazyProductReviewsList
+        v-if="status !== 'pending' && productReviews?.length"
+        class="grid gap-4"
+        :display-image-of="displayImageOf"
+        :reviews="productReviews"
+        :reviews-average="reviewsAverage"
+        :reviews-count="reviewsCount"
+      />
       <ClientOnlyFallback
         v-if="status === 'pending'"
         class="grid gap-4"

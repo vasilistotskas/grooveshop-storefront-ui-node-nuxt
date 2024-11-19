@@ -281,42 +281,36 @@ onMounted(() => {
         {{ t('title') }}
       </h2>
     </div>
-    <div
+    <LazyBlogPostCommentsList
       v-if="showResults"
-      class="grid w-full"
+      :comments="allComments"
+      :comments-count="commentsCount"
+      :display-image-of="displayImageOf"
+      @reply-add="onReplyAdd"
     >
-      <div class="grid gap-4">
-        <LazyBlogPostCommentsList
-          :comments="allComments"
-          :comments-count="commentsCount"
-          :display-image-of="displayImageOf"
-          @reply-add="onReplyAdd"
+      <LazyEmptyState
+        v-if="!userBlogPostComment"
+        :title="
+          loggedIn
+            ? t('empty.title')
+            : t('empty.title_guest')
+        "
+        class="w-full"
+      >
+        <template
+          v-if="loggedIn"
+          #actions
         >
-          <LazyEmptyState
-            v-if="!userBlogPostComment"
-            :title="
-              loggedIn
-                ? t('empty.title')
-                : t('empty.title_guest')
-            "
-            class="w-full"
-          >
-            <template
-              v-if="loggedIn"
-              #actions
-            >
-              <LazyDynamicForm
-                id="add-comment-form"
-                :button-label="t('submit')"
-                :schema="addCommentFormSchema"
-                class="container-3xs"
-                @submit="onAddCommentSubmit"
-              />
-            </template>
-          </LazyEmptyState>
-        </LazyBlogPostCommentsList>
-      </div>
-    </div>
+          <LazyDynamicForm
+            id="add-comment-form"
+            :button-label="t('submit')"
+            :schema="addCommentFormSchema"
+            class="container-3xs"
+            @submit="onAddCommentSubmit"
+          />
+        </template>
+      </LazyEmptyState>
+    </LazyBlogPostCommentsList>
     <LazyEmptyState
       v-else
       :description="
@@ -328,10 +322,10 @@ onMounted(() => {
       :title="t('empty.title')"
     >
       <template
-        v-if="loggedIn"
         #actions
       >
         <LazyDynamicForm
+          v-if="loggedIn"
           id="add-comment-form"
           :button-label="t('submit')"
           :schema="addCommentFormSchema"

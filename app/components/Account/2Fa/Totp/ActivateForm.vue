@@ -125,7 +125,11 @@ const formSchema: DynamicFormSchema = {
             v-model="totpSecret"
             :ui="{
               base: 'cursor-pointer text-center !px-0',
-            }" class="w-full" readonly type="text" @click="onSecretClick"
+            }"
+            class="w-full"
+            readonly
+            type="text"
+            @click="onSecretClick"
           />
           <span class="text-center">{{ $t('authenticator_secret_description') }}</span>
         </label>

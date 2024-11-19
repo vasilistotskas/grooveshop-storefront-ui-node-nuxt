@@ -103,7 +103,7 @@ definePageMeta({
           :ordering-options="orderingOptions.orderingOptionsArray.value"
         />
       </div>
-      <OrderList
+      <LazyOrderList
         v-if="!pending && orders?.results?.length"
         :orders="orders?.results"
         :orders-total="orders?.count"

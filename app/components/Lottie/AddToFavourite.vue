@@ -133,7 +133,7 @@ const onAnimationLoaded = () => {
 </script>
 
 <template>
-  <LazyLottie
+  <Lottie
     ref="lottie"
     :text="buttonLabel"
     :component-element="'button'"

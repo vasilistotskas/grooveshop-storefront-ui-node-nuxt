@@ -55,7 +55,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="comments-list grid gap-4">
+  <div class="comments-list grid w-full gap-4">
     <BlogPostCommentsSummary
       :comments-count="commentsCount"
       class="comments-list-summary"

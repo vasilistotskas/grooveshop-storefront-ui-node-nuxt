@@ -127,15 +127,14 @@ const items = computed(() => [
               dark:text-primary-50 dark:border-primary-500
             "
           >
-            <template v-if="enabled">
-              <li
-                class="
-                  relative grid items-center justify-center justify-items-center
-                "
-              >
-                <LazyLanguageSwitcher />
-              </li>
-            </template>
+            <li
+              v-show="enabled"
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
+            >
+              <LazyLanguageSwitcher v-if="enabled" />
+            </li>
             <li
               class="
                 relative grid items-center justify-center justify-items-center
@@ -160,51 +159,52 @@ const items = computed(() => [
               <ThemeSwitcher />
             </li>
             <li
-              v-if="loggedIn"
+              v-show="loggedIn"
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyUserNotificationsBell />
+              <LazyUserNotificationsBell v-if="loggedIn" />
             </li>
-            <template v-if="enabled">
-              <li
-                class="
-                  relative grid items-center justify-center justify-items-center
-                "
-              >
-                <LazyUChip
-                  :key="'cart'"
-                  size="xl"
-                  color="green"
-                  :show="!pending.cart"
-                  :text="getCartTotalItems"
-                >
-                  <UButton
-                    class="p-0"
-                    icon="i-heroicons-shopping-cart"
-                    size="xl"
-                    :color="'primary'"
-                    :aria-label="t('cart')"
-                    :title="t('cart')"
-                    :to="localePath('cart')"
-                  />
-                </LazyUChip>
-              </li>
-            </template>
             <li
-              v-if="loggedIn && user"
-
+              v-show="enabled"
+              class="
+                relative grid items-center justify-center justify-items-center
+              "
+            >
+              <LazyUChip
+                v-if="enabled"
+                :key="'cart'"
+                size="xl"
+                color="green"
+                :show="!pending.cart"
+                :text="getCartTotalItems"
+              >
+                <UButton
+                  class="p-0"
+                  icon="i-heroicons-shopping-cart"
+                  size="xl"
+                  :color="'primary'"
+                  :aria-label="t('cart')"
+                  :title="t('cart')"
+                  :to="localePath('cart')"
+                />
+              </LazyUChip>
+            </li>
+            <li
+              v-show="loggedIn && user"
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
               <LazyUDropdown
+                v-if="loggedIn && user"
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
                 :ui="{ item: { disabled: 'cursor-text select-text' } }"
               >
                 <LazyUserAvatar
+                  v-if="loggedIn && user"
                   :img-height="30"
                   :img-width="30"
                   :show-name="false"
@@ -240,7 +240,7 @@ const items = computed(() => [
               </LazyUDropdown>
             </li>
             <li
-              v-else
+              v-if="!loggedIn"
               class="
                 relative grid items-center justify-center justify-items-center
               "

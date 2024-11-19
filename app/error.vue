@@ -83,7 +83,7 @@ defineOgImage(ogImageOptions)
           {{ t('home') }}
         </Anchor>
         <div class="grid items-center justify-center">
-          <LazyLottie
+          <Lottie
             :animation-data="Json404"
             :height="lottieHeight"
             :show-client-loading-animation="false"
