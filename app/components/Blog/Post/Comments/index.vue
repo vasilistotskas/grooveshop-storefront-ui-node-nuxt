@@ -258,14 +258,6 @@ watch(
 onMounted(() => {
   scrollToComments()
 })
-
-useHead({
-  titleTemplate: '%s',
-})
-
-useSeoMeta({
-  titleTemplate: '%s',
-})
 </script>
 
 <template>

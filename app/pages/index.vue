@@ -14,6 +14,14 @@ const bannerHeight = ref(isMobileOrTablet ? 638 : 418)
 definePageMeta({
   layout: 'default',
 })
+
+useHead({
+  titleTemplate: '%s',
+})
+
+useSeoMeta({
+  titleTemplate: '%s',
+})
 </script>
 
 <template>
