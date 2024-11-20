@@ -18,9 +18,10 @@ export function setupPageHeader() {
   const ogLocalesAlternate = computed(() => locales.value.map((l: any) => l.language))
 
   useSeoMeta({
+    title: publicConfig.appTitle,
     ogTitle: '%s',
     ogType: 'website',
-    ogSiteName: publicConfig.appTitle,
+    ogSiteName: publicConfig.siteName,
     ogImage: publicConfig.appLogo,
     twitterTitle: publicConfig.appTitle,
     twitterDescription: publicConfig.appDescription,
@@ -43,6 +44,7 @@ export function setupPageHeader() {
   })
 
   useHydratedHead(() => ({
+    title: publicConfig.appTitle,
     htmlAttrs: {
       lang: i18nHead.value.htmlAttrs!.lang,
       dir: i18nHead.value.htmlAttrs!.dir || 'ltr',
