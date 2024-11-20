@@ -1,3 +1,10 @@
+## [1.229.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.229.2...v1.229.3) (2024-11-20)
+
+
+### Bug Fixes
+
+* useHead usage ([5e480e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5e480e115205232b68bb025da7b79fe3cce4e4c9))
+
 ## [1.229.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.229.1...v1.229.2) (2024-11-20)
 
 
