@@ -1,3 +1,10 @@
+## [1.229.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.229.1...v1.229.2) (2024-11-20)
+
+
+### Bug Fixes
+
+* replace `useHydratedHead` with `useHead` ([0c9bb6e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0c9bb6eb6a83222b43276aeec86216c3b147d34c))
+
 ## [1.229.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.229.0...v1.229.1) (2024-11-20)
 
 
