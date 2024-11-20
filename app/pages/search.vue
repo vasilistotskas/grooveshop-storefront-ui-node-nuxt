@@ -154,7 +154,7 @@ onMounted(() => {
 useSeoMeta({
   title: t('title'),
 })
-useHydratedHead({
+useHead({
   title: t('title'),
 })
 

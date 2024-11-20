@@ -5,7 +5,7 @@ useSeoMeta({
   title: t('microlearning.title'),
   description: t('microlearning.what'),
 })
-useHydratedHead({
+useHead({
   title: t('microlearning.title'),
 })
 

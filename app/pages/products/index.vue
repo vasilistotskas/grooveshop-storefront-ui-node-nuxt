@@ -15,7 +15,7 @@ const links = computed(() => [
   },
 ])
 
-useHydratedHead({
+useHead({
   title: t('title'),
 })
 

@@ -116,7 +116,7 @@ useSeoMeta({
   twitterImage: ogImage.value,
 })
 
-useHydratedHead({
+useHead({
   title: categoryTitle,
 })
 

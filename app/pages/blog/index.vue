@@ -19,7 +19,7 @@ useSeoMeta({
   description: t('description'),
   ogDescription: t('description'),
 })
-useHydratedHead({
+useHead({
   title: t('title'),
 })
 

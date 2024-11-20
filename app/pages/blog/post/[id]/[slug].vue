@@ -176,7 +176,7 @@ useSeoMeta({
   twitterDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
   twitterImage: ogImage.value,
 })
-useHydratedHead({
+useHead({
   title: blogPostSeoTitle,
 })
 useSchemaOrg([

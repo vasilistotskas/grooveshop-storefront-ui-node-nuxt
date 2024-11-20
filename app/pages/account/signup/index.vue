@@ -20,7 +20,7 @@ const links = computed(() => [
 useSeoMeta({
   title: t('title'),
 })
-useHydratedHead({
+useHead({
   title: t('title'),
 })
 

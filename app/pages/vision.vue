@@ -4,7 +4,7 @@ const { t } = useI18n({ useScope: 'local' })
 useSeoMeta({
   title: t('title'),
 })
-useHydratedHead({
+useHead({
   title: t('title'),
 })
 

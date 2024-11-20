@@ -43,7 +43,7 @@ export function setupPageHeader() {
     ogLocaleAlternate: ogLocalesAlternate,
   })
 
-  useHydratedHead(() => ({
+  useHead(() => ({
     title: publicConfig.appTitle,
     htmlAttrs: {
       lang: i18nHead.value.htmlAttrs!.lang,
