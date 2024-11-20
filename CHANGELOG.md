@@ -1,3 +1,10 @@
+## [1.229.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.229.0...v1.229.1) (2024-11-20)
+
+
+### Bug Fixes
+
+* **seo:** Add default title ([56147a1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/56147a1fbee6eddbffbc13dbe807f5b6c480a751))
+
 # [1.229.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.228.1...v1.229.0) (2024-11-19)
 
 
