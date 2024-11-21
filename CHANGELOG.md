@@ -1,3 +1,10 @@
+# [1.231.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.230.7...v1.231.0) (2024-11-21)
+
+
+### Features
+
+* split deps ([8cb6c81](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8cb6c816edd74128ac7ae2bc7558f9a3469353a3))
+
 ## [1.230.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.230.6...v1.230.7) (2024-11-21)
 
 
