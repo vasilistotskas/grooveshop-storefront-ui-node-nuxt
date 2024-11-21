@@ -1,3 +1,10 @@
+## [1.231.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.231.0...v1.231.1) (2024-11-21)
+
+
+### Bug Fixes
+
+* env vars in `Dockerfile` temporary until find a solution ([0b646f3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0b646f38623882c7684ea9f8a79c86a02ced5734))
+
 # [1.231.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.230.7...v1.231.0) (2024-11-21)
 
 
