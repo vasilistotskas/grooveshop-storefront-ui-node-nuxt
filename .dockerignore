@@ -19,7 +19,6 @@ docker-compose*
 # Nuxt dev/build outputs
 .output
 .nuxt
-.nitro
 
 # Tests
 tests

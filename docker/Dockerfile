@@ -1,19 +1,17 @@
 # Stage 1: Builder
-FROM node:23.2.0-alpine AS builder
+FROM node:23.2.0-alpine AS base
 
 # Install git if your build process requires it
 RUN apk add --no-cache git
 
-# Set working directory
+# Set up the work directory
 WORKDIR /app
 
-# Copy package files first to leverage Docker caching
-COPY package*.json ./
+# Adjust permissions
+RUN chmod -R 777 /app && \
+    chown -R node:node /app
 
-# Install all dependencies
-RUN npm ci
-
-# Copy the rest of the application source code
+# Copy all files
 COPY . .
 
 # Configure Git safe directory (if necessary)
@@ -23,11 +21,12 @@ RUN git config --global --add safe.directory /app
 ENV GENERATE_SOURCEMAP=false \
     NODE_OPTIONS="--max-old-space-size=8192"
 
-# Build the Nuxt application
-RUN npm run build
+# Remove existing node_modules, nuxt, and output directories
+RUN rm -rf ./node_modules && \
+    rm -rf ./nuxt && \
+    rm -rf ./output
 
-# Stage 2: Production
-FROM node:23.2.0-alpine AS production
+FROM base AS build
 
 # Set environment variables
 ENV NODE_ENV=production \
@@ -47,21 +46,27 @@ ENV NODE_ENV=production \
     NUXT_PUBLIC_LANGUAGE="el" \
     NUXT_PUBLIC_DEFAULT_LOCALE="el"
 
-# Set working directory
+# Install npm && build the app
+RUN npm ci && \
+    npm run build
+
+FROM base
+
+# Set up the work directory
 WORKDIR /app
 
-# Copy built application from the builder stage
-COPY --from=builder /app/.output ./.output
-COPY --from=builder /app/package*.json ./
+# Copy necessary files from the build stage
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/.output ./.output
+COPY --from=build /app/.nuxt ./.nuxt
+COPY --from=build /app/package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Adjust permissions
+RUN chmod -R 777 /app && \
+    chown -R node:node /app
 
-# Use the non-root 'node' user provided by the base image
+# Switch to the 'node' user
 USER node
 
-# Expose the application port
-EXPOSE 3000
-
 # Define the entrypoint command
-CMD ["node", ".output/server/index.mjs"]
+ENTRYPOINT ["node", ".output/server/index.mjs"]
