@@ -2,8 +2,6 @@ ARG NODE_VERSION=23.2.0
 
 FROM node:${NODE_VERSION}-alpine AS build
 
-ENV NODE_ENV=production
-
 WORKDIR /app
 
 COPY . .

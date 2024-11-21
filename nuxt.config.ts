@@ -1,5 +1,3 @@
-import AutoImport from 'unplugin-auto-import/vite'
-
 const sw = process.env.SW === 'true'
 
 export default defineNuxtConfig({
@@ -252,12 +250,6 @@ export default defineNuxtConfig({
     },
   },
   vite: {
-    plugins: [
-      AutoImport({
-        imports: ['vitest'],
-        dts: true,
-      }),
-    ],
     build: {
       sourcemap: true,
       rollupOptions: {
