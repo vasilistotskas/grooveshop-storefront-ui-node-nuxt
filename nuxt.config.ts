@@ -164,6 +164,7 @@ export default defineNuxtConfig({
     },
   },
   build: {
+    analyze: true,
     transpile: ['@iconify', '@unocss', '@unhead'],
   },
   routeRules: {
