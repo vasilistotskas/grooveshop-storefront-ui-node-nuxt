@@ -51,9 +51,6 @@ jobs:
             gro0ve/grooveshop-storefront-ui-node-nuxt
             ghcr.io/${{ github.repository }}
 
-      - name: List installed npm packages
-        run: npm list --depth=0
-
       - name: Build and push Docker images
         uses: docker/build-push-action@v6
         with:
