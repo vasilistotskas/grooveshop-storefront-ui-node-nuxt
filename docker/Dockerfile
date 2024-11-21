@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . .
 
 RUN npm ci && \
-    npm run build \
+    npm run build
 
 FROM node:${NODE_VERSION}-alpine AS production
 
