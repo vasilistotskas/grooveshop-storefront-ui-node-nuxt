@@ -1,3 +1,10 @@
+# [1.232.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.231.1...v1.232.0) (2024-11-21)
+
+
+### Features
+
+* Bump Versions, remove old dockerfile ([e97f505](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e97f50538a191435db93072ad826935d9adaf4a3))
+
 ## [1.231.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.231.0...v1.231.1) (2024-11-21)
 
 
