@@ -50,6 +50,7 @@
     "nuxt-security": "2.1.2",
     "nuxt-time": "1.0.2",
     "nuxt-vitalizer": "0.10.0",
+    "nuxt-schema-org": "3.4.7",
     "nuxt": "3.14.1592",
     "h3": "1.13.0",
     "ofetch": "1.4.1",
