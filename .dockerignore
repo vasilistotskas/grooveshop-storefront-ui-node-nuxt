@@ -7,7 +7,6 @@ docker-compose*
 # Git files
 .git
 .gitignore
-.gitattributes
 
 # macOS specific files
 .DS_Store
@@ -21,9 +20,9 @@ docker-compose*
 .output
 .nuxt
 .nitro
-.cache
 
 # Tests
+tests
 coverage
 
 # Node dependencies
@@ -31,11 +30,8 @@ node_modules
 
 # Cache
 .translator_cache
-.eslintcache
 
 # Others
 .env
 README.md
-LICENSE
-Makefile
 helm-charts
