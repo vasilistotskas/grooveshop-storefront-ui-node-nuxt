@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import pkg from '../../../package.json'
 
-const config = useRuntimeConfig()
+const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useI18n({ useScope: 'local' })
 
@@ -251,7 +251,7 @@ const packageVersion = pkg.version
             "
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
-              :label="`${config.public.siteName}™.`"
+              :label="`${siteConfig.name}™.`"
               :to="localePath('index')"
               class="p-0"
               color="opposite"

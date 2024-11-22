@@ -6,6 +6,7 @@ setupSocialLogin()
 setupWebSocket()
 
 const config = useRuntimeConfig()
+const siteConfig = useSiteConfig()
 const { locales } = useI18n()
 
 const cartStore = useCartStore()
@@ -18,7 +19,7 @@ useSchemaOrg([
   defineWebSite({
     url: config.public.baseUrl,
     name: config.public.appTitle,
-    description: config.public.appDescription,
+    description: siteConfig.description,
     inLanguage: locales.value.map((l: any) => l.language),
   }),
   defineOrganization({

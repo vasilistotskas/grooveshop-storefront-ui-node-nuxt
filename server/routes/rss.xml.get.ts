@@ -7,9 +7,10 @@ const cachedBlogPosts = createCachedFetcher<BlogPost>(
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const siteConfig = useSiteConfig(event)
   try {
-    const locale = config.public.defaultLocale || 'el'
-    const siteUrl = config.public.siteUrl
+    const locale = siteConfig.defaultLocale || 'el'
+    const siteUrl = siteConfig.url
     const apiBaseUrl = config.public.apiBaseUrl
 
     const allPosts = await cachedBlogPosts(`${apiBaseUrl}/blog/post?expand=true`)
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const feed = new RSS({
       title: config.public.appTitle,
-      description: config.public.appDescription,
+      description: siteConfig.description,
       site_url: siteUrl,
       feed_url: `${siteUrl}/rss.xml`,
       language: locale,

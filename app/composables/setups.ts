@@ -3,6 +3,7 @@ import type { UseWebNotificationOptions } from '@vueuse/core'
 
 export function setupPageHeader() {
   const publicConfig = useRuntimeConfig().public
+  const siteConfig = useSiteConfig()
   const { locale, locales } = useI18n()
 
   const i18nHead = useLocaleHead({
@@ -24,7 +25,7 @@ export function setupPageHeader() {
     ogSiteName: publicConfig.siteName,
     ogImage: publicConfig.appLogo,
     twitterTitle: publicConfig.appTitle,
-    twitterDescription: publicConfig.appDescription,
+    twitterDescription: siteConfig.description,
     twitterImage: publicConfig.appLogo,
     twitterCard: 'summary',
     applicationName: publicConfig.appTitle,
@@ -45,6 +46,10 @@ export function setupPageHeader() {
 
   useHead(() => ({
     title: publicConfig.appTitle,
+    templateParams: {
+      siteName: siteConfig.name,
+      separator: publicConfig.titleSeparator,
+    },
     htmlAttrs: {
       lang: i18nHead.value.htmlAttrs!.lang,
       dir: i18nHead.value.htmlAttrs!.dir || 'ltr',

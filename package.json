@@ -76,7 +76,7 @@
     "eslint-plugin-tailwindcss": "3.17.5"
   },
   "devDependencies": {
-    "@iconify/json": "2.2.274",
+    "@iconify/json": "2.2.275",
     "@nuxt/devtools": "1.6.1",
     "@nuxt/kit": "3.14.1592",
     "@nuxt/schema": "3.14.1592",
