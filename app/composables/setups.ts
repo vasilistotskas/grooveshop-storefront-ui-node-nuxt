@@ -22,7 +22,7 @@ export function setupPageHeader() {
     title: publicConfig.appTitle,
     ogTitle: '%s',
     ogType: 'website',
-    ogSiteName: publicConfig.siteName,
+    ogSiteName: siteConfig.name,
     ogImage: publicConfig.appLogo,
     twitterTitle: publicConfig.appTitle,
     twitterDescription: siteConfig.description,

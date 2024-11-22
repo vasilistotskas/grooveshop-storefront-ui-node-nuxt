@@ -1,16 +1,7 @@
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 export default {
   content: [
-    './components/**/*.{vue,js}',
-    './composables/**/*.{js,ts}',
-    './content/**/*.md',
-    './layouts/**/*.vue',
-    './pages/**/*.vue',
-    './plugins/**/*.{js,ts}',
-    './utils/**/*.{js,ts}',
-    './config/**/*.{js,ts}',
-    './app.vue',
-    './error.vue',
+    './app/**/*.{vue,ts,js}',
   ],
   future: {
     hoverOnlyWhenSupported: true,
@@ -25,9 +16,6 @@ export default {
     extend: {
       maxWidth: {
         '8xl': '90rem',
-      },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
       },
       gridTemplateColumns: {
         'auto-1fr': 'auto 1fr',
