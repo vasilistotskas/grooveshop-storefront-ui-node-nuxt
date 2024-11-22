@@ -14,7 +14,7 @@ ENV NODE_ENV=production \
     NUXT_SITE_DESCRIPTION="Μπες στο side της τεχνολογίας, εύκολα, δωρεάν και με ασφάλεια." \
     NUXT_SITE_URL="https://webside.gr" \
     NUXT_PUBLIC_MEDIA_STREAM_ORIGIN="https://assets.webside.gr" \
-    NUXT_PUBLIC_STATIC_ORIGIN="https://static.webside.gr" \
+    NUXT_PUBLIC_STATIC_ORIGIN="https://static.webside.gr"
 
 RUN npm ci && \
     npm run build
