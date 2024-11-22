@@ -1,3 +1,10 @@
+# [1.233.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.232.0...v1.233.0) (2024-11-22)
+
+
+### Features
+
+* Remove useless env vars and cleanup nuxt.config.ts ([65b7919](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/65b7919bdf531b4cc06b830a17feaf97a4e6fcee))
+
 # [1.232.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.231.1...v1.232.0) (2024-11-21)
 
 
