@@ -186,7 +186,8 @@ definePageMeta({
                   :key="index"
                 >
                   <td class="border px-4 py-2">
-                    <NuxtImg
+                    <ImgWithFallback
+                      provider="mediaStream"
                       :alt="extractTranslated(item.product, 'name', locale)"
                       :background="'transparent'"
                       fit="contain"
@@ -199,7 +200,6 @@ definePageMeta({
                       :width="100"
                       class="product-img bg-primary-100"
                       loading="lazy"
-                      provider="mediaStream"
                       sizes="sm:100vw md:50vw lg:auto"
                     />
                   </td>

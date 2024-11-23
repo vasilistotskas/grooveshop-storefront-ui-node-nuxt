@@ -231,7 +231,7 @@ onReactivated(async () => {
 
           xl:grid-cols-3
         "
-        :count="allPosts.length"
+        :count="allPosts.length || 4"
         height="478px"
         width="100%"
       />

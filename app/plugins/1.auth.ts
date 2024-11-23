@@ -6,6 +6,13 @@ export default defineNuxtPlugin({
   name: 'auth',
   parallel: true,
   async setup(nuxtApp) {
+    const appStore = useAppStore()
+    const { healthy } = storeToRefs(appStore)
+
+    if (!healthy.value) {
+      return
+    }
+
     const { loggedIn, fetch, clear } = useUserSession()
     const authStore = useAuthStore()
     const userStore = useUserStore()

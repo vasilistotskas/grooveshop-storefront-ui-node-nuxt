@@ -321,8 +321,9 @@ definePageMeta({
               "
             >
               <div class="sm:mx-0">
-                <NuxtImg
+                <ImgWithFallback
                   id="blog-post-image"
+                  provider="mediaStream"
                   :alt="blogPostTitle"
                   :background="'transparent'"
                   fit="cover"
@@ -338,7 +339,6 @@ definePageMeta({
                   class="blog-post-image bg-primary-100 rounded-lg"
                   densities="x1"
                   loading="eager"
-                  provider="mediaStream"
                 />
               </div>
               <div

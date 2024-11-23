@@ -6,12 +6,17 @@ defineProps({
   },
 })
 
-const navbar = ref(null)
-
 const config = useRuntimeConfig()
 const { enabled } = useAuthPreviewMode()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
+const { t } = useI18n({ useScope: 'local' })
+const appStore = useAppStore()
+const {
+  healthy,
+} = storeToRefs(appStore)
+
+const navbar = ref(null)
 
 const appTitle = computed(() => config.public.appTitle as string)
 </script>
@@ -56,26 +61,40 @@ const appTitle = computed(() => config.public.appTitle as string)
         >
           <!-- title -->
           <slot name="title">
-            <h1>
-              <Anchor
-                :to="'index'"
-                :aria-label="appTitle"
-                class="
-                  text-md flex items-center gap-2 overflow-hidden font-bold
-
-                  md:w-auto
-                "
+            <h1 class="grid justify-items-start">
+              <UTooltip
+                :text="healthy ? '' : t('backend.api.unhealthy')"
+                :ui="{
+                  width: isMobileOrTablet ? 'max-w-xs' : 'max-w-lg',
+                }"
               >
-                <NuxtImg
-                  :style="{ objectFit: 'contain' }"
-                  :src="'/img/logo-navbar.svg'"
-                  :width="145"
-                  :height="30"
-                  :alt="appTitle"
-                  quality="100"
-                  preload
-                />
-              </Anchor>
+                <UChip
+                  position="top-left"
+                  color="orange"
+                  :size="isMobileOrTablet ? 'md' : 'lg'"
+                  :show="!healthy"
+                >
+                  <Anchor
+                    :to="'index'"
+                    :aria-label="appTitle"
+                    class="
+                      text-md flex items-center gap-2 overflow-hidden font-bold
+
+                      md:w-auto
+                    "
+                  >
+                    <NuxtImg
+                      :style="{ objectFit: 'contain' }"
+                      :src="'/img/logo-navbar.svg'"
+                      :width="145"
+                      :height="30"
+                      :alt="appTitle"
+                      quality="100"
+                      preload
+                    />
+                  </Anchor>
+                </UChip>
+              </UTooltip>
             </h1>
           </slot>
           <!-- menu -->
@@ -98,3 +117,10 @@ const appTitle = computed(() => config.public.appTitle as string)
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  backend:
+    api:
+      unhealthy: Δεν είναι δυνατή η σύνδεση με τον διακομιστή. Παρακαλώ δοκιμάστε ξανά αργότερα.
+</i18n>

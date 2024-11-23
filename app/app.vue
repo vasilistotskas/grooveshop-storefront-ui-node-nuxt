@@ -3,7 +3,6 @@ setupPageHeader()
 setupGoogleAnalyticsConsent()
 setupCursorStates()
 setupSocialLogin()
-setupWebSocket()
 
 const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()

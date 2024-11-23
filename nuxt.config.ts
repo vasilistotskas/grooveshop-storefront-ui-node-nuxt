@@ -65,7 +65,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // General Settings
     buildDate: new Date().toISOString(),
-    cacheBase: 'redis',
+    cacheBase: 'cache',
     cacheMaxAge: '7200',
     djangoUrl: 'localhost:8000',
     secretKey: '', // should be in .env var NUXT_SECRET_KEY
@@ -354,7 +354,7 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default',
     lazy: true,
     defaultLocale: 'el',
-    debug: process.env.NODE_ENV !== 'production',
+    debug: false,
     restructureDir: 'i18n',
     detectBrowserLanguage: {
       useCookie: true,

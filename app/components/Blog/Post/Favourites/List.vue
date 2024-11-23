@@ -58,7 +58,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
               :text="extractTranslated(favourite, 'title', locale)"
               css-class="grid justify-center"
             >
-              <NuxtImg
+              <ImgWithFallback
                 provider="mediaStream"
                 class="rounded-lg"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"

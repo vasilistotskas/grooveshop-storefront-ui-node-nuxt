@@ -74,9 +74,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         :text="alt"
         css-class="grid justify-center"
       >
-        <NuxtImg
-          :loading="imgLoading"
+        <ImgWithFallback
           provider="mediaStream"
+          :loading="imgLoading"
           class="bg-primary-100 rounded-t-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"

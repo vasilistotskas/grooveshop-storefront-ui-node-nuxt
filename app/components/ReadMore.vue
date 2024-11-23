@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { v4 as uuidv4 } from 'uuid'
-
 const props = defineProps({
   text: {
     type: String,
@@ -12,7 +10,7 @@ const props = defineProps({
   },
 })
 
-const uuid = uuidv4()
+const uuid = useId()
 const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
 
 const toggleFullText = () => {

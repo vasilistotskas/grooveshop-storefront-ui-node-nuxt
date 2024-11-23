@@ -129,6 +129,7 @@ const uploadImage = async (event: Event) => {
       "
     >
       <ImgWithFallback
+        provider="mediaStream"
         :alt="alt"
         :background="'transparent'"
         :class="{
@@ -143,7 +144,6 @@ const uploadImage = async (event: Event) => {
         class="user-avatar-img bg-primary-100 rounded-full"
         densities="x1"
         loading="lazy"
-        provider="mediaStream"
         @load="() => (loading = false)"
       />
 

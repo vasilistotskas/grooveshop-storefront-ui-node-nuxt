@@ -83,7 +83,8 @@ definePageMeta({
               :key="item.product.id"
               class="order-item flex items-center gap-4"
             >
-              <NuxtImg
+              <ImgWithFallback
+                provider="mediaStream"
                 :alt="extractTranslated(item.product, 'name', locale)"
                 :background="'transparent'"
                 fit="contain"
@@ -93,7 +94,6 @@ definePageMeta({
                 :width="100"
                 class="bg-primary-100"
                 loading="lazy"
-                provider="mediaStream"
                 sizes="sm:100vw md:50vw lg:auto"
               />
               <div

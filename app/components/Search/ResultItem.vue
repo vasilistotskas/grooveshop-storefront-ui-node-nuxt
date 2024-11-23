@@ -66,10 +66,10 @@ const imgAlt = computed(() => {
       @mouseover="() => emit('mouseover')"
     >
       <div class="flex gap-4">
-        <NuxtImg
+        <ImgWithFallback
+          provider="mediaStream"
           class="object-contain"
           loading="lazy"
-          provider="mediaStream"
           :width="100"
           :height="90"
           fit="cover"

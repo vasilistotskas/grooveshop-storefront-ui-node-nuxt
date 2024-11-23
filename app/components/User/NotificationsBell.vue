@@ -5,7 +5,7 @@ const { locale } = useI18n()
 const { getUnseenCount, markAsSeen } = useUserNotification()
 const { getNotifications } = useNotification()
 const userNotificationStore = useUserNotificationStore()
-const { refreshNotifications } = userNotificationStore
+const { setupNotifications } = userNotificationStore
 
 const {
   notificationIds,
@@ -70,7 +70,7 @@ const userNotifications = computed(() => {
 
 const onNotificationClick = async (id: number) => {
   await markAsSeen([id])
-  await refreshNotifications()
+  await setupNotifications()
 }
 
 const toggleDropdown = () => {

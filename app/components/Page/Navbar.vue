@@ -172,7 +172,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyUChip
+              <UChip
                 v-if="enabled"
                 :key="'cart'"
                 size="xl"
@@ -189,7 +189,7 @@ const items = computed(() => [
                   :title="t('cart')"
                   :to="localePath('cart')"
                 />
-              </LazyUChip>
+              </UChip>
             </li>
             <li
               v-show="loggedIn && user"
@@ -197,13 +197,13 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyUDropdown
+              <UDropdown
                 v-if="loggedIn && user"
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
                 :ui="{ item: { disabled: 'cursor-text select-text' } }"
               >
-                <LazyUserAvatar
+                <UserAvatar
                   v-if="loggedIn && user"
                   :img-height="30"
                   :img-width="30"
@@ -237,7 +237,7 @@ const items = computed(() => [
                     "
                   />
                 </template>
-              </LazyUDropdown>
+              </UDropdown>
             </li>
             <li
               v-if="!loggedIn"

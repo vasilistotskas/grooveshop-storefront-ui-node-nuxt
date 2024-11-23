@@ -72,9 +72,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         :text="alt"
         css-class="grid justify-center"
       >
-        <NuxtImg
-          :loading="imgLoading"
+        <ImgWithFallback
           provider="mediaStream"
+          :loading="imgLoading"
           class="bg-primary-100 rounded-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
@@ -90,26 +90,29 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :background="'transparent'"
           :alt="`Image - ${alt}`"
         />
-        <div class="absolute bottom-12 right-0 grid w-full">
-          <span class="grid justify-center justify-items-start">
-            <h2
-              class="
-                text-primary-50 m-auto block w-[70%] text-3xl font-bold
-                tracking-tight
+        <h2
+          class="
+            absolute bottom-12 right-0 grid w-full justify-center
+            justify-items-start
+          "
+        >
+          <span
+            class="
+              text-primary-50 m-auto block w-[70%] text-3xl font-bold
+              tracking-tight
 
-                dark:text-primary-50
+              dark:text-primary-50
 
-                lg:w-[76%]
+              lg:w-[76%]
 
-                md:w-[66%] md:text-4xl
+              md:w-[66%] md:text-4xl
 
-                sm:w-3/5
-              "
-            >
-              {{ extractTranslated(post, 'title', locale) }}
-            </h2>
+              sm:w-3/5
+            "
+          >
+            {{ extractTranslated(post, 'title', locale) }}
           </span>
-        </div>
+        </h2>
       </Anchor>
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike

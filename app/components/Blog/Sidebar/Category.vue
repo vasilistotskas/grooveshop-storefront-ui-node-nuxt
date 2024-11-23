@@ -42,7 +42,7 @@ const isCategorySelected = computed(() => {
       @click.prevent="() => emit('categoryClick', category)"
     >
       <div class="flex size-[40px] items-center rounded-full">
-        <NuxtImg
+        <ImgWithFallback
           provider="mediaStream"
           class="object-cover"
           :style="{ contentVisibility: 'auto' }"

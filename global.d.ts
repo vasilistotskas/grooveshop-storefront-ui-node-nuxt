@@ -2,6 +2,7 @@
 // global.d.ts
 import type { HookResult } from '@nuxt/schema'
 import type { Ref } from 'vue'
+import type { UseWebSocketReturn } from '@vueuse/core'
 
 declare module 'vue' {
   export interface GlobalComponents {
@@ -13,6 +14,7 @@ declare module 'vue' {
 declare module '#app' {
   interface NuxtApp {
     $authState: Ref<AllAuthResponse>
+    $websocket (): UseWebSocketReturn<any> | null
   }
 
   interface RuntimeNuxtHooks {
@@ -23,6 +25,7 @@ declare module '#app' {
 declare module 'vue' {
   interface ComponentCustomProperties {
     $authState: Ref<AllAuthResponse>
+    $websocket (): UseWebSocketReturn<any> | null
   }
 }
 

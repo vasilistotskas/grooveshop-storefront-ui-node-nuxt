@@ -39,9 +39,9 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <NuxtImg
-    :loading="imgLoading"
+  <ImgWithFallback
     provider="mediaStream"
+    :loading="imgLoading"
     :width="width"
     :height="height"
     fit="contain"

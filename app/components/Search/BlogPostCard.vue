@@ -32,9 +32,9 @@ const { item } = toRefs(props)
           hover:scale-105
         "
       >
-        <NuxtImg
-          loading="lazy"
+        <ImgWithFallback
           provider="mediaStream"
+          loading="lazy"
           class="bg-primary-100 aspect-square size-full object-cover"
           :style="{
             'view-transition-name': `item-${item.id}`,

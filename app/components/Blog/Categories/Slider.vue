@@ -52,7 +52,8 @@ const carouselUiItemBasis = computed(() => {
       size="lg"
     >
       <template #leading>
-        <NuxtImg
+        <ImgWithFallback
+          provider="mediaStream"
           :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
           :background="'ffffff'"
           fit="fill"
@@ -60,7 +61,6 @@ const carouselUiItemBasis = computed(() => {
           :height="25"
           :src="item?.mainImagePath"
           :width="25"
-          provider="mediaStream"
           quality="100"
           :modifiers="{
             position: 'entropy',
