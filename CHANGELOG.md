@@ -1,3 +1,10 @@
+# [1.235.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.234.1...v1.235.0) (2024-11-23)
+
+
+### Features
+
+* websocket plugin, use `ImgWithFallback`, health check endpoint and usage, typing improvements, cache improvements, new `app.ts` store, remove `server\plugins\cache.ts` , remove `app\plugins\cache.server.ts` ([c48a46c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c48a46ccb6f033eff41a4bf1831108cb1761e915))
+
 ## [1.234.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.234.0...v1.234.1) (2024-11-23)
 
 
