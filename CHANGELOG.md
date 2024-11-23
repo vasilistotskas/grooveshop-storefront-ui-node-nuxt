@@ -1,3 +1,10 @@
+## [1.234.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.234.0...v1.234.1) (2024-11-23)
+
+
+### Bug Fixes
+
+* ogUrl ([399999e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/399999e0947b546e7245bbc5dcb68bf0e3873727))
+
 # [1.234.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.233.1...v1.234.0) (2024-11-22)
 
 
