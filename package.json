@@ -31,9 +31,13 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
+    "@iconify-json/heroicons": "1.2.1",
+    "@iconify-json/heroicons-outline": "1.2.0",
+    "@iconify-json/heroicons-solid": "1.2.0",
     "@github/webauthn-json": "2.1.1",
     "@nuxt/eslint": "0.7.1",
     "@nuxt/fonts": "0.10.2",
+    "@nuxt/icon": "1.8.2",
     "@nuxt/image": "1.8.1",
     "@nuxt/scripts": "0.9.5",
     "@nuxt/test-utils": "3.14.4",
@@ -76,7 +80,6 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
-    "@iconify/json": "2.2.275",
     "@nuxt/devtools": "1.6.1",
     "@nuxt/kit": "3.14.1592",
     "@nuxt/schema": "3.14.1592",

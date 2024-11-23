@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     '@nuxt/scripts',
     '@nuxt/fonts',
+    '@nuxt/icon',
     '@nuxtjs/i18n',
     '@nuxtjs/device',
     '@nuxtjs/seo',
@@ -40,7 +41,7 @@ export default defineNuxtConfig({
       titleTemplate: '%s %separator %siteName',
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
-        { rel: 'icon', type: 'image/png', href: '/favicon/favicon.png' },
+        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
         { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
         { rel: 'icon', type: 'image/png', href: '/favicon/favicon-16x16.png' },
         { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
@@ -141,7 +142,7 @@ export default defineNuxtConfig({
 
       // Verification & Tracking
       domainVerifyId: '',
-      googleGsiEnable: '',
+      googleGsiEnable: 'true',
       googleSiteVerification: '',
       mediaStreamOrigin: 'http://localhost:3003',
       mediaStreamPath: 'http://localhost:3003/media_stream-image',
@@ -382,7 +383,14 @@ export default defineNuxtConfig({
     },
   },
   icon: {
-    serverBundle: 'remote',
+    serverBundle: {
+      externalizeIconsJson: true,
+      collections: ['heroicons', 'heroicons-solid'],
+    },
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 256,
+    },
   },
   image: {
     provider: 'ipx',
