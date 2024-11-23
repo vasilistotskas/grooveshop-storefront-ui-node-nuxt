@@ -20,6 +20,7 @@ export function setupPageHeader() {
 
   useSeoMeta({
     title: publicConfig.appTitle,
+    ogUrl: publicConfig.baseUrl,
     ogTitle: '%s',
     ogType: 'website',
     ogSiteName: siteConfig.name,
