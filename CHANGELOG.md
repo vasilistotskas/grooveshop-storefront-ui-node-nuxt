@@ -1,3 +1,10 @@
+# [1.239.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.238.1...v1.239.0) (2024-11-25)
+
+
+### Features
+
+* Bump Versions, icon serverBundle fix ([ee6c969](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ee6c969656a4e1ab97fdc04316e75584faffd993))
+
 ## [1.238.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.238.0...v1.238.1) (2024-11-25)
 
 
