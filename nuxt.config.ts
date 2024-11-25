@@ -384,8 +384,8 @@ export default defineNuxtConfig({
   },
   icon: {
     serverBundle: {
-      externalizeIconsJson: true,
-      collections: ['heroicons', 'heroicons-solid'],
+      externalizeIconsJson: false,
+      collections: ['heroicons', 'heroicons-solid', 'heroicons-outline'],
     },
     clientBundle: {
       scan: true,
@@ -643,7 +643,6 @@ export default defineNuxtConfig({
     sources: [
       '/api/__sitemap__/urls',
     ],
-    cacheTtl: 1000 * 60 * 60 * 24,
     runtimeCacheStorage: {
       driver: 'redis',
       port: 6379,
