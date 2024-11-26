@@ -1,3 +1,10 @@
+# [1.240.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.239.0...v1.240.0) (2024-11-26)
+
+
+### Features
+
+* Bump Versions and remove `public` config usage from server ([c461e6b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c461e6b033125ea56b09ac1328d06f650a4d44d3))
+
 # [1.239.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.238.1...v1.239.0) (2024-11-25)
 
 
