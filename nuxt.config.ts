@@ -105,6 +105,7 @@ export default defineNuxtConfig({
       appLogo: '',
       appTitle: '',
       baseUrl: 'http://localhost:3000',
+      apiBaseUrl: 'http://localhost:8000/api/v1',
       environment: 'development',
       author: {
         github_url: '',
