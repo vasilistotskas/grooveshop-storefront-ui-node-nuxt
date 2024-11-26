@@ -1,14 +1,15 @@
 import RSS from 'rss'
 
-const cachedBlogPosts = createCachedFetcher<BlogPost>(
-  'cachedBlogPosts',
-  60 * 60,
-)
-
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const siteConfig = useSiteConfig(event)
+export default defineCachedEventHandler(async (event) => {
   try {
+    const config = useRuntimeConfig()
+    const siteConfig = useSiteConfig(event)
+
+    const cachedBlogPosts = createCachedFetcher<BlogPost>(
+      'cachedBlogPosts',
+      60 * 60,
+    )
+
     const locale = siteConfig.defaultLocale || 'el'
     const siteUrl = siteConfig.url
     const apiBaseUrl = config.apiBaseUrl
@@ -73,4 +74,4 @@ export default defineEventHandler(async (event) => {
     console.error('Error generating RSS feed:', error)
     return createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }
-})
+}, { maxAge: 60 * 60 })
