@@ -1,6 +1,6 @@
 {
   "name": "@vasilistotskas/grooveshop-storefront-ui-node-nuxt",
-  "version": "1.240.4",
+  "version": "1.240.5",
   "private": false,
   "description": "Grooveshop Storefront UI Node Nuxt",
   "type": "module",

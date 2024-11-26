@@ -1,3 +1,10 @@
+## [1.240.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.4...v1.240.5) (2024-11-26)
+
+
+### Bug Fixes
+
+* add request headers ([f4995cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f4995cdb19fa81ca8d8222870bbe1e8e042b891b))
+
 ## [1.240.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.3...v1.240.4) (2024-11-26)
 
 
