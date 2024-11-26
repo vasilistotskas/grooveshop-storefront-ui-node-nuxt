@@ -1,3 +1,10 @@
+## [1.240.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.0...v1.240.1) (2024-11-26)
+
+
+### Bug Fixes
+
+* media stream path not in public ([9603337](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9603337173b0f9927f5ba28b874eeb22563ec860))
+
 # [1.240.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.239.0...v1.240.0) (2024-11-26)
 
 
