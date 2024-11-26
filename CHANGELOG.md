@@ -1,3 +1,10 @@
+## [1.240.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.3...v1.240.4) (2024-11-26)
+
+
+### Bug Fixes
+
+* createCachedFetcher usage ([350bf12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/350bf12e8b7dcf0de526cdadd867c72f87682b76))
+
 ## [1.240.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.2...v1.240.3) (2024-11-26)
 
 
