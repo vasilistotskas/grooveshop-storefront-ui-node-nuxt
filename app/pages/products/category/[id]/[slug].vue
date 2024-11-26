@@ -11,6 +11,7 @@ const { data: category } = await useFetch<ProductCategory>(
   {
     key: `category${categoryId}`,
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },

@@ -10,6 +10,7 @@ const emit = defineEmits(['update-model'])
 const { data: payWays, status } = await useAsyncData<Pagination<PayWay>>('payWays', () =>
   $fetch<Pagination<PayWay>>('/api/pay-way', {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },

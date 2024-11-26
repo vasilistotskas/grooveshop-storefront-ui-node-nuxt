@@ -80,6 +80,7 @@ const {
 } = await useLazyAsyncData<Pagination<BlogComment>>(`comments${blogPostId.value}`, () =>
   $fetch<Pagination<BlogComment>>(`/api/blog/posts/${blogPostId.value}/comments`, {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       cursor: cursor.value,
       expand: expand.value,

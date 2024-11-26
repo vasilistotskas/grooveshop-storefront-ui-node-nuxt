@@ -40,6 +40,7 @@ const {
 } = await useLazyFetch<ProductReview[]>(`/api/products/${productId.value}/reviews`, {
   key: `productReviews${productId.value}`,
   method: 'GET',
+  headers: useRequestHeaders(),
   query: {
     ordering: ordering.value,
     expand: expand.value,

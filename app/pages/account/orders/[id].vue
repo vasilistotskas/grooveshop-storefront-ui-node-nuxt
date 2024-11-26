@@ -8,6 +8,7 @@ const orderId = 'id' in route.params
 const { data: order } = await useFetch<Order>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
+  headers: useRequestHeaders(),
   query: {
     language: locale.value,
   },

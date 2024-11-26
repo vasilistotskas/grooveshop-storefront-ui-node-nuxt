@@ -12,9 +12,10 @@ const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { data: categories } = await useLazyFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
+const { data: categories } = await useFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
   key: `blogCategories`,
   method: 'GET',
+  headers: useRequestHeaders(),
   query: {
     pageSize: max.value,
     language: locale.value,

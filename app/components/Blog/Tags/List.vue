@@ -4,6 +4,7 @@ const { locale } = useI18n()
 const { data: blogTags } = await useAsyncData<BlogTag[]>('blogTags', () =>
   $fetch<BlogTag[]>('/api/blog/tags', {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       active: 'true',
       pagination: 'false',

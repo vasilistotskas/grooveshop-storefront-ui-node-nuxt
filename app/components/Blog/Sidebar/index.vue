@@ -5,6 +5,7 @@ const route = useRoute()
 const { data: categories, status } = await useLazyFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
   key: `blogCategories`,
   method: 'GET',
+  headers: useRequestHeaders(),
   query: {
     language: locale.value,
   },

@@ -42,6 +42,7 @@ const {
 } = await useAsyncData<Pagination<Product>>('products', () =>
   $fetch<Pagination<Product>>('/api/products', {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,

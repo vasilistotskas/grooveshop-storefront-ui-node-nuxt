@@ -50,9 +50,11 @@ const {
   data: posts,
   status,
   refresh,
-} = await useAsyncData<Pagination<BlogPost>>('blogPosts', () =>
-  $fetch<Pagination<BlogPost>>('/api/blog/posts', {
+} = await useFetch<Pagination<BlogPost>>(
+  '/api/blog/posts',
+  {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       page: page.value,
       ordering: ordering.value,
@@ -66,13 +68,31 @@ const {
       paginationType: paginationType.value,
       language: locale.value,
     },
-  }),
+  },
 )
 
 const pagination = computed(() => posts.value && usePagination<BlogPost>(posts.value))
 
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
+
+if (shouldFetchLikedPosts.value) {
+  await useLazyFetch<number[]>(
+    '/api/blog/posts/liked-posts',
+    {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body: { postIds: postIds },
+      onResponse({ response }) {
+        if (!response.ok) {
+          return
+        }
+        const likedPostsIds = response._data
+        updateLikedPosts(likedPostsIds)
+      },
+    },
+  )
+}
 
 const refreshLikedPosts = async (postIds: number[]) => {
   if (shouldFetchLikedPosts.value) {
@@ -93,23 +113,6 @@ const refreshLikedPosts = async (postIds: number[]) => {
     )
   }
 }
-
-await useLazyFetch<number[]>(
-  '/api/blog/posts/liked-posts',
-  {
-    method: 'POST',
-    headers: useRequestHeaders(),
-    body: { postIds: postIds },
-    immediate: shouldFetchLikedPosts.value,
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const likedPostsIds = response._data
-      updateLikedPosts(likedPostsIds)
-    },
-  },
-)
 
 const showResults = computed(() => {
   if (paginationType.value === PaginationTypeEnum.CURSOR) {

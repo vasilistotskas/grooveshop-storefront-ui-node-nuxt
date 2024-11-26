@@ -7,6 +7,7 @@ const { data: categories, status } = await useAsyncData<Pagination<ProductCatego
   () =>
     $fetch<Pagination<ProductCategory>>('/api/products/categories', {
       method: 'GET',
+      headers: useRequestHeaders(),
       query: {
         language: locale.value,
       },

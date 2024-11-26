@@ -23,6 +23,7 @@ const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   {
     key: `product${productId}`,
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },
@@ -34,6 +35,7 @@ const { data: tags, status } = await useLazyFetch<Tag[]>(
   {
     key: `productTags${productId}`,
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },

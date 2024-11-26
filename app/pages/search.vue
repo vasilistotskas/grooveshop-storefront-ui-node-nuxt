@@ -31,6 +31,7 @@ const { data, execute, status, refresh } = await useAsyncData<SearchResponse>(
   'search',
   () => $fetch<SearchResponse>('/api/search', {
     method: 'GET',
+    headers: useRequestHeaders(),
     credentials: 'omit',
     retry: 120,
     retryDelay: 1000,

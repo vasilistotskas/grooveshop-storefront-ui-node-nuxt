@@ -20,6 +20,7 @@ const USelect = resolveComponent('USelect')
 const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
   key: `address${addressId}`,
   method: 'GET',
+  headers: useRequestHeaders(),
   query: {
     language: locale.value,
   },
@@ -118,6 +119,7 @@ defineField('isMain', {
 const { data: countries } = await useAsyncData<Pagination<Country>>('countries', () =>
   $fetch<Pagination<Country>>('/api/countries', {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },

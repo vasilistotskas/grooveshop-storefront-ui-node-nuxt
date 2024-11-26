@@ -62,7 +62,6 @@
     "magic-string": "0.30.14",
     "nuxt": "3.14.1592",
     "nuxt-auth-utils": "0.5.5",
-    "nuxt-schema-org": "4.0.2",
     "nuxt-security": "2.1.4",
     "nuxt-time": "1.0.2",
     "nuxt-vitalizer": "0.10.0",

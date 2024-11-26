@@ -16,6 +16,7 @@ const { data: images } = await useFetch<ProductImage[]>(
   {
     key: `productImages${product.value.id}`,
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },

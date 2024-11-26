@@ -140,6 +140,7 @@ const { data, execute, status } = await useLazyAsyncData<SearchResponse>(
   'search',
   () => $fetch<SearchResponse>('/api/search', {
     method: 'GET',
+    headers: useRequestHeaders(),
     credentials: 'omit',
     retry: 120,
     retryDelay: 1000,

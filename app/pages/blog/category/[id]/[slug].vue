@@ -29,6 +29,7 @@ const { data: category, status: categoryStatus, error } = await useFetch<BlogCat
   `/api/blog/categories/${categoryId}`,
   {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },
@@ -48,6 +49,7 @@ const {
 } = useLazyAsyncData<Pagination<BlogPost>>(`blogCategoryPosts${categoryId}`, () =>
   $fetch<Pagination<BlogPost>>(`/api/blog/categories/${categoryId}/posts`, {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       pageSize: pageSize.value,
       page: page.value,

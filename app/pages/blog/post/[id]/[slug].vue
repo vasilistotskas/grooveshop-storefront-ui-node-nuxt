@@ -19,6 +19,7 @@ const { data: blogPost, refresh, error } = await useFetch<BlogPost>(
   {
     key: `blogPost${blogPostId.value}`,
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       expand: 'true',
       language: locale.value,

@@ -97,6 +97,7 @@ const [birthDate] = defineField('birthDate', {
 const { data: countries } = await useAsyncData<Pagination<Country>>('countries', () =>
   $fetch<Pagination<Country>>('/api/countries', {
     method: 'GET',
+    headers: useRequestHeaders(),
     query: {
       language: locale.value,
     },
