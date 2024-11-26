@@ -11,8 +11,8 @@ const cachedBlogCategories = createCachedFetcher<BlogCategory>(
 export default defineSitemapEventHandler(async () => {
   const config = useRuntimeConfig()
 
-  const allPosts = await cachedBlogPosts(`${config.public.apiBaseUrl}/blog/post`)
-  const allCategories = await cachedBlogCategories(`${config.public.apiBaseUrl}/blog/category`)
+  const allPosts = await cachedBlogPosts(`${config.apiBaseUrl}/blog/post`)
+  const allCategories = await cachedBlogCategories(`${config.apiBaseUrl}/blog/category`)
 
   return [
     ...allCategories.map(category => asSitemapUrl({

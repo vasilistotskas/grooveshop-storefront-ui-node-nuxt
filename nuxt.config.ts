@@ -66,9 +66,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // General Settings
     buildDate: new Date().toISOString(),
+    apiBaseUrl: 'http://localhost:8000/api/v1',
     cacheBase: 'cache',
     cacheMaxAge: '7200',
-    djangoUrl: 'localhost:8000',
+    djangoUrl: 'http://localhost:8000',
     secretKey: '', // should be in .env var NUXT_SECRET_KEY
 
     // Authentication
@@ -112,7 +113,6 @@ export default defineNuxtConfig({
       appKeywords: '',
       appLogo: '',
       appTitle: '',
-      apiBaseUrl: '',
       baseUrl: 'http://localhost:3000',
       environment: 'development',
 
@@ -164,7 +164,7 @@ export default defineNuxtConfig({
   },
   build: {
     analyze: true,
-    transpile: ['@iconify', '@unocss', '@unhead'],
+    transpile: ['@unocss'],
   },
   routeRules: {
     '/api/**': { cors: true },
@@ -227,7 +227,7 @@ export default defineNuxtConfig({
     cookieStore: true,
     watcher: 'parcel',
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2024-11-26',
   nitro: {
     imports: {
       dirs: [
@@ -277,7 +277,9 @@ export default defineNuxtConfig({
     typeCheck: false, // Until vue-tsc is fixed
     builder: 'vite',
   },
-  telemetry: false,
+  telemetry: {
+    enabled: true,
+  },
   debug: false,
   hooks: {
     'build:manifest': (manifest) => {
@@ -384,7 +386,7 @@ export default defineNuxtConfig({
   },
   icon: {
     serverBundle: {
-      externalizeIconsJson: true,
+      externalizeIconsJson: false,
       collections: ['heroicons', 'heroicons-solid', 'heroicons-outline', 'ant-design', 'fa6-solid', 'mdi'],
     },
     clientBundle: {
@@ -528,12 +530,6 @@ export default defineNuxtConfig({
     injectManifest: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
     },
-    devOptions: {
-      enabled: false,
-      suppressWarnings: true,
-      navigateFallback: undefined,
-      type: 'module',
-    },
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 60 * 60,
@@ -643,6 +639,7 @@ export default defineNuxtConfig({
     sources: [
       '/api/__sitemap__/urls',
     ],
+    cacheMaxAgeSeconds: 1000 * 60 * 60 * 24,
     runtimeCacheStorage: {
       driver: 'redis',
       port: 6379,

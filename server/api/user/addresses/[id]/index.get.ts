@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
       ZodUserAddressParams.parse,
     )
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/user/address/${params.id}`,
+      `${config.apiBaseUrl}/user/address/${params.id}`,
       {
         method: 'GET',
         headers: {

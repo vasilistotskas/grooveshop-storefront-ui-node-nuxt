@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(event, ZodContactBody.parse)
-    const response = await $fetch(`${config.public.apiBaseUrl}/contact`, {
+    const response = await $fetch(`${config.apiBaseUrl}/contact`, {
       method: 'POST',
       body,
     })

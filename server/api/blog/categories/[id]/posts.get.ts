@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
       ZodBlogCategoryParams.parse,
     )
 
-    const url = buildFullUrl(`${config.public.apiBaseUrl}/blog/category/${params.id}/posts`, query)
+    const url = buildFullUrl(`${config.apiBaseUrl}/blog/category/${params.id}/posts`, query)
     const response = await $fetch(url, {
       method: 'GET',
     })

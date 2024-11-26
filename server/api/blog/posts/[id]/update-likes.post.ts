@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, ZodBlogPostParams.parse)
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/blog/post/${params.id}/update_likes`,
+      `${config.apiBaseUrl}/blog/post/${params.id}/update_likes`,
       {
         method: 'POST',
         headers: {

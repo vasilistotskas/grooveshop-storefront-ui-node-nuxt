@@ -5,7 +5,7 @@ export default defineEventHandler(async () => {
   const accessToken = await requireAllAuthAccessToken()
   try {
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/notification/user/unseen_count`,
+      `${config.apiBaseUrl}/notification/user/unseen_count`,
       {
         method: 'GET',
         headers: {

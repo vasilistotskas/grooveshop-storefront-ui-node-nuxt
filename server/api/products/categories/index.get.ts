@@ -1,10 +1,8 @@
-const { maxAge, base } = getCachedEventHandlerOptions()
-
-export default defineCachedEventHandler(async () => {
+export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/product/category`,
+      `${config.apiBaseUrl}/product/category`,
       {
         method: 'GET',
       },
@@ -14,4 +12,4 @@ export default defineCachedEventHandler(async () => {
   catch (error) {
     await handleError(error)
   }
-}, { maxAge, base, name: 'ProductCategoryViewSet' })
+})

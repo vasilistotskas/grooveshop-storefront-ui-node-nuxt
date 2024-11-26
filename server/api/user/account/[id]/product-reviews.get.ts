@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     )
     const query = await getValidatedQuery(event, ZodProductReviewQuery.parse)
     const url = buildFullUrl(
-      `${config.public.apiBaseUrl}/user/account/${params.id}/product_reviews`,
+      `${config.apiBaseUrl}/user/account/${params.id}/product_reviews`,
       query,
     )
     const response = await $fetch(url, {

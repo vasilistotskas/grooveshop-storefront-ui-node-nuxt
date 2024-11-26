@@ -1,6 +1,4 @@
-const { maxAge, base } = getCachedEventHandlerOptions()
-
-export default defineCachedEventHandler(async () => {
+export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/config`, {
@@ -11,4 +9,4 @@ export default defineCachedEventHandler(async () => {
   catch (error) {
     await handleAllAuthError(error)
   }
-}, { maxAge, base, name: 'AllAuthConfig' })
+})

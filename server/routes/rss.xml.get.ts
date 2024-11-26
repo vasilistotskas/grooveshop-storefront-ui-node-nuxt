@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   try {
     const locale = siteConfig.defaultLocale || 'el'
     const siteUrl = siteConfig.url
-    const apiBaseUrl = config.public.apiBaseUrl
+    const apiBaseUrl = config.apiBaseUrl
 
     const allPosts = await cachedBlogPosts(`${apiBaseUrl}/blog/post?expand=true`)
     const blogPosts = allPosts.map(post => ZodBlogPost.parse(post))

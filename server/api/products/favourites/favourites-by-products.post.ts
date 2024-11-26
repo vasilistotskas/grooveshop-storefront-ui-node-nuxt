@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       ZodProductFavouritesByProductsBody.parse,
     )
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/product/favourite/favourites_by_products`,
+      `${config.apiBaseUrl}/product/favourite/favourites_by_products`,
       {
         method: 'POST',
         body,

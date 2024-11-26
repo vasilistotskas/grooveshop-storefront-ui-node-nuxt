@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     const params = await getValidatedRouterParams(event, ZodBlogPostParams.parse)
     const query = await getValidatedQuery(event, ZodBlogPostQuery.parse)
     const url = buildFullUrl(
-      `${config.public.apiBaseUrl}/blog/post/${params.id}/comments`,
+      `${config.apiBaseUrl}/blog/post/${params.id}/comments`,
       query,
     )
     const response = await $fetch(url, {

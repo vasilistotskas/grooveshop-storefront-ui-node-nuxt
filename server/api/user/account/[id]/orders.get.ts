@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
     const query = await getValidatedQuery(event, ZodOrderQuery.parse)
     const url = buildFullUrl(
-      `${config.public.apiBaseUrl}/user/account/${params.id}/orders`,
+      `${config.apiBaseUrl}/user/account/${params.id}/orders`,
       query,
     )
     const response = await $fetch(url, {

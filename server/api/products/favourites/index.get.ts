@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const query = await getValidatedQuery(event, ZodProductFavouriteQuery.parse)
     const url = buildFullUrl(
-      `${config.public.apiBaseUrl}/product/favourite`,
+      `${config.apiBaseUrl}/product/favourite`,
       query,
     )
     const response = await $fetch(url, {

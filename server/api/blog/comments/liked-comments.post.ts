@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     )
 
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/blog/comment/liked_comments`,
+      `${config.apiBaseUrl}/blog/comment/liked_comments`,
       {
         method: 'POST',
         body,

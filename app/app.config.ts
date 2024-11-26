@@ -21,12 +21,5 @@ export default defineAppConfig({
       },
     },
   },
-  icon: {
-    collections: [
-      'heroicons',
-      'heroicons-outline',
-      'heroicons-solid',
-    ],
-  },
   nuxtIcon: {},
 })

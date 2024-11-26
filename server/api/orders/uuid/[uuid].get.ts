@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, ZodOrderUUIDParams.parse)
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/order/uuid/${params.uuid}`,
+      `${config.apiBaseUrl}/order/uuid/${params.uuid}`,
       {
         method: 'GET',
       },

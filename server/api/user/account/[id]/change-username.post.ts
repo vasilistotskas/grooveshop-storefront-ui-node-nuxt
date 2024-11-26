@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       event,
       ZodUserAccountParams.parse,
     )
-    const response = await $fetch(`${config.public.apiBaseUrl}/user/account/${params.id}/change_username`, {
+    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/change_username`, {
       method: 'POST',
       body,
       headers: {

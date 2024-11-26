@@ -64,12 +64,6 @@ export const useAuthStore = defineStore('auth', () => {
         {
           method: 'GET',
           headers: useRequestHeaders(),
-          credentials: 'include',
-          onResponse({ response }) {
-            if (!response.ok) {
-              return
-            }
-          },
           onResponseError(context) {
             config.value = undefined
             status.value.config = 'error'

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, ZodNotificationUserParams.parse)
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/notification/user/${params.id}`,
+      `${config.apiBaseUrl}/notification/user/${params.id}`,
       {
         method: 'DELETE',
         headers: {

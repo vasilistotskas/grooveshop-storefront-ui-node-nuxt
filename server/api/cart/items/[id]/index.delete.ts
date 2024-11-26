@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, ZodCartItemParams.parse)
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/cart/item/${params.id}`,
+      `${config.apiBaseUrl}/cart/item/${params.id}`,
       {
         method: 'DELETE',
         headers: {

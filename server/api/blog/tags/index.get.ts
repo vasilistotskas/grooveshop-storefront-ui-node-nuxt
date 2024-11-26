@@ -1,12 +1,10 @@
 import * as z from 'zod'
 
-const { maxAge, base } = getCachedEventHandlerOptions()
-
-export default defineCachedEventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodBlogTagQuery.parse)
-    const url = buildFullUrl(`${config.public.apiBaseUrl}/blog/tag`, query)
+    const url = buildFullUrl(`${config.apiBaseUrl}/blog/tag`, query)
     const response = await $fetch(url, {
       method: 'GET',
     })
@@ -15,4 +13,4 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { maxAge, base, name: 'BlogTagViewSet' })
+})

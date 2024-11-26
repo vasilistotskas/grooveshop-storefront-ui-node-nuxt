@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
       ZodBlogCommentParams.parse,
     )
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/blog/comment/${params.id}/update_likes`,
+      `${config.apiBaseUrl}/blog/comment/${params.id}/update_likes`,
       {
         method: 'POST',
         headers: {

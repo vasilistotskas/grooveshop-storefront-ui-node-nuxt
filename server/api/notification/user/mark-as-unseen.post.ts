@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, z.object({
       notificationUserIds: z.array(z.number()),
     }).parse)
-    const response = await $fetch(`${config.public.apiBaseUrl}/notification/user/mark_as_unseen`, {
+    const response = await $fetch(`${config.apiBaseUrl}/notification/user/mark_as_unseen`, {
       method: 'POST',
       body,
       headers: {

@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, z.object({
       ids: z.array(z.number()),
     }).parse)
-    const response = await $fetch(`${config.public.apiBaseUrl}/notification/ids`, {
+    const response = await $fetch(`${config.apiBaseUrl}/notification/ids`, {
       method: 'POST',
       body,
       headers: {

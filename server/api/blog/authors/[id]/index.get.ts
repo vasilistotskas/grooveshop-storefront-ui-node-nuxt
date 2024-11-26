@@ -1,6 +1,4 @@
-const { maxAge, base } = getCachedEventHandlerOptions()
-
-export default defineCachedEventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(
@@ -8,7 +6,7 @@ export default defineCachedEventHandler(async (event) => {
       ZodBlogAuthorParams.parse,
     )
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/blog/category/${params.id}`,
+      `${config.apiBaseUrl}/blog/category/${params.id}`,
       {
         method: 'GET',
       },
@@ -18,4 +16,4 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { maxAge, base, name: 'BlogAuthorViewSet' })
+})

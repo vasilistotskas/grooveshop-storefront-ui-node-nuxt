@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
       ZodProductReviewUserProductReviewBody.parse,
     )
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/product/review/user_product_review`,
+      `${config.apiBaseUrl}/product/review/user_product_review`,
       {
         method: 'POST',
         body,

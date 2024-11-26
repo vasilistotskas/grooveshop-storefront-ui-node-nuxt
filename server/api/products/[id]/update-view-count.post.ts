@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, ZodProductParams.parse)
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/product/${params.id}/update_view_count`,
+      `${config.apiBaseUrl}/product/${params.id}/update_view_count`,
       {
         method: 'POST',
       },

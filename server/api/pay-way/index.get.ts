@@ -1,10 +1,8 @@
-const { maxAge, base } = getCachedEventHandlerOptions()
-
-export default defineCachedEventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodPayWayQuery.parse)
-    const url = buildFullUrl(`${config.public.apiBaseUrl}/pay_way`, query)
+    const url = buildFullUrl(`${config.apiBaseUrl}/pay_way`, query)
     const response = await $fetch(url, {
       method: 'GET',
     })
@@ -13,4 +11,4 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { maxAge, base, name: 'PayWayViewSet' })
+})

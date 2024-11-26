@@ -102,7 +102,7 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   if (response.meta?.is_authenticated && !token) {
     headers = await getAllAuthHeaders()
   }
-  const user = await $fetch(`${config.public.apiBaseUrl}/user/account/${response.data.user.id}`, {
+  const user = await $fetch(`${config.apiBaseUrl}/user/account/${response.data.user.id}`, {
     method: 'GET',
     headers,
   })

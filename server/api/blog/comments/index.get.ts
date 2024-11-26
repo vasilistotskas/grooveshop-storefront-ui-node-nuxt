@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodBlogCommentQuery.parse)
-    const url = buildFullUrl(`${config.public.apiBaseUrl}/blog/comment`, query)
+    const url = buildFullUrl(`${config.apiBaseUrl}/blog/comment`, query)
     const response = await $fetch(url, {
       method: 'GET',
     })

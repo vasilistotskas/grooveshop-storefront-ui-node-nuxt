@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       ZodBlogCommentParams.parse,
     )
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/product/review/${params.id}`,
+      `${config.apiBaseUrl}/product/review/${params.id}`,
       {
         method: 'PUT',
         body,

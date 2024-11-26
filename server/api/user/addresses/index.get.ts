@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const accessToken = await requireAllAuthAccessToken()
   try {
     const query = await getValidatedQuery(event, ZodUserAddressQuery.parse)
-    const url = buildFullUrl(`${config.public.apiBaseUrl}/user/address`, query)
+    const url = buildFullUrl(`${config.apiBaseUrl}/user/address`, query)
     const response = await $fetch(url, {
       method: 'GET',
       headers: {

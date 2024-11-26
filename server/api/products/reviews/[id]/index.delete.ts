@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       ZodProductReviewParams.parse,
     )
     const response = await $fetch(
-      `${config.public.apiBaseUrl}/product/review/${params.id}`,
+      `${config.apiBaseUrl}/product/review/${params.id}`,
       {
         method: 'DELETE',
         headers: {
