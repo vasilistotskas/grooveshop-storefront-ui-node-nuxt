@@ -64,21 +64,16 @@ export default defineNuxtConfig({
     fallback: 'light',
   },
   runtimeConfig: {
-    // General Settings
     buildDate: new Date().toISOString(),
     apiBaseUrl: 'http://localhost:8000/api/v1',
     mediaStreamPath: 'http://localhost:3003/media_stream-image',
     cacheBase: 'cache',
     cacheMaxAge: '7200',
     djangoUrl: 'http://localhost:8000',
-    secretKey: '', // should be in .env var NUXT_SECRET_KEY
-
-    // Authentication
+    secretKey: '',
     auth: {
       cookieDomain: 'localhost',
     },
-
-    // OAuth Providers
     oauth: {
       discord: {
         clientId: '',
@@ -97,8 +92,6 @@ export default defineNuxtConfig({
         clientSecret: '',
       },
     },
-
-    // Third-Party Integrations
     turnstile: {
       secretKey: '',
     },
@@ -107,28 +100,19 @@ export default defineNuxtConfig({
       port: '6379',
       ttl: '7200',
     },
-
-    // Public Configuration (Exposed Client-Side)
     public: {
-      // Application Details
       appKeywords: '',
       appLogo: '',
       appTitle: '',
       baseUrl: 'http://localhost:3000',
       environment: 'development',
-
-      // Author Information
       author: {
         github_url: '',
         name: '',
       },
-
-      // Django Settings
       djangoHost: 'localhost:8000',
       djangoHostName: 'localhost:8000',
       djangoUrl: 'http://localhost:8000',
-
-      // Social Media Integrations
       facebookAppId: '',
       socials: {
         discord: '',
@@ -140,24 +124,19 @@ export default defineNuxtConfig({
         twitter: '',
         youtube: '',
       },
-
-      // Verification & Tracking
       domainVerifyId: '',
       googleGsiEnable: 'true',
       googleSiteVerification: '',
       mediaStreamOrigin: 'http://localhost:3003',
+      mediaStreamPath: 'http://localhost:3003/media_stream-image',
       scripts: {
         googleAnalytics: {
           id: '',
         },
       },
-
-      // Internationalization
       i18n: {
         baseUrl: 'http://localhost:3000',
       },
-
-      // Miscellaneous
       titleSeparator: '-',
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
     },
