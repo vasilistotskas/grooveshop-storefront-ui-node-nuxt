@@ -1,3 +1,10 @@
+## [1.240.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.1...v1.240.2) (2024-11-26)
+
+
+### Bug Fixes
+
+* media stream config ([c23430c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c23430ca83cfc24a2580fd9236ab8b1d6b68e99e))
+
 ## [1.240.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.0...v1.240.1) (2024-11-26)
 
 
