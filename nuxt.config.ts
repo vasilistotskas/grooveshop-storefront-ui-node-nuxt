@@ -67,6 +67,7 @@ export default defineNuxtConfig({
     // General Settings
     buildDate: new Date().toISOString(),
     apiBaseUrl: 'http://localhost:8000/api/v1',
+    mediaStreamPath: 'http://localhost:3003/media_stream-image',
     cacheBase: 'cache',
     cacheMaxAge: '7200',
     djangoUrl: 'http://localhost:8000',
@@ -145,7 +146,6 @@ export default defineNuxtConfig({
       googleGsiEnable: 'true',
       googleSiteVerification: '',
       mediaStreamOrigin: 'http://localhost:3003',
-      mediaStreamPath: 'http://localhost:3003/media_stream-image',
       scripts: {
         googleAnalytics: {
           id: '',

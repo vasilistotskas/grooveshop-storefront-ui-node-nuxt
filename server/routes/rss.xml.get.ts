@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     const blogPosts = allPosts.map(post => ZodBlogPost.parse(post))
 
     const feed = new RSS({
-      title: config.public.appTitle,
+      title: siteConfig.name,
       description: siteConfig.description,
       site_url: siteUrl,
       feed_url: `${siteUrl}/rss.xml`,
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
       }
 
       const postUrl = new URL(post.absoluteUrl, siteUrl).toString()
-      const mainImageUrl = config.public.mediaStreamPath + '/' + post.mainImagePath + '/472/311/cover/attention/transparent/5/webp/100'
+      const mainImageUrl = config.mediaStreamPath + '/' + post.mainImagePath + '/472/311/cover/attention/transparent/5/webp/100'
       const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
       let description = translation.subtitle || ''
       if (mainImageUrl) {
