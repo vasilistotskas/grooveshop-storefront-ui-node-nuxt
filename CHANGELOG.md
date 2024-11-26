@@ -1,3 +1,10 @@
+## [1.240.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.2...v1.240.3) (2024-11-26)
+
+
+### Bug Fixes
+
+* include apiBaseUrl in public config ([aa84102](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aa84102a6f86f10cfba5d060e7dedab02168e64e))
+
 ## [1.240.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.1...v1.240.2) (2024-11-26)
 
 
