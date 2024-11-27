@@ -553,9 +553,6 @@ export default defineNuxtConfig({
       crossOriginEmbedderPolicy: false,
       crossOriginOpenerPolicy: 'same-origin-allow-popups',
       contentSecurityPolicy: {
-        'default-src': [
-          `'self'`,
-        ],
         'img-src': [
           '\'self\'',
           'data:',

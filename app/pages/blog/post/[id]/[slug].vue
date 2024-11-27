@@ -57,7 +57,7 @@ const [{ data: likedPostsData }, { data: relatedPosts, status: relatedPostsStatu
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      postIds: [blogPostId],
+      postIds: [blogPostId.value],
     },
     immediate: shouldFetchLikedPosts.value,
   }),
