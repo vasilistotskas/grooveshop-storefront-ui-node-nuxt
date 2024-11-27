@@ -1,3 +1,10 @@
+# [1.242.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.241.0...v1.242.0) (2024-11-27)
+
+
+### Features
+
+* cache some API endpoints ([80d3cc7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/80d3cc747176ddc33c5aadf4b2becf9375ef3ab0))
+
 # [1.241.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.7...v1.241.0) (2024-11-27)
 
 
