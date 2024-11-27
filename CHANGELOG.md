@@ -1,3 +1,10 @@
+## [1.240.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.5...v1.240.6) (2024-11-27)
+
+
+### Bug Fixes
+
+* computed values in useFetch and useAsyncData ([667667f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/667667f58874d5ab1434e3ffe9b498ded6e5939d))
+
 ## [1.240.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.4...v1.240.5) (2024-11-26)
 
 
