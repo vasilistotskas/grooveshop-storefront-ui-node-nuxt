@@ -18,7 +18,7 @@ const { data: images } = await useFetch<ProductImage[]>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
   },
 )

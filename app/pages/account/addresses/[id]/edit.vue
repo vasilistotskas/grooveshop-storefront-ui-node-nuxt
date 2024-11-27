@@ -22,7 +22,7 @@ const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${add
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
-    language: locale.value,
+    language: locale,
   },
 })
 
@@ -116,14 +116,16 @@ defineField('isMain', {
   validateOnModelUpdate: true,
 })
 
-const { data: countries } = await useAsyncData<Pagination<Country>>('countries', () =>
-  $fetch<Pagination<Country>>('/api/countries', {
+const { data: countries } = await useFetch<Pagination<Country>>(
+  '/api/countries',
+  {
+    key: 'countries',
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
-  }),
+  },
 )
 
 const countryOptions = computed(() => {

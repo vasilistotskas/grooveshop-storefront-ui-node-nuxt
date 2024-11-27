@@ -39,19 +39,21 @@ const {
   data: products,
   status,
   refresh,
-} = await useAsyncData<Pagination<Product>>('products', () =>
-  $fetch<Pagination<Product>>('/api/products', {
+} = await useFetch<Pagination<Product>>(
+  '/api/products',
+  {
+    key: 'products',
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      page: page.value,
-      ordering: ordering.value,
-      category: category.value,
-      pageSize: pageSize.value,
-      paginationType: paginationType.value,
-      language: locale.value,
+      page: page,
+      ordering: ordering,
+      category: category,
+      pageSize: pageSize,
+      paginationType: paginationType,
+      language: locale,
     },
-  }),
+  },
 )
 
 const productIds = computed(() => {
@@ -63,21 +65,22 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value && productIds.value && productIds.value.length > 0
 })
 
-await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
-  method: 'POST',
-  headers: useRequestHeaders(),
-  body: {
-    productIds: productIds.value,
-  },
-  immediate: shouldFetchFavouriteProducts.value,
-  onResponse({ response }) {
-    if (!response.ok) {
-      return
-    }
-    const favourites = response._data
-    updateFavouriteProducts(favourites)
-  },
-})
+if (shouldFetchFavouriteProducts.value) {
+  await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+    method: 'POST',
+    headers: useRequestHeaders(),
+    body: {
+      productIds: productIds,
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const favourites = response._data
+      updateFavouriteProducts(favourites)
+    },
+  })
+}
 
 const refreshFavouriteProducts = async (ids: number[]) => {
   if (!shouldFetchFavouriteProducts.value) return

@@ -10,7 +10,7 @@ const { data: order } = await useFetch<Order>(`/api/orders/${orderId}`, {
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
-    language: locale.value,
+    language: locale,
   },
 })
 

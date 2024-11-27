@@ -7,7 +7,7 @@ const { data: categories, status } = await useLazyFetch<Pagination<BlogCategory>
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
-    language: locale.value,
+    language: locale,
   },
 })
 

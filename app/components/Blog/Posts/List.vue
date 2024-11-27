@@ -49,24 +49,25 @@ const allPosts = ref<BlogPost[]>([])
 const {
   data: posts,
   status,
-  refresh,
+  execute,
 } = await useFetch<Pagination<BlogPost>>(
   '/api/blog/posts',
   {
+    key: 'blogPosts',
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      page: page.value,
-      ordering: ordering.value,
-      id: id.value,
-      author: author.value,
-      slug: slug.value,
-      tags: tags.value,
-      expand: expand.value,
-      cursor: cursor.value,
-      pageSize: pageSize.value,
-      paginationType: paginationType.value,
-      language: locale.value,
+      page: page,
+      ordering: ordering,
+      id: id,
+      author: author,
+      slug: slug,
+      tags: tags,
+      expand: expand,
+      cursor: cursor,
+      pageSize: pageSize,
+      paginationType: paginationType,
+      language: locale,
     },
   },
 )
@@ -135,7 +136,9 @@ const imgLoading = (index: number) => {
 watch(
   () => cursorState.value,
   async () => {
-    await refresh()
+    console.log('watching cursorState.value')
+    await refreshNuxtData('blogPosts')
+    await execute()
     if (shouldFetchLikedPosts.value) {
       await refreshLikedPosts(postIds.value)
     }
@@ -146,7 +149,9 @@ watch(
 watch(
   () => route.query,
   async () => {
-    await refresh()
+    console.log('watching route.query')
+    await refreshNuxtData('blogPosts')
+    await execute()
     if (shouldFetchLikedPosts.value) {
       await refreshLikedPosts(postIds.value)
     }
@@ -157,6 +162,7 @@ watch(
 watch(
   () => loggedIn.value,
   async (newVal, _oldVal) => {
+    console.log('watching loggedIn.value')
     if (newVal) {
       await refreshLikedPosts(postIds.value)
     }
@@ -167,6 +173,7 @@ watch(
 watch(
   () => posts.value,
   (newValue) => {
+    console.log('watching posts.value')
     if (newValue?.results?.length) {
       const postsMap = new Map(allPosts.value.map(post => [post.id, post]))
       newValue.results.forEach(newPost => postsMap.set(newPost.id, newPost))
@@ -186,7 +193,7 @@ watch(
 )
 
 onReactivated(async () => {
-  await refresh()
+  await execute()
 })
 </script>
 

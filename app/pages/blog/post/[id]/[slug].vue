@@ -22,7 +22,7 @@ const { data: blogPost, refresh, error } = await useFetch<BlogPost>(
     headers: useRequestHeaders(),
     query: {
       expand: 'true',
-      language: locale.value,
+      language: locale,
     },
     pick: [
       'id',
@@ -57,7 +57,7 @@ const [{ data: likedPostsData }, { data: relatedPosts, status: relatedPostsStatu
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      postIds: [blogPostId.value],
+      postIds: [blogPostId],
     },
     immediate: shouldFetchLikedPosts.value,
   }),

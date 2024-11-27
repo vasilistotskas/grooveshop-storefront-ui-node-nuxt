@@ -13,7 +13,7 @@ const { data: category } = await useFetch<ProductCategory>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
   },
 )

@@ -553,6 +553,9 @@ export default defineNuxtConfig({
       crossOriginEmbedderPolicy: false,
       crossOriginOpenerPolicy: 'same-origin-allow-popups',
       contentSecurityPolicy: {
+        'default-src': [
+          `'self'`,
+        ],
         'img-src': [
           '\'self\'',
           'data:',
@@ -570,15 +573,22 @@ export default defineNuxtConfig({
           'https://www.google-analytics.com',
           'https://static.cloudflareinsights.com',
           `${process.env.NUXT_SITE_URL}/cdn-cgi/speculation`,
+          `${process.env.NUXT_SITE_URL}`,
         ],
         'script-src-attr': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
         ],
         'script-src-elem': [
-          'https://static.cloudflareinsights.com',
           '\'self\'',
           '\'nonce-{{nonce}}\'',
+          'https://static.cloudflareinsights.com',
+          `${process.env.NUXT_SITE_URL}`,
+        ],
+        'worker-src': [
+          '\'self\'',
+          `${process.env.NUXT_SITE_URL}`,
+          'blob:',
         ],
       },
     },

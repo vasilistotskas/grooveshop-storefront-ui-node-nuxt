@@ -31,7 +31,7 @@ const { data: category, status: categoryStatus, error } = await useFetch<BlogCat
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
   },
 )
@@ -45,19 +45,23 @@ if (error.value || !category.value) {
 }
 
 const {
-  data: posts, status: postStatus, refresh: refreshPosts,
-} = useLazyAsyncData<Pagination<BlogPost>>(`blogCategoryPosts${categoryId}`, () =>
-  $fetch<Pagination<BlogPost>>(`/api/blog/categories/${categoryId}/posts`, {
+  data: posts,
+  status: postStatus,
+  refresh: refreshPosts,
+} = await useLazyFetch<Pagination<BlogPost>>(
+  `/api/blog/categories/${categoryId}/posts`,
+  {
+    key: `blogCategoryPosts${categoryId}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      pageSize: pageSize.value,
-      page: page.value,
-      ordering: ordering.value,
+      pageSize: pageSize,
+      page: page,
+      ordering: ordering,
       paginationType: paginationType,
-      language: locale.value,
+      language: locale,
     },
-  }),
+  },
 )
 
 const categoryTitle = computed(() => {

@@ -16,7 +16,7 @@ const { data: order, error } = await useFetch<Order>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
   },
 )

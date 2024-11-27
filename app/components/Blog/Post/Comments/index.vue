@@ -77,20 +77,22 @@ const {
   data: comments,
   status,
   refresh,
-} = await useLazyAsyncData<Pagination<BlogComment>>(`comments${blogPostId.value}`, () =>
-  $fetch<Pagination<BlogComment>>(`/api/blog/posts/${blogPostId.value}/comments`, {
+} = await useLazyFetch<Pagination<BlogComment>>(
+  `/api/blog/posts/${blogPostId.value}/comments`,
+  {
+    key: `comments${blogPostId.value}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      cursor: cursor.value,
-      expand: expand.value,
-      expandFields: expandFields.value,
+      cursor: cursor,
+      expand: expand,
+      expandFields: expandFields,
       parent: 'none',
-      paginationType: paginationType.value,
-      pageSize: pageSize.value,
-      language: locale.value,
+      paginationType: paginationType,
+      pageSize: pageSize,
+      language: locale,
     },
-  }),
+  },
 )
 
 const pagination = computed(() => {
@@ -120,7 +122,7 @@ const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      post: blogPostId.value,
+      post: blogPostId,
     },
     immediate: loggedInAndHasComments.value,
   })
@@ -130,22 +132,23 @@ const commentIds = computed(() => {
   return comments.value?.results?.map(comment => comment.id)
 })
 
-await useLazyFetch<number[]>('/api/blog/comments/liked-comments', {
-  key: `likedComments${blogPostId.value}`,
-  method: 'POST',
-  headers: useRequestHeaders(),
-  body: {
-    commentIds: commentIds.value,
-  },
-  onResponse({ response }) {
-    if (!response.ok) {
-      return
-    }
-    const likedCommentIds = response._data
-    updateLikedComments(likedCommentIds)
-  },
-  immediate: loggedInAndHasComments.value,
-})
+if (loggedInAndHasComments.value) {
+  await useLazyFetch<number[]>('/api/blog/comments/liked-comments', {
+    key: `likedComments${blogPostId.value}`,
+    method: 'POST',
+    headers: useRequestHeaders(),
+    body: {
+      commentIds: commentIds,
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const likedCommentIds = response._data
+      updateLikedComments(likedCommentIds)
+    },
+  })
+}
 
 const onReplyAdd = async (data: BlogComment) => {
   emit('reply-add', data)

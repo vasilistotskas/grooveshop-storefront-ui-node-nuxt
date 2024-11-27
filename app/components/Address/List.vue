@@ -35,9 +35,9 @@ const { data: addresses } = await useFetch<Pagination<UserAddress>>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      page: page.value,
-      ordering: ordering.value,
-      pageSize: pageSize.value,
+      page: page,
+      ordering: ordering,
+      pageSize: pageSize,
     },
     onResponse({ response }) {
       if (!response.ok) {

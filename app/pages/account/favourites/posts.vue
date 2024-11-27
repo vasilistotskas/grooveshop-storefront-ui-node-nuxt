@@ -27,9 +27,9 @@ const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      page: page.value,
-      ordering: ordering.value,
-      pageSize: pageSize.value,
+      page: page,
+      ordering: ordering,
+      pageSize: pageSize,
       expand: 'true',
     },
   },

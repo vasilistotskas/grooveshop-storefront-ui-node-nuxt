@@ -36,9 +36,9 @@ const { data: favourites, refresh: refreshFavourites, status } = await useFetch<
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      page: page.value,
-      ordering: ordering.value,
-      pageSize: pageSize.value,
+      page: page,
+      ordering: ordering,
+      pageSize: pageSize,
       expand: 'true',
     },
     onResponse({ response }) {
@@ -60,7 +60,7 @@ const { refresh: refreshFavouriteProducts } = await useFetch<ProductFavourite[]>
   method: 'POST',
   headers: useRequestHeaders(),
   body: {
-    productIds: productIds.value,
+    productIds: productIds,
   },
   onResponse({ response }) {
     if (!response.ok) {

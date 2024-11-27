@@ -2,16 +2,16 @@
 const { locale } = useI18n()
 const route = useRoute()
 
-const { data: categories, status } = await useAsyncData<Pagination<ProductCategory>>(
-  'productCategories',
-  () =>
-    $fetch<Pagination<ProductCategory>>('/api/products/categories', {
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        language: locale.value,
-      },
-    }),
+const { data: categories, status } = await useFetch<Pagination<ProductCategory>>(
+  '/api/products/categories',
+  {
+    key: 'productCategories',
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      language: locale,
+    },
+  },
 )
 
 const sidebar = ref(null)

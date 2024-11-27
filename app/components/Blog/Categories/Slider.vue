@@ -17,8 +17,8 @@ const { data: categories } = await useFetch<Pagination<BlogCategory>>(`/api/blog
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
-    pageSize: max.value,
-    language: locale.value,
+    pageSize: max,
+    language: locale,
   },
 })
 

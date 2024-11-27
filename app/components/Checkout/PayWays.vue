@@ -7,14 +7,16 @@ const { t, locale } = useI18n({ useScope: 'local' })
 
 const emit = defineEmits(['update-model'])
 
-const { data: payWays, status } = await useAsyncData<Pagination<PayWay>>('payWays', () =>
-  $fetch<Pagination<PayWay>>('/api/pay-way', {
+const { data: payWays, status } = await useFetch<Pagination<PayWay>>(
+  '/api/pay-way',
+  {
+    key: 'payWays',
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
-  }),
+  },
 )
 
 const payWay = useState<PayWay | null>(

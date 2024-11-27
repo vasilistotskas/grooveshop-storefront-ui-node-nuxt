@@ -25,7 +25,7 @@ const { data: product, refresh: refreshProduct } = await useFetch<Product>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
   },
 )
@@ -37,7 +37,7 @@ const { data: tags, status } = await useLazyFetch<Tag[]>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale.value,
+      language: locale,
     },
   },
 )
@@ -54,21 +54,22 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
 
-await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
-  method: 'POST',
-  headers: useRequestHeaders(),
-  body: {
-    productIds: [Number(productId)],
-  },
-  immediate: shouldFetchFavouriteProducts.value,
-  onResponse({ response }) {
-    if (!response.ok) {
-      return
-    }
-    const favourites = response._data
-    updateFavouriteProducts(favourites)
-  },
-})
+if (shouldFetchFavouriteProducts.value) {
+  await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+    method: 'POST',
+    headers: useRequestHeaders(),
+    body: {
+      productIds: [Number(productId)],
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const favourites = response._data
+      updateFavouriteProducts(favourites)
+    },
+  })
+}
 
 const { data: userProductReview, refresh: refreshUserProductReview }
   = await useFetch<ProductReview>('/api/products/reviews/user-product-review', {

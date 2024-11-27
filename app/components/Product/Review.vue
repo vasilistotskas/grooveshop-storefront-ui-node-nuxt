@@ -55,9 +55,9 @@ const { refresh } = await useLazyFetch<ProductReview[]>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      ordering: ordering.value,
-      expand: expand.value,
-      language: locale.value,
+      ordering: ordering,
+      expand: expand,
+      language: locale,
     },
   },
 )
