@@ -1,4 +1,4 @@
-export default defineEventHandler(async () => {
+export default defineCachedEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const response = await $fetch(
@@ -12,4 +12,4 @@ export default defineEventHandler(async () => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { name: 'ProductCategoryViewSet' })

@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(
@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
       ZodBlogAuthorParams.parse,
     )
     const response = await $fetch(
-      `${config.apiBaseUrl}/blog/category/${params.id}`,
+      `${config.apiBaseUrl}/blog/author/${params.id}`,
       {
         method: 'GET',
       },
@@ -16,4 +16,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { name: 'BlogAuthorViewSet' })

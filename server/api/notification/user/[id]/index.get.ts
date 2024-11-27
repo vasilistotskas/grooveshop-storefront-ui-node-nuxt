@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const params = await getValidatedRouterParams(event, ZodNotificationUserParams.parse)
     const query = await getValidatedQuery(event, ZodNotificationUserQuery.parse)
     const url = buildFullUrl(
-      `${config.apiBaseUrl}/blog/post/${params.id}`,
+      `${config.apiBaseUrl}/notification/user/${params.id}`,
       query,
     )
     const response = await $fetch(url, {

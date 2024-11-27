@@ -68,7 +68,7 @@ export default defineNuxtConfig({
     apiBaseUrl: 'http://localhost:8000/api/v1',
     mediaStreamPath: 'http://localhost:3003/media_stream-image',
     cacheBase: 'cache',
-    cacheMaxAge: '7200',
+    cacheMaxAge: '30',
     djangoUrl: 'http://localhost:8000',
     secretKey: '',
     auth: {
@@ -98,7 +98,7 @@ export default defineNuxtConfig({
     redis: {
       host: 'localhost',
       port: '6379',
-      ttl: '7200',
+      ttl: '30',
     },
     public: {
       appKeywords: '',

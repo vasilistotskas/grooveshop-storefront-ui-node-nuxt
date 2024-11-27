@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, ZodBlogTagQuery.parse)
@@ -13,4 +13,4 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-})
+}, { name: 'BlogTagViewSet' })
