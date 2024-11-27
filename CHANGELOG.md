@@ -1,3 +1,10 @@
+## [1.240.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.6...v1.240.7) (2024-11-27)
+
+
+### Bug Fixes
+
+* `default-src` remove from `contentSecurityPolicy` ([cfea0a4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cfea0a441839e73571d07354e2653f750a96c546))
+
 ## [1.240.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.240.5...v1.240.6) (2024-11-27)
 
 
