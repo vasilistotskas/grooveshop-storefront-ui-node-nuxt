@@ -1,3 +1,10 @@
+## [1.244.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.244.0...v1.244.1) (2024-11-30)
+
+
+### Bug Fixes
+
+* preview mode ([2ee3bc7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2ee3bc71ee13ce8ddb8a53077dd94969050bd9e4))
+
 # [1.244.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.243.0...v1.244.0) (2024-11-30)
 
 
