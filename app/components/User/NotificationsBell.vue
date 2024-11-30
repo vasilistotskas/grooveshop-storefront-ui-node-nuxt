@@ -36,7 +36,7 @@ const { data, execute, status: notificationsStatus } = await useLazyAsyncData<ZN
 )
 
 watchEffect(async () => {
-  if (notificationIds.value && notificationIds.value.length) {
+  if (loggedIn.value && notificationIds.value && notificationIds.value.length) {
     await execute()
     await executeUnseenCount()
   }
@@ -82,16 +82,6 @@ onClickOutside(dropdown, () => {
 }, {
   ignore: [toggleButton],
 })
-
-watch(
-  () => loggedIn.value,
-  (isLoggedIn, previous) => {
-    if (!previous && isLoggedIn) {
-      execute()
-      executeUnseenCount()
-    }
-  },
-)
 </script>
 
 <template>

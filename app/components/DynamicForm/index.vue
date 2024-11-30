@@ -58,20 +58,6 @@ const props = withDefaults(
     buttonLabel: 'Submit',
     resetLabel: 'Reset',
     disableSubmitUntilValid: true,
-    submitButtonUi: () => ({
-      type: 'submit',
-      variant: 'soft',
-      color: 'primary',
-      size: 'md',
-      ui: {},
-    }),
-    resetButtonUi: () => ({
-      type: 'button',
-      variant: 'outline',
-      color: 'secondary',
-      size: 'md',
-      ui: {},
-    }),
     buttonsPosition: 'right',
     loading: false,
     maxSubmitCount: 5,
@@ -87,6 +73,8 @@ const {
   buttonLabel,
   resetLabel,
   disableSubmitUntilValid,
+  submitButtonUi,
+  resetButtonUi,
   loading,
   maxSubmitCount,
   resetOnSubmit,
@@ -394,14 +382,10 @@ defineExpose({
 
       <UButton
         v-if="!isMultiStep && submitButton"
+        v-bind="submitButtonUi"
         :aria-busy="isSubmitting"
-        :color="submitButtonUi?.color"
         :disabled="valid"
         :label="buttonLabel"
-        :size="submitButtonUi?.size"
-        :type="submitButtonUi?.type"
-        :ui="submitButtonUi?.ui"
-        :variant="submitButtonUi?.variant"
       />
 
       <UButton

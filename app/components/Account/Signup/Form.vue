@@ -14,6 +14,7 @@ const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 
 const loading = ref(false)
+const selected = ref(false)
 
 const ZodSignup = z
   .object({
@@ -85,25 +86,25 @@ const submitButtonLabel = computed(() => {
 })
 
 const submitButtonDisabled = computed(() => {
-  return loading.value || submitCount.value > 5
+  return loading.value || submitCount.value > 5 || !selected.value
 })
 </script>
 
 <template>
   <section class="relative grid">
     <div
-      v-if="isMobileOrTablet" class="
-        top-[-1px] h-64 bg-secondary absolute z-0 w-full
-
-        dark:bg-secondary-dark
+      v-if="isMobileOrTablet"
+      class="
+        top-[-1px] h-64 absolute z-0 w-full bg-center
       "
+      :style="isMobileOrTablet ? { backgroundImage: 'url(/img/login-background.png)', backgroundSize: 'cover' } : ''"
     />
     <form
       id="SignupForm"
       class="
-        z-10 !pt-12 container-2xs
+        z-10 !pt-12 container-3xs px-8 !pb-6
 
-        md:px-6 md:!pt-4
+        md:!p-0
       "
       name="SignupForm"
       @submit.prevent="onSubmit"
@@ -114,7 +115,7 @@ const submitButtonDisabled = computed(() => {
         <div class="relative grid w-full gap-4">
           <div
             class="
-              grid gap-6 py-8 shadow-lg bg-primary-100 rounded-lg px-4
+              grid gap-6 p-8 shadow-lg bg-primary-100 rounded-lg
 
               dark:bg-primary-900 dark:md:bg-transparent
 
@@ -232,9 +233,53 @@ const submitButtonDisabled = computed(() => {
                 class="relative px-4 py-3 text-xs text-red-600"
               >{{ errors.password2 }}</span>
             </div>
+
+            <div class="flex items-center gap-2">
+              <UCheckbox
+                v-model="selected"
+                name="consent"
+                :color="'blue'"
+                :ui="{
+                  label: 'text-sm font-medium text-secondary dark:text-secondary-dark',
+                }"
+              >
+                <template #label>
+                  <div class="flex gap-1">
+                    <span>{{ t('i_approve') }}</span>
+                    <UButton
+                      :label="t('terms')"
+                      :to="localePath('terms-of-use')"
+                      class="p-0"
+                      color="opposite"
+                      type="button"
+                      variant="link"
+                      target="_blank"
+                    />
+                  </div>
+                </template>
+              </UCheckbox>
+            </div>
+
+            <UButton
+              class="
+                text-white bg-secondary
+
+                dark:bg-secondary-dark
+              "
+              :aria-busy="loading"
+              :disabled="submitButtonDisabled"
+              :label="
+                submitButtonLabel"
+              :loading="loading"
+              block
+              size="xl"
+              type="submit"
+              variant="solid"
+            />
+
             <div
               class="
-                flex flex-col justify-between gap-2
+                flex flex-col items-center md:justify-between gap-2
 
                 sm:flex-row sm:items-center
               "
@@ -277,23 +322,6 @@ const submitButtonDisabled = computed(() => {
                 />
               </div>
             </div>
-
-            <UButton
-              class="
-                text-white bg-secondary
-
-                dark:bg-secondary-dark
-              "
-              :aria-busy="loading"
-              :disabled="submitButtonDisabled"
-              :label="
-                submitButtonLabel"
-              :loading="loading"
-              block
-              size="xl"
-              type="submit"
-              variant="solid"
-            />
           </div>
           <div class="grid gap-4">
             <div
@@ -321,8 +349,6 @@ const submitButtonDisabled = computed(() => {
               <div
                 class="
                   grid items-center justify-center gap-4
-
-                  md:pt-8
                 "
               >
                 <p
@@ -361,6 +387,8 @@ const submitButtonDisabled = computed(() => {
 el:
   login: Σύνδεση
   passkey_login: Εγγραφή με κωδικό μιας χρήσης
+  i_approve: Αποδέχομαι τους
+  terms: όρους χρήσης
   email:
     label: Email
     validation:

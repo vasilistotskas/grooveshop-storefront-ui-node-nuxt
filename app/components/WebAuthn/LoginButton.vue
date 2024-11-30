@@ -9,7 +9,7 @@ const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAut
 
 const { getWebAuthnRequestOptionsForLogin, loginUsingWebAuthn } = useAllAuthAuthentication()
 const { t } = useI18n()
-const toast = useToast()
+const router = useRouter()
 const { clear } = useUserSession()
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
@@ -21,12 +21,21 @@ const loading = ref(false)
 async function onSubmit() {
   try {
     loading.value = true
+    const currentPath = router.currentRoute.value.path
+    const currentQuery = router.currentRoute.value.query
+
+    if (!currentQuery.next) {
+      await router.replace({ query: { next: currentPath } })
+    }
+
     await clear()
+
     const optResp = await getWebAuthnRequestOptionsForLogin()
     const jsonOptions = optResp?.data.request_options as CredentialRequestOptionsJSON
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
+
     const options = parseRequestOptionsFromJSON(jsonOptions)
     const credential = await get(options)
     const response = await loginUsingWebAuthn({
@@ -36,10 +45,7 @@ async function onSubmit() {
     await performPostLoginActions()
   }
   catch {
-    toast.add({
-      title: t('error.default'),
-      color: 'red',
-    })
+    console.error('Login failed')
   }
   finally {
     await finalizeLogin()

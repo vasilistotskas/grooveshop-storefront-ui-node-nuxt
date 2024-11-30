@@ -53,6 +53,7 @@ const cursor = computed(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
 )
 
+const isOpen = ref(false)
 const allComments = ref<BlogComment[]>([])
 
 const refreshLikedComments = async (ids: number[]) => {
@@ -297,21 +298,44 @@ onMounted(() => {
         :title="
           loggedIn
             ? t('empty.title')
-            : t('empty.title_guest')
+            : ''
         "
         class="w-full"
       >
-        <template
-          v-if="loggedIn"
-          #actions
-        >
+        <template #actions>
           <LazyDynamicForm
+            v-if="loggedIn"
             id="add-comment-form"
             :button-label="t('submit')"
             :schema="addCommentFormSchema"
             class="container-3xs"
+            :submit-button-ui="{
+              color: 'secondary',
+              size: 'xl',
+              type: 'submit',
+              variant: 'solid',
+              ui: {
+                rounded: 'rounded-full',
+              },
+            }"
             @submit="onAddCommentSubmit"
           />
+          <div v-else>
+            <UButton
+              class="
+                text-white bg-secondary
+
+                dark:bg-secondary-dark
+              "
+              :label="t('empty.description_guest')"
+              block
+              size="xl"
+              type="submit"
+              variant="solid"
+              @click="isOpen = true"
+            />
+            <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
+          </div>
         </template>
       </LazyEmptyState>
     </LazyBlogPostCommentsList>
@@ -320,7 +344,7 @@ onMounted(() => {
       :description="
         loggedIn
           ? t('empty.description')
-          : t('empty.description_guest')
+          : ''
       "
       class="w-full"
       :title="t('empty.title')"
@@ -334,8 +358,33 @@ onMounted(() => {
           :button-label="t('submit')"
           :schema="addCommentFormSchema"
           class="container-3xs"
+          :submit-button-ui="{
+            color: 'secondary',
+            size: 'md',
+            type: 'submit',
+            variant: 'solid',
+            ui: {
+              rounded: 'rounded-full',
+            },
+          }"
           @submit="onAddCommentSubmit"
         />
+        <div v-else>
+          <UButton
+            class="
+                text-white bg-secondary
+
+                dark:bg-secondary-dark
+              "
+            :label="t('empty.description_guest')"
+            block
+            size="xl"
+            type="submit"
+            variant="solid"
+            @click="isOpen = true"
+          />
+          <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
+        </div>
       </template>
     </LazyEmptyState>
     <LazyPagination

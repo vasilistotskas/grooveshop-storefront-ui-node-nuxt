@@ -1,7 +1,7 @@
 import type { RouteLocationNormalized } from 'vue-router'
 
 export default defineNuxtRouteMiddleware(
-  async (to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
+  async (to, _from) => {
     const nuxtApp = useNuxtApp()
     const { loggedIn } = useUserSession()
     const localePath = useLocalePath()

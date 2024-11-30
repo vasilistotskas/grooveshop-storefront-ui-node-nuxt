@@ -9,6 +9,7 @@ const config = useRuntimeConfig()
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const { login } = useAllAuthAuthentication()
+const router = useRouter()
 const cartStore = useCartStore()
 const { refreshCart } = cartStore
 const { isMobileOrTablet } = useDevice()
@@ -43,11 +44,20 @@ const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
+    const currentPath = router.currentRoute.value.path
+    const currentQuery = router.currentRoute.value.query
+
+    if (!currentQuery.next) {
+      await router.replace({ query: { next: currentPath } })
+    }
+
     const response = await login({
       email: values.email,
       password: values.password,
     })
+
     session.value = response?.data
+
     await performPostLoginActions()
   }
   catch (error) {
@@ -85,19 +95,19 @@ const submitButtonDisabled = computed(() => {
 <template>
   <section class="relative grid">
     <div
-      v-if="isMobileOrTablet" class="
-        top-[-1px] h-64 bg-secondary absolute z-0 w-full
-
-        dark:bg-secondary-dark
+      v-if="isMobileOrTablet"
+      class="
+        top-[-1px] h-64 absolute z-0 w-full bg-center
       "
+      :style="isMobileOrTablet ? { backgroundImage: 'url(/img/login-background.png)', backgroundSize: 'cover' } : ''"
     />
     <form
       id="loginForm"
       ref="loginForm"
       class="
-        z-10 !pt-12 container-2xs
+        z-10 !pt-12 container-3xs px-8 !pb-6
 
-        md:px-6 md:!pt-4
+        md:!p-0
       "
       name="loginForm"
       @submit="onSubmit"
@@ -108,7 +118,7 @@ const submitButtonDisabled = computed(() => {
         <div class="relative grid w-full gap-4">
           <div
             class="
-              grid gap-6 py-8 shadow-lg bg-primary-100 rounded-lg px-4
+              grid gap-6 p-8 shadow-lg bg-primary-100 rounded-lg
 
               dark:bg-primary-900 dark:md:bg-transparent
 
@@ -189,67 +199,6 @@ const submitButtonDisabled = computed(() => {
                 class="relative px-4 py-3 text-xs text-red-600"
               >{{ errors.password }}</span>
             </div>
-            <div
-              class="
-                flex flex-col justify-between gap-2
-
-                sm:flex-row sm:items-center
-              "
-            >
-              <UButton
-                :label="t('use.code')"
-                :to="localePath('account-login-code')"
-                class="
-                  p-0 text-secondary font-semibold
-
-                  dark:text-secondary-dark
-                "
-                color="opposite"
-                size="md"
-                type="button"
-                variant="link"
-              />
-              <UButton
-                class="
-                  p-0 text-secondary font-semibold
-
-                  dark:text-secondary-dark
-                "
-                :label="t('forgot.password.reset')"
-                :to="localePath('account-password-reset')"
-                size="md"
-                color="opposite"
-                type="button"
-                variant="link"
-              />
-              <div
-                class="flex items-center gap-2"
-              >
-                <span
-                  class="
-                    text-secondary text-sm font-semibold
-
-                    dark:text-secondary-dark
-                  "
-                >{{
-                  t('no.account')
-                }}</span>
-
-                <UButton
-                  class="
-                    p-0 text-secondary font-semibold underline
-
-                    dark:text-secondary-dark
-                  "
-                  :label="$t('register')"
-                  :to="localePath('account-signup')"
-                  size="lg"
-                  color="opposite"
-                  type="button"
-                  variant="link"
-                />
-              </div>
-            </div>
             <UButton
               class="
                 text-white bg-secondary
@@ -270,7 +219,7 @@ const submitButtonDisabled = computed(() => {
           <div
             class="grid gap-4"
           >
-            <template v-if="hasSocialaccountProviders && status.config === 'success'">
+            <template v-if="status.config === 'success'">
               <div
                 class="
                   flex items-center
@@ -295,9 +244,69 @@ const submitButtonDisabled = computed(() => {
               <WebAuthnLoginButton />
               <div
                 class="
-                  grid items-center justify-center gap-4
+                flex flex-col items-center gap-2 py-4
 
-                  md:pt-8
+                sm:flex-col
+              "
+              >
+                <UButton
+                  :label="t('use.code')"
+                  :to="localePath('account-login-code')"
+                  class="
+                  p-0 text-secondary font-semibold
+
+                  dark:text-secondary-dark
+                "
+                  color="opposite"
+                  size="md"
+                  type="button"
+                  variant="link"
+                />
+                <UButton
+                  class="
+                  p-0 text-secondary font-semibold
+
+                  dark:text-secondary-dark
+                "
+                  :label="t('forgot.password.reset')"
+                  :to="localePath('account-password-reset')"
+                  size="md"
+                  color="opposite"
+                  type="button"
+                  variant="link"
+                />
+                <div
+                  class="flex items-center gap-2"
+                >
+                  <span
+                    class="
+                    text-secondary text-sm font-semibold
+
+                    dark:text-secondary-dark
+                  "
+                  >{{
+                    t('no.account')
+                  }}</span>
+
+                  <UButton
+                    class="
+                    p-0 text-secondary font-semibold underline
+
+                    dark:text-secondary-dark
+                  "
+                    :label="$t('register')"
+                    :to="localePath('account-signup')"
+                    size="lg"
+                    color="opposite"
+                    type="button"
+                    variant="link"
+                  />
+                </div>
+              </div>
+              <div
+                v-if="hasSocialaccountProviders"
+                class="
+                  grid items-center justify-center gap-4
                 "
               >
                 <p

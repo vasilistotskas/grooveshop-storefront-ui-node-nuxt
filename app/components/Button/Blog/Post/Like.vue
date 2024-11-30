@@ -37,16 +37,20 @@ const emit = defineEmits<{
   ): void
 }>()
 
+const attrs = useAttrs()
 const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { blogPostLiked, addLikedPost, removeLikedPost } = userStore
 
+const isOpen = ref(false)
+
 const liked = computed(() => blogPostLiked(props.blogPostId))
 
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
+    isOpen.value = true
     toast.add({
       title: t('not_authenticated'),
       color: 'red',
@@ -104,29 +108,33 @@ const buttonAreaLabel = computed(() => {
 </script>
 
 <template>
-  <UButton
-    :icon="!liked ? 'i-heroicons-hand-thumb-up' : 'i-heroicons-hand-thumb-up'"
-    :size="size"
-    :color="'primary'"
-    square
-    :variant="variant"
-    :label="String(likesCount)"
-    :aria-label="buttonAreaLabel"
-    :title="buttonAreaLabel"
-    :ui="{
-      size: {
-        lg: 'text-base',
-      },
-      icon: {
-        base: liked ? 'bg-secondary dark:bg-secondary-dark' : '',
+  <div>
+    <UButton
+      v-bind="attrs"
+      :icon="!liked ? 'i-heroicons-hand-thumb-up' : 'i-heroicons-hand-thumb-up'"
+      :size="size"
+      :color="'primary'"
+      square
+      :variant="variant"
+      :label="String(likesCount)"
+      :aria-label="buttonAreaLabel"
+      :title="buttonAreaLabel"
+      :ui="{
         size: {
-          lg: 'h-6 w-6',
-          xl: 'h-12 w-12',
+          lg: 'text-base',
         },
-      },
-    }"
-    @click="toggleFavourite"
-  />
+        icon: {
+          base: liked ? 'bg-secondary dark:bg-secondary-dark' : '',
+          size: {
+            lg: 'h-6 w-6',
+            xl: 'h-12 w-12',
+          },
+        },
+      }"
+      @click="toggleFavourite"
+    />
+    <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
+  </div>
 </template>
 
 <i18n lang="yaml">

@@ -46,18 +46,25 @@ definePageMeta({
       <UBreadcrumb
         :links="links"
         :ui="{
-          li: isMobileOrTablet ? 'text-primary-50 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
+          li: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
           base: 'text-xs md:text-md',
         }"
         class="
-          container-2xs !pt-2 bg-secondary
+          z-10 absolute container-3xs !pt-2 bg-transparent dark:bg-transparent
 
-          dark:bg-secondary-dark
-
-          md:mb-5 md:bg-transparent md:!pt-0 md:dark:bg-transparent
+          md:mb-5 md:!pt-0 md:relative
         "
       />
-      <AccountLoginForm />
+      <UCard
+        class="container-3xs !p-0"
+        :ui="{
+          body: {
+            padding: isMobileOrTablet? '' : 'px-4 py-5 sm:p-6',
+          },
+        }"
+      >
+        <AccountLoginForm />
+      </UCard>
     </PageBody>
   </PageWrapper>
 </template>

@@ -152,6 +152,9 @@ const likeClicked = async () => {
 const scrollToComments = () => {
   const comments = document.getElementById('blog-post-comments')
   if (comments) {
+    if (!window.location.hash.includes('#blog-post-comments')) {
+      window.location.hash = '#blog-post-comments'
+    }
     comments.scrollIntoView({ behavior: 'smooth' })
   }
 }

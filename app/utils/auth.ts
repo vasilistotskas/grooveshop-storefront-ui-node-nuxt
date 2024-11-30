@@ -1,3 +1,5 @@
+import { withQuery } from 'ufo'
+
 export const onAllAuthResponse = async (response: AllAuthResponse) => {
   if (!response) return
   const nuxtApp = useNuxtApp()
@@ -189,7 +191,8 @@ export const navigateToPendingFlow = async (
   const localePath = useLocalePath()
   const path = pathForPendingFlow(response)
   if (path) {
-    const url = localePath(path)
+    const next = useRouter().currentRoute.value.query.next
+    const url = withQuery(localePath(path), { next })
     await nuxtApp.runWithContext(() => navigateTo(url))
   }
   else {

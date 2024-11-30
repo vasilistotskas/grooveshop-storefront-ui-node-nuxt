@@ -29,15 +29,14 @@ const labels = {
 
 const filteredFlows = computed(() => {
   const currentPath = router.currentRoute.value.path
-  return flow.value?.types
-    ?.map((type) => {
-      const path = flow.value ? pathForFlow(flow.value, type) : ''
-      return {
-        label: labels[type],
-        id: type,
-        path,
-      }
-    })
+  if (!flow.value || !flow.value.types) return []
+  return flow.value.types.map((type) => {
+    return {
+      label: labels[type],
+      id: type,
+      path: flow.value ? pathForFlow(flow.value, type) : null,
+    }
+  })
     .filter(f => f.path !== currentPath)
 })
 </script>
@@ -80,11 +79,12 @@ const filteredFlows = computed(() => {
           class="grid items-center gap-2"
         >
           <UButton
+            v-if="f.path"
             :label="f.label"
-            :to="{
-              path: f.path,
+            :to="localePath({
+              name: f.path,
               query: { next },
-            }"
+            })"
             class="p-0"
             color="primary"
             icon="i-heroicons-arrow-right"
