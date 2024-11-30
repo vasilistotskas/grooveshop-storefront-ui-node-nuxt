@@ -2,18 +2,15 @@ export const useAppStore = defineStore('app', () => {
   const healthy = ref<boolean>(true)
 
   const healthCheck = async () => {
-    const { data, status: healthStatus, error: healthError } = await useAsyncData(
-      'healthCheck',
-      () => $fetch<ConfigResponse>(
-        `/api/health`,
-        {
-          method: 'GET',
-          headers: useRequestHeaders(),
-          timeout: 15,
-          retry: import.meta.dev ? 0 : 3,
-          retryDelay: import.meta.dev ? 0 : 60,
-        },
-      ),
+    const { data, status: healthStatus, error: healthError } = await useFetch<ConfigResponse>(
+      '/api/health',
+      {
+        method: 'GET',
+        headers: useRequestHeaders(),
+        timeout: 15,
+        retry: import.meta.dev ? 0 : 3,
+        retryDelay: import.meta.dev ? 0 : 60,
+      },
     )
 
     switch (healthStatus.value) {

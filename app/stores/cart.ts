@@ -28,36 +28,32 @@ export const useCartStore = defineStore('cart', () => {
     serializer: StorageSerializers.object,
   })
 
-  const getCartItems = computed(() => cart.value?.cartItems ?? null)
+  const getCartItems = computed(() => cart.value?.cartItems ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
 
   const getCartItemById = (id: number) =>
     cart.value?.cartItems.find(item => item.id === id) ?? null
 
   const getCartItemByProductId = (productId: number) =>
-    (cart.value?.cartItems
-      .map(item => item.product)
-      .find(product => product.id === productId) ?? null) as CartItem | null
+    cart.value?.cartItems.find(item => item.product.id === productId) ?? null
 
   function fetchCartFromLocalStorage() {
     if (import.meta.client) {
-      const cartFromLocalStorage = storage.value
-      if (!cartFromLocalStorage) {
-        storage.value = createEmptyCart()
-      }
-      cart.value = cartFromLocalStorage ?? null
+      const cartFromLocalStorage = storage.value ?? createEmptyCart()
+      cart.value = cartFromLocalStorage
+      storage.value = cartFromLocalStorage
     }
   }
 
   function createFetchHandlers(): FetchHooks {
     return {
-      onRequest(_ctx: FetchContext) {
+      onRequest() {
         pending.value.cart = true
       },
       onRequestError(ctx: FetchContext & { error: Error }) {
         error.value.cart = ctx.error as IFetchError
         pending.value.cart = false
-        console.error('Request Error:', ctx.error)
+        handleError(ctx.error)
       },
       onResponse(ctx: FetchContext & { response: FetchResponse<any> }) {
         cart.value = ctx.response._data
@@ -66,16 +62,20 @@ export const useCartStore = defineStore('cart', () => {
       onResponseError(ctx: FetchContext & { response: FetchResponse<any> }) {
         error.value.cart = ctx.error as IFetchError
         pending.value.cart = false
-        console.error('Response Error:', ctx.error)
+        if (ctx.error) {
+          handleError(ctx.error)
+        }
       },
     }
   }
 
+  function handleError(error: Error) {
+    console.error('Cart operation error:', error)
+  }
+
   async function createCartItem(body: CartItemAddBody) {
-    if (import.meta.prerender) return
     if (!loggedIn.value) {
-      const newCartItem = mapProductToCartItem(body)
-      createCartItemToLocalStorage(newCartItem)
+      createCartItemToLocalStorage(body)
       return
     }
 
@@ -93,7 +93,6 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function updateCartItem(id: number, body: CartItemPutBody) {
-    if (import.meta.prerender) return
     if (!loggedIn.value) {
       updateCartItemInLocalStorage(id, body)
       return
@@ -107,7 +106,6 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function deleteCartItem(id: number) {
-    if (import.meta.prerender) return
     if (!loggedIn.value) {
       deleteCartItemFromLocalStorage(id)
       return
@@ -121,7 +119,6 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function fetchCart() {
-    if (import.meta.prerender) return
     if (!loggedIn.value) {
       fetchCartFromLocalStorage()
       return
@@ -131,25 +128,12 @@ export const useCartStore = defineStore('cart', () => {
       $fetch<Cart>('/api/cart', {
         method: 'GET',
         headers: useRequestHeaders(),
-        onRequest() {
-          pending.value.cart = true
-        },
-        onRequestError({ error: requestError }) {
-          error.value.cart = requestError
-        },
-        onResponse({ response }) {
-          cart.value = response._data
-          pending.value.cart = false
-        },
-        onResponseError({ error: responseError }) {
-          error.value.cart = responseError
-        },
+        ...createFetchHandlers(),
       }),
     )
   }
 
   async function refreshCart() {
-    if (import.meta.prerender) return
     if (!loggedIn.value) {
       fetchCartFromLocalStorage()
       return
@@ -186,15 +170,15 @@ export const useCartStore = defineStore('cart', () => {
 
   function calculateCartTotals(cartItems: CartItem[]) {
     return {
-      totalPrice: cartItems.reduce((acc, item) => acc + (item?.finalPrice ?? 0) * (item?.quantity ?? 0), 0),
-      totalDiscountValue: cartItems.reduce((acc, item) => acc + (item?.discountValue ?? 0) * (item?.quantity ?? 0), 0),
-      totalVatValue: cartItems.reduce((acc, item) => acc + (item?.vatValue ?? 0) * (item?.quantity ?? 0), 0),
-      totalItems: cartItems.reduce((acc, item) => acc + (item?.quantity ?? 0), 0),
+      totalPrice: cartItems.reduce((acc, item) => acc + (item.finalPrice ?? 0) * (item.quantity ?? 0), 0),
+      totalDiscountValue: cartItems.reduce((acc, item) => acc + (item.discountValue ?? 0) * (item.quantity ?? 0), 0),
+      totalVatValue: cartItems.reduce((acc, item) => acc + (item.vatValue ?? 0) * (item.quantity ?? 0), 0),
+      totalItems: cartItems.reduce((acc, item) => acc + (item.quantity ?? 0), 0),
       totalItemsUnique: cartItems.length,
     }
   }
 
-  function createCartItemToLocalStorage(cartItem: CartItem) {
+  function createCartItemToLocalStorage(body: CartItemAddBody) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
       console.error('Cart not found in Local Storage')
@@ -202,14 +186,15 @@ export const useCartStore = defineStore('cart', () => {
     }
 
     const cartItems = cartFromLocalStorage.cartItems
-    const existingCartItem = cartItems.find(item => item.product.id === cartItem.product.id)
+    const existingCartItem = cartItems.find(item => item.product.id === body.product.id)
 
     if (existingCartItem) {
-      existingCartItem.quantity += cartItem.quantity
+      existingCartItem.quantity += body.quantity
       existingCartItem.updatedAt = new Date().toISOString()
     }
     else {
-      cartItems.push(cartItem)
+      const newCartItem = mapProductToCartItem(body)
+      cartItems.push(newCartItem)
     }
 
     updateLocalStorageCartTotals(cartFromLocalStorage, cartItems)
@@ -221,11 +206,11 @@ export const useCartStore = defineStore('cart', () => {
       console.error('Cart not found in Local Storage')
       return
     }
-    const cartItems = cartFromLocalStorage.cartItems
-    const cartItem = cartItems.find(item => item.id === id)
+
+    const cartItem = cartFromLocalStorage.cartItems.find(item => item.id === id)
     if (cartItem) {
       cartItem.quantity = Number(body.quantity)
-      updateLocalStorageCartTotals(cartFromLocalStorage, cartItems)
+      updateLocalStorageCartTotals(cartFromLocalStorage, cartFromLocalStorage.cartItems)
     }
   }
 
@@ -235,20 +220,19 @@ export const useCartStore = defineStore('cart', () => {
       console.error('Cart not found in Local Storage')
       return
     }
-    const cartItems = cartFromLocalStorage.cartItems
-    const index = cartItems.findIndex(item => item.id === id)
+
+    const index = cartFromLocalStorage.cartItems.findIndex(item => item.id === id)
     if (index !== -1) {
-      cartItems.splice(index, 1)
-      updateLocalStorageCartTotals(cartFromLocalStorage, cartItems)
+      cartFromLocalStorage.cartItems.splice(index, 1)
+      updateLocalStorageCartTotals(cartFromLocalStorage, cartFromLocalStorage.cartItems)
     }
   }
 
   function mapProductToCartItem(body: CartItemAddBody): CartItem {
-    const productData = { ...body.product }
     return {
       id: Date.now(),
       cart: Date.now(),
-      product: productData,
+      product: { ...body.product },
       price: body.product.price,
       finalPrice: body.product.finalPrice,
       quantity: body.quantity,

@@ -52,6 +52,7 @@ definePageMeta({
       <div class="grid items-center text-center">
         <NuxtTime
           :datetime="order.createdAt"
+          :locale="locale"
           class="
             text-primary-950 text-sm
 

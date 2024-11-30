@@ -143,7 +143,7 @@ const localePath = useLocalePath()
         >{{
           t('ordering.created_at')
         }}</span>
-        <NuxtTime :datetime="order.createdAt" />
+        <NuxtTime :datetime="order.createdAt" :locale="locale" />
       </div>
     </div>
 

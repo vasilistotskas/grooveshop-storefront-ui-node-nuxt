@@ -136,7 +136,6 @@ const imgLoading = (index: number) => {
 watch(
   () => cursorState.value,
   async () => {
-    console.log('watching cursorState.value')
     await refreshNuxtData('blogPosts')
     await execute()
     if (shouldFetchLikedPosts.value) {
@@ -149,7 +148,6 @@ watch(
 watch(
   () => route.query,
   async () => {
-    console.log('watching route.query')
     await refreshNuxtData('blogPosts')
     await execute()
     if (shouldFetchLikedPosts.value) {
@@ -162,7 +160,6 @@ watch(
 watch(
   () => loggedIn.value,
   async (newVal, _oldVal) => {
-    console.log('watching loggedIn.value')
     if (newVal) {
       await refreshLikedPosts(postIds.value)
     }
@@ -173,7 +170,6 @@ watch(
 watch(
   () => posts.value,
   (newValue) => {
-    console.log('watching posts.value')
     if (newValue?.results?.length) {
       const postsMap = new Map(allPosts.value.map(post => [post.id, post]))
       newValue.results.forEach(newPost => postsMap.set(newPost.id, newPost))

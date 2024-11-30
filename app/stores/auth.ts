@@ -57,20 +57,18 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const setupConfig = async () => {
-    const { data, status: configStatus } = await useAsyncData<ConfigResponse>(
-      'config',
-      () => $fetch<ConfigResponse>(
-        `/api/_allauth/app/v1/config`,
-        {
-          method: 'GET',
-          headers: useRequestHeaders(),
-          onResponseError(context) {
-            config.value = undefined
-            status.value.config = 'error'
-            error.value.config = context.error
-          },
+    const { data, status: configStatus } = await useFetch<ConfigResponse>(
+      '/api/_allauth/app/v1/config',
+      {
+        key: 'config',
+        method: 'GET',
+        headers: useRequestHeaders(),
+        onResponseError(context) {
+          config.value = undefined
+          status.value.config = 'error'
+          error.value.config = context.error
         },
-      ),
+      },
     )
     if (data.value) {
       config.value = data.value.data

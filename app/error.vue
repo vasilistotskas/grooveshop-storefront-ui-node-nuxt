@@ -20,6 +20,14 @@ const ogImageOptions = reactive({
   height: 630,
 })
 
+useSeoMeta({
+  title: () => t('page.title'),
+})
+
+useHead({
+  title: t('page.title'),
+})
+
 defineOgImage(ogImageOptions)
 </script>
 
@@ -101,6 +109,7 @@ el:
   home: Πίσω στην Αρχική
   hmmm: Χμμμ
   page:
+    title: 404
     not:
       found: H αράχνη δεν μπόρεσε να βρει την σελίδα που ψάχνεις.
   go:

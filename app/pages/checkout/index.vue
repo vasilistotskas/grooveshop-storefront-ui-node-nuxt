@@ -759,6 +759,7 @@ el:
     email: Email
     phone: Τηλέφωνο
     place: Περιοχή
+    city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας
     country: Χώρα
     region: Περιφέρεια

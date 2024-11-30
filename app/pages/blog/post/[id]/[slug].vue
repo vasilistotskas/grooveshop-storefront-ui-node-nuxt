@@ -167,6 +167,7 @@ onReactivated(async () => {
 })
 
 useSeoMeta({
+  titleTemplate: '%s',
   title: () => blogPostSeoTitle.value,
   description: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
   ogDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
@@ -178,6 +179,7 @@ useSeoMeta({
   twitterImage: ogImage.value,
 })
 useHead({
+  titleTemplate: '%s',
   title: blogPostSeoTitle,
 })
 useSchemaOrg([

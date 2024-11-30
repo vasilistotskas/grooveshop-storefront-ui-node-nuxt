@@ -126,7 +126,7 @@ const reviewComment = computed(() => {
         "
       >
         <div class="text-xs">
-          <NuxtTime :datetime="review.createdAt" />
+          <NuxtTime :datetime="review.createdAt" :locale="locale" />
         </div>
       </div>
     </div>

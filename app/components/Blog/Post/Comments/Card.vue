@@ -316,6 +316,7 @@ watch(
             >•</span>
             <NuxtTime
               :datetime="comment.createdAt"
+              :locale="locale"
               class="
                 text-primary-400 w-full text-end text-xs
 

@@ -7,7 +7,7 @@ const {
   deleteSession,
 } = useAllAuthSessions()
 const toast = useToast()
-const { t } = useI18n()
+const { locale, t } = useI18n()
 const { contentShorten } = useText()
 
 const loading = ref(false)
@@ -120,7 +120,12 @@ const actionItems = (session: Session) => {
           <span :title="row.user_agent">{{ contentShorten(row.user_agent, 0, 40) }}</span>
         </template>
         <template #created_at-data="{ row }">
-          <NuxtTime :date-style="'medium'" :datetime="new Date(row.created_at * 1000)" :time-style="'medium'" />
+          <NuxtTime
+            :date-style="'medium'"
+            :datetime="new Date(row.created_at * 1000)"
+            :time-style="'medium'"
+            :locale="locale"
+          />
         </template>
       </UTable>
       <div class="grid items-center justify-center justify-items-center">

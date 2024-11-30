@@ -51,6 +51,7 @@ watch(selectedPayWay, (value) => {
     <LazyURadioGroup
       v-if="status !== 'pending' && payWays?.results?.length"
       v-model="selectedPayWay"
+      class="max-h-72 overflow-y-auto"
       :legend="t('title')"
       :options="options"
       :ui="{
