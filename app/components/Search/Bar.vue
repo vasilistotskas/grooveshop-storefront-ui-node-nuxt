@@ -167,7 +167,9 @@ const debouncedExecute = useDebounceFn(async () => {
 }, 250)
 
 watch(query, async () => {
-  await debouncedExecute()
+  if (query.value.length < 3) {
+    await debouncedExecute()
+  }
 })
 
 watch(

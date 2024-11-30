@@ -4,6 +4,8 @@ setupGoogleAnalyticsConsent()
 setupCursorStates()
 setupSocialLogin()
 
+const { enabled } = useAuthPreviewMode()
+const { loggedIn, user } = useUserSession()
 const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
 const { locales } = useI18n()
@@ -12,6 +14,10 @@ const cartStore = useCartStore()
 const { fetchCart } = cartStore
 
 await fetchCart()
+
+watch([loggedIn, user], ([l, u]) => {
+  enabled.value = !!(l && u?.isSuperuser)
+}, { immediate: true })
 
 useSchemaOrg([
   defineWebPage(),

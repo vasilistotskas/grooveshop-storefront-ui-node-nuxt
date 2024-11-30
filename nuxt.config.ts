@@ -510,6 +510,12 @@ export default defineNuxtConfig({
     injectManifest: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
     },
+    devOptions: {
+      enabled: false,
+      suppressWarnings: true,
+      navigateFallback: undefined,
+      type: 'module',
+    },
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 60 * 60,

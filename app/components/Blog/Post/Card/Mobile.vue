@@ -20,6 +20,7 @@ const props = defineProps({
 })
 
 const { locale } = useI18n()
+const localePath = useLocalePath()
 
 const { post } = toRefs(props)
 
@@ -147,6 +148,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :title="$t('comments.count', {
             count: post.commentsCount,
           })"
+          :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
           :label="String(post.commentsCount)"
           :ui="{
             icon: {

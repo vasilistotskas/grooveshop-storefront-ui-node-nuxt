@@ -27,7 +27,11 @@ const offset = computed({
   },
 })
 
-const { data, execute, status, refresh } = await useAsyncData<SearchResponse>(
+const searchImmediate = computed(() => {
+  return query.value.length >= 3
+})
+
+const { data, execute, status, refresh } = await useLazyAsyncData<SearchResponse>(
   'search',
   () => $fetch<SearchResponse>('/api/search', {
     method: 'GET',
@@ -54,6 +58,7 @@ const { data, execute, status, refresh } = await useAsyncData<SearchResponse>(
   }),
   {
     dedupe: 'cancel',
+    immediate: searchImmediate.value,
   },
 )
 
