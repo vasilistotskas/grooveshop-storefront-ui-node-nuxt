@@ -110,7 +110,7 @@ watch(
               :style="{
                 contentVisibility: 'auto',
                 filter: 'invert(40%) sepia(85%) saturate(7500%) hue-rotate(220deg) brightness(105%) contrast(120%)',
-                objectFit: 'none',
+                objectFit: isMobileOrTablet ? 'scale-down' : 'none',
               }"
               :src="category.mainImagePath"
               :width="368"
