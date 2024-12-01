@@ -168,7 +168,7 @@ const links = computed(() => [
   {
     to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
-    icon: 'i-heroicons-home',
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('products'),
@@ -472,6 +472,10 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
+  breadcrumb:
+    items:
+      products:
+        label: Προϊόντα
   product_id: Αναγνωριστικό προϊόντος
   save: Αποθήκευση
   inclusive_of_taxes: Συμπεριλαμβάνονται όλοι οι φόροι.

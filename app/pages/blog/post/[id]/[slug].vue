@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const route = useRoute()
-const { t, locale } = useI18n()
+const { t, locale } = useI18n({ useScope: 'local' })
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
@@ -118,7 +118,7 @@ const links = computed(() => [
   {
     to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
-    icon: 'i-heroicons-home',
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('blog'),
@@ -432,3 +432,11 @@ definePageMeta({
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  breadcrumb:
+    items:
+      blog:
+        label: Blog
+</i18n>

@@ -24,9 +24,8 @@ const props = withDefaults(defineProps<Props>(), {
 const attrs = useAttrs()
 
 const mainImageProps = computed(() => {
-  const { fallback, src, modifiers, ...restProps } = props
-  const { modifiers: attrModifiers, ...restAttrs } = attrs
-  return { ...restAttrs, ...restProps }
+  const { fallback, src, ...restProps } = props
+  return { ...attrs, ...restProps }
 })
 
 const imgSrc = computed(() => {
@@ -35,15 +34,9 @@ const imgSrc = computed(() => {
 })
 
 const getFallbackImageProps = computed(() => {
-  const { fallback, src, modifiers, ...restProps } = props
-  const { modifiers: attrModifiers, ...restAttrs } = attrs
-  return { ...restAttrs, ...restProps }
+  const { fallback, src, ...restProps } = props
+  return { ...attrs, ...restProps }
 })
-
-const fallbackModifiers = {
-  position: 'center',
-  trimThreshold: 5,
-} as const
 
 const hasError = ref(false)
 
@@ -69,6 +62,5 @@ const handleError = (error: any) => {
     :src="fallback"
     alt="fallback"
     provider="ipx"
-    :modifiers="fallbackModifiers"
   />
 </template>

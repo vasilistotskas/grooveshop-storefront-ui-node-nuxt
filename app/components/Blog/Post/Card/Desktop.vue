@@ -4,8 +4,8 @@ import type { PropType } from 'vue'
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 405 },
-  imgHeight: { type: Number, required: false, default: 267 },
+  imgWidth: { type: Number, required: false, default: 480 },
+  imgHeight: { type: Number, required: false, default: 315 },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -83,7 +83,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :height="imgHeight"
           :width="imgWidth"
           fit="cover"
-          sizes="sm:510px md:472px lg:562px xl:405px 2xl:405px"
           :modifiers="{
             position: 'attention',
             trimThreshold: 5,

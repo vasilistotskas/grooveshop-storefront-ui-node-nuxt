@@ -14,12 +14,6 @@ const props = defineProps({
   },
 })
 
-await preloadComponents([
-  'PaginationPageNumber',
-  'PaginationCursor',
-  'PaginationLimitOffset',
-])
-
 const PaginationComponents = {
   [PaginationTypeEnum.PAGE_NUMBER]: resolveComponent('PaginationPageNumber'),
   [PaginationTypeEnum.CURSOR]: resolveComponent('PaginationCursor'),

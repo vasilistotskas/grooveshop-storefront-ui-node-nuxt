@@ -98,7 +98,7 @@ const links = computed(() => [
   {
     to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
-    icon: 'i-heroicons-home',
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath({ path: route.fullPath }),

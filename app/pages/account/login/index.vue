@@ -7,12 +7,12 @@ const links = computed(() => [
   {
     to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
-    icon: 'i-heroicons-home',
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
     label: t('breadcrumb.items.account-login.label'),
-    icon: 'i-heroicons-arrow-right-on-rectangle',
+    icon: t('breadcrumb.items.account-login.icon'),
     current: true,
   },
 ])
@@ -72,4 +72,9 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Σύνδεση
+  breadcrumb:
+    items:
+      account-login:
+        label: Σύνδεση
+        icon: i-heroicons-arrow-right-on-rectangle
 </i18n>

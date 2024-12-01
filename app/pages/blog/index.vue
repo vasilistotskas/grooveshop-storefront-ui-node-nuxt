@@ -6,7 +6,7 @@ const links = computed(() => [
   {
     to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
-    icon: 'i-heroicons-home',
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('blog'),
@@ -52,4 +52,8 @@ definePageMeta({
 el:
   title: Blog
   description: Ανακάλυψε τα τελευταία νέα και τις τεχνολογικές εξελίξεις στον κόσμο της τεχνολογίας.
+  breadcrumb:
+    items:
+      blog:
+        label: Blog
 </i18n>

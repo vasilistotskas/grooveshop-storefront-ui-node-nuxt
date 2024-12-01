@@ -195,6 +195,19 @@ onReactivated(async () => {
 
 <template>
   <div class="posts-list grid gap-4">
+    <LazyPagination
+      v-if="pagination && ['pageNumber', 'limitOffset'].includes(paginationType)"
+      :count="pagination.count"
+      :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
+      :links="pagination.links"
+      :loading="status === 'pending'"
+      :page="pagination.page"
+      :page-size="pagination.pageSize"
+      :page-total-results="pagination.pageTotalResults"
+      :pagination-type="paginationType"
+      :strategy="'scroll'"
+      :total-pages="pagination.totalPages"
+    />
     <section
       class="
         flex gap-4
@@ -202,45 +215,53 @@ onReactivated(async () => {
         md:gap-8
       "
     >
-      <ol
-        v-if="showResults"
+      <div
         class="
-          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-8
+          row-start-2 grid w-full
+
+          md:row-start-1
+        "
+      >
+        <ol
+          v-if="showResults"
+          class="
+          grid w-full grid-cols-1 items-center justify-center gap-8
 
           lg:grid-cols-2
 
-          md:row-start-1 md:grid-cols-2
+          md:grid-cols-2
 
           sm:grid-cols-1
 
           xl:grid-cols-3
         "
-      >
-        <Component
-          :is="BlogPostCard"
-          v-for="(post, index) in allPosts"
-          :key="index"
-          :img-loading="imgLoading(index)"
-          :post="post"
-        />
-      </ol>
-      <ClientOnlyFallback
-        v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
-        class="
-          row-start-2 grid w-full grid-cols-1 items-center justify-center gap-8
+        >
+          <Component
+            :is="BlogPostCard"
+            v-for="(post, index) in allPosts"
+            :key="index"
+            :img-loading="imgLoading(index)"
+            :post="post"
+          />
+        </ol>
+        <ClientOnlyFallback
+          v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
+          class="
+          grid w-full grid-cols-1 items-center justify-center gap-8
 
           lg:grid-cols-2
 
-          md:row-start-1 md:grid-cols-2
+          md:grid-cols-2
 
-          sm:grid-cols-2
+          sm:grid-cols-1
 
           xl:grid-cols-3
         "
-        :count="allPosts.length || 4"
-        height="478px"
-        width="100%"
-      />
+          :count="allPosts.length || 4"
+          height="478px"
+          width="100%"
+        />
+      </div>
       <slot name="sidebar" />
     </section>
     <Transition>
@@ -251,7 +272,7 @@ onReactivated(async () => {
       />
     </Transition>
     <LazyPagination
-      v-if="pagination"
+      v-if="pagination && paginationType === 'cursor'"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
       :links="pagination.links"

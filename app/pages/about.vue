@@ -1,5 +1,20 @@
 <script lang="ts" setup>
 const { t } = useI18n({ useScope: 'local' })
+const localePath = useLocalePath()
+
+const links = computed(() => [
+  {
+    to: localePath('index'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
+  },
+  {
+    to: localePath('about'),
+    label: t('breadcrumb.items.about.label'),
+    icon: t('breadcrumb.items.about.icon'),
+    current: true,
+  },
+])
 
 useSeoMeta({
   title: t('title'),
@@ -15,6 +30,14 @@ definePageMeta({
 
 <template>
   <PageWrapper class="container flex flex-col">
+    <UBreadcrumb
+      :links="links"
+      :ui="{
+        li: 'text-primary-950 dark:text-primary-50',
+        base: 'text-xs md:text-md',
+      }"
+      class="container-xs relative min-w-0 mb-5"
+    />
     <PageTitle
       :text="t('title')"
       class="mb-4 text-center capitalize"
@@ -98,4 +121,9 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Τι Είναι Το Webside
+  breadcrumb:
+    items:
+      about:
+        label: Τι Είναι Το Webside
+        icon: i-heroicons-information-circle
 </i18n>
