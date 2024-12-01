@@ -37,7 +37,7 @@ definePageMeta({
         li: 'text-primary-950 dark:text-primary-50',
         base: 'text-xs md:text-md',
       }"
-      class="container-xs relative min-w-0 mb-5"
+      class="container-xs relative mb-5 min-w-0"
     />
     <PageTitle
       :text="t('microlearning.what')"

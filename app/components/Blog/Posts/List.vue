@@ -225,16 +225,16 @@ onReactivated(async () => {
         <ol
           v-if="showResults"
           class="
-          grid w-full grid-cols-1 items-center justify-center gap-8
+            grid w-full grid-cols-1 items-center justify-center gap-8
 
-          lg:grid-cols-2
+            lg:grid-cols-2
 
-          md:grid-cols-2
+            md:grid-cols-2
 
-          sm:grid-cols-1
+            sm:grid-cols-1
 
-          xl:grid-cols-3
-        "
+            xl:grid-cols-3
+          "
         >
           <Component
             :is="BlogPostCard"
@@ -247,16 +247,16 @@ onReactivated(async () => {
         <ClientOnlyFallback
           v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
           class="
-          grid w-full grid-cols-1 items-center justify-center gap-8
+            grid w-full grid-cols-1 items-center justify-center gap-8
 
-          lg:grid-cols-2
+            lg:grid-cols-2
 
-          md:grid-cols-2
+            md:grid-cols-2
 
-          sm:grid-cols-1
+            sm:grid-cols-1
 
-          xl:grid-cols-3
-        "
+            xl:grid-cols-3
+          "
           :count="allPosts.length || 4"
           height="478px"
           width="100%"

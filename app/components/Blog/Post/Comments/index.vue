@@ -372,10 +372,10 @@ onMounted(() => {
         <div v-else>
           <UButton
             class="
-                text-white bg-secondary
+              text-white bg-secondary
 
-                dark:bg-secondary-dark
-              "
+              dark:bg-secondary-dark
+            "
             :label="t('empty.description_guest')"
             block
             size="xl"

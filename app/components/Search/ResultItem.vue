@@ -84,7 +84,11 @@ const imgAlt = computed(() => {
           }"
           densities="x1"
         />
-        <div v-if="sortedFields && sortedFields.length > 0" class="grid overflow-hidden">
+        <div
+          v-if="sortedFields && sortedFields.length > 0" class="
+            grid overflow-hidden
+          "
+        >
           <div v-for="([key, value], index) in sortedFields" :key="index">
             <span
               v-if="key"

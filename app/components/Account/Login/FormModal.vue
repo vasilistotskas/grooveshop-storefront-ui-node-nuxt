@@ -28,7 +28,13 @@ watch(loggedIn, () => {
         class="absolute right-4 top-4 z-50"
         @click="isOpen = false"
       />
-      <AccountLoginForm class="p-4 md:p-8" />
+      <AccountLoginForm
+        class="
+          p-4
+
+          md:p-8
+        "
+      />
     </UCard>
   </UModal>
 </template>

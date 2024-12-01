@@ -225,7 +225,17 @@ definePageMeta({
         </ol>
         <ClientOnlyFallback
           v-if="postStatus === 'pending'"
-          class="grid grid-cols-1 items-center justify-center gap-4 lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-3"
+          class="
+            grid grid-cols-1 items-center justify-center gap-4
+
+            lg:grid-cols-3
+
+            md:grid-cols-3
+
+            sm:grid-cols-2
+
+            xl:grid-cols-3
+          "
           :count="posts?.results?.length || 4"
           :height="skeletonHeight"
           width="100%"

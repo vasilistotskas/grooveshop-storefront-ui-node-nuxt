@@ -87,25 +87,25 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
       >
         <div
           v-if="section && section.results && section.results.length > 0" class="
-              flex flex-col gap-2
-            "
+            flex flex-col gap-2
+          "
         >
           <div class="flex items-center">
             <span
               class="
-                  text-md text-primary-950 me-4 shrink
+                text-md text-primary-950 me-4 shrink
 
-                  dark:text-primary-50
-                "
+                dark:text-primary-50
+              "
             >
               {{ $t(`sections.${key}`) }}
             </span>
             <div
               class="
-                  border-primary-300 grow border-t
+                border-primary-300 grow border-t
 
-                  dark:border-primary-500
-                "
+                dark:border-primary-500
+              "
             />
           </div>
 

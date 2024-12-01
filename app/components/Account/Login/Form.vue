@@ -96,9 +96,7 @@ const submitButtonDisabled = computed(() => {
   <section class="relative grid">
     <div
       v-if="isMobileOrTablet"
-      class="
-        top-[-1px] h-64 absolute z-0 w-full bg-center
-      "
+      class="absolute top-[-1px] z-0 h-64 w-full bg-center"
       :style="isMobileOrTablet ? { backgroundImage: 'url(/img/login-background.png)', backgroundSize: 'cover' } : ''"
     />
     <form
@@ -244,19 +242,19 @@ const submitButtonDisabled = computed(() => {
               <WebAuthnLoginButton />
               <div
                 class="
-                flex flex-col items-center gap-2 py-4
+                  flex flex-col items-center gap-2 py-4
 
-                sm:flex-col
-              "
+                  sm:flex-col
+                "
               >
                 <UButton
                   :label="t('use.code')"
                   :to="localePath('account-login-code')"
                   class="
-                  p-0 text-secondary font-semibold
+                    p-0 text-secondary font-semibold
 
-                  dark:text-secondary-dark
-                "
+                    dark:text-secondary-dark
+                  "
                   color="opposite"
                   size="md"
                   type="button"
@@ -264,10 +262,10 @@ const submitButtonDisabled = computed(() => {
                 />
                 <UButton
                   class="
-                  p-0 text-secondary font-semibold
+                    p-0 text-secondary font-semibold
 
-                  dark:text-secondary-dark
-                "
+                    dark:text-secondary-dark
+                  "
                   :label="t('forgot.password.reset')"
                   :to="localePath('account-password-reset')"
                   size="md"
@@ -280,20 +278,20 @@ const submitButtonDisabled = computed(() => {
                 >
                   <span
                     class="
-                    text-secondary text-sm font-semibold
+                      text-secondary text-sm font-semibold
 
-                    dark:text-secondary-dark
-                  "
+                      dark:text-secondary-dark
+                    "
                   >{{
                     t('no.account')
                   }}</span>
 
                   <UButton
                     class="
-                    p-0 text-secondary font-semibold underline
+                      p-0 text-secondary font-semibold underline
 
-                    dark:text-secondary-dark
-                  "
+                      dark:text-secondary-dark
+                    "
                     :label="$t('register')"
                     :to="localePath('account-signup')"
                     size="lg"
@@ -305,9 +303,7 @@ const submitButtonDisabled = computed(() => {
               </div>
               <div
                 v-if="hasSocialaccountProviders"
-                class="
-                  grid items-center justify-center gap-4
-                "
+                class="grid items-center justify-center gap-4"
               >
                 <p
                   class="

@@ -88,12 +88,20 @@ watch(
       >
         <Anchor
           v-if="category.absoluteUrl"
-          class="grid justify-center items-center"
+          class="grid h-full items-center justify-center"
           :to="{ path: category.absoluteUrl }"
           :text="extractTranslated(category, 'name', locale)"
         >
           <div class="grid h-full">
-            <h2 class="text-center text-secondary dark:text-secondary-dark text-xl font-semibold tracking-tight md:text-2xl">
+            <h2
+              class="
+                text-center text-secondary text-xl font-semibold tracking-tight
+
+                dark:text-secondary-dark
+
+                md:text-2xl
+              "
+            >
               {{ extractTranslated(category, 'name', locale) }}
             </h2>
             <ImgWithFallback
@@ -114,7 +122,13 @@ watch(
               :modifiers="{ position: 'attention' }"
             />
             <div class="grid items-end">
-              <span class="w-full block text-center font-semibold text-secondary dark:text-secondary-dark">
+              <span
+                class="
+                  block w-full text-center font-semibold text-secondary
+
+                  dark:text-secondary-dark
+                "
+              >
                 {{
                   t('discover.more', category.recursivePostCount)
                 }}

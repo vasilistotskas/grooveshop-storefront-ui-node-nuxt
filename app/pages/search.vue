@@ -265,7 +265,11 @@ definePageMeta({
               li: 'text-primary-950 dark:text-primary-50',
               base: 'text-xs md:text-md',
             }"
-            class="!p-0 container-xs relative min-w-0 md:mb-5 mt-5"
+            class="
+              !p-0 container-xs relative mt-5 min-w-0
+
+              md:mb-5
+            "
           />
           <PageTitle class="text-lg">
             <span :class="{ 'opacity-0': !query }">

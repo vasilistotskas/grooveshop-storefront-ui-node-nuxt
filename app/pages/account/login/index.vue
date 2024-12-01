@@ -50,9 +50,11 @@ definePageMeta({
           base: 'text-xs md:text-md',
         }"
         class="
-          z-10 absolute container-3xs !pt-2 bg-transparent dark:bg-transparent
+          absolute z-10 container-3xs bg-transparent !pt-2
 
-          md:mb-5 md:!pt-0 md:relative
+          dark:bg-transparent
+
+          md:relative md:mb-5 md:!pt-0
         "
       />
       <UCard

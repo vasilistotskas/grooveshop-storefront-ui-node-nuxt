@@ -94,9 +94,7 @@ const submitButtonDisabled = computed(() => {
   <section class="relative grid">
     <div
       v-if="isMobileOrTablet"
-      class="
-        top-[-1px] h-64 absolute z-0 w-full bg-center
-      "
+      class="absolute top-[-1px] z-0 h-64 w-full bg-center"
       :style="isMobileOrTablet ? { backgroundImage: 'url(/img/login-background.png)', backgroundSize: 'cover' } : ''"
     />
     <form
@@ -279,7 +277,9 @@ const submitButtonDisabled = computed(() => {
 
             <div
               class="
-                flex flex-col items-center md:justify-between gap-2
+                flex flex-col items-center gap-2
+
+                md:justify-between
 
                 sm:flex-row sm:items-center
               "
@@ -347,9 +347,7 @@ const submitButtonDisabled = computed(() => {
                 </p>
               </div>
               <div
-                class="
-                  grid items-center justify-center gap-4
-                "
+                class="grid items-center justify-center gap-4"
               >
                 <p
                   class="
