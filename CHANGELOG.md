@@ -1,3 +1,10 @@
+## [1.246.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.246.0...v1.246.1) (2024-12-01)
+
+
+### Bug Fixes
+
+* tailwind style ([3d4ae55](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3d4ae5549f33b8a19e7f3166a3a9e48b7fac4082))
+
 # [1.246.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.245.0...v1.246.0) (2024-12-01)
 
 
