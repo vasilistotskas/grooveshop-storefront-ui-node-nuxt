@@ -1,3 +1,10 @@
+# [1.245.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.244.1...v1.245.0) (2024-12-01)
+
+
+### Features
+
+* Add breadcrumbs and UI updates ([f448daf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f448daf4f0403bb89e453d4be1a128d71f68b0e3))
+
 ## [1.244.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.244.0...v1.244.1) (2024-11-30)
 
 
