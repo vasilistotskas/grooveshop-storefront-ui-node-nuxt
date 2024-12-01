@@ -10,7 +10,7 @@ const links = computed(() => [
   },
   {
     to: localePath('products'),
-    label: t('breadcrumb.items.products.label'),
+    label: t('breadcrumb.items.blog.categories.label'),
     current: true,
   },
 ])
@@ -25,7 +25,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-fluid flex flex-col">
+  <PageWrapper class="container flex flex-col">
     <PageBody>
       <div class="container !p-0">
         <UBreadcrumb
@@ -41,19 +41,17 @@ definePageMeta({
           "
         />
       </div>
-      <div class="flex gap-4">
-        <ProductsSidebar />
-        <ProductsList />
-      </div>
+      <BlogCategoriesList />
     </PageBody>
   </PageWrapper>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Προϊόντα
+  title: Κατηγορίες
   breadcrumb:
     items:
-      products:
-        label: Προϊόντα
+      blog:
+        categories:
+          label: Κατηγορίες
 </i18n>

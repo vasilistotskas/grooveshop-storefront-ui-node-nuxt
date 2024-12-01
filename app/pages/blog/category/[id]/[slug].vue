@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { locale, t } = useI18n()
+const { locale, t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
@@ -74,7 +74,7 @@ const categoryDescription = computed(() => {
 
 const totalPosts = computed(() => category.value?.recursivePostCount || 0)
 
-const skeletonHeight = computed(() => (isMobileOrTablet ? '410px' : '452px'))
+const skeletonHeight = computed(() => (isMobileOrTablet ? '466px' : '527px'))
 
 const pagination = computed(() => {
   if (!posts.value) return
@@ -99,6 +99,10 @@ const links = computed(() => [
     to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
     icon: t('breadcrumb.items.index.icon'),
+  },
+  {
+    to: localePath('blog-categories'),
+    label: t('breadcrumb.items.blog.categories.label'),
   },
   {
     to: localePath({ path: route.fullPath }),
@@ -132,7 +136,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-fluid flex flex-col">
+  <PageWrapper class="container flex flex-col">
     <PageBody>
       <div class="container !p-0">
         <UBreadcrumb
@@ -144,7 +148,7 @@ definePageMeta({
           class="
             mb-5
 
-            md:pl-14
+            md:px-0
           "
         />
       </div>
@@ -177,7 +181,7 @@ definePageMeta({
           </span>
         </h2>
       </div>
-      <div class="posts-list container flex w-full flex-col gap-4">
+      <div class="posts-list flex w-full flex-col gap-4">
         <div class="flex flex-row flex-wrap items-center gap-2">
           <LazyPagination
             v-if="pagination"
@@ -195,39 +199,47 @@ definePageMeta({
             :ordering-options="orderingOptions.orderingOptionsArray.value"
           />
         </div>
-        <template v-if="categoryStatus === 'success'">
-          <ol
-            class="
-              grid grid-cols-1 items-center justify-center gap-4
+        <ol
+          v-if="categoryStatus === 'success'"
+          class="
+            grid grid-cols-1 items-center justify-center gap-4
 
-              lg:grid-cols-3
+            lg:grid-cols-3
 
-              md:grid-cols-3
+            md:grid-cols-3
 
-              sm:grid-cols-2
+            sm:grid-cols-2
 
-              xl:grid-cols-3
-            "
-          >
-            <template v-if="postStatus === 'success'">
-              <Component
-                :is="BlogPostCard"
-                v-for="(post, index) in posts?.results"
-                :key="index"
-                :img-loading="index > 7 ? 'lazy' : 'eager'"
-                :post="post"
-              />
-            </template>
-            <template v-if="postStatus === 'pending'">
-              <ClientOnlyFallback
-                :count="posts?.results?.length || 4"
-                :height="skeletonHeight"
-                width="100%"
-              />
-            </template>
-          </ol>
-        </template>
+            xl:grid-cols-3
+          "
+        >
+          <template v-if="postStatus === 'success'">
+            <Component
+              :is="BlogPostCard"
+              v-for="(post, index) in posts?.results"
+              :key="index"
+              :img-loading="index > 7 ? 'lazy' : 'eager'"
+              :post="post"
+            />
+          </template>
+        </ol>
+        <ClientOnlyFallback
+          v-if="postStatus === 'pending'"
+          class="grid grid-cols-1 items-center justify-center gap-4 lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-3"
+          :count="posts?.results?.length || 4"
+          :height="skeletonHeight"
+          width="100%"
+        />
       </div>
     </PageBody>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  breadcrumb:
+    items:
+      blog:
+        categories:
+          label: Κατηγορίες
+</i18n>

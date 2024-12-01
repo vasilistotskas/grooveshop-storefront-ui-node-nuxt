@@ -9,6 +9,7 @@ const route = useRoute()
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: 'local' })
 const { isMobileOrTablet } = useDevice()
+const localePath = useLocalePath()
 
 const query = ref(Array.isArray(route.query.query) ? (route.query.query[0] ?? '') : (route.query.query ?? ''))
 const limit = ref(3)
@@ -20,6 +21,20 @@ const highlighted = ref<string | undefined>(undefined)
 const initialPage = parseInt(route.query.page as string) || 1
 const currentPage = ref(initialPage)
 
+const links = computed(() => [
+  {
+    to: localePath('index'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
+  },
+  {
+    to: localePath('search'),
+    label: t('breadcrumb.items.search.label'),
+    icon: t('breadcrumb.items.search.icon'),
+    current: true,
+  },
+])
+
 const offset = computed({
   get: () => (currentPage.value - 1) * Number(limit.value),
   set: (val) => {
@@ -27,40 +42,43 @@ const offset = computed({
   },
 })
 
-const searchImmediate = computed(() => {
-  return query.value.length >= 3
-})
-
-const { data, execute, status, refresh } = await useLazyAsyncData<SearchResponse>(
-  'search',
-  () => $fetch<SearchResponse>('/api/search', {
+const { data, status, refresh } = await useFetch<SearchResponse>(
+  '/api/search',
+  {
     method: 'GET',
     headers: useRequestHeaders(),
     credentials: 'omit',
     retry: 120,
     retryDelay: 1000,
+    dedupe: 'cancel',
     query: {
-      query: query.value,
-      language: locale.value,
-      limit: limit.value,
-      offset: offset.value,
+      query: query,
+      language: locale,
+      limit: limit,
+      offset: offset,
     },
     onResponse({ response }) {
       if (!response.ok) {
         return
       }
-      results.value = response._data
-      if (!Object.values(response._data).every(value => !value)) {
-        addToSearchHistory(query.value)
+      if (response && response._data) {
+        results.value = response._data
+        if (!Object.values(response._data).every(value => !value)) {
+          addToSearchHistory(query.value)
+        }
+        isSuggestionsOpen.value = false
       }
-      isSuggestionsOpen.value = false
     },
-  }),
-  {
-    dedupe: 'cancel',
-    immediate: searchImmediate.value,
   },
 )
+
+// if (data.value) {
+//   results.value = data.value
+//   if (!Object.values(data.value).every(value => !value)) {
+//     addToSearchHistory(query.value)
+//   }
+//   isSuggestionsOpen.value = false
+// }
 
 async function loadMoreSectionResults(
   { lim, off }: { lim: number, off: number },
@@ -112,34 +130,38 @@ const max = computed(() => {
 })
 
 watch(
-  () => currentSearch.value,
+  () => currentSearch,
   async (newVal) => {
-    if (newVal.length < 3) return
-    query.value = newVal
+    if (newVal.value.length < 3) return
+    query.value = newVal.value
+    currentPage.value = 1
     await router.replace({
       query: {
         ...route.query,
-        query: newVal,
-        page: currentPage.value,
+        query: newVal.value,
       },
     })
     await throttledSearch()
   },
+  {
+    immediate: false,
+    deep: true,
+  },
 )
 
 watch(
-  () => currentPage.value,
+  () => currentPage,
   async (newPage) => {
     await router.replace({
       query: {
         ...route.query,
-        page: newPage,
+        page: newPage.value,
       },
     })
-    await execute()
   },
   {
-    immediate: true,
+    immediate: false,
+    deep: true,
   },
 )
 
@@ -167,8 +189,6 @@ useHead({
 definePageMeta({
   layout: 'default',
 })
-
-await preloadComponents('SearchAutoComplete')
 </script>
 
 <template>
@@ -215,7 +235,7 @@ await preloadComponents('SearchAutoComplete')
               <UIcon name="i-heroicons-arrow-left" />
             </Anchor>
             <UIcon
-              name="i-fa-solid-magnifying-glass" class="
+              name="i-heroicons-magnifying-glass" class="
                 text-lg
 
                 md:text-base
@@ -238,7 +258,15 @@ await preloadComponents('SearchAutoComplete')
             />
           </div>
         </div>
-        <div class="grid gap-4">
+        <div class="container-xs grid gap-4">
+          <UBreadcrumb
+            :links="links"
+            :ui="{
+              li: 'text-primary-950 dark:text-primary-50',
+              base: 'text-xs md:text-md',
+            }"
+            class="!p-0 container-xs relative min-w-0 md:mb-5 mt-5"
+          />
           <PageTitle class="text-lg">
             <span :class="{ 'opacity-0': !query }">
               <span>{{ t('results') }}:</span>
@@ -288,6 +316,7 @@ await preloadComponents('SearchAutoComplete')
               show-last
             />
             <SearchAutoComplete
+              v-if="results"
               v-model:keep-focus="keepFocus"
               v-model:highlighted="highlighted"
               class="relative"
@@ -310,6 +339,11 @@ await preloadComponents('SearchAutoComplete')
 <i18n lang="yaml">
 el:
   title: Αναζήτηση
+  breadcrumb:
+    items:
+      search:
+        label: Αναζήτηση
+        icon: i-heroicons-magnifying-glass-circle
   placeholder: Αναζήτηση...
   results: Αποτέλεσμα αναζήτησης για
   back_to_home: Πίσω στην Αρχική

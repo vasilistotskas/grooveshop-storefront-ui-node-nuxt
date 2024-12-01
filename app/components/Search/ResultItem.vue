@@ -11,10 +11,12 @@ const props = defineProps<{
   item: SearchProduct | SearchBlogPost
   highlighted: boolean
 }>()
+
 const { item } = toRefs(props)
 const emit = defineEmits(['click', 'mousedown', 'mouseover'])
 
 const sortedFields = computed(() => {
+  if (!item.value) return []
   if (!item.value.formatted) return []
 
   const fields = Object.entries(item.value.formatted).filter(
@@ -82,29 +84,29 @@ const imgAlt = computed(() => {
           }"
           densities="x1"
         />
-        <div class="grid overflow-hidden">
-          <ClientOnly>
-            <div v-for="([key, value], index) in sortedFields" :key="index">
-              <span
-                class="
-                  text-primary-950 text-sm font-semibold
+        <div v-if="sortedFields && sortedFields.length > 0" class="grid overflow-hidden">
+          <div v-for="([key, value], index) in sortedFields" :key="index">
+            <span
+              v-if="key"
+              class="
+                text-primary-950 text-sm font-semibold
 
-                  dark:text-primary-50
-                "
-              >
-                {{ $t(`fields.${key}`) }}:
-              </span>
-              <span
-                class="
-                  text-primary-950 line-clamp-1 text-sm
+                dark:text-primary-50
+              "
+            >
+              {{ $t(`fields.${key}`) }}:
+            </span>
+            <span
+              v-if="value"
+              class="
+                text-primary-950 line-clamp-1 text-sm
 
-                  dark:text-primary-50
-                "
-              >
-                {{ value }}
-              </span>
-            </div>
-          </ClientOnly>
+                dark:text-primary-50
+              "
+            >
+              {{ value }}
+            </span>
+          </div>
         </div>
       </div>
     </Anchor>
