@@ -1,3 +1,10 @@
+## [1.246.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.246.2...v1.246.3) (2024-12-01)
+
+
+### Bug Fixes
+
+* blog categories image ([972d24f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/972d24f2b5665288a307662f9160a2ee3869de47))
+
 ## [1.246.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.246.1...v1.246.2) (2024-12-01)
 
 
