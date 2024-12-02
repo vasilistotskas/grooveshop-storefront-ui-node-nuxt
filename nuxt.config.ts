@@ -26,7 +26,6 @@ export default defineNuxtConfig({
   imports: {
     autoImport: true,
     dirs: [
-      'stores/**',
       '../shared/**',
     ],
   },
@@ -425,9 +424,6 @@ export default defineNuxtConfig({
     defaults: {
       cacheMaxAgeSeconds: 60 * 60 * 24 * 7 * 1000, // 7 days
     },
-  },
-  pinia: {
-    storesDirs: ['/stores/**'],
   },
   pwa: {
     strategies: sw ? 'injectManifest' : 'generateSW',
