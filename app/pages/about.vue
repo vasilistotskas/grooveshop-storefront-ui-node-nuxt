@@ -17,9 +17,11 @@ const links = computed(() => [
 ])
 
 useSeoMeta({
+  titleTemplate: '%s',
   title: t('title'),
 })
 useHead({
+  titleTemplate: '%s',
   title: t('title'),
 })
 

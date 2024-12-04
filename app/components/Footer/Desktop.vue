@@ -11,7 +11,7 @@ const packageVersion = pkg.version
 <template>
   <footer
     class="
-      bg-primary-50 border-primary-500 mt-6 w-full border-t-2 pt-2
+      hidden md:block bg-primary-50 border-primary-500 mt-6 w-full border-t-2 pt-2
 
       dark:bg-primary-900
     "

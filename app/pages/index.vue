@@ -49,7 +49,7 @@ useSeoMeta({
           >
             <MobileOrTabletOnly>
               <BlogCategoriesSlider
-                class="container-sm !pr-0"
+                class="container-sm !py-0"
               />
             </MobileOrTabletOnly>
 

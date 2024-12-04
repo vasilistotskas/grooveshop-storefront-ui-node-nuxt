@@ -46,26 +46,21 @@ defineOgImage({
 </script>
 
 <template>
-  <div
-    id="#app"
-    class="app"
-  >
-    <NuxtPwaManifest />
-    <NuxtRouteAnnouncer />
-    <LoadingIndicator />
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-    <Pwa />
-    <CookieControl />
-    <UNotifications>
-      <template #title="{ title }">
-        <span v-html="title" />
-      </template>
+  <NuxtPwaManifest />
+  <NuxtRouteAnnouncer />
+  <LoadingIndicator />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+  <Pwa />
+  <CookieControl />
+  <UNotifications>
+    <template #title="{ title }">
+      <span v-html="title" />
+    </template>
 
-      <template #description="{ description }">
-        <span v-html="description" />
-      </template>
-    </UNotifications>
-  </div>
+    <template #description="{ description }">
+      <span v-html="description" />
+    </template>
+  </UNotifications>
 </template>

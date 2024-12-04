@@ -105,7 +105,7 @@ const Footer = computed(() => {
     <slot name="footer">
       <MobileOrTabletOnly>
         <div
-          class="my-6 flex flex-wrap items-center justify-center"
+          class="md:hidden my-6 flex flex-wrap items-center justify-center"
         >
           <Socials />
         </div>
@@ -133,7 +133,7 @@ const Footer = computed(() => {
           },
         }"
         class="
-          border-primary-200 bg-primary-50 fixed inset-x-0 bottom-0 z-50 w-full
+          md:hidden border-primary-200 bg-primary-50 fixed inset-x-0 bottom-0 z-50 w-full
           border-t
 
           dark:border-primary-700 dark:bg-primary-900
