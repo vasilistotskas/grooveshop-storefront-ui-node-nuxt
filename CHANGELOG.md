@@ -1,3 +1,10 @@
+# [1.249.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.248.1...v1.249.0) (2024-12-04)
+
+
+### Features
+
+* UI updates, bump pinia ([7684a79](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7684a79761be11f770315a408b30a9d602421904))
+
 ## [1.248.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.248.0...v1.248.1) (2024-12-04)
 
 
