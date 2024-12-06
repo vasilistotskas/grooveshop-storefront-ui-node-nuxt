@@ -1,3 +1,10 @@
+# [1.250.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.249.0...v1.250.0) (2024-12-06)
+
+
+### Features
+
+* Bump Versions, BlogCategoriesSlider show all button ([0974354](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0974354a980b3d5a776f916358f0336302b3b937))
+
 # [1.249.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.248.1...v1.249.0) (2024-12-04)
 
 
