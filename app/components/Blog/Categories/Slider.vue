@@ -4,6 +4,10 @@ const props = defineProps({
     type: Number,
     default: 6,
   },
+  showAllButton: {
+    type: Boolean,
+    default: false,
+  }
 })
 
 const { max } = toRefs(props)
@@ -69,6 +73,7 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
       </UButton>
     </LazyUCarousel>
     <UButton
+      v-if="showAllButton"
       :to="localePath('blog-categories')"
       size="sm"
       color="black"
