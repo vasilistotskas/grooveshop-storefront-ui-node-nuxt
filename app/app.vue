@@ -16,6 +16,7 @@ const { fetchCart } = cartStore
 await fetchCart()
 
 watch([loggedIn, user], ([l, u]) => {
+  if (import.meta.dev || process.env.NODE_ENV === 'development') return
   enabled.value = !!(l && u?.isSuperuser)
 }, { immediate: true })
 

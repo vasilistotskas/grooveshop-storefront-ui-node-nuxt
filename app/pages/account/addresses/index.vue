@@ -15,9 +15,8 @@ definePageMeta({
     "
   >
     <PageTitle :text="t('title')" />
-    <PageBody>
-      <AddressList />
-    </PageBody>
+
+    <AddressList />
   </PageWrapper>
 </template>
 

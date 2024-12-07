@@ -26,26 +26,24 @@ definePageMeta({
 
 <template>
   <PageWrapper class="container-fluid flex flex-col">
-    <PageBody>
-      <div class="container !p-0">
-        <UBreadcrumb
-          :links="links"
-          :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
-          }"
-          class="
+    <div class="container !p-0">
+      <UBreadcrumb
+        :links="links"
+        :ui="{
+          li: 'text-primary-950 dark:text-primary-50',
+          base: 'text-xs md:text-md',
+        }"
+        class="
             mb-5
 
             md:px-0
           "
-        />
-      </div>
-      <div class="flex gap-4">
-        <ProductsSidebar />
-        <ProductsList />
-      </div>
-    </PageBody>
+      />
+    </div>
+    <div class="flex gap-4">
+      <ProductsSidebar />
+      <ProductsList />
+    </div>
   </PageWrapper>
 </template>
 

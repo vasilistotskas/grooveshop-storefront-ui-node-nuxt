@@ -28,6 +28,7 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
 const { data: category, status: categoryStatus, error } = await useFetch<BlogCategory>(
   `/api/blog/categories/${categoryId}`,
   {
+    key: `blogCategory${categoryId}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -136,112 +137,110 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col">
-    <PageBody>
-      <div class="container !p-0">
-        <UBreadcrumb
-          :links="links"
-          :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
-          }"
-          class="
+  <PageWrapper class="container-sm flex flex-col">
+    <div class="container-sm !p-0">
+      <UBreadcrumb
+        :links="links"
+        :ui="{
+          li: 'text-primary-950 dark:text-primary-50',
+          base: 'text-xs md:text-md',
+        }"
+        class="
             mb-5
 
             md:px-0
           "
-        />
-      </div>
-      <div class="container !p-0">
-        <h2
-          class="mb-5 flex w-full items-center justify-center gap-2"
-        >
-          <span
-            class="
+      />
+    </div>
+    <div class="container-sm !p-0">
+      <h2
+        class="mb-5 flex w-full items-center justify-center gap-2"
+      >
+        <span
+          class="
               text-primary-950 text-2xl font-bold capitalize
 
               dark:text-primary-50
 
               md:text-3xl
             "
-          >
-            {{ categoryTitle }}
-          </span>
-          <span
-            v-if="totalPosts"
-            class="
+        >
+          {{ categoryTitle }}
+        </span>
+        <span
+          v-if="totalPosts"
+          class="
               text-primary-950 text-sm
 
               dark:text-primary-50
 
               md:text-md
             "
-          >
-            ({{ totalPosts }})
-          </span>
-        </h2>
-      </div>
-      <div class="posts-list flex w-full flex-col gap-4">
-        <div class="flex flex-row flex-wrap items-center gap-2">
-          <LazyPagination
-            v-if="pagination"
-            :count="pagination.count"
-            :links="pagination.links"
-            :loading="postStatus === 'pending'"
-            :page="pagination.page"
-            :page-size="pagination.pageSize"
-            :page-total-results="pagination.pageTotalResults"
-            :pagination-type="paginationType"
-            :total-pages="pagination.totalPages"
-          />
-          <Ordering
-            :ordering="String(ordering)"
-            :ordering-options="orderingOptions.orderingOptionsArray.value"
-          />
-        </div>
-        <ol
-          v-if="categoryStatus === 'success'"
-          class="
-            grid grid-cols-1 items-center justify-center gap-4
-
-            lg:grid-cols-3
-
-            md:grid-cols-3
-
-            sm:grid-cols-2
-
-            xl:grid-cols-3
-          "
         >
-          <template v-if="postStatus === 'success'">
-            <Component
-              :is="BlogPostCard"
-              v-for="(post, index) in posts?.results"
-              :key="index"
-              :img-loading="index > 7 ? 'lazy' : 'eager'"
-              :post="post"
-            />
-          </template>
-        </ol>
-        <ClientOnlyFallback
-          v-if="postStatus === 'pending'"
-          class="
-            grid grid-cols-1 items-center justify-center gap-4
-
-            lg:grid-cols-3
-
-            md:grid-cols-3
-
-            sm:grid-cols-2
-
-            xl:grid-cols-3
-          "
-          :count="posts?.results?.length || 4"
-          :height="skeletonHeight"
-          width="100%"
+          ({{ totalPosts }})
+        </span>
+      </h2>
+    </div>
+    <div class="posts-list flex w-full flex-col gap-4">
+      <div class="flex flex-row flex-wrap items-center gap-2">
+        <LazyPagination
+          v-if="pagination"
+          :count="pagination.count"
+          :links="pagination.links"
+          :loading="postStatus === 'pending'"
+          :page="pagination.page"
+          :page-size="pagination.pageSize"
+          :page-total-results="pagination.pageTotalResults"
+          :pagination-type="paginationType"
+          :total-pages="pagination.totalPages"
+        />
+        <Ordering
+          :ordering="String(ordering)"
+          :ordering-options="orderingOptions.orderingOptionsArray.value"
         />
       </div>
-    </PageBody>
+      <ol
+        v-if="categoryStatus === 'success'"
+        class="
+            grid grid-cols-1 items-center justify-center gap-4
+
+            lg:grid-cols-3
+
+            md:grid-cols-3
+
+            sm:grid-cols-2
+
+            xl:grid-cols-3
+          "
+      >
+        <template v-if="postStatus === 'success'">
+          <Component
+            :is="BlogPostCard"
+            v-for="(post, index) in posts?.results"
+            :key="index"
+            :img-loading="index > 7 ? 'lazy' : 'eager'"
+            :post="post"
+          />
+        </template>
+      </ol>
+      <ClientOnlyFallback
+        v-if="postStatus === 'pending'"
+        class="
+            grid grid-cols-1 items-center justify-center gap-4
+
+            lg:grid-cols-3
+
+            md:grid-cols-3
+
+            sm:grid-cols-2
+
+            xl:grid-cols-3
+          "
+        :count="posts?.results?.length || 4"
+        :height="skeletonHeight"
+        width="100%"
+      />
+    </div>
   </PageWrapper>
 </template>
 

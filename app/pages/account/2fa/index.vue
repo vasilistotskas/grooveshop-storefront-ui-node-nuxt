@@ -25,127 +25,126 @@ definePageMeta({
     <PageTitle
       :text="t('title')" class="text-center capitalize"
     />
-    <PageBody>
-      <div class="grid items-center justify-center">
-        <p
-          class="
+
+    <div class="grid items-center justify-center">
+      <p
+        class="
             text-primary-950 text-center
 
             dark:text-primary-50
           "
-        >
-          {{ t('authenticator.app') }}
-        </p>
-        <div
-          v-if="totpAuthenticator" class="
-            grid items-center justify-center justify-items-center gap-4
-          "
-        >
-          <p
-            class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
-          >
-            {{ t('active') }}
-          </p>
-          <UButton
-            :label="$t('deactivate')"
-            :to="localePath('account-2fa-totp-deactivate')"
-            color="primary"
-            size="xl"
-          />
-        </div>
-        <div
-          v-else class="
-            grid items-center justify-center justify-items-center gap-4
-          "
-        >
-          <p
-            class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
-          >
-            {{ t('inactive') }}
-          </p>
-          <UButton
-            :label="$t('activate')"
-            :to="localePath('account-2fa-totp-activate')"
-            color="primary"
-            size="xl"
-          />
-        </div>
-      </div>
+      >
+        {{ t('authenticator.app') }}
+      </p>
       <div
-        v-if="recoveryCodesAuthenticator" class="
-          grid items-center justify-center
-        "
+        v-if="totpAuthenticator" class="
+            grid items-center justify-center justify-items-center gap-4
+          "
       >
         <p
           class="
+              text-primary-950 text-center
+
+              dark:text-primary-50
+            "
+        >
+          {{ t('active') }}
+        </p>
+        <UButton
+          :label="$t('deactivate')"
+          :to="localePath('account-2fa-totp-deactivate')"
+          color="primary"
+          size="xl"
+        />
+      </div>
+      <div
+        v-else class="
+            grid items-center justify-center justify-items-center gap-4
+          "
+      >
+        <p
+          class="
+              text-primary-950 text-center
+
+              dark:text-primary-50
+            "
+        >
+          {{ t('inactive') }}
+        </p>
+        <UButton
+          :label="$t('activate')"
+          :to="localePath('account-2fa-totp-activate')"
+          color="primary"
+          size="xl"
+        />
+      </div>
+    </div>
+    <div
+      v-if="recoveryCodesAuthenticator" class="
+          grid items-center justify-center
+        "
+    >
+      <p
+        class="
             text-primary-950 text-center
 
             dark:text-primary-50
           "
+      >
+        {{ t('recovery-codes.title') }}
+      </p>
+      <div
+        v-if="!recoveryCodesAuthenticator" class="
+            grid items-center justify-center justify-items-center gap-4
+          "
+      >
+        <p
+          class="
+              text-primary-950 text-center
+
+              dark:text-primary-50
+            "
         >
-          {{ t('recovery-codes.title') }}
+          {{ t('recovery-codes.unset') }}
         </p>
-        <div
-          v-if="!recoveryCodesAuthenticator" class="
-            grid items-center justify-center justify-items-center gap-4
-          "
-        >
-          <p
-            class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
-          >
-            {{ t('recovery-codes.unset') }}
-          </p>
-          <UButton
-            :label="$t('generate')"
-            :to="localePath('account-2fa-recovery-codes-generate')"
-            color="primary"
-            size="xl"
-          />
-        </div>
-        <div
-          v-else class="
-            grid items-center justify-center justify-items-center gap-4
-          "
-        >
-          <p
-            class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
-          >
-            {{ t('recovery-codes.info', {
-              unused_code_count: recoveryCodesAuthenticator.unused_code_count,
-              total_code_count: recoveryCodesAuthenticator.total_code_count,
-            }) }}
-          </p>
-          <UButton
-            :label="$t('view')"
-            :to="localePath('account-2fa-recovery-codes')"
-            color="primary"
-            size="xl"
-          />
-          <UButton
-            :label="$t('regenerate')"
-            :to="localePath('account-2fa-recovery-codes-generate')"
-            color="primary"
-            size="xl"
-          />
-        </div>
+        <UButton
+          :label="$t('generate')"
+          :to="localePath('account-2fa-recovery-codes-generate')"
+          color="primary"
+          size="xl"
+        />
       </div>
-    </PageBody>
+      <div
+        v-else class="
+            grid items-center justify-center justify-items-center gap-4
+          "
+      >
+        <p
+          class="
+              text-primary-950 text-center
+
+              dark:text-primary-50
+            "
+        >
+          {{ t('recovery-codes.info', {
+            unused_code_count: recoveryCodesAuthenticator.unused_code_count,
+            total_code_count: recoveryCodesAuthenticator.total_code_count,
+          }) }}
+        </p>
+        <UButton
+          :label="$t('view')"
+          :to="localePath('account-2fa-recovery-codes')"
+          color="primary"
+          size="xl"
+        />
+        <UButton
+          :label="$t('regenerate')"
+          :to="localePath('account-2fa-recovery-codes-generate')"
+          color="primary"
+          size="xl"
+        />
+      </div>
+    </div>
   </PageWrapper>
 </template>
 

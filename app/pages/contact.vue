@@ -42,49 +42,48 @@ definePageMeta({
       :text="t('title')"
       class="mb-4 text-center capitalize"
     />
-    <PageBody>
-      <div
-        class="
+
+    <div
+      class="
           grid gap-4
 
           md:gap-6
         "
-      >
-        <div class="article container-xs">
-          <p
-            class="
+    >
+      <div class="article container-xs">
+        <p
+          class="
               text-primary-950
 
               dark:text-primary-50
             "
+        >
+          Για κάθε είδους πληροφορίες, διευκρινίσεις, υποβολή οποιουδήποτε αιτήματος : για αλλαγή στοιχείων ή
+          διακοπής/περιορισμού της πρόσβασης / χρήσης, ο χρήστης μπορεί να επισκεφτεί την ηλεκτρονική ιστοσελίδα
+          <a
+            href="https://www.webside.gr"
+            class="
+                text-primary-800
+
+                dark:text-primary-100
+              "
+          >webside.gr</a> και να κάνει login στον λογαριασμό του (εφόσον κατέχει/έχει εγγραφεί) επιλέγοντας τις
+          κατάλληλες
+          επιλογές, ή να επικοινωνήσει μέσω email στη διεύθυνση
+          <a
+            href="mailto:info@webside.gr"
+            class="
+                text-primary-800
+
+                dark:text-primary-100
+              "
           >
-            Για κάθε είδους πληροφορίες, διευκρινίσεις, υποβολή οποιουδήποτε αιτήματος : για αλλαγή στοιχείων ή
-            διακοπής/περιορισμού της πρόσβασης / χρήσης, ο χρήστης μπορεί να επισκεφτεί την ηλεκτρονική ιστοσελίδα
-            <a
-              href="https://www.webside.gr"
-              class="
-                text-primary-800
-
-                dark:text-primary-100
-              "
-            >webside.gr</a> και να κάνει login στον λογαριασμό του (εφόσον κατέχει/έχει εγγραφεί) επιλέγοντας τις
-            κατάλληλες
-            επιλογές, ή να επικοινωνήσει μέσω email στη διεύθυνση
-            <a
-              href="mailto:info@webside.gr"
-              class="
-                text-primary-800
-
-                dark:text-primary-100
-              "
-            >
-              info@webside.gr
-            </a>
-          </p>
-        </div>
-        <ContactForm />
+            info@webside.gr
+          </a>
+        </p>
       </div>
-    </PageBody>
+      <ContactForm />
+    </div>
   </PageWrapper>
 </template>
 

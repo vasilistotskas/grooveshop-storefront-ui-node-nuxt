@@ -45,6 +45,7 @@ const offset = computed({
 const { data, status, refresh } = await useFetch<SearchResponse>(
   '/api/search',
   {
+    key: `search${query.value}`,
     method: 'GET',
     headers: useRequestHeaders(),
     credentials: 'omit',
@@ -71,14 +72,6 @@ const { data, status, refresh } = await useFetch<SearchResponse>(
     },
   },
 )
-
-// if (data.value) {
-//   results.value = data.value
-//   if (!Object.values(data.value).every(value => !value)) {
-//     addToSearchHistory(query.value)
-//   }
-//   isSuggestionsOpen.value = false
-// }
 
 async function loadMoreSectionResults(
   { lim, off }: { lim: number, off: number },
@@ -197,11 +190,11 @@ definePageMeta({
       :text="t('title')"
       class="hidden text-center"
     />
-    <PageBody>
-      <div class="mt-10 grid">
-        <div
-          v-focus
-          class="
+
+    <div class="mt-10 grid">
+      <div
+        v-focus
+        class="
             search-bar bg-primary-50 fixed left-0 top-[48px] z-20 grid w-full
             items-center gap-4 p-[8px]
 
@@ -211,18 +204,18 @@ definePageMeta({
 
             md:top-[56px] md:p-[12px]
           "
-        >
-          <div
-            class="
+      >
+        <div
+          class="
               flex w-full items-center gap-2
 
               md:gap-4
             "
-          >
-            <Anchor
-              :to="'index'"
-              aria-label="index"
-              class="
+        >
+          <Anchor
+            :to="'index'"
+            aria-label="index"
+            class="
                 back-to-home text-md text-primary-950 border-primary-500 flex
                 items-center gap-3 overflow-hidden border-r-2 pr-2 font-bold
 
@@ -230,113 +223,112 @@ definePageMeta({
 
                 md:w-auto md:pr-8
               "
-            >
-              <span class="sr-only">{{ t('back_to_home') }}</span>
-              <UIcon name="i-heroicons-arrow-left" />
-            </Anchor>
-            <UIcon
-              name="i-heroicons-magnifying-glass" class="
+          >
+            <span class="sr-only">{{ t('back_to_home') }}</span>
+            <UIcon name="i-heroicons-arrow-left" />
+          </Anchor>
+          <UIcon
+            name="i-heroicons-magnifying-glass" class="
                 text-lg
 
                 md:text-base
               "
-            />
-            <label
-              class="sr-only"
-              for="search"
-            >{{ t('placeholder') }}</label>
-            <UInput
-              id="search"
-              v-model="currentSearch"
-              v-focus
-              :placeholder="t('placeholder')"
-              class="w-full bg-transparent text-xl outline-none"
-              type="text"
-              variant="none"
-              @click="isSuggestionsOpen = true"
-              @keyup.enter="refresh"
-            />
-          </div>
+          />
+          <label
+            class="sr-only"
+            for="search"
+          >{{ t('placeholder') }}</label>
+          <UInput
+            id="search"
+            v-model="currentSearch"
+            v-focus
+            :placeholder="t('placeholder')"
+            class="w-full bg-transparent text-xl outline-none"
+            type="text"
+            variant="none"
+            @click="isSuggestionsOpen = true"
+            @keyup.enter="refresh"
+          />
         </div>
-        <div class="container-xs grid gap-4">
-          <UBreadcrumb
-            :links="links"
-            :ui="{
-              li: 'text-primary-950 dark:text-primary-50',
-              base: 'text-xs md:text-md',
-            }"
-            class="
+      </div>
+      <div class="container-xs grid gap-4">
+        <UBreadcrumb
+          :links="links"
+          :ui="{
+            li: 'text-primary-950 dark:text-primary-50',
+            base: 'text-xs md:text-md',
+          }"
+          class="
               !p-0 container-xs relative mt-5 min-w-0
 
               md:mb-5
             "
+        />
+        <PageTitle class="text-lg">
+          <span :class="{ 'opacity-0': !query }">
+            <span>{{ t('results') }}:</span>
+            <span
+              v-if="query"
+              class="font-bold"
+            >{{ query }}</span>
+          </span>
+        </PageTitle>
+        <div class="grid gap-4">
+          <UPagination
+            v-show="hasResults"
+            v-model="currentPage"
+            :active-button="{
+              color: 'secondary',
+            }"
+            :inactive-button="{
+              color: 'primary',
+            }"
+            :first-button="{
+              icon: 'i-heroicons-arrow-long-left-20-solid',
+              label: !isMobileOrTablet ? $t('first') : undefined,
+              color: 'primary',
+            }"
+            :last-button="{
+              icon: 'i-heroicons-arrow-long-right-20-solid',
+              trailing: true,
+              label: !isMobileOrTablet ? $t('last') : undefined,
+              color: 'primary',
+            }"
+            :prev-button="{
+              icon: 'i-heroicons-arrow-small-left-20-solid',
+              label: !isMobileOrTablet ? $t('prev') : undefined,
+              color: 'primary',
+            }"
+            :next-button="{
+              icon: 'i-heroicons-arrow-small-right-20-solid',
+              trailing: true,
+              label: !isMobileOrTablet ? $t('next') : undefined,
+              color: 'primary',
+            }"
+            :total="total"
+            :max="max"
+            :disabled="!hasResults || status === 'pending'"
+            :size="size"
+            show-first
+            show-last
           />
-          <PageTitle class="text-lg">
-            <span :class="{ 'opacity-0': !query }">
-              <span>{{ t('results') }}:</span>
-              <span
-                v-if="query"
-                class="font-bold"
-              >{{ query }}</span>
-            </span>
-          </PageTitle>
-          <div class="grid gap-4">
-            <UPagination
-              v-show="hasResults"
-              v-model="currentPage"
-              :active-button="{
-                color: 'secondary',
-              }"
-              :inactive-button="{
-                color: 'primary',
-              }"
-              :first-button="{
-                icon: 'i-heroicons-arrow-long-left-20-solid',
-                label: !isMobileOrTablet ? $t('first') : undefined,
-                color: 'primary',
-              }"
-              :last-button="{
-                icon: 'i-heroicons-arrow-long-right-20-solid',
-                trailing: true,
-                label: !isMobileOrTablet ? $t('last') : undefined,
-                color: 'primary',
-              }"
-              :prev-button="{
-                icon: 'i-heroicons-arrow-small-left-20-solid',
-                label: !isMobileOrTablet ? $t('prev') : undefined,
-                color: 'primary',
-              }"
-              :next-button="{
-                icon: 'i-heroicons-arrow-small-right-20-solid',
-                trailing: true,
-                label: !isMobileOrTablet ? $t('next') : undefined,
-                color: 'primary',
-              }"
-              :total="total"
-              :max="max"
-              :disabled="!hasResults || status === 'pending'"
-              :size="size"
-              show-first
-              show-last
-            />
-            <SearchAutoComplete
-              v-if="results"
-              v-model:keep-focus="keepFocus"
-              v-model:highlighted="highlighted"
-              class="relative"
-              :query="query"
-              :limit="limit"
-              :offset="offset"
-              :all-results="results"
-              :status="status"
-              :has-results="hasResults"
-              :load-more="false"
-              @load-more="loadMoreSectionResults"
-            />
-          </div>
+          <SearchAutoComplete
+            v-if="results"
+            v-model:keep-focus="keepFocus"
+            v-model:highlighted="highlighted"
+            class="relative"
+            :query="query"
+            :limit="limit"
+            :offset="offset"
+            :all-results="results"
+            :status="status"
+            :has-results="hasResults"
+            :load-more="false"
+            @load-more="loadMoreSectionResults"
+          />
         </div>
       </div>
-    </PageBody>
+    </div>
   </PageWrapper>
 </template>
 

@@ -57,6 +57,7 @@ const productIds = computed(() => {
 })
 
 const { refresh: refreshFavouriteProducts } = await useFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+  key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
   headers: useRequestHeaders(),
   body: {

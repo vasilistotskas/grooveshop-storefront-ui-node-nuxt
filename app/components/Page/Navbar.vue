@@ -177,7 +177,7 @@ const items = computed(() => [
                 :key="'cart'"
                 size="xl"
                 color="green"
-                :show="!pending.cart"
+                :show="!pending"
                 :text="getCartTotalItems"
               >
                 <UButton

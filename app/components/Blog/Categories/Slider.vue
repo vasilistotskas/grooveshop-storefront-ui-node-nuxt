@@ -7,7 +7,7 @@ const props = defineProps({
   showAllButton: {
     type: Boolean,
     default: false,
-  }
+  },
 })
 
 const { max } = toRefs(props)
@@ -17,7 +17,7 @@ const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
 const { data: categories } = await useFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
-  key: `blogCategories`,
+  key: 'blogCategories',
   method: 'GET',
   headers: useRequestHeaders(),
   query: {

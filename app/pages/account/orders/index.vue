@@ -29,6 +29,7 @@ const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
 const { data: orders } = await useFetch<Pagination<Order>>(
   `/api/user/account/${user.value?.id}/orders`,
   {
+    key: `userOrders${user.value?.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -90,36 +91,35 @@ definePageMeta({
     "
   >
     <PageTitle :text="t('title')" />
-    <PageBody>
-      <div class="flex flex-row flex-wrap items-center gap-2">
-        <LazyPaginationPageNumber
-          v-if="pagination"
-          :count="pagination.count"
-          :page="pagination.page"
-          :page-size="pagination.pageSize"
-        />
-        <Ordering
-          :ordering="String(ordering)"
-          :ordering-options="orderingOptions.orderingOptionsArray.value"
-        />
-      </div>
-      <LazyOrderList
-        v-if="!pending && orders?.results?.length"
-        :orders="orders?.results"
-        :orders-total="orders?.count"
+
+    <div class="flex flex-row flex-wrap items-center gap-2">
+      <LazyPaginationPageNumber
+        v-if="pagination"
+        :count="pagination.count"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
       />
-      <ClientOnlyFallback
-        v-if="pending"
-        class="
+      <Ordering
+        :ordering="String(ordering)"
+        :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+    </div>
+    <LazyOrderList
+      v-if="!pending && orders?.results?.length"
+      :orders="orders?.results"
+      :orders-total="orders?.count"
+    />
+    <ClientOnlyFallback
+      v-if="pending"
+      class="
           grid gap-2
 
           md:gap-4
         "
-        :count="orders?.results?.length || 4"
-        height="202px"
-        width="100%"
-      />
-    </PageBody>
+      :count="orders?.results?.length || 4"
+      height="202px"
+      width="100%"
+    />
   </PageWrapper>
 </template>
 

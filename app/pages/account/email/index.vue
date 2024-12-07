@@ -17,9 +17,8 @@ definePageMeta({
     <PageTitle
       :text="t('title')" class="text-center"
     />
-    <PageBody>
-      <AccountEmailManage />
-    </PageBody>
+
+    <AccountEmailManage />
   </PageWrapper>
 </template>
 

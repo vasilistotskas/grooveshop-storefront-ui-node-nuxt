@@ -24,6 +24,7 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
 const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
+    key: `likedBlogPosts${user.value?.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -85,46 +86,45 @@ definePageMeta({
   >
     <PageTitle :text="t('title')" />
     <LazyUserAccountFavouritesNavbar v-if="enabled" />
-    <PageBody>
-      <div class="flex flex-row flex-wrap items-center gap-2">
-        <PaginationPageNumber
-          v-if="pagination"
-          :count="pagination.count"
-          :page="pagination.page"
-          :page-size="pagination.pageSize"
-        />
-        <Ordering
-          :ordering="String(ordering)"
-          :ordering-options="orderingOptions.orderingOptionsArray.value"
-        />
-      </div>
-      <LazyBlogPostFavouritesList
-        v-if="status !== 'pending' && favourites?.results?.length"
-        :favourites="favourites?.results"
-        :favourites-count="favourites?.count"
+
+    <div class="flex flex-row flex-wrap items-center gap-2">
+      <PaginationPageNumber
+        v-if="pagination"
+        :count="pagination.count"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
       />
-      <template v-if="status === 'pending'">
-        <div class="grid w-full items-start gap-4">
-          <ClientOnlyFallback
-            class="flex w-full items-center justify-center"
-            height="20px"
-            width="100%"
-          />
-          <ClientOnlyFallback
-            class="
+      <Ordering
+        :ordering="String(ordering)"
+        :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+    </div>
+    <LazyBlogPostFavouritesList
+      v-if="status !== 'pending' && favourites?.results?.length"
+      :favourites="favourites?.results"
+      :favourites-count="favourites?.count"
+    />
+    <template v-if="status === 'pending'">
+      <div class="grid w-full items-start gap-4">
+        <ClientOnlyFallback
+          class="flex w-full items-center justify-center"
+          height="20px"
+          width="100%"
+        />
+        <ClientOnlyFallback
+          class="
               grid grid-cols-2 gap-4
 
               lg:grid-cols-3
 
               xl:grid-cols-4
             "
-            :count="favourites?.results?.length || 4"
-            height="295px"
-            width="100%"
-          />
-        </div>
-      </template>
-    </PageBody>
+          :count="favourites?.results?.length || 4"
+          height="295px"
+          width="100%"
+        />
+      </div>
+    </template>
   </PageWrapper>
 </template>
 

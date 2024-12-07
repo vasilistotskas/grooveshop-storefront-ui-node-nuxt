@@ -28,7 +28,7 @@ const { paginationType, pageSize } = toRefs(props)
 const route = useRoute()
 const { locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
-const { loggedIn } = useUserSession()
+const { loggedIn, user } = useUserSession()
 const cursorState = useState<CursorStates>('cursorStates')
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
@@ -81,6 +81,7 @@ if (shouldFetchLikedPosts.value) {
   await useLazyFetch<number[]>(
     '/api/blog/posts/liked-posts',
     {
+      key: `likedBlogPosts${user.value?.id}`,
       method: 'POST',
       headers: useRequestHeaders(),
       body: { postIds: postIds },

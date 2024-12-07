@@ -41,11 +41,9 @@ const searchBarFocused = useState<boolean>('searchBarFocused')
         'opacity-70': searchBarFocused,
       }"
     >
-      <PageSection class="flex flex-col">
-        <div class="flex w-full flex-1 flex-col">
-          <slot />
-        </div>
-      </PageSection>
+      <section class="flex w-full flex-1 flex-col">
+        <slot />
+      </section>
     </main>
   </div>
 </template>

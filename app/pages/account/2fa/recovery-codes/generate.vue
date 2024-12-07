@@ -18,11 +18,10 @@ definePageMeta({
       :text="t('title')"
       class="hidden"
     />
-    <PageBody>
-      <Account2FaRecoveryCodesGenerate>
-        <AccountAuthSettingsNavigation />
-      </Account2FaRecoveryCodesGenerate>
-    </PageBody>
+
+    <Account2FaRecoveryCodesGenerate>
+      <AccountAuthSettingsNavigation />
+    </Account2FaRecoveryCodesGenerate>
   </PageWrapper>
 </template>
 

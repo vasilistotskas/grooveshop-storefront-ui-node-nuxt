@@ -32,9 +32,8 @@ definePageMeta({
     >
       {{ t('description') }}
     </p>
-    <PageBody>
-      <AccountLoginCodeForm />
-    </PageBody>
+
+    <AccountLoginCodeForm />
   </PageWrapper>
 </template>
 

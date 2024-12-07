@@ -30,21 +30,19 @@ definePageMeta({
 
 <template>
   <PageWrapper class="container flex flex-col">
-    <PageBody>
-      <UBreadcrumb
-        :links="links"
-        :ui="{
-          li: 'text-primary-950 dark:text-primary-50',
-          base: 'text-xs md:text-md',
-        }"
-        class="mb-5"
-      />
-      <BlogPostsList>
-        <template #sidebar>
-          <BlogTagsList />
-        </template>
-      </BlogPostsList>
-    </PageBody>
+    <UBreadcrumb
+      :links="links"
+      :ui="{
+        li: 'text-primary-950 dark:text-primary-50',
+        base: 'text-xs md:text-md',
+      }"
+      class="mb-5"
+    />
+    <BlogPostsList>
+      <template #sidebar>
+        <BlogTagsList />
+      </template>
+    </BlogPostsList>
   </PageWrapper>
 </template>
 

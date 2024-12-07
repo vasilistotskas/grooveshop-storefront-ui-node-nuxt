@@ -54,64 +54,63 @@ definePageMeta({
         :text="t('title')"
         class="text-center capitalize"
       />
-      <PageBody>
-        <div class="flex flex-col items-center justify-center">
-          <div
-            v-if="getVerifyEmailData?.status === 200" class="
+
+      <div class="flex flex-col items-center justify-center">
+        <div
+          v-if="getVerifyEmailData?.status === 200" class="
               flex flex-col items-center justify-center gap-4
             "
-          >
-            <p
-              class="
+        >
+          <p
+            class="
                 text-primary-950
 
                 dark:text-primary-50
               "
-            >
-              {{ t('please_confirm_that') }} <a
-                :href="'mailto:' + getVerifyEmailData?.data.email"
-              >{{ getVerifyEmailData?.data.email
-              }}</a> {{ t('is_an_email_address_for_user') }}
-              {{ getVerifyEmailData?.data.user.username || getVerifyEmailData?.data.user.display }}.
-            </p>
-            <UButton
-              :disabled="loading"
-              :label="
-                $t('confirm')
-              "
-              color="primary"
-              size="xl"
-              @click="onSubmit"
-            />
-          </div>
-          <p
-            v-else-if="!getVerifyEmailData?.data?.email" class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
           >
-            {{ t('invalid_verification_url') }}
+            {{ t('please_confirm_that') }} <a
+              :href="'mailto:' + getVerifyEmailData?.data.email"
+            >{{ getVerifyEmailData?.data.email
+            }}</a> {{ t('is_an_email_address_for_user') }}
+            {{ getVerifyEmailData?.data.user.username || getVerifyEmailData?.data.user.display }}.
           </p>
-          <p
-            v-else class="
-              text-primary-950
-
-              dark:text-primary-50
+          <UButton
+            :disabled="loading"
+            :label="
+              $t('confirm')
             "
-          >
-            {{ t('unable_to_confirm_email') }}
-            <UButton
-              :external="true"
-              :label="getVerifyEmailData.data.email"
-              :to="'mailto:' + getVerifyEmailData.data.email"
-              color="opposite"
-              variant="link"
-            />
-            {{ t('because_it_is_already_confirmed') }}
-          </p>
+            color="primary"
+            size="xl"
+            @click="onSubmit"
+          />
         </div>
-      </PageBody>
+        <p
+          v-else-if="!getVerifyEmailData?.data?.email" class="
+              text-primary-950
+
+              dark:text-primary-50
+            "
+        >
+          {{ t('invalid_verification_url') }}
+        </p>
+        <p
+          v-else class="
+              text-primary-950
+
+              dark:text-primary-50
+            "
+        >
+          {{ t('unable_to_confirm_email') }}
+          <UButton
+            :external="true"
+            :label="getVerifyEmailData.data.email"
+            :to="'mailto:' + getVerifyEmailData.data.email"
+            color="opposite"
+            variant="link"
+          />
+          {{ t('because_it_is_already_confirmed') }}
+        </p>
+      </div>
     </div>
   </PageWrapper>
 </template>

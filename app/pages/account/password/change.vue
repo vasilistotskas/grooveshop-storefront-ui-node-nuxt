@@ -20,11 +20,10 @@ definePageMeta({
       :text="hasCurrentPassword ? t('change.title') : t('set.title')"
       class="hidden"
     />
-    <PageBody>
-      <AccountPasswordChangeForm>
-        <AccountAuthSettingsNavigation />
-      </AccountPasswordChangeForm>
-    </PageBody>
+
+    <AccountPasswordChangeForm>
+      <AccountAuthSettingsNavigation />
+    </AccountPasswordChangeForm>
   </PageWrapper>
 </template>
 

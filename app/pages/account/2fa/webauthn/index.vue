@@ -18,11 +18,10 @@ definePageMeta({
       :text="t('title')"
       class="hidden"
     />
-    <PageBody>
-      <Account2FaWebAuthnList>
-        <AccountAuthSettingsNavigation />
-      </Account2FaWebAuthnList>
-    </PageBody>
+
+    <Account2FaWebAuthnList>
+      <AccountAuthSettingsNavigation />
+    </Account2FaWebAuthnList>
   </PageWrapper>
 </template>
 

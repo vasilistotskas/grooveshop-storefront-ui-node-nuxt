@@ -69,21 +69,20 @@ definePageMeta({
     <PageTitle
       :text="t('title')" class="text-center capitalize"
     />
-    <PageBody>
-      <Account2FaReauthenticateFlow :flow="Flows.MFA_REAUTHENTICATE">
-        <div class="grid items-center justify-center">
-          <UButton
-            :label="
-              t('use.security.key')
-            "
-            color="primary"
-            size="xl"
-            :disabled="loading"
-            @click="onSubmit"
-          />
-        </div>
-      </Account2FaReauthenticateFlow>
-    </pagebody>
+
+    <Account2FaReauthenticateFlow :flow="Flows.MFA_REAUTHENTICATE">
+      <div class="grid items-center justify-center">
+        <UButton
+          :label="
+            t('use.security.key')
+          "
+          color="primary"
+          size="xl"
+          :disabled="loading"
+          @click="onSubmit"
+        />
+      </div>
+    </Account2FaReauthenticateFlow>
   </PageWrapper>
 </template>
 

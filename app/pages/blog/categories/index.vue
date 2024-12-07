@@ -25,24 +25,22 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col">
-    <PageBody>
-      <div class="container !p-0">
-        <UBreadcrumb
-          :links="links"
-          :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
-          }"
-          class="
+  <PageWrapper class="container-sm flex flex-col">
+    <div class="container-sm !p-0">
+      <UBreadcrumb
+        :links="links"
+        :ui="{
+          li: 'text-primary-950 dark:text-primary-50',
+          base: 'text-xs md:text-md',
+        }"
+        class="
             mb-5
 
             md:px-0
           "
-        />
-      </div>
-      <BlogCategoriesList />
-    </PageBody>
+      />
+    </div>
+    <BlogCategoriesList />
   </PageWrapper>
 </template>
 

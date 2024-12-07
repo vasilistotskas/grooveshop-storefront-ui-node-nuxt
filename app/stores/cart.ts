@@ -1,26 +1,10 @@
 import { StorageSerializers } from '@vueuse/core'
 import type { IFetchError, FetchContext, FetchHooks, FetchResponse } from 'ofetch'
 
-interface ErrorRecord {
-  cart: IFetchError | null | undefined
-}
-
-interface PendingRecord {
-  cart: boolean
-}
-
-const errorsFactory = (): ErrorRecord => ({
-  cart: null,
-})
-
-const pendingFactory = (): PendingRecord => ({
-  cart: false,
-})
-
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
-  const pending = ref<PendingRecord>(pendingFactory())
-  const error = ref<ErrorRecord>(errorsFactory())
+  const pending = ref<boolean>(false)
+  const error = ref<IFetchError | null>(null)
   const { loggedIn } = useUserSession()
   const storage = useLocalStorage<Cart>('cart', null, {
     deep: true,
@@ -34,8 +18,8 @@ export const useCartStore = defineStore('cart', () => {
   const getCartItemById = (id: number) =>
     cart.value?.cartItems.find(item => item.id === id) ?? null
 
-  const getCartItemByProductId = (productId: number) =>
-    cart.value?.cartItems.find(item => item.product.id === productId) ?? null
+  const getCartItemByProductId = (id: number) =>
+    cart.value?.cartItems.find(item => item.product.id === id) ?? null
 
   function fetchCartFromLocalStorage() {
     if (import.meta.client) {
@@ -48,20 +32,20 @@ export const useCartStore = defineStore('cart', () => {
   function createFetchHandlers(): FetchHooks {
     return {
       onRequest() {
-        pending.value.cart = true
+        pending.value = true
       },
       onRequestError(ctx: FetchContext & { error: Error }) {
-        error.value.cart = ctx.error as IFetchError
-        pending.value.cart = false
+        error.value = ctx.error as IFetchError
+        pending.value = false
         handleError(ctx.error)
       },
       onResponse(ctx: FetchContext & { response: FetchResponse<any> }) {
         cart.value = ctx.response._data
-        pending.value.cart = false
+        pending.value = false
       },
       onResponseError(ctx: FetchContext & { response: FetchResponse<any> }) {
-        error.value.cart = ctx.error as IFetchError
-        pending.value.cart = false
+        error.value = ctx.error as IFetchError
+        pending.value = false
         if (ctx.error) {
           handleError(ctx.error)
         }
@@ -73,7 +57,7 @@ export const useCartStore = defineStore('cart', () => {
     console.error('Cart operation error:', error)
   }
 
-  async function createCartItem(body: CartItemAddBody) {
+  async function createCartItem(body: CartItemPostBody) {
     if (!loggedIn.value) {
       createCartItemToLocalStorage(body)
       return
@@ -124,12 +108,14 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    await useLazyAsyncData<Cart>('cart', () =>
-      $fetch<Cart>('/api/cart', {
+    await useFetch<Cart>(
+      '/api/cart',
+      {
+        key: 'cart',
         method: 'GET',
         headers: useRequestHeaders(),
         ...createFetchHandlers(),
-      }),
+      },
     )
   }
 
@@ -178,7 +164,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function createCartItemToLocalStorage(body: CartItemAddBody) {
+  function createCartItemToLocalStorage(body: CartItemPostBody) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
       console.error('Cart not found in Local Storage')
@@ -228,7 +214,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function mapProductToCartItem(body: CartItemAddBody): CartItem {
+  function mapProductToCartItem(body: CartItemPostBody): CartItem {
     return {
       id: Date.now(),
       cart: Date.now(),
@@ -245,8 +231,8 @@ export const useCartStore = defineStore('cart', () => {
 
   function cleanCartState() {
     cart.value = null
-    pending.value = pendingFactory()
-    error.value = errorsFactory()
+    pending.value = false
+    error.value = null
   }
 
   return {

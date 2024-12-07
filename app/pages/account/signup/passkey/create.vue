@@ -25,9 +25,8 @@ definePageMeta({
     >
       {{ t('description') }}
     </p>
-    <PageBody>
-      <AccountSignupCreatePasskeyForm />
-    </PageBody>
+
+    <AccountSignupCreatePasskeyForm />
   </PageWrapper>
 </template>
 

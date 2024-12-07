@@ -5,7 +5,11 @@ import type { Ref } from 'vue'
 import type { UseWebSocketReturn } from '@vueuse/core'
 
 declare module 'vue' {
-  export interface GlobalComponents {
+  interface ComponentCustomProperties {
+    $authState: Ref<AllAuthResponse>
+    $websocket (): UseWebSocketReturn<any> | null
+  }
+  interface GlobalComponents {
     VDatePicker: (typeof import('v-calendar'))['DatePicker']
     VCalendar: (typeof import('v-calendar'))['Calendar']
   }
@@ -19,13 +23,6 @@ declare module '#app' {
 
   interface RuntimeNuxtHooks {
     'auth:change': ({ detail }: { detail: AllAuthResponse | AllAuthResponseError }) => HookResult
-  }
-}
-
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    $authState: Ref<AllAuthResponse>
-    $websocket (): UseWebSocketReturn<any> | null
   }
 }
 

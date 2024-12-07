@@ -230,479 +230,478 @@ definePageMeta({
         {{ t('title') }}
       </PageTitle>
     </div>
-    <PageBody>
-      <form
-        id="AddressEditForm"
-        class="
+
+    <form
+      id="AddressEditForm"
+      class="
           bg-primary-100 flex flex-col gap-4 rounded-lg p-4
 
           dark:bg-primary-900
 
           md:grid md:grid-cols-3
         "
-        name="AddressEditForm"
-        @submit="onSubmit"
+      name="AddressEditForm"
+      @submit="onSubmit"
+    >
+      <div
+        class="
+            grid items-start
+
+            md:content-start
+          "
       >
-        <div
+        <label
           class="
-            grid items-start
-
-            md:content-start
-          "
-        >
-          <label
-            class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="title"
-          >{{ t('form.title') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="title"
-              v-model="title"
-              :bind="titleProps"
-              :placeholder="t('form.title')"
-              :required="true"
-              autocomplete="honorific-prefix"
-              name="title"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.title"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.title }}</span>
+          for="title"
+        >{{ t('form.title') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="title"
+            v-model="title"
+            :bind="titleProps"
+            :placeholder="t('form.title')"
+            :required="true"
+            autocomplete="honorific-prefix"
+            name="title"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.title"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.title }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="firstName"
-          >{{ t('form.first_name') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="firstName"
-              v-model="firstName"
-              :bind="firstNameProps"
-              :placeholder="t('form.first_name')"
-              :required="true"
-              autocomplete="given-name"
-              name="firstName"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.firstName"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.firstName }}</span>
+          for="firstName"
+        >{{ t('form.first_name') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="firstName"
+            v-model="firstName"
+            :bind="firstNameProps"
+            :placeholder="t('form.first_name')"
+            :required="true"
+            autocomplete="given-name"
+            name="firstName"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.firstName"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.firstName }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="lastName"
-          >{{ t('form.last_name') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="lastName"
-              v-model="lastName"
-              :bind="lastNameProps"
-              :placeholder="t('form.last_name')"
-              :required="true"
-              autocomplete="family-name"
-              name="lastName"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.lastName"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.lastName }}</span>
+          for="lastName"
+        >{{ t('form.last_name') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="lastName"
+            v-model="lastName"
+            :bind="lastNameProps"
+            :placeholder="t('form.last_name')"
+            :required="true"
+            autocomplete="family-name"
+            name="lastName"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.lastName"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.lastName }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="street"
-          >{{ t('form.street') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="street"
-              v-model="street"
-              :bind="streetProps"
-              :placeholder="t('form.street')"
-              :required="true"
-              autocomplete="address-line1"
-              name="street"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.street"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.street }}</span>
+          for="street"
+        >{{ t('form.street') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="street"
+            v-model="street"
+            :bind="streetProps"
+            :placeholder="t('form.street')"
+            :required="true"
+            autocomplete="address-line1"
+            name="street"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.street"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.street }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="streetNumber"
-          >{{ t('form.street_number') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="streetNumber"
-              v-model="streetNumber"
-              :bind="streetNumberProps"
-              :placeholder="
-                t('form.street_number')
-              "
-              :required="true"
-              autocomplete="address-line1"
-              name="streetNumber"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.streetNumber"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.streetNumber }}</span>
+          for="streetNumber"
+        >{{ t('form.street_number') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="streetNumber"
+            v-model="streetNumber"
+            :bind="streetNumberProps"
+            :placeholder="
+              t('form.street_number')
+            "
+            :required="true"
+            autocomplete="address-line1"
+            name="streetNumber"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.streetNumber"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.streetNumber }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="city"
-          >{{ t('form.city') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="city"
-              v-model="city"
-              :bind="cityProps"
-              :placeholder="t('form.city')"
-              :required="true"
-              autocomplete="address-level2"
-              name="city"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.city"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.city }}</span>
+          for="city"
+        >{{ t('form.city') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="city"
+            v-model="city"
+            :bind="cityProps"
+            :placeholder="t('form.city')"
+            :required="true"
+            autocomplete="address-level2"
+            name="city"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.city"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.city }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="zipcode"
-          >{{ t('form.zipcode') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="zipcode"
-              v-model="zipcode"
-              :bind="zipcodeProps"
-              :placeholder="t('form.zipcode')"
-              :required="true"
-              autocomplete="postal-code"
-              name="zipcode"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.zipcode"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.zipcode }}</span>
+          for="zipcode"
+        >{{ t('form.zipcode') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="zipcode"
+            v-model="zipcode"
+            :bind="zipcodeProps"
+            :placeholder="t('form.zipcode')"
+            :required="true"
+            autocomplete="postal-code"
+            name="zipcode"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.zipcode"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.zipcode }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="phone"
-          >{{ t('form.phone') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="phone"
-              v-model="phone"
-              :bind="phoneProps"
-              :placeholder="t('form.phone')"
-              autocomplete="tel"
-              name="phone"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.phone"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.phone }}</span>
+          for="phone"
+        >{{ t('form.phone') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="phone"
+            v-model="phone"
+            :bind="phoneProps"
+            :placeholder="t('form.phone')"
+            autocomplete="tel"
+            name="phone"
+            type="text"
+          />
         </div>
-        <div
-          class="
+        <span
+          v-if="errors.phone"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.phone }}</span>
+      </div>
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="mobilePhone"
-          >{{ t('form.mobile_phone') }}</label>
-          <div class="grid">
-            <FormTextInput
-              id="mobilePhone"
-              v-model="mobilePhone"
-              :bind="mobilePhoneProps"
-              :placeholder="t('form.mobile_phone')"
-              autocomplete="tel"
-              name="mobilePhone"
-              type="text"
-            />
-          </div>
-          <span
-            v-if="errors.mobilePhone"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.mobilePhone }}</span>
+          for="mobilePhone"
+        >{{ t('form.mobile_phone') }}</label>
+        <div class="grid">
+          <FormTextInput
+            id="mobilePhone"
+            v-model="mobilePhone"
+            :bind="mobilePhoneProps"
+            :placeholder="t('form.mobile_phone')"
+            autocomplete="tel"
+            name="mobilePhone"
+            type="text"
+          />
         </div>
+        <span
+          v-if="errors.mobilePhone"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >{{ errors.mobilePhone }}</span>
+      </div>
 
-        <div
-          class="
+      <div
+        class="
             grid items-start gap-2
 
             md:content-start
           "
-        >
-          <div class="grid">
-            <label
-              class="
+      >
+        <div class="grid">
+          <label
+            class="
                 text-primary-950 mb-2
 
                 dark:text-primary-50
               "
-              for="floor"
-            >{{ t('form.floor') }}</label>
-            <Field
-              id="floor"
-              v-model="floor"
-              :as="USelect"
-              :bind="floorProps"
-              :options="floorChoicesList"
-              :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-              color="white"
-              name="floor"
-              option-attribute="name"
-            />
-            <span
-              v-if="errors.floor"
-              class="relative px-4 py-3 text-xs text-red-600"
-            >{{ errors.floor }}</span>
-          </div>
-          <div class="grid">
-            <label
-              class="
-                text-primary-950 mb-2
-
-                dark:text-primary-50
-              "
-              for="locationType"
-            >{{ t('form.location_type') }}</label>
-            <Field
-              id="locationType"
-              v-model="locationType"
-              :as="USelect"
-              :options="locationChoicesList"
-              :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-              color="white"
-              name="locationType"
-              option-attribute="name"
-              v-bind="locationTypeProps"
-            />
-            <span
-              v-if="errors.locationType"
-              class="relative px-4 py-3 text-xs text-red-600"
-            >{{ errors.locationType }}</span>
-          </div>
+            for="floor"
+          >{{ t('form.floor') }}</label>
+          <Field
+            id="floor"
+            v-model="floor"
+            :as="USelect"
+            :bind="floorProps"
+            :options="floorChoicesList"
+            :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+            color="white"
+            name="floor"
+            option-attribute="name"
+          />
+          <span
+            v-if="errors.floor"
+            class="relative px-4 py-3 text-xs text-red-600"
+          >{{ errors.floor }}</span>
         </div>
+        <div class="grid">
+          <label
+            class="
+                text-primary-950 mb-2
 
-        <div
-          class="
+                dark:text-primary-50
+              "
+            for="locationType"
+          >{{ t('form.location_type') }}</label>
+          <Field
+            id="locationType"
+            v-model="locationType"
+            :as="USelect"
+            :options="locationChoicesList"
+            :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+            color="white"
+            name="locationType"
+            option-attribute="name"
+            v-bind="locationTypeProps"
+          />
+          <span
+            v-if="errors.locationType"
+            class="relative px-4 py-3 text-xs text-red-600"
+          >{{ errors.locationType }}</span>
+        </div>
+      </div>
+
+      <div
+        class="
             grid items-start gap-2
 
             md:content-start
           "
-        >
-          <div class="grid">
-            <label
-              class="
+      >
+        <div class="grid">
+          <label
+            class="
                 text-primary-950 mb-2
 
                 dark:text-primary-50
               "
-              for="country"
-            >{{ t('form.country') }}</label>
-            <div class="grid">
-              <Field
-                id="country"
-                v-model="country"
-                :as="USelect"
-                :options="countryOptions"
-                :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-                color="white"
-                name="country"
-                option-attribute="name"
-                v-bind="countryProps"
-                @change.capture="onCountryChange"
-              />
-            </div>
-            <span
-              v-if="errors.country"
-              class="relative px-4 py-3 text-xs text-red-600"
-            >{{ errors.country }}</span>
-          </div>
+            for="country"
+          >{{ t('form.country') }}</label>
           <div class="grid">
-            <label
-              class="
-                text-primary-950 mb-2
-
-                dark:text-primary-50
-              "
-              for="region"
-            >{{ t('form.region') }}</label>
-            <div class="grid">
-              <Field
-                id="region"
-                v-model="region"
-                :as="USelect"
-                :options="regionOptions"
-                :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-                color="white"
-                name="region"
-                option-attribute="name"
-                v-bind="regionProps"
-              />
-            </div>
-            <span
-              v-if="errors.region"
-              class="relative px-4 py-3 text-xs text-red-600"
-            >{{ errors.region }}</span>
+            <Field
+              id="country"
+              v-model="country"
+              :as="USelect"
+              :options="countryOptions"
+              :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+              color="white"
+              name="country"
+              option-attribute="name"
+              v-bind="countryProps"
+              @change.capture="onCountryChange"
+            />
           </div>
+          <span
+            v-if="errors.country"
+            class="relative px-4 py-3 text-xs text-red-600"
+          >{{ errors.country }}</span>
         </div>
+        <div class="grid">
+          <label
+            class="
+                text-primary-950 mb-2
 
-        <div
-          class="
+                dark:text-primary-50
+              "
+            for="region"
+          >{{ t('form.region') }}</label>
+          <div class="grid">
+            <Field
+              id="region"
+              v-model="region"
+              :as="USelect"
+              :options="regionOptions"
+              :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
+              color="white"
+              name="region"
+              option-attribute="name"
+              v-bind="regionProps"
+            />
+          </div>
+          <span
+            v-if="errors.region"
+            class="relative px-4 py-3 text-xs text-red-600"
+          >{{ errors.region }}</span>
+        </div>
+      </div>
+
+      <div
+        class="
             grid items-start
 
             md:content-start
           "
-        >
-          <label
-            class="
+      >
+        <label
+          class="
               text-primary-950 mb-2
 
               dark:text-primary-50
             "
-            for="notes"
-          >{{ t('form.notes') }}</label>
-          <div class="grid">
-            <Field
-              id="notes"
-              v-model="notes"
-              :as="UTextarea"
-              :placeholder="t('form.notes')"
-              :rows="4"
-              color="primary"
-              name="notes"
-              type="text"
-              v-bind="notesProps"
-            />
-          </div>
+          for="notes"
+        >{{ t('form.notes') }}</label>
+        <div class="grid">
+          <Field
+            id="notes"
+            v-model="notes"
+            :as="UTextarea"
+            :placeholder="t('form.notes')"
+            :rows="4"
+            color="primary"
+            name="notes"
+            type="text"
+            v-bind="notesProps"
+          />
         </div>
+      </div>
 
-        <div class="col-span-2 col-start-3 grid items-end justify-end">
-          <button
-            :aria-busy="isSubmitting"
-            :disabled="submitButtonDisabled"
-            class="
+      <div class="col-span-2 col-start-3 grid items-end justify-end">
+        <button
+          :aria-busy="isSubmitting"
+          :disabled="submitButtonDisabled"
+          class="
               text-primary-50 rounded bg-secondary px-4 py-2 font-bold
 
               dark:bg-secondary-dark
 
               disabled:cursor-not-allowed disabled:opacity-50
             "
-            type="submit"
-          >
-            {{ t('form.submit') }}
-          </button>
-        </div>
-      </form>
-    </PageBody>
+          type="submit"
+        >
+          {{ t('form.submit') }}
+        </button>
+      </div>
+    </form>
   </PageWrapper>
 </template>
 

@@ -5,6 +5,7 @@ export const useAppStore = defineStore('app', () => {
     const { data, status: healthStatus, error: healthError } = await useFetch<ConfigResponse>(
       '/api/health',
       {
+        key: 'health',
         method: 'GET',
         headers: useRequestHeaders(),
         timeout: 15,

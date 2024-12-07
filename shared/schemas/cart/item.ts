@@ -16,7 +16,7 @@ export const ZodCartItem = z.object({
   totalDiscountValue: z.number().nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodCartItemAddBody = z.object({
+export const ZodCartItemPostBody = z.object({
   product: z.lazy(() => ZodProduct),
   quantity: z.number(),
 })

@@ -90,237 +90,236 @@ definePageMeta({
       :text="t('title')"
       class="text-center capitalize"
     />
-    <PageBody>
-      <div
-        class="
+
+    <div
+      class="
           container-2xs bg-primary-100 rounded !p-4 shadow-md
 
           dark:bg-primary-900
 
           md:px-6
         "
-      >
-        <div
-          class="
+    >
+      <div
+        class="
             grid items-center justify-center justify-items-center gap-8
 
             md:gap-16
           "
+      >
+        <div
+          class="grid items-center justify-center justify-items-center gap-4"
         >
-          <div
-            class="grid items-center justify-center justify-items-center gap-4"
-          >
-            <Lottie
-              ref="lottie"
-              :animation-data="checkoutSuccessJSON"
-              :auto-play="true"
-              :height="'150px'"
-              :loop="true"
-              :text="t('lottie')"
-              :width="'150px'"
-            />
-            <h2 class="text-4xl font-bold">
-              {{
-                t('main.title', {
-                  customerName: customerName,
-                })
-              }}
-            </h2>
-            <p
-              class="
+          <Lottie
+            ref="lottie"
+            :animation-data="checkoutSuccessJSON"
+            :auto-play="true"
+            :height="'150px'"
+            :loop="true"
+            :text="t('lottie')"
+            :width="'150px'"
+          />
+          <h2 class="text-4xl font-bold">
+            {{
+              t('main.title', {
+                customerName: customerName,
+              })
+            }}
+          </h2>
+          <p
+            class="
                 text-primary-950 text-center
 
                 dark:text-primary-50
               "
-              v-html="
-                t('main.text', {
-                  orderId: orderNumber,
-                  customerEmail: customerEmail,
-                })
-              "
-            />
-          </div>
+            v-html="
+              t('main.text', {
+                orderId: orderNumber,
+                customerEmail: customerEmail,
+              })
+            "
+          />
+        </div>
+
+        <div
+          class="grid items-center justify-center justify-items-center gap-4"
+        >
+          <h2 class="w-full text-center text-2xl font-semibold">
+            {{ t('order.summary') }}
+          </h2>
+
+          <table
+            v-if="orderItems"
+            class="min-w-full table-auto text-center"
+          >
+            <thead>
+              <tr>
+                <th
+                  class="px-4 py-2"
+                  scope="col"
+                >
+                  {{ t('image') }}
+                </th>
+                <th
+                  class="px-4 py-2"
+                  scope="col"
+                >
+                  {{ t('product') }}
+                </th>
+                <th
+                  class="px-4 py-2"
+                  scope="col"
+                >
+                  {{ t('quantity') }}
+                </th>
+                <th
+                  class="px-4 py-2"
+                  scope="col"
+                >
+                  {{ t('price') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item, index) in orderItems"
+                :key="index"
+              >
+                <td class="border px-4 py-2">
+                  <ImgWithFallback
+                    provider="mediaStream"
+                    :alt="extractTranslated(item.product, 'name', locale)"
+                    :background="'transparent'"
+                    fit="contain"
+                    :height="100"
+                    :src="item.product.mainImagePath"
+                    :style="{
+                      objectFit: 'contain',
+                      contentVisibility: 'auto',
+                    }"
+                    :width="100"
+                    class="product-img bg-primary-100"
+                    loading="lazy"
+                    sizes="sm:100vw md:50vw lg:auto"
+                  />
+                </td>
+                <td class="border px-4 py-2">
+                  {{ extractTranslated(item.product, 'name', locale) }}
+                </td>
+                <td class="border px-4 py-2">
+                  {{ item.quantity }}
+                </td>
+                <td
+                  v-if="item.totalPrice"
+                  class="border px-4 py-2"
+                >
+                  <I18nN
+                    :value="item.totalPrice"
+                    format="currency"
+                    tag="span"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
           <div
-            class="grid items-center justify-center justify-items-center gap-4"
-          >
-            <h2 class="w-full text-center text-2xl font-semibold">
-              {{ t('order.summary') }}
-            </h2>
-
-            <table
-              v-if="orderItems"
-              class="min-w-full table-auto text-center"
-            >
-              <thead>
-                <tr>
-                  <th
-                    class="px-4 py-2"
-                    scope="col"
-                  >
-                    {{ t('image') }}
-                  </th>
-                  <th
-                    class="px-4 py-2"
-                    scope="col"
-                  >
-                    {{ t('product') }}
-                  </th>
-                  <th
-                    class="px-4 py-2"
-                    scope="col"
-                  >
-                    {{ t('quantity') }}
-                  </th>
-                  <th
-                    class="px-4 py-2"
-                    scope="col"
-                  >
-                    {{ t('price') }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(item, index) in orderItems"
-                  :key="index"
-                >
-                  <td class="border px-4 py-2">
-                    <ImgWithFallback
-                      provider="mediaStream"
-                      :alt="extractTranslated(item.product, 'name', locale)"
-                      :background="'transparent'"
-                      fit="contain"
-                      :height="100"
-                      :src="item.product.mainImagePath"
-                      :style="{
-                        objectFit: 'contain',
-                        contentVisibility: 'auto',
-                      }"
-                      :width="100"
-                      class="product-img bg-primary-100"
-                      loading="lazy"
-                      sizes="sm:100vw md:50vw lg:auto"
-                    />
-                  </td>
-                  <td class="border px-4 py-2">
-                    {{ extractTranslated(item.product, 'name', locale) }}
-                  </td>
-                  <td class="border px-4 py-2">
-                    {{ item.quantity }}
-                  </td>
-                  <td
-                    v-if="item.totalPrice"
-                    class="border px-4 py-2"
-                  >
-                    <I18nN
-                      :value="item.totalPrice"
-                      format="currency"
-                      tag="span"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div
-              class="
+            class="
                 grid w-full items-center justify-center justify-items-center
                 gap-2
               "
-            >
-              <h3 class="text-xl font-semibold">
-                {{ t('order.details') }}
-              </h3>
-              <p
-                v-if="shippingPrice"
-                class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
-              >
-                {{ t('shippingPrice') }}:
-                <I18nN
-                  :value="shippingPrice"
-                  format="currency"
-                  tag="span"
-                />
-              </p>
-              <p
-                v-if="totalPriceItems"
-                class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
-              >
-                {{ t('totalPriceItems') }}:
-                <I18nN
-                  :value="totalPriceItems"
-                  format="currency"
-                  tag="span"
-                />
-              </p>
-              <p
-                v-if="totalPriceExtra"
-                class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
-              >
-                {{ t('totalPriceExtra') }}:
-                <I18nN
-                  :value="totalPriceExtra"
-                  format="currency"
-                  tag="span"
-                />
-              </p>
-              <p
-                v-if="payWayPrice"
-                class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
-              >
-                {{ t('payWayPrice') }}:
-                <I18nN
-                  :value="payWayPrice"
-                  format="currency"
-                  tag="span"
-                />
-              </p>
-            </div>
+          >
+            <h3 class="text-xl font-semibold">
+              {{ t('order.details') }}
+            </h3>
             <p
-              v-if="paidAmount"
+              v-if="shippingPrice"
               class="
-                text-primary-950 font-bold
+                  text-primary-950
 
-                dark:text-primary-50
-              "
+                  dark:text-primary-50
+                "
             >
-              {{ t('total') }}:
+              {{ t('shippingPrice') }}:
               <I18nN
-                :value="paidAmount"
+                :value="shippingPrice"
+                format="currency"
+                tag="span"
+              />
+            </p>
+            <p
+              v-if="totalPriceItems"
+              class="
+                  text-primary-950
+
+                  dark:text-primary-50
+                "
+            >
+              {{ t('totalPriceItems') }}:
+              <I18nN
+                :value="totalPriceItems"
+                format="currency"
+                tag="span"
+              />
+            </p>
+            <p
+              v-if="totalPriceExtra"
+              class="
+                  text-primary-950
+
+                  dark:text-primary-50
+                "
+            >
+              {{ t('totalPriceExtra') }}:
+              <I18nN
+                :value="totalPriceExtra"
+                format="currency"
+                tag="span"
+              />
+            </p>
+            <p
+              v-if="payWayPrice"
+              class="
+                  text-primary-950
+
+                  dark:text-primary-50
+                "
+            >
+              {{ t('payWayPrice') }}:
+              <I18nN
+                :value="payWayPrice"
                 format="currency"
                 tag="span"
               />
             </p>
           </div>
-          <UButton
-            :label="t('button')"
-            :to="localePath('index')"
-            :trailing="false"
-            color="primary"
-            icon="i-heroicons-home"
-            size="xl"
-            variant="solid"
-          />
+          <p
+            v-if="paidAmount"
+            class="
+                text-primary-950 font-bold
+
+                dark:text-primary-50
+              "
+          >
+            {{ t('total') }}:
+            <I18nN
+              :value="paidAmount"
+              format="currency"
+              tag="span"
+            />
+          </p>
         </div>
+        <UButton
+          :label="t('button')"
+          :to="localePath('index')"
+          :trailing="false"
+          color="primary"
+          icon="i-heroicons-home"
+          size="xl"
+          variant="solid"
+        />
       </div>
-    </PageBody>
+    </div>
   </PageWrapper>
 </template>
 

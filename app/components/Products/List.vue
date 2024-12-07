@@ -13,7 +13,7 @@ const { paginationType } = toRefs(props)
 
 const route = useRoute()
 const { t, locale } = useI18n()
-const { loggedIn } = useUserSession()
+const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 
@@ -67,6 +67,7 @@ const shouldFetchFavouriteProducts = computed(() => {
 
 if (shouldFetchFavouriteProducts.value) {
   await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+    key: `favouritesByProducts${user.value?.id}`,
     method: 'POST',
     headers: useRequestHeaders(),
     body: {

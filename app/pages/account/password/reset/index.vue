@@ -26,18 +26,17 @@ definePageMeta({
       :text="t('title')"
       class="text-center capitalize"
     />
-    <PageBody>
-      <p
-        class="
+
+    <p
+      class="
           text-primary-950 text-center
 
           dark:text-primary-50
         "
-      >
-        {{ t('description') }}
-      </p>
-      <AccountPasswordResetForm />
-    </PageBody>
+    >
+      {{ t('description') }}
+    </p>
+    <AccountPasswordResetForm />
   </PageWrapper>
 </template>
 

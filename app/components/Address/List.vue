@@ -32,6 +32,7 @@ const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
 const { data: addresses } = await useFetch<Pagination<UserAddress>>(
   `/api/user/account/${user.value?.id}/addresses`,
   {
+    key: `userAddresses${user.value?.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {

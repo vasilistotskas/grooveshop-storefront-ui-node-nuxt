@@ -37,9 +37,8 @@ definePageMeta({
       :text="t('title')"
       class="capitalize"
     />
-    <PageBody>
-      <div v-if="category" />
-    </PageBody>
+
+    <div v-if="category" />
   </PageWrapper>
 </template>
 

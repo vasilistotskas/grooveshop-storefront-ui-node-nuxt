@@ -42,32 +42,31 @@ definePageMeta({
       :text="t('title')"
       class="sr-only text-center capitalize"
     />
-    <PageBody>
-      <UBreadcrumb
-        :links="links"
-        :ui="{
-          li: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
-          base: 'text-xs md:text-md',
-        }"
-        class="
+
+    <UBreadcrumb
+      :links="links"
+      :ui="{
+        li: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
+        base: 'text-xs md:text-md',
+      }"
+      class="
           absolute z-10 container-3xs bg-transparent !pt-2
 
           dark:bg-transparent
 
           md:relative md:mb-5 md:!pt-0
         "
-      />
-      <UCard
-        class="container-3xs !p-0"
-        :ui="{
-          body: {
-            padding: isMobileOrTablet? '' : 'px-4 py-5 sm:p-6',
-          },
-        }"
-      >
-        <AccountSignupForm />
-      </UCard>
-    </PageBody>
+    />
+    <UCard
+      class="container-3xs !p-0"
+      :ui="{
+        body: {
+          padding: isMobileOrTablet? '' : 'px-4 py-5 sm:p-6',
+        },
+      }"
+    >
+      <AccountSignupForm />
+    </UCard>
   </PageWrapper>
 </template>
 

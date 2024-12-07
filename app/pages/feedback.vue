@@ -42,9 +42,8 @@ definePageMeta({
       :text="t('title')"
       class="mb-4 text-center capitalize"
     />
-    <PageBody>
-      <div />
-    </PageBody>
+
+    <div />
   </PageWrapper>
 </template>
 

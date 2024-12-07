@@ -44,9 +44,8 @@ definePageMeta({
         variant="link"
       />
     </div>
-    <PageBody>
-      <AccountProviderSignup />
-    </PageBody>
+
+    <AccountProviderSignup />
   </PageWrapper>
 </template>
 

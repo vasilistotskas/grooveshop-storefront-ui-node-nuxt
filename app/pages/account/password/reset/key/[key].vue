@@ -19,9 +19,8 @@ definePageMeta({
       :text="t('title')"
       class="text-center capitalize"
     />
-    <PageBody>
-      <AccountPasswordResetConfirmForm />
-    </PageBody>
+
+    <AccountPasswordResetConfirmForm />
   </PageWrapper>
 </template>
 

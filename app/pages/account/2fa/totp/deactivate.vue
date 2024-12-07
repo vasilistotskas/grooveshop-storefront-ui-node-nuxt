@@ -65,18 +65,17 @@ definePageMeta({
     >
       {{ t('description') }}
     </p>
-    <PageBody>
-      <div
-        class="grid items-center justify-center justify-items-center"
-      >
-        <UButton
-          :label="$t('deactivate')"
-          color="red"
-          size="lg"
-          @click="onSubmit"
-        />
-      </div>
-    </PageBody>
+
+    <div
+      class="grid items-center justify-center justify-items-center"
+    >
+      <UButton
+        :label="$t('deactivate')"
+        color="red"
+        size="lg"
+        @click="onSubmit"
+      />
+    </div>
   </PageWrapper>
 </template>
 

@@ -26,83 +26,79 @@ useSeoMeta({
 
 <template>
   <PageWrapper class="container-fluid !p-0">
-    <PageBody>
-      <PageSection>
-        <div
-          :class="{
-            'grid': isMobileOrTablet,
-            'flex': !isMobileOrTablet,
-            'flex-col': !isMobileOrTablet,
-          }"
-          class="
+    <section
+      :class="{
+        'grid': isMobileOrTablet,
+        'flex': !isMobileOrTablet,
+        'flex-col': !isMobileOrTablet,
+      }"
+      class="
             gap-4 pt-4
 
             md:gap-8
           "
-        >
-          <div
-            class="
+    >
+      <div
+        class="
               grid gap-4
 
               md:gap-8
             "
-          >
-            <MobileOrTabletOnly>
-              <BlogCategoriesSlider
-                class="container-sm !py-0"
-              />
-            </MobileOrTabletOnly>
+      >
+        <MobileOrTabletOnly>
+          <BlogCategoriesSlider
+            class="container-sm !py-0"
+          />
+        </MobileOrTabletOnly>
 
-            <DesktopOnly>
-              <BlogCategoriesSlider
-                class="
+        <DesktopOnly>
+          <BlogCategoriesSlider
+            class="
                   container-sm
 
                   md:!p-0
                 "
-              />
-            </DesktopOnly>
+          />
+        </DesktopOnly>
 
-            <UCarousel
-              v-slot="{ item }"
-              :items="items"
-              :ui="{ item: 'basis-full items-center justify-center justify-items-center' }"
-              class="
+        <UCarousel
+          v-slot="{ item }"
+          :items="items"
+          :ui="{ item: 'basis-full items-center justify-center justify-items-center' }"
+          class="
                 container-sm mx-auto
 
                 md:!p-0
               "
-              indicators
-            >
-              <NuxtImg
-                :alt="appTitle"
-                :src="item"
-                :style="{ objectFit: 'contain' }"
-                :height="bannerHeight"
-                :width="bannerWidth"
-                sizes="xs:382px sm:352px md:545px lg:1194px xl:1194px xxl:1194px 2xl:1194px"
-                fit="cover"
-                quality="100"
-                class="rounded-lg"
-                format="webp"
-                loading="eager"
-                preload
-              />
-            </UCarousel>
+          indicators
+        >
+          <NuxtImg
+            :alt="appTitle"
+            :src="item"
+            :style="{ objectFit: 'contain' }"
+            :height="bannerHeight"
+            :width="bannerWidth"
+            sizes="xs:382px sm:352px md:545px lg:1194px xl:1194px xxl:1194px 2xl:1194px"
+            fit="cover"
+            quality="100"
+            class="rounded-lg"
+            format="webp"
+            loading="eager"
+            preload
+          />
+        </UCarousel>
 
-            <BlogPostsList
-              :page-size="6"
-              :show-ordering="false"
-              class="
+        <BlogPostsList
+          :page-size="6"
+          :show-ordering="false"
+          class="
                 container-sm
 
                 md:!p-0
               "
-              pagination-type="cursor"
-            />
-          </div>
-        </div>
-      </PageSection>
-    </PageBody>
+          pagination-type="cursor"
+        />
+      </div>
+    </section>
   </PageWrapper>
 </template>

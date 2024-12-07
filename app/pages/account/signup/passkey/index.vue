@@ -23,9 +23,8 @@ definePageMeta({
     "
   >
     <PageTitle :text="t('title')" class="text-center" />
-    <PageBody>
-      <AccountSignupPasskeyForm />
-    </PageBody>
+
+    <AccountSignupPasskeyForm />
   </PageWrapper>
 </template>
 

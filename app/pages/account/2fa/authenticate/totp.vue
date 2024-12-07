@@ -23,8 +23,7 @@ definePageMeta({
       :text="$t('authenticate.totp')"
       class="text-center capitalize"
     />
-    <PageBody>
-      <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.TOTP" />
-    </PageBody>
+
+    <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.TOTP" />
   </PageWrapper>
 </template>

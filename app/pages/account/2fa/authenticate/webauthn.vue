@@ -68,21 +68,20 @@ definePageMeta({
       :text="t('use.security.key')"
       class="text-center capitalize"
     />
-    <PageBody>
-      <Account2FaAuthenticateFlow :authenticator-type="AuthenticatorType.WEBAUTHN">
-        <div class="grid items-center justify-center">
-          <UButton
-            :label="
-              $t('submit')
-            "
-            color="primary"
-            size="xl"
-            :disabled="loading"
-            @click="onSubmit"
-          />
-        </div>
-      </Account2FaAuthenticateFlow>
-    </PageBody>
+
+    <Account2FaAuthenticateFlow :authenticator-type="AuthenticatorType.WEBAUTHN">
+      <div class="grid items-center justify-center">
+        <UButton
+          :label="
+            $t('submit')
+          "
+          color="primary"
+          size="xl"
+          :disabled="loading"
+          @click="onSubmit"
+        />
+      </div>
+    </Account2FaAuthenticateFlow>
   </PageWrapper>
 </template>
 

@@ -217,10 +217,9 @@ definePageMeta({
 
 <template>
   <PageWrapper class="container">
-    <PageBody>
-      <div
-        v-if="blogPost"
-        class="
+    <div
+      v-if="blogPost"
+      class="
           mx-auto max-w-7xl pb-6
 
           lg:px-8
@@ -229,193 +228,193 @@ definePageMeta({
 
           sm:px-6
         "
-      >
-        <UBreadcrumb
-          :links="links"
-          :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
-          }"
-          class="mx-auto mb-5 max-w-2xl"
-        />
-        <article
-          class="
+    >
+      <UBreadcrumb
+        :links="links"
+        :ui="{
+          li: 'text-primary-950 dark:text-primary-50',
+          base: 'text-xs md:text-md',
+        }"
+        class="mx-auto mb-5 max-w-2xl"
+      />
+      <article
+        class="
             border-primary-500 mx-auto flex max-w-2xl flex-col items-start
             justify-center pb-6
 
             dark:border-primary-500
           "
-        >
-          <div
-            class="
+      >
+        <div
+          class="
               mx-auto flex max-w-2xl flex-col items-start justify-center gap-4
             "
-          >
-            <h1
-              class="
+        >
+          <h1
+            class="
                 text-primary-950 text-3xl font-bold tracking-tight
 
                 dark:text-primary-50
 
                 md:text-4xl
               "
-            >
-              {{ blogPostTitle }}
-            </h1>
-            <div
-              class="
+          >
+            {{ blogPostTitle }}
+          </h1>
+          <div
+            class="
                 grid w-full grid-cols-2 items-center gap-2
 
                 md:grid-cols-3 md:gap-4
               "
-            >
-              <div class="flex">
-                <div
-                  class="
+          >
+            <div class="flex">
+              <div
+                class="
                     flex justify-end gap-2
 
                     md:gap-4
                   "
-                >
-                  <ButtonBlogPostLike
-                    :blog-post-id="blogPost.id"
-                    :likes-count="blogPost.likesCount"
-                    class="justify-self-start font-extrabold capitalize"
-                    @update="likeClicked"
-                  />
+              >
+                <ButtonBlogPostLike
+                  :blog-post-id="blogPost.id"
+                  :likes-count="blogPost.likesCount"
+                  class="justify-self-start font-extrabold capitalize"
+                  @update="likeClicked"
+                />
+                <UButton
+                  :label="String(blogPost.commentsCount)"
+                  :title="$t('comments.count', {
+                    count: blogPost.commentsCount,
+                  })"
+                  class="justify-self-start font-extrabold capitalize"
+                  color="primary"
+                  icon="i-heroicons-chat-bubble-oval-left"
+                  size="lg"
+                  square
+                  variant="solid"
+                  @click="scrollToComments"
+                />
+                <ClientOnly>
                   <UButton
-                    :label="String(blogPost.commentsCount)"
-                    :title="$t('comments.count', {
-                      count: blogPost.commentsCount,
-                    })"
+                    v-if="isSupported"
+                    :disabled="!isSupported"
+                    :title="$t('share')"
                     class="justify-self-start font-extrabold capitalize"
                     color="primary"
-                    icon="i-heroicons-chat-bubble-oval-left"
+                    icon="i-heroicons-share"
                     size="lg"
                     square
                     variant="solid"
-                    @click="scrollToComments"
+                    @click="startShare"
                   />
-                  <ClientOnly>
-                    <UButton
-                      v-if="isSupported"
-                      :disabled="!isSupported"
-                      :title="$t('share')"
-                      class="justify-self-start font-extrabold capitalize"
-                      color="primary"
-                      icon="i-heroicons-share"
-                      size="lg"
-                      square
-                      variant="solid"
-                      @click="startShare"
+                  <template #fallback>
+                    <ClientOnlyFallback
+                      height="40px"
+                      width="40px"
                     />
-                    <template #fallback>
-                      <ClientOnlyFallback
-                        height="40px"
-                        width="40px"
-                      />
-                    </template>
-                  </ClientOnly>
-                </div>
+                  </template>
+                </ClientOnly>
               </div>
             </div>
-            <div
-              class="
+          </div>
+          <div
+            class="
                 flex w-full flex-col gap-2
 
                 sm:mx-0
               "
-            >
-              <div class="sm:mx-0">
-                <ImgWithFallback
-                  id="blog-post-image"
-                  provider="mediaStream"
-                  :alt="blogPostTitle"
-                  :background="'transparent'"
-                  fit="cover"
-                  :height="340"
-                  :sizes="`sm:${672}px md:${672}px lg:${672}px xl:${672}px xxl:${672}px 2xl:${672}px`"
-                  :src="blogPost.mainImagePath"
-                  :style="{ objectFit: 'contain' }"
-                  :width="672"
-                  :modifiers="{
-                    position: 'attention',
-                    trimThreshold: 5,
-                  }"
-                  class="blog-post-image bg-primary-100 rounded-lg"
-                  densities="x1"
-                  loading="eager"
-                />
-              </div>
-              <div
-                v-if="blogPost.isPublished && blogPost.publishedAt" class="
+          >
+            <div class="sm:mx-0">
+              <ImgWithFallback
+                id="blog-post-image"
+                provider="mediaStream"
+                :alt="blogPostTitle"
+                :background="'transparent'"
+                fit="cover"
+                :height="340"
+                :sizes="`sm:${672}px md:${672}px lg:${672}px xl:${672}px xxl:${672}px 2xl:${672}px`"
+                :src="blogPost.mainImagePath"
+                :style="{ objectFit: 'contain' }"
+                :width="672"
+                :modifiers="{
+                  position: 'attention',
+                  trimThreshold: 5,
+                }"
+                class="blog-post-image bg-primary-100 rounded-lg"
+                densities="x1"
+                loading="eager"
+              />
+            </div>
+            <div
+              v-if="blogPost.isPublished && blogPost.publishedAt" class="
                   sr-only flex gap-2
                 "
-              >
-                <span class="text-sm font-semibold">{{ $t('published') }}: </span>
-                <NuxtTime
-                  class="text-sm"
-                  :locale="locale"
-                  :date-style="'medium'"
-                  :time-style="'medium'"
-                  :datetime="blogPost.publishedAt"
-                />
-              </div>
+            >
+              <span class="text-sm font-semibold">{{ $t('published') }}: </span>
+              <NuxtTime
+                class="text-sm"
+                :locale="locale"
+                :date-style="'medium'"
+                :time-style="'medium'"
+                :datetime="blogPost.publishedAt"
+              />
             </div>
-            <div class="grid">
-              <ul
-                v-if="blogPostTags && blogPostTags.length > 0"
-                class="
+          </div>
+          <div class="grid">
+            <ul
+              v-if="blogPostTags && blogPostTags.length > 0"
+              class="
                   scrollable-tags flex flex-wrap items-center
 
                   md:gap-4
                 "
+            >
+              <li
+                v-for="(tag, index) in blogPostTags"
+                :key="index"
               >
-                <li
-                  v-for="(tag, index) in blogPostTags"
-                  :key="index"
-                >
-                  <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
-                    extractTranslated(tag, 'name', locale)
-                  }}</span>
-                </li>
-              </ul>
-            </div>
-            <div
-              class="
+                <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
+                  extractTranslated(tag, 'name', locale)
+                }}</span>
+              </li>
+            </ul>
+          </div>
+          <div
+            class="
                 text-primary-950 mx-auto max-w-2xl
 
                 dark:text-primary-50
               "
-            >
-              <div
-                class="article"
-                v-html="blogPostBody"
-              />
-            </div>
+          >
+            <div
+              class="article"
+              v-html="blogPostBody"
+            />
           </div>
-        </article>
-        <BlogPostComments
-          :blog-post-id="String(blogPost.id)"
-          :comments-count="blogPost.commentsCount"
-          display-image-of="user"
-        />
-        <LazyBlogPostsCarousel
-          v-if="relatedPostsStatus !== 'pending' && relatedPosts?.length"
-          :posts="relatedPosts"
-          :title="$t('related.sections')"
-        />
-        <div
-          v-if="relatedPostsStatus === 'pending'"
-          :class="{
-            'relative flex w-full rounded-lg': true,
-            'px-8': !isMobileOrTablet,
-          }"
-        >
-          <ClientOnlyFallback
-            v-for="index in 3"
-            :key="index"
-            class="
+        </div>
+      </article>
+      <BlogPostComments
+        :blog-post-id="String(blogPost.id)"
+        :comments-count="blogPost.commentsCount"
+        display-image-of="user"
+      />
+      <LazyBlogPostsCarousel
+        v-if="relatedPostsStatus !== 'pending' && relatedPosts?.length"
+        :posts="relatedPosts"
+        :title="$t('related.sections')"
+      />
+      <div
+        v-if="relatedPostsStatus === 'pending'"
+        :class="{
+          'relative flex w-full rounded-lg': true,
+          'px-8': !isMobileOrTablet,
+        }"
+      >
+        <ClientOnlyFallback
+          v-for="index in 3"
+          :key="index"
+          class="
               flex flex-none basis-full snap-center px-4
 
               lg:basis-1/2
@@ -424,12 +423,11 @@ definePageMeta({
 
               xl:basis-1/3
             "
-            :height="isMobileOrTablet ? '670px' : '442px'"
-            width="100%"
-          />
-        </div>
+          :height="isMobileOrTablet ? '670px' : '442px'"
+          width="100%"
+        />
       </div>
-    </PageBody>
+    </div>
   </PageWrapper>
 </template>
 
