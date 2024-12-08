@@ -1,3 +1,18 @@
+# [1.251.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.250.1...v1.251.0) (2024-12-08)
+
+
+### Bug Fixes
+
+* node version ([d45dfb8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d45dfb8206aab84e881f5c851b4b7bb56f01b1b5))
+* remove qodana ([b4ff132](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b4ff1327eb04a5b789d83590766ff9f0b10a75b7))
+* rollup-linux-x64-gnu ([c4e9832](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c4e98324788817ae14518296b1cdfded0819d880))
+* vite version downgrade ([e103ab5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e103ab5f994dffe810848cb2c90752f578ed4910))
+
+
+### Features
+
+* Remove Translator ([4712ac0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4712ac0e1de12784daafc2fcf665b5a84d6e9dfc))
+
 ## [1.250.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.250.0...v1.250.1) (2024-12-07)
 
 
