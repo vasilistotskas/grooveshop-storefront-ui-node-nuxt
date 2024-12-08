@@ -26,13 +26,54 @@ definePageMeta({
           :cart-item="cartItem"
         />
       </div>
-      <template v-if="pending">
+      <div
+        v-if="pending"
+        class="
+            no-products grid gap-4
+
+            md:grid-rows-1
+          "
+      >
+        <ClientOnlyFallback
+          v-for="index in 3"
+          :key="index"
+          height="122px"
+          width="100%"
+        />
+      </div>
+      <LazyEmptyState
+        v-if="!pending && !cart?.cartItems?.length"
+        class="w-full"
+        :title="t('empty.title')"
+      >
+        <template
+          #icon
+        >
+          <UIcon
+            name="i-heroicons-shopping-cart"
+            size="xl"
+          />
+        </template>
+        <template
+          #actions
+        >
+          <UButton
+            :label="t('empty.description')"
+            :to="localePath('index')"
+            class="font-semibold"
+            color="secondary"
+            size="xl"
+            type="button"
+          />
+        </template>
+      </LazyEmptyState>
+      <template #fallback>
         <div
           class="
-              no-products grid gap-4
+            no-products grid gap-4
 
-              md:grid-rows-1
-            "
+            md:grid-rows-1
+          "
         >
           <ClientOnlyFallback
             v-for="index in 3"
@@ -41,12 +82,6 @@ definePageMeta({
             width="100%"
           />
         </div>
-      </template>
-      <template #fallback>
-        <ClientOnlyFallback
-          height="320px"
-          width="100%"
-        />
       </template>
     </ClientOnly>
 
@@ -68,4 +103,7 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   checkout: Ολοκλήρωση αγοράς
+  empty:
+    title: Το καλάθι σου είναι άδειο
+    description: Συνέχεια
 </i18n>

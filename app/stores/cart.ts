@@ -103,20 +103,31 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function fetchCart() {
+    pending.value = true
     if (!loggedIn.value) {
       fetchCartFromLocalStorage()
+      pending.value = false
       return
     }
 
-    await useFetch<Cart>(
+    const { data, error: fetchError, status } = await useFetch<Cart>(
       '/api/cart',
       {
         key: 'cart',
         method: 'GET',
         headers: useRequestHeaders(),
-        ...createFetchHandlers(),
       },
     )
+
+    if (fetchError.value) {
+      error.value = fetchError.value
+    }
+
+    if (data.value) {
+      cart.value = data.value
+    }
+
+    pending.value = false
   }
 
   async function refreshCart() {

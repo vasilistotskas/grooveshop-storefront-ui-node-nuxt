@@ -1,6 +1,0 @@
-my_name_is: "My name is %{name}"
-hello: "Hello"
-what:
-  a:
-    beautiful:
-      day: "What a beautiful day"

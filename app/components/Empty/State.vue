@@ -29,8 +29,8 @@ defineSlots<{
       md:p-8
     "
   >
-    <slot name="icon" />
-    <div class="empty-state-title text-xl font-semibold">
+    <div class="flex items-center gap-2 empty-state-title text-xl font-semibold">
+      <slot name="icon" />
       {{ title }}
     </div>
     <div
