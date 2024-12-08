@@ -228,28 +228,6 @@ export default defineNuxtConfig({
   vite: {
     build: {
       sourcemap: true,
-      rollupOptions: {
-        output: {
-          manualChunks(id: string) {
-            const chunks = ['zod', 'lottie']
-            if (id.includes('node_modules')) {
-              const parts = id.toString().split('node_modules/')
-              if (parts.length > 1 && parts[1]) {
-                const part = parts[1].split('/')[0]
-                if (part) {
-                  return part.toString()
-                }
-              }
-            }
-
-            for (const chunkName of chunks) {
-              if (id.includes(chunkName)) {
-                return chunkName
-              }
-            }
-          },
-        },
-      },
     },
     css: {
       preprocessorOptions: {
