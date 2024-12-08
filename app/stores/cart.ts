@@ -110,7 +110,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    const { data, error: fetchError, status } = await useFetch<Cart>(
+    const { data, error: fetchError } = await useFetch<Cart>(
       '/api/cart',
       {
         key: 'cart',

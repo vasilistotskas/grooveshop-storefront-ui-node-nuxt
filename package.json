@@ -129,6 +129,9 @@
     "workbox-routing": "7.3.0",
     "workbox-strategies": "7.3.0"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.28.1"
+  },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"
   },
