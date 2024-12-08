@@ -1,3 +1,10 @@
+## [1.251.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.251.0...v1.251.1) (2024-12-08)
+
+
+### Bug Fixes
+
+* rollupOptions ([ab5127e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ab5127ec5d6f4526ef9f7face6a36f2fdafc047f))
+
 # [1.251.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.250.1...v1.251.0) (2024-12-08)
 
 
