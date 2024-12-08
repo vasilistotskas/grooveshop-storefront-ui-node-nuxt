@@ -30,13 +30,13 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: '23.x'
       - name: Check npm version
         run: npm --version
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: '23.x'
           registry-url: 'https://npm.pkg.github.com'
           cache: 'npm'
           # Defaults to the user or organization that owns the workflow file
