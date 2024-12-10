@@ -14,7 +14,7 @@ const { flow } = toRefs(props)
 const router = useRouter()
 const { t } = useI18n()
 
-const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
+const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
 
 const next = router.currentRoute.value.query.next as string | undefined
 

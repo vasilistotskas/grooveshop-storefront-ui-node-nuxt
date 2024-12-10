@@ -29,7 +29,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col">
+  <PageWrapper class="container-3xs md:!p-0 flex flex-col">
     <UBreadcrumb
       :links="links"
       :ui="{

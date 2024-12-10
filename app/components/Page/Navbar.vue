@@ -173,7 +173,7 @@ const items = computed(() => [
               "
             >
               <UChip
-                v-if="enabled"
+                v-if="enabled && loggedIn"
                 :key="'cart'"
                 size="xl"
                 color="green"
@@ -190,6 +190,31 @@ const items = computed(() => [
                   :to="localePath('cart')"
                 />
               </UChip>
+              <ClientOnly v-else-if="enabled && !loggedIn">
+                <UChip
+                  :key="'cart'"
+                  size="xl"
+                  color="green"
+                  :show="!pending"
+                  :text="getCartTotalItems"
+                >
+                  <UButton
+                    class="p-0"
+                    icon="i-heroicons-shopping-cart"
+                    size="xl"
+                    :color="'primary'"
+                    :aria-label="t('cart')"
+                    :title="t('cart')"
+                    :to="localePath('cart')"
+                  />
+                </UChip>
+                <template #fallback>
+                  <ClientOnlyFallback
+                    height="24px"
+                    width="24px"
+                  />
+                </template>
+              </ClientOnly>
             </li>
             <li
               v-show="loggedIn && user"

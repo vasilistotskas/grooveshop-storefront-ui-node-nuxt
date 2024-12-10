@@ -13,6 +13,7 @@ const router = useRouter()
 const { t } = useI18n()
 const authInfo = useAuthInfo()
 const localePath = useLocalePath()
+const localeRoute = useLocaleRoute()
 
 const flow = computed(() => authInfo?.pendingFlow)
 const next = router.currentRoute.value.query.next as string | undefined
@@ -25,6 +26,11 @@ const labels = {
   [AuthenticatorType.TOTP]: t('mfa_reauthenticate.totp'),
   [AuthenticatorType.RECOVERY_CODES]: t('mfa_reauthenticate.recovery_codes'),
   [AuthenticatorType.WEBAUTHN]: t('mfa_reauthenticate.webauthn'),
+}
+
+const isCurrentPath = (path: FlowPathValue) => {
+  const targetRoute = localeRoute(path)
+  return targetRoute?.path === router.currentRoute.value.path
 }
 
 const filteredFlows = computed(() => {
@@ -86,7 +92,8 @@ const filteredFlows = computed(() => {
               query: { next },
             })"
             class="p-0"
-            color="primary"
+            color="black"
+            :disabled="isCurrentPath(f.path)"
             icon="i-heroicons-arrow-right"
             size="xl"
             type="button"

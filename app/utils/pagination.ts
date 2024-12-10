@@ -6,8 +6,8 @@ export function getCursorFromUrl(
   return parsedUrl.searchParams.get(cursorQueryParam)
 }
 
-export function generateInitialCursorStates(): CursorStates {
-  const initialState: CursorStates = {}
+export function generateInitialCursorState(): CursorState {
+  const initialState: CursorState = {}
 
   for (const value of Object.values(PaginationCursorStateEnum)) {
     initialState[value] = ''
@@ -16,7 +16,7 @@ export function generateInitialCursorStates(): CursorStates {
   return initialState
 }
 
-export function clearCursorStates() {
-  const cursorState = useState<CursorStates>('cursorStates')
-  cursorState.value = generateInitialCursorStates()
+export function clearCursorState() {
+  const cursorState = useState<CursorState>('cursor-state')
+  cursorState.value = generateInitialCursorState()
 }

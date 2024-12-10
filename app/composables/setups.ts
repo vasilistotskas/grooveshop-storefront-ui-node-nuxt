@@ -62,8 +62,8 @@ export function setupPageHeader() {
   }))
 }
 
-export function setupCursorStates() {
-  return useState<CursorStates>('cursorStates', () => generateInitialCursorStates())
+export function setupCursorState() {
+  return useState<CursorState>('cursor-state', () => generateInitialCursorState())
 }
 
 export function setupGoogleAnalyticsConsent() {

@@ -45,7 +45,7 @@ const route = useRoute()
 const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedComments } = userStore
-const cursorState = useState<CursorStates>('cursorStates')
+const cursorState = useState<CursorState>('cursor-state')
 
 const expand = computed(() => 'true')
 const expandFields = computed(() => 'user,post')

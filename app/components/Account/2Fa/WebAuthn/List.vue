@@ -101,15 +101,18 @@ const actionItems = (row: { name: string, type: string, created_at: string, last
   const items: DropdownItem[] = []
 
   items.push({
-    label: t('delete.title'),
-    icon: 'i-heroicons-trash-20-solid',
-    click: () => deleteKey(keys.value?.find(key => key.name === row.name)),
-  })
-
-  items.push({
     label: t('edit.title'),
     icon: 'i-heroicons-pencil-20-solid',
     click: () => editId.value = keys.value?.find(key => key.name === row.name)?.id ?? null,
+  })
+
+  items.push({
+    label: t('delete.title'),
+    icon: 'i-heroicons-trash-20-solid',
+    class: 'bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
+    iconClass: 'text-primary-950 dark:text-primary-50',
+    labelClass: 'text-primary-950 dark:text-primary-50',
+    click: async () => await deleteKey(keys.value?.find(key => key.name === row.name)),
   })
 
   if (items.length === 0) {

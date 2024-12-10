@@ -3,7 +3,7 @@ const config = useRuntimeConfig()
 
 const appTitle = computed(() => config.public.appTitle as string)
 
-const searchBarFocused = useState<boolean>('searchBarFocused')
+const searchBarFocused = useState<boolean>('search-bar-focused')
 </script>
 
 <template>

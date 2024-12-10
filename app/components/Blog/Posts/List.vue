@@ -29,7 +29,7 @@ const route = useRoute()
 const { locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
 const { loggedIn, user } = useUserSession()
-const cursorState = useState<CursorStates>('cursorStates')
+const cursorState = useState<CursorState>('cursor-state')
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
 

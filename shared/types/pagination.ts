@@ -17,7 +17,7 @@ export type Pagination<T> = {
 
 export type PaginationCursorStateType = `${PaginationCursorStateEnum}-${string}`
 
-export type CursorStates = {
+export type CursorState = {
   [key in PaginationCursorStateEnum | PaginationCursorStateType]?: string | null
 }
 

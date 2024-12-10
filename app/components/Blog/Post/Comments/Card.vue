@@ -47,7 +47,7 @@ const showReplies = ref(false)
 const isLineHovered = ref(false)
 const likes = ref(comment.value.likesCount)
 
-const cursorState = useState<CursorStates>('cursorStates')
+const cursorState = useState<CursorState>('cursor-state')
 
 const cursorKey = computed<PaginationCursorStateType>(
   () => `${PaginationCursorStateEnum.BLOG_POST_COMMENTS}-${comment.value.id}`,

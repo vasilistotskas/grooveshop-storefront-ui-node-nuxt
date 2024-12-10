@@ -51,7 +51,7 @@ const { cursorKey, links, loading, useRouteQuery, strategy, totalPages } = toRef
 const router = useRouter()
 const route = useRoute()
 
-const cursorState = useState<CursorStates>('cursorStates')
+const cursorState = useState<CursorState>('cursor-state')
 
 const currentState = computed(() => ({ ...cursorState.value }))
 const currentCursor = computed(() => currentState.value[cursorKey.value])
@@ -172,7 +172,7 @@ watch(
 onUnmounted(() => {
   destroyObserver()
   window.removeEventListener('resize', debouncedHandleResize)
-  clearCursorStates()
+  clearCursorState()
 })
 </script>
 

@@ -59,7 +59,7 @@ export const handleAllAuthClientError = (error: unknown): void => {
         else if (flow.id === 'mfa_authenticate') {
           toast.add({
             title: t('auth.error.mfa_authenticate'),
-            color: 'red',
+            color: 'yellow',
           })
           return
         }

@@ -11,7 +11,7 @@ const { loggedIn, user } = useUserSession()
 const { t } = useI18n()
 const img = useImage()
 
-const searchBarFocused = useState<boolean>('searchBarFocused')
+const searchBarFocused = useState<boolean>('search-bar-focused')
 
 const avatarImg = computed(() => {
   if (!user.value || !user.value?.mainImagePath) {
