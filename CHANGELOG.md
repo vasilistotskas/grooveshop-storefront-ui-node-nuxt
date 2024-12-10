@@ -1,3 +1,10 @@
+# [1.252.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.251.1...v1.252.0) (2024-12-10)
+
+
+### Features
+
+* Add breadcrumbs, state name consistency and Bump Versions ([a35da29](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a35da295a6eff08d4a64689ff40f6824f1fe849f))
+
 ## [1.251.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.251.0...v1.251.1) (2024-12-08)
 
 
