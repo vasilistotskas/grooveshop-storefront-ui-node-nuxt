@@ -21,7 +21,7 @@ export default defineNuxtPlugin({
     const { clearAccountState } = userStore
     const { setupNotifications } = userNotificationStore
 
-    const authState = useState<AllAuthResponse | AllAuthResponseError>('authState')
+    const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
     const authEvent = useState<AuthChangeEventType>('authEvent')
 
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
@@ -130,7 +130,7 @@ export default defineNuxtPlugin({
         if (flowPath) {
           console.debug('Reauthentication required, navigating to reauthentication flow')
           const url = withQuery(flowPath, { next })
-          return navigateToUrl(url, true)
+          return navigateToUrl(url)
         }
         else {
           console.warn('No reauthentication flow found')
@@ -141,7 +141,7 @@ export default defineNuxtPlugin({
       }
     }
 
-    function navigateToUrl(path: string, replace = false) {
+    function navigateToUrl(path: string, replace = true) {
       try {
         const localePath = useLocalePath()
         const url = localePath(path as keyof RouteNamedMapI18n | (Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined }))

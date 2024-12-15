@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useShare } from '@vueuse/core'
 import { GlobalEvents } from '~/events'
-import { capitalize } from '~/utils/str'
 
 const { user, loggedIn } = useUserSession()
 

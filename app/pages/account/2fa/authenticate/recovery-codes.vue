@@ -23,6 +23,7 @@ const links = computed(() => [
 ])
 
 if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
+  console.debug('Redirecting to index', authEvent.value)
   await navigateTo(localePath('index'))
 }
 

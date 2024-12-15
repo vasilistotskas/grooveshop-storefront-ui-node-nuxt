@@ -2,7 +2,6 @@
 import * as z from 'zod'
 
 import type { DropdownItem } from '#ui/types'
-import { handleAllAuthClientError } from '~/utils/error'
 
 const emit = defineEmits(['addEmailAddress', 'requestEmailVerification', 'removeEmailAddress', 'changePrimaryEmailAddress'])
 

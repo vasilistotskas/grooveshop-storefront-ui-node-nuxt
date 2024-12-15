@@ -125,7 +125,7 @@ export default defineNuxtConfig({
         youtube: '',
       },
       domainVerifyId: '',
-      googleGsiEnable: 'true',
+      googleGsiEnable: true,
       googleSiteVerification: '',
       mediaStreamOrigin: 'http://localhost:3003',
       mediaStreamPath: 'http://localhost:3003/media_stream-image',

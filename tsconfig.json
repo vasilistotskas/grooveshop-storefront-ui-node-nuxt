@@ -1,9 +1,4 @@
 {
 	// https://v3.nuxtjs.org/concepts/typescript
-	"extends": "./.nuxt/tsconfig.json",
-  "ts-node": {
-    "experimentalSpecifierResolution": "node",
-    "transpileOnly": true,
-    "esm": true
-  }
+	"extends": "./.nuxt/tsconfig.json"
 }

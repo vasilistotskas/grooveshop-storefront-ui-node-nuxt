@@ -39,8 +39,8 @@ export const handleAllAuthClientError = (error: unknown): void => {
       console.error('Bad response:', error.data)
     }
     else if (isNotAuthenticatedResponseError(error.data)) {
-      console.error('Not authenticated:', error.data)
       const flows = getPendingFlows(error.data.data)
+      console.debug('Pending flows:', flows)
       if (!flows) {
         toast.add({
           title: t('auth.error.not_authenticated'),

@@ -34,6 +34,7 @@ export const authInfo = (
   const pendingFlow = 'data' in response
     ? response.data?.flows?.find(flow => flow.is_pending) ?? null
     : null
+  console.debug('Auth info:', { isAuthenticated, requiresReauthentication, pendingFlow })
   const user = isAuthenticated && 'data' in response ? response.data.user : null
   return {
     isAuthenticated: isAuthenticated || false,
@@ -190,9 +191,11 @@ export const navigateToPendingFlow = async (
   const nuxtApp = useNuxtApp()
   const localePath = useLocalePath()
   const path = pathForPendingFlow(response)
+  console.debug('Navigating to pending flow:', path)
   if (path) {
     const next = useRouter().currentRoute.value.query.next
     const url = withQuery(localePath(path), { next })
+    console.debug('Navigating to URL:', url)
     await nuxtApp.runWithContext(() => navigateTo(url))
   }
   else {

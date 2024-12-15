@@ -221,7 +221,7 @@
       "session": {
         "expired": "Η συνεδρία σας έχει λήξει"
       },
-      "verify_email": "Σφάλμα επαλήθευσης email",
+      "verify_email": "Επαλήθευσε το email σου",
       "mfa_authenticate": "Πρέπει να επαληθεύσεις το λογαριασμό σου",
       "not_authenticated": "Δεν είσαι εξουσιοδοτημένος"
     }

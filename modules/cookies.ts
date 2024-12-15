@@ -87,8 +87,8 @@ const blockIframes = (moduleOptions: ModuleOptions) => {
                 match.includes('cookie-enabled')
                   ? match
                   : match
-                    .replace(/<iframe/g, '<CookieIframe')
-                    .replace(/iframe>/g, 'CookieIframe>'),
+                      .replace(/<iframe/g, '<CookieIframe')
+                      .replace(/iframe>/g, 'CookieIframe>'),
             },
           ],
         }),
