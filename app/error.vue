@@ -21,7 +21,7 @@ const ogImageOptions = reactive({
 })
 
 useSeoMeta({
-  title: () => t('page.title'),
+  title: t('page.title'),
 })
 
 useHead({

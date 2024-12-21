@@ -89,7 +89,7 @@ export default defineNuxtPlugin({
           console.debug('Logged out, clearing user session')
           await clear()
         }
-        return navigateToUrl(URLs.LOGIN_REDIRECT_URL)
+        return await navigateToUrl(URLs.LOGIN_REDIRECT_URL)
       }
       catch (error) {
         console.error('Error handling logged out:', error)
@@ -105,7 +105,7 @@ export default defineNuxtPlugin({
         const redirectTo = isRedirectingToLogin || !returnToPath
           ? URLs.LOGIN_REDIRECT_URL
           : returnToPath
-        return navigateToUrl(redirectTo)
+        return await navigateToUrl(redirectTo)
       }
       catch (error) {
         console.error('Error handling logged in:', error)
@@ -116,7 +116,7 @@ export default defineNuxtPlugin({
       try {
         const router = useRouter()
         const next = router.currentRoute.value.query.next as string | undefined
-        return navigateToUrl(next || URLs.LOGIN_REDIRECT_URL)
+        return await navigateToUrl(next || URLs.LOGIN_REDIRECT_URL)
       }
       catch (error) {
         console.error('Error handling reauthenticated:', error)
@@ -130,7 +130,7 @@ export default defineNuxtPlugin({
         if (flowPath) {
           console.debug('Reauthentication required, navigating to reauthentication flow')
           const url = withQuery(flowPath, { next })
-          return navigateToUrl(url)
+          return await navigateToUrl(url)
         }
         else {
           console.warn('No reauthentication flow found')
@@ -141,11 +141,11 @@ export default defineNuxtPlugin({
       }
     }
 
-    function navigateToUrl(path: string, replace = true) {
+    async function navigateToUrl(path: string, replace = true) {
       try {
         const localePath = useLocalePath()
         const url = localePath(path as keyof RouteNamedMapI18n | (Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined }))
-        return nuxtApp.runWithContext(() => navigateTo(url, { replace }))
+        return await nuxtApp.runWithContext(() => navigateTo(url, { replace }))
       }
       catch (error) {
         console.error('Error navigating to URL:', error)
