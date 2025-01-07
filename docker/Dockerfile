@@ -1,12 +1,16 @@
-ARG NODE_VERSION=23.3.0
+ARG NODE_VERSION=23.4.0
 
 FROM node:${NODE_VERSION}-alpine AS build
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable pnpm
 
 WORKDIR /app
 
 COPY . .
 
-# Set environment variables
 ENV NODE_ENV=production \
     NUXT_HOST=0.0.0.0 \
     NUXT_PORT=3000 \
@@ -16,8 +20,9 @@ ENV NODE_ENV=production \
     NUXT_PUBLIC_MEDIA_STREAM_ORIGIN="https://assets.webside.gr" \
     NUXT_PUBLIC_STATIC_ORIGIN="https://static.webside.gr"
 
-RUN npm ci && \
-    npm run build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+RUN pnpm run build
 
 FROM node:${NODE_VERSION}-alpine AS production
 

@@ -52,7 +52,7 @@
     "@vee-validate/nuxt": "4.15.0",
     "@vee-validate/zod": "4.15.0",
     "@vite-pwa/nuxt": "0.10.6",
-    "@vueuse/nuxt": "12.2.0",
+    "@vueuse/nuxt": "12.3.0",
     "defu": "6.1.4",
     "eslint-plugin-readable-tailwind": "1.8.2",
     "eslint-plugin-tailwindcss": "3.17.5",
@@ -60,7 +60,7 @@
     "hookable": "5.5.3",
     "lottie-web": "5.12.2",
     "magic-string": "0.30.17",
-    "nuxt": "3.15.0",
+    "nuxt": "3.15.1",
     "nuxt-auth-utils": "0.5.7",
     "nuxt-security": "2.1.5",
     "nuxt-time": "1.0.3",
@@ -71,7 +71,7 @@
     "rss": "1.2.2",
     "string-replace-loader": "3.1.0",
     "ufo": "1.5.4",
-    "unhead": "1.11.14",
+    "unhead": "1.11.15",
     "unstorage": "1.14.4",
     "v-calendar": "3.1.2",
     "vee-validate": "4.15.0",
@@ -83,39 +83,39 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "1.7.0",
-    "@nuxt/kit": "3.15.0",
-    "@nuxt/schema": "3.15.0",
+    "@nuxt/kit": "3.15.1",
+    "@nuxt/schema": "3.15.1",
     "@nuxt/types": "2.18.1",
     "@parcel/watcher": "2.5.0",
     "@semantic-release/changelog": "6.0.3",
-    "@semantic-release/commit-analyzer": "13.0.0",
+    "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/git": "10.0.1",
     "@semantic-release/github": "11.0.1",
     "@semantic-release/npm": "12.0.1",
-    "@semantic-release/release-notes-generator": "14.0.2",
+    "@semantic-release/release-notes-generator": "14.0.3",
     "@tailwindcss/typography": "0.5.15",
     "@testing-library/jest-dom": "6.6.3",
     "@types/eslint-plugin-tailwindcss": "3.17.0",
-    "@types/node": "22.10.2",
+    "@types/node": "22.10.5",
     "@types/rss": "0.0.32",
-    "@unhead/schema": "1.11.14",
-    "@unhead/vue": "1.11.14",
+    "@unhead/schema": "1.11.15",
+    "@unhead/vue": "1.11.15",
     "@vitest/coverage-v8": "2.1.8",
     "@vitest/ui": "2.1.8",
     "@vue/devtools-api": "7.6.8",
     "@vue/test-utils": "2.4.6",
-    "@vueuse/core": "12.2.0",
-    "@vueuse/integrations": "12.2.0",
-    "@vueuse/shared": "12.2.0",
+    "@vueuse/core": "12.3.0",
+    "@vueuse/integrations": "12.3.0",
+    "@vueuse/shared": "12.3.0",
     "eslint": "9.17.0",
     "playwright": "1.49.1",
-    "sass": "1.83.0",
-    "semantic-release": "24.2.0",
+    "sass": "1.83.1",
+    "semantic-release": "24.2.1",
     "tailwindcss": "3.4.17",
     "translate": "3.0.1",
     "tsc-alias": "1.8.10",
     "typescript": "5.7.2",
-    "vite": "6.0.6",
+    "vite": "6.0.7",
     "vite-plugin-eslint2": "5.0.3",
     "vitest": "2.1.8",
     "vitest-environment-nuxt": "1.0.1",
@@ -129,7 +129,7 @@
     "workbox-strategies": "7.3.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.29.1"
+    "@rollup/rollup-linux-x64-gnu": "4.30.1"
   },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"
@@ -181,8 +181,5 @@
       ]
     ]
   },
-  "engines": {
-    "node": ">=23.3.0",
-    "npm": ">=10.9.0"
-  }
+  "packageManager": "pnpm@9.15.0"
 }
