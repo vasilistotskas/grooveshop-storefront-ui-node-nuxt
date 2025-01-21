@@ -205,7 +205,7 @@ export default defineNuxtConfig({
     asyncContext: true,
     cookieStore: true,
     watcher: 'parcel',
-    appManifest: false
+    appManifest: false,
   },
   compatibilityDate: '2024-11-26',
   nitro: {
