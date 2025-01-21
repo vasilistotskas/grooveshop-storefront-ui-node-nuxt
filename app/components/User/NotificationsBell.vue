@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { ZNotification } from '#shared/types/notification'
 
 const { locale } = useI18n()
 const { getUnseenCount, markAsSeen } = useUserNotification()

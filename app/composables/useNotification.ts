@@ -1,5 +1,3 @@
-import type { ZNotification } from '#shared/types/notification'
-
 const API_BASE_URL = '/api/notification/ids'
 
 export default function () {
