@@ -11,6 +11,11 @@ declare module '#auth-utils' {
     accessToken?: string | null
   }
 
+  interface SecureSessionData {
+    sessionToken?: string | null
+    accessToken?: string | null
+  }
+
   export interface UserSessionRequired extends UserSession {
     user: User
   }

@@ -72,20 +72,20 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
 
 export async function getAllAuthHeaders() {
   const session = await getUserSession(useEvent())
-  const sessionToken = session.sessionToken
-  const accessToken = session.accessToken
+  const sessionToken = session.secure?.sessionToken
+  const accessToken = session.secure?.accessToken
 
   return createHeaders(sessionToken, accessToken)
 }
 
 export async function getAllAuthSessionToken() {
   const session = await getUserSession(useEvent())
-  return session.sessionToken
+  return session.secure?.sessionToken
 }
 
 export async function getAllAuthAccessToken() {
   const session = await getUserSession(useEvent())
-  return session.accessToken
+  return session.secure?.accessToken
 }
 
 export async function requireAllAuthAccessToken() {

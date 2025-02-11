@@ -42,7 +42,7 @@ const ZodPasswordResetConfirm = z
 const initialValues = {
   newPassword1: '',
   newPassword2: '',
-  key,
+  key: String(key),
 }
 
 const validationSchema = toTypedSchema(ZodPasswordResetConfirm)

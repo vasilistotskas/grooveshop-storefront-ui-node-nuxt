@@ -221,7 +221,7 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
   }
   const rightBound
     = target?.getBoundingClientRect()?.right
-    - target?.getBoundingClientRect()?.left
+      - target?.getBoundingClientRect()?.left
   newSelectionRatio.value = leftBound / rightBound
 }
 
