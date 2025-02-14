@@ -1,3 +1,10 @@
+# [1.266.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.265.0...v1.266.0) (2025-02-14)
+
+
+### Features
+
+* remove health check api call, Bump Versions ([abebf8f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/abebf8f645137ec0de66b84577c7d148ef425e57))
+
 # [1.265.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.264.0...v1.265.0) (2025-02-12)
 
 
