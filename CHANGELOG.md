@@ -1,3 +1,10 @@
+# [1.267.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.266.0...v1.267.0) (2025-02-15)
+
+
+### Features
+
+* Bump Versions, plugin renames, `onAllAuthResponse` and `onAllAuthResponseError` refactor ([036c7c5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/036c7c52a18e7717ad2f2771625be3e330121885))
+
 # [1.266.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.265.0...v1.266.0) (2025-02-14)
 
 
