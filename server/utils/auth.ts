@@ -39,28 +39,36 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
     console.debug('Setting session token from response')
     appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
     await setUserSession(event, {
-      sessionToken: response.meta.session_token,
+      secure: {
+        sessionToken: response.meta.session_token,
+      },
     })
   }
   else if (sessionToken) {
     console.debug('Setting session token from parameter')
     appendResponseHeader(event, 'X-Session-Token', sessionToken)
     await setUserSession(event, {
-      sessionToken,
+      secure: {
+        sessionToken,
+      },
     })
   }
   if (response.meta?.access_token) {
     console.debug('Setting access token from response')
     appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
     await setUserSession(event, {
-      accessToken: response.meta.access_token,
+      secure: {
+        accessToken: response.meta.access_token,
+      },
     })
   }
   else if (accessToken) {
     console.debug('Setting access token from parameter')
     appendResponseHeader(event, 'Authorization', `Bearer ${accessToken}`)
     await setUserSession(event, {
-      accessToken,
+      secure: {
+        accessToken,
+      },
     })
   }
 
@@ -90,7 +98,7 @@ export async function getAllAuthAccessToken() {
 
 export async function requireAllAuthAccessToken() {
   const session = await requireUserSession(useEvent())
-  return session.accessToken
+  return session.secure?.accessToken
 }
 
 export async function fetchUserData(response: AllAuthResponse, accessToken?: string | null) {

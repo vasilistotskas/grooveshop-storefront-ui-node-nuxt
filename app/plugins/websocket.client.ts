@@ -10,18 +10,28 @@ export default defineNuxtPlugin({
     const config = useRuntimeConfig()
     const locale = (nuxtApp.$i18n as Composer).locale
     const toast = useToast()
-    const { user, session, loggedIn } = useUserSession()
+    const { user, loggedIn } = useUserSession()
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
 
-    function initializeWebSocket() {
-      if (import.meta.client) {
-        const websocketProtocol = import.meta.client && window.location.protocol === 'https:' ? 'wss' : 'ws'
+    async function initializeWebSocket() {
+      if (!loggedIn.value) {
+        console.warn('User not logged in, skipping websocket initialization.')
+        return
+      }
+
+      try {
+        const tokens = await $fetch<{ sessionToken: string, accessToken: string }>('/api/websocket/user/tokens', {
+          method: 'GET',
+          headers: useRequestHeaders(),
+        })
+
+        const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
         const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
         const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications`, {
           user_id: user.value?.id,
-          session_token: session.value.sessionToken,
-          access_token: session.value.accessToken,
+          session_token: tokens.sessionToken,
+          access_token: tokens.accessToken,
         })
 
         const options: UseWebNotificationOptions = {
@@ -33,56 +43,37 @@ export default defineNuxtPlugin({
           vibrate: [200, 100, 200],
         }
 
-        const {
-          isSupported: isBroadcastChannelSupported,
-          post,
-        } = useBroadcastChannel({ name: 'notifications' })
+        const { isSupported: isBroadcastChannelSupported, post } = useBroadcastChannel({ name: 'notifications' })
+        const { isSupported: isWebNotificationSupported, show } = useWebNotification(options)
 
-        const {
-          isSupported: isWebNotificationSupported,
-          show,
-        } = useWebNotification(options)
-
-        websocketInstance.value = useWebSocket(
-          wsEndpoint,
-          {
-            autoReconnect: true,
-            onConnected: (ws) => {
-              console.info('WebSocket connected', ws)
-            },
-            onDisconnected: (_ws, event) => {
-              console.info('WebSocket disconnected', event)
-            },
-            onError: (_ws, event) => {
-              console.info('WebSocket error', event)
-            },
-            onMessage: async (_ws, event) => {
-              console.info('WebSocket message', event)
-              const data = JSON.parse(event.data)
-              console.info('WebSocket data.translations[locale.value]', data.translations[locale.value])
-              await setupNotifications()
-              console.log('locale.value', locale.value)
-              console.log('data', data)
-              console.log('data.translations', data.translations)
-              console.log('data.translations[locale.value]', data.translations[locale.value])
-              toast.add({
+        websocketInstance.value = useWebSocket(wsEndpoint, {
+          autoReconnect: true,
+          onConnected: ws => console.info('WebSocket connected', ws),
+          onDisconnected: (_ws, event) => console.info('WebSocket disconnected', event),
+          onError: (_ws, event) => console.info('WebSocket error', event),
+          onMessage: async (_ws, event) => {
+            const data = JSON.parse(event.data)
+            await setupNotifications()
+            toast.add({
+              title: data.translations[locale.value].title,
+              description: data.translations[locale.value].message,
+              color: 'green',
+            })
+            if (isBroadcastChannelSupported) {
+              post(data)
+            }
+            if (isWebNotificationSupported) {
+              await show({
                 title: data.translations[locale.value].title,
-                description: data.translations[locale.value].message,
-                color: 'green',
+                body: data.translations[locale.value].message,
+                tag: data.type,
               })
-              if (isBroadcastChannelSupported) {
-                post(data)
-              }
-              if (isWebNotificationSupported) {
-                await show({
-                  title: data.translations[locale.value].title,
-                  body: data.translations[locale.value].message,
-                  tag: data.type,
-                })
-              }
-            },
+            }
           },
-        )
+        })
+      }
+      catch (error) {
+        console.error('Failed to initialize websocket due to token error:', error)
       }
     }
 

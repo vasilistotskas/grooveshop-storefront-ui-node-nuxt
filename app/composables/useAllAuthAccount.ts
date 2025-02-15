@@ -6,10 +6,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -20,10 +20,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -34,10 +34,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -48,10 +48,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -62,10 +62,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -76,10 +76,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -89,10 +89,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -103,10 +103,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -116,10 +116,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -129,10 +129,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -143,10 +143,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -156,10 +156,10 @@ export default function () {
       method: 'DELETE',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -169,10 +169,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -182,10 +182,10 @@ export default function () {
       method: 'POST',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -198,10 +198,10 @@ export default function () {
         passwordless,
       },
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -212,10 +212,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -226,10 +226,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -240,10 +240,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }

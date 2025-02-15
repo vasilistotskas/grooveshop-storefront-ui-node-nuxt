@@ -29,11 +29,15 @@ const onClickLogout = async () => {
   if (isRouteProtected(route.path))
     await navigateTo(localePath('index'))
 
-  await deleteSession()
-
   cleanCartState()
 
-  await refreshCart()
+  try {
+    await deleteSession()
+    await refreshCart()
+  }
+  catch {
+    // do nothing
+  }
 }
 </script>
 

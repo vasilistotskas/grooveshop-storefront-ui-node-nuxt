@@ -15,6 +15,7 @@ export function isAllAuthError(error: unknown): error is AllAuthError {
 export async function handleError(
   error: unknown,
 ) {
+  console.error('Handling error')
   if (typeof error === 'object' && error !== null && 'data' in error) {
     if (error.data instanceof ZodError) {
       console.error('Zod Message:', error.data.message)
@@ -46,26 +47,37 @@ export async function handleAllAuthError(
   const event = useEvent()
 
   if (isAllAuthError(error)) {
-    console.debug('Is all auth error')
+    console.error('Is all auth error')
     if (error.data.status === 410) {
-      console.debug('Clearing user session')
+      console.error('Clearing user session')
       await clearUserSession(event)
     }
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
+      console.error('Is not authenticated or invalid session error', error.data)
       if (error.data.meta?.session_token) {
-        console.debug('Setting user session')
+        console.error('Setting user session')
         await setUserSession(event, {
-          sessionToken: error.data.meta.session_token,
+          secure: {
+            sessionToken: error.data.meta.session_token,
+          },
         })
       }
       if (error.data.meta?.access_token) {
-        console.debug('Setting user access token')
+        console.error('Setting user access token')
         await setUserSession(event, {
-          accessToken: error.data.meta.access_token,
+          secure: {
+            accessToken: error.data.meta.access_token,
+          },
         })
+      }
+
+      if (!error.data.meta?.is_authenticated && (!error.data.meta?.session_token || !error.data.meta?.access_token)) {
+        console.error('Clearing user session')
+        await clearUserSession(event)
       }
     }
     clearResponseHeaders(event, ['X-Session-Token', 'Authorization'])
+    console.error('Calling authChange hook')
     await allAuthHooks.callHookParallel('authChange', { detail: error.data })
   }
   else {

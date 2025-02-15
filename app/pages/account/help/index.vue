@@ -15,7 +15,6 @@ definePageMeta({
     "
   >
     <PageTitle :text="t('title')" />
-    <PageBody />
   </PageWrapper>
 </template>
 

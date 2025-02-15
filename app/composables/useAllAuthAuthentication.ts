@@ -15,10 +15,10 @@ export default function () {
       method: 'GET',
       headers,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -28,10 +28,10 @@ export default function () {
       method: 'DELETE',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -42,10 +42,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -56,10 +56,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -72,10 +72,10 @@ export default function () {
         'X-Email-Verification-Key': key,
       },
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -86,10 +86,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -100,10 +100,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -114,10 +114,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -130,10 +130,10 @@ export default function () {
         'X-Password-Reset-Key': key,
       },
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -144,10 +144,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -200,10 +200,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -214,10 +214,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -228,10 +228,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -242,10 +242,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -256,10 +256,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -270,10 +270,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -283,10 +283,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -297,10 +297,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -311,10 +311,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -325,10 +325,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -338,10 +338,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -351,10 +351,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -365,10 +365,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -378,10 +378,10 @@ export default function () {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }
@@ -392,10 +392,10 @@ export default function () {
       headers: useRequestHeaders(),
       body,
       async onResponse({ response }) {
-        await onAllAuthResponse(response._data)
+        await onAllAuthResponse(response)
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response._data)
+        await onAllAuthResponseError(response)
       },
     })
   }

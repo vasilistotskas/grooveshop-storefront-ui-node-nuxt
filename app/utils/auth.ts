@@ -1,20 +1,25 @@
 import { withQuery } from 'ufo'
+import type { FetchResponse } from 'ofetch'
 
-export const onAllAuthResponse = async (response: AllAuthResponse) => {
-  if (!response) return
+export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
+  if (!response || !response._data) return
+  console.log('onAllAuthResponse', response)
   const nuxtApp = useNuxtApp()
-  if (response.status === 200 && response.meta?.is_authenticated) {
-    await nuxtApp.callHook('auth:change', { detail: response })
+  if (response.status === 200 && response._data.meta?.is_authenticated) {
+    console.log('Status is 200 and is authenticated')
+    await nuxtApp.callHook('auth:change', { detail: response._data })
   }
 }
 
-export const onAllAuthResponseError = async (response: {
-  data: AllAuthResponseError
-}) => {
-  if (!response) return
+export const onAllAuthResponseError = async (response: FetchResponse<AllAuthResponseError>) => {
+  if (!response || !response._data) return
+  console.log('onAllAuthResponseError', response)
   const nuxtApp = useNuxtApp()
-  if ([401, 410].includes(response.data?.status)) {
-    await nuxtApp.callHook('auth:change', { detail: response.data })
+
+  console.log('response.status', response.status)
+  if ([401, 410].includes(response.status)) {
+    console.log('Status includes 401 or 410')
+    await nuxtApp.callHook('auth:change', { detail: response._data })
   }
 }
 

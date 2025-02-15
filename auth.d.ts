@@ -7,8 +7,6 @@ declare module '#auth-utils' {
     data?: Authenticated | null
     meta?: AuthenticationMeta | null
     user?: User | null
-    sessionToken?: string | null
-    accessToken?: string | null
   }
 
   interface SecureSessionData {
