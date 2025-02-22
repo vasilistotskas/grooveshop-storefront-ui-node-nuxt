@@ -1,3 +1,10 @@
+# [1.268.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.267.0...v1.268.0) (2025-02-22)
+
+
+### Features
+
+* Bump Versions, navbar main image html element computed. ([f4a5e3b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f4a5e3b6ee7db677c28fdc9681e3b5ba08930e1a))
+
 # [1.267.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.266.0...v1.267.0) (2025-02-15)
 
 
