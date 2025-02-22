@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+
 defineProps({
   useToggle: {
     type: Boolean,
@@ -6,6 +8,8 @@ defineProps({
   },
 })
 
+const { $getRouteBaseName } = useNuxtApp()
+const route = useRoute()
 const config = useRuntimeConfig()
 const { enabled } = useAuthPreviewMode()
 const { loggedIn } = useUserSession()
@@ -18,7 +22,14 @@ const {
 
 const navbar = ref(null)
 
+const routeName = computed(() => $getRouteBaseName(route as unknown as keyof RouteNamedMapI18n))
+const isPageWithH1 = computed(() => {
+  if (!routeName.value) return false
+  return ['blog-post-id-slug'].includes(routeName.value)
+})
+
 const appTitle = computed(() => config.public.appTitle as string)
+const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
 </script>
 
 <template>
@@ -61,7 +72,10 @@ const appTitle = computed(() => config.public.appTitle as string)
         >
           <!-- title -->
           <slot name="title">
-            <h1 class="grid justify-items-start">
+            <Component
+              :is="titleElement"
+              class="grid justify-items-start"
+            >
               <UTooltip
                 :text="healthy ? '' : t('backend.api.unhealthy')"
                 :ui="{
@@ -95,7 +109,7 @@ const appTitle = computed(() => config.public.appTitle as string)
                   </Anchor>
                 </UChip>
               </UTooltip>
-            </h1>
+            </Component>
           </slot>
           <!-- menu -->
           <slot name="menu" />
