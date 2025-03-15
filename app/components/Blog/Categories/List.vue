@@ -40,7 +40,7 @@ const {
 )
 
 const pagination = computed(() => {
-  if (!categories.value) return
+  if (!categories.value?.count) return
   return usePagination<BlogCategory>(categories.value)
 })
 
@@ -55,7 +55,7 @@ watch(
 <template>
   <div class="categories-list flex w-full flex-col gap-4">
     <div class="flex flex-row flex-wrap items-center">
-      <LazyPagination
+      <Pagination
         v-if="pagination"
         :count="pagination.count"
         :links="pagination.links"
@@ -68,7 +68,7 @@ watch(
       />
     </div>
     <ol
-      v-if="!(status === 'pending') && categories?.results?.length"
+      v-if="!(status === 'pending') && categories?.count"
       class="
         grid grid-cols-2 items-center justify-center gap-4
 
@@ -105,7 +105,6 @@ watch(
               {{ extractTranslated(category, 'name', locale) }}
             </h2>
             <ImgWithFallback
-              provider="mediaStream"
               class="max-h-[19.75rem] bg-primary-100 bg-transparent"
               :style="{
                 contentVisibility: 'auto',
@@ -138,9 +137,9 @@ watch(
         </Anchor>
       </UCard>
     </ol>
-    <template v-if="status === 'pending'">
-      <ClientOnlyFallback
-        class="
+    <ClientOnlyFallback
+      v-if="status === 'pending'"
+      class="
           grid grid-cols-1 items-center justify-center gap-4
 
           lg:grid-cols-3
@@ -151,11 +150,10 @@ watch(
 
           xl:grid-cols-4
         "
-        :count="categories?.results?.length || 4"
-        :height="skeletonHeight"
-        width="100%"
-      />
-    </template>
+      :count="categories?.count || 4"
+      :height="skeletonHeight"
+      width="100%"
+    />
   </div>
 </template>
 

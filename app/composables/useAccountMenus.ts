@@ -10,11 +10,11 @@ interface IMenuItem {
 }
 
 export const useAccountMenus = () => {
-  const { t } = useI18n()
+  const { $i18n } = useNuxtApp()
   const menus = shallowRef<IMenuItem[]>([
     {
       type: 'link',
-      text: t('favourites'),
+      text: $i18n.t('favourites'),
       route: {
         name: 'account-favourites-posts',
         path: '/account/favourites/posts',
@@ -25,7 +25,7 @@ export const useAccountMenus = () => {
     },
     {
       type: 'link',
-      text: t('settings'),
+      text: $i18n.t('settings'),
       route: { name: 'account-settings', path: '/account/settings' },
       icon: 'i-mdi-cog-outline',
       cssClass:
@@ -38,7 +38,7 @@ export const useAccountMenus = () => {
     menus.value.push(
       {
         type: 'link',
-        text: t('addresses'),
+        text: $i18n.t('addresses'),
         route: { name: 'account-addresses', path: '/account/addresses' },
         icon: 'i-fa6-solid-address-book',
         cssClass:
@@ -46,7 +46,7 @@ export const useAccountMenus = () => {
       },
       {
         type: 'link',
-        text: t('orders'),
+        text: $i18n.t('orders'),
         route: { name: 'account-orders', path: '/account/orders' },
         icon: 'i-mdi-package-variant-closed',
         cssClass:
@@ -54,7 +54,7 @@ export const useAccountMenus = () => {
       },
       {
         type: 'link',
-        text: t('reviews'),
+        text: $i18n.t('reviews'),
         route: { name: 'account-reviews', path: '/account/reviews' },
         icon: 'i-mdi-star-outline',
         cssClass:
@@ -62,7 +62,7 @@ export const useAccountMenus = () => {
       },
       {
         type: 'link',
-        text: t('help'),
+        text: $i18n.t('help'),
         route: { name: 'account-help', path: '/account/help' },
         icon: 'i-mdi-help-circle-outline',
         cssClass:

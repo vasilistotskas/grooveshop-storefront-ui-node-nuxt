@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const route = useRoute()
+const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n({ useScope: 'local' })
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -117,8 +118,8 @@ const ogImage = computed(() => {
 const links = computed(() => [
   {
     to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
+    label: $i18n.t('breadcrumb.items.index.label'),
+    icon: $i18n.t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('blog'),
@@ -284,7 +285,7 @@ definePageMeta({
                 />
                 <UButton
                   :label="String(blogPost.commentsCount)"
-                  :title="$t('comments.count', {
+                  :title="$i18n.t('comments.count', {
                     count: blogPost.commentsCount,
                   })"
                   class="justify-self-start font-extrabold capitalize"
@@ -299,7 +300,7 @@ definePageMeta({
                   <UButton
                     v-if="isSupported"
                     :disabled="!isSupported"
-                    :title="$t('share')"
+                    :title="$i18n.t('share')"
                     class="justify-self-start font-extrabold capitalize"
                     color="primary"
                     icon="i-heroicons-share"
@@ -328,7 +329,7 @@ definePageMeta({
             <div class="sm:mx-0">
               <ImgWithFallback
                 id="blog-post-image"
-                provider="mediaStream"
+
                 :alt="blogPostTitle"
                 :background="'transparent'"
                 fit="cover"
@@ -351,7 +352,7 @@ definePageMeta({
                   sr-only flex gap-2
                 "
             >
-              <span class="text-sm font-semibold">{{ $t('published') }}: </span>
+              <span class="text-sm font-semibold">{{ $i18n.t('published') }}: </span>
               <NuxtTime
                 class="text-sm"
                 :locale="locale"
@@ -394,15 +395,17 @@ definePageMeta({
           </div>
         </div>
       </article>
-      <BlogPostComments
+      <LazyBlogPostComments
+        hydrate-on-visible
         :blog-post-id="String(blogPost.id)"
         :comments-count="blogPost.commentsCount"
         display-image-of="user"
       />
       <LazyBlogPostsCarousel
         v-if="relatedPostsStatus !== 'pending' && relatedPosts?.length"
+        hydrate-on-visible
         :posts="relatedPosts"
-        :title="$t('related.sections')"
+        :title="$i18n.t('related.sections')"
       />
       <div
         v-if="relatedPostsStatus === 'pending'"

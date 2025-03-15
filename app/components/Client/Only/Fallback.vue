@@ -47,6 +47,8 @@ const props = withDefaults(
   },
 )
 
+const { $i18n } = useNuxtApp()
+
 const spinnerWithDefaults = defu(props.spinner, defaultSpinner)
 
 const spinnerPositionClass = computed(() => {
@@ -120,7 +122,7 @@ const loadingPlaceholders = computed(() => {
           :style="{ fontSize: spinnerWithDefaults.fontSize }"
           role="status"
           aria-live="polite"
-          :aria-label="$t('loading')"
+          :aria-label="$i18n.t('loading')"
         />
       </div>
     </Component>

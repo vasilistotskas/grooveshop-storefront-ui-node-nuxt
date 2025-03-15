@@ -4,6 +4,7 @@ const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const paginationType = PaginationTypeEnum.PAGE_NUMBER
 const categoryId = 'id' in route.params
@@ -20,7 +21,7 @@ const pageSize = ref(15)
 const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   {
     value: 'createdAt',
-    label: t('ordering.created_at'),
+    label: $i18n.t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -78,7 +79,7 @@ const totalPosts = computed(() => category.value?.recursivePostCount || 0)
 const skeletonHeight = computed(() => (isMobileOrTablet ? '466px' : '527px'))
 
 const pagination = computed(() => {
-  if (!posts.value) return
+  if (!posts.value?.count) return
   return usePagination<BlogPost>(posts.value)
 })
 
@@ -98,8 +99,8 @@ const ogImage = computed(() => {
 const links = computed(() => [
   {
     to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
+    label: $i18n.t('breadcrumb.items.index.label'),
+    icon: $i18n.t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('blog-categories'),
@@ -183,7 +184,7 @@ definePageMeta({
     </div>
     <div class="posts-list flex w-full flex-col gap-4">
       <div class="flex flex-row flex-wrap items-center gap-2">
-        <LazyPagination
+        <Pagination
           v-if="pagination"
           :count="pagination.count"
           :links="pagination.links"
@@ -236,7 +237,7 @@ definePageMeta({
 
             xl:grid-cols-3
           "
-        :count="posts?.results?.length || 4"
+        :count="posts?.count || 4"
         :height="skeletonHeight"
         width="100%"
       />

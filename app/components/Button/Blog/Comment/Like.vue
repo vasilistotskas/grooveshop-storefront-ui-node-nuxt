@@ -38,6 +38,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -96,7 +97,7 @@ const toggleFavourite = async () => {
     :color="'primary'"
     square
     :variant="variant"
-    :title="$t('like')"
+    :title="$i18n.t('like')"
     :label="String(likesCount)"
     :ui="{
       size: {

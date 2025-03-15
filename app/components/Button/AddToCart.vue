@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },
-  quantity: { type: Number, required: true, default: 1 },
+  quantity: { type: Number, required: false, default: 1 },
   text: {
     type: String,
     required: true,

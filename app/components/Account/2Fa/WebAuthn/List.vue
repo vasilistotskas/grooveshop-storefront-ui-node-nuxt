@@ -5,6 +5,7 @@ const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } 
 const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
+const { $i18n } = useNuxtApp()
 
 const authStore = useAuthStore()
 const { authenticators } = storeToRefs(authStore)
@@ -75,7 +76,7 @@ const columns = [{
   label: t('type'),
 }, {
   key: 'created_at',
-  label: t('ordering.created_at'),
+  label: $i18n.t('ordering.created_at'),
   sortable: true,
 }, {
   key: 'last_used_at',
@@ -151,7 +152,7 @@ onReactivated(async () => {
       >
         <UTable
           :columns="columns"
-          :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('empty.title') }"
+          :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $i18n.t('empty.title') }"
           :rows="rows"
         >
           <template #name-data="{ row }">
@@ -183,7 +184,7 @@ onReactivated(async () => {
           </template>
           <template #type-data="{ row }">
             <span>
-              {{ typeof row.is_passwordless === 'undefined' ? $t('type_unspecified') : (row.is_passwordless ? $t('passkey') : $t('security_key')) }}
+              {{ typeof row.is_passwordless === 'undefined' ? $i18n.t('type_unspecified') : (row.is_passwordless ? $i18n.t('passkey') : $i18n.t('security_key')) }}
             </span>
           </template>
 
@@ -193,7 +194,7 @@ onReactivated(async () => {
 
           <template #last_used_at-data="{ row }">
             <span>
-              {{ row.last_used_at ? new Date(row.last_used_at * 1000).toLocaleString() : $t('unused') }}
+              {{ row.last_used_at ? new Date(row.last_used_at * 1000).toLocaleString() : $i18n.t('unused') }}
             </span>
           </template>
           <template #actions-data="{ row }">
@@ -208,7 +209,7 @@ onReactivated(async () => {
       </section>
       <div class="grid justify-end">
         <UButton
-          :label="$t('add.title')"
+          :label="$i18n.t('add.title')"
           :to="localePath('account-2fa-webauthn-add')"
           color="opposite"
           size="md"

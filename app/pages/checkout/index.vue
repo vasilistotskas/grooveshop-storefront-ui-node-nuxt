@@ -12,6 +12,7 @@ const { cleanCartState } = cartStore
 const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
@@ -45,12 +46,12 @@ const shippingPrice = ref(3)
 const userId = computed(() => (user.value?.id ? String(user.value.id) : null))
 
 const ZodCheckout = z.object({
-  user: z.string({ required_error: t('validation.required') }).optional(),
-  country: z.string({ required_error: t('validation.required') }).optional(),
-  region: z.string({ required_error: t('validation.required') }).optional(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('validation.required') })]).optional(),
+  user: z.string({ required_error: $i18n.t('validation.required') }).optional(),
+  country: z.string({ required_error: $i18n.t('validation.required') }).optional(),
+  region: z.string({ required_error: $i18n.t('validation.required') }).optional(),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: $i18n.t('validation.required') })]).optional(),
   locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('validation.required') })])
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: $i18n.t('validation.required') })])
     .optional(),
   street: z
     .string()
@@ -65,23 +66,23 @@ const ZodCheckout = z.object({
   lastName: z
     .string()
     .min(3, t('validation.last_name.min', { min: 3 })),
-  email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+  email: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
   zipcode: z
     .string()
     .min(3, t('validation.zipcode.min', { min: 3 })),
   place: z
     .string()
     .min(3, t('validation.place.min', { min: 3 })),
-  city: z.string({ required_error: t('validation.required') }).min(3, t('validation.city.min', { min: 3 })),
+  city: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.city.min', { min: 3 })),
   phone: z
     .string()
     .min(3, t('validation.phone.min', { min: 3 })),
-  mobilePhone: z.string({ required_error: t('validation.required') }).optional(),
-  customerNotes: z.string({ required_error: t('validation.required') }).optional(),
+  mobilePhone: z.string({ required_error: $i18n.t('validation.required') }).optional(),
+  customerNotes: z.string({ required_error: $i18n.t('validation.required') }).optional(),
   shippingPrice: z.number(),
   documentType: ZodDocumentTypeEnum,
   items: z.array(ZodOrderCreateItem),
-  payWay: z.number({ required_error: t('validation.required') }),
+  payWay: z.number({ required_error: $i18n.t('validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodCheckout)

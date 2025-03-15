@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const { $i18n } = useNuxtApp()
+</script>
+
 <template>
   <div
     class="
@@ -14,7 +18,7 @@
 
         md:text-sm
       "
-    >{{ $t('demo.message') }}</span>
+    >{{ $i18n.t('demo.message') }}</span>
   </div>
 </template>
 

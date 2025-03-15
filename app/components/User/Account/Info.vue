@@ -28,6 +28,7 @@ const { isMobileOrTablet } = useDevice()
 const toast = useToast()
 const { t } = useI18n({ useScope: 'local' })
 const { fetch } = useUserSession()
+const { $i18n } = useNuxtApp()
 
 const userNameEditing = ref(false)
 const username = ref(account.value.username || account.value.email || '')
@@ -90,9 +91,9 @@ const changeUserName = async () => {
       <div class="user-info-name relative flex w-full flex-col">
         <div class="flex items-center">
           <UButton
-            :aria-label="userNameEditing ? $t('save') : $t('edit.title')"
+            :aria-label="userNameEditing ? $i18n.t('save') : $i18n.t('edit.title')"
             :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
-            :title="userNameEditing ? $t('save') : $t('edit.title')"
+            :title="userNameEditing ? $i18n.t('save') : $i18n.t('edit.title')"
             :ui="{
               icon: {
                 base: userNameEditing ? 'bg-green-500 dark:bg-green-400' : '',

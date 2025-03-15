@@ -3,6 +3,7 @@ const { getRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const { data, refresh, error } = await useAsyncData<RecoveryCodesGetResponse>(
   'recoveryCodes',
@@ -94,7 +95,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('total_code_count') }}:</strong> {{ total_code_count }}
+            <strong>{{ $i18n.t('total_code_count') }}:</strong> {{ total_code_count }}
           </p>
           <p
             class="
@@ -103,7 +104,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('unused_code_count') }}:</strong> {{ unused_code_count }}
+            <strong>{{ $i18n.t('unused_code_count') }}:</strong> {{ unused_code_count }}
           </p>
           <p
             class="
@@ -112,7 +113,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('ordering.created_at') }}:</strong> {{ created_at ? new Date(created_at * 1000).toLocaleString() : $t('unused') }}
+            <strong>{{ $i18n.t('ordering.created_at') }}:</strong> {{ created_at ? new Date(created_at * 1000).toLocaleString() : $i18n.t('unused') }}
           </p>
           <p
             class="
@@ -121,7 +122,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $t('last_used_at') }}:</strong>
+            <strong>{{ $i18n.t('last_used_at') }}:</strong>
             <span
               :class="last_used_at ? `
                 text-red-500
@@ -133,7 +134,7 @@ onReactivated(async () => {
                 dark:text-green-400
               `"
             >
-              {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $t('unused') }}
+              {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $i18n.t('unused') }}
             </span>
           </p>
         </div>
@@ -143,7 +144,7 @@ onReactivated(async () => {
             icon="i-heroicons-arrow-down-on-square"
             @click="downloadCodes"
           >
-            {{ $t('download_codes') }}
+            {{ $i18n.t('download_codes') }}
           </UButton>
         </div>
       </div>

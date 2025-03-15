@@ -6,7 +6,7 @@ const orderUUID = 'uuid' in route.params
   ? route.params.uuid
   : undefined
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, n, locale } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const { data: order, error } = await useFetch<Order>(
@@ -187,7 +187,6 @@ definePageMeta({
               >
                 <td class="border px-4 py-2">
                   <ImgWithFallback
-                    provider="mediaStream"
                     :alt="extractTranslated(item.product, 'name', locale)"
                     :background="'transparent'"
                     fit="contain"
@@ -213,11 +212,9 @@ definePageMeta({
                   v-if="item.totalPrice"
                   class="border px-4 py-2"
                 >
-                  <I18nN
-                    :value="item.totalPrice"
-                    format="currency"
-                    tag="span"
-                  />
+                  <span>
+                    {{ n(item.totalPrice, 'currency') }}
+                  </span>
                 </td>
               </tr>
             </tbody>
@@ -241,11 +238,9 @@ definePageMeta({
                 "
             >
               {{ t('shippingPrice') }}:
-              <I18nN
-                :value="shippingPrice"
-                format="currency"
-                tag="span"
-              />
+              <span>
+                {{ n(shippingPrice, 'currency') }}
+              </span>
             </p>
             <p
               v-if="totalPriceItems"
@@ -256,11 +251,9 @@ definePageMeta({
                 "
             >
               {{ t('totalPriceItems') }}:
-              <I18nN
-                :value="totalPriceItems"
-                format="currency"
-                tag="span"
-              />
+              <span>
+                {{ n(totalPriceItems, 'currency') }}
+              </span>
             </p>
             <p
               v-if="totalPriceExtra"
@@ -271,11 +264,9 @@ definePageMeta({
                 "
             >
               {{ t('totalPriceExtra') }}:
-              <I18nN
-                :value="totalPriceExtra"
-                format="currency"
-                tag="span"
-              />
+              <span>
+                {{ n(totalPriceExtra, 'currency') }}
+              </span>
             </p>
             <p
               v-if="payWayPrice"
@@ -286,11 +277,9 @@ definePageMeta({
                 "
             >
               {{ t('payWayPrice') }}:
-              <I18nN
-                :value="payWayPrice"
-                format="currency"
-                tag="span"
-              />
+              <span>
+                {{ n(payWayPrice, 'currency') }}
+              </span>
             </p>
           </div>
           <p
@@ -302,11 +291,9 @@ definePageMeta({
               "
           >
             {{ t('total') }}:
-            <I18nN
-              :value="paidAmount"
-              format="currency"
-              tag="span"
-            />
+            <span>
+              {{ n(paidAmount, 'currency') }}
+            </span>
           </p>
         </div>
         <UButton

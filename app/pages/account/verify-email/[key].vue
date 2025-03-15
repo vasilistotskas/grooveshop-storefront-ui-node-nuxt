@@ -6,6 +6,7 @@ const toast = useToast()
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const route = useRoute()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -77,7 +78,7 @@ definePageMeta({
           <UButton
             :disabled="loading"
             :label="
-              $t('confirm')
+              $i18n.t('confirm')
             "
             color="primary"
             size="xl"

@@ -13,6 +13,7 @@ const { paginationType } = toRefs(props)
 
 const route = useRoute()
 const { t, locale } = useI18n()
+const { $i18n } = useNuxtApp()
 const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
@@ -30,7 +31,7 @@ const entityOrdering = ref<EntityOrdering<ProductOrderingField>>([
   },
   {
     value: 'createdAt',
-    label: t('ordering.created_at'),
+    label: $i18n.t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -102,7 +103,7 @@ const refreshFavouriteProducts = async (ids: number[]) => {
 }
 
 const pagination = computed(() => {
-  if (!products.value) return
+  if (!products.value?.count) return
   return usePagination<Product>(products.value)
 })
 
@@ -124,7 +125,7 @@ watch(
 <template>
   <div class="products-list flex w-full flex-col gap-4">
     <div class="flex flex-row flex-wrap items-center gap-2">
-      <LazyPagination
+      <Pagination
         v-if="pagination"
         :count="pagination.count"
         :links="pagination.links"
@@ -141,7 +142,7 @@ watch(
       />
     </div>
     <ol
-      v-if="!(status === 'pending') && products?.results?.length"
+      v-if="!(status === 'pending') && products?.count"
       class="
         grid grid-cols-1 items-center justify-center gap-4
 
@@ -161,9 +162,9 @@ watch(
         :product="product"
       />
     </ol>
-    <template v-if="status === 'pending'">
-      <ClientOnlyFallback
-        class="
+    <ClientOnlyFallback
+      v-if="status === 'pending'"
+      class="
           grid grid-cols-1 items-center justify-center gap-4
 
           lg:grid-cols-3
@@ -174,10 +175,9 @@ watch(
 
           xl:grid-cols-4
         "
-        :count="products?.results?.length || 4"
-        height="402px"
-        width="100%"
-      />
-    </template>
+      :count="products?.count || 4"
+      height="402px"
+      width="100%"
+    />
   </div>
 </template>

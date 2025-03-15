@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import heartJSON from '~/assets/lotties/heart.json'
-import type Lottie from '~/components/Lottie/index.vue'
 import type { ButtonSize } from '#ui/types'
 
 const props = defineProps({
@@ -31,8 +29,6 @@ const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { addFavouriteProduct, removeFavouriteProduct } = userStore
-
-const lottie = ref<InstanceType<typeof Lottie>>()
 
 const toggleFavourite = async () => {
   if (!loggedIn.value || !props.userId) {
@@ -64,7 +60,6 @@ const toggleFavourite = async () => {
           return
         }
         addFavouriteProduct(response._data)
-        lottie.value?.play()
         toast.add({
           title: t('added'),
           color: 'green',
@@ -94,7 +89,6 @@ const toggleFavourite = async () => {
           return
         }
         removeFavouriteProduct(props.productId)
-        lottie.value?.goToAndStop(0)
         toast.add({
           title: t('removed'),
           color: 'red',
@@ -121,31 +115,16 @@ const buttonAreaLabel = computed(() => {
     ? t('remove')
     : t('add')
 })
-
-const onAnimationLoaded = () => {
-  if (props.favouriteId) {
-    lottie.value?.goToAndStop(lottie.value?.getDuration() - 1 || 0)
-  }
-  else {
-    lottie.value?.goToAndStop(0)
-  }
-}
 </script>
 
 <template>
-  <Lottie
-    ref="lottie"
-    :text="buttonLabel"
-    :component-element="'button'"
+  <UButton
+    :label="buttonLabel"
     :size="size"
-    :animation-data="heartJSON"
     :width="'40px'"
     :height="'40px'"
-    :loop="false"
-    :auto-play="false"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
-    @on-animation-loaded="onAnimationLoaded"
     @click="toggleFavourite"
   />
 </template>

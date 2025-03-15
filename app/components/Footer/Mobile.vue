@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const localePath = useLocalePath()
 const { t } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
 
 const items = [{
   label: t('about.us'),
@@ -91,7 +92,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('about.site')"
+            :label="$i18n.t('about.site')"
             :to="localePath('about')"
             class="font-semibold"
             color="secondary"
@@ -108,7 +109,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('vision')"
+            :label="$i18n.t('vision')"
             :to="localePath('vision')"
             class="font-semibold"
             color="secondary"
@@ -165,7 +166,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('term_of_use')"
+            :label="$i18n.t('term_of_use')"
             :to="localePath('terms-of-use')"
             class="font-semibold"
             color="secondary"
@@ -182,7 +183,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('privacy_policy')"
+            :label="$i18n.t('privacy_policy')"
             :to="localePath('privacy-policy')"
             class="font-semibold"
             color="secondary"
@@ -199,7 +200,7 @@ const items = [{
           "
         >
           <UButton
-            :label="$t('cookies_policy')"
+            :label="$i18n.t('cookies_policy')"
             :to="localePath('cookies-policy')"
             class="font-semibold"
             color="secondary"

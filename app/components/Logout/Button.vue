@@ -24,6 +24,7 @@ const { cleanCartState, refreshCart } = cartStore
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const onClickLogout = async () => {
   if (isRouteProtected(route.path))
@@ -43,11 +44,11 @@ const onClickLogout = async () => {
 
 <template>
   <UButton
-    :aria-label="$t('logout')"
+    :aria-label="$i18n.t('logout')"
     :color="color"
-    :label="$t('logout')"
+    :label="$i18n.t('logout')"
     :size="size"
-    :title="$t('logout')"
+    :title="$i18n.t('logout')"
     :ui="{
       font: 'font-semibold',
       size: {

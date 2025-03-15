@@ -19,7 +19,6 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
     'nuxt-time',
-    'nuxt-vitalizer',
     'nuxt-security',
   ],
   ssr: true,
@@ -240,7 +239,7 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
-    typeCheck: false, // Until vue-tsc is fixed
+    typeCheck: true, // Until vue-tsc is fixed
     builder: 'vite',
   },
   telemetry: {
@@ -345,7 +344,7 @@ export default defineNuxtConfig({
         flag: '🇬🇷',
       },
     ],
-    vueI18n: './i18n/i18n.config.mts',
+    vueI18n: './i18n.config.mts',
     compilation: {
       strictMessage: false,
     },
@@ -626,10 +625,5 @@ export default defineNuxtConfig({
   veeValidate: {
     typedSchemaPackage: 'zod',
     autoImports: false,
-  },
-  vitalizer: {
-    disablePrefetchLinks: true,
-    disablePreloadLinks: true,
-    disableStylesheets: 'entry',
   },
 })

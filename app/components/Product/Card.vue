@@ -28,7 +28,7 @@ const { user } = useUserSession()
 const userStore = useUserStore()
 const { getFavouriteByProductId } = userStore
 
-const { locale, t } = useI18n({ useScope: 'local' })
+const { locale, t, n } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { product } = toRefs(props)
@@ -81,7 +81,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               :text="alt"
             >
               <ImgWithFallback
-                provider="mediaStream"
                 :loading="imgLoading"
                 class="bg-primary-100 bg-transparent"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
@@ -242,16 +241,15 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               >
                 {{ t('total_price') }}
               </span>
-              <I18nN
-                tag="span"
+              <span
                 class="
                   text-primary-950 text-lg leading-6
 
                   dark:text-primary-50
                 "
-                format="currency"
-                :value="product.finalPrice"
-              />
+              >
+                {{ n(product.finalPrice, 'currency') }}
+              </span>
             </p>
           </div>
         </div>

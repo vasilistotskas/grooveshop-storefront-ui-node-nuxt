@@ -14,6 +14,7 @@ const { t } = useI18n()
 const authInfo = useAuthInfo()
 const localePath = useLocalePath()
 const localeRoute = useLocaleRoute()
+const { $i18n } = useNuxtApp()
 
 const flow = computed(() => authInfo?.pendingFlow)
 const next = router.currentRoute.value.query.next as string | undefined
@@ -63,10 +64,10 @@ const filteredFlows = computed(() => {
           dark:text-primary-50
         "
       >
-        {{ $t('2fa.title') }}
+        {{ $i18n.t('2fa.title') }}
       </h3>
       <p>
-        {{ $t('2fa.subtitle') }}
+        {{ $i18n.t('2fa.subtitle') }}
       </p>
     </div>
 
@@ -77,7 +78,7 @@ const filteredFlows = computed(() => {
         grid items-center justify-center gap-2
       "
     >
-      <p>{{ $t('alternative_options') }}</p>
+      <p>{{ $i18n.t('alternative_options') }}</p>
       <ul class="grid items-center">
         <li
           v-for="f in filteredFlows"

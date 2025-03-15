@@ -6,6 +6,7 @@ const emit = defineEmits(['signUpByPasskey'])
 const { signUpByPasskey } = useAllAuthAuthentication()
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -25,7 +26,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
@@ -63,7 +64,7 @@ const formSchema: DynamicFormSchema = {
     </p>
     <section class="grid items-center">
       <DynamicForm
-        :button-label="t('submit')"
+        :button-label="$i18n.t('submit')"
         :schema="formSchema"
         @submit="onSubmit"
       />

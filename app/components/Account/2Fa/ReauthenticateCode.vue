@@ -12,6 +12,7 @@ const toast = useToast()
 const { t } = useI18n({ useScope: 'local' })
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -38,7 +39,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
@@ -75,7 +76,7 @@ const formSchema: DynamicFormSchema = {
         </h3>
         <section class="grid items-center">
           <DynamicForm
-            :button-label="t('submit')"
+            :button-label="$i18n.t('submit')"
             :schema="formSchema"
             @submit="onSubmit"
           />

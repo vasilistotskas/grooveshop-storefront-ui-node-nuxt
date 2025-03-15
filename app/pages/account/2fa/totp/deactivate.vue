@@ -4,6 +4,7 @@ const emit = defineEmits(['deactivateTotp'])
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
+const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 const loading = ref(false)
@@ -70,7 +71,7 @@ definePageMeta({
       class="grid items-center justify-center justify-items-center"
     >
       <UButton
-        :label="$t('deactivate')"
+        :label="$i18n.t('deactivate')"
         color="red"
         size="lg"
         @click="onSubmit"

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const { locale } = useI18n()
+const { $i18n } = useNuxtApp()
 
 const { data: blogTags } = await useFetch<BlogTag[]>(
   '/api/blog/tags',
@@ -52,14 +53,14 @@ const filteredTags = computed(() => {
       >
         <h3 class="flex items-center gap-2 text-center text-2xl font-bold">
           <UIcon name="i-heroicons-tag" />
-          {{ $t('tags') }}
+          {{ $i18n.t('tags') }}
         </h3>
       </div>
       <label
         class="sr-only"
         for="search"
       >
-        {{ $t('search.title') }}
+        {{ $i18n.t('search.title') }}
       </label>
       <UInput
         id="search"
@@ -74,7 +75,7 @@ const filteredTags = computed(() => {
         color="primary"
         :trailing="false"
         variant="outline"
-        :placeholder="`${$t('search.title')}...`"
+        :placeholder="`${$i18n.t('search.title')}...`"
       />
       <ul
         v-if="filteredTags && filteredTags.length > 0"

@@ -8,6 +8,7 @@ const emit = defineEmits(['passwordRequest'])
 const { passwordRequest } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 const form = ref<InstanceType<typeof DynamicForm> | null>(null)
@@ -41,7 +42,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,

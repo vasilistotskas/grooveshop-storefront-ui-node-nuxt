@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 definePageMeta({
   layout: 'default',
@@ -36,7 +37,7 @@ definePageMeta({
       }}</span>
 
       <UButton
-        :label="$t('login')"
+        :label="$i18n.t('login')"
         :to="localePath('account-login')"
         color="opposite"
         size="md"

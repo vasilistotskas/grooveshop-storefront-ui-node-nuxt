@@ -6,6 +6,7 @@ const { locale } = useI18n()
 const keepFocus = ref(false)
 const router = useRouter()
 const route = useRoute()
+const { $i18n } = useNuxtApp()
 
 const query = ref(Array.isArray(route.query.query) ? (route.query.query[0] ?? '') : (route.query.query ?? ''))
 const limit = ref(Array.isArray(route.query.limit) ? (route.query.limit[0] ?? 3) : (route.query.limit ?? 3))
@@ -235,10 +236,10 @@ onClickOutside(autocomplete, () => {
         "
         size="xs"
         color="white"
-        :name="$t('search.title')"
+        :name="$i18n.t('search.title')"
         :trailing="false"
-        :placeholder="$t('search.title')"
-        :aria-label="$t('search.title')"
+        :placeholder="$i18n.t('search.title')"
+        :aria-label="$i18n.t('search.title')"
         :ui="{
           icon: {
             trailing: {
@@ -265,7 +266,7 @@ onClickOutside(autocomplete, () => {
             color="white"
             variant="ghost"
             :padded="false"
-            :aria-label="$t('search.title')"
+            :aria-label="$i18n.t('search.title')"
             @click="searchGo(false)"
           />
         </template>

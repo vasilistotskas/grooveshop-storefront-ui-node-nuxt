@@ -3,6 +3,7 @@ const cartStore = useCartStore()
 const localePath = useLocalePath()
 const { cart, pending } = storeToRefs(cartStore)
 const { t } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
 
 definePageMeta({
   layout: 'default',
@@ -58,7 +59,7 @@ definePageMeta({
           #actions
         >
           <UButton
-            :label="t('empty.description')"
+            :label="$i18n.t('empty.description')"
             :to="localePath('index')"
             class="font-semibold"
             color="secondary"

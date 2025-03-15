@@ -2,17 +2,17 @@
 const props = defineProps({
   totalPages: {
     type: Number,
-    required: true,
+    required: false,
     default: 1,
   },
   pageTotalResults: {
     type: Number,
-    required: true,
+    required: false,
     default: 0,
   },
   page: {
     type: Number,
-    required: true,
+    required: false,
     default: 1,
   },
   offset: {
@@ -21,7 +21,7 @@ const props = defineProps({
   },
   limit: {
     type: Number,
-    required: true,
+    required: false,
     default: 10,
   },
 })

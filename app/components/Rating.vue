@@ -4,7 +4,7 @@ import type { PropType } from 'vue'
 defineProps({
   rate: {
     type: Number as PropType<number>,
-    required: true,
+    required: false,
     default: 0,
   },
 })

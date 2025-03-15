@@ -5,6 +5,7 @@ const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const toast = useToast()
+const { $i18n } = useNuxtApp()
 
 const { data, refresh, error } = await useAsyncData<RecoveryCodesGetResponse>(
   'recoveryCodes',
@@ -76,7 +77,7 @@ onReactivated(async () => {
 
       <UButton
         :label="
-          $t('generate')
+          $i18n.t('generate')
         "
         color="primary"
         size="xl"

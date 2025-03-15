@@ -59,7 +59,6 @@ const { t, locale } = useI18n({ useScope: 'local' })
               css-class="grid justify-center"
             >
               <ImgWithFallback
-                provider="mediaStream"
                 class="rounded-lg"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
                 :src="favourite.mainImagePath"
@@ -88,7 +87,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
               md:h-14
             "
           >
-            {{ contentShorten(extractTranslated(favourite, 'title', locale), 100) }}
+            {{ contentShorten(extractTranslated(favourite, 'title', locale), 0, 52) }}
           </Anchor>
         </UCard>
       </template>

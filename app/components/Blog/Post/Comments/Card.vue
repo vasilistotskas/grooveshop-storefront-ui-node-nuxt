@@ -36,6 +36,8 @@ const emit = defineEmits<{
   (e: 'show-more-replies', commentId: number): void
 }>()
 
+const { $i18n } = useNuxtApp()
+
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 
 const showReplyForm = ref(false)
@@ -84,7 +86,7 @@ const replyCommentFormSchema: DynamicFormSchema = {
       id: `content-${comment.value.id}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string({ required_error: t('validation.required') }).max(1000),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).max(1000),
       autocomplete: 'on',
       readonly: false,
       required: true,
@@ -230,7 +232,7 @@ const totalReplies = computed(() => {
 })
 
 const pagination = computed(() => {
-  if (!replies.value) return
+  if (!replies.value?.count) return
   return usePagination<BlogComment>(replies.value)
 })
 
@@ -381,8 +383,8 @@ watch(
             :aria-expanded="showReplies"
             :aria-label="
               showReplies
-                ? $t('hide.replies')
-                : $t('more.replies', totalReplies)
+                ? $i18n.t('hide.replies')
+                : $i18n.t('more.replies', totalReplies)
             "
             :color="'primary'"
             :disabled="pending"
@@ -393,8 +395,8 @@ watch(
             "
             :title="
               showReplies
-                ? $t('hide.replies')
-                : $t('more.replies', totalReplies)
+                ? $i18n.t('hide.replies')
+                : $i18n.t('more.replies', totalReplies)
             "
             :ui="{
               size: {
@@ -416,7 +418,7 @@ watch(
           <span class="flex flex-col">
             <span class="max-h-2xl flex items-center">
               <ButtonBlogCommentLike
-                :aria-label="$t('like')"
+                :aria-label="$i18n.t('like')"
                 :blog-comment-id="comment.id"
                 :likes-count="likes"
                 size="sm"
@@ -425,11 +427,11 @@ watch(
               />
               <UButton
                 v-if="maxDepth > depth"
-                :aria-label="$t('reply')"
+                :aria-label="$i18n.t('reply')"
                 :color="'primary'"
                 :icon="'i-heroicons-chat-bubble-left-ellipsis'"
-                :label="$t('reply')"
-                :title="$t('reply')"
+                :label="$i18n.t('reply')"
+                :title="$i18n.t('reply')"
                 size="sm"
                 variant="solid"
                 @click="onReplyButtonClick"
@@ -518,8 +520,8 @@ watch(
           <UButton
             :aria-label="
               showReplies
-                ? $t('hide.replies')
-                : $t('more.replies', totalReplies)
+                ? $i18n.t('hide.replies')
+                : $i18n.t('more.replies', totalReplies)
             "
             :color="'primary'"
             :disabled="pending"
@@ -530,13 +532,13 @@ watch(
             "
             :label="
               showReplies
-                ? $t('hide.replies')
-                : $t('more.replies', totalReplies)
+                ? $i18n.t('hide.replies')
+                : $i18n.t('more.replies', totalReplies)
             "
             :title="
               showReplies
-                ? $t('hide.replies')
-                : $t('more.replies', totalReplies)
+                ? $i18n.t('hide.replies')
+                : $i18n.t('more.replies', totalReplies)
             "
             :ui="{
               size: {
@@ -554,7 +556,7 @@ watch(
     <LazyDynamicForm
       v-if="showReplyForm"
       :id="'reply-comment-form-' + comment.id"
-      :button-label="t('submit')"
+      :button-label="$i18n.t('submit')"
       :schema="replyCommentFormSchema"
       :submit-button-ui="{
         type: 'submit',
@@ -567,7 +569,7 @@ watch(
       class="reply-comment-form relative my-2"
       @submit="onReplySubmit"
     />
-    <LazyPagination
+    <Pagination
       v-if="pagination"
       :count="pagination.count"
       :cursor-key="cursorKey"

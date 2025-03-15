@@ -10,22 +10,23 @@ const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const links = computed(() => [
   {
     to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
+    label: $i18n.t('breadcrumb.items.index.label'),
+    icon: $i18n.t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
-    label: t('breadcrumb.items.account-login.label'),
-    icon: t('breadcrumb.items.account-login.icon'),
+    label: $i18n.t('breadcrumb.items.account-login.label'),
+    icon: $i18n.t('breadcrumb.items.account-login.icon'),
   },
   {
     to: localePath('account-2fa-authenticate-webauthn'),
-    label: t('breadcrumb.items.account-2fa-authenticate-webauthn.label'),
-    icon: t('breadcrumb.items.account-2fa-authenticate-webauthn.icon'),
+    label: $i18n.t('breadcrumb.items.account-2fa-authenticate-webauthn.label'),
+    icon: $i18n.t('breadcrumb.items.account-2fa-authenticate-webauthn.icon'),
     current: true,
   },
 ])
@@ -53,7 +54,7 @@ async function onSubmit() {
     })
     session.value = response?.data
     toast.add({
-      title: t('success.title'),
+      title: $i18n.t('success.title'),
       color: 'green',
     })
     emit('getWebAuthnRequestOptionsForAuthentication')
@@ -61,7 +62,7 @@ async function onSubmit() {
   }
   catch {
     toast.add({
-      title: t('error.default'),
+      title: $i18n.t('error.default'),
       color: 'red',
     })
   }
@@ -99,7 +100,7 @@ definePageMeta({
       <div class="grid items-center justify-center">
         <UButton
           :label="
-            $t('submit')
+            $i18n.t('submit')
           "
           color="primary"
           size="xl"

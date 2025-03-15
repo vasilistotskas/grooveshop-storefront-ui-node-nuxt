@@ -3,6 +3,7 @@ import RSS from 'rss'
 export default defineCachedEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
+    // @ts-expect-error
     const siteConfig = useSiteConfig(event)
 
     const cachedBlogPosts = createCachedFetcher<BlogPost>(

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, n, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const orderId = 'id' in route.params
   ? route.params.id
@@ -86,7 +86,6 @@ definePageMeta({
             class="order-item flex items-center gap-4"
           >
             <ImgWithFallback
-              provider="mediaStream"
               :alt="extractTranslated(item.product, 'name', locale)"
               :background="'transparent'"
               fit="contain"
@@ -133,17 +132,16 @@ definePageMeta({
                   {{ item.quantity }}
                 </span>
                 <UIcon name="i-heroicons-x-mark" />
-                <I18nN
+                <span
                   v-if="item.totalPrice"
-                  :value="item.totalPrice"
                   class="
-                      text-primary-950
+                    text-primary-950
 
-                      dark:text-primary-50
-                    "
-                  format="currency"
-                  tag="span"
-                />
+                    dark:text-primary-50
+              "
+                >
+                  {{ n(item.totalPrice, 'currency') }}
+                </span>
               </div>
             </div>
           </div>
@@ -268,16 +266,15 @@ definePageMeta({
                     dark:text-primary-50
                   "
               >{{ t('product.value') }}</span>
-              <I18nN
-                :value="order.totalPriceItems"
+              <span
                 class="
                     text-primary-950
 
                     dark:text-primary-50
-                  "
-                format="currency"
-                tag="span"
-              />
+              "
+              >
+                {{ n(order.totalPriceItems, 'currency') }}
+              </span>
             </div>
             <div class="flex items-center justify-between">
               <span
@@ -287,16 +284,15 @@ definePageMeta({
                     dark:text-primary-50
                   "
               >{{ t('shipping.value') }}</span>
-              <I18nN
-                :value="order.shippingPrice"
+              <span
                 class="
                     text-primary-950
 
                     dark:text-primary-50
-                  "
-                format="currency"
-                tag="span"
-              />
+              "
+              >
+                {{ n(order.shippingPrice, 'currency') }}
+              </span>
             </div>
           </div>
           <div class="grid">
@@ -310,16 +306,15 @@ definePageMeta({
               >{{
                 t('total')
               }}</span>
-              <I18nN
-                :value="order.paidAmount"
+              <span
                 class="
                     text-primary-950 font-bold
 
                     dark:text-primary-50
-                  "
-                format="currency"
-                tag="span"
-              />
+              "
+              >
+                {{ n(order.paidAmount, 'currency') }}
+              </span>
             </div>
           </div>
         </div>

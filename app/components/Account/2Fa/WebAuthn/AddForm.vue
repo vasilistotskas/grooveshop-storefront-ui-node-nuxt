@@ -13,6 +13,7 @@ const { getWebAuthnCreateOptions, addWebAuthnCredential } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -56,7 +57,7 @@ const formSchema: DynamicFormSchema = {
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
       autocomplete: 'name',
       readonly: false,
       required: true,
@@ -90,7 +91,7 @@ const formSchema: DynamicFormSchema = {
     <slot />
     <DynamicForm
       class="!flex flex-col"
-      :button-label="t('submit')"
+      :button-label="$i18n.t('submit')"
       :schema="formSchema"
       @submit="onSubmit"
     />

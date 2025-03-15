@@ -49,7 +49,7 @@ watch(selectedPayWay, (value) => {
 <template>
   <div class="grid gap-4">
     <LazyURadioGroup
-      v-if="status !== 'pending' && payWays?.results?.length"
+      v-if="status !== 'pending' && payWays?.count"
       v-model="selectedPayWay"
       class="max-h-72 overflow-y-auto"
       :legend="t('title')"

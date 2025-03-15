@@ -75,7 +75,6 @@ const reviewComment = computed(() => {
             :text="productName"
           >
             <ImgWithFallback
-              provider="mediaStream"
               loading="lazy"
               class="product-img w-30 bg-primary-100 h-20 object-cover"
               :src="src"

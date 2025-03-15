@@ -32,7 +32,7 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
 <template>
   <div class="grid grid-cols-[1fr_auto] md:flex gap-2">
     <LazyUCarousel
-      v-if="categoryResults && categoryResults?.length > 1"
+      v-if="categoryResults && categoryResults?.length > 0"
       v-slot="{ item }"
       :items="categoryResults"
       :ui="{ item: 'basis-[33%] md:basis-[17%]', container: 'gap-3' }"
@@ -55,7 +55,6 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
       >
         <template #leading>
           <ImgWithFallback
-            provider="mediaStream"
             :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
             :background="'ffffff'"
             fit="fill"

@@ -12,19 +12,20 @@ const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 const selected = ref(false)
 
 const ZodSignup = z
   .object({
-    email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
-    password: z.string({ required_error: t('validation.required') }).min(8, {
+    email: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+    password: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
       message: t('validation.min', {
         min: 8,
       }),
     }),
-    password2: z.string({ required_error: t('validation.required') }).min(8, {
+    password2: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
       message: t('validation.min', {
         min: 8,
       }),
@@ -81,7 +82,7 @@ const submitButtonLabel = computed(() => {
   }
 
   return !loading.value
-    ? t('submit')
+    ? $i18n.t('submit')
     : t('loading')
 })
 
@@ -343,7 +344,7 @@ const submitButtonDisabled = computed(() => {
                 <p
                   class="mx-4 text-center font-semibold"
                 >
-                  {{ $t('or.title') }}
+                  {{ $i18n.t('or.title') }}
                 </p>
               </div>
               <div

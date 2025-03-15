@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const props = defineProps({
-  max: { type: Number, required: true, default: 1 },
+  max: { type: Number, required: false, default: 1 },
   cartItemId: { type: Number, required: true },
 })
 

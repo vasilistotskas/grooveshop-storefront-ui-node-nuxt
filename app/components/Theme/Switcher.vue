@@ -3,6 +3,7 @@ import { GlobalEvents } from '~/events'
 
 const colorMode = useColorMode()
 const bus = useEventBus<string>(GlobalEvents.ON_THEME_UPDATED)
+const { $i18n } = useNuxtApp()
 
 const isDark = computed({
   get() {
@@ -39,8 +40,8 @@ const icon = computed(() => colorMode.value === 'dark' ? modes[0].icon : modes[1
       class="p-0"
       color="black"
       variant="ghost"
-      :title="$t('theme')"
-      :aria-label="$t('theme')"
+      :title="$i18n.t('theme')"
+      :aria-label="$i18n.t('theme')"
       :aria-pressed="colorMode.preference === mode ? 'true' : 'false'"
       :icon="icon"
       @click="isDark = !isDark"

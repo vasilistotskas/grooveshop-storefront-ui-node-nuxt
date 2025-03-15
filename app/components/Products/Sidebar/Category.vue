@@ -85,7 +85,6 @@ const isCategorySelected = computed(() => {
         "
       >
         <ImgWithFallback
-          provider="mediaStream"
           class="
             bg-primary-100 rounded-full object-cover
 

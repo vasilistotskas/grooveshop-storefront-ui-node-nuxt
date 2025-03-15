@@ -15,10 +15,11 @@ const props = defineProps({
 
 const { order, maxItems } = toRefs(props)
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, n, locale } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 const { statusClass } = useOrder()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 </script>
 
 <template>
@@ -125,12 +126,11 @@ const localePath = useLocalePath()
         >{{
           t('total_price')
         }}</span>
-        <I18nN
-          :value="order.paidAmount"
+        <span
           class="font-semibold"
-          format="currency"
-          tag="span"
-        />
+        >
+          {{ n(order.paidAmount, 'currency') }}
+        </span>
       </div>
 
       <div class="order-card-body-created_at grid">
@@ -141,7 +141,7 @@ const localePath = useLocalePath()
             dark:text-primary-50
           "
         >{{
-          t('ordering.created_at')
+          $i18n.t('ordering.created_at')
         }}</span>
         <NuxtTime :datetime="order.createdAt" :locale="locale" />
       </div>

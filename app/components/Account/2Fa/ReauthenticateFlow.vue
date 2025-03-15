@@ -13,6 +13,7 @@ const { flow } = toRefs(props)
 
 const router = useRouter()
 const { t } = useI18n()
+const { $i18n } = useNuxtApp()
 
 const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
 
@@ -81,10 +82,10 @@ const filteredMethods = computed(() => {
           dark:text-primary-50
         "
       >
-        {{ $t('confirm_access') }}
+        {{ $i18n.t('confirm_access') }}
       </h3>
       <p>
-        {{ $t('reauthenticate.title') }}
+        {{ $i18n.t('reauthenticate.title') }}
       </p>
     </div>
 
@@ -93,7 +94,7 @@ const filteredMethods = computed(() => {
     <div
       v-if="methods.length > 1" class="grid items-center justify-center gap-2"
     >
-      <p>{{ $t('alternative_options') }}</p>
+      <p>{{ $i18n.t('alternative_options') }}</p>
       <ul class="grid items-center">
         <li
           v-for="f in filteredMethods"

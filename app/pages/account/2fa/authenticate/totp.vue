@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
   await navigateTo(localePath('index'))
@@ -20,7 +21,7 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="$t('authenticate.totp')"
+      :text="$i18n.t('authenticate.totp')"
       class="text-center capitalize"
     />
 

@@ -11,6 +11,7 @@ const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
 const authInfo = useAuthInfo()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -53,7 +54,7 @@ const formSchema: DynamicFormSchema = {
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
       autocomplete: 'name',
       readonly: false,
       required: true,
@@ -74,7 +75,7 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :button-label="t('submit')"
+        :button-label="$i18n.t('submit')"
         :schema="formSchema"
         @submit="onSubmit"
       />

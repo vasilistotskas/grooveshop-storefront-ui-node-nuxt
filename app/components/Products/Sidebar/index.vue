@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const { locale } = useI18n()
 const route = useRoute()
+const { $i18n } = useNuxtApp()
 
 const { data: categories, status } = await useFetch<Pagination<ProductCategory>>(
   '/api/products/categories',
@@ -66,7 +67,7 @@ onMounted(() => {
       "
     >
       <h2 class="flex items-center gap-2 p-2 text-center text-2xl font-bold">
-        {{ $t('filters.title') }}
+        {{ $i18n.t('filters.title') }}
       </h2>
       <div
         class="
@@ -76,7 +77,7 @@ onMounted(() => {
         "
       >
         <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
-          {{ $t('categories') }}
+          {{ $i18n.t('categories') }}
           <span
             class="
               text-primary-950 text-sm font-normal
@@ -91,7 +92,7 @@ onMounted(() => {
           class="sr-only"
           for="search"
         >
-          {{ $t('search.title') }}
+          {{ $i18n.t('search.title') }}
         </label>
         <UInput
           id="search"
@@ -106,7 +107,7 @@ onMounted(() => {
           color="primary"
           :trailing="false"
           variant="outline"
-          :placeholder="`${$t('search.title')}...`"
+          :placeholder="`${$i18n.t('search.title')}...`"
         />
       </div>
       <ul
@@ -149,7 +150,7 @@ onMounted(() => {
             dark:text-primary-50
           "
         >
-          {{ $t('no_categories_found') }}
+          {{ $i18n.t('no_categories_found') }}
         </p>
       </div>
     </div>

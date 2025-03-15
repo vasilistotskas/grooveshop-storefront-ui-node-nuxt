@@ -2,6 +2,7 @@
 const { menus } = useAccountMenus()
 const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
+const { $i18n } = useNuxtApp()
 
 definePageMeta({
   layout: 'user',
@@ -24,7 +25,7 @@ definePageMeta({
     <MobileOrTabletOnly>
       <ul
         role="tablist"
-        :aria-label="$t('menu')"
+        :aria-label="$i18n.t('menu')"
         class="
             grid grid-cols-2 gap-3
 

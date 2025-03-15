@@ -7,6 +7,7 @@ const { reset, addToSearchHistory } = searchStore
 
 const route = useRoute()
 const router = useRouter()
+const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n({ useScope: 'local' })
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
@@ -24,8 +25,8 @@ const currentPage = ref(initialPage)
 const links = computed(() => [
   {
     to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
+    label: $i18n.t('breadcrumb.items.index.label'),
+    icon: $i18n.t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('search'),
@@ -285,24 +286,24 @@ definePageMeta({
             }"
             :first-button="{
               icon: 'i-heroicons-arrow-long-left-20-solid',
-              label: !isMobileOrTablet ? $t('first') : undefined,
+              label: !isMobileOrTablet ? $i18n.t('first') : undefined,
               color: 'primary',
             }"
             :last-button="{
               icon: 'i-heroicons-arrow-long-right-20-solid',
               trailing: true,
-              label: !isMobileOrTablet ? $t('last') : undefined,
+              label: !isMobileOrTablet ? $i18n.t('last') : undefined,
               color: 'primary',
             }"
             :prev-button="{
               icon: 'i-heroicons-arrow-small-left-20-solid',
-              label: !isMobileOrTablet ? $t('prev') : undefined,
+              label: !isMobileOrTablet ? $i18n.t('prev') : undefined,
               color: 'primary',
             }"
             :next-button="{
               icon: 'i-heroicons-arrow-small-right-20-solid',
               trailing: true,
-              label: !isMobileOrTablet ? $t('next') : undefined,
+              label: !isMobileOrTablet ? $i18n.t('next') : undefined,
               color: 'primary',
             }"
             :total="total"

@@ -12,6 +12,7 @@ const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const toast = useToast()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const key = 'key' in route.params
   ? route.params.key
@@ -28,9 +29,9 @@ await useAsyncData<PasswordResetGetResponse>(
 
 const ZodPasswordResetConfirm = z
   .object({
-    newPassword1: z.string({ required_error: t('validation.required') }).min(8).max(255),
-    newPassword2: z.string({ required_error: t('validation.required') }).min(8).max(255),
-    key: z.string({ required_error: t('validation.required') }),
+    newPassword1: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+    newPassword2: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+    key: z.string({ required_error: $i18n.t('validation.required') }),
   })
   .refine(data => data.newPassword1 === data.newPassword2, {
     message: t(

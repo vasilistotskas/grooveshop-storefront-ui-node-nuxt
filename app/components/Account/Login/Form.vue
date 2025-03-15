@@ -13,13 +13,14 @@ const router = useRouter()
 const cartStore = useCartStore()
 const { refreshCart } = cartStore
 const { isMobileOrTablet } = useDevice()
+const { $i18n } = useNuxtApp()
 
 const authStore = useAuthStore()
 const { session, status, hasSocialaccountProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
-  email: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
-  password: z.string({ required_error: t('validation.required') }),
+  email: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+  password: z.string({ required_error: $i18n.t('validation.required') }),
 })
 
 const validationSchema = toTypedSchema(ZodLogin)
@@ -83,7 +84,7 @@ const submitButtonLabel = computed(() => {
   }
 
   return !loading.value
-    ? t('submit')
+    ? $i18n.t('submit')
     : t('loading')
 })
 
@@ -236,7 +237,7 @@ const submitButtonDisabled = computed(() => {
                     dark:text-primary-50
                   "
                 >
-                  {{ $t('or.title') }}
+                  {{ $i18n.t('or.title') }}
                 </p>
               </div>
               <WebAuthnLoginButton />
@@ -292,7 +293,7 @@ const submitButtonDisabled = computed(() => {
 
                       dark:text-secondary-dark
                     "
-                    :label="$t('register')"
+                    :label="$i18n.t('register')"
                     :to="localePath('account-signup')"
                     size="lg"
                     color="opposite"

@@ -4,6 +4,7 @@ import { ref, computed, toRefs } from 'vue'
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 
 const { locale } = useI18n()
+const { $i18n } = useNuxtApp()
 
 const props = defineProps({
   tags: {
@@ -61,7 +62,7 @@ const filteredTags = computed(() => {
           "
         >
           <UIcon name="i-heroicons-tag" />
-          {{ $t('tags') }}
+          {{ $i18n.t('tags') }}
         </h3>
       </div>
       <template v-if="search">
@@ -69,7 +70,7 @@ const filteredTags = computed(() => {
           class="sr-only"
           for="search"
         >
-          {{ $t('search.title') }}
+          {{ $i18n.t('search.title') }}
         </label>
         <UInput
           id="search"
@@ -84,7 +85,7 @@ const filteredTags = computed(() => {
           color="primary"
           :trailing="false"
           variant="outline"
-          :placeholder="`${$t('search.title')}...`"
+          :placeholder="`${$i18n.t('search.title')}...`"
         />
       </template>
       <LazyUCarousel
@@ -105,12 +106,11 @@ const filteredTags = computed(() => {
           :label="extractTranslated(item, 'label', locale)"
         />
       </LazyUCarousel>
-      <template v-if="status === 'pending'">
-        <ClientOnlyFallback
-          height="24px"
-          width="100%"
-        />
-      </template>
+      <ClientOnlyFallback
+        v-if="status === 'pending'"
+        height="24px"
+        width="100%"
+      />
     </div>
   </aside>
 </template>

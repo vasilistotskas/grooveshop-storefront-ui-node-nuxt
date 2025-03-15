@@ -44,6 +44,7 @@ const emit = defineEmits([
 const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const toast = useToast()
+const { $i18n } = useNuxtApp()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const expand = computed(() => 'true')
@@ -561,7 +562,7 @@ watch(
           />
           <UButton
             v-else
-            :label="$t('validation.too_many_attempts')"
+            :label="$i18n.t('validation.too_many_attempts')"
             block
             color="primary"
             disabled

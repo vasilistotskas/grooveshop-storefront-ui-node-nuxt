@@ -28,6 +28,7 @@ const { paginationType, pageSize } = toRefs(props)
 const route = useRoute()
 const { locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
+const { $i18n } = useNuxtApp()
 const { loggedIn, user } = useUserSession()
 const cursorState = useState<CursorState>('cursor-state')
 const userStore = useUserStore()
@@ -196,7 +197,7 @@ onReactivated(async () => {
 
 <template>
   <div class="posts-list grid gap-4">
-    <LazyPagination
+    <Pagination
       v-if="pagination && ['pageNumber', 'limitOffset'].includes(paginationType)"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
@@ -268,11 +269,11 @@ onReactivated(async () => {
     <Transition>
       <ClientOnlyFallback
         v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR"
-        :text="$t('loading')"
+        :text="$i18n.t('loading')"
         class="grid items-center justify-items-center pt-4"
       />
     </Transition>
-    <LazyPagination
+    <Pagination
       v-if="pagination && paginationType === 'cursor'"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"

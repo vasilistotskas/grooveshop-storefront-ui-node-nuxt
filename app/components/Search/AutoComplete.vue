@@ -36,8 +36,6 @@ const props = defineProps({
 
 const { query, limit, offset, allResults, status, hasResults } = toRefs(props)
 
-const attrs = useAttrs()
-
 const emit = defineEmits<{
   (
     e: 'load-more',
@@ -57,6 +55,9 @@ const keepFocus = defineModel<boolean>('keepFocus', {
 const highlighted = defineModel<string | undefined>('highlighted', {
   required: true,
 })
+
+const attrs = useAttrs()
+const { $i18n } = useNuxtApp()
 
 function showMoreSectionResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number): boolean {
   return section.estimatedTotalHits > Number(limit)
@@ -98,7 +99,7 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
                 dark:text-primary-50
               "
             >
-              {{ $t(`sections.${key}`) }}
+              {{ $i18n.t(`sections.${key}`) }}
             </span>
             <div
               class="
@@ -132,10 +133,10 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
               @mousedown="keepFocus = true"
               @click="onLoadMore(section, Number(limit), Number(offset))"
             >
-              {{ $t("results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
+              {{ $i18n.t("results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
             </UButton>
             <span class="text-primary-400 text-sm">
-              {{ section.estimatedTotalHits > Number(limit) ? $t("approx_results", section.estimatedTotalHits) : $t("results", section.estimatedTotalHits) }}
+              {{ section.estimatedTotalHits > Number(limit) ? $i18n.t("approx_results", section.estimatedTotalHits) : $i18n.t("results", section.estimatedTotalHits) }}
             </span>
           </div>
         </div>

@@ -47,7 +47,6 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
           :title="alt"
         >
           <ImgWithFallback
-            provider="mediaStream"
             loading="lazy"
             class="product-img bg-primary-100"
             :style="{ objectFit: 'contain', contentVisibility: 'auto' }"

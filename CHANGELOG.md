@@ -2636,7 +2636,7 @@
 
 ### Bug Fixes
 
-* remove console.log, guest cart fix ([ebfddd6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ebfddd6d9089f4f2308775ebefd3533dd29c5854))
+* remove console.debug, guest cart fix ([ebfddd6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ebfddd6d9089f4f2308775ebefd3533dd29c5854))
 
 # [1.35.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.34.0...v1.35.0) (2023-12-5)
 

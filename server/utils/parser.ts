@@ -27,7 +27,7 @@ const apiValidateWithSchema = <ZodSchema extends ZodTypeAny>(
  * ```
  * const parsedData = await parseDataAs({ test: "1" }, object({ test: number() )}))
  *
- * console.log(parsedData)
+ * console.debug(parsedData)
  * // -> output: `1` (as a number, as `z` also deserializes)
  * ```
  *
@@ -36,7 +36,7 @@ const apiValidateWithSchema = <ZodSchema extends ZodTypeAny>(
  * const fakeDatabaseQuery = async () => { test: "1" }
  * const parsedData = await parseDataAs(fakeDatabaseQuery, object({ test: number() )}))
  *
- * console.log(parsedData)
+ * console.debug(parsedData)
  * // -> output: `1` (as a number, as `z` also deserializes)
  * ```
  *

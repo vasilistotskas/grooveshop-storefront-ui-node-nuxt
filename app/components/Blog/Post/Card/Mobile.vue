@@ -21,6 +21,7 @@ const props = defineProps({
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const { post } = toRefs(props)
 
@@ -74,7 +75,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         css-class="grid justify-center"
       >
         <ImgWithFallback
-          provider="mediaStream"
           :loading="imgLoading"
           class="bg-primary-100 rounded-lg"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
@@ -145,7 +145,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 
             hover:bg-transparent
           "
-          :title="$t('comments.count', {
+          :title="$i18n.t('comments.count', {
             count: post.commentsCount,
           })"
           :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
@@ -167,7 +167,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             color="primary"
             square
             variant="ghost"
-            :title="$t('share')"
+            :title="$i18n.t('share')"
             class="
               text-primary-50 flex-col justify-self-start p-0 font-extrabold
               capitalize

@@ -5,7 +5,8 @@ import { GlobalEvents } from '~/events'
 const { user, loggedIn } = useUserSession()
 
 const route = useRoute()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
+const { t, n, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
 const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
@@ -167,8 +168,8 @@ const reviewButtonText = computed(() => {
 const links = computed(() => [
   {
     to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
+    label: $i18n.t('breadcrumb.items.index.label'),
+    icon: $i18n.t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('products'),
@@ -308,7 +309,7 @@ definePageMeta({
                 <UButton
                   v-if="isSupported"
                   :disabled="!isSupported"
-                  :title="$t('share')"
+                  :title="$i18n.t('share')"
                   class="font-extrabold capitalize"
                   color="primary"
                   icon="i-heroicons-share"
@@ -361,12 +362,9 @@ definePageMeta({
             </section>
             <div class="flex items-center gap-4">
               <div class="bg-primary-50 flex rounded-lg px-3 py-2">
-                <I18nN
-                  :value="product.finalPrice"
-                  class="text-3xl font-bold text-indigo-600"
-                  format="currency"
-                  tag="span"
-                />
+                <span class="text-3xl font-bold text-indigo-600">
+                  {{ n(product.finalPrice, 'currency') }}
+                </span>
               </div>
               <div class="flex-1">
                 <p class="text-xl font-semibold text-green-500">
@@ -411,8 +409,8 @@ definePageMeta({
                 >
                   <UButton
                     id="decrement-button"
-                    :aria-label="$t('decrement')"
-                    :title="$t('decrement')"
+                    :aria-label="$i18n.t('decrement')"
+                    :title="$i18n.t('decrement')"
                     color="primary"
                     icon="i-heroicons-minus"
                     size="xl"
@@ -439,8 +437,8 @@ definePageMeta({
                   >
                   <UButton
                     id="increment-button"
-                    :aria-label="$t('increment')"
-                    :title="$t('increment')"
+                    :aria-label="$i18n.t('increment')"
+                    :title="$i18n.t('increment')"
                     color="primary"
                     icon="i-heroicons-plus"
                     size="xl"
@@ -452,7 +450,7 @@ definePageMeta({
               <ButtonProductAddToCart
                 :product="product"
                 :quantity="selectorQuantity || 1"
-                :text="$t('add_to_cart')"
+                :text="$i18n.t('add_to_cart')"
               />
             </div>
           </div>

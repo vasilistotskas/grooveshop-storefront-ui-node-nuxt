@@ -9,6 +9,7 @@ const { activateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -82,7 +83,7 @@ const formSchema: DynamicFormSchema = {
       label: t('authenticator_code'),
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).min(6).max(6),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).min(6).max(6),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
@@ -113,7 +114,7 @@ const formSchema: DynamicFormSchema = {
         <label
           class="grid items-center justify-center justify-items-center gap-2"
         >
-          {{ $t('authenticator_secret') }}:
+          {{ $i18n.t('authenticator_secret') }}:
           <span
             class="
               bg-primary-200 rounded-md
@@ -131,7 +132,7 @@ const formSchema: DynamicFormSchema = {
             type="text"
             @click="onSecretClick"
           />
-          <span class="text-center">{{ $t('authenticator_secret_description') }}</span>
+          <span class="text-center">{{ $i18n.t('authenticator_secret_description') }}</span>
         </label>
       </div>
       <section class="grid items-center justify-center justify-items-center">

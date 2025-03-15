@@ -3,6 +3,7 @@ const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { user } = useUserSession()
 const { enabled } = useAuthPreviewMode()
+const { $i18n } = useNuxtApp()
 
 const pageSize = ref(4)
 const page = computed(() => route.query.page)
@@ -11,12 +12,12 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   {
     value: 'createdAt',
-    label: t('ordering.created_at'),
+    label: $i18n.t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: t('ordering.updated_at'),
+    label: $i18n.t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -56,7 +57,7 @@ const refreshFavourites = async () => {
 }
 
 const pagination = computed(() => {
-  if (!favourites.value) return
+  if (!favourites.value?.count) return
   return usePagination<BlogPost>(favourites.value)
 })
 
@@ -100,31 +101,29 @@ definePageMeta({
       />
     </div>
     <LazyBlogPostFavouritesList
-      v-if="status !== 'pending' && favourites?.results?.length"
+      v-if="status !== 'pending' && favourites?.count"
       :favourites="favourites?.results"
       :favourites-count="favourites?.count"
     />
-    <template v-if="status === 'pending'">
-      <div class="grid w-full items-start gap-4">
-        <ClientOnlyFallback
-          class="flex w-full items-center justify-center"
-          height="20px"
-          width="100%"
-        />
-        <ClientOnlyFallback
-          class="
+    <div v-if="status === 'pending'" class="grid w-full items-start gap-4">
+      <ClientOnlyFallback
+        class="flex w-full items-center justify-center"
+        height="20px"
+        width="100%"
+      />
+      <ClientOnlyFallback
+        class="
               grid grid-cols-2 gap-4
 
               lg:grid-cols-3
 
               xl:grid-cols-4
             "
-          :count="favourites?.results?.length || 4"
-          height="295px"
-          width="100%"
-        />
-      </div>
-    </template>
+        :count="favourites?.count || 4"
+        height="400px"
+        width="100%"
+      />
+    </div>
   </PageWrapper>
 </template>
 

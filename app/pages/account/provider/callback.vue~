@@ -7,7 +7,6 @@ const { refreshSession } = authStore
 
 const route = useRoute()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const {
   error: apiError,

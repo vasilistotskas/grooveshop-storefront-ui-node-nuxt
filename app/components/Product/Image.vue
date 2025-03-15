@@ -40,7 +40,6 @@ const alt = computed(() => {
 
 <template>
   <ImgWithFallback
-    provider="mediaStream"
     :loading="imgLoading"
     :width="width"
     :height="height"

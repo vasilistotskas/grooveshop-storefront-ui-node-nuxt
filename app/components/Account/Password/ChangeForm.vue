@@ -10,6 +10,7 @@ const { hasCurrentPassword } = storeToRefs(authStore)
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const onSubmit = async (values: PasswordChangeBody) => {
   const body = {
@@ -19,7 +20,7 @@ const onSubmit = async (values: PasswordChangeBody) => {
   try {
     await changePassword(body)
     toast.add({
-      title: t('auth.password.change.success'),
+      title: $i18n.t('auth.password.change.success'),
       color: 'green',
     })
     emit('changePassword')
@@ -33,39 +34,39 @@ const onSubmit = async (values: PasswordChangeBody) => {
 const formSchema = computed((): DynamicFormSchema => {
   const fields = [
     {
-      label: t('password.new'),
+      label: $i18n.t('password.new'),
       name: 'new_password',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).min(8).max(255),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
-      placeholder: t('password.new'),
+      placeholder: $i18n.t('password.new'),
       type: 'password',
     },
     {
-      label: t('password.confirm'),
+      label: $i18n.t('password.confirm'),
       name: 'confirm_password',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).min(8).max(255),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
-      placeholder: t('password.confirm'),
+      placeholder: $i18n.t('password.confirm'),
       type: 'password',
     },
   ] as DynamicFormSchema['fields']
 
   if (hasCurrentPassword.value) {
     fields?.unshift({
-      label: t('password.current'),
+      label: $i18n.t('password.current'),
       name: 'current_password',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).min(8).max(255),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
       autocomplete: 'current-password',
       readonly: false,
       required: true,
-      placeholder: t('password.current'),
+      placeholder: $i18n.t('password.current'),
       type: 'password',
     })
   }
@@ -74,15 +75,15 @@ const formSchema = computed((): DynamicFormSchema => {
     fields,
     extraValidation: z
       .object({
-        current_password: z.string({ required_error: t('validation.required') }).optional(),
-        new_password: z.string({ required_error: t('validation.required') }),
-        confirm_password: z.string({ required_error: t('validation.required') }),
+        current_password: z.string({ required_error: $i18n.t('validation.required') }).optional(),
+        new_password: z.string({ required_error: $i18n.t('validation.required') }),
+        confirm_password: z.string({ required_error: $i18n.t('validation.required') }),
       }).superRefine((val, ctx) => {
         if (val.new_password !== val.confirm_password) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t(
-              'validation.must_match', { field: t('password.new'), other: t('password.confirm') },
+            message: $i18n.t(
+              'validation.must_match', { field: $i18n.t('password.new'), other: $i18n.t('password.confirm') },
             ),
             path: ['confirm_password'],
           })
@@ -91,7 +92,7 @@ const formSchema = computed((): DynamicFormSchema => {
         if (hasCurrentPassword.value && val.current_password === val.new_password) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t(
+            message: $i18n.t(
               'validation.password.must_not_be_same',
             ),
             path: ['confirm_password'],

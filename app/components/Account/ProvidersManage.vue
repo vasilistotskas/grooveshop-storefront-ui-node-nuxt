@@ -9,6 +9,7 @@ const {
 } = useAllAuthAccount()
 const toast = useToast()
 const { t } = useI18n()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -90,7 +91,7 @@ onReactivated(async () => {
     <UTable
       class="w-full"
       :columns="columns"
-      :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $t('auth.providers.empty') }"
+      :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $i18n.t('auth.providers.empty') }"
       :rows="rows"
     >
       <template #actions-data="{ row }">

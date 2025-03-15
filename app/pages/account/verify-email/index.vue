@@ -8,6 +8,7 @@ const { emailVerify } = useAllAuthAuthentication()
 const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -35,7 +36,7 @@ const formSchema: DynamicFormSchema = {
       label: t('key'),
       name: 'key',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,

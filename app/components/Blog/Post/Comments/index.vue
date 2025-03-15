@@ -46,6 +46,7 @@ const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedComments } = userStore
 const cursorState = useState<CursorState>('cursor-state')
+const { $i18n } = useNuxtApp()
 
 const expand = computed(() => 'true')
 const expandFields = computed(() => 'user,post')
@@ -78,7 +79,7 @@ const {
   data: comments,
   status,
   refresh,
-} = await useLazyFetch<Pagination<BlogComment>>(
+} = await useFetch<Pagination<BlogComment>>(
   `/api/blog/posts/${blogPostId.value}/comments`,
   {
     key: `comments${blogPostId.value}`,
@@ -97,7 +98,8 @@ const {
 )
 
 const pagination = computed(() => {
-  if (!comments.value) return
+  console.debug('===== comments.value', comments.value)
+  if (!comments.value?.count) return
   return usePagination<BlogComment>(comments.value)
 })
 
@@ -118,7 +120,7 @@ const loggedInAndHasComments = computed(() => {
 })
 
 const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
-  = await useLazyFetch<BlogComment>('/api/blog/comments/user-blog-comment', {
+  = await useFetch<BlogComment>('/api/blog/comments/user-blog-comment', {
     key: `userBlogPostComment${blogPostId.value}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -134,7 +136,7 @@ const commentIds = computed(() => {
 })
 
 if (loggedInAndHasComments.value) {
-  await useLazyFetch<number[]>('/api/blog/comments/liked-comments', {
+  await useFetch<number[]>('/api/blog/comments/liked-comments', {
     key: `likedComments${blogPostId.value}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -162,7 +164,7 @@ const addCommentFormSchema: DynamicFormSchema = {
       id: `content-${blogPostId.value}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string({ required_error: t('validation.required') }).max(1000),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).max(1000),
       autocomplete: 'on',
       readonly: false,
       required: true,
@@ -306,7 +308,7 @@ onMounted(() => {
           <LazyDynamicForm
             v-if="loggedIn"
             id="add-comment-form"
-            :button-label="t('submit')"
+            :button-label="$i18n.t('submit')"
             :schema="addCommentFormSchema"
             class="container-3xs"
             :submit-button-ui="{
@@ -343,7 +345,7 @@ onMounted(() => {
       v-else
       :description="
         loggedIn
-          ? t('empty.description')
+          ? $i18n.t('empty.description')
           : ''
       "
       class="w-full"
@@ -355,7 +357,7 @@ onMounted(() => {
         <LazyDynamicForm
           v-if="loggedIn"
           id="add-comment-form"
-          :button-label="t('submit')"
+          :button-label="$i18n.t('submit')"
           :schema="addCommentFormSchema"
           class="container-3xs"
           :submit-button-ui="{
@@ -387,7 +389,7 @@ onMounted(() => {
         </div>
       </template>
     </LazyEmptyState>
-    <LazyPagination
+    <Pagination
       v-if="pagination"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POST_COMMENTS"

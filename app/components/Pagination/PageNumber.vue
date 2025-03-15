@@ -5,17 +5,17 @@ import type { ButtonSize } from '#ui/types'
 const props = defineProps({
   count: {
     type: Number,
-    required: true,
+    required: false,
     default: 0,
   },
   pageSize: {
     type: Number,
-    required: true,
+    required: false,
     default: 10,
   },
   page: {
     type: Number,
-    required: true,
+    required: false,
     default: 1,
   },
   loading: {
@@ -32,6 +32,8 @@ const props = defineProps({
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
+
 const { count } = toRefs(props)
 
 const currentPage = ref(props.page)
@@ -66,24 +68,24 @@ watch(
       }"
       :first-button="{
         icon: 'i-heroicons-arrow-long-left-20-solid',
-        label: !isMobileOrTablet ? $t('first') : undefined,
+        label: !isMobileOrTablet ? $i18n.t('first') : undefined,
         color: 'primary',
       }"
       :last-button="{
         icon: 'i-heroicons-arrow-long-right-20-solid',
         trailing: true,
-        label: !isMobileOrTablet ? $t('last') : undefined,
+        label: !isMobileOrTablet ? $i18n.t('last') : undefined,
         color: 'primary',
       }"
       :prev-button="{
         icon: 'i-heroicons-arrow-small-left-20-solid',
-        label: !isMobileOrTablet ? $t('prev') : undefined,
+        label: !isMobileOrTablet ? $i18n.t('prev') : undefined,
         color: 'primary',
       }"
       :next-button="{
         icon: 'i-heroicons-arrow-small-right-20-solid',
         trailing: true,
-        label: !isMobileOrTablet ? $t('next') : undefined,
+        label: !isMobileOrTablet ? $i18n.t('next') : undefined,
         color: 'primary',
       }"
       :total="items.length"

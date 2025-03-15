@@ -45,6 +45,7 @@ const {
 const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { fetch } = useUserSession()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -129,7 +130,6 @@ const uploadImage = async (event: Event) => {
       "
     >
       <ImgWithFallback
-        provider="mediaStream"
         :alt="alt"
         :background="'transparent'"
         :class="{
@@ -219,7 +219,7 @@ const uploadImage = async (event: Event) => {
           class="sr-only"
           type="submit"
         >
-          {{ t('upload') }}
+          {{ $i18n.t('upload') }}
         </button>
       </form>
     </div>

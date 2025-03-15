@@ -18,6 +18,7 @@ const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const { contentShorten } = useText()
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const submit = async () => {
   if (address?.value && address?.value.isMain) {
@@ -168,7 +169,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('floor') }}: {{ address.floor }}
+          {{ $i18n.t('floor') }}: {{ address.floor }}
         </span>
         <span
           v-if="address.locationType"
@@ -178,7 +179,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('location_type') }}: {{ address.locationType }}
+          {{ $i18n.t('location_type') }}: {{ address.locationType }}
         </span>
         <span
           v-if="address.phone"
@@ -188,7 +189,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('phone') }}: {{ address.phone }}
+          {{ $i18n.t('phone') }}: {{ address.phone }}
         </span>
         <span
           v-if="address.mobilePhone"
@@ -198,7 +199,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('mobile_phone') }}: {{ address.mobilePhone }}
+          {{ $i18n.t('mobile_phone') }}: {{ address.mobilePhone }}
         </span>
         <span
           v-if="address.notes"
@@ -208,7 +209,7 @@ const submit = async () => {
             dark:text-primary-50
           "
         >
-          {{ $t('notes') }}: {{ address.notes }}
+          {{ $i18n.t('notes') }}: {{ address.notes }}
         </span>
       </div>
     </div>

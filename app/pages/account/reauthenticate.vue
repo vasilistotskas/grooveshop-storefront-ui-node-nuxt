@@ -8,6 +8,7 @@ const toast = useToast()
 const { t } = useI18n({ useScope: 'local' })
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -37,7 +38,7 @@ const formSchema: DynamicFormSchema = {
     {
       name: 'password',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }),
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
       autocomplete: 'current-password',
       readonly: false,
       required: true,
@@ -73,11 +74,11 @@ definePageMeta({
               dark:text-primary-50
             "
         >
-          {{ $t('enter_password') }}
+          {{ $i18n.t('enter_password') }}
         </h3>
         <section class="grid items-center">
           <DynamicForm
-            :button-label="$t('submit')"
+            :button-label="$i18n.t('submit')"
             :schema="formSchema"
             @submit="onSubmit"
           />

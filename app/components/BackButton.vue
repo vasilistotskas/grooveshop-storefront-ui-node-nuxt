@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const router = useRouter()
+const { $i18n } = useNuxtApp()
 </script>
 
 <template>
@@ -10,7 +11,7 @@ const router = useRouter()
     color="primary"
     variant="ghost"
     icon="i-heroicons-arrow-left-circle"
-    :aria-label="$t('back')"
+    :aria-label="$i18n.t('back')"
     :ui="{
       icon: {
         size: {

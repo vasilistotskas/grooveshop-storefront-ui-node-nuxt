@@ -33,7 +33,6 @@ const { item } = toRefs(props)
         "
       >
         <ImgWithFallback
-          provider="mediaStream"
           loading="lazy"
           class="bg-primary-100 aspect-square size-full object-cover"
           :style="{

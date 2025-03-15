@@ -4,6 +4,7 @@ import pkg from '../../../package.json'
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
 
 const packageVersion = pkg.version
 </script>
@@ -34,7 +35,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('about.us') }}
+            {{ $i18n.t('about.us') }}
           </span>
           <ul
             class="
@@ -45,8 +46,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('about.site')"
-                :title="$t('about.site')"
+                :text="$i18n.t('about.site')"
+                :title="$i18n.t('about.site')"
                 :to="'about'"
                 class="
                   flex-1 text-sm capitalize
@@ -54,13 +55,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('about.site') }}
+                {{ $i18n.t('about.site') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('vision')"
-                :title="$t('vision')"
+                :text="$i18n.t('vision')"
+                :title="$i18n.t('vision')"
                 :to="'vision'"
                 class="
                   flex-1 text-sm capitalize
@@ -68,7 +69,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('vision') }}
+                {{ $i18n.t('vision') }}
               </Anchor>
             </li>
           </ul>
@@ -132,7 +133,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('terms_conditions') }}
+            {{ $i18n.t('terms_conditions') }}
           </span>
           <ul
             class="
@@ -143,8 +144,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('term_of_use')"
-                :title="$t('term_of_use')"
+                :text="$i18n.t('term_of_use')"
+                :title="$i18n.t('term_of_use')"
                 :to="'terms-of-use'"
                 class="
                   flex-1 text-sm capitalize
@@ -152,13 +153,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('term_of_use') }}
+                {{ $i18n.t('term_of_use') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('privacy_policy')"
-                :title="$t('privacy_policy')"
+                :text="$i18n.t('privacy_policy')"
+                :title="$i18n.t('privacy_policy')"
                 :to="'privacy-policy'"
                 class="
                   flex-1 text-sm capitalize
@@ -166,13 +167,13 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('privacy_policy') }}
+                {{ $i18n.t('privacy_policy') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$t('cookies_policy')"
-                :title="$t('cookies_policy')"
+                :text="$i18n.t('cookies_policy')"
+                :title="$i18n.t('cookies_policy')"
                 :to="'cookies-policy'"
                 class="
                   flex-1 text-sm capitalize
@@ -180,7 +181,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('cookies_policy') }}
+                {{ $i18n.t('cookies_policy') }}
               </Anchor>
             </li>
           </ul>
@@ -195,7 +196,7 @@ const packageVersion = pkg.version
               md:text-sm
             "
           >
-            {{ $t('help_center') }}
+            {{ $i18n.t('help_center') }}
           </span>
           <ul
             class="
@@ -206,8 +207,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$t('contact_us')"
-                :title="$t('contact_us')"
+                :text="$i18n.t('contact_us')"
+                :title="$i18n.t('contact_us')"
                 :to="'contact'"
                 class="
                   flex-1 text-sm capitalize
@@ -215,7 +216,7 @@ const packageVersion = pkg.version
                   hover:no-underline
                 "
               >
-                {{ $t('contact_us') }}
+                {{ $i18n.t('contact_us') }}
               </Anchor>
             </li>
           </ul>
@@ -258,7 +259,7 @@ const packageVersion = pkg.version
               size="lg"
               type="button"
               variant="link"
-            /> {{ $t('all_rights_reserved') }}.
+            /> {{ $i18n.t('all_rights_reserved') }}.
           </span>
           <div
             class="

@@ -15,6 +15,8 @@ const props = defineProps<{
 const { item } = toRefs(props)
 const emit = defineEmits(['click', 'mousedown', 'mouseover'])
 
+const { $i18n } = useNuxtApp()
+
 const sortedFields = computed(() => {
   if (!item.value) return []
   if (!item.value.formatted) return []
@@ -69,7 +71,6 @@ const imgAlt = computed(() => {
     >
       <div class="flex gap-4">
         <ImgWithFallback
-          provider="mediaStream"
           class="object-contain"
           loading="lazy"
           :width="100"
@@ -98,7 +99,7 @@ const imgAlt = computed(() => {
                 dark:text-primary-50
               "
             >
-              {{ $t(`fields.${key}`) }}:
+              {{ $i18n.t(`fields.${key}`) }}:
             </span>
             <span
               v-if="value"

@@ -2,6 +2,7 @@
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const authStore = useAuthStore()
+const { $i18n } = useNuxtApp()
 const { setupAuthenticators } = authStore
 const { totpAuthenticator, recoveryCodesAuthenticator } = storeToRefs(authStore)
 
@@ -51,7 +52,7 @@ definePageMeta({
           {{ t('active') }}
         </p>
         <UButton
-          :label="$t('deactivate')"
+          :label="$i18n.t('deactivate')"
           :to="localePath('account-2fa-totp-deactivate')"
           color="primary"
           size="xl"
@@ -72,7 +73,7 @@ definePageMeta({
           {{ t('inactive') }}
         </p>
         <UButton
-          :label="$t('activate')"
+          :label="$i18n.t('activate')"
           :to="localePath('account-2fa-totp-activate')"
           color="primary"
           size="xl"
@@ -108,7 +109,7 @@ definePageMeta({
           {{ t('recovery-codes.unset') }}
         </p>
         <UButton
-          :label="$t('generate')"
+          :label="$i18n.t('generate')"
           :to="localePath('account-2fa-recovery-codes-generate')"
           color="primary"
           size="xl"
@@ -132,13 +133,13 @@ definePageMeta({
           }) }}
         </p>
         <UButton
-          :label="$t('view')"
+          :label="$i18n.t('view')"
           :to="localePath('account-2fa-recovery-codes')"
           color="primary"
           size="xl"
         />
         <UButton
-          :label="$t('regenerate')"
+          :label="$i18n.t('regenerate')"
           :to="localePath('account-2fa-recovery-codes-generate')"
           color="primary"
           size="xl"

@@ -6,6 +6,7 @@ const emit = defineEmits(['providerSignup'])
 const { providerSignup } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -30,7 +31,7 @@ const formSchema: DynamicFormSchema = {
       label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
@@ -51,7 +52,7 @@ const formSchema: DynamicFormSchema = {
   >
     <section class="grid items-center">
       <DynamicForm
-        :button-label="t('submit')"
+        :button-label="$i18n.t('submit')"
         :schema="formSchema"
         @submit="onSubmit"
       />

@@ -2,12 +2,13 @@
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const links = computed(() => [
   {
     to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
+    label: $i18n.t('breadcrumb.items.index.label'),
+    icon: $i18n.t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
@@ -49,7 +50,7 @@ definePageMeta({
       class="container-3xs relative mb-5 min-w-0"
     />
     <PageTitle
-      :text="$t('authenticate.recovery_code')"
+      :text="$i18n.t('authenticate.recovery_code')"
       class="text-center capitalize"
     />
     <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.RECOVERY_CODES" />

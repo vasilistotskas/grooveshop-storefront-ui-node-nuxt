@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const { locale } = useI18n()
+const { $i18n } = useNuxtApp()
 const { getUnseenCount, markAsSeen } = useUserNotification()
 const { getNotifications } = useNotification()
 const userNotificationStore = useUserNotificationStore()
@@ -96,8 +97,8 @@ onClickOutside(dropdown, () => {
         :icon="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
         size="xl"
         :color="'primary'"
-        :aria-label="$t('notifications.title')"
-        :title="$t('notifications.title')"
+        :aria-label="$i18n.t('notifications.title')"
+        :title="$i18n.t('notifications.title')"
         @click="toggleDropdown"
       />
     </UChip>
@@ -173,7 +174,7 @@ onClickOutside(dropdown, () => {
             >
               <UIcon name="i-heroicons-bell-alert" class="size-12" />
               <p class="text-center text-sm">
-                {{ $t('notifications.no_notifications') }}
+                {{ $i18n.t('notifications.no_notifications') }}
               </p>
             </div>
           </template>

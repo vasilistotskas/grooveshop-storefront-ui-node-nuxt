@@ -43,7 +43,6 @@ const isCategorySelected = computed(() => {
     >
       <div class="flex size-[40px] items-center rounded-full">
         <ImgWithFallback
-          provider="mediaStream"
           class="object-cover"
           :style="{ contentVisibility: 'auto' }"
           :src="category.mainImagePath"

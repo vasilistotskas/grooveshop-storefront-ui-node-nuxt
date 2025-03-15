@@ -10,6 +10,7 @@ const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const { t } = useI18n()
 const img = useImage()
+const { $i18n } = useNuxtApp()
 
 const searchBarFocused = useState<boolean>('search-bar-focused')
 
@@ -31,7 +32,7 @@ const links = computed(() => {
     {
       icon: 'i-heroicons-home',
       to: '/',
-      label: t('home'),
+      label: $i18n.t('home'),
       labelClass: 'sr-only',
     },
     {
@@ -43,7 +44,7 @@ const links = computed(() => {
     {
       icon: 'i-heroicons-heart',
       to: '/account/favourites/posts',
-      label: t('favourites'),
+      label: $i18n.t('favourites'),
       labelClass: 'sr-only',
     },
   ] as LinksOption[]
@@ -52,14 +53,14 @@ const links = computed(() => {
     links.push({
       icon: 'i-heroicons-user',
       to: `/account/login?next=${route.path}`,
-      label: t('account'),
+      label: $i18n.t('account'),
       labelClass: 'sr-only',
     })
   }
   else {
     links.push({
       to: '/account',
-      label: t('account'),
+      label: $i18n.t('account'),
       labelClass: 'sr-only',
       avatar: {
         src: avatarImg.value,
@@ -68,12 +69,6 @@ const links = computed(() => {
   }
 
   return links
-})
-
-const Footer = computed(() => {
-  return isMobileOrTablet
-    ? resolveComponent('FooterMobile')
-    : resolveComponent('FooterDesktop')
 })
 </script>
 
@@ -108,11 +103,10 @@ const Footer = computed(() => {
           <Socials />
         </div>
       </MobileOrTabletOnly>
-      <Component
-        :is="Footer"
-      />
+      <LazyFooterMobile v-if="isMobileOrTablet" hydrate-on-visible />
+      <LazyFooterDesktop v-else hydrate-on-visible />
     </slot>
-    <MobileOrTabletOnly>
+    <LazyMobileOrTabletOnly hydrate-on-visible>
       <UHorizontalNavigation
         :links="links"
         :ui="{
@@ -137,6 +131,6 @@ const Footer = computed(() => {
           dark:border-primary-700 dark:bg-primary-900
         "
       />
-    </MobileOrTabletOnly>
+    </LazyMobileOrTabletOnly>
   </div>
 </template>

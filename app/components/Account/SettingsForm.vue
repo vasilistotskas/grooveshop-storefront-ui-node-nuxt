@@ -12,6 +12,7 @@ const { user, fetch } = useUserSession()
 
 const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
+const { $i18n } = useNuxtApp()
 
 const USelect = resolveComponent('USelect')
 
@@ -19,16 +20,16 @@ const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
-  email: z.string({ required_error: t('validation.required') }).email({
-    message: t('validation.email.invalid'),
+  email: z.string({ required_error: $i18n.t('validation.required') }).email({
+    message: $i18n.t('validation.email.invalid'),
   }),
-  firstName: z.string({ required_error: t('validation.required') }),
-  lastName: z.string({ required_error: t('validation.required') }),
-  phone: z.string({ required_error: t('validation.required') }),
-  city: z.string({ required_error: t('validation.required') }),
-  zipcode: z.string({ required_error: t('validation.required') }),
-  address: z.string({ required_error: t('validation.required') }),
-  place: z.string({ required_error: t('validation.required') }),
+  firstName: z.string({ required_error: $i18n.t('validation.required') }),
+  lastName: z.string({ required_error: $i18n.t('validation.required') }),
+  phone: z.string({ required_error: $i18n.t('validation.required') }),
+  city: z.string({ required_error: $i18n.t('validation.required') }),
+  zipcode: z.string({ required_error: $i18n.t('validation.required') }),
+  address: z.string({ required_error: $i18n.t('validation.required') }),
+  place: z.string({ required_error: $i18n.t('validation.required') }),
   birthDate: z.preprocess((input) => {
     if (typeof input === 'string' || input instanceof Date) {
       const date = new Date(input)
@@ -37,11 +38,11 @@ const ZodAccountSettings = z.object({
     return undefined
   },
   z.date({
-    required_error: t('validation.date.required_error'),
-    invalid_type_error: t('validation.date.invalid_type_error'),
+    required_error: $i18n.t('validation.date.required_error'),
+    invalid_type_error: $i18n.t('validation.date.invalid_type_error'),
   }).optional()),
-  country: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
-  region: z.string({ required_error: t('validation.required') }).default(defaultSelectOptionChoose).optional(),
+  country: z.string({ required_error: $i18n.t('validation.required') }).default(defaultSelectOptionChoose).optional(),
+  region: z.string({ required_error: $i18n.t('validation.required') }).default(defaultSelectOptionChoose).optional(),
 })
 
 const validationSchema = toTypedSchema(ZodAccountSettings)

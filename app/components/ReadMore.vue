@@ -12,6 +12,7 @@ const props = defineProps({
 
 const uuid = useId()
 const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
+const { $i18n } = useNuxtApp()
 
 const toggleFullText = () => {
   showFullText.value = !showFullText.value
@@ -65,7 +66,7 @@ const trimmedText = computed(() => {
     </div>
     <div class="bottom-0 right-0 grid justify-end">
       <UButton
-        :label="showFullText ? $t('read_less') : $t('read_more')"
+        :label="showFullText ? $i18n.t('read_less') : $i18n.t('read_more')"
         size="xs"
         color="primary"
         @click="toggleFullText"

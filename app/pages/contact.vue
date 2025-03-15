@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
+const { $i18n } = useNuxtApp()
 
 const links = computed(() => [
   {
     to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
+    label: $i18n.t('breadcrumb.items.index.label'),
+    icon: $i18n.t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('contact'),
-    label: t('breadcrumb.items.contact.label'),
-    icon: t('breadcrumb.items.contact.icon'),
+    label: $i18n.t('breadcrumb.items.contact.label'),
+    icon: $i18n.t('breadcrumb.items.contact.icon'),
     current: true,
   },
 ])

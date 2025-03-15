@@ -2,26 +2,27 @@
 const route = useRoute()
 const { t } = useI18n({ useScope: 'local' })
 const { user } = useUserSession()
+const { $i18n } = useNuxtApp()
+const localePath = useLocalePath()
 
 const pageSize = ref(8)
-const pending = ref(true)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   {
     value: 'createdAt',
-    label: t('ordering.created_at'),
+    label: $i18n.t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: t('ordering.updated_at'),
+    label: $i18n.t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
 
-const { data: reviews } = await useFetch<Pagination<ProductReview>>(
+const { data: reviews, status, error } = useFetch<Pagination<ProductReview>>(
   `/api/user/account/${user.value?.id}/product-reviews`,
   {
     key: `userProductReviews${user.value?.id}`,
@@ -33,17 +34,11 @@ const { data: reviews } = await useFetch<Pagination<ProductReview>>(
       pageSize: pageSize,
       expand: 'true',
     },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      pending.value = false
-    },
   },
 )
 
 const refreshReviews = async () => {
-  pending.value = true
+  status.value = 'pending'
   const reviews = await $fetch<Pagination<ProductReview>>(
     `/api/user/account/${user.value?.id}/product-reviews`,
     {
@@ -57,12 +52,12 @@ const refreshReviews = async () => {
       },
     },
   )
-  pending.value = false
+  status.value = 'success'
   return reviews
 }
 
 const pagination = computed(() => {
-  if (!reviews.value) return
+  if (!reviews.value?.count) return
   return usePagination<ProductReview>(reviews.value)
 })
 
@@ -93,7 +88,7 @@ definePageMeta({
     <PageTitle :text="t('title')" />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
-      <LazyPaginationPageNumber
+      <PaginationPageNumber
         v-if="pagination"
         :count="pagination.count"
         :page="pagination.page"
@@ -104,27 +99,52 @@ definePageMeta({
         :ordering-options="orderingOptions.orderingOptionsArray.value"
       />
     </div>
-    <ProductReviewsList
-      v-if="!pending && reviews?.results?.length"
+    <LazyProductReviewsList
+      v-if="status !== 'pending' && reviews?.count"
       :reviews="reviews?.results"
       :reviews-count="reviews?.count"
       display-image-of="product"
     />
-    <template v-if="pending">
-      <div class="grid gap-4">
-        <ClientOnlyFallback
-          class="flex items-center justify-center"
-          height="20px"
-          width="100%"
+    <div v-else-if="status === 'pending'" class="grid gap-4">
+      <ClientOnlyFallback
+        class="flex items-center justify-center"
+        height="20px"
+        width="100%"
+      />
+      <ClientOnlyFallback
+        class="grid gap-4"
+        :count="reviews?.count || 4"
+        height="126px"
+        width="100%"
+      />
+    </div>
+    <Error v-else-if="error" :error="error" />
+    <LazyEmptyState
+      v-else-if="!reviews?.count"
+      class="w-full"
+      :title="t('empty.title')"
+    >
+      <template
+        #icon
+      >
+        <UIcon
+          name="i-mdi-star-outline"
+          size="xl"
         />
-        <ClientOnlyFallback
-          class="grid gap-4"
-          :count="reviews?.results?.length || 4"
-          height="126px"
-          width="100%"
+      </template>
+      <template
+        #actions
+      >
+        <UButton
+          :label="$i18n.t('empty.description')"
+          :to="localePath('index')"
+          class="font-semibold"
+          color="secondary"
+          size="xl"
+          type="button"
         />
-      </div>
-    </template>
+      </template>
+    </LazyEmptyState>
   </PageWrapper>
 </template>
 

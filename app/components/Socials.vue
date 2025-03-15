@@ -14,6 +14,7 @@ defineProps({
 })
 
 const config = useRuntimeConfig()
+const { $i18n } = useNuxtApp()
 </script>
 
 <template>
@@ -33,7 +34,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('instagram') }}</span>
+    <span class="sr-only">{{ $i18n.t('instagram') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -51,7 +52,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('tiktok') }}</span>
+    <span class="sr-only">{{ $i18n.t('tiktok') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -69,7 +70,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('reddit') }}</span>
+    <span class="sr-only">{{ $i18n.t('reddit') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -87,7 +88,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('youtube') }}</span>
+    <span class="sr-only">{{ $i18n.t('youtube') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -105,7 +106,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('pinterest') }}</span>
+    <span class="sr-only">{{ $i18n.t('pinterest') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -123,7 +124,7 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('facebook') }}</span>
+    <span class="sr-only">{{ $i18n.t('facebook') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -141,6 +142,6 @@ const config = useRuntimeConfig()
         dark:text-secondary-dark
       "
     />
-    <span class="sr-only">{{ $t('discord') }}</span>
+    <span class="sr-only">{{ $i18n.t('discord') }}</span>
   </UButton>
 </template>

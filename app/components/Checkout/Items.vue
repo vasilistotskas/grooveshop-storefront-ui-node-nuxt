@@ -2,7 +2,8 @@
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 
-const { locale } = useI18n()
+const { locale, n } = useI18n()
+const { $i18n } = useNuxtApp()
 </script>
 
 <template>
@@ -15,7 +16,7 @@ const { locale } = useI18n()
           dark:text-primary-50
         "
       >
-        {{ $t('items') }}
+        {{ $i18n.t('items') }}
       </h3>
     </div>
     <ClientOnly>
@@ -50,17 +51,15 @@ const { locale } = useI18n()
               </Anchor>
             </div>
             <div class="flex items-center">
-              <I18nN
-                v-if="item.finalPrice"
-                tag="span"
-                class="
-                  text-primary-950 text-sm
+              <span
+                v-if="item.finalPrice" class="
+                                text-primary-950 text-sm
 
                   dark:text-primary-50
-                "
-                format="currency"
-                :value="item.finalPrice"
-              />
+              "
+              >
+                {{ n(item.finalPrice, 'currency') }}
+              </span>
             </div>
             <div class="flex items-center">
               <span
@@ -82,16 +81,15 @@ const { locale } = useI18n()
                   dark:text-primary-50
                 "
               >
-                <I18nN
-                  tag="span"
+                <span
                   class="
                     text-primary-950 text-sm
 
                     dark:text-primary-50
-                  "
-                  format="currency"
-                  :value="item.finalPrice * item.quantity"
-                />
+              "
+                >
+                  {{ n(item.finalPrice * item.quantity, 'currency') }}
+                </span>
               </span>
             </div>
           </div>

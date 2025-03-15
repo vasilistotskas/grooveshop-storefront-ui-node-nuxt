@@ -3,6 +3,7 @@ import * as z from 'zod'
 
 const { t } = useI18n()
 const toast = useToast()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -38,7 +39,7 @@ const formSchema: DynamicFormSchema = {
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).min(2),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).min(2),
       autocomplete: 'name',
       readonly: false,
       required: true,
@@ -49,7 +50,7 @@ const formSchema: DynamicFormSchema = {
       label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: t('validation.required') }).email(t('validation.email.valid')),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
@@ -60,7 +61,7 @@ const formSchema: DynamicFormSchema = {
       label: t('message'),
       name: 'message',
       as: 'textarea',
-      rules: z.string({ required_error: t('validation.required') }).min(10),
+      rules: z.string({ required_error: $i18n.t('validation.required') }).min(10),
       autocomplete: 'message',
       readonly: false,
       required: true,
@@ -74,7 +75,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <section class="container-3xs">
     <DynamicForm
-      :button-label="t('submit')"
+      :button-label="$i18n.t('submit')"
       :loading="loading"
       :schema="formSchema"
       class="grid"

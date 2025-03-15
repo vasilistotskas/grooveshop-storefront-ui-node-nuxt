@@ -23,7 +23,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const attrs = useAttrs()
 
+const hasError = ref(false)
+
 const mainImageProps = computed(() => {
+  const { fallback, src, ...restProps } = props
+  return { ...attrs, ...restProps }
+})
+
+const fallbackImageProps = computed(() => {
   const { fallback, src, ...restProps } = props
   return { ...attrs, ...restProps }
 })
@@ -33,17 +40,24 @@ const imgSrc = computed(() => {
   return props.src
 })
 
-const getFallbackImageProps = computed(() => {
-  const { fallback, src, ...restProps } = props
-  return { ...attrs, ...restProps }
-})
-
-const hasError = ref(false)
-
 const handleError = (error: any) => {
+  console.debug('Image error:', error)
   emit('error', error)
   hasError.value = true
 }
+
+const provider = computed(() => {
+  if (!props.src) {
+    return 'ipx'
+  }
+  if (mainImageProps.value?.provider !== undefined && mainImageProps.value.provider !== '') {
+    return mainImageProps.value.provider
+  }
+  if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('static/images')) {
+    return 'mediaStream'
+  }
+  return 'ipx'
+})
 </script>
 
 <template>
@@ -51,14 +65,13 @@ const handleError = (error: any) => {
     v-if="!hasError || !fallback"
     v-bind="mainImageProps"
     :src="imgSrc"
-    :provider="!props.src ? 'ipx' : mainImageProps.provider"
+    :provider="provider"
     @error="handleError"
     @load="emit('load', $event)"
   />
-
   <NuxtImg
     v-else
-    v-bind="getFallbackImageProps"
+    v-bind="fallbackImageProps"
     :src="fallback"
     alt="fallback"
     provider="ipx"

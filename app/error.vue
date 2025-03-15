@@ -21,11 +21,11 @@ const ogImageOptions = reactive({
 })
 
 useSeoMeta({
-  title: t('page.title'),
+  title: t('error.page.title'),
 })
 
 useHead({
-  title: t('page.title'),
+  title: t('error.page.title'),
 })
 
 defineOgImage(ogImageOptions)
@@ -108,8 +108,10 @@ defineOgImage(ogImageOptions)
 el:
   home: Πίσω στην Αρχική
   hmmm: Χμμμ
+  error:
+    page:
+      title: Σφαλμα 404
   page:
-    title: 404
     not:
       found: H αράχνη δεν μπόρεσε να βρει την σελίδα που ψάχνεις.
   go:

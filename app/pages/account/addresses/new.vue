@@ -7,6 +7,7 @@ const { user } = useUserSession()
 const localePath = useLocalePath()
 const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
+const { $i18n } = useNuxtApp()
 
 const UTextarea = resolveComponent('UTextarea')
 const USelect = resolveComponent('USelect')
@@ -14,20 +15,20 @@ const USelect = resolveComponent('USelect')
 const regions = ref<Pagination<Region> | null>(null)
 
 const ZodUserAddress = z.object({
-  title: z.string({ required_error: t('validation.required') }),
-  firstName: z.string({ required_error: t('validation.required') }),
-  lastName: z.string({ required_error: t('validation.required') }),
-  street: z.string({ required_error: t('validation.required') }),
-  streetNumber: z.string({ required_error: t('validation.required') }),
-  city: z.string({ required_error: t('validation.required') }),
-  zipcode: z.string({ required_error: t('validation.required') }),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: t('validation.required') })]).optional(),
+  title: z.string({ required_error: $i18n.t('validation.required') }),
+  firstName: z.string({ required_error: $i18n.t('validation.required') }),
+  lastName: z.string({ required_error: $i18n.t('validation.required') }),
+  street: z.string({ required_error: $i18n.t('validation.required') }),
+  streetNumber: z.string({ required_error: $i18n.t('validation.required') }),
+  city: z.string({ required_error: $i18n.t('validation.required') }),
+  zipcode: z.string({ required_error: $i18n.t('validation.required') }),
+  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: $i18n.t('validation.required') })]).optional(),
   locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: t('validation.required') })])
+    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: $i18n.t('validation.required') })])
     .optional(),
-  phone: z.string({ required_error: t('validation.required') }).optional(),
-  mobilePhone: z.string({ required_error: t('validation.required') }).optional(),
-  notes: z.string({ required_error: t('validation.required') }).optional(),
+  phone: z.string({ required_error: $i18n.t('validation.required') }).optional(),
+  mobilePhone: z.string({ required_error: $i18n.t('validation.required') }).optional(),
+  notes: z.string({ required_error: $i18n.t('validation.required') }).optional(),
   isMain: z.boolean().optional(),
   user: z.union([z.number(), ZodUserAccount]).optional(),
   country: z

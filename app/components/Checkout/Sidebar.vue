@@ -6,7 +6,7 @@ const props = defineProps({
 const cartStore = useCartStore()
 const { cart, getCartItems } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
-const { t } = useI18n({ useScope: 'local' })
+const { t, n } = useI18n({ useScope: 'local' })
 
 const payWayCost = computed(() => {
   if (!payWay?.value?.freeForOrderAmount) return 0
@@ -83,16 +83,15 @@ defineSlots<{
               </span>
             </div>
             <div class="grid">
-              <I18nN
-                tag="span"
+              <span
                 class="
                   text-primary-950 font-bold
 
                   dark:text-primary-50
                 "
-                format="currency"
-                :value="shippingPrice"
-              />
+              >
+                {{ n(shippingPrice, 'currency') }}
+              </span>
             </div>
           </div>
           <div
@@ -111,16 +110,15 @@ defineSlots<{
               </span>
             </div>
             <div class="grid">
-              <I18nN
-                tag="span"
+              <span
                 class="
                   text-primary-950 font-bold
 
                   dark:text-primary-50
                 "
-                format="currency"
-                :value="payWayCost"
-              />
+              >
+                {{ n(payWayCost, 'currency') }}
+              </span>
             </div>
           </div>
           <div class="flex gap-1">
@@ -136,16 +134,15 @@ defineSlots<{
               </span>
             </div>
             <div class="grid">
-              <I18nN
-                tag="span"
+              <span
                 class="
                   text-primary-950 font-bold
 
                   dark:text-primary-50
                 "
-                format="currency"
-                :value="checkoutTotal"
-              />
+              >
+                {{ n(checkoutTotal, 'currency') }}
+              </span>
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ const {
 const toast = useToast()
 const { locale, t } = useI18n()
 const { contentShorten } = useText()
+const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -50,7 +51,7 @@ const columns = [{
   label: t('user_agent'),
 }, {
   key: 'created_at',
-  label: t('ordering.created_at'),
+  label: $i18n.t('ordering.created_at'),
 }, {
   key: 'actions',
 }]
@@ -70,7 +71,7 @@ const rows = computed(() => {
 const actionItems = (session: Session) => {
   const items: DropdownItem[] = []
   items.push({
-    label: t('logout'),
+    label: $i18n.t('logout'),
     icon: 'i-heroicons-trash-20-solid',
     click: () => {
       logout([session])
@@ -136,7 +137,7 @@ const actionItems = (session: Session) => {
           variant="solid"
           @click="logout(otherSessions)"
         >
-          {{ $t('logout_all_other_sessions') }}
+          {{ $i18n.t('logout_all_other_sessions') }}
         </UButton>
       </div>
     </div>

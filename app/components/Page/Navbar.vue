@@ -10,6 +10,7 @@ const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 const { enabled } = useAuthPreviewMode()
+const { $i18n } = useNuxtApp()
 
 const searchBarFocused = useState<boolean>('searchBarFocused', () => false)
 
@@ -38,19 +39,19 @@ const items = computed(() => [
   ],
   [
     {
-      label: t('account'),
+      label: $i18n.t('account'),
       icon: 'i-heroicons-user',
       click: async () => await navigateTo(localePath('account')),
     },
     {
-      label: t('settings'),
+      label: $i18n.t('settings'),
       icon: 'i-heroicons-cog-8-tooth',
       click: async () => await navigateTo(localePath('account-settings')),
     },
   ],
   [
     {
-      label: t('logout'),
+      label: $i18n.t('logout'),
       icon: 'i-heroicons-arrow-left-on-rectangle',
       click: async () => await onClickLogout(),
     },
@@ -88,8 +89,8 @@ const items = computed(() => [
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
-                    :text="$t('shop')"
-                    :title="$t('shop')"
+                    :text="$i18n.t('shop')"
+                    :title="$i18n.t('shop')"
                     :to="'products'"
                     class="
                       text-lg capitalize
@@ -97,15 +98,15 @@ const items = computed(() => [
                       hover:dark:text-primary-50
                     "
                   >
-                    {{ $t('shop') }}
+                    {{ $i18n.t('shop') }}
                   </Anchor>
                 </h2>
               </li>
               <li class="flex w-full gap-4">
                 <h2>
                   <Anchor
-                    :text="$t('blog')"
-                    :title="$t('blog')"
+                    :text="$i18n.t('blog')"
+                    :title="$i18n.t('blog')"
                     :to="'blog'"
                     class="
                       text-lg capitalize
@@ -113,7 +114,7 @@ const items = computed(() => [
                       hover:dark:text-primary-50
                     "
                   >
-                    {{ $t('blog') }}
+                    {{ $i18n.t('blog') }}
                   </Anchor>
                 </h2>
               </li>
@@ -140,7 +141,7 @@ const items = computed(() => [
               "
             >
               <UButton
-                :aria-label="$t('favourites')"
+                :aria-label="$i18n.t('favourites')"
                 :to="localePath('account-favourites-posts')"
                 class="p-0"
                 color="black"
@@ -237,7 +238,7 @@ const items = computed(() => [
 
                 <template #account="{ item }">
                   <div class="text-left">
-                    <p>{{ $t('signed_in_as') }}</p>
+                    <p>{{ $i18n.t('signed_in_as') }}</p>
                     <p
                       class="
                         text-primary-900 truncate font-medium
@@ -270,7 +271,7 @@ const items = computed(() => [
               "
             >
               <Anchor
-                :title="loggedIn ? $t('account') : $t('login')"
+                :title="loggedIn ? $i18n.t('account') : $i18n.t('login')"
                 :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
                 class="
                   flex size-[30px] items-center self-center text-[1.5rem]

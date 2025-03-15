@@ -12,6 +12,6 @@ export default defineEventHandler((event) => {
   const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 
   if (process.env.NODE_ENV !== 'production') {
-    console.info(`[${timestamp}] New request: ${requestUrl}`)
+    console.debug(`[${timestamp}] New request: ${requestUrl}`)
   }
 })

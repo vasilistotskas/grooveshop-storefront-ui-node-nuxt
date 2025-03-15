@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const { locale } = useI18n()
 const route = useRoute()
+const { $i18n } = useNuxtApp()
 
 const { data: categories, status } = await useLazyFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
   key: `blogCategories`,
@@ -71,7 +72,7 @@ onMounted(() => {
         "
       >
         <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
-          {{ $t('categories') }}
+          {{ $i18n.t('categories') }}
           <span
             class="
               text-primary-950 text-sm font-normal
@@ -123,7 +124,7 @@ onMounted(() => {
             dark:text-primary-50
           "
         >
-          {{ $t('no_categories_found') }}
+          {{ $i18n.t('no_categories_found') }}
         </p>
       </div>
     </div>

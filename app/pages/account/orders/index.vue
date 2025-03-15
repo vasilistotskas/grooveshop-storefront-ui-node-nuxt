@@ -2,6 +2,8 @@
 const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { user } = useUserSession()
+const { $i18n } = useNuxtApp()
+const localePath = useLocalePath()
 
 const pageSize = ref(8)
 const pending = ref(true)
@@ -16,17 +18,17 @@ const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
   },
   {
     value: 'createdAt',
-    label: t('ordering.created_at'),
+    label: $i18n.t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: t('ordering.updated_at'),
+    label: $i18n.t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
 
-const { data: orders } = await useFetch<Pagination<Order>>(
+const { data: orders, status, error } = await useFetch<Pagination<Order>>(
   `/api/user/account/${user.value?.id}/orders`,
   {
     key: `userOrders${user.value?.id}`,
@@ -47,7 +49,7 @@ const { data: orders } = await useFetch<Pagination<Order>>(
 )
 
 const refreshOrders = async () => {
-  pending.value = true
+  status.value = 'pending'
   const orders = await $fetch<Pagination<Order>>(`/api/user/account/${user.value?.id}/orders`, {
     method: 'GET',
     headers: useRequestHeaders(),
@@ -57,12 +59,12 @@ const refreshOrders = async () => {
       pageSize: pageSize.value,
     },
   })
-  pending.value = false
+  status.value = 'success'
   return orders
 }
 
 const pagination = computed(() => {
-  if (!orders.value) return
+  if (!orders.value?.count) return
   return usePagination<Order>(orders.value)
 })
 
@@ -93,7 +95,7 @@ definePageMeta({
     <PageTitle :text="t('title')" />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
-      <LazyPaginationPageNumber
+      <PaginationPageNumber
         v-if="pagination"
         :count="pagination.count"
         :page="pagination.page"
@@ -105,21 +107,48 @@ definePageMeta({
       />
     </div>
     <LazyOrderList
-      v-if="!pending && orders?.results?.length"
+      v-if="status !== 'pending' && orders?.count"
       :orders="orders?.results"
       :orders-total="orders?.count"
     />
     <ClientOnlyFallback
-      v-if="pending"
+      v-else-if="status === 'pending'"
       class="
           grid gap-2
 
           md:gap-4
         "
-      :count="orders?.results?.length || 4"
+      :count="orders?.count || 4"
       height="202px"
       width="100%"
     />
+    <Error v-else-if="error" :error="error" />
+    <LazyEmptyState
+      v-else-if="!orders?.count"
+      class="w-full"
+      :title="t('empty.title')"
+    >
+      <template
+        #icon
+      >
+        <UIcon
+          name="i-mdi-package-variant-closed"
+          size="xl"
+        />
+      </template>
+      <template
+        #actions
+      >
+        <UButton
+          :label="$i18n.t('empty.description')"
+          :to="localePath('index')"
+          class="font-semibold"
+          color="secondary"
+          size="xl"
+          type="button"
+        />
+      </template>
+    </LazyEmptyState>
   </PageWrapper>
 </template>
 
