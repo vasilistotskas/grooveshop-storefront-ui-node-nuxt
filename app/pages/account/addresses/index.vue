@@ -3,7 +3,6 @@ const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
-const localePath = useLocalePath()
 
 const pageSize = ref(8)
 const page = computed(() => route.query.page)

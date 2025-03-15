@@ -98,7 +98,6 @@ const {
 )
 
 const pagination = computed(() => {
-  console.debug('===== comments.value', comments.value)
   if (!comments.value?.count) return
   return usePagination<BlogComment>(comments.value)
 })
