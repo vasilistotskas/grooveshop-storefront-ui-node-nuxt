@@ -6,11 +6,7 @@ export default defineNitroPlugin(async () => {
   const storage = useStorage()
   const config = useRuntimeConfig()
 
-  const redisConfig = config.redis as {
-    host: string
-    port: string
-    ttl: string
-  }
+  const redisConfig = config.redis
 
   let driver
 
