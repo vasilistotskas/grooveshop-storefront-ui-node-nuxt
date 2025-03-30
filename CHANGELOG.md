@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.270.0...v2.0.0) (2025-03-30)
+
+
+### Performance Improvements
+
+* Introduce NuxtUI v3 and Tailwind 4 ([c661776](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c6617769bd6f456841fa4da9e067910e590c3f95))
+
+
+### BREAKING CHANGES
+
+* Node.js version updated to 23.10.0
+
 # [1.270.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v1.269.0...v1.270.0) (2025-03-15)
 
 
