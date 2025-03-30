@@ -113,7 +113,7 @@ const incrementQuantity = () => {
   else {
     toast.add({
       title: t('max_quantity_reached'),
-      color: 'red',
+      color: 'error',
     })
   }
 }
@@ -153,7 +153,7 @@ const openModal = () => {
   else {
     toast.add({
       title: t('must_be_logged_in'),
-      color: 'red',
+      color: 'error',
     })
   }
 }
@@ -165,7 +165,7 @@ const reviewButtonText = computed(() => {
   return t('write_review')
 })
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -196,7 +196,7 @@ watch(selectorQuantity, (newValue) => {
       title: t('adjusted_to_stock', {
         stock: maxQuantity,
       }),
-      color: 'blue',
+      color: 'info',
     })
   }
   else if (newValue < 1) {
@@ -228,7 +228,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container">
+  <PageWrapper>
     <div
       v-if="product"
       class="
@@ -249,10 +249,10 @@ definePageMeta({
           "
       >
         <UBreadcrumb
-          :links="links"
+          :items="items"
           :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
+            item: 'text-primary-950 dark:text-primary-50',
+            root: 'text-xs md:text-md',
           }"
           class="mb-5"
         />
@@ -311,7 +311,7 @@ definePageMeta({
                   :disabled="!isSupported"
                   :title="$i18n.t('share')"
                   class="font-extrabold capitalize"
-                  color="primary"
+                  color="neutral"
                   icon="i-heroicons-share"
                   size="lg"
                   square
@@ -333,7 +333,7 @@ definePageMeta({
 
                       hover:dark:text-primary-50
                     "
-                  color="primary"
+                  color="neutral"
                   size="lg"
                   @click="openModal"
                 />
@@ -411,7 +411,7 @@ definePageMeta({
                     id="decrement-button"
                     :aria-label="$i18n.t('decrement')"
                     :title="$i18n.t('decrement')"
-                    color="primary"
+                    color="neutral"
                     icon="i-heroicons-minus"
                     size="xl"
                     @click="decrementQuantity"
@@ -439,7 +439,7 @@ definePageMeta({
                     id="increment-button"
                     :aria-label="$i18n.t('increment')"
                     :title="$i18n.t('increment')"
-                    color="primary"
+                    color="neutral"
                     icon="i-heroicons-plus"
                     size="xl"
                     @click="incrementQuantity"

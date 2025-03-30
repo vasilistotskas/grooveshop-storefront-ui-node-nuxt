@@ -24,8 +24,8 @@ async function onSubmit(values: TwoFaReauthenticateBody) {
     })
     session.value = response?.data
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('twoFaReauthenticate')
   }
@@ -43,7 +43,7 @@ const formSchema: DynamicFormSchema = {
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
-      placeholder: t('code'),
+      placeholder: $i18n.t('code'),
       type: 'text',
     },
   ],
@@ -53,7 +53,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "

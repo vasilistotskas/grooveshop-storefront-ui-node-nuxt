@@ -22,7 +22,7 @@ const { $i18n } = useNuxtApp()
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .demo-mode-message {
   grid-row: 2;
   grid-column: 1 / span 2;

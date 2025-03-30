@@ -75,5 +75,8 @@ const provider = computed(() => {
     :src="fallback"
     alt="fallback"
     provider="ipx"
+    :modifiers="{
+      fit: 'cover',
+    }"
   />
 </template>

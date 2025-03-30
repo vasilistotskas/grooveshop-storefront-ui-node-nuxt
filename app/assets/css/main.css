@@ -1,0 +1,20 @@
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+
+@theme {
+  --container-main: 74.625rem;
+  --container-8xl: 90rem;
+}
+
+:root {
+  --ui-bg: var(--ui-color-neutral-50);
+  --ui-secondary: #003DFF;
+
+  --ui-container: var(--container-8xl);
+}
+
+
+.dark {
+  --ui-bg: var(--ui-color-neutral-950);
+  --ui-secondary: #3364FF;
+}

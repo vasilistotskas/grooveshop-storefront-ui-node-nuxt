@@ -141,9 +141,9 @@ const fetchRegions = async () => {
   }
   catch {
     toast.add({
-      title: t('error.default'),
+      title: $i18n.t('error.default'),
       description: t('error_occurred'),
-      color: 'red',
+      color: 'error',
     })
   }
 }
@@ -195,14 +195,14 @@ const onSubmit = handleSubmit(async (values) => {
       }
       toast.add({
         title: t('success'),
-        color: 'green',
+        color: 'success',
       })
       await navigateTo(localePath('account-addresses'))
     },
     onResponseError() {
       toast.add({
         title: t('error'),
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -219,10 +219,10 @@ definePageMeta({
 
 <template>
   <PageWrapper class="grid gap-4">
-    <div class="justify-items grid grid-cols-auto-1fr items-center gap-4">
+    <div class="justify-items flex items-center gap-4">
       <UButton
         :to="localePath('account-addresses')"
-        color="primary"
+        color="neutral"
         icon="i-heroicons-arrow-left"
         size="sm"
         trailing
@@ -556,7 +556,7 @@ definePageMeta({
             :bind="floorProps"
             :options="floorChoicesList"
             :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-            color="white"
+            color="neutral"
             name="floor"
             option-attribute="name"
           />
@@ -580,7 +580,7 @@ definePageMeta({
             :as="USelect"
             :options="locationChoicesList"
             :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-            color="white"
+            color="neutral"
             name="locationType"
             option-attribute="name"
             v-bind="locationTypeProps"
@@ -615,7 +615,7 @@ definePageMeta({
               :as="USelect"
               :options="countryOptions"
               :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-              color="white"
+              color="neutral"
               name="country"
               option-attribute="name"
               v-bind="countryProps"
@@ -643,7 +643,7 @@ definePageMeta({
               :as="USelect"
               :options="regionOptions"
               :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-              color="white"
+              color="neutral"
               name="region"
               option-attribute="name"
               v-bind="regionProps"
@@ -678,7 +678,7 @@ definePageMeta({
             :as="UTextarea"
             :placeholder="t('form.notes')"
             :rows="4"
-            color="primary"
+            color="neutral"
             name="notes"
             type="text"
             v-bind="notesProps"
@@ -692,8 +692,6 @@ definePageMeta({
           :disabled="submitButtonDisabled"
           class="
               text-primary-50 rounded bg-secondary px-4 py-2 font-bold
-
-              dark:bg-secondary-dark
 
               disabled:cursor-not-allowed disabled:opacity-50
             "

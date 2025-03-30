@@ -12,7 +12,7 @@ const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -20,13 +20,13 @@ const links = computed(() => [
   },
   {
     to: localePath('account-login'),
-    label: $i18n.t('breadcrumb.items.account-login.label'),
-    icon: $i18n.t('breadcrumb.items.account-login.icon'),
+    label: t('breadcrumb.items.account-login.label'),
+    icon: t('breadcrumb.items.account-login.icon'),
   },
   {
     to: localePath('account-2fa-authenticate-webauthn'),
-    label: $i18n.t('breadcrumb.items.account-2fa-authenticate-webauthn.label'),
-    icon: $i18n.t('breadcrumb.items.account-2fa-authenticate-webauthn.icon'),
+    label: t('breadcrumb.items.account-2fa-authenticate-webauthn.label'),
+    icon: t('breadcrumb.items.account-2fa-authenticate-webauthn.icon'),
     current: true,
   },
 ])
@@ -55,7 +55,7 @@ async function onSubmit() {
     session.value = response?.data
     toast.add({
       title: $i18n.t('success.title'),
-      color: 'green',
+      color: 'success',
     })
     emit('getWebAuthnRequestOptionsForAuthentication')
     emit('authenticateUsingWebAuthn')
@@ -63,7 +63,7 @@ async function onSubmit() {
   catch {
     toast.add({
       title: $i18n.t('error.default'),
-      color: 'red',
+      color: 'error',
     })
   }
   finally {
@@ -79,18 +79,18 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 md:!p-0
+      max-w-(--container-2xl) mx-auto flex flex-col gap-4 md:!p-0
 
       md:gap-8
     "
   >
     <UBreadcrumb
-      :links="links"
+      :items="items"
       :ui="{
-        li: 'text-primary-950 dark:text-primary-50',
-        base: 'text-xs md:text-md',
+        item: 'text-primary-950 dark:text-primary-50',
+        root: 'text-xs md:text-md',
       }"
-      class="container-3xs relative mb-5 min-w-0"
+      class="relative mb-5 min-w-0"
     />
     <PageTitle
       :text="t('use.security.key')"
@@ -102,7 +102,7 @@ definePageMeta({
           :label="
             $i18n.t('submit')
           "
-          color="primary"
+          color="neutral"
           size="xl"
           :disabled="loading"
           @click="onSubmit"

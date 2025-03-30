@@ -24,7 +24,7 @@ const submit = async () => {
   if (address?.value && address?.value.isMain) {
     toast.add({
       title: t('cant_delete_main'),
-      color: 'red',
+      color: 'error',
     })
     return
   }
@@ -38,14 +38,14 @@ const submit = async () => {
       }
       toast.add({
         title: t('success'),
-        color: 'green',
+        color: 'success',
       })
       emit('address-delete', address?.value.id)
     },
     onResponseError() {
       toast.add({
         title: t('error'),
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -95,14 +95,14 @@ const submit = async () => {
           :to="localePath({ name: 'account-addresses-id-edit', params: { id: address.id } })"
           size="sm"
           :trailing="true"
-          color="primary"
+          color="neutral"
         />
         <UButton
           class="grid size-8 place-items-center rounded-full"
           icon="i-heroicons-trash"
           size="sm"
           :trailing="true"
-          color="rose"
+          color="error"
           @click="submit"
         />
       </div>

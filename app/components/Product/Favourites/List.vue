@@ -34,7 +34,7 @@ const { t } = useI18n({ useScope: 'local' })
         v-if="displayTotal"
         class="flex items-center justify-center gap-1"
       >
-        <span class="text-sm font-semibold text-secondary">
+        <span class="text-sm font-semibold">
           {{ t('total.count', favouritesTotal) }}
         </span>
       </div>

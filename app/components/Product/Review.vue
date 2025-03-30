@@ -232,22 +232,22 @@ const ZodReviewSchema = z.object({
   comment: z
     .string()
     .min(10, {
-      message: t('validation.min', {
+      message: $i18n.t('validation.min', {
         min: 10,
       }),
     })
     .max(1000, {
-      message: t('validation.max', {
+      message: $i18n.t('validation.max', {
         max: 1000,
       }),
     }),
   rate: z
     .number()
     .min(1, {
-      message: t('validation.min', { min: 1 }),
+      message: $i18n.t('validation.min', { min: 1 }),
     })
     .max(10, {
-      message: t('validation.min', { max: 10 }),
+      message: $i18n.t('validation.min', { max: 10 }),
     }),
 })
 
@@ -303,13 +303,13 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
       emit('add-existing-review', userProductReview?.value)
       toast.add({
         title: t('add.success'),
-        color: 'green',
+        color: 'success',
       })
     },
     onResponseError() {
       toast.add({
         title: t('add.error'),
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -342,13 +342,13 @@ const updateReviewEvent = async (event: { comment: string, rate: number }) => {
       emit('update-existing-review', userProductReview?.value)
       toast.add({
         title: t('update.success'),
-        color: 'green',
+        color: 'success',
       })
     },
     onResponseError() {
       toast.add({
         title: t('update.error'),
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -373,13 +373,13 @@ const deleteReviewEvent = async () => {
         await refresh()
         toast.add({
           title: t('delete.success'),
-          color: 'green',
+          color: 'success',
         })
       },
       onResponseError() {
         toast.add({
           title: t('delete.error'),
-          color: 'red',
+          color: 'error',
         })
       },
     })
@@ -387,7 +387,7 @@ const deleteReviewEvent = async () => {
   else {
     toast.add({
       title: t('must_be_logged_in'),
-      color: 'green',
+      color: 'success',
     })
   }
 }
@@ -404,13 +404,18 @@ const onSubmit = handleSubmit(async (event) => {
   else {
     toast.add({
       title: t('must_be_logged_in'),
-      color: 'red',
+      color: 'error',
     })
   }
   modalBus.emit(
     `modal-close-reviewModal-${user?.value?.id}-${product?.value?.id}`,
   )
 })
+
+const onReviewSubmit = (event: Event) => {
+  onSubmit(event)
+  event.preventDefault()
+}
 
 watch(
   () => liveReviewCount.value,
@@ -530,7 +535,7 @@ watch(
               :as="UTextarea"
               :placeholder="t('comment.placeholder')"
               :rows="6"
-              color="primary"
+              color="neutral"
               maxlength="10000"
               name="comment"
               type="text"
@@ -556,15 +561,15 @@ watch(
             :label="reviewButtonText"
             block
             class="review_footer-button"
-            color="primary"
+            color="neutral"
             size="lg"
-            @click.prevent="onSubmit"
+            @click="onReviewSubmit"
           />
           <UButton
             v-else
             :label="$i18n.t('validation.too_many_attempts')"
             block
-            color="primary"
+            color="neutral"
             disabled
             size="lg"
           />
@@ -578,7 +583,7 @@ watch(
             :trailing="true"
             block
             class="review_footer-button gap-2"
-            color="rose"
+            color="error"
             icon="i-heroicons-trash"
             size="lg"
             @click.prevent="deleteReviewEvent()"
@@ -589,130 +594,117 @@ watch(
   </LazyGenericModal>
 </template>
 
-<style lang="scss" scoped>
-.review {
-  &_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-
-    &-title {
-      font-size: 1.25rem;
-      font-weight: 500;
-      line-height: 1.2;
-      margin-bottom: 0;
-    }
-  }
-
-  &_body {
-    position: relative;
-    display: grid;
-
-    &-rating {
-      display: grid;
-      gap: 0.5rem;
-
-      &-title {
-        font-size: 1.25rem;
-        font-weight: 500;
-        line-height: 1.2;
-        margin-bottom: 0;
-      }
-
-      &-content {
-        position: relative;
-        display: grid;
-        grid-template-columns: auto 1fr;
-        align-items: center;
-      }
-
-      &-error {
-        color: #f56565;
-        font-size: 0.875rem;
-        font-weight: 400;
-      }
-    }
-
-    &-comment {
-      display: grid;
-      gap: 0.5rem;
-
-      &-title {
-        font-size: 1.25rem;
-        font-weight: 500;
-        line-height: 1.2;
-        margin-bottom: 0;
-      }
-
-      &-content {
-        position: relative;
-
-        &-textarea {
-          width: 100%;
-        }
-      }
-    }
-  }
-
-  &_footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-
-    &-content {
-      display: grid;
-      width: 100%;
-    }
-
-    &-button {
-      width: 100%;
-    }
-  }
+<style scoped>
+.review_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
-.rating {
-  align-items: center;
-  display: flex;
-  height: 26px;
+.review_header-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0;
+}
+
+.review_body {
   position: relative;
+  display: grid;
+}
 
-  &-background {
-    position: relative;
-    z-index: 1;
-  }
+.review_body-rating {
+  display: grid;
+  gap: 0.5rem;
+}
 
-  &-foreground {
-    pointer-events: none;
-    position: absolute;
-    z-index: 2;
-  }
+.review_body-rating-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0;
+}
 
-  &-board {
-    align-content: center;
-    align-items: center;
-    display: inline-flex;
-    flex-flow: row nowrap;
-    height: 26px;
-    justify-content: flex-start;
-    left: 0;
-    top: 0;
-  }
+.review_body-rating-content {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.review_body-rating-error {
+  color: #f56565;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.review_body-comment {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.review_body-comment-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0;
+}
+
+.review_body-comment-content {
+  position: relative;
+}
+
+.review_footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.review_footer-content {
+  display: grid;
+  width: 100%;
+}
+
+.review_footer-button {
+  width: 100%;
+}
+
+.rating-background {
+  position: relative;
+  z-index: 1;
+}
+
+.rating-foreground {
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.rating-board {
+  align-content: center;
+  align-items: center;
+  display: inline-flex;
+  flex-flow: row nowrap;
+  height: 26px;
+  justify-content: flex-start;
+  left: 0;
+  top: 0;
 }
 
 .star {
   cursor: pointer;
   height: 26px;
   width: 26px;
+}
 
-  &-foreground {
-    color: #f68b24;
-  }
+.star-foreground {
+  color: #f68b24;
+}
 
-  &-background {
-    color: #e2e8f0;
-  }
+.star-background {
+  color: #e2e8f0;
 }
 </style>
 

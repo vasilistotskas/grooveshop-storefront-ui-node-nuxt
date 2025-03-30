@@ -6,9 +6,7 @@ const { $i18n } = useNuxtApp()
 const { setupAuthenticators } = authStore
 const { totpAuthenticator, recoveryCodesAuthenticator } = storeToRefs(authStore)
 
-onReactivated(async () => {
-  await setupAuthenticators()
-})
+await setupAuthenticators()
 
 definePageMeta({
   layout: 'user',
@@ -18,7 +16,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -54,7 +52,7 @@ definePageMeta({
         <UButton
           :label="$i18n.t('deactivate')"
           :to="localePath('account-2fa-totp-deactivate')"
-          color="primary"
+          color="neutral"
           size="xl"
         />
       </div>
@@ -75,7 +73,7 @@ definePageMeta({
         <UButton
           :label="$i18n.t('activate')"
           :to="localePath('account-2fa-totp-activate')"
-          color="primary"
+          color="neutral"
           size="xl"
         />
       </div>
@@ -111,7 +109,7 @@ definePageMeta({
         <UButton
           :label="$i18n.t('generate')"
           :to="localePath('account-2fa-recovery-codes-generate')"
-          color="primary"
+          color="neutral"
           size="xl"
         />
       </div>
@@ -135,13 +133,13 @@ definePageMeta({
         <UButton
           :label="$i18n.t('view')"
           :to="localePath('account-2fa-recovery-codes')"
-          color="primary"
+          color="neutral"
           size="xl"
         />
         <UButton
           :label="$i18n.t('regenerate')"
           :to="localePath('account-2fa-recovery-codes-generate')"
-          color="primary"
+          color="neutral"
           size="xl"
         />
       </div>

@@ -76,11 +76,6 @@ const submitButtonLabel = computed(() => {
 <template>
   <UButton
     icon="i-heroicons-solid:lock-closed"
-    class="
-      text-white bg-secondary font-semibold
-
-      dark:bg-secondary-dark
-    "
     :aria-busy="loading"
     :disabled="submitButtonDisabled"
     :label="
@@ -90,6 +85,7 @@ const submitButtonLabel = computed(() => {
     size="lg"
     type="submit"
     variant="solid"
+    color="secondary"
     @click="onSubmit"
   />
 </template>

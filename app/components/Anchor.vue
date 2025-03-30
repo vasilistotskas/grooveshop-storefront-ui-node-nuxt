@@ -54,7 +54,7 @@ defineSlots<{
   </ULink>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 a {
   &.disabled {
     pointer-events: none;

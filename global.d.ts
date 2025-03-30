@@ -9,10 +9,6 @@ declare module 'vue' {
     $authState: Ref<AllAuthResponse>
     $websocket (): UseWebSocketReturn<any> | null
   }
-  interface GlobalComponents {
-    VDatePicker: (typeof import('v-calendar'))['DatePicker']
-    VCalendar: (typeof import('v-calendar'))['Calendar']
-  }
 }
 
 declare module '#app' {

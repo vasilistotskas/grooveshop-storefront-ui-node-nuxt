@@ -34,11 +34,11 @@ definePageMeta({
         md:flex md:justify-between
       "
     >
-      <div class="grid grid-cols-auto-1fr items-center gap-4">
+      <div class="flex items-center gap-4">
         <UButton
           :to="localePath('account-orders')"
           :trailing="true"
-          color="primary"
+          color="neutral"
           icon="i-heroicons-arrow-left"
           size="sm"
         >

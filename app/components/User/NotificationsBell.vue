@@ -88,7 +88,7 @@ onClickOutside(dropdown, () => {
     <UChip
       :key="'notifications'"
       size="md"
-      color="green"
+      color="success"
       :show="show"
     >
       <UButton
@@ -96,9 +96,13 @@ onClickOutside(dropdown, () => {
         class="p-0"
         :icon="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
         size="xl"
-        :color="'primary'"
+        color="neutral"
+        variant="ghost"
         :aria-label="$i18n.t('notifications.title')"
         :title="$i18n.t('notifications.title')"
+        :ui="{
+          base: 'cursor-pointer hover:bg-transparent',
+        }"
         @click="toggleDropdown"
       />
     </UChip>
@@ -108,9 +112,9 @@ onClickOutside(dropdown, () => {
         ref="dropdown"
         class="
           bg-primary-50 absolute right-0 top-12 w-80 rounded-lg border
-          border-gray-200 shadow-md
+          border-neutral-200 shadow-md
 
-          dark:bg-primary-900 dark:border-gray-800
+          dark:bg-primary-900 dark:border-neutral-800
 
           lg:-right-12
 
@@ -119,7 +123,7 @@ onClickOutside(dropdown, () => {
       >
         <div class="notifications-list relative grid gap-2 p-2">
           <template v-if="!pending && userNotifications?.length">
-            <UNotification
+            <UToast
               v-for="userNotification in userNotifications"
               :id="userNotification.id"
               :key="userNotification.uuid"
@@ -137,28 +141,7 @@ onClickOutside(dropdown, () => {
               :description="extractTranslated(userNotification.notification, 'message', locale)"
               :title="extractTranslated(userNotification.notification, 'title', locale)"
               @click="onNotificationClick(userNotification.id)"
-            >
-              <template #title="{ title }">
-                <div class="relative w-full">
-                  <UChip
-                    :id="`notification-${userNotification.notification?.id}`"
-                    :key="`notification-${userNotification.notification?.id}`"
-                    class="w-full"
-                    size="md"
-                    color="green"
-                    :show="true"
-                    :ui="{
-                      wrapper: 'justify-start',
-                    }"
-                  >
-                    <span class="notification-title truncate text-sm" v-html="title" />
-                  </UChip>
-                </div>
-              </template>
-              <template #description="{ description }">
-                <span class="notification-description text-xs" v-html="description" />
-              </template>
-            </UNotification>
+            />
           </template>
           <template v-else-if="pending">
             <ClientOnlyFallback
@@ -184,7 +167,7 @@ onClickOutside(dropdown, () => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;
@@ -205,7 +188,6 @@ onClickOutside(dropdown, () => {
     margin-left: -10px;
     border-width: 10px;
     right: 3px;
-    @apply border-b-gray-200 dark:border-b-gray-800;
     @media screen and (min-width: 1024px) {
       right: 49px;
       margin-left: -12px;
@@ -222,7 +204,6 @@ onClickOutside(dropdown, () => {
     margin-left: -8px;
     border-width: 8px;
     right: 5.5px;
-    @apply border-b-primary-50 dark:border-b-primary-900;
     @media screen and (min-width: 1024px) {
       right: 51.5px;
       margin-left: -10px;
@@ -232,7 +213,7 @@ onClickOutside(dropdown, () => {
 }
 </style>
 
-<style lang="scss">
+<style>
 .notification-title, .notification-description {
   a {
     text-decoration: underline;

@@ -22,7 +22,7 @@ const highlighted = ref<string | undefined>(undefined)
 const initialPage = parseInt(route.query.page as string) || 1
 const currentPage = ref(initialPage)
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -186,13 +186,13 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col gap-10 p-0">
+  <PageWrapper class="container flex flex-col gap-10">
     <PageTitle
       :text="t('title')"
       class="hidden text-center"
     />
 
-    <div class="mt-10 grid">
+    <div class="mt-8 grid">
       <div
         v-focus
         class="
@@ -203,7 +203,7 @@ definePageMeta({
 
             lg:top-[63px]
 
-            md:top-[56px] md:p-[12px]
+            md:top-[58px] md:p-[14px]
           "
       >
         <div
@@ -252,15 +252,15 @@ definePageMeta({
           />
         </div>
       </div>
-      <div class="container-xs grid gap-4">
+      <div class="container mx-auto grid gap-4">
         <UBreadcrumb
-          :links="links"
+          :items="items"
           :ui="{
-            li: 'text-primary-950 dark:text-primary-50',
-            base: 'text-xs md:text-md',
+            item: 'text-primary-950 dark:text-primary-50',
+            root: 'text-xs md:text-md',
           }"
           class="
-              !p-0 container-xs relative mt-5 min-w-0
+              !p-0 container mx-auto relative mt-5 min-w-0
 
               md:mb-5
             "
@@ -277,41 +277,13 @@ definePageMeta({
         <div class="grid gap-4">
           <UPagination
             v-show="hasResults"
-            v-model="currentPage"
-            :active-button="{
-              color: 'secondary',
-            }"
-            :inactive-button="{
-              color: 'primary',
-            }"
-            :first-button="{
-              icon: 'i-heroicons-arrow-long-left-20-solid',
-              label: !isMobileOrTablet ? $i18n.t('first') : undefined,
-              color: 'primary',
-            }"
-            :last-button="{
-              icon: 'i-heroicons-arrow-long-right-20-solid',
-              trailing: true,
-              label: !isMobileOrTablet ? $i18n.t('last') : undefined,
-              color: 'primary',
-            }"
-            :prev-button="{
-              icon: 'i-heroicons-arrow-small-left-20-solid',
-              label: !isMobileOrTablet ? $i18n.t('prev') : undefined,
-              color: 'primary',
-            }"
-            :next-button="{
-              icon: 'i-heroicons-arrow-small-right-20-solid',
-              trailing: true,
-              label: !isMobileOrTablet ? $i18n.t('next') : undefined,
-              color: 'primary',
-            }"
+            v-model:page="currentPage"
             :total="total"
             :max="max"
             :disabled="!hasResults || status === 'pending'"
             :size="size"
-            show-first
-            show-last
+            color="neutral"
+            show-edges
           />
           <SearchAutoComplete
             v-if="results"

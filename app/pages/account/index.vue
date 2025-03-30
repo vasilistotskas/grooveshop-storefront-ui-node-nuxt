@@ -12,7 +12,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -48,6 +48,7 @@ definePageMeta({
             v-if="item.route && item.type === 'link'"
             :to="item.route"
             :text="item.text"
+            class="flex items-center gap-2"
           >
             <LazyUIcon
               v-if="item.icon"
@@ -67,7 +68,7 @@ definePageMeta({
                   md:text-lg
                 "
               :class="{
-                'font-extrabold text-secondary dark:text-secondary-dark':
+                'font-extrabold ':
                   route.path === item.route?.path,
               }"
             >
@@ -86,7 +87,6 @@ definePageMeta({
           <LogoutButton
             class="!m-0 ml-2 !p-0"
             variant="link"
-            color="white"
             size="xl"
           />
         </li>

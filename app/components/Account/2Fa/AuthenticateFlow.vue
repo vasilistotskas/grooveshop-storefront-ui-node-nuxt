@@ -93,7 +93,7 @@ const filteredFlows = computed(() => {
               query: { next },
             })"
             class="p-0"
-            color="black"
+            color="neutral"
             :disabled="isCurrentPath(f.path)"
             icon="i-heroicons-arrow-right"
             size="xl"

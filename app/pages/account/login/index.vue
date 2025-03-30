@@ -4,7 +4,7 @@ const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const { $i18n } = useNuxtApp()
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -34,7 +34,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      !mt-0 flex flex-col gap-0
+      !mt-0 flex flex-col gap-0 p-0
 
       md:!mt-4
     "
@@ -45,25 +45,24 @@ definePageMeta({
     />
 
     <UBreadcrumb
-      :links="links"
+      :items="items"
       :ui="{
-        li: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
-        base: 'text-xs md:text-md',
+        item: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
+        root: 'text-xs md:text-md',
       }"
       class="
-          absolute z-10 container-3xs bg-transparent !pt-2
+          absolute z-10 max-w-(--container-xl) w-auto mx-auto bg-transparent !pt-2 !px-4
 
           dark:bg-transparent
 
-          md:relative md:mb-5 md:!pt-0
+          md:relative md:mb-5 md:!pt-0 md:w-full
         "
     />
     <UCard
-      class="container-3xs !p-0"
+      class="max-w-(--container-xl) w-full mx-auto !p-0"
       :ui="{
-        body: {
-          padding: isMobileOrTablet? '' : 'px-4 py-5 sm:p-6',
-        },
+        root: isMobileOrTablet? 'rounded-none ring-0' : '',
+        body: isMobileOrTablet? 'p-0' : 'px-4 py-5 sm:p-6',
       }"
     >
       <AccountLoginForm />

@@ -3,7 +3,7 @@ const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -26,13 +26,13 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-sm flex flex-col">
-    <div class="container-sm !p-0">
+  <PageWrapper class="flex flex-col">
+    <div class="max-w-(--container-main) mx-auto w-full !p-0">
       <UBreadcrumb
-        :links="links"
+        :items="items"
         :ui="{
-          li: 'text-primary-950 dark:text-primary-50',
-          base: 'text-xs md:text-md',
+          item: 'text-primary-950 dark:text-primary-50',
+          root: 'text-xs md:text-md',
         }"
         class="
             mb-5
@@ -41,7 +41,7 @@ definePageMeta({
           "
       />
     </div>
-    <BlogCategoriesList />
+    <BlogCategoriesList class="max-w-(--container-main) mx-auto" />
   </PageWrapper>
 </template>
 

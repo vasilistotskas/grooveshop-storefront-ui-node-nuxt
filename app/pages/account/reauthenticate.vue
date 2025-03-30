@@ -23,8 +23,8 @@ async function onSubmit(values: ReauthenticateBody) {
       password: values.password,
     })
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('reauthenticate')
   }
@@ -42,7 +42,7 @@ const formSchema: DynamicFormSchema = {
       autocomplete: 'current-password',
       readonly: false,
       required: true,
-      placeholder: t('password.title'),
+      placeholder: $i18n.t('password.title'),
       type: 'password',
     },
   ],
@@ -56,7 +56,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "

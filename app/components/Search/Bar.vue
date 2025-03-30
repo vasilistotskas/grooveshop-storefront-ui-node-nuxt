@@ -234,25 +234,11 @@ onClickOutside(autocomplete, () => {
 
           md:max-w-[calc(100%-10rem)]
         "
-        size="xs"
-        color="white"
+        color="secondary"
         :name="$i18n.t('search.title')"
         :trailing="false"
-        :placeholder="$i18n.t('search.title')"
-        :aria-label="$i18n.t('search.title')"
-        :ui="{
-          icon: {
-            trailing: {
-              pointer: '',
-            },
-          },
-          color: {
-            white: {
-              outline: 'shadow-sm bg-white dark:bg-gray-900 text-gray-900 '
-                + 'dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400',
-            },
-          },
-        }"
+        :placeholder="$i18n.t('search.title') + '...'"
+        :aria-label="$i18n.t('search.title') + '...'"
         @focus="searchFocus"
         @blur="searchBlur"
         @keydown="onKeyDown"
@@ -263,10 +249,13 @@ onClickOutside(autocomplete, () => {
             type="button"
             icon="i-heroicons-magnifying-glass-20-solid"
             size="sm"
-            color="white"
+            color="neutral"
             variant="ghost"
             :padded="false"
             :aria-label="$i18n.t('search.title')"
+            :ui="{
+              base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer',
+            }"
             @click="searchGo(false)"
           />
         </template>

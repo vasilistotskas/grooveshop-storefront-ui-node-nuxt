@@ -1,4 +1,4 @@
-FROM node:23.7.0-alpine AS development
+FROM node:23.10.0-alpine AS development
 
 # Copy the entrypoint script into the container
 COPY ./grooveshop-storefront-ui-node-nuxt/docker/docker_entrypoint.sh /app/docker_entrypoint.sh

@@ -38,12 +38,15 @@ const icon = computed(() => colorMode.value === 'dark' ? modes[0].icon : modes[1
       type="button"
       size="xl"
       class="p-0"
-      color="black"
+      color="neutral"
       variant="ghost"
       :title="$i18n.t('theme')"
       :aria-label="$i18n.t('theme')"
       :aria-pressed="colorMode.preference === mode ? 'true' : 'false'"
       :icon="icon"
+      :ui="{
+        base: 'cursor-pointer hover:bg-transparent',
+      }"
       @click="isDark = !isDark"
     />
     <template #fallback>

@@ -29,8 +29,16 @@ await useAsyncData<PasswordResetGetResponse>(
 
 const ZodPasswordResetConfirm = z
   .object({
-    newPassword1: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
-    newPassword2: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+    newPassword1: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
+      message: $i18n.t('validation.min', {
+        min: 8,
+      }),
+    }).max(255),
+    newPassword2: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
+      message: $i18n.t('validation.min', {
+        min: 8,
+      }),
+    }).max(255),
     key: z.string({ required_error: $i18n.t('validation.required') }),
   })
   .refine(data => data.newPassword1 === data.newPassword2, {
@@ -68,7 +76,7 @@ const onSubmit = handleSubmit(async (values) => {
     })
     toast.add({
       title: t('password.reset.success'),
-      color: 'green',
+      color: 'success',
     })
     emit('passwordReset')
   }
@@ -77,7 +85,7 @@ const onSubmit = handleSubmit(async (values) => {
       if (error.data.data.status === 401) {
         toast.add({
           title: t('password.reset.success'),
-          color: 'green',
+          color: 'success',
         })
         return navigateTo(localePath('account-login'))
       }
@@ -85,14 +93,14 @@ const onSubmit = handleSubmit(async (values) => {
       errors.forEach((error) => {
         toast.add({
           title: error.message,
-          color: 'red',
+          color: 'error',
         })
       })
       return
     }
     toast.add({
-      title: t('error.default'),
-      color: 'red',
+      title: $i18n.t('error.default'),
+      color: 'error',
     })
   }
 })
@@ -104,7 +112,7 @@ const onSubmit = handleSubmit(async (values) => {
       id="passwordResetConfirmForm"
       ref="passwordResetConfirmForm"
       class="
-        container-2xs p-0
+        container mx-auto p-0
 
         md:px-20
       "
@@ -203,10 +211,10 @@ const onSubmit = handleSubmit(async (values) => {
             :label="t('form.submit')"
             :trailing="true"
             class="ml-0 justify-center"
-            color="primary"
+            color="neutral"
             size="xl"
             type="submit"
-            variant="soft"
+            variant="solid"
           />
         </div>
       </div>
@@ -226,5 +234,5 @@ el:
       errors:
         match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον
           κωδικό πρόσβασης
-    submit: Επαναφέρετε τον κωδικό πρόσβασης
+    submit: Επαναφορά
 </i18n>

@@ -52,7 +52,7 @@ async function onSubmit(values: TwoFaAuthenticateBody) {
     session.value = response?.data
     toast.add({
       title: t('success.logged_in'),
-      color: 'green',
+      color: 'success',
     })
     emit('twoFaAuthenticate')
   }

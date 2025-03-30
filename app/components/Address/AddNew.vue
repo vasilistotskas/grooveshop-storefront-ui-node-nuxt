@@ -25,7 +25,7 @@ const { t } = useI18n({ useScope: 'local' })
     <div class="grid items-center justify-center">
       <UButton
         class="w-full"
-        color="primary"
+        color="neutral"
         :label="t('button')"
         :to="localePath('account-addresses-new')"
         size="lg"

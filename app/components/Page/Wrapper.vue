@@ -5,13 +5,13 @@ defineSlots<{
 </script>
 
 <template>
-  <div
+  <UContainer
     class="
-      wrapper relative mb-6 mt-2 min-h-[calc(100vh-33rem)]
+      wrapper relative mb-6 mt-2 min-h-[calc(100vh-29.5rem)]
 
       md:mb-12 md:mt-4 md:min-h-[calc(100vh-25rem)]
     "
   >
     <slot />
-  </div>
+  </UContainer>
 </template>

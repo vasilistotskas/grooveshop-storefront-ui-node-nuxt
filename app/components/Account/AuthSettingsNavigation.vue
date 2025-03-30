@@ -4,8 +4,8 @@ const { $i18n } = useNuxtApp()
 const authStore = useAuthStore()
 const { totpAuthenticator, webauthnAuthenticator, recoveryCodesAuthenticator } = storeToRefs(authStore)
 
-const links = computed(() => {
-  const links = [
+const items = computed(() => {
+  const items = [
     {
       label: $i18n.t('social_accounts'),
       icon: 'i-heroicons-user-group',
@@ -35,7 +35,7 @@ const links = computed(() => {
   ]
 
   if (webauthnAuthenticator.value) {
-    links.push({
+    items.push({
       label: $i18n.t('two_factor.recovery_codes.title'),
       icon: 'i-heroicons-key',
       to: localePath('account-2fa-recovery-codes'),
@@ -47,35 +47,28 @@ const links = computed(() => {
   }
 
   if (recoveryCodesAuthenticator.value) {
-    links.push({
+    items.push({
       label: $i18n.t('two_factor.webauthn.title'),
       icon: 'i-heroicons-key',
       to: localePath('account-2fa-webauthn'),
     })
   }
   else {
-    links.push({
+    items.push({
       label: $i18n.t('two_factor.webauthn.add'),
       icon: 'i-heroicons-key',
       to: localePath('account-2fa-webauthn-add'),
     })
   }
 
-  return links
+  return items
 })
 </script>
 
 <template>
-  <UVerticalNavigation
-    :links="links"
-    :ui="{
-      base: 'text-primary-950 dark:text-primary-50',
-      inactive: 'text-primary-400 dark:text-primary-400',
-      size: 'text-lg md:text-xl',
-      icon: {
-        base: 'text-primary-950 dark:text-primary-50',
-        inactive: 'text-primary-400 dark:text-primary-400',
-      },
-    }"
+  <UNavigationMenu
+    orientation="vertical"
+    color="neutral"
+    :items="items"
   />
 </template>

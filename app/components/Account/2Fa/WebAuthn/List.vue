@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { DropdownItem } from '#ui/types'
+import type { TableColumn } from '@nuxt/ui'
+import type { DropdownMenuItem } from '#ui/types'
 
 const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
 const { t } = useI18n()
@@ -25,8 +26,8 @@ async function optimisticSetKeys(newKeys: any[], op: () => Promise<boolean>) {
       keys.value = oldKeys
     }
     toast.add({
-      title: ok ? t('success.title') : t('error.default'),
-      color: ok ? 'green' : 'red',
+      title: ok ? $i18n.t('success.title') : $i18n.t('error.default'),
+      color: ok ? 'success' : 'error',
     })
   }
   catch {
@@ -65,25 +66,32 @@ async function onSave(key: any, name: string) {
   })
 }
 
-const columns = [{
-  key: 'id',
-  label: t('id'),
-}, {
-  key: 'name',
-  label: t('name'),
-}, {
-  key: 'type',
-  label: t('type'),
-}, {
-  key: 'created_at',
-  label: $i18n.t('ordering.created_at'),
-  sortable: true,
-}, {
-  key: 'last_used_at',
-  label: t('last_used_at'),
-}, {
-  key: 'actions',
-}]
+const columns: TableColumn<any>[] = [
+  {
+    accessorKey: 'id',
+    header: t('id'),
+  },
+  {
+    accessorKey: 'name',
+    header: t('name'),
+  },
+  {
+    accessorKey: 'type',
+    header: t('type'),
+  },
+  {
+    accessorKey: 'created_at',
+    header: $i18n.t('ordering.created_at'),
+  },
+  {
+    accessorKey: 'last_used_at',
+    header: t('last_used_at'),
+  },
+  {
+    id: 'actions',
+    header: '',
+  },
+]
 
 const rows = computed(() => {
   return keys.value?.map((key) => {
@@ -98,28 +106,23 @@ const rows = computed(() => {
   }) ?? []
 })
 
-const actionItems = (row: { name: string, type: string, created_at: string, last_used_at: string }) => {
-  const items: DropdownItem[] = []
+const actionItems = (row: { name: string, type: string, created_at: number, last_used_at?: number }) => {
+  const items: DropdownMenuItem[] = []
 
   items.push({
     label: t('edit.title'),
     icon: 'i-heroicons-pencil-20-solid',
-    click: () => editId.value = keys.value?.find(key => key.name === row.name)?.id ?? null,
+    onSelect: () => (editId.value = keys.value?.find(key => key.name === row.name)?.id ?? null),
   })
 
   items.push({
     label: t('delete.title'),
     icon: 'i-heroicons-trash-20-solid',
     class: 'bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
-    iconClass: 'text-primary-950 dark:text-primary-50',
-    labelClass: 'text-primary-950 dark:text-primary-50',
-    click: async () => await deleteKey(keys.value?.find(key => key.name === row.name)),
+    onSelect: async () => await deleteKey(keys.value?.find(key => key.name === row.name)),
   })
 
-  if (items.length === 0) {
-    return []
-  }
-  return [items]
+  return items.length ? [items] : []
 }
 
 watchEffect(async () => {
@@ -134,76 +137,74 @@ onReactivated(async () => {
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-
-      lg:flex
-    "
-  >
+  <div class="grid gap-4 lg:flex">
     <slot />
     <div class="flex w-full flex-col gap-2">
-      <section
-        class="
-          grid gap-4
-
-          md:gap-8
-        "
-      >
+      <section class="grid gap-4 md:gap-8">
         <UTable
           :columns="columns"
           :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $i18n.t('empty.title') }"
-          :rows="rows"
+          :data="rows"
+          :loading="loading"
         >
-          <template #name-data="{ row }">
+          <template #name-cell="{ row }">
             <UInput
-              v-model="row.name"
-              :name="row.name"
+              v-model="row.original.name"
+              :name="row.original.name"
               size="sm"
-              color="white"
+              color="neutral"
               variant="none"
-              :placeholder="row.name"
-              :disabled="editId !== row.id"
+              :placeholder="row.original.name"
+              :disabled="editId !== row.original.id"
               :loading="loading"
-              :ui="{
-                base: '!p-0',
-                icon: { trailing: { pointer: '' } },
-              }"
+              :ui="{ root: '!p-0' }"
             >
               <template #trailing>
                 <UButton
-                  v-show="editId === row.id"
-                  color="gray"
+                  v-if="row.original.name && editId === row.original.id"
+                  color="neutral"
                   variant="link"
                   icon="i-heroicons-check-20-solid"
                   :padded="false"
-                  @click="onSave(row, row.name)"
+                  @click="onSave(row.original, row.original.name)"
                 />
               </template>
             </UInput>
           </template>
-          <template #type-data="{ row }">
+          <template #type-cell="{ row }">
             <span>
-              {{ typeof row.is_passwordless === 'undefined' ? $i18n.t('type_unspecified') : (row.is_passwordless ? $i18n.t('passkey') : $i18n.t('security_key')) }}
+              {{ typeof row.original.is_passwordless === 'undefined' ? $i18n.t('type_unspecified') : (row.original.is_passwordless ? $i18n.t('passkey') : $i18n.t('security_key')) }}
             </span>
           </template>
-
-          <template #created_at-data="{ row }">
-            <span>{{ new Date(row.created_at * 1000).toLocaleString() }}</span>
+          <template #created_at-cell="{ row }">
+            <span>{{ new Date(row.original.created_at * 1000).toLocaleString() }}</span>
           </template>
-
-          <template #last_used_at-data="{ row }">
+          <template #last_used_at-cell="{ row }">
             <span>
-              {{ row.last_used_at ? new Date(row.last_used_at * 1000).toLocaleString() : $i18n.t('unused') }}
+              {{ row.original.last_used_at ? new Date(row.original.last_used_at * 1000).toLocaleString() : $i18n.t('unused') }}
             </span>
           </template>
-          <template #actions-data="{ row }">
-            <LazyUDropdown
-              v-if="actionItems(row).length > 0"
-              :items="actionItems(row)"
+          <template #actions-cell="{ row }">
+            <LazyUDropdownMenu
+              v-if="actionItems({
+                name: row.original.name ?? '',
+                type: row.original.type,
+                created_at: row.original.created_at,
+                last_used_at: row.original.last_used_at ?? null,
+              }).length > 0"
+              :items="actionItems({
+                name: row.original.name ?? '',
+                type: row.original.type,
+                created_at: row.original.created_at,
+                last_used_at: row.original.last_used_at ?? null,
+              })"
             >
-              <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
-            </LazyUDropdown>
+              <UButton
+                color="neutral"
+                icon="i-heroicons-ellipsis-horizontal-20-solid"
+                variant="ghost"
+              />
+            </LazyUDropdownMenu>
           </template>
         </UTable>
       </section>
@@ -211,7 +212,7 @@ onReactivated(async () => {
         <UButton
           :label="$i18n.t('add.title')"
           :to="localePath('account-2fa-webauthn-add')"
-          color="opposite"
+          color="secondary"
           size="md"
           type="button"
           variant="link"

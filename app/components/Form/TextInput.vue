@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BaseFieldProps, GenericObject } from 'vee-validate'
 import type { PropType } from 'vue'
-import type { ButtonSize, InputVariant, InputColor } from '#ui/types'
+import type { InputProps } from '#ui/types'
 
 defineProps({
   bind: {
@@ -13,7 +13,7 @@ defineProps({
     default: '',
   },
   size: {
-    type: String as PropType<ButtonSize>,
+    type: String as PropType<InputProps['size']>,
     default: 'md',
   },
   type: {
@@ -41,14 +41,6 @@ defineProps({
   as: {
     type: String,
     default: 'input',
-  },
-  color: {
-    type: String as PropType<InputColor>,
-    default: 'primary',
-  },
-  variant: {
-    type: String as PropType<InputVariant>,
-    default: 'outline',
   },
   icon: {
     type: String,
@@ -88,7 +80,6 @@ const modelValue = defineModel<string | number | undefined>('modelValue', {
     v-bind="bind"
     :name="name"
     :type="type"
-    :color="color"
     :placeholder="
       type === 'text' || type === 'password' || type === 'email'
         ? placeholder
@@ -96,7 +87,6 @@ const modelValue = defineModel<string | number | undefined>('modelValue', {
     "
     :required="required"
     :autocomplete="autocomplete"
-    :variant="variant"
     :icon="icon"
     :trailing="trailing"
     :disabled="disabled"

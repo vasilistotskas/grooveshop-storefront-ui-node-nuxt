@@ -4,7 +4,6 @@ import * as z from 'zod'
 const emit = defineEmits(['requestLoginCode'])
 
 const { requestLoginCode } = useAllAuthAuthentication()
-const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
@@ -29,7 +28,7 @@ const formSchema: DynamicFormSchema = {
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('email.title'),
+      placeholder: $i18n.t('email.title'),
       type: 'email',
     },
   ],
@@ -39,7 +38,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <div
     class="
-      container-2xs p-0
+      container mx-auto p-0
 
       md:px-6
     "

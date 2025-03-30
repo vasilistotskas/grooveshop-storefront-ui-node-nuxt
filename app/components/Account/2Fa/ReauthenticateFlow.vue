@@ -14,6 +14,7 @@ const { flow } = toRefs(props)
 const router = useRouter()
 const { t } = useI18n()
 const { $i18n } = useNuxtApp()
+const localePath = useLocalePath()
 
 const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
 
@@ -35,8 +36,8 @@ const flows = computed(() => {
   return []
 })
 
-function flowsToMethods(flows: Flow[]): { label: string, id: string, path: string }[] {
-  const methods: { label: string, id: string, path: string }[] = []
+function flowsToMethods(flows: Flow[]) {
+  const methods: { label: string, id: Flow['id'], path: FlowPathValue }[] = []
   flows.forEach((flow) => {
     if (flow.id === Flows.MFA_REAUTHENTICATE) {
       flow.types?.forEach((typ) => {
@@ -103,12 +104,12 @@ const filteredMethods = computed(() => {
         >
           <UButton
             :label="f.label"
-            :to="{
-              path: f.path,
+            :to="localePath({
+              name: f.path,
               query: { next },
-            }"
+            })"
             class="p-0"
-            color="primary"
+            color="neutral"
             icon="i-heroicons-arrow-right"
             size="xl"
             type="button"

@@ -51,7 +51,7 @@ const reviewComment = computed(() => {
     class="
       flex flex-col gap-2
 
-      md:grid md:grid-cols-auto-1fr md:items-center
+      md:items-center
     "
   >
     <div

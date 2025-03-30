@@ -72,7 +72,7 @@ const filteredTags = computed(() => {
 
           md:grid
         "
-        color="primary"
+        color="neutral"
         :trailing="false"
         variant="outline"
         :placeholder="`${$i18n.t('search.title')}...`"
@@ -90,7 +90,7 @@ const filteredTags = computed(() => {
           :key="tag.id"
         >
           <UButton
-            color="primary"
+            color="neutral"
             variant="solid"
             class="flex w-full items-center"
             icon="i-heroicons-hashtag"
@@ -102,7 +102,7 @@ const filteredTags = computed(() => {
   </aside>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .scrollable-tags {
   @media screen and (min-width: 768px) {
     max-height: 300px;

@@ -21,7 +21,7 @@ const onSubmit = async (values: PasswordChangeBody) => {
     await changePassword(body)
     toast.add({
       title: $i18n.t('auth.password.change.success'),
-      color: 'green',
+      color: 'success',
     })
     emit('changePassword')
     await navigateTo(localePath('account'))

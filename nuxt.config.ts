@@ -1,5 +1,3 @@
-const sw = process.env.SW === 'true'
-
 export default defineNuxtConfig({
 
   modules: [
@@ -47,9 +45,7 @@ export default defineNuxtConfig({
     },
   },
   css: [
-    '~/assets/sass/app.scss',
-    '~/assets/sass/_cookies.scss',
-    '~/assets/sass/_variables.scss',
+    '~/assets/css/main.css',
   ],
   site: {
     url: 'http://localhost:3000',
@@ -200,14 +196,21 @@ export default defineNuxtConfig({
     inlineStyles: true,
   },
   experimental: {
+    componentIslands: true,
+    payloadExtraction: true,
     typedPages: true,
     asyncContext: true,
     cookieStore: true,
     watcher: 'parcel',
     appManifest: false,
   },
-  compatibilityDate: '2024-11-26',
+  compatibilityDate: '2025-03-30',
   nitro: {
+    esbuild: {
+      options: {
+        target: 'esnext',
+      },
+    },
     imports: {
       dirs: [
         'shared/**',
@@ -229,17 +232,10 @@ export default defineNuxtConfig({
     build: {
       sourcemap: true,
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: 'modern-compiler',
-        },
-      },
-    },
   },
   typescript: {
     strict: true,
-    typeCheck: false, // Until vue-tsc is fixed
+    typeCheck: true, // Until vue-tsc is fixed
     builder: 'vite',
   },
   telemetry: {
@@ -265,6 +261,12 @@ export default defineNuxtConfig({
           description: 'cookies.necessary_description',
           targetCookieIds: ['i18n_redirected', 'ncc_c', 'ncc_e'],
         },
+        {
+          id: 'functionality_storage',
+          name: 'cookies.functionality_storage',
+          description: 'cookies.functionality_storage_description',
+          targetCookieIds: [],
+        },
       ],
       optional: [
         {
@@ -289,12 +291,6 @@ export default defineNuxtConfig({
           id: 'analytics_storage',
           name: 'cookies.analytics_storage',
           description: 'cookies.analytics_storage_description',
-          targetCookieIds: [],
-        },
-        {
-          id: 'functionality_storage',
-          name: 'cookies.functionality_storage',
-          description: 'cookies.functionality_storage_description',
           targetCookieIds: [],
         },
         {
@@ -347,6 +343,9 @@ export default defineNuxtConfig({
     vueI18n: './i18n.config.mts',
     compilation: {
       strictMessage: false,
+    },
+    bundle: {
+      optimizeTranslationDirective: false,
     },
   },
   icon: {
@@ -412,9 +411,9 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
-    strategies: sw ? 'injectManifest' : 'generateSW',
-    srcDir: sw ? 'service-worker' : undefined,
-    filename: sw ? 'sw.ts' : undefined,
+    strategies: 'injectManifest',
+    srcDir: 'service-worker',
+    filename: 'sw.ts',
     injectRegister: 'auto',
     registerType: 'autoUpdate',
     manifest: {

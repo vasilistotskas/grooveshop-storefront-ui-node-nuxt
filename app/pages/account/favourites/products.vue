@@ -94,7 +94,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -143,7 +143,7 @@ definePageMeta({
     <LazyEmptyState
       v-else-if="!favourites?.count"
       class="w-full"
-      :title="t('empty.title')"
+      :title="$i18n.t('empty.title')"
     >
       <template
         #icon

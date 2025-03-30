@@ -56,7 +56,7 @@ const onSecretClick = () => {
     copy(totpSecret.value)
     toast.add({
       title: t('copied'),
-      color: 'green',
+      color: 'success',
     })
   }
 }
@@ -66,8 +66,8 @@ async function onSubmit(values: TotpPostBody) {
     loading.value = true
     await activateTotp(values)
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('activateTotp')
     await navigateTo(localePath('account-settings'))
@@ -125,7 +125,7 @@ const formSchema: DynamicFormSchema = {
           <UInput
             v-model="totpSecret"
             :ui="{
-              base: 'cursor-pointer text-center !px-0',
+              root: 'cursor-pointer text-center !px-0',
             }"
             class="w-full"
             readonly

@@ -4,7 +4,7 @@ import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import type { Ref } from 'vue'
-import type { Button } from '#ui/types/button'
+import type { ButtonProps } from '#ui/types'
 
 type DynamicFormState = {
   errors: string[]
@@ -44,8 +44,8 @@ const props = withDefaults(
     buttonLabel?: string
     resetLabel?: string
     disableSubmitUntilValid?: boolean
-    submitButtonUi?: Button & { ui: Record<string, unknown> }
-    resetButtonUi?: Button & { ui: Record<string, unknown> }
+    submitButtonUi?: ButtonProps & { ui: Record<string, unknown> }
+    resetButtonUi?: ButtonProps & { ui: Record<string, unknown> }
     buttonsPosition?: 'center' | 'left' | 'right'
     loading?: boolean
     maxSubmitCount?: number
@@ -60,8 +60,8 @@ const props = withDefaults(
     disableSubmitUntilValid: true,
     submitButtonUi: () => ({
       type: 'submit',
-      variant: 'soft',
-      color: 'primary',
+      variant: 'solid',
+      color: 'neutral',
       size: 'md',
       ui: {},
     }),
@@ -171,6 +171,10 @@ const {
   initialValues: initialFormValues,
   keepValuesOnUnmount: isMultiStep.value,
 })
+
+const reset = () => {
+  resetForm()
+}
 
 const goToNextStep = async () => {
   const currentStepFields = schema.value.steps?.[currentStep.value]?.fields ?? []
@@ -298,7 +302,7 @@ defineExpose({
       } in filteredFields"
       :key="name"
     >
-      <LazyUFormGroup
+      <LazyUFormField
         v-if="fields[name]"
         v-model="fields[name][0].value"
         :class="{ 'items-center': true, 'grid': as !== 'checkbox', 'gap-1': children && children.length > 0, 'sr-only': hidden, 'flex': as === 'checkbox', 'gap-2': as === 'checkbox' }"
@@ -316,7 +320,6 @@ defineExpose({
           :id="groupId"
           v-model="fields[name][0].value"
           :aria-readonly="readonly"
-          :as="as"
           :autocomplete="autocomplete"
           :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
           :disabled="disabledFields[name]"
@@ -325,7 +328,7 @@ defineExpose({
           :readonly="readonly"
           :required="required"
           :type="type"
-          color="primary"
+          color="neutral"
           v-bind="fields[name][1].value"
         >
           <div v-if="children && children.length > 0">
@@ -339,7 +342,6 @@ defineExpose({
           :aria-describedby="errors[name] ? `error-${name}` : undefined"
           :aria-invalid="errors[name] ? 'true' : 'false'"
           :aria-readonly="readonly"
-          :as="as"
           :autocomplete="autocomplete"
           :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
           :disabled="disabledFields[name]"
@@ -349,7 +351,7 @@ defineExpose({
           :readonly="readonly"
           :required="required"
           :type="type"
-          color="primary"
+          color="neutral"
           v-bind="fields[name][1].value"
         >
           <div v-if="children && children.length > 0">
@@ -363,7 +365,6 @@ defineExpose({
           :aria-describedby="errors[name] ? `error-${name}` : undefined"
           :aria-invalid="errors[name] ? 'true' : 'false'"
           :aria-readonly="readonly"
-          :as="as"
           :autocomplete="autocomplete"
           :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
           :disabled="disabledFields[name]"
@@ -373,12 +374,12 @@ defineExpose({
           :readonly="readonly"
           :required="required"
           :type="type"
-          color="primary"
+          color="neutral"
           v-bind="fields[name][1].value"
         >
           <LazyDynamicFormChildren v-if="children && children.length > 0" :children="children" />
         </UInput>
-      </LazyUFormGroup>
+      </LazyUFormField>
     </template>
 
     <div
@@ -409,7 +410,7 @@ defineExpose({
         :type="resetButtonUi?.type"
         :ui="resetButtonUi?.ui"
         :variant="resetButtonUi?.variant"
-        @click="resetForm"
+        @click="reset"
       >
         {{ resetLabel }}
       </UButton>

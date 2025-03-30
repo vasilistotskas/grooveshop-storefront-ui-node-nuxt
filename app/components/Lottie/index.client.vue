@@ -487,7 +487,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .lottie-animation-container {
   width: v-bind(width);
   height: v-bind(height);

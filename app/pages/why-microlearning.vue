@@ -3,7 +3,7 @@ const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -31,21 +31,21 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col">
+  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
     <UBreadcrumb
-      :links="links"
+      :items="items"
       :ui="{
-        li: 'text-primary-950 dark:text-primary-50',
-        base: 'text-xs md:text-md',
+        item: 'text-primary-950 dark:text-primary-50',
+        root: 'text-xs md:text-md',
       }"
-      class="container-xs relative mb-5 min-w-0"
+      class="relative mb-5 min-w-0"
     />
     <PageTitle
       :text="t('microlearning.why')"
       class="mb-4 text-center capitalize"
     />
 
-    <div class="article container-xs">
+    <div class="article">
       <div class="grid items-center justify-center">
         <NuxtImg
           :style="{ objectFit: 'contain' }"

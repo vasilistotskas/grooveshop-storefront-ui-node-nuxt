@@ -32,9 +32,9 @@ async function onSubmit(values: {
       credential,
     })
     toast.add({
-      title: t('success.title'),
+      title: $i18n.t('success.title'),
       description: t('success.description'),
-      color: 'green',
+      color: 'success',
     })
     emit('getWebAuthnCreateOptionsAtSignup')
     emit('signupWebAuthnCredential')
@@ -68,7 +68,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <div
     class="
-      container-2xs p-0
+      container mx-auto p-0
 
       md:px-6
     "
@@ -83,7 +83,7 @@ const formSchema: DynamicFormSchema = {
     <UButton
       :label="t('using_password')"
       :to="localePath('account-signup')"
-      color="opposite"
+      color="secondary"
       size="lg"
       type="submit"
       variant="link"

@@ -57,7 +57,7 @@ export default defineNuxtPlugin({
             toast.add({
               title: data.translations[locale.value].title,
               description: data.translations[locale.value].message,
-              color: 'green',
+              color: 'success',
             })
             if (isBroadcastChannelSupported) {
               post(data)

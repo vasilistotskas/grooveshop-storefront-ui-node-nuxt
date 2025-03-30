@@ -35,8 +35,8 @@ async function onSubmit(values: {
       credential,
     })
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('getWebAuthnCreateOptions')
     emit('addWebAuthnCredential')
@@ -45,8 +45,8 @@ async function onSubmit(values: {
   }
   catch {
     toast.add({
-      title: t('error.default'),
-      color: 'red',
+      title: $i18n.t('error.default'),
+      color: 'error',
     })
   }
 }

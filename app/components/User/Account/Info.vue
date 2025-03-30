@@ -46,7 +46,7 @@ const changeUserName = async () => {
   if (!username.value) {
     toast.add({
       title: t('username.empty'),
-      color: 'red',
+      color: 'error',
     })
     return
   }
@@ -59,8 +59,8 @@ const changeUserName = async () => {
     })
 
     toast.add({
-      title: response?.detail || t('success.title'),
-      color: 'green',
+      title: response?.detail || $i18n.t('success.title'),
+      color: 'success',
     })
 
     account.value.username = username.value
@@ -69,14 +69,14 @@ const changeUserName = async () => {
   catch (error) {
     toast.add({
       title: isErrorWithDetail(error) ? error.data.data.detail : t('unknown.error'),
-      color: 'red',
+      color: 'error',
     })
   }
 }
 </script>
 
 <template>
-  <div class="user-info">
+  <div class="user-info max-w-(--container-7xl) mx-auto w-full p-0">
     <div class="user-info-container">
       <div class="user-info-avatar">
         <UserAvatar
@@ -89,42 +89,29 @@ const changeUserName = async () => {
         />
       </div>
       <div class="user-info-name relative flex w-full flex-col">
-        <div class="flex items-center">
+        <div class="flex items-center w-full">
           <UButton
             :aria-label="userNameEditing ? $i18n.t('save') : $i18n.t('edit.title')"
             :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
             :title="userNameEditing ? $i18n.t('save') : $i18n.t('edit.title')"
+            color="neutral"
+            variant="ghost"
+            size="lg"
             :ui="{
-              icon: {
-                base: userNameEditing ? 'bg-green-500 dark:bg-green-400' : '',
-                size: {
-                  sm: 'h-4 w-4 md:h-5 md:w-5',
-                },
-              },
+              base: 'hover:bg-transparent cursor-pointer p-0',
             }"
-            color="primary"
-            size="sm"
             @click="onEditUserName"
           />
           <UInput
             v-model="username"
             :class="!userNameEditing ? `
-              text-primary-950 text-2xl
+              text-primary-950
 
               dark:text-primary-50
             ` : ''"
             :disabled="!userNameEditing"
-            :ui="{
-              size: {
-                sm: 'text-md md:text-2xl',
-              },
-              padding: {
-                sm: 'px-0 py-0',
-              },
-            }"
             class="font-bold"
-            color="primary"
-            size="sm"
+            size="xl"
             variant="none"
             @keydown.enter="onEditUserName"
           />
@@ -133,9 +120,9 @@ const changeUserName = async () => {
         <span
           class="
             w-full cursor-text select-text items-center truncate p-1.5 text-sm
-            font-medium text-gray-700 opacity-50
+            font-medium text-neutral-700 opacity-50
 
-            dark:text-gray-200
+            dark:text-neutral-200
           "
         >
           {{ account.email }}
@@ -244,89 +231,88 @@ const changeUserName = async () => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-.user {
-  &-info {
-    width: calc(100% - 128px);
-    margin: 0 auto;
-    display: grid;
+<style scoped>
+.user-info {
+  width: calc(100% - 128px);
+  margin: 0 auto;
+  display: grid;
+  align-items: center;
+  z-index: 20;
+}
+
+@media screen and (max-width: 767px) {
+  .user-info {
+    width: 100%;
+  }
+}
+
+.user-info-container {
+  display: flex;
+  align-items: center;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  gap: 2rem;
+}
+
+@media screen and (max-width: 767px) {
+  .user-info-container {
+    display: flex;
+    justify-items: center;
     align-items: center;
-    z-index: 20;
+    justify-content: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    gap: 1rem;
+  }
+}
 
-    @media screen and (width <= 767px) {
-      width: 100%;
-    }
+@media screen and (max-width: 767px) {
+  .user-info-name {
+    display: flex;
+    align-items: center;
+  }
+}
 
-    &-container {
-      display: flex;
-      align-items: center;
-      padding-top: 1.5rem;
-      padding-bottom: 1.5rem;
-      gap: 2rem;
+.user-info-stats {
+  display: grid;
+  align-items: center;
+  margin-left: auto;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
+}
 
-      @media screen and (width <= 767px) {
-        display: flex;
-        justify-items: center;
-        align-items: center;
-        justify-content: center;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-        gap: 1rem;
-      }
-    }
+@media screen and (max-width: 767px) {
+  .user-info-stats {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    grid-row: 2 / span 1;
+    grid-column: 1 / span 2;
+  }
+}
 
-    &-name {
-      @media screen and (width <= 767px) {
-        display: flex;
-        align-items: center;
-      }
-    }
+.user-info-stats-item-link {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  align-items: center;
+  margin-left: 1rem;
+}
 
-    &-stats {
-      display: grid;
-      align-items: center;
-      margin-left: auto;
-      gap: 1rem;
-      grid-template-columns: repeat(3, minmax(110px, 1fr));
+.user-info-stats-item-link:first-child {
+  margin-left: 0;
+}
 
-      @media screen and (width <= 767px) {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        grid-row: 2 / span 1;
-        grid-column: 1 / span 2;
-      }
+.user-info-stats-item-link > svg {
+  margin: 0;
+}
 
-      &-item {
-        &-link {
-          display: flex;
-          flex-direction: column;
-          padding: 0.5rem;
-          align-items: center;
-          margin-left: 1rem;
-
-          &.router-link-active {
-            @apply text-secondary-light dark:text-secondary-dark;
-          }
-
-          &:first-child {
-            margin-left: 0;
-          }
-
-          & > svg {
-            margin: 0;
-          }
-        }
-      }
-    }
-
-    &-avatar {
-      @media screen and (width <= 767px) {
-        display: grid;
-        width: 100%;
-        justify-content: center;
-      }
-    }
+@media screen and (max-width: 767px) {
+  .user-info-avatar {
+    padding: 0 1rem;
+    display: grid;
+    width: auto;
+    justify-content: start;
   }
 }
 </style>

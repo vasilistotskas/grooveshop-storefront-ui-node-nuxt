@@ -92,16 +92,14 @@ const loadingPlaceholders = computed(() => {
       :modal-close-trigger-handler-id="modal ? 'fallbackModalClose' : undefined"
     >
       <USkeleton
-        class="grid"
+        :class="{
+          hidden: showAnimation,
+          grid: true,
+        }"
         :style="{
           width: width,
           height: height,
           borderRadius: borderRadius,
-        }"
-        :ui="{
-          background: showAnimation
-            ? 'bg-primary-300 dark:bg-primary-600'
-            : 'bg-transparent dark:bg-transparent',
         }"
       />
       <p

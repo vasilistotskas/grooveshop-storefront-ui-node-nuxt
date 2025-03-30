@@ -131,7 +131,7 @@ onMounted(() => {
   </aside>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .sidebar {
   &.sticky {
     top: 0;

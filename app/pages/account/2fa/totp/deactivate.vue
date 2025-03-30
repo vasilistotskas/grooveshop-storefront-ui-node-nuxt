@@ -25,8 +25,8 @@ async function onSubmit() {
     loading.value = true
     await deactivateTotp()
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('deactivateTotp')
     await navigateTo(localePath('account-settings'))
@@ -48,7 +48,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -72,7 +72,7 @@ definePageMeta({
     >
       <UButton
         :label="$i18n.t('deactivate')"
-        color="red"
+        color="error"
         size="lg"
         @click="onSubmit"
       />

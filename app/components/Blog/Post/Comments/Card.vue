@@ -150,7 +150,7 @@ async function onReplySubmit({ content }: { content: string }) {
     onResponseError() {
       toast.add({
         title: t('add.error'),
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -192,7 +192,7 @@ const onReplyButtonClick = async () => {
   if (!loggedIn.value) {
     toast.add({
       title: t('reply.login'),
-      color: 'red',
+      color: 'error',
     })
     return
   }
@@ -373,20 +373,25 @@ watch(
           v-show="repliesFetched"
           class="
             bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start
-            py-[2px]
 
             dark:bg-primary-900
           "
         >
           <UButton
             v-if="hasReplies"
+            class="
+              button inline-flex size-4 items-center justify-center
+              overflow-visible px-1.5
+            "
+            size="sm"
+            color="neutral"
+            variant="ghost"
             :aria-expanded="showReplies"
             :aria-label="
               showReplies
                 ? $i18n.t('hide.replies')
                 : $i18n.t('more.replies', totalReplies)
             "
-            :color="'primary'"
             :disabled="pending"
             :icon="
               showReplies
@@ -399,16 +404,8 @@ watch(
                 : $i18n.t('more.replies', totalReplies)
             "
             :ui="{
-              size: {
-                sm: 'text-xs',
-              },
+              base: 'hover:bg-transparent p-0',
             }"
-            class="
-              button inline-flex size-4 items-center justify-center
-              overflow-visible px-1.5
-            "
-            size="sm"
-            variant="solid"
             @click="onShowMoreRepliesButtonClick"
             @mouseenter="isLineHovered = true"
             @mouseleave="isLineHovered = false"
@@ -421,19 +418,23 @@ watch(
                 :aria-label="$i18n.t('like')"
                 :blog-comment-id="comment.id"
                 :likes-count="likes"
-                size="sm"
-                variant="solid"
+                color="neutral"
+                variant="ghost"
+                size="md"
                 @update="likeClicked"
               />
               <UButton
                 v-if="maxDepth > depth"
                 :aria-label="$i18n.t('reply')"
-                :color="'primary'"
                 :icon="'i-heroicons-chat-bubble-left-ellipsis'"
                 :label="$i18n.t('reply')"
                 :title="$i18n.t('reply')"
-                size="sm"
-                variant="solid"
+                color="neutral"
+                variant="ghost"
+                size="md"
+                :ui="{
+                  base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
+                }"
                 @click="onReplyButtonClick"
               />
             </span>
@@ -518,12 +519,14 @@ watch(
           class="ml-px inline-block"
         >
           <UButton
+            size="lg"
+            color="neutral"
+            variant="ghost"
             :aria-label="
               showReplies
                 ? $i18n.t('hide.replies')
                 : $i18n.t('more.replies', totalReplies)
             "
-            :color="'primary'"
             :disabled="pending"
             :icon="
               showReplies
@@ -541,13 +544,8 @@ watch(
                 : $i18n.t('more.replies', totalReplies)
             "
             :ui="{
-              size: {
-                sm: 'text-xs',
-              },
+              base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer z-20 px-1.25 py-1',
             }"
-            class="z-20"
-            size="sm"
-            variant="solid"
             @click="onShowMoreRepliesButtonClick"
           />
         </span>
@@ -560,8 +558,8 @@ watch(
       :schema="replyCommentFormSchema"
       :submit-button-ui="{
         type: 'submit',
-        size: '2xs',
-        color: 'green',
+        size: 'xs',
+        color: 'success',
         ui: {
           rounded: 'rounded-full',
         },
@@ -583,14 +581,6 @@ watch(
     />
   </details>
 </template>
-
-<style lang="scss" scoped>
-.threadline-hovered {
-  & > span {
-    @apply border-primary-600 dark:border-primary-300;
-  }
-}
-</style>
 
 <i18n lang="yaml">
 el:

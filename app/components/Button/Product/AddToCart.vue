@@ -25,7 +25,7 @@ const addToCartEvent = async () => {
   await refreshCart()
   toast.add({
     title: t('added_to_cart'),
-    color: 'green',
+    color: 'success',
   })
 }
 </script>
@@ -41,7 +41,7 @@ const addToCartEvent = async () => {
     :label="text"
     size="xl"
     :trailing="true"
-    color="primary"
+    color="neutral"
     variant="soft"
     @click.prevent="addToCartEvent"
   />

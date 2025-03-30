@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ButtonSize, ButtonVariant } from '#ui/types'
+import type { ButtonProps } from '#ui/types'
 
 const props = defineProps({
   blogCommentId: {
@@ -9,16 +9,20 @@ const props = defineProps({
     required: true,
   },
   size: {
-    type: String as PropType<ButtonSize>,
-    default: 'md',
+    type: String as PropType<ButtonProps['size']>,
+    default: 'xl',
+  },
+  color: {
+    type: String as PropType<ButtonProps['color']>,
+    default: 'neutral',
+  },
+  variant: {
+    type: String as PropType<ButtonProps['variant']>,
+    default: 'ghost',
   },
   showLabel: {
     type: Boolean,
     default: false,
-  },
-  variant: {
-    type: String as PropType<ButtonVariant>,
-    default: 'solid',
   },
   likesCount: {
     type: Number,
@@ -28,17 +32,18 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  ui: {
+    type: Object as PropType<ButtonProps['ui']>,
+    default: () => ({}),
+  },
 })
 
 const emit = defineEmits<{
-  (
-    e: 'update',
-    { blogCommentId, liked }: { blogCommentId: number, liked: boolean },
-  ): void
+  (e: 'update', payload: { blogCommentId: number, liked: boolean }): void
 }>()
 
+const attrs = useAttrs()
 const { t } = useI18n({ useScope: 'local' })
-const { $i18n } = useNuxtApp()
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -46,11 +51,20 @@ const { blogCommentLiked, addLikedComment, removeLikedComment } = userStore
 
 const liked = computed(() => blogCommentLiked(props.blogCommentId))
 
+const defaultUI = {
+  base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
+}
+
+const mergedUI = computed(() => ({
+  ...defaultUI,
+  ...props.ui,
+}))
+
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
     toast.add({
       title: t('not_authenticated'),
-      color: 'red',
+      color: 'error',
     })
     return
   }
@@ -83,34 +97,29 @@ const toggleFavourite = async () => {
     onResponseError({ error }) {
       toast.add({
         title: error?.message,
-        color: 'red',
+        color: 'error',
       })
     },
   })
 }
+
+const buttonAreaLabel = computed(() =>
+  liked.value ? t('liked') : t('like'),
+)
 </script>
 
 <template>
   <UButton
+    v-bind="attrs"
     :icon="!liked ? 'i-heroicons-hand-thumb-up' : 'i-heroicons-hand-thumb-up'"
     :size="size"
-    :color="'primary'"
-    square
+    :color="liked ? 'secondary' : color"
     :variant="variant"
-    :title="$i18n.t('like')"
+    square
     :label="String(likesCount)"
-    :ui="{
-      size: {
-        lg: 'text-base',
-      },
-      icon: {
-        base: liked ? 'bg-secondary dark:bg-secondary-dark' : '',
-        size: {
-          lg: 'h-6 w-6',
-          xl: 'h-12 w-12',
-        },
-      },
-    }"
+    :aria-label="buttonAreaLabel"
+    :title="buttonAreaLabel"
+    :ui="mergedUI"
     @click="toggleFavourite"
   />
 </template>
@@ -118,4 +127,6 @@ const toggleFavourite = async () => {
 <i18n lang="yaml">
 el:
   not_authenticated: Πρέπει να είσαι συνδεδεμένος για να κάνεις like
+  liked: Άρεσε
+  like: Like
 </i18n>

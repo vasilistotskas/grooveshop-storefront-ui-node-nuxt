@@ -104,7 +104,7 @@ const submitButtonDisabled = computed(() => {
       id="loginForm"
       ref="loginForm"
       class="
-        z-10 !pt-12 container-3xs px-8 !pb-6
+        z-10 !pt-12 container mx-auto px-4 !pb-6
 
         md:!p-0
       "
@@ -117,7 +117,7 @@ const submitButtonDisabled = computed(() => {
         <div class="relative grid w-full gap-4">
           <div
             class="
-              grid gap-6 p-8 shadow-lg bg-primary-100 rounded-lg
+              grid gap-6 py-8 px-4 shadow-lg bg-primary-100 rounded-lg
 
               dark:bg-primary-900 dark:md:bg-transparent
 
@@ -138,9 +138,7 @@ const submitButtonDisabled = computed(() => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-xl font-bold text-secondary
-
-                  dark:text-secondary-dark
+                  text-xl font-bold
                 "
                 for="email"
               >{{
@@ -164,9 +162,8 @@ const submitButtonDisabled = computed(() => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-xl font-bold text-secondary
+                  text-xl font-bold
 
-                  dark:text-secondary-dark
                 "
                 for="password"
               >{{ t('password.label') }}</label>
@@ -186,10 +183,12 @@ const submitButtonDisabled = computed(() => {
                   :icon="
                     showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
                   "
-                  class="absolute right-2 top-1/2 -translate-y-1/2"
-                  color="primary"
+                  color="neutral"
                   type="button"
                   variant="ghost"
+                  :ui="{
+                    base: 'absolute right-2 top-1/2 -translate-y-1/2 hover:bg-transparent cursor-pointer',
+                  }"
                   @click="showPassword = !showPassword"
                 />
               </div>
@@ -199,11 +198,6 @@ const submitButtonDisabled = computed(() => {
               >{{ errors.password }}</span>
             </div>
             <UButton
-              class="
-                text-white bg-secondary
-
-                dark:bg-secondary-dark
-              "
               :aria-busy="loading"
               :disabled="submitButtonDisabled"
               :label="
@@ -213,6 +207,7 @@ const submitButtonDisabled = computed(() => {
               size="xl"
               type="submit"
               variant="solid"
+              color="secondary"
             />
           </div>
           <div
@@ -252,25 +247,23 @@ const submitButtonDisabled = computed(() => {
                   :label="t('use.code')"
                   :to="localePath('account-login-code')"
                   class="
-                    p-0 text-secondary font-semibold
+                    p-0 font-semibold
 
-                    dark:text-secondary-dark
                   "
-                  color="opposite"
+                  color="secondary"
                   size="md"
                   type="button"
                   variant="link"
                 />
                 <UButton
                   class="
-                    p-0 text-secondary font-semibold
+                    p-0 font-semibold
 
-                    dark:text-secondary-dark
                   "
                   :label="t('forgot.password.reset')"
                   :to="localePath('account-password-reset')"
                   size="md"
-                  color="opposite"
+                  color="secondary"
                   type="button"
                   variant="link"
                 />
@@ -279,9 +272,8 @@ const submitButtonDisabled = computed(() => {
                 >
                   <span
                     class="
-                      text-secondary text-sm font-semibold
+                      text-sm font-semibold
 
-                      dark:text-secondary-dark
                     "
                   >{{
                     t('no.account')
@@ -289,14 +281,12 @@ const submitButtonDisabled = computed(() => {
 
                   <UButton
                     class="
-                      p-0 text-secondary font-semibold underline
-
-                      dark:text-secondary-dark
+                      p-0 font-semibold underline
                     "
                     :label="$i18n.t('register')"
                     :to="localePath('account-signup')"
                     size="lg"
-                    color="opposite"
+                    color="secondary"
                     type="button"
                     variant="link"
                   />

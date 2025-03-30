@@ -33,7 +33,7 @@ const { $i18n } = useNuxtApp()
     <UButton
       v-if="currentStep > 0"
       icon="i-heroicons-arrow-long-left"
-      color="primary"
+      color="neutral"
       :label="$i18n.t('previous')"
       @click="emit('goToPreviousStep')"
     />
@@ -42,7 +42,7 @@ const { $i18n } = useNuxtApp()
       v-if="currentStep < lastStep"
       icon="i-heroicons-arrow-long-right"
       :disabled="nextStepButtonDisabled"
-      color="primary"
+      color="neutral"
       :label="$i18n.t('next')"
       @click="emit('goToNextStep')"
     />
@@ -50,7 +50,7 @@ const { $i18n } = useNuxtApp()
     <UButton
       v-if="currentStep === lastStep"
       type="submit"
-      color="primary"
+      color="neutral"
       :label="submitLabel"
     />
   </div>

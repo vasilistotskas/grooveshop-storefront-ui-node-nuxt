@@ -27,8 +27,8 @@ const avatarImg = computed(() => {
   })
 })
 
-const links = computed(() => {
-  const links = [
+const items = computed(() => {
+  const items = [
     {
       icon: 'i-heroicons-home',
       to: '/',
@@ -50,15 +50,15 @@ const links = computed(() => {
   ] as LinksOption[]
 
   if (!loggedIn.value) {
-    links.push({
+    items.push({
       icon: 'i-heroicons-user',
       to: `/account/login?next=${route.path}`,
       label: $i18n.t('account'),
       labelClass: 'sr-only',
     })
   }
-  else {
-    links.push({
+  else if (avatarImg.value) {
+    items.push({
       to: '/account',
       label: $i18n.t('account'),
       labelClass: 'sr-only',
@@ -67,8 +67,16 @@ const links = computed(() => {
       },
     })
   }
+  else {
+    items.push({
+      icon: 'i-heroicons-user',
+      to: '/account',
+      label: $i18n.t('account'),
+      labelClass: 'sr-only',
+    })
+  }
 
-  return links
+  return items
 })
 
 const Footer = computed(() => {
@@ -86,11 +94,11 @@ const Footer = computed(() => {
       </PageHeader>
       <div
         class="
-          grid gap-2 pt-[55px]
+          grid gap-2 pt-[57px]
 
-          lg:pt-[63px]
+          lg:pt-[65px]
 
-          md:gap-6 md:pt-[63px]
+          md:gap-6 md:pt-[65px]
         "
       >
         <div
@@ -108,12 +116,11 @@ const Footer = computed(() => {
             :orders-count="0"
             :product-favourites-count="0"
             :product-reviews-count="0"
-            class="container-md mx-auto w-full !p-0"
           />
         </div>
         <main
           class="
-            container
+            max-w-(--container-main) mx-auto w-full
 
             md:!p-0
           " :class="{
@@ -143,7 +150,7 @@ const Footer = computed(() => {
 
                     md:w-full
 
-                    xl:gap-0
+                    xl:gap-4
                   `,
                 ]"
               >
@@ -182,29 +189,18 @@ const Footer = computed(() => {
       </slot>
     </div>
     <MobileOrTabletOnly>
-      <UHorizontalNavigation
-        :links="links"
+      <UNavigationMenu
+        orientation="horizontal"
+        :items="items"
         :ui="{
-          container: 'flex justify-between w-full',
-          inner: 'flex justify-between w-full',
-          base: 'flex flex-col items-center justify-center w-full',
-          icon: {
-            base: 'text-primary-950 dark:text-primary-50 w-8 h-8',
-            active: 'text-secondary dark:text-secondary-dark',
-            inactive:
-              'text-primary-950 dark:text-primary-50 group-hover:text-primary-950 dark:group-hover:text-primary-950',
-          },
-          avatar: {
-            base: 'w-8 h-8',
-            size: 'sm' as '2xs',
-          },
+          root: 'border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50 bottom-0 left-0 right-0 z-50 block w-full border-t dark:border-primary-700 dark:bg-primary-900',
+          list: 'w-full',
+          item: 'w-full',
+          link: 'flex place-items-center justify-center before:bg-transparent dark:before:bg-transparent',
+          linkLabel: 'sr-only',
+          linkLeadingIcon: 'size-10',
+          linkLeadingAvatar: 'size-10',
         }"
-        class="
-          border-primary-200 bg-primary-50 fixed inset-x-0 bottom-0 z-50 w-full
-          border-t
-
-          dark:border-primary-700 dark:bg-primary-900
-        "
       />
     </MobileOrTabletOnly>
   </div>

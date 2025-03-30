@@ -1,9 +1,13 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { TableColumn, DropdownMenuItem } from '@nuxt/ui'
 
-import type { DropdownItem } from '#ui/types'
-
-const emit = defineEmits(['addEmailAddress', 'requestEmailVerification', 'removeEmailAddress', 'changePrimaryEmailAddress'])
+const emit = defineEmits([
+  'addEmailAddress',
+  'requestEmailVerification',
+  'removeEmailAddress',
+  'changePrimaryEmailAddress',
+])
 
 const {
   getEmailAddresses,
@@ -30,7 +34,7 @@ async function addEmail(values: EmailPostBody) {
     await refreshEmailAddresses()
     toast.add({
       title: t('email.added'),
-      color: 'green',
+      color: 'success',
     })
     emit('addEmailAddress')
   }
@@ -47,8 +51,8 @@ async function emailVerificationRequest(values: EmailPutBody) {
     loading.value = true
     await requestEmailVerification(values)
     toast.add({
-      title: 'ee',
-      color: 'green',
+      title: t('email.verification_requested'),
+      color: 'success',
     })
     emit('requestEmailVerification')
   }
@@ -67,7 +71,7 @@ async function removeEmail(values: EmailDeleteBody) {
     await refreshEmailAddresses()
     toast.add({
       title: t('email.removed'),
-      color: 'green',
+      color: 'success',
     })
     emit('removeEmailAddress')
   }
@@ -86,7 +90,7 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
     await refreshEmailAddresses()
     toast.add({
       title: t('email.marked_as_primary'),
-      color: 'green',
+      color: 'success',
     })
     emit('changePrimaryEmailAddress')
   }
@@ -98,68 +102,70 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
   }
 }
 
-const columns = [{
-  key: 'email',
-  label: t('email.title'),
-}, {
-  key: 'verified',
-  label: t('verified'),
-}, {
-  key: 'primary',
-  label: t('primary'),
-}, {
-  key: 'actions',
-}]
+const columns: TableColumn<EmailAddress>[] = [
+  {
+    accessorKey: 'email',
+    header: $i18n.t('email.title'),
+  },
+  {
+    accessorKey: 'verified',
+    header: t('verified'),
+  },
+  {
+    accessorKey: 'primary',
+    header: t('primary'),
+  },
+  {
+    id: 'actions',
+    header: '',
+  },
+]
 
-const rows = computed(() => {
-  return emailAddresses.value?.data.map((email) => {
-    return {
-      email: email.email,
-      verified: email.verified,
-      primary: email.primary,
-    }
-  })
+const data = computed(() => {
+  return emailAddresses.value?.data.map(email => ({
+    email: email.email,
+    verified: email.verified,
+    primary: email.primary,
+  })) || []
 })
 
-const actionItems = (row: { email: string, verified: boolean, primary: boolean }) => {
-  const items: DropdownItem[] = []
+const actionItems = (row: { email: string, verified: boolean, primary: boolean }): DropdownMenuItem[][] => {
+  const items: DropdownMenuItem[] = []
   if (!row.primary) {
     items.push({
       label: t('email.mark_as_primary'),
       icon: 'i-heroicons-star-20-solid',
-      click: () => markAsPrimaryEmail({ email: row.email, primary: true }),
+      onSelect: () => markAsPrimaryEmail({ email: row.email, primary: true }),
     })
     items.push({
       label: t('email.remove'),
       icon: 'i-heroicons-trash-20-solid',
-      click: () => removeEmail({ email: row.email }),
+      onSelect: () => removeEmail({ email: row.email }),
     })
   }
   if (!row.verified) {
     items.push({
       label: t('email.request_verification'),
       icon: 'i-heroicons-mail-20-solid',
-      click: () => emailVerificationRequest({ email: row.email }),
+      onSelect: () => emailVerificationRequest({ email: row.email }),
     })
   }
-
-  if (items.length === 0) {
-    return []
-  }
-  return [items]
+  return items.length ? [items] : []
 }
 
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('email.title'),
+      label: $i18n.t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+      rules: z
+        .string({ required_error: $i18n.t('validation.required') })
+        .email($i18n.t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('email.title'),
+      placeholder: $i18n.t('email.title'),
       type: 'email',
     },
   ],
@@ -167,69 +173,34 @@ const formSchema: DynamicFormSchema = {
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-
-      md:gap-12
-    "
-  >
-    <UTable :columns="columns" :rows="rows">
-      <template #actions-data="{ row }">
-        <LazyUDropdown v-if="actionItems(row).length > 0" :items="actionItems(row)">
-          <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
-        </LazyUDropdown>
+  <div class="grid gap-4 md:gap-12">
+    <UTable :columns="columns" :data="data">
+      <template #actions-cell="{ row }">
+        <LazyUDropdownMenu v-if="actionItems(row.original).length > 0" :items="actionItems(row.original)">
+          <UButton color="neutral" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
+        </LazyUDropdownMenu>
       </template>
-
-      <template #verified-data="{ row }">
+      <template #verified-cell="{ row }">
         <UIcon
-          :class="row.verified ? `
-            text-green-500
-
-            dark:text-green-400
-          ` : `
-            text-red-500
-
-            dark:text-red-400
-          `"
-          :name="row.verified ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
+          :class="row.original.verified ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          :name="row.original.verified ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
           class="size-6"
         />
       </template>
-      <template #primary-data="{ row }">
+      <template #primary-cell="{ row }">
         <UIcon
-          :class="row.primary ? `
-            text-green-500
-
-            dark:text-green-400
-          ` : `
-            text-red-500
-
-            dark:text-red-400
-          `"
-          :name="row.primary ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
+          :class="row.original.primary ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          :name="row.original.primary ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
           class="size-6"
         />
       </template>
     </UTable>
 
     <div class="grid">
-      <h2
-        class="
-          text-primary-950 text-center
-
-          dark:text-primary-50
-        "
-      >
+      <h2 class="text-primary-950 text-center dark:text-primary-50">
         {{ $i18n.t('email.add') }}
       </h2>
-      <div
-        class="
-          container-2xs p-0
-
-          md:px-6
-        "
-      >
+      <div class="container mx-auto p-0 md:px-6">
         <section class="grid items-center">
           <DynamicForm
             :button-label="$i18n.t('submit')"

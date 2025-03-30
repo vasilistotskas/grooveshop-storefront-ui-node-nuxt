@@ -16,7 +16,7 @@ async function onSubmit(values: CodeConfirmBody) {
     await confirmLoginCode(values)
     toast.add({
       title: t('logged_in'),
-      color: 'green',
+      color: 'success',
     })
     emit('confirmLoginCode')
   }
@@ -34,7 +34,7 @@ const formSchema: DynamicFormSchema = {
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
-      placeholder: t('code'),
+      placeholder: $i18n.t('code'),
       type: 'text',
     },
   ],
@@ -44,7 +44,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <div
     class="
-      container-2xs p-0
+      container mx-auto p-0
 
       md:px-6
     "

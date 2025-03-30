@@ -131,7 +131,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                   :aria-label="t('share')"
                   icon="i-heroicons-share"
                   size="lg"
-                  color="gray"
+                  color="neutral"
                   square
                   variant="ghost"
                   class="font-extrabold capitalize"

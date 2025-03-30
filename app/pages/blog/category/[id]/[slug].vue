@@ -96,7 +96,7 @@ const ogImage = computed(() => {
   })
 })
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -138,50 +138,46 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-sm flex flex-col">
-    <div class="container-sm !p-0">
-      <UBreadcrumb
-        :links="links"
-        :ui="{
-          li: 'text-primary-950 dark:text-primary-50',
-          base: 'text-xs md:text-md',
-        }"
-        class="
+  <PageWrapper class="flex flex-col max-w-(--container-6xl)">
+    <UBreadcrumb
+      :items="items"
+      :ui="{
+        item: 'text-primary-950 dark:text-primary-50',
+        root: 'text-xs md:text-md',
+      }"
+      class="
             mb-5
 
             md:px-0
           "
-      />
-    </div>
-    <div class="container-sm !p-0">
-      <h2
-        class="mb-5 flex w-full items-center justify-center gap-2"
-      >
-        <span
-          class="
+    />
+    <h2
+      class="mb-5 flex w-full items-center justify-center gap-2"
+    >
+      <span
+        class="
               text-primary-950 text-2xl font-bold capitalize
 
               dark:text-primary-50
 
               md:text-3xl
             "
-        >
-          {{ categoryTitle }}
-        </span>
-        <span
-          v-if="totalPosts"
-          class="
+      >
+        {{ categoryTitle }}
+      </span>
+      <span
+        v-if="totalPosts"
+        class="
               text-primary-950 text-sm
 
               dark:text-primary-50
 
               md:text-md
             "
-        >
-          ({{ totalPosts }})
-        </span>
-      </h2>
-    </div>
+      >
+        ({{ totalPosts }})
+      </span>
+    </h2>
     <div class="posts-list flex w-full flex-col gap-4">
       <div class="flex flex-row flex-wrap items-center gap-2">
         <Pagination

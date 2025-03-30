@@ -168,9 +168,9 @@ const fetchRegions = async () => {
   }
   catch {
     toast.add({
-      title: t('error.default'),
+      title: $i18n.t('error.default'),
       description: t('error_occurred'),
-      color: 'red',
+      color: 'error',
     })
   }
 }
@@ -205,7 +205,7 @@ const onSubmit = handleSubmit(async (values) => {
       }
       toast.add({
         title: t('form.submit.success'),
-        color: 'green',
+        color: 'success',
       })
       cleanCartState()
       await fetch()
@@ -214,7 +214,7 @@ const onSubmit = handleSubmit(async (values) => {
     onResponseError({ error }) {
       toast.add({
         title: error?.message,
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -239,7 +239,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-md flex flex-col gap-4
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -568,7 +568,7 @@ definePageMeta({
                 :as="UTextarea"
                 :placeholder="t('form.customer_notes')"
                 :rows="4"
-                color="primary"
+                color="neutral"
                 name="customerNotes"
                 type="text"
                 v-bind="customerNotesProps"
@@ -600,7 +600,7 @@ definePageMeta({
                 :bind="floorProps"
                 :options="floorChoicesList"
                 :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-                color="white"
+                color="neutral"
                 name="floor"
                 option-attribute="name"
               />
@@ -626,7 +626,7 @@ definePageMeta({
                 :as="USelect"
                 :options="locationChoicesList"
                 :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-                color="white"
+                color="neutral"
                 name="locationType"
                 option-attribute="name"
                 v-bind="locationTypeProps"
@@ -657,7 +657,7 @@ definePageMeta({
                   :as="USelect"
                   :options="countryOptions"
                   :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-                  color="white"
+                  color="neutral"
                   name="country"
                   option-attribute="name"
                   v-bind="countryProps"
@@ -687,7 +687,7 @@ definePageMeta({
                   :as="USelect"
                   :options="regionOptions"
                   :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-                  color="white"
+                  color="neutral"
                   name="region"
                   option-attribute="name"
                   v-bind="regionProps"
@@ -733,8 +733,6 @@ definePageMeta({
               :disabled="submitButtonDisabled"
               class="
                   text-primary-50 rounded bg-secondary px-4 py-2 font-bold
-
-                  dark:bg-secondary-dark
 
                   disabled:cursor-not-allowed disabled:opacity-50
                 "

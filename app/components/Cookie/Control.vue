@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { type Cookie, COOKIE_ID_SEPARATOR } from '#cookie-control/types'
 import { getAllCookieIdsString, getCookieIds, removeCookie } from '#cookie-control/methods'
-import 'assets/sass/_cookies.scss'
 
 const { t } = useI18n()
 
@@ -69,7 +68,9 @@ const setCookies = ({
   cookiesEnabled.value = isConsentGivenNew
     ? [
         ...moduleOptions.cookies.necessary,
-        ...moduleOptions.cookies.optional.filter(cookieOptional => cookiesOptionalEnabledNew.includes(cookieOptional)),
+        ...moduleOptions.cookies.optional.filter(cookieOptional =>
+          cookiesOptionalEnabledNew.includes(cookieOptional),
+        ),
       ]
     : []
   cookiesEnabledIds.value = isConsentGivenNew ? getCookieIds(cookiesEnabled.value) : []
@@ -106,7 +107,9 @@ watch(
       cookieCookiesEnabledIds.value = undefined
     }
 
-    const cookiesOptionalDisabled = moduleOptions.cookies.optional.filter(cookieOptional => !(current || []).includes(cookieOptional))
+    const cookiesOptionalDisabled = moduleOptions.cookies.optional.filter(
+      cookieOptional => !(current || []).includes(cookieOptional),
+    )
 
     for (const cookieOptionalDisabled of cookiesOptionalDisabled) {
       if (!cookieOptionalDisabled.targetCookieIds) continue
@@ -116,7 +119,9 @@ watch(
       }
 
       if (cookieOptionalDisabled.src) {
-        const srcs = Array.isArray(cookieOptionalDisabled.src) ? cookieOptionalDisabled.src : [cookieOptionalDisabled.src]
+        const srcs = Array.isArray(cookieOptionalDisabled.src)
+          ? cookieOptionalDisabled.src
+          : [cookieOptionalDisabled.src]
         srcs.forEach((src) => {
           document.head.querySelectorAll(`script[src="${src}"]`).forEach((script) => {
             script.parentNode?.removeChild(script)
@@ -150,35 +155,35 @@ defineExpose({
 
 <template>
   <ClientOnly>
-    <aside class="cookie-control">
+    <aside class="relative z-50">
       <div
         v-if="!isConsentGiven && !moduleOptions.isModalForced"
-        :class="`cookie-control-Bar`"
+        class="fixed bottom-2 left-0 right-0 z-50 mx-auto border px-4 md:px-6 py-4 shadow-xl max-w-sm sm:max-w-xl lg:max-w-4xl rounded-md border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800 text-primary-600 dark:text-primary-100"
       >
-        <div class="cookie-control-BarContainer">
+        <div class="flex flex-col lg:flex-row items-center justify-between text-xs text-primary-700 dark:text-primary-100">
           <div>
             <slot name="bar">
-              <h2 v-text="t('banner.title')" />
-              <p v-text="t('banner.description')" />
+              <h2 class="mb-1 font-semibold" v-text="t('banner.title')" />
+              <p class="text-sm text-primary-600 dark:text-primary-100" v-text="t('banner.description')" />
             </slot>
           </div>
-          <div class="cookie-control-BarButtons">
+          <div class="ml-auto flex items-center gap-2 mt-4 lg:mt-0 md:space-x-3 md:space-y-0 md:flex-row-reverse">
             <button
-              class="cookie-control-BarButtons-ManageCookies"
               type="button"
+              class="md:ml-3 whitespace-nowrap rounded-lg px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               @click="isModalActive = true"
               v-text="t('manage_cookies')"
             />
             <button
-              class="cookie-control-BarButtons-AcceptAll"
               type="button"
+              class="whitespace-nowrap rounded-lg border px-3 md:px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700"
               @click="accept()"
               v-text="t('accept')"
             />
             <button
               v-if="moduleOptions.isAcceptNecessaryButtonEnabled"
-              class="cookie-control-BarButtons-Decline"
               type="button"
+              class="whitespace-nowrap rounded-lg border px-3 md:px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700"
               @click="decline()"
               v-text="t('decline')"
             />
@@ -189,20 +194,16 @@ defineExpose({
         v-if="moduleOptions.isControlButtonEnabled && isConsentGiven"
         :title="t('title')"
         aria-label="Cookie control"
-        class="cookie-control-ControlButton"
         data-testid="nuxt-cookie-control-control-button"
         type="button"
+        class="fixed bottom-[160px] right-[20px] h-[36px] w-[36px] cursor-pointer rounded-full border border-primary-200 bg-primary-50 text-primary-900 hover:bg-white hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700 transition duration-200"
         @click="isModalActive = true"
       >
-        <svg
-          viewBox="0 0 512 512"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M510.52 255.82c-69.97-.85-126.47-57.69-126.47-127.86-70.17 0-127-56.49-127.86-126.45-27.26-4.14-55.13.3-79.72 12.82l-69.13 35.22a132.221 132.221 0 00-57.79 57.81l-35.1 68.88a132.645 132.645 0 00-12.82 80.95l12.08 76.27a132.521 132.521 0 0037.16 72.96l54.77 54.76a132.036 132.036 0 0072.71 37.06l76.71 12.15c27.51 4.36 55.7-.11 80.53-12.76l69.13-35.21a132.273 132.273 0 0057.79-57.81l35.1-68.88c12.56-24.64 17.01-52.58 12.91-79.91zM176 368c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32zm32-160c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32zm160 128c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"
-            fill="currentColor"
-          />
-        </svg>
+        <UIcon
+          name="i-unjs:cookie-es"
+          mode="svg"
+          class="absolute left-1/2 top-1/2 max-h-[24px] min-h-[24px] min-w-[24px] max-w-[24px] transition duration-200 text-primary-600 dark:text-primary-100 transform -translate-x-1/2 -translate-y-1/2"
+        />
       </button>
       <LazyCookieModal v-if="isModalActive" />
     </aside>
@@ -214,9 +215,7 @@ el:
   title: Cookies
   accept: Αποδοχή
   banner:
-    description: Χρησιμοποιούμε cookies και παρόμοιες τεχνολογίες για να εξατομικεύσουμε
-      το περιεχόμενο και να προσφέρουμε καλύτερη εμπειρία. Μπορείς να επιλέξεις
-      την προσαρμογή τους κάνοντας κλικ στο κουμπί προσαρμογής.
+    description: "Χρησιμοποιούμε cookies και παρόμοιες τεχνολογίες για να εξατομικεύσουμε το περιεχόμενο και να προσφέρουμε καλύτερη εμπειρία. Μπορείς να επιλέξεις την προσαρμογή τους κάνοντας κλικ στο κουμπί προσαρμογής."
     title: "\U0001F36A Γεια. Αυτός ο ιστότοπος χρησιμοποιεί Cookies \U0001F36A"
   decline: Απόρριψη
   manage_cookies: Ρυθμίσεις cookies

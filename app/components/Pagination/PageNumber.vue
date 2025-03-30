@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { ButtonSize } from '#ui/types'
+import type { ButtonProps } from '#ui/types'
 
 const props = defineProps({
   count: {
@@ -24,7 +24,7 @@ const props = defineProps({
     default: false,
   },
   size: {
-    type: String as PropType<ButtonSize>,
+    type: String as PropType<ButtonProps['size']>,
     default: 'md',
   },
 })
@@ -32,7 +32,6 @@ const props = defineProps({
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const { count } = toRefs(props)
 
@@ -59,42 +58,14 @@ watch(
 <template>
   <div class="pagination relative">
     <UPagination
-      v-model="currentPage"
-      :active-button="{
-        color: 'secondary',
-      }"
-      :inactive-button="{
-        color: 'primary',
-      }"
-      :first-button="{
-        icon: 'i-heroicons-arrow-long-left-20-solid',
-        label: !isMobileOrTablet ? $i18n.t('first') : undefined,
-        color: 'primary',
-      }"
-      :last-button="{
-        icon: 'i-heroicons-arrow-long-right-20-solid',
-        trailing: true,
-        label: !isMobileOrTablet ? $i18n.t('last') : undefined,
-        color: 'primary',
-      }"
-      :prev-button="{
-        icon: 'i-heroicons-arrow-small-left-20-solid',
-        label: !isMobileOrTablet ? $i18n.t('prev') : undefined,
-        color: 'primary',
-      }"
-      :next-button="{
-        icon: 'i-heroicons-arrow-small-right-20-solid',
-        trailing: true,
-        label: !isMobileOrTablet ? $i18n.t('next') : undefined,
-        color: 'primary',
-      }"
+      v-model:page="currentPage"
       :total="items.length"
-      :page-count="pageSize"
+      :items-per-page="pageSize"
       :max="maxVisibleButtons"
       :disabled="loading"
       :size="size"
-      show-first
-      show-last
+      show-edges
+      color="neutral"
     />
   </div>
 </template>

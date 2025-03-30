@@ -29,9 +29,8 @@ const { t } = useI18n({ useScope: 'local' })
     >
       <span
         class="
-          text-sm font-semibold text-secondary
+          text-sm font-semibold
 
-          dark:text-secondary-dark
         "
       >
         {{ t('total', ordersTotal) }}

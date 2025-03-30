@@ -95,9 +95,7 @@ watch(
           <div class="grid h-full">
             <h2
               class="
-                text-center text-secondary text-xl font-semibold tracking-tight
-
-                dark:text-secondary-dark
+                text-center text-xl font-semibold tracking-tight
 
                 md:text-2xl
               "
@@ -123,9 +121,8 @@ watch(
             <div class="grid items-end">
               <span
                 class="
-                  block w-full text-center font-semibold text-secondary
+                  block w-full text-center font-semibold
 
-                  dark:text-secondary-dark
                 "
               >
                 {{

@@ -157,7 +157,7 @@ const { $i18n } = useNuxtApp()
 
             md:py-2.5
           "
-          color="opposite"
+          color="secondary"
           size="lg"
           variant="link"
         />

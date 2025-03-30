@@ -35,7 +35,7 @@ const isCategorySelected = computed(() => {
       :to="{ name: 'blog-category-id-slug', params: { id: category?.id, slug: category?.slug } }"
       :text="categoryName"
       class="
-        group grid w-full grid-cols-auto-1fr items-center gap-4 p-2
+        group w-full flex items-center gap-4 p-2
 
         hover:no-underline
       "

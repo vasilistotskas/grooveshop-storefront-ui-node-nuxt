@@ -118,16 +118,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       </div>
       <div class="flex justify-end gap-6 pt-5">
         <ButtonBlogPostLike
-          class="
-            text-primary-950 flex-col justify-self-start p-0 font-extrabold
-            capitalize
-
-            dark:text-primary-50 dark:hover:bg-transparent
-
-            hover:bg-transparent
-          "
-          size="lg"
-          variant="ghost"
           :blog-post-id="post.id"
           :likes-count="post.likesCount"
           @update="likeClicked"
@@ -135,22 +125,17 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <UButton
           icon="i-heroicons-chat-bubble-oval-left"
           size="xl"
-          color="primary"
           square
+          color="neutral"
           variant="ghost"
-          class="
-            text-primary-950 flex-col justify-self-start p-0 font-extrabold
-            capitalize
-
-            dark:text-primary-50 dark:hover:bg-transparent
-
-            hover:bg-transparent
-          "
           :title="$i18n.t('comments.count', {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
           :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
+          :ui="{
+            base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
+          }"
         />
         <ClientOnly>
           <UButton
@@ -158,18 +143,13 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             :disabled="!isSupported"
             icon="i-heroicons-share"
             size="xl"
-            color="primary"
             square
+            color="neutral"
             variant="ghost"
             :title="$i18n.t('share')"
-            class="
-              text-primary-950 flex-col justify-self-start p-0 font-extrabold
-              capitalize
-
-              dark:text-primary-50 dark:hover:bg-transparent
-
-              hover:bg-transparent
-            "
+            :ui="{
+              base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
+            }"
             @click="startShare"
           />
           <template #fallback>

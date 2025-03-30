@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { ButtonSize } from '#ui/types'
+import type { ButtonProps } from '#ui/types'
 
 defineProps({
   buttonSize: {
-    type: String as PropType<ButtonSize>,
+    type: String as PropType<ButtonProps['size']>,
     default: 'md',
   },
   iconClass: {
@@ -22,17 +22,12 @@ const { $i18n } = useNuxtApp()
     :external="true"
     :size="buttonSize"
     :to="config.public.socials.instagram"
-    color="opposite"
+    color="secondary"
     target="_blank"
     variant="link"
   >
     <UIcon
       name="i-mdi-instagram" :class="iconClass"
-      class="
-        text-secondary-light
-
-        dark:text-secondary-dark
-      "
     />
     <span class="sr-only">{{ $i18n.t('instagram') }}</span>
   </UButton>
@@ -40,17 +35,12 @@ const { $i18n } = useNuxtApp()
     :external="true"
     :size="buttonSize"
     :to="config.public.socials.tiktok"
-    color="opposite"
+    color="secondary"
     target="_blank"
     variant="link"
   >
     <UIcon
       name="i-ant-design-tik-tok-filled" :class="iconClass"
-      class="
-        text-secondary-light
-
-        dark:text-secondary-dark
-      "
     />
     <span class="sr-only">{{ $i18n.t('tiktok') }}</span>
   </UButton>
@@ -58,17 +48,12 @@ const { $i18n } = useNuxtApp()
     :external="true"
     :size="buttonSize"
     :to="config.public.socials.reddit"
-    color="opposite"
+    color="secondary"
     target="_blank"
     variant="link"
   >
     <UIcon
       name="i-mdi-reddit" :class="iconClass"
-      class="
-        text-secondary-light
-
-        dark:text-secondary-dark
-      "
     />
     <span class="sr-only">{{ $i18n.t('reddit') }}</span>
   </UButton>
@@ -76,17 +61,12 @@ const { $i18n } = useNuxtApp()
     :external="true"
     :size="buttonSize"
     :to="config.public.socials.youtube"
-    color="opposite"
+    color="secondary"
     target="_blank"
     variant="link"
   >
     <UIcon
       name="i-mdi-youtube" :class="iconClass"
-      class="
-        text-secondary-light
-
-        dark:text-secondary-dark
-      "
     />
     <span class="sr-only">{{ $i18n.t('youtube') }}</span>
   </UButton>
@@ -94,17 +74,12 @@ const { $i18n } = useNuxtApp()
     :external="true"
     :size="buttonSize"
     :to="config.public.socials.pinterest"
-    color="opposite"
+    color="secondary"
     target="_blank"
     variant="link"
   >
     <UIcon
       name="i-mdi-pinterest" :class="iconClass"
-      class="
-        text-secondary-light
-
-        dark:text-secondary-dark
-      "
     />
     <span class="sr-only">{{ $i18n.t('pinterest') }}</span>
   </UButton>
@@ -112,17 +87,12 @@ const { $i18n } = useNuxtApp()
     :external="true"
     :size="buttonSize"
     :to="config.public.socials.facebook"
-    color="opposite"
+    color="secondary"
     target="_blank"
     variant="link"
   >
     <UIcon
       name="i-mdi-facebook" :class="iconClass"
-      class="
-        text-secondary-light
-
-        dark:text-secondary-dark
-      "
     />
     <span class="sr-only">{{ $i18n.t('facebook') }}</span>
   </UButton>
@@ -130,17 +100,12 @@ const { $i18n } = useNuxtApp()
     :external="true"
     :size="buttonSize"
     :to="config.public.socials.discord"
-    color="opposite"
+    color="secondary"
     target="_blank"
     variant="link"
   >
     <UIcon
       name="i-mdi-discord" :class="iconClass"
-      class="
-        text-secondary-light
-
-        dark:text-secondary-dark
-      "
     />
     <span class="sr-only">{{ $i18n.t('discord') }}</span>
   </UButton>

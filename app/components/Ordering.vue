@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { DropdownItem } from '#ui/types'
+import type { DropdownMenuItem } from '#ui/types'
 
 const props = defineProps({
   orderingOptions: {
@@ -34,7 +34,7 @@ const selectedOrderingLabel = computed(() => {
   return selectedOrdering?.label
 })
 
-const items = computed<DropdownItem[][]>(() => {
+const items = computed<DropdownMenuItem[][]>(() => {
   const dropDownItems = []
   for (const option of props.orderingOptions) {
     dropDownItems.push([
@@ -48,7 +48,7 @@ const items = computed<DropdownItem[][]>(() => {
         slot: option.slot,
         disabled: option.value === ordering.value,
         class: option.class,
-        click: () => onOptionClick(option),
+        onSelect: () => onOptionClick(option),
       },
     ])
   }
@@ -108,23 +108,20 @@ const onOptionClick = async (option: OrderingOption) => {
             md:h-full md:w-60
           "
         >
-          <UDropdown
+          <UDropdownMenu
             :items="items"
             :popper="{ placement: 'bottom-start' }"
             :ui="{
-              background: 'bg-primary-200 dark:bg-primary-800',
-              item: {
-                label: 'text-primary-800 dark:text-primary-200',
-              },
+              item: 'text-primary-800 dark:text-primary-200',
             }"
             class="md:h-full"
           >
             <UButton
               :label="selectedOrderingLabel"
-              color="primary"
+              color="neutral"
               trailing-icon="i-heroicons-chevron-down-20-solid"
             />
-          </UDropdown>
+          </UDropdownMenu>
         </div>
       </div>
     </div>

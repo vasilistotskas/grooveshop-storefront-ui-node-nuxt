@@ -187,7 +187,7 @@ onUnmounted(() => {
       size="md"
       variant="soft"
       :label="$i18n.t('load.more')"
-      color="primary"
+      color="neutral"
       aria-label="Load more posts"
       :loading="loading"
       @click="loadMore"
@@ -195,7 +195,7 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .cursor-pagination {
   display: flex;
   flex-direction: column;

@@ -32,7 +32,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   <div
     v-if="cartItem"
     class="
-      bg-primary-100 border-primary-500 relative grid grid-cols-auto-1fr
+      bg-primary-100 border-primary-500 relative flex
       items-center justify-center justify-items-center gap-4 rounded-md border
 
       dark:bg-primary-900 dark:border-primary-500

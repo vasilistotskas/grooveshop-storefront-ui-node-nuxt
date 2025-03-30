@@ -7,7 +7,6 @@ const emit = defineEmits(['passwordRequest'])
 
 const { passwordRequest } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n({ useScope: 'local' })
 const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
@@ -20,8 +19,8 @@ async function onSubmit(values: PasswordRequestBody) {
       email: values.email,
     })
     toast.add({
-      title: t('password.reset.request.success'),
-      color: 'green',
+      title: $i18n.t('password.reset.request.success'),
+      color: 'success',
     })
     emit('passwordRequest')
   }
@@ -46,7 +45,7 @@ const formSchema: DynamicFormSchema = {
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('email.title'),
+      placeholder: $i18n.t('email.title'),
       type: 'email',
     },
   ],
@@ -57,7 +56,7 @@ const formSchema: DynamicFormSchema = {
   <section class="grid">
     <DynamicForm
       ref="form"
-      :button-label="t('reset')"
+      :button-label="$i18n.t('reset')"
       :loading="loading"
       :schema="formSchema"
       @submit="onSubmit"

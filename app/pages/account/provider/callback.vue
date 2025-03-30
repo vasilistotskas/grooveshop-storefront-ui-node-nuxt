@@ -99,7 +99,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -116,9 +116,9 @@ definePageMeta({
     >
       <svg
         aria-hidden="true" class="
-          inline size-24 animate-spin fill-blue-600 text-gray-200
+          inline size-24 animate-spin fill-blue-600 text-neutral-200
 
-          dark:text-gray-600
+          dark:text-neutral-600
         "
         fill="none" viewBox="0 0 100 101" xmlns="http://www.w3.org/2000/svg"
       >
@@ -147,7 +147,7 @@ definePageMeta({
         :label="$i18n.t('continue')"
         :to="localePath(url)"
         class="justify-center"
-        color="primary"
+        color="neutral"
         size="xl"
         type="button"
       />

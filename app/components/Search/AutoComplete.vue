@@ -145,7 +145,7 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.3s ease;

@@ -28,25 +28,22 @@ const { t } = useI18n({ useScope: 'local' })
     >
       <span
         class="
-          text-3xl font-semibold text-secondary
+          text-3xl font-semibold
 
-          dark:text-secondary-dark
         "
       >{{ reviewsAverage.toFixed(1) }}</span>
       <span
         class="
-          text-sm font-semibold text-secondary
+          text-sm font-semibold
 
-          dark:text-secondary-dark
         "
       >/{{ maxRate }}</span>
     </div>
     <div class="flex items-center gap-1">
       <span
         class="
-          text-sm font-semibold text-secondary
+          text-sm font-semibold
 
-          dark:text-secondary-dark
         "
       >
         {{ t('reviews.summary', reviewsCount) }}

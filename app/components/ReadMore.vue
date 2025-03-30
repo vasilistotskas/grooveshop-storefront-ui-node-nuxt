@@ -68,7 +68,7 @@ const trimmedText = computed(() => {
       <UButton
         :label="showFullText ? $i18n.t('read_less') : $i18n.t('read_more')"
         size="xs"
-        color="primary"
+        color="neutral"
         @click="toggleFullText"
       />
     </div>

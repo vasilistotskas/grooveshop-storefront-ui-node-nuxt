@@ -81,7 +81,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -93,7 +93,7 @@ definePageMeta({
 
     <div
       class="
-          container-2xs bg-primary-100 rounded !p-4 shadow-md
+          container mx-auto bg-primary-100 rounded !p-4 shadow-md
 
           dark:bg-primary-900
 
@@ -300,7 +300,7 @@ definePageMeta({
           :label="t('button')"
           :to="localePath('index')"
           :trailing="false"
-          color="primary"
+          color="neutral"
           icon="i-heroicons-home"
           size="xl"
           variant="solid"

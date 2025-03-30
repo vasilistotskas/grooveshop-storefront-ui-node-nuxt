@@ -68,7 +68,7 @@ export const determineAuthChangeEvent = (
   if (newAuthState.status === 410) {
     toast.add({
       title: t('auth.error.session.expired'),
-      color: 'yellow',
+      color: 'warning',
     })
     return AuthChangeEvent.LOGGED_OUT
   }

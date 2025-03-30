@@ -1,3 +1,5 @@
+import * as uiLocales from '@nuxt/ui/locale'
+
 export function setupPageHeader() {
   const publicConfig = useRuntimeConfig().public
   const siteConfig = useSiteConfig()
@@ -14,6 +16,8 @@ export function setupPageHeader() {
   const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
   const ogLocalesAlternate = computed(() => locales.value.map((l: any) => l.language))
+  const lang = computed(() => uiLocales[locale.value].code)
+  const dir = computed(() => uiLocales[locale.value].dir)
 
   useSeoMeta({
     title: publicConfig.appTitle,
@@ -49,8 +53,8 @@ export function setupPageHeader() {
       separator: publicConfig.titleSeparator,
     },
     htmlAttrs: {
-      lang: i18nHead.value.htmlAttrs!.lang,
-      dir: i18nHead.value.htmlAttrs!.dir || 'ltr',
+      lang,
+      dir,
     },
     link: [...(i18nHead.value.link || [])],
     meta: [...(i18nHead.value.meta || []),
@@ -85,13 +89,12 @@ export function setupGoogleAnalyticsConsent() {
     () => status.value,
     (current, _previous) => {
       if (current === 'loaded') {
-        // @ts-ignore
         proxy.gtag('consent', 'default', {
           ad_user_data: 'denied',
           ad_personalization: 'denied',
           ad_storage: 'denied',
           analytics_storage: 'denied',
-          functionality_storage: 'denied',
+          functionality_storage: 'granted',
           personalization_storage: 'denied',
           security_storage: 'denied',
         })
@@ -108,7 +111,6 @@ export function setupGoogleAnalyticsConsent() {
           await load()
         }
         const consentFieldStatus = (field: string) => current?.includes(field) ? 'granted' : 'denied'
-        // @ts-ignore
         proxy.gtag('consent', 'update', {
           ad_storage: consentFieldStatus('ad_storage'),
           ad_user_data: consentFieldStatus('ad_user_data'),

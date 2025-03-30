@@ -1,20 +1,11 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { ButtonSize, ButtonVariant } from '#ui/types'
-import type { ButtonColor } from '#ui/types/button'
+import type { ButtonProps } from '#ui/types'
 
 defineProps({
   size: {
-    type: String as PropType<ButtonSize>,
+    type: String as PropType<ButtonProps['size']>,
     default: 'sm',
-  },
-  variant: {
-    type: String as PropType<ButtonVariant>,
-    default: 'solid',
-  },
-  color: {
-    type: String as PropType<ButtonColor>,
-    default: 'red',
   },
 })
 
@@ -45,22 +36,11 @@ const onClickLogout = async () => {
 <template>
   <UButton
     :aria-label="$i18n.t('logout')"
-    :color="color"
+    :color="'error'"
     :label="$i18n.t('logout')"
     :size="size"
     :title="$i18n.t('logout')"
-    :ui="{
-      font: 'font-semibold',
-      size: {
-        xl: 'text-xl',
-      },
-      icon: {
-        size: {
-          xl: 'h-7 w-7',
-        },
-      },
-    }"
-    :variant="variant"
+    :variant="'subtle'"
     icon="i-heroicons-arrow-left-end-on-rectangle"
     @click="onClickLogout"
   />

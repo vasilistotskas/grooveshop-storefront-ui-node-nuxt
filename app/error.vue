@@ -44,11 +44,11 @@ defineOgImage(ogImageOptions)
     </PageHeader>
     <div
       class="
-        grid min-h-screen pt-[55px]
+        grid min-h-screen pt-[57px]
 
-        lg:pt-[63px]
+        lg:pt-[65px]
 
-        md:pt-[63px]
+        md:pt-[65px]
       "
     >
       <div
@@ -83,7 +83,7 @@ defineOgImage(ogImageOptions)
         <Anchor
           :to="'index'"
           class="
-            mt-2 block font-bold text-secondary
+            mt-2 block font-bold
 
             hover:underline
           "

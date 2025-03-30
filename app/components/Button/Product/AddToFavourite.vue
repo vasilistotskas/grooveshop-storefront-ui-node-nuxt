@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ButtonSize } from '#ui/types'
+import type { ButtonProps } from '#ui/types'
 
 const props = defineProps({
   productId: {
@@ -19,7 +19,7 @@ const props = defineProps({
     default: null,
   },
   size: {
-    type: String as PropType<ButtonSize>,
+    type: String as PropType<ButtonProps['size']>,
     default: 'md',
   },
   showLabel: {
@@ -42,7 +42,7 @@ const toggleFavourite = async () => {
   if (!loggedIn.value || !props.userId) {
     toast.add({
       title: t('not_authenticated'),
-      color: 'red',
+      color: 'error',
     })
     return
   }
@@ -60,7 +60,7 @@ const toggleFavourite = async () => {
       onRequestError({ error }) {
         toast.add({
           title: error.message,
-          color: 'red',
+          color: 'error',
         })
       },
       onResponse({ response }) {
@@ -70,13 +70,13 @@ const toggleFavourite = async () => {
         addFavouriteProduct(response._data)
         toast.add({
           title: t('added'),
-          color: 'green',
+          color: 'success',
         })
       },
       onResponseError({ error }) {
         toast.add({
           title: error?.message,
-          color: 'red',
+          color: 'error',
         })
       },
     })
@@ -89,7 +89,7 @@ const toggleFavourite = async () => {
       onRequestError({ error }) {
         toast.add({
           title: error.message,
-          color: 'red',
+          color: 'error',
         })
       },
       onResponse({ response }) {
@@ -100,13 +100,13 @@ const toggleFavourite = async () => {
         removeFavouriteProduct(props.productId)
         toast.add({
           title: t('removed'),
-          color: 'red',
+          color: 'error',
         })
       },
       onResponseError({ error }) {
         toast.add({
           title: error?.message,
-          color: 'red',
+          color: 'error',
         })
       },
     })
@@ -133,15 +133,10 @@ const buttonAreaLabel = computed(() => {
     :size="size"
     :label="buttonLabel"
     :icon="!favouriteId ? 'i-heroicons-heart' : 'i-heroicons-heart'"
-    :color="'gray'"
+    :color="'neutral'"
     variant="ghost"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
-    :ui="{
-      icon: {
-        base: favouriteId ? 'bg-red-500' : '',
-      },
-    }"
     @click="toggleFavourite"
   />
 </template>

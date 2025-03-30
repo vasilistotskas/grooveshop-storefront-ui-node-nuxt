@@ -329,7 +329,7 @@ const link = computed(() => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .pagination {
   .pagination-ordered-list {
     grid-template-columns: auto auto 1fr auto auto auto auto;

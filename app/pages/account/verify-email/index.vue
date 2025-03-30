@@ -19,7 +19,7 @@ async function onSubmit(values: EmailVerifyPostBody) {
     if (data && [200, 401].includes(data.status)) {
       toast.add({
         title: t('auth.email.verified'),
-        color: 'green',
+        color: 'success',
       })
       emit('emailVerify')
       await navigateTo(localePath('account'))
@@ -55,7 +55,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "

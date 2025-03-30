@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import * as uiLocales from '@nuxt/ui/locale'
+
 setupPageHeader()
 setupGoogleAnalyticsConsent()
 setupCursorState()
@@ -8,7 +10,7 @@ const { enabled } = useAuthPreviewMode()
 const { loggedIn, user } = useUserSession()
 const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
-const { locales } = useI18n()
+const { locales, locale } = useI18n()
 
 const cartStore = useCartStore()
 const { fetchCart } = cartStore
@@ -50,18 +52,11 @@ defineOgImage({
   <NuxtPwaManifest />
   <NuxtRouteAnnouncer />
   <LoadingIndicator />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
-  <Pwa />
-  <CookieControl />
-  <UNotifications>
-    <template #title="{ title }">
-      <span v-html="title" />
-    </template>
-
-    <template #description="{ description }">
-      <span v-html="description" />
-    </template>
-  </UNotifications>
+  <UApp :locale="uiLocales[locale]">
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+    <Pwa />
+    <CookieControl />
+  </UApp>
 </template>

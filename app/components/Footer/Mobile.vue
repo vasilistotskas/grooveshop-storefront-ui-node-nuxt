@@ -1,10 +1,12 @@
 <script lang="ts" setup>
+import type { AccordionItem } from '@nuxt/ui'
+
 const localePath = useLocalePath()
 const { t } = useI18n({ useScope: 'local' })
 const { $i18n } = useNuxtApp()
 
 const items = [{
-  label: t('about.us'),
+  label: $i18n.t('about.us'),
   icon: 'i-heroicons-information-circle',
   slot: 'about',
 }, {
@@ -12,77 +14,32 @@ const items = [{
   icon: 'i-heroicons-light-bulb',
   slot: 'micro-learning',
 }, {
-  label: t('terms_conditions'),
+  label: $i18n.t('terms_conditions'),
   icon: 'i-heroicons-rectangle-group',
   slot: 'terms-conditions',
 }, {
-  label: t('help_center'),
+  label: $i18n.t('help_center'),
   icon: 'i-heroicons-chat-bubble-oval-left',
   slot: 'contact',
-}]
+}] satisfies AccordionItem[]
 </script>
 
 <template>
   <footer
     class="
-      md:hidden bg-primary-50 w-full pb-[3.75rem]
+      md:hidden bg-primary-50 w-full pb-[2.87rem]
 
       dark:bg-primary-900
     "
   >
     <UAccordion
       :items="items"
-      :ui="{ wrapper: 'flex flex-col w-full' }"
+      :ui="{
+        trigger: 'bg-(--ui-secondary) p-3 gap-4',
+        leadingIcon: 'size-8 text-white',
+        label: 'truncate text-2xl font-semibold text-white',
+      }"
     >
-      <template #default="{ item, open }">
-        <UButton
-          :ui="{ rounded: 'rounded-none', padding: { sm: 'p-3' } }"
-          class="
-            border-primary-200 gap-1 border-b bg-secondary-light
-
-            dark:border-primary-700 dark:bg-secondary-dark
-          "
-          color="primary"
-          variant="ghost"
-        >
-          <template #leading>
-            <div
-              class="
-                -my-1 flex size-10 items-center justify-center rounded-full
-              "
-            >
-              <UIcon
-                :name="item.icon"
-                class="
-                  text-primary-50 size-6
-
-                  dark:text-primary-50
-                "
-              />
-            </div>
-          </template>
-
-          <span
-            class="
-              text-primary-50 truncate text-2xl
-
-              dark:text-primary-50
-            "
-          >{{ item.label }}</span>
-
-          <template #trailing>
-            <UIcon
-              :name="open ? 'i-heroicons-chevron-up-20-solid' : 'i-heroicons-chevron-down-20-solid'"
-              class="
-                text-primary-50 ms-auto size-6 transition-transform duration-200
-
-                dark:text-primary-50
-              "
-            />
-          </template>
-        </UButton>
-      </template>
-
       <template #about>
         <div
           class="

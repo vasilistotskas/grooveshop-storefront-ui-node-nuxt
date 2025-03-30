@@ -359,9 +359,7 @@ onMounted(() => {
   </Teleport>
 </template>
 
-<style lang="scss" scoped>
-$transitional-profile-1: all 0.2s ease-out;
-
+<style scoped>
 .cp-utilities-generic-modal {
   visibility: hidden;
   content-visibility: hidden;
@@ -374,107 +372,111 @@ $transitional-profile-1: all 0.2s ease-out;
   overflow: v-bind(overflow);
   gap: v-bind(gap);
   padding: v-bind(padding);
+}
 
-  &-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: $transitional-profile-1;
-    pointer-events: none;
-    user-select: none;
-    display: grid;
-    align-items: center;
-    align-content: center;
-    justify-items: center;
-    justify-content: center;
-    z-index: 31;
+.cp-utilities-generic-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: all 0.2s ease-out;
+  pointer-events: none;
+  user-select: none;
+  display: grid;
+  align-items: center;
+  align-content: center;
+  justify-items: center;
+  justify-content: center;
+  z-index: 31;
+}
 
-    &.open {
-      opacity: 1;
-      pointer-events: auto;
-      user-select: initial;
+.cp-utilities-generic-modal-wrapper.open {
+  opacity: 1;
+  pointer-events: auto;
+  user-select: initial;
+}
 
-      .cp-utilities-generic-modal {
-        visibility: visible;
-        content-visibility: visible;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 1rem;
-        border: v-bind(border);
-        border-radius: v-bind(borderRadius);
+.cp-utilities-generic-modal-wrapper.open .cp-utilities-generic-modal {
+  visibility: visible;
+  content-visibility: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+  border: v-bind(border);
+  border-radius: v-bind(borderRadius);
+}
 
-        @media screen and (width <= 1200px) {
-          max-height: 100svh;
-        }
-
-        @media screen and (width <= 767px) {
-          max-width: 100% !important;
-          padding: 20px;
-        }
-      }
-    }
+@media screen and (max-width: 1200px) {
+  .cp-utilities-generic-modal-wrapper.open .cp-utilities-generic-modal {
+    max-height: 100svh;
   }
+}
 
-  &-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 1;
-    z-index: 30;
-    transition: $transitional-profile-1;
-
-    @media screen and (width <= 767px) {
-      width: 100svw;
-      height: 100lvh;
-    }
-
-    &-static {
-      width: 100%;
-      height: 100%;
-      opacity: 0.23;
-    }
-
-    &-close {
-      border-radius: 20px;
-      border: none;
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      cursor: pointer;
-      color: #ef1b1b;
-      z-index: 33;
-      transition: $transitional-profile-1;
-
-      span {
-        i {
-          font-weight: 900;
-        }
-      }
-
-      &:hover {
-        transform: scale(1.5);
-      }
-
-      &:active {
-        transform: scale(0.8);
-      }
-    }
+@media screen and (max-width: 767px) {
+  .cp-utilities-generic-modal-wrapper.open .cp-utilities-generic-modal {
+    max-width: 100% !important;
+    padding: 20px;
   }
+}
 
-  &-body {
-    display: grid;
-    transition: all 0.5s ease;
-  }
+.cp-utilities-generic-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  z-index: 30;
+  transition: all 0.2s ease-out;
+}
 
-  &-header {
-    position: relative;
+@media screen and (max-width: 767px) {
+  .cp-utilities-generic-modal-overlay {
+    width: 100svw;
+    height: 100lvh;
   }
+}
+
+.cp-utilities-generic-modal-overlay-static {
+  width: 100%;
+  height: 100%;
+  opacity: 0.23;
+}
+
+.cp-utilities-generic-modal-overlay-close {
+  border-radius: 20px;
+  border: none;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  color: #ef1b1b;
+  z-index: 33;
+  transition: all 0.2s ease-out;
+}
+
+.cp-utilities-generic-modal-overlay-close span i {
+  font-weight: 900;
+}
+
+.cp-utilities-generic-modal-overlay-close:hover {
+  transform: scale(1.5);
+}
+
+.cp-utilities-generic-modal-overlay-close:active {
+  transform: scale(0.8);
+}
+
+.cp-utilities-generic-modal-body {
+  display: grid;
+  transition: all 0.5s ease;
+}
+
+.cp-utilities-generic-modal-header {
+  position: relative;
 }
 </style>
 

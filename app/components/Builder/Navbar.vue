@@ -50,7 +50,7 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
     >
       <slot name="banner" />
     </div>
-    <div class="container-sm !p-0">
+    <div class="max-w-(--container-main) mx-auto !p-0">
       <div
         class="
           mx-2 flex gap-2 py-3
@@ -78,13 +78,10 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
             >
               <UTooltip
                 :text="healthy ? '' : t('backend.api.unhealthy')"
-                :ui="{
-                  width: isMobileOrTablet ? 'max-w-xs' : 'max-w-lg',
-                }"
               >
                 <UChip
                   position="top-left"
-                  color="orange"
+                  color="warning"
                   :size="isMobileOrTablet ? 'md' : 'lg'"
                   :show="!healthy"
                 >

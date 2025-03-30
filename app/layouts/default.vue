@@ -27,8 +27,8 @@ const avatarImg = computed(() => {
   })
 })
 
-const links = computed(() => {
-  const links = [
+const items = computed(() => {
+  const items = [
     {
       icon: 'i-heroicons-home',
       to: '/',
@@ -50,15 +50,15 @@ const links = computed(() => {
   ] as LinksOption[]
 
   if (!loggedIn.value) {
-    links.push({
+    items.push({
       icon: 'i-heroicons-user',
       to: `/account/login?next=${route.path}`,
       label: $i18n.t('account'),
       labelClass: 'sr-only',
     })
   }
-  else {
-    links.push({
+  else if (avatarImg.value) {
+    items.push({
       to: '/account',
       label: $i18n.t('account'),
       labelClass: 'sr-only',
@@ -67,8 +67,16 @@ const links = computed(() => {
       },
     })
   }
+  else {
+    items.push({
+      icon: 'i-heroicons-user',
+      to: '/account',
+      label: $i18n.t('account'),
+      labelClass: 'sr-only',
+    })
+  }
 
-  return links
+  return items
 })
 </script>
 
@@ -81,11 +89,11 @@ const links = computed(() => {
     </slot>
     <main
       class="
-        pt-[55px]
+        pt-[57px]
 
-        lg:pt-[63px]
+        lg:pt-[65px]
 
-        md:pt-[63px]
+        md:pt-[65px]
       "
       :class="{
         'opacity-70': searchBarFocused,
@@ -106,31 +114,20 @@ const links = computed(() => {
       <LazyFooterMobile v-if="isMobileOrTablet" hydrate-on-visible />
       <LazyFooterDesktop v-else hydrate-on-visible />
     </slot>
-    <LazyMobileOrTabletOnly hydrate-on-visible>
-      <UHorizontalNavigation
-        :links="links"
+    <MobileOrTabletOnly>
+      <UNavigationMenu
+        orientation="horizontal"
+        :items="items"
         :ui="{
-          container: 'flex justify-between w-full',
-          inner: 'flex justify-between w-full',
-          base: 'flex flex-col items-center justify-center w-full',
-          icon: {
-            base: 'text-primary-950 dark:text-primary-50 w-8 h-8',
-            active: 'text-secondary dark:text-secondary-dark',
-            inactive:
-              'text-primary-950 dark:text-primary-50 group-hover:text-primary-950 dark:group-hover:text-primary-950',
-          },
-          avatar: {
-            base: 'w-8 h-8',
-            size: 'sm' as '2xs',
-          },
+          root: 'border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50 bottom-0 left-0 right-0 z-50 block w-full border-t dark:border-primary-700 dark:bg-primary-900',
+          list: 'w-full',
+          item: 'w-full',
+          link: 'flex place-items-center justify-center before:bg-transparent dark:before:bg-transparent',
+          linkLabel: 'sr-only',
+          linkLeadingIcon: 'size-10',
+          linkLeadingAvatar: 'size-10',
         }"
-        class="
-          md:hidden border-primary-200 bg-primary-50 fixed inset-x-0 bottom-0 z-50 w-full
-          border-t
-
-          dark:border-primary-700 dark:bg-primary-900
-        "
       />
-    </LazyMobileOrTabletOnly>
+    </MobileOrTabletOnly>
   </div>
 </template>

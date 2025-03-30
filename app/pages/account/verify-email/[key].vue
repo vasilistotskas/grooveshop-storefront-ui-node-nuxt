@@ -26,7 +26,7 @@ async function onSubmit() {
     if (data && [200, 401].includes(data.status)) {
       toast.add({
         title: t('auth.email.verified'),
-        color: 'green',
+        color: 'success',
       })
       emit('emailVerify')
       await navigateTo(localePath('account'))
@@ -43,7 +43,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-2xs grid">
+  <PageWrapper class="grid">
     <div
       class="
         flex flex-col gap-8
@@ -80,7 +80,7 @@ definePageMeta({
             :label="
               $i18n.t('confirm')
             "
-            color="primary"
+            color="neutral"
             size="xl"
             @click="onSubmit"
           />
@@ -106,7 +106,7 @@ definePageMeta({
             :external="true"
             :label="getVerifyEmailData.data.email"
             :to="'mailto:' + getVerifyEmailData.data.email"
-            color="opposite"
+            color="secondary"
             variant="link"
           />
           {{ t('because_it_is_already_confirmed') }}

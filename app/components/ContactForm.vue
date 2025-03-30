@@ -18,14 +18,14 @@ async function onSubmit(values: ContactBody) {
       },
     )
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
   }
   catch {
     toast.add({
-      title: t('error.default'),
-      color: 'red',
+      title: $i18n.t('error.default'),
+      color: 'error',
     })
   }
   finally {
@@ -47,14 +47,14 @@ const formSchema: DynamicFormSchema = {
       type: 'text',
     },
     {
-      label: t('email.title'),
+      label: $i18n.t('email.title'),
       name: 'email',
       as: 'input',
       rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('email.title'),
+      placeholder: $i18n.t('email.title'),
       type: 'email',
     },
     {
@@ -73,7 +73,7 @@ const formSchema: DynamicFormSchema = {
 </script>
 
 <template>
-  <section class="container-3xs">
+  <section class="container mx-auto">
     <DynamicForm
       :button-label="$i18n.t('submit')"
       :loading="loading"

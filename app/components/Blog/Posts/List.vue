@@ -289,7 +289,7 @@ onReactivated(async () => {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;

@@ -5,7 +5,6 @@ const emit = defineEmits(['providerSignup'])
 
 const { providerSignup } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
@@ -15,8 +14,8 @@ async function onSubmit(values: ProviderSignupBody) {
     loading.value = true
     await providerSignup(values)
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('providerSignup')
   }
@@ -28,14 +27,14 @@ async function onSubmit(values: ProviderSignupBody) {
 const formSchema: DynamicFormSchema = {
   fields: [
     {
-      label: t('email.title'),
+      label: $i18n.t('email.title'),
       name: 'email',
       as: 'input',
       rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('email.title'),
+      placeholder: $i18n.t('email.title'),
       type: 'email',
     },
   ],
@@ -45,7 +44,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <div
     class="
-      container-2xs p-0
+      container mx-auto p-0
 
       md:px-6
     "

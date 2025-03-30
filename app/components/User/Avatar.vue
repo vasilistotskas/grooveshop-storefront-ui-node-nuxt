@@ -66,14 +66,14 @@ const uploadImage = async (event: Event) => {
     loading.value = false
     return toast.add({
       title: t('no_file_selected'),
-      color: 'red',
+      color: 'error',
     })
   }
   if (!fileExtensionAllowed) {
     loading.value = false
     return toast.add({
       title: t('file_extension_not_allowed'),
-      color: 'red',
+      color: 'error',
     })
   }
 
@@ -95,14 +95,14 @@ const uploadImage = async (event: Event) => {
       }
       toast.add({
         title: t('image.updated'),
-        color: 'green',
+        color: 'success',
       })
       await fetch()
     },
     onResponseError() {
       toast.add({
         title: t('image.upload.error'),
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -119,6 +119,7 @@ const uploadImage = async (event: Event) => {
         'inline-block size-[135px] shrink-0 text-center align-middle':
           backgroundBorder,
         'loading': loading,
+        'hover:cursor-pointer': true,
       }"
       :style="{
         width: imgWidth + 'px',
@@ -240,44 +241,44 @@ const uploadImage = async (event: Event) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-.user-avatar-change {
-  svg {
-    display: none;
-    position: absolute;
-    top: 18px;
-    left: 1px;
-    transform: scale(0.4);
-    cursor: pointer;
+<style scoped>
+.user-avatar-change svg {
+  display: none;
+  position: absolute;
+  top: 18px;
+  left: 1px;
+  transform: scale(0.4);
+  cursor: pointer;
+}
 
-    @media screen and (min-width: 768px) {
-      display: block;
-      top: 21px;
-      transform: scale(0.5);
-      transition: all 0.5s linear;
-      stroke-dashoffset: 75px;
-      stroke-dasharray: 75px;
-    }
+@media screen and (min-width: 768px) {
+  .user-avatar-change svg {
+    display: block;
+    top: 21px;
+    transform: scale(0.5);
+    transition: all 0.5s linear;
+    stroke-dashoffset: 75px;
+    stroke-dasharray: 75px;
   }
+}
 
-  &:hover {
-    background-color: transparent;
+.user-avatar-change:hover {
+  background-color: transparent;
+}
 
-    svg {
-      stroke-dashoffset: 0;
-    }
-  }
+.user-avatar-change:hover svg {
+  stroke-dashoffset: 0;
+}
 
-  .user-avatar:hover & svg {
-    stroke-dashoffset: 0;
-  }
+.user-avatar:hover .user-avatar-change svg {
+  stroke-dashoffset: 0;
+}
 
-  &-label {
-    @media screen and (width <= 767px) {
-      display: grid;
-      width: 100%;
-      height: 100%;
-    }
+@media screen and (max-width: 767px) {
+  .user-avatar-change-label {
+    display: grid;
+    width: 100%;
+    height: 100%;
   }
 }
 

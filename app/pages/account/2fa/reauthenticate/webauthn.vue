@@ -7,6 +7,7 @@ import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
 
 const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reauthenticateUsingWebAuthn'])
 
+const { $i18n } = useNuxtApp()
 const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n({ useScope: 'local' })
@@ -36,16 +37,16 @@ async function onSubmit() {
     })
     session.value = response?.data
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('getWebAuthnRequestOptionsForReauthentication')
     emit('reauthenticateUsingWebAuthn')
   }
   catch {
     toast.add({
-      title: t('error.default'),
-      color: 'red',
+      title: $i18n.t('error.default'),
+      color: 'error',
     })
   }
   finally {
@@ -61,7 +62,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container-3xs flex flex-col gap-4 !p-0
+      flex flex-col gap-4
 
       md:gap-8
     "
@@ -76,7 +77,7 @@ definePageMeta({
           :label="
             t('use.security.key')
           "
-          color="primary"
+          color="neutral"
           size="xl"
           :disabled="loading"
           @click="onSubmit"

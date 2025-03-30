@@ -35,25 +35,26 @@ const items = computed(() => [
       label: user.value?.email ?? '',
       slot: 'account',
       disabled: true,
+      icon: undefined,
     },
   ],
   [
     {
       label: $i18n.t('account'),
       icon: 'i-heroicons-user',
-      click: async () => await navigateTo(localePath('account')),
+      onSelect: async () => await navigateTo(localePath('account')),
     },
     {
       label: $i18n.t('settings'),
       icon: 'i-heroicons-cog-8-tooth',
-      click: async () => await navigateTo(localePath('account-settings')),
+      onSelect: async () => await navigateTo(localePath('account-settings')),
     },
   ],
   [
     {
       label: $i18n.t('logout'),
       icon: 'i-heroicons-arrow-left-on-rectangle',
-      click: async () => await onClickLogout(),
+      onSelect: async () => await onClickLogout(),
     },
   ],
 ])
@@ -62,7 +63,7 @@ const items = computed(() => [
 <template>
   <BuilderNavbar
     class="
-      bg-primary-50
+      bg-primary-100
 
       dark:bg-primary-900
     "
@@ -144,11 +145,14 @@ const items = computed(() => [
                 :aria-label="$i18n.t('favourites')"
                 :to="localePath('account-favourites-posts')"
                 class="p-0"
-                color="black"
+                color="neutral"
                 icon="i-heroicons-heart"
                 size="xl"
                 type="button"
                 variant="ghost"
+                :ui="{
+                  base: 'cursor-pointer hover:bg-transparent',
+                }"
               />
             </li>
             <li
@@ -176,7 +180,7 @@ const items = computed(() => [
                 v-if="enabled && loggedIn"
                 :key="'cart'"
                 size="xl"
-                color="green"
+                color="success"
                 :show="!pending"
                 :text="getCartTotalItems"
               >
@@ -184,17 +188,21 @@ const items = computed(() => [
                   class="p-0"
                   icon="i-heroicons-shopping-cart"
                   size="xl"
-                  :color="'primary'"
+                  color="neutral"
+                  variant="ghost"
                   :aria-label="t('cart')"
                   :title="t('cart')"
                   :to="localePath('cart')"
+                  :ui="{
+                    base: 'cursor-pointer hover:bg-transparent',
+                  }"
                 />
               </UChip>
               <ClientOnly v-else-if="enabled && !loggedIn">
                 <UChip
                   :key="'cart'"
                   size="xl"
-                  color="green"
+                  color="success"
                   :show="!pending"
                   :text="getCartTotalItems"
                 >
@@ -202,10 +210,14 @@ const items = computed(() => [
                     class="p-0"
                     icon="i-heroicons-shopping-cart"
                     size="xl"
-                    :color="'primary'"
+                    color="neutral"
+                    variant="ghost"
                     :aria-label="t('cart')"
                     :title="t('cart')"
                     :to="localePath('cart')"
+                    :ui="{
+                      base: 'cursor-pointer hover:bg-transparent',
+                    }"
                   />
                 </UChip>
                 <template #fallback>
@@ -222,11 +234,10 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <UDropdown
+              <UDropdownMenu
                 v-if="loggedIn && user"
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
-                :ui="{ item: { disabled: 'cursor-text select-text' } }"
               >
                 <UserAvatar
                   v-if="loggedIn && user"
@@ -254,6 +265,7 @@ const items = computed(() => [
                 <template #item="{ item }">
                   <span class="truncate">{{ item.label }}</span>
                   <UIcon
+                    v-if="item.icon"
                     :name="item.icon"
                     class="
                       text-primary-900 ms-auto size-4 shrink-0
@@ -262,7 +274,7 @@ const items = computed(() => [
                     "
                   />
                 </template>
-              </UDropdown>
+              </UDropdownMenu>
             </li>
             <li
               v-if="!loggedIn"
@@ -288,30 +300,6 @@ const items = computed(() => [
     </template>
   </BuilderNavbar>
 </template>
-
-<style lang="scss" scoped>
-.cart-items-count {
-  &::before {
-    content: attr(data-count);
-    display: grid;
-    position: absolute;
-    top: -5px;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #eb2e2b;
-    cursor: pointer;
-    color: #fff;
-    font-size: 10px;
-    pointer-events: none;
-    right: -5px;
-    z-index: 10;
-    line-height: 18px;
-  }
-}
-</style>
 
 <i18n lang="yaml">
 el:

@@ -117,45 +117,24 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       </Anchor>
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike
-          class="
-            text-primary-50 flex-col justify-self-start p-0 font-extrabold
-            capitalize
-
-            dark:text-primary-50 dark:hover:bg-transparent
-
-            hover:bg-transparent
-          "
-          size="xl"
-          variant="ghost"
           :blog-post-id="post.id"
           :likes-count="post.likesCount"
+          size="3xl"
           @update="likeClicked"
         />
         <UButton
           icon="i-heroicons-chat-bubble-oval-left"
-          size="xl"
-          color="primary"
+          size="3xl"
           square
+          color="neutral"
           variant="ghost"
-          class="
-            text-primary-50 flex-col justify-self-start p-0 font-extrabold
-            capitalize
-
-            dark:text-primary-50 dark:hover:bg-transparent
-
-            hover:bg-transparent
-          "
           :title="$i18n.t('comments.count', {
             count: post.commentsCount,
           })"
           :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
           :label="String(post.commentsCount)"
           :ui="{
-            icon: {
-              size: {
-                xl: 'h-12 w-12',
-              },
-            },
+            base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
           }"
         />
         <ClientOnly>
@@ -163,25 +142,13 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             v-if="isSupported && showShareButton"
             :disabled="!isSupported"
             icon="i-heroicons-share"
-            size="xl"
-            color="primary"
+            size="3xl"
             square
+            color="neutral"
             variant="ghost"
             :title="$i18n.t('share')"
-            class="
-              text-primary-50 flex-col justify-self-start p-0 font-extrabold
-              capitalize
-
-              dark:text-primary-50 dark:hover:bg-transparent
-
-              hover:bg-transparent
-            "
             :ui="{
-              icon: {
-                size: {
-                  xl: 'h-12 w-12',
-                },
-              },
+              base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
             }"
             @click="startShare"
           />

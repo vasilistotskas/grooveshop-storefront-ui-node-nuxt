@@ -1,4 +1,4 @@
-import type { Avatar } from '#ui/types/avatar'
+import type { AvatarProps } from '#ui/types'
 
 export interface OrderingOption {
   value: string
@@ -7,7 +7,7 @@ export interface OrderingOption {
   slot?: string
   icon?: string
   iconClass?: string
-  avatar?: Avatar
+  avatar?: AvatarProps
   shortcuts?: string[]
   disabled?: boolean
   class?: string
@@ -24,6 +24,6 @@ export interface LinksOption {
   to: string
   label: string
   labelClass?: string
-  avatar?: Avatar
+  avatar?: AvatarProps
   icon?: string
 }

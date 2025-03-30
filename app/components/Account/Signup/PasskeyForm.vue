@@ -30,7 +30,7 @@ const formSchema: DynamicFormSchema = {
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: t('email.title'),
+      placeholder: $i18n.t('email.title'),
       type: 'email',
     },
   ],
@@ -40,7 +40,7 @@ const formSchema: DynamicFormSchema = {
 <template>
   <div
     class="
-      container-2xs grid gap-1 p-0
+      container mx-auto grid gap-1 p-0
 
       md:px-6
     "
@@ -56,7 +56,7 @@ const formSchema: DynamicFormSchema = {
       <UButton
         :label="t('login_here')"
         :to="localePath('account-login')"
-        color="opposite"
+        color="secondary"
         size="lg"
         type="submit"
         variant="link"
@@ -74,7 +74,7 @@ const formSchema: DynamicFormSchema = {
         class="!px-0"
         :label="t('using_password')"
         :to="localePath('account-signup')"
-        color="opposite"
+        color="secondary"
         size="lg"
         type="submit"
         variant="link"

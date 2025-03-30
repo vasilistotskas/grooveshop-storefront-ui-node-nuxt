@@ -36,60 +36,40 @@ const BlogPostCard = computed(() =>
       {{ title }}
     </h2>
     <UCarousel
+      v-slot="{ item }"
       :items="posts"
-      :ui="{
-        item: 'basis-full md:basis-1/2 pl-4 pr-4',
-        container: 'rounded-lg',
-        indicators: {
-          wrapper: 'relative bottom-0 mt-4',
-        },
-      }"
-      :prev-button="{
-        color: 'gray',
+      :ui="{ item: 'basis-full md:basis-1/2 items-center justify-center justify-items-center' }"
+      :prev="{
+        color: 'neutral',
         icon: 'i-heroicons-chevron-left',
         class: '-start-2 md:-start-12',
+        ui: {
+          base: '-start-2 md:-start-12',
+        },
       }"
-      :next-button="{
-        color: 'gray',
+      :next="{
+        color: 'neutral',
         icon: 'i-heroicons-chevron-right',
         class: '-end-2 md:-end-12',
+        ui: {
+          base: '-end-2 md:-end-12',
+        },
       }"
-      indicators
       arrows
+      wheel-gestures
       class="
         relative mx-auto max-w-4xl
 
         md:w-[43rem]
       "
     >
-      <template #default="{ item }">
-        <Component
-          :is="BlogPostCard"
-          :as="'div'"
-          :post="item"
-          :img-loading="'lazy'"
-        />
-      </template>
-
-      <template #indicator="{ onClick, page, active }">
-        <UButton
-          :variant="active ? 'solid' : 'outline'"
-          :aria-label="'dot'"
-          role="tab"
-          size="2xs"
-          class="
-            min-h-4 min-w-4 justify-center rounded-full transition-colors
-            duration-300 ease-in-out
-          "
-          :style="{
-            backgroundColor: active ? '#2d3748' : '#a0aec0',
-            opacity: active ? '1' : '0.5',
-            transform: active ? 'scale(1.4)' : 'scale(1)',
-          }"
-          :aria-selected="active"
-          @click="onClick(page)"
-        />
-      </template>
+      <Component
+        :is="BlogPostCard"
+        :as="'div'"
+        :post="item"
+        :img-loading="'lazy'"
+        class="container"
+      />
     </UCarousel>
   </div>
 </template>

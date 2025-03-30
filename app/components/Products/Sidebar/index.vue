@@ -104,7 +104,7 @@ onMounted(() => {
 
             md:grid
           "
-          color="primary"
+          color="neutral"
           :trailing="false"
           variant="outline"
           :placeholder="`${$i18n.t('search.title')}...`"
@@ -157,7 +157,7 @@ onMounted(() => {
   </aside>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .sidebar {
   &.sticky {
     top: 0;

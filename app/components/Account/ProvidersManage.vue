@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { DropdownItem } from '#ui/types'
+import type { TableColumn, DropdownMenuItem } from '@nuxt/ui'
 
 const emit = defineEmits(['disconnectThirdPartyProviderAccount'])
 
@@ -24,45 +24,54 @@ async function disconnect(values: ProvidersDeleteBody) {
     await disconnectThirdPartyProviderAccount(values)
     await refreshProviderAccounts()
     toast.add({
-      title: t('success.title'),
-      color: 'green',
+      title: $i18n.t('success.title'),
+      color: 'success',
     })
     emit('disconnectThirdPartyProviderAccount')
   }
   catch (error) {
     handleAllAuthClientError(error)
   }
+  finally {
+    loading.value = false
+  }
 }
 
-const columns = [{
-  key: 'uid',
-  label: t('uid'),
-}, {
-  key: 'display',
-  label: t('display'),
-}, {
-  key: 'name',
-  label: t('name'),
-}, {
-  key: 'actions',
-}]
+const columns: TableColumn<any>[] = [
+  {
+    accessorKey: 'uid',
+    header: t('uid'),
+  },
+  {
+    accessorKey: 'display',
+    header: t('display'),
+  },
+  {
+    accessorKey: 'name',
+    header: t('name'),
+  },
+  {
+    id: 'actions',
+    header: '',
+  },
+]
 
-const rows = computed(() => {
+const data = computed(() => {
   return providerAccounts.value?.data.map((account) => {
     return {
       uid: account.uid,
       display: account.display,
       name: account.provider.name,
     }
-  })
+  }) || []
 })
 
-const actionItems = (row: { uid: string, display: string, name: string }) => {
-  const items: DropdownItem[] = []
+const actionItems = (row: { uid: string, display: string, name: string }): DropdownMenuItem[][] => {
+  const items: DropdownMenuItem[] = []
   items.push({
     label: t('disconnect'),
     icon: 'i-heroicons-trash-20-solid',
-    click: async () => {
+    onSelect: async () => {
       const account = providerAccounts.value?.data.find(item => item.uid === row.uid)
       if (!account) return
       return await disconnect({
@@ -80,27 +89,26 @@ onReactivated(async () => {
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-
-      lg:flex
-    "
-  >
+  <div class="grid gap-4 lg:flex">
     <slot />
     <UTable
       class="w-full"
       :columns="columns"
+      :data="data"
       :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $i18n.t('auth.providers.empty') }"
-      :rows="rows"
+      :loading="loading"
     >
-      <template #actions-data="{ row }">
-        <LazyUDropdown
-          v-if="actionItems(row).length > 0"
-          :items="actionItems(row)"
+      <template #actions-cell="{ row }">
+        <LazyUDropdownMenu
+          v-if="actionItems(row.original).length > 0"
+          :items="actionItems(row.original)"
         >
-          <UButton color="gray" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
-        </LazyUDropdown>
+          <UButton
+            color="neutral"
+            icon="i-heroicons-ellipsis-horizontal-20-solid"
+            variant="ghost"
+          />
+        </LazyUDropdownMenu>
       </template>
     </UTable>
   </div>

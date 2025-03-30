@@ -115,7 +115,7 @@ const ogImage = computed(() => {
   })
 })
 
-const links = computed(() => [
+const items = computed(() => [
   {
     to: localePath('index'),
     label: $i18n.t('breadcrumb.items.index.label'),
@@ -217,7 +217,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="container">
+  <PageWrapper>
     <div
       v-if="blogPost"
       class="
@@ -231,11 +231,7 @@ definePageMeta({
         "
     >
       <UBreadcrumb
-        :links="links"
-        :ui="{
-          li: 'text-primary-950 dark:text-primary-50',
-          base: 'text-xs md:text-md',
-        }"
+        :items="items"
         class="mx-auto mb-5 max-w-2xl"
       />
       <article
@@ -263,61 +259,56 @@ definePageMeta({
             {{ blogPostTitle }}
           </h1>
           <div
-            class="
-                grid w-full grid-cols-2 items-center gap-2
-
-                md:grid-cols-3 md:gap-4
-              "
+            class="flex gap-3 flex-row items-center flex-nowrap justify-start h-[3rem]"
           >
-            <div class="flex">
-              <div
-                class="
-                    flex justify-end gap-2
-
-                    md:gap-4
-                  "
-              >
-                <ButtonBlogPostLike
-                  :blog-post-id="blogPost.id"
-                  :likes-count="blogPost.likesCount"
-                  class="justify-self-start font-extrabold capitalize"
-                  @update="likeClicked"
+            <ButtonBlogPostLike
+              :blog-post-id="blogPost.id"
+              :likes-count="blogPost.likesCount"
+              size="xl"
+              color="neutral"
+              variant="soft"
+              :ui="{
+                base: 'cursor-pointer',
+              }"
+              @update="likeClicked"
+            />
+            <UButton
+              :label="String(blogPost.commentsCount)"
+              :title="$i18n.t('comments.count', {
+                count: blogPost.commentsCount,
+              })"
+              size="xl"
+              icon="i-heroicons-chat-bubble-oval-left"
+              square
+              color="neutral"
+              variant="soft"
+              :ui="{
+                base: 'cursor-pointer',
+              }"
+              @click="scrollToComments"
+            />
+            <ClientOnly>
+              <UButton
+                v-if="isSupported"
+                :disabled="!isSupported"
+                :title="$i18n.t('share')"
+                size="xl"
+                icon="i-heroicons-share"
+                square
+                color="neutral"
+                variant="soft"
+                :ui="{
+                  base: 'cursor-pointer',
+                }"
+                @click="startShare"
+              />
+              <template #fallback>
+                <ClientOnlyFallback
+                  height="40px"
+                  width="40px"
                 />
-                <UButton
-                  :label="String(blogPost.commentsCount)"
-                  :title="$i18n.t('comments.count', {
-                    count: blogPost.commentsCount,
-                  })"
-                  class="justify-self-start font-extrabold capitalize"
-                  color="primary"
-                  icon="i-heroicons-chat-bubble-oval-left"
-                  size="lg"
-                  square
-                  variant="solid"
-                  @click="scrollToComments"
-                />
-                <ClientOnly>
-                  <UButton
-                    v-if="isSupported"
-                    :disabled="!isSupported"
-                    :title="$i18n.t('share')"
-                    class="justify-self-start font-extrabold capitalize"
-                    color="primary"
-                    icon="i-heroicons-share"
-                    size="lg"
-                    square
-                    variant="solid"
-                    @click="startShare"
-                  />
-                  <template #fallback>
-                    <ClientOnlyFallback
-                      height="40px"
-                      width="40px"
-                    />
-                  </template>
-                </ClientOnly>
-              </div>
-            </div>
+              </template>
+            </ClientOnly>
           </div>
           <div
             class="

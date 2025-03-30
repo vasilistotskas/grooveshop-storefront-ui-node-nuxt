@@ -82,7 +82,7 @@ const filteredTags = computed(() => {
 
             md:grid
           "
-          color="primary"
+          color="neutral"
           :trailing="false"
           variant="outline"
           :placeholder="`${$i18n.t('search.title')}...`"
@@ -98,11 +98,11 @@ const filteredTags = computed(() => {
         }"
       >
         <UButton
-          color="primary"
+          color="neutral"
           variant="solid"
           class="flex w-full items-center"
           icon="i-heroicons-hashtag"
-          size="2xs"
+          size="xs"
           :label="extractTranslated(item, 'label', locale)"
         />
       </LazyUCarousel>
@@ -115,7 +115,7 @@ const filteredTags = computed(() => {
   </aside>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .scrollable-tags {
   @media screen and (min-width: 768px) {
     max-height: 300px;

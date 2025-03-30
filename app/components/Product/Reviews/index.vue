@@ -72,7 +72,7 @@ watch(
 <template>
   <div
     class="
-      container-md text-primary-950 border-primary-500 grid gap-2 border-t !px-0
+      container mx-auto text-primary-950 border-primary-500 grid gap-2 border-t !px-0
       !py-6
 
       dark:text-primary-50 dark:border-primary-500

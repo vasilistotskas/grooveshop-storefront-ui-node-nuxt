@@ -49,15 +49,15 @@ const loginWithProvider = async (provider: Provider) => {
 const providerColor = (provider: string) => {
   switch (provider) {
     case 'google':
-      return 'red'
+      return 'error'
     case 'facebook':
-      return 'blue'
+      return 'info'
     case 'github':
-      return 'full-black'
+      return 'neutral'
     case 'discord':
-      return 'purple'
+      return 'secondary'
     default:
-      return 'primary'
+      return 'neutral'
   }
 }
 </script>

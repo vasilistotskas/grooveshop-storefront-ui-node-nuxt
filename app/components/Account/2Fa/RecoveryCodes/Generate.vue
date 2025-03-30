@@ -15,7 +15,7 @@ const { data, refresh, error } = await useAsyncData<RecoveryCodesGetResponse>(
 if (error.value) {
   toast.add({
     title: t('auth.mfa.required'),
-    color: 'red',
+    color: 'error',
   })
   navigateTo(localePath('account-settings'))
 }
@@ -35,7 +35,7 @@ async function onSubmit() {
     await generateRecoveryCodes()
     toast.add({
       title: t('codes.generated'),
-      color: 'green',
+      color: 'success',
     })
     emit('generateRecoveryCodes')
     await navigateTo(localePath('account-2fa-recovery-codes'))
@@ -79,7 +79,7 @@ onReactivated(async () => {
         :label="
           $i18n.t('generate')
         "
-        color="primary"
+        color="neutral"
         size="xl"
         @click="onSubmit"
       />

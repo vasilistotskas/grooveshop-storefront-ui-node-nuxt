@@ -7,7 +7,7 @@ const searchBarFocused = useState<boolean>('search-bar-focused')
 </script>
 
 <template>
-  <div class="container-3xs relative">
+  <div class="container mx-auto relative">
     <div class="mt-12 grid items-center justify-center">
       <Anchor
         :aria-label="appTitle"
@@ -31,11 +31,11 @@ const searchBarFocused = useState<boolean>('search-bar-focused')
     </div>
     <main
       class="
-        pt-[55px]
+        pt-[57px]
 
-        lg:pt-[63px]
+        lg:pt-[65px]
 
-        md:pt-[63px]
+        md:pt-[65px]
       "
       :class="{
         'opacity-70': searchBarFocused,

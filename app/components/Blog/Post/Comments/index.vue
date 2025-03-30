@@ -198,13 +198,13 @@ async function onAddCommentSubmit({ content }: { content: string }) {
       await refreshUserBlogPostComment()
       toast.add({
         title: t('add.success'),
-        color: 'green',
+        color: 'success',
       })
     },
     onResponseError() {
       toast.add({
         title: t('add.error'),
-        color: 'red',
+        color: 'error',
       })
     },
   })
@@ -284,7 +284,10 @@ onMounted(() => {
           dark:text-primary-50
         "
       >
-        {{ t('title') }}
+        <BlogPostCommentsSummary
+          :comments-count="commentsCount"
+          class="comments-list-summary"
+        />
       </h2>
     </div>
     <LazyBlogPostCommentsList
@@ -298,10 +301,10 @@ onMounted(() => {
         v-if="!userBlogPostComment"
         :title="
           loggedIn
-            ? t('empty.title')
+            ? $i18n.t('empty.title')
             : ''
         "
-        class="w-full"
+        class="w-full !gap-0"
       >
         <template #actions>
           <LazyDynamicForm
@@ -309,7 +312,7 @@ onMounted(() => {
             id="add-comment-form"
             :button-label="$i18n.t('submit')"
             :schema="addCommentFormSchema"
-            class="container-3xs"
+            class="container mx-auto"
             :submit-button-ui="{
               color: 'secondary',
               size: 'xl',
@@ -321,22 +324,21 @@ onMounted(() => {
             }"
             @submit="onAddCommentSubmit"
           />
-          <div v-else>
+          <template v-else>
             <UButton
-              class="
-                text-white bg-secondary
-
-                dark:bg-secondary-dark
-              "
               :label="t('empty.description_guest')"
               block
               size="xl"
               type="submit"
+              color="secondary"
               variant="solid"
+              :ui="{
+                base: 'w-auto',
+              }"
               @click="isOpen = true"
             />
             <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
-          </div>
+          </template>
         </template>
       </LazyEmptyState>
     </LazyBlogPostCommentsList>
@@ -348,7 +350,7 @@ onMounted(() => {
           : ''
       "
       class="w-full"
-      :title="t('empty.title')"
+      :title="$i18n.t('empty.title')"
     >
       <template
         #actions
@@ -358,7 +360,7 @@ onMounted(() => {
           id="add-comment-form"
           :button-label="$i18n.t('submit')"
           :schema="addCommentFormSchema"
-          class="container-3xs"
+          class="container mx-auto"
           :submit-button-ui="{
             color: 'secondary',
             size: 'md',
@@ -370,22 +372,21 @@ onMounted(() => {
           }"
           @submit="onAddCommentSubmit"
         />
-        <div v-else>
+        <template v-else>
           <UButton
-            class="
-              text-white bg-secondary
-
-              dark:bg-secondary-dark
-            "
             :label="t('empty.description_guest')"
             block
             size="xl"
             type="submit"
+            color="secondary"
             variant="solid"
+            :ui="{
+              base: 'w-auto',
+            }"
             @click="isOpen = true"
           />
           <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
-        </div>
+        </template>
       </template>
     </LazyEmptyState>
     <Pagination

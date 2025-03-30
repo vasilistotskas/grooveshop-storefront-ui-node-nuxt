@@ -15,39 +15,34 @@ const onModalClick = () => {
   }
 }
 
-const resolveLinkEntryText = (entry: [string, unknown]) => (typeof entry[1] === 'string' ? t(entry[1] as string) : entry[0])
+const resolveLinkEntryText = (entry: [string, unknown]) =>
+  typeof entry[1] === 'string' ? $i18n.t(entry[1] as string) : entry[0]
 
-const getName = (name: string) => t(name)
+const getName = (name: string) => $i18n.t(name)
 
 const getDescription = (description: string) =>
-  `${!moduleOptions.isDashInDescriptionEnabled ? '' : '-'} ${t(description)}`
+  `${!moduleOptions.isDashInDescriptionEnabled ? '' : '-'} ${$i18n.t(description)}`
 
-const toggleButton = ($event: MouseEvent) => {
-  const target = $event.target as HTMLButtonElement | null
-  if (!target) return
-  const nextSibling = target.nextSibling as HTMLLabelElement | null
-  if (!nextSibling) return
-  nextSibling.click()
+function isCookieEnabled(cookie: Cookie) {
+  return localCookiesEnabled.value.some(c => c.id === cookie.id)
 }
 
-const toggleCookie = (cookie: Cookie) => {
+const toggleCookie = (cookie: Cookie, cookieType: string) => {
+  console.debug('toggleCookie', cookie, cookieType)
   const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(cookie.id)
   if (cookieIndex < 0) {
+    console.debug('cookieIndex < 0')
     localCookiesEnabled.value.push(cookie)
+    cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
   }
   else {
-    if (getName(cookie.name) === t('cookies.necessary')) {
+    if (cookieType === ZodCookieTypeEnum.enum.necessary) {
+      cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
       return
     }
+    console.debug('cookieIndex >= 0')
     localCookiesEnabled.value.splice(cookieIndex, 1)
-  }
-}
-
-const toggleLabel = ($event: KeyboardEvent) => {
-  const target = $event.target as HTMLLabelElement | null
-  if (!target) return
-  if ($event.key === ' ') {
-    target.click()
+    cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
   }
 }
 
@@ -58,7 +53,7 @@ const setCookies = ({
   cookiesOptionalEnabled: Cookie[]
   isConsentGiven: boolean
 }) => {
-  isConsentGiven.value = isConsentGivenNew // must come before an update to `cookiesEnabled`
+  isConsentGiven.value = isConsentGivenNew // must come before updating cookiesEnabled
   cookiesEnabled.value = isConsentGivenNew
     ? [
         ...moduleOptions.cookies.necessary,
@@ -77,7 +72,6 @@ const accept = () => {
 
 const acceptPartial = () => {
   const localCookiesEnabledIds = getCookieIds(localCookiesEnabled.value)
-
   setCookies({
     isConsentGiven: true,
     cookiesOptionalEnabled: [
@@ -89,7 +83,7 @@ const acceptPartial = () => {
 
 const declineAll = () => {
   setCookies({
-    isConsentGiven: false,
+    isConsentGiven: true,
     cookiesOptionalEnabled: [],
   })
 }
@@ -102,87 +96,83 @@ const isUnSaved = computed(() => {
 </script>
 
 <template>
-  <Transition name="cookie-control-Modal">
+  <Transition name="fade">
     <div
       v-if="isModalActive"
-      class="cookie-control-Modal"
+      class="fixed inset-0 z-[1000] flex items-center overflow-y-auto px-4 py-6 shadow-xl ring-1 drop-shadow-sm backdrop-blur-[0.125em] bg-black/25 pt-8 md:pt-0"
       @click.self="onModalClick"
     >
       <p
         v-if="isUnSaved"
-        class="cookie-control-ModalUnsaved"
+        class="fixed bottom-0 left-0 right-0 z-50 mx-auto mb-5 border p-3 text-center text-sm sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-sm sm:rounded-md border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800"
         v-text="t('settings.unsaved')"
       />
-      <div class="cookie-control-ModalContent">
-        <div class="cookie-control-ModalContentInner">
+      <div class="relative mb-6 transform rounded-lg border shadow-xl transition-all sm:mx-auto sm:w-full md:max-w-3xl border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800">
+        <div class="relative max-h-[90vh] md:max-h-[80vh] overflow-y-scroll px-4 py-2 md:px-7 md:py-3">
           <slot name="modal">
-            <h2>{{ t('modal.title') }}</h2>
-            <p>{{ t('modal.description') }}</p>
+            <h2 class="text-primary-600 dark:text-primary-100 mt-3 text-2xl font-medium">
+              {{ t('modal.title') }}
+            </h2>
+            <p class="text-primary-600 dark:text-primary-100 mb-5 mt-6 border-b pb-5 text-sm">
+              {{ t('modal.description') }}
+            </p>
           </slot>
-          <button
+          <UButton
             v-if="!moduleOptions.isModalForced"
-            class="cookie-control-ModalClose"
             type="button"
+            :label="t('close')"
+            color="error"
+            variant="solid"
+            class="absolute right-6 top-2 md:top-6 z-10"
             @click="isModalActive = false"
-            v-text="t('close')"
           />
-          <template
-            v-for="cookieType in ZodCookieTypeEnum.enum"
-            :key="cookieType"
-          >
+          <template v-for="cookieType in ZodCookieTypeEnum.enum" :key="cookieType">
             <template v-if="moduleOptions.cookies[cookieType].length">
               <h2
+                class="text-primary-600 dark:text-primary-100 mt-3 text-lg font-semibold"
                 v-text="cookieType === ZodCookieTypeEnum.enum.necessary ? $i18n.t('cookies.necessary') : $i18n.t('cookies.optional')"
               />
               <ul>
                 <li
                   v-for="cookie in moduleOptions.cookies[cookieType]"
                   :key="cookie.id"
+                  class="relative my-3 rounded-md p-3 md:p-5 border border-primary-200 bg-primary-100 dark:border-primary-700 dark:bg-primary-700"
                 >
-                  <div class="cookie-control-ModalInputWrapper">
-                    <input
-                      v-if="cookieType === ZodCookieTypeEnum.enum.necessary && getName(cookie.name) === $i18n.t('cookies.necessary')"
-                      :id="cookie.id"
-                      class="sr-only"
-                      :name="getName(cookie.name)"
-                      :placeholder="getName(cookie.name)"
-                      checked
-                      disabled
-                      type="checkbox"
-                    >
-                    <input
-                      v-else
-                      :id="cookie.id"
-                      :checked="getCookieIds(localCookiesEnabled).includes(cookie.id)"
-                      type="checkbox"
-                      @change="toggleCookie(cookie)"
-                    >
-                    <button
-                      type="button"
-                      @click="toggleButton($event)"
-                    >
-                      {{ getName(cookie.name) }}
-                    </button>
-                    <label
-                      :for="getName(cookie.name)"
-                      class="cookie-control-ModalCookieName"
-                      tabindex="0"
-                      @click="toggleCookie(cookie)"
-                      @keydown="toggleLabel($event)"
-                    >
-                      {{ getName(cookie.name) }}
-                      <span v-if="moduleOptions.isCookieIdVisible && cookie.targetCookieIds">
+                  <div class="flex flex-col">
+                    <USwitch
+                      :modelValue="isCookieEnabled(cookie)"
+                      color="secondary"
+                      size="xl"
+                      unchecked-icon="i-lucide-x"
+                      checked-icon="i-lucide-check"
+                      :label="getName(cookie.name)"
+                      :disabled="cookieType === ZodCookieTypeEnum.enum.necessary"
+                      :ui="{
+                        root: 'flex-row-reverse w-full',
+                        base: 'cursor-pointer',
+                        wrapper: 'w-full m-0',
+                        label: 'cursor-pointer',
+                      }"
+                      @update:model-value="(_) => toggleCookie(cookie, cookieType)"
+                    />
+                    <div>
+                      <span
+                        v-if="moduleOptions.isCookieIdVisible && cookie.targetCookieIds && cookie.targetCookieIds.length"
+                        class="mt-2 block text-xs font-normal"
+                      >
                         {{ 'IDs: ' + cookie.targetCookieIds.map((id) => `"${id}"`).join(', ') }}
                       </span>
                       <template v-if="Object.entries(cookie.links || {}).length">
-                        <span
-                          v-for="entry in Object.entries(cookie.links || {})"
-                          :key="entry[0]"
-                        >
-                          <a :href="entry[0]">{{ resolveLinkEntryText(entry) }}</a>
+                        <span v-for="entry in Object.entries(cookie.links || {})" :key="entry[0]">
+                          <a
+                            :href="entry[0]"
+                            class="underline text-blue-600 hover:text-blue-800"
+                          >
+                            {{ resolveLinkEntryText(entry) }}
+                          </a>
                         </span>
                       </template>
-                    </label>
+                    </div>
                     <ReadMore
                       v-if="cookie.description"
                       :max-chars="100"
@@ -194,23 +184,34 @@ const isUnSaved = computed(() => {
               </ul>
             </template>
           </template>
-          <div class="cookie-control-ModalButtons">
-            <button
-              type="button"
-              @click="() => { acceptPartial(); isModalActive = false }"
-              v-text="t('save')"
-            />
-            <button
-              type="button"
-              @click="() => { accept(); isModalActive = false }"
-              v-text="t('accept_all')"
-            />
-            <button
+          <div class="mb-2 mt-5 grid gap-2 md:gap-0 md:flex md:justify-between">
+            <UButton
               v-if="!moduleOptions.isModalForced"
               type="button"
+              :label="t('decline_all')"
+              color="neutral"
+              variant="outline"
+              class="whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium"
               @click="() => { declineAll(); isModalActive = false }"
-              v-text="t('decline_all')"
             />
+            <div class="grid md:flex gap-2">
+              <UButton
+                type="button"
+                :label="t('accept_all')"
+                color="neutral"
+                variant="outline"
+                class="whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium"
+                @click="() => { accept(); isModalActive = false }"
+              />
+              <UButton
+                type="button"
+                :label="t('save')"
+                color="secondary"
+                variant="solid"
+                class="whitespace-nowrap rounded-lg px-5 py-2.5 text-sm font-medium"
+                @click="() => { acceptPartial(); isModalActive = false }"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -225,12 +226,7 @@ el:
   accept_all: Αποδοχή όλων
   modal:
     title: Προσαρμογή
-    description: Χρησιμοποιούμε διαφορετικούς τύπους cookies για να βελτιστοποιήσουμε
-      την εμπειρία σας στον ιστότοπο μας. Κάνε click στις παρακάτω κατηγορίες για
-      να μάθεις περισσότερα σχετικά με τους σκοπούς τους. Μπορείς να επιλέξεις τους
-      τύπους Cookies που θα επιτρέπονται καθώς και να αλλάξεις τις προτιμήσεις σου
-      αργότερα. Να θυμάσαι ότι η απαγόρευση των cookies μπορεί να επηρεάσει την
-      εμπειρία σαυ.
+    description: "Χρησιμοποιούμε διαφορετικούς τύπους cookies για να βελτιστοποιήσουμε την εμπειρία σας στον ιστότοπο μας. Κάνε click στις παρακάτω κατηγορίες για να μάθεις περισσότερα σχετικά με τους σκοπούς τους. Μπορείς να επιλέξεις τους τύπους Cookies που θα επιτρέπονται καθώς και να αλλάξεις τις προτιμήσεις σου αργότερα. Να θυμάσαι ότι η απαγόρευση των cookies μπορεί να επηρεάσει την εμπειρία σου."
   close: Κλείσιμο
   decline_all: Απόρριψη όλων
   save: Αποθήκευση

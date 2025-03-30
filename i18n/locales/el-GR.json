@@ -60,6 +60,8 @@
   },
   "api_validation": {
     "invalid_login": "Λανθασμένος κωδικός",
+    "email_password_mismatch": "Λανθασμένος κωδικός",
+    "enter_current_password": "Παρακαλώ γράψτε το τρέχον συνθηματικό σας."
   },
   "home": "Αρχική",
   "close": "Κλείσιμο",

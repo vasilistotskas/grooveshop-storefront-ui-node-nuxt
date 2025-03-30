@@ -10,7 +10,7 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      container flex flex-col gap-4 !p-0
+      max-w-(--container-4xl) mx-auto flex flex-col gap-4
 
       md:gap-8
     "

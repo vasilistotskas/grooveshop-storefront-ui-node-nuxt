@@ -45,7 +45,7 @@ definePageMeta({
       <LazyEmptyState
         v-if="!pending && !cart?.cartItems?.length"
         class="w-full"
-        :title="t('empty.title')"
+        :title="$i18n.t('empty.title')"
       >
         <template
           #icon
@@ -92,7 +92,7 @@ definePageMeta({
           :label="t('checkout')"
           :to="localePath('checkout')"
           class="capitalize"
-          color="primary"
+          color="neutral"
           size="xl"
           variant="soft"
         />

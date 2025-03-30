@@ -25,7 +25,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <PageWrapper class="container-fluid !p-0">
+  <PageWrapper>
     <section
       :class="{
         'grid': isMobileOrTablet,
@@ -47,14 +47,14 @@ useSeoMeta({
       >
         <MobileOrTabletOnly>
           <BlogCategoriesSlider
-            class="container-sm !py-0"
+            class="max-w-(--container-main) mx-auto !py-0"
           />
         </MobileOrTabletOnly>
 
         <DesktopOnly>
           <BlogCategoriesSlider
             class="
-                  container-sm
+                  max-w-(--container-main) mx-auto
 
                   md:!p-0
                 "
@@ -66,7 +66,7 @@ useSeoMeta({
           :items="items"
           :ui="{ item: 'basis-full items-center justify-center justify-items-center' }"
           class="
-                container-sm mx-auto
+                max-w-(--container-main) mx-auto
 
                 md:!p-0
               "
@@ -92,7 +92,7 @@ useSeoMeta({
           :page-size="6"
           :show-ordering="false"
           class="
-                container-sm
+                max-w-(--container-main) mx-auto
 
                 md:!p-0
               "
