@@ -35,7 +35,10 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
       v-if="categoryResults && categoryResults?.length > 0"
       v-slot="{ item }"
       :items="categoryResults"
-      :ui="{ item: 'basis-[33%] md:basis-[17%]' }"
+      :ui="{
+        container: 'items-unset',
+        item: 'flex basis-[33%] md:basis-[17%]',
+      }"
       class="overflow-hidden md:w-full"
     >
       <UButton

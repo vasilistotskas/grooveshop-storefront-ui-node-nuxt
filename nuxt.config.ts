@@ -196,13 +196,10 @@ export default defineNuxtConfig({
     inlineStyles: true,
   },
   experimental: {
-    componentIslands: true,
-    payloadExtraction: true,
     typedPages: true,
     asyncContext: true,
     cookieStore: true,
     watcher: 'parcel',
-    appManifest: false,
   },
   compatibilityDate: '2025-03-30',
   nitro: {

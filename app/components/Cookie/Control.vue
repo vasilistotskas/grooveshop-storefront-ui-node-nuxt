@@ -167,25 +167,31 @@ defineExpose({
               <p class="text-sm text-primary-600 dark:text-primary-100" v-text="t('banner.description')" />
             </slot>
           </div>
-          <div class="ml-auto flex items-center gap-2 mt-4 lg:mt-0 md:space-x-3 md:space-y-0 md:flex-row-reverse">
-            <button
+          <div class="ml-auto flex items-center gap-2 mt-4 lg:mt-0 md:space-y-0 md:flex-row-reverse">
+            <UButton
               type="button"
-              class="md:ml-3 whitespace-nowrap rounded-lg px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              :label="t('manage_cookies')"
+              color="secondary"
+              variant="solid"
+              size="lg"
               @click="isModalActive = true"
-              v-text="t('manage_cookies')"
             />
-            <button
+            <UButton
               type="button"
-              class="whitespace-nowrap rounded-lg border px-3 md:px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700"
+              :label="t('accept')"
+              color="neutral"
+              variant="outline"
+              size="lg"
               @click="accept()"
-              v-text="t('accept')"
             />
-            <button
+            <UButton
               v-if="moduleOptions.isAcceptNecessaryButtonEnabled"
               type="button"
-              class="whitespace-nowrap rounded-lg border px-3 md:px-5 py-2.5 text-sm font-medium transition duration-150 ease-in-out focus:z-10 focus:outline-none focus:ring-4 border-primary-200 bg-primary-50 text-primary-900 hover:bg-primary-100 hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700"
+              :label="t('decline')"
+              color="neutral"
+              variant="outline"
+              size="lg"
               @click="decline()"
-              v-text="t('decline')"
             />
           </div>
         </div>

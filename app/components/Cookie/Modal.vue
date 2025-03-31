@@ -187,28 +187,25 @@ const isUnSaved = computed(() => {
           <div class="mb-2 mt-5 grid gap-2 md:gap-0 md:flex md:justify-between">
             <UButton
               v-if="!moduleOptions.isModalForced"
-              type="button"
               :label="t('decline_all')"
               color="neutral"
               variant="outline"
-              class="whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium"
+              size="lg"
               @click="() => { declineAll(); isModalActive = false }"
             />
             <div class="grid md:flex gap-2">
               <UButton
-                type="button"
                 :label="t('accept_all')"
                 color="neutral"
                 variant="outline"
-                class="whitespace-nowrap rounded-lg border px-5 py-2.5 text-sm font-medium"
+                size="lg"
                 @click="() => { accept(); isModalActive = false }"
               />
               <UButton
-                type="button"
                 :label="t('save')"
                 color="secondary"
                 variant="solid"
-                class="whitespace-nowrap rounded-lg px-5 py-2.5 text-sm font-medium"
+                size="lg"
                 @click="() => { acceptPartial(); isModalActive = false }"
               />
             </div>

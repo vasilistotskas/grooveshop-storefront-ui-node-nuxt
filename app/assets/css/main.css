@@ -82,3 +82,7 @@
     @apply list-disc;
   }
 }
+
+.items-unset {
+  align-items: unset;
+}
