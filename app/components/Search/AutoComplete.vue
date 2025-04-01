@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 
 const props = defineProps({

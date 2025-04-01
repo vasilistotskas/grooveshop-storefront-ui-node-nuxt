@@ -42,7 +42,7 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
       class="overflow-hidden md:w-full"
     >
       <UButton
-        :label="contentShorten(extractTranslated(item, 'name', locale), 0, 8)"
+        :label="contentShorten(extractTranslated(item, 'name', locale), 0, isMobileOrTablet ? 6 : 10)"
         :to="localePath({ name: 'blog-category-id-slug', params: { id: item?.id, slug: item?.slug } })"
         class="w-full !py-3 !px-2 font-bold"
         color="secondary"
@@ -65,7 +65,7 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
           />
         </template>
         <template #default>
-          <span class="text-primary-100">{{ contentShorten(extractTranslated(item, 'name', locale), 0, 8) }}</span>
+          <span class="text-primary-100">{{ contentShorten(extractTranslated(item, 'name', locale), 0, isMobileOrTablet ? 6 : 10) }}</span>
         </template>
       </UButton>
     </LazyUCarousel>

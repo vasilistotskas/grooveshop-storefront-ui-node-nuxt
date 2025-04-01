@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 const isSearchProduct = (item: SearchProduct | SearchBlogPost): item is SearchProduct => {
   return item.formatted !== undefined && item.formatted !== null && 'name' in item.formatted
 }

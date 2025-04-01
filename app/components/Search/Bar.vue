@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 const searchBarFocused = defineModel<boolean>('searchBarFocused', {
   required: true,
 })
