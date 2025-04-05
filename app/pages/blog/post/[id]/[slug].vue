@@ -5,7 +5,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
-const img = useImage()
+const config = useRuntimeConfig()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 
@@ -110,9 +110,7 @@ const ogImage = computed(() => {
   if (!blogPost.value || !blogPost.value.mainImagePath) {
     return ''
   }
-  return img(blogPost.value.mainImagePath, { width: 1200, height: 630, fit: 'cover' }, {
-    provider: 'mediaStream',
-  })
+  return config.public.static.origin + `/${blogPost.value.mainImagePath}`
 })
 
 const items = computed(() => [
@@ -268,7 +266,7 @@ definePageMeta({
               color="neutral"
               variant="soft"
               :ui="{
-                base: 'cursor-pointer',
+                base: 'flex-row p-2',
               }"
               @update="likeClicked"
             />
@@ -282,9 +280,6 @@ definePageMeta({
               square
               color="neutral"
               variant="soft"
-              :ui="{
-                base: 'cursor-pointer',
-              }"
               @click="scrollToComments"
             />
             <ClientOnly>
@@ -297,9 +292,6 @@ definePageMeta({
                 square
                 color="neutral"
                 variant="soft"
-                :ui="{
-                  base: 'cursor-pointer',
-                }"
                 @click="startShare"
               />
               <template #fallback>

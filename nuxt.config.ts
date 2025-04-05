@@ -134,6 +134,9 @@ export default defineNuxtConfig({
       },
       titleSeparator: '-',
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
+      static: {
+        origin: 'http://localhost:8000',
+      },
     },
   },
   build: {

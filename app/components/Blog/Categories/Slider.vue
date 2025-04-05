@@ -44,12 +44,13 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
       <UButton
         :label="contentShorten(extractTranslated(item, 'name', locale), 0, isMobileOrTablet ? 6 : 10)"
         :to="localePath({ name: 'blog-category-id-slug', params: { id: item?.id, slug: item?.slug } })"
-        class="w-full !py-3 !px-2 font-bold"
+        class="w-full !py-2 !px-2 font-bold"
         color="secondary"
         size="xl"
       >
         <template #leading>
           <ImgWithFallback
+            class="aspect-square"
             :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
             :background="'ffffff'"
             fit="fill"

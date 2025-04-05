@@ -38,6 +38,8 @@ const props = defineProps({
   },
 })
 
+const { ui } = toRefs(props)
+
 const emit = defineEmits<{
   (e: 'update', payload: { blogCommentId: number, liked: boolean }): void
 }>()
@@ -51,14 +53,13 @@ const { blogCommentLiked, addLikedComment, removeLikedComment } = userStore
 
 const liked = computed(() => blogCommentLiked(props.blogCommentId))
 
-const defaultUI = {
-  base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
-}
+const defaultUI = computed(() => {
+  return {
+    base: `flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer ${liked.value ? 'text-(--ui-liked)' : ''}`,
+  }
+})
 
-const mergedUI = computed(() => ({
-  ...defaultUI,
-  ...props.ui,
-}))
+const mergedUI = mergeClasses(ui.value || {}, defaultUI.value)
 
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
@@ -113,7 +114,7 @@ const buttonAreaLabel = computed(() =>
     v-bind="attrs"
     :icon="!liked ? 'i-heroicons-hand-thumb-up' : 'i-heroicons-hand-thumb-up'"
     :size="size"
-    :color="liked ? 'secondary' : color"
+    :color="liked ? undefined : color"
     :variant="variant"
     square
     :label="String(likesCount)"

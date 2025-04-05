@@ -8,6 +8,7 @@
 
 :root {
   --ui-bg: var(--ui-color-neutral-50);
+  --ui-liked: #FF00BD;
   --ui-secondary: #003DFF;
 
   --ui-container: var(--container-8xl);
@@ -16,6 +17,7 @@
 
 .dark {
   --ui-bg: var(--ui-color-neutral-950);
+  --ui-liked: #FF00BD;
   --ui-secondary: #3364FF;
 }
 
