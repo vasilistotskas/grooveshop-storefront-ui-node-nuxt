@@ -203,6 +203,11 @@ export default defineNuxtConfig({
     asyncContext: true,
     cookieStore: true,
     watcher: 'parcel',
+    defaults: {
+      nuxtLink: {
+        prefetch: false,
+      },
+    },
   },
   compatibilityDate: '2025-03-30',
   nitro: {

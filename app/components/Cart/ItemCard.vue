@@ -5,10 +5,11 @@ const props = defineProps({
   cartItem: { type: Object as PropType<CartItem>, required: true },
 })
 
+const { isMobileOrTablet } = useDevice()
 const cartStore = useCartStore()
 const { refreshCart, deleteCartItem } = cartStore
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale, n } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { cartItem } = toRefs(props)
@@ -26,117 +27,78 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   await deleteCartItem(cartItemId)
   await refreshCart()
 }
+
+const formattedPrice = computed(() => {
+  return cartItem.value?.finalPrice ? n(cartItem.value.finalPrice, 'currency') : '-'
+})
+
+const formattedTotal = computed(() => {
+  return cartItem.value?.totalPrice ? n(cartItem.value.totalPrice, 'currency') : '-'
+})
 </script>
 
 <template>
-  <div
-    v-if="cartItem"
-    class="
-      bg-primary-100 border-primary-500 relative flex
-      items-center justify-center justify-items-center gap-4 rounded-md border
-
-      dark:bg-primary-900 dark:border-primary-500
-
-      md:p-4
-    "
-  >
-    <div class="grid">
-      <div class="image">
-        <Anchor
-          :to="{ path: cartItem.product.absoluteUrl }"
-          :title="alt"
-        >
-          <ImgWithFallback
-            loading="lazy"
-            class="product-img bg-primary-100"
-            :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-            :width="237"
-            :height="90"
-            fit="contain"
-            :background="'transparent'"
-            sizes="sm:237px md:109px lg:152px xl:195px xxl:237px 2xl:237px"
-            :src="cartItem.product.mainImagePath"
-            :alt="alt"
-            densities="x1"
-          />
-        </Anchor>
-      </div>
+  <div v-if="cartItem" class="flex flex-col sm:flex-row gap-4 sm:gap-6">
+    <div class="relative h-24 w-full sm:w-24 flex-shrink-0 overflow-hidden rounded-lg">
+      <Anchor
+        :to="{ path: cartItem.product.absoluteUrl }"
+        :title="alt"
+      >
+        <ImgWithFallback
+          loading="lazy"
+          class="h-full w-full object-contain"
+          :width="96"
+          :height="96"
+          fit="contain"
+          :background="'transparent'"
+          :src="cartItem.product.mainImagePath"
+          :alt="alt"
+          densities="x1"
+        />
+      </Anchor>
     </div>
-    <div
-      class="
-        grid w-full justify-items-center gap-2
 
-        md:grid-cols-5 md:gap-0
-      "
-    >
-      <div class="title">
-        <h3
-          class="
-            text-primary-950
+    <div class="flex flex-1 flex-col">
+      <div class="relative flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0">
+        <div>
+          <h3 class="text-base font-medium">
+            <Anchor
+              :to="{ path: cartItem.product.absoluteUrl }"
+              :title="alt"
+            >
+              {{ contentShorten(alt, 50) }}
+            </Anchor>
+          </h3>
+          <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+            <span>{{ t('price') }}: {{ formattedPrice }}</span>
+            <span v-if="cartItem.discountValue" class="text-green-600">
+              ({{ t('save') }} {{ n(cartItem.discountValue, 'currency') }})
+            </span>
+          </div>
+        </div>
 
-            dark:text-primary-50
-          "
-        >
-          <Anchor
-            :to="{ path: cartItem.product.absoluteUrl }"
-            :title="alt"
-          >
-            {{ contentShorten(alt, 50) }}
-          </Anchor>
-        </h3>
-      </div>
-      <div class="quantity">
-        <QuantitySelector
-          :quantity="cartItemQuantity"
-          :max="cartItem.product.stock"
-          :cart-item-id="cartItem.id"
+        <UButton
+          :class="isMobileOrTablet ? 'absolute right-0 top-0' : ''"
+          color="error"
+          variant="link"
+          icon="i-fa6-solid-trash"
+          size="sm"
+          :title="t('remove_from_cart', { name: alt })"
+          @click="deleteCartItemEvent({ cartItemId: cartItem.id })"
         />
       </div>
-      <div class="price">
-        <span
-          class="
-            text-primary-950
 
-            dark:text-primary-50
-          "
-        >{{
-          cartItem.product.finalPrice
-        }}</span>
-      </div>
-      <div class="total-price">
-        <span
-          class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
-        >{{
-          cartItem.totalPrice
-        }}</span>
-      </div>
-      <div
-        class="
-          remove-from-cart absolute right-2
-
-          md:relative
-        "
-      >
-        <button
-          class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
-          :title="
-            t('remove_from_cart', {
-              name: alt,
-            })
-          "
-          type="button"
-          @click="deleteCartItemEvent({ cartItemId: cartItem.id })"
-        >
-          <UIcon name="i-fa6-solid-trash" />
-        </button>
+      <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
+        <div class="w-full sm:w-32">
+          <QuantitySelector
+            :quantity="cartItemQuantity"
+            :max="cartItem.product.stock"
+            :cart-item-id="cartItem.id"
+          />
+        </div>
+        <p class="text-sm font-medium">
+          {{ t('total') }}: {{ formattedTotal }}
+        </p>
       </div>
     </div>
   </div>
@@ -145,4 +107,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 <i18n lang="yaml">
 el:
   remove_from_cart: Αφαίρεση από το καλάθι {name}
+  price: Τιμή
+  save: Έκπτωση
+  total: Σύνολο
 </i18n>
