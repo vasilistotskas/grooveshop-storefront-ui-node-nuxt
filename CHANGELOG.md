@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.7.0...v2.8.0) (2025-04-05)
+
+
+### Features
+
+* **checkout:** enhance form navigation and field management ([098edce](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/098edced2c4b58dfc52929b4f4788473b4394b87))
+
 # [2.7.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.6.0...v2.7.0) (2025-04-05)
 
 
