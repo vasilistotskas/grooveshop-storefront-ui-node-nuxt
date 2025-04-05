@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.3.0...v2.4.0) (2025-04-05)
+
+
+### Features
+
+* **ui:** enhance like functionality and theme configuration ([9ddb41a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9ddb41a23b3d1fa22ac7d47a3b0bc61be6cd8d71))
+
 # [2.3.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.2.0...v2.3.0) (2025-04-05)
 
 
