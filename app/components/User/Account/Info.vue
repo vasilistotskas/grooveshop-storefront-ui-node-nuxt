@@ -116,7 +116,6 @@ const changeUserName = async () => {
             @keydown.enter="onEditUserName"
           />
         </div>
-        <!-- User Email Info       -->
         <span
           class="
             w-full cursor-text select-text items-center truncate p-1.5 text-sm

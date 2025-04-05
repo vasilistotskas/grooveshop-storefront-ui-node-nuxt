@@ -70,7 +70,6 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
           "
           :class="{ 'justify-between': isMobileOrTablet }"
         >
-          <!-- title -->
           <slot name="title">
             <Component
               :is="titleElement"
@@ -108,7 +107,6 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
               </UTooltip>
             </Component>
           </slot>
-          <!-- menu -->
           <slot name="menu" />
           <MobileOrTabletOnly>
             <div

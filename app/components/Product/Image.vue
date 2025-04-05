@@ -8,12 +8,12 @@ const props = defineProps({
     default: undefined,
   },
   width: {
-    type: Number,
-    default: 604,
+    type: [Number, String],
+    default: 680,
   },
   height: {
-    type: Number,
-    default: 319,
+    type: [Number, String],
+    default: 680,
   },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -24,7 +24,6 @@ const props = defineProps({
   sizes: {
     type: String,
     required: false,
-    default: 'sm:562px md:349px lg:461px xl:589px xxl:300px 2xl:604px',
   },
 })
 

@@ -1,17 +1,12 @@
 <script lang="ts" setup>
-import Json404 from '~/assets/lotties/404.json'
 import type { NuxtError } from '#app'
 
 defineProps({
   error: Object as () => NuxtError,
 })
 
-const { isMobile, isTablet } = useDevice()
 const config = useRuntimeConfig()
 const { t } = useI18n({ useScope: 'local' })
-
-const lottieWidth = computed(() => (isMobile || isTablet ? '100%' : '1500px'))
-const lottieHeight = computed(() => (isMobile || isTablet ? '300px' : '500px'))
 
 const ogImageOptions = reactive({
   alt: 'Page not found ⚠️',
@@ -90,15 +85,6 @@ defineOgImage(ogImageOptions)
         >
           {{ t('home') }}
         </Anchor>
-        <div class="grid items-center justify-center">
-          <Lottie
-            :animation-data="Json404"
-            :height="lottieHeight"
-            :show-client-loading-animation="false"
-            :width="lottieWidth"
-            class="mt-6 grid"
-          />
-        </div>
       </div>
     </div>
   </div>

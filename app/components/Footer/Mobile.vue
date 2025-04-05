@@ -5,7 +5,7 @@ const localePath = useLocalePath()
 const { t } = useI18n({ useScope: 'local' })
 const { $i18n } = useNuxtApp()
 
-const items = [{
+const items = ref<AccordionItem[]>([{
   label: $i18n.t('about.us'),
   icon: 'i-heroicons-information-circle',
   slot: 'about',
@@ -21,7 +21,7 @@ const items = [{
   label: $i18n.t('help_center'),
   icon: 'i-heroicons-chat-bubble-oval-left',
   slot: 'contact',
-}] satisfies AccordionItem[]
+}])
 </script>
 
 <template>

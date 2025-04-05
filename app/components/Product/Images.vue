@@ -40,22 +40,16 @@ watch(
 
 <template>
   <div
-    class="grid"
+    class="flex flex-col"
     :class="[images && images?.length > 1 ? 'gap-4' : '']"
   >
-    <div
-      class="
-        bg-primary-100 grid items-center justify-center justify-items-center
-        rounded-lg
-
-        dark:bg-primary-900
-      "
-    >
+    <UCard variant="soft">
       <ProductImage
         :image="selectedImage"
         img-loading="eager"
+        class="rounded-md"
       />
-    </div>
+    </UCard>
 
     <LazyUCarousel
       v-if="images && images?.length > 1"
@@ -87,10 +81,10 @@ watch(
           <ProductImage
             :key="item.id"
             :image="item"
-            :width="201"
-            :height="128"
-            sizes="sm:281px md:160px lg:153px xl:195px xxl:201px 2xl:201px"
+            :width="200"
+            :height="120"
             img-loading="lazy"
+            class="rounded-md"
           />
         </button>
       </div>

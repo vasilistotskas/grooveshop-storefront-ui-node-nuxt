@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import checkoutSuccessJSON from 'assets/lotties/checkout_success.json'
-
 const route = useRoute()
 const orderUUID = 'uuid' in route.params
   ? route.params.uuid
@@ -110,15 +108,6 @@ definePageMeta({
         <div
           class="grid items-center justify-center justify-items-center gap-4"
         >
-          <Lottie
-            ref="lottie"
-            :animation-data="checkoutSuccessJSON"
-            :auto-play="true"
-            :height="'150px'"
-            :loop="true"
-            :text="t('lottie')"
-            :width="'150px'"
-          />
           <h2 class="text-4xl font-bold">
             {{
               t('main.title', {
@@ -313,7 +302,6 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Η παραγγελία δημιουργήθηκε με επιτυχία
-  lottie: Η παραγγελία δημιουργήθηκε
   button: Πλοηγηθείτε στην Αρχική
   main:
     title: Σας ευχαριστούμε, {customerName}!
