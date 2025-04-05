@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.6.0...v2.7.0) (2025-04-05)
+
+
+### Features
+
+* **ui:** improve UI/UX across cart components ([bf5e538](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bf5e538e693b8cfe04b99570bfc29ee212ce852b))
+
 # [2.6.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.5.0...v2.6.0) (2025-04-05)
 
 
