@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useIntersectionObserver, useLocalStorage, useTimeAgo } from '@vueuse/core'
-
 const config = useRuntimeConfig()
 const { isMobileOrTablet } = useDevice()
 
@@ -333,12 +331,12 @@ useSeoMeta({
           class="py-4"
           :ui="{
             container: 'p-1',
-            item: 'basis-full md:basis-1/2 xl:basis-1/4 items-center justify-center justify-items-center',
+            item: 'w-full basis-full md:basis-1/2 xl:basis-1/4 items-center justify-center justify-items-center',
           }"
         >
           <template #default="{ item }">
             <UCard
-              class="w-32 h-32 text-center hover:shadow-md transition-shadow duration-300 flex flex-col justify-center items-center"
+              class="w-full h-32 text-center hover:shadow-md transition-shadow duration-300 flex flex-col justify-center items-center"
             >
               <div class="flex flex-col items-center gap-2">
                 <UIcon :name="item.icon" class="text-3xl" />
