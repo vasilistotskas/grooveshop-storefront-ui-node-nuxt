@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.4.0...v2.5.0) (2025-04-05)
+
+
+### Features
+
+* **ui:** remove Lottie animations and enhance component layouts ([2a2c75a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2a2c75a90eb76c2ff3d1b4fa90be91a582e9b32e))
+
 # [2.4.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.3.0...v2.4.0) (2025-04-05)
 
 
