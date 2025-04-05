@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.5.0...v2.6.0) (2025-04-05)
+
+
+### Features
+
+* **ui:** update product interaction colors and button styles ([33cd04d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/33cd04d0850976293a62893d3cb63a461b174c72))
+
 # [2.5.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.4.0...v2.5.0) (2025-04-05)
 
 
