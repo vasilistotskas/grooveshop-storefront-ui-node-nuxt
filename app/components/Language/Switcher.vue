@@ -21,7 +21,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
       {
         label: option.name || '',
         disabled: option.code === locale.value,
-        icon: option.icon,
+        icon: String(option.icon) || undefined,
         onSelect: () => {
           emit('languageChanged', option.code)
           navigateToLocale(option.code)

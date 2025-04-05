@@ -31,3 +31,8 @@ coverage
 
 # Cache
 .eslintcache
+
+# AI
+.cursor
+.windsurfrules
+memory-bank

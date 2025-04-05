@@ -31,3 +31,8 @@ node_modules
 .env
 README.md
 helm-charts
+
+# AI
+.cursor
+.windsurfrules
+memory-bank

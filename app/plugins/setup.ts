@@ -3,18 +3,6 @@ export default defineNuxtPlugin({
   parallel: true,
   dependsOn: ['auth'],
   async setup() {
-    const { enabled } = useAuthPreviewMode()
-
-    if (enabled.value) {
-      const appStore = useAppStore()
-      const { healthCheck } = appStore
-      const { status } = await healthCheck()
-
-      if (status.value === 'error') {
-        return
-      }
-    }
-
     const { loggedIn } = useUserSession()
     const authStore = useAuthStore()
     const { setupConfig, setupSession, setupSessions, setupAuthenticators } = authStore
