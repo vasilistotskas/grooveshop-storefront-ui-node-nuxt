@@ -1,6 +1,14 @@
 import { StorageSerializers } from '@vueuse/core'
 import type { IFetchError, FetchContext, FetchHooks, FetchResponse } from 'ofetch'
 
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c: string): string => {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
+
 export const useCartStore = defineStore('cart', () => {
   const cart = ref<Cart | null>(null)
   const pending = ref<boolean>(false)
@@ -147,7 +155,7 @@ export const useCartStore = defineStore('cart', () => {
     const now = new Date().toISOString()
     return {
       id: Date.now(),
-      uuid: useId(),
+      uuid: generateUUID(),
       user: null,
       totalPrice: 0,
       totalDiscountValue: 0,
@@ -236,7 +244,7 @@ export const useCartStore = defineStore('cart', () => {
       totalPrice: body.product.finalPrice * body.quantity,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      uuid: useId(),
+      uuid: generateUUID(),
     }
   }
 

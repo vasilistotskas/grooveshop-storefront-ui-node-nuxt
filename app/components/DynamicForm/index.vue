@@ -100,7 +100,9 @@ const isMultiStep = ref(Array.isArray(schema.value.steps) && schema.value.steps.
 const lastStep = ref(schema.value.steps?.length ? schema.value.steps.length - 1 : 0)
 
 // Filter the schema fields based on the current step
-const formFields = shallowRef((isMultiStep.value ? schema.value?.steps?.[currentStep.value]?.fields : schema.value.fields) ?? [])
+const formFields = computed(() => {
+  return (isMultiStep.value ? schema.value?.steps?.[currentStep.value]?.fields : schema.value.fields) ?? []
+})
 
 // Filter the schema fields based on the condition function
 const filteredFields = computed(() => {
@@ -126,7 +128,9 @@ const disabledFields = computed<DisabledFields>(() => {
 })
 
 // Create an array of field names from the schema object
-const schemaFieldNames = shallowRef(formFields.value.map(field => field.name))
+const schemaFieldNames = computed(() => {
+  return formFields.value.map(field => field.name)
+})
 
 // Use schema.fields to generate a Zod schema object
 const generatedSchema = z.object(
@@ -166,6 +170,7 @@ const {
   isSubmitting,
   validate,
   submitCount,
+  values,
 } = useForm({
   validationSchema,
   initialValues: initialFormValues,
@@ -207,13 +212,16 @@ function createFields(keys: string[] | undefined): DynamicFormFields {
   return fieldValues
 }
 
-const fields = reactive(createFields(schemaFieldNames.value))
+const fields = computed(() => createFields(schemaFieldNames.value))
 
 // Define the submit event emitter using defineEmits function
-const emit = defineEmits(['submit'])
+const emit = defineEmits<{
+  (e: 'submit', payload: any): void
+  (e: 'select-menu-change', payload: { target: string, value: string }): void
+}>()
 
 // Define the submit event handler using handleSubmit function and emit function
-const onSubmit = handleSubmit((values, actions) => {
+const onSubmit = handleSubmit((actions) => {
   emit('submit', values)
 
   if (resetOnSubmit.value) {
@@ -224,9 +232,28 @@ const onSubmit = handleSubmit((values, actions) => {
 // Define the form state for Nuxt UI
 const formState = computed(() => {
   return Object.fromEntries(
-    Object.entries(fields).map(([key, value]) => [key, value[0].value]),
+    Object.entries(fields.value).map(([key, value]) => [key, value[0].value]),
   )
 })
+
+// Define the select menu items
+const getSelectMenuItems = (name: string) => {
+  const fields = schema.value.steps?.[currentStep.value]?.fields
+  const field = fields?.find(field => field.name === name)
+  if (!field) {
+    return []
+  }
+  const children = field.children
+  if (children && children.length > 0) {
+    return children.map(child => ({ label: child.label, value: child.value }))
+  }
+  return []
+}
+
+// Define the select menu change handler
+const onSelectMenuChange = ({ target, value }: { target: string, value: string }) => {
+  emit('select-menu-change', { target, value })
+}
 
 // Define the submit button disabled state
 const valid = computedAsync(async () => {
@@ -238,7 +265,7 @@ const valid = computedAsync(async () => {
     .parse(formState.value)
     .then((result) => {
       const liveResultValid = result.errors.length === 0
-      return isSubmitting.value || Object.keys(errors.value).length > 0 || disableSubmitUntilValid.value
+      return isSubmitting.value || Object.keys(errors.value).length > 0
         ? !liveResultValid
         : false
     })
@@ -248,7 +275,7 @@ const valid = computedAsync(async () => {
 }, disableSubmitUntilValid.value)
 
 const nextStepButtonDisabled = computed(() => {
-  return isSubmitting.value || Object.keys(errors.value).length > 0 || disableSubmitUntilValid.value
+  return isSubmitting.value || Object.keys(errors.value).length > 0
 })
 
 // Watch for changes to the disabledFields object
@@ -257,7 +284,7 @@ formFields.value.forEach((field) => {
     () => disabledFields.value?.[field.name],
     (newVal, oldVal) => {
       if (newVal && !oldVal) {
-        const fieldEntry = fields[field.name]
+        const fieldEntry = fields.value[field.name]
         if (fieldEntry && Array.isArray(fieldEntry) && fieldEntry[0]) {
           fieldEntry[0].value = ''
         }
@@ -267,6 +294,7 @@ formFields.value.forEach((field) => {
 })
 
 defineExpose({
+  fields,
   valid,
 })
 </script>
@@ -280,10 +308,11 @@ defineExpose({
     @submit="onSubmit"
   >
     <div
-      v-if="isMultiStep && schema.steps?.[currentStep]?.title"
-      class="grid items-center justify-center"
+      v-if="isMultiStep && schema.steps?.[currentStep]?.title || schema.steps?.[currentStep]?.description"
+      class="grid gap-1 items-center justify-center pb-4"
     >
-      <span class="text-xl font-semibold">{{ schema.steps?.[currentStep]?.title }}</span>
+      <span class="text-2xl font-semibold">{{ schema.steps?.[currentStep]?.title }}</span>
+      <span class="text-sm font-semibold">{{ schema.steps?.[currentStep]?.description }}</span>
     </div>
 
     <template
@@ -335,7 +364,7 @@ defineExpose({
             <LazyDynamicFormChildren :children="children" />
           </div>
         </LazyUTextarea>
-        <UCheckbox
+        <LazyUCheckbox
           v-else-if="as === 'checkbox'"
           :id="groupId"
           v-model="fields[name][0].value"
@@ -357,7 +386,19 @@ defineExpose({
           <div v-if="children && children.length > 0">
             <LazyDynamicFormChildren :children="children" />
           </div>
-        </UCheckbox>
+        </LazyUCheckbox>
+        <LazyUSelectMenu
+          v-else-if="as === 'select'"
+          v-model="fields[name][0].value"
+          :name="name"
+          value-key="value"
+          :items="getSelectMenuItems(name)"
+          :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
+          color="neutral"
+          class="w-full"
+          @update:model-value="onSelectMenuChange({ target: name, value: fields[name][0].value })"
+          @change="onSelectMenuChange({ target: name, value: fields[name][0].value })"
+        />
         <UInput
           v-else
           :id="groupId"

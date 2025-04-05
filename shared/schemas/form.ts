@@ -6,6 +6,8 @@ export const ZodDynamicFormSchemaChildren = z
       tag: z.string(),
       text: z.string(),
       as: z.string(),
+      label: z.string().optional(),
+      value: z.any().optional(),
     }),
   )
   .optional()
@@ -47,6 +49,7 @@ export const ZodDynamicFormSchema = z.object({
     .array(
       z.object({
         title: z.string().optional(),
+        description: z.string().optional(),
         fields: ZodDynamicFormSchemaField,
       }),
     )

@@ -26,7 +26,7 @@ const payWay = useState<PayWay | null>(
 
 const selectedPayWay = ref(payWay.value?.id)
 
-const options = computed(() => {
+const items = computed(() => {
   return payWays.value?.results?.map(payWay => ({
     value: payWay.id,
     label: extractTranslated(payWay, 'name', locale.value),
@@ -52,8 +52,9 @@ watch(selectedPayWay, (value) => {
       v-if="status !== 'pending' && payWays?.count"
       v-model="selectedPayWay"
       class="max-h-72 overflow-y-auto"
+      value-key="value"
       :legend="t('title')"
-      :options="options"
+      :items="items"
       :ui="{
         fieldset: 'w-full',
       }"

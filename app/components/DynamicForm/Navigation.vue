@@ -30,28 +30,35 @@ const { $i18n } = useNuxtApp()
       'flex',
     ]"
   >
-    <UButton
-      v-if="currentStep > 0"
-      icon="i-heroicons-arrow-long-left"
-      color="neutral"
-      :label="$i18n.t('previous')"
-      @click="emit('goToPreviousStep')"
-    />
-
-    <UButton
-      v-if="currentStep < lastStep"
-      icon="i-heroicons-arrow-long-right"
-      :disabled="nextStepButtonDisabled"
-      color="neutral"
-      :label="$i18n.t('next')"
-      @click="emit('goToNextStep')"
-    />
-
-    <UButton
-      v-if="currentStep === lastStep"
-      type="submit"
-      color="neutral"
-      :label="submitLabel"
-    />
+    <UButtonGroup orientation="horizontal">
+      <UButton
+        v-if="currentStep > 0"
+        icon="i-heroicons-chevron-left"
+        color="neutral"
+        variant="ghost"
+        :label="$i18n.t('previous')"
+        @click="emit('goToPreviousStep')"
+      />
+      <UButton
+        v-if="currentStep < lastStep"
+        icon="i-heroicons-chevron-right"
+        :disabled="nextStepButtonDisabled"
+        color="neutral"
+        variant="ghost"
+        :label="$i18n.t('next')"
+        trailing
+        @click="emit('goToNextStep')"
+      />
+      <UButton
+        v-if="currentStep === lastStep"
+        type="submit"
+        color="success"
+        variant="subtle"
+        :label="submitLabel"
+        :ui="{
+          base: '!rounded-full',
+        }"
+      />
+    </UButtonGroup>
   </div>
 </template>
