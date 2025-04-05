@@ -159,6 +159,9 @@ importers:
       '@iconify-json/mdi':
         specifier: 1.2.3
         version: 1.2.3
+      '@iconify-json/unjs':
+        specifier: 1.2.0
+        version: 1.2.0
       '@nuxt/devtools':
         specifier: 2.3.2
         version: 2.3.2(vite@6.2.5(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(yaml@2.7.1))(vue@3.5.13(typescript@5.8.3))
@@ -1123,6 +1126,9 @@ packages:
 
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
+
+  '@iconify-json/unjs@1.2.0':
+    resolution: {integrity: sha512-JrbPN+By4vzXbWWkX86UzRoHfAwotAEuDqRixmQrZnYAV6ZyIJXQZsoC5LZ1+IDGczmZvaaaWG4zeK/Wi93/bA==}
 
   '@iconify/collections@1.0.534':
     resolution: {integrity: sha512-c50uAmXmiRSYEP6vXyfQG5uQtJVL0Vm6S2KFcbfw/7fByDM2SBnWQNH+/smXq/bZXVT0CdJr2Nsct+FDdqqKuA==}
@@ -8657,6 +8663,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/mdi@1.2.3':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/unjs@1.2.0':
     dependencies:
       '@iconify/types': 2.0.0
 

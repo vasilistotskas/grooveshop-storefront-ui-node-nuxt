@@ -349,7 +349,7 @@ definePageMeta({
                   :disabled="!isSupported"
                   :title="t('share')"
                   class="font-semibold capitalize transition-all duration-300 hover:scale-105 group"
-                  color="primary"
+                  color="neutral"
                   variant="ghost"
                   size="md"
                   @click="startShare"
@@ -367,7 +367,7 @@ definePageMeta({
               <UButton
                 :label="reviewButtonText"
                 class="font-semibold capitalize transition-all duration-300 hover:scale-105 group"
-                color="primary"
+                color="neutral"
                 variant="ghost"
                 size="md"
                 @click="openModal"
@@ -507,7 +507,7 @@ definePageMeta({
       </div>
       <div
         v-if="showStickyAddToCart"
-        class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] border-t border-gray-200 dark:border-gray-700 py-3 px-4"
+        class="fixed bottom-0 left-0 right-0 z-40 bg-primary-50 dark:bg-primary-800 shadow-md border-t border-gray-200 dark:border-gray-700 py-3 px-4"
       >
         <div class="max-w-7xl mx-auto flex items-center justify-between">
           <div class="flex items-center space-x-4">
@@ -552,7 +552,6 @@ definePageMeta({
               :product="product"
               :quantity="selectorQuantity || 1"
               :text="$i18n.t('add_to_cart')"
-              class="bg-primary-500 hover:bg-primary-600 text-white font-medium"
             />
           </div>
         </div>
@@ -560,8 +559,8 @@ definePageMeta({
 
       <ProductReviews
         :product-id="String(product.id)"
-        :reviews-average="product.approvedReviewAverage"
-        :reviews-count="product.approvedReviewCount"
+        :reviews-average="product.reviewAverage"
+        :reviews-count="product.reviewCount"
         display-image-of="user"
       />
     </div>
