@@ -42,7 +42,7 @@ const emptyCardUI = {
 </script>
 
 <template>
-  <PageWrapper>
+  <PageWrapper class="max-w-(--container-6xl)">
     <UBreadcrumb
       :items="breadcrumb"
       divider="chevron"
@@ -231,7 +231,7 @@ const emptyCardUI = {
         </div>
 
         <template #fallback>
-          <div class="w-full grid content-start gap-6">
+          <div class="w-full lg:max-w-md">
             <UCard
               v-bind="cardConfig"
               :ui="summaryCardUI"

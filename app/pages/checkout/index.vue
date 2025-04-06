@@ -330,7 +330,7 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper>
+  <PageWrapper class="max-w-(--container-6xl)">
     <UBreadcrumb
       :items="[
         {
