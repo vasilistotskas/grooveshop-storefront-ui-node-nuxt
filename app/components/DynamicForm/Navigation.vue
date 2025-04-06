@@ -24,41 +24,35 @@ const { $i18n } = useNuxtApp()
 </script>
 
 <template>
-  <div
-    :class="[
-      currentStep === lastStep ? 'justify-between' : 'justify-end',
-      'flex',
-    ]"
-  >
-    <UButtonGroup orientation="horizontal">
-      <UButton
-        v-if="currentStep > 0"
-        icon="i-heroicons-chevron-left"
-        color="neutral"
-        variant="ghost"
-        :label="$i18n.t('previous')"
-        @click="emit('goToPreviousStep')"
-      />
-      <UButton
-        v-if="currentStep < lastStep"
-        icon="i-heroicons-chevron-right"
-        :disabled="nextStepButtonDisabled"
-        color="neutral"
-        variant="ghost"
-        :label="$i18n.t('next')"
-        trailing
-        @click="emit('goToNextStep')"
-      />
-      <UButton
-        v-if="currentStep === lastStep"
-        type="submit"
-        color="success"
-        variant="subtle"
-        :label="submitLabel"
-        :ui="{
-          base: '!rounded-full',
-        }"
-      />
-    </UButtonGroup>
+  <div class="flex w-full items-center justify-between">
+    <UButton
+      v-if="currentStep > 0"
+      icon="i-heroicons-chevron-left"
+      color="neutral"
+      variant="ghost"
+      :label="$i18n.t('previous')"
+      @click="emit('goToPreviousStep')"
+    />
+    <div v-else />
+    <UButton
+      v-if="currentStep < lastStep"
+      icon="i-heroicons-chevron-right"
+      :disabled="nextStepButtonDisabled"
+      color="neutral"
+      variant="solid"
+      :label="$i18n.t('next')"
+      trailing
+      @click="emit('goToNextStep')"
+    />
+    <UButton
+      v-if="currentStep === lastStep"
+      type="submit"
+      color="success"
+      variant="subtle"
+      :label="submitLabel"
+      :ui="{
+        base: '!rounded-full',
+      }"
+    />
   </div>
 </template>

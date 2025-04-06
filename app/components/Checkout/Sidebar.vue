@@ -51,8 +51,8 @@ defineSlots<{
 
       <!-- Delivery Information -->
       <div class="space-y-4">
-        <div class="flex items-center gap-2">
-          <UIcon name="i-heroicons-truck" class="text-primary-600 dark:text-primary-400" />
+        <div class="flex items-center gap-4">
+          <UIcon name="i-heroicons-truck" class="size-8 text-primary-600 dark:text-primary-400" />
           <div class="w-full space-y-1">
             <p class="text-sm text-primary-600 dark:text-primary-400">
               {{ t('delivery_estimation') }}
