@@ -22,7 +22,7 @@ const { $i18n } = useNuxtApp()
     <ClientOnly>
       <div
         v-if="getCartItems?.length"
-        class="border-primary-500 h-[185px] overflow-auto border-y py-4"
+        class="h-[6rem] overflow-auto"
       >
         <div
           v-for="item in getCartItems"
@@ -96,7 +96,7 @@ const { $i18n } = useNuxtApp()
         </div>
       </div>
       <template #fallback>
-        <ClientOnlyFallback height="185px" />
+        <ClientOnlyFallback height="6rem" />
       </template>
     </ClientOnly>
   </div>

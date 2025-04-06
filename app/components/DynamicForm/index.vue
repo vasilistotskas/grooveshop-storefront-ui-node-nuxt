@@ -304,7 +304,7 @@ defineExpose({
     :id="finalID"
     :state="fields"
     autocomplete="on"
-    class="grid w-full gap-4"
+    class="grid w-full gap-4 divide-none dark:divide-primary-800"
     @submit="onSubmit"
   >
     <div
@@ -337,6 +337,7 @@ defineExpose({
         :class="{ 'items-center': true, 'grid': as !== 'checkbox', 'gap-1': children && children.length > 0, 'sr-only': hidden, 'flex': as === 'checkbox', 'gap-2': as === 'checkbox' }"
         :label="label ? label : undefined"
         :name="name"
+        :required="required"
         v-bind="fields[name][1].value"
       >
         <label

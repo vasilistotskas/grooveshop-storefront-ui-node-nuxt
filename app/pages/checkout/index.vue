@@ -153,17 +153,6 @@ const formSchema = computed(() => ({
           autocomplete: 'tel',
           rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.phone.min', { min: 3 })),
         },
-        {
-          name: 'mobilePhone',
-          label: t('form.mobile_phone'),
-          as: 'input',
-          type: 'text',
-          required: false,
-          readonly: false,
-          placeholder: t('form.mobile_phone'),
-          autocomplete: 'tel',
-          rules: z.string().optional(),
-        },
       ],
     },
     {
@@ -361,7 +350,7 @@ definePageMeta({
           :button-label="$i18n.t('submit')"
           :schema="formSchema"
           :loading="false"
-          class="rounded-[calc(var(--ui-radius)*2)] bg-(--ui-bg) ring ring-(--ui-border) divide-y divide-(--ui-border) w-full p-4"
+          class="h-full rounded-[calc(var(--ui-radius)*2)] bg-(--ui-bg) ring ring-(--ui-border) divide-y divide-(--ui-border) w-full p-4"
           @submit="onSubmit"
           @select-menu-change="onSelectMenuChange"
         />
@@ -371,7 +360,6 @@ definePageMeta({
       <div class="w-full lg:w-[400px]">
         <CheckoutSidebar
           :shipping-price="shippingPrice"
-          class="rounded-[calc(var(--ui-radius)*2)] bg-(--ui-bg) ring ring-(--ui-border) divide-y divide-(--ui-border) w-full p-4"
         >
           <template #pay-ways>
             <CheckoutPayWays />
