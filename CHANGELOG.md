@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.9.0...v2.10.0) (2025-04-06)
+
+
+### Features
+
+* **checkout:** modernize checkout sidebar UI with NuxtUI components ([5ac0045](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ac0045c542be9398dea7f4e26a396864986e0b8))
+
 # [2.9.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.8.0...v2.9.0) (2025-04-06)
 
 
