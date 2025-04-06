@@ -1,3 +1,15 @@
+# [2.11.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.10.0...v2.11.0) (2025-04-06)
+
+
+### Bug Fixes
+
+* remove unused vars ([f6a7469](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f6a74690da695d49ca3d19640d82dc09b04457e1))
+
+
+### Features
+
+* **ui:** replace ClientOnlyFallback with USkeleton components ([5ff7e51](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ff7e516d13ab7c17617ecf55f70b075bc3b36d6))
+
 # [2.10.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.9.0...v2.10.0) (2025-04-06)
 
 
