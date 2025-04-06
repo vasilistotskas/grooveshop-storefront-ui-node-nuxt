@@ -102,7 +102,7 @@ defineSlots<{
 
         <!-- VAT Info -->
         <div class="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">
-          <UIcon name="i-heroicons-shield-check text-green-500 size-6" />
+          <UIcon name="i-heroicons-shield-check" class="text-green-500 size-6" />
           <span>{{ t('vat_included') }}</span>
         </div>
       </div>

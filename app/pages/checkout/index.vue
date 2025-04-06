@@ -5,6 +5,7 @@ const { fetch } = useUserSession()
 
 const cartStore = useCartStore()
 const { cleanCartState } = cartStore
+const { getCartItems } = storeToRefs(cartStore)
 
 const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
@@ -18,6 +19,17 @@ const { data: countries } = await useFetch<Pagination<Country>>(
   '/api/countries',
   {
     key: 'countries',
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      language: locale,
+    },
+  },
+)
+const { data: payWays } = await useFetch<Pagination<PayWay>>(
+  '/api/pay-way',
+  {
+    key: 'payWays',
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -57,7 +69,6 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
 
 async function onSubmit(values: OrderCreateBody) {
   const updatedValues = processValues(values)
-
   await $fetch<OrderCreateResponse>('/api/orders', {
     method: 'POST',
     headers: useRequestHeaders(),
@@ -103,11 +114,22 @@ const regionOptions = computed(() => {
   }) || []
 })
 
+const payWayOptions = computed(() => {
+  return payWays.value?.results?.map((payWay) => {
+    const payWayName = extractTranslated(payWay, 'name', locale.value)
+    return {
+      label: `${payWayName} (${payWay.cost})`,
+      value: payWay.id,
+    }
+  }) || []
+})
+
 const formSchema = computed(() => ({
   steps: [
     {
       title: t('steps.personal_info'),
       description: t('steps.personal_info_desc'),
+      icon: 'i-heroicons-user-circle',
       fields: [
         {
           name: 'firstName',
@@ -158,6 +180,7 @@ const formSchema = computed(() => ({
     {
       title: t('steps.address'),
       description: t('steps.address_desc'),
+      icon: 'i-heroicons-map-pin',
       fields: [
         {
           name: 'country',
@@ -238,6 +261,7 @@ const formSchema = computed(() => ({
     {
       title: t('steps.address_details'),
       description: t('steps.address_details_desc'),
+      icon: 'i-heroicons-map-pin',
       fields: [
         {
           name: 'street',
@@ -310,6 +334,74 @@ const formSchema = computed(() => ({
         },
       ],
     },
+    {
+      title: t('steps.payment'),
+      description: t('steps.payment_desc'),
+      icon: 'i-heroicons-credit-card',
+      fields: [
+        {
+          name: 'payWay',
+          label: t('form.payment_method'),
+          as: 'radio',
+          type: 'text',
+          required: true,
+          readonly: false,
+          placeholder: '',
+          autocomplete: 'off',
+          items: payWayOptions.value,
+        },
+        {
+          name: 'documentType',
+          label: t('form.document_type.label'),
+          as: 'radio',
+          type: 'text',
+          required: true,
+          readonly: false,
+          placeholder: '',
+          autocomplete: 'off',
+          items: [
+            {
+              label: t('form.document_type.receipt.label'),
+              value: ZodDocumentTypeEnum.enum.RECEIPT,
+            },
+            {
+              label: t('form.document_type.invoice.label'),
+              value: ZodDocumentTypeEnum.enum.INVOICE,
+            },
+          ],
+          rules: z.string({ required_error: $i18n.t('validation.required') }),
+        },
+        {
+          name: 'items',
+          hidden: true,
+          readonly: true,
+          type: 'text',
+          as: 'input',
+          autocomplete: 'off',
+          required: true,
+          placeholder: '',
+          initialValue: getCartItems.value.map(item => ({
+            id: item.id,
+            product: item.product.id,
+            price: item.product.finalPrice,
+            quantity: item.quantity,
+          })),
+          rules: z.string({ required_error: $i18n.t('validation.required') }),
+        },
+        {
+          name: 'shippingPrice',
+          hidden: true,
+          readonly: true,
+          type: 'text',
+          as: 'input',
+          autocomplete: 'off',
+          required: true,
+          placeholder: '',
+          initialValue: shippingPrice.value,
+          rules: z.string({ required_error: $i18n.t('validation.required') }),
+        },
+      ],
+    },
   ],
 } satisfies DynamicFormSchema))
 
@@ -361,9 +453,6 @@ definePageMeta({
         <CheckoutSidebar
           :shipping-price="shippingPrice"
         >
-          <template #pay-ways>
-            <CheckoutPayWays />
-          </template>
           <template #items>
             <CheckoutItems />
           </template>
@@ -385,6 +474,8 @@ el:
     address_desc: Συμπληρώστε τη διεύθυνση παράδοσης
     address_details: Λεπτομέρειες Διεύθυνσης
     address_details_desc: Συμπληρώστε επιπλέον στοιχεία για την παράδοση
+    payment: Πληρωμή
+    payment_desc: Επίλεξε τον τρόπο πληρωμής
   form:
     first_name: Ονομα
     last_name: Επίθετο
@@ -400,7 +491,14 @@ el:
     location_type: Τύπος τοποθεσίας
     street: Δρόμος
     street_number: Αριθμός δρόμου
-    customer_notes: Σημειώσεις Πελατών
+    customer_notes: Σημειώσεις
+    payment_method: Τρόπος πληρωμής
+    document_type:
+      label: Χρειάζεσαι απόδειξη ή τιμολόγιο;
+      receipt:
+        label: Απόδειξη
+      invoice:
+        label: Τιμολόγιο
     submit:
       title: Αποθήκευση
       success: Η παραγγελία δημιουργήθηκε με επιτυχία

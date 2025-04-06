@@ -30,6 +30,7 @@ export const ZodDynamicFormSchemaField = z.array(
       .default('text'),
     initialValue: z.any().optional().nullish(),
     children: ZodDynamicFormSchemaChildren.optional().nullish(),
+    items: z.array(z.any()).optional().nullish(),
     rules: z.any(),
     condition: z
       .function(z.tuple([z.any()]), z.boolean())
@@ -50,6 +51,7 @@ export const ZodDynamicFormSchema = z.object({
       z.object({
         title: z.string().optional(),
         description: z.string().optional(),
+        icon: z.string().optional(),
         fields: ZodDynamicFormSchemaField,
       }),
     )

@@ -136,24 +136,19 @@ const allSchemaFieldNames = computed(() => {
 // Generate complete schema for all fields
 const completeGeneratedSchema = computed(() => {
   if (isMultiStep.value && schema.value.steps) {
-    return z.object(
-      Object.fromEntries(
-        schema.value.steps.flatMap(step =>
-          step.fields.map(field => [field.name, field.rules]),
-        ),
-      ),
+    const fields = schema.value.steps.flatMap(step =>
+      step.fields.map(field => [field.name, field.rules ?? z.any()]),
     )
+    return z.object(Object.fromEntries(fields))
   }
-  return z.object(
-    Object.fromEntries(formFields.value.map(field => [field.name, field.rules])),
-  )
+  const fields = formFields.value.map(field => [field.name, field.rules ?? z.any()])
+  return z.object(Object.fromEntries(fields))
 })
 
 // Use schema.fields to generate a Zod schema object for current step
 const currentStepSchema = computed(() => {
-  return z.object(
-    Object.fromEntries(formFields.value.map(field => [field.name, field.rules])),
-  )
+  const fields = formFields.value.map(field => [field.name, field.rules ?? z.any()])
+  return z.object(Object.fromEntries(fields))
 })
 
 // Use schema.extraValidation to generate a Zod schema object
@@ -177,11 +172,12 @@ const merged = computed(() => {
 // Convert the generated Zod schema object to a VeeValidate compatible schema object
 const validationSchema = toTypedSchema(merged.value)
 
-// Create an object of initial form values from the schema object
-const initialFormValues = reactive(formFields.value.reduce((acc: FormValues, field) => {
-  acc[field.name] = field.initialValue
-  return acc
-}, {}))
+const initialFormValues = computed(() => {
+  return formFields.value.reduce((acc: FormValues, field) => {
+    acc[field.name] = field.initialValue
+    return acc
+  }, {})
+})
 
 const {
   defineField,
@@ -348,6 +344,7 @@ const stepperItems = computed(() => {
   return schema.value.steps.map((step, index) => ({
     title: step.title,
     description: step.description,
+    icon: step.icon,
     value: index,
     disabled: index > currentStep.value,
   }))
@@ -367,11 +364,12 @@ defineExpose({
       color="secondary"
       :items="stepperItems"
       class="w-full"
+      size="lg"
       :ui="{
         root: 'pb-4',
         description: 'text-xs',
       }"
-      @update:model-value="(value) => currentStep = Number(value)"
+      @update:model-value="(value: string | number) => currentStep = Number(value)"
     />
 
     <UForm
@@ -394,23 +392,25 @@ defineExpose({
           placeholder = '',
           type = 'text',
           children = [],
+          items = [],
         } in filteredFields"
         :key="name"
       >
         <LazyUFormField
           v-if="fields[name]"
-          v-model="fields[name][0].value"
-          :class="{ 'items-center': true, 'grid': as !== 'checkbox', 'gap-1': children && children.length > 0, 'sr-only': hidden, 'flex': as === 'checkbox', 'gap-2': as === 'checkbox' }"
+          :class="{
+            'items-center': true,
+            'grid': as !== 'checkbox',
+            'gap-1': children && children.length > 0,
+            'sr-only': hidden,
+            'flex': as === 'checkbox',
+            'gap-2': as === 'checkbox',
+            'px-4 md:px-8': as === 'radio',
+          }"
           :label="label ? label : undefined"
           :name="name"
           :required="required"
-          v-bind="fields[name][1].value"
         >
-          <label
-            v-if="label && as === 'input'"
-            :for="name"
-            class="sr-only"
-          >{{ label }}</label>
           <LazyUTextarea
             v-if="as === 'textarea'"
             :id="groupId"
@@ -454,6 +454,30 @@ defineExpose({
               <LazyDynamicFormChildren :children="children" />
             </div>
           </LazyUCheckbox>
+          <LazyURadioGroup
+            v-else-if="as === 'radio' && items && items.length > 0"
+            :id="groupId"
+            v-model="fields[name][0].value"
+            value-key="value"
+            :aria-describedby="errors[name] ? `error-${name}` : undefined"
+            :aria-invalid="errors[name] ? 'true' : 'false'"
+            :aria-readonly="readonly"
+            :autocomplete="autocomplete"
+            :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+            :disabled="disabledFields[name]"
+            :hidden="hidden ? 'hidden' : undefined"
+            :name="name"
+            :items="items"
+            variant="list"
+            color="secondary"
+            :ui="{
+              fieldset: 'max-h-72 overflow-y-auto',
+            }"
+          >
+            <div v-if="children && children.length > 0">
+              <LazyDynamicFormChildren :children="children" />
+            </div>
+          </LazyURadioGroup>
           <LazyUSelectMenu
             v-else-if="as === 'select'"
             v-model="fields[name][0].value"
