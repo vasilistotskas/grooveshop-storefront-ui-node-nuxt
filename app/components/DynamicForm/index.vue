@@ -173,10 +173,28 @@ const merged = computed(() => {
 const validationSchema = toTypedSchema(merged.value)
 
 const initialFormValues = computed(() => {
-  return formFields.value.reduce((acc: FormValues, field) => {
-    acc[field.name] = field.initialValue
-    return acc
-  }, {})
+  const values: FormValues = {}
+
+  if (isMultiStep.value && schema.value.steps) {
+    // For multistep forms, get all fields from all steps
+    schema.value.steps.forEach((step) => {
+      step.fields.forEach((field) => {
+        if (field.initialValue !== undefined) {
+          values[field.name] = field.initialValue
+        }
+      })
+    })
+  }
+  else {
+    // For single step forms, use the current fields
+    formFields.value.forEach((field) => {
+      if (field.initialValue !== undefined) {
+        values[field.name] = field.initialValue
+      }
+    })
+  }
+
+  return values
 })
 
 const {
@@ -491,7 +509,7 @@ defineExpose({
             @change="onSelectMenuChange({ target: name, value: fields[name][0].value })"
           />
           <UInput
-            v-else
+            v-else-if="!hidden || (hidden && !Array.isArray(fields[name][0].value))"
             :id="groupId"
             v-model="fields[name][0].value"
             :aria-describedby="errors[name] ? `error-${name}` : undefined"

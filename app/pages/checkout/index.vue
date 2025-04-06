@@ -386,19 +386,19 @@ const formSchema = computed(() => ({
             price: item.product.finalPrice,
             quantity: item.quantity,
           })),
-          rules: z.string({ required_error: $i18n.t('validation.required') }),
+          rules: z.array(z.any()),
         },
         {
           name: 'shippingPrice',
           hidden: true,
           readonly: true,
-          type: 'text',
+          type: 'number',
           as: 'input',
           autocomplete: 'off',
           required: true,
           placeholder: '',
           initialValue: shippingPrice.value,
-          rules: z.string({ required_error: $i18n.t('validation.required') }),
+          rules: z.number({ required_error: $i18n.t('validation.required') }),
         },
       ],
     },
@@ -489,8 +489,8 @@ el:
     mobile_phone: Κινητό τηλέφωνο
     floor: Πάτωμα
     location_type: Τύπος τοποθεσίας
-    street: Δρόμος
-    street_number: Αριθμός δρόμου
+    street: Οδός
+    street_number: Αριθμός Οδού
     customer_notes: Σημειώσεις
     payment_method: Τρόπος πληρωμής
     document_type:
