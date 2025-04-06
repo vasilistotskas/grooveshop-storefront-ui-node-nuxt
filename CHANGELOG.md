@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.11.2...v2.12.0) (2025-04-06)
+
+
+### Features
+
+* **form:** integrate NuxtUI Stepper for multistep forms ([7c8b0b9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7c8b0b90f73be18dec6c7f0d19811fbcdd13b2aa))
+
 ## [2.11.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.11.1...v2.11.2) (2025-04-06)
 
 
