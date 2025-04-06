@@ -1,3 +1,10 @@
+## [2.11.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.11.0...v2.11.1) (2025-04-06)
+
+
+### Bug Fixes
+
+* update lock file ([e2d18de](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e2d18defff548bb24725161a012cf31fda23cdfa))
+
 # [2.11.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.10.0...v2.11.0) (2025-04-06)
 
 
