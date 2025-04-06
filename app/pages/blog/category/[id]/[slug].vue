@@ -76,8 +76,6 @@ const categoryDescription = computed(() => {
 
 const totalPosts = computed(() => category.value?.recursivePostCount || 0)
 
-const skeletonHeight = computed(() => (isMobileOrTablet ? '466px' : '527px'))
-
 const pagination = computed(() => {
   if (!posts.value?.count) return
   return usePagination<BlogPost>(posts.value)

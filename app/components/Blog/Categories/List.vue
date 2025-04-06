@@ -18,7 +18,6 @@ const { locale, t } = useI18n({ useScope: 'local' })
 const pageSize = ref(8)
 
 const page = computed(() => route.query.page)
-const skeletonHeight = computed(() => (isMobileOrTablet ? '386px' : '357px'))
 
 const {
   data: categories,
