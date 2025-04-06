@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type BaseFieldProps, type GenericObject, useForm, type ValidationOptions } from 'vee-validate'
+import { type BaseFieldProps, type GenericObject, useForm } from 'vee-validate'
 import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
@@ -107,12 +107,10 @@ const formFields = computed(() => {
 // Filter the schema fields based on the condition function
 const filteredFields = computed(() => {
   return formFields.value.filter((field) => {
-    // If no condition is specified, always show the field
     if (!field.condition) {
       return true
     }
-    // Otherwise, evaluate the condition function with the current form state
-    return field.condition(formState.value)
+    return field.condition(values)
   })
 })
 
@@ -122,35 +120,58 @@ const disabledFields = computed<DisabledFields>(() => {
     return {}
   }
   return formFields.value.reduce((acc: DisabledFields, field) => {
-    acc[field.name] = field.disabledCondition ? field.disabledCondition(formState.value) : false
+    acc[field.name] = field.disabledCondition ? field.disabledCondition(values) : false
     return acc
   }, {})
 })
 
-// Create an array of field names from the schema object
-const schemaFieldNames = computed(() => {
+// Create an array of all field names from all steps
+const allSchemaFieldNames = computed(() => {
+  if (isMultiStep.value && schema.value.steps) {
+    return schema.value.steps.flatMap(step => step.fields.map(field => field.name))
+  }
   return formFields.value.map(field => field.name)
 })
 
-// Use schema.fields to generate a Zod schema object
-const generatedSchema = z.object(
-  Object.fromEntries(formFields.value.map(field => [field.name, field.rules])),
-)
+// Generate complete schema for all fields
+const completeGeneratedSchema = computed(() => {
+  if (isMultiStep.value && schema.value.steps) {
+    return z.object(
+      Object.fromEntries(
+        schema.value.steps.flatMap(step =>
+          step.fields.map(field => [field.name, field.rules]),
+        ),
+      ),
+    )
+  }
+  return z.object(
+    Object.fromEntries(formFields.value.map(field => [field.name, field.rules])),
+  )
+})
+
+// Use schema.fields to generate a Zod schema object for current step
+const currentStepSchema = computed(() => {
+  return z.object(
+    Object.fromEntries(formFields.value.map(field => [field.name, field.rules])),
+  )
+})
 
 // Use schema.extraValidation to generate a Zod schema object
 const extraValidationSchema = schema.value.extraValidation ? schema.value.extraValidation : z.object({})
 
 // Merge the generated Zod schema object with the extraValidationSchema
 const merged = computed(() => {
+  const baseSchema = isMultiStep.value ? completeGeneratedSchema.value : currentStepSchema.value
+
   if (extraValidationSchema instanceof z.ZodEffects) {
-    return mergeWithEffect(extraValidationSchema, generatedSchema)
+    return mergeWithEffect(extraValidationSchema, baseSchema)
   }
   else if (extraValidationSchema instanceof z.ZodObject) {
-    return generatedSchema.merge(extraValidationSchema)
+    return baseSchema.merge(extraValidationSchema)
   }
 
   console.warn('extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject')
-  return generatedSchema
+  return baseSchema
 })
 
 // Convert the generated Zod schema object to a VeeValidate compatible schema object
@@ -168,9 +189,10 @@ const {
   resetForm,
   errors,
   isSubmitting,
-  validate,
   submitCount,
   values,
+  validateField,
+  setFieldError,
 } = useForm({
   validationSchema,
   initialValues: initialFormValues,
@@ -181,20 +203,50 @@ const reset = () => {
   resetForm()
 }
 
-const goToNextStep = async () => {
+// Helper to get current step field names
+const currentStepFieldNames = computed(() => {
   const currentStepFields = schema.value.steps?.[currentStep.value]?.fields ?? []
-  const fieldsToValidate = currentStepFields.map(field => field.name) as Partial<ValidationOptions>
-  const isValid = await validate(fieldsToValidate).then(result => result.valid)
-  if (isValid) {
-    if (currentStep.value < lastStep.value) {
-      currentStep.value++
-    }
-  }
-}
+  return currentStepFields.map(field => field.name)
+})
+
+// Check if current step has errors
+const currentStepHasErrors = computed(() => {
+  const currentFields = currentStepFieldNames.value
+  return Object.entries(errors.value)
+    .some(([field, error]) => currentFields.includes(field) && error)
+})
+
+const nextStepButtonDisabled = computed(() => {
+  return isSubmitting.value || currentStepHasErrors.value
+})
 
 const goToPreviousStep = () => {
   if (currentStep.value > 0) {
     currentStep.value--
+    const nextStepFields = schema.value.steps?.[currentStep.value + 1]?.fields ?? []
+    nextStepFields.forEach((field) => {
+      setFieldError(field.name, '')
+    })
+  }
+}
+
+const goToNextStep = async () => {
+  const currentStepFields = schema.value.steps?.[currentStep.value]?.fields ?? []
+  const fieldsToValidate = currentStepFields.map(field => field.name)
+
+  const validationResults = await Promise.all(
+    fieldsToValidate.map(field => validateField(field)),
+  )
+
+  const isStepValid = validationResults.every(result => result.valid)
+
+  if (isStepValid) {
+    if (currentStep.value < lastStep.value) {
+      currentStepFields.forEach((field) => {
+        setFieldError(field.name, '')
+      })
+      currentStep.value++
+    }
   }
 }
 
@@ -205,14 +257,13 @@ function createFields(keys: string[] | undefined): DynamicFormFields {
   }
   const fieldValues: DynamicFormFields = {}
   keys.forEach((key) => {
-    // Use defineField for each key and store the result in fieldValues
     const [field, fieldProps] = defineField(key, nuxtUiConfig)
     fieldValues[key] = [field, fieldProps]
   })
   return fieldValues
 }
 
-const fields = computed(() => createFields(schemaFieldNames.value))
+const fields = computed(() => createFields(allSchemaFieldNames.value))
 
 // Define the submit event emitter using defineEmits function
 const emit = defineEmits<{
@@ -273,10 +324,6 @@ const valid = computedAsync(async () => {
       return true
     })
 }, disableSubmitUntilValid.value)
-
-const nextStepButtonDisabled = computed(() => {
-  return isSubmitting.value || Object.keys(errors.value).length > 0
-})
 
 // Watch for changes to the disabledFields object
 formFields.value.forEach((field) => {
