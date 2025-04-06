@@ -102,7 +102,7 @@ defineSlots<{
 
         <!-- VAT Info -->
         <div class="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">
-          <UIcon name="i-heroicons-shield-check" />
+          <UIcon name="i-heroicons-shield-check text-green-500 size-6" />
           <span>{{ t('vat_included') }}</span>
         </div>
       </div>
@@ -114,7 +114,7 @@ defineSlots<{
 
           <!-- Help Section -->
           <UButton
-            color="neutral"
+            color="info"
             variant="ghost"
             size="sm"
             icon="i-heroicons-question-mark-circle"
