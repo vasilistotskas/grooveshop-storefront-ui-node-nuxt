@@ -360,7 +360,9 @@ definePageMeta({
                   {{ t('share') }}
                 </UButton>
                 <template #fallback>
-                  <ClientOnlyFallback height="32px" width="130px" />
+                  <USkeleton
+                    class="h-8 w-[130px]"
+                  />
                 </template>
               </ClientOnly>
 

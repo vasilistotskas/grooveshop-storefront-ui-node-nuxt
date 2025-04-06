@@ -111,17 +111,16 @@ definePageMeta({
       :orders="orders?.results"
       :orders-total="orders?.count"
     />
-    <ClientOnlyFallback
+    <div
       v-else-if="status === 'pending'"
-      class="
-          grid gap-2
-
-          md:gap-4
-        "
-      :count="orders?.count || 4"
-      height="202px"
-      width="100%"
-    />
+      class="grid gap-2 md:gap-4"
+    >
+      <USkeleton
+        v-for="i in (orders?.count || 4)"
+        :key="i"
+        class="h-[202px] w-full"
+      />
+    </div>
     <Error v-else-if="error" :error="error" />
     <LazyEmptyState
       v-else-if="!orders?.count"

@@ -106,23 +106,16 @@ definePageMeta({
       :favourites-count="favourites?.count"
     />
     <div v-if="status === 'pending'" class="grid w-full items-start gap-4">
-      <ClientOnlyFallback
-        class="flex w-full items-center justify-center"
-        height="20px"
-        width="100%"
+      <USkeleton
+        class="flex h-5 w-full items-center justify-center"
       />
-      <ClientOnlyFallback
-        class="
-              grid grid-cols-2 gap-4
-
-              lg:grid-cols-3
-
-              xl:grid-cols-4
-            "
-        :count="favourites?.count || 4"
-        height="400px"
-        width="100%"
-      />
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+        <USkeleton
+          v-for="i in (favourites?.count || 4)"
+          :key="i"
+          class="h-[400px] w-full"
+        />
+      </div>
     </div>
   </PageWrapper>
 </template>

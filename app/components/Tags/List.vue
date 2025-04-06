@@ -106,10 +106,9 @@ const filteredTags = computed(() => {
           :label="extractTranslated(item, 'label', locale)"
         />
       </LazyUCarousel>
-      <ClientOnlyFallback
+      <USkeleton
         v-if="status === 'pending'"
-        height="24px"
-        width="100%"
+        class="h-6 w-full"
       />
     </div>
   </aside>

@@ -108,13 +108,16 @@ watch(
         :reviews-average="reviewsAverage"
         :reviews-count="reviewsCount"
       />
-      <ClientOnlyFallback
+      <div
         v-if="status === 'pending'"
         class="grid gap-4"
-        :count="productReviews?.length || 4"
-        height="92px"
-        width="100%"
-      />
+      >
+        <USkeleton
+          v-for="i in (productReviews?.length || 4)"
+          :key="i"
+          class="h-[92px] w-full"
+        />
+      </div>
     </div>
   </div>
 </template>

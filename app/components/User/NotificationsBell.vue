@@ -144,10 +144,13 @@ onClickOutside(dropdown, () => {
             />
           </template>
           <template v-else-if="pending">
-            <ClientOnlyFallback
-              :count="userNotifications?.length || 4"
-              height="90px"
-            />
+            <div class="space-y-2">
+              <USkeleton
+                v-for="i in (userNotifications?.length || 4)"
+                :key="i"
+                class="h-[90px] w-full"
+              />
+            </div>
           </template>
           <template v-else-if="!userNotifications?.length">
             <div

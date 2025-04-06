@@ -246,32 +246,27 @@ onReactivated(async () => {
             :post="post"
           />
         </ol>
-        <ClientOnlyFallback
+        <div
           v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
-          class="
-            grid w-full grid-cols-1 items-center justify-center gap-8
-
-            lg:grid-cols-2
-
-            md:grid-cols-2
-
-            sm:grid-cols-1
-
-            xl:grid-cols-3
-          "
-          :count="allPosts.length || 4"
-          height="478px"
-          width="100%"
-        />
+          class="grid w-full grid-cols-1 items-center justify-center gap-8 lg:grid-cols-2 md:grid-cols-2"
+        >
+          <USkeleton
+            v-for="i in 4"
+            :key="i"
+            class="h-[300px] w-full"
+          />
+        </div>
       </div>
       <slot name="sidebar" />
     </section>
     <Transition>
-      <ClientOnlyFallback
+      <div
         v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR"
-        :text="$i18n.t('loading')"
         class="grid items-center justify-items-center pt-4"
-      />
+      >
+        <USkeleton class="h-6 w-32" />
+        <span class="sr-only">{{ $i18n.t('loading') }}</span>
+      </div>
     </Transition>
     <Pagination
       v-if="pagination && paginationType === 'cursor'"

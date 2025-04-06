@@ -106,17 +106,16 @@ definePageMeta({
       display-image-of="product"
     />
     <div v-else-if="status === 'pending'" class="grid gap-4">
-      <ClientOnlyFallback
-        class="flex items-center justify-center"
-        height="20px"
-        width="100%"
+      <USkeleton
+        class="flex h-5 w-full items-center justify-center"
       />
-      <ClientOnlyFallback
-        class="grid gap-4"
-        :count="reviews?.count || 4"
-        height="126px"
-        width="100%"
-      />
+      <div class="grid gap-4">
+        <USkeleton
+          v-for="i in (reviews?.count || 4)"
+          :key="i"
+          class="h-[126px] w-full"
+        />
+      </div>
     </div>
     <Error v-else-if="error" :error="error" />
     <LazyEmptyState

@@ -295,9 +295,8 @@ definePageMeta({
                 @click="startShare"
               />
               <template #fallback>
-                <ClientOnlyFallback
-                  height="40px"
-                  width="40px"
+                <USkeleton
+                  class="h-10 w-10"
                 />
               </template>
             </ClientOnly>
@@ -397,21 +396,15 @@ definePageMeta({
           'px-8': !isMobileOrTablet,
         }"
       >
-        <ClientOnlyFallback
+        <div
           v-for="index in 3"
           :key="index"
-          class="
-              flex flex-none basis-full snap-center px-4
-
-              lg:basis-1/2
-
-              md:basis-1/2
-
-              xl:basis-1/3
-            "
-          :height="isMobileOrTablet ? '670px' : '442px'"
-          width="100%"
-        />
+          class="flex flex-none basis-full snap-center px-4 lg:basis-1/2 md:basis-1/2 xl:basis-1/3"
+        >
+          <USkeleton
+            :class="isMobileOrTablet ? 'h-[670px] w-full' : 'h-[442px] w-full'"
+          />
+        </div>
       </div>
     </div>
   </PageWrapper>

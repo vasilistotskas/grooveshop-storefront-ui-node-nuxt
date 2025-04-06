@@ -361,14 +361,11 @@ const submitButtonDisabled = computed(() => {
               </div>
             </div>
             <div v-else-if="status.config === 'pending'" class="grid gap-4">
-              <ClientOnlyFallback
-                class="my-2"
-                height="24px"
-                width="100%"
+              <USkeleton
+                class="my-2 h-6 w-full"
               />
-              <ClientOnlyFallback
-                height="80px"
-                width="100%"
+              <USkeleton
+                class="h-20 w-full"
               />
             </div>
           </div>

@@ -139,9 +139,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                   @click="startShare"
                 />
                 <template #fallback>
-                  <ClientOnlyFallback
-                    height="40px"
-                    width="40px"
+                  <USkeleton
+                    class="h-10 w-10"
                   />
                 </template>
               </ClientOnly>

@@ -153,9 +153,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             @click="startShare"
           />
           <template #fallback>
-            <ClientOnlyFallback
-              height="48px"
-              width="48px"
+            <USkeleton
+              class="h-12 w-12"
             />
           </template>
         </ClientOnly>

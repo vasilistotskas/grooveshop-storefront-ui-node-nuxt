@@ -107,23 +107,16 @@ definePageMeta({
       @address-delete="onAddressDelete"
     />
     <div v-else-if="status === 'pending'" class="grid w-full items-start gap-4">
-      <ClientOnlyFallback
-        class="flex w-full items-center justify-center"
-        height="20px"
-        width="100%"
+      <USkeleton
+        class="flex h-5 w-full items-center justify-center"
       />
-      <ClientOnlyFallback
-        class="
-            grid grid-cols-2 gap-4
-
-            lg:grid-cols-3
-
-            xl:grid-cols-4
-          "
-        :count="addresses?.results?.length || 4"
-        height="360px"
-        width="100%"
-      />
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+        <USkeleton
+          v-for="i in (addresses?.results?.length || 4)"
+          :key="i"
+          class="h-[360px] w-full"
+        />
+      </div>
     </div>
     <Error v-else-if="error" :error="error" />
     <AddressAddNew v-else-if="!addresses?.count" />

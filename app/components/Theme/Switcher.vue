@@ -50,9 +50,8 @@ const icon = computed(() => colorMode.value === 'dark' ? modes[0].icon : modes[1
       @click="isDark = !isDark"
     />
     <template #fallback>
-      <ClientOnlyFallback
-        width="24px"
-        height="24px"
+      <USkeleton
+        class="h-6 w-6"
       />
     </template>
   </ClientOnly>

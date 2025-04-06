@@ -96,7 +96,20 @@ const { $i18n } = useNuxtApp()
         </div>
       </div>
       <template #fallback>
-        <ClientOnlyFallback height="6rem" />
+        <div class="h-[6rem] space-y-2">
+          <div class="grid grid-cols-[1fr_auto_auto_auto] gap-4">
+            <USkeleton class="h-5" />
+            <USkeleton class="h-5 w-16" />
+            <USkeleton class="h-5 w-8" />
+            <USkeleton class="h-5 w-16" />
+          </div>
+          <div class="grid grid-cols-[1fr_auto_auto_auto] gap-4">
+            <USkeleton class="h-5" />
+            <USkeleton class="h-5 w-16" />
+            <USkeleton class="h-5 w-8" />
+            <USkeleton class="h-5 w-16" />
+          </div>
+        </div>
       </template>
     </ClientOnly>
   </div>

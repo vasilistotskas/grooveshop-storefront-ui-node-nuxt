@@ -134,23 +134,16 @@ watch(
         </Anchor>
       </UCard>
     </ol>
-    <ClientOnlyFallback
+    <div
       v-if="status === 'pending'"
-      class="
-          grid grid-cols-1 items-center justify-center gap-4
-
-          lg:grid-cols-3
-
-          md:grid-cols-3
-
-          sm:grid-cols-2
-
-          xl:grid-cols-4
-        "
-      :count="categories?.count || 4"
-      :height="skeletonHeight"
-      width="100%"
-    />
+      class="grid grid-cols-1 items-center justify-center gap-4 lg:grid-cols-3 md:grid-cols-3"
+    >
+      <USkeleton
+        v-for="i in 6"
+        :key="i"
+        class="h-[200px] w-full"
+      />
+    </div>
   </div>
 </template>
 
