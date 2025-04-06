@@ -1,3 +1,10 @@
+## [2.13.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.13.0...v2.13.1) (2025-04-06)
+
+
+### Bug Fixes
+
+* **form:** resolve hidden fields validation and type issues ([394b0f3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/394b0f3ac2890f87d1ee2dd29a38193a96d65b5e))
+
 # [2.13.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.12.0...v2.13.0) (2025-04-06)
 
 
