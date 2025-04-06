@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.12.0...v2.13.0) (2025-04-06)
+
+
+### Features
+
+* **checkout:** add payment step with document type selection ([160af58](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/160af586847a0573a30d75558d0afe4bbeb3659d))
+
 # [2.12.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.11.2...v2.12.0) (2025-04-06)
 
 
