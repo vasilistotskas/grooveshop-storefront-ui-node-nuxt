@@ -1,3 +1,10 @@
+## [2.11.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.11.1...v2.11.2) (2025-04-06)
+
+
+### Bug Fixes
+
+* **form:** resolve multistep form validation issues ([694e42b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/694e42b79bd1065b871a422a428346b84b557a7d))
+
 ## [2.11.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.11.0...v2.11.1) (2025-04-06)
 
 
