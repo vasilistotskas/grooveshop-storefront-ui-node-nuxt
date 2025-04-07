@@ -5,7 +5,6 @@ const { t, locale } = useI18n({ useScope: 'local' })
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
-const config = useRuntimeConfig()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
