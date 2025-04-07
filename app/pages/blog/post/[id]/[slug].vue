@@ -8,6 +8,7 @@ const { updateLikedPosts } = userStore
 const config = useRuntimeConfig()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
+const img = useImage()
 
 const blogPostId = ref(Number('id' in route.params ? route.params.id : null))
 
@@ -110,7 +111,9 @@ const ogImage = computed(() => {
   if (!blogPost.value || !blogPost.value.mainImagePath) {
     return ''
   }
-  return config.public.static.origin + `/${blogPost.value.mainImagePath}`
+  return img(blogPost.value.mainImagePath, { width: 1200, height: 630, fit: 'cover' }, {
+    provider: 'mediaStream',
+  })
 })
 
 const items = computed(() => [
