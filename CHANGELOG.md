@@ -1,3 +1,15 @@
+# [2.14.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.13.1...v2.14.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* remove unused var ([ddcb06a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ddcb06a903a4c7efc223075f055331897cefc60a))
+
+
+### Features
+
+* Remove useless components, revert blog post image, Bump Versions ([512707b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/512707b60958912a2143e9efa8fcf17ae1a6d7ad))
+
 ## [2.13.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.13.0...v2.13.1) (2025-04-06)
 
 
