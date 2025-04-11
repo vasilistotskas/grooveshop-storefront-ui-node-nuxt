@@ -141,7 +141,6 @@ export default defineNuxtConfig({
   },
   build: {
     analyze: true,
-    transpile: ['@unocss'],
   },
   routeRules: {
     '/api/**': { cors: true },

@@ -18,7 +18,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['goToNextStep', 'goToPreviousStep'])
+const emit = defineEmits(['goToNextStep', 'goToPreviousStep', 'submit'])
 
 const { $i18n } = useNuxtApp()
 </script>
@@ -33,7 +33,6 @@ const { $i18n } = useNuxtApp()
       :label="$i18n.t('previous')"
       @click="emit('goToPreviousStep')"
     />
-    <div v-else />
     <UButton
       v-if="currentStep < lastStep"
       icon="i-heroicons-chevron-right"
@@ -53,6 +52,7 @@ const { $i18n } = useNuxtApp()
       :ui="{
         base: '!rounded-full',
       }"
+      @click="emit('submit')"
     />
   </div>
 </template>
