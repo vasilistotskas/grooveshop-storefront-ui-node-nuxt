@@ -48,8 +48,6 @@ const { updateLikedComments } = userStore
 const cursorState = useState<CursorState>('cursor-state')
 const { $i18n } = useNuxtApp()
 
-const expand = computed(() => 'true')
-const expandFields = computed(() => 'user,post')
 const cursor = computed(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
 )
@@ -87,8 +85,6 @@ const {
     headers: useRequestHeaders(),
     query: {
       cursor: cursor,
-      expand: expand,
-      expandFields: expandFields,
       parent: 'none',
       paginationType: paginationType,
       pageSize: pageSize,
@@ -185,9 +181,6 @@ async function onAddCommentSubmit({ content }: { content: string }) {
           content: content,
         },
       },
-    },
-    query: {
-      expand: 'true',
     },
     async onResponse({ response }) {
       if (!response.ok) {

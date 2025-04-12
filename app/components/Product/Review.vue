@@ -47,7 +47,6 @@ const toast = useToast()
 const { $i18n } = useNuxtApp()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
-const expand = computed(() => 'true')
 
 const { refresh } = await useLazyFetch<ProductReview[]>(
   `/api/products/${product.value?.id}/reviews`,
@@ -57,7 +56,6 @@ const { refresh } = await useLazyFetch<ProductReview[]>(
     headers: useRequestHeaders(),
     query: {
       ordering: ordering,
-      expand: expand,
       language: locale,
     },
   },
@@ -295,9 +293,6 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
       rate: String(event.rate),
       status: ZodProductReviewStatusEnum.enum.TRUE,
     },
-    query: {
-      expand: 'true',
-    },
     async onResponse() {
       await refresh()
       emit('add-existing-review', userProductReview?.value)
@@ -329,9 +324,6 @@ const updateReviewEvent = async (event: { comment: string, rate: number }) => {
           comment: event.comment,
         },
       },
-    },
-    query: {
-      expand: 'true',
     },
     async onResponse({ response }) {
       if (!userProductReview?.value) return

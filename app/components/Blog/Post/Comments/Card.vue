@@ -37,6 +37,13 @@ const emit = defineEmits<{
 }>()
 
 const { $i18n } = useNuxtApp()
+const userStore = useUserStore()
+const toast = useToast()
+const { t, locale } = useI18n({ useScope: 'local' })
+const { user, loggedIn } = useUserSession()
+const { updateLikedComments } = userStore
+
+const { account } = storeToRefs(userStore)
 
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 
@@ -59,16 +66,7 @@ cursorState.value[cursorKey.value] = ''
 
 const cursor = computed(() => cursorState.value[cursorKey.value] ?? '')
 
-const blogPost = computed(() => getEntityObject(comment?.value?.post))
-const userAccount = computed(() => getEntityObject(comment?.value?.user))
-const expand = computed(() => 'true')
-const expandFields = computed(() => 'user,post')
-
-const toast = useToast()
-const { t, locale } = useI18n({ useScope: 'local' })
-const { user, loggedIn } = useUserSession()
-const userStore = useUserStore()
-const { updateLikedComments } = userStore
+const blogPost = computed(() => comment?.value?.post)
 
 const likeClicked = (event: { blogCommentId: number, liked: boolean }) => {
   if (event.liked) {
@@ -103,8 +101,6 @@ const fetchReplies = async (cursorValue: string) => {
     headers: useRequestHeaders(),
     query: {
       cursor: cursorValue,
-      expand: expand.value,
-      expandFields: expandFields.value,
       paginationType: paginationType.value,
       pageSize: pageSize.value,
       language: locale.value,
@@ -126,7 +122,7 @@ async function onReplySubmit({ content }: { content: string }) {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      post: String(blogPost.value?.id),
+      post: String(blogPost.value),
       user: String(user?.value?.id),
       translations: {
         [locale.value]: {
@@ -134,9 +130,6 @@ async function onReplySubmit({ content }: { content: string }) {
         },
       },
       parent: comment.value.id,
-    },
-    query: {
-      expand: 'true',
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -292,21 +285,21 @@ watch(
       <span class="flex w-full items-center">
         <span class="flex items-center gap-2">
           <LazyUserAvatar
-            v-if="userAccount"
+            v-if="account"
             :img-height="32"
             :img-width="32"
             :show-name="false"
-            :user-account="userAccount"
+            :user-account="account"
           />
           <span
-            v-if="userAccount"
+            v-if="account"
             class="
               text-primary-950 font-bold
 
               dark:text-primary-50
             "
           >
-            {{ userAccount?.username }}
+            {{ account?.username }}
           </span>
           <span class="flex items-center">
             <span

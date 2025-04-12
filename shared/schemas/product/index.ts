@@ -11,10 +11,10 @@ export const ZodProduct = z.object({
   translations: ZodProductTranslations,
   id: z.number().int(),
   slug: z.string(),
-  category: z.union([z.number(), z.lazy(() => ZodProductCategory)]),
+  category: z.number(),
   absoluteUrl: z.string(),
   price: z.number(),
-  vat: z.union([z.number(), z.lazy(() => ZodVat)]),
+  vat: z.number(),
   vatPercent: z.number(),
   vatValue: z.number(),
   finalPrice: z.number(),
@@ -56,6 +56,5 @@ export const ZodProductQuery = z
     category: z.union([z.number(), z.string()]).nullish(),
   })
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)

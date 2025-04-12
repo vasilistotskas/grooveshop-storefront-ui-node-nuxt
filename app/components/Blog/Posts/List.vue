@@ -43,8 +43,6 @@ const tags = computed(() => route.query.tags)
 const cursor = computed(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POSTS],
 )
-const expand = computed(() => 'true')
-
 const allPosts = ref<BlogPost[]>([])
 
 const {
@@ -64,7 +62,6 @@ const {
       author: author,
       slug: slug,
       tags: tags,
-      expand: expand,
       cursor: cursor,
       pageSize: pageSize,
       paginationType: paginationType,

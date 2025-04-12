@@ -32,7 +32,6 @@ const { locale } = useI18n()
 const { $i18n } = useNuxtApp()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
-const expand = computed(() => 'true')
 
 const {
   data: productReviews,
@@ -44,7 +43,6 @@ const {
   headers: useRequestHeaders(),
   query: {
     ordering: ordering,
-    expand: expand,
     language: locale,
   },
 })

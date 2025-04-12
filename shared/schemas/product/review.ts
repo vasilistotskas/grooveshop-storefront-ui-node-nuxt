@@ -11,8 +11,8 @@ const ZodProductReviewTranslations = z.record(
 export const ZodProductReview = z.object({
   translations: ZodProductReviewTranslations,
   id: z.number(),
-  product: z.union([z.number(), z.lazy(() => ZodProduct)]),
-  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
+  product: z.lazy(() => ZodProduct),
+  user: z.lazy(() => ZodUserAccount),
   rate: z.number(),
   status: z.lazy(() => ZodProductReviewStatusEnum),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodPublishableModel)
@@ -25,7 +25,6 @@ export const ZodProductReviewQuery = z
     status: z.lazy(() => ZodProductReviewStatusEnum).nullish(),
   })
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
@@ -40,7 +39,6 @@ export const ZodProductReviewCreateBody = z.object({
 export const ZodProductReviewCreateQuery = z
   .object({})
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
 
 export const ZodProductReviewPutBody = z.object({
   product: z.string(),
@@ -52,7 +50,6 @@ export const ZodProductReviewPutBody = z.object({
 export const ZodProductReviewPutQuery = z
   .object({})
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
 
 export const ZodProductReviewParams = z.object({
   id: z.string(),

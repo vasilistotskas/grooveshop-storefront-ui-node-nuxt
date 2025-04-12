@@ -9,7 +9,7 @@ const ZodRegionTranslations = z.record(
 export const ZodRegion = z.object({
   translations: ZodRegionTranslations,
   alpha: z.string().min(3),
-  country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
+  country: z.string().nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
 export const ZodRegionsQuery = z

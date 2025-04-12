@@ -2,8 +2,8 @@ import * as z from 'zod'
 
 export const ZodProductFavourite = z.object({
   id: z.number(),
-  product: z.union([z.number(), z.lazy(() => ZodProduct)]),
-  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
+  product: z.lazy(() => ZodProduct),
+  user: z.number(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodProductFavouriteQuery = z
@@ -13,7 +13,6 @@ export const ZodProductFavouriteQuery = z
     productId: z.string().nullish(),
   })
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

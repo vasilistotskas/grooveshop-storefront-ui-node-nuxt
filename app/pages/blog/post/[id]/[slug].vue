@@ -22,12 +22,12 @@ const { data: blogPost, refresh, error } = await useFetch<BlogPost>(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      expand: 'true',
       language: locale,
     },
     pick: [
       'id',
       'translations',
+      'category',
       'author',
       'tags',
       'mainImagePath',
@@ -52,7 +52,33 @@ if (error.value || !blogPost.value) {
   })
 }
 
-const [{ data: likedPostsData }, { data: relatedPosts, status: relatedPostsStatus }] = await Promise.all([
+const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsData }, { data: relatedPosts, status: relatedPostsStatus }] = await Promise.all([
+  useFetch<BlogCategory>(`/api/blog/categories/${blogPost.value?.category}`, {
+    key: `blogCategory${blogPost.value?.category}`,
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      language: locale,
+    },
+    pick: [
+      'id',
+      'translations',
+    ],
+  }),
+  useFetch<BlogAuthor>(`/api/blog/authors/${blogPost.value?.author}`, {
+    key: `blogAuthor${blogPost.value?.author}`,
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      language: locale,
+    },
+    pick: [
+      'id',
+      'fullName',
+      'website',
+      'image',
+    ],
+  }),
   useFetch<number[]>('/api/blog/posts/liked-posts', {
     key: `likedPosts${blogPostId.value}`,
     method: 'POST',
@@ -89,22 +115,7 @@ const blogPostSeoTitle = computed(() => {
   }
   return ''
 })
-const blogPostAuthor = computed(() => getEntityObject(blogPost?.value?.author))
-const blogPostAuthorUser = computed(() =>
-  getEntityObject(blogPostAuthor?.value?.user),
-)
-const blogPostTags = computed(() =>
-  getEntityObjectsFromArray(blogPost.value?.tags),
-)
-const blogPostCategoryName = computed(() => extractTranslated(getEntityObject(blogPost.value?.category), 'name', locale.value) || '')
-const blogAuthorFullName = computed(() => blogPostAuthorUser.value?.firstName + ' ' + blogPostAuthorUser.value?.lastName)
-
-const socialPlatforms = ['twitter', 'linkedin', 'facebook', 'instagram', 'youtube', 'github']
-const sameAs = computed(() =>
-  socialPlatforms
-    .map(platform => blogPostAuthorUser.value?.[platform as keyof typeof blogPostAuthorUser.value])
-    .filter(url => url) as string[],
-)
+const blogPostCategoryName = computed(() => extractTranslated(blogPostCategory.value, 'name', locale.value) || '')
 
 const ogImage = computed(() => {
   if (!blogPost.value || !blogPost.value.mainImagePath) {
@@ -189,10 +200,9 @@ useHead({
 useSchemaOrg([
   definePerson({
     '@id': '#author',
-    'name': blogAuthorFullName.value,
-    'sameAs': sameAs.value,
-    'url': blogPostAuthorUser.value?.website,
-    'image': blogPostAuthorUser.value?.image,
+    'name': blogPostAuthor.value?.fullName,
+    'url': blogPostAuthor.value?.website,
+    'image': blogPostAuthor.value?.image,
   }),
   defineArticle({
     author: { '@id': '#author' },
@@ -345,25 +355,6 @@ definePageMeta({
                 :datetime="blogPost.publishedAt"
               />
             </div>
-          </div>
-          <div class="grid">
-            <ul
-              v-if="blogPostTags && blogPostTags.length > 0"
-              class="
-                  scrollable-tags flex flex-wrap items-center
-
-                  md:gap-4
-                "
-            >
-              <li
-                v-for="(tag, index) in blogPostTags"
-                :key="index"
-              >
-                <span class="flex w-full items-center text-sm"><UIcon name="i-heroicons-hashtag" />{{
-                  extractTranslated(tag, 'name', locale)
-                }}</span>
-              </li>
-            </ul>
           </div>
           <div
             class="

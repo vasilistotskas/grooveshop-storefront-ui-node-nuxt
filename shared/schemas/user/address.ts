@@ -17,9 +17,9 @@ export const ZodUserAddress = z.object({
   mobilePhone: z.string().nullish(),
   notes: z.string().nullish(),
   isMain: z.boolean().nullish(),
-  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
-  country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
-  region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
+  user: z.number(),
+  country: z.string().nullish(),
+  region: z.string().nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
 export const ZodUserAddressQuery = z
@@ -28,7 +28,6 @@ export const ZodUserAddressQuery = z
     user: z.string().nullish(),
   })
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

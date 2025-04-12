@@ -4,6 +4,8 @@ export default defineNuxtPlugin({
   dependsOn: ['auth'],
   async setup() {
     const { loggedIn } = useUserSession()
+    const userStore = useUserStore()
+    const { setupAccount } = userStore
     const authStore = useAuthStore()
     const { setupConfig, setupSession, setupSessions, setupAuthenticators } = authStore
     const userNotificationStore = useUserNotificationStore()
@@ -13,6 +15,7 @@ export default defineNuxtPlugin({
     await setupSession()
 
     await Promise.all([
+      setupAccount(),
       setupSessions(),
       setupAuthenticators(),
       setupNotifications(),
@@ -23,6 +26,7 @@ export default defineNuxtPlugin({
         await setupSession()
 
         await Promise.all([
+          setupAccount(),
           setupSessions(),
           setupAuthenticators(),
           setupNotifications(),

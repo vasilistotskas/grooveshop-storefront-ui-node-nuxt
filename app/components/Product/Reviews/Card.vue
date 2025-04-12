@@ -15,8 +15,8 @@ const props = defineProps({
 
 const { review, displayImageOf } = toRefs(props)
 
-const product = computed(() => getEntityObject(review?.value?.product))
-const userAccount = computed(() => getEntityObject(review?.value?.user))
+const product = computed(() => review?.value?.product)
+const userAccount = computed(() => review?.value?.user)
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
@@ -29,7 +29,7 @@ const src = computed(() => {
 
 const alt = computed(() => {
   return displayImageOf.value === 'user'
-    ? userAccount.value?.firstName + ' ' + userAccount.value?.lastName
+    ? (userAccount.value?.fullName || 'Anonymous')
     : extractTranslated(product?.value, 'name', locale.value)
 })
 

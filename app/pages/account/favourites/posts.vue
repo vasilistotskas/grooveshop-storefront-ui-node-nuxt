@@ -32,7 +32,6 @@ const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
       page: page,
       ordering: ordering,
       pageSize: pageSize,
-      expand: 'true',
     },
   },
 )
@@ -48,7 +47,6 @@ const refreshFavourites = async () => {
         page: page.value,
         ordering: ordering.value,
         pageSize: pageSize.value,
-        expand: 'true',
       },
     },
   )

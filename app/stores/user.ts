@@ -1,11 +1,12 @@
 export const useUserStore = defineStore('user', () => {
+  const account = ref<UserAccount | null>(null)
   const favouriteProducts = ref<ProductFavourite[]>([])
   const blogLikedPosts = ref<number[]>([])
   const blogLikedComments = ref<number[]>([])
 
   const getFavouriteByProductId = (productId: number) => {
     return favouriteProducts.value.find(
-      favourite => getEntityId(favourite.product) === productId,
+      favourite => favourite.product.id === productId,
     )
   }
 
@@ -21,14 +22,14 @@ export const useUserStore = defineStore('user', () => {
 
   const removeFavouriteProduct = (productId: number) => {
     favouriteProducts.value = favouriteProducts.value.filter(
-      favourite => getEntityId(favourite.product) !== productId,
+      favourite => favourite.product.id !== productId,
     )
   }
 
   const updateFavouriteProducts = (favourites: ProductFavourite[]) => {
     const updatedFavourites = favourites.filter((favourite) => {
       return !favouriteProducts.value.some(
-        f => getEntityId(f.product) === getEntityId(favourite.product),
+        f => f.product === favourite.product,
       )
     })
     favouriteProducts.value = [...favouriteProducts.value, ...updatedFavourites]
@@ -72,10 +73,32 @@ export const useUserStore = defineStore('user', () => {
     )
   }
 
+  const setupAccount = async () => {
+    const { loggedIn, user } = useUserSession()
+    if (!loggedIn.value || !user.value) {
+      return
+    }
+    const { getUserAccount } = useAllAuthAccount()
+    const { data } = await useAsyncData<UserAccount | null>(
+      'userAccount',
+      () => {
+        if (!user.value || !user.value.id!) {
+          throw new Error('User is not logged in')
+        }
+        return getUserAccount(user.value.id)
+      },
+    )
+    if (data.value) {
+      account.value = data.value
+    }
+  }
+
   return {
+    account,
     favouriteProducts,
     blogLikedPosts,
     blogLikedComments,
+    setupAccount,
     clearAccountState,
     getFavouriteByProductId,
     addFavouriteProduct,

@@ -14,10 +14,10 @@ export const ZodBlogPost = z.object({
   translations: ZodBlogPostTranslations,
   id: z.number().int(),
   slug: z.string().nullish(),
-  likes: z.union([z.array(z.number()), z.array(z.lazy(() => ZodUserAccount))]),
-  category: z.union([z.number(), z.lazy(() => ZodBlogCategory)]),
-  tags: z.union([z.array(z.number()), z.array(z.lazy(() => ZodBlogTag))]),
-  author: z.union([z.number(), z.lazy(() => ZodBlogAuthor)]),
+  likes: z.array(z.number()),
+  category: z.number(),
+  tags: z.array(z.number()),
+  author: z.number(),
   status: z.lazy(() => ZodBlogPostStatusEnum),
   featured: z.boolean(),
   viewCount: z.number().int(),
@@ -40,7 +40,6 @@ export const ZodBlogPostQuery = z
     parent: z.literal('none').nullish(),
   })
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 

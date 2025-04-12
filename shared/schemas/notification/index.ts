@@ -25,6 +25,5 @@ export const ZodNotificationQuery = z
     kind: z.string().nullish(),
   })
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)

@@ -13,8 +13,8 @@ export const ZodUserAccount = z.object({
   zipcode: z.string().nullish(),
   address: z.string().nullish(),
   place: z.string().nullish(),
-  country: z.union([z.string(), z.lazy(() => ZodCountry)]).nullish(),
-  region: z.union([z.string(), z.lazy(() => ZodRegion)]).nullish(),
+  country: z.string().nullish(),
+  region: z.string().nullish(),
   isActive: z.boolean().nullish(),
   isStaff: z.boolean().nullish(),
   birthDate: z.string().nullish(),
@@ -27,6 +27,7 @@ export const ZodUserAccount = z.object({
   github: z.string().nullish(),
   bio: z.string().nullish(),
   mainImagePath: z.string().optional(),
+  fullName: z.string().nullish(),
   isSuperuser: z.boolean().nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 

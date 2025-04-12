@@ -32,7 +32,6 @@ const { data: reviews, status, error } = useFetch<Pagination<ProductReview>>(
       page: page,
       ordering: ordering,
       pageSize: pageSize,
-      expand: 'true',
     },
   },
 )
@@ -48,7 +47,6 @@ const refreshReviews = async () => {
         page: page.value,
         ordering: ordering.value,
         pageSize: pageSize.value,
-        expand: 'true',
       },
     },
   )

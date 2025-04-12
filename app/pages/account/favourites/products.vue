@@ -34,7 +34,6 @@ const { data: favourites, refresh: refreshFavourites, status, error } = await us
       page: page,
       ordering: ordering,
       pageSize: pageSize,
-      expand: 'true',
     },
     onResponse({ response }) {
       if (!response.ok) {
@@ -47,7 +46,7 @@ const { data: favourites, refresh: refreshFavourites, status, error } = await us
 const productIds = computed(() => {
   if (!favourites.value) return []
   return favourites.value.results?.map(favourite =>
-    getEntityId(favourite.product) as number,
+    favourite.product.id,
   )
 })
 

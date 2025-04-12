@@ -1,6 +1,13 @@
 const API_ACCOUNT_BASE_URL = '/api/_allauth/app/v1/account' as const
 
 export default function () {
+  async function getUserAccount(id: number) {
+    return $fetch<UserAccount>(`/api/user/account/${id}`, {
+      method: 'GET',
+      headers: useRequestHeaders(),
+    })
+  }
+
   async function getEmailAddresses() {
     return $fetch<EmailGetResponse>(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'GET',
@@ -249,6 +256,7 @@ export default function () {
   }
 
   return {
+    getUserAccount,
     getEmailAddresses,
     addEmailAddress,
     requestEmailVerification,

@@ -28,10 +28,6 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
-  expand: {
-    type: Boolean,
-    default: false,
-  },
   ui: {
     type: Object as PropType<ButtonProps['ui']>,
     default: () => ({}),
@@ -55,11 +51,11 @@ const liked = computed(() => blogCommentLiked(props.blogCommentId))
 
 const defaultUI = computed(() => {
   return {
-    base: `flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer ${liked.value ? 'text-(--ui-liked)' : ''}`,
+    base: `flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer ${liked.value ? '!text-(--ui-liked)' : ''}`,
   }
 })
 
-const mergedUI = mergeClasses(ui.value || {}, defaultUI.value)
+const mergedUI = computed(() => mergeClasses(ui.value || {}, defaultUI.value))
 
 const toggleFavourite = async () => {
   if (!loggedIn.value) {
@@ -73,9 +69,6 @@ const toggleFavourite = async () => {
   await $fetch<BlogComment>(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
     method: 'POST',
     headers: useRequestHeaders(),
-    query: {
-      expand: props.expand ? 'true' : 'false',
-    },
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -107,6 +100,13 @@ const toggleFavourite = async () => {
 const buttonAreaLabel = computed(() =>
   liked.value ? t('liked') : t('like'),
 )
+
+const getColor = computed(() => {
+  if (liked.value) {
+    return undefined
+  }
+  return props.color
+})
 </script>
 
 <template>
@@ -114,7 +114,7 @@ const buttonAreaLabel = computed(() =>
     v-bind="attrs"
     :icon="!liked ? 'i-heroicons-hand-thumb-up' : 'i-heroicons-hand-thumb-up'"
     :size="size"
-    :color="liked ? undefined : color"
+    :color="getColor"
     :variant="variant"
     square
     :label="String(likesCount)"

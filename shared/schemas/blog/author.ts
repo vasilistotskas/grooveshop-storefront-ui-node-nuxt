@@ -9,8 +9,10 @@ const ZodBlogAuthorTranslations = z.record(
 export const ZodBlogAuthor = z.object({
   translations: ZodBlogAuthorTranslations,
   id: z.number().int(),
-  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
+  user: z.number(),
   website: z.string().nullish(),
+  fullName: z.string().nullish(),
+  image: z.string().nullish(),
   numberOfPosts: z.number().int(),
   totalLikesReceived: z.number().int(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)

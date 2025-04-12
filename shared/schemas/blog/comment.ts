@@ -13,9 +13,9 @@ export const ZodBlogCommentBase = z.object({
   parent: z.number().nullish(),
   level: z.number().nullish(),
   treeId: z.number().nullish(),
-  likes: z.union([z.array(z.number()), z.array(z.lazy(() => ZodUserAccount))]),
-  user: z.union([z.number(), z.lazy(() => ZodUserAccount)]),
-  post: z.union([z.number(), z.lazy(() => ZodBlogPost)]),
+  likes: z.array(z.number()),
+  user: z.number(),
+  post: z.number(),
   likesCount: z.number().int(),
   repliesCount: z.number().int(),
 }).merge(ZodTimeStampModel)
@@ -27,7 +27,6 @@ export const ZodBlogCommentQuery = z
     post: z.string().nullish(),
   })
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
@@ -45,7 +44,6 @@ export const ZodBlogCommentCreateBody = z.object({
 export const ZodBlogCommentCreateQuery = z
   .object({})
   .merge(ZodLanguageQuery)
-  .merge(ZodExpandQuery)
 
 export const ZodBlogCommentPutBody = z.object({
   product: z.string(),
@@ -64,7 +62,7 @@ export const ZodBlogCommentsLikedCommentsBody = z.object({
 export const ZodBlogComment: z.ZodType<BlogComment> = ZodBlogCommentBase.extend(
   {
     children: z.lazy(() =>
-      z.union([ZodBlogComment.array().nullish(), z.array(z.number())]),
+      z.array(z.number()),
     ),
   },
 )

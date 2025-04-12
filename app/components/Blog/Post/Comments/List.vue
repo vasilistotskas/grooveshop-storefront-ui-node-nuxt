@@ -31,8 +31,7 @@ const { loggedIn, user } = useUserSession()
 
 const userHasCommented = (comment: BlogComment) => {
   if (loggedIn.value && user.value) {
-    const userId = isEntityId(comment.user) ? comment.user : comment.user.id
-    return userId === user.value.id
+    return comment.user === user.value.id
   }
   return false
 }
@@ -44,8 +43,7 @@ const onReplyAdd = (data: BlogComment) => {
 watchEffect(() => {
   comments?.value?.sort((a) => {
     if (loggedIn.value && user.value) {
-      const userId = isEntityId(a.user) ? a.user : a.user.id
-      if (userId === user.value.id) {
+      if (a.user === user.value.id) {
         return -1
       }
     }

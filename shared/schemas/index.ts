@@ -9,11 +9,6 @@ export const ZodWeight = z.object({
   value: z.number(),
 })
 
-export const ZodExpandQuery = z.object({
-  expand: z.union([z.literal('true'), z.literal('false')]).nullish(),
-  expandFields: z.string().nullish(),
-})
-
 export const ZodLanguageQuery = z.object({
   language: z.string().nullish(),
 })

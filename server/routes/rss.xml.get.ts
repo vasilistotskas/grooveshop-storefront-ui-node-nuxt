@@ -3,7 +3,7 @@ import RSS from 'rss'
 export default defineCachedEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
-    // @ts-expect-error
+    // @ts-ignore
     const siteConfig = useSiteConfig(event)
 
     const cachedBlogPosts = createCachedFetcher<BlogPost>(
@@ -11,11 +11,11 @@ export default defineCachedEventHandler(async (event) => {
       60 * 60,
     )
 
-    const locale = siteConfig.defaultLocale || 'el'
+    const locale = (siteConfig.defaultLocale || 'el').split('-')[0]
     const siteUrl = siteConfig.url
     const apiBaseUrl = config.apiBaseUrl
 
-    const allPosts = await cachedBlogPosts(`${apiBaseUrl}/blog/post?expand=true`)
+    const allPosts = await cachedBlogPosts(`${apiBaseUrl}/blog/post`)
     const blogPosts = allPosts.map(post => ZodBlogPost.parse(post))
 
     const feed = new RSS({
@@ -27,6 +27,11 @@ export default defineCachedEventHandler(async (event) => {
       pubDate: new Date().toISOString(),
       image_url: `${siteUrl}/screenshots/1024x593.png`,
       ttl: 60,
+      custom_namespaces: {
+        media: 'http://search.yahoo.com/mrss/',
+        atom: 'http://www.w3.org/2005/Atom',
+        dc: 'http://purl.org/dc/elements/1.1/',
+      },
     })
 
     for (const post of blogPosts) {
@@ -38,16 +43,34 @@ export default defineCachedEventHandler(async (event) => {
       }
 
       const postUrl = new URL(post.absoluteUrl, siteUrl).toString()
-      const mainImageUrl = config.mediaStreamPath + '/' + post.mainImagePath + '/472/311/cover/attention/transparent/5/webp/100'
+      const mainImageUrl = encodeURI(`${config.mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/5/webp/100`)
       const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
+
       let description = translation.subtitle || ''
+
+      const fullContent = translation.body || ''
+
       if (mainImageUrl) {
         description = `<img src="${mainImageUrl}" alt="${translation.title}" />\n` + description
       }
 
       const pubDate = post.publishedAt ? new Date(post.publishedAt) : new Date(post.createdAt)
 
-      const category = getEntityObject(post.category)
+      const cachedCategory = defineCachedFunction(
+        async (url: string): Promise<BlogCategory> => {
+          return await $fetch<BlogCategory>(url, {
+            method: 'GET',
+          })
+        },
+        {
+          maxAge: 60 * 60,
+          name: `cachedCategory-${post.category}`,
+          getKey: (url: string) => url,
+        },
+      )
+
+      const category = await cachedCategory(`${apiBaseUrl}/blog/category/${post.category}`)
+
       const categoryName = category?.translations?.[locale]?.name
       const categories = categoryName ? [categoryName] : []
 
@@ -55,10 +78,33 @@ export default defineCachedEventHandler(async (event) => {
 
       const enclosure = mainImageUrl && mimeType ? { url: mainImageUrl, type: mimeType } : undefined
 
+      const wordCount = fullContent.split(/\s+/).length
+      const readingTimeMinutes = Math.max(1, Math.round(wordCount / 200))
+
+      const customElements = [
+        { 'media:content': {
+          _attr: {
+            url: mainImageUrl,
+            type: mimeType || 'image/jpeg',
+            medium: 'image',
+            width: '472',
+            height: '311',
+          },
+        } },
+        { 'media:title': translation.title },
+        { 'media:description': translation.subtitle },
+        { readingTime: `${readingTimeMinutes} min read` },
+        { 'atom:updated': new Date(post.updatedAt).toISOString() },
+      ]
+
       feed.item({
         title: translation.title || 'Untitled Post',
         url: postUrl,
         description: description,
+        custom_elements: [
+          ...customElements,
+          ...(fullContent ? [{ 'content:encoded': { _cdata: fullContent } }] : []),
+        ],
         date: pubDate,
         categories,
         guid: guid,
@@ -68,8 +114,12 @@ export default defineCachedEventHandler(async (event) => {
 
     const feedString = feed.xml({ indent: true })
 
-    event.node.res.setHeader('Content-Type', 'application/rss+xml; charset=UTF-8')
-    event.node.res.end(feedString)
+    setHeaders(event, {
+      'Content-Type': 'application/rss+xml; charset=UTF-8',
+      'Cache-Control': 'max-age=3600, s-maxage=3600',
+    })
+
+    return feedString
   }
   catch (error) {
     console.error('Error generating RSS feed:', error)

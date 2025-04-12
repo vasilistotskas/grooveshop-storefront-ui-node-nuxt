@@ -52,7 +52,6 @@ const { t } = useI18n({ useScope: 'local' })
           :key="favourite.id"
         >
           <LazyProductCard
-            v-if="!isEntityId(favourite.product)"
             :img-height="150"
             :img-width="260"
             :product="favourite.product"

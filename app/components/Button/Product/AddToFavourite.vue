@@ -54,9 +54,6 @@ const toggleFavourite = async () => {
         product: String(props.productId),
         user: String(props.userId),
       },
-      query: {
-        expand: 'true',
-      },
       onRequestError({ error }) {
         toast.add({
           title: error.message,
