@@ -1,3 +1,10 @@
+# [2.16.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.15.0...v2.16.0) (2025-04-12)
+
+
+### Features
+
+* Remove expand functionality ([bc02233](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bc02233f6ddec25dc5d13ceb76903a2476351ad7))
+
 # [2.15.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.14.0...v2.15.0) (2025-04-11)
 
 
