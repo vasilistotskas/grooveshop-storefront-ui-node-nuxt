@@ -1,3 +1,10 @@
+## [2.16.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.16.0...v2.16.1) (2025-04-12)
+
+
+### Bug Fixes
+
+* lower unhead version ([c6f990b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c6f990be1c03d3e7f071e4e639d2732908f04d26))
+
 # [2.16.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.15.0...v2.16.0) (2025-04-12)
 
 
