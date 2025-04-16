@@ -1,3 +1,10 @@
+## [2.18.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.18.0...v2.18.1) (2025-04-16)
+
+
+### Bug Fixes
+
+* update pnpm lock ([c7b12e5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c7b12e506a37b3416075addce13f44376d95e4b4))
+
 # [2.18.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.17.0...v2.18.0) (2025-04-16)
 
 
