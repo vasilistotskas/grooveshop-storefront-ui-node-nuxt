@@ -256,13 +256,6 @@ const formSchema = computed(() => ({
           autocomplete: 'postal-code',
           rules: z.string().min(3, t('validation.zipcode.min', { min: 3 })),
         },
-      ],
-    },
-    {
-      title: t('steps.address_details'),
-      description: t('steps.address_details_desc'),
-      icon: 'i-heroicons-map-pin',
-      fields: [
         {
           name: 'street',
           label: t('form.street'),
@@ -472,8 +465,6 @@ el:
     personal_info_desc: Συμπληρώστε τα προσωπικά σας στοιχεία
     address: Διεύθυνση
     address_desc: Συμπληρώστε τη διεύθυνση παράδοσης
-    address_details: Λεπτομέρειες Διεύθυνσης
-    address_details_desc: Συμπληρώστε επιπλέον στοιχεία για την παράδοση
     payment: Πληρωμή
     payment_desc: Επίλεξε τον τρόπο πληρωμής
   form:

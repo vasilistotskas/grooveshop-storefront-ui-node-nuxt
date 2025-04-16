@@ -397,140 +397,142 @@ defineExpose({
       class="grid w-full gap-4 divide-none dark:divide-primary-800"
       @submit="onSubmit"
     >
-      <template
-        v-for="{
-          as,
-          id: groupId,
-          name,
-          label,
-          autocomplete = 'off',
-          readonly = false,
-          required = false,
-          hidden = false,
-          placeholder = '',
-          type = 'text',
-          children = [],
-          items = [],
-        } in filteredFields"
-        :key="name"
-      >
-        <LazyUFormField
-          v-if="fields[name]"
-          :class="{
-            'items-center': true,
-            'grid': as !== 'checkbox',
-            'gap-1': children && children.length > 0,
-            'sr-only': hidden,
-            'flex': as === 'checkbox',
-            'gap-2': as === 'checkbox',
-            'px-4 md:px-8': as === 'radio',
-          }"
-          :label="label ? label : undefined"
-          :name="name"
-          :required="required"
+      <div class="grid gap-2 md:gap-4 max-h-78 overflow-y-auto">
+        <template
+          v-for="{
+            as,
+            id: groupId,
+            name,
+            label,
+            autocomplete = 'off',
+            readonly = false,
+            required = false,
+            hidden = false,
+            placeholder = '',
+            type = 'text',
+            children = [],
+            items = [],
+          } in filteredFields"
+          :key="name"
         >
-          <LazyUTextarea
-            v-if="as === 'textarea'"
-            :id="groupId"
-            v-model="fields[name][0].value"
-            :aria-readonly="readonly"
-            :autocomplete="autocomplete"
-            :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
-            :disabled="disabledFields[name]"
-            :name="name"
-            :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-            :readonly="readonly"
-            :required="required"
-            :type="type"
-            color="neutral"
-            v-bind="fields[name][1].value"
-          >
-            <div v-if="children && children.length > 0">
-              <LazyDynamicFormChildren :children="children" />
-            </div>
-          </LazyUTextarea>
-          <LazyUCheckbox
-            v-else-if="as === 'checkbox'"
-            :id="groupId"
-            v-model="fields[name][0].value"
-            :aria-describedby="errors[name] ? `error-${name}` : undefined"
-            :aria-invalid="errors[name] ? 'true' : 'false'"
-            :aria-readonly="readonly"
-            :autocomplete="autocomplete"
-            :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
-            :disabled="disabledFields[name]"
-            :hidden="hidden ? 'hidden' : undefined"
-            :name="name"
-            :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-            :readonly="readonly"
-            :required="required"
-            :type="type"
-            color="neutral"
-            v-bind="fields[name][1].value"
-          >
-            <div v-if="children && children.length > 0">
-              <LazyDynamicFormChildren :children="children" />
-            </div>
-          </LazyUCheckbox>
-          <LazyURadioGroup
-            v-else-if="as === 'radio' && items && items.length > 0"
-            :id="groupId"
-            v-model="fields[name][0].value"
-            value-key="value"
-            :aria-describedby="errors[name] ? `error-${name}` : undefined"
-            :aria-invalid="errors[name] ? 'true' : 'false'"
-            :aria-readonly="readonly"
-            :autocomplete="autocomplete"
-            :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
-            :disabled="disabledFields[name]"
-            :hidden="hidden ? 'hidden' : undefined"
-            :name="name"
-            :items="items"
-            variant="list"
-            color="secondary"
-            :ui="{
-              fieldset: 'max-h-72 overflow-y-auto',
+          <LazyUFormField
+            v-if="fields[name]"
+            :class="{
+              'items-center': true,
+              'grid': as !== 'checkbox',
+              'gap-1': children && children.length > 0,
+              'sr-only': hidden,
+              'flex': as === 'checkbox',
+              'gap-2': as === 'checkbox',
+              'px-4 md:px-8': as === 'radio',
             }"
-          >
-            <div v-if="children && children.length > 0">
-              <LazyDynamicFormChildren :children="children" />
-            </div>
-          </LazyURadioGroup>
-          <LazyUSelectMenu
-            v-else-if="as === 'select'"
-            v-model="fields[name][0].value"
+            :label="label ? label : undefined"
             :name="name"
-            value-key="value"
-            :items="getSelectMenuItems(name)"
-            :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-            color="neutral"
-            class="w-full"
-            @update:model-value="onSelectMenuChange({ target: name, value: fields[name][0].value })"
-            @change="onSelectMenuChange({ target: name, value: fields[name][0].value })"
-          />
-          <UInput
-            v-else-if="!hidden || (hidden && !Array.isArray(fields[name][0].value))"
-            :id="groupId"
-            v-model="fields[name][0].value"
-            :aria-describedby="errors[name] ? `error-${name}` : undefined"
-            :aria-invalid="errors[name] ? 'true' : 'false'"
-            :aria-readonly="readonly"
-            :autocomplete="autocomplete"
-            :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
-            :disabled="disabledFields[name]"
-            :hidden="hidden ? 'hidden' : undefined"
-            :name="name"
-            :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-            :readonly="readonly"
             :required="required"
-            :type="type"
-            color="neutral"
-            v-bind="fields[name][1].value"
           >
-            <LazyDynamicFormChildren v-if="children && children.length > 0" :children="children" />
-          </UInput>
-        </LazyUFormField>
-      </template>
+            <LazyUTextarea
+              v-if="as === 'textarea'"
+              :id="groupId"
+              v-model="fields[name][0].value"
+              :aria-readonly="readonly"
+              :autocomplete="autocomplete"
+              :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
+              :disabled="disabledFields[name]"
+              :name="name"
+              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
+              :readonly="readonly"
+              :required="required"
+              :type="type"
+              color="neutral"
+              v-bind="fields[name][1].value"
+            >
+              <div v-if="children && children.length > 0">
+                <LazyDynamicFormChildren :children="children" />
+              </div>
+            </LazyUTextarea>
+            <LazyUCheckbox
+              v-else-if="as === 'checkbox'"
+              :id="groupId"
+              v-model="fields[name][0].value"
+              :aria-describedby="errors[name] ? `error-${name}` : undefined"
+              :aria-invalid="errors[name] ? 'true' : 'false'"
+              :aria-readonly="readonly"
+              :autocomplete="autocomplete"
+              :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+              :disabled="disabledFields[name]"
+              :hidden="hidden ? 'hidden' : undefined"
+              :name="name"
+              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
+              :readonly="readonly"
+              :required="required"
+              :type="type"
+              color="neutral"
+              v-bind="fields[name][1].value"
+            >
+              <div v-if="children && children.length > 0">
+                <LazyDynamicFormChildren :children="children" />
+              </div>
+            </LazyUCheckbox>
+            <LazyURadioGroup
+              v-else-if="as === 'radio' && items && items.length > 0"
+              :id="groupId"
+              v-model="fields[name][0].value"
+              value-key="value"
+              :aria-describedby="errors[name] ? `error-${name}` : undefined"
+              :aria-invalid="errors[name] ? 'true' : 'false'"
+              :aria-readonly="readonly"
+              :autocomplete="autocomplete"
+              :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+              :disabled="disabledFields[name]"
+              :hidden="hidden ? 'hidden' : undefined"
+              :name="name"
+              :items="items"
+              variant="list"
+              color="secondary"
+              :ui="{
+                fieldset: 'max-h-72 overflow-y-auto',
+              }"
+            >
+              <div v-if="children && children.length > 0">
+                <LazyDynamicFormChildren :children="children" />
+              </div>
+            </LazyURadioGroup>
+            <LazyUSelectMenu
+              v-else-if="as === 'select'"
+              v-model="fields[name][0].value"
+              :name="name"
+              value-key="value"
+              :items="getSelectMenuItems(name)"
+              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
+              color="neutral"
+              class="w-full"
+              @update:model-value="onSelectMenuChange({ target: name, value: fields[name][0].value })"
+              @change="onSelectMenuChange({ target: name, value: fields[name][0].value })"
+            />
+            <UInput
+              v-else-if="!hidden || (hidden && !Array.isArray(fields[name][0].value))"
+              :id="groupId"
+              v-model="fields[name][0].value"
+              :aria-describedby="errors[name] ? `error-${name}` : undefined"
+              :aria-invalid="errors[name] ? 'true' : 'false'"
+              :aria-readonly="readonly"
+              :autocomplete="autocomplete"
+              :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
+              :disabled="disabledFields[name]"
+              :hidden="hidden ? 'hidden' : undefined"
+              :name="name"
+              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
+              :readonly="readonly"
+              :required="required"
+              :type="type"
+              color="neutral"
+              v-bind="fields[name][1].value"
+            >
+              <LazyDynamicFormChildren v-if="children && children.length > 0" :children="children" />
+            </UInput>
+          </LazyUFormField>
+        </template>
+      </div>
 
       <div
         :class="{ 'flex': true, 'justify-end': buttonsPosition === 'right', 'justify-center': buttonsPosition === 'center', 'justify-start': buttonsPosition === 'left' }"
