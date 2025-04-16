@@ -98,7 +98,7 @@
     "@types/rss": "0.0.32",
     "@vitest/coverage-v8": "3.1.1",
     "@vitest/ui": "3.1.1",
-    "@vue/devtools-api": "7.7.3",
+    "@vue/devtools-api": "7.7.5",
     "@vue/test-utils": "2.4.6",
     "@vueuse/core": "13.1.0",
     "@vueuse/integrations": "13.1.0",
