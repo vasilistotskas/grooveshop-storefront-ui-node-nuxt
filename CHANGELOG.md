@@ -1,3 +1,10 @@
+# [2.19.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.18.1...v2.19.0) (2025-04-16)
+
+
+### Features
+
+* Bump Versions, add indexNow key ([9f45982](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9f45982aa1e9d8e33747833865fdd636d3429f52))
+
 ## [2.18.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.18.0...v2.18.1) (2025-04-16)
 
 
