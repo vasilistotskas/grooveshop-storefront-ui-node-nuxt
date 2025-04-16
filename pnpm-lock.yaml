@@ -3066,14 +3066,8 @@ packages:
     peerDependencies:
       vue: ^3.0.0
 
-  '@vue/devtools-kit@7.7.2':
-    resolution: {integrity: sha512-CY0I1JH3Z8PECbn6k3TqM1Bk9ASWxeMtTCvZr7vb+CHi+X/QwQm5F1/fPagraamKMAHVfuuCbdcnNg1A4CYVWQ==}
-
   '@vue/devtools-kit@7.7.3':
     resolution: {integrity: sha512-IbR8q5jCaBcoMmWaJGMOqaD8KAW+DfNitOptSPNagTSLsMzpHxpM5Lf/dK0H/vVe0t4XRInzwpuWCKn5jecigQ==}
-
-  '@vue/devtools-shared@7.7.2':
-    resolution: {integrity: sha512-uBFxnp8gwW2vD6FrJB8JZLUzVb6PNRG0B0jBnHsOH8uKyva2qINY8PTF5Te4QlTbMDqU5K6qtJDr6cNsKWhbOA==}
 
   '@vue/devtools-shared@7.7.3':
     resolution: {integrity: sha512-a59Tmv9WxBMN5tnacKui8jwKpU5662qVhC6wo17eLS02Xh3PG+d13bu7bFv/8BgrXsez4ClRLAPdAJTrE8huDg==}
@@ -3528,9 +3522,6 @@ packages:
 
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
-
-  birpc@0.2.19:
-    resolution: {integrity: sha512-5WeXXAvTmitV1RqJFppT5QtUiz2p1mRSYU000Jkft5ZUCLJIk4uQriYNO50HknxKwM6jd8utNc66K1qGIwwWBQ==}
 
   birpc@2.3.0:
     resolution: {integrity: sha512-ijbtkn/F3Pvzb6jHypHRyve2QApOCZDR25D/VnkY2G/lBNcXCTsnsCxgY4k4PkVB7zfwzYbY3O9Lcqe3xufS5g==}
@@ -9880,7 +9871,7 @@ snapshots:
       '@nuxt/devtools-wizard': 2.4.0
       '@nuxt/kit': 3.16.2(magicast@0.3.5)
       '@vue/devtools-core': 7.7.2(vite@6.2.6(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(yaml@2.7.1))(vue@3.5.13(typescript@5.8.3))
-      '@vue/devtools-kit': 7.7.2
+      '@vue/devtools-kit': 7.7.3
       birpc: 2.3.0
       consola: 3.4.2
       destr: 2.0.5
@@ -11893,8 +11884,8 @@ snapshots:
 
   '@vue/devtools-core@7.7.2(vite@6.2.6(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(yaml@2.7.1))(vue@3.5.13(typescript@5.8.3))':
     dependencies:
-      '@vue/devtools-kit': 7.7.2
-      '@vue/devtools-shared': 7.7.2
+      '@vue/devtools-kit': 7.7.3
+      '@vue/devtools-shared': 7.7.3
       mitt: 3.0.1
       nanoid: 5.1.5
       pathe: 2.0.3
@@ -11902,16 +11893,6 @@ snapshots:
       vue: 3.5.13(typescript@5.8.3)
     transitivePeerDependencies:
       - vite
-
-  '@vue/devtools-kit@7.7.2':
-    dependencies:
-      '@vue/devtools-shared': 7.7.2
-      birpc: 0.2.19
-      hookable: 5.5.3
-      mitt: 3.0.1
-      perfect-debounce: 1.0.0
-      speakingurl: 14.0.1
-      superjson: 2.2.2
 
   '@vue/devtools-kit@7.7.3':
     dependencies:
@@ -11922,10 +11903,6 @@ snapshots:
       perfect-debounce: 1.0.0
       speakingurl: 14.0.1
       superjson: 2.2.2
-
-  '@vue/devtools-shared@7.7.2':
-    dependencies:
-      rfdc: 1.4.1
 
   '@vue/devtools-shared@7.7.3':
     dependencies:
@@ -12408,8 +12385,6 @@ snapshots:
   bindings@1.5.0:
     dependencies:
       file-uri-to-path: 1.0.0
-
-  birpc@0.2.19: {}
 
   birpc@2.3.0: {}
 
