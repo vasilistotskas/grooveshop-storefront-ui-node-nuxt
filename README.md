@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/vasilistotskas/grooveshop-storefront-ui-node-nuxt/badge.svg?branch=main)](https://coveralls.io/github/vasilistotskas/grooveshop-storefront-ui-node-nuxt?branch=main)
+
 # Grooveshop Nuxt Frontend
 
 ## Overview

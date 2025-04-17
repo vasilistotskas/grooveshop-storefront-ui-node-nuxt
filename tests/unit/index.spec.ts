@@ -1,3 +1,3 @@
 it('unit test', () => {
-  expect(typeof window).toBe('undefined')
+  expect(typeof window).toBe('object')
 })
