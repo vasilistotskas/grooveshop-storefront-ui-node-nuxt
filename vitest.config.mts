@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
 
 import { defineVitestConfig } from '@nuxt/test-utils/config'
 
@@ -7,15 +7,16 @@ export default defineVitestConfig({
     dir: 'tests',
     coverage: {
       enabled: true,
-      reportsDirectory: 'coverage',
+      reportsDirectory: fileURLToPath(new URL('./coverage', import.meta.url)),
       reporter: ['html', 'json', 'lcov', 'text'],
       include: ['**/*.ts', '**/*.vue'],
     },
     include: ['**/*.spec.ts'],
+    environment: 'happy-dom',
     environmentOptions: {
       nuxt: {
         rootDir: fileURLToPath(new URL('./', import.meta.url)),
-        domEnvironment: (process.env.VITEST_DOM_ENV as 'happy-dom' | 'jsdom') ?? 'happy-dom',
+        domEnvironment: 'happy-dom',
         mock: {
           indexedDb: true,
         },

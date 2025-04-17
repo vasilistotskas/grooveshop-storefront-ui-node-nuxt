@@ -50,6 +50,12 @@ jobs:
         run: pnpm run lint:fix
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: pnpm audit signatures --audit-level=critical
+      - name: Test
+        run: pnpm run test
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}
