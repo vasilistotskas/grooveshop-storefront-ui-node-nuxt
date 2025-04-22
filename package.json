@@ -63,7 +63,6 @@
     "string-replace-loader": "3.1.0",
     "tailwindcss": "4.1.4",
     "ufo": "1.6.1",
-    "unhead": "2.0.8",
     "unstorage": "1.15.0",
     "vee-validate": "4.15.0",
     "vue": "3.5.13",
@@ -80,7 +79,7 @@
     "@iconify-json/heroicons": "1.2.2",
     "@iconify-json/heroicons-outline": "1.2.1",
     "@iconify-json/heroicons-solid": "1.2.1",
-    "@iconify-json/lucide": "1.2.37",
+    "@iconify-json/lucide": "1.2.38",
     "@iconify-json/mdi": "1.2.3",
     "@iconify-json/unjs": "1.2.0",
     "@nuxt/devtools": "2.4.0",
@@ -96,21 +95,21 @@
     "@testing-library/jest-dom": "6.6.3",
     "@types/node": "22.14.1",
     "@types/rss": "0.0.32",
-    "@vitest/coverage-v8": "3.1.1",
-    "@vitest/ui": "3.1.1",
+    "@vitest/coverage-v8": "3.1.2",
+    "@vitest/ui": "3.1.2",
     "@vue/devtools-api": "7.7.5",
     "@vue/test-utils": "2.4.6",
     "@vueuse/core": "13.1.0",
     "@vueuse/integrations": "13.1.0",
     "@vueuse/shared": "13.1.0",
     "coveralls": "3.1.1",
-    "eslint": "9.24.0",
+    "eslint": "9.25.1",
     "happy-dom": "17.4.4",
     "semantic-release": "24.2.3",
     "typescript": "5.8.3",
-    "vite": "6.2.6",
+    "vite": "6.3.2",
     "vite-plugin-eslint2": "5.0.3",
-    "vitest": "3.1.1",
+    "vitest": "3.1.2",
     "vitest-environment-nuxt": "1.0.1",
     "vue-tsc": "2.2.0",
     "workbox-cacheable-response": "7.3.0",
@@ -173,7 +172,7 @@
       ]
     ]
   },
-  "packageManager": "pnpm@10.8.1",
+  "packageManager": "pnpm@10.9.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@intlify/vue-i18n-bridge",
@@ -181,6 +180,7 @@
       "@parcel/watcher",
       "esbuild",
       "sharp",
+      "unrs-resolver",
       "vue-demi"
     ]
   }

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BaseFieldProps, GenericObject } from 'vee-validate'
 import type { PropType } from 'vue'
-import type { InputProps } from '#ui/types'
+import type { InputProps } from '@nuxt/ui'
 
 defineProps({
   bind: {

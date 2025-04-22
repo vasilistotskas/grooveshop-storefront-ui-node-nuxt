@@ -43,8 +43,6 @@ const columns: TableColumn<any>[] = [
 const rows = computed(() => {
   return unused_codes.value?.map(code => ({
     code,
-    // For the purpose of this example, we assume these are unused codes,
-    // so the `used` property is set to false.
     used: false,
   })) ?? []
 })

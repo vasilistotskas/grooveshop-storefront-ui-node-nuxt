@@ -93,6 +93,14 @@ const { data: product, refresh: refreshProduct } = await useFetch<Product>(
   },
 )
 
+if (!product.value) {
+  throw createError({
+    statusCode: 404,
+    message: t('error.page.not.found'),
+    fatal: true,
+  })
+}
+
 const { data: productImages } = await useFetch<ProductImage[]>(
   `/api/products/${product.value?.id}/images`,
   {
@@ -104,14 +112,6 @@ const { data: productImages } = await useFetch<ProductImage[]>(
     },
   },
 )
-
-if (!product.value) {
-  throw createError({
-    statusCode: 404,
-    message: t('error.page.not.found'),
-    fatal: true,
-  })
-}
 
 const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value

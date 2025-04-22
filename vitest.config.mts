@@ -8,7 +8,7 @@ export default defineVitestConfig({
     coverage: {
       enabled: true,
       reportsDirectory: fileURLToPath(new URL('./coverage', import.meta.url)),
-      reporter: ['html', 'json', 'lcov', 'text'],
+      reporter: ['text', 'html', 'clover', 'lcov', 'json'],
       include: ['**/*.ts', '**/*.vue'],
     },
     include: ['**/*.spec.ts'],

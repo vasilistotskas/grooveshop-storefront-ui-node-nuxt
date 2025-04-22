@@ -142,7 +142,6 @@ watch(isConsentGiven, (current) => {
   }
 })
 
-// initialization
 init()
 
 defineExpose({

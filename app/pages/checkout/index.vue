@@ -254,7 +254,7 @@ const formSchema = computed(() => ({
           readonly: false,
           placeholder: t('form.zipcode'),
           autocomplete: 'postal-code',
-          rules: z.string().min(3, t('validation.zipcode.min', { min: 3 })),
+          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.zipcode.min', { min: 3 })),
         },
         {
           name: 'street',

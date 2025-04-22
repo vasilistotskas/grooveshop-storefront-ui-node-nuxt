@@ -9,7 +9,6 @@ export const useSticky = (el: HTMLElement, offset: number) => {
     }
   }
 
-  // lifecycle hooks
   window.addEventListener('scroll', onScroll)
   onUnmounted(() => {
     window.removeEventListener('scroll', onScroll)

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { DropdownMenuItem } from '#ui/types'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import type { Locale } from '@intlify/core-base'
 
 defineProps({
   type: {
@@ -54,9 +55,8 @@ const items = computed<DropdownMenuItem[][]>(() => {
   return dropDownItems
 })
 
-const navigateToLocale = (code: string) => {
-  // @ts-expect-error
-  setLocale(code)
+const navigateToLocale = (locale: Locale) => {
+  setLocale(locale)
 }
 </script>
 

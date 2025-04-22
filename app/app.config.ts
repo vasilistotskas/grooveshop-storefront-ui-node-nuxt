@@ -25,6 +25,13 @@ export default defineAppConfig({
         },
       ],
     },
+    chip: {
+      variants: {
+        size: {
+          '3xl': 'h-[16px] min-w-[16px] text-[14px]',
+        },
+      },
+    },
     skeleton: {
       base: 'bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700)',
     },

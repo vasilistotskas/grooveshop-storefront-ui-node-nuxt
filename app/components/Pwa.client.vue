@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ButtonProps } from '#ui/types'
+import type { ButtonProps } from '@nuxt/ui'
 
 const pwa = usePWA()
 const { t } = useI18n({ useScope: 'local' })

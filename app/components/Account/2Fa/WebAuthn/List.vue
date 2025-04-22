@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import type { TableColumn } from '@nuxt/ui'
-import type { DropdownMenuItem } from '#ui/types'
+import type { TableColumn, DropdownMenuItem } from '@nuxt/ui'
 
 const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
 const { t } = useI18n()

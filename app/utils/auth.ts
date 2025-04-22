@@ -2,7 +2,6 @@ import { withQuery } from 'ufo'
 import type { FetchResponse } from 'ofetch'
 import type { H3Error } from 'h3'
 
-// Utility function to call the auth:change hook
 const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseError) => {
   const nuxtApp = useNuxtApp()
   await nuxtApp.callHook('auth:change', { detail: authData })

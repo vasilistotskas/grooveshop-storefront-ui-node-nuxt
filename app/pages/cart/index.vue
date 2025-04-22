@@ -22,7 +22,6 @@ const breadcrumb = computed(() => [
   },
 ])
 
-// Card UI configurations
 const cardConfig = {
   color: 'primary' as const,
   variant: 'outline' as const,

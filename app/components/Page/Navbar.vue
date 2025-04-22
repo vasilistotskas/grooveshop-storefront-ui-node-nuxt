@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 const cartStore = useCartStore()
-const { getCartTotalItems, pending } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
 
 const { user, loggedIn } = useUserSession()
-const { t } = useI18n({ useScope: 'local' })
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
@@ -24,8 +22,8 @@ const onClickLogout = async () => {
     await deleteSession()
     await refreshCart()
   }
-  catch {
-    // do nothing
+  catch (error) {
+    console.error('Error during logout:', error)
   }
 }
 
@@ -129,12 +127,12 @@ const items = computed(() => [
             "
           >
             <li
-              v-show="enabled"
+              v-if="enabled"
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyLanguageSwitcher v-if="enabled" />
+              <LazyLanguageSwitcher />
             </li>
             <li
               class="
@@ -163,87 +161,46 @@ const items = computed(() => [
               <ThemeSwitcher />
             </li>
             <li
-              v-show="loggedIn"
+              v-if="loggedIn"
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <LazyUserNotificationsBell v-if="loggedIn" />
+              <LazyUserNotificationsBell />
             </li>
             <li
-              v-show="enabled"
+              v-if="enabled"
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <UChip
-                v-if="enabled && loggedIn"
-                :key="'cart'"
-                size="xl"
-                color="success"
-                :show="!pending"
-                :text="getCartTotalItems"
-              >
-                <UButton
-                  class="p-0"
-                  icon="i-heroicons-shopping-cart"
-                  size="xl"
-                  color="neutral"
-                  variant="ghost"
-                  :aria-label="t('cart')"
-                  :title="t('cart')"
-                  :to="localePath('cart')"
-                  :ui="{
-                    base: 'cursor-pointer hover:bg-transparent',
-                  }"
-                />
-              </UChip>
-              <ClientOnly v-else-if="enabled && !loggedIn">
-                <UChip
-                  :key="'cart'"
-                  size="xl"
-                  color="success"
-                  :show="!pending"
-                  :text="getCartTotalItems"
-                >
-                  <UButton
-                    class="p-0"
-                    icon="i-heroicons-shopping-cart"
-                    size="xl"
-                    color="neutral"
-                    variant="ghost"
-                    :aria-label="t('cart')"
-                    :title="t('cart')"
-                    :to="localePath('cart')"
-                    :ui="{
-                      base: 'cursor-pointer hover:bg-transparent',
-                    }"
-                  />
-                </UChip>
+              <CartButton v-if="loggedIn" />
+              <ClientOnly v-else>
+                <CartButton />
                 <template #fallback>
                   <USkeleton
                     class="h-6 w-6"
+                    aria-label="Loading cart"
                   />
                 </template>
               </ClientOnly>
             </li>
             <li
-              v-show="loggedIn && user"
+              v-if="loggedIn && user"
               class="
                 relative grid items-center justify-center justify-items-center
               "
             >
               <UDropdownMenu
-                v-if="loggedIn && user"
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
               >
                 <UserAvatar
-                  v-if="loggedIn && user"
                   :img-height="30"
                   :img-width="30"
                   :show-name="false"
                   :user-account="user"
+                  aria-label="User profile"
                 />
 
                 <template #account="{ item }">
@@ -299,8 +256,3 @@ const items = computed(() => [
     </template>
   </BuilderNavbar>
 </template>
-
-<i18n lang="yaml">
-el:
-  cart: Καλάθι
-</i18n>

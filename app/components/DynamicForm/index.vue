@@ -4,7 +4,7 @@ import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import type { Ref } from 'vue'
-import type { ButtonProps } from '#ui/types'
+import type { ButtonProps } from '@nuxt/ui'
 
 type DynamicFormState = {
   errors: string[]
@@ -387,7 +387,7 @@ defineExpose({
         root: 'pb-4',
         description: 'text-xs',
       }"
-      @update:model-value="(value: string | number) => currentStep = Number(value)"
+      @update:model-value="value => currentStep = Number(value)"
     />
 
     <UForm
@@ -428,6 +428,7 @@ defineExpose({
             }"
             :label="label ? label : undefined"
             :name="name"
+            :error="errors[name]"
             :required="required"
           >
             <LazyUTextarea

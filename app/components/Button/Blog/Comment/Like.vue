@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { ButtonProps } from '#ui/types'
+import type { ButtonProps } from '@nuxt/ui'
 
 const props = defineProps({
   blogCommentId: {
