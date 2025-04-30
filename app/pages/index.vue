@@ -85,6 +85,7 @@ useSeoMeta({
             class="rounded-lg"
             format="webp"
             loading="eager"
+            fetchpriority="high"
             preload
           />
         </UCarousel>
