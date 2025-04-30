@@ -428,7 +428,6 @@ definePageMeta({
     />
 
     <div class="flex flex-col lg:flex-row gap-8">
-      <!-- Main Form -->
       <div class="flex-1">
         <DynamicForm
           ref="formRef"
@@ -441,7 +440,6 @@ definePageMeta({
         />
       </div>
 
-      <!-- Order Summary -->
       <div class="w-full lg:w-[400px]">
         <CheckoutSidebar
           :shipping-price="shippingPrice"

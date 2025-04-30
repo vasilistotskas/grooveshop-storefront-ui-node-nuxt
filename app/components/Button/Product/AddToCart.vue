@@ -32,11 +32,6 @@ const addToCartEvent = async () => {
 
 <template>
   <UButton
-    class="
-      ml-0 justify-center
-
-      sm:ml-4
-    "
     icon="i-heroicons-shopping-cart"
     :label="text"
     size="xl"

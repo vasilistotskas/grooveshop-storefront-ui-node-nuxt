@@ -51,7 +51,11 @@ const { t, locale } = useI18n({ useScope: 'local' })
         v-for="favourite in favourites"
         :key="favourite.id"
       >
-        <UCard>
+        <UCard
+          :ui="{
+            body: 'p-2 sm:p-3',
+          }"
+        >
           <template #header>
             <Anchor
               :to="{ path: favourite.absoluteUrl }"
@@ -80,7 +84,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
             :to="{ path: favourite.absoluteUrl }"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
-              text-primary-950 flex text-lg font-bold tracking-tight
+              truncate text-primary-950 flex text-lg font-bold tracking-tight
 
               dark:text-primary-50
 

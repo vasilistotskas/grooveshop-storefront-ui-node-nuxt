@@ -422,7 +422,7 @@ definePageMeta({
               class="
                   flex flex-col gap-4
 
-                  md:flex-row md:gap-0
+                  md:flex-row
                 "
             >
               <div class="grid">

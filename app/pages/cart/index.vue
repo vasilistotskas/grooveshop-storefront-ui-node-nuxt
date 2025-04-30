@@ -49,17 +49,19 @@ const emptyCardUI = {
     />
 
     <div class="w-full relative flex flex-col lg:flex-row gap-4 lg:gap-8">
-      <!-- Main Content -->
       <div class="w-full grid content-start gap-6">
-        <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <h1 class="text-2xl font-bold">
             {{ t('shopping_cart') }}
           </h1>
           <ClientOnly>
-            <p v-if="cart?.totalItems" class="text-gray-500">
+            <p v-if="!pending && cart?.totalItems" class="text-gray-500">
               {{ t('items_in_cart', { count: cart.totalItems }) }}
             </p>
+            <USkeleton
+              v-else
+              class="h-6 w-24"
+            />
             <template #fallback>
               <USkeleton
                 class="h-6 w-24"
@@ -68,9 +70,7 @@ const emptyCardUI = {
           </ClientOnly>
         </div>
 
-        <!-- Cart Items -->
         <ClientOnly>
-          <!-- Items List -->
           <div
             v-if="!pending && cart?.cartItems?.length"
             class="flex flex-col w-full gap-4"
@@ -84,40 +84,8 @@ const emptyCardUI = {
               <CartItemCard :cart-item="cartItem" />
             </UCard>
           </div>
-
-          <!-- Loading State -->
-          <div v-if="pending" class="flex flex-col w-full gap-4">
-            <UCard
-              v-for="index in 2"
-              :key="index"
-              v-bind="cardConfig"
-              :ui="mainCardUI"
-            >
-              <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                <!-- Product Image Skeleton -->
-                <USkeleton class="h-24 w-full sm:w-24 rounded-lg flex-shrink-0" />
-
-                <!-- Product Details Skeleton -->
-                <div class="flex-1">
-                  <div class="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-0">
-                    <div class="space-y-2">
-                      <USkeleton class="h-5 w-48" />
-                      <USkeleton class="h-4 w-32" />
-                    </div>
-                    <USkeleton class="h-8 w-8" />
-                  </div>
-                  <div class="flex flex-col sm:flex-row sm:justify-between mt-4 gap-4 sm:gap-0">
-                    <USkeleton class="h-8 w-32" />
-                    <USkeleton class="h-5 w-24" />
-                  </div>
-                </div>
-              </div>
-            </UCard>
-          </div>
-
-          <!-- Empty State -->
           <UCard
-            v-if="!pending && !cart?.cartItems?.length"
+            v-else-if="!pending && !cart?.cartItems?.length"
             v-bind="cardConfig"
             :ui="emptyCardUI"
             class="text-center"
@@ -136,7 +104,7 @@ const emptyCardUI = {
             </div>
             <UButton
               :to="localePath('index')"
-              color="primary"
+              color="neutral"
               variant="solid"
               size="lg"
               class="mt-4"
@@ -144,11 +112,36 @@ const emptyCardUI = {
               {{ $i18n.t('empty.description') }}
             </UButton>
           </UCard>
+          <div v-else class="flex flex-col w-full gap-4">
+            <UCard
+              v-for="index in (cart?.cartItems?.length || 2)"
+              :key="index"
+              v-bind="cardConfig"
+              :ui="mainCardUI"
+            >
+              <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                <USkeleton class="h-24 w-full sm:w-24 rounded-lg flex-shrink-0" />
 
+                <div class="flex-1">
+                  <div class="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-0">
+                    <div class="space-y-2">
+                      <USkeleton class="h-5 w-48" />
+                      <USkeleton class="h-4 w-32" />
+                    </div>
+                    <USkeleton class="h-8 w-8" />
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:justify-between mt-4 gap-4 sm:gap-0">
+                    <USkeleton class="h-8 w-32" />
+                    <USkeleton class="h-5 w-24" />
+                  </div>
+                </div>
+              </div>
+            </UCard>
+          </div>
           <template #fallback>
             <div class="flex flex-col w-full gap-4">
               <UCard
-                v-for="index in 2"
+                v-for="index in (cart?.cartItems?.length || 2)"
                 :key="index"
                 v-bind="cardConfig"
                 :ui="mainCardUI"
@@ -175,10 +168,9 @@ const emptyCardUI = {
         </ClientOnly>
       </div>
 
-      <!-- Order Summary -->
       <ClientOnly>
         <div
-          v-if="cart?.cartItems?.length"
+          v-if="!pending && cart?.cartItems?.length"
           class="w-full lg:max-w-md"
         >
           <UCard
@@ -191,7 +183,6 @@ const emptyCardUI = {
               </h2>
             </template>
 
-            <!-- Summary Content -->
             <div class="grid gap-4">
               <div class="flex justify-between">
                 <span>{{ t('subtotal') }}</span>
@@ -228,7 +219,36 @@ const emptyCardUI = {
             </template>
           </UCard>
         </div>
+        <div v-else class="w-full lg:max-w-md">
+          <UCard
+            v-bind="cardConfig"
+            :ui="summaryCardUI"
+          >
+            <template #header>
+              <USkeleton class="h-7 w-40" />
+            </template>
 
+            <div class="grid gap-4">
+              <div class="flex justify-between">
+                <USkeleton class="h-5 w-20" />
+                <USkeleton class="h-5 w-24" />
+              </div>
+              <div class="flex justify-between">
+                <USkeleton class="h-5 w-16" />
+                <USkeleton class="h-5 w-24" />
+              </div>
+              <USeparator />
+              <div class="flex justify-between">
+                <USkeleton class="h-6 w-16" />
+                <USkeleton class="h-6 w-28" />
+              </div>
+            </div>
+
+            <template #footer>
+              <USkeleton class="h-11 w-full" />
+            </template>
+          </UCard>
+        </div>
         <template #fallback>
           <div class="w-full lg:max-w-md">
             <UCard

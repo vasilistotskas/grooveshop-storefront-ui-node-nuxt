@@ -73,7 +73,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         dark:bg-primary-900
       "
     >
-      <div class="flex flex-col gap-4 py-5">
+      <div class="flex flex-col gap-4 py-5 px-4">
         <div class="max-w-full">
           <div class="grid">
             <Anchor
@@ -82,7 +82,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             >
               <ImgWithFallback
                 :loading="imgLoading"
-                class="bg-primary-100 bg-transparent"
+                class="bg-transparent"
                 :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
                 :src="product.mainImagePath"
                 :width="imgWidth"
@@ -99,7 +99,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <div class="flex flex-1 flex-col justify-end gap-2">
           <div
             class="
-              grid justify-between gap-2
+              grid items-center justify-between gap-2
 
               md:flex md:gap-4
             "
@@ -119,7 +119,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             </h2>
             <div
               class="
-                absolute right-2 top-2 row-start-1 flex gap-1
+                row-start-1 flex gap-1
 
                 md:relative md:gap-4
               "
@@ -252,7 +252,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             </p>
           </div>
         </div>
-        <div class="grid items-center">
+        <div class="grid place-items-center">
           <LazyButtonProductAddToCart
             v-if="showAddToCartButton"
             :product="product"

@@ -134,6 +134,9 @@ const buttonAreaLabel = computed(() => {
     variant="ghost"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
+    :ui="{
+      base: 'hover:bg-transparent cursor-pointer',
+    }"
     @click="toggleFavourite"
   />
 </template>

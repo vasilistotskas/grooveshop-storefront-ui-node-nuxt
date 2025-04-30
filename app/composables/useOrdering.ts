@@ -4,7 +4,7 @@ export const useOrdering = <T extends string>(ordering: EntityOrdering<T>) => {
     ordering.forEach(({ value, label, options: opt }) => {
       fields[value] = opt.map((option) => {
         const newValue = option === 'ascending' ? value : `-${value}`
-        const optionUpDown = option === 'ascending' ? '↑' : '↓'
+        const optionUpDown = option === 'ascending' ? '▲' : '▼'
         return {
           value: newValue,
           label: `${label} ${optionUpDown}`,

@@ -87,43 +87,20 @@ const onOptionClick = async (option: OrderingOption) => {
       md:flex md:h-full md:flex-col md:items-center
     "
   >
-    <div
-      class="
-        flex flex-row
-
-        md:h-full
-      "
+    <UDropdownMenu
+      :items="items"
+      :popper="{ placement: 'bottom-start' }"
+      :ui="{
+        item: 'text-primary-800 dark:text-primary-200',
+      }"
+      class="md:h-full"
     >
-      <div
-        class="
-          flex flex-col
-
-          md:h-full
-        "
-      >
-        <div
-          class="
-            w-46 relative
-
-            md:h-full md:w-60
-          "
-        >
-          <UDropdownMenu
-            :items="items"
-            :popper="{ placement: 'bottom-start' }"
-            :ui="{
-              item: 'text-primary-800 dark:text-primary-200',
-            }"
-            class="md:h-full"
-          >
-            <UButton
-              :label="selectedOrderingLabel"
-              color="neutral"
-              trailing-icon="i-heroicons-chevron-down-20-solid"
-            />
-          </UDropdownMenu>
-        </div>
-      </div>
-    </div>
+      <UButton
+        :label="selectedOrderingLabel"
+        color="neutral"
+        variant="outline"
+        trailing-icon="i-heroicons-chevron-down-20-solid"
+      />
+    </UDropdownMenu>
   </div>
 </template>

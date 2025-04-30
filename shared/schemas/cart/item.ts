@@ -29,6 +29,7 @@ export const ZodCartItemCreateResponse = z.object({
 })
 
 export const ZodCartItemCreateBody = z.object({
+  cart: z.string(),
   product: z.string(),
   quantity: z.string(),
 })

@@ -31,7 +31,7 @@ const { $i18n } = useNuxtApp()
 
       dark:text-primary-50 dark:bg-primary-900 dark:border-primary-500
 
-      md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-10
+      md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-6
     "
   >
     <div class="order-card-items grid gap-2">

@@ -40,18 +40,22 @@ export const useCartStore = defineStore('cart', () => {
   function createFetchHandlers(): FetchHooks {
     return {
       onRequest() {
+        console.log('Cart request started')
         pending.value = true
       },
       onRequestError(ctx: FetchContext & { error: Error }) {
+        console.error('Cart request error:', ctx)
         error.value = ctx.error as IFetchError
         pending.value = false
         handleError(ctx.error)
       },
       onResponse(ctx: FetchContext & { response: FetchResponse<any> }) {
+        console.log('Cart response completed', ctx)
         cart.value = ctx.response._data
         pending.value = false
       },
       onResponseError(ctx: FetchContext & { response: FetchResponse<any> }) {
+        console.error('Cart response error:', ctx)
         error.value = ctx.error as IFetchError
         pending.value = false
         if (ctx.error) {
@@ -71,7 +75,12 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
+    if (!cart.value) {
+      throw new Error('Cart not found')
+    }
+
     const requestBody: CartItemCreateBody = {
+      cart: cart.value.id.toString(),
       product: body.product.id.toString(),
       quantity: body.quantity.toString(),
     }

@@ -25,7 +25,7 @@ const last_used_at = computed(() => data.value?.data.last_used_at ?? null)
 const total_code_count = computed(() => data.value?.data.total_code_count ?? 0)
 const unused_code_count = computed(() => data.value?.data.unused_code_count ?? 0)
 
-const columns: TableColumn<any>[] = [
+const columns: TableColumn<{ code: string, used: boolean }>[] = [
   {
     accessorKey: 'code',
     header: $i18n.t('code'),
@@ -40,7 +40,10 @@ const columns: TableColumn<any>[] = [
   },
 ]
 
-const rows = computed(() => {
+const rows = computed<{
+  code: string
+  used: boolean
+}[]>(() => {
   return unused_codes.value?.map(code => ({
     code,
     used: false,

@@ -16,7 +16,6 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
-    'nuxt-time',
     'nuxt-security',
   ],
   ssr: true,
@@ -581,7 +580,7 @@ export default defineNuxtConfig({
       },
     },
     rateLimiter: {
-      tokensPerInterval: process.env.NODE_ENV === 'production' ? 1500 : 10000,
+      tokensPerInterval: process.env.NODE_ENV === 'production' ? 300 : 10000,
       interval: process.env.NODE_ENV === 'production' ? 300000 : 60000,
     },
   },

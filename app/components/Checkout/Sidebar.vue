@@ -49,7 +49,6 @@ defineSlots<{
         </div>
       </template>
 
-      <!-- Delivery Information -->
       <div class="space-y-4">
         <div class="flex items-center gap-4">
           <UIcon name="i-heroicons-truck" class="size-8 text-primary-600 dark:text-primary-400" />
@@ -63,12 +62,10 @@ defineSlots<{
           </div>
         </div>
 
-        <!-- Order Items -->
         <div class="border-t border-primary-200 dark:border-primary-800 pt-4">
           <slot name="items" />
         </div>
 
-        <!-- Order Summary -->
         <div class="space-y-3 border-t border-primary-200 dark:border-primary-800 pt-4">
           <div class="flex justify-between items-center">
             <span class="text-primary-950 dark:text-primary-50">{{ t('items_unique') }}</span>
@@ -89,7 +86,6 @@ defineSlots<{
           </div>
         </div>
 
-        <!-- Total -->
         <div class="flex justify-between items-center border-t border-primary-200 dark:border-primary-800 pt-4">
           <span class="text-lg font-bold text-primary-950 dark:text-primary-50">{{ t('total') }}</span>
           <ClientOnly>
@@ -100,7 +96,6 @@ defineSlots<{
           </ClientOnly>
         </div>
 
-        <!-- VAT Info -->
         <div class="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">
           <UIcon name="i-heroicons-shield-check" class="text-green-500 size-6" />
           <span>{{ t('vat_included') }}</span>
@@ -109,10 +104,8 @@ defineSlots<{
 
       <template #footer>
         <div class="space-y-4">
-          <!-- Payment Button -->
           <slot name="button" />
 
-          <!-- Help Section -->
           <UButton
             color="info"
             variant="ghost"

@@ -7,9 +7,11 @@ import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
 
 const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAuthn'])
 
+const { $i18n } = useNuxtApp()
 const { getWebAuthnRequestOptionsForLogin, loginUsingWebAuthn } = useAllAuthAuthentication()
 const { t } = useI18n()
 const router = useRouter()
+const toast = useToast()
 const { clear } = useUserSession()
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
@@ -46,6 +48,11 @@ async function onSubmit() {
   }
   catch {
     console.error('Login failed')
+    toast.add({
+      title: $i18n.t('webauthn.error.title'),
+      description: $i18n.t('webauthn.error.description'),
+      color: 'error',
+    })
   }
   finally {
     await finalizeLogin()
@@ -89,3 +96,11 @@ const submitButtonLabel = computed(() => {
     @click="onSubmit"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  webauthn:
+    error:
+      title: Η σύνδεση απέτυχε
+      description: Υπήρξε πρόβλημα με την αυθεντικοποίηση μέσω WebAuthn. Παρακαλώ προσπαθήστε ξανά.
+</i18n>

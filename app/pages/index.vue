@@ -73,6 +73,7 @@ useSeoMeta({
           indicators
         >
           <NuxtImg
+            v-if="item && typeof item === 'string'"
             :alt="appTitle"
             :src="item"
             :style="{ objectFit: 'contain' }"

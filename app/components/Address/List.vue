@@ -48,8 +48,6 @@ const { t } = useI18n({ useScope: 'local' })
           lg:grid-cols-3
 
           md:grid-cols-2
-
-          xl:grid-cols-4
         "
       >
         <AddressCard

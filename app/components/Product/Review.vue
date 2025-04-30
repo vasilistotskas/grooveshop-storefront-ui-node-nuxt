@@ -524,6 +524,7 @@ watch(
             <Field
               id="comment"
               v-model="comment"
+              class="w-full"
               :as="UTextarea"
               :placeholder="t('comment.placeholder')"
               :rows="6"

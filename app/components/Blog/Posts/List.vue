@@ -245,12 +245,22 @@ onReactivated(async () => {
         </ol>
         <div
           v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
-          class="grid w-full grid-cols-1 items-center justify-center gap-8 lg:grid-cols-2 md:grid-cols-2"
+          class="
+            grid w-full grid-cols-1 items-center justify-center gap-8
+
+            lg:grid-cols-2
+
+            md:grid-cols-2
+
+            sm:grid-cols-1
+
+            xl:grid-cols-3
+          "
         >
           <USkeleton
-            v-for="i in 4"
+            v-for="i in 3"
             :key="i"
-            class="h-[300px] w-full"
+            class="h-[458px] w-full"
           />
         </div>
       </div>
