@@ -1,3 +1,10 @@
+## [2.22.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.22.0...v2.22.1) (2025-04-30)
+
+
+### Bug Fixes
+
+* add fetchpriority at main banner ([ca0e6ac](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ca0e6ac0db25c384070ac6abbab6025f358fce22))
+
 # [2.22.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.21.0...v2.22.0) (2025-04-30)
 
 
