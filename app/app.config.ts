@@ -8,7 +8,9 @@ export default defineAppConfig({
       base: 'w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8',
     },
     button: {
-      base: 'cursor-pointer',
+      slots: {
+        base: 'cursor-pointer',
+      },
       variants: {
         size: {
           '3xl': {
@@ -45,7 +47,9 @@ export default defineAppConfig({
       },
     },
     switch: {
-      base: 'data-[state=unchecked]:bg-(--ui-secondary)/25',
+      slots: {
+        base: 'data-[state=unchecked]:bg-(--ui-secondary)/25',
+      },
     },
   },
   nuxtIcon: {},
