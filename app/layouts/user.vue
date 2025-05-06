@@ -198,8 +198,8 @@ const Footer = computed(() => {
           item: 'w-full',
           link: 'flex place-items-center justify-center before:bg-transparent dark:before:bg-transparent',
           linkLabel: 'sr-only',
-          linkLeadingIcon: 'size-10',
-          linkLeadingAvatar: 'size-10',
+          linkLeadingIcon: 'size-8',
+          linkLeadingAvatar: 'size-8',
         }"
       />
     </MobileOrTabletOnly>

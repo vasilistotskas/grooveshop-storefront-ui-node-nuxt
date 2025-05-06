@@ -207,7 +207,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  compatibilityDate: '2025-03-30',
+  compatibilityDate: '2025-05-06',
   nitro: {
     esbuild: {
       options: {
@@ -580,7 +580,7 @@ export default defineNuxtConfig({
       },
     },
     rateLimiter: {
-      tokensPerInterval: process.env.NODE_ENV === 'production' ? 300 : 10000,
+      tokensPerInterval: process.env.NODE_ENV === 'production' ? 600 : 10000,
       interval: process.env.NODE_ENV === 'production' ? 300000 : 60000,
     },
   },
