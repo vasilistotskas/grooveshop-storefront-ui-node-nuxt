@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: '23.x'
+          node-version: '24.x'
       - name: Enable corepack for pnpm
         run: corepack enable pnpm
       - name: Check pnpm version
@@ -38,7 +38,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '23.x'
+          node-version: '24.x'
           registry-url: 'https://npm.pkg.github.com'
           cache: 'pnpm'
           cache-dependency-path: "**/pnpm-lock.yaml"
