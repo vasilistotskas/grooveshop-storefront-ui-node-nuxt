@@ -1,3 +1,10 @@
+## [2.25.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.25.0...v2.25.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* Add `googletagmanager` at `contentSecurityPolicy` ([cd078d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cd078d973cdb3dafb7596b5be978adad28db6c5a))
+
 # [2.25.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.24.0...v2.25.0) (2025-05-07)
 
 
