@@ -546,6 +546,7 @@ export default defineNuxtConfig({
         'img-src': [
           '\'self\'',
           'data:',
+          'https://www.googletagmanager.com',
           process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003',
           process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000',
         ],
