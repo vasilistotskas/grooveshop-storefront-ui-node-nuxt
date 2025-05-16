@@ -1,17 +1,17 @@
-import { FloorChoicesEnum, LocationChoicesEnum, ScreenSizeEnum } from '#shared/types/enum'
+import { ScreenSizeEnum } from '#shared/types/enum'
+import type { FloorEnum, LocationTypeEnum } from '#shared/types'
+import { ZodFloorEnum, ZodLocationTypeEnum } from '#shared/schemas'
 
-export const locationChoicesList = Object.keys(LocationChoicesEnum)
-  .filter(key => isNaN(Number(key)))
-  .map(key => ({
-    name: key,
-    value: LocationChoicesEnum[key as keyof typeof LocationChoicesEnum],
+export const floorChoicesList: { name: FloorEnum, value: FloorEnum }[]
+  = ZodFloorEnum.options.map(opt => ({
+    name: opt,
+    value: opt,
   }))
 
-export const floorChoicesList = Object.keys(FloorChoicesEnum)
-  .filter(key => isNaN(Number(key)))
-  .map(key => ({
-    name: key,
-    value: FloorChoicesEnum[key as keyof typeof FloorChoicesEnum],
+export const locationChoicesList: { name: LocationTypeEnum, value: LocationTypeEnum }[]
+  = ZodLocationTypeEnum.options.map(opt => ({
+    name: opt,
+    value: opt,
   }))
 
 export const defaultSelectOptionChoose = 'choose'

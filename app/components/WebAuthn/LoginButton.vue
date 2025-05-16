@@ -49,8 +49,8 @@ async function onSubmit() {
   catch {
     console.error('Login failed')
     toast.add({
-      title: $i18n.t('webauthn.error.title'),
-      description: $i18n.t('webauthn.error.description'),
+      title: t('webauthn.error.title'),
+      description: t('webauthn.error.description'),
       color: 'error',
     })
   }
@@ -76,7 +76,7 @@ const submitButtonDisabled = computed(() => {
 const submitButtonLabel = computed(() => {
   return !loading.value
     ? t('webauthn.login')
-    : t('loading')
+    : $i18n.t('loading')
 })
 </script>
 
@@ -100,6 +100,7 @@ const submitButtonLabel = computed(() => {
 <i18n lang="yaml">
 el:
   webauthn:
+    login: Σύνδεση με κλειδί ασφαλείας
     error:
       title: Η σύνδεση απέτυχε
       description: Υπήρξε πρόβλημα με την αυθεντικοποίηση μέσω WebAuthn. Παρακαλώ προσπαθήστε ξανά.

@@ -37,3 +37,19 @@ export const ZodSortableModel = z.object({
 export const ZodUUIDModel = z.object({
   uuid: z.string().uuid(),
 })
+
+export const ZodFloorEnum = z.enum([
+  'BASEMENT',
+  'GROUND_FLOOR',
+  'FIRST_FLOOR',
+  'SECOND_FLOOR',
+  'THIRD_FLOOR',
+  'FOURTH_FLOOR',
+  'FIFTH_FLOOR_PLUS',
+])
+
+export const ZodLocationTypeEnum = z.enum([
+  'HOME',
+  'OFFICE',
+  'OTHER',
+])

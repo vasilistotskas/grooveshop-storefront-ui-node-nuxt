@@ -83,7 +83,7 @@ const submitButtonLabel = computed(() => {
 
   return !loading.value
     ? $i18n.t('submit')
-    : t('loading')
+    : $i18n.t('loading')
 })
 
 const submitButtonDisabled = computed(() => {

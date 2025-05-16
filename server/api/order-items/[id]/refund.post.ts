@@ -1,16 +1,14 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
-    const url = `${config.apiBaseUrl}/order/${params.id}`
+    const body = await readValidatedBody(event, ZodOrderItem.parse)
+    const url = `${config.apiBaseUrl}/order-items/${params.id}/refund`
     const response = await $fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      method: 'POST',
+      body,
     })
-    return await parseDataAs(response, ZodOrderDetail)
+    return await parseDataAs(response, ZodOrderItem)
   }
   catch (error) {
     await handleError(error)

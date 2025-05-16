@@ -30,7 +30,7 @@ async function onSubmit(values: EmailVerifyPostBody) {
   }
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       label: t('key'),
@@ -44,7 +44,7 @@ const formSchema: DynamicFormSchema = {
       type: 'text',
     },
   ],
-}
+}))
 
 definePageMeta({
   layout: 'default',

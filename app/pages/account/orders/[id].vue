@@ -14,7 +14,7 @@ const { data: order } = await useFetch<Order>(`/api/orders/${orderId}`, {
   },
 })
 
-const { statusClass } = useOrder()
+const { statusClass, paymentStatusClass } = useOrder()
 const localePath = useLocalePath()
 
 definePageMeta({
@@ -46,7 +46,7 @@ definePageMeta({
         </UButton>
         <PageTitle
           :text="`${t('number')}: ${order?.id}`"
-          class="text-center"
+          class="text-center !mt-0"
         />
       </div>
       <div class="grid items-center text-center">
@@ -70,16 +70,27 @@ definePageMeta({
             dark:bg-primary-900
           "
       >
-        <div class="order-status flex items-center gap-2.5">
-          <span :class="statusClass(order).color">
-            {{ order.status }}
-          </span>
-          <UIcon
-            :name="statusClass(order).icon"
-            :class="statusClass(order).color"
-          />
+        <div class="order-status flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex items-center gap-2.5">
+            <span :class="statusClass(order).color">
+              {{ order.status }}
+            </span>
+            <UIcon
+              :name="statusClass(order).icon"
+              :class="statusClass(order).color"
+            />
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span :class="paymentStatusClass(order.paymentStatus).color">
+              {{ order.paymentStatus }}
+            </span>
+            <UIcon
+              :name="paymentStatusClass(order.paymentStatus).icon"
+              :class="paymentStatusClass(order.paymentStatus).color"
+            />
+          </div>
         </div>
-        <div class="order-items grid gap-4">
+        <div class="order-items grid gap-4 max-h-96 overflow-y-auto">
           <div
             v-for="item in order.items"
             :key="item.product.id"
@@ -232,6 +243,46 @@ definePageMeta({
                 extractTranslated(order.payWay, 'name', locale)
               }}</span>
             </div>
+            <div class="grid gap-2">
+              <span
+                class="
+                    text-primary-950 font-bold
+
+                    dark:text-primary-50
+                  "
+              >{{
+                t('payment_status')
+              }}</span>
+              <span
+                class="
+                    text-primary-950
+
+                    dark:text-primary-50
+                  "
+              >{{
+                order.paymentStatus
+              }}</span>
+            </div>
+            <div v-if="order.trackingNumber" class="grid gap-2">
+              <span
+                class="
+                    text-primary-950 font-bold
+
+                    dark:text-primary-50
+                  "
+              >{{
+                t('tracking_number')
+              }}</span>
+              <span
+                class="
+                    text-primary-950
+
+                    dark:text-primary-50
+                  "
+              >{{
+                order.trackingNumber
+              }}</span>
+            </div>
           </div>
         </div>
         <div
@@ -251,52 +302,55 @@ definePageMeta({
           >
             {{ t('synopsis') }}
           </span>
-          <div
-            class="
-                border-primary-500 grid gap-2 border-b pb-4
-
-                dark:border-primary-500
-              "
-          >
-            <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-4">
+            <div class="grid gap-2">
               <span
                 class="
-                    text-primary-950 font-light
+                    text-primary-950 font-bold
 
                     dark:text-primary-50
                   "
-              >{{ t('product.value') }}</span>
+              >{{
+                t('products')
+              }}</span>
               <span
                 class="
                     text-primary-950
 
                     dark:text-primary-50
               "
-              >
-                {{ n(order.totalPriceItems, 'currency') }}
-              </span>
+              >{{
+                n(order.totalPriceItems, 'currency')
+              }}</span>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="grid gap-2">
               <span
                 class="
-                    text-primary-950 font-light
+                    text-primary-950 font-bold
 
                     dark:text-primary-50
                   "
-              >{{ t('shipping.value') }}</span>
+              >{{
+                t('shipping')
+              }}</span>
               <span
                 class="
                     text-primary-950
 
                     dark:text-primary-50
               "
-              >
-                {{ n(order.shippingPrice, 'currency') }}
-              </span>
+              >{{
+                n(order.shippingPrice, 'currency')
+              }}</span>
             </div>
-          </div>
-          <div class="grid">
-            <div class="flex items-center justify-between">
+            <hr
+              class="
+                  text-primary-950
+
+                  dark:text-primary-50
+                "
+            >
+            <div class="grid gap-2">
               <span
                 class="
                     text-primary-950 font-bold
@@ -308,13 +362,13 @@ definePageMeta({
               }}</span>
               <span
                 class="
-                    text-primary-950 font-bold
+                    text-primary-950
 
                     dark:text-primary-50
               "
-              >
-                {{ n(order.paidAmount, 'currency') }}
-              </span>
+              >{{
+                n(order.paidAmount, 'currency')
+              }}</span>
             </div>
           </div>
         </div>
@@ -325,16 +379,16 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
-  back: Επιστροφή στις παραγγελίες
-  number: Αριθμός παραγγελίας
-  details: Λεπτομέρειες Παραγγελίας
-  address: Διεύθυνση αποστολής
-  document_type: Είδος αρχείου
-  pay_way: Τρόπος πληρωμής
-  synopsis: Περίληψη
+  back: Πίσω
+  number: Παραγγελία
+  details: Λεπτομέρειες
+  shipping: Έξοδα αποστολής
+  synopsis: Συνοπτικά
+  products: Προϊόντα
   total: Σύνολο
-  product:
-    value: Αξία προϊόντος
-  shipping:
-    value: Αξία αποστολής
+  address: Διεύθυνση
+  document_type: Τύπος Παραστατικού
+  pay_way: Τρόπος Πληρωμής
+  payment_status: Κατάσταση Πληρωμής
+  tracking_number: Αριθμός Αποστολής
 </i18n>

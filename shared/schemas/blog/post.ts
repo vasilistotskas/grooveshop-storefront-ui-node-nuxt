@@ -1,7 +1,5 @@
 import * as z from 'zod'
 
-export const ZodBlogPostStatusEnum = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
-
 const ZodBlogPostTranslations = z.record(
   z.object({
     title: z.string().nullish(),
@@ -18,7 +16,6 @@ export const ZodBlogPost = z.object({
   category: z.number(),
   tags: z.array(z.number()),
   author: z.number(),
-  status: z.lazy(() => ZodBlogPostStatusEnum),
   featured: z.boolean(),
   viewCount: z.number().int(),
   mainImagePath: z.string().optional(),

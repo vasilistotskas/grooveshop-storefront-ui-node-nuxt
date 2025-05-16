@@ -36,7 +36,7 @@ function finalizeReset() {
   loading.value = false
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       name: 'email',
@@ -49,7 +49,7 @@ const formSchema: DynamicFormSchema = {
       type: 'email',
     },
   ],
-}
+}))
 </script>
 
 <template>

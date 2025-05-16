@@ -3,10 +3,11 @@ const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
+const localePath = useLocalePath()
 
 const pageSize = ref(8)
 const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-isMain')
+const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
   {
@@ -88,7 +89,7 @@ definePageMeta({
   >
     <PageTitle :text="t('title')" />
 
-    <div class="flex flex-row flex-wrap items-center gap-2">
+    <div class="flex flex-row items-center gap-2">
       <PaginationPageNumber
         v-if="pagination"
         :count="pagination.count"
@@ -98,6 +99,14 @@ definePageMeta({
       <Ordering
         :ordering="String(ordering)"
         :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+      <UButton
+        class="w-auto"
+        color="secondary"
+        variant="outline"
+        trailing-icon="i-heroicons-plus"
+        :label="t('button')"
+        :to="localePath('account-addresses-new')"
       />
     </div>
     <LazyAddressList
@@ -126,4 +135,5 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Διευθύνσεις
+  button: Προσθήκη
 </i18n>

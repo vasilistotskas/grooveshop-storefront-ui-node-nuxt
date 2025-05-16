@@ -4,7 +4,6 @@ import { Field, useForm } from 'vee-validate'
 import * as z from 'zod'
 
 import { toTypedSchema } from '@vee-validate/zod'
-import { GlobalEvents } from '~/events'
 
 const starSvg
   = '<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
@@ -35,6 +34,8 @@ const props = defineProps({
 const { userProductReview, userHadReviewed, product, user } = toRefs(props)
 const UTextarea = resolveComponent('UTextarea')
 
+const isReviewModalOpen = defineModel<boolean>()
+
 const emit = defineEmits([
   'add-existing-review',
   'update-existing-review',
@@ -45,6 +46,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
+const { isMobileOrTablet } = useDevice()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -224,8 +226,6 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
   newSelectionRatio.value = leftBound / rightBound
 }
 
-const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
-
 const ZodReviewSchema = z.object({
   comment: z
     .string()
@@ -358,9 +358,6 @@ const deleteReviewEvent = async () => {
         }
         setFieldValue('rate', 0)
         setFieldValue('comment', '')
-        modalBus.emit(
-          `modal-close-reviewModal-${user?.value?.id}-${product?.value?.id}`,
-        )
         emit('delete-existing-review', userProductReview?.value)
         await refresh()
         toast.add({
@@ -399,9 +396,6 @@ const onSubmit = handleSubmit(async (event) => {
       color: 'error',
     })
   }
-  modalBus.emit(
-    `modal-close-reviewModal-${user?.value?.id}-${product?.value?.id}`,
-  )
 })
 
 const onReviewSubmit = (event: Event) => {
@@ -420,33 +414,15 @@ watch(
 </script>
 
 <template>
-  <LazyGenericModal
+  <UModal
     v-if="user"
     :key="`reviewModal-${user?.id}-${product?.id}`"
     ref="reviewModal"
-    :is-form="true"
-    :modal-close-trigger-handler-id="`modal-close-reviewModal-${user?.id}-${product?.id}`"
-    :modal-closed-trigger-handler-id="`modal-closed-reviewModal-${user?.id}-${product?.id}`"
-    :modal-open-trigger-handler-id="`modal-open-reviewModal-${user?.id}-${product?.id}`"
-    :modal-opened-trigger-handler-id="`modal-opened-reviewModal-${user?.id}-${product?.id}`"
-    class="
-      bg-primary-50 p-4
-
-      dark:bg-primary-950
-
-      md:p-0
-    "
-    exit-modal-icon-class="fa fa-times"
-    form-id="reviewForm"
-    form-name="reviewForm"
-    gap="1rem"
-    height="auto"
-    max-height="100%"
-    max-width="700px"
-    padding="2rem"
-    unique-id="reviewModal"
-    width="auto"
-    @submit="onSubmit"
+    v-model:open="isReviewModalOpen"
+    :fullscreen="isMobileOrTablet"
+    :title="t('write_review_for_product', {
+      product: extractTranslated(product, 'name', locale),
+    })"
   >
     <template #header>
       <div class="review_header">
@@ -461,8 +437,7 @@ watch(
         <UIcon name="i-fa-solid-pen" />
       </div>
     </template>
-
-    <template #default>
+    <template #body>
       <div class="review_body">
         <div class="review_body-rating">
           <div class="review_body-rating-title">
@@ -555,6 +530,7 @@ watch(
             block
             class="review_footer-button"
             color="neutral"
+            variant="outline"
             size="lg"
             @click="onReviewSubmit"
           />
@@ -563,6 +539,7 @@ watch(
             :label="$i18n.t('validation.too_many_attempts')"
             block
             color="neutral"
+            variant="outline"
             disabled
             size="lg"
           />
@@ -584,7 +561,7 @@ watch(
         </div>
       </div>
     </template>
-  </LazyGenericModal>
+  </UModal>
 </template>
 
 <style scoped>
@@ -600,6 +577,9 @@ watch(
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0;
+  @media screen and (max-width: 768px) {
+    font-size: 1rem;
+  }
 }
 
 .review_body {
@@ -617,6 +597,9 @@ watch(
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0;
+  @media screen and (max-width: 768px) {
+    font-size: 1rem;
+  }
 }
 
 .review_body-rating-content {
@@ -642,6 +625,9 @@ watch(
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0;
+  @media screen and (max-width: 768px) {
+    font-size: 1rem;
+  }
 }
 
 .review_body-comment-content {
@@ -653,11 +639,13 @@ watch(
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  width: 100%;
 }
 
 .review_footer-content {
   display: grid;
   width: 100%;
+  justify-content: flex-end;
 }
 
 .review_footer-button {
@@ -703,11 +691,11 @@ watch(
 
 <i18n lang="yaml">
 el:
-  write_review: Γράψτε μια κριτική
+  write_review: Γράψε μια κριτική
   update_review: Ενημέρωση κριτικής
   delete_review: Διαγραφή κριτικής
   must_be_logged_in: Πρέπει να συνδεθείς για να γράψεις μία κριτική
-  write_review_for_product: Γράψτε μια κριτική για το προϊόν {product}
+  write_review_for_product: Γράψε μια κριτική για το προϊόν {product}
   add:
     error: Έλεγξε το σφάλμα δημιουργίας
     success: Η κριτική δημιουργήθηκε με επιτυχία

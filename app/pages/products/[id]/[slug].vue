@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { AccordionItem } from '@nuxt/ui'
-import { GlobalEvents } from '~/events'
 
 interface ProductAttributes {
   processor?: string
@@ -24,11 +23,11 @@ const { user, loggedIn } = useUserSession()
 
 const toast = useToast()
 const localePath = useLocalePath()
-const modalBus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 
 const userStore = useUserStore()
 const { getFavouriteByProductId, updateFavouriteProducts } = userStore
 
+const isReviewModalOpen = ref(false)
 const selectorQuantity = ref(1)
 const productAttributes = ref<ProductAttributes>({
   processor: 'Intel Core i7-12700H',
@@ -183,9 +182,7 @@ const decrementQuantity = () => {
 }
 const openModal = () => {
   if (user?.value) {
-    modalBus.emit(
-      `modal-open-reviewModal-${user?.value?.id}-${product?.value?.id}`,
-    )
+    isReviewModalOpen.value = true
   }
   else {
     toast.add({
@@ -251,22 +248,6 @@ watch(
     await refreshProduct()
   },
 )
-
-watch(selectorQuantity, (newValue) => {
-  const maxQuantity = productStock.value
-  if (newValue > maxQuantity) {
-    selectorQuantity.value = maxQuantity
-    toast.add({
-      title: t('adjusted_to_stock', {
-        stock: maxQuantity,
-      }),
-      color: 'info',
-    })
-  }
-  else if (newValue < 1) {
-    selectorQuantity.value = 1
-  }
-})
 
 onMounted(() => {
   $fetch<Product>(`/api/products/${productId}/update-view-count`, {
@@ -387,12 +368,12 @@ definePageMeta({
               />
 
               <LazyProductReview
-                v-if="user"
+                v-if="user && isReviewModalOpen"
+                v-model="isReviewModalOpen"
                 :product="product"
                 :user="user"
                 :user-had-reviewed="!!userProductReview"
                 :user-product-review="userProductReview"
-                class="transition-transform duration-300 hover:scale-105"
                 @add-existing-review="onAddExistingReview"
                 @update-existing-review="onUpdateExistingReview"
                 @delete-existing-review="onDeleteExistingReview"
@@ -432,31 +413,7 @@ definePageMeta({
                 >{{
                   t('qty')
                 }}</label>
-                <div
-                  class="
-                      bg-primary-100 relative flex items-center rounded-lg
-
-                      dark:bg-primary-900
-                    "
-                >
-                  <UButton
-                    icon="i-heroicons-minus"
-                    color="primary"
-                    variant="ghost"
-                    size="sm"
-                    aria-label="Decrease quantity"
-                    @click="decrementQuantity"
-                  />
-                  <span class="w-8 text-center">{{ selectorQuantity }}</span>
-                  <UButton
-                    icon="i-heroicons-plus"
-                    color="primary"
-                    variant="ghost"
-                    size="sm"
-                    aria-label="Increase quantity"
-                    @click="incrementQuantity"
-                  />
-                </div>
+                <UInputNumber v-model="selectorQuantity" :min="1" :max="product?.stock" />
               </div>
 
               <ButtonProductAddToCart

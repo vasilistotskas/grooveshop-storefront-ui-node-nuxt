@@ -33,7 +33,7 @@ async function onSubmit(values: ReauthenticateBody) {
   }
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       name: 'password',
@@ -46,7 +46,7 @@ const formSchema: DynamicFormSchema = {
       type: 'password',
     },
   ],
-}
+}))
 
 definePageMeta({
   layout: 'default',

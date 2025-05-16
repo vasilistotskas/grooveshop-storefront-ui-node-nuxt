@@ -67,9 +67,9 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
   }
 }
 
-async function onSubmit(values: OrderCreateBody) {
+async function onSubmit(values: OrderCreateUpdate) {
   const updatedValues = processValues(values)
-  await $fetch<OrderCreateResponse>('/api/orders', {
+  await $fetch<OrderCreateUpdate>('/api/orders', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: updatedValues,
@@ -124,7 +124,7 @@ const payWayOptions = computed(() => {
   }) || []
 })
 
-const formSchema = computed(() => ({
+const formSchema = computed<DynamicFormSchema>(() => ({
   steps: [
     {
       title: t('steps.personal_info'),
@@ -294,7 +294,7 @@ const formSchema = computed(() => ({
             label: option.name,
             value: option.value,
           })),
-          rules: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).optional(),
+          rules: z.union([ZodFloorEnum, z.string()]).optional(),
         },
         {
           name: 'locationType',
@@ -312,7 +312,7 @@ const formSchema = computed(() => ({
             label: option.name,
             value: option.value,
           })),
-          rules: z.union([z.nativeEnum(LocationChoicesEnum), z.string()]).optional(),
+          rules: z.union([ZodLocationTypeEnum, z.string()]).optional(),
         },
         {
           name: 'customerNotes',

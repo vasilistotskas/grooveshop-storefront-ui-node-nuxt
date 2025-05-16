@@ -22,12 +22,13 @@ export const useCartStore = defineStore('cart', () => {
 
   const getCartItems = computed(() => cart.value?.cartItems ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
+  const getCartItemIds = computed(() => cart.value?.cartItems?.map(item => item.id) ?? [])
 
   const getCartItemById = (id: number) =>
-    cart.value?.cartItems.find(item => item.id === id) ?? null
+    cart.value?.cartItems?.find(item => item.id === id) ?? null
 
   const getCartItemByProductId = (id: number) =>
-    cart.value?.cartItems.find(item => item.product.id === id) ?? null
+    cart.value?.cartItems?.find(item => item.product.id === id) ?? null
 
   function fetchCartFromLocalStorage() {
     if (import.meta.client) {
@@ -269,6 +270,7 @@ export const useCartStore = defineStore('cart', () => {
     error,
     getCartItems,
     getCartTotalItems,
+    getCartItemIds,
     getCartItemById,
     getCartItemByProductId,
     fetchCart,

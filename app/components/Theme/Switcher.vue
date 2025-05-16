@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import { GlobalEvents } from '~/events'
-
 const colorMode = useColorMode()
-const bus = useEventBus<string>(GlobalEvents.ON_THEME_UPDATED)
 const { $i18n } = useNuxtApp()
 
 const isDark = computed({
@@ -11,9 +8,6 @@ const isDark = computed({
   },
   set() {
     colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
-    bus.emit(GlobalEvents.ON_THEME_UPDATED, {
-      isDark: colorMode.value === 'dark',
-    })
   },
 })
 

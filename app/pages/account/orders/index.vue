@@ -7,7 +7,7 @@ const localePath = useLocalePath()
 
 const pageSize = ref(8)
 const pending = ref(true)
-const page = computed(() => route.query.page)
+const page = computed(() => route.query.page || 1)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
@@ -29,7 +29,7 @@ const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
 ])
 
 const { data: orders, status, error } = await useFetch<Pagination<Order>>(
-  `/api/user/account/${user.value?.id}/orders`,
+  `/api/orders/my-orders`,
   {
     key: `userOrders${user.value?.id}`,
     method: 'GET',
@@ -50,7 +50,7 @@ const { data: orders, status, error } = await useFetch<Pagination<Order>>(
 
 const refreshOrders = async () => {
   status.value = 'pending'
-  const orders = await $fetch<Pagination<Order>>(`/api/user/account/${user.value?.id}/orders`, {
+  const orders = await $fetch<Pagination<Order>>(`/api/orders/my-orders`, {
     method: 'GET',
     headers: useRequestHeaders(),
     query: {

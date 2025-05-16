@@ -77,7 +77,7 @@ async function onSubmit(values: TotpPostBody) {
   }
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       label: t('authenticator_code'),
@@ -91,7 +91,7 @@ const formSchema: DynamicFormSchema = {
       type: 'text',
     },
   ],
-}
+}))
 </script>
 
 <template>

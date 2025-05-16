@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
+    'nuxt-mcp',
     'nuxt-security',
   ],
   ssr: true,
@@ -55,6 +56,7 @@ export default defineNuxtConfig({
   colorMode: {
     preference: 'system',
     fallback: 'light',
+    storage: 'cookie',
   },
   runtimeConfig: {
     buildDate: new Date().toISOString(),
@@ -566,10 +568,12 @@ export default defineNuxtConfig({
         'script-src-attr': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
+          'https://www.googletagmanager.com',
         ],
         'script-src-elem': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
+          'https://www.googletagmanager.com',
           'https://static.cloudflareinsights.com',
           `${process.env.NUXT_SITE_URL}`,
         ],

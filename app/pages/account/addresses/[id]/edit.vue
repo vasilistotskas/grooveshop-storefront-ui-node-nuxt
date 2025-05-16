@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import { Field, useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-
 const { t, locale } = useI18n({ useScope: 'local' })
 const toast = useToast()
 const route = useRoute()
@@ -15,9 +12,6 @@ const addressId = 'id' in route.params
   : undefined
 const regions = ref<Pagination<Region> | null>(null)
 
-const UTextarea = resolveComponent('UTextarea')
-const USelect = resolveComponent('USelect')
-
 const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
   key: `address${addressId}`,
   method: 'GET',
@@ -25,96 +19,6 @@ const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${add
   query: {
     language: locale,
   },
-})
-
-const ZodUserAddress = z.object({
-  title: z.string({ required_error: $i18n.t('validation.required') }),
-  firstName: z.string({ required_error: $i18n.t('validation.required') }),
-  lastName: z.string({ required_error: $i18n.t('validation.required') }),
-  street: z.string({ required_error: $i18n.t('validation.required') }),
-  streetNumber: z.string({ required_error: $i18n.t('validation.required') }),
-  city: z.string({ required_error: $i18n.t('validation.required') }),
-  zipcode: z.string({ required_error: $i18n.t('validation.required') }),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string({ required_error: $i18n.t('validation.required') })]).optional(),
-  locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string({ required_error: $i18n.t('validation.required') })])
-    .optional(),
-  phone: z.string({ required_error: $i18n.t('validation.required') }).optional(),
-  mobilePhone: z.string({ required_error: $i18n.t('validation.required') }).optional(),
-  notes: z.string({ required_error: $i18n.t('validation.required') }).optional(),
-  isMain: z.boolean().optional(),
-  user: z.union([z.number(), ZodUserAccount]),
-  country: z.string({ required_error: $i18n.t('validation.required') }).optional(),
-  region: z.string({ required_error: $i18n.t('validation.required') }).optional(),
-})
-const validationSchema = toTypedSchema(ZodUserAddress)
-const initialValues = ZodUserAddress.parse({
-  title: address.value?.title || '',
-  firstName: address.value?.firstName || '',
-  lastName: address.value?.lastName || '',
-  street: address.value?.street || '',
-  streetNumber: address.value?.streetNumber || '',
-  city: address.value?.city || '',
-  zipcode: address.value?.zipcode || '',
-  floor: address.value?.floor || defaultSelectOptionChoose,
-  locationType: address.value?.locationType || defaultSelectOptionChoose,
-  phone: address.value?.phone || '',
-  mobilePhone: address.value?.mobilePhone || '',
-  notes: address.value?.notes || '',
-  isMain: address.value?.isMain || false,
-  user: address.value?.user || null,
-  country: address.value?.country || defaultSelectOptionChoose,
-  region: address.value?.region || defaultSelectOptionChoose,
-})
-const { defineField, handleSubmit, errors, isSubmitting } = useForm({
-  validationSchema,
-  initialValues,
-})
-
-const [title, titleProps] = defineField('title', {
-  validateOnModelUpdate: true,
-})
-const [firstName, firstNameProps] = defineField('firstName', {
-  validateOnModelUpdate: true,
-})
-const [lastName, lastNameProps] = defineField('lastName', {
-  validateOnModelUpdate: true,
-})
-const [street, streetProps] = defineField('street', {
-  validateOnModelUpdate: true,
-})
-const [streetNumber, streetNumberProps] = defineField('streetNumber', {
-  validateOnModelUpdate: true,
-})
-const [city, cityProps] = defineField('city', {
-  validateOnModelUpdate: true,
-})
-const [zipcode, zipcodeProps] = defineField('zipcode', {
-  validateOnModelUpdate: true,
-})
-const [floor, floorProps] = defineField('floor', {
-  validateOnModelUpdate: true,
-})
-const [locationType, locationTypeProps] = defineField('locationType', {
-  validateOnModelUpdate: true,
-})
-const [phone, phoneProps] = defineField('phone', {
-  validateOnModelUpdate: true,
-})
-const [mobilePhone, mobilePhoneProps] = defineField('mobilePhone', {
-  validateOnModelUpdate: true,
-})
-const [notes, notesProps] = defineField('notes', {
-  validateOnModelUpdate: true,
-})
-const [country, countryProps] = defineField('country', {
-  validateOnModelUpdate: true,
-})
-const [region, regionProps] = defineField('region', {
-  validateOnModelUpdate: true,
-})
-defineField('isMain', {
-  validateOnModelUpdate: true,
 })
 
 const { data: countries } = await useFetch<Pagination<Country>>(
@@ -139,8 +43,8 @@ const countryOptions = computed(() => {
   }) || []
 })
 
-const fetchRegions = async () => {
-  if (country.value === defaultSelectOptionChoose) {
+const fetchRegions = async (countryCode: string) => {
+  if (countryCode === defaultSelectOptionChoose) {
     return
   }
 
@@ -148,7 +52,7 @@ const fetchRegions = async () => {
     regions.value = await $fetch<Pagination<Region>>('/api/regions', {
       method: 'GET',
       query: {
-        country: country.value,
+        country: countryCode,
         language: locale.value,
       },
     })
@@ -172,14 +76,13 @@ const regionOptions = computed(() => {
   }) || []
 })
 
-const onCountryChange = async (event: Event) => {
-  if (!(event.target instanceof HTMLSelectElement)) return
-  country.value = event.target.value
-  region.value = defaultSelectOptionChoose
-  await fetchRegions()
+const onSelectMenuChange = async ({ target, value }: { target: string, value: string }) => {
+  if (target === 'country') {
+    await fetchRegions(value)
+  }
 }
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = async (values: any) => {
   const updatedValues = processValues(values)
 
   await $fetch<UserAddress>(`/api/user/addresses/${addressId}`, {
@@ -193,8 +96,8 @@ const onSubmit = handleSubmit(async (values) => {
       streetNumber: updatedValues.streetNumber,
       city: updatedValues.city,
       zipcode: updatedValues.zipcode,
-      floor: Number(updatedValues.floor),
-      locationType: Number(updatedValues.locationType),
+      floor: updatedValues.floor,
+      locationType: updatedValues.locationType,
       phone: updatedValues.phone,
       mobilePhone: updatedValues.mobilePhone,
       notes: updatedValues.notes,
@@ -220,7 +123,7 @@ const onSubmit = handleSubmit(async (values) => {
       })
     },
   })
-})
+}
 
 const onSetMain = async () => {
   await $fetch(`/api/user/addresses/${addressId}/set-main`, {
@@ -245,8 +148,235 @@ const onSetMain = async () => {
   })
 }
 
-const submitButtonDisabled = computed(() => {
-  return isSubmitting.value || Object.keys(errors.value).length > 0
+const formSchema = computed<DynamicFormSchema>(() => ({
+  fields: [
+    {
+      name: 'title',
+      label: t('form.title'),
+      as: 'input',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: t('form.title'),
+      autocomplete: 'honorific-prefix',
+      initialValue: address.value?.title || '',
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'firstName',
+      label: t('form.first_name'),
+      as: 'input',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: t('form.first_name'),
+      autocomplete: 'given-name',
+      initialValue: address.value?.firstName || '',
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'lastName',
+      label: t('form.last_name'),
+      as: 'input',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: t('form.last_name'),
+      autocomplete: 'family-name',
+      initialValue: address.value?.lastName || '',
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'street',
+      label: t('form.street'),
+      as: 'input',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: t('form.street'),
+      autocomplete: 'address-line1',
+      initialValue: address.value?.street || '',
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'streetNumber',
+      label: t('form.street_number'),
+      as: 'input',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: t('form.street_number'),
+      autocomplete: 'address-line2',
+      initialValue: address.value?.streetNumber || '',
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'city',
+      label: t('form.city'),
+      as: 'input',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: t('form.city'),
+      autocomplete: 'address-level2',
+      initialValue: address.value?.city || '',
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'zipcode',
+      label: t('form.zipcode'),
+      as: 'input',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: t('form.zipcode'),
+      autocomplete: 'postal-code',
+      initialValue: address.value?.zipcode || '',
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'phone',
+      label: t('form.phone'),
+      as: 'input',
+      type: 'text',
+      required: false,
+      readonly: false,
+      placeholder: t('form.phone'),
+      autocomplete: 'tel',
+      initialValue: address.value?.phone || '',
+      rules: z.string().optional(),
+    },
+    {
+      name: 'mobilePhone',
+      label: t('form.mobile_phone'),
+      as: 'input',
+      type: 'text',
+      required: false,
+      readonly: false,
+      placeholder: t('form.mobile_phone'),
+      autocomplete: 'tel',
+      initialValue: address.value?.mobilePhone || '',
+      rules: z.string().optional(),
+    },
+    {
+      name: 'floor',
+      label: t('form.floor'),
+      as: 'select',
+      type: 'text',
+      required: false,
+      readonly: false,
+      placeholder: defaultSelectOptionChoose,
+      autocomplete: 'off',
+      initialValue: address.value?.floor || defaultSelectOptionChoose,
+      children: floorChoicesList.map(option => ({
+        tag: 'option',
+        text: option.name || '',
+        as: 'option',
+        label: option.name,
+        value: option.value,
+      })),
+      rules: z.union([ZodFloorEnum, z.string()]).optional(),
+    },
+    {
+      name: 'locationType',
+      label: t('form.location_type'),
+      as: 'select',
+      type: 'text',
+      required: false,
+      readonly: false,
+      placeholder: defaultSelectOptionChoose,
+      autocomplete: 'off',
+      initialValue: address.value?.locationType || defaultSelectOptionChoose,
+      children: locationChoicesList.map(option => ({
+        tag: 'option',
+        text: option.name || '',
+        as: 'option',
+        label: option.name,
+        value: option.value,
+      })),
+      rules: z.union([ZodLocationTypeEnum, z.string()]).optional(),
+    },
+    {
+      name: 'country',
+      label: t('form.country'),
+      as: 'select',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: defaultSelectOptionChoose,
+      autocomplete: 'country',
+      initialValue: address.value?.country || defaultSelectOptionChoose,
+      children: (countryOptions.value || []).map(option => ({
+        tag: 'option',
+        text: option.name || '',
+        as: 'option',
+        label: option.name,
+        value: option.value,
+      })),
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'region',
+      label: t('form.region'),
+      as: 'select',
+      type: 'text',
+      required: true,
+      readonly: false,
+      placeholder: defaultSelectOptionChoose,
+      autocomplete: 'address-level1',
+      initialValue: address.value?.region || defaultSelectOptionChoose,
+      children: (regionOptions.value || []).map(option => ({
+        tag: 'option',
+        text: option.name || '',
+        as: 'option',
+        label: option.name,
+        value: option.value,
+      })),
+      rules: z.string({ required_error: $i18n.t('validation.required') }),
+    },
+    {
+      name: 'notes',
+      label: t('form.notes'),
+      as: 'textarea',
+      type: 'text',
+      required: false,
+      readonly: false,
+      placeholder: t('form.notes'),
+      autocomplete: 'off',
+      initialValue: address.value?.notes || '',
+      rules: z.string().optional(),
+    },
+    {
+      name: 'isMain',
+      hidden: true,
+      type: 'checkbox',
+      as: 'checkbox',
+      autocomplete: 'off',
+      required: false,
+      readonly: false,
+      placeholder: '',
+      initialValue: address.value?.isMain || false,
+      rules: z.boolean().optional(),
+    },
+    {
+      name: 'user',
+      hidden: true,
+      type: 'number',
+      as: 'input',
+      autocomplete: 'off',
+      required: false,
+      readonly: false,
+      placeholder: '',
+      initialValue: address.value?.user || null,
+      rules: z.union([z.number(), ZodUserAccount]).optional(),
+    },
+  ],
+}))
+
+onMounted(async () => {
+  if (address.value?.country && address.value.country !== defaultSelectOptionChoose) {
+    await fetchRegions(address.value.country)
+  }
 })
 
 definePageMeta({
@@ -258,7 +388,7 @@ definePageMeta({
   <PageWrapper class="grid gap-4">
     <div
       :class="[
-        'flex items-center justify-items-end gap-4',
+        'flex items-center justify-between gap-4',
         { main: address?.isMain },
       ]"
     >
@@ -267,6 +397,7 @@ definePageMeta({
           :to="localePath('account-addresses')"
           :trailing="true"
           color="neutral"
+          variant="outline"
           icon="i-heroicons-arrow-left"
           size="sm"
         >
@@ -275,6 +406,7 @@ definePageMeta({
           }}</span>
         </UButton>
         <PageTitle
+          class="!mt-0"
           :text="`${t('title')} ${address?.id}`"
         />
       </div>
@@ -291,508 +423,40 @@ definePageMeta({
         >
           <UIcon name="i-fa6-circle-check" />
         </span>
-        <span
-          class="
-            text-green-500
-
-            dark:text-green-400
-          "
+        <UBadge
+          icon="i-heroicons-check-badge"
+          size="lg"
+          color="success"
+          variant="solid"
         >
           {{ t('main.title') }}
-        </span>
+        </UBadge>
       </div>
       <UButton
         v-else
         :label="t('main.button')"
         :trailing="true"
         class="gap-4"
-        color="neutral"
+        color="secondary"
+        variant="outline"
         icon="i-heroicons-check-circle"
         @click="onSetMain"
       />
     </div>
 
-    <form
+    <div
       v-if="address"
-      id="AddressEditForm"
-      :action="`/api/v1/user/addresses/${address.id}`"
-      class="
-          bg-primary-100 flex flex-col gap-4 rounded-lg p-4
-
-          dark:bg-primary-900
-
-          md:grid md:grid-cols-3
-        "
-      method="post"
-      name="AddressEditForm"
-      @submit="onSubmit"
+      class="bg-primary-100 rounded-lg p-4 dark:bg-primary-900"
     >
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="title"
-        >{{ t('form.title') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="title"
-            v-model="title"
-            :bind="titleProps"
-            :placeholder="t('form.title')"
-            :required="true"
-            autocomplete="honorific-prefix"
-            class="
-                text-primary-950 mb-2
-
-                dark:text-primary-50
-              "
-            name="title"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.title"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.title }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="firstName"
-        >{{ t('form.first_name') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="firstName"
-            v-model="firstName"
-            :bind="firstNameProps"
-            :placeholder="t('form.first_name')"
-            :required="true"
-            autocomplete="given-name"
-            name="firstName"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.firstName"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.firstName }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="lastName"
-        >{{ t('form.last_name') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="lastName"
-            v-model="lastName"
-            :bind="lastNameProps"
-            :placeholder="t('form.last_name')"
-            :required="true"
-            autocomplete="family-name"
-            name="lastName"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.lastName"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.lastName }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="street"
-        >{{ t('form.street') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="street"
-            v-model="street"
-            :bind="streetProps"
-            :placeholder="t('form.street')"
-            :required="true"
-            autocomplete="address-line1"
-            name="street"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.street"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.street }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="streetNumber"
-        >{{ t('form.street_number') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="streetNumber"
-            v-model="streetNumber"
-            :bind="streetNumberProps"
-            :placeholder="
-              t('form.street_number')
-            "
-            :required="true"
-            autocomplete="address-line2"
-            name="streetNumber"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.streetNumber"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.streetNumber }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="city"
-        >{{ t('form.city') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="city"
-            v-model="city"
-            :bind="cityProps"
-            :placeholder="t('form.city')"
-            :required="true"
-            autocomplete="address-level2"
-            name="city"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.city"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.city }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="zipcode"
-        >{{ t('form.zipcode') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="zipcode"
-            v-model="zipcode"
-            :bind="zipcodeProps"
-            :placeholder="t('form.zipcode')"
-            :required="true"
-            autocomplete="postal-code"
-            name="zipcode"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.zipcode"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.zipcode }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="phone"
-        >{{ t('form.phone') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="phone"
-            v-model="phone"
-            :bind="phoneProps"
-            :placeholder="t('form.phone')"
-            autocomplete="tel"
-            name="phone"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.phone"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.phone }}</span>
-      </div>
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="mobilePhone"
-        >{{ t('form.mobile_phone') }}</label>
-        <div class="grid">
-          <FormTextInput
-            id="mobilePhone"
-            v-model="mobilePhone"
-            :bind="mobilePhoneProps"
-            :placeholder="
-              t('form.mobile_phone')
-            "
-            autocomplete="tel"
-            name="mobilePhone"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.mobilePhone"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >{{ errors.mobilePhone }}</span>
-      </div>
-
-      <div
-        class="
-            grid items-start gap-2
-
-            md:content-start
-          "
-      >
-        <div class="grid">
-          <label
-            class="
-                text-primary-950 mb-2
-
-                dark:text-primary-50
-              "
-            for="floor"
-          >{{ t('form.floor') }}</label>
-          <Field
-            id="floor"
-            v-model="floor"
-            :as="USelect"
-            :bind="floorProps"
-            :options="floorChoicesList"
-            :placeholder="floor === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-            color="neutral"
-            name="floor"
-            option-attribute="name"
-          />
-          <span
-            v-if="errors.floor"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.floor }}</span>
-        </div>
-        <div class="grid">
-          <label
-            class="
-                text-primary-950 mb-2
-
-                dark:text-primary-50
-              "
-            for="locationType"
-          >{{
-            t('form.location_type')
-          }}</label>
-          <Field
-            id="locationType"
-            v-model="locationType"
-            :as="USelect"
-            :options="locationChoicesList"
-            :placeholder="locationType === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-            color="neutral"
-            name="locationType"
-            option-attribute="name"
-            v-bind="locationTypeProps"
-          />
-          <span
-            v-if="errors.locationType"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.locationType }}</span>
-        </div>
-      </div>
-
-      <div
-        class="
-            grid items-start gap-2
-
-            md:content-start
-          "
-      >
-        <div class="grid">
-          <label
-            class="
-                text-primary-950 mb-2
-
-                dark:text-primary-50
-              "
-            for="country"
-          >{{ t('form.country') }}</label>
-          <div class="grid">
-            <Field
-              id="country"
-              v-model="country"
-              :as="USelect"
-              :options="countryOptions"
-              :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-              color="neutral"
-              name="country"
-              option-attribute="name"
-              v-bind="countryProps"
-              @change.capture="onCountryChange"
-            />
-          </div>
-          <span
-            v-if="errors.country"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.country }}</span>
-        </div>
-        <div class="grid">
-          <label
-            class="
-                text-primary-950 mb-2
-
-                dark:text-primary-50
-              "
-            for="region"
-          >{{ t('form.region') }}</label>
-          <div class="grid">
-            <Field
-              id="region"
-              v-model="region"
-              :as="USelect"
-              :options="regionOptions"
-              :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
-              color="neutral"
-              name="region"
-              option-attribute="name"
-              v-bind="regionProps"
-            />
-          </div>
-          <span
-            v-if="errors.region"
-            class="relative px-4 py-3 text-xs text-red-600"
-          >{{ errors.region }}</span>
-        </div>
-      </div>
-
-      <div
-        class="
-            grid items-start
-
-            md:content-start
-          "
-      >
-        <label
-          class="
-              text-primary-950 mb-2
-
-              dark:text-primary-50
-            "
-          for="notes"
-        >{{ t('form.notes') }}</label>
-        <div class="grid">
-          <Field
-            id="notes"
-            v-model="notes"
-            :as="UTextarea"
-            :placeholder="t('form.notes')"
-            :rows="4"
-            color="neutral"
-            name="notes"
-            type="text"
-            v-bind="notesProps"
-          />
-        </div>
-      </div>
-
-      <div class="col-span-2 col-start-3 grid items-end justify-end">
-        <button
-          :aria-busy="isSubmitting"
-          :disabled="submitButtonDisabled"
-          class="
-              text-primary-50 rounded bg-secondary px-4 py-2 font-bold
-
-              disabled:cursor-not-allowed disabled:opacity-50
-            "
-          type="submit"
-        >
-          {{ t('form.update') }}
-        </button>
-      </div>
-    </form>
+      <DynamicForm
+        ref="formRef"
+        :button-label="t('form.update')"
+        :schema="formSchema"
+        :loading="false"
+        @submit="onSubmit"
+        @select-menu-change="onSelectMenuChange"
+      />
+    </div>
   </PageWrapper>
 </template>
 
@@ -803,7 +467,7 @@ el:
   success: Η διεύθυνση ενημερώθηκε με επιτυχία
   back: Επιστροφή στις διευθύνσεις
   main:
-    title: Κύριος
+    title: Κύρια
     success: Η κύρια διεύθυνση ενημερώθηκε με επιτυχία
     error: Σφάλμα ενημέρωσης κύριας διεύθυνσης
     button: Ορισμός ως κύρια διεύθυνση

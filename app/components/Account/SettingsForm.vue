@@ -431,7 +431,6 @@ watch(calendarDate, (newVal) => {
             :items="countryOptions"
             :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             color="neutral"
-            option-attribute="name"
             v-bind="countryProps"
             @update:model-value="onCountryChange"
           />
@@ -450,11 +449,10 @@ watch(calendarDate, (newVal) => {
             id="region"
             v-model="region"
             name="region"
-            value-key="value"
             :items="regionOptions"
             :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             color="neutral"
-            option-attribute="name"
+            value-key="value"
             v-bind="regionProps"
           />
         </div>

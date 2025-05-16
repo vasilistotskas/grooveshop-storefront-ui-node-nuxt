@@ -9,9 +9,9 @@ export const ZodUserAddress = z.object({
   streetNumber: z.string(),
   city: z.string(),
   zipcode: z.string(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
+  floor: z.union([ZodFloorEnum, z.string()]).nullish(),
   locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
+    .union([ZodLocationTypeEnum, z.string()])
     .nullish(),
   phone: z.string().nullish(),
   mobilePhone: z.string().nullish(),
@@ -39,8 +39,8 @@ export const ZodUserAddressCreateBody = z.object({
   streetNumber: z.string(),
   city: z.string(),
   zipcode: z.string(),
-  floor: z.nativeEnum(FloorChoicesEnum).nullish(),
-  locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
+  floor: ZodFloorEnum.nullish(),
+  locationType: ZodLocationTypeEnum.nullish(),
   phone: z.string().nullish(),
   mobilePhone: z.string().nullish(),
   notes: z.string().nullish(),
@@ -62,8 +62,8 @@ export const ZodUserAddressPutBody = z.object({
   streetNumber: z.string(),
   city: z.string(),
   zipcode: z.string(),
-  floor: z.nativeEnum(FloorChoicesEnum).nullish(),
-  locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
+  floor: ZodFloorEnum.nullish(),
+  locationType: ZodLocationTypeEnum.nullish(),
   phone: z.string().nullish(),
   mobilePhone: z.string().nullish(),
   notes: z.string().nullish(),

@@ -31,7 +31,7 @@ const onSubmit = async (values: PasswordChangeBody) => {
   }
 }
 
-const formSchema = computed((): DynamicFormSchema => {
+const formSchema = computed<DynamicFormSchema>(() => {
   const fields = [
     {
       label: $i18n.t('password.new'),

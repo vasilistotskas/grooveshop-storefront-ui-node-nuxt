@@ -1,21 +1,46 @@
 import * as z from 'zod'
 
+// Order status enum
 export const ZodOrderStatusEnum = z.enum([
-  'SENT',
-  'PAID_AND_SENT',
-  'CANCELED',
   'PENDING',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+  'COMPLETED',
+  'CANCELED',
+  'RETURNED',
+  'REFUNDED',
 ])
-export const ZodDocumentTypeEnum = z.enum(['RECEIPT', 'INVOICE'])
 
+// Payment status enum
+export const ZodPaymentStatusEnum = z.enum([
+  'PENDING',
+  'PROCESSING',
+  'COMPLETED',
+  'FAILED',
+  'REFUNDED',
+  'PARTIALLY_REFUNDED',
+  'CANCELED',
+])
+
+export const ZodDocumentTypeEnum = z.enum([
+  'RECEIPT',
+  'INVOICE',
+  'PROFORMA',
+  'SHIPPING_LABEL',
+  'RETURN_LABEL',
+  'CREDIT_NOTE',
+])
+
+// Base order schema
 export const ZodOrder = z.object({
   id: z.number(),
   user: z.number().nullish(),
-  payWay: z.lazy(() => ZodPayWay),
   country: z.lazy(() => ZodCountry),
   region: z.lazy(() => ZodRegion),
-  floor: z.nativeEnum(FloorChoicesEnum).nullish(),
-  locationType: z.nativeEnum(LocationChoicesEnum).nullish(),
+  floor: ZodFloorEnum.nullish(),
+  locationType: ZodLocationTypeEnum.nullish(),
+  payWay: z.lazy(() => ZodPayWay),
   email: z.string(),
   firstName: z.string(),
   lastName: z.string(),
@@ -26,86 +51,99 @@ export const ZodOrder = z.object({
   city: z.string(),
   phone: z.string(),
   mobilePhone: z.string().nullish(),
-  status: z.lazy(() => ZodOrderStatusEnum),
+  status: ZodOrderStatusEnum,
+  statusDisplay: z.string(),
+  statusUpdatedAt: z.string().datetime().nullish(),
+  paymentStatus: ZodPaymentStatusEnum,
+  paymentId: z.string(),
+  paymentMethod: z.string(),
   customerNotes: z.string().nullish(),
   shippingPrice: z.number(),
   paidAmount: z.number(),
-  documentType: z.lazy(() => ZodDocumentTypeEnum),
-  items: z.array(z.lazy(() => ZodOrderItem)),
+  documentType: ZodDocumentTypeEnum,
+  trackingNumber: z.string().nullish(),
+  trackingUrl: z.string().nullish(),
   totalPriceItems: z.number(),
   totalPriceExtra: z.number(),
   fullAddress: z.string(),
+  canBeCanceled: z.boolean(),
+  isPaid: z.boolean(),
+  items: z.array(z.lazy(() => ZodOrderItem)),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodOrderQuery = z
-  .object({
-    userId: z.string().nullish(),
-    status: z.string().nullish(),
-  })
+// Order detail schema with items included
+export const ZodOrderDetail = ZodOrder.extend({
+  items: z.array(z.lazy(() => ZodOrderItem)),
+})
+
+// Order query parameters
+export const ZodOrderQuery = z.object({
+  search: z.string().optional(),
+  userId: z.number().nullish().optional(),
+  status: ZodOrderStatusEnum.optional(),
+  paymentStatus: ZodPaymentStatusEnum.optional(),
+})
   .merge(ZodLanguageQuery)
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodOrderCreateBody = z.object({
-  user: z.union([z.number(), z.string()]).nullish(),
-  country: z.string(),
-  region: z.string(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-  locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
-    .nullish(),
-  street: z.string(),
-  streetNumber: z.string(),
+// Order create and update schema
+export const ZodOrderCreateUpdate = z.object({
+  user: z.number().nullish().optional(),
+  country: z.string().or(z.number()),
+  region: z.string().or(z.number()),
+  floor: ZodFloorEnum.nullish().optional(),
+  locationType: ZodLocationTypeEnum.nullish().optional(),
   payWay: z.number(),
-  status: z.lazy(() => ZodOrderStatusEnum).nullish(),
+  email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
-  email: z.string().email(),
+  street: z.string(),
+  streetNumber: z.string(),
   zipcode: z.string(),
-  place: z.string().nullish(),
+  place: z.string().nullish().optional(),
   city: z.string(),
   phone: z.string(),
-  mobilePhone: z.string().nullish(),
-  customerNotes: z.string().nullish(),
+  mobilePhone: z.string().nullish().optional(),
+  status: ZodOrderStatusEnum.optional(),
+  paymentStatus: ZodPaymentStatusEnum.optional(),
+  customerNotes: z.string().nullish().optional(),
   shippingPrice: z.number(),
-  documentType: z.lazy(() => ZodDocumentTypeEnum),
-  items: z.array(z.lazy(() => ZodOrderCreateItem)),
+  documentType: ZodDocumentTypeEnum,
+  items: z.array(z.lazy(() => ZodOrderCreateItem)).optional(),
 })
 
-export const ZodOrderCreateResponse = z.object({
-  id: z.number(),
-  user: z.union([z.number(), z.string()]).nullish(),
-  country: z.string(),
-  region: z.string(),
-  floor: z.union([z.nativeEnum(FloorChoicesEnum), z.string()]).nullish(),
-  locationType: z
-    .union([z.nativeEnum(LocationChoicesEnum), z.string()])
-    .nullish(),
-  street: z.string(),
-  streetNumber: z.string(),
-  payWay: z.number(),
-  status: z.lazy(() => ZodOrderStatusEnum).nullish(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
-  zipcode: z.string(),
-  place: z.string().nullish(),
-  city: z.string(),
-  phone: z.string(),
-  mobilePhone: z.string().nullish(),
-  customerNotes: z.string().nullish(),
-  items: z.array(z.lazy(() => ZodOrderCreateResponseItem)),
-  shippingPrice: z.number(),
-  documentType: z.lazy(() => ZodDocumentTypeEnum),
-  totalPriceItems: z.number(),
-  totalPriceExtra: z.number(),
-  fullAddress: z.string(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
+// Order patched update schema (all fields optional)
+export const ZodPatchedOrderCreateUpdate = ZodOrderCreateUpdate.partial()
 
+// Order params for route parameters
 export const ZodOrderParams = z.object({
-  id: z.string(),
+  id: z.string().or(z.number()).transform(val => String(val)),
 })
 
+// Order UUID params for route parameters
 export const ZodOrderUUIDParams = z.object({
-  uuid: z.string(),
+  uuid: z.string().uuid(),
+})
+
+// Tracking info schema
+export const ZodOrderTracking = z.object({
+  trackingNumber: z.string(),
+  trackingUrl: z.string().url().optional(),
+})
+
+// Status update schema
+export const ZodOrderStatusUpdate = z.object({
+  status: ZodOrderStatusEnum,
+})
+
+// Payment status update schema
+export const ZodOrderPaymentStatusUpdate = z.object({
+  paymentStatus: ZodPaymentStatusEnum,
+})
+
+// Order refund schema
+export const ZodOrderRefund = z.object({
+  reason: z.string().optional(),
+  amount: z.number().optional(),
 })

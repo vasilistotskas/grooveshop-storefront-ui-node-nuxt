@@ -1,31 +1,46 @@
 import * as z from 'zod'
 
+// Order item schema
 export const ZodOrderItem = z.object({
   id: z.number(),
-  price: z.number().nullish(),
-  product: ZodProduct,
+  price: z.number(),
+  product: z.lazy(() => ZodProduct),
   quantity: z.number(),
-  totalPrice: z.number().nullish(),
+  originalQuantity: z.number().nullish(),
+  isRefunded: z.boolean().default(false),
+  refundedQuantity: z.number(),
+  netQuantity: z.number(),
+  totalPrice: z.number(),
+  refundedAmount: z.number(),
+  netPrice: z.number(),
+  notes: z.string().optional(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
+// Order item for creation
 export const ZodOrderCreateItem = z.object({
-  id: z.number(),
-  cart: z.number(),
-  product: z.number(),
+  productId: z.number(),
   quantity: z.number(),
-  price: z.number().nullish(),
-  finalPrice: z.number().nullish(),
-  discountValue: z.number().nullish(),
-  priceSavePercent: z.number().nullish(),
-  discountPercent: z.number().nullish(),
-  vatPercent: z.number().nullish(),
-  vatValue: z.number().nullish(),
-  totalPrice: z.number().nullish(),
-  totalDiscountValue: z.number().nullish(),
-}).merge(ZodUUIDModel).merge(ZodTimeStampModel)
+  price: z.number(),
+  vatPercent: z.number().optional(),
+  vatValue: z.number().optional(),
+  discountPercent: z.number().optional(),
+  discountValue: z.number().optional(),
+  totalPrice: z.number(),
+  notes: z.string().optional(),
+})
 
+// Order item response after creation
 export const ZodOrderCreateResponseItem = z.object({
   id: z.number(),
-  product: z.number(),
+  productId: z.number(),
   quantity: z.number(),
+  price: z.number(),
+  totalPrice: z.number(),
+})
+
+// Refund request schema
+export const ZodOrderItemRefundRequest = z.object({
+  reason: z.string().optional(),
+  amount: z.number().optional(),
+  quantity: z.number().optional(),
 })

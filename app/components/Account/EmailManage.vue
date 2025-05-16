@@ -153,7 +153,7 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
   return items.length ? [items] : []
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       label: $i18n.t('email.title'),
@@ -169,7 +169,7 @@ const formSchema: DynamicFormSchema = {
       type: 'email',
     },
   ],
-}
+}))
 </script>
 
 <template>

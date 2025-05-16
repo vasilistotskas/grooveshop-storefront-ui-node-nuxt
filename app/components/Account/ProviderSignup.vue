@@ -24,7 +24,7 @@ async function onSubmit(values: ProviderSignupBody) {
   }
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       label: $i18n.t('email.title'),
@@ -38,7 +38,7 @@ const formSchema: DynamicFormSchema = {
       type: 'email',
     },
   ],
-}
+}))
 </script>
 
 <template>

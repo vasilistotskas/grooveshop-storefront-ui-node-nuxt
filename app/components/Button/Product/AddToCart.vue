@@ -11,17 +11,46 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
-const { refreshCart, createCartItem } = cartStore
+const { refreshCart, createCartItem, updateCartItem, getCartItemByProductId } = cartStore
 
-const { product, quantity } = toRefs(props)
+const { product, quantity, text } = toRefs(props)
 const { t } = useI18n({ useScope: 'local' })
 const toast = useToast()
 
+const cartItem = computed(() => {
+  return getCartItemByProductId(product.value.id)
+})
+const disabled = computed(() => {
+  if (product.value.stock === 0 || quantity.value > product.value.stock) {
+    return true
+  }
+  if (cartItem.value && cartItem.value.quantity + quantity.value > product.value.stock) {
+    return true
+  }
+  return false
+})
+const label = computed(() => {
+  if (disabled.value) {
+    return t('unavailable')
+  }
+  return text.value
+})
+
 const addToCartEvent = async () => {
-  await createCartItem({
-    product: product.value,
-    quantity: quantity.value,
-  })
+  const existingCartItem = getCartItemByProductId(product.value.id)
+
+  if (existingCartItem) {
+    await updateCartItem(existingCartItem.id, {
+      quantity: String(existingCartItem.quantity + quantity.value),
+    })
+  }
+  else {
+    await createCartItem({
+      product: product.value,
+      quantity: quantity.value,
+    })
+  }
+
   await refreshCart()
   toast.add({
     title: t('added_to_cart'),
@@ -33,11 +62,15 @@ const addToCartEvent = async () => {
 <template>
   <UButton
     icon="i-heroicons-shopping-cart"
-    :label="text"
+    :label="label"
     size="xl"
     :trailing="true"
-    color="success"
-    variant="solid"
+    :color="disabled ? 'warning' : 'success'"
+    variant="subtle"
+    :disabled="disabled"
+    :ui="{
+      base: 'w-full place-items-center place-content-center',
+    }"
     @click.prevent="addToCartEvent"
   />
 </template>
@@ -45,4 +78,5 @@ const addToCartEvent = async () => {
 <i18n lang="yaml">
 el:
   added_to_cart: Προστέθηκε στο καλάθι
+  unavailable: Μή Διαθέσιμο
 </i18n>

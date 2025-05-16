@@ -3,7 +3,6 @@ import * as z from 'zod'
 
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { GlobalEvents } from '~/events'
 
 const config = useRuntimeConfig()
 const { t } = useI18n({ useScope: 'local' })
@@ -41,7 +40,6 @@ const [password, passwordProps] = defineField('password', {
 const showPassword = ref(false)
 const loading = ref(false)
 
-const bus = useEventBus<string>(GlobalEvents.GENERIC_MODAL)
 const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
@@ -75,7 +73,6 @@ async function performPostLoginActions() {
 
 async function finalizeLogin() {
   loading.value = false
-  bus.emit('fallbackModalClose')
 }
 
 const submitButtonLabel = computed(() => {
@@ -85,7 +82,7 @@ const submitButtonLabel = computed(() => {
 
   return !loading.value
     ? $i18n.t('submit')
-    : t('loading')
+    : $i18n.t('loading')
 })
 
 const submitButtonDisabled = computed(() => {

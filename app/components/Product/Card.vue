@@ -140,7 +140,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                 />
                 <template #fallback>
                   <USkeleton
-                    class="h-10 w-10"
+                    class="h-8 w-8"
                   />
                 </template>
               </ClientOnly>
@@ -227,8 +227,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             <p
               class="
                 grid items-center gap-2
-
-                md:grid-cols-[1fr_auto]
               "
             >
               <span

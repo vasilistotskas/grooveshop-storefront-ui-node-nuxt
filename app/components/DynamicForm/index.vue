@@ -303,7 +303,8 @@ const formState = computed(() => {
 
 // Define the select menu items
 const getSelectMenuItems = (name: string) => {
-  const fields = schema.value.steps?.[currentStep.value]?.fields
+  const fields = isMultiStep.value ? schema.value.steps?.[currentStep.value]?.fields : formFields.value
+
   const field = fields?.find(field => field.name === name)
   if (!field) {
     return []
@@ -397,7 +398,7 @@ defineExpose({
       class="grid w-full gap-4 divide-none dark:divide-primary-800"
       @submit="onSubmit"
     >
-      <div class="grid gap-2 md:gap-4 max-h-78 overflow-y-auto">
+      <div class="grid gap-2 md:gap-4">
         <template
           v-for="{
             as,

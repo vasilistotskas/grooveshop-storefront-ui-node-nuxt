@@ -17,7 +17,7 @@ const { order, maxItems } = toRefs(props)
 
 const { t, n, locale } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
-const { statusClass } = useOrder()
+const { statusClass, paymentStatusClass } = useOrder()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 </script>
@@ -64,7 +64,7 @@ const { $i18n } = useNuxtApp()
       class="
         order-card-body grid grid-cols-2 items-center gap-2
 
-        md:grid-cols-3 md:grid-rows-2 md:gap-4
+        md:grid-cols-3 md:grid-rows-3 md:gap-4
       "
     >
       <div class="order-card-body-status flex items-center gap-2.5">
@@ -74,6 +74,16 @@ const { $i18n } = useNuxtApp()
         <UIcon
           :name="statusClass(order).icon"
           :class="statusClass(order).color"
+        />
+      </div>
+
+      <div class="order-card-body-payment-status flex items-center gap-2.5">
+        <span :class="paymentStatusClass(order.paymentStatus).color">
+          {{ order.paymentStatus }}
+        </span>
+        <UIcon
+          :name="paymentStatusClass(order.paymentStatus).icon"
+          :class="paymentStatusClass(order.paymentStatus).color"
         />
       </div>
 
@@ -145,6 +155,19 @@ const { $i18n } = useNuxtApp()
         }}</span>
         <NuxtTime :datetime="order.createdAt" :locale="locale" />
       </div>
+
+      <div v-if="order.trackingNumber" class="order-card-body-tracking grid">
+        <span
+          class="
+            text-primary-950 text-xs
+
+            dark:text-primary-50
+          "
+        >{{
+          t('tracking')
+        }}</span>
+        <span>{{ contentShorten(order.trackingNumber, 0, 10) }}</span>
+      </div>
     </div>
 
     <div class="order-card-footer grid gap-4">
@@ -173,6 +196,7 @@ el:
   address: Διεύθυνση
   pay_way: Τρόπος πληρωμής
   total_price: Συνολικό ποσό
+  tracking: Αρ. Αποστολής
   actions:
     details: Λεπτομέρειες
 </i18n>

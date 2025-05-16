@@ -56,7 +56,7 @@ const submit = async () => {
   <li
     v-if="address"
     class="
-      bg-primary-100 text-primary-950 relative grid w-full items-start gap-8
+      bg-primary-100 text-primary-950 relative grid w-full items-start gap-4
       rounded-lg p-2
 
       dark:text-primary-50 dark:bg-primary-900
@@ -69,25 +69,25 @@ const submit = async () => {
     <div
       v-if="address.isMain"
       class="
-        absolute right-24 top-3 text-sm text-[#f0c14b]
+        grid place-items-center absolute right-24 top-3 text-sm text-[#f0c14b]
 
-        md:right-2 md:top-1
+        md:right-1 md:top-1
       "
     >
-      <UIcon name="i-mdi-star" />
+      <UTooltip :text="t('main_address')">
+        <UIcon name="i-mdi-star" class="size-5 cursor-help" />
+      </UTooltip>
     </div>
-    <div class="grid grid-cols-[1fr_auto] items-center justify-center gap-2">
-      <div class="grid items-center gap-2">
-        <h3
-          class="
-            text-primary-950 text-center text-xl font-bold
+    <div class="flex items-center justify-between gap-2">
+      <h3
+        class="
+            text-primary-950 text-start text-xl font-bold
 
             dark:text-primary-50
           "
-        >
-          {{ contentShorten(address.title, 0, 25) }}
-        </h3>
-      </div>
+      >
+        {{ contentShorten(address.title, 0, 25) }}
+      </h3>
       <div class="grid grid-cols-[auto_auto] items-center gap-2">
         <UButton
           class="grid size-8 place-items-center rounded-full"
@@ -116,9 +116,9 @@ const submit = async () => {
     >
       <div
         class="
-          grid w-full grid-cols-2 items-center gap-2 overflow-hidden
+          grid w-full grid-cols-2 items-center gap-2 overflow-auto
 
-          md:h-64 md:grid-cols-1
+          md:h-68 md:grid-cols-1
         "
       >
         <span
@@ -222,4 +222,5 @@ el:
   error: Η διεύθυνση δεν διαγράφηκε
   cant_delete_main: Δεν μπορείς να διαγράψεις την κύρια διεύθυνσή σου, όρισε
     μια άλλη διεύθυνση ως κύρια και ξαναπροσπάθησε.
+  main_address: Κύρια διεύθυνση
 </i18n>

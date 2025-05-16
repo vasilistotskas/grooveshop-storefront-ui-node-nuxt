@@ -21,7 +21,7 @@ async function onSubmit(values: WebAuthnSignupPostBody) {
   }
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       name: 'email',
@@ -34,7 +34,7 @@ const formSchema: DynamicFormSchema = {
       type: 'email',
     },
   ],
-}
+}))
 </script>
 
 <template>

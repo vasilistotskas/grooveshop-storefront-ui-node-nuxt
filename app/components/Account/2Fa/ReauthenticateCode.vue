@@ -34,7 +34,7 @@ async function onSubmit(values: TwoFaReauthenticateBody) {
   }
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       name: 'code',
@@ -47,7 +47,7 @@ const formSchema: DynamicFormSchema = {
       type: 'text',
     },
   ],
-}
+}))
 </script>
 
 <template>

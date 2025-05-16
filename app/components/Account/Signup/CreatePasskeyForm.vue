@@ -48,7 +48,7 @@ async function onSubmit(values: {
   }
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       label: t('name'),
@@ -62,7 +62,7 @@ const formSchema: DynamicFormSchema = {
       type: 'text',
     },
   ],
-}
+}))
 </script>
 
 <template>

@@ -28,7 +28,7 @@ if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
   await navigateTo(localePath('index'))
 }
 
-const formSchema: DynamicFormSchema = {
+const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
       name: 'code',
@@ -41,7 +41,7 @@ const formSchema: DynamicFormSchema = {
       type: 'text',
     },
   ],
-}
+}))
 
 async function onSubmit(values: TwoFaAuthenticateBody) {
   try {

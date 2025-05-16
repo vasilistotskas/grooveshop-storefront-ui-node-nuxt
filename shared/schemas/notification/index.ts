@@ -11,7 +11,7 @@ export const ZodNotification = z.object({
   translations: ZodNotificationTranslations,
   id: z.number(),
   link: z.string().nullish(),
-  kind: z.enum(['error', 'success', 'info', 'warning', 'danger']),
+  kind: z.enum(['ERROR', 'SUCCESS', 'INFO', 'WARNING', 'DANGER']),
   expiryDate: z.string().datetime({ offset: true }).nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
