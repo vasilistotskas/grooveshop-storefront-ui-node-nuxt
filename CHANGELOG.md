@@ -1,3 +1,10 @@
+# [2.26.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.25.1...v2.26.0) (2025-05-16)
+
+
+### Features
+
+* Bump Versions, order refactor, type improvements, GenericModal and events folder drop, Dynamic form usage (order and cart still progressing) ([1c96390](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1c96390e6608d7199d8abc6906cd763f0cdcced8))
+
 ## [2.25.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.25.0...v2.25.1) (2025-05-14)
 
 
