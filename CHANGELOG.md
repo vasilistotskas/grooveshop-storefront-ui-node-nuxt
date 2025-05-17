@@ -1,3 +1,10 @@
+# [2.27.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.26.0...v2.27.0) (2025-05-17)
+
+
+### Features
+
+* Bump Versions, remove css and replace with tailwind and some components ([318e43e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/318e43ecc930abe6e9b7ce90e28efe95b4789812))
+
 # [2.26.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.25.1...v2.26.0) (2025-05-16)
 
 
