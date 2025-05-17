@@ -72,7 +72,7 @@ export function setupCursorState() {
 
 export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
-  const { load, status, proxy } = useScriptGoogleAnalytics({
+  const { proxy } = useScriptGoogleAnalytics({
     id: config.public.scripts.googleAnalytics.id,
     onBeforeGtagStart(gtag) {
       gtag('consent', 'default', {
@@ -88,13 +88,6 @@ export function setupGoogleAnalyticsConsent() {
     },
   })
 
-  useScriptEventPage(({ title, path }) => {
-    proxy.gtag('event', 'page_view', {
-      page_title: title,
-      page_location: window.location.href,
-      page_path: path,
-    })
-  })
   const {
     cookiesEnabledIds,
     isConsentGiven,
@@ -104,9 +97,6 @@ export function setupGoogleAnalyticsConsent() {
     () => cookiesEnabledIds.value,
     async (current, _previous) => {
       if (isConsentGiven.value) {
-        if (status.value !== 'loaded') {
-          await load()
-        }
         const consentFieldStatus = (field: string) => current?.includes(field) ? 'granted' : 'denied'
         proxy.gtag('consent', 'update', {
           ad_storage: consentFieldStatus('ad_storage'),
