@@ -1,3 +1,10 @@
+## [2.27.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.27.2...v2.27.3) (2025-05-17)
+
+
+### Bug Fixes
+
+* remove unsafe-inline, remove scriptOptions from google analytics ([fd68ac0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fd68ac061040015e5255806612a936c11426d413))
+
 ## [2.27.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.27.1...v2.27.2) (2025-05-17)
 
 
