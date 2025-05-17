@@ -1,3 +1,10 @@
+## [2.27.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.27.1...v2.27.2) (2025-05-17)
+
+
+### Bug Fixes
+
+* google analytics ([d444b01](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d444b0164cbdf181184f538fcfc9a5debf6154a8))
+
 ## [2.27.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.27.0...v2.27.1) (2025-05-17)
 
 
