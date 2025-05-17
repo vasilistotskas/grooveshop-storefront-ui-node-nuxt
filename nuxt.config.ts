@@ -568,6 +568,7 @@ export default defineNuxtConfig({
         'script-src-attr': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
+          '\'unsafe-inline\'',
           'https://www.googletagmanager.com',
         ],
         'script-src-elem': [
