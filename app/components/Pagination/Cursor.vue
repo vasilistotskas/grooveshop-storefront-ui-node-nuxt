@@ -176,11 +176,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="cursor-pagination">
+  <div class="cursor-pagination flex flex-col items-center my-4">
     <div
       v-if="strategy === 'scroll' && hasMore"
       ref="infiniteScrollTrigger"
-      class="infinite-scroll-trigger"
+      class="w-full h-[1px]"
     />
     <UButton
       v-if="showLoadMoreButton"
@@ -190,25 +190,8 @@ onUnmounted(() => {
       color="neutral"
       aria-label="Load more posts"
       :loading="loading"
+      class="mt-4"
       @click="loadMore"
     />
   </div>
 </template>
-
-<style scoped>
-.cursor-pagination {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 1rem 0;
-
-  .infinite-scroll-trigger {
-    width: 100%;
-    height: 1px;
-  }
-
-  button {
-    margin-top: 1rem;
-  }
-}
-</style>

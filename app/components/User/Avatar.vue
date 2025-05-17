@@ -107,6 +107,11 @@ const uploadImage = async (event: Event) => {
     },
   })
 }
+
+const avatarStyle = computed(() => ({
+  width: `${imgWidth.value}px`,
+  height: `${imgHeight.value}px`,
+}))
 </script>
 
 <template>
@@ -121,14 +126,8 @@ const uploadImage = async (event: Event) => {
         'loading': loading,
         'hover:cursor-pointer': true,
       }"
-      :style="{
-        width: imgWidth + 'px',
-        height: imgHeight + 'px',
-      }"
-      class="
-        user-avatar relative grid items-center justify-center
-        justify-items-center
-      "
+      :style="avatarStyle"
+      class="user-avatar relative grid items-center justify-center justify-items-center"
     >
       <ImgWithFallback
         :alt="alt"
@@ -140,8 +139,7 @@ const uploadImage = async (event: Event) => {
         :height="imgHeight"
         :sizes="`sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px`"
         :src="userAccount.mainImagePath"
-        :style="{ objectFit: 'contain' }"
-        :width="imgWidth"
+        :style="avatarStyle"
         class="user-avatar-img bg-primary-100 rounded-full"
         densities="x1"
         loading="lazy"
@@ -151,18 +149,18 @@ const uploadImage = async (event: Event) => {
       <form
         v-if="changeAvatar"
         :title="t('change')"
-        class="user-avatar-change absolute inset-0 z-10"
+        class="absolute inset-0 z-10"
         enctype="multipart/form-data"
         name="uploadImageForm"
         @submit.prevent="uploadImage"
       >
         <label
-          class="user-avatar-change-label"
+          class="md:grid md:w-full md:h-full cursor-pointer"
           for="selfie"
         >
           <svg
             id="camera"
-            class="hide-small-viewport hide-medium-viewport"
+            class="hidden top-[18px] left-[1px] md:top-[21px] md:block absolute md:top-[21px] md:stroke-dasharray-[75px] md:stroke-dashoffset-[75px] md:transition-all md:duration-500 md:ease-linear group-hover:md:stroke-dashoffset-0"
             viewBox="0 0 25 15"
             x="0px"
             xml:space="preserve"
@@ -229,64 +227,13 @@ const uploadImage = async (event: Event) => {
       class="flex flex-col"
     >
       <span
-        class="
-          text-primary-950 font-bold
-
-          dark:text-primary-50
-        "
+        class="text-primary-950 font-bold dark:text-primary-50"
       >
         {{ userAccount?.firstName }}
       </span>
     </div>
   </div>
 </template>
-
-<style scoped>
-.user-avatar-change svg {
-  display: none;
-  position: absolute;
-  top: 18px;
-  left: 1px;
-  transform: scale(0.4);
-  cursor: pointer;
-}
-
-@media screen and (min-width: 768px) {
-  .user-avatar-change svg {
-    display: block;
-    top: 21px;
-    transform: scale(0.5);
-    transition: all 0.5s linear;
-    stroke-dashoffset: 75px;
-    stroke-dasharray: 75px;
-  }
-}
-
-.user-avatar-change:hover {
-  background-color: transparent;
-}
-
-.user-avatar-change:hover svg {
-  stroke-dashoffset: 0;
-}
-
-.user-avatar:hover .user-avatar-change svg {
-  stroke-dashoffset: 0;
-}
-
-@media screen and (max-width: 767px) {
-  .user-avatar-change-label {
-    display: grid;
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.user-avatar-img {
-  width: v-bind(imgWidth);
-  height: v-bind(imgHeight);
-}
-</style>
 
 <i18n lang="yaml">
 el:

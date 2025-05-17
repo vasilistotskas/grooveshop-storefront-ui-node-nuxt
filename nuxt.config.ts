@@ -573,6 +573,7 @@ export default defineNuxtConfig({
         'script-src-elem': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
+          '\'unsafe-inline\'',
           'https://www.googletagmanager.com',
           'https://static.cloudflareinsights.com',
           `${process.env.NUXT_SITE_URL}`,
