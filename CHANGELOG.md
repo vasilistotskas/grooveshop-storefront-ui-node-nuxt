@@ -1,3 +1,10 @@
+## [2.27.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.27.0...v2.27.1) (2025-05-17)
+
+
+### Bug Fixes
+
+* debugging script-src-attr ([7e5ad9c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7e5ad9c0662cab2d8a901c6a2292c4d1c1af2a91))
+
 # [2.27.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.26.0...v2.27.0) (2025-05-17)
 
 
