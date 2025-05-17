@@ -75,33 +75,33 @@ export function setupGoogleAnalyticsConsent() {
   const { load, status, proxy } = useScriptGoogleAnalytics({
     id: config.public.scripts.googleAnalytics.id,
     scriptOptions: {
-      trigger: 'manual',
       bundle: true,
+    },
+    onBeforeGtagStart(gtag) {
+      gtag('consent', 'default', {
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        ad_storage: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        personalization_storage: 'denied',
+        security_storage: 'denied',
+        wait_for_update: 500,
+      })
     },
   })
 
+  useScriptEventPage(({ title, path }) => {
+    proxy.gtag('event', 'page_view', {
+      page_title: title,
+      page_location: window.location.href,
+      page_path: path,
+    })
+  })
   const {
     cookiesEnabledIds,
     isConsentGiven,
   } = useCookieControl()
-
-  watch(
-    () => status.value,
-    (current, _previous) => {
-      if (current === 'loaded') {
-        proxy.gtag('consent', 'default', {
-          ad_user_data: 'denied',
-          ad_personalization: 'denied',
-          ad_storage: 'denied',
-          analytics_storage: 'denied',
-          functionality_storage: 'granted',
-          personalization_storage: 'denied',
-          security_storage: 'denied',
-        })
-      }
-    },
-    { immediate: true },
-  )
 
   watch(
     () => cookiesEnabledIds.value,
