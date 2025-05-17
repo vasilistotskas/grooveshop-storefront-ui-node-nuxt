@@ -129,6 +129,9 @@ export default defineNuxtConfig({
         googleAnalytics: {
           id: '',
         },
+        googleTagManager: {
+          id: '',
+        },
       },
       i18n: {
         baseUrl: 'http://localhost:3000',
@@ -568,13 +571,11 @@ export default defineNuxtConfig({
         'script-src-attr': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
-          '\'unsafe-inline\'',
           'https://www.googletagmanager.com',
         ],
         'script-src-elem': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
-          '\'unsafe-inline\'',
           'https://www.googletagmanager.com',
           'https://static.cloudflareinsights.com',
           `${process.env.NUXT_SITE_URL}`,

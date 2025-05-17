@@ -74,9 +74,6 @@ export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
   const { load, status, proxy } = useScriptGoogleAnalytics({
     id: config.public.scripts.googleAnalytics.id,
-    scriptOptions: {
-      bundle: true,
-    },
     onBeforeGtagStart(gtag) {
       gtag('consent', 'default', {
         ad_user_data: 'denied',
