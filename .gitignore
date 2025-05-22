@@ -37,3 +37,6 @@ coverage
 .cursorrules
 .windsurfrules
 memory-bank
+
+# Public
+public/.well-known

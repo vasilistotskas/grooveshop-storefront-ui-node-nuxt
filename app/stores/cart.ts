@@ -70,7 +70,7 @@ export const useCartStore = defineStore('cart', () => {
     console.error('Cart operation error:', error)
   }
 
-  async function createCartItem(body: CartItemPostBody) {
+  async function createCartItem(body: { product: Product, quantity: number }) {
     if (!loggedIn.value) {
       createCartItemToLocalStorage(body)
       return
@@ -80,10 +80,10 @@ export const useCartStore = defineStore('cart', () => {
       throw new Error('Cart not found')
     }
 
-    const requestBody: CartItemCreateBody = {
-      cart: cart.value.id.toString(),
-      product: body.product.id.toString(),
-      quantity: body.quantity.toString(),
+    const requestBody = {
+      cart: cart.value,
+      product: body.product.id,
+      quantity: body.quantity,
     }
 
     await $fetch<CartItemCreateResponse>('/api/cart/items', {
@@ -193,7 +193,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function createCartItemToLocalStorage(body: CartItemPostBody) {
+  function createCartItemToLocalStorage(body: { product: Product, quantity: number }) {
     const cartFromLocalStorage = storage.value
     if (!cartFromLocalStorage) {
       console.error('Cart not found in Local Storage')
@@ -243,7 +243,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function mapProductToCartItem(body: CartItemPostBody): CartItem {
+  function mapProductToCartItem(body: { product: Product, quantity: number }): CartItem {
     return {
       id: Date.now(),
       cart: Date.now(),

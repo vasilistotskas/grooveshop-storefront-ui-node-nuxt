@@ -17,6 +17,4 @@ export type DocumentTypeEnum = z.infer<typeof ZodDocumentTypeEnum>
 export type OrderParams = z.infer<typeof ZodOrderParams>
 export type OrderUUIDParams = z.infer<typeof ZodOrderUUIDParams>
 export type OrderTracking = z.infer<typeof ZodOrderTracking>
-export type OrderStatusUpdate = z.infer<typeof ZodOrderStatusUpdate>
-export type OrderPaymentStatusUpdate = z.infer<typeof ZodOrderPaymentStatusUpdate>
 export type OrderRefund = z.infer<typeof ZodOrderRefund>

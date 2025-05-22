@@ -329,14 +329,6 @@ const link = computed(() => {
   </div>
 </template>
 
-<style scoped>
-.pagination {
-  .pagination-ordered-list {
-    grid-template-columns: auto auto 1fr auto auto auto auto;
-  }
-}
-</style>
-
 <i18n lang="yaml">
 el:
   previous_page: Προηγούμενη σελίδα

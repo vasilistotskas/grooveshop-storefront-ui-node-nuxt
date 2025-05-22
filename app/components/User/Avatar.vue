@@ -108,10 +108,12 @@ const uploadImage = async (event: Event) => {
   })
 }
 
-const avatarStyle = computed(() => ({
-  width: `${imgWidth.value}px`,
-  height: `${imgHeight.value}px`,
-}))
+const avatarContainerStyle = computed(() => {
+  return {
+    width: imgWidth.value + 'px',
+    height: imgHeight.value + 'px',
+  }
+})
 </script>
 
 <template>
@@ -121,26 +123,24 @@ const avatarStyle = computed(() => ({
   >
     <div
       :class="{
-        'inline-block size-[135px] shrink-0 text-center align-middle':
-          backgroundBorder,
+        'inline-block size-[135px] shrink-0 text-center align-middle': backgroundBorder,
         'loading': loading,
         'hover:cursor-pointer': true,
       }"
-      :style="avatarStyle"
-      class="user-avatar relative grid items-center justify-center justify-items-center"
+      :style="avatarContainerStyle"
+      class="relative grid items-center justify-center justify-items-center group"
     >
       <ImgWithFallback
         :alt="alt"
         :background="'transparent'"
-        :class="{
-          'blur-sm': loading,
-        }"
+        :class="{ 'blur-sm': loading }"
         fit="cover"
         :height="imgHeight"
         :sizes="`sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px`"
         :src="userAccount.mainImagePath"
-        :style="avatarStyle"
-        class="user-avatar-img bg-primary-100 rounded-full"
+        :style="{ objectFit: 'contain' }"
+        :width="imgWidth"
+        class="bg-primary-100 rounded-full"
         densities="x1"
         loading="lazy"
         @load="() => (loading = false)"
@@ -155,12 +155,12 @@ const avatarStyle = computed(() => ({
         @submit.prevent="uploadImage"
       >
         <label
-          class="md:grid md:w-full md:h-full cursor-pointer"
+          class="grid place-items-center absolute cursor-pointer w-full h-full top-0 left-0"
           for="selfie"
         >
           <svg
             id="camera"
-            class="hidden top-[18px] left-[1px] md:top-[21px] md:block absolute md:top-[21px] md:stroke-dasharray-[75px] md:stroke-dashoffset-[75px] md:transition-all md:duration-500 md:ease-linear group-hover:md:stroke-dashoffset-0"
+            class="w-18 h-14 stroke-white stroke-dashoffset-75 stroke-dasharray-75 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             viewBox="0 0 25 15"
             x="0px"
             xml:space="preserve"
@@ -172,7 +172,7 @@ const avatarStyle = computed(() => ({
               d="M23.1,14.1H1.9c-0.6,0-1-0.4-1-1V1.9c0-0.6,0.4-1,1-1h21.2
            c0.6,0,1,0.4,1,1v11.3C24.1,13.7,23.7,14.1,23.1,14.1z"
               fill="none"
-              stroke="white"
+              stroke="currentColor"
               stroke-miterlimit="10"
             />
             <path
@@ -180,7 +180,7 @@ const avatarStyle = computed(() => ({
               d="M17.7,7.5c0-2.8-2.3-5.2-5.2-5.2S7.3,4.7,7.3,7.5s2.3,5.2,5.2,5.2
            S17.7,10.3,17.7,7.5z"
               fill="none"
-              stroke="#ffffff"
+              stroke="currentColor"
               stroke-miterlimit="12"
               stroke-width="1.4"
             />
@@ -190,18 +190,24 @@ const avatarStyle = computed(() => ({
                 class="line"
                 d="M20.9,2.3v4.4"
                 fill="none"
-                stroke="#ffffff"
+                stroke="currentColor"
                 stroke-miterlimit="10"
               />
               <path
                 class="line"
                 d="M18.7,4.6h4.4"
                 fill="none"
-                stroke="#ffffff"
+                stroke="currentColor"
                 stroke-miterlimit="10"
               />
             </g>
           </svg>
+          <span class="sr-only">{{ t('change') }}</span>
+        </label>
+        <label
+          class="md:hidden grid w-full h-full"
+          for="selfie"
+        >
           <span class="sr-only">{{ t('change') }}</span>
         </label>
         <input

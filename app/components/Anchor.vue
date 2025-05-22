@@ -53,13 +53,3 @@ defineSlots<{
     <slot>{{ text }}</slot>
   </ULink>
 </template>
-
-<style scoped>
-a {
-  &.disabled {
-    pointer-events: none;
-    cursor: default;
-    color: #ccc;
-  }
-}
-</style>

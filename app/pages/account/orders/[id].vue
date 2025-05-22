@@ -5,7 +5,7 @@ const orderId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: order } = await useFetch<Order>(`/api/orders/${orderId}`, {
+const { data: order } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -263,7 +263,7 @@ definePageMeta({
                 order.paymentStatus
               }}</span>
             </div>
-            <div v-if="order.trackingNumber" class="grid gap-2">
+            <div v-if="order.trackingInfo.trackingNumber" class="grid gap-2">
               <span
                 class="
                     text-primary-950 font-bold
@@ -280,7 +280,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
               >{{
-                order.trackingNumber
+                order.trackingInfo.trackingNumber
               }}</span>
             </div>
           </div>

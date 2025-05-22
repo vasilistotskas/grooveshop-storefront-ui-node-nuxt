@@ -374,9 +374,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           required: true,
           placeholder: '',
           initialValue: getCartItems.value.map(item => ({
-            id: item.id,
             product: item.product.id,
-            price: item.product.finalPrice,
             quantity: item.quantity,
           })),
           rules: z.array(z.any()),

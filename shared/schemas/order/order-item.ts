@@ -18,24 +18,9 @@ export const ZodOrderItem = z.object({
 
 // Order item for creation
 export const ZodOrderCreateItem = z.object({
-  productId: z.number(),
+  product: z.number(),
   quantity: z.number(),
-  price: z.number(),
-  vatPercent: z.number().optional(),
-  vatValue: z.number().optional(),
-  discountPercent: z.number().optional(),
-  discountValue: z.number().optional(),
-  totalPrice: z.number(),
   notes: z.string().optional(),
-})
-
-// Order item response after creation
-export const ZodOrderCreateResponseItem = z.object({
-  id: z.number(),
-  productId: z.number(),
-  quantity: z.number(),
-  price: z.number(),
-  totalPrice: z.number(),
 })
 
 // Refund request schema

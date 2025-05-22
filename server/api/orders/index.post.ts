@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodOrderCreateUpdate)
+    return await parseDataAs(response, ZodOrderDetail)
   }
   catch (error) {
     await handleError(error)

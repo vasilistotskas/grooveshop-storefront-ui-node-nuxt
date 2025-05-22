@@ -16,11 +16,6 @@ export const ZodCartItem = z.object({
   totalDiscountValue: z.number().nullish(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-export const ZodCartItemPostBody = z.object({
-  product: z.lazy(() => ZodProduct),
-  quantity: z.number(),
-})
-
 export const ZodCartItemCreateResponse = z.object({
   id: z.number(),
   cart: z.number(),
@@ -29,13 +24,13 @@ export const ZodCartItemCreateResponse = z.object({
 })
 
 export const ZodCartItemCreateBody = z.object({
-  cart: z.string(),
-  product: z.string(),
-  quantity: z.string(),
+  cart: z.number(),
+  product: z.number(),
+  quantity: z.number(),
 })
 
 export const ZodCartItemPutBody = z.object({
-  quantity: z.string(),
+  quantity: z.number(),
 })
 
 export const ZodCartItemParams = z.object({

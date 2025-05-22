@@ -15,7 +15,7 @@ const decreaseQuantityEvent = async () => {
   if (cartItemQuantity.value <= 1) return
   cartItemQuantity.value -= 1
   await updateCartItem(props.cartItemId, {
-    quantity: String(cartItemQuantity.value),
+    quantity: cartItemQuantity.value,
   })
   await refreshCart()
 }
@@ -24,7 +24,7 @@ const increaseQuantityEvent = async () => {
   if (cartItemQuantity.value >= props.max) return
   cartItemQuantity.value += 1
   await updateCartItem(props.cartItemId, {
-    quantity: String(cartItemQuantity.value),
+    quantity: cartItemQuantity.value,
   })
   await refreshCart()
 }
@@ -33,7 +33,7 @@ const changeQuantityEvent = async () => {
   const value = cartItemQuantity.value
   if (value < 1 || value > props.max) return
   await updateCartItem(props.cartItemId, {
-    quantity: String(value),
+    quantity: value,
   })
   await refreshCart()
 }

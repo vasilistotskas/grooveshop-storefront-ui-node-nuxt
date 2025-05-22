@@ -155,19 +155,6 @@ const { $i18n } = useNuxtApp()
         }}</span>
         <NuxtTime :datetime="order.createdAt" :locale="locale" />
       </div>
-
-      <div v-if="order.trackingNumber" class="order-card-body-tracking grid">
-        <span
-          class="
-            text-primary-950 text-xs
-
-            dark:text-primary-50
-          "
-        >{{
-          t('tracking')
-        }}</span>
-        <span>{{ contentShorten(order.trackingNumber, 0, 10) }}</span>
-      </div>
     </div>
 
     <div class="order-card-footer grid gap-4">

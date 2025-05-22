@@ -195,7 +195,7 @@ const items = computed(() => [
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
               >
-                <UserAvatar
+                <LazyUserAvatar
                   :img-height="30"
                   :img-width="30"
                   :show-name="false"

@@ -41,7 +41,7 @@ const addToCartEvent = async () => {
 
   if (existingCartItem) {
     await updateCartItem(existingCartItem.id, {
-      quantity: String(existingCartItem.quantity + quantity.value),
+      quantity: existingCartItem.quantity + quantity.value,
     })
   }
   else {

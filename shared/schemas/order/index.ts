@@ -61,8 +61,6 @@ export const ZodOrder = z.object({
   shippingPrice: z.number(),
   paidAmount: z.number(),
   documentType: ZodDocumentTypeEnum,
-  trackingNumber: z.string().nullish(),
-  trackingUrl: z.string().nullish(),
   totalPriceItems: z.number(),
   totalPriceExtra: z.number(),
   fullAddress: z.string(),
@@ -73,7 +71,10 @@ export const ZodOrder = z.object({
 
 // Order detail schema with items included
 export const ZodOrderDetail = ZodOrder.extend({
-  items: z.array(z.lazy(() => ZodOrderItem)),
+  trackingInfo: z.object({
+    trackingNumber: z.string(),
+    shippingCarrier: z.string(),
+  }),
 })
 
 // Order query parameters
@@ -90,8 +91,8 @@ export const ZodOrderQuery = z.object({
 // Order create and update schema
 export const ZodOrderCreateUpdate = z.object({
   user: z.number().nullish().optional(),
-  country: z.string().or(z.number()),
-  region: z.string().or(z.number()),
+  country: z.string(),
+  region: z.string(),
   floor: ZodFloorEnum.nullish().optional(),
   locationType: ZodLocationTypeEnum.nullish().optional(),
   payWay: z.number(),
@@ -118,7 +119,7 @@ export const ZodPatchedOrderCreateUpdate = ZodOrderCreateUpdate.partial()
 
 // Order params for route parameters
 export const ZodOrderParams = z.object({
-  id: z.string().or(z.number()).transform(val => String(val)),
+  id: z.string(),
 })
 
 // Order UUID params for route parameters
@@ -130,16 +131,6 @@ export const ZodOrderUUIDParams = z.object({
 export const ZodOrderTracking = z.object({
   trackingNumber: z.string(),
   trackingUrl: z.string().url().optional(),
-})
-
-// Status update schema
-export const ZodOrderStatusUpdate = z.object({
-  status: ZodOrderStatusEnum,
-})
-
-// Payment status update schema
-export const ZodOrderPaymentStatusUpdate = z.object({
-  paymentStatus: ZodPaymentStatusEnum,
 })
 
 // Order refund schema

@@ -28,7 +28,7 @@ export default defineNuxtPlugin({
 
         const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
         const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
-        const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications`, {
+        const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications/`, {
           user_id: user.value?.id,
           session_token: tokens.sessionToken,
           access_token: tokens.accessToken,

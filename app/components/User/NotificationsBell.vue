@@ -123,7 +123,7 @@ onClickOutside(dropdown, () => {
       >
         <div class="notifications-list relative grid gap-2 p-2">
           <template v-if="!pending && userNotifications?.length">
-            <UToast
+            <UButton
               v-for="userNotification in userNotifications"
               :id="userNotification.id"
               :key="userNotification.uuid"
@@ -139,7 +139,7 @@ onClickOutside(dropdown, () => {
               }"
               :timeout="0"
               :description="extractTranslated(userNotification.notification, 'message', locale)"
-              :title="extractTranslated(userNotification.notification, 'title', locale)"
+              :label="extractTranslated(userNotification.notification, 'title', locale)"
               @click="onNotificationClick(userNotification.id)"
             />
           </template>
