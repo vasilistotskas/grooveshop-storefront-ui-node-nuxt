@@ -9,19 +9,19 @@ const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseErr
 
 export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
   if (!response || !response._data) return
-  console.debug('onAllAuthResponse', response)
+  console.info('onAllAuthResponse', response)
   if (response.status === 200 && response._data.meta?.is_authenticated) {
-    console.debug('Status is 200 and is authenticated', response._data)
+    console.info('Status is 200 and is authenticated', response._data)
     await callAuthChangeHook(response._data)
   }
 }
 
 export const onAllAuthResponseError = async (response: FetchResponse<H3Error<AllAuthResponseError>>) => {
   if (!response || !response._data) return
-  console.debug('onAllAuthResponseError', response)
-  console.debug('response.status', response.status)
+  console.info('onAllAuthResponseError', response)
+  console.info('response.status', response.status)
   if ([401, 410].includes(response.status) && response._data.data) {
-    console.debug('Status includes 401 or 410', response._data)
+    console.info('Status includes 401 or 410', response._data)
     await callAuthChangeHook(response._data.data)
   }
 }
@@ -41,7 +41,7 @@ export const authInfo = (
   const requiresReauthentication = isAuthenticated && response.status === 401
   const pendingFlow = 'data' in response ? response.data?.flows?.find(flow => flow.is_pending) ?? null : null
   const user = isAuthenticated && isAllAuthResponseSuccess(response) ? response.data.user : null
-  console.debug('Auth info:', { isAuthenticated, requiresReauthentication, pendingFlow })
+  console.info('Auth info:', { isAuthenticated, requiresReauthentication, pendingFlow })
   return {
     isAuthenticated,
     requiresReauthentication,
@@ -56,13 +56,13 @@ export const determineAuthChangeEvent = (
 ): AuthChangeEventType | null => {
   const toast = useToast()
   const { t } = useNuxtApp().$i18n
-  console.debug('New auth state:', newAuthState)
-  console.debug('Previous auth state:', previousAuthState)
+  console.info('New auth state:', newAuthState)
+  console.info('Previous auth state:', previousAuthState)
 
   const currentAuthInfo = authInfo(newAuthState)
   const previousAuthInfo = authInfo(previousAuthState)
-  console.debug('Current auth info:', currentAuthInfo)
-  console.debug('Previous auth info:', previousAuthInfo)
+  console.info('Current auth info:', currentAuthInfo)
+  console.info('Previous auth info:', previousAuthInfo)
 
   if (newAuthState.status === 410) {
     toast.add({
@@ -95,24 +95,24 @@ export const determineAuthChangeEvent = (
   const hasSessionToken = newAuthState.status === 200 && newAuthState.meta?.session_token
 
   if (!wasAuthenticated && isAuthenticated) {
-    console.debug('Was not authenticated and is authenticated')
+    console.info('Was not authenticated and is authenticated')
     if (isReauthRequired) return AuthChangeEvent.REAUTHENTICATION_REQUIRED
     if (hasAccessToken || hasSessionToken) return AuthChangeEvent.LOGGED_IN
   }
   if (wasAuthenticated && isAuthenticated) {
-    console.debug('Was authenticated and is authenticated')
+    console.info('Was authenticated and is authenticated')
     if (!wasReauthRequired && isReauthRequired) return AuthChangeEvent.REAUTHENTICATION_REQUIRED
     if (wasReauthRequired && !isReauthRequired) return AuthChangeEvent.REAUTHENTICATED
     if (methodsHaveIncreased(previousAuthState, newAuthState)) return AuthChangeEvent.REAUTHENTICATED
     if (wasReauthRequired && isReauthRequired) return AuthChangeEvent.REAUTHENTICATION_REQUIRED
   }
   if (!wasAuthenticated && !isAuthenticated) {
-    console.debug('Was not authenticated and is not authenticated')
+    console.info('Was not authenticated and is not authenticated')
     return hasFlowUpdated(previousAuthInfo.pendingFlow, currentAuthInfo.pendingFlow)
       ? AuthChangeEvent.FLOW_UPDATED
       : AuthChangeEvent.LOGGED_OUT
   }
-  console.debug('Was authenticated and is not authenticated')
+  console.info('Was authenticated and is not authenticated')
   if (wasAuthenticated && !isAuthenticated) return AuthChangeEvent.LOGGED_OUT
   return null
 }
@@ -185,11 +185,11 @@ export const navigateToPendingFlow = async (
   const nuxtApp = useNuxtApp()
   const localePath = useLocalePath()
   const path = pathForPendingFlow(response)
-  console.debug('Navigating to pending flow:', path)
+  console.info('Navigating to pending flow:', path)
   if (path) {
     const next = useRouter().currentRoute.value.query.next
     const url = withQuery(localePath(path), { next })
-    console.debug('Navigating to URL:', url)
+    console.info('Navigating to URL:', url)
     await nuxtApp.runWithContext(() => navigateTo(url))
   }
   else {

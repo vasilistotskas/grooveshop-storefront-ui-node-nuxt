@@ -385,7 +385,11 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="grid gap-4">
+  <PageWrapper
+    class="flex flex-col gap-4
+
+      md:gap-8 md:!p-0 md:mt-1"
+  >
     <div
       :class="[
         'flex items-center justify-between gap-4',
@@ -406,7 +410,7 @@ definePageMeta({
           }}</span>
         </UButton>
         <PageTitle
-          class="!mt-0"
+          class="md:mt-0"
           :text="`${t('title')} ${address?.id}`"
         />
       </div>

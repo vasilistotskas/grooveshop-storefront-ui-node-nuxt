@@ -6,6 +6,8 @@ export default defineNuxtPlugin({
     const { loggedIn } = useUserSession()
     const userStore = useUserStore()
     const { setupAccount } = userStore
+    const cartStore = useCartStore()
+    const { setupCart } = cartStore
     const authStore = useAuthStore()
     const { setupConfig, setupSession, setupSessions, setupAuthenticators } = authStore
     const userNotificationStore = useUserNotificationStore()
@@ -17,6 +19,7 @@ export default defineNuxtPlugin({
     await Promise.all([
       setupAccount(),
       setupSessions(),
+      setupCart(),
       setupAuthenticators(),
       setupNotifications(),
     ])
@@ -32,6 +35,7 @@ export default defineNuxtPlugin({
           setupNotifications(),
         ])
       }
+      await setupCart()
     })
   },
 })

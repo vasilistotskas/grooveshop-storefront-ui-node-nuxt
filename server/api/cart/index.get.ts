@@ -1,14 +1,20 @@
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const cartSession = useCartSession()
   try {
+    const headers = await cartSession.getCartHeaders()
+
     const response = await $fetch(`${config.apiBaseUrl}/cart`, {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers,
+      credentials: 'include',
     })
-    return await parseDataAs(response, ZodCart)
+
+    const parsedData = await parseDataAs(response, ZodCart)
+
+    await cartSession.handleCartResponse(parsedData)
+
+    return parsedData
   }
   catch (error) {
     await handleError(error)

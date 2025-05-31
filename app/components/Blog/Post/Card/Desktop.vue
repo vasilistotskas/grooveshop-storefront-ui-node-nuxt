@@ -44,8 +44,8 @@ const startShare = async () => {
   try {
     await share()
   }
-  catch (err) {
-    console.error('Share failed:', err)
+  catch (error) {
+    console.error('Share failed:', error)
   }
 }
 

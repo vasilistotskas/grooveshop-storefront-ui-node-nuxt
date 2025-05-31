@@ -28,11 +28,11 @@ export default defineNuxtPlugin({
       authState.value = newAuthState
       authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
 
-      console.debug('authState', authState.value)
-      console.debug('authEvent', authEvent.value)
+      console.info('authState', authState.value)
+      console.info('authEvent', authEvent.value)
 
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
-        console.debug('Authenticated')
+        console.info('Authenticated')
         await fetch()
       }
 
@@ -44,27 +44,27 @@ export default defineNuxtPlugin({
       async ([authEventVal, _authStateVal]) => {
         switch (authEventVal) {
           case AuthChangeEvent.LOGGED_OUT:
-            console.debug('Logged out')
+            console.info('Logged out')
             await handleLoggedOut()
             break
           case AuthChangeEvent.LOGGED_IN:
-            console.debug('Logged in')
+            console.info('Logged in')
             await handleLoggedIn()
             break
           case AuthChangeEvent.REAUTHENTICATED:
-            console.debug('Reauthenticated')
+            console.info('Reauthenticated')
             await handleReauthenticated()
             break
           case AuthChangeEvent.REAUTHENTICATION_REQUIRED:
-            console.debug('Reauthentication required')
+            console.info('Reauthentication required')
             await handleReauthenticationRequired()
             break
           case AuthChangeEvent.FLOW_UPDATED:
-            console.debug('Flow updated')
+            console.info('Flow updated')
             await navigateToPendingFlow(authState.value)
             break
           default:
-            console.debug('Unhandled auth event:', authEventVal)
+            console.info('Unhandled auth event:', authEventVal)
             break
         }
       },
@@ -77,7 +77,7 @@ export default defineNuxtPlugin({
         clearAuthState()
         clearAccountState()
         if (loggedIn.value) {
-          console.debug('handleLoggedOut, clearing user session')
+          console.info('handleLoggedOut, clearing user session')
           await clear()
         }
         return await navigateToUrl({ path: URLs.LOGIN_REDIRECT_URL })
@@ -119,7 +119,7 @@ export default defineNuxtPlugin({
         const next = useRouter().currentRoute.value.fullPath
         const flowPath = getReauthenticationFlowPath(authState.value)
         if (flowPath) {
-          console.debug('Reauthentication required, navigating to reauthentication flow')
+          console.info('Reauthentication required, navigating to reauthentication flow')
           return await navigateToUrl({ path: flowPath, query: { next } })
         }
         else {
@@ -135,7 +135,7 @@ export default defineNuxtPlugin({
       try {
         const localePath = useLocalePath()
         const url = localePath(path)
-        console.debug('Navigating to URL:', url)
+        console.info('Navigating to URL:', url)
         return await nuxtApp.runWithContext(() => navigateTo({ path: url, query }, { replace }))
       }
       catch (error) {

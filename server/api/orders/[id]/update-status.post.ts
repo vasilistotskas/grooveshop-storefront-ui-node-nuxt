@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
     const body = await readValidatedBody(event, ZodOrderDetail.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/update-status`, {
+    const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/update_status`, {
       method: 'POST',
       body,
       headers: {

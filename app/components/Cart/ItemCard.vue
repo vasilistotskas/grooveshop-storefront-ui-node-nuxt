@@ -5,11 +5,12 @@ const props = defineProps({
   cartItem: { type: Object as PropType<CartItem>, required: true },
 })
 
+const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 const cartStore = useCartStore()
 const { refreshCart, deleteCartItem } = cartStore
 
-const { t, locale, n } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { cartItem } = toRefs(props)
@@ -29,11 +30,11 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
 }
 
 const formattedPrice = computed(() => {
-  return cartItem.value?.finalPrice ? n(cartItem.value.finalPrice, 'currency') : '-'
+  return cartItem.value?.finalPrice ? $i18n.n(cartItem.value.finalPrice, 'currency') : '-'
 })
 
 const formattedTotal = computed(() => {
-  return cartItem.value?.totalPrice ? n(cartItem.value.totalPrice, 'currency') : '-'
+  return cartItem.value?.totalPrice ? $i18n.n(cartItem.value.totalPrice, 'currency') : '-'
 })
 </script>
 
@@ -46,7 +47,7 @@ const formattedTotal = computed(() => {
       >
         <ImgWithFallback
           loading="lazy"
-          class="h-full w-full object-contain"
+          class="h-full w-full object-contain bg-neutral-900 dark:bg-neutral-50"
           :width="96"
           :height="96"
           fit="contain"
@@ -72,7 +73,7 @@ const formattedTotal = computed(() => {
           <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
             <span>{{ t('price') }}: {{ formattedPrice }}</span>
             <span v-if="cartItem.discountValue" class="text-green-600">
-              ({{ t('save') }} {{ n(cartItem.discountValue, 'currency') }})
+              ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }})
             </span>
           </div>
         </div>

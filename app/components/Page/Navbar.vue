@@ -174,16 +174,7 @@ const items = computed(() => [
                 relative grid items-center justify-center justify-items-center
               "
             >
-              <CartButton v-if="loggedIn" />
-              <ClientOnly v-else>
-                <CartButton />
-                <template #fallback>
-                  <USkeleton
-                    class="h-6 w-6"
-                    aria-label="Loading cart"
-                  />
-                </template>
-              </ClientOnly>
+              <CartButton />
             </li>
             <li
               v-if="loggedIn && user"

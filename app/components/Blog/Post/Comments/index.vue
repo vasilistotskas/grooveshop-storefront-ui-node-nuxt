@@ -115,7 +115,7 @@ const loggedInAndHasComments = computed(() => {
 })
 
 const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
-  = await useFetch<BlogComment>('/api/blog/comments/user-blog-comment', {
+  = await useFetch<BlogComment>('/api/blog/comments/my-comment', {
     key: `userBlogPostComment${blogPostId.value}`,
     method: 'POST',
     headers: useRequestHeaders(),

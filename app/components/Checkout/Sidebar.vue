@@ -3,10 +3,11 @@ const props = defineProps({
   shippingPrice: { type: Number, required: true },
 })
 
+const { $i18n } = useNuxtApp()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
-const { t, n } = useI18n({ useScope: 'local' })
+const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const payWayCost = computed(() => {
@@ -69,31 +70,21 @@ defineSlots<{
         <div class="space-y-3 border-t border-primary-200 dark:border-primary-800 pt-4">
           <div class="flex justify-between items-center">
             <span class="text-primary-950 dark:text-primary-50">{{ t('items_unique') }}</span>
-            <ClientOnly>
-              <span class="text-primary-950 dark:text-primary-50 font-bold">{{ cart?.totalItemsUnique }}</span>
-              <template #fallback>
-                <USkeleton class="h-5 w-6" />
-              </template>
-            </ClientOnly>
+            <span class="text-primary-950 dark:text-primary-50 font-bold">{{ cart?.totalItemsUnique }}</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-primary-950 dark:text-primary-50">{{ t('shipping') }}</span>
-            <span class="text-primary-950 dark:text-primary-50 font-bold">{{ n(shippingPrice, 'currency') }}</span>
+            <span class="text-primary-950 dark:text-primary-50 font-bold">{{ $i18n.n(shippingPrice, 'currency') }}</span>
           </div>
           <div v-if="payWayCost" class="flex justify-between items-center">
             <span class="text-primary-950 dark:text-primary-50">{{ t('pay_way_fee') }}</span>
-            <span class="text-primary-950 dark:text-primary-50 font-bold">{{ n(payWayCost, 'currency') }}</span>
+            <span class="text-primary-950 dark:text-primary-50 font-bold">{{ $i18n.n(payWayCost, 'currency') }}</span>
           </div>
         </div>
 
         <div class="flex justify-between items-center border-t border-primary-200 dark:border-primary-800 pt-4">
           <span class="text-lg font-bold text-primary-950 dark:text-primary-50">{{ t('total') }}</span>
-          <ClientOnly>
-            <span class="text-xl font-bold text-primary-600 dark:text-primary-400">{{ n(checkoutTotal, 'currency') }}</span>
-            <template #fallback>
-              <USkeleton class="h-5 w-16" />
-            </template>
-          </ClientOnly>
+          <span class="text-xl font-bold text-primary-600 dark:text-primary-400">{{ $i18n.n(checkoutTotal, 'currency') }}</span>
         </div>
 
         <div class="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">

@@ -9,10 +9,10 @@ export function useAuthPreviewMode() {
       return shouldEnable.value
     },
     onEnable: () => {
-      console.debug('Preview mode enabled')
+      console.info('Preview mode enabled')
     },
     onDisable: () => {
-      console.debug('Preview mode disabled')
+      console.info('Preview mode disabled')
     },
   })
 }

@@ -337,7 +337,11 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="grid gap-4">
+  <PageWrapper
+    class="flex flex-col gap-4
+
+      md:gap-8 md:!p-0 md:mt-1"
+  >
     <div class="justify-items flex items-center gap-4">
       <UButton
         :to="localePath('account-addresses')"
@@ -347,7 +351,7 @@ definePageMeta({
         size="sm"
         trailing
       />
-      <PageTitle class="text-center">
+      <PageTitle class="text-center md:mt-0">
         {{ t('title') }}
       </PageTitle>
     </div>

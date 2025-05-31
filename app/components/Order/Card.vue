@@ -15,7 +15,7 @@ const props = defineProps({
 
 const { order, maxItems } = toRefs(props)
 
-const { t, n, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 const { statusClass, paymentStatusClass } = useOrder()
 const localePath = useLocalePath()
@@ -139,7 +139,7 @@ const { $i18n } = useNuxtApp()
         <span
           class="font-semibold"
         >
-          {{ n(order.paidAmount, 'currency') }}
+          {{ $i18n.n(order.paidAmount, 'currency') }}
         </span>
       </div>
 

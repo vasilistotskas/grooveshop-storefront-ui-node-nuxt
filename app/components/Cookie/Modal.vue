@@ -28,10 +28,8 @@ function isCookieEnabled(cookie: Cookie) {
 }
 
 const toggleCookie = (cookie: Cookie, cookieType: string) => {
-  console.debug('toggleCookie', cookie, cookieType)
   const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(cookie.id)
   if (cookieIndex < 0) {
-    console.debug('cookieIndex < 0')
     localCookiesEnabled.value.push(cookie)
     cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
   }
@@ -40,7 +38,6 @@ const toggleCookie = (cookie: Cookie, cookieType: string) => {
       cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
       return
     }
-    console.debug('cookieIndex >= 0')
     localCookiesEnabled.value.splice(cookieIndex, 1)
     cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
   }

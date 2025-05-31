@@ -31,7 +31,7 @@ export const ZodUserAddressQuery = z
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-export const ZodUserAddressCreateBody = z.object({
+export const ZodUserAddressCreate = z.object({
   title: z.string(),
   firstName: z.string(),
   lastName: z.string(),

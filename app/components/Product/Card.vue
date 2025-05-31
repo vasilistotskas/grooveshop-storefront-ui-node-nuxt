@@ -24,11 +24,12 @@ const emit = defineEmits<{
   (e: 'favourite-delete', id: number): void
 }>()
 
+const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const userStore = useUserStore()
 const { getFavouriteByProductId } = userStore
 
-const { locale, t, n } = useI18n({ useScope: 'local' })
+const { locale, t } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { product } = toRefs(props)
@@ -52,8 +53,8 @@ const startShare = async () => {
   try {
     await share()
   }
-  catch (err) {
-    console.error('Share failed:', err)
+  catch (error) {
+    console.error('Share failed:', error)
   }
 }
 
@@ -245,7 +246,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                   dark:text-primary-50
                 "
               >
-                {{ n(product.finalPrice, 'currency') }}
+                {{ $i18n.n(product.finalPrice, 'currency') }}
               </span>
             </p>
           </div>

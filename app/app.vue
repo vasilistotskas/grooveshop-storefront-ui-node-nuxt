@@ -12,11 +12,6 @@ const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
 const { locales, locale } = useI18n()
 
-const cartStore = useCartStore()
-const { fetchCart } = cartStore
-
-await fetchCart()
-
 watch([loggedIn, user], ([l, u]) => {
   if (import.meta.dev || process.env.NODE_ENV === 'development') return
   enabled.value = !!(l && u?.isSuperuser)

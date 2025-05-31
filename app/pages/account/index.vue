@@ -11,15 +11,13 @@ definePageMeta({
 
 <template>
   <PageWrapper
-    class="
-      flex flex-col gap-4
+    class="flex flex-col gap-4
 
-      md:gap-8
-    "
+      md:gap-8 md:!p-0 md:mt-1"
   >
     <PageTitle
       :text="t('title')"
-      class="account-header-title"
+      class="account-header-title md:mt-0"
     />
 
     <MobileOrTabletOnly>

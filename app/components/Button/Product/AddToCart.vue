@@ -46,7 +46,7 @@ const addToCartEvent = async () => {
   }
   else {
     await createCartItem({
-      product: product.value,
+      product: product.value.id,
       quantity: quantity.value,
     })
   }

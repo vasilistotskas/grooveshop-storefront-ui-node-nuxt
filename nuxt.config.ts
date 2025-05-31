@@ -243,7 +243,7 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
-    typeCheck: true, // Until vue-tsc is fixed
+    typeCheck: false, // Until vue-tsc is fixed
     builder: 'vite',
   },
   telemetry: {

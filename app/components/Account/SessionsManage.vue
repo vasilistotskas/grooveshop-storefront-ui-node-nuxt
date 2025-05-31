@@ -143,3 +143,9 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  session:
+    logged_out: Αποσυνδέθηκες από όλες τις άλλες συνεδρίες
+</i18n>

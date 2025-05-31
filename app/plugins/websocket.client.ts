@@ -48,9 +48,9 @@ export default defineNuxtPlugin({
 
         websocketInstance.value = useWebSocket(wsEndpoint, {
           autoReconnect: true,
-          onConnected: ws => console.debug('WebSocket connected', ws),
-          onDisconnected: (_ws, event) => console.debug('WebSocket disconnected', event),
-          onError: (_ws, event) => console.debug('WebSocket error', event),
+          onConnected: ws => console.info('WebSocket connected', ws),
+          onDisconnected: (_ws, event) => console.info('WebSocket disconnected', event),
+          onError: (_ws, event) => console.info('WebSocket error', event),
           onMessage: async (_ws, event) => {
             const data = JSON.parse(event.data)
             await setupNotifications()
@@ -81,7 +81,7 @@ export default defineNuxtPlugin({
       if (websocketInstance.value) {
         websocketInstance.value.close()
         websocketInstance.value = null
-        console.debug('WebSocket closed')
+        console.info('WebSocket closed')
       }
     }
 

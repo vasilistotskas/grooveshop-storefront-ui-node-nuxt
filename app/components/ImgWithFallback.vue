@@ -41,7 +41,7 @@ const imgSrc = computed(() => {
 })
 
 const handleError = (error: any) => {
-  console.debug('Image error:', error)
+  console.info('Image error:', error)
   emit('error', error)
   hasError.value = true
 }

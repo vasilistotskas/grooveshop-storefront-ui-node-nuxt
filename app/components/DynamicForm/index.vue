@@ -379,6 +379,7 @@ defineExpose({
   <div class="grid w-full gap-4">
     <UStepper
       v-if="isMultiStep"
+      ref="stepper"
       v-model="currentStep"
       color="secondary"
       :items="stepperItems"

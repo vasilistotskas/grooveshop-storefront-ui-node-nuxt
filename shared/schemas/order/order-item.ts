@@ -1,6 +1,5 @@
 import * as z from 'zod'
 
-// Order item schema
 export const ZodOrderItem = z.object({
   id: z.number(),
   price: z.number(),
@@ -16,14 +15,12 @@ export const ZodOrderItem = z.object({
   notes: z.string().optional(),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel).merge(ZodSortableModel)
 
-// Order item for creation
 export const ZodOrderCreateItem = z.object({
   product: z.number(),
   quantity: z.number(),
   notes: z.string().optional(),
 })
 
-// Refund request schema
 export const ZodOrderItemRefundRequest = z.object({
   reason: z.string().optional(),
   amount: z.number().optional(),

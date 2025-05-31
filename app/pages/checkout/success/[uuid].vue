@@ -4,7 +4,8 @@ const orderUUID = 'uuid' in route.params
   ? route.params.uuid
   : undefined
 
-const { t, n, locale } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
+const { t, locale } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const { data: order, error } = await useFetch<Order>(
@@ -202,7 +203,7 @@ definePageMeta({
                   class="border px-4 py-2"
                 >
                   <span>
-                    {{ n(item.totalPrice, 'currency') }}
+                    {{ $i18n.n(item.totalPrice, 'currency') }}
                   </span>
                 </td>
               </tr>
@@ -228,7 +229,7 @@ definePageMeta({
             >
               {{ t('shippingPrice') }}:
               <span>
-                {{ n(shippingPrice, 'currency') }}
+                {{ $i18n.n(shippingPrice, 'currency') }}
               </span>
             </p>
             <p
@@ -241,7 +242,7 @@ definePageMeta({
             >
               {{ t('totalPriceItems') }}:
               <span>
-                {{ n(totalPriceItems, 'currency') }}
+                {{ $i18n.n(totalPriceItems, 'currency') }}
               </span>
             </p>
             <p
@@ -254,7 +255,7 @@ definePageMeta({
             >
               {{ t('totalPriceExtra') }}:
               <span>
-                {{ n(totalPriceExtra, 'currency') }}
+                {{ $i18n.n(totalPriceExtra, 'currency') }}
               </span>
             </p>
             <p
@@ -267,7 +268,7 @@ definePageMeta({
             >
               {{ t('payWayPrice') }}:
               <span>
-                {{ n(payWayPrice, 'currency') }}
+                {{ $i18n.n(payWayPrice, 'currency') }}
               </span>
             </p>
           </div>
@@ -281,7 +282,7 @@ definePageMeta({
           >
             {{ t('total') }}:
             <span>
-              {{ n(paidAmount, 'currency') }}
+              {{ $i18n.n(paidAmount, 'currency') }}
             </span>
           </p>
         </div>

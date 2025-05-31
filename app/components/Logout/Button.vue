@@ -27,8 +27,8 @@ const onClickLogout = async () => {
     await deleteSession()
     await refreshCart()
   }
-  catch {
-    // do nothing
+  catch (error) {
+    console.error('Logout failed:', error)
   }
 }
 </script>

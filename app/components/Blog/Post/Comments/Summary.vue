@@ -12,19 +12,15 @@ defineProps({
   },
 })
 
-const { t } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
 </script>
 
 <template>
   <span>
     {{
-      t('comments.count', commentsCount)
+      $i18n.t('comments.count', {
+        count: commentsCount,
+      })
     }}
   </span>
 </template>
-
-<i18n lang="yaml">
-el:
-  comments:
-    count: Κανένα σχόλιο | 1 σχόλιο | {count} Σχόλια
-</i18n>

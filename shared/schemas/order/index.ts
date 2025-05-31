@@ -1,6 +1,5 @@
 import * as z from 'zod'
 
-// Order status enum
 export const ZodOrderStatusEnum = z.enum([
   'PENDING',
   'PROCESSING',
@@ -12,7 +11,6 @@ export const ZodOrderStatusEnum = z.enum([
   'REFUNDED',
 ])
 
-// Payment status enum
 export const ZodPaymentStatusEnum = z.enum([
   'PENDING',
   'PROCESSING',
@@ -32,7 +30,6 @@ export const ZodDocumentTypeEnum = z.enum([
   'CREDIT_NOTE',
 ])
 
-// Base order schema
 export const ZodOrder = z.object({
   id: z.number(),
   user: z.number().nullish(),
@@ -69,15 +66,13 @@ export const ZodOrder = z.object({
   items: z.array(z.lazy(() => ZodOrderItem)),
 }).merge(ZodUUIDModel).merge(ZodTimeStampModel)
 
-// Order detail schema with items included
 export const ZodOrderDetail = ZodOrder.extend({
   trackingInfo: z.object({
     trackingNumber: z.string(),
     shippingCarrier: z.string(),
-  }),
+  }).nullish(),
 })
 
-// Order query parameters
 export const ZodOrderQuery = z.object({
   search: z.string().optional(),
   userId: z.number().nullish().optional(),
@@ -88,7 +83,6 @@ export const ZodOrderQuery = z.object({
   .merge(ZodOrderingQuery)
   .merge(ZodPaginationQuery)
 
-// Order create and update schema
 export const ZodOrderCreateUpdate = z.object({
   user: z.number().nullish().optional(),
   country: z.string(),
@@ -114,26 +108,21 @@ export const ZodOrderCreateUpdate = z.object({
   items: z.array(z.lazy(() => ZodOrderCreateItem)).optional(),
 })
 
-// Order patched update schema (all fields optional)
 export const ZodPatchedOrderCreateUpdate = ZodOrderCreateUpdate.partial()
 
-// Order params for route parameters
 export const ZodOrderParams = z.object({
   id: z.string(),
 })
 
-// Order UUID params for route parameters
 export const ZodOrderUUIDParams = z.object({
   uuid: z.string().uuid(),
 })
 
-// Tracking info schema
 export const ZodOrderTracking = z.object({
   trackingNumber: z.string(),
   trackingUrl: z.string().url().optional(),
 })
 
-// Order refund schema
 export const ZodOrderRefund = z.object({
   reason: z.string().optional(),
   amount: z.number().optional(),

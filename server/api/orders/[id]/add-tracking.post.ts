@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
     const body = await readValidatedBody(event, ZodOrderTracking.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/add-tracking`, {
+    const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/add_tracking`, {
       method: 'POST',
       body,
       headers: {

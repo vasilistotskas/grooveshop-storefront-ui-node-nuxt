@@ -7,7 +7,7 @@ on:
     branches: ['main']
 
 permissions:
-  contents: read # for checkout
+  contents: read
 
 env:
   COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-const { t, n, locale } = useI18n({ useScope: 'local' })
+const { $i18n } = useNuxtApp()
+const { t, locale } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const orderId = 'id' in route.params
   ? route.params.id
@@ -25,7 +26,9 @@ definePageMeta({
 <template>
   <PageWrapper
     v-if="order"
-    class="grid gap-4"
+    class="flex flex-col gap-4
+
+      md:gap-8 md:!p-0 md:mt-1"
   >
     <div
       class="
@@ -46,7 +49,7 @@ definePageMeta({
         </UButton>
         <PageTitle
           :text="`${t('number')}: ${order?.id}`"
-          class="text-center !mt-0"
+          class="text-center md:mt-0"
         />
       </div>
       <div class="grid items-center text-center">
@@ -151,7 +154,7 @@ definePageMeta({
                     dark:text-primary-50
               "
                 >
-                  {{ n(item.totalPrice, 'currency') }}
+                  {{ $i18n.n(item.totalPrice, 'currency') }}
                 </span>
               </div>
             </div>
@@ -263,7 +266,7 @@ definePageMeta({
                 order.paymentStatus
               }}</span>
             </div>
-            <div v-if="order.trackingInfo.trackingNumber" class="grid gap-2">
+            <div v-if="order.trackingInfo?.trackingNumber" class="grid gap-2">
               <span
                 class="
                     text-primary-950 font-bold
@@ -320,7 +323,7 @@ definePageMeta({
                     dark:text-primary-50
               "
               >{{
-                n(order.totalPriceItems, 'currency')
+                $i18n.n(order.totalPriceItems, 'currency')
               }}</span>
             </div>
             <div class="grid gap-2">
@@ -340,7 +343,7 @@ definePageMeta({
                     dark:text-primary-50
               "
               >{{
-                n(order.shippingPrice, 'currency')
+                $i18n.n(order.shippingPrice, 'currency')
               }}</span>
             </div>
             <hr
@@ -367,7 +370,7 @@ definePageMeta({
                     dark:text-primary-50
               "
               >{{
-                n(order.paidAmount, 'currency')
+                $i18n.n(order.paidAmount, 'currency')
               }}</span>
             </div>
           </div>

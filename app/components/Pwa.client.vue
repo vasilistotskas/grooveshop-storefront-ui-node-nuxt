@@ -50,7 +50,6 @@ onMounted(() => {
     })
   }
   if (pwa?.showInstallPrompt && !pwa?.offlineReady && !pwa?.needRefresh) {
-    console.log('install prompt')
     toast.add({
       title: t('install_pwa'),
       actions: installActions.value,

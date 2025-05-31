@@ -17,7 +17,7 @@ export default defineNuxtModule({
 
         do {
           previousCode = s.toString()
-          s.replace(/<!--.*?-->/gs, '')
+          s.replace(/<!--[\s\S]*?-->/g, '')
         } while (previousCode !== s.toString())
 
         if (s.hasChanged()) {
