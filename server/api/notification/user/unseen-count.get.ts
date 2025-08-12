@@ -1,5 +1,3 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
@@ -13,9 +11,7 @@ export default defineEventHandler(async () => {
         },
       },
     )
-    return await parseDataAs(response, z.object({
-      count: z.number(),
-    }).optional())
+    return await parseDataAs(response, zGetNotificationUserUnseenCountResponse)
   }
   catch (error) {
     await handleError(error)

@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      ZodProductReviewParams.parse,
+      zGetUserAccountProductReviewsData.shape.path.parse,
     )
-    const query = await getValidatedQuery(event, ZodProductReviewQuery.parse)
+    const query = await getValidatedQuery(event, zGetUserAccountProductReviewsData.shape.query.parse)
     const url = buildFullUrl(
       `${config.apiBaseUrl}/user/account/${params.id}/product_reviews`,
       query,
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodPagination(ZodProductReview))
+    return await parseDataAs(response, zGetUserAccountProductReviewsResponse)
   }
   catch (error) {
     await handleError(error)

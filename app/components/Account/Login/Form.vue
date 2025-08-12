@@ -18,8 +18,14 @@ const authStore = useAuthStore()
 const { session, status, hasSocialaccountProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
-  email: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
-  password: z.string({ required_error: $i18n.t('validation.required') }),
+  email: z.email({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.email.valid'),
+  }),
+  password: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
 })
 
 const validationSchema = toTypedSchema(ZodLogin)

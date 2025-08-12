@@ -38,7 +38,7 @@ const { $i18n } = useNuxtApp()
       <div class="flex gap-2">
         <OrderCardItem
           v-for="item in order.items.slice(0, maxItems)"
-          :key="item.product.id"
+          :key="`product-${item.product}`"
           :item="item"
         />
       </div>
@@ -78,12 +78,12 @@ const { $i18n } = useNuxtApp()
       </div>
 
       <div class="order-card-body-payment-status flex items-center gap-2.5">
-        <span :class="paymentStatusClass(order.paymentStatus).color">
+        <span :class="paymentStatusClass(order.paymentStatus || '').color">
           {{ order.paymentStatus }}
         </span>
         <UIcon
-          :name="paymentStatusClass(order.paymentStatus).icon"
-          :class="paymentStatusClass(order.paymentStatus).color"
+          :name="paymentStatusClass(order.paymentStatus || '').icon"
+          :class="paymentStatusClass(order.paymentStatus || '').color"
         />
       </div>
 
@@ -123,7 +123,7 @@ const { $i18n } = useNuxtApp()
         >{{
           t('pay_way')
         }}</span>
-        <span>{{ extractTranslated(order.payWay, 'name', locale) }}</span>
+        <span>{{ typeof order.payWay === 'number' ? 'Payment Method' : extractTranslated(order.payWay, 'name', locale) }}</span>
       </div>
 
       <div class="order-card-body-total_price grid">

@@ -2,6 +2,9 @@
 import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 
+const { productUrl } = useUrls()
+const { locale } = useI18n()
+
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
@@ -29,15 +32,12 @@ const { user } = useUserSession()
 const userStore = useUserStore()
 const { getFavouriteByProductId } = userStore
 
-const { locale, t } = useI18n({ useScope: 'local' })
+const { t } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { product } = toRefs(props)
 
-const productUrl = computed(() => {
-  if (!props.product) return ''
-  return `/products/${product.value.id}/${product.value.slug}`
-})
+// productUrl is already available from useUrls()
 
 const alt = computed(() => {
   return extractTranslated(product?.value, 'name', locale.value)
@@ -46,7 +46,7 @@ const alt = computed(() => {
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value),
   text: extractTranslated(product.value, 'description', locale.value) || '',
-  url: import.meta.client ? productUrl : '',
+  url: import.meta.client ? productUrl(product.value.id, product.value.slug) : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = async () => {
@@ -78,7 +78,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <div class="max-w-full">
           <div class="grid">
             <Anchor
-              :to="{ path: product.absoluteUrl }"
+              :to="{ path: productUrl(product.id, product.slug) }"
               :text="alt"
             >
               <ImgWithFallback
@@ -107,7 +107,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           >
             <h2 class="text-lg font-semibold leading-6">
               <Anchor
-                :to="{ path: product.absoluteUrl }"
+                :to="{ path: productUrl(product.id, product.slug) }"
                 :text="alt"
                 class="
                   text-primary-950

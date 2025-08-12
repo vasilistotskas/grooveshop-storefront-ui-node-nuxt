@@ -7,7 +7,7 @@ export default defineCachedEventHandler(async () => {
         method: 'GET',
       },
     )
-    return await parseDataAs(response, ZodPagination(ZodProductCategory))
+    return await parseDataAs(response, zListProductCategoryResponse)
   }
   catch (error) {
     await handleError(error)

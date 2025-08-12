@@ -15,7 +15,7 @@ const shouldFetchLikedPosts = computed(() => {
   return loggedIn.value
 })
 
-const { data: blogPost, refresh, error } = await useFetch<BlogPost>(
+const { data: blogPost, refresh, error } = await useFetch<BlogPostDetail>(
   `/api/blog/posts/${blogPostId.value}`,
   {
     key: `blogPost${blogPostId.value}`,
@@ -24,23 +24,6 @@ const { data: blogPost, refresh, error } = await useFetch<BlogPost>(
     query: {
       language: locale,
     },
-    pick: [
-      'id',
-      'translations',
-      'category',
-      'author',
-      'tags',
-      'mainImagePath',
-      'seoTitle',
-      'seoDescription',
-      'slug',
-      'likesCount',
-      'commentsCount',
-      'createdAt',
-      'updatedAt',
-      'isPublished',
-      'publishedAt',
-    ],
   },
 )
 
@@ -53,8 +36,8 @@ if (error.value || !blogPost.value) {
 }
 
 const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsData }, { data: relatedPosts, status: relatedPostsStatus }] = await Promise.all([
-  useFetch<BlogCategory>(`/api/blog/categories/${blogPost.value?.category}`, {
-    key: `blogCategory${blogPost.value?.category}`,
+  useFetch<BlogCategory>(`/api/blog/categories/${blogPost.value?.category.id}`, {
+    key: `blogCategory${blogPost.value?.category.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -65,19 +48,13 @@ const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsD
       'translations',
     ],
   }),
-  useFetch<BlogAuthor>(`/api/blog/authors/${blogPost.value?.author}`, {
-    key: `blogAuthor${blogPost.value?.author}`,
+  useFetch<BlogAuthorDetail>(`/api/blog/authors/${blogPost.value?.author.id}`, {
+    key: `blogAuthor${blogPost.value?.author.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
       language: locale,
     },
-    pick: [
-      'id',
-      'fullName',
-      'website',
-      'image',
-    ],
   }),
   useFetch<number[]>('/api/blog/posts/liked-posts', {
     key: `likedPosts${blogPostId.value}`,
@@ -200,9 +177,9 @@ useHead({
 useSchemaOrg([
   definePerson({
     '@id': '#author',
-    'name': blogPostAuthor.value?.fullName,
+    'name': blogPostAuthor.value?.user?.firstName + ' ' + blogPostAuthor.value?.user?.lastName || 'Anonymous',
     'url': blogPostAuthor.value?.website,
-    'image': blogPostAuthor.value?.image,
+    'image': blogPostAuthor.value?.user?.mainImagePath || '',
   }),
   defineArticle({
     author: { '@id': '#author' },
@@ -210,8 +187,8 @@ useSchemaOrg([
     headline: blogPost.value.seoTitle || blogPostTitle.value,
     description: blogPost.value.seoDescription || blogPostSubtitle.value,
     image: ogImage.value,
-    datePublished: blogPost.value?.publishedAt,
-    dateModified: blogPost.value?.updatedAt,
+    datePublished: blogPost.value?.publishedAt || undefined,
+    dateModified: blogPost.value?.updatedAt || undefined,
     articleSection: [blogPostCategoryName.value],
   }),
 ])

@@ -36,12 +36,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: t('key'),
       name: 'key',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
       placeholder: '123456',
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))
@@ -74,7 +78,7 @@ definePageMeta({
     </p>
     <div class="grid items-center justify-center">
       <DynamicForm
-        :button-label="t('entry')"
+        :button-label="$i18n.t('entry')"
         :schema="formSchema"
         class="grid"
         @submit="onSubmit"

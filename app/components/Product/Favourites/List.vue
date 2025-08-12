@@ -54,7 +54,29 @@ const { t } = useI18n({ useScope: 'local' })
           <LazyProductCard
             :img-height="150"
             :img-width="260"
-            :product="favourite.product"
+            :product="{
+              id: favourite.product as number,
+              slug: '',
+              translations: {
+                el: { name: favourite.productName || 'Product' },
+              },
+              category: 0,
+              price: favourite.productPrice || 0,
+              vat: 0,
+              viewCount: 0,
+              createdAt: favourite.createdAt,
+              updatedAt: favourite.createdAt,
+              uuid: favourite.uuid,
+              discountValue: 0,
+              priceSavePercent: 0,
+              vatPercent: 0,
+              vatValue: 0,
+              finalPrice: favourite.productPrice || 0,
+              mainImagePath: '',
+              reviewAverage: 0,
+              reviewCount: 0,
+              likesCount: 0,
+            } as Product"
             :show-add-to-cart-button="false"
             @favourite-delete="(_id) => emit('refresh-favourites')"
           />

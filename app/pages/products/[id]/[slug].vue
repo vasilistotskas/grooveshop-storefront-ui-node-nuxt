@@ -138,10 +138,7 @@ const { data: userProductReview, refresh: refreshUserProductReview }
   = await useFetch<ProductReview>('/api/products/reviews/user-product-review', {
     key: `productReviews${productId}${user.value?.id}`,
     headers: useRequestHeaders(),
-    method: 'POST',
-    body: {
-      product: String(productId),
-    },
+    method: 'GET',
     immediate: loggedIn.value,
   })
 

@@ -1,18 +1,21 @@
 import * as z from 'zod'
 
-export const ZodSearchQuery = z
-  .object({
-    query: z.string().nullish(),
+export function ZodSearchResult<T>(
+  zodSchema: z.ZodType<T>,
+): z.ZodType<SearchResult<T>> {
+  return z.object({
+    limit: z.number(),
+    offset: z.number(),
+    estimatedTotalHits: z.number(),
+    results: z.array(zodSchema),
   })
-  .merge(ZodLanguageQuery)
-  .merge(ZodPaginationQuery)
+}
 
 export const ZodSearchProduct = z.object({
   id: z.number(),
   languageCode: z.string(),
   name: z.string(),
   description: z.string().nullish(),
-  absoluteUrl: z.string(),
   mainImagePath: z.string().optional(),
   matchesPosition: z.object({
     body: z.array(z.object({
@@ -36,7 +39,6 @@ export const ZodSearchBlogPost = z.object({
   subtitle: z.string().nullish(),
   body: z.string(),
   master: z.number(),
-  absoluteUrl: z.string(),
   mainImagePath: z.string().optional(),
   matchesPosition: z.object({
     body: z.array(z.object({

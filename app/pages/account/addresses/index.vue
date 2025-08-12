@@ -9,7 +9,7 @@ const pageSize = ref(8)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const entityOrdering = ref<EntityOrdering<UserAddressOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -64,7 +64,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<UserAddressOrderingField>(entityOrdering.value)
+  return useOrdering<any>(entityOrdering.value)
 })
 
 watch(

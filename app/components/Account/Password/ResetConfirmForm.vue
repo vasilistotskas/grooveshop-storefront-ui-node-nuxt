@@ -29,17 +29,23 @@ await useAsyncData<PasswordResetGetResponse>(
 
 const ZodPasswordResetConfirm = z
   .object({
-    newPassword1: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
-      message: $i18n.t('validation.min', {
+    newPassword1: z.string({
+      error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
+    }).min(8, {
+      error: $i18n.t('validation.min', {
         min: 8,
       }),
     }).max(255),
-    newPassword2: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
-      message: $i18n.t('validation.min', {
+    newPassword2: z.string({
+      error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
+    }).min(8, {
+      error: $i18n.t('validation.min', {
         min: 8,
       }),
     }).max(255),
-    key: z.string({ required_error: $i18n.t('validation.required') }),
+    key: z.string({ error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.string.invalid') }),
   })
   .refine(data => data.newPassword1 === data.newPassword2, {
     message: t(

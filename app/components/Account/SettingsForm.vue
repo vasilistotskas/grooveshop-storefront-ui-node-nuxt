@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
 import type { AcceptableValue } from '@nuxt/ui'
+// Authentication type is auto-imported from shared folder
 
 defineSlots<{
   default(props: object): any
@@ -19,16 +20,32 @@ const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
-  email: z.string({ required_error: $i18n.t('validation.required') }).email({
-    message: $i18n.t('validation.email.invalid'),
+  email: z.email({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.email.valid'),
   }),
-  firstName: z.string({ required_error: $i18n.t('validation.required') }),
-  lastName: z.string({ required_error: $i18n.t('validation.required') }),
-  phone: z.string({ required_error: $i18n.t('validation.required') }),
-  city: z.string({ required_error: $i18n.t('validation.required') }),
-  zipcode: z.string({ required_error: $i18n.t('validation.required') }),
-  address: z.string({ required_error: $i18n.t('validation.required') }),
-  place: z.string({ required_error: $i18n.t('validation.required') }),
+  firstName: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  lastName: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  phone: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  city: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  zipcode: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  address: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  place: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
   birthDate: z.preprocess(
     (input) => {
       if (typeof input === 'string' || input instanceof Date) {
@@ -38,14 +55,19 @@ const ZodAccountSettings = z.object({
       return undefined
     },
     z.date({
-      required_error: $i18n.t('validation.date.required_error'),
-      invalid_type_error: $i18n.t('validation.date.invalid_type_error'),
+      error: issue => issue.input === undefined
+        ? $i18n.t('validation.date.required_error')
+        : $i18n.t('validation.date.invalid_type_error'),
     }).optional(),
   ),
-  country: z.string({ required_error: $i18n.t('validation.required') })
+  country: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
-  region: z.string({ required_error: $i18n.t('validation.required') })
+  region: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
 })
@@ -196,7 +218,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   if (!userId) return
 
-  await $fetch<UserAccount>(`/api/user/account/${userId}`, {
+  await $fetch<Authentication>(`/api/user/account/${userId}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    sessionToken: session?.secure.sessionToken,
-    accessToken: session?.secure.accessToken,
+    sessionToken: session?.secure?.sessionToken,
+    accessToken: session?.secure?.accessToken,
   }
 })

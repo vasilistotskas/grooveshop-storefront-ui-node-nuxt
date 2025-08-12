@@ -39,12 +39,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
       placeholder: $i18n.t('code'),
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))

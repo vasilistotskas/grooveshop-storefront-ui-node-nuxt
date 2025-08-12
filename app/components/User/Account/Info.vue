@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+// Authentication and UsernameUpdateResponse types are auto-imported from shared folder
 
 const props = defineProps({
   account: {
-    type: Object as PropType<UserAccount>,
+    type: Object as PropType<Authentication>,
     required: true,
   },
   ordersCount: {
@@ -52,7 +53,7 @@ const changeUserName = async () => {
   }
 
   try {
-    const response = await $fetch<ChangeUserNameResponse>(`/api/user/account/${account.value.id}/change-username`, {
+    const response = await $fetch<UsernameUpdateResponse>(`/api/user/account/${account.value.id}/change-username`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body: { username: username.value },

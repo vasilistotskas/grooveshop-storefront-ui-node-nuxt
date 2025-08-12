@@ -78,7 +78,7 @@ function searchGoTo(id: string, cleanQuery: boolean): void {
     if (!v || !v.results) return
     const result = v.results.find(e => String(e.id) === id)
     if (result) {
-      url = result.absoluteUrl
+      url = `/products/${result.id}`
     }
   })
 

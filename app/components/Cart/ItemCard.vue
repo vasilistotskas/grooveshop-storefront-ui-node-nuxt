@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+const { productUrl } = useUrls()
+
 const props = defineProps({
   cartItem: { type: Object as PropType<CartItem>, required: true },
 })
@@ -10,13 +12,13 @@ const { isMobileOrTablet } = useDevice()
 const cartStore = useCartStore()
 const { refreshCart, deleteCartItem } = cartStore
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { cartItem } = toRefs(props)
 
 const alt = computed(() => {
-  return extractTranslated(cartItem?.value?.product, 'name', locale.value)
+  return `Product ${cartItem?.value?.product}`
 })
 
 const cartItemQuantity = useState<number>(
@@ -42,7 +44,7 @@ const formattedTotal = computed(() => {
   <div v-if="cartItem" class="flex flex-col sm:flex-row gap-4 sm:gap-6">
     <div class="relative h-24 w-full sm:w-24 flex-shrink-0 overflow-hidden rounded-lg">
       <Anchor
-        :to="{ path: cartItem.product.absoluteUrl }"
+        :to="{ path: productUrl(typeof cartItem.product === 'number' ? cartItem.product : cartItem.product.id) }"
         :title="alt"
       >
         <ImgWithFallback
@@ -64,7 +66,7 @@ const formattedTotal = computed(() => {
         <div>
           <h3 class="text-base font-medium">
             <Anchor
-              :to="{ path: cartItem.product.absoluteUrl }"
+              :to="{ path: productUrl(typeof cartItem.product === 'number' ? cartItem.product : cartItem.product.id) }"
               :title="alt"
             >
               {{ contentShorten(alt, 50) }}

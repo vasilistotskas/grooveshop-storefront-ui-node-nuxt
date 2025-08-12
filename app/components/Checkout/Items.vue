@@ -35,7 +35,7 @@ const { $i18n } = useNuxtApp()
         <div class="flex items-center">
           <Anchor
             :title="extractTranslated(item.product, 'name', locale)"
-            :to="{ path: item.product.absoluteUrl }"
+            :to="{ path: `/products/${item.product.id}` }"
           >
             <span
               class="
@@ -86,7 +86,7 @@ const { $i18n } = useNuxtApp()
                   dark:text-primary-50
             "
             >
-              {{ $i18n.n(item.finalPrice * item.quantity, 'currency') }}
+              {{ $i18n.n(item.finalPrice * (item.quantity || 1), 'currency') }}
             </span>
           </span>
         </div>

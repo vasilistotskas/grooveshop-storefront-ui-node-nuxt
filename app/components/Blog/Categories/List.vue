@@ -13,6 +13,7 @@ const { paginationType } = toRefs(props)
 
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+const { blogCategoryUrl } = useUrls()
 const { locale, t } = useI18n({ useScope: 'local' })
 
 const pageSize = ref(8)
@@ -86,9 +87,9 @@ watch(
         class="grid h-full"
       >
         <Anchor
-          v-if="category.absoluteUrl"
+          v-if="category.slug"
           class="grid h-full items-center justify-center"
-          :to="{ path: category.absoluteUrl }"
+          :to="{ path: blogCategoryUrl(category) }"
           :text="extractTranslated(category, 'name', locale)"
         >
           <div class="grid h-full">
@@ -125,7 +126,7 @@ watch(
                 "
               >
                 {{
-                  t('discover.more', category.recursivePostCount)
+                  t('discover.more', category.postCount || 0)
                 }}
               </span>
             </div>

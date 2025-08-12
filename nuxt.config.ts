@@ -133,9 +133,6 @@ export default defineNuxtConfig({
           id: '',
         },
       },
-      i18n: {
-        baseUrl: 'http://localhost:3000',
-      },
       titleSeparator: '-',
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {
@@ -243,7 +240,7 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
-    typeCheck: false, // Until vue-tsc is fixed
+    typeCheck: true, // Until vue-tsc is fixed
     builder: 'vite',
   },
   telemetry: {
@@ -323,14 +320,12 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    strategy: 'prefix_except_default',
-    lazy: true,
     defaultLocale: 'el',
     debug: false,
     restructureDir: 'i18n',
     detectBrowserLanguage: {
       useCookie: true,
-      redirectOn: 'root',
+      redirectOn: 'all',
       cookieKey: 'i18n_redirected',
       alwaysRedirect: true,
       cookieCrossOrigin: true,
@@ -351,9 +346,6 @@ export default defineNuxtConfig({
     vueI18n: './i18n.config.mts',
     compilation: {
       strictMessage: false,
-    },
-    bundle: {
-      optimizeTranslationDirective: false,
     },
   },
   icon: {

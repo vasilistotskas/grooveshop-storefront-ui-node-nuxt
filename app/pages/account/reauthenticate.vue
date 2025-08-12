@@ -38,12 +38,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'current-password',
       readonly: false,
       required: true,
       placeholder: $i18n.t('password.title'),
       type: 'password',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))

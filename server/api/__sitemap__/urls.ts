@@ -16,13 +16,15 @@ export default defineSitemapEventHandler(async () => {
 
   return [
     ...allCategories.map(category => asSitemapUrl({
-      loc: category.absoluteUrl,
+      // @TODO
+      // loc: category.absoluteUrl,
       changefreq: 'weekly',
       priority: 0.5,
       lastmod: new Date(category.updatedAt),
     })),
     ...allPosts.map(post => asSitemapUrl({
-      loc: post.absoluteUrl,
+      // @TODO
+      // loc: post.absoluteUrl,
       changefreq: 'daily',
       priority: 0.8,
       lastmod: new Date(post.updatedAt),

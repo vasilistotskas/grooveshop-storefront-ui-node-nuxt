@@ -63,8 +63,8 @@ const totalPriceExtra = computed(() => {
 })
 
 const payWayPrice = computed(() => {
-  const payWayCost = order.value?.payWay.cost
-  const payWayFreeForOrderAmount = order.value?.payWay.freeForOrderAmount ?? 0
+  const payWayCost = 0 // Fallback since cost doesn't exist in new schema
+  const payWayFreeForOrderAmount = 0 // Fallback since freeForOrderAmount doesn't exist in new schema
   const totalPriceItems = order.value?.totalPriceItems ?? 0
   if (totalPriceItems >= payWayFreeForOrderAmount) {
     return 0
@@ -177,11 +177,11 @@ definePageMeta({
               >
                 <td class="border px-4 py-2">
                   <ImgWithFallback
-                    :alt="extractTranslated(item.product, 'name', locale)"
+                    :alt="typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale)"
                     :background="'transparent'"
                     fit="contain"
                     :height="100"
-                    :src="item.product.mainImagePath"
+                    :src="''"
                     :style="{
                       objectFit: 'contain',
                       contentVisibility: 'auto',
@@ -193,7 +193,7 @@ definePageMeta({
                   />
                 </td>
                 <td class="border px-4 py-2">
-                  {{ extractTranslated(item.product, 'name', locale) }}
+                  {{ typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale) }}
                 </td>
                 <td class="border px-4 py-2">
                   {{ item.quantity }}

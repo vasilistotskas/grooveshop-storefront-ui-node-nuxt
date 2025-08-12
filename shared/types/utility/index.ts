@@ -1,11 +1,10 @@
 export type EntityOrPrimitive<T> = T | number
 
-export type DeepKeys<T> =
-  T extends Record<string, any>
+export type DeepKeys<T>
+  = T extends Record<string, any>
     ? {
         [K in keyof T]-?: K extends string
-          ?
-          | `${K}`
+          ? | `${K}`
           | (T[K] extends Record<string, any>
             ? `${K}.${DeepKeys<T[K]>}`
             : never)
@@ -34,15 +33,15 @@ export type DeepKey<T, Keys extends string[]> = Keys extends [
     : never
   : T
 
-export type ExtractDeepKey<T, Path extends string[]> =
-  DeepKey<T, Path> extends infer Result
+export type ExtractDeepKey<T, Path extends string[]>
+  = DeepKey<T, Path> extends infer Result
     ? Result extends Record<string, any>
       ? keyof Result
       : never
     : never
 
-export type ExtractDeepObject<T, Path extends string[]> =
-  DeepKey<T, Path> extends infer Result
+export type ExtractDeepObject<T, Path extends string[]>
+  = DeepKey<T, Path> extends infer Result
     ? Result extends Record<string, any>
       ? Result
       : never
@@ -56,8 +55,8 @@ export type WithTranslations<T = Record<string, any>> = {
   translations: Record<string, Record<string, any>>
 } & T
 
-export type ExtractIfTranslationObject<T> =
-  T extends WithTranslations<infer U> ? U : T
+export type ExtractIfTranslationObject<T>
+  = T extends WithTranslations<infer U> ? U : T
 
 export type ImageLoading = 'lazy' | 'eager' | undefined
 
@@ -69,8 +68,8 @@ export type ErrorWithDetail = {
   }
 }
 
-export type ScreenSize =
-  | typeof ScreenSizeEnum.SMALL
-  | typeof ScreenSizeEnum.MEDIUM
-  | typeof ScreenSizeEnum.LARGE
-  | typeof ScreenSizeEnum.EXTRA_LARGE
+export type ScreenSize
+  = | typeof ScreenSizeEnum.SMALL
+    | typeof ScreenSizeEnum.MEDIUM
+    | typeof ScreenSizeEnum.LARGE
+    | typeof ScreenSizeEnum.EXTRA_LARGE

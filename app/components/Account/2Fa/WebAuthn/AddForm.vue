@@ -57,12 +57,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'name',
       readonly: false,
       required: true,
       placeholder: t('name'),
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
     {
       label: t('passwordless'),
@@ -75,6 +79,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('passwordless'),
       type: 'checkbox',
       initialValue: false,
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))

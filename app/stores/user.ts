@@ -1,12 +1,12 @@
 export const useUserStore = defineStore('user', () => {
-  const account = ref<UserAccount | null>(null)
+  const account = ref<Authentication | null>(null)
   const favouriteProducts = ref<ProductFavourite[]>([])
   const blogLikedPosts = ref<number[]>([])
   const blogLikedComments = ref<number[]>([])
 
   const getFavouriteByProductId = (productId: number) => {
     return favouriteProducts.value.find(
-      favourite => favourite.product.id === productId,
+      favourite => favourite.product === productId,
     )
   }
 
@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', () => {
 
   const removeFavouriteProduct = (productId: number) => {
     favouriteProducts.value = favouriteProducts.value.filter(
-      favourite => favourite.product.id !== productId,
+      favourite => favourite.product !== productId,
     )
   }
 
@@ -79,7 +79,7 @@ export const useUserStore = defineStore('user', () => {
       return
     }
     const { getUserAccount } = useAllAuthAccount()
-    const { data } = await useAsyncData<UserAccount | null>(
+    const { data } = await useAsyncData<Authentication | null>(
       'userAccount',
       () => {
         if (!user.value || !user.value.id!) {

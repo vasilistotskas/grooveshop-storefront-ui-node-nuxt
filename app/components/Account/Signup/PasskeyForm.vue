@@ -26,9 +26,15 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+      rules: z.email({
+        error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.email.valid'),
+      }),
       autocomplete: 'email',
       readonly: false,
+      condition: () => true,
+      disabledCondition: () => false,
       required: true,
       placeholder: $i18n.t('email.title'),
       type: 'email',

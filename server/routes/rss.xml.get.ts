@@ -11,12 +11,12 @@ export default defineCachedEventHandler(async (event) => {
       60 * 60,
     )
 
-    const locale = (siteConfig.defaultLocale || 'el').split('-')[0]
+    const locale: 'el' = (siteConfig.defaultLocale || 'el').split('-')[0]
     const siteUrl = siteConfig.url
     const apiBaseUrl = config.apiBaseUrl
 
     const allPosts = await cachedBlogPosts(`${apiBaseUrl}/blog/post`)
-    const blogPosts = allPosts.map(post => ZodBlogPost.parse(post))
+    const blogPosts = allPosts.map(post => zBlogPost.parse(post))
 
     const feed = new RSS({
       title: siteConfig.name,
@@ -42,7 +42,8 @@ export default defineCachedEventHandler(async (event) => {
         continue
       }
 
-      const postUrl = new URL(post.absoluteUrl, siteUrl).toString()
+      // @TODO
+      // const postUrl = post.absoluteUrl ? new URL(post.absoluteUrl, siteUrl).toString() : ''
       const mainImageUrl = encodeURI(`${config.mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/5/webp/100`)
       const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
 
@@ -54,11 +55,17 @@ export default defineCachedEventHandler(async (event) => {
         description = `<img src="${mainImageUrl}" alt="${translation.title}" />\n` + description
       }
 
-      const pubDate = post.publishedAt ? new Date(post.publishedAt) : new Date(post.createdAt)
+      let pubDate = new Date()
+      if (post.publishedAt) {
+        pubDate = new Date(post.publishedAt)
+      }
+      else if (post.createdAt) {
+        pubDate = new Date(post.createdAt)
+      }
 
       const cachedCategory = defineCachedFunction(
-        async (url: string): Promise<BlogCategory> => {
-          return await $fetch<BlogCategory>(url, {
+        async (url: string): Promise<BlogCategoryDetail> => {
+          return await $fetch<BlogCategoryDetail>(url, {
             method: 'GET',
           })
         },
@@ -99,7 +106,8 @@ export default defineCachedEventHandler(async (event) => {
 
       feed.item({
         title: translation.title || 'Untitled Post',
-        url: postUrl,
+        // @TODO
+        url: '',
         description: description,
         custom_elements: [
           ...customElements,

@@ -21,10 +21,10 @@ const cartItem = computed(() => {
   return getCartItemByProductId(product.value.id)
 })
 const disabled = computed(() => {
-  if (product.value.stock === 0 || quantity.value > product.value.stock) {
+  if (product.value.stock === 0 || (product.value.stock && quantity.value > product.value.stock)) {
     return true
   }
-  if (cartItem.value && cartItem.value.quantity + quantity.value > product.value.stock) {
+  if (cartItem.value && cartItem.value.quantity && product.value.stock && cartItem.value.quantity + quantity.value > product.value.stock) {
     return true
   }
   return false
@@ -41,7 +41,7 @@ const addToCartEvent = async () => {
 
   if (existingCartItem) {
     await updateCartItem(existingCartItem.id, {
-      quantity: existingCartItem.quantity + quantity.value,
+      quantity: (existingCartItem.quantity || 0) + quantity.value,
     })
   }
   else {

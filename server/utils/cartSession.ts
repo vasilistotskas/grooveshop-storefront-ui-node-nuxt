@@ -1,5 +1,6 @@
 import type { Storage } from 'unstorage'
 import type { SessionConfig } from 'h3'
+import process from 'node:process'
 
 interface CartSessionData {
   cartId?: number
@@ -30,7 +31,7 @@ export async function getCartSession(): Promise<CartSessionData> {
 
   if (!session.data.sessionId) {
     console.info('Session Id not set, updating...')
-    await session.update({ sessionId: 'your-secure-password-here' })
+    await session.update({ sessionId: process.env.NUXT_SESSION_PASSWORD || 'your-secure-password-here' })
   }
 
   const sessionId = session.data.sessionId!
@@ -41,7 +42,7 @@ export async function getCartSession(): Promise<CartSessionData> {
   if (!cartData) {
     console.info('Sets cart data in storage')
     cartData = {
-      sessionKey: 'your-secure-password-here',
+      sessionKey: process.env.NUXT_SESSION_PASSWORD || 'your-secure-password-here',
       lastActivity: new Date().toISOString(),
     }
     await storage.setItem(cartKey, cartData, {

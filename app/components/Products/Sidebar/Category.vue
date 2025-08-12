@@ -91,7 +91,7 @@ const isCategorySelected = computed(() => {
             dark:bg-primary-900
           "
           :style="{ contentVisibility: 'auto' }"
-          :src="category.categoryMenuImageOneFilename"
+          :src="''"
           :width="48"
           :height="48"
           fit="contain"

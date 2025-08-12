@@ -14,7 +14,6 @@ const emit = defineEmits(['twoFaAuthenticate'])
 
 const authInfo = useAuthInfo()
 const toast = useToast()
-const { t } = useI18n()
 const localePath = useLocalePath()
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
@@ -33,12 +32,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
       placeholder: '123456',
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))
@@ -51,7 +54,7 @@ async function onSubmit(values: TwoFaAuthenticateBody) {
     })
     session.value = response?.data
     toast.add({
-      title: t('success.logged_in'),
+      title: $i18n.t('success.logged_in'),
       color: 'success',
     })
     emit('twoFaAuthenticate')
@@ -66,7 +69,7 @@ async function onSubmit(values: TwoFaAuthenticateBody) {
   <Account2FaAuthenticateFlow :authenticator-type="authenticatorType">
     <slot />
     <DynamicForm
-      :button-label="t('entry')"
+      :button-label="$i18n.t('entry')"
       :schema="formSchema"
       class="grid"
       @submit="onSubmit"

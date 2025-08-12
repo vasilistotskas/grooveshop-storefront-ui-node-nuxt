@@ -124,7 +124,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: t('form.title'),
       autocomplete: 'honorific-prefix',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'firstName',
@@ -135,7 +137,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: t('form.first_name'),
       autocomplete: 'given-name',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'lastName',
@@ -146,7 +150,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: t('form.last_name'),
       autocomplete: 'family-name',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'street',
@@ -157,7 +163,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: t('form.street'),
       autocomplete: 'address-line1',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'streetNumber',
@@ -168,7 +176,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: t('form.street_number'),
       autocomplete: 'address-line1',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'city',
@@ -179,7 +189,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: t('form.city'),
       autocomplete: 'address-level2',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'zipcode',
@@ -190,7 +202,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: t('form.zipcode'),
       autocomplete: 'postal-code',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'phone',
@@ -231,7 +245,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.union([ZodFloorEnum, z.string()]).optional(),
+      rules: z.union([zFloorEnum, z.string()]).optional(),
     },
     {
       name: 'locationType',
@@ -250,7 +264,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.union([ZodLocationTypeEnum, z.string()]).optional(),
+      rules: z.union([zLocationTypeEnum, z.string()]).optional(),
     },
     {
       name: 'country',
@@ -268,7 +282,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       initialValue: defaultSelectOptionChoose,
       condition: () => true,
       disabledCondition: () => false,
@@ -289,7 +305,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       condition: () => true,
       disabledCondition: () => false,
     },
@@ -326,7 +344,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: '',
       initialValue: user.value?.id || undefined,
-      rules: z.union([z.number(), ZodUserAccount]).optional(),
+      rules: z.union([z.number(), zAuthentication]).optional(),
     },
   ],
 }))

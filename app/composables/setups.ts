@@ -9,7 +9,6 @@ export function setupPageHeader() {
     dir: true,
     lang: true,
     seo: true,
-    key: 'hid',
   })
 
   const colorMode = useColorMode()

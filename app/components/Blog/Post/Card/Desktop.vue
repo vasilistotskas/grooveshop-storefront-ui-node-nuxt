@@ -2,6 +2,11 @@
 import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 
+const { blogPostUrl } = useUrls()
+
+// Local reactive state for likes count since the property is read-only
+const localLikesCount = ref(0)
+
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
   imgWidth: { type: Number, required: false, default: 480 },
@@ -49,12 +54,19 @@ const startShare = async () => {
   }
 }
 
+// Initialize local likes count
+watchEffect(() => {
+  if (post.value?.likesCount !== undefined) {
+    localLikesCount.value = post.value.likesCount
+  }
+})
+
 const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   if (event.liked) {
-    post.value.likesCount++
+    localLikesCount.value++
   }
   else {
-    post.value.likesCount--
+    localLikesCount.value--
   }
 }
 </script>
@@ -71,7 +83,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   >
     <div class="grid">
       <Anchor
-        :to="{ path: post.absoluteUrl }"
+        :to="{ path: blogPostUrl(post) }"
         :text="alt"
         css-class="grid justify-center"
       >
@@ -104,7 +116,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       >
         <h2 class="grid h-20">
           <Anchor
-            :to="{ path: post.absoluteUrl }"
+            :to="{ path: blogPostUrl(post) }"
             :text="contentShorten(extractTranslated(post, 'title', locale), 0, 39)"
             class="
               text-primary-950 text-2xl font-bold tracking-tight
@@ -119,7 +131,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <div class="flex justify-end gap-6 pt-5">
         <ButtonBlogPostLike
           :blog-post-id="post.id"
-          :likes-count="post.likesCount"
+          :likes-count="localLikesCount"
           @update="likeClicked"
         />
         <UButton
@@ -132,7 +144,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
-          :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
+          :to="localePath({ path: blogPostUrl(post), hash: '#blog-post-comments' })"
           :ui="{
             base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
           }"

@@ -23,7 +23,7 @@ export default defineNuxtModule<ModuleOptions>({
     name: '@groove/nuxt-cookies',
     version,
     configKey: 'cookieControl',
-    compatibility: { nuxt: '^3.0.0' },
+    compatibility: { nuxt: '^4.0.0' },
   },
   defaults: DEFAULTS,
 

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+// Authentication type is auto-imported from shared folder
 
 const props = defineProps({
   userAccount: {
-    type: Object as PropType<UserAccount>,
+    type: Object as PropType<Authentication>,
     required: true,
   },
   showName: {
@@ -85,7 +86,7 @@ const uploadImage = async (event: Event) => {
     return
   }
 
-  await $fetch<UserAccount>(`/api/user/account/${userAccount.value.id}`, {
+  await $fetch<Authentication>(`/api/user/account/${userAccount.value.id}`, {
     method: 'PATCH',
     headers: useRequestHeaders(),
     body: formData,

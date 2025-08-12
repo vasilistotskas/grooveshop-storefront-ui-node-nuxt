@@ -107,7 +107,7 @@ const formFields = computed(() => {
 // Filter the schema fields based on the condition function
 const filteredFields = computed(() => {
   return formFields.value.filter((field) => {
-    if (!field.condition) {
+    if (!field.condition || typeof field.condition !== 'function') {
       return true
     }
     return field.condition(values)
@@ -120,7 +120,7 @@ const disabledFields = computed<DisabledFields>(() => {
     return {}
   }
   return formFields.value.reduce((acc: DisabledFields, field) => {
-    acc[field.name] = field.disabledCondition ? field.disabledCondition(values) : false
+    acc[field.name] = field.disabledCondition && typeof field.disabledCondition === 'function' ? field.disabledCondition(values) : false
     return acc
   }, {})
 })
@@ -152,21 +152,17 @@ const currentStepSchema = computed(() => {
 })
 
 // Use schema.extraValidation to generate a Zod schema object
-const extraValidationSchema = schema.value.extraValidation ? schema.value.extraValidation : z.object({})
+const extraValidationSchema = computed(() => {
+  return schema.value.extraValidation ?? undefined
+})
 
 // Merge the generated Zod schema object with the extraValidationSchema
 const merged = computed(() => {
   const baseSchema = isMultiStep.value ? completeGeneratedSchema.value : currentStepSchema.value
-
-  if (extraValidationSchema instanceof z.ZodEffects) {
-    return mergeWithEffect(extraValidationSchema, baseSchema)
+  if (!extraValidationSchema.value) {
+    return baseSchema
   }
-  else if (extraValidationSchema instanceof z.ZodObject) {
-    return baseSchema.merge(extraValidationSchema)
-  }
-
-  console.warn('extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject')
-  return baseSchema
+  return baseSchema.extend(extraValidationSchema.value)
 })
 
 // Convert the generated Zod schema object to a VeeValidate compatible schema object
@@ -209,7 +205,7 @@ const {
   setFieldError,
 } = useForm({
   validationSchema,
-  initialValues: initialFormValues,
+  initialValues: initialFormValues.value,
   keepValuesOnUnmount: isMultiStep.value,
 })
 
@@ -286,11 +282,11 @@ const emit = defineEmits<{
 }>()
 
 // Define the submit event handler using handleSubmit function and emit function
-const onSubmit = handleSubmit((actions) => {
-  emit('submit', values)
+const onSubmit = handleSubmit((formValues) => {
+  emit('submit', formValues)
 
   if (resetOnSubmit.value) {
-    actions.resetForm()
+    resetForm()
   }
 })
 

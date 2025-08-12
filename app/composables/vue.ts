@@ -1,7 +1,5 @@
 import type { ComponentInternalInstance } from 'vue'
 
-export const isHydrated = ref(false)
-
 export function useDeactivated() {
   const deactivated = ref(false)
   onActivated(() => deactivated.value = false)

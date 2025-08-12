@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+const { blogPostUrl } = useUrls()
+
 defineProps({
   favourites: {
     type: Array as PropType<BlogPost[] | null>,
@@ -58,7 +60,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
         >
           <template #header>
             <Anchor
-              :to="{ path: favourite.absoluteUrl }"
+              :to="{ path: blogPostUrl(favourite) }"
               :text="extractTranslated(favourite, 'title', locale)"
               css-class="grid justify-center"
             >
@@ -81,7 +83,7 @@ const { t, locale } = useI18n({ useScope: 'local' })
           </template>
 
           <Anchor
-            :to="{ path: favourite.absoluteUrl }"
+            :to="{ path: blogPostUrl(favourite) }"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
               truncate text-primary-950 flex text-lg font-bold tracking-tight

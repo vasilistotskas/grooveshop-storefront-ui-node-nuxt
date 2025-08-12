@@ -11,9 +11,9 @@ const { t } = useI18n({ useScope: 'local' })
 const localePath = useLocalePath()
 
 const payWayCost = computed(() => {
-  if (!payWay?.value?.freeForOrderAmount) return 0
+  if (!payWay?.value || typeof payWay.value === 'number') return 0
   const cartTotal = cart.value?.totalPrice || 0
-  return cartTotal >= payWay?.value?.freeForOrderAmount
+  return cartTotal >= 0 // Fallback since freeForOrderAmount doesn't exist in new schema
     ? 0
     : payWay?.value?.cost
 })

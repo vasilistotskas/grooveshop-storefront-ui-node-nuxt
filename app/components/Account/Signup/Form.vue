@@ -17,24 +17,28 @@ const { $i18n } = useNuxtApp()
 const loading = ref(false)
 const selected = ref(false)
 
-const ZodSignup = z
-  .object({
-    email: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
-    password: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
-      message: $i18n.t('validation.min', {
-        min: 8,
-      }),
-    }),
-    password2: z.string({ required_error: $i18n.t('validation.required') }).min(8, {
-      message: $i18n.t('validation.min', {
-        min: 8,
-      }),
-    }),
-  })
-  .refine(data => data.password === data.password2, {
-    message: t('password2.validation.match'),
-    path: ['password2'],
-  })
+const ZodSignup = z.object({
+  email: z.email({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.invalidEmail'),
+  }),
+  password: z.string({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : undefined,
+  }).min(8, {
+    error: $i18n.t('validation.passwordTooShort'),
+  }),
+  password2: z.string({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : undefined,
+  }),
+}).refine(data => data.password === data.password2, {
+  message: $i18n.t('validation.passwordsNoMatch'),
+  path: ['password2'],
+})
 
 const validationSchema = toTypedSchema(ZodSignup)
 

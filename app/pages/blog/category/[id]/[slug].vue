@@ -18,7 +18,7 @@ const BlogPostCard = computed(() =>
 )
 
 const pageSize = ref(15)
-const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -74,7 +74,7 @@ const categoryDescription = computed(() => {
   return extractTranslated(category?.value, 'description', locale.value) || ''
 })
 
-const totalPosts = computed(() => category.value?.recursivePostCount || 0)
+const totalPosts = computed(() => category.value?.postCount || 0)
 
 const pagination = computed(() => {
   if (!posts.value?.count) return

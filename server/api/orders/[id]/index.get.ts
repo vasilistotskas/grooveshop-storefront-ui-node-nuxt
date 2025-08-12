@@ -2,7 +2,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
+    const params = await getValidatedRouterParams(
+      event,
+      zRetrieveOrderData.shape.path.parse,
+    )
     const url = `${config.apiBaseUrl}/order/${params.id}`
     const response = await $fetch(url, {
       method: 'GET',
@@ -10,7 +13,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodOrderDetail)
+    return await parseDataAs(response, zRetrieveOrderResponse)
   }
   catch (error) {
     await handleError(error)

@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readValidatedBody(
       event,
-      ZodBlogCommentUserBlogCommentBody.parse,
+      zGetMyBlogCommentData.shape.body.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/comment/my_comment`,
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, ZodBlogComment)
+    return await parseDataAs(response, zGetMyBlogCommentResponse)
   }
   catch (error) {
     await handleError(error)

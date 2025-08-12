@@ -8,7 +8,7 @@ defineProps({
   },
 })
 
-const { $getRouteBaseName } = useNuxtApp()
+const { $routeBaseName } = useNuxtApp()
 const route = useRoute()
 const config = useRuntimeConfig()
 const { enabled } = useAuthPreviewMode()
@@ -22,7 +22,7 @@ const {
 
 const navbar = ref(null)
 
-const routeName = computed(() => $getRouteBaseName(route as unknown as keyof RouteNamedMapI18n))
+const routeName = computed(() => $routeBaseName(route as unknown as keyof RouteNamedMapI18n))
 const isPageWithH1 = computed(() => {
   if (!routeName.value) return false
   return ['blog-post-id-slug'].includes(routeName.value)

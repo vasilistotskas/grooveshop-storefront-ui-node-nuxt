@@ -47,7 +47,7 @@ const {
   },
 })
 
-const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -56,7 +56,7 @@ const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
 ])
 
 const orderingOptions = computed(() => {
-  return useOrdering<ProductReviewOrderingField>(entityOrdering.value)
+  return useOrdering<any>(entityOrdering.value)
 })
 
 watch(

@@ -10,7 +10,7 @@ const pending = ref(true)
 const page = computed(() => route.query.page || 1)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const entityOrdering = ref<EntityOrdering<OrderOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'status',
     label: t('ordering.status'),
@@ -69,7 +69,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<OrderOrderingField>(entityOrdering.value)
+  return useOrdering<any>(entityOrdering.value)
 })
 
 watch(

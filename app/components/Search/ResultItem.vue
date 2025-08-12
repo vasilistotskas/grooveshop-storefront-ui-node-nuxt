@@ -58,7 +58,7 @@ const imgAlt = computed(() => {
   >
     <Anchor
       :class="{ 'bg-primary-200 dark:bg-primary-800': highlighted }"
-      :to="{ path: item.absoluteUrl }"
+      :to="{ path: `/products/${item.id}` }"
       class="
         focusable flex gap-1 p-2
 

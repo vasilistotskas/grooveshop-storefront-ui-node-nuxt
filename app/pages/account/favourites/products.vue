@@ -12,7 +12,7 @@ const pageSize = ref(8)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -28,6 +28,7 @@ const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
 const { data: favourites, refresh: refreshFavourites, status, error } = await useFetch<Pagination<ProductFavourite>>(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
+    key: `favouriteProducts${user.value?.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -46,7 +47,7 @@ const { data: favourites, refresh: refreshFavourites, status, error } = await us
 const productIds = computed(() => {
   if (!favourites.value) return []
   return favourites.value.results?.map(favourite =>
-    favourite.product.id,
+    favourite.product as number,
   )
 })
 
@@ -72,7 +73,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<ProductFavouriteOrderingField>(entityOrdering.value)
+  return useOrdering<any>(entityOrdering.value)
 })
 
 watch(

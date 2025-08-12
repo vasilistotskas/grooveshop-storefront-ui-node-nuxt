@@ -23,18 +23,18 @@ const { contentShorten } = useText()
 
 const src = computed(() => {
   return displayImageOf.value === 'user'
-    ? userAccount.value?.mainImagePath
-    : product.value?.mainImagePath
+    ? '' // User image not available when userAccount is ID reference
+    : '' // Product image not available when product is ID reference
 })
 
 const alt = computed(() => {
   return displayImageOf.value === 'user'
-    ? (userAccount.value?.fullName || 'Anonymous')
-    : extractTranslated(product?.value, 'name', locale.value)
+    ? 'Anonymous' // User name not available when userAccount is ID reference
+    : (typeof product?.value === 'number' ? 'Product' : extractTranslated(product?.value, 'name', locale.value))
 })
 
 const productName = computed(() =>
-  extractTranslated(product?.value, 'name', locale.value),
+  typeof product?.value === 'number' ? 'Product' : extractTranslated(product?.value, 'name', locale.value),
 )
 
 const reviewComment = computed(() => {
@@ -71,7 +71,7 @@ const reviewComment = computed(() => {
           class="grid gap-2"
         >
           <Anchor
-            :to="{ path: product.absoluteUrl }"
+            :to="{ path: `/products/${product}` }"
             :text="productName"
           >
             <ImgWithFallback
@@ -93,7 +93,7 @@ const reviewComment = computed(() => {
       >
         <LazyAnchor
           v-if="displayImageOf === 'product' && product"
-          :to="{ path: product.absoluteUrl }"
+          :to="{ path: `/products/${product}` }"
           :text="productName"
         >
           <span class="text-lg font-medium">{{ productName }}</span>

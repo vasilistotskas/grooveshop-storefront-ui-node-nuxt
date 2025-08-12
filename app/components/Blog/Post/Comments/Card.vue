@@ -66,7 +66,9 @@ cursorState.value[cursorKey.value] = ''
 
 const cursor = computed(() => cursorState.value[cursorKey.value] ?? '')
 
-const blogPost = computed(() => comment?.value?.post)
+// Get blog post ID from route since it's not included in comment data
+const route = useRoute()
+const blogPostId = computed(() => route.params.id as string)
 
 const likeClicked = (event: { blogCommentId: number, liked: boolean }) => {
   if (event.liked) {
@@ -84,8 +86,12 @@ const replyCommentFormSchema: DynamicFormSchema = {
       id: `content-${comment.value.id}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).max(1000),
+      rules: z.string({
+        error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
+      }).max(1000),
       autocomplete: 'on',
+      condition: null,
+      disabledCondition: null,
       readonly: false,
       required: true,
       placeholder: t('reply.placeholder'),
@@ -122,7 +128,7 @@ async function onReplySubmit({ content }: { content: string }) {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      post: String(blogPost.value),
+      post: String(blogPostId.value),
       user: String(user?.value?.id),
       translations: {
         [locale.value]: {
@@ -216,12 +222,12 @@ const onShowMoreRepliesButtonClick = async () => {
 
 const hasReplies = computed(() => {
   return (
-    allReplies.value.length > 0 || (comment.value?.children?.length ?? 0) > 0
+    allReplies.value.length > 0 || (comment.value?.hasReplies ?? false)
   )
 })
 
 const totalReplies = computed(() => {
-  return allReplies.value.length + (comment.value?.children?.length ?? 0)
+  return allReplies.value.length + (comment.value?.repliesCount ?? 0)
 })
 
 const pagination = computed(() => {
@@ -276,7 +282,7 @@ watch(
 
 <template>
   <details
-    v-show="blogPost"
+    v-show="blogPostId"
     :class="commentCardClass"
     class="relative z-30"
     open

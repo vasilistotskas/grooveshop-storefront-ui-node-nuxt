@@ -1,14 +1,12 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,
-      ZodBlogCommentParams.parse,
+      zDestroyBlogCommentData.shape.path.parse,
     )
-    const response = await $fetch(
+    await $fetch(
       `${config.apiBaseUrl}/blog/comment/${params.id}`,
       {
         method: 'DELETE',
@@ -17,7 +15,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return parseDataAs(response, z.any())
+    return { success: true }
   }
   catch (error) {
     await handleError(error)

@@ -4,8 +4,11 @@ export default defineEventHandler(async (event) => {
 
   try {
     const headers = await cartSession.getCartHeaders()
-    const body = await readValidatedBody(event, ZodCartItemPutBody.parse)
-    const params = await getValidatedRouterParams(event, ZodCartItemParams.parse)
+    const body = await readValidatedBody(event, zUpdateCartItemData.shape.body.parse)
+    const params = await getValidatedRouterParams(
+      event,
+      zUpdateCartItemData.shape.path.parse,
+    )
     const response = await $fetch(
       `${config.apiBaseUrl}/cart/item/${params.id}`,
       {
@@ -15,7 +18,7 @@ export default defineEventHandler(async (event) => {
         body,
       },
     )
-    const parsedData = await parseDataAs(response, ZodCartItem)
+    const parsedData = await parseDataAs(response, zUpdateCartItemResponse)
 
     await cartSession.handleCartResponse(parsedData)
 

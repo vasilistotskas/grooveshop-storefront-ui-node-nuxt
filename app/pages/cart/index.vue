@@ -64,11 +64,11 @@ const emptyCardUI = {
         </div>
 
         <div
-          v-if="!pending && cart?.cartItems?.length"
+          v-if="!pending && cart?.items?.length"
           class="flex flex-col w-full gap-4"
         >
           <UCard
-            v-for="(cartItem, index) in cart.cartItems"
+            v-for="(cartItem, index) in cart.items"
             :key="index"
             v-bind="cardConfig"
             :ui="mainCardUI"
@@ -77,7 +77,7 @@ const emptyCardUI = {
           </UCard>
         </div>
         <UCard
-          v-else-if="!pending && !cart?.cartItems?.length"
+          v-else-if="!pending && !cart?.items?.length"
           v-bind="cardConfig"
           :ui="emptyCardUI"
           class="text-center"
@@ -106,7 +106,7 @@ const emptyCardUI = {
         </UCard>
         <div v-else class="flex flex-col w-full gap-4">
           <UCard
-            v-for="index in (cart?.cartItems?.length || 2)"
+            v-for="index in (cart?.items?.length || 2)"
             :key="index"
             v-bind="cardConfig"
             :ui="mainCardUI"
@@ -133,7 +133,7 @@ const emptyCardUI = {
       </div>
 
       <div
-        v-if="!pending && cart?.cartItems?.length"
+        v-if="!pending && cart?.items?.length"
         class="w-full lg:max-w-md"
       >
         <UCard

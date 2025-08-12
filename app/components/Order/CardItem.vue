@@ -12,7 +12,7 @@ const { item } = toRefs(props)
 const { locale } = useI18n()
 
 const alt = computed(() => {
-  return extractTranslated(item.value.product, 'name', locale.value)
+  return typeof item.value.product === 'number' ? 'Product' : extractTranslated(item.value.product, 'name', locale.value)
 })
 </script>
 
@@ -26,7 +26,7 @@ const alt = computed(() => {
       :height="120"
       fit="contain"
       :background="'transparent'"
-      :src="item.product.mainImagePath"
+      :src="''"
       :alt="alt"
     />
   </div>

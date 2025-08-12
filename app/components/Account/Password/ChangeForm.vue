@@ -37,7 +37,9 @@ const formSchema = computed<DynamicFormSchema>(() => {
       label: $i18n.t('password.new'),
       name: 'new_password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -48,7 +50,9 @@ const formSchema = computed<DynamicFormSchema>(() => {
       label: $i18n.t('password.confirm'),
       name: 'confirm_password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }).min(8).max(255),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -62,8 +66,12 @@ const formSchema = computed<DynamicFormSchema>(() => {
       label: $i18n.t('password.current'),
       name: 'current_password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }).min(8).max(255),
       autocomplete: 'current-password',
+      condition: null,
+      disabledCondition: null,
       readonly: false,
       required: true,
       placeholder: $i18n.t('password.current'),
@@ -75,9 +83,15 @@ const formSchema = computed<DynamicFormSchema>(() => {
     fields,
     extraValidation: z
       .object({
-        current_password: z.string({ required_error: $i18n.t('validation.required') }).optional(),
-        new_password: z.string({ required_error: $i18n.t('validation.required') }),
-        confirm_password: z.string({ required_error: $i18n.t('validation.required') }),
+        current_password: z.string({ error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.string.invalid') }).optional(),
+        new_password: z.string({ error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.string.invalid') }),
+        confirm_password: z.string({ error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.string.invalid') }),
       }).superRefine((val, ctx) => {
         if (val.new_password !== val.confirm_password) {
           ctx.addIssue({

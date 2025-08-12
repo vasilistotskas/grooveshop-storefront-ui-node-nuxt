@@ -84,27 +84,27 @@ definePageMeta({
             />
           </div>
           <div class="flex items-center gap-2.5">
-            <span :class="paymentStatusClass(order.paymentStatus).color">
+            <span :class="paymentStatusClass(order.paymentStatus || '').color">
               {{ order.paymentStatus }}
             </span>
             <UIcon
-              :name="paymentStatusClass(order.paymentStatus).icon"
-              :class="paymentStatusClass(order.paymentStatus).color"
+              :name="paymentStatusClass(order.paymentStatus || '').icon"
+              :class="paymentStatusClass(order.paymentStatus || '').color"
             />
           </div>
         </div>
         <div class="order-items grid gap-4 max-h-96 overflow-y-auto">
           <div
             v-for="item in order.items"
-            :key="item.product.id"
+            :key="`product-${item.product}`"
             class="order-item flex items-center gap-4"
           >
             <ImgWithFallback
-              :alt="extractTranslated(item.product, 'name', locale)"
+              :alt="typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale)"
               :background="'transparent'"
               fit="contain"
               :height="100"
-              :src="item.product?.mainImagePath"
+              :src="''"
               :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
               :width="100"
               class="bg-primary-100"
@@ -119,9 +119,9 @@ definePageMeta({
                 "
             >
               <Anchor
-                :title="extractTranslated(item.product, 'name', locale)"
+                :title="typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale)"
                 :to="{
-                  path: item.product.absoluteUrl,
+                  path: `/products/${item.product}`,
                 }"
                 css-class="w-full"
               >
@@ -132,7 +132,7 @@ definePageMeta({
                       dark:text-primary-50
                     "
                 >
-                  {{ extractTranslated(item.product, 'name', locale) }}
+                  {{ typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale) }}
                 </span>
               </Anchor>
               <div class="flex items-center">
@@ -243,7 +243,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
               >{{
-                extractTranslated(order.payWay, 'name', locale)
+                typeof order.payWay === 'number' ? 'Payment Method' : extractTranslated(order.payWay, 'name', locale)
               }}</span>
             </div>
             <div class="grid gap-2">
@@ -266,7 +266,8 @@ definePageMeta({
                 order.paymentStatus
               }}</span>
             </div>
-            <div v-if="order.trackingInfo?.trackingNumber" class="grid gap-2">
+            <div v-if="false" class="grid gap-2">
+              <!-- trackingInfo not available in new schema -->
               <span
                 class="
                     text-primary-950 font-bold
@@ -283,7 +284,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
               >{{
-                order.trackingInfo.trackingNumber
+                'N/A'
               }}</span>
             </div>
           </div>

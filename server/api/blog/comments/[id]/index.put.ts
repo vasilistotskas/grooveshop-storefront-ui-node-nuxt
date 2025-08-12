@@ -2,13 +2,13 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, ZodBlogCommentPutBody.parse)
+    const body = await readValidatedBody(event, zUpdateBlogCommentData.shape.body.parse)
     const params = await getValidatedRouterParams(
       event,
-      ZodBlogCommentParams.parse,
+      zUpdateBlogCommentData.shape.path.parse,
     )
     const response = await $fetch(
-      `${config.apiBaseUrl}/product/review/${params.id}`,
+      `${config.apiBaseUrl}/blog/comment/${params.id}`,
       {
         method: 'PUT',
         body,
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, ZodBlogComment)
+    return await parseDataAs(response, zUpdateBlogCommentResponse)
   }
   catch (error) {
     await handleError(error)

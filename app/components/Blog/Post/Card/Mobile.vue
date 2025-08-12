@@ -2,6 +2,11 @@
 import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 
+const { blogPostUrl } = useUrls()
+
+// Local reactive state for likes count since the property is read-only
+const localLikesCount = ref(0)
+
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
   imgWidth: { type: Number, required: false, default: 575 },
@@ -49,12 +54,19 @@ const startShare = async () => {
   }
 }
 
+// Initialize local likes count
+watchEffect(() => {
+  if (post.value?.likesCount !== undefined) {
+    localLikesCount.value = post.value.likesCount
+  }
+})
+
 const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   if (event.liked) {
-    post.value.likesCount++
+    localLikesCount.value++
   }
   else {
-    post.value.likesCount--
+    localLikesCount.value--
   }
 }
 </script>
@@ -70,7 +82,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   >
     <div class="relative grid">
       <Anchor
-        :to="{ path: post.absoluteUrl }"
+        :to="{ path: blogPostUrl(post) }"
         :text="alt"
         css-class="grid justify-center"
       >
@@ -118,7 +130,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <div class="absolute bottom-4 right-4 grid items-end gap-2">
         <ButtonBlogPostLike
           :blog-post-id="post.id"
-          :likes-count="post.likesCount"
+          :likes-count="localLikesCount"
           size="3xl"
           @update="likeClicked"
         />
@@ -131,7 +143,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :title="$i18n.t('comments.count', {
             count: post.commentsCount,
           })"
-          :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
+          :to="localePath({ path: blogPostUrl(post), hash: '#blog-post-comments' })"
           :label="String(post.commentsCount)"
           :ui="{
             base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',

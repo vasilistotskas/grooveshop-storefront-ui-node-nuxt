@@ -1,12 +1,10 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,
-      ZodUserAddressParams.parse,
+      zSetMainUserAddressData.shape.path.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/user/address/${params.id}/set_main`,
@@ -17,7 +15,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, z.any())
+    return await parseDataAs(response, zSetMainUserAddressResponse)
   }
   catch (error) {
     await handleError(error)

@@ -18,7 +18,7 @@ export default function () {
     })
   }
 
-  async function updateNotification(id: number, body: NotificationUserBody) {
+  async function updateNotification(id: number, body: NotificationUserWriteRequest) {
     return $fetch<NotificationUser>(`${API_BASE_URL}/${id}`, {
       method: 'PATCH',
       headers: useRequestHeaders(),

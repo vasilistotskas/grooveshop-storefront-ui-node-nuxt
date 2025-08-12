@@ -23,7 +23,7 @@ const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const category = computed(() => route.query.category)
 
-const entityOrdering = ref<EntityOrdering<ProductOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'finalPrice',
     label: t('ordering.price'),

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+import { useUrls } from '~/composables/useUrls'
 
 const props = defineProps({
   item: {
@@ -8,6 +9,8 @@ const props = defineProps({
   },
 })
 const { item } = toRefs(props)
+
+const { productUrl } = useUrls()
 </script>
 
 <template>
@@ -19,7 +22,7 @@ const { item } = toRefs(props)
     "
   >
     <Anchor
-      :to="{ path: item.absoluteUrl }"
+      :to="{ path: productUrl(item.id) }"
       class="pb-2"
       :text="item.name"
     >

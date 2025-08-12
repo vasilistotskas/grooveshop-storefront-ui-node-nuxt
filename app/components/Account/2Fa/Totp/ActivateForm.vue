@@ -83,8 +83,12 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: t('authenticator_code'),
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(6).max(6),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }).min(6).max(6),
       autocomplete: 'one-time-code',
+      condition: null,
+      disabledCondition: null,
       readonly: false,
       required: true,
       placeholder: '123456',
@@ -137,7 +141,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       </div>
       <section class="grid items-center justify-center justify-items-center">
         <DynamicForm
-          :button-label="t('entry')"
+          :button-label="$i18n.t('entry')"
           :schema="formSchema"
           class="grid"
           @submit="onSubmit"

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t } = useI18n({ useScope: 'local' })
 const { getUnseenCount, markAsSeen } = useUserNotification()
 const { getNotifications } = useNotification()
 const userNotificationStore = useUserNotificationStore()
@@ -24,7 +24,7 @@ const { data: unseen, execute: executeUnseenCount, status: unseenStatus } = awai
   },
 )
 
-const { data, execute, status: notificationsStatus } = await useLazyAsyncData<ZNotification[]>(
+const { data, execute, status: notificationsStatus } = await useLazyAsyncData<Notification[]>(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
@@ -45,7 +45,7 @@ const pending = computed(() => {
 })
 
 const show = computed(() => {
-  if (!unseen.value || !unseen.value?.count) {
+  if (!unseen.value || !('count' in unseen.value)) {
     return false
   }
   return unseen.value.count > 0
@@ -61,7 +61,7 @@ const userNotifications = computed(() => {
   return notifications.value?.results?.map((notification) => {
     return {
       ...notification,
-      notification: data.value?.find(n => n.id === notification.notification),
+      notification: data.value?.find(n => (n as any).id === notification.notification),
     }
   })
 })
@@ -147,8 +147,8 @@ onClickOutside(dropdown, () => {
                     root: 'grid gap-1',
                   }"
                 >
-                  <span class="notification-title truncate text-sm" v-html="extractTranslated(userNotification.notification, 'title', locale)" />
-                  <span class="notification-message text-xs" v-html="extractTranslated(userNotification.notification, 'message', locale)" />
+                  <span class="notification-title truncate text-sm" v-html="userNotification.notification?.title || 'Notification'" />
+                  <span class="notification-message text-xs" v-html="userNotification.notification?.body || ''" />
                 </UChip>
               </UCard>
             </UButton>

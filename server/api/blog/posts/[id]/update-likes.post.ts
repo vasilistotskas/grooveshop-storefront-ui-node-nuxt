@@ -2,7 +2,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, ZodBlogPostParams.parse)
+    const params = await getValidatedRouterParams(
+      event,
+      zToggleBlogPostLikeData.shape.path.parse,
+    )
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/post/${params.id}/update_likes`,
       {
@@ -12,7 +15,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, ZodBlogPost)
+    return await parseDataAs(response, zToggleBlogPostLikeResponse)
   }
   catch (error) {
     await handleError(error)
