@@ -58,7 +58,8 @@ definePageMeta({
 
       <div class="flex flex-col items-center justify-center">
         <div
-          v-if="getVerifyEmailData?.status === 200" class="
+          v-if="getVerifyEmailData?.status === 200"
+          class="
               flex flex-col items-center justify-center gap-4
             "
         >
@@ -86,7 +87,8 @@ definePageMeta({
           />
         </div>
         <p
-          v-else-if="!getVerifyEmailData?.data?.email" class="
+          v-else-if="!getVerifyEmailData?.data?.email"
+          class="
               text-primary-950
 
               dark:text-primary-50
@@ -95,7 +97,8 @@ definePageMeta({
           {{ t('invalid_verification_url') }}
         </p>
         <p
-          v-else class="
+          v-else
+          class="
               text-primary-950
 
               dark:text-primary-50

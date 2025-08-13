@@ -67,7 +67,10 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <LazySearchBar v-if="!isMobileOrTablet && route.path !== '/search'" v-model:search-bar-focused="searchBarFocused" />
+      <LazySearchBar
+        v-if="!isMobileOrTablet && route.path !== '/search'"
+        v-model:search-bar-focused="searchBarFocused"
+      />
       <div
         class="
           relative ml-auto hidden items-center

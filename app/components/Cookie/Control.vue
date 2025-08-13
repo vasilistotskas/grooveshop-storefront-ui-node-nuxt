@@ -64,7 +64,7 @@ const setCookies = ({
   cookiesOptionalEnabled: Cookie[]
   isConsentGiven: boolean
 }) => {
-  isConsentGiven.value = isConsentGivenNew // must come before an update to `cookiesEnabled`
+  isConsentGiven.value = isConsentGivenNew
   cookiesEnabled.value = isConsentGivenNew
     ? [
         ...moduleOptions.cookies.necessary,
@@ -162,8 +162,14 @@ defineExpose({
         <div class="flex flex-col lg:flex-row items-center justify-between text-xs text-primary-700 dark:text-primary-100">
           <div>
             <slot name="bar">
-              <h2 class="mb-1 font-semibold" v-text="t('banner.title')" />
-              <p class="text-sm text-primary-600 dark:text-primary-100" v-text="t('banner.description')" />
+              <h2
+                class="mb-1 font-semibold"
+                v-text="t('banner.title')"
+              />
+              <p
+                class="text-sm text-primary-600 dark:text-primary-100"
+                v-text="t('banner.description')"
+              />
             </slot>
           </div>
           <div class="ml-auto flex items-center gap-2 mt-4 lg:mt-0 md:space-y-0 md:flex-row-reverse">

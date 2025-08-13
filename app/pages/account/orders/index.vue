@@ -92,7 +92,10 @@ definePageMeta({
       md:gap-8 md:!p-0 md:mt-1
     "
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
       <PaginationPageNumber
@@ -121,7 +124,10 @@ definePageMeta({
         class="h-[202px] w-full"
       />
     </div>
-    <Error v-else-if="error" :error="error" />
+    <Error
+      v-else-if="error"
+      :error="error"
+    />
     <LazyEmptyState
       v-else-if="!orders?.count"
       class="w-full"

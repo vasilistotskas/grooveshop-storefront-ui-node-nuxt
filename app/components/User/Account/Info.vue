@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-// Authentication and UsernameUpdateResponse types are auto-imported from shared folder
 
 const props = defineProps({
   account: {

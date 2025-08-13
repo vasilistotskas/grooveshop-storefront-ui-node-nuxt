@@ -333,7 +333,10 @@ definePageMeta({
                   @click="startShare"
                 >
                   <template #leading>
-                    <UIcon name="i-heroicons-share" class="mr-1 group-hover:animate-pulse" />
+                    <UIcon
+                      name="i-heroicons-share"
+                      class="mr-1 group-hover:animate-pulse"
+                    />
                   </template>
                   {{ t('share') }}
                 </UButton>
@@ -353,7 +356,10 @@ definePageMeta({
                 @click="openModal"
               >
                 <template #leading>
-                  <UIcon name="i-heroicons-chat-bubble-left-right" class="mr-1 group-hover:animate-pulse" />
+                  <UIcon
+                    name="i-heroicons-chat-bubble-left-right"
+                    class="mr-1 group-hover:animate-pulse"
+                  />
                 </template>
               </UButton>
 
@@ -387,11 +393,17 @@ definePageMeta({
 
               <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
                 <span class="inline-flex items-center bg-primary-50 dark:bg-primary-900 px-3 py-1 rounded-full transition-transform hover:scale-105 duration-300">
-                  <UIcon name="i-heroicons-truck" class="mr-1" />
+                  <UIcon
+                    name="i-heroicons-truck"
+                    class="mr-1"
+                  />
                   {{ useI18n().t('free_shipping') || 'Δωρεάν Αποστολή' }}
                 </span>
                 <span class="inline-flex items-center bg-primary-50 dark:bg-primary-900 px-3 py-1 rounded-full transition-transform hover:scale-105 duration-300">
-                  <UIcon name="i-heroicons-shield-check" class="mr-1" />
+                  <UIcon
+                    name="i-heroicons-shield-check"
+                    class="mr-1"
+                  />
                   {{ useI18n().t('inclusive_of_taxes') || 'Περιλαμβάνονται όλοι οι φόροι.' }}
                 </span>
               </div>
@@ -410,7 +422,11 @@ definePageMeta({
                 >{{
                   t('qty')
                 }}</label>
-                <UInputNumber v-model="selectorQuantity" :min="1" :max="product?.stock" />
+                <UInputNumber
+                  v-model="selectorQuantity"
+                  :min="1"
+                  :max="product?.stock"
+                />
               </div>
 
               <ButtonProductAddToCart
@@ -436,10 +452,16 @@ definePageMeta({
               </template>
 
               <div class="prose dark:prose-invert max-w-none pt-4">
-                <div v-if="extractTranslated(product, 'description', locale)" class="product-description">
+                <div
+                  v-if="extractTranslated(product, 'description', locale)"
+                  class="product-description"
+                >
                   <div v-html="extractTranslated(product, 'description', locale) || ''" />
                 </div>
-                <p v-else class="text-gray-500 dark:text-gray-400">
+                <p
+                  v-else
+                  class="text-gray-500 dark:text-gray-400"
+                >
                   {{ t('no_description_available') }}
                 </p>
               </div>

@@ -334,7 +334,10 @@ onMounted(() => {
               }"
               @click="isOpen = true"
             />
-            <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
+            <LazyAccountLoginFormModal
+              v-if="isOpen"
+              v-model="isOpen"
+            />
           </template>
         </template>
       </LazyEmptyState>
@@ -382,7 +385,10 @@ onMounted(() => {
             }"
             @click="isOpen = true"
           />
-          <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
+          <LazyAccountLoginFormModal
+            v-if="isOpen"
+            v-model="isOpen"
+          />
         </template>
       </template>
     </LazyEmptyState>

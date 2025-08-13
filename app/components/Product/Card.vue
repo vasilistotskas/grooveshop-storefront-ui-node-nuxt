@@ -37,8 +37,6 @@ const { contentShorten } = useText()
 
 const { product } = toRefs(props)
 
-// productUrl is already available from useUrls()
-
 const alt = computed(() => {
   return extractTranslated(product?.value, 'name', locale.value)
 })

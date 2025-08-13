@@ -74,7 +74,8 @@ const filteredFlows = computed(() => {
     <slot />
 
     <div
-      v-if="flow && flow.types && flow?.types?.length > 1" class="
+      v-if="flow && flow.types && flow?.types?.length > 1"
+      class="
         grid items-center justify-center gap-2
       "
     >

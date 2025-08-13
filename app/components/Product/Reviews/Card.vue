@@ -23,13 +23,13 @@ const { contentShorten } = useText()
 
 const src = computed(() => {
   return displayImageOf.value === 'user'
-    ? '' // User image not available when userAccount is ID reference
-    : '' // Product image not available when product is ID reference
+    ? ''
+    : ''
 })
 
 const alt = computed(() => {
   return displayImageOf.value === 'user'
-    ? 'Anonymous' // User name not available when userAccount is ID reference
+    ? 'Anonymous'
     : (typeof product?.value === 'number' ? 'Product' : extractTranslated(product?.value, 'name', locale.value))
 })
 
@@ -125,7 +125,10 @@ const reviewComment = computed(() => {
         "
       >
         <div class="text-xs">
-          <NuxtTime :datetime="review.createdAt" :locale="locale" />
+          <NuxtTime
+            :datetime="review.createdAt"
+            :locale="locale"
+          />
         </div>
       </div>
     </div>

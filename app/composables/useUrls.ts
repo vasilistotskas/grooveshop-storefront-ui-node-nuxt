@@ -4,7 +4,6 @@ export const useUrls = () => {
   }
 
   const blogCategoryUrl = (category: BlogCategory): string => {
-    // Note: ancestors property not available in new schema, using category slug only
     return `/blog/category/${category.id}/${category.slug}`
   }
 

@@ -83,7 +83,10 @@ onClickOutside(dropdown, () => {
 </script>
 
 <template>
-  <div ref="toggleButton" class="relative grid items-center">
+  <div
+    ref="toggleButton"
+    class="relative grid items-center"
+  >
     <UChip
       :key="'notifications'"
       size="md"
@@ -147,8 +150,14 @@ onClickOutside(dropdown, () => {
                     root: 'grid gap-1',
                   }"
                 >
-                  <span class="notification-title truncate text-sm" v-html="userNotification.notification?.title || 'Notification'" />
-                  <span class="notification-message text-xs" v-html="userNotification.notification?.body || ''" />
+                  <span
+                    class="notification-title truncate text-sm"
+                    v-html="userNotification.notification?.title || 'Notification'"
+                  />
+                  <span
+                    class="notification-message text-xs"
+                    v-html="userNotification.notification?.body || ''"
+                  />
                 </UChip>
               </UCard>
             </UButton>
@@ -159,7 +168,10 @@ onClickOutside(dropdown, () => {
                 grid items-center justify-center justify-items-center gap-2 p-2
               "
             >
-              <UIcon name="i-heroicons-bell-alert" class="size-12" />
+              <UIcon
+                name="i-heroicons-bell-alert"
+                class="size-12"
+              />
               <p class="text-center text-sm">
                 {{ t('notifications.no_notifications') }}
               </p>

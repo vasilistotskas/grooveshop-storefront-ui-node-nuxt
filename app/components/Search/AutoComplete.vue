@@ -81,13 +81,16 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
     class="shadow-4xl flex w-full flex-col gap-4 overflow-auto"
   >
     <div
-      v-if="allResults && hasResults && query.length !== 0" class="grid gap-4"
+      v-if="allResults && hasResults && query.length !== 0"
+      class="grid gap-4"
     >
       <template
-        v-for="([key, section]) in Object.entries(allResults)" :key="key"
+        v-for="([key, section]) in Object.entries(allResults)"
+        :key="key"
       >
         <div
-          v-if="section && section.results && section.results.length > 0" class="
+          v-if="section && section.results && section.results.length > 0"
+          class="
             flex flex-col gap-2
           "
         >
@@ -111,7 +114,10 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
           </div>
 
           <template v-if="status === 'success'">
-            <ul v-for="result in section?.results" :key="result.id">
+            <ul
+              v-for="result in section?.results"
+              :key="result.id"
+            >
               <SearchResultItem
                 :highlighted="highlighted ? highlighted === String(result.id) : false"
                 :item="result"

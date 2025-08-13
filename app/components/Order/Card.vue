@@ -153,7 +153,10 @@ const { $i18n } = useNuxtApp()
         >{{
           $i18n.t('ordering.created_at')
         }}</span>
-        <NuxtTime :datetime="order.createdAt" :locale="locale" />
+        <NuxtTime
+          :datetime="order.createdAt"
+          :locale="locale"
+        />
       </div>
     </div>
 

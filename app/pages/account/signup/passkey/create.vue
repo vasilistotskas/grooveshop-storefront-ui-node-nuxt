@@ -15,7 +15,10 @@ definePageMeta({
       md:gap-8
     "
   >
-    <PageTitle :text="t('title')" class="text-center" />
+    <PageTitle
+      :text="t('title')"
+      class="text-center"
+    />
     <p
       class="
         text-primary-950 flex items-center text-center

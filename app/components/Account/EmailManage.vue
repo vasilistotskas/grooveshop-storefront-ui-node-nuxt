@@ -178,10 +178,20 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 
 <template>
   <div class="grid gap-4 md:gap-12">
-    <UTable :columns="columns" :data="data">
+    <UTable
+      :columns="columns"
+      :data="data"
+    >
       <template #actions-cell="{ row }">
-        <LazyUDropdownMenu v-if="actionItems(row.original).length > 0" :items="actionItems(row.original)">
-          <UButton color="neutral" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
+        <LazyUDropdownMenu
+          v-if="actionItems(row.original).length > 0"
+          :items="actionItems(row.original)"
+        >
+          <UButton
+            color="neutral"
+            icon="i-heroicons-ellipsis-horizontal-20-solid"
+            variant="ghost"
+          />
         </LazyUDropdownMenu>
       </template>
       <template #verified-cell="{ row }">

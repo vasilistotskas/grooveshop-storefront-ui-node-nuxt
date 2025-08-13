@@ -47,28 +47,28 @@ export type Authentication = {
   /**
      * Twitter Profile
      */
-  twitter?: string
+  twitter?: string | null
   /**
      * LinkedIn Profile
      */
-  linkedin?: string
+  linkedin?: string | null
   /**
      * Facebook Profile
      */
-  facebook?: string
+  facebook?: string | null
   /**
      * Instagram Profile
      */
-  instagram?: string
-  website?: string
+  instagram?: string | null
+  website?: string | null
   /**
      * Youtube Profile
      */
-  youtube?: string
+  youtube?: string | null
   /**
      * Github Profile
      */
-  github?: string
+  github?: string | null
   bio?: string
   /**
      * Active
@@ -125,32 +125,30 @@ export type AuthenticationRequest = {
   /**
      * Twitter Profile
      */
-  twitter?: string
+  twitter?: string | null
   /**
      * LinkedIn Profile
      */
-  linkedin?: string
+  linkedin?: string | null
   /**
      * Facebook Profile
      */
-  facebook?: string
+  facebook?: string | null
   /**
      * Instagram Profile
      */
-  instagram?: string
-  website?: string
+  instagram?: string | null
+  website?: string | null
   /**
      * Youtube Profile
      */
-  youtube?: string
+  youtube?: string | null
   /**
      * Github Profile
      */
-  github?: string
+  github?: string | null
   bio?: string
 }
-
-export type BlankEnum = ''
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -1230,8 +1228,8 @@ export type Order = {
      * Region Code
      */
   region: string
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   street: string
   streetNumber: string
   payWay: number
@@ -1258,7 +1256,7 @@ export type Order = {
   readonly totalPriceExtra: number
   readonly fullAddress: string
   paymentId?: string
-  paymentStatus?: PaymentStatusEnum | BlankEnum
+  paymentStatus?: PaymentStatusEnum
   paymentMethod?: string
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
@@ -1275,8 +1273,8 @@ export type OrderDetail = {
      * Region Code
      */
   region: string
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   street: string
   streetNumber: string
   payWay: number
@@ -1303,7 +1301,7 @@ export type OrderDetail = {
   readonly totalPriceExtra: number
   readonly fullAddress: string
   paymentId?: string
-  paymentStatus?: PaymentStatusEnum | BlankEnum
+  paymentStatus?: PaymentStatusEnum
   paymentMethod?: string
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
@@ -1361,8 +1359,8 @@ export type OrderDetailRequest = {
      * Region Code
      */
   region: string
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   street: string
   streetNumber: string
   payWay: number
@@ -1377,7 +1375,7 @@ export type OrderDetailRequest = {
   items: Array<OrderItemRequest>
   documentType?: DocumentTypeEnum
   paymentId?: string
-  paymentStatus?: PaymentStatusEnum | BlankEnum
+  paymentStatus?: PaymentStatusEnum
   paymentMethod?: string
   trackingNumber?: string
   shippingCarrier?: string
@@ -1476,8 +1474,8 @@ export type OrderWriteRequest = {
      * Region Code
      */
   region?: string | null
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   street: string
   streetNumber: string
   payWay?: number | null
@@ -1863,28 +1861,28 @@ export type PatchedAuthenticationRequest = {
   /**
      * Twitter Profile
      */
-  twitter?: string
+  twitter?: string | null
   /**
      * LinkedIn Profile
      */
-  linkedin?: string
+  linkedin?: string | null
   /**
      * Facebook Profile
      */
-  facebook?: string
+  facebook?: string | null
   /**
      * Instagram Profile
      */
-  instagram?: string
-  website?: string
+  instagram?: string | null
+  website?: string | null
   /**
      * Youtube Profile
      */
-  youtube?: string
+  youtube?: string | null
   /**
      * Github Profile
      */
-  github?: string
+  github?: string | null
   bio?: string
 }
 
@@ -2070,8 +2068,8 @@ export type PatchedOrderWriteRequest = {
      * Region Code
      */
   region?: string | null
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   street?: string
   streetNumber?: string
   payWay?: number | null
@@ -2394,8 +2392,8 @@ export type PatchedUserAddressWriteRequest = {
      * Zip Code
      */
   zipcode?: string
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   phone?: string
   mobilePhone?: string
   notes?: string
@@ -3782,8 +3780,8 @@ export type UserAddress = {
      * Zip Code
      */
   zipcode: string
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   phone: string
   mobilePhone?: string
   notes?: string
@@ -3814,8 +3812,8 @@ export type UserAddressDetail = {
      * Zip Code
      */
   zipcode: string
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   phone: string
   mobilePhone?: string
   notes?: string
@@ -3845,8 +3843,8 @@ export type UserAddressWriteRequest = {
      * Zip Code
      */
   zipcode: string
-  floor?: FloorEnum | BlankEnum
-  locationType?: LocationTypeEnum | BlankEnum
+  floor?: FloorEnum
+  locationType?: LocationTypeEnum
   phone: string
   mobilePhone?: string
   notes?: string
@@ -3941,8 +3939,6 @@ export type UsernameUpdateResponse = {
  * * `unsubscribe` - unsubscribe
  */
 export type ActionEnumWritable = 'subscribe' | 'unsubscribe'
-
-export type BlankEnumWritable = ''
 
 /**
  * * `MARKETING` - Marketing Campaigns
@@ -4192,6 +4188,10 @@ export type GetBlogAuthorPostsData = {
   }
   query?: {
     /**
+         * Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, title, viewCount, -createdAt, -updatedAt, -publishedAt, -title, -viewCount
+         */
+    ordering?: '-createdAt' | '-publishedAt' | '-title' | '-updatedAt' | '-viewCount' | 'createdAt' | 'publishedAt' | 'title' | 'updatedAt' | 'viewCount'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -4352,6 +4352,10 @@ export type ListBlogCategoryAncestorsData = {
   }
   query?: {
     /**
+         * Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-level' | '-name' | '-sortOrder' | '-updatedAt' | 'createdAt' | 'id' | 'level' | 'name' | 'sortOrder' | 'updatedAt'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -4385,6 +4389,10 @@ export type ListBlogCategoryChildrenData = {
     id: string | number
   }
   query?: {
+    /**
+         * Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-level' | '-name' | '-sortOrder' | '-updatedAt' | 'createdAt' | 'id' | 'level' | 'name' | 'sortOrder' | 'updatedAt'
     /**
          * A page number within the paginated result set.
          */
@@ -4420,6 +4428,10 @@ export type ListBlogCategoryDescendantsData = {
   }
   query?: {
     /**
+         * Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-level' | '-name' | '-sortOrder' | '-updatedAt' | 'createdAt' | 'id' | 'level' | 'name' | 'sortOrder' | 'updatedAt'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -4453,6 +4465,10 @@ export type ListBlogCategoryPostsData = {
     id: string | number
   }
   query?: {
+    /**
+         * Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, title, viewsCount, -createdAt, -updatedAt, -publishedAt, -title, -viewsCount
+         */
+    ordering?: '-createdAt' | '-publishedAt' | '-title' | '-updatedAt' | '-viewsCount' | 'createdAt' | 'publishedAt' | 'title' | 'updatedAt' | 'viewsCount'
     /**
          * A page number within the paginated result set.
          */
@@ -4491,6 +4507,10 @@ export type ListBlogCategorySiblingsData = {
     id: string | number
   }
   query?: {
+    /**
+         * Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-level' | '-name' | '-sortOrder' | '-updatedAt' | 'createdAt' | 'id' | 'level' | 'name' | 'sortOrder' | 'updatedAt'
     /**
          * A page number within the paginated result set.
          */
@@ -4543,6 +4563,10 @@ export type GetBlogCategoryTreeData = {
   body?: never
   path?: never
   query?: {
+    /**
+         * Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-level' | '-name' | '-sortOrder' | '-updatedAt' | 'createdAt' | 'id' | 'level' | 'name' | 'sortOrder' | 'updatedAt'
     /**
          * A page number within the paginated result set.
          */
@@ -6222,6 +6246,10 @@ export type ListFeaturedBlogPostsData = {
          */
     minViewCount?: string | number
     /**
+         * Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, featured, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount, -featured
+         */
+    ordering?: '-commentsCount' | '-createdAt' | '-featured' | '-likesCount' | '-publishedAt' | '-updatedAt' | '-viewCount' | 'commentsCount' | 'createdAt' | 'featured' | 'likesCount' | 'publishedAt' | 'updatedAt' | 'viewCount'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -6371,6 +6399,10 @@ export type ListPopularBlogPostsData = {
          */
     minViewCount?: string | number
     /**
+         * Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount
+         */
+    ordering?: '-commentsCount' | '-createdAt' | '-likesCount' | '-publishedAt' | '-updatedAt' | '-viewCount' | 'commentsCount' | 'createdAt' | 'likesCount' | 'publishedAt' | 'updatedAt' | 'viewCount'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -6504,6 +6536,10 @@ export type ListTrendingBlogPostsData = {
          * Filter by minimum number of views
          */
     minViewCount?: string | number
+    /**
+         * Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount
+         */
+    ordering?: '-commentsCount' | '-createdAt' | '-likesCount' | '-publishedAt' | '-updatedAt' | '-viewCount' | 'commentsCount' | 'createdAt' | 'likesCount' | 'publishedAt' | 'updatedAt' | 'viewCount'
     /**
          * A page number within the paginated result set.
          */
@@ -12267,6 +12303,10 @@ export type GetUserAccountAddressesData = {
   }
   query?: {
     /**
+         * Which field to use when ordering the results. Available fields: id, country, zipcode, floor, locationType, isMain, createdAt, updatedAt, -id, -country, -zipcode, -floor, -locationType, -isMain, -createdAt, -updatedAt
+         */
+    ordering?: '-country' | '-createdAt' | '-floor' | '-id' | '-isMain' | '-locationType' | '-updatedAt' | '-zipcode' | 'country' | 'createdAt' | 'floor' | 'id' | 'isMain' | 'locationType' | 'updatedAt' | 'zipcode'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -12302,6 +12342,10 @@ export type GetUserAccountBlogPostCommentsData = {
     id: string | number
   }
   query?: {
+    /**
+         * Which field to use when ordering the results. Available fields: id, post, createdAt, -id, -post, -createdAt
+         */
+    ordering?: '-createdAt' | '-id' | '-post' | 'createdAt' | 'id' | 'post'
     /**
          * A page number within the paginated result set.
          */
@@ -12363,6 +12407,10 @@ export type GetUserAccountFavouriteProductsData = {
   }
   query?: {
     /**
+         * Which field to use when ordering the results. Available fields: id, productId, createdAt, updatedAt, -id, -productId, -createdAt, -updatedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-productId' | '-updatedAt' | 'createdAt' | 'id' | 'productId' | 'updatedAt'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -12398,6 +12446,10 @@ export type GetUserAccountLikedBlogPostsData = {
     id: string | number
   }
   query?: {
+    /**
+         * Which field to use when ordering the results. Available fields: id, title, createdAt, updatedAt, publishedAt, -id, -title, -createdAt, -updatedAt, -publishedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-publishedAt' | '-title' | '-updatedAt' | 'createdAt' | 'id' | 'publishedAt' | 'title' | 'updatedAt'
     /**
          * A page number within the paginated result set.
          */
@@ -12435,6 +12487,10 @@ export type GetUserAccountNotificationsData = {
   }
   query?: {
     /**
+         * Which field to use when ordering the results. Available fields: createdAt, seenAt, -createdAt, -seenAt
+         */
+    ordering?: '-createdAt' | '-seenAt' | 'createdAt' | 'seenAt'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -12471,6 +12527,10 @@ export type GetUserAccountOrdersData = {
   }
   query?: {
     /**
+         * Which field to use when ordering the results. Available fields: createdAt, updatedAt, status, -createdAt, -updatedAt, -status
+         */
+    ordering?: '-createdAt' | '-status' | '-updatedAt' | 'createdAt' | 'status' | 'updatedAt'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -12506,6 +12566,10 @@ export type GetUserAccountProductReviewsData = {
     id: string | number
   }
   query?: {
+    /**
+         * Which field to use when ordering the results. Available fields: id, productId, createdAt, updatedAt, -id, -productId, -createdAt, -updatedAt
+         */
+    ordering?: '-createdAt' | '-id' | '-productId' | '-updatedAt' | 'createdAt' | 'id' | 'productId' | 'updatedAt'
     /**
          * A page number within the paginated result set.
          */

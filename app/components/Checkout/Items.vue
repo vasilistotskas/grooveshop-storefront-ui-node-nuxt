@@ -50,7 +50,8 @@ const { $i18n } = useNuxtApp()
         </div>
         <div class="flex items-center">
           <span
-            v-if="item.finalPrice" class="
+            v-if="item.finalPrice"
+            class="
                               text-primary-950 text-sm
 
                 dark:text-primary-50

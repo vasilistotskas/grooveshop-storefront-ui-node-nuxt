@@ -132,7 +132,10 @@ const getColor = computed(() => {
     :ui="mergedUI"
     @click="toggleFavourite"
   />
-  <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
+  <LazyAccountLoginFormModal
+    v-if="isOpen"
+    v-model="isOpen"
+  />
 </template>
 
 <i18n lang="yaml">

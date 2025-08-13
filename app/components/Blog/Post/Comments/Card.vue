@@ -66,7 +66,6 @@ cursorState.value[cursorKey.value] = ''
 
 const cursor = computed(() => cursorState.value[cursorKey.value] ?? '')
 
-// Get blog post ID from route since it's not included in comment data
 const route = useRoute()
 const blogPostId = computed(() => route.params.id as string)
 

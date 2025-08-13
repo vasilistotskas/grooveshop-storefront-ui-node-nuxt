@@ -105,22 +105,28 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="String(title)" class="text-center capitalize"
+      :text="String(title)"
+      class="text-center capitalize"
     />
     <div
-      v-if="loading" class="
+      v-if="loading"
+      class="
         grid size-full items-center justify-center justify-items-center pt-4
 
         md:pt-8
-      " role="status"
+      "
+      role="status"
     >
       <svg
-        aria-hidden="true" class="
+        aria-hidden="true"
+        class="
           inline size-24 animate-spin fill-blue-600 text-neutral-200
 
           dark:text-neutral-600
         "
-        fill="none" viewBox="0 0 100 101" xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 100 101"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <path
           d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
@@ -133,7 +139,10 @@ definePageMeta({
       </svg>
       <span class="sr-only">{{ $i18n.t('loading') }}</span>
     </div>
-    <div v-if="error" class="grid items-center justify-center gap-4">
+    <div
+      v-if="error"
+      class="grid items-center justify-center gap-4"
+    >
       <p
         class="
           text-primary-950 text-center

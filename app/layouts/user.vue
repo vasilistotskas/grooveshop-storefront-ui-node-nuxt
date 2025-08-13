@@ -123,7 +123,8 @@ const Footer = computed(() => {
             max-w-(--container-main) mx-auto w-full
 
             md:!p-0
-          " :class="{
+          "
+          :class="{
             'opacity-70': searchBarFocused,
           }"
         >

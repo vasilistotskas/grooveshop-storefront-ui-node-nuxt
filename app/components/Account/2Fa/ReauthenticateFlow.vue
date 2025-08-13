@@ -93,7 +93,8 @@ const filteredMethods = computed(() => {
     <slot />
 
     <div
-      v-if="methods.length > 1" class="grid items-center justify-center gap-2"
+      v-if="methods.length > 1"
+      class="grid items-center justify-center gap-2"
     >
       <p>{{ $i18n.t('alternative_options') }}</p>
       <ul class="grid items-center">

@@ -13,7 +13,7 @@ const localePath = useLocalePath()
 const payWayCost = computed(() => {
   if (!payWay?.value || typeof payWay.value === 'number') return 0
   const cartTotal = cart.value?.totalPrice || 0
-  return cartTotal >= 0 // Fallback since freeForOrderAmount doesn't exist in new schema
+  return cartTotal >= 0
     ? 0
     : payWay?.value?.cost
 })
@@ -31,7 +31,10 @@ defineSlots<{
 </script>
 
 <template>
-  <aside id="checkout-sidebar" class="checkout-sidebar">
+  <aside
+    id="checkout-sidebar"
+    class="checkout-sidebar"
+  >
     <UCard class="w-full">
       <template #header>
         <div class="flex items-center justify-between">
@@ -52,7 +55,10 @@ defineSlots<{
 
       <div class="space-y-4">
         <div class="flex items-center gap-4">
-          <UIcon name="i-heroicons-truck" class="size-8 text-primary-600 dark:text-primary-400" />
+          <UIcon
+            name="i-heroicons-truck"
+            class="size-8 text-primary-600 dark:text-primary-400"
+          />
           <div class="w-full space-y-1">
             <p class="text-sm text-primary-600 dark:text-primary-400">
               {{ t('delivery_estimation') }}
@@ -76,7 +82,10 @@ defineSlots<{
             <span class="text-primary-950 dark:text-primary-50">{{ t('shipping') }}</span>
             <span class="text-primary-950 dark:text-primary-50 font-bold">{{ $i18n.n(shippingPrice, 'currency') }}</span>
           </div>
-          <div v-if="payWayCost" class="flex justify-between items-center">
+          <div
+            v-if="payWayCost"
+            class="flex justify-between items-center"
+          >
             <span class="text-primary-950 dark:text-primary-50">{{ t('pay_way_fee') }}</span>
             <span class="text-primary-950 dark:text-primary-50 font-bold">{{ $i18n.n(payWayCost, 'currency') }}</span>
           </div>
@@ -88,7 +97,10 @@ defineSlots<{
         </div>
 
         <div class="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">
-          <UIcon name="i-heroicons-shield-check" class="text-green-500 size-6" />
+          <UIcon
+            name="i-heroicons-shield-check"
+            class="text-green-500 size-6"
+          />
           <span>{{ t('vat_included') }}</span>
         </div>
       </div>

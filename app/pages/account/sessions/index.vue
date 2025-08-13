@@ -15,7 +15,8 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="t('title')" class="hidden"
+      :text="t('title')"
+      class="hidden"
     />
 
     <AccountSessionsManage>

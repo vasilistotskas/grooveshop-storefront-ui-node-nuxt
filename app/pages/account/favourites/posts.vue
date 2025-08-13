@@ -83,7 +83,10 @@ definePageMeta({
       md:gap-8 md:!p-0 md:mt-1
     "
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
     <LazyUserAccountFavouritesNavbar v-if="enabled" />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
@@ -103,7 +106,10 @@ definePageMeta({
       :favourites="favourites?.results"
       :favourites-count="favourites?.count"
     />
-    <div v-if="status === 'pending'" class="grid w-full items-start gap-4">
+    <div
+      v-if="status === 'pending'"
+      class="grid w-full items-start gap-4"
+    >
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />

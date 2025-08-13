@@ -108,7 +108,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   >
     <slot />
     <div
-      v-if="totpSecret && totpSvg" class="
+      v-if="totpSecret && totpSvg"
+      class="
         grid items-center justify-center justify-items-center gap-4
 
         md:gap-8
@@ -124,7 +125,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
               bg-primary-200 rounded-md
 
               dark:bg-primary-800
-            " v-html="totpSvg"
+            "
+            v-html="totpSvg"
           />
           <UInput
             v-model="totpSecret"

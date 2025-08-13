@@ -14,7 +14,10 @@ definePageMeta({
       md:gap-8 md:!p-0
     "
   >
-    <PageTitle :text="t('title')" class="hidden" />
+    <PageTitle
+      :text="t('title')"
+      class="hidden"
+    />
 
     <AccountSettingsForm>
       <AccountAuthSettingsNavigation />

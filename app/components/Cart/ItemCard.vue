@@ -41,7 +41,10 @@ const formattedTotal = computed(() => {
 </script>
 
 <template>
-  <div v-if="cartItem" class="flex flex-col sm:flex-row gap-4 sm:gap-6">
+  <div
+    v-if="cartItem"
+    class="flex flex-col sm:flex-row gap-4 sm:gap-6"
+  >
     <div class="relative h-24 w-full sm:w-24 flex-shrink-0 overflow-hidden rounded-lg">
       <Anchor
         :to="{ path: productUrl(typeof cartItem.product === 'number' ? cartItem.product : cartItem.product.id) }"
@@ -74,7 +77,10 @@ const formattedTotal = computed(() => {
           </h3>
           <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
             <span>{{ t('price') }}: {{ formattedPrice }}</span>
-            <span v-if="cartItem.discountValue" class="text-green-600">
+            <span
+              v-if="cartItem.discountValue"
+              class="text-green-600"
+            >
               ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }})
             </span>
           </div>

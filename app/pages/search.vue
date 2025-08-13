@@ -229,7 +229,8 @@ definePageMeta({
             <UIcon name="i-heroicons-arrow-left" />
           </Anchor>
           <UIcon
-            name="i-heroicons-magnifying-glass" class="
+            name="i-heroicons-magnifying-glass"
+            class="
                 text-lg
 
                 md:text-base

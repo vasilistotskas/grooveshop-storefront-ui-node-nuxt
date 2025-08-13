@@ -111,8 +111,14 @@ const items = computed(() => {
           <Socials />
         </div>
       </MobileOrTabletOnly>
-      <LazyFooterMobile v-if="isMobileOrTablet" hydrate-on-visible />
-      <LazyFooterDesktop v-else hydrate-on-visible />
+      <LazyFooterMobile
+        v-if="isMobileOrTablet"
+        hydrate-on-visible
+      />
+      <LazyFooterDesktop
+        v-else
+        hydrate-on-visible
+      />
     </slot>
     <MobileOrTabletOnly>
       <UNavigationMenu

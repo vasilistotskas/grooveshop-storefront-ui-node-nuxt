@@ -448,6 +448,26 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-publishedAt",
+                                "-title",
+                                "-updatedAt",
+                                "-viewCount",
+                                "createdAt",
+                                "publishedAt",
+                                "title",
+                                "updatedAt",
+                                "viewCount"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, title, viewCount, -createdAt, -updatedAt, -publishedAt, -title, -viewCount"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -969,6 +989,28 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-level",
+                                "-name",
+                                "-sortOrder",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "level",
+                                "name",
+                                "sortOrder",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -1069,6 +1111,28 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-level",
+                                "-name",
+                                "-sortOrder",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "level",
+                                "name",
+                                "sortOrder",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt"
                     },
                     {
                         "name": "page",
@@ -1173,6 +1237,28 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-level",
+                                "-name",
+                                "-sortOrder",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "level",
+                                "name",
+                                "sortOrder",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -1273,6 +1359,26 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-publishedAt",
+                                "-title",
+                                "-updatedAt",
+                                "-viewsCount",
+                                "createdAt",
+                                "publishedAt",
+                                "title",
+                                "updatedAt",
+                                "viewsCount"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, title, viewsCount, -createdAt, -updatedAt, -publishedAt, -title, -viewsCount"
                     },
                     {
                         "name": "page",
@@ -1396,6 +1502,28 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-level",
+                                "-name",
+                                "-sortOrder",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "level",
+                                "name",
+                                "sortOrder",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt"
                     },
                     {
                         "name": "page",
@@ -1554,6 +1682,28 @@
                 "description": "Get the complete category tree structure with nested relationships. This is more efficient than using list?tree=true for displaying navigation menus or category hierarchies.",
                 "summary": "Get complete category tree",
                 "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-level",
+                                "-name",
+                                "-sortOrder",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "level",
+                                "name",
+                                "sortOrder",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt"
+                    },
                     {
                         "name": "page",
                         "required": false,
@@ -8322,6 +8472,30 @@
                         "description": "Filter by minimum number of views"
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-commentsCount",
+                                "-createdAt",
+                                "-featured",
+                                "-likesCount",
+                                "-publishedAt",
+                                "-updatedAt",
+                                "-viewCount",
+                                "commentsCount",
+                                "createdAt",
+                                "featured",
+                                "likesCount",
+                                "publishedAt",
+                                "updatedAt",
+                                "viewCount"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, featured, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount, -featured"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -8908,6 +9082,28 @@
                         "description": "Filter by minimum number of views"
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-commentsCount",
+                                "-createdAt",
+                                "-likesCount",
+                                "-publishedAt",
+                                "-updatedAt",
+                                "-viewCount",
+                                "commentsCount",
+                                "createdAt",
+                                "likesCount",
+                                "publishedAt",
+                                "updatedAt",
+                                "viewCount"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -9447,6 +9643,28 @@
                             ]
                         },
                         "description": "Filter by minimum number of views"
+                    },
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-commentsCount",
+                                "-createdAt",
+                                "-likesCount",
+                                "-publishedAt",
+                                "-updatedAt",
+                                "-viewCount",
+                                "commentsCount",
+                                "createdAt",
+                                "likesCount",
+                                "publishedAt",
+                                "updatedAt",
+                                "viewCount"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount"
                     },
                     {
                         "name": "page",
@@ -30535,6 +30753,32 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-country",
+                                "-createdAt",
+                                "-floor",
+                                "-id",
+                                "-isMain",
+                                "-locationType",
+                                "-updatedAt",
+                                "-zipcode",
+                                "country",
+                                "createdAt",
+                                "floor",
+                                "id",
+                                "isMain",
+                                "locationType",
+                                "updatedAt",
+                                "zipcode"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, country, zipcode, floor, locationType, isMain, createdAt, updatedAt, -id, -country, -zipcode, -floor, -locationType, -isMain, -createdAt, -updatedAt"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -30654,6 +30898,22 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-post",
+                                "createdAt",
+                                "id",
+                                "post"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, post, createdAt, -id, -post, -createdAt"
                     },
                     {
                         "name": "page",
@@ -30885,6 +31145,24 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-productId",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "productId",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, productId, createdAt, updatedAt, -id, -productId, -createdAt, -updatedAt"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -31004,6 +31282,26 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-publishedAt",
+                                "-title",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "publishedAt",
+                                "title",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, title, createdAt, updatedAt, publishedAt, -id, -title, -createdAt, -updatedAt, -publishedAt"
                     },
                     {
                         "name": "page",
@@ -31127,6 +31425,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-seenAt",
+                                "createdAt",
+                                "seenAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: createdAt, seenAt, -createdAt, -seenAt"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -31248,6 +31560,22 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-status",
+                                "-updatedAt",
+                                "createdAt",
+                                "status",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: createdAt, updatedAt, status, -createdAt, -updatedAt, -status"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -31367,6 +31695,24 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "ordering",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "-createdAt",
+                                "-id",
+                                "-productId",
+                                "-updatedAt",
+                                "createdAt",
+                                "id",
+                                "productId",
+                                "updatedAt"
+                            ]
+                        },
+                        "description": "Which field to use when ordering the results. Available fields: id, productId, createdAt, updatedAt, -id, -productId, -createdAt, -updatedAt"
                     },
                     {
                         "name": "page",
@@ -34634,41 +34980,48 @@
                     "twitter": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Twitter Profile",
                         "maxLength": 200
                     },
                     "linkedin": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "LinkedIn Profile",
                         "maxLength": 200
                     },
                     "facebook": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Facebook Profile",
                         "maxLength": 200
                     },
                     "instagram": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Instagram Profile",
                         "maxLength": 200
                     },
                     "website": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "maxLength": 200
                     },
                     "youtube": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Youtube Profile",
                         "maxLength": 200
                     },
                     "github": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Github Profile",
                         "maxLength": 200
                     },
@@ -34797,41 +35150,48 @@
                     "twitter": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Twitter Profile",
                         "maxLength": 200
                     },
                     "linkedin": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "LinkedIn Profile",
                         "maxLength": 200
                     },
                     "facebook": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Facebook Profile",
                         "maxLength": 200
                     },
                     "instagram": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Instagram Profile",
                         "maxLength": 200
                     },
                     "website": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "maxLength": 200
                     },
                     "youtube": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Youtube Profile",
                         "maxLength": 200
                     },
                     "github": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Github Profile",
                         "maxLength": 200
                     },
@@ -34841,11 +35201,6 @@
                 },
                 "required": [
                     "email"
-                ]
-            },
-            "BlankEnum": {
-                "enum": [
-                    ""
                 ]
             },
             "BlogAuthor": {
@@ -38119,24 +38474,10 @@
                         "title": "Region Code"
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "street": {
                         "type": "string",
@@ -38265,14 +38606,7 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/PaymentStatusEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/PaymentStatusEnum"
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -38335,24 +38669,10 @@
                         "title": "Region Code"
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "street": {
                         "type": "string",
@@ -38483,14 +38803,7 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/PaymentStatusEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/PaymentStatusEnum"
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -38659,24 +38972,10 @@
                         "title": "Region Code"
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "street": {
                         "type": "string",
@@ -38741,14 +39040,7 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/PaymentStatusEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/PaymentStatusEnum"
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -39108,24 +39400,10 @@
                         "nullable": true
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "street": {
                         "type": "string",
@@ -40617,41 +40895,48 @@
                     "twitter": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Twitter Profile",
                         "maxLength": 200
                     },
                     "linkedin": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "LinkedIn Profile",
                         "maxLength": 200
                     },
                     "facebook": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Facebook Profile",
                         "maxLength": 200
                     },
                     "instagram": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Instagram Profile",
                         "maxLength": 200
                     },
                     "website": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "maxLength": 200
                     },
                     "youtube": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Youtube Profile",
                         "maxLength": 200
                     },
                     "github": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "title": "Github Profile",
                         "maxLength": 200
                     },
@@ -41080,24 +41365,10 @@
                         "nullable": true
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "street": {
                         "type": "string",
@@ -41878,24 +42149,10 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "phone": {
                         "type": "string",
@@ -45761,24 +46018,10 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "phone": {
                         "type": "string"
@@ -45877,24 +46120,10 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "phone": {
                         "type": "string"
@@ -45996,24 +46225,10 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/FloorEnum"
                     },
                     "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/LocationTypeEnum"
                     },
                     "phone": {
                         "type": "string",

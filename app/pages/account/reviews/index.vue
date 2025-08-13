@@ -83,7 +83,10 @@ definePageMeta({
       md:gap-8 md:!p-0 md:mt-1
     "
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
       <PaginationPageNumber
@@ -103,7 +106,10 @@ definePageMeta({
       :reviews-count="reviews?.count"
       display-image-of="product"
     />
-    <div v-else-if="status === 'pending'" class="grid gap-4">
+    <div
+      v-else-if="status === 'pending'"
+      class="grid gap-4"
+    >
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
@@ -115,7 +121,10 @@ definePageMeta({
         />
       </div>
     </div>
-    <Error v-else-if="error" :error="error" />
+    <Error
+      v-else-if="error"
+      :error="error"
+    />
     <LazyEmptyState
       v-else-if="!reviews?.count"
       class="w-full"

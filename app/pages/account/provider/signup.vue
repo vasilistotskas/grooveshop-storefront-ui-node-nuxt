@@ -17,7 +17,8 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      :text="t('title')"
+      class="text-center capitalize"
     />
     <div
       class="

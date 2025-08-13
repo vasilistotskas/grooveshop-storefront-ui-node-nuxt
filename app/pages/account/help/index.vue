@@ -12,7 +12,10 @@ definePageMeta({
 
       md:gap-8 md:!p-0 md:mt-1"
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
   </PageWrapper>
 </template>
 

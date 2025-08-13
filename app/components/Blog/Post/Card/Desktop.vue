@@ -4,7 +4,6 @@ import type { PropType } from 'vue'
 
 const { blogPostUrl } = useUrls()
 
-// Local reactive state for likes count since the property is read-only
 const localLikesCount = ref(0)
 
 const props = defineProps({
@@ -54,7 +53,6 @@ const startShare = async () => {
   }
 }
 
-// Initialize local likes count
 watchEffect(() => {
   if (post.value?.likesCount !== undefined) {
     localLikesCount.value = post.value.likesCount

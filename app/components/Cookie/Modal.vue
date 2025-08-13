@@ -50,7 +50,7 @@ const setCookies = ({
   cookiesOptionalEnabled: Cookie[]
   isConsentGiven: boolean
 }) => {
-  isConsentGiven.value = isConsentGivenNew // must come before updating cookiesEnabled
+  isConsentGiven.value = isConsentGivenNew
   cookiesEnabled.value = isConsentGivenNew
     ? [
         ...moduleOptions.cookies.necessary,
@@ -123,7 +123,10 @@ const isUnSaved = computed(() => {
             class="absolute right-6 top-2 md:top-6 z-10"
             @click="isModalActive = false"
           />
-          <template v-for="cookieType in ZodCookieTypeEnum.enum" :key="cookieType">
+          <template
+            v-for="cookieType in ZodCookieTypeEnum.enum"
+            :key="cookieType"
+          >
             <template v-if="moduleOptions.cookies[cookieType].length">
               <h2
                 class="text-primary-600 dark:text-primary-100 mt-3 text-lg font-semibold"
@@ -137,7 +140,7 @@ const isUnSaved = computed(() => {
                 >
                   <div class="flex flex-col">
                     <USwitch
-                      :modelValue="isCookieEnabled(cookie)"
+                      :model-value="isCookieEnabled(cookie)"
                       color="secondary"
                       size="xl"
                       unchecked-icon="i-lucide-x"
@@ -160,7 +163,10 @@ const isUnSaved = computed(() => {
                         {{ 'IDs: ' + cookie.targetCookieIds.map((id) => `"${id}"`).join(', ') }}
                       </span>
                       <template v-if="Object.entries(cookie.links || {}).length">
-                        <span v-for="entry in Object.entries(cookie.links || {})" :key="entry[0]">
+                        <span
+                          v-for="entry in Object.entries(cookie.links || {})"
+                          :key="entry[0]"
+                        >
                           <a
                             :href="entry[0]"
                             class="underline text-blue-600 hover:text-blue-800"

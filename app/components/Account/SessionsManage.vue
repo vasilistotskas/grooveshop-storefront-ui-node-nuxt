@@ -90,7 +90,11 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
   <div class="grid gap-4 lg:flex">
     <slot />
     <div class="grid w-full gap-4">
-      <UTable :data="data" :columns="columns" :loading="loading">
+      <UTable
+        :data="data"
+        :columns="columns"
+        :loading="loading"
+      >
         <template #actions-cell="{ row }">
           <LazyUDropdownMenu
             v-if="getActionItems(row.original).length > 0"

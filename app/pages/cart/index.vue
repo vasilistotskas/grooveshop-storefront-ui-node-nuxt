@@ -54,7 +54,10 @@ const emptyCardUI = {
           <h1 class="text-2xl font-bold">
             {{ t('shopping_cart') }}
           </h1>
-          <p v-if="!pending && cart?.totalItems" class="text-gray-500">
+          <p
+            v-if="!pending && cart?.totalItems"
+            class="text-gray-500"
+          >
             {{ t('items_in_cart', { count: cart.totalItems }) }}
           </p>
           <USkeleton
@@ -104,7 +107,10 @@ const emptyCardUI = {
             {{ $i18n.t('empty.description') }}
           </UButton>
         </UCard>
-        <div v-else class="flex flex-col w-full gap-4">
+        <div
+          v-else
+          class="flex flex-col w-full gap-4"
+        >
           <UCard
             v-for="index in (cart?.items?.length || 2)"
             :key="index"
@@ -182,7 +188,10 @@ const emptyCardUI = {
           </template>
         </UCard>
       </div>
-      <div v-else class="w-full lg:max-w-md">
+      <div
+        v-else
+        class="w-full lg:max-w-md"
+      >
         <UCard
           v-bind="cardConfig"
           :ui="summaryCardUI"

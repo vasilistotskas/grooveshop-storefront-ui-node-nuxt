@@ -326,7 +326,8 @@ const submitButtonDisabled = computed(() => {
           </div>
           <div class="grid gap-4">
             <div
-              v-if="hasSocialaccountProviders && status.config === 'success'" class="
+              v-if="hasSocialaccountProviders && status.config === 'success'"
+              class="
                 grid gap-4
               "
             >
@@ -364,7 +365,10 @@ const submitButtonDisabled = computed(() => {
                 </div>
               </div>
             </div>
-            <div v-else-if="status.config === 'pending'" class="grid gap-4">
+            <div
+              v-else-if="status.config === 'pending'"
+              class="grid gap-4"
+            >
               <USkeleton
                 class="my-2 h-6 w-full"
               />

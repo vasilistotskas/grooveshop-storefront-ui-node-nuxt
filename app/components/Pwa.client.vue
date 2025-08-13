@@ -68,7 +68,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="pwa" id="pwa" />
+  <div
+    v-if="pwa"
+    id="pwa"
+  />
 </template>
 
 <i18n lang="yaml">

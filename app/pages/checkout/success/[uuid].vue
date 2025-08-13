@@ -63,8 +63,8 @@ const totalPriceExtra = computed(() => {
 })
 
 const payWayPrice = computed(() => {
-  const payWayCost = 0 // Fallback since cost doesn't exist in new schema
-  const payWayFreeForOrderAmount = 0 // Fallback since freeForOrderAmount doesn't exist in new schema
+  const payWayCost = 0
+  const payWayFreeForOrderAmount = 0
   const totalPriceItems = order.value?.totalPriceItems ?? 0
   if (totalPriceItems >= payWayFreeForOrderAmount) {
     return 0

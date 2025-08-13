@@ -51,7 +51,10 @@ definePageMeta({
       }"
       class="relative mb-5 min-w-0"
     />
-    <PageTitle :text="t('title')" class="text-center" />
+    <PageTitle
+      :text="t('title')"
+      class="text-center"
+    />
     <p
       class="
         text-primary-950 text-center

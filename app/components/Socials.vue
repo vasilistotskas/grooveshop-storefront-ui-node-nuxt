@@ -27,7 +27,8 @@ const { $i18n } = useNuxtApp()
     variant="link"
   >
     <UIcon
-      name="i-mdi-instagram" :class="iconClass"
+      name="i-mdi-instagram"
+      :class="iconClass"
     />
     <span class="sr-only">{{ $i18n.t('instagram') }}</span>
   </UButton>
@@ -40,7 +41,8 @@ const { $i18n } = useNuxtApp()
     variant="link"
   >
     <UIcon
-      name="i-ant-design-tik-tok-filled" :class="iconClass"
+      name="i-ant-design-tik-tok-filled"
+      :class="iconClass"
     />
     <span class="sr-only">{{ $i18n.t('tiktok') }}</span>
   </UButton>
@@ -53,7 +55,8 @@ const { $i18n } = useNuxtApp()
     variant="link"
   >
     <UIcon
-      name="i-mdi-reddit" :class="iconClass"
+      name="i-mdi-reddit"
+      :class="iconClass"
     />
     <span class="sr-only">{{ $i18n.t('reddit') }}</span>
   </UButton>
@@ -66,7 +69,8 @@ const { $i18n } = useNuxtApp()
     variant="link"
   >
     <UIcon
-      name="i-mdi-youtube" :class="iconClass"
+      name="i-mdi-youtube"
+      :class="iconClass"
     />
     <span class="sr-only">{{ $i18n.t('youtube') }}</span>
   </UButton>
@@ -79,7 +83,8 @@ const { $i18n } = useNuxtApp()
     variant="link"
   >
     <UIcon
-      name="i-mdi-pinterest" :class="iconClass"
+      name="i-mdi-pinterest"
+      :class="iconClass"
     />
     <span class="sr-only">{{ $i18n.t('pinterest') }}</span>
   </UButton>
@@ -92,7 +97,8 @@ const { $i18n } = useNuxtApp()
     variant="link"
   >
     <UIcon
-      name="i-mdi-facebook" :class="iconClass"
+      name="i-mdi-facebook"
+      :class="iconClass"
     />
     <span class="sr-only">{{ $i18n.t('facebook') }}</span>
   </UButton>
@@ -105,7 +111,8 @@ const { $i18n } = useNuxtApp()
     variant="link"
   >
     <UIcon
-      name="i-mdi-discord" :class="iconClass"
+      name="i-mdi-discord"
+      :class="iconClass"
     />
     <span class="sr-only">{{ $i18n.t('discord') }}</span>
   </UButton>

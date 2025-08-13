@@ -266,7 +266,10 @@ definePageMeta({
                 order.paymentStatus
               }}</span>
             </div>
-            <div v-if="false" class="grid gap-2">
+            <div
+              v-if="false"
+              class="grid gap-2"
+            >
               <!-- trackingInfo not available in new schema -->
               <span
                 class="

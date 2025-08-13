@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-// ContactWriteRequest and ContactWrite types are auto-imported from shared folder
 
 const { t } = useI18n()
 const toast = useToast()

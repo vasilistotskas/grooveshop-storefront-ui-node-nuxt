@@ -68,7 +68,8 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      :text="t('title')"
+      class="text-center capitalize"
     />
 
     <Account2FaReauthenticateFlow :flow="Flows.MFA_REAUTHENTICATE">

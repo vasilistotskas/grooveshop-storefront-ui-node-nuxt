@@ -22,7 +22,8 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      :text="t('title')"
+      class="text-center capitalize"
     />
 
     <div class="grid items-center justify-center">
@@ -36,7 +37,8 @@ definePageMeta({
         {{ t('authenticator.app') }}
       </p>
       <div
-        v-if="totpAuthenticator" class="
+        v-if="totpAuthenticator"
+        class="
             grid items-center justify-center justify-items-center gap-4
           "
       >
@@ -57,7 +59,8 @@ definePageMeta({
         />
       </div>
       <div
-        v-else class="
+        v-else
+        class="
             grid items-center justify-center justify-items-center gap-4
           "
       >
@@ -79,7 +82,8 @@ definePageMeta({
       </div>
     </div>
     <div
-      v-if="recoveryCodesAuthenticator" class="
+      v-if="recoveryCodesAuthenticator"
+      class="
           grid items-center justify-center
         "
     >
@@ -93,7 +97,8 @@ definePageMeta({
         {{ t('recovery-codes.title') }}
       </p>
       <div
-        v-if="!recoveryCodesAuthenticator" class="
+        v-if="!recoveryCodesAuthenticator"
+        class="
             grid items-center justify-center justify-items-center gap-4
           "
       >
@@ -114,7 +119,8 @@ definePageMeta({
         />
       </div>
       <div
-        v-else class="
+        v-else
+        class="
             grid items-center justify-center justify-items-center gap-4
           "
       >

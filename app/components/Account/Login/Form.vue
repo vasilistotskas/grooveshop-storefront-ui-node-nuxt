@@ -313,7 +313,10 @@ const submitButtonDisabled = computed(() => {
                 </div>
               </div>
             </template>
-            <div v-else-if="status.config === 'pending'" class="grid gap-4">
+            <div
+              v-else-if="status.config === 'pending'"
+              class="grid gap-4"
+            >
               <USkeleton
                 class="h-6 w-full"
               />

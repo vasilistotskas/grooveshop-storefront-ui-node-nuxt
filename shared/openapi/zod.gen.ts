@@ -44,13 +44,34 @@ export const zAuthentication = z.object({
     z.iso.date(),
     z.null(),
   ])),
-  twitter: z.optional(z.url().max(200)),
-  linkedin: z.optional(z.url().max(200)),
-  facebook: z.optional(z.url().max(200)),
-  instagram: z.optional(z.url().max(200)),
-  website: z.optional(z.url().max(200)),
-  youtube: z.optional(z.url().max(200)),
-  github: z.optional(z.url().max(200)),
+  twitter: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  linkedin: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  facebook: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  instagram: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  website: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  youtube: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  github: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
   bio: z.optional(z.string()),
   isActive: z.boolean().readonly(),
   isStaff: z.boolean().readonly(),
@@ -96,19 +117,36 @@ export const zAuthenticationRequest = z.object({
     z.iso.date(),
     z.null(),
   ])),
-  twitter: z.optional(z.url().max(200)),
-  linkedin: z.optional(z.url().max(200)),
-  facebook: z.optional(z.url().max(200)),
-  instagram: z.optional(z.url().max(200)),
-  website: z.optional(z.url().max(200)),
-  youtube: z.optional(z.url().max(200)),
-  github: z.optional(z.url().max(200)),
+  twitter: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  linkedin: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  facebook: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  instagram: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  website: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  youtube: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  github: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
   bio: z.optional(z.string()),
 })
-
-export const zBlankEnum = z.enum([
-  '',
-])
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -1534,14 +1572,8 @@ export const zOrder = z.object({
   ])),
   country: z.string(),
   region: z.string(),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
   payWay: z.int(),
@@ -1577,10 +1609,7 @@ export const zOrder = z.object({
   totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
   fullAddress: z.string().readonly(),
   paymentId: z.optional(z.string().max(255)),
-  paymentStatus: z.optional(z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ])),
+  paymentStatus: z.optional(zPaymentStatusEnum),
   paymentMethod: z.optional(z.string().max(50)),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
@@ -1594,14 +1623,8 @@ export const zOrderDetail = z.object({
   ])),
   country: z.string(),
   region: z.string(),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
   payWay: z.int(),
@@ -1637,10 +1660,7 @@ export const zOrderDetail = z.object({
   totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
   fullAddress: z.string().readonly(),
   paymentId: z.optional(z.string().max(255)),
-  paymentStatus: z.optional(z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ])),
+  paymentStatus: z.optional(zPaymentStatusEnum),
   paymentMethod: z.optional(z.string().max(50)),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
@@ -1703,14 +1723,8 @@ export const zOrderDetailRequest = z.object({
   ])),
   country: z.string().min(1),
   region: z.string().min(1),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   street: z.string().min(1).max(255),
   streetNumber: z.string().min(1).max(255),
   payWay: z.int(),
@@ -1725,10 +1739,7 @@ export const zOrderDetailRequest = z.object({
   items: z.array(zOrderItemRequest),
   documentType: z.optional(zDocumentTypeEnum),
   paymentId: z.optional(z.string().max(255)),
-  paymentStatus: z.optional(z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ])),
+  paymentStatus: z.optional(zPaymentStatusEnum),
   paymentMethod: z.optional(z.string().max(50)),
   trackingNumber: z.optional(z.string().max(255)),
   shippingCarrier: z.optional(z.string().max(255)),
@@ -1805,14 +1816,8 @@ export const zOrderWriteRequest = z.object({
     z.string().min(1),
     z.null(),
   ])),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   street: z.string().min(1).max(255),
   streetNumber: z.string().min(1).max(255),
   payWay: z.optional(z.union([
@@ -2672,14 +2677,8 @@ export const zUserAddress = z.object({
   streetNumber: z.string().max(255),
   city: z.string().max(255),
   zipcode: z.string().max(255),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   phone: z.string(),
   mobilePhone: z.optional(z.string()),
   notes: z.optional(z.string().max(255)),
@@ -2804,13 +2803,34 @@ export const zPatchedAuthenticationRequest = z.object({
     z.iso.date(),
     z.null(),
   ])),
-  twitter: z.optional(z.url().max(200)),
-  linkedin: z.optional(z.url().max(200)),
-  facebook: z.optional(z.url().max(200)),
-  instagram: z.optional(z.url().max(200)),
-  website: z.optional(z.url().max(200)),
-  youtube: z.optional(z.url().max(200)),
-  github: z.optional(z.url().max(200)),
+  twitter: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  linkedin: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  facebook: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  instagram: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  website: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  youtube: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  github: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
   bio: z.optional(z.string()),
 })
 
@@ -3016,14 +3036,8 @@ export const zPatchedOrderWriteRequest = z.object({
     z.string().min(1),
     z.null(),
   ])),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   street: z.optional(z.string().min(1).max(255)),
   streetNumber: z.optional(z.string().min(1).max(255)),
   payWay: z.optional(z.union([
@@ -3338,14 +3352,8 @@ export const zPatchedUserAddressWriteRequest = z.object({
   streetNumber: z.optional(z.string().min(1).max(255)),
   city: z.optional(z.string().min(1).max(255)),
   zipcode: z.optional(z.string().min(1).max(255)),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   phone: z.optional(z.string().min(1)),
   mobilePhone: z.optional(z.string().min(1)),
   notes: z.optional(z.string().max(255)),
@@ -4345,14 +4353,8 @@ export const zUserAddressDetail = z.object({
   streetNumber: z.string().max(255),
   city: z.string().max(255),
   zipcode: z.string().max(255),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   phone: z.string(),
   mobilePhone: z.optional(z.string()),
   notes: z.optional(z.string().max(255)),
@@ -4377,14 +4379,8 @@ export const zUserAddressWriteRequest = z.object({
   streetNumber: z.string().min(1).max(255),
   city: z.string().min(1).max(255),
   zipcode: z.string().min(1).max(255),
-  floor: z.optional(z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ])),
-  locationType: z.optional(z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ])),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
   phone: z.string().min(1),
   mobilePhone: z.optional(z.string().min(1)),
   notes: z.optional(z.string().max(255)),
@@ -4461,10 +4457,6 @@ export const zActionEnumWritable = z.enum([
 ]).register(z.globalRegistry, {
   description: '* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe',
 })
-
-export const zBlankEnumWritable = z.enum([
-  '',
-])
 
 /**
  * * `MARKETING` - Marketing Campaigns
@@ -4807,6 +4799,20 @@ export const zGetBlogAuthorPostsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-publishedAt',
+      '-title',
+      '-updatedAt',
+      '-viewCount',
+      'createdAt',
+      'publishedAt',
+      'title',
+      'updatedAt',
+      'viewCount',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, title, viewCount, -createdAt, -updatedAt, -publishedAt, -title, -viewCount',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -4956,6 +4962,22 @@ export const zListBlogCategoryAncestorsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-level',
+      '-name',
+      '-sortOrder',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'level',
+      'name',
+      'sortOrder',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -4981,6 +5003,22 @@ export const zListBlogCategoryChildrenData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-level',
+      '-name',
+      '-sortOrder',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'level',
+      'name',
+      'sortOrder',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -5006,6 +5044,22 @@ export const zListBlogCategoryDescendantsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-level',
+      '-name',
+      '-sortOrder',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'level',
+      'name',
+      'sortOrder',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -5031,6 +5085,20 @@ export const zListBlogCategoryPostsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-publishedAt',
+      '-title',
+      '-updatedAt',
+      '-viewsCount',
+      'createdAt',
+      'publishedAt',
+      'title',
+      'updatedAt',
+      'viewsCount',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, title, viewsCount, -createdAt, -updatedAt, -publishedAt, -title, -viewsCount',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -5063,6 +5131,22 @@ export const zListBlogCategorySiblingsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-level',
+      '-name',
+      '-sortOrder',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'level',
+      'name',
+      'sortOrder',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -5091,6 +5175,22 @@ export const zGetBlogCategoryTreeData = z.object({
   body: z.optional(z.never()),
   path: z.optional(z.never()),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-level',
+      '-name',
+      '-sortOrder',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'level',
+      'name',
+      'sortOrder',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, sortOrder, level, name, createdAt, updatedAt, -id, -sortOrder, -level, -name, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -6876,6 +6976,24 @@ export const zListFeaturedBlogPostsData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    ordering: z.optional(z.enum([
+      '-commentsCount',
+      '-createdAt',
+      '-featured',
+      '-likesCount',
+      '-publishedAt',
+      '-updatedAt',
+      '-viewCount',
+      'commentsCount',
+      'createdAt',
+      'featured',
+      'likesCount',
+      'publishedAt',
+      'updatedAt',
+      'viewCount',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, featured, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount, -featured',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -7046,6 +7164,22 @@ export const zListPopularBlogPostsData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    ordering: z.optional(z.enum([
+      '-commentsCount',
+      '-createdAt',
+      '-likesCount',
+      '-publishedAt',
+      '-updatedAt',
+      '-viewCount',
+      'commentsCount',
+      'createdAt',
+      'likesCount',
+      'publishedAt',
+      'updatedAt',
+      'viewCount',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -7212,6 +7346,22 @@ export const zListTrendingBlogPostsData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    ordering: z.optional(z.enum([
+      '-commentsCount',
+      '-createdAt',
+      '-likesCount',
+      '-publishedAt',
+      '-updatedAt',
+      '-viewCount',
+      'commentsCount',
+      'createdAt',
+      'likesCount',
+      'publishedAt',
+      'updatedAt',
+      'viewCount',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: createdAt, updatedAt, publishedAt, viewCount, likesCount, commentsCount, -createdAt, -updatedAt, -publishedAt, -viewCount, -likesCount, -commentsCount',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12733,6 +12883,26 @@ export const zGetUserAccountAddressesData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-country',
+      '-createdAt',
+      '-floor',
+      '-id',
+      '-isMain',
+      '-locationType',
+      '-updatedAt',
+      '-zipcode',
+      'country',
+      'createdAt',
+      'floor',
+      'id',
+      'isMain',
+      'locationType',
+      'updatedAt',
+      'zipcode',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, country, zipcode, floor, locationType, isMain, createdAt, updatedAt, -id, -country, -zipcode, -floor, -locationType, -isMain, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12758,6 +12928,16 @@ export const zGetUserAccountBlogPostCommentsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-post',
+      'createdAt',
+      'id',
+      'post',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, post, createdAt, -id, -post, -createdAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12796,6 +12976,18 @@ export const zGetUserAccountFavouriteProductsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-productId',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'productId',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, productId, createdAt, updatedAt, -id, -productId, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12821,6 +13013,20 @@ export const zGetUserAccountLikedBlogPostsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-publishedAt',
+      '-title',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'publishedAt',
+      'title',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, title, createdAt, updatedAt, publishedAt, -id, -title, -createdAt, -updatedAt, -publishedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12846,6 +13052,14 @@ export const zGetUserAccountNotificationsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-seenAt',
+      'createdAt',
+      'seenAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: createdAt, seenAt, -createdAt, -seenAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12871,6 +13085,16 @@ export const zGetUserAccountOrdersData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-status',
+      '-updatedAt',
+      'createdAt',
+      'status',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: createdAt, updatedAt, status, -createdAt, -updatedAt, -status',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12896,6 +13120,18 @@ export const zGetUserAccountProductReviewsData = z.object({
     ]),
   }),
   query: z.optional(z.object({
+    ordering: z.optional(z.enum([
+      '-createdAt',
+      '-id',
+      '-productId',
+      '-updatedAt',
+      'createdAt',
+      'id',
+      'productId',
+      'updatedAt',
+    ]).register(z.globalRegistry, {
+      description: 'Which field to use when ordering the results. Available fields: id, productId, createdAt, updatedAt, -id, -productId, -createdAt, -updatedAt',
+    })),
     page: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),

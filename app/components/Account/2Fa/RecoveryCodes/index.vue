@@ -89,13 +89,20 @@ onReactivated(async () => {
           </p>
         </div>
         <div class="grid items-center justify-center justify-items-center">
-          <UButton class="w-full" icon="i-heroicons-arrow-down-on-square" @click="downloadCodes">
+          <UButton
+            class="w-full"
+            icon="i-heroicons-arrow-down-on-square"
+            @click="downloadCodes"
+          >
             {{ $i18n.t('download_codes') }}
           </UButton>
         </div>
       </div>
 
-      <UTable :columns="columns" :data="rows">
+      <UTable
+        :columns="columns"
+        :data="rows"
+      >
         <template #actions-cell="{ row }">
           <UIcon
             :class="row.original.used ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"

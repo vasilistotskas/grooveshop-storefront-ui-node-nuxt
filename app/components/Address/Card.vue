@@ -75,7 +75,10 @@ const submit = async () => {
       "
     >
       <UTooltip :text="t('main_address')">
-        <UIcon name="i-mdi-star" class="size-5 cursor-help" />
+        <UIcon
+          name="i-mdi-star"
+          class="size-5 cursor-help"
+        />
       </UTooltip>
     </div>
     <div class="flex items-center justify-between gap-2">

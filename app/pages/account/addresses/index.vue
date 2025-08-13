@@ -87,7 +87,10 @@ definePageMeta({
       md:gap-8 md:!p-0 md:mt-1
     "
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
 
     <div class="flex flex-row items-center gap-2">
       <PaginationPageNumber
@@ -115,7 +118,10 @@ definePageMeta({
       :addresses-count="addresses?.count"
       @address-delete="onAddressDelete"
     />
-    <div v-else-if="status === 'pending'" class="grid w-full items-start gap-4">
+    <div
+      v-else-if="status === 'pending'"
+      class="grid w-full items-start gap-4"
+    >
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
@@ -127,7 +133,10 @@ definePageMeta({
         />
       </div>
     </div>
-    <Error v-else-if="error" :error="error" />
+    <Error
+      v-else-if="error"
+      :error="error"
+    />
     <AddressAddNew v-else-if="!addresses?.count" />
   </PageWrapper>
 </template>

@@ -63,7 +63,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      :text="t('title')"
+      class="text-center capitalize"
     />
 
     <Account2FaReauthenticateFlow>

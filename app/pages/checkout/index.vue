@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-// OrderWriteRequest type is auto-imported from shared folder
 
 const { fetch } = useUserSession()
 

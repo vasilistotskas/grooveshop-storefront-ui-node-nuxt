@@ -527,7 +527,10 @@ defineExpose({
               color="neutral"
               v-bind="fields[name][1].value"
             >
-              <LazyDynamicFormChildren v-if="children && children.length > 0" :children="children" />
+              <LazyDynamicFormChildren
+                v-if="children && children.length > 0"
+                :children="children"
+              />
             </UInput>
           </LazyUFormField>
         </template>

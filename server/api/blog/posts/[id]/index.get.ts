@@ -5,12 +5,7 @@ export default defineCachedEventHandler(async (event) => {
       event,
       zRetrieveBlogPostData.shape.path.parse,
     )
-    const query = await getValidatedQuery(event, zRetrieveBlogPostData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/blog/post/${params.id}`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/blog/post/${params.id}`, {
       method: 'GET',
     })
     return await parseDataAs(response, zRetrieveBlogPostResponse)

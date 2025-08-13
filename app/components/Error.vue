@@ -35,7 +35,8 @@ defineProps({
         <span v-if="enabled">({{ error?.statusMessage }})</span>
       </span>
       <UIcon
-        name="i-heroicons-exclamation-circle" class="h-6 w-6 text-red-500"
+        name="i-heroicons-exclamation-circle"
+        class="h-6 w-6 text-red-500"
       />
     </div>
   </UCard>

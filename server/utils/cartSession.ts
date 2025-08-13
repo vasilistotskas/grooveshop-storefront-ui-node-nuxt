@@ -16,7 +16,7 @@ const sessionConfig: SessionConfig = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    maxAge: 60 * 60 * 24 * 30,
   },
 }
 
@@ -46,7 +46,7 @@ export async function getCartSession(): Promise<CartSessionData> {
       lastActivity: new Date().toISOString(),
     }
     await storage.setItem(cartKey, cartData, {
-      ttl: 60 * 60 * 24 * 30, // 30 days
+      ttl: 60 * 60 * 24 * 30,
     })
   }
 

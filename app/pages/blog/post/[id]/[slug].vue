@@ -69,9 +69,6 @@ const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsD
     `/api/blog/posts/${blogPostId.value}/related-posts`, {
       key: `relatedPosts${blogPostId.value}`,
       method: 'GET',
-      query: {
-        language: locale.value,
-      },
     },
   ),
 ])
@@ -319,7 +316,8 @@ definePageMeta({
               />
             </div>
             <div
-              v-if="blogPost.isPublished && blogPost.publishedAt" class="
+              v-if="blogPost.isPublished && blogPost.publishedAt"
+              class="
                   sr-only flex gap-2
                 "
             >

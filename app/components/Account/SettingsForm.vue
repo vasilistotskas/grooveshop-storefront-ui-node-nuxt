@@ -5,7 +5,6 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
 import type { AcceptableValue } from '@nuxt/ui'
-// Authentication type is auto-imported from shared folder
 
 defineSlots<{
   default(props: object): any
@@ -274,7 +273,10 @@ watch(calendarDate, (newVal) => {
       @submit="onSubmit"
     >
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="firstName">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="firstName"
+        >
           {{ t('form.first_name') }}
         </label>
         <div class="grid">
@@ -289,13 +291,19 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.firstName" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.firstName"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.firstName }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="lastName">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="lastName"
+        >
           {{ t('form.last_name') }}
         </label>
         <div class="grid">
@@ -310,13 +318,19 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.lastName" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.lastName"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.lastName }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="phone">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="phone"
+        >
           {{ t('form.phone') }}
         </label>
         <div class="grid">
@@ -330,13 +344,19 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.phone" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.phone"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.phone }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="city">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="city"
+        >
           {{ t('form.city') }}
         </label>
         <div class="grid">
@@ -350,13 +370,19 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.city" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.city"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.city }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="zipcode">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="zipcode"
+        >
           {{ t('form.zipcode') }}
         </label>
         <div class="grid">
@@ -370,13 +396,19 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.zipcode" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.zipcode"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.zipcode }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="address">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="address"
+        >
           {{ t('form.address') }}
         </label>
         <div class="grid">
@@ -390,13 +422,19 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.address" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.address"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.address }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="place">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="place"
+        >
           {{ t('form.place') }}
         </label>
         <div class="grid">
@@ -410,13 +448,19 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.place" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.place"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.place }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="birthDate">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="birthDate"
+        >
           {{ t('form.birth_date') }}
         </label>
         <div class="grid">
@@ -435,13 +479,19 @@ watch(calendarDate, (newVal) => {
             </template>
           </UPopover>
         </div>
-        <span v-if="errors.birthDate" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.birthDate"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.birthDate }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="country">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="country"
+        >
           {{ t('form.country') }}
         </label>
         <div class="grid">
@@ -457,13 +507,19 @@ watch(calendarDate, (newVal) => {
             @update:model-value="onCountryChange"
           />
         </div>
-        <span v-if="errors.country" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.country"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.country }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="region">
+        <label
+          class="text-primary-950 mb-2 dark:text-primary-50"
+          for="region"
+        >
           {{ t('form.region') }}
         </label>
         <div class="grid">
@@ -478,7 +534,10 @@ watch(calendarDate, (newVal) => {
             v-bind="regionProps"
           />
         </div>
-        <span v-if="errors.region" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.region"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.region }}
         </span>
       </div>

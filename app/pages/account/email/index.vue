@@ -15,7 +15,8 @@ definePageMeta({
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center"
+      :text="t('title')"
+      class="text-center"
     />
 
     <AccountEmailManage />
