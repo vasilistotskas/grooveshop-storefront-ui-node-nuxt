@@ -6,7 +6,7 @@ defineProps({
 })
 
 const config = useRuntimeConfig()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 
 const ogImageOptions = reactive({
   alt: 'Page not found ⚠️',
@@ -29,8 +29,7 @@ defineOgImage(ogImageOptions)
 <template>
   <div
     class="
-      bg-primary-100 grid
-
+      grid bg-primary-100
       dark:bg-primary-900
     "
   >
@@ -40,24 +39,20 @@ defineOgImage(ogImageOptions)
     <div
       class="
         grid min-h-screen pt-[57px]
-
-        lg:pt-[65px]
-
         md:pt-[65px]
+        lg:pt-[65px]
       "
     >
       <div
         class="
           flex flex-col items-center gap-2 p-4
-
           md:justify-center
         "
       >
         <h2
           class="
-            text-primary-950 mb-2 grid items-center justify-center
-            justify-items-center gap-4 text-xl
-
+            mb-2 grid items-center justify-center justify-items-center gap-4
+            text-xl text-primary-950
             dark:text-primary-50
           "
         >
@@ -68,8 +63,7 @@ defineOgImage(ogImageOptions)
         </h2>
         <p
           class="
-            text-primary-950 text-center
-
+            text-center text-primary-950
             dark:text-primary-50
           "
         >
@@ -79,7 +73,6 @@ defineOgImage(ogImageOptions)
           :to="'index'"
           class="
             mt-2 block font-bold
-
             hover:underline
           "
         >

@@ -20,7 +20,7 @@ const {
   encrypted_token,
 } = route.query
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const authInfo = useAuthInfo()
 
 const url = ref<typeof URLs[keyof typeof URLs]>(URLs.LOGIN_URL)
@@ -100,7 +100,6 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
@@ -112,7 +111,6 @@ definePageMeta({
       v-if="loading"
       class="
         grid size-full items-center justify-center justify-items-center pt-4
-
         md:pt-8
       "
       role="status"
@@ -121,7 +119,6 @@ definePageMeta({
         aria-hidden="true"
         class="
           inline size-24 animate-spin fill-blue-600 text-neutral-200
-
           dark:text-neutral-600
         "
         fill="none"
@@ -145,8 +142,7 @@ definePageMeta({
     >
       <p
         class="
-          text-primary-950 text-center
-
+          text-center text-primary-950
           dark:text-primary-50
         "
       >

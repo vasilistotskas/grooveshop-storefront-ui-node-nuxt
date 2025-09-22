@@ -136,10 +136,20 @@ onReactivated(async () => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
     <div class="flex w-full flex-col gap-2">
-      <section class="grid gap-4 md:gap-8">
+      <section
+        class="
+          grid gap-4
+          md:gap-8
+        "
+      >
         <UTable
           :columns="columns"
           :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $i18n.t('empty.title') }"

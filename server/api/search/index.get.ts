@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     const productsParsedData = await parseDataAs(
       productResponse,
-      zApiV1SearchProductRetrieveResponse,
+      zProductMeiliSearchResponse,
     )
 
     const blogPostUrl = buildFullUrl(
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     const blogPostsParsedData = await parseDataAs(
       blogPostResponse,
-      zApiV1SearchBlogPostRetrieveResponse,
+      zBlogPostMeiliSearchResponse,
     )
 
     const results = {

@@ -47,7 +47,7 @@ const quantityItems = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-2 w-full">
+  <div class="flex w-full items-center gap-2">
     <UButton
       color="neutral"
       variant="outline"
@@ -65,7 +65,7 @@ const quantityItems = computed(() => {
       color="neutral"
       size="sm"
       variant="outline"
-      class="flex-1 min-w-[4rem] text-center"
+      class="min-w-[4rem] flex-1 text-center"
       @change="changeQuantityEvent"
     />
 

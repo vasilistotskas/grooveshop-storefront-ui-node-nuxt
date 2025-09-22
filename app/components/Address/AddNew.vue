@@ -1,22 +1,20 @@
 <script lang="ts" setup>
 const localePath = useLocalePath()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
   <li
     class="
-      border-primary-500 text-primary-600 relative grid min-h-[160px]
-      place-content-center place-items-center gap-2 border-2 border-dashed
-      bg-transparent text-left text-base font-normal leading-6
-
+      relative grid min-h-[160px] place-content-center place-items-center gap-2
+      border-2 border-dashed border-primary-500 bg-transparent text-left
+      text-base leading-6 font-normal text-primary-600
       md:min-h-[244px] md:gap-8
     "
   >
     <p
       class="
-        text-primary-950 p-4
-
+        p-4 text-primary-950
         dark:text-primary-50
       "
     >

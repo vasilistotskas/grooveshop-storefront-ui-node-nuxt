@@ -1,10 +1,5 @@
 <script lang="ts" setup>
-import {
-  create,
-  parseCreationOptionsFromJSON,
-} from '@github/webauthn-json/browser-ponyfill'
 import * as z from 'zod'
-import type { CredentialCreationOptionsJSON } from '@github/webauthn-json'
 
 const emit = defineEmits(['getWebAuthnCreateOptions', 'addWebAuthnCredential'])
 
@@ -24,15 +19,15 @@ async function onSubmit(values: {
   try {
     loading.value = true
     const optResp = await getWebAuthnCreateOptions(values.passwordless)
-    const jsonOptions = optResp?.data.creation_options as CredentialCreationOptionsJSON
+    const jsonOptions = optResp?.data.creation_options.publicKey
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
-    const options = parseCreationOptionsFromJSON(jsonOptions)
-    const credential = await create(options)
+    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(jsonOptions)
+    const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
     const response = await addWebAuthnCredential({
       name: values.name,
-      credential,
+      credential: credential.toJSON(),
     })
     toast.add({
       title: $i18n.t('success.title'),
@@ -90,7 +85,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <section
     class="
       grid gap-4
-
       lg:flex
     "
   >

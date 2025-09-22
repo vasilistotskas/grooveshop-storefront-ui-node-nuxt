@@ -26,8 +26,8 @@ export const useUrls = () => {
     return `/blog/category/${category.id}/${category.slug}`
   }
 
-  const productUrl = (id: number, slug?: string): string => {
-    return `/products/${id}${slug ? `/${slug}` : ''}`
+  const productUrl = (id: number, slug: string): string => {
+    return `/products/${id}/${slug}`
   }
 
   const blogPostUrlFromParts = (id: number, slug: string): string => {

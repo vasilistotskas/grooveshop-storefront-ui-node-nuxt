@@ -20,14 +20,17 @@ export const zAuthentication = z.object({
   lastName: z.optional(z.string().max(255)),
   id: z.int().readonly(),
   username: z.optional(z.union([
-    z.string().max(30).regex(/^[\w.@+-]+$/),
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
     z.null(),
   ])),
   image: z.optional(z.union([
     z.url(),
     z.null(),
   ])),
-  phone: z.optional(z.string()),
+  phone: z.optional(z.union([
+    z.string(),
+    z.null(),
+  ])),
   city: z.optional(z.string().max(255)),
   zipcode: z.optional(z.string().max(255)),
   address: z.optional(z.string().max(255)),
@@ -93,14 +96,17 @@ export const zAuthenticationRequest = z.object({
   firstName: z.optional(z.string().max(255)),
   lastName: z.optional(z.string().max(255)),
   username: z.optional(z.union([
-    z.string().max(30).regex(/^[\w.@+-]+$/),
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
     z.null(),
   ])),
   image: z.optional(z.union([
     z.string(),
     z.null(),
   ])),
-  phone: z.optional(z.string().min(1)),
+  phone: z.optional(z.union([
+    z.string(),
+    z.null(),
+  ])),
   city: z.optional(z.string().max(255)),
   zipcode: z.optional(z.string().max(255)),
   address: z.optional(z.string().max(255)),
@@ -602,12 +608,6 @@ export const zBlogCommentLikedCommentsResponse = z.object({
   }),
 })
 
-export const zBlogCommentMyCommentRequestRequest = z.object({
-  post: z.int().register(z.globalRegistry, {
-    description: 'Blog post ID to find comment for',
-  }),
-})
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -1037,6 +1037,11 @@ export const zCartDetail = z.object({
   }).readonly(),
 })
 
+export const zCartItemCreateRequest = z.object({
+  product: z.int(),
+  quantity: z.optional(z.int().gte(0).lte(2147483647)),
+})
+
 export const zCartItemDetail = z.object({
   id: z.int().readonly(),
   cartId: z.int().readonly(),
@@ -1070,9 +1075,7 @@ export const zCartItemDetail = z.object({
   }).readonly(),
 })
 
-export const zCartItemWriteRequest = z.object({
-  cart: z.int(),
-  product: z.int(),
+export const zCartItemUpdateRequest = z.object({
   quantity: z.optional(z.int().gte(0).lte(2147483647)),
 })
 
@@ -1672,14 +1675,6 @@ export const zOrderDetail = z.object({
       z.string(),
       z.null(),
     ])),
-    previousValue: z.optional(z.union([
-      z.record(z.string(), z.unknown()),
-      z.null(),
-    ])),
-    newValue: z.optional(z.union([
-      z.record(z.string(), z.unknown()),
-      z.null(),
-    ])),
   })).register(z.globalRegistry, {
     description: 'Order status timeline and history',
   }).readonly(),
@@ -2264,19 +2259,68 @@ export const zPaginatedProductCategoryList = z.object({
   results: z.array(zProductCategory),
 })
 
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductDetail = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int(),
+  viewCount: z.int().readonly(),
+  stock: z.optional(z.int().gte(0).lte(2147483647)),
+  active: z.optional(z.boolean()),
+  weight: z.optional(z.union([
+    z.object({
+      unit: z.optional(z.string()),
+      value: z.optional(z.number()),
+    }),
+    z.null(),
+  ])),
+  seoTitle: z.optional(z.string().max(70)),
+  seoDescription: z.optional(z.string().max(300)),
+  seoKeywords: z.optional(z.string().max(255)),
+  discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
+  createdAt: z.iso.datetime({
+    offset: true,
+  }).readonly(),
+  updatedAt: z.iso.datetime({
+    offset: true,
+  }).readonly(),
+  uuid: z.uuid().readonly(),
+  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  priceSavePercent: z.number().readonly(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  mainImagePath: z.string().readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  likesCount: z.int().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
 export const zProductFavourite = z.object({
   id: z.int().readonly(),
   userId: z.int().readonly(),
   userUsername: z.string().readonly(),
-  product: z.int(),
-  productName: z.union([
-    z.string().readonly(),
-    z.null(),
-  ]).readonly(),
-  productPrice: z.union([
-    z.number().gt(-100000000).lt(100000000).readonly(),
-    z.null(),
-  ]).readonly(),
+  product: zProductDetail,
   createdAt: z.iso.datetime({
     offset: true,
   }).readonly(),
@@ -2311,7 +2355,7 @@ export const zProductImage = z.object({
   product: z.int().readonly(),
   image: z.url(),
   imageUrl: z.string().readonly(),
-  imageSizeKb: z.int().readonly(),
+  imageSizeKb: z.number().readonly(),
   altText: z.string().readonly(),
   isMain: z.optional(z.boolean()),
   sortOrder: z.union([
@@ -2409,7 +2453,7 @@ export const zReviewStatus = z.enum([
  */
 export const zProductReview = z.object({
   id: z.int().readonly(),
-  product: z.int().readonly(),
+  product: zProduct,
   user: zAuthentication,
   rate: zRateEnum,
   status: z.optional(zReviewStatus),
@@ -2779,14 +2823,17 @@ export const zPatchedAuthenticationRequest = z.object({
   firstName: z.optional(z.string().max(255)),
   lastName: z.optional(z.string().max(255)),
   username: z.optional(z.union([
-    z.string().max(30).regex(/^[\w.@+-]+$/),
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
     z.null(),
   ])),
   image: z.optional(z.union([
     z.string(),
     z.null(),
   ])),
-  phone: z.optional(z.string().min(1)),
+  phone: z.optional(z.union([
+    z.string(),
+    z.null(),
+  ])),
   city: z.optional(z.string().max(255)),
   zipcode: z.optional(z.string().max(255)),
   address: z.optional(z.string().max(255)),
@@ -2965,9 +3012,7 @@ export const zPatchedBlogTagWriteRequest = z.object({
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
-export const zPatchedCartItemWriteRequest = z.object({
-  cart: z.optional(z.int()),
-  product: z.optional(z.int()),
+export const zPatchedCartItemUpdateRequest = z.object({
   quantity: z.optional(z.int().gte(0).lte(2147483647)),
 })
 
@@ -3337,9 +3382,6 @@ export const zPatchedTagWriteRequest = z.object({
 })
 
 export const zPatchedTaggedItemWriteRequest = z.object({
-  tagId: z.optional(z.int().register(z.globalRegistry, {
-    description: 'ID of the tag to assign',
-  })),
   contentType: z.optional(z.int()),
   objectId: z.optional(z.int().gte(0).lte(2147483647)),
 })
@@ -3648,63 +3690,6 @@ export const zProductCategoryWriteRequest = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zProductDetail = z.object({
-  id: z.int().readonly(),
-  translations: z.object({
-    el: z.optional(z.object({
-      name: z.optional(z.string()),
-      description: z.optional(z.string()),
-    })),
-    en: z.optional(z.object({
-      name: z.optional(z.string()),
-      description: z.optional(z.string()),
-    })),
-    de: z.optional(z.object({
-      name: z.optional(z.string()),
-      description: z.optional(z.string()),
-    })),
-  }),
-  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
-  price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
-  viewCount: z.int().readonly(),
-  stock: z.optional(z.int().gte(0).lte(2147483647)),
-  active: z.optional(z.boolean()),
-  weight: z.optional(z.union([
-    z.object({
-      unit: z.optional(z.string()),
-      value: z.optional(z.number()),
-    }),
-    z.null(),
-  ])),
-  seoTitle: z.optional(z.string().max(70)),
-  seoDescription: z.optional(z.string().max(300)),
-  seoKeywords: z.optional(z.string().max(255)),
-  discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
-  createdAt: z.iso.datetime({
-    offset: true,
-  }).readonly(),
-  updatedAt: z.iso.datetime({
-    offset: true,
-  }).readonly(),
-  uuid: z.uuid().readonly(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  mainImagePath: z.string().readonly(),
-  reviewAverage: z.number().readonly(),
-  reviewCount: z.int().readonly(),
-  likesCount: z.int().readonly(),
-}).register(z.globalRegistry, {
-  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zProductDetailRequest = z.object({
   translations: z.object({
     el: z.optional(z.object({
@@ -3809,14 +3794,6 @@ export const zProductFavouriteDetail = z.object({
   userId: z.int().readonly(),
   userUsername: z.string().readonly(),
   product: zProductDetail,
-  productName: z.union([
-    z.string().readonly(),
-    z.null(),
-  ]).readonly(),
-  productPrice: z.union([
-    z.number().gt(-100000000).lt(100000000).readonly(),
-    z.null(),
-  ]).readonly(),
   createdAt: z.iso.datetime({
     offset: true,
   }).readonly(),
@@ -3825,6 +3802,11 @@ export const zProductFavouriteDetail = z.object({
   updatedAt: z.iso.datetime({
     offset: true,
   }).readonly(),
+})
+
+export const zProductFavouriteWrite = z.object({
+  id: z.int().readonly(),
+  product: z.int(),
 })
 
 export const zProductFavouriteWriteRequest = z.object({
@@ -3840,7 +3822,7 @@ export const zProductImageDetail = z.object({
   product: zProduct,
   image: z.url(),
   imageUrl: z.string().readonly(),
-  imageSizeKb: z.int().readonly(),
+  imageSizeKb: z.number().readonly(),
   altText: z.string().readonly(),
   isMain: z.optional(z.boolean()),
   sortOrder: z.union([
@@ -3909,6 +3891,7 @@ export const zProductMeiliSearchResult = z.object({
   name: z.string(),
   description: z.string(),
   master: z.int(),
+  slug: z.string(),
   mainImagePath: z.string(),
   matchesPosition: z.unknown(),
   rankingScore: z.union([
@@ -3930,7 +3913,7 @@ export const zProductMeiliSearchResponse = z.object({
  */
 export const zProductReviewDetail = z.object({
   id: z.int().readonly(),
-  product: z.int().readonly(),
+  product: zProduct,
   user: zAuthentication,
   rate: zRateEnum,
   status: z.optional(zReviewStatus),
@@ -4329,9 +4312,6 @@ export const zTaggedItemDetail = z.object({
 })
 
 export const zTaggedItemWriteRequest = z.object({
-  tagId: z.int().register(z.globalRegistry, {
-    description: 'ID of the tag to assign',
-  }),
   contentType: z.int(),
   objectId: z.int().gte(0).lte(2147483647),
 })
@@ -4447,229 +4427,1163 @@ export const zUsernameUpdateResponse = z.object({
   }),
 })
 
-/**
- * * `subscribe` - subscribe
- * * `unsubscribe` - unsubscribe
- */
-export const zActionEnumWritable = z.enum([
-  'subscribe',
-  'unsubscribe',
-]).register(z.globalRegistry, {
-  description: '* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe',
+export const zAuthenticationWritable = z.object({
+  email: z.email().max(254),
+  firstName: z.optional(z.string().max(255)),
+  lastName: z.optional(z.string().max(255)),
+  username: z.optional(z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.null(),
+  ])),
+  image: z.optional(z.union([
+    z.url(),
+    z.null(),
+  ])),
+  phone: z.optional(z.union([
+    z.string(),
+    z.null(),
+  ])),
+  city: z.optional(z.string().max(255)),
+  zipcode: z.optional(z.string().max(255)),
+  address: z.optional(z.string().max(255)),
+  place: z.optional(z.string().max(255)),
+  country: z.optional(z.union([
+    z.string(),
+    z.null(),
+  ])),
+  region: z.optional(z.union([
+    z.string(),
+    z.null(),
+  ])),
+  birthDate: z.optional(z.union([
+    z.iso.date(),
+    z.null(),
+  ])),
+  twitter: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  linkedin: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  facebook: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  instagram: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  website: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  youtube: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  github: z.optional(z.union([
+    z.url().max(200),
+    z.null(),
+  ])),
+  bio: z.optional(z.string()),
 })
 
 /**
- * * `MARKETING` - Marketing Campaigns
- * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Account Updates
- * * `SYSTEM` - System Notifications
- * * `NEWSLETTER` - Newsletter
- * * `PROMOTIONAL` - Promotional
- * * `OTHER` - Other
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zCategoryEnumWritable = z.enum([
-  'MARKETING',
-  'PRODUCT',
-  'ACCOUNT',
-  'SYSTEM',
-  'NEWSLETTER',
-  'PROMOTIONAL',
-  'OTHER',
-]).register(z.globalRegistry, {
-  description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+export const zBlogAuthorWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      bio: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      bio: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      bio: z.optional(z.string()),
+    })),
+  }),
+  user: z.int(),
+  website: z.optional(z.url().max(200)),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `RECEIPT` - Receipt
- * * `INVOICE` - Invoice
- * * `PROFORMA` - Proforma Invoice
- * * `SHIPPING_LABEL` - Shipping Label
- * * `RETURN_LABEL` - Return Label
- * * `CREDIT_NOTE` - Credit Note
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zDocumentTypeEnumWritable = z.enum([
-  'RECEIPT',
-  'INVOICE',
-  'PROFORMA',
-  'SHIPPING_LABEL',
-  'RETURN_LABEL',
-  'CREDIT_NOTE',
-]).register(z.globalRegistry, {
-  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Invoice\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note',
+export const zBlogAuthorDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      bio: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      bio: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      bio: z.optional(z.string()),
+    })),
+  }),
+  website: z.optional(z.url().max(200)),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `BASEMENT` - Basement
- * * `GROUND_FLOOR` - Ground Floor
- * * `FIRST_FLOOR` - First Floor
- * * `SECOND_FLOOR` - Second Floor
- * * `THIRD_FLOOR` - Third Floor
- * * `FOURTH_FLOOR` - Fourth Floor
- * * `FIFTH_FLOOR` - Fifth Floor
- * * `SIXTH_FLOOR_PLUS` - Sixth Floor Plus
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zFloorEnumWritable = z.enum([
-  'BASEMENT',
-  'GROUND_FLOOR',
-  'FIRST_FLOOR',
-  'SECOND_FLOOR',
-  'THIRD_FLOOR',
-  'FOURTH_FLOOR',
-  'FIFTH_FLOOR',
-  'SIXTH_FLOOR_PLUS',
-]).register(z.globalRegistry, {
-  description: '* `BASEMENT` - Basement\n* `GROUND_FLOOR` - Ground Floor\n* `FIRST_FLOOR` - First Floor\n* `SECOND_FLOOR` - Second Floor\n* `THIRD_FLOOR` - Third Floor\n* `FOURTH_FLOOR` - Fourth Floor\n* `FIFTH_FLOOR` - Fifth Floor\n* `SIXTH_FLOOR_PLUS` - Sixth Floor Plus',
+export const zBlogCategoryWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  parent: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `MAIN` - Main Image
- * * `BANNER` - Banner Image
- * * `ICON` - Icon Image
- * * `THUMBNAIL` - Thumbnail Image
- * * `GALLERY` - Gallery Image
- * * `BACKGROUND` - Background Image
- * * `HERO` - Hero Image
- * * `FEATURE` - Feature Image
- * * `PROMOTIONAL` - Promotional Image
- * * `SEASONAL` - Seasonal Image
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zImageTypeEnumWritable = z.enum([
-  'MAIN',
-  'BANNER',
-  'ICON',
-  'THUMBNAIL',
-  'GALLERY',
-  'BACKGROUND',
-  'HERO',
-  'FEATURE',
-  'PROMOTIONAL',
-  'SEASONAL',
-]).register(z.globalRegistry, {
-  description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+export const zBlogCategoryDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  parent: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `ERROR` - Error
- * * `SUCCESS` - Success
- * * `INFO` - Info
- * * `WARNING` - Warning
- * * `DANGER` - Danger
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zKindEnumWritable = z.enum([
-  'ERROR',
-  'SUCCESS',
-  'INFO',
-  'WARNING',
-  'DANGER',
-]).register(z.globalRegistry, {
-  description: '* `ERROR` - Error\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger',
+export const zBlogCommentWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      content: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      content: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      content: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `HOME` - Αρχική
- * * `OFFICE` - Office
- * * `OTHER` - Other
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zLocationTypeEnumWritable = z.enum([
-  'HOME',
-  'OFFICE',
-  'OTHER',
-]).register(z.globalRegistry, {
-  description: '* `HOME` - Αρχική\n* `OFFICE` - Office\n* `OTHER` - Other',
+export const zBlogCommentDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      content: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      content: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      content: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `SHIPPED` - Shipped
- * * `DELIVERED` - Delivered
- * * `COMPLETED` - Completed
- * * `CANCELED` - Canceled
- * * `RETURNED` - Returned
- * * `REFUNDED` - Refunded
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zOrderStatusWritable = z.enum([
-  'PENDING',
-  'PROCESSING',
-  'SHIPPED',
-  'DELIVERED',
-  'COMPLETED',
-  'CANCELED',
-  'RETURNED',
-  'REFUNDED',
-]).register(z.globalRegistry, {
-  description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
+export const zBlogPostWritable = z.object({
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  likes: z.array(z.int()),
+  translations: z.object({
+    el: z.optional(z.object({
+      title: z.optional(z.string()),
+      subtitle: z.optional(z.string()),
+      body: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      title: z.optional(z.string()),
+      subtitle: z.optional(z.string()),
+      body: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      title: z.optional(z.string()),
+      subtitle: z.optional(z.string()),
+      body: z.optional(z.string()),
+    })),
+  }),
+  author: z.int(),
+  category: z.int(),
+  tags: z.array(z.int()),
+  featured: z.optional(z.boolean()),
+  isPublished: z.optional(z.boolean()),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `COMPLETED` - Completed
- * * `FAILED` - Failed
- * * `REFUNDED` - Refunded
- * * `PARTIALLY_REFUNDED` - Partially Refunded
- * * `CANCELED` - Canceled
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zPaymentStatusEnumWritable = z.enum([
-  'PENDING',
-  'PROCESSING',
-  'COMPLETED',
-  'FAILED',
-  'REFUNDED',
-  'PARTIALLY_REFUNDED',
-  'CANCELED',
-]).register(z.globalRegistry, {
-  description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
+export const zBlogPostDetailWritable = z.object({
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  translations: z.object({
+    el: z.optional(z.object({
+      title: z.optional(z.string()),
+      subtitle: z.optional(z.string()),
+      body: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      title: z.optional(z.string()),
+      subtitle: z.optional(z.string()),
+      body: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      title: z.optional(z.string()),
+      subtitle: z.optional(z.string()),
+      body: z.optional(z.string()),
+    })),
+  }),
+  featured: z.optional(z.boolean()),
+  isPublished: z.optional(z.boolean()),
+  seoTitle: z.optional(z.string().max(70)),
+  seoDescription: z.optional(z.string().max(300)),
+  seoKeywords: z.optional(z.string().max(255)),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `1` - One
- * * `2` - Two
- * * `3` - Three
- * * `4` - Four
- * * `5` - Five
- * * `6` - Six
- * * `7` - Seven
- * * `8` - Eight
- * * `9` - Nine
- * * `10` - Ten
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zRateEnumWritable = z.unknown().register(z.globalRegistry, {
-  description: '* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten',
+export const zBlogTagWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+  }),
+  active: z.optional(z.boolean()),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `NEW` - New
- * * `TRUE` - True
- * * `FALSE` - False
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zReviewStatusWritable = z.enum([
-  'NEW',
-  'TRUE',
-  'FALSE',
-]).register(z.globalRegistry, {
-  description: '* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False',
+export const zBlogTagDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+  }),
+  active: z.optional(z.boolean()),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+export const zCartWritable = z.object({
+  user: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+  sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
+    description: 'Session key for guest users',
+  })),
+})
+
+export const zCartDetailWritable = z.object({
+  user: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+  sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
+    description: 'Session key for guest users',
+  })),
+})
+
+export const zCartItemWritable = z.object({
+  quantity: z.optional(z.int().gte(0).lte(2147483647)),
+})
+
+export const zCartItemDetailWritable = z.object({
+  quantity: z.optional(z.int().gte(0).lte(2147483647)),
+})
+
+export const zContactWriteWritable = z.object({
+  name: z.string().max(100),
+  email: z.email().max(254),
+  message: z.string(),
 })
 
 /**
- * * `ACTIVE` - Active
- * * `PENDING` - Pending Confirmation
- * * `UNSUBSCRIBED` - Unsubscribed
- * * `BOUNCED` - Bounced
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zSubscriptionStatusWritable = z.enum([
-  'ACTIVE',
-  'PENDING',
-  'UNSUBSCRIBED',
-  'BOUNCED',
-]).register(z.globalRegistry, {
-  description: '* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
+export const zCountryWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+  }),
+  alpha2: z.string().max(2).regex(/^[A-Z]{2}$/),
+  alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
+  isoCc: z.optional(z.union([
+    z.int().gte(0).lte(32767),
+    z.null(),
+  ])),
+  phoneCode: z.optional(z.union([
+    z.int().gte(0).lte(32767),
+    z.null(),
+  ])),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zCountryDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+  }),
+  alpha2: z.string().max(2).regex(/^[A-Z]{2}$/),
+  alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
+  isoCc: z.optional(z.union([
+    z.int().gte(0).lte(32767),
+    z.null(),
+  ])),
+  phoneCode: z.optional(z.union([
+    z.int().gte(0).lte(32767),
+    z.null(),
+  ])),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zNotificationWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      title: z.optional(z.string()),
+      message: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      title: z.optional(z.string()),
+      message: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      title: z.optional(z.string()),
+      message: z.optional(z.string()),
+    })),
+  }),
+  link: z.optional(z.url().max(200)),
+  kind: z.optional(zKindEnum),
+  expiryDate: z.optional(z.union([
+    z.iso.datetime({
+      offset: true,
+    }),
+    z.null(),
+  ])),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+export const zNotificationUserWritable = z.object({
+  user: z.int(),
+  notification: z.int(),
+  seen: z.optional(z.boolean()),
+  seenAt: z.optional(z.union([
+    z.iso.datetime({
+      offset: true,
+    }),
+    z.null(),
+  ])),
+})
+
+export const zNotificationUserDetailWritable = z.object({
+  seen: z.optional(z.boolean()),
+  seenAt: z.optional(z.union([
+    z.iso.datetime({
+      offset: true,
+    }),
+    z.null(),
+  ])),
+})
+
+export const zOrderItemWritable = z.object({
+  order: z.int(),
+  product: z.int(),
+  quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
+})
+
+export const zOrderWritable = z.object({
+  user: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+  country: z.string(),
+  region: z.string(),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  payWay: z.int(),
+  status: z.optional(zOrderStatus),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  email: z.email().max(255),
+  zipcode: z.string().max(255),
+  place: z.optional(z.string().max(255)),
+  city: z.string().max(255),
+  phone: z.string(),
+  mobilePhone: z.optional(z.string()),
+  customerNotes: z.optional(z.string()),
+  items: z.array(zOrderItemWritable),
+  documentType: z.optional(zDocumentTypeEnum),
+  paymentId: z.optional(z.string().max(255)),
+  paymentStatus: z.optional(zPaymentStatusEnum),
+  paymentMethod: z.optional(z.string().max(50)),
+})
+
+export const zOrderDetailWritable = z.object({
+  user: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+  country: z.string(),
+  region: z.string(),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  payWay: z.int(),
+  status: z.optional(zOrderStatus),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  email: z.email().max(255),
+  zipcode: z.string().max(255),
+  place: z.optional(z.string().max(255)),
+  city: z.string().max(255),
+  customerNotes: z.optional(z.string()),
+  items: z.array(zOrderItemWritable),
+  documentType: z.optional(zDocumentTypeEnum),
+  paymentId: z.optional(z.string().max(255)),
+  paymentStatus: z.optional(zPaymentStatusEnum),
+  paymentMethod: z.optional(z.string().max(50)),
+  trackingNumber: z.optional(z.string().max(255)),
+  shippingCarrier: z.optional(z.string().max(255)),
+})
+
+export const zOrderItemDetailWritable = z.object({
+  order: z.int(),
+  quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
+  notes: z.optional(z.string()),
+})
+
+export const zPatchedTaggedItemWriteRequestWritable = z.object({
+  tagId: z.optional(z.int().register(z.globalRegistry, {
+    description: 'ID of the tag to assign',
+  })),
+  contentType: z.optional(z.int()),
+  objectId: z.optional(z.int().gte(0).lte(2147483647)),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPayWayWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+      instructions: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+      instructions: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+      instructions: z.optional(z.string()),
+    })),
+  }),
+  active: z.optional(z.boolean()),
+  cost: z.number().gt(-1000000000).lt(1000000000),
+  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
+  icon: z.optional(z.union([
+    z.url(),
+    z.null(),
+  ])),
+  providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
+    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+  })),
+  isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether this payment method is processed online',
+  })),
+  requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+  })),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPayWayDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+      instructions: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+      instructions: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+      instructions: z.optional(z.string()),
+    })),
+  }),
+  active: z.optional(z.boolean()),
+  cost: z.number().gt(-1000000000).lt(1000000000),
+  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
+  icon: z.optional(z.union([
+    z.url(),
+    z.null(),
+  ])),
+  providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
+    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+  })),
+  isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether this payment method is processed online',
+  })),
+  requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+  })),
+  configuration: z.optional(z.unknown().register(z.globalRegistry, {
+    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
+  })),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int(),
+  stock: z.optional(z.int().gte(0).lte(2147483647)),
+  active: z.optional(z.boolean()),
+  weight: z.optional(z.union([
+    z.object({
+      unit: z.optional(z.string()),
+      value: z.optional(z.number()),
+    }),
+    z.null(),
+  ])),
+  seoTitle: z.optional(z.string().max(70)),
+  seoDescription: z.optional(z.string().max(300)),
+  seoKeywords: z.optional(z.string().max(255)),
+  discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductCategoryWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  active: z.optional(z.boolean()),
+  parent: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductCategoryDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  active: z.optional(z.boolean()),
+  parent: z.optional(z.union([
+    z.int(),
+    z.null(),
+  ])),
+  seoTitle: z.optional(z.string().max(70)),
+  seoDescription: z.optional(z.string().max(300)),
+  seoKeywords: z.optional(z.string().max(255)),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductCategoryImageWritable = z.object({
+  category: z.int(),
+  image: z.url(),
+  imageType: z.optional(zImageTypeEnum),
+  active: z.optional(z.boolean()),
+  translations: z.object({
+    el: z.optional(z.object({
+      title: z.optional(z.string()),
+      altText: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      title: z.optional(z.string()),
+      altText: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      title: z.optional(z.string()),
+      altText: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductCategoryImageDetailWritable = z.object({
+  category: z.int(),
+  image: z.url(),
+  imageType: z.optional(zImageTypeEnum),
+  active: z.optional(z.boolean()),
+  translations: z.object({
+    el: z.optional(z.object({
+      title: z.optional(z.string()),
+      altText: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      title: z.optional(z.string()),
+      altText: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      title: z.optional(z.string()),
+      altText: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int(),
+  stock: z.optional(z.int().gte(0).lte(2147483647)),
+  active: z.optional(z.boolean()),
+  weight: z.optional(z.union([
+    z.object({
+      unit: z.optional(z.string()),
+      value: z.optional(z.number()),
+    }),
+    z.null(),
+  ])),
+  seoTitle: z.optional(z.string().max(70)),
+  seoDescription: z.optional(z.string().max(300)),
+  seoKeywords: z.optional(z.string().max(255)),
+  discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductDetailResponseWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int(),
+  stock: z.optional(z.int().gte(0).lte(2147483647)),
+  active: z.optional(z.boolean()),
+  weight: z.optional(z.union([
+    z.object({
+      unit: z.optional(z.string()),
+      value: z.optional(z.number()),
+    }),
+    z.null(),
+  ])),
+  seoTitle: z.optional(z.string().max(70)),
+  seoDescription: z.optional(z.string().max(300)),
+  seoKeywords: z.optional(z.string().max(255)),
+  discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+export const zProductFavouriteWritable = z.record(z.string(), z.unknown())
+
+export const zProductFavouriteDetailWritable = z.record(z.string(), z.unknown())
+
+export const zProductFavouriteWriteWritable = z.object({
+  product: z.int(),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductImageWritable = z.object({
+  image: z.url(),
+  isMain: z.optional(z.boolean()),
+  translations: z.object({
+    el: z.optional(z.object({
+      title: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      title: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      title: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductImageDetailWritable = z.object({
+  image: z.url(),
+  isMain: z.optional(z.boolean()),
+  translations: z.object({
+    el: z.optional(z.object({
+      title: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      title: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      title: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductReviewWritable = z.object({
+  rate: zRateEnum,
+  status: z.optional(zReviewStatus),
+  isPublished: z.optional(z.boolean()),
+  translations: z.object({
+    el: z.optional(z.object({
+      comment: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      comment: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      comment: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductReviewDetailWritable = z.object({
+  rate: zRateEnum,
+  status: z.optional(zReviewStatus),
+  isPublished: z.optional(z.boolean()),
+  translations: z.object({
+    el: z.optional(z.object({
+      comment: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      comment: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      comment: z.optional(z.string()),
+    })),
+  }),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zRegionWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+  }),
+  alpha: z.string().max(10),
+  country: z.string(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zRegionDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+    })),
+  }),
+  alpha: z.string().max(10),
+  country: z.string(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zSubscriptionTopicWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+  }),
+  category: z.optional(zCategoryEnum),
+  isActive: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether this topic is currently available for subscription',
+  })),
+  isDefault: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether new users are automatically subscribed to this topic',
+  })),
+  requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether subscription to this topic requires email confirmation',
+  })),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zSubscriptionTopicDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      name: z.optional(z.string()),
+      description: z.optional(z.string()),
+    })),
+  }),
+  slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+  }),
+  category: z.optional(zCategoryEnum),
+  isActive: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether this topic is currently available for subscription',
+  })),
+  isDefault: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether new users are automatically subscribed to this topic',
+  })),
+  requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
+    description: 'Whether subscription to this topic requires email confirmation',
+  })),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zTagWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      label: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      label: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      label: z.optional(z.string()),
+    })),
+  }),
+  active: z.optional(z.boolean()),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zTagDetailWritable = z.object({
+  translations: z.object({
+    el: z.optional(z.object({
+      label: z.optional(z.string()),
+    })),
+    en: z.optional(z.object({
+      label: z.optional(z.string()),
+    })),
+    de: z.optional(z.object({
+      label: z.optional(z.string()),
+    })),
+  }),
+  active: z.optional(z.boolean()),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+export const zTaggedItemWritable = z.object({
+  contentType: z.int(),
+  objectId: z.int().gte(0).lte(2147483647),
+})
+
+export const zTaggedItemDetailWritable = z.object({
+  contentType: z.int(),
+  objectId: z.int().gte(0).lte(2147483647),
+})
+
+export const zTaggedItemWriteRequestWritable = z.object({
+  tagId: z.int().register(z.globalRegistry, {
+    description: 'ID of the tag to assign',
+  }),
+  contentType: z.int(),
+  objectId: z.int().gte(0).lte(2147483647),
+})
+
+export const zUserAddressWritable = z.object({
+  title: z.string().max(255),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  city: z.string().max(255),
+  zipcode: z.string().max(255),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
+  phone: z.string(),
+  mobilePhone: z.optional(z.string()),
+  notes: z.optional(z.string().max(255)),
+  isMain: z.optional(z.boolean()).default(false),
+  country: z.string(),
+  region: z.string(),
+})
+
+export const zUserAddressDetailWritable = z.object({
+  title: z.string().max(255),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  city: z.string().max(255),
+  zipcode: z.string().max(255),
+  floor: z.optional(zFloorEnum),
+  locationType: z.optional(zLocationTypeEnum),
+  phone: z.string(),
+  mobilePhone: z.optional(z.string()),
+  notes: z.optional(z.string().max(255)),
+  isMain: z.optional(z.boolean()).default(false),
+  country: z.string(),
+  region: z.string(),
+})
+
+export const zUserSubscriptionWritable = z.object({
+  topic: z.int(),
+  status: z.optional(zSubscriptionStatus),
+  metadata: z.optional(z.unknown().register(z.globalRegistry, {
+    description: 'Additional subscription preferences or data',
+  })),
+})
+
+export const zUserSubscriptionDetailWritable = z.object({
+  topic: z.int(),
+  status: z.optional(zSubscriptionStatus),
+  metadata: z.optional(z.unknown().register(z.globalRegistry, {
+    description: 'Additional subscription preferences or data',
+  })),
 })
 
 export const zListBlogAuthorData = z.object({
   body: z.optional(z.never()),
   path: z.optional(z.never()),
   query: z.optional(z.object({
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     language: z.optional(z.enum([
       'de',
       'el',
@@ -4685,6 +5599,19 @@ export const zListBlogAuthorData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -4848,6 +5775,19 @@ export const zListBlogCategoryData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -5246,6 +6186,9 @@ export const zListBlogCommentData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     descendantOf: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
       z.number(),
@@ -5376,6 +6319,19 @@ export const zListBlogCommentData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     parent: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -6147,14 +7103,6 @@ export const zCheckBlogCommentLikesData = z.object({
 
 export const zCheckBlogCommentLikesResponse = zBlogCommentLikedCommentsResponse
 
-export const zGetMyBlogCommentData = z.object({
-  body: zBlogCommentMyCommentRequestRequest,
-  path: z.optional(z.never()),
-  query: z.optional(z.never()),
-})
-
-export const zGetMyBlogCommentResponse = zBlogCommentDetail
-
 export const zListMyBlogCommentsData = z.object({
   body: z.optional(z.never()),
   path: z.optional(z.never()),
@@ -6464,6 +7412,9 @@ export const zListBlogPostData = z.object({
       z.literal('0'),
       z.boolean(),
     ])),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     featured: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -6519,6 +7470,19 @@ export const zListBlogPostData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     publishedAfter: z.optional(z.iso.datetime({
       offset: true,
     }).register(z.globalRegistry, {
@@ -6866,7 +7830,7 @@ export const zListBlogPostRelatedData = z.object({
 export const zListBlogPostRelatedResponse = z.array(zBlogPost)
 
 export const zToggleBlogPostLikeData = z.object({
-  body: zBlogPostLikedPostsRequestRequest,
+  body: z.optional(z.never()),
   path: z.object({
     id: z.union([
       z.string().regex(/^-?\d+$/),
@@ -6876,7 +7840,7 @@ export const zToggleBlogPostLikeData = z.object({
   query: z.optional(z.never()),
 })
 
-export const zToggleBlogPostLikeResponse = zBlogPostLikedPostsResponse
+export const zToggleBlogPostLikeResponse = zBlogPostDetail
 
 export const zIncrementBlogPostViewsData = z.object({
   body: zBlogPostDetailRequest,
@@ -7467,6 +8431,9 @@ export const zListBlogTagData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     hasLikedPosts: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -7548,6 +8515,19 @@ export const zListBlogTagData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     post: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -7844,6 +8824,9 @@ export const zListCartItemData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     id: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -7868,6 +8851,13 @@ export const zListCartItemData = z.object({
       z.literal('0'),
       z.boolean(),
     ])),
+    language: z.optional(z.enum([
+      'de',
+      'el',
+      'en',
+    ]).register(z.globalRegistry, {
+      description: 'Language code for translations (el, en, de)',
+    })),
     maxDiscountPercent: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
       z.number(),
@@ -7908,6 +8898,19 @@ export const zListCartItemData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     product: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -7990,7 +8993,7 @@ export const zListCartItemData = z.object({
 export const zListCartItemResponse = zPaginatedCartItemList
 
 export const zCreateCartItemData = z.object({
-  body: zCartItemWriteRequest,
+  body: zCartItemCreateRequest,
   path: z.optional(z.never()),
   query: z.optional(z.never()),
   headers: z.optional(z.object({
@@ -8041,7 +9044,15 @@ export const zRetrieveCartItemData = z.object({
       z.int(),
     ]),
   }),
-  query: z.optional(z.never()),
+  query: z.optional(z.object({
+    language: z.optional(z.enum([
+      'de',
+      'el',
+      'en',
+    ]).register(z.globalRegistry, {
+      description: 'Language code for translations (el, en, de)',
+    })),
+  })),
   headers: z.optional(z.object({
     'X-Cart-Id': z.optional(z.union([
       z.string().regex(/^-?\d+$/),
@@ -8056,7 +9067,7 @@ export const zRetrieveCartItemData = z.object({
 export const zRetrieveCartItemResponse = zCartItemDetail
 
 export const zPartialUpdateCartItemData = z.object({
-  body: z.optional(zPatchedCartItemWriteRequest),
+  body: z.optional(zPatchedCartItemUpdateRequest),
   path: z.object({
     id: z.union([
       z.string().regex(/^-?\d+$/),
@@ -8086,7 +9097,7 @@ export const zPartialUpdateCartItemData = z.object({
 export const zPartialUpdateCartItemResponse = zCartItemDetail
 
 export const zUpdateCartItemData = z.object({
-  body: zCartItemWriteRequest,
+  body: z.optional(zCartItemUpdateRequest),
   path: z.object({
     id: z.union([
       z.string().regex(/^-?\d+$/),
@@ -8134,6 +9145,9 @@ export const zListCartData = z.object({
       offset: true,
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
+    })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
     })),
     daysInactive: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -8191,6 +9205,13 @@ export const zListCartData = z.object({
       z.literal('0'),
       z.boolean(),
     ])),
+    language: z.optional(z.enum([
+      'de',
+      'el',
+      'en',
+    ]).register(z.globalRegistry, {
+      description: 'Language code for translations (el, en, de)',
+    })),
     lastActivity: z.optional(z.iso.datetime({
       offset: true,
     }).register(z.globalRegistry, {
@@ -8245,6 +9266,19 @@ export const zListCartData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -8378,6 +9412,9 @@ export const zListCountryData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     hasAllData: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -8473,6 +9510,19 @@ export const zListCountryData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     phoneCode: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -8667,6 +9717,9 @@ export const zListNotificationUserData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     hasSeenAt: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -8754,6 +9807,19 @@ export const zListNotificationUserData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     recentNotifications: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -9034,6 +10100,9 @@ export const zListOrderData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     customerNotes: z.optional(z.string()),
     customerNotes_Icontains: z.optional(z.string()),
     documentType: z.optional(z.string().register(z.globalRegistry, {
@@ -9163,6 +10232,19 @@ export const zListOrderData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     paidAmount_Gte: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
       z.number(),
@@ -9405,6 +10487,9 @@ export const zListOrderItemData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     hasNotes: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -9551,6 +10636,19 @@ export const zListOrderItemData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     price: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
       z.number(),
@@ -10368,6 +11466,9 @@ export const zListPayWayData = z.object({
       z.string().regex(/^-?\d+(\.\d+)?$/),
       z.number(),
     ])),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     description: z.optional(z.string().register(z.globalRegistry, {
       description: 'Filter by description (partial match)',
     })),
@@ -10430,6 +11531,19 @@ export const zListPayWayData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     providerCode: z.optional(z.string().register(z.globalRegistry, {
       description: 'Filter by provider code (partial match)',
     })),
@@ -10582,6 +11696,9 @@ export const zListProductData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     deletedAt_Date: z.optional(z.iso.date()),
     deletedAt_Gte: z.optional(z.iso.datetime({
       offset: true,
@@ -10713,6 +11830,19 @@ export const zListProductData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     price: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
       z.number(),
@@ -10894,7 +12024,15 @@ export const zListProductImagesData = z.object({
       z.int(),
     ]),
   }),
-  query: z.optional(z.never()),
+  query: z.optional(z.object({
+    language: z.optional(z.enum([
+      'de',
+      'el',
+      'en',
+    ]).register(z.globalRegistry, {
+      description: 'Language code for translations (el, en, de)',
+    })),
+  })),
 })
 
 export const zListProductImagesResponse = z.array(zProductImage)
@@ -10907,10 +12045,44 @@ export const zListProductReviewsData = z.object({
       z.int(),
     ]),
   }),
-  query: z.optional(z.never()),
+  query: z.optional(z.object({
+    pageSize: z.optional(z.union([
+      z.string().regex(/^-?\d+$/),
+      z.int(),
+    ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
+  })),
 })
 
-export const zListProductReviewsResponse = z.array(zProductReview)
+export const zListProductReviewsResponse = z.object({
+  links: z.optional(z.object({
+    next: z.optional(z.union([
+      z.string(),
+      z.null(),
+    ])),
+    previous: z.optional(z.union([
+      z.string(),
+      z.null(),
+    ])),
+  })),
+  count: z.optional(z.int()),
+  total_pages: z.optional(z.int()),
+  page_size: z.optional(z.int()),
+  page_total_results: z.optional(z.int()),
+  results: z.optional(z.array(zProductReview)),
+})
 
 export const zListProductTagsData = z.object({
   body: z.optional(z.never()),
@@ -10969,6 +12141,9 @@ export const zListProductCategoryData = z.object({
       offset: true,
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
+    })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
     })),
     descendantOf: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -11049,6 +12224,19 @@ export const zListProductCategoryData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     parent: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -11212,6 +12400,9 @@ export const zListProductCategoryImageData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     id: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -11245,6 +12436,19 @@ export const zListProductCategoryImageData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -11388,6 +12592,9 @@ export const zListProductFavouriteData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     id: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -11407,6 +12614,19 @@ export const zListProductFavouriteData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     product: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -11456,7 +12676,7 @@ export const zCreateProductFavouriteData = z.object({
   })),
 })
 
-export const zCreateProductFavouriteResponse = zProductFavouriteDetail
+export const zCreateProductFavouriteResponse = zProductFavouriteWrite
 
 export const zDestroyProductFavouriteData = z.object({
   body: z.optional(z.never()),
@@ -11507,7 +12727,7 @@ export const zPartialUpdateProductFavouriteData = z.object({
   })),
 })
 
-export const zPartialUpdateProductFavouriteResponse = zProductFavouriteDetail
+export const zPartialUpdateProductFavouriteResponse = zProductFavouriteWrite
 
 export const zUpdateProductFavouriteData = z.object({
   body: zProductFavouriteWriteRequest,
@@ -11525,7 +12745,7 @@ export const zUpdateProductFavouriteData = z.object({
   })),
 })
 
-export const zUpdateProductFavouriteResponse = zProductFavouriteDetail
+export const zUpdateProductFavouriteResponse = zProductFavouriteWrite
 
 export const zGetProductFavouriteProductData = z.object({
   body: z.optional(z.never()),
@@ -11543,7 +12763,14 @@ export const zGetProductFavouritesByProductsData = z.object({
   query: z.optional(z.never()),
 })
 
-export const zGetProductFavouritesByProductsResponse = z.array(zProductFavourite)
+export const zGetProductFavouritesByProductsResponse = z.array(z.object({
+  id: z.int(),
+  userId: z.int(),
+  productId: z.int(),
+  createdAt: z.iso.datetime({
+    offset: true,
+  }),
+}))
 
 export const zListProductImageData = z.object({
   body: z.optional(z.never()),
@@ -11551,6 +12778,9 @@ export const zListProductImageData = z.object({
   query: z.optional(z.object({
     createdAt: z.optional(z.iso.datetime({
       offset: true,
+    })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
     })),
     id: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
@@ -11578,6 +12808,19 @@ export const zListProductImageData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     product: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -11725,6 +12968,9 @@ export const zListProductReviewData = z.object({
       z.literal('0'),
       z.boolean(),
     ])),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     hasComment: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -11770,6 +13016,19 @@ export const zListProductReviewData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     product: z.optional(z.union([
       z.string().regex(/^-?\d+(\.\d+)?$/),
       z.number(),
@@ -12050,6 +13309,9 @@ export const zListRegionData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     language: z.optional(z.enum([
       'de',
       'el',
@@ -12068,6 +13330,19 @@ export const zListRegionData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -12339,6 +13614,9 @@ export const zListTagData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     hasLabel: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -12406,6 +13684,19 @@ export const zListTagData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -12578,6 +13869,9 @@ export const zListTaggedItemData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     id: z.optional(z.union([
       z.string().regex(/^-?\d+$/),
       z.int(),
@@ -12613,6 +13907,19 @@ export const zListTaggedItemData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -12654,7 +13961,7 @@ export const zListTaggedItemData = z.object({
 export const zListTaggedItemResponse = zPaginatedTaggedItemList
 
 export const zCreateTaggedItemData = z.object({
-  body: zTaggedItemWriteRequest,
+  body: zTaggedItemWriteRequestWritable,
   path: z.optional(z.never()),
   query: z.optional(z.object({
     language: z.optional(z.enum([
@@ -12709,7 +14016,7 @@ export const zRetrieveTaggedItemData = z.object({
 export const zRetrieveTaggedItemResponse = zTaggedItemDetail
 
 export const zPartialUpdateTaggedItemData = z.object({
-  body: z.optional(zPatchedTaggedItemWriteRequest),
+  body: z.optional(zPatchedTaggedItemWriteRequestWritable),
   path: z.object({
     id: z.union([
       z.string().regex(/^-?\d+$/),
@@ -12730,7 +14037,7 @@ export const zPartialUpdateTaggedItemData = z.object({
 export const zPartialUpdateTaggedItemResponse = zTaggedItemDetail
 
 export const zUpdateTaggedItemData = z.object({
-  body: zTaggedItemWriteRequest,
+  body: zTaggedItemWriteRequestWritable,
   path: z.object({
     id: z.union([
       z.string().regex(/^-?\d+$/),
@@ -12754,6 +14061,9 @@ export const zListUserAccountData = z.object({
   body: z.optional(z.never()),
   path: z.optional(z.never()),
   query: z.optional(z.object({
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     language: z.optional(z.enum([
       'de',
       'el',
@@ -12769,6 +14079,19 @@ export const zListUserAccountData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -13182,6 +14505,9 @@ export const zListUserAddressData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     firstName: z.optional(z.string().register(z.globalRegistry, {
       description: 'Filter by first name (partial match)',
     })),
@@ -13256,6 +14582,19 @@ export const zListUserAddressData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     phone: z.optional(z.string().register(z.globalRegistry, {
       description: 'Filter by phone number (partial match)',
     })),
@@ -13443,6 +14782,9 @@ export const zListUserSubscriptionData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     hasMetadata: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),
@@ -13482,6 +14824,19 @@ export const zListUserSubscriptionData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     search: z.optional(z.string().register(z.globalRegistry, {
       description: 'A search term.',
     })),
@@ -13725,6 +15080,9 @@ export const zListSubscriptionTopicData = z.object({
     }).register(z.globalRegistry, {
       description: 'Filter items created before this date',
     })),
+    cursor: z.optional(z.string().register(z.globalRegistry, {
+      description: 'Cursor for pagination',
+    })),
     description: z.optional(z.string().register(z.globalRegistry, {
       description: 'Filter by description (partial match)',
     })),
@@ -13777,6 +15135,19 @@ export const zListSubscriptionTopicData = z.object({
       z.string().regex(/^-?\d+$/),
       z.int(),
     ])),
+    pagination: z.optional(z.enum([
+      'false',
+      'true',
+    ]).register(z.globalRegistry, {
+      description: 'Enable or disable pagination',
+    })),
+    paginationType: z.optional(z.enum([
+      'cursor',
+      'limitOffset',
+      'pageNumber',
+    ]).register(z.globalRegistry, {
+      description: 'Pagination strategy type',
+    })),
     requiresConfirmation: z.optional(z.union([
       z.literal('true'),
       z.literal('false'),

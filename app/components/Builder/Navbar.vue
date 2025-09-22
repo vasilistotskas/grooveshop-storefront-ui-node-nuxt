@@ -14,7 +14,7 @@ const config = useRuntimeConfig()
 const { enabled } = useAuthPreviewMode()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const appStore = useAppStore()
 const {
   healthy,
@@ -36,12 +36,10 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
   <div
     ref="navbar"
     class="
-      border-primary-500 top-0 z-50 w-full flex-none border-b backdrop-blur-md
+      top-0 z-50 w-full flex-none border-b border-primary-500 backdrop-blur-md
       transition-colors duration-300
-
-      dark:border-primary-500
-
       lg:z-50
+      dark:border-primary-500
     "
   >
     <div
@@ -50,23 +48,19 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
     >
       <slot name="banner" />
     </div>
-    <div class="max-w-(--container-main) mx-auto !p-0">
+    <div class="mx-auto max-w-(--container-main) !p-0">
       <div
         class="
           mx-2 flex gap-2 py-3
-
-          lg:mx-0
-
           md:flex md:py-4
+          lg:mx-0
         "
       >
         <div
           class="
             relative flex w-full items-center gap-4
-
-            lg:grid-cols-[1fr_2fr_1fr]
-
             md:grid md:grid-cols-[1fr_2fr]
+            lg:grid-cols-[1fr_2fr_1fr]
           "
           :class="{ 'justify-between': isMobileOrTablet }"
         >
@@ -88,8 +82,8 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
                     :to="'index'"
                     :aria-label="appTitle"
                     class="
-                      text-md flex items-center gap-2 overflow-hidden font-bold
-
+                      flex items-center gap-2 overflow-hidden text-base
+                      font-bold
                       md:w-auto
                     "
                   >
@@ -112,7 +106,6 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
             <div
               class="
                 flex items-center gap-4
-
                 lg:sr-only
               "
             >

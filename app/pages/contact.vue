@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -30,12 +30,17 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-2xl) mx-auto md:!p-0 flex flex-col">
+  <PageWrapper
+    class="
+      mx-auto flex max-w-(--container-2xl) flex-col
+      md:!p-0
+    "
+  >
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />
@@ -46,38 +51,34 @@ definePageMeta({
 
     <div
       class="
-          grid gap-4
-
-          md:gap-6
-        "
+        grid gap-4
+        md:gap-6
+      "
     >
       <div class="article">
         <p
           class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+            text-primary-950
+            dark:text-primary-50
+          "
         >
           Για κάθε είδους πληροφορίες, διευκρινίσεις, υποβολή οποιουδήποτε αιτήματος : για αλλαγή στοιχείων ή
           διακοπής/περιορισμού της πρόσβασης / χρήσης, ο χρήστης μπορεί να επισκεφτεί την ηλεκτρονική ιστοσελίδα
           <a
             href="https://www.webside.gr"
             class="
-                text-primary-800
-
-                dark:text-primary-100
-              "
+              text-primary-800
+              dark:text-primary-100
+            "
           >webside.gr</a> και να κάνει login στον λογαριασμό του (εφόσον κατέχει/έχει εγγραφεί) επιλέγοντας τις
           κατάλληλες
           επιλογές, ή να επικοινωνήσει μέσω email στη διεύθυνση
           <a
             href="mailto:info@webside.gr"
             class="
-                text-primary-800
-
-                dark:text-primary-100
-              "
+              text-primary-800
+              dark:text-primary-100
+            "
           >
             info@webside.gr
           </a>

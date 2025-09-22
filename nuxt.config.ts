@@ -243,9 +243,6 @@ export default defineNuxtConfig({
     typeCheck: true, // Until vue-tsc is fixed
     builder: 'vite',
   },
-  telemetry: {
-    enabled: true,
-  },
   debug: false,
   hooks: {
     'build:manifest': (manifest) => {

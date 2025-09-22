@@ -5,7 +5,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 
 const config = useRuntimeConfig()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { login } = useAllAuthAuthentication()
 const router = useRouter()
@@ -107,8 +107,7 @@ const submitButtonDisabled = computed(() => {
       id="loginForm"
       ref="loginForm"
       class="
-        z-10 !pt-12 container mx-auto px-4 !pb-6
-
+        z-10 container mx-auto px-4 !pt-12 !pb-6
         md:!p-0
       "
       name="loginForm"
@@ -120,11 +119,9 @@ const submitButtonDisabled = computed(() => {
         <div class="relative grid w-full gap-4">
           <div
             class="
-              grid gap-6 py-8 px-4 shadow-lg bg-primary-100 rounded-lg
-
-              dark:bg-primary-900 dark:md:bg-transparent
-
+              grid gap-6 rounded-lg bg-primary-100 px-4 py-8 shadow-lg
               md:bg-transparent md:!p-0 md:shadow-none
+              dark:bg-primary-900 dark:md:bg-transparent
             "
           >
             <div class="grid content-evenly items-center justify-center gap-1">
@@ -140,9 +137,7 @@ const submitButtonDisabled = computed(() => {
             </div>
             <div class="grid content-evenly items-start gap-1">
               <label
-                class="
-                  text-xl font-bold
-                "
+                class="text-xl font-bold"
                 for="email"
               >{{
                 t('email.label')
@@ -164,10 +159,7 @@ const submitButtonDisabled = computed(() => {
             </div>
             <div class="grid content-evenly items-start gap-1">
               <label
-                class="
-                  text-xl font-bold
-
-                "
+                class="text-xl font-bold"
                 for="password"
               >{{ t('password.label') }}</label>
               <div class="relative grid items-center gap-2">
@@ -220,18 +212,15 @@ const submitButtonDisabled = computed(() => {
               <div
                 class="
                   flex items-center
-
-                  after:mt-0.5 after:flex-1 after:border-t
-                  after:border-neutral-300
-
                   before:mt-0.5 before:flex-1 before:border-t
                   before:border-neutral-300
+                  after:mt-0.5 after:flex-1 after:border-t
+                  after:border-neutral-300
                 "
               >
                 <p
                   class="
                     mx-4 text-center font-semibold text-primary-950
-
                     dark:text-primary-50
                   "
                 >
@@ -242,27 +231,20 @@ const submitButtonDisabled = computed(() => {
               <div
                 class="
                   flex flex-col items-center gap-2 py-4
-
                   sm:flex-col
                 "
               >
                 <UButton
                   :label="t('use.code')"
                   :to="localePath('account-login-code')"
-                  class="
-                    p-0 font-semibold
-
-                  "
+                  class="p-0 font-semibold"
                   color="secondary"
                   size="md"
                   type="button"
                   variant="link"
                 />
                 <UButton
-                  class="
-                    p-0 font-semibold
-
-                  "
+                  class="p-0 font-semibold"
                   :label="t('forgot.password.reset')"
                   :to="localePath('account-password-reset')"
                   size="md"
@@ -274,18 +256,13 @@ const submitButtonDisabled = computed(() => {
                   class="flex items-center gap-2"
                 >
                   <span
-                    class="
-                      text-sm font-semibold
-
-                    "
+                    class="text-sm font-semibold"
                   >{{
                     t('no.account')
                   }}</span>
 
                   <UButton
-                    class="
-                      p-0 font-semibold underline
-                    "
+                    class="p-0 font-semibold underline"
                     :label="$i18n.t('register')"
                     :to="localePath('account-signup')"
                     size="lg"
@@ -301,8 +278,7 @@ const submitButtonDisabled = computed(() => {
               >
                 <p
                   class="
-                    text-primary-950 text-sm font-semibold
-
+                    text-sm font-semibold text-primary-950
                     dark:text-primary-50
                   "
                 >

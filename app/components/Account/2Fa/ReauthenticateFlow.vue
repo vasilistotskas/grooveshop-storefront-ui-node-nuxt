@@ -71,15 +71,13 @@ const filteredMethods = computed(() => {
   <div
     class="
       grid gap-4
-
       md:gap-12
     "
   >
     <div class="grid items-center justify-center justify-items-center">
       <h3
         class="
-          text-primary-950 text-2xl font-bold
-
+          text-2xl font-bold text-primary-950
           dark:text-primary-50
         "
       >

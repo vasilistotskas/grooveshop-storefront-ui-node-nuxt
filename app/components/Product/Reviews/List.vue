@@ -38,9 +38,8 @@ defineProps({
         :review="review"
         :display-image-of="displayImageOf"
         class="
-          reviews-list-item bg-primary-100 border-primary-500 rounded border p-4
-
-          dark:bg-primary-900 dark:border-primary-500
+          reviews-list-item rounded border border-primary-500 bg-primary-100 p-4
+          dark:border-primary-500 dark:bg-primary-900
         "
       />
     </div>

@@ -42,7 +42,7 @@ const emit = defineEmits([
   'delete-existing-review',
 ])
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const route = useRoute()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
@@ -50,7 +50,7 @@ const { isMobileOrTablet } = useDevice()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const { refresh } = await useLazyFetch<ProductReview[]>(
+const { refresh } = await useLazyFetch(
   `/api/products/${product.value?.id}/reviews`,
   {
     key: `productReviews${product.value?.id}`,
@@ -279,12 +279,11 @@ const tooManyAttempts = computed(() => {
 })
 
 const createReviewEvent = async (event: { comment: string, rate: number }) => {
-  await $fetch<ProductReview>(`/api/products/reviews`, {
+  await $fetch(`/api/products/reviews`, {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      product: String(product.value?.id),
-      user: String(user?.value?.id),
+      product: product.value?.id,
       translations: {
         [locale.value]: {
           comment: event.comment,
@@ -312,12 +311,11 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
 
 const updateReviewEvent = async (event: { comment: string, rate: number }) => {
   if (!userProductReview?.value) return
-  await $fetch<ProductReview>(`/api/products/reviews/${userProductReview?.value.id}`, {
+  await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {
-      product: String(product.value?.id),
-      user: String(user?.value?.id),
+      product: product.value?.id,
       rate: String(event.rate),
       translations: {
         [locale.value]: {

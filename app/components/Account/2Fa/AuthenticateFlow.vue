@@ -52,15 +52,13 @@ const filteredFlows = computed(() => {
   <section
     class="
       grid gap-4
-
       md:gap-12
     "
   >
     <div class="grid items-center justify-center justify-items-center">
       <h3
         class="
-          text-primary-950 text-2xl font-bold
-
+          text-2xl font-bold text-primary-950
           dark:text-primary-50
         "
       >
@@ -75,9 +73,7 @@ const filteredFlows = computed(() => {
 
     <div
       v-if="flow && flow.types && flow?.types?.length > 1"
-      class="
-        grid items-center justify-center gap-2
-      "
+      class="grid items-center justify-center gap-2"
     >
       <p>{{ $i18n.t('alternative_options') }}</p>
       <ul class="grid items-center">

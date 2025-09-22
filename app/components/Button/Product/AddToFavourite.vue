@@ -32,11 +32,13 @@ const emit = defineEmits<{
   (e: 'favourite-delete', id: number): void
 }>()
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { addFavouriteProduct, removeFavouriteProduct } = userStore
+
+const isLoading = ref(false)
 
 const toggleFavourite = async () => {
   if (!loggedIn.value || !props.userId) {
@@ -46,67 +48,84 @@ const toggleFavourite = async () => {
     })
     return
   }
-  if (!props.favouriteId) {
-    await $fetch<ProductFavourite>(`/api/products/favourites`, {
-      method: 'POST',
-      headers: useRequestHeaders(),
-      body: {
-        product: String(props.productId),
-        user: String(props.userId),
-      },
-      onRequestError({ error }) {
-        toast.add({
-          title: error.message,
-          color: 'error',
-        })
-      },
-      onResponse({ response }) {
-        if (!response.ok) {
-          return
-        }
-        addFavouriteProduct(response._data)
-        toast.add({
-          title: t('added'),
-          color: 'success',
-        })
-      },
-      onResponseError({ error }) {
-        toast.add({
-          title: error?.message,
-          color: 'error',
-        })
-      },
+
+  if (isLoading.value) {
+    return
+  }
+
+  try {
+    isLoading.value = true
+    if (!props.favouriteId) {
+      await $fetch(`/api/products/favourites`, {
+        method: 'POST',
+        headers: useRequestHeaders(),
+        body: {
+          product: props.productId,
+        },
+        onRequestError({ error }) {
+          toast.add({
+            title: error.message,
+            color: 'error',
+          })
+        },
+        onResponse({ response }) {
+          if (!response.ok) {
+            return
+          }
+          addFavouriteProduct(response._data)
+          toast.add({
+            title: t('added'),
+            color: 'success',
+          })
+        },
+        onResponseError({ error }) {
+          toast.add({
+            title: error?.message,
+            color: 'error',
+          })
+        },
+      })
+    }
+    else {
+      const id = props.favouriteId
+      await $fetch(`/api/products/favourites/${id}`, {
+        method: 'DELETE',
+        headers: useRequestHeaders(),
+        onRequestError({ error }) {
+          toast.add({
+            title: error.message,
+            color: 'error',
+          })
+        },
+        onResponse({ response }) {
+          if (!response.ok) {
+            return
+          }
+          emit('favourite-delete', id)
+          removeFavouriteProduct(props.productId)
+          toast.add({
+            title: t('removed'),
+            color: 'error',
+          })
+        },
+        onResponseError({ error }) {
+          toast.add({
+            title: error?.message,
+            color: 'error',
+          })
+        },
+      })
+    }
+  }
+  catch (error) {
+    console.error('Favorite toggle error:', error)
+    toast.add({
+      title: 'An error occurred',
+      color: 'error',
     })
   }
-  else {
-    const id = props.favouriteId
-    await $fetch(`/api/products/favourites/${id}`, {
-      method: 'DELETE',
-      headers: useRequestHeaders(),
-      onRequestError({ error }) {
-        toast.add({
-          title: error.message,
-          color: 'error',
-        })
-      },
-      onResponse({ response }) {
-        if (!response.ok) {
-          return
-        }
-        emit('favourite-delete', id)
-        removeFavouriteProduct(props.productId)
-        toast.add({
-          title: t('removed'),
-          color: 'error',
-        })
-      },
-      onResponseError({ error }) {
-        toast.add({
-          title: error?.message,
-          color: 'error',
-        })
-      },
-    })
+  finally {
+    isLoading.value = false
   }
 }
 
@@ -134,6 +153,8 @@ const buttonAreaLabel = computed(() => {
     variant="ghost"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
+    :loading="isLoading"
+    :disabled="isLoading"
     :ui="{
       base: 'hover:bg-transparent cursor-pointer',
     }"

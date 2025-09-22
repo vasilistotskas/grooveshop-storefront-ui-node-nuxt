@@ -15,7 +15,7 @@ const props = defineProps({
 
 const { order, maxItems } = toRefs(props)
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { contentShorten } = useText()
 const { statusClass, paymentStatusClass } = useOrder()
 const localePath = useLocalePath()
@@ -26,12 +26,10 @@ const { $i18n } = useNuxtApp()
   <li
     v-if="order"
     class="
-      order-card text-primary-950 bg-primary-100 border-primary-500 flex
-      flex-col items-center justify-between gap-4 rounded border p-4
-
-      dark:text-primary-50 dark:bg-primary-900 dark:border-primary-500
-
+      order-card flex flex-col items-center justify-between gap-4 rounded border
+      border-primary-500 bg-primary-100 p-4 text-primary-950
       md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-6
+      dark:border-primary-500 dark:bg-primary-900 dark:text-primary-50
     "
   >
     <div class="order-card-items grid gap-2">
@@ -48,8 +46,7 @@ const { $i18n } = useNuxtApp()
       >
         <span
           class="
-            text-primary-950 text-xs
-
+            text-xs text-primary-950
             dark:text-primary-50
           "
         >
@@ -63,7 +60,6 @@ const { $i18n } = useNuxtApp()
     <div
       class="
         order-card-body grid grid-cols-2 items-center gap-2
-
         md:grid-cols-3 md:grid-rows-3 md:gap-4
       "
     >
@@ -90,8 +86,7 @@ const { $i18n } = useNuxtApp()
       <div class="order-card-body-id grid">
         <span
           class="
-            text-primary-950 text-xs
-
+            text-xs text-primary-950
             dark:text-primary-50
           "
         >{{
@@ -103,8 +98,7 @@ const { $i18n } = useNuxtApp()
       <div class="order-card-body-address grid">
         <span
           class="
-            text-primary-950 text-xs
-
+            text-xs text-primary-950
             dark:text-primary-50
           "
         >{{
@@ -116,8 +110,7 @@ const { $i18n } = useNuxtApp()
       <div class="order-card-body-pay_way grid">
         <span
           class="
-            text-primary-950 text-xs
-
+            text-xs text-primary-950
             dark:text-primary-50
           "
         >{{
@@ -129,8 +122,7 @@ const { $i18n } = useNuxtApp()
       <div class="order-card-body-total_price grid">
         <span
           class="
-            text-primary-950 text-xs
-
+            text-xs text-primary-950
             dark:text-primary-50
           "
         >{{
@@ -146,8 +138,7 @@ const { $i18n } = useNuxtApp()
       <div class="order-card-body-created_at grid">
         <span
           class="
-            text-primary-950 text-xs
-
+            text-xs text-primary-950
             dark:text-primary-50
           "
         >{{
@@ -166,8 +157,7 @@ const { $i18n } = useNuxtApp()
           :label="t('actions.details')"
           :to="localePath({ name: 'account-orders-id', params: { id: order.id } })"
           class="
-            py-1.25 w-full text-sm
-
+            w-full py-1.25 text-sm
             md:py-2.5
           "
           color="secondary"

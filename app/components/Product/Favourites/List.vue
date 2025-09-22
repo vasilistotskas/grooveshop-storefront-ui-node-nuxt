@@ -22,7 +22,7 @@ const emit = defineEmits([
   'refresh-favourites',
 ])
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
@@ -41,9 +41,7 @@ const { t } = useI18n({ useScope: 'local' })
       <ul
         class="
           grid grid-cols-2 gap-4
-
           md:grid-cols-3
-
           xl:grid-cols-4
         "
       >
@@ -54,31 +52,9 @@ const { t } = useI18n({ useScope: 'local' })
           <LazyProductCard
             :img-height="150"
             :img-width="260"
-            :product="{
-              id: favourite.product as number,
-              slug: '',
-              translations: {
-                el: { name: favourite.productName || 'Product' },
-              },
-              category: 0,
-              price: favourite.productPrice || 0,
-              vat: 0,
-              viewCount: 0,
-              createdAt: favourite.createdAt,
-              updatedAt: favourite.createdAt,
-              uuid: favourite.uuid,
-              discountValue: 0,
-              priceSavePercent: 0,
-              vatPercent: 0,
-              vatValue: 0,
-              finalPrice: favourite.productPrice || 0,
-              mainImagePath: '',
-              reviewAverage: 0,
-              reviewCount: 0,
-              likesCount: 0,
-            } as Product"
+            :product="favourite.product"
             :show-add-to-cart-button="false"
-            @favourite-delete="(_id) => emit('refresh-favourites')"
+            @favourite-delete="(_id: number) => emit('refresh-favourites')"
           />
         </template>
       </ul>

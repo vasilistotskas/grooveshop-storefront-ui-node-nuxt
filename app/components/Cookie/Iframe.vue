@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { Cookie } from '#cookie-control/types'
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { cookiesEnabled, isModalActive } = useCookieControl()
 
 const isCookieFunctionalEnabled = computed(

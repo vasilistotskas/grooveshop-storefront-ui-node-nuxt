@@ -2,7 +2,7 @@
 import type { AccordionItem } from '@nuxt/ui'
 
 const localePath = useLocalePath()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 
 const items = ref<AccordionItem[]>([{
@@ -27,8 +27,8 @@ const items = ref<AccordionItem[]>([{
 <template>
   <footer
     class="
-      md:hidden bg-primary-50 w-full pb-[2.87rem]
-
+      w-full bg-primary-50 pb-[2.87rem]
+      md:hidden
       dark:bg-primary-900
     "
   >
@@ -44,7 +44,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -61,7 +60,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -81,7 +79,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -98,7 +95,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -118,7 +114,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -135,7 +130,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -152,7 +146,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -172,7 +165,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >

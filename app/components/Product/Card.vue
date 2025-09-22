@@ -3,7 +3,7 @@ import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 
 const { productUrl } = useUrls()
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },
@@ -30,9 +30,8 @@ const emit = defineEmits<{
 const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const userStore = useUserStore()
-const { getFavouriteByProductId } = userStore
+const { getFavouriteIdByProductId } = userStore
 
-const { t } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { product } = toRefs(props)
@@ -57,7 +56,7 @@ const startShare = async () => {
 }
 
 const favouriteId = computed(
-  () => getFavouriteByProductId(product.value.id)?.id,
+  () => getFavouriteIdByProductId(product.value.id),
 )
 
 const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
@@ -67,12 +66,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
   <li class="product-card relative">
     <div
       class="
-        bg-primary-100 container rounded-lg
-
+        container rounded-lg bg-primary-100
         dark:bg-primary-900
       "
     >
-      <div class="flex flex-col gap-4 py-5 px-4">
+      <div class="flex flex-col gap-4 px-4 py-5">
         <div class="max-w-full">
           <div class="grid">
             <Anchor
@@ -99,17 +97,15 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <div
             class="
               grid items-center justify-between gap-2
-
               md:flex md:gap-4
             "
           >
-            <h2 class="text-lg font-semibold leading-6">
+            <h2 class="text-lg leading-6 font-semibold">
               <Anchor
                 :to="{ path: productUrl(product.id, product.slug) }"
                 :text="alt"
                 class="
                   text-primary-950
-
                   dark:text-primary-50
                 "
               >
@@ -119,7 +115,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             <div
               class="
                 row-start-1 flex gap-1
-
                 md:relative md:gap-4
               "
             >
@@ -156,8 +151,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <p
             v-if="showDescription"
             class="
-              text-primary-950 text-muted min-h-[3.75rem] text-sm leading-6
-
+              min-h-[3.75rem] text-sm leading-6 text-primary-950
               dark:text-primary-50
             "
           >
@@ -175,13 +169,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           >
             <div
               v-if="showStartPrice"
-              class="d-flex justify-content-between"
+              class="flex justify-between"
             >
               <p>
                 <span
                   class="
                     text-primary-950
-
                     dark:text-primary-50
                   "
                 >{{
@@ -189,7 +182,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                 }}</span><span
                   class="
                     text-primary-950
-
                     dark:text-primary-50
                   "
                 >{{
@@ -199,13 +191,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             </div>
             <div
               v-if="showVat"
-              class="card-vat-percent d-flex justify-content-between"
+              class="card-vat-percent flex justify-between"
             >
               <p class="card-prices-vat-percent">
                 <span
                   class="
                     text-primary-950
-
                     dark:text-primary-50
                   "
                 >{{
@@ -213,7 +204,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                 }}</span><span
                   class="
                     text-primary-950
-
                     dark:text-primary-50
                   "
                 >{{
@@ -224,14 +214,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           </div>
           <div class="flex justify-between font-bold">
             <p
-              class="
-                grid items-center gap-2
-              "
+              class="grid items-center gap-2"
             >
               <span
                 class="
-                  text-primary-950 text-sm leading-6
-
+                  text-sm leading-6 text-primary-950
                   dark:text-primary-50
                 "
               >
@@ -239,8 +226,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               </span>
               <span
                 class="
-                  text-primary-950 text-lg leading-6
-
+                  text-lg leading-6 text-primary-950
                   dark:text-primary-50
                 "
               >

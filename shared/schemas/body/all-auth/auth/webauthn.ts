@@ -5,7 +5,12 @@ export const ZodWebAuthnAuthenticatePostBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
-    response: z.any(),
+    response: z.object({
+      clientDataJSON: z.string(),
+      authenticatorData: z.string(),
+      signature: z.string(),
+      userHandle: z.string(),
+    }),
     authenticatorAttachment: z.string().nullish(),
     clientExtensionResults: z.any().optional(),
   }),
@@ -16,7 +21,12 @@ export const ZodWebAuthnReauthenticatePostBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
-    response: z.any(),
+    response: z.object({
+      clientDataJSON: z.string(),
+      authenticatorData: z.string(),
+      signature: z.string(),
+      userHandle: z.string(),
+    }),
     authenticatorAttachment: z.string().nullish(),
     clientExtensionResults: z.any().optional(),
   }),
@@ -27,7 +37,12 @@ export const ZodWebAuthnLoginPostBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
-    response: z.any(),
+    response: z.object({
+      clientDataJSON: z.string(),
+      authenticatorData: z.string(),
+      signature: z.string(),
+      userHandle: z.string(),
+    }),
     authenticatorAttachment: z.string().nullish(),
     clientExtensionResults: z.any().optional(),
   }),
@@ -35,6 +50,7 @@ export const ZodWebAuthnLoginPostBody = z.object({
 
 export const ZodWebAuthnSignupPostBody = z.object({
   email: z.string(),
+  phone: z.string().optional(),
   username: z.string().optional(),
 })
 

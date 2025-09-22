@@ -90,10 +90,8 @@ const items = computed(() => {
     <main
       class="
         pt-[57px]
-
-        lg:pt-[65px]
-
         md:pt-[65px]
+        lg:pt-[65px]
       "
       :class="{
         'opacity-70': searchBarFocused,
@@ -106,7 +104,10 @@ const items = computed(() => {
     <slot name="footer">
       <MobileOrTabletOnly>
         <div
-          class="md:hidden my-6 flex flex-wrap items-center justify-center"
+          class="
+            my-6 flex flex-wrap items-center justify-center
+            md:hidden
+          "
         >
           <Socials />
         </div>

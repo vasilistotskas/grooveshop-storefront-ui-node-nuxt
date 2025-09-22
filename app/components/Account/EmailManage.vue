@@ -22,7 +22,7 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData<EmailGetResponse>(
+const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData(
   'emailAddresses',
   () => getEmailAddresses(),
 )
@@ -177,7 +177,12 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 </script>
 
 <template>
-  <div class="grid gap-4 md:gap-12">
+  <div
+    class="
+      grid gap-4
+      md:gap-12
+    "
+  >
     <UTable
       :columns="columns"
       :data="data"
@@ -196,14 +201,26 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       </template>
       <template #verified-cell="{ row }">
         <UIcon
-          :class="row.original.verified ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          :class="row.original.verified ? `
+            text-green-500
+            dark:text-green-400
+          ` : `
+            text-red-500
+            dark:text-red-400
+          `"
           :name="row.original.verified ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
           class="size-6"
         />
       </template>
       <template #primary-cell="{ row }">
         <UIcon
-          :class="row.original.primary ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          :class="row.original.primary ? `
+            text-green-500
+            dark:text-green-400
+          ` : `
+            text-red-500
+            dark:text-red-400
+          `"
           :name="row.original.primary ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
           class="size-6"
         />
@@ -211,10 +228,20 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     </UTable>
 
     <div class="grid">
-      <h2 class="text-primary-950 text-center dark:text-primary-50">
+      <h2
+        class="
+          text-center text-primary-950
+          dark:text-primary-50
+        "
+      >
         {{ $i18n.t('email.add') }}
       </h2>
-      <div class="container mx-auto p-0 md:px-6">
+      <div
+        class="
+          container mx-auto p-0
+          md:px-6
+        "
+      >
         <section class="grid items-center">
           <DynamicForm
             :button-label="$i18n.t('submit')"

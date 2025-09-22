@@ -87,30 +87,22 @@ const providerColor = (provider: string) => {
           <LazyUIcon
             v-if="provider.id === 'google'"
             name="i-mdi-google"
-            class="
-              text-primary-50 text-xl
-            "
+            class="text-xl text-primary-50"
           />
           <LazyUIcon
             v-if="provider.id === 'facebook'"
             name="i-mdi-facebook"
-            class="
-              text-primary-50 text-xl
-            "
+            class="text-xl text-primary-50"
           />
           <LazyUIcon
             v-if="provider.id === 'github'"
             name="i-mdi-github"
-            class="
-              text-primary-50 text-xl
-            "
+            class="text-xl text-primary-50"
           />
           <LazyUIcon
             v-if="provider.id === 'discord'"
             name="i-mdi-discord"
-            class="
-              text-primary-50 text-xl
-            "
+            class="text-xl text-primary-50"
           />
         </template>
       </UButton>

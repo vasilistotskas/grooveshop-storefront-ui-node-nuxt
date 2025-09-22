@@ -21,7 +21,7 @@ export default defineNuxtPlugin({
       }
 
       try {
-        const tokens = await $fetch<{ sessionToken: string, accessToken: string }>('/api/websocket/user/tokens', {
+        const tokens = await $fetch('/api/websocket/user/tokens', {
           method: 'GET',
           headers: useRequestHeaders(),
         })

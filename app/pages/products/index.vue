@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -32,13 +32,12 @@ definePageMeta({
         :items="items"
         :ui="{
           item: 'text-primary-950 dark:text-primary-50',
-          root: 'text-xs md:text-md',
+          root: 'text-xs md:text-base',
         }"
         class="
-            mb-5
-
-            md:px-0
-          "
+          mb-5
+          md:px-0
+        "
       />
     </div>
     <div class="flex gap-4">

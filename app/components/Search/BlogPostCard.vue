@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 
 const props = defineProps({
   item: {
-    type: Object as PropType<SearchBlogPost>,
+    type: Object as PropType<BlogPostMeiliSearchResult>,
     required: true,
   },
 })
@@ -15,7 +15,6 @@ const { blogPostUrlFromParts } = useUrls()
   <UCard
     class="
       bg-primary-100
-
       dark:bg-primary-900
     "
   >
@@ -26,16 +25,13 @@ const { blogPostUrlFromParts } = useUrls()
     >
       <div
         class="
-          duration-400 z-10 block p-1 transition
-
-          bg-zinc4:10
-
+          z-10 block p-1 transition duration-400
           hover:scale-105
         "
       >
         <ImgWithFallback
           loading="lazy"
-          class="bg-primary-100 aspect-square size-full object-cover"
+          class="aspect-square size-full bg-primary-100 object-cover"
           :style="{
             'view-transition-name': `item-${item.id}`,
             'aspectRatio': '1/1',

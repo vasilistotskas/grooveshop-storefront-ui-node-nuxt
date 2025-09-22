@@ -14,7 +14,7 @@ const emit = defineEmits<{
 
 const { address } = toRefs(props)
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
 const localePath = useLocalePath()
@@ -56,22 +56,18 @@ const submit = async () => {
   <li
     v-if="address"
     class="
-      bg-primary-100 text-primary-950 relative grid w-full items-start gap-4
-      rounded-lg p-2
-
-      dark:text-primary-50 dark:bg-primary-900
-
-      md:p-5
-
+      relative grid w-full items-start gap-4 rounded-lg bg-primary-100 p-2
+      text-primary-950
       sm:px-4 sm:py-10
+      md:p-5
+      dark:bg-primary-900 dark:text-primary-50
     "
   >
     <div
       v-if="address.isMain"
       class="
-        grid place-items-center absolute right-24 top-3 text-sm text-[#f0c14b]
-
-        md:right-1 md:top-1
+        absolute top-3 right-24 grid place-items-center text-sm text-[#f0c14b]
+        md:top-1 md:right-1
       "
     >
       <UTooltip :text="t('main_address')">
@@ -84,10 +80,9 @@ const submit = async () => {
     <div class="flex items-center justify-between gap-2">
       <h3
         class="
-            text-primary-950 text-start text-xl font-bold
-
-            dark:text-primary-50
-          "
+          text-start text-xl font-bold text-primary-950
+          dark:text-primary-50
+        "
       >
         {{ contentShorten(address.title, 0, 25) }}
       </h3>
@@ -113,22 +108,19 @@ const submit = async () => {
     <div
       class="
         grid gap-2
-
         md:items-center md:justify-center md:gap-4
       "
     >
       <div
         class="
           grid w-full grid-cols-2 items-center gap-2 overflow-auto
-
           md:h-68 md:grid-cols-1
         "
       >
         <span
           v-if="address.firstName || address.lastName"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -137,8 +129,7 @@ const submit = async () => {
         <span
           v-if="address.street || address.streetNumber"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -147,8 +138,7 @@ const submit = async () => {
         <span
           v-if="address.city || address.zipcode"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -157,8 +147,7 @@ const submit = async () => {
         <span
           v-if="address.country || address.region"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -167,8 +156,7 @@ const submit = async () => {
         <span
           v-if="address.floor"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -177,8 +165,7 @@ const submit = async () => {
         <span
           v-if="address.locationType"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -187,8 +174,7 @@ const submit = async () => {
         <span
           v-if="address.phone"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -197,8 +183,7 @@ const submit = async () => {
         <span
           v-if="address.mobilePhone"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >
@@ -207,8 +192,7 @@ const submit = async () => {
         <span
           v-if="address.notes"
           class="
-            text-primary-950 text-sm font-bold
-
+            text-sm font-bold text-primary-950
             dark:text-primary-50
           "
         >

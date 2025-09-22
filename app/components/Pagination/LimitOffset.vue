@@ -29,7 +29,7 @@ const props = defineProps({
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 
 const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
 
@@ -109,7 +109,6 @@ const link = computed(() => {
       v-if="totalPages > 1"
       class="
         pagination-ordered-list flex w-full items-center gap-1
-
         md:grid md:gap-4
       "
     >
@@ -147,7 +146,6 @@ const link = computed(() => {
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           >
@@ -192,15 +190,14 @@ const link = computed(() => {
         >
           <span
             :class="{
-              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
+              'grid w-full items-center justify-center rounded bg-primary-100 px-2 py-1 text-primary-950 dark:bg-primary-900 dark:text-primary-50': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
           >{{ firstPageNumber }}</span>
           <span
             v-if="shouldDisplayPreviousTripleDots"
             class="
-              text-primary-950 grid self-end justify-self-start text-sm
-
+              grid self-end justify-self-start text-sm text-primary-950
               dark:text-primary-50
             "
           >...</span>
@@ -223,7 +220,7 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:bg-primary-900': true,
+            'grid w-full items-center justify-center rounded bg-primary-100 px-2 py-1 dark:bg-primary-900': true,
             'active': pageEntry === page,
           }"
           :text="String(pageEntry)"
@@ -236,7 +233,6 @@ const link = computed(() => {
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           >{{
@@ -276,14 +272,13 @@ const link = computed(() => {
           <span
             v-if="shouldDisplayNextTripleDots"
             class="
-              text-primary-950 grid self-end justify-self-end text-sm
-
+              grid self-end justify-self-end text-sm text-primary-950
               dark:text-primary-50
             "
           >...</span>
           <span
             :class="{
-              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
+              'grid w-full items-center justify-center rounded bg-primary-100 px-2 py-1 text-primary-950 dark:bg-primary-900 dark:text-primary-50': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
           >{{ lastPageNumber }}</span>
@@ -319,7 +314,6 @@ const link = computed(() => {
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           ><UIcon name="i-fa-solid-angle-right" /></span>

@@ -14,6 +14,6 @@ export default defineEventHandler(async () => {
     return await parseDataAs(response, zProductReviewDetail)
   }
   catch (error) {
-    await handleError(error)
+    // await handleError(error)
   }
 })

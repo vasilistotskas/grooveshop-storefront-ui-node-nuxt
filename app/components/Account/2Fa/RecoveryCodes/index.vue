@@ -6,7 +6,7 @@ const toast = useToast()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
-const { data, refresh, error } = await useAsyncData<RecoveryCodesGetResponse>(
+const { data, refresh, error } = await useAsyncData(
   'recoveryCodes',
   () => getRecoveryCodes(),
 )
@@ -66,24 +66,67 @@ onReactivated(async () => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
-    <section class="grid w-full gap-4 md:gap-8">
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <section
+      class="
+        grid w-full gap-4
+        md:gap-8
+      "
+    >
+      <div
+        class="
+          grid grid-cols-1 gap-6
+          md:grid-cols-2
+        "
+      >
         <div>
-          <p class="text-primary-950 dark:text-primary-50">
+          <p
+            class="
+              text-primary-950
+              dark:text-primary-50
+            "
+          >
             <strong>{{ $i18n.t('total_code_count') }}:</strong> {{ total_code_count }}
           </p>
-          <p class="text-primary-950 dark:text-primary-50">
+          <p
+            class="
+              text-primary-950
+              dark:text-primary-50
+            "
+          >
             <strong>{{ $i18n.t('unused_code_count') }}:</strong> {{ unused_code_count }}
           </p>
-          <p class="text-primary-950 dark:text-primary-50">
+          <p
+            class="
+              text-primary-950
+              dark:text-primary-50
+            "
+          >
             <strong>{{ $i18n.t('ordering.created_at') }}:</strong>
             {{ created_at ? new Date(created_at * 1000).toLocaleString() : $i18n.t('unused') }}
           </p>
-          <p class="text-primary-950 flex gap-1 dark:text-primary-50">
+          <p
+            class="
+              flex gap-1 text-primary-950
+              dark:text-primary-50
+            "
+          >
             <strong>{{ $i18n.t('last_used_at') }}:</strong>
-            <span :class="last_used_at ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'">
+            <span
+              :class="last_used_at ? `
+                text-red-500
+                dark:text-red-400
+              ` : `
+                text-green-500
+                dark:text-green-400
+              `"
+            >
               {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $i18n.t('unused') }}
             </span>
           </p>
@@ -105,7 +148,13 @@ onReactivated(async () => {
       >
         <template #actions-cell="{ row }">
           <UIcon
-            :class="row.original.used ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+            :class="row.original.used ? `
+              text-green-500
+              dark:text-green-400
+            ` : `
+              text-red-500
+              dark:text-red-400
+            `"
             :name="row.original.used ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
             class="size-6"
           />

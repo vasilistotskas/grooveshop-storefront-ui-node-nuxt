@@ -214,14 +214,12 @@ onClickOutside(autocomplete, () => {
   <div
     class="
       grid
-
       md:relative
     "
   >
     <div
       class="
         relative grid w-full items-center
-
         lg:justify-items-center
       "
     >
@@ -231,7 +229,6 @@ onClickOutside(autocomplete, () => {
         v-model="query"
         class="
           w-full
-
           md:max-w-[calc(100%-10rem)]
         "
         color="secondary"
@@ -267,12 +264,10 @@ onClickOutside(autocomplete, () => {
       v-model:keep-focus="keepFocus"
       v-model:highlighted="highlighted"
       class="
-        border-primary-300 bg-primary-100 absolute right-0 top-12
-        max-h-[calc(100vh-80px)] rounded border p-3.5
-
-        dark:border-primary-500 dark:bg-primary-900
-
+        absolute top-12 right-0 max-h-[calc(100vh-80px)] rounded border
+        border-primary-300 bg-primary-100 p-3.5
         md:top-10
+        dark:border-primary-500 dark:bg-primary-900
       "
       :query="query"
       :limit="Number(limit)"

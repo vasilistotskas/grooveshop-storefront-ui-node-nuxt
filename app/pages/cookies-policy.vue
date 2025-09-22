@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -30,12 +30,12 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
+  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />
@@ -47,10 +47,9 @@ definePageMeta({
     <div class="article">
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Στο www.webside.gr χρησιμοποιούμε cookies για να κάνουμε καλύτερη την εμπειρία σου στο site μας. Η χρήση των
         cookies μας βοηθάει να βελτιώσουμε τις λειτουργίες του site, να κάνουν πιο εύκολη την περιήγηση σου αλλά και
@@ -102,19 +101,17 @@ definePageMeta({
       </p>
       <p
         class="
-            text-primary-950 text-xl font-semibold
-
-            dark:text-primary-50
-          "
+          text-xl font-semibold text-primary-950
+          dark:text-primary-50
+        "
       >
         Ειδικότερη κατηγοριοποίηση των Cookies ως προς τη λειτουργία τους:
       </p>
       <ul
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         <li>
           Αναγκαία Επιτρέπουν τις βασικές λειτουργίες του site, όπως την πλοήγηση και την πρόσβαση σε ασφαλείς
@@ -138,19 +135,17 @@ definePageMeta({
       </ul>
       <p
         class="
-            text-primary-950 text-xl font-semibold
-
-            dark:text-primary-50
-          "
+          text-xl font-semibold text-primary-950
+          dark:text-primary-50
+        "
       >
         Πώς να ελέγξεις τα cookies
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Τα περισσότερα προγράμματα περιήγησης στο internet σου παρέχουν τη δυνατότητα να καθορίσεις εάν θέλεις ή όχι
         τη χρήση cookies. Οι ακόλουθες σελίδες παρέχουν τις οδηγίες για την ρύθμιση των cookies στα πιο γνωστά
@@ -158,10 +153,9 @@ definePageMeta({
       </p>
       <ul
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         <li>
           <a

@@ -13,7 +13,7 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-const { data, error } = await useAsyncData<TotpGetResponse | TotpGetResponseError>(
+const { data, error } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
   {
@@ -102,7 +102,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <div
     class="
       grid gap-4
-
       lg:flex
     "
   >
@@ -111,7 +110,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       v-if="totpSecret && totpSvg"
       class="
         grid items-center justify-center justify-items-center gap-4
-
         md:gap-8
       "
     >
@@ -122,8 +120,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           {{ $i18n.t('authenticator_secret') }}:
           <span
             class="
-              bg-primary-200 rounded-md
-
+              rounded-md bg-primary-200
               dark:bg-primary-800
             "
             v-html="totpSvg"
@@ -131,9 +128,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           <UInput
             v-model="totpSecret"
             :ui="{
-              root: 'cursor-pointer text-center !px-0',
+              root: 'w-full',
+              base: 'cursor-pointer text-center !px-0',
             }"
-            class="w-full"
             readonly
             type="text"
             @click="onSecretClick"

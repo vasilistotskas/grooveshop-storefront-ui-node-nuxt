@@ -26,7 +26,7 @@ const props = defineProps({
 const { account } = toRefs(props)
 const { isMobileOrTablet } = useDevice()
 const toast = useToast()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { fetch } = useUserSession()
 const { $i18n } = useNuxtApp()
 
@@ -52,7 +52,7 @@ const changeUserName = async () => {
   }
 
   try {
-    const response = await $fetch<UsernameUpdateResponse>(`/api/user/account/${account.value.id}/change-username`, {
+    const response = await $fetch(`/api/user/account/${account.value.id}/change-username`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body: { username: username.value },
@@ -76,7 +76,7 @@ const changeUserName = async () => {
 </script>
 
 <template>
-  <div class="user-info max-w-(--container-7xl) mx-auto w-full p-0">
+  <div class="user-info mx-auto w-full max-w-(--container-7xl) p-0">
     <div class="user-info-container">
       <div class="user-info-avatar">
         <UserAvatar
@@ -89,7 +89,7 @@ const changeUserName = async () => {
         />
       </div>
       <div class="user-info-name relative flex w-full flex-col">
-        <div class="flex items-center w-full">
+        <div class="flex w-full items-center">
           <UButton
             :aria-label="userNameEditing ? $i18n.t('save') : $i18n.t('edit.title')"
             :icon="userNameEditing ? 'i-heroicons-check' : 'i-heroicons-pencil'"
@@ -106,7 +106,6 @@ const changeUserName = async () => {
             v-model="username"
             :class="!userNameEditing ? `
               text-primary-950
-
               dark:text-primary-50
             ` : ''"
             :disabled="!userNameEditing"
@@ -118,9 +117,8 @@ const changeUserName = async () => {
         </div>
         <span
           class="
-            w-full cursor-text select-text items-center truncate p-1.5 text-sm
-            font-medium text-neutral-700 opacity-50
-
+            w-full cursor-text items-center truncate p-1.5 text-sm font-medium
+            text-neutral-700 opacity-50 select-text
             dark:text-neutral-200
           "
         >
@@ -147,7 +145,6 @@ const changeUserName = async () => {
             <span
               class="
                 text-primary-950
-
                 dark:text-primary-50
               "
             >{{
@@ -156,8 +153,7 @@ const changeUserName = async () => {
 
             <span
               class="
-                text-primary-950 text-2xl font-bold
-
+                text-2xl font-bold text-primary-950
                 dark:text-primary-50
               "
             >{{ ordersCount }}</span>
@@ -179,7 +175,6 @@ const changeUserName = async () => {
             <span
               class="
                 text-primary-950
-
                 dark:text-primary-50
               "
             >{{
@@ -187,8 +182,7 @@ const changeUserName = async () => {
             }}</span>
             <span
               class="
-                text-primary-950 text-2xl font-bold
-
+                text-2xl font-bold text-primary-950
                 dark:text-primary-50
               "
             >{{ productFavouritesCount }}</span>
@@ -210,7 +204,6 @@ const changeUserName = async () => {
             <span
               class="
                 text-primary-950
-
                 dark:text-primary-50
               "
             >{{
@@ -218,8 +211,7 @@ const changeUserName = async () => {
             }}</span>
             <span
               class="
-                text-primary-950 text-2xl font-bold
-
+                text-2xl font-bold text-primary-950
                 dark:text-primary-50
               "
             >{{ productReviewsCount }}</span>

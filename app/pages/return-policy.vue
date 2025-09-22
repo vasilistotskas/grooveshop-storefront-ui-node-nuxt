@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -30,12 +30,12 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
+  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />

@@ -43,21 +43,18 @@ const filteredTags = computed(() => {
     <div
       class="
         flex gap-2
-
         md:flex-col
       "
     >
       <div
         class="
           grid items-center
-
           md:justify-center
         "
       >
         <h3
           class="
-            text-md flex items-center gap-2 text-center font-bold
-
+            text-normal flex items-center gap-2 text-center font-bold
             md:text-lg
           "
         >
@@ -79,7 +76,6 @@ const filteredTags = computed(() => {
           icon="i-heroicons-magnifying-glass-20-solid"
           class="
             hidden
-
             md:grid
           "
           color="neutral"

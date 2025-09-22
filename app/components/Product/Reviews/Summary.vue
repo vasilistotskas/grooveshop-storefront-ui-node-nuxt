@@ -17,7 +17,7 @@ defineProps({
   },
 })
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
@@ -27,24 +27,15 @@ const { t } = useI18n({ useScope: 'local' })
       class="flex items-center gap-1"
     >
       <span
-        class="
-          text-3xl font-semibold
-
-        "
+        class="text-3xl font-semibold"
       >{{ reviewsAverage.toFixed(1) }}</span>
       <span
-        class="
-          text-sm font-semibold
-
-        "
+        class="text-sm font-semibold"
       >/{{ maxRate }}</span>
     </div>
     <div class="flex items-center gap-1">
       <span
-        class="
-          text-sm font-semibold
-
-        "
+        class="text-sm font-semibold"
       >
         {{ t('reviews.summary', reviewsCount) }}
       </span>

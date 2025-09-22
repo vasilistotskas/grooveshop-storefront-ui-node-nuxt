@@ -42,7 +42,7 @@ const {
   changeAvatar,
 } = toRefs(props)
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const { fetch } = useUserSession()
 const { $i18n } = useNuxtApp()
@@ -85,7 +85,7 @@ const uploadImage = async (event: Event) => {
     return
   }
 
-  await $fetch<Authentication>(`/api/user/account/${userAccount.value.id}`, {
+  await $fetch(`/api/user/account/${userAccount.value.id}`, {
     method: 'PATCH',
     headers: useRequestHeaders(),
     body: formData,
@@ -128,7 +128,9 @@ const avatarContainerStyle = computed(() => {
         'hover:cursor-pointer': true,
       }"
       :style="avatarContainerStyle"
-      class="relative grid items-center justify-center justify-items-center group"
+      class="
+        group relative grid items-center justify-center justify-items-center
+      "
     >
       <ImgWithFallback
         :alt="alt"
@@ -140,7 +142,7 @@ const avatarContainerStyle = computed(() => {
         :src="userAccount.mainImagePath"
         :style="{ objectFit: 'contain' }"
         :width="imgWidth"
-        class="bg-primary-100 rounded-full"
+        class="rounded-full bg-primary-100"
         densities="x1"
         loading="lazy"
         @load="() => (loading = false)"
@@ -155,12 +157,18 @@ const avatarContainerStyle = computed(() => {
         @submit.prevent="uploadImage"
       >
         <label
-          class="grid place-items-center absolute cursor-pointer w-full h-full top-0 left-0"
+          class="
+            absolute top-0 left-0 grid h-full w-full cursor-pointer
+            place-items-center
+          "
           for="selfie"
         >
           <svg
             id="camera"
-            class="w-18 h-14 stroke-white stroke-dashoffset-75 stroke-dasharray-75 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            class="
+              h-14 w-18 stroke-white opacity-0 transition-opacity duration-200
+              group-hover:opacity-100
+            "
             viewBox="0 0 25 15"
             x="0px"
             xml:space="preserve"
@@ -187,14 +195,12 @@ const avatarContainerStyle = computed(() => {
             <g id="plus">
               <path
                 id="plusLine"
-                class="line"
                 d="M20.9,2.3v4.4"
                 fill="none"
                 stroke="currentColor"
                 stroke-miterlimit="10"
               />
               <path
-                class="line"
                 d="M18.7,4.6h4.4"
                 fill="none"
                 stroke="currentColor"
@@ -205,7 +211,10 @@ const avatarContainerStyle = computed(() => {
           <span class="sr-only">{{ t('change') }}</span>
         </label>
         <label
-          class="md:hidden grid w-full h-full"
+          class="
+            grid h-full w-full
+            md:hidden
+          "
           for="selfie"
         >
           <span class="sr-only">{{ t('change') }}</span>
@@ -233,7 +242,10 @@ const avatarContainerStyle = computed(() => {
       class="flex flex-col"
     >
       <span
-        class="text-primary-950 font-bold dark:text-primary-50"
+        class="
+          font-bold text-primary-950
+          dark:text-primary-50
+        "
       >
         {{ userAccount?.firstName }}
       </span>

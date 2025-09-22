@@ -4,7 +4,7 @@ import type { ButtonProps } from '@nuxt/ui'
 
 const cartStore = useCartStore()
 const { getCartTotalItems, pending } = storeToRefs(cartStore)
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 
 defineProps({

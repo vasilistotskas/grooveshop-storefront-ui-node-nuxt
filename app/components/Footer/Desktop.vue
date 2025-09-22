@@ -3,7 +3,7 @@ import pkg from '../../../package.json'
 
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 
 const packageVersion = pkg.version
@@ -12,8 +12,8 @@ const packageVersion = pkg.version
 <template>
   <footer
     class="
-      hidden md:block bg-primary-50 border-primary-500 mt-6 w-full border-t-2 pt-2
-
+      mt-6 hidden w-full border-t-2 border-primary-500 bg-primary-50 pt-2
+      md:block
       dark:bg-primary-900
     "
   >
@@ -21,26 +21,22 @@ const packageVersion = pkg.version
       <div
         class="
           grid grid-cols-2 gap-4
-
           md:grid md:grid-cols-4 md:gap-8 md:px-6 md:py-8
         "
       >
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950 text-xs font-semibold uppercase
-
-              dark:text-primary-50
-
+              text-xs font-semibold text-primary-950 uppercase
               md:text-sm
+              dark:text-primary-50
             "
           >
             {{ $i18n.t('about.us') }}
           </span>
           <ul
             class="
-              text-primary-950 grid gap-2 font-medium
-
+              grid gap-2 font-medium text-primary-950
               dark:text-primary-400
             "
           >
@@ -51,7 +47,6 @@ const packageVersion = pkg.version
                 :to="'about'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -65,7 +60,6 @@ const packageVersion = pkg.version
                 :to="'vision'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -77,19 +71,16 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950 text-xs font-semibold uppercase
-
-              dark:text-primary-50
-
+              text-xs font-semibold text-primary-950 uppercase
               md:text-sm
+              dark:text-primary-50
             "
           >
             {{ t('microlearning.title') }}
           </span>
           <ul
             class="
-              text-primary-950 grid gap-2 font-medium
-
+              grid gap-2 font-medium text-primary-950
               dark:text-primary-400
             "
           >
@@ -100,7 +91,6 @@ const packageVersion = pkg.version
                 :to="'what-is-microlearning'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -114,7 +104,6 @@ const packageVersion = pkg.version
                 :to="'why-microlearning'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -126,19 +115,16 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950 text-xs font-semibold uppercase
-
-              dark:text-primary-50
-
+              text-xs font-semibold text-primary-950 uppercase
               md:text-sm
+              dark:text-primary-50
             "
           >
             {{ $i18n.t('terms_conditions') }}
           </span>
           <ul
             class="
-              text-primary-950 grid gap-2 font-medium
-
+              grid gap-2 font-medium text-primary-950
               dark:text-primary-400
             "
           >
@@ -149,7 +135,6 @@ const packageVersion = pkg.version
                 :to="'terms-of-use'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -163,7 +148,6 @@ const packageVersion = pkg.version
                 :to="'privacy-policy'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -177,7 +161,6 @@ const packageVersion = pkg.version
                 :to="'cookies-policy'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -189,19 +172,16 @@ const packageVersion = pkg.version
         <div class="flex w-full flex-col gap-4">
           <span
             class="
-              text-primary-950 text-xs font-semibold uppercase
-
-              dark:text-primary-50
-
+              text-xs font-semibold text-primary-950 uppercase
               md:text-sm
+              dark:text-primary-50
             "
           >
             {{ $i18n.t('help_center') }}
           </span>
           <ul
             class="
-              text-primary-950 grid gap-2 font-medium
-
+              grid gap-2 font-medium text-primary-950
               dark:text-primary-400
             "
           >
@@ -212,7 +192,6 @@ const packageVersion = pkg.version
                 :to="'contact'"
                 class="
                   flex-1 text-sm capitalize
-
                   hover:no-underline
                 "
               >
@@ -225,30 +204,24 @@ const packageVersion = pkg.version
     </div>
     <div
       class="
-        bg-primary-100 w-full pt-4
-
-        dark:bg-primary-900
-
+        w-full bg-primary-100 pt-4
         md:pt-0
+        dark:bg-primary-900
       "
     >
       <div class="container mx-auto w-full">
         <div
           class="
             grid
-
             md:flex md:items-center md:justify-between md:px-4 md:py-6
           "
         >
           <span
             class="
-              text-primary-950 row-start-2 text-sm
-
-              dark:text-primary-300
-
-              md:row-start-1
-
+              row-start-2 text-sm text-primary-950
               sm:text-center
+              md:row-start-1
+              dark:text-primary-300
             "
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
@@ -264,14 +237,12 @@ const packageVersion = pkg.version
           <div
             class="
               my-4 flex flex-col items-center justify-between gap-2
-
               md:my-0 md:flex-row md:gap-12
             "
           >
             <div
               class="
                 flex flex-wrap
-
                 sm:justify-center
               "
             >
@@ -282,11 +253,9 @@ const packageVersion = pkg.version
             </div>
             <span
               class="
-                text-primary-950 text-xs
-
-                dark:text-primary-300
-
+                text-xs text-primary-950
                 sm:text-center
+                dark:text-primary-300
               "
             >Version: {{ packageVersion }}</span>
           </div>

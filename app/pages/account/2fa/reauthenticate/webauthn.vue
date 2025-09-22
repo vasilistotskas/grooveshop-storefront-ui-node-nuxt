@@ -1,16 +1,10 @@
 <script lang="ts" setup>
-import {
-  parseRequestOptionsFromJSON,
-  get,
-} from '@github/webauthn-json/browser-ponyfill'
-import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
-
 const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reauthenticateUsingWebAuthn'])
 
 const { $i18n } = useNuxtApp()
 const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 const authStore = useAuthStore()
@@ -26,14 +20,14 @@ async function onSubmit() {
   try {
     loading.value = true
     const optResp = await getWebAuthnRequestOptionsForReauthentication()
-    const jsonOptions = optResp?.data.request_options as CredentialRequestOptionsJSON
+    const jsonOptions = optResp?.data.request_options.publicKey
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
-    const options = parseRequestOptionsFromJSON(jsonOptions)
-    const credential = await get(options)
+    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
+    const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
     const response = await reauthenticateUsingWebAuthn({
-      credential,
+      credential: credential.toJSON(),
     })
     session.value = response?.data
     toast.add({
@@ -63,7 +57,6 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >

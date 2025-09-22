@@ -5,13 +5,14 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
 import type { AcceptableValue } from '@nuxt/ui'
+import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 defineSlots<{
   default(props: object): any
 }>()
 
 const { user, fetch } = useUserSession()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
 
@@ -139,7 +140,7 @@ const label = computed(() => {
     : t('form.birth_date')
 })
 
-const { data: countries } = await useFetch<Pagination<Country>>('/api/countries', {
+const { data: countries } = await useFetch('/api/countries', {
   key: 'countries',
   method: 'GET',
   headers: useRequestHeaders(),
@@ -166,7 +167,7 @@ const fetchRegions = async () => {
   }
 
   try {
-    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
+    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
@@ -217,7 +218,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   if (!userId) return
 
-  await $fetch<Authentication>(`/api/user/account/${userId}`, {
+  await $fetch(`/api/user/account/${userId}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {
@@ -264,17 +265,29 @@ watch(calendarDate, (newVal) => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
     <form
       id="accountSettingsForm"
-      class="_form bg-primary-100 flex w-full flex-col gap-4 rounded p-4 dark:bg-primary-900 md:grid md:grid-cols-2"
+      class="
+        flex w-full flex-col gap-4 rounded bg-primary-100 p-4
+        md:grid md:grid-cols-2
+        dark:bg-primary-900
+      "
       name="accountSettingsForm"
       @submit="onSubmit"
     >
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="firstName"
         >
           {{ t('form.first_name') }}
@@ -301,7 +314,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="lastName"
         >
           {{ t('form.last_name') }}
@@ -328,7 +344,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="phone"
         >
           {{ t('form.phone') }}
@@ -354,7 +373,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="city"
         >
           {{ t('form.city') }}
@@ -380,7 +402,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="zipcode"
         >
           {{ t('form.zipcode') }}
@@ -406,7 +431,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="address"
         >
           {{ t('form.address') }}
@@ -432,7 +460,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="place"
         >
           {{ t('form.place') }}
@@ -458,7 +489,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="birthDate"
         >
           {{ t('form.birth_date') }}
@@ -489,7 +523,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="country"
         >
           {{ t('form.country') }}
@@ -517,7 +554,10 @@ watch(calendarDate, (newVal) => {
 
       <div class="grid">
         <label
-          class="text-primary-950 mb-2 dark:text-primary-50"
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
           for="region"
         >
           {{ t('form.region') }}
@@ -546,7 +586,10 @@ watch(calendarDate, (newVal) => {
         <button
           :aria-busy="isSubmitting"
           :disabled="submitButtonDisabled"
-          class="text-primary-50 rounded bg-secondary px-4 py-2 font-bold disabled:cursor-not-allowed disabled:opacity-50"
+          class="
+            rounded bg-secondary px-4 py-2 font-bold text-primary-50
+            disabled:cursor-not-allowed disabled:opacity-50
+          "
           type="submit"
         >
           {{ t('form.submit') }}

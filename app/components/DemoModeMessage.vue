@@ -7,7 +7,6 @@ const { $i18n } = useNuxtApp()
     class="
       demo-mode-message flex items-center justify-center gap-2 text-center
       text-red-800
-
       dark:text-red-300
     "
   >
@@ -15,7 +14,6 @@ const { $i18n } = useNuxtApp()
     <span
       class="
         text-xs
-
         md:text-sm
       "
     >{{ $i18n.t('demo.message') }}</span>

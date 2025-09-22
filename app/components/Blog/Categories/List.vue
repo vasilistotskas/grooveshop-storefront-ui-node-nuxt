@@ -14,7 +14,7 @@ const { paginationType } = toRefs(props)
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const { blogCategoryUrl } = useUrls()
-const { locale, t } = useI18n({ useScope: 'local' })
+const { locale, t } = useI18n()
 
 const pageSize = ref(8)
 
@@ -24,7 +24,7 @@ const {
   data: categories,
   status,
   refresh,
-} = await useFetch<Pagination<BlogCategory>>(
+} = await useFetch(
   '/api/blog/categories',
   {
     key: 'blogCategories',
@@ -71,13 +71,9 @@ watch(
       v-if="!(status === 'pending') && categories?.count"
       class="
         grid grid-cols-2 items-center justify-center gap-4
-
-        lg:grid-cols-3
-
-        md:grid-cols-3
-
         sm:grid-cols-2
-
+        md:grid-cols-3
+        lg:grid-cols-3
         xl:grid-cols-4
       "
     >
@@ -96,14 +92,13 @@ watch(
             <h2
               class="
                 text-center text-xl font-semibold tracking-tight
-
                 md:text-2xl
               "
             >
               {{ extractTranslated(category, 'name', locale) }}
             </h2>
             <ImgWithFallback
-              class="max-h-[19.75rem] bg-primary-100 bg-transparent"
+              class="max-h-[19.75rem] bg-transparent"
               :style="{
                 contentVisibility: 'auto',
                 filter: 'invert(40%) sepia(85%) saturate(7500%) hue-rotate(220deg) brightness(105%) contrast(120%)',
@@ -120,10 +115,7 @@ watch(
             />
             <div class="grid items-end">
               <span
-                class="
-                  block w-full text-center font-semibold
-
-                "
+                class="block w-full text-center font-semibold"
               >
                 {{
                   t('discover.more', category.postCount || 0)
@@ -136,7 +128,11 @@ watch(
     </ol>
     <div
       v-if="status === 'pending'"
-      class="grid grid-cols-1 items-center justify-center gap-4 lg:grid-cols-3 md:grid-cols-3"
+      class="
+        grid grid-cols-1 items-center justify-center gap-4
+        md:grid-cols-3
+        lg:grid-cols-3
+      "
     >
       <USkeleton
         v-for="i in 6"

@@ -3,11 +3,11 @@ defineSlots<{
   error(props: object): any
 }>()
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 
 const emit = defineEmits(['update-model'])
 
-const { data: payWays, status } = await useFetch<Pagination<PayWay>>(
+const { data: payWays, status } = await useFetch(
   '/api/pay-way',
   {
     key: 'payWays',

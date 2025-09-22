@@ -55,7 +55,6 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
       },
     })
   }
-  console.log('response.meta: ', response.meta)
   console.log('response: ', response)
   if (response.meta?.access_token) {
     console.info('Setting access token from response')

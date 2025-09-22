@@ -73,8 +73,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      bg-primary-100 container grid min-h-60 w-full gap-4 rounded-lg !p-0
-
+      container grid min-h-60 w-full gap-4 rounded-lg bg-primary-100 !p-0
       dark:bg-primary-900 dark:text-primary-950
     "
   >
@@ -86,7 +85,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       >
         <ImgWithFallback
           :loading="imgLoading"
-          class="bg-primary-100 rounded-lg"
+          class="rounded-lg bg-primary-100"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
           :width="imgWidth"
@@ -103,29 +102,25 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         />
         <h2
           class="
-            absolute bottom-12 right-0 grid w-full justify-center
+            absolute right-0 bottom-12 grid w-full justify-center
             justify-items-start
           "
         >
           <span
             class="
-              text-primary-50 m-auto block w-[70%] text-3xl font-bold
-              tracking-tight
-
-              dark:text-primary-50
-
-              lg:w-[76%]
-
-              md:w-[66%] md:text-4xl
-
+              m-auto block w-[70%] text-3xl font-bold tracking-tight
+              text-primary-50
               sm:w-3/5
+              md:w-[66%] md:text-4xl
+              lg:w-[76%]
+              dark:text-primary-50
             "
           >
             {{ extractTranslated(post, 'title', locale) }}
           </span>
         </h2>
       </Anchor>
-      <div class="absolute bottom-4 right-4 grid items-end gap-2">
+      <div class="absolute right-4 bottom-4 grid items-end gap-2">
         <ButtonBlogPostLike
           :blog-post-id="post.id"
           :likes-count="localLikesCount"

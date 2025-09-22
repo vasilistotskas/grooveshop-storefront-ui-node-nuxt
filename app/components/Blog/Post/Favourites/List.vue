@@ -20,7 +20,7 @@ defineProps({
   },
 })
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 </script>
 
 <template>
@@ -39,13 +39,9 @@ const { t, locale } = useI18n({ useScope: 'local' })
     <ul
       class="
         grid grid-cols-1 gap-4
-
-        lg:grid-cols-3
-
-        md:grid-cols-2
-
         sm:grid-cols-2
-
+        md:grid-cols-2
+        lg:grid-cols-3
         xl:grid-cols-4
       "
     >
@@ -86,11 +82,9 @@ const { t, locale } = useI18n({ useScope: 'local' })
             :to="{ path: blogPostUrl(favourite) }"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
-              truncate text-primary-950 flex text-lg font-bold tracking-tight
-
-              dark:text-primary-50
-
+              flex truncate text-lg font-bold tracking-tight text-primary-950
               md:h-14
+              dark:text-primary-50
             "
           >
             {{ contentShorten(extractTranslated(favourite, 'title', locale), 0, 52) }}

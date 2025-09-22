@@ -14,14 +14,12 @@ defineSlots<{
   <div
     class="
       mt-2 text-2xl font-bold
-
       md:text-4xl
     "
   >
     <h2
       class="
         text-primary-950
-
         dark:text-primary-50
       "
     >

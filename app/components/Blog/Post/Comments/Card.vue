@@ -39,7 +39,7 @@ const emit = defineEmits<{
 const { $i18n } = useNuxtApp()
 const userStore = useUserStore()
 const toast = useToast()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { user, loggedIn } = useUserSession()
 const { updateLikedComments } = userStore
 
@@ -101,7 +101,7 @@ const replyCommentFormSchema: DynamicFormSchema = {
 
 const fetchReplies = async (cursorValue: string) => {
   pending.value = true
-  await $fetch<Pagination<BlogComment>>(`/api/blog/comments/${comment.value.id}/replies`, {
+  await $fetch(`/api/blog/comments/${comment.value.id}/replies`, {
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -123,18 +123,18 @@ const fetchReplies = async (cursorValue: string) => {
 }
 
 async function onReplySubmit({ content }: { content: string }) {
-  await $fetch<BlogComment>('/api/blog/comments', {
+  await $fetch('/api/blog/comments', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      post: String(blogPostId.value),
-      user: String(user?.value?.id),
+      post: Number(blogPostId.value),
+      user: Number(user?.value?.id),
       translations: {
         [locale.value]: {
           content: content,
         },
       },
-      parent: comment.value.id,
+      parent: Number(comment.value.id),
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -160,7 +160,7 @@ const replyIds = computed(() => {
 })
 
 const fetchLikedComments = async (ids: number[]) => {
-  return await $fetch<number[]>(`/api/blog/comments/liked-comments`, {
+  return await $fetch(`/api/blog/comments/liked-comments`, {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
@@ -170,7 +170,7 @@ const fetchLikedComments = async (ids: number[]) => {
       if (!response.ok) {
         return
       }
-      const likedCommentIds = response._data
+      const likedCommentIds = response._data?.likedCommentIds || []
       updateLikedComments(likedCommentIds)
     },
   })
@@ -299,8 +299,7 @@ watch(
           <span
             v-if="account"
             class="
-              text-primary-950 font-bold
-
+              font-bold text-primary-950
               dark:text-primary-50
             "
           >
@@ -309,8 +308,7 @@ watch(
           <span class="flex items-center">
             <span
               class="
-                text-12 text-primary-400 mx-2 my-0 inline-block font-bold
-
+                mx-2 my-0 inline-block font-bold text-primary-400
                 dark:text-primary-400
               "
             >•</span>
@@ -318,8 +316,7 @@ watch(
               :datetime="comment.createdAt"
               :locale="locale"
               class="
-                text-primary-400 w-full text-end text-xs
-
+                w-full text-end text-xs text-primary-400
                 dark:text-primary-400
               "
             />
@@ -344,12 +341,10 @@ watch(
             isLineHovered
               ? `
                 bg-primary-600
-
                 dark:bg-primary-300
               `
               : `
                 bg-primary-300
-
                 dark:bg-primary-600
               `
           "
@@ -370,8 +365,7 @@ watch(
         <span
           v-show="repliesFetched"
           class="
-            bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start
-
+            relative z-20 mt-[6px] flex justify-center self-start bg-primary-100
             dark:bg-primary-900
           "
         >
@@ -453,27 +447,25 @@ watch(
             :aria-expanded="showReplies"
             :aria-hidden="!showReplies"
             :class="{
-              'threadline-hovered': isLineHovered,
-              'bg-primary-100 z-20 dark:bg-primary-900':
+              'hovered': isLineHovered,
+              'z-20 bg-primary-100 dark:bg-primary-900':
                 !showReplies || (allReplies.length > 0 && allReplies[allReplies.length - 1]?.id === reply.id),
             }"
-            class="threadline-one align-start relative flex justify-end"
+            class="relative flex justify-end"
           >
 
             <span
               class="
-                border-primary-300 box-border h-4 w-[calc(50%+0.5px)]
-                cursor-pointer rounded-bl-[12px] border-0 border-b border-l
-                border-solid
-
+                box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
+                rounded-bl-[12px] border-0 border-b border-l border-solid
+                border-primary-300
                 dark:border-primary-600
               "
             />
             <span
               class="
-                border-primary-300 absolute right-[-8px] box-border h-4 w-2
-                cursor-pointer border-0 border-b border-solid
-
+                absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
+                border-b border-solid border-primary-300
                 dark:border-primary-600
               "
             />
@@ -489,25 +481,23 @@ watch(
           :aria-expanded="showReplies"
           :aria-hidden="!showReplies"
           :class="{
-            'threadline-hovered': isLineHovered,
-            'bg-primary-100 z-20 dark:bg-primary-900': !showReplies || pending,
+            'hovered': isLineHovered,
+            'z-20 bg-primary-100 dark:bg-primary-900': !showReplies || pending,
           }"
-          class="threadline-two align-start relative flex justify-end"
+          class="relative flex justify-end"
         >
           <span
             class="
-              border-primary-300 box-border h-4 w-[calc(50%+0.5px)]
-              cursor-pointer rounded-bl-[12px] border-0 border-b border-l
-              border-solid
-
+              box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
+              rounded-bl-[12px] border-0 border-b border-l border-solid
+              border-primary-300
               dark:border-primary-600
             "
           />
           <span
             class="
-              border-primary-300 absolute right-[-8px] box-border h-4 w-2
-              cursor-pointer border-0 border-b border-solid
-
+              absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
+              border-b border-solid border-primary-300
               dark:border-primary-600
             "
           />
@@ -567,6 +557,7 @@ watch(
     />
     <Pagination
       v-if="pagination"
+      class="hidden"
       :count="pagination.count"
       :cursor-key="cursorKey"
       :links="pagination.links"

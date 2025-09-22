@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
@@ -22,7 +22,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: addresses, status, error } = await useFetch<Pagination<UserAddress>>(
+const { data: addresses, status, error } = await useFetch(
   `/api/user/account/${user.value?.id}/addresses`,
   {
     key: `userAddresses${user.value?.id}`,
@@ -38,7 +38,7 @@ const { data: addresses, status, error } = await useFetch<Pagination<UserAddress
 
 const refreshAddresses = async () => {
   status.value = 'pending'
-  const addresses = await $fetch<Pagination<UserAddress>>(
+  const addresses = await $fetch(
     `/api/user/account/${user.value?.id}/addresses`,
     {
       method: 'GET',
@@ -83,8 +83,7 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1
+      md:mt-1 md:gap-8 md:!p-0
     "
   >
     <PageTitle
@@ -125,7 +124,13 @@ definePageMeta({
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        class="
+          grid grid-cols-2 gap-4
+          lg:grid-cols-3
+          xl:grid-cols-4
+        "
+      >
         <USkeleton
           v-for="i in (addresses?.results?.length || 4)"
           :key="i"

@@ -14,13 +14,16 @@ const cartStore = useCartStore()
 const { refreshCart, createCartItem, updateCartItem, getCartItemByProductId } = cartStore
 
 const { product, quantity, text } = toRefs(props)
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 
 const cartItem = computed(() => {
   return getCartItemByProductId(product.value.id)
 })
 const disabled = computed(() => {
+  if (product.value.active === false) {
+    return true
+  }
   if (product.value.stock === 0 || (product.value.stock && quantity.value > product.value.stock)) {
     return true
   }

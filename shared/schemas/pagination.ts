@@ -6,7 +6,7 @@ export const ZodPagination = <T>(
   z.object({
     links: z.object({
       next: z.string().nullish(),
-      prev: z.string().nullish(),
+      previous: z.string().nullish(),
     }),
     count: z.number(),
     totalPages: z.number(),

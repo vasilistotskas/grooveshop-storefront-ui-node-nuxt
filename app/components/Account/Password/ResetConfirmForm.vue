@@ -7,7 +7,7 @@ const emit = defineEmits(['passwordReset'])
 
 const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 
 const route = useRoute()
 const toast = useToast()
@@ -22,7 +22,7 @@ if (!key) {
   navigateTo(localePath('account-password-reset'))
 }
 
-await useAsyncData<PasswordResetGetResponse>(
+await useAsyncData(
   'passwordReset',
   () => getPasswordReset(String(key)),
 )
@@ -119,7 +119,6 @@ const onSubmit = handleSubmit(async (values) => {
       ref="passwordResetConfirmForm"
       class="
         container mx-auto p-0
-
         md:px-20
       "
       name="passwordResetConfirmForm"
@@ -127,20 +126,16 @@ const onSubmit = handleSubmit(async (values) => {
     >
       <div
         class="
-          bg-primary-100 flex h-full flex-wrap items-center justify-center
-          rounded-lg p-4 shadow-[0_4px_9px_-4px_#0000000d]
-
-          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
-
-          lg:justify-between
-
+          flex h-full flex-wrap items-center justify-center rounded-lg
+          bg-primary-100 p-4 shadow-[0_4px_9px_-4px_#0000000d]
           md:p-8
+          lg:justify-between
+          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
         "
       >
         <div
           class="
             relative grid w-full gap-4
-
             md:gap-8
           "
         >
@@ -162,8 +157,7 @@ const onSubmit = handleSubmit(async (values) => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950 mb-2
-
+                  mb-2 text-primary-950
                   dark:text-primary-50
                 "
                 for="newPassword1"
@@ -188,8 +182,7 @@ const onSubmit = handleSubmit(async (values) => {
             <div class="grid content-evenly items-start gap-1">
               <label
                 class="
-                  text-primary-950 mb-2
-
+                  mb-2 text-primary-950
                   dark:text-primary-50
                 "
                 for="newPassword2"

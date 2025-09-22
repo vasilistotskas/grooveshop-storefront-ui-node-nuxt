@@ -22,7 +22,7 @@ const emit = defineEmits([
   'address-delete',
 ])
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
@@ -33,10 +33,7 @@ const { t } = useI18n({ useScope: 'local' })
         class="flex items-center justify-center gap-1"
       >
         <span
-          class="
-            text-sm font-semibold
-
-          "
+          class="text-sm font-semibold"
         >
           {{ t('total', addressesCount) }}
         </span>
@@ -44,10 +41,8 @@ const { t } = useI18n({ useScope: 'local' })
       <ul
         class="
           grid grid-cols-1 gap-4
-
-          lg:grid-cols-3
-
           md:grid-cols-2
+          lg:grid-cols-3
         "
       >
         <AddressCard

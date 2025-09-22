@@ -32,14 +32,33 @@ const onSubmit = async (values: PasswordChangeBody) => {
 }
 
 const formSchema = computed<DynamicFormSchema>(() => {
+  // Create a reusable password schema with proper error handling
+  const createPasswordSchema = (fieldType: 'current' | 'new' | 'confirm') => {
+    return z.string({
+      error: (issue) => {
+        if (issue.input === undefined || issue.input === '') {
+          return $i18n.t('validation.required')
+        }
+        if (typeof issue.input !== 'string') {
+          return $i18n.t('validation.string.invalid')
+        }
+        return $i18n.t('validation.string.invalid')
+      },
+    })
+      .min(8, {
+        error: issue => $i18n.t('validation.min', { min: issue.minimum }),
+      })
+      .max(255, {
+        error: issue => $i18n.t('validation.max', { max: issue.maximum }),
+      })
+  }
+
   const fields = [
     {
       label: $i18n.t('password.new'),
       name: 'new_password',
       as: 'input',
-      rules: z.string({ error: issue => issue.input === undefined
-        ? $i18n.t('validation.required')
-        : $i18n.t('validation.string.invalid') }).min(8).max(255),
+      rules: createPasswordSchema('new'),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -50,9 +69,7 @@ const formSchema = computed<DynamicFormSchema>(() => {
       label: $i18n.t('password.confirm'),
       name: 'confirm_password',
       as: 'input',
-      rules: z.string({ error: issue => issue.input === undefined
-        ? $i18n.t('validation.required')
-        : $i18n.t('validation.string.invalid') }).min(8).max(255),
+      rules: createPasswordSchema('confirm'),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -66,9 +83,7 @@ const formSchema = computed<DynamicFormSchema>(() => {
       label: $i18n.t('password.current'),
       name: 'current_password',
       as: 'input',
-      rules: z.string({ error: issue => issue.input === undefined
-        ? $i18n.t('validation.required')
-        : $i18n.t('validation.string.invalid') }).min(8).max(255),
+      rules: createPasswordSchema('current'),
       autocomplete: 'current-password',
       condition: null,
       disabledCondition: null,
@@ -83,33 +98,31 @@ const formSchema = computed<DynamicFormSchema>(() => {
     fields,
     extraValidation: z
       .object({
-        current_password: z.string({ error: issue => issue.input === undefined
-          ? $i18n.t('validation.required')
-          : $i18n.t('validation.string.invalid') }).optional(),
-        new_password: z.string({ error: issue => issue.input === undefined
-          ? $i18n.t('validation.required')
-          : $i18n.t('validation.string.invalid') }),
-        confirm_password: z.string({ error: issue => issue.input === undefined
-          ? $i18n.t('validation.required')
-          : $i18n.t('validation.string.invalid') }),
-      }).superRefine((val, ctx) => {
+        current_password: hasCurrentPassword.value
+          ? createPasswordSchema('current')
+          : z.string().optional(),
+        new_password: createPasswordSchema('new'),
+        confirm_password: createPasswordSchema('confirm'),
+      })
+      .superRefine((val, ctx) => {
+        // Check if passwords match
         if (val.new_password !== val.confirm_password) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: $i18n.t(
-              'validation.must_match', { field: $i18n.t('password.new'), other: $i18n.t('password.confirm') },
+              'validation.must_match',
+              { field: $i18n.t('password.new'), other: $i18n.t('password.confirm') },
             ),
             path: ['confirm_password'],
           })
         }
 
-        if (hasCurrentPassword.value && val.current_password === val.new_password) {
+        // Check if current password is different from new password
+        if (hasCurrentPassword.value && val.current_password && val.current_password === val.new_password) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: $i18n.t(
-              'validation.password.must_not_be_same',
-            ),
-            path: ['confirm_password'],
+            code: 'custom',
+            message: $i18n.t('validation.password.must_not_be_same'),
+            path: ['new_password'], // Better to put this error on new_password field
           })
         }
       }),
@@ -121,7 +134,6 @@ const formSchema = computed<DynamicFormSchema>(() => {
   <div
     class="
       grid gap-4
-
       lg:flex
     "
   >
@@ -129,8 +141,7 @@ const formSchema = computed<DynamicFormSchema>(() => {
     <section class="grid w-full items-center gap-4">
       <p
         class="
-          text-primary-950 text-center
-
+          text-center text-primary-950
           dark:text-primary-50
         "
       >

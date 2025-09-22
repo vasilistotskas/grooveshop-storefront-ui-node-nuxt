@@ -162,7 +162,18 @@ const merged = computed(() => {
   if (!extraValidationSchema.value) {
     return baseSchema
   }
-  return baseSchema.extend(extraValidationSchema.value)
+
+  return z.object({
+    ...baseSchema.shape,
+    ...extraValidationSchema.value.shape,
+  }).superRefine((val, ctx) => {
+    const result = extraValidationSchema.value.safeParse(val)
+    if (!result.success) {
+      result.error.issues.forEach((issue: string) => {
+        ctx.addIssue(issue)
+      })
+    }
+  })
 })
 
 // Convert the generated Zod schema object to a VeeValidate compatible schema object
@@ -320,6 +331,7 @@ const onSelectMenuChange = ({ target, value }: { target: string, value: string }
 // Define the submit button disabled state
 const valid = computedAsync(async () => {
   if (submitCount.value >= maxSubmitCount.value || loading.value) {
+    console.log('Returning true due to submit count or loading')
     return true
   }
 
@@ -331,7 +343,8 @@ const valid = computedAsync(async () => {
         ? !liveResultValid
         : false
     })
-    .catch(() => {
+    .catch((error) => {
+      console.log('Validation error:', error)
       return true
     })
 }, disableSubmitUntilValid.value)
@@ -385,17 +398,25 @@ defineExpose({
         root: 'pb-4',
         description: 'text-xs',
       }"
-      @update:model-value="value => currentStep = Number(value)"
+      @update:model-value="(value: string | number | undefined) => currentStep = Number(value || 0)"
     />
 
     <UForm
       :id="finalID"
       :state="fields"
       autocomplete="on"
-      class="grid w-full gap-4 divide-none dark:divide-primary-800"
+      class="
+        grid w-full gap-4 divide-none
+        dark:divide-primary-800
+      "
       @submit="onSubmit"
     >
-      <div class="grid gap-2 md:gap-4">
+      <div
+        class="
+          grid gap-2
+          md:gap-4
+        "
+      >
         <template
           v-for="{
             as,

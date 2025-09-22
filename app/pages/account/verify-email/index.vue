@@ -5,7 +5,7 @@ const emit = defineEmits(['emailVerify'])
 
 const { emailVerify } = useAllAuthAuthentication()
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
@@ -60,7 +60,6 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
@@ -70,8 +69,7 @@ definePageMeta({
     />
     <p
       class="
-        text-primary-950 text-center
-
+        text-center text-primary-950
         dark:text-primary-50
       "
     >

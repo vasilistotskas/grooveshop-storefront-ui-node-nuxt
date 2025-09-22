@@ -66,8 +66,7 @@ watchEffect(() => {
         :display-image-of="displayImageOf"
         :class="userHasCommented(comment) ? 'user-commented' : ''"
         class="
-          comments-list-item bg-primary-100 rounded border p-4
-
+          comments-list-item rounded border bg-primary-100 p-4
           dark:bg-primary-900
         "
         @reply-add="onReplyAdd"

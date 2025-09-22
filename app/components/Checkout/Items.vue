@@ -11,8 +11,7 @@ const { $i18n } = useNuxtApp()
     <div class="sr-only items-center justify-center">
       <h3
         class="
-          text-primary-950 text-md font-bold
-
+          text-base font-bold text-primary-950
           dark:text-primary-50
         "
       >
@@ -27,10 +26,9 @@ const { $i18n } = useNuxtApp()
         v-for="item in getCartItems"
         :key="item.id"
         class="
-            flex gap-4 justify-between
-
-            md:py-2
-          "
+          flex justify-between gap-4
+          md:py-2
+        "
       >
         <div class="flex items-center">
           <Anchor
@@ -39,10 +37,9 @@ const { $i18n } = useNuxtApp()
           >
             <span
               class="
-                  text-primary-950 text-sm font-bold
-
-                  dark:text-primary-50
-                "
+                text-sm font-bold text-primary-950
+                dark:text-primary-50
+              "
             >
               {{ extractTranslated(item.product, 'name', locale) }}
             </span>
@@ -52,9 +49,8 @@ const { $i18n } = useNuxtApp()
           <span
             v-if="item.finalPrice"
             class="
-                              text-primary-950 text-sm
-
-                dark:text-primary-50
+              text-sm text-primary-950
+              dark:text-primary-50
             "
           >
             {{ $i18n.n(item.finalPrice, 'currency') }}
@@ -63,10 +59,9 @@ const { $i18n } = useNuxtApp()
         <div class="flex items-center">
           <span
             class="
-                text-primary-950 text-sm
-
-                dark:text-primary-50
-              "
+              text-sm text-primary-950
+              dark:text-primary-50
+            "
           >
             {{ item.quantity }}x
           </span>
@@ -75,17 +70,15 @@ const { $i18n } = useNuxtApp()
           <span
             v-if="item.finalPrice"
             class="
-                text-primary-950 text-sm
-
-                dark:text-primary-50
-              "
+              text-sm text-primary-950
+              dark:text-primary-50
+            "
           >
             <span
               class="
-                  text-primary-950 text-sm
-
-                  dark:text-primary-50
-            "
+                text-sm text-primary-950
+                dark:text-primary-50
+              "
             >
               {{ $i18n.n(item.finalPrice * (item.quantity || 1), 'currency') }}
             </span>

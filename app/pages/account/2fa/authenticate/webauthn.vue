@@ -1,14 +1,11 @@
 <script lang="ts" setup>
-import { get, parseRequestOptionsFromJSON } from '@github/webauthn-json/browser-ponyfill'
-import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
-
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
 
 const toast = useToast()
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -43,14 +40,14 @@ async function onSubmit() {
   try {
     loading.value = true
     const optResp = await getWebAuthnRequestOptionsForAuthentication()
-    const jsonOptions = optResp?.data.request_options as CredentialRequestOptionsJSON
+    const jsonOptions = optResp?.data.request_options.publicKey
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
-    const options = parseRequestOptionsFromJSON(jsonOptions)
-    const credential = await get(options)
+    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
+    const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
     const response = await authenticateUsingWebAuthn({
-      credential,
+      credential: credential.toJSON(),
     })
     session.value = response?.data
     toast.add({
@@ -79,16 +76,15 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      max-w-(--container-2xl) mx-auto flex flex-col gap-4 md:!p-0
-
-      md:gap-8
+      mx-auto flex max-w-(--container-2xl) flex-col gap-4
+      md:gap-8 md:!p-0
     "
   >
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />

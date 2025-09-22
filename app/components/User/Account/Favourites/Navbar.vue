@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
   <nav
     class="
-      border-primary-500 static z-10 w-auto border-b bg-transparent px-0
+      static z-10 w-auto border-b border-primary-500 bg-transparent px-0
       shadow-none
     "
   >
@@ -22,13 +22,12 @@ const { t } = useI18n({ useScope: 'local' })
           :aria-label="t('favourite.products')"
           :title="t('favourite.products')"
           class="
-            text-primary-600 block whitespace-nowrap py-4 text-sm outline-none
+            block py-4 text-sm whitespace-nowrap text-primary-600 outline-none
           "
         >
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           >
@@ -45,13 +44,12 @@ const { t } = useI18n({ useScope: 'local' })
           :aria-label="t('favourite.posts')"
           :title="t('favourite.posts')"
           class="
-            text-primary-600 block whitespace-nowrap py-4 text-sm outline-none
+            block py-4 text-sm whitespace-nowrap text-primary-600 outline-none
           "
         >
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           >

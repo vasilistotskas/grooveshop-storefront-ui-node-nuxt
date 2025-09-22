@@ -28,8 +28,7 @@ const BlogPostCard = computed(() =>
     <h2
       v-if="title"
       class="
-        text-primary-950 mx-auto flex max-w-2xl text-2xl font-semibold
-
+        mx-auto flex max-w-2xl text-2xl font-semibold text-primary-950
         dark:text-primary-50
       "
     >
@@ -59,7 +58,6 @@ const BlogPostCard = computed(() =>
       wheel-gestures
       class="
         relative mx-auto max-w-4xl
-
         md:w-[43rem]
       "
     >

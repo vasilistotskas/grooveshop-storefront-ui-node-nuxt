@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 
 definePageMeta({
   layout: 'default',
@@ -11,7 +11,6 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
@@ -21,8 +20,7 @@ definePageMeta({
     />
     <p
       class="
-        text-primary-950 flex items-center text-center
-
+        flex items-center text-center text-primary-950
         dark:text-primary-50
       "
     >

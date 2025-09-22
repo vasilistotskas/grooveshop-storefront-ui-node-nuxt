@@ -19,7 +19,6 @@ export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>
 export const onAllAuthResponseError = async (response: FetchResponse<H3Error<AllAuthResponseError>>) => {
   if (!response || !response._data) return
   console.info('onAllAuthResponseError', response)
-  console.info('response.status', response.status)
   if ([401, 410].includes(response.status) && response._data.data) {
     console.info('Status includes 401 or 410', response._data)
     await callAuthChangeHook(response._data.data)

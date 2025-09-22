@@ -2,7 +2,7 @@
 import type { PropType } from 'vue'
 import type { IFetchError } from 'ofetch'
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { enabled } = useAuthPreviewMode()
 
 defineProps({
@@ -27,7 +27,6 @@ defineProps({
       <span
         class="
           text-lg font-semibold text-neutral-700
-
           dark:text-neutral-200
         "
       >

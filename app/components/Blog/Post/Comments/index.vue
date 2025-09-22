@@ -39,7 +39,7 @@ const emit = defineEmits<{
 const { blogPostId, paginationType, pageSize }
   = toRefs(props)
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute()
 const { loggedIn, user } = useUserSession()
@@ -57,7 +57,7 @@ const allComments = ref<BlogComment[]>([])
 
 const refreshLikedComments = async (ids: number[]) => {
   if (!loggedIn.value) return
-  return await $fetch<number[]>('/api/blog/comments/liked-comments', {
+  return await $fetch('/api/blog/comments/liked-comments', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
@@ -67,7 +67,7 @@ const refreshLikedComments = async (ids: number[]) => {
       if (!response.ok) {
         return
       }
-      const likedCommentIds = response._data
+      const likedCommentIds = response._data?.likedCommentIds || []
       updateLikedComments(likedCommentIds)
     },
   })
@@ -77,7 +77,7 @@ const {
   data: comments,
   status,
   refresh,
-} = await useFetch<Pagination<BlogComment>>(
+} = await useFetch(
   `/api/blog/posts/${blogPostId.value}/comments`,
   {
     key: `comments${blogPostId.value}`,
@@ -114,24 +114,13 @@ const loggedInAndHasComments = computed(() => {
   ) || false
 })
 
-const { data: userBlogPostComment, refresh: refreshUserBlogPostComment }
-  = await useFetch<BlogComment>('/api/blog/comments/my-comment', {
-    key: `userBlogPostComment${blogPostId.value}`,
-    method: 'POST',
-    headers: useRequestHeaders(),
-    body: {
-      post: blogPostId,
-    },
-    immediate: loggedInAndHasComments.value,
-  })
-
 const commentIds = computed(() => {
   if (!comments.value) return []
   return comments.value?.results?.map(comment => comment.id)
 })
 
 if (loggedInAndHasComments.value) {
-  await useFetch<number[]>('/api/blog/comments/liked-comments', {
+  await useFetch('/api/blog/comments/liked-comments', {
     key: `likedComments${blogPostId.value}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -142,7 +131,7 @@ if (loggedInAndHasComments.value) {
       if (!response.ok) {
         return
       }
-      const likedCommentIds = response._data
+      const likedCommentIds = response._data?.likedCommentIds || []
       updateLikedComments(likedCommentIds)
     },
   })
@@ -174,12 +163,12 @@ const addCommentFormSchema: DynamicFormSchema = {
 }
 
 async function onAddCommentSubmit({ content }: { content: string }) {
-  await $fetch<BlogComment>('/api/blog/comments', {
+  await $fetch('/api/blog/comments', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      post: String(blogPostId.value),
-      user: String(user?.value?.id),
+      post: Number(blogPostId.value),
+      user: Number(user?.value?.id),
       translations: {
         [locale.value]: {
           content: content,
@@ -192,7 +181,6 @@ async function onAddCommentSubmit({ content }: { content: string }) {
       }
       emit('reply-add', response._data)
       await refresh()
-      await refreshUserBlogPostComment()
       toast.add({
         title: t('add.success'),
         color: 'success',
@@ -267,17 +255,15 @@ onMounted(() => {
   <div
     id="blog-post-comments"
     class="
-      border-primary-500 mx-auto flex max-w-2xl flex-col items-start
-      justify-center gap-4 border-t py-6
-
+      mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t
+      border-primary-500 py-6
       dark:border-primary-500
     "
   >
     <div class="grid w-full">
       <h2
         class="
-          text-primary-950 mx-auto flex max-w-2xl text-2xl font-semibold
-
+          mx-auto flex max-w-2xl text-2xl font-semibold text-primary-950
           dark:text-primary-50
         "
       >
@@ -295,7 +281,7 @@ onMounted(() => {
       @reply-add="onReplyAdd"
     >
       <LazyEmptyState
-        v-if="!userBlogPostComment"
+        v-if="commentsCount === 0"
         :title="
           loggedIn
             ? $i18n.t('empty.title')

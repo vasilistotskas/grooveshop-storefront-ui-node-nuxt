@@ -1,13 +1,10 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import { create, parseCreationOptionsFromJSON } from '@github/webauthn-json/browser-ponyfill'
-import type { CredentialCreationOptionsJSON } from '@github/webauthn-json'
-
 const emit = defineEmits(['getWebAuthnCreateOptionsAtSignup', 'signupWebAuthnCredential'])
 
 const { getWebAuthnCreateOptionsAtSignup, signupWebAuthnCredential } = useAllAuthAuthentication()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 const authInfo = useAuthInfo()
@@ -21,15 +18,15 @@ async function onSubmit(values: {
   try {
     loading.value = true
     const optResp = await getWebAuthnCreateOptionsAtSignup()
-    const jsonOptions = optResp?.data.creation_options as CredentialCreationOptionsJSON
+    const jsonOptions = optResp?.data.request_options.publicKey
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
-    const options = parseCreationOptionsFromJSON(jsonOptions)
-    const credential = await create(options)
+    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(jsonOptions)
+    const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
     await signupWebAuthnCredential({
       name: values.name,
-      credential,
+      credential: credential.toJSON(),
     })
     toast.add({
       title: $i18n.t('success.title'),
@@ -73,7 +70,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <div
     class="
       container mx-auto p-0
-
       md:px-6
     "
   >

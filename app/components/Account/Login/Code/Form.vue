@@ -45,7 +45,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <div
     class="
       container mx-auto p-0
-
       md:px-6
     "
   >

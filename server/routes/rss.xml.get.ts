@@ -5,6 +5,7 @@ export default defineCachedEventHandler(async (event) => {
     const config = useRuntimeConfig()
     // @ts-ignore
     const siteConfig = useSiteConfig(event)
+    const baseUrl = config.public.baseUrl
 
     const cachedBlogPosts = createCachedFetcher<BlogPost>(
       'cachedBlogPosts',
@@ -42,8 +43,6 @@ export default defineCachedEventHandler(async (event) => {
         continue
       }
 
-      // @TODO
-      // const postUrl = post.absoluteUrl ? new URL(post.absoluteUrl, siteUrl).toString() : ''
       const mainImageUrl = encodeURI(`${config.mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/5/webp/100`)
       const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
 
@@ -106,8 +105,7 @@ export default defineCachedEventHandler(async (event) => {
 
       feed.item({
         title: translation.title || 'Untitled Post',
-        // @TODO
-        url: '',
+        url: baseUrl + '/blog/post/' + post.id + '/' + post.slug,
         description: description,
         custom_elements: [
           ...customElements,

@@ -4,7 +4,7 @@ export const usePagination = <T>(results: Pagination<T>) => {
   const totalPages = results.totalPages
   const pageTotalResults = results.pageTotalResults
 
-  const pageSize = results.pageSize
+  const pageSize = results.pageSize || 10
 
   const page = results.page
 

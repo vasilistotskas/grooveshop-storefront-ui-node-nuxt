@@ -16,7 +16,7 @@ interface ProductAttributes {
 
 const route = useRoute()
 const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { y: scrollY } = useWindowScroll()
 
 const { user, loggedIn } = useUserSession()
@@ -25,7 +25,7 @@ const toast = useToast()
 const localePath = useLocalePath()
 
 const userStore = useUserStore()
-const { getFavouriteByProductId, updateFavouriteProducts } = userStore
+const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
 
 const isReviewModalOpen = ref(false)
 const selectorQuantity = ref(1)
@@ -80,7 +80,7 @@ const productId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: product, refresh: refreshProduct } = await useFetch<Product>(
+const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
@@ -100,7 +100,7 @@ if (!product.value) {
   })
 }
 
-const { data: productImages } = await useFetch<ProductImage[]>(
+const { data: productImages } = await useFetch(
   `/api/products/${product.value?.id}/images`,
   {
     key: `productImages${product.value?.id}`,
@@ -117,7 +117,7 @@ const shouldFetchFavouriteProducts = computed(() => {
 })
 
 if (shouldFetchFavouriteProducts.value) {
-  await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+  await useLazyFetch('/api/products/favourites/favourites-by-products', {
     key: `favouritesByProducts${user.value?.id}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -129,17 +129,23 @@ if (shouldFetchFavouriteProducts.value) {
         return
       }
       const favourites = response._data
-      updateFavouriteProducts(favourites)
+      if (favourites) {
+        updateFavouriteProducts(favourites)
+      }
     },
   })
 }
 
 const { data: userProductReview, refresh: refreshUserProductReview }
-  = await useFetch<ProductReview>('/api/products/reviews/user-product-review', {
+  = await useFetch('/api/products/reviews/user-product-review', {
     key: `productReviews${productId}${user.value?.id}`,
     headers: useRequestHeaders(),
     method: 'GET',
     immediate: loggedIn.value,
+    query: {
+      product: productId,
+      user: user.value?.id,
+    },
   })
 
 const onAddExistingReview = async () => {
@@ -200,7 +206,8 @@ const productStock = computed(() => product.value?.stock || 0)
 const showStickyAddToCart = computed(() => scrollY.value > 350)
 const favouriteId = computed(() => {
   if (!product.value) return
-  return getFavouriteByProductId(product.value?.id)?.id
+  const favourite = getFavouriteIdByProductId(product.value?.id)
+  return favourite
 })
 const items = computed(() => [
   {
@@ -247,7 +254,7 @@ watch(
 )
 
 onMounted(() => {
-  $fetch<Product>(`/api/products/${productId}/update-view-count`, {
+  $fetch(`/api/products/${productId}/update-view-count`, {
     method: 'POST',
   })
 })
@@ -274,59 +281,70 @@ definePageMeta({
     <div
       v-if="product"
       class="
-          product mb-12
-
-          md:mb-24
-        "
+        product mb-12
+        md:mb-24
+      "
     >
       <div
         class="
-            mx-auto max-w-7xl pb-6
-
-            lg:px-8
-
-            md:px-4
-
-            sm:px-6
-          "
+          mx-auto max-w-7xl pb-6
+          sm:px-6
+          md:px-4
+          lg:px-8
+        "
       >
         <UBreadcrumb
           :items="items"
           :ui="{
             item: 'text-primary-950 dark:text-primary-50',
-            root: 'text-xs md:text-md',
+            root: 'text-xs md:text-base',
           }"
           class="mb-5"
         />
         <div
           class="
-              grid gap-2
-
-              md:grid-cols-2
-            "
+            grid gap-2
+            md:grid-cols-2
+          "
         >
           <ProductImages :product="product" />
           <div
             class="
-                grid content-center items-center gap-4
-
-                md:gap-6 md:px-4
-              "
+              grid content-center items-center gap-4
+              md:gap-6 md:px-4
+            "
           >
-            <h2 class="text-primary-950 dark:text-primary-50 text-2xl md:text-3xl font-bold leading-tight tracking-tight group">
+            <h2
+              class="
+                group text-3xl leading-tight font-semibold tracking-tight
+                text-primary-950
+                md:text-5xl
+                dark:text-primary-50
+              "
+            >
               <span class="relative inline-block">
                 {{ extractTranslated(product, 'name', locale) }}
-                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 group-hover:w-full" />
+                <span
+                  class="
+                    absolute -bottom-1 left-0 h-0.5 w-0 bg-indigo-600
+                    transition-all duration-300
+                    group-hover:w-full
+                    dark:bg-indigo-400
+                  "
+                />
               </span>
             </h2>
 
-            <section class="actions flex flex-wrap items-center gap-3 mt-2">
+            <section class="actions mt-2 flex flex-wrap items-center gap-3">
               <ClientOnly>
                 <UButton
                   v-if="isSupported"
                   :disabled="!isSupported"
                   :title="t('share')"
-                  class="font-semibold capitalize transition-all duration-300 hover:scale-105 group"
+                  class="
+                    group font-semibold capitalize transition-all duration-300
+                    hover:scale-105
+                  "
                   color="neutral"
                   variant="ghost"
                   size="md"
@@ -335,7 +353,10 @@ definePageMeta({
                   <template #leading>
                     <UIcon
                       name="i-heroicons-share"
-                      class="mr-1 group-hover:animate-pulse"
+                      class="
+                        mr-1
+                        group-hover:animate-pulse
+                      "
                     />
                   </template>
                   {{ t('share') }}
@@ -349,7 +370,10 @@ definePageMeta({
 
               <UButton
                 :label="reviewButtonText"
-                class="font-semibold capitalize transition-all duration-300 hover:scale-105 group"
+                class="
+                  group font-semibold capitalize transition-all duration-300
+                  hover:scale-105
+                "
                 color="neutral"
                 variant="ghost"
                 size="md"
@@ -358,7 +382,10 @@ definePageMeta({
                 <template #leading>
                   <UIcon
                     name="i-heroicons-chat-bubble-left-right"
-                    class="mr-1 group-hover:animate-pulse"
+                    class="
+                      mr-1
+                      group-hover:animate-pulse
+                    "
                   />
                 </template>
               </UButton>
@@ -385,35 +412,61 @@ definePageMeta({
             <div class="mt-3 mb-4 space-y-4">
               <div class="flex flex-wrap items-end gap-3">
                 <div class="relative">
-                  <span class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 dark:from-primary-400 dark:to-indigo-400 bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
+                  <span
+                    class="
+                      bg-gradient-to-r from-primary-600 to-secondary-600
+                      bg-clip-text text-4xl font-bold text-transparent
+                      transition-all duration-300
+                      hover:scale-105
+                      dark:from-primary-400 dark:to-secondary-400
+                    "
+                  >
                     {{ formatProductPrice(product?.finalPrice) }}
                   </span>
                 </div>
               </div>
 
-              <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                <span class="inline-flex items-center bg-primary-50 dark:bg-primary-900 px-3 py-1 rounded-full transition-transform hover:scale-105 duration-300">
+              <div
+                class="
+                  flex flex-wrap items-center gap-4 text-sm text-gray-600
+                  dark:text-gray-300
+                "
+              >
+                <span
+                  class="
+                    inline-flex items-center rounded-full bg-primary-50 px-3
+                    py-1 transition-transform duration-300
+                    hover:scale-105
+                    dark:bg-primary-900
+                  "
+                >
                   <UIcon
                     name="i-heroicons-truck"
                     class="mr-1"
                   />
-                  {{ useI18n().t('free_shipping') || 'Δωρεάν Αποστολή' }}
+                  {{ t('free_shipping') || 'Δωρεάν Αποστολή' }}
                 </span>
-                <span class="inline-flex items-center bg-primary-50 dark:bg-primary-900 px-3 py-1 rounded-full transition-transform hover:scale-105 duration-300">
+                <span
+                  class="
+                    inline-flex items-center rounded-full bg-primary-50 px-3
+                    py-1 transition-transform duration-300
+                    hover:scale-105
+                    dark:bg-primary-900
+                  "
+                >
                   <UIcon
                     name="i-heroicons-shield-check"
                     class="mr-1"
                   />
-                  {{ useI18n().t('inclusive_of_taxes') || 'Περιλαμβάνονται όλοι οι φόροι.' }}
+                  {{ t('inclusive_of_taxes') || 'Περιλαμβάνονται όλοι οι φόροι.' }}
                 </span>
               </div>
             </div>
             <div
               class="
-                  flex flex-col gap-4
-
-                  md:flex-row
-                "
+                flex flex-col gap-4
+                md:flex-row
+              "
             >
               <div class="grid">
                 <label
@@ -437,21 +490,26 @@ definePageMeta({
             </div>
 
             <UCard
-              class="border border-gray-200 dark:border-gray-700 p-4"
+              class="
+                border border-gray-200 p-4
+                dark:border-gray-700
+              "
               :ui="{
                 root: 'overflow-hidden',
                 body: 'grow p-0',
               }"
             >
               <template #header>
-                <div class="flex justify-between items-center">
+                <div class="flex items-center justify-between">
                   <h3 class="text-lg font-semibold">
                     {{ t('product_details') }}
                   </h3>
                 </div>
               </template>
 
-              <div class="prose dark:prose-invert max-w-none pt-4">
+              <div
+                class="prose max-w-none pt-4"
+              >
                 <div
                   v-if="extractTranslated(product, 'description', locale)"
                   class="product-description"
@@ -460,7 +518,10 @@ definePageMeta({
                 </div>
                 <p
                   v-else
-                  class="text-gray-500 dark:text-gray-400"
+                  class="
+                    text-gray-500
+                    dark:text-gray-400
+                  "
                 >
                   {{ t('no_description_available') }}
                 </p>
@@ -474,7 +535,9 @@ definePageMeta({
             >
               <template #default="{ item }">
                 <div class="py-4">
-                  <div class="prose dark:prose-invert max-w-none">
+                  <div
+                    class="prose max-w-none"
+                  >
                     {{ item.content }}
                   </div>
                 </div>
@@ -485,29 +548,48 @@ definePageMeta({
       </div>
       <div
         v-if="showStickyAddToCart"
-        class="fixed bottom-0 left-0 right-0 z-40 bg-primary-50 dark:bg-primary-800 shadow-md border-t border-gray-200 dark:border-gray-700 py-3 px-4"
+        class="
+          fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200
+          bg-primary-50 px-4 py-3 shadow-md
+          dark:border-gray-700 dark:bg-primary-800
+        "
       >
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="mx-auto flex max-w-7xl items-center justify-between">
           <div class="flex items-center space-x-4">
             <ProductImage
               v-if="productImages"
               :key="product?.id"
               :image="productImages[0]"
-              class="h-12 w-12 object-contain rounded-md"
+              class="h-12 w-12 rounded-md object-contain"
             />
             <div>
-              <h3 class="text-sm font-medium truncate max-w-[200px] md:max-w-md">
+              <h3
+                class="
+                  max-w-[200px] truncate text-sm font-medium
+                  md:max-w-md
+                "
+              >
                 {{ productTitle }}
               </h3>
               <div class="flex items-center space-x-2">
-                <span class="text-lg font-bold text-secondary-600 dark:text-secondary-400">
+                <span
+                  class="
+                    text-lg font-bold text-secondary-600
+                    dark:text-secondary-400
+                  "
+                >
                   {{ new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(product?.finalPrice || 0) }}
                 </span>
               </div>
             </div>
           </div>
           <div class="flex items-center space-x-3">
-            <div class="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg">
+            <div
+              class="
+                flex items-center rounded-lg border border-gray-300
+                dark:border-gray-600
+              "
+            >
               <UButton
                 icon="i-heroicons-minus"
                 color="primary"

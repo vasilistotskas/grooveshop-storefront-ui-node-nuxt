@@ -10,7 +10,7 @@ const loading = ref(false)
 async function onSubmit(values: ContactWriteRequest) {
   loading.value = true
   try {
-    await $fetch<ContactWrite>(
+    await $fetch(
       'api/contact',
       {
         method: 'POST',

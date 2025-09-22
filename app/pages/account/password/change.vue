@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const authStore = useAuthStore()
 const { hasCurrentPassword } = storeToRefs(authStore)
 
@@ -12,7 +12,6 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8 md:!p-0
     "
   >

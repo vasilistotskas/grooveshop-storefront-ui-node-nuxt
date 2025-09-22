@@ -2,7 +2,7 @@
 const cartStore = useCartStore()
 const localePath = useLocalePath()
 const { cart, pending } = storeToRefs(cartStore)
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 
 definePageMeta({
@@ -48,9 +48,19 @@ const emptyCardUI = {
       class="mb-8"
     />
 
-    <div class="w-full relative flex flex-col lg:flex-row gap-4 lg:gap-8">
-      <div class="w-full grid content-start gap-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div
+      class="
+        relative flex w-full flex-col gap-4
+        lg:flex-row lg:gap-8
+      "
+    >
+      <div class="grid w-full content-start gap-6">
+        <div
+          class="
+            flex flex-col gap-2
+            sm:flex-row sm:items-center sm:justify-between
+          "
+        >
           <h1 class="text-2xl font-bold">
             {{ t('shopping_cart') }}
           </h1>
@@ -68,7 +78,7 @@ const emptyCardUI = {
 
         <div
           v-if="!pending && cart?.items?.length"
-          class="flex flex-col w-full gap-4"
+          class="flex w-full flex-col gap-4"
         >
           <UCard
             v-for="(cartItem, index) in cart.items"
@@ -87,7 +97,7 @@ const emptyCardUI = {
         >
           <UIcon
             name="i-heroicons-shopping-cart"
-            class="h-16 w-16 text-gray-400 mx-auto"
+            class="mx-auto h-16 w-16 text-gray-400"
           />
           <div class="mt-4">
             <h3 class="text-lg font-semibold">
@@ -109,7 +119,7 @@ const emptyCardUI = {
         </UCard>
         <div
           v-else
-          class="flex flex-col w-full gap-4"
+          class="flex w-full flex-col gap-4"
         >
           <UCard
             v-for="index in (cart?.items?.length || 2)"
@@ -117,18 +127,38 @@ const emptyCardUI = {
             v-bind="cardConfig"
             :ui="mainCardUI"
           >
-            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-              <USkeleton class="h-24 w-full sm:w-24 rounded-lg flex-shrink-0" />
+            <div
+              class="
+                flex flex-col gap-4
+                sm:flex-row sm:gap-6
+              "
+            >
+              <USkeleton
+                class="
+                  h-24 w-full flex-shrink-0 rounded-lg
+                  sm:w-24
+                "
+              />
 
               <div class="flex-1">
-                <div class="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-0">
+                <div
+                  class="
+                    flex flex-col gap-4
+                    sm:flex-row sm:justify-between sm:gap-0
+                  "
+                >
                   <div class="space-y-2">
                     <USkeleton class="h-5 w-48" />
                     <USkeleton class="h-4 w-32" />
                   </div>
                   <USkeleton class="h-8 w-8" />
                 </div>
-                <div class="flex flex-col sm:flex-row sm:justify-between mt-4 gap-4 sm:gap-0">
+                <div
+                  class="
+                    mt-4 flex flex-col gap-4
+                    sm:flex-row sm:justify-between sm:gap-0
+                  "
+                >
                   <USkeleton class="h-8 w-32" />
                   <USkeleton class="h-5 w-24" />
                 </div>
@@ -140,7 +170,10 @@ const emptyCardUI = {
 
       <div
         v-if="!pending && cart?.items?.length"
-        class="w-full lg:max-w-md"
+        class="
+          w-full
+          lg:max-w-md
+        "
       >
         <UCard
           v-bind="cardConfig"
@@ -190,7 +223,10 @@ const emptyCardUI = {
       </div>
       <div
         v-else
-        class="w-full lg:max-w-md"
+        class="
+          w-full
+          lg:max-w-md
+        "
       >
         <UCard
           v-bind="cardConfig"

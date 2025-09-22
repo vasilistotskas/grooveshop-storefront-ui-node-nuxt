@@ -3,7 +3,7 @@ const { locale } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
 
-const { data: categories, status } = await useLazyFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
+const { data: categories, status } = await useLazyFetch(`/api/blog/categories`, {
   key: `blogCategories`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -53,21 +53,18 @@ onMounted(() => {
     class="
       sidebar relative hidden h-fit w-60 pl-2 transition-all duration-300
       ease-in-out
-
       lg:flex
     "
   >
     <div
       class="
         grid w-full flex-1 gap-2 overflow-y-auto px-4
-
         lg:pl-0
       "
     >
       <div
         class="
-          sidebar-header-sticky bg-primary-100 grid
-
+          sidebar-header-sticky grid bg-primary-100
           dark:bg-primary-950
         "
       >
@@ -75,8 +72,7 @@ onMounted(() => {
           {{ $i18n.t('categories') }}
           <span
             class="
-              text-primary-950 text-sm font-normal
-
+              text-sm font-normal text-primary-950
               dark:text-primary-50
             "
           >
@@ -87,7 +83,6 @@ onMounted(() => {
       <ul
         class="
           grid max-h-96 gap-2
-
           md:gap-4
         "
       >
@@ -119,8 +114,7 @@ onMounted(() => {
       >
         <p
           class="
-            text-primary-950 p-2 text-center
-
+            p-2 text-center text-primary-950
             dark:text-primary-50
           "
         >

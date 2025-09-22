@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -36,16 +36,15 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      max-w-(--container-2xl) mx-auto flex flex-col gap-4 md:!p-0
-
-      md:gap-8
+      mx-auto flex max-w-(--container-2xl) flex-col gap-4
+      md:gap-8 md:!p-0
     "
   >
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />

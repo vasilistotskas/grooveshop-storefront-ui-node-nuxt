@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const { $i18n } = useNuxtApp()
@@ -35,7 +35,6 @@ definePageMeta({
   <PageWrapper
     class="
       !mt-0 flex flex-col gap-0 p-0
-
       md:!mt-4
     "
   >
@@ -48,18 +47,17 @@ definePageMeta({
       :items="items"
       :ui="{
         item: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="
-          absolute z-10 max-w-(--container-xl) w-auto mx-auto bg-transparent !pt-2 !px-4
-
-          dark:bg-transparent
-
-          md:relative md:mb-5 md:!pt-0 md:w-full
-        "
+        absolute z-10 mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
+        !pt-2
+        md:relative md:mb-5 md:w-full md:!pt-0
+        dark:bg-transparent
+      "
     />
     <UCard
-      class="max-w-(--container-xl) w-full mx-auto !p-0"
+      class="mx-auto w-full max-w-(--container-xl) !p-0"
       :ui="{
         root: isMobileOrTablet? 'rounded-none ring-0' : '',
         body: isMobileOrTablet? 'p-0' : 'px-4 py-5 sm:p-6',

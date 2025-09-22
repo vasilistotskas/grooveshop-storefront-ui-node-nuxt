@@ -2,7 +2,7 @@
 import type { ButtonProps } from '@nuxt/ui'
 
 const pwa = usePWA()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 
 const installActions = computed<ButtonProps[]>(() => {

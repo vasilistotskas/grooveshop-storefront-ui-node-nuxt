@@ -22,18 +22,10 @@ onClickOutside(el, () => {
 <template>
   <div
     v-if="src"
-    class="
-      fixed inset-0 z-10 flex
-
-      bg-black:90
-    "
+    class="fixed inset-0 z-10 flex"
   >
     <button
-      class="
-        z-100 p3 n-link absolute right-1 top-1 rounded-full text-3xl
-
-        bg-black:60
-      "
+      class="absolute top-1 right-1 z-100 rounded-full text-3xl"
       title="Close"
       @click="src = null"
     >
@@ -44,11 +36,7 @@ onClickOutside(el, () => {
       allow="autoplay; encrypted-media"
       allowfullscreen
       :src="src"
-      class="
-        m5 w-full border-none
-
-        lg:m20
-      "
+      class="w-full border-none"
     />
   </div>
 </template>

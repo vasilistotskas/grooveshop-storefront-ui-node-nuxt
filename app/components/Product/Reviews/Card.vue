@@ -20,6 +20,7 @@ const userAccount = computed(() => review?.value?.user)
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
+const { productUrl } = useUrls()
 
 const src = computed(() => {
   return displayImageOf.value === 'user'
@@ -50,14 +51,12 @@ const reviewComment = computed(() => {
   <div
     class="
       flex flex-col gap-2
-
       md:items-center
     "
   >
     <div
       class="
         flex items-center gap-2
-
         md:w-full md:gap-6
       "
     >
@@ -71,12 +70,12 @@ const reviewComment = computed(() => {
           class="grid gap-2"
         >
           <Anchor
-            :to="{ path: `/products/${product}` }"
+            :to="{ path: productUrl(product.id, product.slug) }"
             :text="productName"
           >
             <ImgWithFallback
               loading="lazy"
-              class="product-img w-30 bg-primary-100 h-20 object-cover"
+              class="product-img h-20 w-30 bg-primary-100 object-cover"
               :src="src"
               :alt="alt"
               densities="x1"
@@ -87,7 +86,6 @@ const reviewComment = computed(() => {
       <div
         class="
           grid gap-2 text-2xl
-
           md:gap-4
         "
       >
@@ -104,14 +102,12 @@ const reviewComment = computed(() => {
     <div
       class="
         grid gap-2
-
         md:flex md:w-full md:justify-between
       "
     >
       <span
         class="
-          text-ellipsis break-all
-
+          break-all text-ellipsis
           md:w-full
         "
       >
@@ -120,7 +116,6 @@ const reviewComment = computed(() => {
       <div
         class="
           flex items-center
-
           md:justify-end
         "
       >

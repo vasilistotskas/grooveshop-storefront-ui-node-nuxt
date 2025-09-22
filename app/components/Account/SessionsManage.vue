@@ -43,15 +43,15 @@ const logout = async (fromSessions: Session[]) => {
 const columns: TableColumn<Session>[] = [
   {
     accessorKey: 'is_current',
-    header: t('is_current'),
+    header: $i18n.t('is_current'),
   },
   {
     accessorKey: 'ip',
-    header: t('ip_address'),
+    header: $i18n.t('ip_address'),
   },
   {
     accessorKey: 'user_agent',
-    header: t('user_agent'),
+    header: $i18n.t('user_agent'),
   },
   {
     accessorKey: 'created_at',
@@ -87,7 +87,12 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
     <div class="grid w-full gap-4">
       <UTable
@@ -111,12 +116,18 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           <UIcon
             v-if="row.original.is_current"
             name="i-heroicons-star-solid"
-            class="size-6 text-yellow-500 dark:text-yellow-400"
+            class="
+              size-6 text-yellow-500
+              dark:text-yellow-400
+            "
           />
           <UIcon
             v-else
             name="i-heroicons-star"
-            class="size-6 text-neutral-400 dark:text-neutral-500"
+            class="
+              size-6 text-neutral-400
+              dark:text-neutral-500
+            "
           />
         </template>
         <template #user_agent-cell="{ row }">

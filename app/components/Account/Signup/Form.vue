@@ -8,7 +8,7 @@ const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
 const { hasSocialaccountProviders, status } = storeToRefs(authStore)
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
@@ -105,8 +105,7 @@ const submitButtonDisabled = computed(() => {
     <form
       id="SignupForm"
       class="
-        z-10 !pt-12 container mx-auto px-4 !pb-6
-
+        z-10 container mx-auto px-4 !pt-12 !pb-6
         md:!p-0
       "
       name="SignupForm"
@@ -118,11 +117,9 @@ const submitButtonDisabled = computed(() => {
         <div class="relative grid w-full gap-4">
           <div
             class="
-              grid gap-6 py-8 px-4 shadow-lg bg-primary-100 rounded-lg
-
-              dark:bg-primary-900 dark:md:bg-transparent
-
+              grid gap-6 rounded-lg bg-primary-100 px-4 py-8 shadow-lg
               md:bg-transparent md:!p-0 md:shadow-none
+              dark:bg-primary-900 dark:md:bg-transparent
             "
           >
             <div class="grid content-evenly items-center justify-center gap-1">
@@ -138,10 +135,7 @@ const submitButtonDisabled = computed(() => {
             </div>
             <div class="grid content-evenly items-start gap-1">
               <label
-                class="
-                  text-xl font-bold
-
-                "
+                class="text-xl font-bold"
                 for="email"
               >{{
                 t('email.label')
@@ -163,10 +157,7 @@ const submitButtonDisabled = computed(() => {
             </div>
             <div class="grid content-evenly items-start gap-1">
               <label
-                class="
-                  text-xl font-bold
-
-                "
+                class="text-xl font-bold"
                 for="password"
               >{{ t('password1.label') }}</label>
               <div class="relative grid items-center gap-2">
@@ -201,10 +192,7 @@ const submitButtonDisabled = computed(() => {
             </div>
             <div class="grid content-evenly items-start gap-1">
               <label
-                class="
-                  text-xl font-bold
-
-                "
+                class="text-xl font-bold"
                 for="password2"
               >{{ t('password2.label') }}</label>
               <div class="relative grid items-center gap-2">
@@ -282,19 +270,14 @@ const submitButtonDisabled = computed(() => {
             <div
               class="
                 flex flex-col items-center gap-2
-
-                md:justify-between
-
                 sm:flex-row sm:items-center
+                md:justify-between
               "
             >
               <UButton
                 :label="t('passkey_login')"
                 :to="localePath('account-signup-passkey')"
-                class="
-                  p-0 font-semibold
-
-                "
+                class="p-0 font-semibold"
                 color="secondary"
                 size="md"
                 type="button"
@@ -302,18 +285,12 @@ const submitButtonDisabled = computed(() => {
               />
               <div class="flex items-center gap-2">
                 <span
-                  class="
-                    text-sm font-semibold
-
-                  "
+                  class="text-sm font-semibold"
                 >{{
                   t('already_have_account')
                 }}</span>
                 <UButton
-                  class="
-                    p-0 font-semibold underline
-
-                  "
+                  class="p-0 font-semibold underline"
                   :label="t('login')"
                   :to="localePath('account-login')"
                   size="lg"
@@ -327,19 +304,15 @@ const submitButtonDisabled = computed(() => {
           <div class="grid gap-4">
             <div
               v-if="hasSocialaccountProviders && status.config === 'success'"
-              class="
-                grid gap-4
-              "
+              class="grid gap-4"
             >
               <div
                 class="
                   my-2 flex items-center
-
-                  after:mt-0.5 after:flex-1 after:border-t
-                  after:border-neutral-300
-
                   before:mt-0.5 before:flex-1 before:border-t
                   before:border-neutral-300
+                  after:mt-0.5 after:flex-1 after:border-t
+                  after:border-neutral-300
                 "
               >
                 <p
@@ -353,8 +326,7 @@ const submitButtonDisabled = computed(() => {
               >
                 <p
                   class="
-                    text-primary-950 text-sm font-semibold
-
+                    text-sm font-semibold text-primary-950
                     dark:text-primary-50
                   "
                 >

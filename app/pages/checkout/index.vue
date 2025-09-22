@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 const { fetch } = useUserSession()
 
@@ -7,7 +8,7 @@ const cartStore = useCartStore()
 const { cleanCartState } = cartStore
 const { getCartItems } = storeToRefs(cartStore)
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
@@ -15,7 +16,7 @@ const { $i18n } = useNuxtApp()
 const shippingPrice = ref(3)
 const regions = ref<Pagination<Region> | null>(null)
 const formRef = useTemplateRef('formRef')
-const { data: countries } = await useFetch<Pagination<Country>>(
+const { data: countries } = await useFetch(
   '/api/countries',
   {
     key: 'countries',
@@ -26,7 +27,7 @@ const { data: countries } = await useFetch<Pagination<Country>>(
     },
   },
 )
-const { data: payWays } = await useFetch<Pagination<PayWay>>(
+const { data: payWays } = await useFetch(
   '/api/pay-way',
   {
     key: 'payWays',
@@ -40,7 +41,7 @@ const { data: payWays } = await useFetch<Pagination<PayWay>>(
 
 const fetchRegions = async () => {
   try {
-    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
+    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
         country: formRef.value?.fields.country ? formRef.value?.fields.country[0].value : undefined,
@@ -67,12 +68,20 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
   }
 }
 
-async function onSubmit(values: OrderWriteRequest) {
-  const updatedValues = processValues(values)
-  await $fetch<Order>('/api/orders', {
+async function onSubmit(values: any) {
+  // Handle enum fields that might have "choose" placeholder values
+  const submitValues: OrderWriteRequest = {
+    ...values,
+    floor: values.floor === defaultSelectOptionChoose ? undefined : values.floor,
+    locationType: values.locationType === defaultSelectOptionChoose ? undefined : values.locationType,
+    country: values.country === defaultSelectOptionChoose ? undefined : values.country,
+    region: values.region === defaultSelectOptionChoose ? undefined : values.region,
+  }
+
+  await $fetch('/api/orders', {
     method: 'POST',
     headers: useRequestHeaders(),
-    body: updatedValues,
+    body: submitValues,
     async onResponse({ response }) {
       if (!response.ok) {
         return
@@ -484,20 +493,34 @@ definePageMeta({
       class="mb-8"
     />
 
-    <div class="flex flex-col lg:flex-row gap-8">
+    <div
+      class="
+        flex flex-col gap-8
+        lg:flex-row
+      "
+    >
       <div class="flex-1">
         <DynamicForm
           ref="formRef"
           :button-label="$i18n.t('submit')"
           :schema="formSchema"
           :loading="false"
-          class="h-full rounded-[calc(var(--ui-radius)*2)] bg-(--ui-bg) ring ring-(--ui-border) divide-y divide-(--ui-border) w-full p-4"
+          class="
+            h-full w-full divide-y divide-(--ui-border)
+            rounded-[calc(var(--ui-radius)*2)] bg-(--ui-bg) p-4 ring
+            ring-(--ui-border)
+          "
           @submit="onSubmit"
           @select-menu-change="onSelectMenuChange"
         />
       </div>
 
-      <div class="w-full lg:w-[400px]">
+      <div
+        class="
+          w-full
+          lg:w-[400px]
+        "
+      >
         <CheckoutSidebar
           :shipping-price="shippingPrice"
         >

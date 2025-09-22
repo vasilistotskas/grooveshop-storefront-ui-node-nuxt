@@ -9,9 +9,17 @@
         "/api/v1/blog/author": {
             "get": {
                 "operationId": "listBlogAuthor",
-                "description": "Retrieve a list of Blog Authors with filtering and search capabilities.",
+                "description": "Retrieve a list of Blog Authors with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Blog Authors",
                 "parameters": [
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
+                    },
                     {
                         "in": "query",
                         "name": "language",
@@ -44,10 +52,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -58,7 +64,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -550,7 +584,7 @@
         "/api/v1/blog/category": {
             "get": {
                 "operationId": "listBlogCategory",
-                "description": "Retrieve a list of Blog Categories with filtering and search capabilities.",
+                "description": "Retrieve a list of Blog Categories with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Blog Categories",
                 "parameters": [
                     {
@@ -585,10 +619,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -599,7 +631,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -1777,7 +1837,7 @@
         "/api/v1/blog/comment": {
             "get": {
                 "operationId": "listBlogComment",
-                "description": "Retrieve a list of Blog Comments with filtering and search capabilities.",
+                "description": "Retrieve a list of Blog Comments with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Blog Comments",
                 "parameters": [
                     {
@@ -1882,6 +1942,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -2320,10 +2388,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -2334,7 +2400,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -5313,76 +5407,6 @@
                 }
             }
         },
-        "/api/v1/blog/comment/my_comment": {
-            "post": {
-                "operationId": "getMyBlogComment",
-                "description": "Get the comment made by the currently authenticated user for a specific post.",
-                "summary": "Get current user's comment",
-                "tags": [
-                    "Blog Comments"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogCommentMyCommentRequestRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogCommentMyCommentRequestRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogCommentMyCommentRequestRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "security": [
-                    {
-                        "knoxApiToken": []
-                    },
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BlogCommentDetail"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/api/v1/blog/comment/my_comments": {
             "get": {
                 "operationId": "listMyBlogComments",
@@ -6287,7 +6311,7 @@
         "/api/v1/blog/post": {
             "get": {
                 "operationId": "listBlogPost",
-                "description": "Retrieve a list of Blog Posts with filtering and search capabilities.",
+                "description": "Retrieve a list of Blog Posts with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Blog Posts",
                 "parameters": [
                     {
@@ -6408,6 +6432,14 @@
                             ]
                         },
                         "description": "Filter items that are currently published (published_at <= now and is_published=True)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -6583,10 +6615,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -6597,7 +6627,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -8062,26 +8120,6 @@
                 "tags": [
                     "Blog Posts"
                 ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogPostLikedPostsRequestRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogPostLikedPostsRequestRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogPostLikedPostsRequestRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
                 "security": [
                     {
                         "knoxApiToken": []
@@ -8096,7 +8134,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BlogPostLikedPostsResponse"
+                                    "$ref": "#/components/schemas/BlogPostDetail"
                                 }
                             }
                         },
@@ -9927,7 +9965,7 @@
         "/api/v1/blog/tag": {
             "get": {
                 "operationId": "listBlogTag",
-                "description": "Retrieve a list of Blog Tags with filtering and search capabilities.",
+                "description": "Retrieve a list of Blog Tags with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Blog Tags",
                 "parameters": [
                     {
@@ -9992,6 +10030,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -10238,10 +10284,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -10252,7 +10296,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -11583,6 +11655,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
+                    },
+                    {
+                        "in": "query",
                         "name": "id",
                         "schema": {
                             "oneOf": [
@@ -11658,6 +11738,20 @@
                             ]
                         },
                         "description": "Filter items in active carts (24hr)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "language",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
                     },
                     {
                         "in": "query",
@@ -11805,10 +11899,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -11819,7 +11911,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -12136,17 +12256,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItemWriteRequest"
+                                "$ref": "#/components/schemas/CartItemCreateRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItemWriteRequest"
+                                "$ref": "#/components/schemas/CartItemCreateRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItemWriteRequest"
+                                "$ref": "#/components/schemas/CartItemCreateRequest"
                             }
                         }
                     },
@@ -12250,6 +12370,20 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "language",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
                     }
                 ],
                 "tags": [
@@ -12360,21 +12494,20 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItemWriteRequest"
+                                "$ref": "#/components/schemas/CartItemUpdateRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItemWriteRequest"
+                                "$ref": "#/components/schemas/CartItemUpdateRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItemWriteRequest"
+                                "$ref": "#/components/schemas/CartItemUpdateRequest"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "security": [
                     {
@@ -12505,17 +12638,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedCartItemWriteRequest"
+                                "$ref": "#/components/schemas/PatchedCartItemUpdateRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedCartItemWriteRequest"
+                                "$ref": "#/components/schemas/PatchedCartItemUpdateRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedCartItemWriteRequest"
+                                "$ref": "#/components/schemas/PatchedCartItemUpdateRequest"
                             }
                         }
                     }
@@ -12764,6 +12897,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
+                    },
+                    {
+                        "in": "query",
                         "name": "daysInactive",
                         "schema": {
                             "oneOf": [
@@ -12942,6 +13083,20 @@
                     },
                     {
                         "in": "query",
+                        "name": "language",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    },
+                    {
+                        "in": "query",
                         "name": "lastActivity",
                         "schema": {
                             "type": "string",
@@ -13105,10 +13260,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -13119,7 +13272,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -13384,7 +13565,7 @@
         "/api/v1/country": {
             "get": {
                 "operationId": "listCountry",
-                "description": "Retrieve a list of Countries with filtering and search capabilities.",
+                "description": "Retrieve a list of Countries with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Countries",
                 "parameters": [
                     {
@@ -13533,6 +13714,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -13823,10 +14012,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -13837,7 +14024,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -14462,7 +14677,7 @@
         "/api/v1/notification/user/": {
             "get": {
                 "operationId": "listNotificationUser",
-                "description": "Retrieve a list of Notification Users with filtering and search capabilities.",
+                "description": "Retrieve a list of Notification Users with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Notification Users",
                 "parameters": [
                     {
@@ -14506,6 +14721,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -14744,10 +14967,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -14758,7 +14979,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -15675,7 +15924,7 @@
         "/api/v1/order": {
             "get": {
                 "operationId": "listOrder",
-                "description": "Retrieve a list of Orders with filtering and search capabilities.",
+                "description": "Retrieve a list of Orders with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Orders",
                 "parameters": [
                     {
@@ -15808,6 +16057,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -16206,10 +16463,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -16220,7 +16475,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -16904,7 +17187,7 @@
         "/api/v1/order-items": {
             "get": {
                 "operationId": "listOrderItem",
-                "description": "Retrieve a list of Order Items with filtering and search capabilities.",
+                "description": "Retrieve a list of Order Items with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Order Items",
                 "parameters": [
                     {
@@ -16969,6 +17252,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -17387,10 +17678,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -17401,7 +17690,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -20407,7 +20724,7 @@
         "/api/v1/pay_way": {
             "get": {
                 "operationId": "listPayWay",
-                "description": "Retrieve a list of Pay Ways with filtering and search capabilities.",
+                "description": "Retrieve a list of Pay Ways with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Pay Ways",
                 "parameters": [
                     {
@@ -20492,6 +20809,14 @@
                             ]
                         },
                         "description": "Filter by minimum cost"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -20682,10 +21007,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -20696,7 +21019,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -21393,7 +21744,7 @@
         "/api/v1/product": {
             "get": {
                 "operationId": "listProduct",
-                "description": "Retrieve a list of Products with filtering and search capabilities.",
+                "description": "Retrieve a list of Products with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Products",
                 "parameters": [
                     {
@@ -21481,6 +21832,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -21948,10 +22307,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -21962,7 +22319,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -22595,6 +22980,20 @@
                         },
                         "description": "Product ID",
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "language",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
                     }
                 ],
                 "tags": [
@@ -22639,7 +23038,7 @@
         "/api/v1/product/{id}/reviews": {
             "get": {
                 "operationId": "listProductReviews",
-                "description": "Get all reviews for a product.",
+                "description": "Get all reviews for a product with pagination support.",
                 "summary": "Get product reviews",
                 "parameters": [
                     {
@@ -22658,6 +23057,49 @@
                         },
                         "description": "Product ID",
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     }
                 ],
                 "tags": [
@@ -22677,9 +23119,39 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ProductReview"
+                                    "type": "object",
+                                    "properties": {
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "next": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "previous": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            }
+                                        },
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "total_pages": {
+                                            "type": "integer"
+                                        },
+                                        "page_size": {
+                                            "type": "integer"
+                                        },
+                                        "page_total_results": {
+                                            "type": "integer"
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProductReview"
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -22844,7 +23316,7 @@
         "/api/v1/product/category": {
             "get": {
                 "operationId": "listProductCategory",
-                "description": "Retrieve a list of Product Categories with filtering and search capabilities.",
+                "description": "Retrieve a list of Product Categories with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Product Categories",
                 "parameters": [
                     {
@@ -22924,6 +23396,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -23182,10 +23662,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -23196,7 +23674,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -23718,7 +24224,7 @@
         "/api/v1/product/category/image": {
             "get": {
                 "operationId": "listProductCategoryImage",
-                "description": "Retrieve a list of Product Category Images with filtering and search capabilities.",
+                "description": "Retrieve a list of Product Category Images with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Product Category Images",
                 "parameters": [
                     {
@@ -23755,6 +24261,14 @@
                                 }
                             ]
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -23823,10 +24337,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -23837,7 +24349,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -24355,7 +24895,7 @@
         "/api/v1/product/favourite": {
             "get": {
                 "operationId": "listProductFavourite",
-                "description": "Retrieve a list of Product Favourites with filtering and search capabilities.",
+                "description": "Retrieve a list of Product Favourites with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Product Favourites",
                 "parameters": [
                     {
@@ -24375,6 +24915,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -24423,10 +24971,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -24437,7 +24983,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -24617,7 +25191,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductFavouriteDetail"
+                                    "$ref": "#/components/schemas/ProductFavouriteWrite"
                                 }
                             }
                         },
@@ -24745,7 +25319,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductFavouriteDetail"
+                                    "$ref": "#/components/schemas/ProductFavouriteWrite"
                                 }
                             }
                         },
@@ -24817,7 +25391,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductFavouriteDetail"
+                                    "$ref": "#/components/schemas/ProductFavouriteWrite"
                                 }
                             }
                         },
@@ -24943,8 +25517,39 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/ProductFavourite"
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "userId": {
+                                                "type": "integer"
+                                            },
+                                            "productId": {
+                                                "type": "integer"
+                                            },
+                                            "createdAt": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "userId",
+                                            "productId",
+                                            "createdAt"
+                                        ]
                                     }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -24956,7 +25561,7 @@
         "/api/v1/product/image": {
             "get": {
                 "operationId": "listProductImage",
-                "description": "Retrieve a list of Product Images with filtering and search capabilities.",
+                "description": "Retrieve a list of Product Images with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Product Images",
                 "parameters": [
                     {
@@ -24966,6 +25571,14 @@
                             "type": "string",
                             "format": "date-time"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -25034,10 +25647,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -25048,7 +25659,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -25456,7 +26095,7 @@
         "/api/v1/product/review": {
             "get": {
                 "operationId": "listProductReview",
-                "description": "Retrieve a list of Product Reviews with filtering and search capabilities.",
+                "description": "Retrieve a list of Product Reviews with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Product Reviews",
                 "parameters": [
                     {
@@ -25529,6 +26168,14 @@
                             ]
                         },
                         "description": "Filter items that are currently published (published_at <= now and is_published=True)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -25668,10 +26315,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -25682,7 +26327,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -26856,7 +27529,7 @@
         "/api/v1/region": {
             "get": {
                 "operationId": "listRegion",
-                "description": "Retrieve a list of Regions with filtering and search capabilities.",
+                "description": "Retrieve a list of Regions with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Regions",
                 "parameters": [
                     {
@@ -26918,6 +27591,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
+                    },
+                    {
+                        "in": "query",
                         "name": "language",
                         "schema": {
                             "type": "string",
@@ -26956,10 +27637,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -26970,7 +27649,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -28057,7 +28764,7 @@
         "/api/v1/tag": {
             "get": {
                 "operationId": "listTag",
-                "description": "Retrieve a list of Tags with filtering and search capabilities.",
+                "description": "Retrieve a list of Tags with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Tags",
                 "parameters": [
                     {
@@ -28138,6 +28845,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -28342,10 +29057,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -28356,7 +29069,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -29133,7 +29874,7 @@
         "/api/v1/tagged-item": {
             "get": {
                 "operationId": "listTaggedItem",
-                "description": "Retrieve a list of Tagged Items with filtering and search capabilities.",
+                "description": "Retrieve a list of Tagged Items with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Tagged Items",
                 "parameters": [
                     {
@@ -29193,6 +29934,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -29301,10 +30050,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -29315,7 +30062,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -30050,9 +30825,17 @@
         "/api/v1/user/account": {
             "get": {
                 "operationId": "listUserAccount",
-                "description": "Retrieve a list of User Accounts with filtering and search capabilities.",
+                "description": "Retrieve a list of User Accounts with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List User Accounts",
                 "parameters": [
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
+                    },
                     {
                         "in": "query",
                         "name": "language",
@@ -30085,10 +30868,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -30099,7 +30880,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -31816,7 +32625,7 @@
         "/api/v1/user/address": {
             "get": {
                 "operationId": "listUserAddress",
-                "description": "Retrieve a list of User Addresses with filtering and search capabilities.",
+                "description": "Retrieve a list of User Addresses with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List User Addresses",
                 "parameters": [
                     {
@@ -31899,6 +32708,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -32105,10 +32922,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -32119,7 +32934,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -32977,7 +33820,7 @@
         "/api/v1/user/subscription": {
             "get": {
                 "operationId": "listUserSubscription",
-                "description": "Retrieve a list of User Subscriptions with filtering and search capabilities.",
+                "description": "Retrieve a list of User Subscriptions with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List User Subscriptions",
                 "parameters": [
                     {
@@ -33021,6 +33864,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -33132,10 +33983,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -33146,7 +33995,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "name": "search",
@@ -33894,7 +34771,7 @@
         "/api/v1/user/subscription/topic": {
             "get": {
                 "operationId": "listSubscriptionTopic",
-                "description": "Retrieve a list of Subscription Topics with filtering and search capabilities.",
+                "description": "Retrieve a list of Subscription Topics with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
                 "summary": "List Subscription Topics",
                 "parameters": [
                     {
@@ -33955,6 +34832,14 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
                     },
                     {
                         "in": "query",
@@ -34103,10 +34988,8 @@
                         }
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -34117,7 +35000,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
                     },
                     {
                         "in": "query",
@@ -34933,7 +35844,7 @@
                         "nullable": true,
                         "title": "Όνομα χρήστη",
                         "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+-]+$",
+                        "pattern": "^[\\w.@+#-]+$",
                         "maxLength": 30
                     },
                     "image": {
@@ -34943,7 +35854,8 @@
                         "title": "Εικόνα"
                     },
                     "phone": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "city": {
                         "type": "string",
@@ -35100,7 +36012,7 @@
                         "nullable": true,
                         "title": "Όνομα χρήστη",
                         "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+-]+$",
+                        "pattern": "^[\\w.@+#-]+$",
                         "maxLength": 30
                     },
                     "image": {
@@ -35111,7 +36023,7 @@
                     },
                     "phone": {
                         "type": "string",
-                        "minLength": 1
+                        "nullable": true
                     },
                     "city": {
                         "type": "string",
@@ -36219,18 +37131,6 @@
                 },
                 "required": [
                     "likedCommentIds"
-                ]
-            },
-            "BlogCommentMyCommentRequestRequest": {
-                "type": "object",
-                "properties": {
-                    "post": {
-                        "type": "integer",
-                        "description": "Blog post ID to find comment for"
-                    }
-                },
-                "required": [
-                    "post"
                 ]
             },
             "BlogCommentWriteRequest": {
@@ -37479,6 +38379,22 @@
                     "weightInfo"
                 ]
             },
+            "CartItemCreateRequest": {
+                "type": "object",
+                "properties": {
+                    "product": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0
+                    }
+                },
+                "required": [
+                    "product"
+                ]
+            },
             "CartItemDetail": {
                 "type": "object",
                 "properties": {
@@ -37637,25 +38553,15 @@
                     "weightInfo"
                 ]
             },
-            "CartItemWriteRequest": {
+            "CartItemUpdateRequest": {
                 "type": "object",
                 "properties": {
-                    "cart": {
-                        "type": "integer"
-                    },
-                    "product": {
-                        "type": "integer"
-                    },
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
                         "minimum": 0
                     }
-                },
-                "required": [
-                    "cart",
-                    "product"
-                ]
+                }
             },
             "CartWriteRequest": {
                 "type": "object",
@@ -40845,7 +41751,7 @@
                         "nullable": true,
                         "title": "Όνομα χρήστη",
                         "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+-]+$",
+                        "pattern": "^[\\w.@+#-]+$",
                         "maxLength": 30
                     },
                     "image": {
@@ -40856,7 +41762,7 @@
                     },
                     "phone": {
                         "type": "string",
-                        "minLength": 1
+                        "nullable": true
                     },
                     "city": {
                         "type": "string",
@@ -41220,15 +42126,9 @@
                     }
                 }
             },
-            "PatchedCartItemWriteRequest": {
+            "PatchedCartItemUpdateRequest": {
                 "type": "object",
                 "properties": {
-                    "cart": {
-                        "type": "integer"
-                    },
-                    "product": {
-                        "type": "integer"
-                    },
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
@@ -43997,21 +44897,11 @@
                         "readOnly": true
                     },
                     "product": {
-                        "type": "integer"
-                    },
-                    "productName": {
-                        "type": "string",
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "productPrice": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 100000000,
-                        "minimum": -100000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ProductDetail"
+                            }
+                        ],
                         "readOnly": true
                     },
                     "createdAt": {
@@ -44029,8 +44919,6 @@
                     "createdAt",
                     "id",
                     "product",
-                    "productName",
-                    "productPrice",
                     "userId",
                     "userUsername",
                     "uuid"
@@ -44074,21 +44962,6 @@
                         ],
                         "readOnly": true
                     },
-                    "productName": {
-                        "type": "string",
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "productPrice": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 100000000,
-                        "minimum": -100000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "nullable": true,
-                        "readOnly": true
-                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -44113,13 +44986,27 @@
                     "createdAt",
                     "id",
                     "product",
-                    "productName",
-                    "productPrice",
                     "updatedAt",
                     "user",
                     "userId",
                     "userUsername",
                     "uuid"
+                ]
+            },
+            "ProductFavouriteWrite": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "product": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "product"
                 ]
             },
             "ProductFavouriteWriteRequest": {
@@ -44160,7 +45047,8 @@
                         "readOnly": true
                     },
                     "imageSizeKb": {
-                        "type": "integer",
+                        "type": "number",
+                        "format": "double",
                         "readOnly": true
                     },
                     "altText": {
@@ -44259,7 +45147,8 @@
                         "readOnly": true
                     },
                     "imageSizeKb": {
-                        "type": "integer",
+                        "type": "number",
+                        "format": "double",
                         "readOnly": true
                     },
                     "altText": {
@@ -44468,6 +45357,9 @@
                     "master": {
                         "type": "integer"
                     },
+                    "slug": {
+                        "type": "string"
+                    },
                     "mainImagePath": {
                         "type": "string"
                     },
@@ -44488,7 +45380,8 @@
                     "master",
                     "matchesPosition",
                     "name",
-                    "rankingScore"
+                    "rankingScore",
+                    "slug"
                 ]
             },
             "ProductReview": {
@@ -44500,7 +45393,11 @@
                         "readOnly": true
                     },
                     "product": {
-                        "type": "integer",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        ],
                         "readOnly": true
                     },
                     "user": {
@@ -44598,7 +45495,11 @@
                         "readOnly": true
                     },
                     "product": {
-                        "type": "integer",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        ],
                         "readOnly": true
                     },
                     "user": {

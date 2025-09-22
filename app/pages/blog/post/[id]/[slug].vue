@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const route = useRoute()
 const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
@@ -15,7 +15,7 @@ const shouldFetchLikedPosts = computed(() => {
   return loggedIn.value
 })
 
-const { data: blogPost, refresh, error } = await useFetch<BlogPostDetail>(
+const { data: blogPost, refresh, error } = await useFetch(
   `/api/blog/posts/${blogPostId.value}`,
   {
     key: `blogPost${blogPostId.value}`,
@@ -36,7 +36,7 @@ if (error.value || !blogPost.value) {
 }
 
 const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsData }, { data: relatedPosts, status: relatedPostsStatus }] = await Promise.all([
-  useFetch<BlogCategory>(`/api/blog/categories/${blogPost.value?.category.id}`, {
+  useFetch(`/api/blog/categories/${blogPost.value?.category.id}`, {
     key: `blogCategory${blogPost.value?.category.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
@@ -48,7 +48,7 @@ const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsD
       'translations',
     ],
   }),
-  useFetch<BlogAuthorDetail>(`/api/blog/authors/${blogPost.value?.author.id}`, {
+  useFetch(`/api/blog/authors/${blogPost.value?.author.id}`, {
     key: `blogAuthor${blogPost.value?.author.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
@@ -56,7 +56,7 @@ const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsD
       language: locale,
     },
   }),
-  useFetch<number[]>('/api/blog/posts/liked-posts', {
+  useFetch('/api/blog/posts/liked-posts', {
     key: `likedPosts${blogPostId.value}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -65,7 +65,7 @@ const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsD
     },
     immediate: shouldFetchLikedPosts.value,
   }),
-  useFetch<BlogPost[]>(
+  useFetch(
     `/api/blog/posts/${blogPostId.value}/related-posts`, {
       key: `relatedPosts${blogPostId.value}`,
       method: 'GET',
@@ -74,7 +74,7 @@ const [{ data: blogPostCategory }, { data: blogPostAuthor }, { data: likedPostsD
 ])
 
 if (likedPostsData.value) {
-  updateLikedPosts(likedPostsData.value)
+  updateLikedPosts(likedPostsData.value?.postIds)
 }
 
 const blogPostBody = computed(() => extractTranslated(blogPost.value, 'body', locale.value) ?? '')
@@ -146,7 +146,7 @@ const scrollToComments = () => {
 }
 
 onMounted(() => {
-  $fetch<BlogPost>(`/api/blog/posts/${blogPostId.value}/update-view-count`, {
+  $fetch(`/api/blog/posts/${blogPostId.value}/update-view-count`, {
     method: 'POST',
   })
 })
@@ -205,14 +205,11 @@ definePageMeta({
     <div
       v-if="blogPost"
       class="
-          mx-auto max-w-7xl pb-6
-
-          lg:px-8
-
-          md:px-4
-
-          sm:px-6
-        "
+        mx-auto max-w-7xl pb-6
+        sm:px-6
+        md:px-4
+        lg:px-8
+      "
     >
       <UBreadcrumb
         :items="items"
@@ -220,30 +217,30 @@ definePageMeta({
       />
       <article
         class="
-            border-primary-500 mx-auto flex max-w-2xl flex-col items-start
-            justify-center pb-6
-
-            dark:border-primary-500
-          "
+          mx-auto flex max-w-2xl flex-col items-start justify-center
+          border-primary-500 pb-6
+          dark:border-primary-500
+        "
       >
         <div
           class="
-              mx-auto flex max-w-2xl flex-col items-start justify-center gap-4
-            "
+            mx-auto flex max-w-2xl flex-col items-start justify-center gap-4
+          "
         >
           <h1
             class="
-                text-primary-950 text-3xl font-bold tracking-tight
-
-                dark:text-primary-50
-
-                md:text-4xl
-              "
+              text-3xl font-bold tracking-tight text-primary-950
+              md:text-4xl
+              dark:text-primary-50
+            "
           >
             {{ blogPostTitle }}
           </h1>
           <div
-            class="flex gap-3 flex-row items-center flex-nowrap justify-start h-[3rem]"
+            class="
+              flex h-[3rem] flex-row flex-nowrap items-center justify-start
+              gap-3
+            "
           >
             <ButtonBlogPostLike
               :blog-post-id="blogPost.id"
@@ -289,10 +286,9 @@ definePageMeta({
           </div>
           <div
             class="
-                flex w-full flex-col gap-2
-
-                sm:mx-0
-              "
+              flex w-full flex-col gap-2
+              sm:mx-0
+            "
           >
             <div class="sm:mx-0">
               <ImgWithFallback
@@ -310,16 +306,14 @@ definePageMeta({
                   position: 'attention',
                   trimThreshold: 5,
                 }"
-                class="blog-post-image bg-primary-100 rounded-lg"
+                class="blog-post-image rounded-lg bg-primary-100"
                 densities="x1"
                 loading="eager"
               />
             </div>
             <div
               v-if="blogPost.isPublished && blogPost.publishedAt"
-              class="
-                  sr-only flex gap-2
-                "
+              class="sr-only flex gap-2"
             >
               <span class="text-sm font-semibold">{{ $i18n.t('published') }}: </span>
               <NuxtTime
@@ -333,10 +327,9 @@ definePageMeta({
           </div>
           <div
             class="
-                text-primary-950 mx-auto max-w-2xl
-
-                dark:text-primary-50
-              "
+              mx-auto max-w-2xl text-primary-950
+              dark:text-primary-50
+            "
           >
             <div
               class="article"
@@ -367,7 +360,12 @@ definePageMeta({
         <div
           v-for="index in 3"
           :key="index"
-          class="flex flex-none basis-full snap-center px-4 lg:basis-1/2 md:basis-1/2 xl:basis-1/3"
+          class="
+            flex flex-none basis-full snap-center px-4
+            md:basis-1/2
+            lg:basis-1/2
+            xl:basis-1/3
+          "
         >
           <USkeleton
             :class="isMobileOrTablet ? 'h-[670px] w-full' : 'h-[442px] w-full'"

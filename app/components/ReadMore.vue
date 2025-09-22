@@ -33,15 +33,13 @@ const trimmedText = computed(() => {
     <div
       v-if="!showFullText"
       class="
-        text-primary-950 overflow-hidden
-
+        overflow-hidden text-primary-950
         dark:text-primary-50
       "
     >
       <span
         class="
           block text-sm
-
           md:text-base
         "
         v-html="trimmedText"
@@ -50,21 +48,19 @@ const trimmedText = computed(() => {
     <div
       v-else
       class="
-        text-primary-950 overflow-hidden
-
+        overflow-hidden text-primary-950
         dark:text-primary-50
       "
     >
       <span
         class="
           block text-sm
-
           md:text-base
         "
         v-html="text"
       />
     </div>
-    <div class="bottom-0 right-0 grid justify-end">
+    <div class="right-0 bottom-0 grid justify-end">
       <UButton
         :label="showFullText ? $i18n.t('read_less') : $i18n.t('read_more')"
         size="xs"
@@ -76,11 +72,9 @@ const trimmedText = computed(() => {
   <span
     v-else
     class="
-      text-primary-950 block text-sm
-
-      dark:text-primary-50
-
+      block text-sm text-primary-950
       md:text-base
+      dark:text-primary-50
     "
   >
     {{ text }}

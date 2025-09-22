@@ -1,38 +1,32 @@
 export const useUserStore = defineStore('user', () => {
   const account = ref<Authentication | null>(null)
-  const favouriteProducts = ref<ProductFavourite[]>([])
+  const favouriteProductIds = ref<Map<number, number>>(new Map()) // productId -> favouriteId
   const blogLikedPosts = ref<number[]>([])
   const blogLikedComments = ref<number[]>([])
 
-  const getFavouriteByProductId = (productId: number) => {
-    return favouriteProducts.value.find(
-      favourite => favourite.product === productId,
-    )
+  const getFavouriteIdByProductId = (productId: number) => {
+    const favouriteId = favouriteProductIds.value.get(productId)
+    return favouriteId
   }
 
   const clearAccountState = () => {
-    favouriteProducts.value = []
+    favouriteProductIds.value.clear()
     blogLikedPosts.value = []
     blogLikedComments.value = []
   }
 
-  const addFavouriteProduct = (favourite: ProductFavourite) => {
-    favouriteProducts.value = [...favouriteProducts.value, favourite]
+  const addFavouriteProduct = (favourite: CreateProductFavouriteResponse) => {
+    favouriteProductIds.value.set(favourite.product, favourite.id)
   }
 
   const removeFavouriteProduct = (productId: number) => {
-    favouriteProducts.value = favouriteProducts.value.filter(
-      favourite => favourite.product !== productId,
-    )
+    favouriteProductIds.value.delete(productId)
   }
 
-  const updateFavouriteProducts = (favourites: ProductFavourite[]) => {
-    const updatedFavourites = favourites.filter((favourite) => {
-      return !favouriteProducts.value.some(
-        f => f.product === favourite.product,
-      )
+  const updateFavouriteProducts = (favourites: GetProductFavouritesByProductsResponse) => {
+    favourites.forEach((favourite) => {
+      favouriteProductIds.value.set(favourite.productId, favourite.id)
     })
-    favouriteProducts.value = [...favouriteProducts.value, ...updatedFavourites]
   }
 
   const blogPostLiked = (postId: number) => {
@@ -79,7 +73,7 @@ export const useUserStore = defineStore('user', () => {
       return
     }
     const { getUserAccount } = useAllAuthAccount()
-    const { data } = await useAsyncData<Authentication | null>(
+    const { data } = await useAsyncData(
       'userAccount',
       () => {
         if (!user.value || !user.value.id!) {
@@ -95,12 +89,12 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     account,
-    favouriteProducts,
+    favouriteProductIds,
     blogLikedPosts,
     blogLikedComments,
     setupAccount,
     clearAccountState,
-    getFavouriteByProductId,
+    getFavouriteIdByProductId,
     addFavouriteProduct,
     removeFavouriteProduct,
     updateFavouriteProducts,

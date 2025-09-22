@@ -2,14 +2,14 @@
 const emit = defineEmits(['deactivateTotp'])
 
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 const loading = ref(false)
 
-const { error, refresh } = await useAsyncData<TotpGetResponse | TotpGetResponseError>(
+const { error, refresh } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
 )
@@ -49,7 +49,6 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
@@ -59,8 +58,7 @@ definePageMeta({
     />
     <p
       class="
-        text-primary-950 text-center
-
+        text-center text-primary-950
         dark:text-primary-50
       "
     >

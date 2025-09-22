@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
@@ -28,7 +28,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: orders, status, error } = await useFetch<Pagination<Order>>(
+const { data: orders, status, error } = await useFetch(
   `/api/orders/my-orders`,
   {
     key: `userOrders${user.value?.id}`,
@@ -50,7 +50,7 @@ const { data: orders, status, error } = await useFetch<Pagination<Order>>(
 
 const refreshOrders = async () => {
   status.value = 'pending'
-  const orders = await $fetch<Pagination<Order>>(`/api/orders/my-orders`, {
+  const orders = await $fetch(`/api/orders/my-orders`, {
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -88,8 +88,7 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1
+      md:mt-1 md:gap-8 md:!p-0
     "
   >
     <PageTitle
@@ -116,7 +115,10 @@ definePageMeta({
     />
     <div
       v-else-if="status === 'pending'"
-      class="grid gap-2 md:gap-4"
+      class="
+        grid gap-2
+        md:gap-4
+      "
     >
       <USkeleton
         v-for="i in (orders?.count || 4)"

@@ -26,9 +26,8 @@ const props = defineProps({
 const { productId, reviewsAverage, reviewsCount, displayImageOf }
   = toRefs(props)
 
-const { t } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const route = useRoute()
-const { locale } = useI18n()
 const { $i18n } = useNuxtApp()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
@@ -37,7 +36,7 @@ const {
   data: productReviews,
   status,
   refresh,
-} = await useLazyFetch<ProductReview[]>(`/api/products/${productId.value}/reviews`, {
+} = await useLazyFetch(`/api/products/${productId.value}/reviews`, {
   key: `productReviews${productId.value}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -70,12 +69,10 @@ watch(
 <template>
   <div
     class="
-      container mx-auto text-primary-950 border-primary-500 grid gap-2 border-t !px-0
-      !py-6
-
-      dark:text-primary-50 dark:border-primary-500
-
+      container mx-auto grid gap-2 border-t border-primary-500 !px-0 !py-6
+      text-primary-950
       md:!p-6
+      dark:border-primary-500 dark:text-primary-50
     "
   >
     <div class="grid gap-4">
@@ -85,7 +82,6 @@ watch(
       <div
         class="
           grid justify-start gap-4
-
           md:flex md:items-center
         "
       >
@@ -99,10 +95,10 @@ watch(
     </div>
     <div class="grid">
       <LazyProductReviewsList
-        v-if="status !== 'pending' && productReviews?.length"
+        v-if="status !== 'pending' && productReviews?.results?.length"
         class="grid gap-4"
         :display-image-of="displayImageOf"
-        :reviews="productReviews"
+        :reviews="productReviews.results"
         :reviews-average="reviewsAverage"
         :reviews-count="reviewsCount"
       />
@@ -111,7 +107,7 @@ watch(
         class="grid gap-4"
       >
         <USkeleton
-          v-for="i in (productReviews?.length || 4)"
+          v-for="i in (productReviews?.results?.length || 4)"
           :key="i"
           class="h-[92px] w-full"
         />

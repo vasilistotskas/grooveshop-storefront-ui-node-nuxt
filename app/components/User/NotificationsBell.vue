@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { getUnseenCount, markAsSeen } = useUserNotification()
 const { getNotifications } = useNotification()
 const userNotificationStore = useUserNotificationStore()
@@ -24,7 +24,7 @@ const { data: unseen, execute: executeUnseenCount, status: unseenStatus } = awai
   },
 )
 
-const { data, execute, status: notificationsStatus } = await useLazyAsyncData<Notification[]>(
+const { data, execute, status: notificationsStatus } = await useLazyAsyncData(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
@@ -112,14 +112,11 @@ onClickOutside(dropdown, () => {
         v-if="isDropdownVisible"
         ref="dropdown"
         class="
-          bg-neutral-50 absolute right-0 top-12 w-80 rounded-lg border
-          border-gray-200 shadow-md
-
-          dark:bg-neutral-900 dark:border-gray-800
-
-          lg:-right-12
-
+          absolute top-12 right-0 w-80 rounded-lg border border-gray-200
+          bg-neutral-50 shadow-md
           md:top-14
+          lg:-right-12
+          dark:border-gray-800 dark:bg-neutral-900
         "
       >
         <div class="notifications-list relative grid gap-1 p-2">
@@ -152,11 +149,11 @@ onClickOutside(dropdown, () => {
                 >
                   <span
                     class="notification-title truncate text-sm"
-                    v-html="userNotification.notification?.title || 'Notification'"
+                    v-html="extractTranslated(userNotification.notification, 'title', locale)"
                   />
                   <span
                     class="notification-message text-xs"
-                    v-html="userNotification.notification?.body || ''"
+                    v-html="extractTranslated(userNotification.notification, 'message', locale)"
                   />
                 </UChip>
               </UCard>

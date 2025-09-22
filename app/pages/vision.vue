@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -30,12 +30,12 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
+  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />
@@ -60,10 +60,9 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Στο Webside, οραματιζόμαστε έναν κόσμο όπου όλοι θα αξιοποιούν τη δύναμη της τεχνολογίας με αυτοπεποίθηση και
         ασφάλεια. Αποστολή μας είναι να καλλιεργήσουμε μια κουλτούρα ψηφιακού αλφαβητισμού και διαδικτυακής ασφάλειας
@@ -71,10 +70,9 @@ definePageMeta({
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Πιστεύουμε ότι η εκπαίδευση είναι ο ακρογωνιαίος λίθος της ενδυνάμωσης. Μέσω της προσέγγισής μας αναλύουμε
         πολύπλοκες τεχνολογικές έννοιες σε εύπεπτες δόσεις περιεχομένου, διασφαλίζοντας ότι η μάθηση είναι προσβάσιμη
@@ -82,20 +80,18 @@ definePageMeta({
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Είτε είσαι αρχάριος που περιηγείται στο ψηφιακό τοπίο είτε έμπειρος λάτρης της τεχνολογίας, το Webside σου
         παρέχει τα εργαλεία και τις γνώσεις για να ευδοκιμήσετις στο διαρκώς εξελισσόμενο τεχνολογικό οικοσύστημα.
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Το όραμά μας εκτείνεται πέρα από την απλή εκπαίδευση. Προσπαθούμε να καλλιεργήσουμε μια κοινότητα όπου τα
         άτομα όχι μόνο κατανοούν τη σημασία της διαδικτυακής ασφάλειας, αλλά και συμβάλλουν ενεργά στη διαμόρφωση ενός
@@ -105,30 +101,27 @@ definePageMeta({
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Επιπλέον, το Webside δεν είναι απλώς μια πλατφόρμα εκμάθησης- είναι μια πύλη προς μια επιμελημένη επιλογή
         προϊόντων τεχνολογίας αιχμής.
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Το ηλεκτρονικό μας κατάστημα θα προσφέρει μια επιλεγμένη ποικιλία από gadgets και εργαλεία που έχουν
         σχεδιαστεί για να βελτιώνουν την ψηφιακή σας εμπειρία και να συμπληρώνουν το μαθησιακό σας ταξίδι.
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Ελάτε μαζί μας στην αποστολή μας να απομυθοποιήσουμε την τεχνολογία, να προωθήσουμε την ασφάλεια στο διαδίκτυο
         και να ανοίξουμε το δρόμο για ένα πιο έξυπνο, πιο συνδεδεμένο και ασφαλές μέλλον.

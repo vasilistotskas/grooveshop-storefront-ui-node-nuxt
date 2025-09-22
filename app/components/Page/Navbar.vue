@@ -62,7 +62,6 @@ const items = computed(() => [
   <BuilderNavbar
     class="
       bg-primary-100
-
       dark:bg-primary-900
     "
   >
@@ -74,15 +73,13 @@ const items = computed(() => [
       <div
         class="
           relative ml-auto hidden items-center
-
           lg:flex
         "
       >
         <nav
           aria-label="Main Navigation"
           class="
-            text-primary-950 flex items-center text-lg font-semibold leading-6
-
+            flex items-center text-lg leading-6 font-semibold text-primary-950
             dark:text-primary-50
           "
         >
@@ -96,7 +93,6 @@ const items = computed(() => [
                     :to="'products'"
                     class="
                       text-lg capitalize
-
                       hover:dark:text-primary-50
                     "
                   >
@@ -112,7 +108,6 @@ const items = computed(() => [
                     :to="'blog'"
                     class="
                       text-lg capitalize
-
                       hover:dark:text-primary-50
                     "
                   >
@@ -124,9 +119,8 @@ const items = computed(() => [
           </ul>
           <ul
             class="
-              text-primary-950 flex items-center gap-3 pl-6
-
-              dark:text-primary-50 dark:border-primary-500
+              flex items-center gap-3 pl-6 text-primary-950
+              dark:border-primary-500 dark:text-primary-50
             "
           >
             <li
@@ -202,8 +196,7 @@ const items = computed(() => [
                     <p>{{ $i18n.t('signed_in_as') }}</p>
                     <p
                       class="
-                        text-primary-900 truncate font-medium
-
+                        truncate font-medium text-primary-900
                         dark:text-primary-50
                       "
                     >
@@ -218,8 +211,7 @@ const items = computed(() => [
                     v-if="item.icon"
                     :name="item.icon"
                     class="
-                      text-primary-900 ms-auto size-4 shrink-0
-
+                      ms-auto size-4 shrink-0 text-primary-900
                       dark:text-primary-100
                     "
                   />
@@ -237,7 +229,6 @@ const items = computed(() => [
                 :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
                 class="
                   flex size-[30px] items-center self-center text-[1.5rem]
-
                   hover:dark:text-primary-50
                 "
               >

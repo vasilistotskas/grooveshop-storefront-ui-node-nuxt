@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { useUrls } from '~/composables/useUrls'
 
 const props = defineProps({
   item: {
-    type: Object as PropType<SearchProduct>,
+    type: Object as PropType<ProductMeiliSearchResult>,
     required: true,
   },
 })
@@ -17,27 +16,23 @@ const { productUrl } = useUrls()
   <UCard
     class="
       bg-primary-100
-
       dark:bg-primary-900
     "
   >
     <Anchor
-      :to="{ path: productUrl(item.id) }"
+      :to="{ path: productUrl(item.id, item.slug) }"
       class="pb-2"
       :text="item.name"
     >
       <div
         class="
-          duration-400 z-10 block p-1 transition
-
-          bg-zinc4:10
-
+          z-10 block p-1 transition duration-400
           hover:scale-105
         "
       >
         <ImgWithFallback
           loading="lazy"
-          class="bg-primary-100 aspect-square size-full object-cover"
+          class="aspect-square size-full bg-primary-100 object-cover"
           :style="{
             'view-transition-name': `item-${item.id}`,
             'aspectRatio': '1/1',

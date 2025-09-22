@@ -10,16 +10,14 @@ defineProps({
 <template>
   <div
     class="
-      border-primary-500 flex flex-col items-center justify-center rounded-lg
-      border p-16
-
+      flex flex-col items-center justify-center rounded-lg border
+      border-primary-500 p-16
       dark:border-primary-500
     "
   >
     <p
       class="
-        text-primary-950 text-center
-
+        text-center text-primary-950
         dark:text-primary-50
       "
     >

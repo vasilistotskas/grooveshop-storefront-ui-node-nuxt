@@ -96,21 +96,53 @@ const isUnSaved = computed(() => {
   <Transition name="fade">
     <div
       v-if="isModalActive"
-      class="fixed inset-0 z-[1000] flex items-center overflow-y-auto px-4 py-6 shadow-xl ring-1 drop-shadow-sm backdrop-blur-[0.125em] bg-black/25 pt-8 md:pt-0"
+      class="
+        fixed inset-0 z-[1000] flex items-center overflow-y-auto bg-black/25
+        px-4 py-6 pt-8 shadow-xl ring-1 drop-shadow-sm backdrop-blur-[0.125em]
+        md:pt-0
+      "
       @click.self="onModalClick"
     >
       <p
         v-if="isUnSaved"
-        class="fixed bottom-0 left-0 right-0 z-50 mx-auto mb-5 border p-3 text-center text-sm sm:bottom-6 sm:left-16 sm:right-16 sm:max-w-sm sm:rounded-md border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800"
+        class="
+          fixed right-0 bottom-0 left-0 z-50 mx-auto mb-5 border
+          border-primary-200 bg-primary-50 p-3 text-center text-sm
+          sm:right-16 sm:bottom-6 sm:left-16 sm:max-w-sm sm:rounded-md
+          dark:border-primary-700 dark:bg-primary-800
+        "
         v-text="t('settings.unsaved')"
       />
-      <div class="relative mb-6 transform rounded-lg border shadow-xl transition-all sm:mx-auto sm:w-full md:max-w-3xl border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800">
-        <div class="relative max-h-[90vh] md:max-h-[80vh] overflow-y-scroll px-4 py-2 md:px-7 md:py-3">
+      <div
+        class="
+          relative mb-6 transform rounded-lg border border-primary-200
+          bg-primary-50 shadow-xl transition-all
+          sm:mx-auto sm:w-full
+          md:max-w-3xl
+          dark:border-primary-700 dark:bg-primary-800
+        "
+      >
+        <div
+          class="
+            relative max-h-[90vh] overflow-y-scroll px-4 py-2
+            md:max-h-[80vh] md:px-7 md:py-3
+          "
+        >
           <slot name="modal">
-            <h2 class="text-primary-600 dark:text-primary-100 mt-3 text-2xl font-medium">
+            <h2
+              class="
+                mt-3 text-2xl font-medium text-primary-600
+                dark:text-primary-100
+              "
+            >
               {{ t('modal.title') }}
             </h2>
-            <p class="text-primary-600 dark:text-primary-100 mb-5 mt-6 border-b pb-5 text-sm">
+            <p
+              class="
+                mt-6 mb-5 border-b pb-5 text-sm text-primary-600
+                dark:text-primary-100
+              "
+            >
               {{ t('modal.description') }}
             </p>
           </slot>
@@ -120,7 +152,10 @@ const isUnSaved = computed(() => {
             :label="t('close')"
             color="error"
             variant="solid"
-            class="absolute right-6 top-2 md:top-6 z-10"
+            class="
+              absolute top-2 right-6 z-10
+              md:top-6
+            "
             @click="isModalActive = false"
           />
           <template
@@ -129,14 +164,22 @@ const isUnSaved = computed(() => {
           >
             <template v-if="moduleOptions.cookies[cookieType].length">
               <h2
-                class="text-primary-600 dark:text-primary-100 mt-3 text-lg font-semibold"
+                class="
+                  mt-3 text-lg font-semibold text-primary-600
+                  dark:text-primary-100
+                "
                 v-text="cookieType === ZodCookieTypeEnum.enum.necessary ? $i18n.t('cookies.necessary') : $i18n.t('cookies.optional')"
               />
               <ul>
                 <li
                   v-for="cookie in moduleOptions.cookies[cookieType]"
                   :key="cookie.id"
-                  class="relative my-3 rounded-md p-3 md:p-5 border border-primary-200 bg-primary-100 dark:border-primary-700 dark:bg-primary-700"
+                  class="
+                    relative my-3 rounded-md border border-primary-200
+                    bg-primary-100 p-3
+                    md:p-5
+                    dark:border-primary-700 dark:bg-primary-700
+                  "
                 >
                   <div class="flex flex-col">
                     <USwitch
@@ -153,7 +196,7 @@ const isUnSaved = computed(() => {
                         wrapper: 'w-full m-0',
                         label: 'cursor-pointer',
                       }"
-                      @update:model-value="(_) => toggleCookie(cookie, cookieType)"
+                      @update:model-value="(_: boolean) => toggleCookie(cookie, cookieType)"
                     />
                     <div>
                       <span
@@ -169,7 +212,10 @@ const isUnSaved = computed(() => {
                         >
                           <a
                             :href="entry[0]"
-                            class="underline text-blue-600 hover:text-blue-800"
+                            class="
+                              text-blue-600 underline
+                              hover:text-blue-800
+                            "
                           >
                             {{ resolveLinkEntryText(entry) }}
                           </a>
@@ -187,7 +233,12 @@ const isUnSaved = computed(() => {
               </ul>
             </template>
           </template>
-          <div class="mb-2 mt-5 grid gap-2 md:gap-0 md:flex md:justify-between">
+          <div
+            class="
+              mt-5 mb-2 grid gap-2
+              md:flex md:justify-between md:gap-0
+            "
+          >
             <UButton
               v-if="!moduleOptions.isModalForced"
               :label="t('decline_all')"
@@ -196,7 +247,12 @@ const isUnSaved = computed(() => {
               size="lg"
               @click="() => { declineAll(); isModalActive = false }"
             />
-            <div class="grid md:flex gap-2">
+            <div
+              class="
+                grid gap-2
+                md:flex
+              "
+            >
               <UButton
                 :label="t('accept_all')"
                 color="neutral"

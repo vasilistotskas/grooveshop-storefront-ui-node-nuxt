@@ -6,7 +6,7 @@ export default defineEventHandler(async () => {
       {
         method: 'GET',
       })
-    return await parseDataAs(response, zApiV1HealthRetrieveResponse)
+    return await parseDataAs(response, zHealthCheckResponse)
   }
   catch (error) {
     await handleError(error)

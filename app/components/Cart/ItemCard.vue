@@ -1,24 +1,23 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-const { productUrl } = useUrls()
-
 const props = defineProps({
   cartItem: { type: Object as PropType<CartItem>, required: true },
 })
 
+const { productUrl } = useUrls()
+const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 const cartStore = useCartStore()
 const { refreshCart, deleteCartItem } = cartStore
 
-const { t } = useI18n({ useScope: 'local' })
 const { contentShorten } = useText()
 
 const { cartItem } = toRefs(props)
 
 const alt = computed(() => {
-  return `Product ${cartItem?.value?.product}`
+  return extractTranslated(cartItem?.value?.product, 'name', locale.value)
 })
 
 const cartItemQuantity = useState<number>(
@@ -43,16 +42,27 @@ const formattedTotal = computed(() => {
 <template>
   <div
     v-if="cartItem"
-    class="flex flex-col sm:flex-row gap-4 sm:gap-6"
+    class="
+      flex flex-col gap-4
+      sm:flex-row sm:gap-6
+    "
   >
-    <div class="relative h-24 w-full sm:w-24 flex-shrink-0 overflow-hidden rounded-lg">
+    <div
+      class="
+        relative h-24 w-full flex-shrink-0 overflow-hidden rounded-lg
+        sm:w-24
+      "
+    >
       <Anchor
-        :to="{ path: productUrl(typeof cartItem.product === 'number' ? cartItem.product : cartItem.product.id) }"
+        :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
         :title="alt"
       >
         <ImgWithFallback
           loading="lazy"
-          class="h-full w-full object-contain bg-neutral-900 dark:bg-neutral-50"
+          class="
+            h-full w-full bg-neutral-900 object-contain
+            dark:bg-neutral-50
+          "
           :width="96"
           :height="96"
           fit="contain"
@@ -65,17 +75,24 @@ const formattedTotal = computed(() => {
     </div>
 
     <div class="flex flex-1 flex-col">
-      <div class="relative flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0">
+      <div
+        class="
+          relative flex flex-col gap-2
+          sm:flex-row sm:justify-between sm:gap-0
+        "
+      >
         <div>
           <h3 class="text-base font-medium">
             <Anchor
-              :to="{ path: productUrl(typeof cartItem.product === 'number' ? cartItem.product : cartItem.product.id) }"
+              :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
               :title="alt"
             >
               {{ contentShorten(alt, 50) }}
             </Anchor>
           </h3>
-          <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+          <div
+            class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500"
+          >
             <span>{{ t('price') }}: {{ formattedPrice }}</span>
             <span
               v-if="cartItem.discountValue"
@@ -87,7 +104,7 @@ const formattedTotal = computed(() => {
         </div>
 
         <UButton
-          :class="isMobileOrTablet ? 'absolute right-0 top-0' : ''"
+          :class="isMobileOrTablet ? 'absolute top-0 right-0' : ''"
           color="error"
           variant="link"
           icon="i-fa6-solid-trash"
@@ -97,8 +114,18 @@ const formattedTotal = computed(() => {
         />
       </div>
 
-      <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-        <div class="w-full sm:w-32">
+      <div
+        class="
+          mt-4 flex flex-col gap-4
+          sm:flex-row sm:items-center sm:justify-between sm:gap-0
+        "
+      >
+        <div
+          class="
+            w-full
+            sm:w-32
+          "
+        >
           <QuantitySelector
             :quantity="cartItemQuantity"
             :max="cartItem.product.stock"

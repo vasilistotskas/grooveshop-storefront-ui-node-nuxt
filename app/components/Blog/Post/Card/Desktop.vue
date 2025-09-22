@@ -8,8 +8,22 @@ const localLikesCount = ref(0)
 
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
-  imgWidth: { type: Number, required: false, default: 480 },
-  imgHeight: { type: Number, required: false, default: 315 },
+  imgWidth: {
+    type: Number,
+    required: false,
+    default() {
+      const { isMobileOrTablet } = useDevice()
+      return isMobileOrTablet ? 480 : 376
+    },
+  },
+  imgHeight: {
+    type: Number,
+    required: false,
+    default() {
+      const { isMobileOrTablet } = useDevice()
+      return isMobileOrTablet ? 315 : 247
+    },
+  },
   showShareButton: { type: Boolean, required: false, default: true },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -73,10 +87,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      bg-primary-100 text-primary-950 container grid w-full gap-6 rounded-lg
-      !p-0
-
-      dark:text-primary-50 dark:bg-primary-900
+      container grid w-full gap-6 rounded-lg bg-primary-100 !p-0
+      text-primary-950
+      dark:bg-primary-900 dark:text-primary-50
     "
   >
     <div class="grid">
@@ -87,7 +100,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       >
         <ImgWithFallback
           :loading="imgLoading"
-          class="bg-primary-100 rounded-t-lg"
+          class="rounded-t-lg bg-primary-100"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
           :height="imgHeight"
@@ -106,10 +119,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <div
         class="
           flex flex-col gap-4
-
-          lg:gap-x-6
-
           md:gap-x-12
+          lg:gap-x-6
         "
       >
         <h2 class="grid h-20">
@@ -117,11 +128,9 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             :to="{ path: blogPostUrl(post) }"
             :text="contentShorten(extractTranslated(post, 'title', locale), 0, 39)"
             class="
-              text-primary-950 text-2xl font-bold tracking-tight
-
-              dark:text-primary-50
-
+              text-2xl font-bold tracking-tight text-primary-950
               md:text-3xl
+              dark:text-primary-50
             "
           />
         </h2>

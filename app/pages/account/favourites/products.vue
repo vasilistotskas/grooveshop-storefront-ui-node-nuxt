@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { enabled } = useAuthPreviewMode()
 const route = useRoute()
 const { user } = useUserSession()
@@ -25,7 +25,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: favourites, refresh: refreshFavourites, status, error } = await useFetch<Pagination<ProductFavourite>>(
+const { data: favourites, refresh: refreshFavourites, status, error } = await useFetch(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
     key: `favouriteProducts${user.value?.id}`,
@@ -47,11 +47,11 @@ const { data: favourites, refresh: refreshFavourites, status, error } = await us
 const productIds = computed(() => {
   if (!favourites.value) return []
   return favourites.value.results?.map(favourite =>
-    favourite.product as number,
+    favourite.product.id,
   )
 })
 
-const { refresh: refreshFavouriteProducts } = await useFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+const { refresh: refreshFavouriteProducts } = await useFetch('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
   headers: useRequestHeaders(),
@@ -63,7 +63,9 @@ const { refresh: refreshFavouriteProducts } = await useFetch<ProductFavourite[]>
       return
     }
     const favourites = response._data
-    updateFavouriteProducts(favourites)
+    if (favourites) {
+      updateFavouriteProducts(favourites)
+    }
   },
 })
 
@@ -95,8 +97,7 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1
+      md:mt-1 md:gap-8 md:!p-0
     "
   >
     <PageTitle
@@ -130,7 +131,13 @@ definePageMeta({
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        class="
+          grid grid-cols-2 gap-4
+          lg:grid-cols-3
+          xl:grid-cols-4
+        "
+      >
         <USkeleton
           v-for="i in (favourites?.count || 4)"
           :key="i"

@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
@@ -12,7 +13,7 @@ const addressId = 'id' in route.params
   : undefined
 const regions = ref<Pagination<Region> | null>(null)
 
-const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
+const { data: address } = await useFetch(`/api/user/addresses/${addressId}`, {
   key: `address${addressId}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -21,7 +22,7 @@ const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${add
   },
 })
 
-const { data: countries } = await useFetch<Pagination<Country>>(
+const { data: countries } = await useFetch(
   '/api/countries',
   {
     key: 'countries',
@@ -49,7 +50,7 @@ const fetchRegions = async (countryCode: string) => {
   }
 
   try {
-    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
+    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
         country: countryCode,
@@ -83,28 +84,26 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
 }
 
 const onSubmit = async (values: any) => {
-  const updatedValues = processValues(values)
-
-  await $fetch<UserAddress>(`/api/user/addresses/${addressId}`, {
+  await $fetch(`/api/user/addresses/${addressId}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {
-      title: updatedValues.title,
-      firstName: updatedValues.firstName,
-      lastName: updatedValues.lastName,
-      street: updatedValues.street,
-      streetNumber: updatedValues.streetNumber,
-      city: updatedValues.city,
-      zipcode: updatedValues.zipcode,
-      floor: updatedValues.floor,
-      locationType: updatedValues.locationType,
-      phone: updatedValues.phone,
-      mobilePhone: updatedValues.mobilePhone,
-      notes: updatedValues.notes,
-      isMain: updatedValues.isMain,
-      user: updatedValues.user,
-      country: updatedValues.country,
-      region: updatedValues.region,
+      title: values.title,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      street: values.street,
+      streetNumber: values.streetNumber,
+      city: values.city,
+      zipcode: values.zipcode,
+      floor: values.floor === defaultSelectOptionChoose ? undefined : values.floor,
+      locationType: values.locationType === defaultSelectOptionChoose ? undefined : values.locationType,
+      phone: values.phone,
+      mobilePhone: values.mobilePhone,
+      notes: values.notes,
+      isMain: values.isMain,
+      user: values.user,
+      country: values.country === defaultSelectOptionChoose ? undefined : values.country,
+      region: values.region === defaultSelectOptionChoose ? undefined : values.region,
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -404,9 +403,10 @@ definePageMeta({
 
 <template>
   <PageWrapper
-    class="flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1"
+    class="
+      flex flex-col gap-4
+      md:mt-1 md:gap-8 md:!p-0
+    "
   >
     <div
       :class="[
@@ -439,7 +439,6 @@ definePageMeta({
         <span
           class="
             mr-2 text-green-500
-
             dark:text-green-400
           "
         >
@@ -468,7 +467,10 @@ definePageMeta({
 
     <div
       v-if="address"
-      class="bg-primary-100 rounded-lg p-4 dark:bg-primary-900"
+      class="
+        rounded-lg bg-primary-100 p-4
+        dark:bg-primary-900
+      "
     >
       <DynamicForm
         ref="formRef"

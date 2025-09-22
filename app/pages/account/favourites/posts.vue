@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
 const { enabled } = useAuthPreviewMode()
@@ -22,7 +22,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
+const { data: favourites, status } = useFetch(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
     key: `likedBlogPosts${user.value?.id}`,
@@ -38,7 +38,7 @@ const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
 
 const refreshFavourites = async () => {
   status.value = 'pending'
-  const favourites = await $fetch<Pagination<BlogPost>>(
+  const favourites = await $fetch(
     `/api/user/account/${user.value?.id}/liked-blog-posts`,
     {
       method: 'GET',
@@ -79,8 +79,7 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1
+      md:mt-1 md:gap-8 md:!p-0
     "
   >
     <PageTitle
@@ -113,7 +112,13 @@ definePageMeta({
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        class="
+          grid grid-cols-2 gap-4
+          lg:grid-cols-3
+          xl:grid-cols-4
+        "
+      >
         <USkeleton
           v-for="i in (favourites?.count || 4)"
           :key="i"

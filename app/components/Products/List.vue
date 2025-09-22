@@ -20,7 +20,7 @@ const { updateFavouriteProducts } = userStore
 
 const pageSize = ref(8)
 const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-createdAt')
+const ordering = computed(() => route.query.ordering || '-availability_priority,id')
 const category = computed(() => route.query.category)
 
 const entityOrdering = ref<EntityOrdering<any>>([
@@ -40,10 +40,10 @@ const {
   data: products,
   status,
   refresh,
-} = await useFetch<Pagination<Product>>(
+} = await useFetch(
   '/api/products',
   {
-    key: 'products',
+    key: `products-${ordering.value}-${page.value}-${category.value}-${pageSize.value}-${paginationType.value}-${locale.value}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -67,7 +67,7 @@ const shouldFetchFavouriteProducts = computed(() => {
 })
 
 if (shouldFetchFavouriteProducts.value) {
-  await useLazyFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+  await useLazyFetch('/api/products/favourites/favourites-by-products', {
     key: `favouritesByProducts${user.value?.id}`,
     method: 'POST',
     headers: useRequestHeaders(),
@@ -79,14 +79,16 @@ if (shouldFetchFavouriteProducts.value) {
         return
       }
       const favourites = response._data
-      updateFavouriteProducts(favourites)
+      if (favourites) {
+        updateFavouriteProducts(favourites)
+      }
     },
   })
 }
 
 const refreshFavouriteProducts = async (ids: number[]) => {
   if (!shouldFetchFavouriteProducts.value) return
-  return await $fetch<Pagination<ProductFavourite>>('/api/products/favourites/favourites-by-products', {
+  return await $fetch('/api/products/favourites/favourites-by-products', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
@@ -97,7 +99,9 @@ const refreshFavouriteProducts = async (ids: number[]) => {
         return
       }
       const favourites = response._data
-      updateFavouriteProducts(favourites)
+      if (favourites) {
+        updateFavouriteProducts(favourites)
+      }
     },
   })
 }
@@ -145,13 +149,9 @@ watch(
       v-if="!(status === 'pending') && products?.count"
       class="
         grid grid-cols-1 items-center justify-center gap-4
-
-        lg:grid-cols-3
-
-        md:grid-cols-3
-
         sm:grid-cols-2
-
+        md:grid-cols-3
+        lg:grid-cols-3
         xl:grid-cols-4
       "
     >
@@ -164,7 +164,11 @@ watch(
     </ol>
     <div
       v-if="status === 'pending'"
-      class="grid grid-cols-1 items-center justify-center gap-4 lg:grid-cols-3 md:grid-cols-3"
+      class="
+        grid grid-cols-1 items-center justify-center gap-4
+        md:grid-cols-3
+        lg:grid-cols-3
+      "
     >
       <USkeleton
         v-for="i in 6"

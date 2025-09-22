@@ -8,7 +8,7 @@ const { reset, addToSearchHistory } = searchStore
 const route = useRoute()
 const router = useRouter()
 const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
@@ -43,7 +43,7 @@ const offset = computed({
   },
 })
 
-const { data, status, refresh } = await useFetch<SearchResponse>(
+const { data, status, refresh } = await useFetch(
   '/api/search',
   {
     key: `search${query.value}`,
@@ -196,34 +196,28 @@ definePageMeta({
       <div
         v-focus
         class="
-            search-bar bg-primary-50 fixed left-0 top-[48px] z-20 grid w-full
-            items-center gap-4 p-[8px]
-
-            dark:bg-primary-900
-
-            lg:top-[63px]
-
-            md:top-[58px] md:p-[14px]
-          "
+          search-bar fixed top-[48px] left-0 z-20 grid w-full items-center gap-4
+          bg-primary-50 p-[8px]
+          md:top-[58px] md:p-[14px]
+          lg:top-[63px]
+          dark:bg-primary-900
+        "
       >
         <div
           class="
-              flex w-full items-center gap-2
-
-              md:gap-4
-            "
+            flex w-full items-center gap-2
+            md:gap-4
+          "
         >
           <Anchor
             :to="'index'"
             aria-label="index"
             class="
-                back-to-home text-md text-primary-950 border-primary-500 flex
-                items-center gap-3 overflow-hidden border-r-2 pr-2 font-bold
-
-                dark:text-primary-50 dark:border-primary-500
-
-                md:w-auto md:pr-8
-              "
+              back-to-home flex items-center gap-3 overflow-hidden border-r-2
+              border-primary-500 pr-2 text-base font-bold text-primary-950
+              md:w-auto md:pr-8
+              dark:border-primary-500 dark:text-primary-50
+            "
           >
             <span class="sr-only">{{ t('back_to_home') }}</span>
             <UIcon name="i-heroicons-arrow-left" />
@@ -231,10 +225,9 @@ definePageMeta({
           <UIcon
             name="i-heroicons-magnifying-glass"
             class="
-                text-lg
-
-                md:text-base
-              "
+              text-lg
+              md:text-base
+            "
           />
           <label
             class="sr-only"
@@ -258,13 +251,12 @@ definePageMeta({
           :items="items"
           :ui="{
             item: 'text-primary-950 dark:text-primary-50',
-            root: 'text-xs md:text-md',
+            root: 'text-xs md:text-base',
           }"
           class="
-              !p-0 container mx-auto relative mt-5 min-w-0
-
-              md:mb-5
-            "
+            relative container mx-auto mt-5 min-w-0 !p-0
+            md:mb-5
+          "
         />
         <PageTitle class="text-lg">
           <span :class="{ 'opacity-0': !query }">
