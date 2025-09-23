@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@headlessui/vue": "1.7.23",
-    "@hey-api/openapi-ts": "0.84.0",
+    "@hey-api/openapi-ts": "0.84.1",
     "@iconify-json/ant-design": "1.2.5",
     "@iconify-json/fa-solid": "1.2.2",
     "@iconify-json/fa6-solid": "1.2.4",
@@ -114,7 +114,7 @@
     "vite-plugin-eslint2": "5.0.4",
     "vitest": "3.2.4",
     "vitest-environment-nuxt": "1.0.1",
-    "vue-tsc": "3.0.7",
+    "vue-tsc": "3.0.8",
     "workbox-cacheable-response": "7.3.0",
     "workbox-core": "7.3.0",
     "workbox-expiration": "7.3.0",
@@ -123,7 +123,7 @@
     "workbox-strategies": "7.3.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.52.0"
+    "@rollup/rollup-linux-x64-gnu": "4.52.1"
   },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"
@@ -175,7 +175,7 @@
       ]
     ]
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.17.1",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@intlify/vue-i18n-bridge",

@@ -46,6 +46,7 @@ const { t } = useI18n()
 const toast = useToast()
 const { fetch } = useUserSession()
 const { $i18n } = useNuxtApp()
+const { enabled } = useAuthPreviewMode()
 
 const loading = ref(false)
 
@@ -117,9 +118,11 @@ const avatarContainerStyle = computed(() => {
 </script>
 
 <template>
-  <div
+  <UTooltip
+    :text="enabled ? t('preview_mode') : ''"
     :class="[showName ? 'gap-2' : 'gap-0']"
     class="flex flex-col items-center"
+    arrow
   >
     <div
       :class="{
@@ -135,7 +138,9 @@ const avatarContainerStyle = computed(() => {
       <ImgWithFallback
         :alt="alt"
         :background="'transparent'"
-        :class="{ 'blur-sm': loading }"
+        :class="`
+          ${enabled ? 'border-2 border-orange-500' : ''}
+        `"
         fit="cover"
         :height="imgHeight"
         :sizes="`sm:${imgWidth}px md:${imgWidth}px lg:${imgWidth}px xl:${imgWidth}px xxl:${imgWidth}px 2xl:${imgWidth}px`"
@@ -250,7 +255,7 @@ const avatarContainerStyle = computed(() => {
         {{ userAccount?.firstName }}
       </span>
     </div>
-  </div>
+  </UTooltip>
 </template>
 
 <i18n lang="yaml">
@@ -258,6 +263,7 @@ el:
   change: Αλλαγή
   no_file_selected: Κανένα επιλεγμένο αρχείο
   file_extension_not_allowed: Δεν επιτρέπεται η επέκταση αρχείου
+  preview_mode: Preview
   image:
     updated: Η εικόνα ενημερώθηκε
     upload:

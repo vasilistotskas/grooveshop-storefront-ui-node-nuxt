@@ -49,11 +49,10 @@ const allPosts = ref<BlogPost[]>([])
 const {
   data: posts,
   status,
-  execute,
 } = await useFetch(
   '/api/blog/posts',
   {
-    key: 'blogPosts',
+    key: `blogPosts${paginationType.value}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {

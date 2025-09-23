@@ -28,6 +28,7 @@ const userStore = useUserStore()
 const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
 
 const isReviewModalOpen = ref(false)
+const isLoginModalOpen = ref(false)
 const selectorQuantity = ref(1)
 const productAttributes = ref<ProductAttributes>({
   processor: 'Intel Core i7-12700H',
@@ -188,6 +189,7 @@ const openModal = () => {
     isReviewModalOpen.value = true
   }
   else {
+    isLoginModalOpen.value = true
     toast.add({
       title: t('must_be_logged_in'),
       color: 'error',
@@ -408,6 +410,12 @@ definePageMeta({
                 @update-existing-review="onUpdateExistingReview"
                 @delete-existing-review="onDeleteExistingReview"
               />
+              <template v-else>
+                <LazyAccountLoginFormModal
+                  v-if="isLoginModalOpen"
+                  v-model="isLoginModalOpen"
+                />
+              </template>
             </section>
             <div class="mt-3 mb-4 space-y-4">
               <div class="flex flex-wrap items-end gap-3">
