@@ -21,67 +21,69 @@
   --ui-secondary: #3364FF;
 }
 
-.article {
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold;
-  }
-
-  h1 {
-    @apply text-3xl;
-  }
-
-  h2 {
-    @apply text-2xl;
-  }
-
-  h3 {
-    @apply text-xl;
-  }
-
-  h4 {
-    @apply text-lg;
-  }
-
-  h5 {
-    @apply text-base;
-  }
-
-  h6 {
-    @apply text-sm;
-  }
-
-  p {
-    @apply mt-[1em] mb-[1em];
-
-    &:first-child {
-      @apply mt-0;
+@layer components {
+  .article {
+    h1, h2, h3, h4, h5, h6 {
+      @apply font-bold;
     }
 
-    &:last-child {
-      @apply mb-0;
+    h1 {
+      @apply text-3xl;
     }
-  }
 
-  ol, ul, menu {
-    display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0;
-    margin-inline-end: 0;
-    padding-inline-start: 40px;
-    unicode-bidi: isolate;
-  }
+    h2 {
+      @apply text-2xl;
+    }
 
-  ol {
-    @apply list-decimal;
-  }
+    h3 {
+      @apply text-xl;
+    }
 
-  ul {
-    @apply list-disc;
-  }
+    h4 {
+      @apply text-lg;
+    }
 
-  menu {
-    @apply list-disc;
+    h5 {
+      @apply text-base;
+    }
+
+    h6 {
+      @apply text-sm;
+    }
+
+    p {
+      @apply mt-[1em] mb-[1em];
+
+      &:first-child {
+        @apply mt-0;
+      }
+
+      &:last-child {
+        @apply mb-0;
+      }
+    }
+
+    ol, ul, menu {
+      display: block;
+      margin-block-start: 1em;
+      margin-block-end: 1em;
+      margin-inline-start: 0;
+      margin-inline-end: 0;
+      padding-inline-start: 40px;
+      unicode-bidi: isolate;
+    }
+
+    ol {
+      @apply list-decimal;
+    }
+
+    ul {
+      @apply list-disc;
+    }
+
+    menu {
+      @apply list-disc;
+    }
   }
 }
 

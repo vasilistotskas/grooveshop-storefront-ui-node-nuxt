@@ -329,7 +329,7 @@ watch(
         v-show="hasReplies"
         aria-hidden="true"
         class="
-          line absolute inset-y-0 left-0 z-10 mb-3 flex w-8 cursor-pointer
+          absolute inset-y-0 left-0 z-10 mb-3 flex w-8 cursor-pointer
           items-center justify-center
         "
         @click="onShowMoreRepliesButtonClick"
@@ -372,8 +372,8 @@ watch(
           <UButton
             v-if="hasReplies"
             class="
-              button inline-flex size-4 items-center justify-center
-              overflow-visible px-1.5
+              inline-flex size-4 items-center justify-center overflow-visible
+              px-1.5
             "
             size="sm"
             color="neutral"
@@ -404,32 +404,30 @@ watch(
           />
         </span>
         <span class="min-w-0">
-          <span class="flex flex-col">
-            <span class="max-h-2xl flex items-center">
-              <ButtonBlogCommentLike
-                :aria-label="$i18n.t('like')"
-                :blog-comment-id="comment.id"
-                :likes-count="likes"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                @update="likeClicked"
-              />
-              <UButton
-                v-if="maxDepth > depth"
-                :aria-label="$i18n.t('reply')"
-                :icon="'i-heroicons-chat-bubble-left-ellipsis'"
-                :label="$i18n.t('reply')"
-                :title="$i18n.t('reply')"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                :ui="{
-                  base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
-                }"
-                @click="onReplyButtonClick"
-              />
-            </span>
+          <span class="flex flex-col items-center">
+            <ButtonBlogCommentLike
+              :aria-label="$i18n.t('like')"
+              :blog-comment-id="comment.id"
+              :likes-count="likes"
+              color="neutral"
+              variant="ghost"
+              size="md"
+              @update="likeClicked"
+            />
+            <UButton
+              v-if="maxDepth > depth"
+              :aria-label="$i18n.t('reply')"
+              :icon="'i-heroicons-chat-bubble-left-ellipsis'"
+              :label="$i18n.t('reply')"
+              :title="$i18n.t('reply')"
+              color="neutral"
+              variant="ghost"
+              size="md"
+              :ui="{
+                base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
+              }"
+              @click="onReplyButtonClick"
+            />
           </span>
         </span>
       </span>
@@ -552,7 +550,7 @@ watch(
           rounded: 'rounded-full',
         },
       }"
-      class="reply-comment-form relative my-2"
+      class="relative my-2"
       @submit="onReplySubmit"
     />
     <Pagination

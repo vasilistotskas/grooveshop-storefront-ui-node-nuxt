@@ -17,17 +17,15 @@ const alt = computed(() => {
 </script>
 
 <template>
-  <div class="order-card-items-image">
-    <ImgWithFallback
-      loading="lazy"
-      class="product-img bg-primary-100"
-      :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-      :width="120"
-      :height="120"
-      fit="contain"
-      :background="'transparent'"
-      :src="''"
-      :alt="alt"
-    />
-  </div>
+  <ImgWithFallback
+    loading="lazy"
+    class="bg-primary-100"
+    :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+    :width="120"
+    :height="120"
+    fit="contain"
+    :background="'transparent'"
+    :src="''"
+    :alt="alt"
+  />
 </template>

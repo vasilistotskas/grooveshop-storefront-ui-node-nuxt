@@ -20,11 +20,12 @@ onMounted(() => {
 
 <template>
   <div
+    id="sidebar"
     ref="sidebar"
     :class="[
       {
         'transition-all duration-300 ease-in-out': true,
-        'sidebar md:hidden md:h-fit lg:flex lg:w-30 xl:w-60': mode === 'normal',
+        'md:hidden md:h-fit lg:flex lg:w-30 xl:w-60': mode === 'normal',
         'relative flex w-full flex-1 flex-col': mode === 'mobile',
         'relative grid w-full': route.path === '/account',
       },

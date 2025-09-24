@@ -26,13 +26,13 @@ const { $i18n } = useNuxtApp()
   <li
     v-if="order"
     class="
-      order-card flex flex-col items-center justify-between gap-4 rounded border
+      flex flex-col items-center justify-between gap-4 rounded border
       border-primary-500 bg-primary-100 p-4 text-primary-950
       md:grid-cols-1 md:grid-rows-3 md:flex-row md:gap-10 md:p-6
       dark:border-primary-500 dark:bg-primary-900 dark:text-primary-50
     "
   >
-    <div class="order-card-items grid gap-2">
+    <div class="grid gap-2">
       <div class="flex gap-2">
         <OrderCardItem
           v-for="item in order.items.slice(0, maxItems)"
@@ -59,11 +59,11 @@ const { $i18n } = useNuxtApp()
 
     <div
       class="
-        order-card-body grid grid-cols-2 items-center gap-2
+        grid grid-cols-2 items-center gap-2
         md:grid-cols-3 md:grid-rows-3 md:gap-4
       "
     >
-      <div class="order-card-body-status flex items-center gap-2.5">
+      <div class="flex items-center gap-2.5">
         <span :class="statusClass(order).color">
           {{ order.status }}
         </span>
@@ -73,7 +73,7 @@ const { $i18n } = useNuxtApp()
         />
       </div>
 
-      <div class="order-card-body-payment-status flex items-center gap-2.5">
+      <div class="flex items-center gap-2.5">
         <span :class="paymentStatusClass(order.paymentStatus || '').color">
           {{ order.paymentStatus }}
         </span>
@@ -83,7 +83,7 @@ const { $i18n } = useNuxtApp()
         />
       </div>
 
-      <div class="order-card-body-id grid">
+      <div class="grid">
         <span
           class="
             text-xs text-primary-950
@@ -95,7 +95,7 @@ const { $i18n } = useNuxtApp()
         <span class="font-semibold">{{ order.id }}</span>
       </div>
 
-      <div class="order-card-body-address grid">
+      <div class="grid">
         <span
           class="
             text-xs text-primary-950
@@ -107,7 +107,7 @@ const { $i18n } = useNuxtApp()
         <span>{{ contentShorten(order.fullAddress, 0, 45) }}</span>
       </div>
 
-      <div class="order-card-body-pay_way grid">
+      <div class="grid">
         <span
           class="
             text-xs text-primary-950
@@ -119,7 +119,7 @@ const { $i18n } = useNuxtApp()
         <span>{{ typeof order.payWay === 'number' ? 'Payment Method' : extractTranslated(order.payWay, 'name', locale) }}</span>
       </div>
 
-      <div class="order-card-body-total_price grid">
+      <div class="grid">
         <span
           class="
             text-xs text-primary-950
@@ -135,7 +135,7 @@ const { $i18n } = useNuxtApp()
         </span>
       </div>
 
-      <div class="order-card-body-created_at grid">
+      <div class="grid">
         <span
           class="
             text-xs text-primary-950
@@ -151,20 +151,18 @@ const { $i18n } = useNuxtApp()
       </div>
     </div>
 
-    <div class="order-card-footer grid gap-4">
-      <div class="order-card-footer-item">
-        <UButton
-          :label="t('actions.details')"
-          :to="localePath({ name: 'account-orders-id', params: { id: order.id } })"
-          class="
-            w-full py-1.25 text-sm
-            md:py-2.5
-          "
-          color="secondary"
-          size="lg"
-          variant="link"
-        />
-      </div>
+    <div class="grid gap-4">
+      <UButton
+        :label="t('actions.details')"
+        :to="localePath({ name: 'account-orders-id', params: { id: order.id } })"
+        class="
+          w-full py-1.25 text-sm
+          md:py-2.5
+        "
+        color="secondary"
+        size="lg"
+        variant="link"
+      />
     </div>
   </li>
 </template>

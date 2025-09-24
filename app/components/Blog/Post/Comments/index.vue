@@ -269,7 +269,6 @@ onMounted(() => {
       >
         <BlogPostCommentsSummary
           :comments-count="commentsCount"
-          class="comments-list-summary"
         />
       </h2>
     </div>

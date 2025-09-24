@@ -19,7 +19,7 @@ const { blogPostUrlFromParts } = useUrls()
     "
   >
     <Anchor
-      :to="{ path: blogPostUrlFromParts(item.id, item.title) }"
+      :to="{ path: blogPostUrlFromParts(item.id, item.slug) }"
       class="pb-2"
       :text="item.title"
     >

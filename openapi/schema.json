@@ -37679,6 +37679,9 @@
                     "master": {
                         "type": "integer"
                     },
+                    "slug": {
+                        "type": "string"
+                    },
                     "mainImagePath": {
                         "type": "string"
                     },
@@ -37688,10 +37691,14 @@
                         "format": "double",
                         "nullable": true
                     },
-                    "formatted": {}
+                    "formatted": {},
+                    "contentType": {
+                        "type": "string"
+                    }
                 },
                 "required": [
                     "body",
+                    "contentType",
                     "formatted",
                     "id",
                     "languageCode",
@@ -37699,6 +37706,7 @@
                     "master",
                     "matchesPosition",
                     "rankingScore",
+                    "slug",
                     "subtitle",
                     "title"
                 ]
@@ -45369,9 +45377,13 @@
                         "format": "double",
                         "nullable": true
                     },
-                    "formatted": {}
+                    "formatted": {},
+                    "contentType": {
+                        "type": "string"
+                    }
                 },
                 "required": [
+                    "contentType",
                     "description",
                     "formatted",
                     "id",

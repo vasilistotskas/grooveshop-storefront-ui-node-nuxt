@@ -39,7 +39,7 @@
     "@nuxt/image": "1.11.0",
     "@nuxt/scripts": "0.11.13",
     "@nuxt/test-utils": "3.19.2",
-    "@nuxt/ui": "3.3.4",
+    "@nuxt/ui": "4.0.0",
     "@nuxtjs/device": "3.2.4",
     "@nuxtjs/i18n": "10.1.0",
     "@nuxtjs/seo": "3.2.2",
@@ -123,7 +123,7 @@
     "workbox-strategies": "7.3.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.52.1"
+    "@rollup/rollup-linux-x64-gnu": "4.52.2"
   },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"

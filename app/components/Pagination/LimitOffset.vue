@@ -104,15 +104,15 @@ const link = computed(() => {
 </script>
 
 <template>
-  <div class="pagination relative">
+  <div class="relative">
     <ol
       v-if="totalPages > 1"
       class="
-        pagination-ordered-list flex w-full items-center gap-1
+        flex w-full items-center gap-1
         md:grid md:gap-4
       "
     >
-      <li class="previous-page">
+      <li>
         <Anchor
           :to="{
             path: link,
@@ -156,7 +156,6 @@ const link = computed(() => {
 
       <li
         v-if="shouldDisplayFirstPage"
-        class="first-page"
       >
         <Anchor
           :to="{
@@ -207,7 +206,6 @@ const link = computed(() => {
       <li
         v-for="pageEntry in pages"
         :key="pageEntry"
-        class="page"
       >
         <Anchor
           :to="{
@@ -243,7 +241,6 @@ const link = computed(() => {
 
       <li
         v-if="shouldDisplayLastPage"
-        class="last-page"
       >
         <Anchor
           :to="{
@@ -285,7 +282,7 @@ const link = computed(() => {
         </Anchor>
       </li>
 
-      <li class="next-page">
+      <li>
         <Anchor
           :to="{
             path: link,

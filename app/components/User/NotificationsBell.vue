@@ -119,7 +119,7 @@ onClickOutside(dropdown, () => {
           dark:border-gray-800 dark:bg-neutral-900
         "
       >
-        <div class="notifications-list relative grid gap-1 p-2">
+        <div class="relative grid gap-1 p-2">
           <template v-if="!pending && userNotifications?.length">
             <UButton
               v-for="(userNotification, index) in userNotifications"
@@ -148,11 +148,11 @@ onClickOutside(dropdown, () => {
                   }"
                 >
                   <span
-                    class="notification-title truncate text-sm"
+                    class="truncate text-sm"
                     v-html="extractTranslated(userNotification.notification, 'title', locale)"
                   />
                   <span
-                    class="notification-message text-xs"
+                    class="text-xs"
                     v-html="extractTranslated(userNotification.notification, 'message', locale)"
                   />
                 </UChip>

@@ -145,7 +145,6 @@ const buttonAreaLabel = computed(() => {
 
 <template>
   <UButton
-    class="add-to-favourite-btn"
     :size="size"
     :label="buttonLabel"
     :icon="!favouriteId ? 'i-heroicons-heart' : 'i-heroicons-heart'"

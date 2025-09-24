@@ -194,9 +194,10 @@ definePageMeta({
 
     <div class="mt-8 grid">
       <div
+        id="search-bar"
         v-focus
         class="
-          search-bar fixed top-[48px] left-0 z-20 grid w-full items-center gap-4
+          fixed top-[48px] left-0 z-20 grid w-full items-center gap-4
           bg-primary-50 p-[8px]
           md:top-[58px] md:p-[14px]
           lg:top-[63px]
@@ -213,7 +214,7 @@ definePageMeta({
             :to="'index'"
             aria-label="index"
             class="
-              back-to-home flex items-center gap-3 overflow-hidden border-r-2
+              flex items-center gap-3 overflow-hidden border-r-2
               border-primary-500 pr-2 text-base font-bold text-primary-950
               md:w-auto md:pr-8
               dark:border-primary-500 dark:text-primary-50

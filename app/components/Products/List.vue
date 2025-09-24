@@ -127,7 +127,7 @@ watch(
 </script>
 
 <template>
-  <div class="products-list flex w-full flex-col gap-4">
+  <div class="flex w-full flex-col gap-4">
     <div class="flex flex-row flex-wrap items-center gap-2">
       <Pagination
         v-if="pagination"
@@ -173,7 +173,7 @@ watch(
       <USkeleton
         v-for="i in 6"
         :key="i"
-        class="h-[300px] w-full"
+        class="h-[457px] w-full"
       />
     </div>
   </div>

@@ -44,7 +44,6 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
   >
     <div
       id="navbar-banner"
-      class="banner"
     >
       <slot name="banner" />
     </div>

@@ -293,7 +293,6 @@ definePageMeta({
             <div class="sm:mx-0">
               <ImgWithFallback
                 id="blog-post-image"
-
                 :alt="blogPostTitle"
                 :background="'transparent'"
                 fit="cover"
@@ -306,7 +305,7 @@ definePageMeta({
                   position: 'attention',
                   trimThreshold: 5,
                 }"
-                class="blog-post-image rounded-lg bg-primary-100"
+                class="rounded-lg bg-primary-100"
                 densities="x1"
                 loading="eager"
               />

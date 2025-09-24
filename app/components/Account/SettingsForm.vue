@@ -4,7 +4,6 @@ import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
-import type { AcceptableValue } from '@nuxt/ui'
 import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 defineSlots<{
@@ -200,7 +199,7 @@ const regionOptions = computed(() => {
   )
 })
 
-const onCountryChange = async (payload: boolean | AcceptableValue | undefined) => {
+const onCountryChange = async (payload: string | undefined) => {
   if (!payload) return
   country.value = String(payload)
   region.value = defaultSelectOptionChoose

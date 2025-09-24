@@ -240,7 +240,7 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
-    typeCheck: true, // Until vue-tsc is fixed
+    typeCheck: true,
     builder: 'vite',
   },
   debug: false,

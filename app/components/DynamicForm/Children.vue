@@ -12,12 +12,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type * as z from 'zod'
-
-type DynamicFormSchemaChildren = z.infer<
-  typeof ZodDynamicFormSchemaChildren
->
-
 defineProps({
   children: {
     type: Array as PropType<DynamicFormSchemaChildren>,

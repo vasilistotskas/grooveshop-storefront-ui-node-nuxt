@@ -18,10 +18,7 @@ definePageMeta({
   >
     <PageTitle
       :text="t('title')"
-      class="
-        account-header-title
-        md:mt-0
-      "
+      class="md:mt-0"
     />
 
     <MobileOrTabletOnly>

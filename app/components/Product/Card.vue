@@ -10,8 +10,8 @@ const props = defineProps({
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },
-  imgWidth: { type: Number, required: false, default: 580 },
-  imgHeight: { type: Number, required: false, default: 325 },
+  imgWidth: { type: Number, required: false, default: 420 },
+  imgHeight: { type: Number, required: false, default: 420 },
   showVat: { type: Boolean, required: false, default: false },
   showStartPrice: { type: Boolean, required: false, default: false },
   showDescription: { type: Boolean, required: false, default: false },
@@ -63,7 +63,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 </script>
 
 <template>
-  <li class="product-card relative">
+  <li class="relative">
     <div
       class="
         container rounded-lg bg-primary-100
@@ -191,25 +191,26 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             </div>
             <div
               v-if="showVat"
-              class="card-vat-percent flex justify-between"
+              class="flex justify-between"
             >
-              <p class="card-prices-vat-percent">
-                <span
-                  class="
-                    text-primary-950
-                    dark:text-primary-50
-                  "
-                >{{
-                  t('vat_percent')
-                }}</span><span
-                  class="
-                    text-primary-950
-                    dark:text-primary-50
-                  "
-                >{{
-                  product.vatPercent
-                }}</span>
-              </p>
+              <span
+                class="
+                  text-primary-950
+                  dark:text-primary-50
+                "
+              >{{
+                t('vat_percent')
+              }}
+              </span>
+              <span
+                class="
+                  text-primary-950
+                  dark:text-primary-50
+                "
+              >{{
+                product.vatPercent
+              }}
+              </span>
             </div>
           </div>
           <div class="flex justify-between font-bold">

@@ -70,13 +70,13 @@ definePageMeta({
     <section class="flex flex-col gap-4">
       <div
         class="
-          order-items grid gap-4 rounded-lg bg-primary-100 p-4
+          grid gap-4 rounded-lg bg-primary-100 p-4
           dark:bg-primary-900
         "
       >
         <div
           class="
-            order-status flex flex-col gap-4
+            flex flex-col gap-4
             sm:flex-row sm:items-center
           "
         >
@@ -99,11 +99,11 @@ definePageMeta({
             />
           </div>
         </div>
-        <div class="order-items grid max-h-96 gap-4 overflow-y-auto">
+        <div class="grid max-h-96 gap-4 overflow-y-auto">
           <div
             v-for="item in order.items"
             :key="`product-${item.product}`"
-            class="order-item flex items-center gap-4"
+            class="flex items-center gap-4"
           >
             <ImgWithFallback
               :alt="typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale)"
@@ -165,14 +165,13 @@ definePageMeta({
       </div>
       <div
         class="
-          order-synopsis grid gap-4
+          grid gap-4
           md:grid-cols-2
         "
       >
         <div
           class="
-            order-synopsis-info flex flex-col gap-4 rounded-lg bg-primary-100
-            p-4
+            flex flex-col gap-4 rounded-lg bg-primary-100 p-4
             dark:bg-primary-900
           "
         >
@@ -257,34 +256,11 @@ definePageMeta({
                 order.paymentStatus
               }}</span>
             </div>
-            <div
-              v-if="false"
-              class="grid gap-2"
-            >
-              <!-- trackingInfo not available in new schema -->
-              <span
-                class="
-                  font-bold text-primary-950
-                  dark:text-primary-50
-                "
-              >{{
-                t('tracking_number')
-              }}</span>
-              <span
-                class="
-                  text-primary-950
-                  dark:text-primary-50
-                "
-              >{{
-                'N/A'
-              }}</span>
-            </div>
           </div>
         </div>
         <div
           class="
-            order-synopsis-prices flex flex-col gap-4 rounded-lg bg-primary-100
-            p-4
+            flex flex-col gap-4 rounded-lg bg-primary-100 p-4
             dark:bg-primary-900
           "
         >

@@ -69,7 +69,6 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
 }
 
 async function onSubmit(values: any) {
-  // Handle enum fields that might have "choose" placeholder values
   const submitValues: OrderWriteRequest = {
     ...values,
     floor: values.floor === defaultSelectOptionChoose ? undefined : values.floor,

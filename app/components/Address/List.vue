@@ -26,7 +26,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="address-list grid gap-4">
+  <div class="grid gap-4">
     <div class="grid w-full items-start gap-4">
       <div
         v-if="displayTotal"

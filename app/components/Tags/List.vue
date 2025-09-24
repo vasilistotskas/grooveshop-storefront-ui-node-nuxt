@@ -54,7 +54,7 @@ const filteredTags = computed(() => {
       >
         <h3
           class="
-            text-normal flex items-center gap-2 text-center font-bold
+            flex items-center gap-2 text-center font-bold text-default
             md:text-lg
           "
         >

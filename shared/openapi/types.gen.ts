@@ -670,10 +670,12 @@ export type BlogPostMeiliSearchResult = {
   subtitle: string
   body: string
   master: number
+  slug: string
   mainImagePath: string
   matchesPosition: unknown
   rankingScore: number | null
   formatted: unknown
+  contentType: string
 }
 
 /**
@@ -3113,6 +3115,7 @@ export type ProductMeiliSearchResult = {
   matchesPosition: unknown
   rankingScore: number | null
   formatted: unknown
+  contentType: string
 }
 
 /**

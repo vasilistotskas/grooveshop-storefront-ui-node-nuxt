@@ -5,8 +5,7 @@ const { $i18n } = useNuxtApp()
 <template>
   <div
     class="
-      demo-mode-message flex items-center justify-center gap-2 text-center
-      text-red-800
+      flex items-center justify-center gap-2 text-center text-red-800
       dark:text-red-300
     "
   >

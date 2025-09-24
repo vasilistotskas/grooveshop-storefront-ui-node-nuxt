@@ -70,8 +70,8 @@ const filteredTags = computed(() => {
       <ul
         v-if="filteredTags && filteredTags.length > 0"
         class="
-          scrollable-tags grid items-center
-          md:gap-4
+          grid max-h-80 items-center overflow-y-auto
+          md:max-h-none md:gap-4
         "
       >
         <li
@@ -90,12 +90,3 @@ const filteredTags = computed(() => {
     </div>
   </aside>
 </template>
-
-<style scoped>
-.scrollable-tags {
-  @media screen and (min-width: 768px) {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-}
-</style>

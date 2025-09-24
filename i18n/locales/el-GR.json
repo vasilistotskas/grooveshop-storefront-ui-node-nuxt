@@ -56,6 +56,9 @@
     },
     "region": {
       "required": "Απαιτείται Περιφέρεια"
+    },
+    "string": {
+      "invalid": "Λάθος τιμή"
     }
   },
   "api_validation": {

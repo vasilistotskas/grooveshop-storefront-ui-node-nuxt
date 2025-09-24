@@ -282,8 +282,9 @@ definePageMeta({
   <PageWrapper>
     <div
       v-if="product"
+      id="product"
       class="
-        product mb-12
+        mb-12
         md:mb-24
       "
     >
@@ -337,7 +338,7 @@ definePageMeta({
               </span>
             </h2>
 
-            <section class="actions mt-2 flex flex-wrap items-center gap-3">
+            <section class="mt-2 flex flex-wrap items-center gap-3">
               <ClientOnly>
                 <UButton
                   v-if="isSupported"
@@ -516,14 +517,9 @@ definePageMeta({
               </template>
 
               <div
-                class="prose max-w-none pt-4"
+                class="max-w-none pt-4"
               >
-                <div
-                  v-if="extractTranslated(product, 'description', locale)"
-                  class="product-description"
-                >
-                  <div v-html="extractTranslated(product, 'description', locale) || ''" />
-                </div>
+                <div v-if="extractTranslated(product, 'description', locale)" v-html="extractTranslated(product, 'description', locale) || ''" />
                 <p
                   v-else
                   class="
@@ -544,7 +540,7 @@ definePageMeta({
               <template #default="{ item }">
                 <div class="py-4">
                   <div
-                    class="prose max-w-none"
+                    class="max-w-none"
                   >
                     {{ item.content }}
                   </div>

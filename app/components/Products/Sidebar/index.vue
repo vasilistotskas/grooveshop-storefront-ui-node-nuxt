@@ -54,7 +54,7 @@ onMounted(() => {
     v-if="categories && categories.count > 0"
     ref="sidebar"
     class="
-      sidebar relative hidden h-fit w-60 transition-all duration-300 ease-in-out
+      relative hidden h-fit w-60 transition-all duration-300 ease-in-out
       lg:flex
     "
   >
@@ -69,7 +69,7 @@ onMounted(() => {
       </h2>
       <div
         class="
-          sidebar-header-sticky grid bg-primary-100
+          grid bg-primary-100
           dark:bg-primary-950
         "
       >
@@ -149,17 +149,3 @@ onMounted(() => {
     </div>
   </aside>
 </template>
-
-<style scoped>
-.sidebar {
-  &.sticky {
-    top: 0;
-  }
-}
-
-.sidebar-header-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-</style>

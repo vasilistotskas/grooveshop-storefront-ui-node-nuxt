@@ -37,7 +37,7 @@ defineExpose({
 
 <template>
   <div
-    class="nuxt-loading-indicator"
+    id="nuxt-loading-indicator"
     :style="{
       position: 'fixed',
       top: 0,

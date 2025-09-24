@@ -7,7 +7,7 @@ defineSlots<{
 <template>
   <UContainer
     class="
-      wrapper relative mt-2 mb-6 min-h-[calc(100vh-29.5rem)]
+      relative mt-2 mb-6 min-h-[calc(100vh-29.5rem)]
       md:mt-4 md:mb-12 md:min-h-[calc(100vh-25rem)]
     "
   >

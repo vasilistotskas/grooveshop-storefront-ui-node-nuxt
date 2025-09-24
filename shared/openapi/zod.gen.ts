@@ -775,6 +775,7 @@ export const zBlogPostMeiliSearchResult = z.object({
   subtitle: z.string(),
   body: z.string(),
   master: z.int(),
+  slug: z.string(),
   mainImagePath: z.string(),
   matchesPosition: z.unknown(),
   rankingScore: z.union([
@@ -782,6 +783,7 @@ export const zBlogPostMeiliSearchResult = z.object({
     z.null(),
   ]),
   formatted: z.unknown(),
+  contentType: z.string(),
 })
 
 export const zBlogPostMeiliSearchResponse = z.object({
@@ -3899,6 +3901,7 @@ export const zProductMeiliSearchResult = z.object({
     z.null(),
   ]),
   formatted: z.unknown(),
+  contentType: z.string(),
 })
 
 export const zProductMeiliSearchResponse = z.object({

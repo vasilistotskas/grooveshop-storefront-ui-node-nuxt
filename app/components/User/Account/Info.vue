@@ -76,9 +76,24 @@ const changeUserName = async () => {
 </script>
 
 <template>
-  <div class="user-info mx-auto w-full max-w-(--container-7xl) p-0">
-    <div class="user-info-container">
-      <div class="user-info-avatar">
+  <div
+    class="
+      z-20 mx-auto grid w-full max-w-(--container-7xl) items-center p-0
+      md:w-[calc(100%-8rem)]
+    "
+  >
+    <div
+      class="
+        flex items-center justify-center gap-4 py-4
+        md:justify-start md:gap-8 md:py-6
+      "
+    >
+      <div
+        class="
+          grid w-auto justify-start px-0
+          md:px-4
+        "
+      >
         <UserAvatar
           :background-border="true"
           :change-avatar="true"
@@ -88,7 +103,12 @@ const changeUserName = async () => {
           :user-account="account"
         />
       </div>
-      <div class="user-info-name relative flex w-full flex-col">
+      <div
+        class="
+          relative flex w-full flex-col
+          md:items-start
+        "
+      >
         <div class="flex w-full items-center">
           <UButton
             :aria-label="userNameEditing ? $i18n.t('save') : $i18n.t('edit.title')"
@@ -127,19 +147,29 @@ const changeUserName = async () => {
       </div>
       <div
         v-if="ordersCount || productFavouritesCount || productReviewsCount"
-        class="user-info-stats"
+        class="
+          flex w-full grid-cols-1 flex-wrap gap-4
+          md:ml-auto md:grid md:w-auto md:min-w-[330px] md:grid-cols-3
+          md:items-center
+        "
       >
         <div
           v-if="ordersCount"
-          class="user-info-stats-item"
+          class="
+            flex-1
+            md:flex-none
+          "
         >
           <Anchor
             :title="t('orders')"
             :to="'account-orders'"
-            class="user-info-stats-item-link"
+            class="
+              ml-0 flex flex-col items-center p-2
+              first:ml-0
+            "
           >
             <UIcon
-              class="size-6"
+              class="m-0 size-6"
               name="i-heroicons-cube"
             />
             <span
@@ -161,15 +191,22 @@ const changeUserName = async () => {
         </div>
         <div
           v-if="productFavouritesCount"
-          class="user-info-stats-item"
+          class="
+            flex-1
+            md:flex-none
+          "
         >
           <Anchor
             :title="t('favourite.products')"
             :to="'account-favourites-products'"
-            class="user-info-stats-item-link"
+            class="
+              ml-0 flex flex-col items-center p-2
+              first:ml-0
+              md:ml-4
+            "
           >
             <UIcon
-              class="size-6"
+              class="m-0 size-6"
               name="i-heroicons-heart"
             />
             <span
@@ -190,15 +227,22 @@ const changeUserName = async () => {
         </div>
         <div
           v-if="productReviewsCount"
-          class="user-info-stats-item"
+          class="
+            flex-1
+            md:flex-none
+          "
         >
           <Anchor
             :title="t('reviews')"
             :to="'account-reviews'"
-            class="user-info-stats-item-link"
+            class="
+              ml-0 flex flex-col items-center p-2
+              first:ml-0
+              md:ml-4
+            "
           >
             <UIcon
-              class="size-6"
+              class="m-0 size-6"
               name="i-heroicons-star"
             />
             <span
@@ -221,92 +265,6 @@ const changeUserName = async () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.user-info {
-  width: calc(100% - 128px);
-  margin: 0 auto;
-  display: grid;
-  align-items: center;
-  z-index: 20;
-}
-
-@media screen and (max-width: 767px) {
-  .user-info {
-    width: 100%;
-  }
-}
-
-.user-info-container {
-  display: flex;
-  align-items: center;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  gap: 2rem;
-}
-
-@media screen and (max-width: 767px) {
-  .user-info-container {
-    display: flex;
-    justify-items: center;
-    align-items: center;
-    justify-content: center;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    gap: 1rem;
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .user-info-name {
-    display: flex;
-    align-items: center;
-  }
-}
-
-.user-info-stats {
-  display: grid;
-  align-items: center;
-  margin-left: auto;
-  gap: 1rem;
-  grid-template-columns: repeat(3, minmax(110px, 1fr));
-}
-
-@media screen and (max-width: 767px) {
-  .user-info-stats {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    grid-row: 2 / span 1;
-    grid-column: 1 / span 2;
-  }
-}
-
-.user-info-stats-item-link {
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem;
-  align-items: center;
-  margin-left: 1rem;
-}
-
-.user-info-stats-item-link:first-child {
-  margin-left: 0;
-}
-
-.user-info-stats-item-link > svg {
-  margin: 0;
-}
-
-@media screen and (max-width: 767px) {
-  .user-info-avatar {
-    padding: 0 1rem;
-    display: grid;
-    width: auto;
-    justify-content: start;
-  }
-}
-</style>
 
 <i18n lang="yaml">
 el:

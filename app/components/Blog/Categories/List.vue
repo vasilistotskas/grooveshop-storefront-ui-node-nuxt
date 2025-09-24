@@ -53,7 +53,7 @@ watch(
 </script>
 
 <template>
-  <div class="categories-list flex w-full flex-col gap-4">
+  <div class="flex w-full flex-col gap-4">
     <div class="flex flex-row flex-wrap items-center">
       <Pagination
         v-if="pagination"

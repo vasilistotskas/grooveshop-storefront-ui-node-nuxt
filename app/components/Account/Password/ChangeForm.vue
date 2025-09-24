@@ -32,8 +32,7 @@ const onSubmit = async (values: PasswordChangeBody) => {
 }
 
 const formSchema = computed<DynamicFormSchema>(() => {
-  // Create a reusable password schema with proper error handling
-  const createPasswordSchema = (fieldType: 'current' | 'new' | 'confirm') => {
+  const createPasswordSchema = (_fieldType: 'current' | 'new' | 'confirm') => {
     return z.string({
       error: (issue) => {
         if (issue.input === undefined || issue.input === '') {
@@ -105,7 +104,6 @@ const formSchema = computed<DynamicFormSchema>(() => {
         confirm_password: createPasswordSchema('confirm'),
       })
       .superRefine((val, ctx) => {
-        // Check if passwords match
         if (val.new_password !== val.confirm_password) {
           ctx.addIssue({
             code: 'custom',
@@ -117,12 +115,11 @@ const formSchema = computed<DynamicFormSchema>(() => {
           })
         }
 
-        // Check if current password is different from new password
         if (hasCurrentPassword.value && val.current_password && val.current_password === val.new_password) {
           ctx.addIssue({
             code: 'custom',
             message: $i18n.t('validation.password.must_not_be_same'),
-            path: ['new_password'], // Better to put this error on new_password field
+            path: ['new_password'],
           })
         }
       }),

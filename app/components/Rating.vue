@@ -45,7 +45,7 @@ const backgroundStars = (productRate: number): string[] => {
         v-for="(star, i) of backgroundStars(rate)"
         :key="i"
         aria-hidden="true"
-        class="star size-5 text-[#f68b24]"
+        class="size-5 text-[#f68b24]"
         data-icon="star"
         data-prefix="fas"
         focusable="false"

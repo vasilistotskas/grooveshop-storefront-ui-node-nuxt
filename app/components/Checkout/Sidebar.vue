@@ -33,7 +33,6 @@ defineSlots<{
 <template>
   <aside
     id="checkout-sidebar"
-    class="checkout-sidebar"
   >
     <UCard class="w-full">
       <template #header>

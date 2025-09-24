@@ -187,7 +187,7 @@ watch(
 </script>
 
 <template>
-  <div class="posts-list grid gap-4">
+  <div class="grid gap-4">
     <Pagination
       v-if="pagination && ['pageNumber', 'limitOffset'].includes(paginationType)"
       :count="pagination.count"

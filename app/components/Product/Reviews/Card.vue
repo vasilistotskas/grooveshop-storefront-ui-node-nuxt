@@ -75,7 +75,7 @@ const reviewComment = computed(() => {
           >
             <ImgWithFallback
               loading="lazy"
-              class="product-img h-20 w-30 bg-primary-100 object-cover"
+              class="h-20 w-30 bg-primary-100 object-cover"
               :src="src"
               :alt="alt"
               densities="x1"
@@ -91,7 +91,7 @@ const reviewComment = computed(() => {
       >
         <LazyAnchor
           v-if="displayImageOf === 'product' && product"
-          :to="{ path: `/products/${product}` }"
+          :to="{ path: productUrl(product.id, product.slug) }"
           :text="productName"
         >
           <span class="text-lg font-medium">{{ productName }}</span>

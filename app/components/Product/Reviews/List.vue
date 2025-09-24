@@ -25,20 +25,19 @@ defineProps({
 </script>
 
 <template>
-  <div class="reviews-list grid gap-4">
+  <div class="grid gap-4">
     <ProductReviewsSummary
       :reviews-average="reviewsAverage"
       :reviews-count="reviewsCount"
-      class="reviews-list-summary"
     />
-    <div class="reviews-list-items grid gap-4">
+    <div class="grid gap-4">
       <ProductReviewsCard
         v-for="review in reviews"
         :key="review.id"
         :review="review"
         :display-image-of="displayImageOf"
         class="
-          reviews-list-item rounded border border-primary-500 bg-primary-100 p-4
+          rounded border border-primary-500 bg-primary-100 p-4
           dark:border-primary-500 dark:bg-primary-900
         "
       />

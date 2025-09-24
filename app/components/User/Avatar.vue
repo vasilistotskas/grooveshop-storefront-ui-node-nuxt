@@ -127,7 +127,6 @@ const avatarContainerStyle = computed(() => {
     <div
       :class="{
         'inline-block size-[135px] shrink-0 text-center align-middle': backgroundBorder,
-        'loading': loading,
         'hover:cursor-pointer': true,
       }"
       :style="avatarContainerStyle"

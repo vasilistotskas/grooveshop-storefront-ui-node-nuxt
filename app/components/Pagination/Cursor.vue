@@ -224,7 +224,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="cursor-pagination my-4 flex flex-col items-center">
+  <div class="my-4 flex flex-col items-center">
     <div
       v-if="shouldShowTrigger"
       ref="infiniteScrollTrigger"

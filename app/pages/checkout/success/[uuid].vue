@@ -182,7 +182,7 @@ definePageMeta({
                       contentVisibility: 'auto',
                     }"
                     :width="100"
-                    class="product-img bg-primary-100"
+                    class="bg-primary-100"
                     loading="lazy"
                     sizes="sm:100vw md:50vw lg:auto"
                   />

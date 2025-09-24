@@ -19,9 +19,8 @@ const isCookieFunctionalEnabled = computed(
       :cookie-enabled="null"
       v-bind="$attrs"
     />
-    <div
+    <template
       v-else
-      class="cookie-control-BlockedIframe"
     >
       <p>
         {{ t('iframe_blocked') }}
@@ -31,7 +30,7 @@ const isCookieFunctionalEnabled = computed(
           v-text="t('here')"
         />
       </p>
-    </div>
+    </template>
   </Teleport>
 </template>
 
