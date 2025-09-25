@@ -92,9 +92,14 @@ const items = computed(() => [
                     :title="$i18n.t('shop')"
                     :to="'products'"
                     class="
-                      text-lg capitalize
+                      text-lg text-primary-700 capitalize
+                      hover:text-primary-900
+                      dark:text-primary-200
                       hover:dark:text-primary-50
                     "
+                    :ui="{
+                      base: 'p-0',
+                    }"
                   >
                     {{ $i18n.t('shop') }}
                   </Anchor>
@@ -107,9 +112,14 @@ const items = computed(() => [
                     :title="$i18n.t('blog')"
                     :to="'blog'"
                     class="
-                      text-lg capitalize
+                      text-lg text-primary-700 capitalize
+                      hover:text-primary-900
+                      dark:text-primary-200
                       hover:dark:text-primary-50
                     "
+                    :ui="{
+                      base: 'p-0',
+                    }"
                   >
                     {{ $i18n.t('blog') }}
                   </Anchor>
@@ -193,7 +203,7 @@ const items = computed(() => [
 
                 <template #account="{ item }">
                   <div class="text-left">
-                    <p>{{ $i18n.t('signed_in_as') }}</p>
+                    <p>{{ $i18n.t('email.title') }}</p>
                     <p
                       class="
                         truncate font-medium text-primary-900
@@ -229,8 +239,14 @@ const items = computed(() => [
                 :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
                 class="
                   flex size-[30px] items-center self-center text-[1.5rem]
+                  text-primary-700
+                  hover:text-primary-900
+                  dark:text-primary-200
                   hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0',
+                }"
               >
                 <UIcon name="i-fa6-solid-circle-user" />
               </Anchor>

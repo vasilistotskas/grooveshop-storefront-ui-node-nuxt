@@ -79,9 +79,11 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   >
     <div class="relative grid">
       <Anchor
-        :to="{ path: blogPostUrl(post) }"
+        :to="{ path: blogPostUrl(post.id, post.slug) }"
         :text="alt"
-        css-class="grid justify-center"
+        :ui="{
+          base: 'p-0',
+        }"
       >
         <ImgWithFallback
           :loading="imgLoading"
@@ -136,7 +138,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :title="$i18n.t('comments.count', {
             count: post.commentsCount,
           })"
-          :to="localePath({ path: blogPostUrl(post), hash: '#blog-post-comments' })"
+          :to="localePath({ path: blogPostUrl(post.id, post.slug), hash: '#blog-post-comments' })"
           :label="String(post.commentsCount)"
           :ui="{
             base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',

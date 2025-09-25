@@ -94,9 +94,9 @@ const Footer = computed(() => {
       </PageHeader>
       <div
         class="
-          grid gap-2 pt-[57px]
-          md:gap-6 md:pt-[65px]
-          lg:pt-[65px]
+          grid gap-2 pt-[54px]
+          md:gap-6 md:pt-[62px]
+          lg:pt-[62px]
         "
       >
         <div

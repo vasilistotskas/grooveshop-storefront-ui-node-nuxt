@@ -4,7 +4,6 @@ import pkg from '../../../package.json'
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 
 const packageVersion = pkg.version
 </script>
@@ -32,7 +31,7 @@ const packageVersion = pkg.version
               dark:text-primary-50
             "
           >
-            {{ $i18n.t('about.us') }}
+            {{ t('about.us') }}
           </span>
           <ul
             class="
@@ -42,28 +41,38 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$i18n.t('about.site')"
-                :title="$i18n.t('about.site')"
+                :text="t('about.site')"
+                :title="t('about.site')"
                 :to="'about'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
-                {{ $i18n.t('about.site') }}
+                {{ t('about.site') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$i18n.t('vision')"
-                :title="$i18n.t('vision')"
+                :text="t('vision')"
+                :title="t('vision')"
                 :to="'vision'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
-                {{ $i18n.t('vision') }}
+                {{ t('vision') }}
               </Anchor>
             </li>
           </ul>
@@ -90,9 +99,14 @@ const packageVersion = pkg.version
                 :title="t('microlearning.what')"
                 :to="'what-is-microlearning'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
                 {{ t('microlearning.what') }}
               </Anchor>
@@ -103,9 +117,14 @@ const packageVersion = pkg.version
                 :title="t('microlearning.why')"
                 :to="'why-microlearning'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
                 {{ t('microlearning.why') }}
               </Anchor>
@@ -120,7 +139,7 @@ const packageVersion = pkg.version
               dark:text-primary-50
             "
           >
-            {{ $i18n.t('terms_conditions') }}
+            {{ t('terms_conditions') }}
           </span>
           <ul
             class="
@@ -130,41 +149,56 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$i18n.t('term_of_use')"
-                :title="$i18n.t('term_of_use')"
+                :text="t('term_of_use')"
+                :title="t('term_of_use')"
                 :to="'terms-of-use'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
-                {{ $i18n.t('term_of_use') }}
+                {{ t('term_of_use') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$i18n.t('privacy_policy')"
-                :title="$i18n.t('privacy_policy')"
+                :text="t('privacy_policy')"
+                :title="t('privacy_policy')"
                 :to="'privacy-policy'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
-                {{ $i18n.t('privacy_policy') }}
+                {{ t('privacy_policy') }}
               </Anchor>
             </li>
             <li class="grid">
               <Anchor
-                :text="$i18n.t('cookies_policy')"
-                :title="$i18n.t('cookies_policy')"
+                :text="t('cookies_policy')"
+                :title="t('cookies_policy')"
                 :to="'cookies-policy'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
-                {{ $i18n.t('cookies_policy') }}
+                {{ t('cookies_policy') }}
               </Anchor>
             </li>
           </ul>
@@ -177,7 +211,7 @@ const packageVersion = pkg.version
               dark:text-primary-50
             "
           >
-            {{ $i18n.t('help_center') }}
+            {{ t('help_center') }}
           </span>
           <ul
             class="
@@ -187,15 +221,20 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="$i18n.t('contact_us')"
-                :title="$i18n.t('contact_us')"
+                :text="t('contact.us')"
+                :title="t('contact.us')"
                 :to="'contact'"
                 class="
-                  flex-1 text-sm capitalize
-                  hover:no-underline
+                  flex-1 text-sm text-primary-700 capitalize
+                  hover:text-primary-900 hover:no-underline
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
                 "
+                :ui="{
+                  base: 'p-0 text-start items-start',
+                }"
               >
-                {{ $i18n.t('contact_us') }}
+                {{ t('contact.us') }}
               </Anchor>
             </li>
           </ul>
@@ -232,7 +271,7 @@ const packageVersion = pkg.version
               size="lg"
               type="button"
               variant="link"
-            /> {{ $i18n.t('all_rights_reserved') }}.
+            /> {{ t('all_rights_reserved') }}.
           </span>
           <div
             class="
@@ -267,6 +306,18 @@ const packageVersion = pkg.version
 
 <i18n lang="yaml">
 el:
+  terms_conditions: Όροι και Προϋποθέσεις
+  term_of_use: Όροι Χρήσης
+  vision: Όραμα
+  privacy_policy: Πολιτική Απορρήτου
+  cookies_policy: Πολιτική Cookies
+  help_center: Κέντρο βοηθείας
+  contact:
+    us: Επικοινωνία
+  all_rights_reserved: All rights reserved
+  about:
+    us: Σχετικά με εμάς,
+    site: Τι είναι το Webside
   microlearning:
     title: Microlearning
     why: Γιατί Microlearning

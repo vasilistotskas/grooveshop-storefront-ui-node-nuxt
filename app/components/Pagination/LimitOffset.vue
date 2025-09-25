@@ -123,13 +123,10 @@ const link = computed(() => {
               category: route.query?.category,
             },
           }"
-          :class="{
-            disabled: isInFirstPage,
-            active: isInFirstPage,
-          }"
           :text="t('previous_page')"
           :title="t('previous_page')"
           :disabled="isInFirstPage"
+          :aria-disabled="isInFirstPage"
           @click="
             async () =>
               await navigateTo(localePath({
@@ -167,13 +164,13 @@ const link = computed(() => {
               category: route.query?.category,
             },
           }"
-          :css-class="{
+          :class="{
             'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
-            'disabled': isInFirstPage,
           }"
           :text="t('first_page')"
           :title="t('first_page')"
           :disabled="isInFirstPage"
+          :aria-disabled="isInFirstPage"
           @click="
             async () =>
               await navigateTo(localePath({
@@ -219,7 +216,6 @@ const link = computed(() => {
           }"
           :class="{
             'grid w-full items-center justify-center rounded bg-primary-100 px-2 py-1 dark:bg-primary-900': true,
-            'active': pageEntry === page,
           }"
           :text="String(pageEntry)"
           :title="t('go_to_page', { page: pageEntry })"
@@ -254,10 +250,10 @@ const link = computed(() => {
           }"
           :class="{
             'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
-            'disabled': isInLastPage,
-            'active': isInLastPage,
           }"
           :text="String(lastPageNumber)"
+          :disabled="isInLastPage"
+          :aria-disabled="isInLastPage"
           :title="
             t('go_to_page', { page: lastPageNumber })
           "
@@ -293,11 +289,9 @@ const link = computed(() => {
               category: route.query?.category,
             },
           }"
-          :class="{
-            disabled: isInLastPage,
-            active: isInLastPage,
-          }"
           :text="t('next_page')"
+          :disabled="isInLastPage"
+          :aria-disabled="isInLastPage"
           :title="
             isInLastPage
               ? t('you_are_on_last_page')

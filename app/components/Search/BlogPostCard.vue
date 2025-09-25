@@ -8,7 +8,7 @@ const props = defineProps({
   },
 })
 const { item } = toRefs(props)
-const { blogPostUrlFromParts } = useUrls()
+const { blogPostUrl } = useUrls()
 </script>
 
 <template>
@@ -19,7 +19,7 @@ const { blogPostUrlFromParts } = useUrls()
     "
   >
     <Anchor
-      :to="{ path: blogPostUrlFromParts(item.id, item.slug) }"
+      :to="{ path: blogPostUrl(item.id, item.slug) }"
       class="pb-2"
       :text="item.title"
     >

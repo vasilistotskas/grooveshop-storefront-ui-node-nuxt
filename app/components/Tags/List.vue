@@ -109,12 +109,3 @@ const filteredTags = computed(() => {
     </div>
   </aside>
 </template>
-
-<style scoped>
-.scrollable-tags {
-  @media screen and (min-width: 768px) {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-}
-</style>

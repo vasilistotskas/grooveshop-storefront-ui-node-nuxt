@@ -465,6 +465,22 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 
 definePageMeta({
   layout: 'default',
+  middleware: [
+    async function () {
+      const { data: cart } = useNuxtData('cart')
+      const { $i18n } = useNuxtApp()
+      const localePath = useLocalePath()
+      const toast = useToast()
+      const cartItems = cart.value?.items
+      if (!cartItems || cartItems.length === 0) {
+        toast.add({
+          title: $i18n.t('cart_empty'),
+          color: 'error',
+        })
+        return navigateTo(localePath('index'))
+      }
+    },
+  ],
 })
 </script>
 
@@ -545,7 +561,7 @@ el:
     payment: Πληρωμή
     payment_desc: Επίλεξε τον τρόπο πληρωμής
   form:
-    first_name: Ονομα
+    first_name: Όνομα
     last_name: Επίθετο
     email: Email
     phone: Τηλέφωνο

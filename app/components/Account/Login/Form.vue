@@ -224,7 +224,7 @@ const submitButtonDisabled = computed(() => {
                     dark:text-primary-50
                   "
                 >
-                  {{ $i18n.t('or.title') }}
+                  {{ t('or') }}
                 </p>
               </div>
               <WebAuthnLoginButton />

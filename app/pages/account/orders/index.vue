@@ -13,7 +13,7 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'status',
-    label: t('ordering.status'),
+    label: $i18n.t('ordering.status'),
     options: ['ascending', 'descending'],
   },
   {

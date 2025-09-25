@@ -16,6 +16,9 @@ const searchBarFocused = useState<boolean>('search-bar-focused')
           md:w-auto
         "
         to="index"
+        :ui="{
+          base: 'p-0',
+        }"
       >
         <NuxtImg
           :style="{ objectFit: 'contain' }"
@@ -30,9 +33,9 @@ const searchBarFocused = useState<boolean>('search-bar-focused')
     </div>
     <main
       class="
-        pt-[57px]
-        md:pt-[65px]
-        lg:pt-[65px]
+        pt-[54px]
+        md:pt-[62px]
+        lg:pt-[62px]
       "
       :class="{
         'opacity-70': searchBarFocused,

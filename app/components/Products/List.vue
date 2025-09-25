@@ -20,7 +20,7 @@ const { updateFavouriteProducts } = userStore
 
 const pageSize = ref(8)
 const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-availability_priority,id')
+const ordering = computed(() => route.query.ordering || '-availabilityPriority')
 const category = computed(() => route.query.category)
 
 const entityOrdering = ref<EntityOrdering<any>>([

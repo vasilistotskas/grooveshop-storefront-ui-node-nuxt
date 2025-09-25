@@ -94,9 +94,11 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   >
     <div class="grid">
       <Anchor
-        :to="{ path: blogPostUrl(post) }"
+        :to="{ path: blogPostUrl(post.id, post.slug) }"
         :text="alt"
-        css-class="grid justify-center"
+        :ui="{
+          base: 'p-0',
+        }"
       >
         <ImgWithFallback
           :loading="imgLoading"
@@ -125,13 +127,16 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       >
         <h2 class="grid h-20">
           <Anchor
-            :to="{ path: blogPostUrl(post) }"
+            :to="{ path: blogPostUrl(post.id, post.slug) }"
             :text="contentShorten(extractTranslated(post, 'title', locale), 0, 39)"
             class="
               text-2xl font-bold tracking-tight text-primary-950
               md:text-3xl
               dark:text-primary-50
             "
+            :ui="{
+              base: 'p-0 text-start items-start',
+            }"
           />
         </h2>
       </div>
@@ -151,7 +156,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
-          :to="localePath({ path: blogPostUrl(post), hash: '#blog-post-comments' })"
+          :to="localePath({ path: blogPostUrl(post.id, post.slug), hash: '#blog-post-comments' })"
           :ui="{
             base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
           }"

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { $i18n } = useNuxtApp()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -15,13 +15,12 @@ const { $i18n } = useNuxtApp()
         text-xs
         md:text-sm
       "
-    >{{ $i18n.t('demo.message') }}</span>
+    >{{ t('demo.message') }}</span>
   </div>
 </template>
 
-<style scoped>
-.demo-mode-message {
-  grid-row: 2;
-  grid-column: 1 / span 2;
-}
-</style>
+<i18n lang="yaml">
+el:
+  demo:
+    message: Για σκοπούς προβολής μόνο (DEMO).
+</i18n>

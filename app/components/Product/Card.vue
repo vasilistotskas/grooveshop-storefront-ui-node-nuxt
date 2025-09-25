@@ -72,26 +72,27 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
     >
       <div class="flex flex-col gap-4 px-4 py-5">
         <div class="max-w-full">
-          <div class="grid">
-            <Anchor
-              :to="{ path: productUrl(product.id, product.slug) }"
-              :text="alt"
-            >
-              <ImgWithFallback
-                :loading="imgLoading"
-                class="bg-transparent"
-                :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-                :src="product.mainImagePath"
-                :width="imgWidth"
-                :height="imgHeight"
-                fit="contain"
-                :background="'transparent'"
-                sizes="sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px"
-                :alt="alt"
-                densities="x1"
-              />
-            </Anchor>
-          </div>
+          <Anchor
+            :to="{ path: productUrl(product.id, product.slug) }"
+            :text="alt"
+            :ui="{
+              base: 'p-0',
+            }"
+          >
+            <ImgWithFallback
+              :loading="imgLoading"
+              class="bg-transparent"
+              :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+              :src="product.mainImagePath"
+              :width="imgWidth"
+              :height="imgHeight"
+              fit="contain"
+              :background="'transparent'"
+              sizes="sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px"
+              :alt="alt"
+              densities="x1"
+            />
+          </Anchor>
         </div>
         <div class="flex flex-1 flex-col justify-end gap-2">
           <div

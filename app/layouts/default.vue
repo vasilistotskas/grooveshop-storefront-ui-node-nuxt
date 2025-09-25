@@ -89,9 +89,9 @@ const items = computed(() => {
     </slot>
     <main
       class="
-        pt-[57px]
-        md:pt-[65px]
-        lg:pt-[65px]
+        pt-[54px]
+        md:pt-[62px]
+        lg:pt-[62px]
       "
       :class="{
         'opacity-70': searchBarFocused,

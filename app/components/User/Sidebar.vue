@@ -52,29 +52,35 @@ onMounted(() => {
             v-if="item.route && item.type === 'link'"
             :to="item.route"
             :text="item.text"
-            :class="{
-              'group flex items-center gap-4 p-2 hover:no-underline': true,
-              'rounded-lg bg-primary-100 dark:bg-primary-900': route.path === item.route?.path,
+            :ui="{
+              base: 'w-full p-0',
             }"
           >
-            <LazyUIcon
-              v-if="item.icon"
-              :name="item.icon"
-              class="size-6"
-            />
-            <span
-              class="
-                text-xl font-semibold text-primary-950 capitalize
-                md:text-lg
-                dark:text-primary-50
-              "
+            <div
               :class="{
-                'font-extrabold':
-                  route.path === item.route?.path,
+                'group flex w-full items-center gap-4 p-2 hover:no-underline': true,
+                'rounded-lg bg-primary-100 dark:bg-primary-900': route.path === item.route?.path,
               }"
             >
-              {{ item.text }}
-            </span>
+              <LazyUIcon
+                v-if="item.icon"
+                :name="item.icon"
+                class="size-6"
+              />
+              <span
+                class="
+                  text-xl font-semibold text-primary-950 capitalize
+                  md:text-lg
+                  dark:text-primary-50
+                "
+                :class="{
+                  'font-extrabold':
+                    route.path === item.route?.path,
+                }"
+              >
+                {{ item.text }}
+              </span>
+            </div>
           </LazyAnchor>
           <Anchor
             v-else-if="item.type === 'external-link'"
@@ -137,11 +143,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.sidebar {
-  &.sticky {
-    top: 4.5rem;
-  }
-}
-</style>

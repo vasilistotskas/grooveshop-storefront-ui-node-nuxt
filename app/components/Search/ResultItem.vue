@@ -7,7 +7,19 @@ const props = defineProps<{
 const { item } = toRefs(props)
 const emit = defineEmits(['click', 'mousedown', 'mouseover'])
 
-const { $i18n } = useNuxtApp()
+const { t } = useI18n()
+const { productUrl, blogPostUrl } = useUrls()
+
+const getPath = computed(() => {
+  switch (item.value.type) {
+    case 'product':
+      return productUrl(item.value.id, item.value.slug)
+    case 'blogPost':
+      return blogPostUrl(item.value.id, item.value.slug)
+    default:
+      return ''
+  }
+})
 
 const sortedFields = computed(() => {
   if (!item.value) return []
@@ -31,7 +43,7 @@ const sortedFields = computed(() => {
   >
     <Anchor
       :class="{ 'bg-primary-200 dark:bg-primary-800': highlighted }"
-      :to="{ path: `/products/${item.id}` }"
+      :to="{ path: getPath }"
       class="
         flex gap-1 p-2
         md:gap-3
@@ -72,7 +84,7 @@ const sortedFields = computed(() => {
                 dark:text-primary-50
               "
             >
-              {{ $i18n.t(`fields.${key}`) }}:
+              {{ t(`fields.${key}`) }}:
             </span>
             <span
               v-if="value"
@@ -89,3 +101,12 @@ const sortedFields = computed(() => {
     </Anchor>
   </li>
 </template>
+
+<i18n lang="yaml">
+el:
+  fields:
+    title: Τίτλος
+    subtitle: Περιγραφή
+    body: Περιγραφή
+    likesCount: likes
+</i18n>

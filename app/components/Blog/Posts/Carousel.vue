@@ -37,22 +37,18 @@ const BlogPostCard = computed(() =>
     <UCarousel
       v-slot="{ item }"
       :items="posts"
-      :ui="{ item: 'basis-full md:basis-1/2 items-center justify-center justify-items-center' }"
+      :ui="{
+        item: 'basis-full md:basis-1/2 items-center justify-center justify-items-center',
+        next: 'top-2/5 md:top-1/2',
+        prev: 'top-2/5 md:top-1/2',
+      }"
       :prev="{
         color: 'neutral',
         icon: 'i-heroicons-chevron-left',
-        class: '-start-2 md:-start-12',
-        ui: {
-          base: '-start-2 md:-start-12',
-        },
       }"
       :next="{
         color: 'neutral',
         icon: 'i-heroicons-chevron-right',
-        class: '-end-2 md:-end-12',
-        ui: {
-          base: '-end-2 md:-end-12',
-        },
       }"
       arrows
       wheel-gestures

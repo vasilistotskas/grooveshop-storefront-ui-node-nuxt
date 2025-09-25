@@ -68,15 +68,15 @@ async function onSave(key: any, name: string) {
 const columns: TableColumn<any>[] = [
   {
     accessorKey: 'id',
-    header: t('id'),
+    header: $i18n.t('id'),
   },
   {
     accessorKey: 'name',
-    header: t('name'),
+    header: $i18n.t('name'),
   },
   {
     accessorKey: 'type',
-    header: t('type'),
+    header: $i18n.t('type'),
   },
   {
     accessorKey: 'created_at',
@@ -84,7 +84,7 @@ const columns: TableColumn<any>[] = [
   },
   {
     accessorKey: 'last_used_at',
-    header: t('last_used_at'),
+    header: $i18n.t('last_used_at'),
   },
   {
     id: 'actions',
@@ -109,13 +109,13 @@ const actionItems = (row: { name: string, type: string, created_at: number, last
   const items: DropdownMenuItem[] = []
 
   items.push({
-    label: t('edit.title'),
+    label: $i18n.t('edit.title'),
     icon: 'i-heroicons-pencil-20-solid',
     onSelect: () => (editId.value = keys.value?.find(key => key.name === row.name)?.id ?? null),
   })
 
   items.push({
-    label: t('delete.title'),
+    label: $i18n.t('delete.title'),
     icon: 'i-heroicons-trash-20-solid',
     class: 'bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
     onSelect: async () => await deleteKey(keys.value?.find(key => key.name === row.name)),
@@ -182,7 +182,7 @@ onReactivated(async () => {
           </template>
           <template #type-cell="{ row }">
             <span>
-              {{ typeof row.original.is_passwordless === 'undefined' ? $i18n.t('type_unspecified') : (row.original.is_passwordless ? $i18n.t('passkey') : $i18n.t('security_key')) }}
+              {{ typeof row.original.is_passwordless === 'undefined' ? t('type_unspecified') : (row.original.is_passwordless ? $i18n.t('passkey') : $i18n.t('security_key')) }}
             </span>
           </template>
           <template #created_at-cell="{ row }">
@@ -230,3 +230,8 @@ onReactivated(async () => {
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  type_unspecified: Μη καθορισμένος τύπος
+</i18n>

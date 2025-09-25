@@ -44,29 +44,30 @@ definePageMeta({
             v-if="item.route && item.type === 'link'"
             :to="item.route"
             :text="item.text"
-            class="flex items-center gap-2"
           >
-            <LazyUIcon
-              v-if="item.icon"
-              :name="item.icon"
-              class="
-                text-2xl
-                md:text-xl
-              "
-            />
-            <span
-              class="
-                text-xl font-semibold text-primary-950 capitalize
-                md:text-lg
-                dark:text-primary-50
-              "
-              :class="{
-                'font-extrabold':
-                  route.path === item.route?.path,
-              }"
-            >
-              {{ item.text }}
-            </span>
+            <div class="flex items-center gap-2">
+              <LazyUIcon
+                v-if="item.icon"
+                :name="item.icon"
+                class="
+                  text-2xl
+                  md:text-xl
+                "
+              />
+              <span
+                class="
+                  text-xl font-semibold text-primary-950 capitalize
+                  md:text-lg
+                  dark:text-primary-50
+                "
+                :class="{
+                  'font-extrabold':
+                    route.path === item.route?.path,
+                }"
+              >
+                {{ item.text }}
+              </span>
+            </div>
           </LazyAnchor>
         </li>
         <li

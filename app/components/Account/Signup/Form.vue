@@ -318,7 +318,7 @@ const submitButtonDisabled = computed(() => {
                 <p
                   class="mx-4 text-center font-semibold"
                 >
-                  {{ $i18n.t('or.title') }}
+                  {{ t('or') }}
                 </p>
               </div>
               <div
@@ -358,6 +358,7 @@ const submitButtonDisabled = computed(() => {
 <i18n lang="yaml">
 el:
   login: Σύνδεση
+  or: ή
   passkey_login: Εγγραφή με κωδικό μιας χρήσης
   i_approve: Αποδέχομαι τους
   terms: όρους χρήσης

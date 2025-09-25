@@ -106,7 +106,7 @@ definePageMeta({
             class="flex items-center gap-4"
           >
             <ImgWithFallback
-              :alt="typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale)"
+              :alt="`Image - ${item.product}`"
               :background="'transparent'"
               fit="contain"
               :height="100"
@@ -124,11 +124,7 @@ definePageMeta({
               "
             >
               <Anchor
-                :title="typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale)"
-                :to="{
-                  path: `/products/${item.product}`,
-                }"
-                css-class="w-full"
+                :title="item.product"
               >
                 <span
                   class="
@@ -136,7 +132,7 @@ definePageMeta({
                     dark:text-primary-50
                   "
                 >
-                  {{ typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale) }}
+                  {{ item.product }}
                 </span>
               </Anchor>
               <div class="flex items-center">
@@ -235,7 +231,7 @@ definePageMeta({
                   dark:text-primary-50
                 "
               >{{
-                typeof order.payWay === 'number' ? 'Payment Method' : extractTranslated(order.payWay, 'name', locale)
+                order.payWay
               }}</span>
             </div>
             <div class="grid gap-2">

@@ -1,6 +1,6 @@
 export const useUrls = () => {
-  const blogPostUrl = (post: BlogPost): string => {
-    return `/blog/post/${post.id}/${post.slug}`
+  const blogPostUrl = (id: number, slug: string): string => {
+    return `/blog/post/${id}/${slug}`
   }
 
   const blogCategoryUrl = (category: BlogCategory): string => {
@@ -30,13 +30,8 @@ export const useUrls = () => {
     return `/products/${id}/${slug}`
   }
 
-  const blogPostUrlFromParts = (id: number, slug: string): string => {
-    return `/blog/post/${id}/${slug}`
-  }
-
   return {
     blogPostUrl,
-    blogPostUrlFromParts,
     blogCategoryUrl,
     blogCategoryUrlFromParts,
     blogCategoryAncestorUrl,

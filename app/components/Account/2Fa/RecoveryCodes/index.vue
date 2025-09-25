@@ -4,6 +4,7 @@ import type { TableColumn } from '@nuxt/ui'
 const { getRecoveryCodes } = useAllAuthAccount()
 const toast = useToast()
 const localePath = useLocalePath()
+const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 
 const { data, refresh, error } = await useAsyncData(
@@ -92,7 +93,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $i18n.t('total_code_count') }}:</strong> {{ total_code_count }}
+            <strong>{{ t('total_code_count') }}:</strong> {{ total_code_count }}
           </p>
           <p
             class="
@@ -100,7 +101,7 @@ onReactivated(async () => {
               dark:text-primary-50
             "
           >
-            <strong>{{ $i18n.t('unused_code_count') }}:</strong> {{ unused_code_count }}
+            <strong>{{ t('unused_code_count') }}:</strong> {{ unused_code_count }}
           </p>
           <p
             class="
@@ -137,7 +138,7 @@ onReactivated(async () => {
             icon="i-heroicons-arrow-down-on-square"
             @click="downloadCodes"
           >
-            {{ $i18n.t('download_codes') }}
+            {{ t('download_codes') }}
           </UButton>
         </div>
       </div>
@@ -163,3 +164,10 @@ onReactivated(async () => {
     </section>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  total_code_count: Συνολικός αριθμός κωδικών
+  unused_code_count: Αριθμός αχρησιμοποίητων κωδικών
+  download_codes: Κατέβασε τους κωδικούς
+</i18n>

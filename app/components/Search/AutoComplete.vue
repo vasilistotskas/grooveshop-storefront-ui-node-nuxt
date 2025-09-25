@@ -34,7 +34,7 @@ const props = defineProps({
   },
 })
 
-const { query, limit, offset, allResults, status, hasResults } = toRefs(props)
+const { query, limit, offset, allResults, status, hasResults, loadMore } = toRefs(props)
 
 const emit = defineEmits<{
   (
@@ -58,6 +58,7 @@ const highlighted = defineModel<string | undefined>('highlighted', {
 
 const attrs = useAttrs()
 const { $i18n } = useNuxtApp()
+const { t } = useI18n()
 
 function showMoreSectionResults(section: ProductMeiliSearchResponse | BlogPostMeiliSearchResponse, limit: number): boolean {
   return section.estimatedTotalHits > Number(limit)
@@ -99,7 +100,7 @@ function onLoadMore(section: ProductMeiliSearchResponse | BlogPostMeiliSearchRes
                 dark:text-primary-50
               "
             >
-              {{ $i18n.t(`sections.${key}`) }}
+              {{ t(`sections.${key}`) }}
             </span>
             <div
               class="
@@ -138,7 +139,7 @@ function onLoadMore(section: ProductMeiliSearchResponse | BlogPostMeiliSearchRes
               {{ $i18n.t("results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
             </UButton>
             <span class="text-sm text-primary-400">
-              {{ section.estimatedTotalHits > Number(limit) ? $i18n.t("approx_results", section.estimatedTotalHits) : $i18n.t("results", section.estimatedTotalHits) }}
+              {{ section.estimatedTotalHits > Number(limit) ? t("approx_results", section.estimatedTotalHits) : $i18n.t("results", section.estimatedTotalHits) }}
             </span>
           </div>
         </div>
@@ -146,3 +147,11 @@ function onLoadMore(section: ProductMeiliSearchResponse | BlogPostMeiliSearchRes
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  approx_results: περισσότερα {count}
+  sections:
+    products: Προϊόντα
+    blogPosts: Blog
+</i18n>

@@ -56,6 +56,9 @@ const formattedTotal = computed(() => {
       <Anchor
         :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
         :title="alt"
+        :ui="{
+          base: 'p-0',
+        }"
       >
         <ImgWithFallback
           loading="lazy"

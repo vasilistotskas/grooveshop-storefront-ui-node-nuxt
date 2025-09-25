@@ -172,7 +172,7 @@ definePageMeta({
               >
                 <td class="border px-4 py-2">
                   <ImgWithFallback
-                    :alt="typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale)"
+                    :alt="`Image - ${item.product}`"
                     :background="'transparent'"
                     fit="contain"
                     :height="100"
@@ -188,7 +188,7 @@ definePageMeta({
                   />
                 </td>
                 <td class="border px-4 py-2">
-                  {{ typeof item.product === 'number' ? 'Product' : extractTranslated(item.product, 'name', locale) }}
+                  {{ item.product }}
                 </td>
                 <td class="border px-4 py-2">
                   {{ item.quantity }}

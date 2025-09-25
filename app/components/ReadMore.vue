@@ -80,3 +80,10 @@ const trimmedText = computed(() => {
     {{ text }}
   </span>
 </template>
+
+<i18n lang="yaml">
+el:
+  read:
+    more: Διάβασε περισσότερα
+    less: Διάβασε λιγότερα
+</i18n>

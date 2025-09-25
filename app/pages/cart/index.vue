@@ -101,7 +101,7 @@ const emptyCardUI = {
           />
           <div class="mt-4">
             <h3 class="text-lg font-semibold">
-              {{ $i18n.t('empty.title') }}
+              {{ t('empty.title') }}
             </h3>
             <p class="mt-1 text-sm text-gray-500">
               {{ t('empty.description_long') }}
@@ -114,7 +114,7 @@ const emptyCardUI = {
             size="lg"
             class="mt-4"
           >
-            {{ $i18n.t('empty.description') }}
+            {{ t('empty.description') }}
           </UButton>
         </UCard>
         <div

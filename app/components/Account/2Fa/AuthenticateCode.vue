@@ -16,6 +16,7 @@ const authInfo = useAuthInfo()
 const toast = useToast()
 const localePath = useLocalePath()
 const authStore = useAuthStore()
+const { t } = useI18n()
 const { session } = storeToRefs(authStore)
 const { $i18n } = useNuxtApp()
 
@@ -54,7 +55,7 @@ async function onSubmit(values: TwoFaAuthenticateBody) {
     })
     session.value = response?.data
     toast.add({
-      title: $i18n.t('success.logged_in'),
+      title: t('success.logged_in'),
       color: 'success',
     })
     emit('twoFaAuthenticate')
@@ -76,3 +77,9 @@ async function onSubmit(values: TwoFaAuthenticateBody) {
     />
   </Account2FaAuthenticateFlow>
 </template>
+
+<i18n lang="yaml">
+el:
+  success:
+    logged_in: Συνδέθηκες με επιτυχία
+</i18n>

@@ -59,32 +59,30 @@ watch(
       class="overflow-hidden rounded-lg"
       arrows
     >
-      <div class="flex-1">
-        <button
-          :class="{
-            'ring-2 ring-indigo-300 ring-inset': selectedImageId === item.id,
-          }"
-          type="button"
-          class="
-            flex w-full items-center justify-center rounded-lg bg-primary-100
-            p-2
-            focus:outline-none
-            md:h-32
-            dark:bg-primary-900
-          "
-          :aria-label="`Select image ${item.id}`"
-          @click="selectedImageId = item.id"
-        >
-          <ProductImage
-            :key="item.id"
-            :image="item"
-            :width="200"
-            :height="120"
-            img-loading="lazy"
-            class="rounded-md"
-          />
-        </button>
-      </div>
+      <button
+        :class="{
+          'ring-2 ring-indigo-300 ring-inset': selectedImageId === item.id,
+        }"
+        type="button"
+        class="
+          flex w-full items-center justify-center rounded-lg bg-primary-100 p-2
+          hover:cursor-pointer
+          focus:outline-none
+          md:h-32
+          dark:bg-primary-900
+        "
+        :aria-label="`Select image ${item.id}`"
+        @click="selectedImageId = item.id"
+      >
+        <ProductImage
+          :key="item.id"
+          :image="item"
+          :width="200"
+          :height="120"
+          img-loading="lazy"
+          class="rounded-md"
+        />
+      </button>
     </LazyUCarousel>
   </div>
 </template>

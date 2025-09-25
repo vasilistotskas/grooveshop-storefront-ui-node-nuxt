@@ -29,6 +29,11 @@ const props = defineProps({
     required: false,
     default: 3,
   },
+  displayImageOf: {
+    type: String as PropType<'user' | 'blogPost'>,
+    required: true,
+    validator: (value: string) => ['user', 'blogPost'].includes(value),
+  },
 })
 
 const emit = defineEmits<{
@@ -42,8 +47,6 @@ const toast = useToast()
 const { t, locale } = useI18n()
 const { user, loggedIn } = useUserSession()
 const { updateLikedComments } = userStore
-
-const { account } = storeToRefs(userStore)
 
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 
@@ -283,44 +286,42 @@ watch(
   <details
     v-show="blogPostId"
     :class="commentCardClass"
-    class="relative z-30"
+    class="relative z-30 grid gap-2"
     open
   >
-    <summary class="grid cursor-pointer grid-cols-[32px_1fr]">
-      <span class="flex w-full items-center">
-        <span class="flex items-center gap-2">
+    <summary class="flex w-full cursor-pointer items-center">
+      <span class="flex items-center gap-2">
+        <template v-if="comment.user">
           <LazyUserAvatar
-            v-if="account"
             :img-height="32"
             :img-width="32"
             :show-name="false"
-            :user-account="account"
+            :user-account="comment.user"
           />
           <span
-            v-if="account"
             class="
               font-bold text-primary-950
               dark:text-primary-50
             "
           >
-            {{ account?.username }}
+            {{ comment.user?.username || comment.user?.firstName + ' ' + comment.user?.lastName }}
           </span>
-          <span class="flex items-center">
-            <span
-              class="
-                mx-2 my-0 inline-block font-bold text-primary-400
-                dark:text-primary-400
-              "
-            >•</span>
-            <NuxtTime
-              :datetime="comment.createdAt"
-              :locale="locale"
-              class="
-                w-full text-end text-xs text-primary-400
-                dark:text-primary-400
-              "
-            />
-          </span>
+        </template>
+        <span class="flex items-center">
+          <span
+            class="
+              mx-2 my-0 inline-block font-bold text-primary-400
+              dark:text-primary-400
+            "
+          >•</span>
+          <NuxtTime
+            :datetime="comment.createdAt"
+            :locale="locale"
+            class="
+              w-full text-end text-xs text-primary-400
+              dark:text-primary-400
+            "
+          />
         </span>
       </span>
     </summary>
@@ -381,8 +382,8 @@ watch(
             :aria-expanded="showReplies"
             :aria-label="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :disabled="pending"
             :icon="
@@ -392,8 +393,8 @@ watch(
             "
             :title="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :ui="{
               base: 'hover:bg-transparent p-0',
@@ -404,7 +405,7 @@ watch(
           />
         </span>
         <span class="min-w-0">
-          <span class="flex flex-col items-center">
+          <span class="flex items-center">
             <ButtonBlogCommentLike
               :aria-label="$i18n.t('like')"
               :blog-comment-id="comment.id"
@@ -445,7 +446,6 @@ watch(
             :aria-expanded="showReplies"
             :aria-hidden="!showReplies"
             :class="{
-              'hovered': isLineHovered,
               'z-20 bg-primary-100 dark:bg-primary-900':
                 !showReplies || (allReplies.length > 0 && allReplies[allReplies.length - 1]?.id === reply.id),
             }"
@@ -453,11 +453,13 @@ watch(
           >
 
             <span
+              :class="{
+                'border-primary-600 dark:border-primary-300': isLineHovered,
+                'border-primary-300 dark:border-primary-600': !isLineHovered,
+              }"
               class="
                 box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
                 rounded-bl-[12px] border-0 border-b border-l border-solid
-                border-primary-300
-                dark:border-primary-600
               "
             />
             <span
@@ -471,6 +473,7 @@ watch(
           <BlogPostCommentsCard
             v-show="showReplies"
             :comment="reply"
+            :display-image-of="displayImageOf"
             :depth="depth + 1"
           />
         </template>
@@ -479,7 +482,6 @@ watch(
           :aria-expanded="showReplies"
           :aria-hidden="!showReplies"
           :class="{
-            'hovered': isLineHovered,
             'z-20 bg-primary-100 dark:bg-primary-900': !showReplies || pending,
           }"
           class="relative flex justify-end"
@@ -510,8 +512,8 @@ watch(
             variant="ghost"
             :aria-label="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :disabled="pending"
             :icon="
@@ -521,13 +523,13 @@ watch(
             "
             :label="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :title="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :ui="{
               base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer z-20 px-1.25 py-1',
@@ -576,4 +578,8 @@ el:
   reply:
     login: Συνδέσου για να απαντήσεις
     placeholder: Γράψε κάτι...
+  hide:
+    replies: Απόκρυψη
+  more:
+    replies: Δεν υπάρχουν απαντήσεις | 1 Απάντηση | {count} Απαντήσεις
 </i18n>

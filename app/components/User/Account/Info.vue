@@ -84,7 +84,7 @@ const changeUserName = async () => {
   >
     <div
       class="
-        flex items-center justify-center gap-4 py-4
+        flex items-center justify-center gap-4 px-2 py-4
         md:justify-start md:gap-8 md:py-6
       "
     >

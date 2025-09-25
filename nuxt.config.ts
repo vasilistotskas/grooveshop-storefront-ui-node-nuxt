@@ -334,7 +334,10 @@ export default defineNuxtConfig({
         name: 'Ελληνικά',
         files: [
           'el-GR.json',
+          'auth/el-GR.json',
           'breadcrumb/el-GR.json',
+          'cookies/el-GR.json',
+          'validation/el-GR.json',
         ],
         language: 'el-GR',
         flag: '🇬🇷',

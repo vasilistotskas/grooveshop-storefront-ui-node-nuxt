@@ -85,10 +85,11 @@ const {
     headers: useRequestHeaders(),
     query: {
       cursor: cursor,
-      parent: 'none',
+      parent_Isnull: true,
       paginationType: paginationType,
       pageSize: pageSize,
       language: locale,
+      approved: true,
     },
   },
 )

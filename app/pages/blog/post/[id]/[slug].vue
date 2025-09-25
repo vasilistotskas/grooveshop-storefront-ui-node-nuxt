@@ -314,7 +314,7 @@ definePageMeta({
               v-if="blogPost.isPublished && blogPost.publishedAt"
               class="sr-only flex gap-2"
             >
-              <span class="text-sm font-semibold">{{ $i18n.t('published') }}: </span>
+              <span class="text-sm font-semibold">{{ t('published') }}: </span>
               <NuxtTime
                 class="text-sm"
                 :locale="locale"
@@ -347,7 +347,7 @@ definePageMeta({
         v-if="relatedPostsStatus !== 'pending' && relatedPosts?.length"
         hydrate-on-visible
         :posts="relatedPosts"
-        :title="$i18n.t('related.sections')"
+        :title="t('related.sections')"
       />
       <div
         v-if="relatedPostsStatus === 'pending'"
@@ -377,6 +377,9 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
+  published: Δημοσιεύθηκε
+  related:
+    sections: Σχετικές ενότητες
   breadcrumb:
     items:
       blog:

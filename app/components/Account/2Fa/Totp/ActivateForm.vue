@@ -117,7 +117,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         <label
           class="grid items-center justify-center justify-items-center gap-2"
         >
-          {{ $i18n.t('authenticator_secret') }}:
+          {{ t('authenticator_secret') }}:
           <span
             class="
               rounded-md bg-primary-200
@@ -135,7 +135,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             type="text"
             @click="onSecretClick"
           />
-          <span class="text-center">{{ $i18n.t('authenticator_secret_description') }}</span>
+          <span class="text-center">{{ t('authenticator_secret_description') }}</span>
         </label>
       </div>
       <section class="grid items-center justify-center justify-items-center">
@@ -149,3 +149,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  authenticator_secret: Μυστικό πολλαπλών παραγόντων
+  authenticator_secret_description: Μπορείς να αποθηκεύσεις αυτό το μυστικό και να το χρησιμοποιήσεις για να επανεγκαταστήσεις την εφαρμογή πολλαπλών παραγόντων σε μεταγενέστερο χρόνο.
+</i18n>

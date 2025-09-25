@@ -43,7 +43,7 @@ const logout = async (fromSessions: Session[]) => {
 const columns: TableColumn<Session>[] = [
   {
     accessorKey: 'is_current',
-    header: $i18n.t('is_current'),
+    header: t('is_current'),
   },
   {
     accessorKey: 'ip',
@@ -152,7 +152,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           variant="subtle"
           @click="logout(otherSessions)"
         >
-          {{ $i18n.t('logout_all_other_sessions') }}
+          {{ t('logout_all_other_sessions') }}
         </UButton>
       </div>
     </div>
@@ -161,6 +161,8 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
 
 <i18n lang="yaml">
 el:
+  is_current: Τρέχουσα
+  logout_all_other_sessions: Αποσύνδεση από όλες τις υπόλοιπες συσκευές
   session:
     logged_out: Αποσυνδέθηκες από όλες τις άλλες συνεδρίες
 </i18n>

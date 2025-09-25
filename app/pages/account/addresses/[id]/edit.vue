@@ -58,12 +58,8 @@ const fetchRegions = async (countryCode: string) => {
       },
     })
   }
-  catch {
-    toast.add({
-      title: $i18n.t('error.default'),
-      description: t('error_occurred'),
-      color: 'error',
-    })
+  catch (error) {
+    console.error('Failed to fetch regions: ', error)
   }
 }
 

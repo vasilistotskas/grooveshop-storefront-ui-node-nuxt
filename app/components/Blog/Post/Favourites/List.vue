@@ -56,9 +56,11 @@ const { t, locale } = useI18n()
         >
           <template #header>
             <Anchor
-              :to="{ path: blogPostUrl(favourite) }"
+              :to="{ path: blogPostUrl(favourite.id, favourite.slug) }"
               :text="extractTranslated(favourite, 'title', locale)"
-              css-class="grid justify-center"
+              :ui="{
+                base: 'p-0',
+              }"
             >
               <ImgWithFallback
                 class="rounded-lg"
@@ -79,7 +81,7 @@ const { t, locale } = useI18n()
           </template>
 
           <Anchor
-            :to="{ path: blogPostUrl(favourite) }"
+            :to="{ path: blogPostUrl(favourite.id, favourite.slug) }"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
               flex truncate text-lg font-bold tracking-tight text-primary-950

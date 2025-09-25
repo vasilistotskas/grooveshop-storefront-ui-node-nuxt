@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
 
@@ -143,9 +143,15 @@ onMounted(() => {
             dark:text-primary-50
           "
         >
-          {{ $i18n.t('no_categories_found') }}
+          {{ t('categories.not_found') }}
         </p>
       </div>
     </div>
   </aside>
 </template>
+
+<i18n lang="yaml">
+el:
+  categories:
+    not_found: Δεν βρέθηκαν Κατηγορίες
+</i18n>

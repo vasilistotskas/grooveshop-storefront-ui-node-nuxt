@@ -58,8 +58,7 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
         <div
           class="
             relative flex w-full items-center gap-4
-            md:grid md:grid-cols-[1fr_2fr]
-            lg:grid-cols-[1fr_2fr_1fr]
+            lg:grid lg:grid-cols-[1fr_2fr_1fr]
           "
           :class="{ 'justify-between': isMobileOrTablet }"
         >
@@ -85,6 +84,9 @@ const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
                       font-bold
                       md:w-auto
                     "
+                    :ui="{
+                      base: 'p-0',
+                    }"
                   >
                     <NuxtImg
                       :style="{ objectFit: 'contain' }"

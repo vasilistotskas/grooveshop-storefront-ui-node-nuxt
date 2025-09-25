@@ -7,7 +7,7 @@ const keepFocus = ref(false)
 const router = useRouter()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
-const { productUrl, blogPostUrlFromParts } = useUrls()
+const { productUrl, blogPostUrl } = useUrls()
 
 const query = ref(Array.isArray(route.query.query) ? (route.query.query[0] ?? '') : (route.query.query ?? ''))
 const limit = ref(Array.isArray(route.query.limit) ? (route.query.limit[0] ?? 3) : (route.query.limit ?? 3))
@@ -88,7 +88,7 @@ function searchGoTo(id: string, cleanQuery: boolean): void {
       url = productUrl(targetResult.id, targetResult.slug)
     }
     else if (targetResult.contentType === 'blog_post') {
-      url = blogPostUrlFromParts(targetResult.id, targetResult.slug)
+      url = blogPostUrl(targetResult.id, targetResult.slug)
     }
   }
 

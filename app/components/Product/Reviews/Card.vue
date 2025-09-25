@@ -22,20 +22,14 @@ const { locale } = useI18n()
 const { contentShorten } = useText()
 const { productUrl } = useUrls()
 
-const src = computed(() => {
-  return displayImageOf.value === 'user'
-    ? ''
-    : ''
-})
-
 const alt = computed(() => {
   return displayImageOf.value === 'user'
     ? 'Anonymous'
-    : (typeof product?.value === 'number' ? 'Product' : extractTranslated(product?.value, 'name', locale.value))
+    : extractTranslated(product?.value, 'name', locale.value)
 })
 
 const productName = computed(() =>
-  typeof product?.value === 'number' ? 'Product' : extractTranslated(product?.value, 'name', locale.value),
+  extractTranslated(product?.value, 'name', locale.value),
 )
 
 const reviewComment = computed(() => {
@@ -75,9 +69,11 @@ const reviewComment = computed(() => {
           >
             <ImgWithFallback
               loading="lazy"
-              class="h-20 w-30 bg-primary-100 object-cover"
-              :src="src"
+              class="h-28 w-28 bg-primary-100 object-cover"
+              :src="product.mainImagePath"
               :alt="alt"
+              width="112"
+              height="112"
               densities="x1"
             />
           </Anchor>

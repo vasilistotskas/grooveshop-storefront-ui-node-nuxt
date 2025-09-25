@@ -38,9 +38,9 @@ defineOgImage(ogImageOptions)
     </PageHeader>
     <div
       class="
-        grid min-h-screen pt-[57px]
-        md:pt-[65px]
-        lg:pt-[65px]
+        grid min-h-screen pt-[54px]
+        md:pt-[62px]
+        lg:pt-[62px]
       "
     >
       <div
@@ -89,7 +89,7 @@ el:
   hmmm: Χμμμ
   error:
     page:
-      title: Σφαλμα 404
+      title: Σφάλμα 404
   page:
     not:
       found: H αράχνη δεν μπόρεσε να βρει την σελίδα που ψάχνεις.

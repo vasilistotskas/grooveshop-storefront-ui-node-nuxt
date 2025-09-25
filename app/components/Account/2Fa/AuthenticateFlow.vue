@@ -14,7 +14,6 @@ const { t } = useI18n()
 const authInfo = useAuthInfo()
 const localePath = useLocalePath()
 const localeRoute = useLocaleRoute()
-const { $i18n } = useNuxtApp()
 
 const flow = computed(() => authInfo?.pendingFlow)
 const next = router.currentRoute.value.query.next as string | undefined
@@ -62,10 +61,10 @@ const filteredFlows = computed(() => {
           dark:text-primary-50
         "
       >
-        {{ $i18n.t('2fa.title') }}
+        {{ t('2fa.title') }}
       </h3>
       <p>
-        {{ $i18n.t('2fa.subtitle') }}
+        {{ t('2fa.subtitle') }}
       </p>
     </div>
 
@@ -75,7 +74,7 @@ const filteredFlows = computed(() => {
       v-if="flow && flow.types && flow?.types?.length > 1"
       class="grid items-center justify-center gap-2"
     >
-      <p>{{ $i18n.t('alternative_options') }}</p>
+      <p>{{ t('alternative_options') }}</p>
       <ul class="grid items-center">
         <li
           v-for="f in filteredFlows"
@@ -102,3 +101,15 @@ const filteredFlows = computed(() => {
     </div>
   </section>
 </template>
+
+<i18n lang="yaml">
+el:
+  alternative_options: Εναλλακτικές επιλογές
+  2fa:
+    title: Διπλή επαλήθευση
+    subtitle: Ο λογαριασμός σου προστατεύεται από έλεγχο ταυτότητας δύο παραγόντων
+  mfa_reauthenticate:
+    totp: Χρησιμοποιήστε την εφαρμογή πολλαπλών παραγόντων
+    recovery_codes: Χρησιμοποιήστε κωδικούς ανάκτησης
+    webauthn: Χρησιμοποιήστε το κλειδί ασφαλείας
+</i18n>
