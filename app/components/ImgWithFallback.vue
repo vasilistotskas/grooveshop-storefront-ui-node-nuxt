@@ -2,13 +2,7 @@
 import type { ExtractPropTypes } from 'vue'
 import type { baseImageProps } from '#image/components/_base'
 
-interface Emits {
-  (e: 'error' | 'load', data: any): void
-}
-
-const emit = defineEmits<Emits>()
-
-type Props = Omit<ExtractPropTypes<typeof baseImageProps>, 'ismap'> & {
+interface Props extends /* @vue-ignore */ Omit<ExtractPropTypes<typeof baseImageProps>, 'ismap'> {
   src?: string
   fallback?: string
   ismap?: boolean
@@ -20,6 +14,8 @@ const props = withDefaults(defineProps<Props>(), {
   quality: 100,
   ismap: true,
 })
+
+const emit = defineEmits(['error', 'load'])
 
 const attrs = useAttrs()
 
@@ -40,7 +36,7 @@ const imgSrc = computed(() => {
   return props.src
 })
 
-const handleError = (error: any) => {
+const handleError = (error: string | Event) => {
   console.info('Image error:', error)
   emit('error', error)
   hasError.value = true

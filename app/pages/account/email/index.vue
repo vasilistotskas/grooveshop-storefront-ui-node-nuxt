@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 
 definePageMeta({
   layout: 'user',
@@ -10,12 +10,12 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center"
+      :text="t('title')"
+      class="text-center"
     />
 
     <AccountEmailManage />

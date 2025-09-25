@@ -47,11 +47,11 @@ const columns: TableColumn<Session>[] = [
   },
   {
     accessorKey: 'ip',
-    header: t('ip_address'),
+    header: $i18n.t('ip_address'),
   },
   {
     accessorKey: 'user_agent',
-    header: t('user_agent'),
+    header: $i18n.t('user_agent'),
   },
   {
     accessorKey: 'created_at',
@@ -87,10 +87,19 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
     <div class="grid w-full gap-4">
-      <UTable :data="data" :columns="columns" :loading="loading">
+      <UTable
+        :data="data"
+        :columns="columns"
+        :loading="loading"
+      >
         <template #actions-cell="{ row }">
           <LazyUDropdownMenu
             v-if="getActionItems(row.original).length > 0"
@@ -107,12 +116,18 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           <UIcon
             v-if="row.original.is_current"
             name="i-heroicons-star-solid"
-            class="size-6 text-yellow-500 dark:text-yellow-400"
+            class="
+              size-6 text-yellow-500
+              dark:text-yellow-400
+            "
           />
           <UIcon
             v-else
             name="i-heroicons-star"
-            class="size-6 text-neutral-400 dark:text-neutral-500"
+            class="
+              size-6 text-neutral-400
+              dark:text-neutral-500
+            "
           />
         </template>
         <template #user_agent-cell="{ row }">
@@ -137,7 +152,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           variant="subtle"
           @click="logout(otherSessions)"
         >
-          {{ $i18n.t('logout_all_other_sessions') }}
+          {{ t('logout_all_other_sessions') }}
         </UButton>
       </div>
     </div>
@@ -146,6 +161,8 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
 
 <i18n lang="yaml">
 el:
+  is_current: Τρέχουσα
+  logout_all_other_sessions: Αποσύνδεση από όλες τις υπόλοιπες συσκευές
   session:
     logged_out: Αποσυνδέθηκες από όλες τις άλλες συνεδρίες
 </i18n>

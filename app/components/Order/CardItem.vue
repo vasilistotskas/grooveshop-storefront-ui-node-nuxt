@@ -9,25 +9,18 @@ const props = defineProps({
 })
 
 const { item } = toRefs(props)
-const { locale } = useI18n()
-
-const alt = computed(() => {
-  return extractTranslated(item.value.product, 'name', locale.value)
-})
 </script>
 
 <template>
-  <div class="order-card-items-image">
-    <ImgWithFallback
-      loading="lazy"
-      class="product-img bg-primary-100"
-      :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-      :width="120"
-      :height="120"
-      fit="contain"
-      :background="'transparent'"
-      :src="item.product.mainImagePath"
-      :alt="alt"
-    />
-  </div>
+  <ImgWithFallback
+    loading="lazy"
+    class="h-14 w-14 bg-primary-100"
+    :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+    :width="56"
+    :height="56"
+    fit="contain"
+    :background="'transparent'"
+    :src="''"
+    :alt="`Image - ${item.product}`"
+  />
 </template>

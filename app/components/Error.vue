@@ -2,7 +2,7 @@
 import type { PropType } from 'vue'
 import type { IFetchError } from 'ofetch'
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { enabled } = useAuthPreviewMode()
 
 defineProps({
@@ -27,7 +27,6 @@ defineProps({
       <span
         class="
           text-lg font-semibold text-neutral-700
-
           dark:text-neutral-200
         "
       >
@@ -35,7 +34,8 @@ defineProps({
         <span v-if="enabled">({{ error?.statusMessage }})</span>
       </span>
       <UIcon
-        name="i-heroicons-exclamation-circle" class="h-6 w-6 text-red-500"
+        name="i-heroicons-exclamation-circle"
+        class="h-6 w-6 text-red-500"
       />
     </div>
   </UCard>

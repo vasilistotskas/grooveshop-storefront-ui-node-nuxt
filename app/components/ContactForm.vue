@@ -7,10 +7,10 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-async function onSubmit(values: ContactBody) {
+async function onSubmit(values: ContactWriteRequest) {
   loading.value = true
   try {
-    await $fetch<Contact>(
+    await $fetch(
       'api/contact',
       {
         method: 'POST',
@@ -39,34 +39,48 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(2),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }).min(2),
       autocomplete: 'name',
       readonly: false,
       required: true,
       placeholder: t('name'),
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
     {
       label: $i18n.t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+      rules: z.email({
+        error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.email.valid'),
+      }),
       autocomplete: 'email',
       readonly: false,
       required: true,
       placeholder: $i18n.t('email.title'),
       type: 'email',
+      condition: () => true,
+      disabledCondition: () => false,
     },
     {
       label: t('message'),
       name: 'message',
       as: 'textarea',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(10),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }).min(10),
       autocomplete: 'message',
       readonly: false,
       required: true,
       placeholder: t('message'),
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))

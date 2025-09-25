@@ -94,20 +94,16 @@ const Footer = computed(() => {
       </PageHeader>
       <div
         class="
-          grid gap-2 pt-[57px]
-
-          lg:pt-[65px]
-
-          md:gap-6 md:pt-[65px]
+          grid gap-2 pt-[54px]
+          md:gap-6 md:pt-[62px]
+          lg:pt-[62px]
         "
       >
         <div
           class="
             bg-primary-100
-
-            dark:bg-primary-900
-
             md:rounded-b-[94px]
+            dark:bg-primary-900
           "
         >
           <UserAccountInfo
@@ -120,24 +116,22 @@ const Footer = computed(() => {
         </div>
         <main
           class="
-            max-w-(--container-main) mx-auto w-full
-
+            mx-auto w-full max-w-(--container-main)
             md:!p-0
-          " :class="{
+          "
+          :class="{
             'opacity-70': searchBarFocused,
           }"
         >
           <div
             class="
               relative mb-12
-
               md:mb-20
             "
           >
             <div
               class="
                 flex-1 flex-col
-
                 md:flex md:w-full md:gap-4
               "
             >
@@ -145,11 +139,8 @@ const Footer = computed(() => {
                 :class="[
                   `
                     relative mx-auto flex h-full flex-1 flex-col
-
-                    lg:flex-row lg:gap-8
-
                     md:w-full
-
+                    lg:flex-row lg:gap-8
                     xl:gap-4
                   `,
                 ]"
@@ -164,9 +155,7 @@ const Footer = computed(() => {
                     ]"
                     class="
                       hidden
-
                       md:grid md:w-auto md:py-4 md:pl-0
-
                       xl:pl-8
                     "
                   >

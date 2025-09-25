@@ -107,7 +107,7 @@ const formFields = computed(() => {
 // Filter the schema fields based on the condition function
 const filteredFields = computed(() => {
   return formFields.value.filter((field) => {
-    if (!field.condition) {
+    if (!field.condition || typeof field.condition !== 'function') {
       return true
     }
     return field.condition(values)
@@ -120,7 +120,7 @@ const disabledFields = computed<DisabledFields>(() => {
     return {}
   }
   return formFields.value.reduce((acc: DisabledFields, field) => {
-    acc[field.name] = field.disabledCondition ? field.disabledCondition(values) : false
+    acc[field.name] = field.disabledCondition && typeof field.disabledCondition === 'function' ? field.disabledCondition(values) : false
     return acc
   }, {})
 })
@@ -152,21 +152,28 @@ const currentStepSchema = computed(() => {
 })
 
 // Use schema.extraValidation to generate a Zod schema object
-const extraValidationSchema = schema.value.extraValidation ? schema.value.extraValidation : z.object({})
+const extraValidationSchema = computed(() => {
+  return schema.value.extraValidation ?? undefined
+})
 
 // Merge the generated Zod schema object with the extraValidationSchema
 const merged = computed(() => {
   const baseSchema = isMultiStep.value ? completeGeneratedSchema.value : currentStepSchema.value
-
-  if (extraValidationSchema instanceof z.ZodEffects) {
-    return mergeWithEffect(extraValidationSchema, baseSchema)
-  }
-  else if (extraValidationSchema instanceof z.ZodObject) {
-    return baseSchema.merge(extraValidationSchema)
+  if (!extraValidationSchema.value) {
+    return baseSchema
   }
 
-  console.warn('extraValidationSchema is not an instance of z.ZodEffects or z.ZodObject')
-  return baseSchema
+  return z.object({
+    ...baseSchema.shape,
+    ...extraValidationSchema.value.shape,
+  }).superRefine((val, ctx) => {
+    const result = extraValidationSchema.value.safeParse(val)
+    if (!result.success) {
+      result.error.issues.forEach((issue: string) => {
+        ctx.addIssue(issue)
+      })
+    }
+  })
 })
 
 // Convert the generated Zod schema object to a VeeValidate compatible schema object
@@ -209,7 +216,7 @@ const {
   setFieldError,
 } = useForm({
   validationSchema,
-  initialValues: initialFormValues,
+  initialValues: initialFormValues.value,
   keepValuesOnUnmount: isMultiStep.value,
 })
 
@@ -286,11 +293,11 @@ const emit = defineEmits<{
 }>()
 
 // Define the submit event handler using handleSubmit function and emit function
-const onSubmit = handleSubmit((actions) => {
-  emit('submit', values)
+const onSubmit = handleSubmit((formValues) => {
+  emit('submit', formValues)
 
   if (resetOnSubmit.value) {
-    actions.resetForm()
+    resetForm()
   }
 })
 
@@ -324,6 +331,7 @@ const onSelectMenuChange = ({ target, value }: { target: string, value: string }
 // Define the submit button disabled state
 const valid = computedAsync(async () => {
   if (submitCount.value >= maxSubmitCount.value || loading.value) {
+    console.log('Returning true due to submit count or loading')
     return true
   }
 
@@ -335,7 +343,8 @@ const valid = computedAsync(async () => {
         ? !liveResultValid
         : false
     })
-    .catch(() => {
+    .catch((error) => {
+      console.log('Validation error:', error)
       return true
     })
 }, disableSubmitUntilValid.value)
@@ -389,17 +398,25 @@ defineExpose({
         root: 'pb-4',
         description: 'text-xs',
       }"
-      @update:model-value="value => currentStep = Number(value)"
+      @update:model-value="(value: string | number | undefined) => currentStep = Number(value || 0)"
     />
 
     <UForm
       :id="finalID"
       :state="fields"
       autocomplete="on"
-      class="grid w-full gap-4 divide-none dark:divide-primary-800"
+      class="
+        grid w-full gap-4 divide-none
+        dark:divide-primary-800
+      "
       @submit="onSubmit"
     >
-      <div class="grid gap-2 md:gap-4">
+      <div
+        class="
+          grid gap-2
+          md:gap-4
+        "
+      >
         <template
           v-for="{
             as,
@@ -531,7 +548,10 @@ defineExpose({
               color="neutral"
               v-bind="fields[name][1].value"
             >
-              <LazyDynamicFormChildren v-if="children && children.length > 0" :children="children" />
+              <LazyDynamicFormChildren
+                v-if="children && children.length > 0"
+                :children="children"
+              />
             </UInput>
           </LazyUFormField>
         </template>

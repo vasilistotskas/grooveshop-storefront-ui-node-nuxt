@@ -2,7 +2,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
+    const params = await getValidatedRouterParams(
+      event,
+      zDestroyOrderData.shape.path.parse,
+    )
     await $fetch(`${config.apiBaseUrl}/order/${params.id}`, {
       method: 'DELETE',
       headers: {

@@ -6,8 +6,8 @@ const getCursorFromUrl = (url: string): string => {
     const params = new URLSearchParams(url.split('?')[1])
     return params.get('cursor') || ''
   }
-  catch {
-    console.error('Invalid URL for cursor extraction:', url)
+  catch (error) {
+    console.error('Invalid URL for cursor extraction:', url, error)
     return ''
   }
 }
@@ -56,8 +56,11 @@ const currentState = computed(() => ({ ...cursorState.value }))
 const currentCursor = computed(() => currentState.value[cursorKey.value])
 
 const nextCursor = computed(() => {
-  if (!links.value?.next) return ''
-  return getCursorFromUrl(links.value.next)
+  if (!links.value?.next) {
+    return ''
+  }
+  const cursor = getCursorFromUrl(links.value.next)
+  return cursor
 })
 
 const hasMore = computed(() => {
@@ -79,18 +82,28 @@ const showLoadMoreButton = computed(() => {
   )
 })
 
+const shouldShowTrigger = computed(() => {
+  return strategy.value === 'scroll' && hasMore.value
+})
+
 const infiniteScrollTrigger = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
 
+const isLoadingMore = ref(false)
+
 const loadMore = async () => {
-  if (!nextCursor.value || loading.value) return
+  if (!nextCursor.value || loading.value || isLoadingMore.value) {
+    return
+  }
 
   if (nextCursor.value !== currentCursor.value) {
-    currentState.value[cursorKey.value] = nextCursor.value
-    cursorState.value = currentState.value
+    isLoadingMore.value = true
 
-    if (useRouteQuery.value) {
-      try {
+    try {
+      currentState.value[cursorKey.value] = nextCursor.value
+      cursorState.value = currentState.value
+
+      if (useRouteQuery.value) {
         await router.push({
           path: route.path,
           query: {
@@ -99,29 +112,36 @@ const loadMore = async () => {
           },
         })
       }
-      catch (error) {
-        console.error('Router push failed:', error)
-      }
+    }
+    catch (error) {
+      console.error('❌ Error in loadMore:', error)
+    }
+    finally {
+      setTimeout(() => {
+        isLoadingMore.value = false
+      }, 500)
     }
   }
 }
 
 const createObserver = () => {
-  if (strategy.value !== 'scroll' || !infiniteScrollTrigger.value || !hasMore.value) return
+  if (strategy.value !== 'scroll' || !infiniteScrollTrigger.value || !hasMore.value) {
+    return
+  }
 
   if ('IntersectionObserver' in window) {
     observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && hasMore.value && !isLoadingMore.value) {
             loadMore()
           }
         })
       },
       {
         root: null,
-        rootMargin: '0px',
-        threshold: 0.25,
+        rootMargin: '200px',
+        threshold: 0.1,
       },
     )
 
@@ -148,9 +168,16 @@ const handleResize = () => {
   }
 }
 
-const debouncedHandleResize = useDebounceFn(() => {
-  handleResize()
-}, 300)
+let resizeTimeout: NodeJS.Timeout | null = null
+const debouncedHandleResize = () => {
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout)
+  }
+  resizeTimeout = setTimeout(() => {
+    handleResize()
+    resizeTimeout = null
+  }, 300)
+}
 
 onMounted(() => {
   createObserver()
@@ -168,6 +195,27 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => hasMore.value,
+  (newHasMore) => {
+    if (strategy.value === 'scroll') {
+      destroyObserver()
+      if (newHasMore) {
+        createObserver()
+      }
+    }
+  },
+)
+
+watch(
+  () => infiniteScrollTrigger.value,
+  (newTrigger) => {
+    if (newTrigger && strategy.value === 'scroll' && hasMore.value) {
+      createObserver()
+    }
+  },
+)
+
 onUnmounted(() => {
   destroyObserver()
   window.removeEventListener('resize', debouncedHandleResize)
@@ -176,11 +224,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="cursor-pagination flex flex-col items-center my-4">
+  <div class="my-4 flex flex-col items-center">
     <div
-      v-if="strategy === 'scroll' && hasMore"
+      v-if="shouldShowTrigger"
       ref="infiniteScrollTrigger"
-      class="w-full h-[1px]"
+      class="h-[20px] w-full"
     />
     <UButton
       v-if="showLoadMoreButton"

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { getUnseenCount, markAsSeen } = useUserNotification()
 const { getNotifications } = useNotification()
 const userNotificationStore = useUserNotificationStore()
@@ -24,7 +24,7 @@ const { data: unseen, execute: executeUnseenCount, status: unseenStatus } = awai
   },
 )
 
-const { data, execute, status: notificationsStatus } = await useLazyAsyncData<ZNotification[]>(
+const { data, execute, status: notificationsStatus } = await useLazyAsyncData(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
@@ -45,7 +45,7 @@ const pending = computed(() => {
 })
 
 const show = computed(() => {
-  if (!unseen.value || !unseen.value?.count) {
+  if (!unseen.value || !('count' in unseen.value)) {
     return false
   }
   return unseen.value.count > 0
@@ -61,7 +61,7 @@ const userNotifications = computed(() => {
   return notifications.value?.results?.map((notification) => {
     return {
       ...notification,
-      notification: data.value?.find(n => n.id === notification.notification),
+      notification: data.value?.find(n => (n as any).id === notification.notification),
     }
   })
 })
@@ -83,7 +83,10 @@ onClickOutside(dropdown, () => {
 </script>
 
 <template>
-  <div ref="toggleButton" class="relative grid items-center">
+  <div
+    ref="toggleButton"
+    class="relative grid items-center"
+  >
     <UChip
       :key="'notifications'"
       size="md"
@@ -109,17 +112,14 @@ onClickOutside(dropdown, () => {
         v-if="isDropdownVisible"
         ref="dropdown"
         class="
-          bg-neutral-50 absolute right-0 top-12 w-80 rounded-lg border
-          border-gray-200 shadow-md
-
-          dark:bg-neutral-900 dark:border-gray-800
-
-          lg:-right-12
-
+          absolute top-12 right-0 w-80 rounded-lg border border-gray-200
+          bg-neutral-50 shadow-md
           md:top-14
+          lg:-right-12
+          dark:border-gray-800 dark:bg-neutral-900
         "
       >
-        <div class="notifications-list relative grid gap-1 p-2">
+        <div class="relative grid gap-1 p-2">
           <template v-if="!pending && userNotifications?.length">
             <UButton
               v-for="(userNotification, index) in userNotifications"
@@ -147,8 +147,14 @@ onClickOutside(dropdown, () => {
                     root: 'grid gap-1',
                   }"
                 >
-                  <span class="notification-title truncate text-sm" v-html="extractTranslated(userNotification.notification, 'title', locale)" />
-                  <span class="notification-message text-xs" v-html="extractTranslated(userNotification.notification, 'message', locale)" />
+                  <span
+                    class="truncate text-sm"
+                    v-html="extractTranslated(userNotification.notification, 'title', locale)"
+                  />
+                  <span
+                    class="text-xs"
+                    v-html="extractTranslated(userNotification.notification, 'message', locale)"
+                  />
                 </UChip>
               </UCard>
             </UButton>
@@ -159,7 +165,10 @@ onClickOutside(dropdown, () => {
                 grid items-center justify-center justify-items-center gap-2 p-2
               "
             >
-              <UIcon name="i-heroicons-bell-alert" class="size-12" />
+              <UIcon
+                name="i-heroicons-bell-alert"
+                class="size-12"
+              />
               <p class="text-center text-sm">
                 {{ t('notifications.no_notifications') }}
               </p>

@@ -5,10 +5,10 @@ const orderUUID = 'uuid' in route.params
   : undefined
 
 const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 
-const { data: order, error } = await useFetch<Order>(
+const { data: order, error } = await useFetch(
   `/api/orders/uuid/${orderUUID}`,
   {
     key: `order${orderUUID}`,
@@ -63,8 +63,8 @@ const totalPriceExtra = computed(() => {
 })
 
 const payWayPrice = computed(() => {
-  const payWayCost = order.value?.payWay.cost
-  const payWayFreeForOrderAmount = order.value?.payWay.freeForOrderAmount ?? 0
+  const payWayCost = 0
+  const payWayFreeForOrderAmount = 0
   const totalPriceItems = order.value?.totalPriceItems ?? 0
   if (totalPriceItems >= payWayFreeForOrderAmount) {
     return 0
@@ -81,7 +81,6 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
@@ -92,19 +91,16 @@ definePageMeta({
 
     <div
       class="
-          container mx-auto bg-primary-100 rounded !p-4 shadow-md
-
-          dark:bg-primary-900
-
-          md:px-6
-        "
+        container mx-auto rounded bg-primary-100 !p-4 shadow-md
+        md:px-6
+        dark:bg-primary-900
+      "
     >
       <div
         class="
-            grid items-center justify-center justify-items-center gap-8
-
-            md:gap-16
-          "
+          grid items-center justify-center justify-items-center gap-8
+          md:gap-16
+        "
       >
         <div
           class="grid items-center justify-center justify-items-center gap-4"
@@ -118,10 +114,9 @@ definePageMeta({
           </h2>
           <p
             class="
-                text-primary-950 text-center
-
-                dark:text-primary-50
-              "
+              text-center text-primary-950
+              dark:text-primary-50
+            "
             v-html="
               t('main.text', {
                 orderId: orderNumber,
@@ -177,23 +172,23 @@ definePageMeta({
               >
                 <td class="border px-4 py-2">
                   <ImgWithFallback
-                    :alt="extractTranslated(item.product, 'name', locale)"
+                    :alt="`Image - ${item.product}`"
                     :background="'transparent'"
                     fit="contain"
                     :height="100"
-                    :src="item.product.mainImagePath"
+                    :src="''"
                     :style="{
                       objectFit: 'contain',
                       contentVisibility: 'auto',
                     }"
                     :width="100"
-                    class="product-img bg-primary-100"
+                    class="bg-primary-100"
                     loading="lazy"
                     sizes="sm:100vw md:50vw lg:auto"
                   />
                 </td>
                 <td class="border px-4 py-2">
-                  {{ extractTranslated(item.product, 'name', locale) }}
+                  {{ item.product }}
                 </td>
                 <td class="border px-4 py-2">
                   {{ item.quantity }}
@@ -212,9 +207,8 @@ definePageMeta({
 
           <div
             class="
-                grid w-full items-center justify-center justify-items-center
-                gap-2
-              "
+              grid w-full items-center justify-center justify-items-center gap-2
+            "
           >
             <h3 class="text-xl font-semibold">
               {{ t('order.details') }}
@@ -222,10 +216,9 @@ definePageMeta({
             <p
               v-if="shippingPrice"
               class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
+                text-primary-950
+                dark:text-primary-50
+              "
             >
               {{ t('shippingPrice') }}:
               <span>
@@ -235,10 +228,9 @@ definePageMeta({
             <p
               v-if="totalPriceItems"
               class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
+                text-primary-950
+                dark:text-primary-50
+              "
             >
               {{ t('totalPriceItems') }}:
               <span>
@@ -248,10 +240,9 @@ definePageMeta({
             <p
               v-if="totalPriceExtra"
               class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
+                text-primary-950
+                dark:text-primary-50
+              "
             >
               {{ t('totalPriceExtra') }}:
               <span>
@@ -261,10 +252,9 @@ definePageMeta({
             <p
               v-if="payWayPrice"
               class="
-                  text-primary-950
-
-                  dark:text-primary-50
-                "
+                text-primary-950
+                dark:text-primary-50
+              "
             >
               {{ t('payWayPrice') }}:
               <span>
@@ -275,10 +265,9 @@ definePageMeta({
           <p
             v-if="paidAmount"
             class="
-                text-primary-950 font-bold
-
-                dark:text-primary-50
-              "
+              font-bold text-primary-950
+              dark:text-primary-50
+            "
           >
             {{ t('total') }}:
             <span>

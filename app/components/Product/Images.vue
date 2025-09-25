@@ -11,7 +11,7 @@ const props = defineProps({
 const { product } = toRefs(props)
 const { locale } = useI18n()
 
-const { data: images } = await useFetch<ProductImage[]>(
+const { data: images } = await useFetch(
   `/api/products/${product.value.id}/images`,
   {
     key: `productImages${product.value.id}`,
@@ -23,7 +23,7 @@ const { data: images } = await useFetch<ProductImage[]>(
   },
 )
 
-const selectedImage = ref(images.value?.find(image => image.isMain))
+const selectedImage = ref(images.value?.find(image => image.isMain || image.id === images.value?.[0]?.id))
 const selectedImageId = ref(selectedImage.value?.id)
 
 watch(
@@ -59,35 +59,30 @@ watch(
       class="overflow-hidden rounded-lg"
       arrows
     >
-      <div class="flex-1">
-        <button
-          :class="{
-            'ring-2 ring-inset ring-indigo-300': selectedImageId === item.id,
-          }"
-          type="button"
-          class="
-            bg-primary-100 flex w-full items-center justify-center rounded-lg
-            p-2
-
-            dark:bg-primary-900
-
-            focus:outline-none
-
-            md:h-32
-          "
-          :aria-label="`Select image ${item.id}`"
-          @click="selectedImageId = item.id"
-        >
-          <ProductImage
-            :key="item.id"
-            :image="item"
-            :width="200"
-            :height="120"
-            img-loading="lazy"
-            class="rounded-md"
-          />
-        </button>
-      </div>
+      <button
+        :class="{
+          'ring-2 ring-indigo-300 ring-inset': selectedImageId === item.id,
+        }"
+        type="button"
+        class="
+          flex w-full items-center justify-center rounded-lg bg-primary-100 p-2
+          hover:cursor-pointer
+          focus:outline-none
+          md:h-32
+          dark:bg-primary-900
+        "
+        :aria-label="`Select image ${item.id}`"
+        @click="selectedImageId = item.id"
+      >
+        <ProductImage
+          :key="item.id"
+          :image="item"
+          :width="200"
+          :height="120"
+          img-loading="lazy"
+          class="rounded-md"
+        />
+      </button>
     </LazyUCarousel>
   </div>
 </template>

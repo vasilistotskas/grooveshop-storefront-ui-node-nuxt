@@ -4,12 +4,12 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readValidatedBody(
       event,
-      ZodProductFavouriteCreateBody.parse,
+      zCreateProductFavouriteData.shape.body.parse,
     )
-    const query = await getValidatedQuery(event, ZodProductFavouriteQuery.parse)
+    const query = await getValidatedQuery(event, zCreateProductFavouriteData.shape.query.parse)
     const url = buildFullUrl(
       `${config.apiBaseUrl}/product/favourite`,
-      query,
+      query as any,
     )
     const response = await $fetch(url, {
       method: 'POST',
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodProductFavourite)
+    return await parseDataAs(response, zCreateProductFavouriteResponse)
   }
   catch (error) {
     await handleError(error)

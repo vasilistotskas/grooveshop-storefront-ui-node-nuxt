@@ -22,21 +22,18 @@ const emit = defineEmits([
   'address-delete',
 ])
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
-  <div class="address-list grid gap-4">
+  <div class="grid gap-4">
     <div class="grid w-full items-start gap-4">
       <div
         v-if="displayTotal"
         class="flex items-center justify-center gap-1"
       >
         <span
-          class="
-            text-sm font-semibold
-
-          "
+          class="text-sm font-semibold"
         >
           {{ t('total', addressesCount) }}
         </span>
@@ -44,10 +41,8 @@ const { t } = useI18n({ useScope: 'local' })
       <ul
         class="
           grid grid-cols-1 gap-4
-
-          lg:grid-cols-3
-
           md:grid-cols-2
+          lg:grid-cols-3
         "
       >
         <AddressCard

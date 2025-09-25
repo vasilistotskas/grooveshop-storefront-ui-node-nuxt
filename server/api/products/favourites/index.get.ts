@@ -2,10 +2,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const query = await getValidatedQuery(event, ZodProductFavouriteQuery.parse)
+    const query = await getValidatedQuery(event, zListProductFavouriteData.shape.query.parse)
     const url = buildFullUrl(
       `${config.apiBaseUrl}/product/favourite`,
-      query,
+      query as any,
     )
     const response = await $fetch(url, {
       method: 'GET',
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodPagination(ZodProductFavourite))
+    return await parseDataAs(response, zListProductFavouriteResponse)
   }
   catch (error) {
     await handleError(error)

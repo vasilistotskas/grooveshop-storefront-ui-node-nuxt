@@ -15,7 +15,7 @@ export const useUserNotificationStore = defineStore('userNotification', () => {
       return
     }
     const { getNotifications } = useUserNotification()
-    const { data } = await useAsyncData<Pagination<NotificationUser>>(
+    const { data } = await useAsyncData(
       'userNotifications',
       () => getNotifications(user.value?.id),
     )

@@ -4,9 +4,10 @@ import type { TableColumn } from '@nuxt/ui'
 const { getRecoveryCodes } = useAllAuthAccount()
 const toast = useToast()
 const localePath = useLocalePath()
+const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 
-const { data, refresh, error } = await useAsyncData<RecoveryCodesGetResponse>(
+const { data, refresh, error } = await useAsyncData(
   'recoveryCodes',
   () => getRecoveryCodes(),
 )
@@ -66,39 +67,95 @@ onReactivated(async () => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
-    <section class="grid w-full gap-4 md:gap-8">
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <section
+      class="
+        grid w-full gap-4
+        md:gap-8
+      "
+    >
+      <div
+        class="
+          grid grid-cols-1 gap-6
+          md:grid-cols-2
+        "
+      >
         <div>
-          <p class="text-primary-950 dark:text-primary-50">
-            <strong>{{ $i18n.t('total_code_count') }}:</strong> {{ total_code_count }}
+          <p
+            class="
+              text-primary-950
+              dark:text-primary-50
+            "
+          >
+            <strong>{{ t('total_code_count') }}:</strong> {{ total_code_count }}
           </p>
-          <p class="text-primary-950 dark:text-primary-50">
-            <strong>{{ $i18n.t('unused_code_count') }}:</strong> {{ unused_code_count }}
+          <p
+            class="
+              text-primary-950
+              dark:text-primary-50
+            "
+          >
+            <strong>{{ t('unused_code_count') }}:</strong> {{ unused_code_count }}
           </p>
-          <p class="text-primary-950 dark:text-primary-50">
+          <p
+            class="
+              text-primary-950
+              dark:text-primary-50
+            "
+          >
             <strong>{{ $i18n.t('ordering.created_at') }}:</strong>
             {{ created_at ? new Date(created_at * 1000).toLocaleString() : $i18n.t('unused') }}
           </p>
-          <p class="text-primary-950 flex gap-1 dark:text-primary-50">
+          <p
+            class="
+              flex gap-1 text-primary-950
+              dark:text-primary-50
+            "
+          >
             <strong>{{ $i18n.t('last_used_at') }}:</strong>
-            <span :class="last_used_at ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'">
+            <span
+              :class="last_used_at ? `
+                text-red-500
+                dark:text-red-400
+              ` : `
+                text-green-500
+                dark:text-green-400
+              `"
+            >
               {{ last_used_at ? new Date(last_used_at * 1000).toLocaleString() : $i18n.t('unused') }}
             </span>
           </p>
         </div>
         <div class="grid items-center justify-center justify-items-center">
-          <UButton class="w-full" icon="i-heroicons-arrow-down-on-square" @click="downloadCodes">
-            {{ $i18n.t('download_codes') }}
+          <UButton
+            class="w-full"
+            icon="i-heroicons-arrow-down-on-square"
+            @click="downloadCodes"
+          >
+            {{ t('download_codes') }}
           </UButton>
         </div>
       </div>
 
-      <UTable :columns="columns" :data="rows">
+      <UTable
+        :columns="columns"
+        :data="rows"
+      >
         <template #actions-cell="{ row }">
           <UIcon
-            :class="row.original.used ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+            :class="row.original.used ? `
+              text-green-500
+              dark:text-green-400
+            ` : `
+              text-red-500
+              dark:text-red-400
+            `"
             :name="row.original.used ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
             class="size-6"
           />
@@ -107,3 +164,10 @@ onReactivated(async () => {
     </section>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  total_code_count: Συνολικός αριθμός κωδικών
+  unused_code_count: Αριθμός αχρησιμοποίητων κωδικών
+  download_codes: Κατέβασε τους κωδικούς
+</i18n>

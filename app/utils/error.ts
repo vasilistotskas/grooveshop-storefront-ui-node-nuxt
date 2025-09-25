@@ -30,7 +30,7 @@ export const handleAllAuthClientError = (error: unknown): void => {
     const errors = 'errors' in error.data.data ? error.data.data.errors : []
     errors.forEach((error) => {
       toast.add({
-        title: t(`api_validation.${error.code}`),
+        title: t(`validation.api.${error.code}`),
         color: 'error',
       })
     })

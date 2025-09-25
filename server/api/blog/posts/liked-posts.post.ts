@@ -1,10 +1,8 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, ZodBlogPostsLikedPostsBody.parse)
+    const body = await readValidatedBody(event, zCheckBlogPostLikesData.shape.body.parse)
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/post/liked_posts`,
       {
@@ -15,7 +13,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, z.array(z.number()))
+    return await parseDataAs(response, zCheckBlogPostLikesResponse)
   }
   catch (error) {
     await handleError(error)

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { menus } = useAccountMenus()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
 
@@ -11,13 +11,14 @@ definePageMeta({
 
 <template>
   <PageWrapper
-    class="flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1"
+    class="
+      flex flex-col gap-4
+      md:mt-1 md:gap-8 md:!p-0
+    "
   >
     <PageTitle
       :text="t('title')"
-      class="account-header-title md:mt-0"
+      class="md:mt-0"
     />
 
     <MobileOrTabletOnly>
@@ -25,62 +26,56 @@ definePageMeta({
         role="tablist"
         :aria-label="$i18n.t('menu')"
         class="
-            grid grid-cols-2 gap-3
-
-            lg:grid-cols-3
-
-            xl:grid-cols-4
-          "
+          grid grid-cols-2 gap-3
+          lg:grid-cols-3
+          xl:grid-cols-4
+        "
       >
         <li
           v-for="(item, i) in menus"
           :key="i"
           class="
-              bg-primary-100 border-primary-500 grid gap-2 rounded-[16px] border
-              p-4
-
-              dark:bg-primary-900 dark:border-primary-500
-            "
+            grid gap-2 rounded-[16px] border border-primary-500 bg-primary-100
+            p-4
+            dark:border-primary-500 dark:bg-primary-900
+          "
         >
           <LazyAnchor
             v-if="item.route && item.type === 'link'"
             :to="item.route"
             :text="item.text"
-            class="flex items-center gap-2"
           >
-            <LazyUIcon
-              v-if="item.icon"
-              :name="item.icon"
-              class="
+            <div class="flex items-center gap-2">
+              <LazyUIcon
+                v-if="item.icon"
+                :name="item.icon"
+                class="
                   text-2xl
-
                   md:text-xl
                 "
-            />
-            <span
-              class="
-                  text-primary-950 text-xl font-semibold capitalize
-
-                  dark:text-primary-50
-
+              />
+              <span
+                class="
+                  text-xl font-semibold text-primary-950 capitalize
                   md:text-lg
+                  dark:text-primary-50
                 "
-              :class="{
-                'font-extrabold ':
-                  route.path === item.route?.path,
-              }"
-            >
-              {{ item.text }}
-            </span>
+                :class="{
+                  'font-extrabold':
+                    route.path === item.route?.path,
+                }"
+              >
+                {{ item.text }}
+              </span>
+            </div>
           </LazyAnchor>
         </li>
         <li
           class="
-              bg-primary-100 border-primary-500 col-span-2 grid gap-2
-              rounded-[16px] border p-4
-
-              dark:bg-primary-900 dark:border-primary-500
-            "
+            col-span-2 grid gap-2 rounded-[16px] border border-primary-500
+            bg-primary-100 p-4
+            dark:border-primary-500 dark:bg-primary-900
+          "
         >
           <LogoutButton
             class="!m-0 ml-2 !p-0"

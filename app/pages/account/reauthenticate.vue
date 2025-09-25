@@ -5,7 +5,7 @@ const emit = defineEmits(['reauthenticate'])
 
 const { reauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
@@ -38,12 +38,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'current-password',
       readonly: false,
       required: true,
       placeholder: $i18n.t('password.title'),
       type: 'password',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))
@@ -57,22 +61,21 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      :text="t('title')"
+      class="text-center capitalize"
     />
 
     <Account2FaReauthenticateFlow :flow="Flows.REAUTHENTICATE">
       <div class="grid items-center justify-center gap-2">
         <h3
           class="
-              text-primary-950 text-2xl font-bold
-
-              dark:text-primary-50
-            "
+            text-2xl font-bold text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ $i18n.t('enter_password') }}
         </h3>

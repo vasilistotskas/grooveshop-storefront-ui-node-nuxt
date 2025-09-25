@@ -89,11 +89,9 @@ const items = computed(() => {
     </slot>
     <main
       class="
-        pt-[57px]
-
-        lg:pt-[65px]
-
-        md:pt-[65px]
+        pt-[54px]
+        md:pt-[62px]
+        lg:pt-[62px]
       "
       :class="{
         'opacity-70': searchBarFocused,
@@ -106,13 +104,22 @@ const items = computed(() => {
     <slot name="footer">
       <MobileOrTabletOnly>
         <div
-          class="md:hidden my-6 flex flex-wrap items-center justify-center"
+          class="
+            my-6 flex flex-wrap items-center justify-center
+            md:hidden
+          "
         >
           <Socials />
         </div>
       </MobileOrTabletOnly>
-      <LazyFooterMobile v-if="isMobileOrTablet" hydrate-on-visible />
-      <LazyFooterDesktop v-else hydrate-on-visible />
+      <LazyFooterMobile
+        v-if="isMobileOrTablet"
+        hydrate-on-visible
+      />
+      <LazyFooterDesktop
+        v-else
+        hydrate-on-visible
+      />
     </slot>
     <MobileOrTabletOnly>
       <UNavigationMenu

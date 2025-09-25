@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
 
-const { data: categories, status } = await useFetch<Pagination<ProductCategory>>(
+const { data: categories, status } = await useFetch(
   '/api/products/categories',
   {
     key: 'productCategories',
@@ -54,15 +54,13 @@ onMounted(() => {
     v-if="categories && categories.count > 0"
     ref="sidebar"
     class="
-      sidebar relative hidden h-fit w-60 transition-all duration-300 ease-in-out
-
+      relative hidden h-fit w-60 transition-all duration-300 ease-in-out
       lg:flex
     "
   >
     <div
       class="
         grid w-full flex-1 gap-2 overflow-y-auto px-4
-
         lg:pl-0
       "
     >
@@ -71,8 +69,7 @@ onMounted(() => {
       </h2>
       <div
         class="
-          sidebar-header-sticky bg-primary-100 grid
-
+          grid bg-primary-100
           dark:bg-primary-950
         "
       >
@@ -80,8 +77,7 @@ onMounted(() => {
           {{ $i18n.t('categories') }}
           <span
             class="
-              text-primary-950 text-sm font-normal
-
+              text-sm font-normal text-primary-950
               dark:text-primary-50
             "
           >
@@ -101,7 +97,6 @@ onMounted(() => {
           icon="i-heroicons-magnifying-glass-20-solid"
           class="
             hidden p-2
-
             md:grid
           "
           color="neutral"
@@ -113,7 +108,6 @@ onMounted(() => {
       <ul
         class="
           grid max-h-96 gap-2
-
           md:gap-4
         "
       >
@@ -145,28 +139,19 @@ onMounted(() => {
       >
         <p
           class="
-            text-primary-950 p-2 text-center
-
+            p-2 text-center text-primary-950
             dark:text-primary-50
           "
         >
-          {{ $i18n.t('no_categories_found') }}
+          {{ t('categories.not_found') }}
         </p>
       </div>
     </div>
   </aside>
 </template>
 
-<style scoped>
-.sidebar {
-  &.sticky {
-    top: 0;
-  }
-}
-
-.sidebar-header-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-</style>
+<i18n lang="yaml">
+el:
+  categories:
+    not_found: Δεν βρέθηκαν Κατηγορίες
+</i18n>

@@ -3,7 +3,7 @@ const emit = defineEmits(['emailVerify'])
 
 const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
@@ -14,7 +14,7 @@ const key = 'key' in route.params
   ? route.params.key
   : undefined
 
-const { data: getVerifyEmailData } = await useAsyncData<EmailVerifyGetResponse>(
+const { data: getVerifyEmailData } = await useAsyncData(
   'verifyEmail',
   () => getEmailVerify(String(key)),
 )
@@ -47,7 +47,6 @@ definePageMeta({
     <div
       class="
         flex flex-col gap-8
-
         md:gap-12
       "
     >
@@ -58,16 +57,14 @@ definePageMeta({
 
       <div class="flex flex-col items-center justify-center">
         <div
-          v-if="getVerifyEmailData?.status === 200" class="
-              flex flex-col items-center justify-center gap-4
-            "
+          v-if="getVerifyEmailData?.status === 200"
+          class="flex flex-col items-center justify-center gap-4"
         >
           <p
             class="
-                text-primary-950
-
-                dark:text-primary-50
-              "
+              text-primary-950
+              dark:text-primary-50
+            "
           >
             {{ t('please_confirm_that') }} <a
               :href="'mailto:' + getVerifyEmailData?.data.email"
@@ -86,20 +83,20 @@ definePageMeta({
           />
         </div>
         <p
-          v-else-if="!getVerifyEmailData?.data?.email" class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+          v-else-if="!getVerifyEmailData?.data?.email"
+          class="
+            text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ t('invalid_verification_url') }}
         </p>
         <p
-          v-else class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+          v-else
+          class="
+            text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ t('unable_to_confirm_email') }}
           <UButton

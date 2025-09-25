@@ -4,14 +4,14 @@ import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
-import type { AcceptableValue } from '@nuxt/ui'
+import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 defineSlots<{
   default(props: object): any
 }>()
 
 const { user, fetch } = useUserSession()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
 
@@ -19,16 +19,32 @@ const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
 const ZodAccountSettings = z.object({
-  email: z.string({ required_error: $i18n.t('validation.required') }).email({
-    message: $i18n.t('validation.email.invalid'),
+  email: z.email({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.email.valid'),
   }),
-  firstName: z.string({ required_error: $i18n.t('validation.required') }),
-  lastName: z.string({ required_error: $i18n.t('validation.required') }),
-  phone: z.string({ required_error: $i18n.t('validation.required') }),
-  city: z.string({ required_error: $i18n.t('validation.required') }),
-  zipcode: z.string({ required_error: $i18n.t('validation.required') }),
-  address: z.string({ required_error: $i18n.t('validation.required') }),
-  place: z.string({ required_error: $i18n.t('validation.required') }),
+  firstName: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  lastName: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  phone: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  city: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  zipcode: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  address: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
+  place: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') }),
   birthDate: z.preprocess(
     (input) => {
       if (typeof input === 'string' || input instanceof Date) {
@@ -38,14 +54,19 @@ const ZodAccountSettings = z.object({
       return undefined
     },
     z.date({
-      required_error: $i18n.t('validation.date.required_error'),
-      invalid_type_error: $i18n.t('validation.date.invalid_type_error'),
+      error: issue => issue.input === undefined
+        ? $i18n.t('validation.date.required_error')
+        : $i18n.t('validation.date.invalid_type_error'),
     }).optional(),
   ),
-  country: z.string({ required_error: $i18n.t('validation.required') })
+  country: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
-  region: z.string({ required_error: $i18n.t('validation.required') })
+  region: z.string({ error: issue => issue.input === undefined
+    ? $i18n.t('validation.required')
+    : $i18n.t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
 })
@@ -118,7 +139,7 @@ const label = computed(() => {
     : t('form.birth_date')
 })
 
-const { data: countries } = await useFetch<Pagination<Country>>('/api/countries', {
+const { data: countries } = await useFetch('/api/countries', {
   key: 'countries',
   method: 'GET',
   headers: useRequestHeaders(),
@@ -145,7 +166,7 @@ const fetchRegions = async () => {
   }
 
   try {
-    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
+    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
         country: country.value,
@@ -178,7 +199,7 @@ const regionOptions = computed(() => {
   )
 })
 
-const onCountryChange = async (payload: boolean | AcceptableValue | undefined) => {
+const onCountryChange = async (payload: string | undefined) => {
   if (!payload) return
   country.value = String(payload)
   region.value = defaultSelectOptionChoose
@@ -196,7 +217,7 @@ const onSubmit = handleSubmit(async (values) => {
 
   if (!userId) return
 
-  await $fetch<UserAccount>(`/api/user/account/${userId}`, {
+  await $fetch(`/api/user/account/${userId}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {
@@ -243,16 +264,31 @@ watch(calendarDate, (newVal) => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
     <form
       id="accountSettingsForm"
-      class="_form bg-primary-100 flex w-full flex-col gap-4 rounded p-4 dark:bg-primary-900 md:grid md:grid-cols-2"
+      class="
+        flex w-full flex-col gap-4 rounded bg-primary-100 p-4
+        md:grid md:grid-cols-2
+        dark:bg-primary-900
+      "
       name="accountSettingsForm"
       @submit="onSubmit"
     >
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="firstName">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="firstName"
+        >
           {{ t('form.first_name') }}
         </label>
         <div class="grid">
@@ -267,13 +303,22 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.firstName" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.firstName"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.firstName }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="lastName">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="lastName"
+        >
           {{ t('form.last_name') }}
         </label>
         <div class="grid">
@@ -288,13 +333,22 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.lastName" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.lastName"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.lastName }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="phone">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="phone"
+        >
           {{ t('form.phone') }}
         </label>
         <div class="grid">
@@ -308,13 +362,22 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.phone" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.phone"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.phone }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="city">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="city"
+        >
           {{ t('form.city') }}
         </label>
         <div class="grid">
@@ -328,13 +391,22 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.city" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.city"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.city }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="zipcode">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="zipcode"
+        >
           {{ t('form.zipcode') }}
         </label>
         <div class="grid">
@@ -348,13 +420,22 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.zipcode" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.zipcode"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.zipcode }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="address">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="address"
+        >
           {{ t('form.address') }}
         </label>
         <div class="grid">
@@ -368,13 +449,22 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.address" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.address"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.address }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="place">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="place"
+        >
           {{ t('form.place') }}
         </label>
         <div class="grid">
@@ -388,13 +478,22 @@ watch(calendarDate, (newVal) => {
             type="text"
           />
         </div>
-        <span v-if="errors.place" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.place"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.place }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="birthDate">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="birthDate"
+        >
           {{ t('form.birth_date') }}
         </label>
         <div class="grid">
@@ -413,13 +512,22 @@ watch(calendarDate, (newVal) => {
             </template>
           </UPopover>
         </div>
-        <span v-if="errors.birthDate" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.birthDate"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.birthDate }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="country">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="country"
+        >
           {{ t('form.country') }}
         </label>
         <div class="grid">
@@ -435,13 +543,22 @@ watch(calendarDate, (newVal) => {
             @update:model-value="onCountryChange"
           />
         </div>
-        <span v-if="errors.country" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.country"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.country }}
         </span>
       </div>
 
       <div class="grid">
-        <label class="text-primary-950 mb-2 dark:text-primary-50" for="region">
+        <label
+          class="
+            mb-2 text-primary-950
+            dark:text-primary-50
+          "
+          for="region"
+        >
           {{ t('form.region') }}
         </label>
         <div class="grid">
@@ -456,7 +573,10 @@ watch(calendarDate, (newVal) => {
             v-bind="regionProps"
           />
         </div>
-        <span v-if="errors.region" class="relative px-4 py-3 text-xs text-red-600">
+        <span
+          v-if="errors.region"
+          class="relative px-4 py-3 text-xs text-red-600"
+        >
           {{ errors.region }}
         </span>
       </div>
@@ -465,7 +585,10 @@ watch(calendarDate, (newVal) => {
         <button
           :aria-busy="isSubmitting"
           :disabled="submitButtonDisabled"
-          class="text-primary-50 rounded bg-secondary px-4 py-2 font-bold disabled:cursor-not-allowed disabled:opacity-50"
+          class="
+            rounded bg-secondary px-4 py-2 font-bold text-primary-50
+            disabled:cursor-not-allowed disabled:opacity-50
+          "
           type="submit"
         >
           {{ t('form.submit') }}

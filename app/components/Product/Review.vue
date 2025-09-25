@@ -26,7 +26,7 @@ const props = defineProps({
     required: true,
   },
   user: {
-    type: Object as PropType<UserAccount>,
+    type: Object as PropType<Authentication>,
     required: true,
   },
 })
@@ -42,7 +42,7 @@ const emit = defineEmits([
   'delete-existing-review',
 ])
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const route = useRoute()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
@@ -50,7 +50,7 @@ const { isMobileOrTablet } = useDevice()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const { refresh } = await useLazyFetch<ProductReview[]>(
+const { refresh } = await useLazyFetch(
   `/api/products/${product.value?.id}/reviews`,
   {
     key: `productReviews${product.value?.id}`,
@@ -143,7 +143,7 @@ const reviewScoreText = computed(() => {
   if (
     liveReviewCountRatio.value < 0.01
     || (newSelectionRatio.value === null
-      && (reviewCount.value === null || userProductReview?.value?.rate === 0))
+      && (reviewCount.value === null || !userProductReview?.value?.rate))
   ) {
     return ''
   }
@@ -279,19 +279,18 @@ const tooManyAttempts = computed(() => {
 })
 
 const createReviewEvent = async (event: { comment: string, rate: number }) => {
-  await $fetch<ProductReview>(`/api/products/reviews`, {
+  await $fetch(`/api/products/reviews`, {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      product: String(product.value?.id),
-      user: String(user?.value?.id),
+      product: product.value?.id,
       translations: {
         [locale.value]: {
           comment: event.comment,
         },
       },
       rate: String(event.rate),
-      status: ZodProductReviewStatusEnum.enum.TRUE,
+      status: 'TRUE',
     },
     async onResponse() {
       await refresh()
@@ -312,12 +311,11 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
 
 const updateReviewEvent = async (event: { comment: string, rate: number }) => {
   if (!userProductReview?.value) return
-  await $fetch<ProductReview>(`/api/products/reviews/${userProductReview?.value.id}`, {
+  await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {
-      product: String(product.value?.id),
-      user: String(user?.value?.id),
+      product: product.value?.id,
       rate: String(event.rate),
       translations: {
         [locale.value]: {
@@ -425,9 +423,12 @@ watch(
     })"
   >
     <template #header>
-      <div class="review_header">
+      <div class="flex items-center justify-between gap-4">
         <span
-          class="review_header-title"
+          class="
+            mb-0 text-xl leading-tight font-medium
+            md:text-base
+          "
           v-html="
             t('write_review_for_product', {
               product: extractTranslated(product, 'name', locale),
@@ -437,16 +438,25 @@ watch(
         <UIcon name="i-fa-solid-pen" />
       </div>
     </template>
+
     <template #body>
-      <div class="review_body">
-        <div class="review_body-rating">
-          <div class="review_body-rating-title">
+      <div class="relative grid gap-6">
+        <div class="grid gap-2">
+          <div
+            class="
+              mb-0 text-xl leading-tight font-medium
+              md:text-base
+            "
+          >
             <p>{{ t('rating.title') }}</p>
           </div>
-          <div class="review_body-rating-content">
+          <div class="relative grid grid-cols-[auto_1fr] items-center gap-4">
             <div
               ref="ratingBoard"
-              class="rating-board rating-background"
+              class="
+                relative z-10 inline-flex h-[26px] flex-row flex-nowrap
+                items-center justify-start
+              "
               @click="lockSelection($event)"
               @mouseenter.passive="unlockSelection()"
               @mouseleave.passive="reLockSelection()"
@@ -457,9 +467,9 @@ watch(
             >
               <svg
                 v-for="(star, i) of backgroundStars"
-                :key="i"
+                :key="`bg-${i}`"
                 aria-hidden="true"
-                class="star star-background"
+                class="h-[26px] w-[26px] cursor-pointer text-slate-300"
                 data-icon="star"
                 data-prefix="fas"
                 focusable="false"
@@ -468,34 +478,44 @@ watch(
                 xmlns="http://www.w3.org/2000/svg"
                 v-html="star"
               />
+
+              <div
+                class="
+                  pointer-events-none absolute top-0 left-0 z-20 inline-flex
+                  h-[26px] flex-row flex-nowrap items-center justify-start
+                "
+              >
+                <svg
+                  v-for="(star, i) of foregroundStars"
+                  :key="`fg-${i}`"
+                  aria-hidden="true"
+                  class="h-[26px] w-[26px] cursor-pointer text-orange-400"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 576 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                  v-html="star"
+                />
+              </div>
             </div>
-            <div class="rating-board rating-foreground">
-              <svg
-                v-for="(star, i) of foregroundStars"
-                :key="i"
-                aria-hidden="true"
-                class="star star-foreground"
-                focusable="false"
-                role="img"
-                viewBox="0 0 576 512"
-                xmlns="http://www.w3.org/2000/svg"
-                v-html="star"
-              />
-            </div>
-            <span class="px-2">{{ reviewScoreText }}</span>
+
+            <span class="px-2 text-sm font-medium">{{ reviewScoreText }}</span>
           </div>
-          <span class="review_body-rating-error h-6">{{ errors.rate }}</span>
+          <span class="h-6 text-sm font-normal text-red-400">{{ errors.rate }}</span>
         </div>
 
-        <div class="review_body-comment">
-          <div class="review_body-comment-title">
-            <p class="review_body-comment-title-text">
-              <label for="comment">{{
-                t('comment.label')
-              }}</label>
+        <div class="grid gap-2">
+          <div
+            class="
+              mb-0 text-xl leading-tight font-medium
+              md:text-base
+            "
+          >
+            <p>
+              <label for="comment">{{ t('comment.label') }}</label>
             </p>
           </div>
-          <div class="review_body-comment-content">
+          <div class="relative">
             <Field
               id="comment"
               v-model="comment"
@@ -510,7 +530,7 @@ watch(
               v-bind="commentProps"
             />
           </div>
-          <span class="review_body-rating-error h-6">{{ errors.comment }}</span>
+          <span class="h-6 text-sm font-normal text-red-400">{{ errors.comment }}</span>
         </div>
 
         <input
@@ -521,14 +541,20 @@ watch(
         >
       </div>
     </template>
+
     <template #footer>
-      <div class="review_footer">
-        <div class="review_footer-content">
+      <div
+        class="
+          flex w-full flex-col items-center justify-between gap-4
+          sm:flex-row
+        "
+      >
+        <div class="grid w-full justify-end">
           <UButton
             v-if="!tooManyAttempts"
             :label="reviewButtonText"
             block
-            class="review_footer-button"
+            class="w-full"
             color="neutral"
             variant="outline"
             size="lg"
@@ -544,15 +570,16 @@ watch(
             size="lg"
           />
         </div>
+
         <div
           v-if="userProductReview"
-          class="review_footer-content"
+          class="grid w-full justify-end"
         >
           <UButton
             :label="t('delete_review')"
             :trailing="true"
             block
-            class="review_footer-button gap-2"
+            class="w-full gap-2"
             color="error"
             icon="i-heroicons-trash"
             size="lg"
@@ -563,131 +590,6 @@ watch(
     </template>
   </UModal>
 </template>
-
-<style scoped>
-.review_header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.review_header-title {
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.2;
-  margin-bottom: 0;
-  @media screen and (max-width: 768px) {
-    font-size: 1rem;
-  }
-}
-
-.review_body {
-  position: relative;
-  display: grid;
-}
-
-.review_body-rating {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.review_body-rating-title {
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.2;
-  margin-bottom: 0;
-  @media screen and (max-width: 768px) {
-    font-size: 1rem;
-  }
-}
-
-.review_body-rating-content {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-}
-
-.review_body-rating-error {
-  color: #f56565;
-  font-size: 0.875rem;
-  font-weight: 400;
-}
-
-.review_body-comment {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.review_body-comment-title {
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.2;
-  margin-bottom: 0;
-  @media screen and (max-width: 768px) {
-    font-size: 1rem;
-  }
-}
-
-.review_body-comment-content {
-  position: relative;
-}
-
-.review_footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-}
-
-.review_footer-content {
-  display: grid;
-  width: 100%;
-  justify-content: flex-end;
-}
-
-.review_footer-button {
-  width: 100%;
-}
-
-.rating-background {
-  position: relative;
-  z-index: 1;
-}
-
-.rating-foreground {
-  pointer-events: none;
-  position: absolute;
-  z-index: 2;
-}
-
-.rating-board {
-  align-content: center;
-  align-items: center;
-  display: inline-flex;
-  flex-flow: row nowrap;
-  height: 26px;
-  justify-content: flex-start;
-  left: 0;
-  top: 0;
-}
-
-.star {
-  cursor: pointer;
-  height: 26px;
-  width: 26px;
-}
-
-.star-foreground {
-  color: #f68b24;
-}
-
-.star-background {
-  color: #e2e8f0;
-}
-</style>
 
 <i18n lang="yaml">
 el:

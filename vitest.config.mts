@@ -10,14 +10,17 @@ export default defineVitestConfig({
       reportsDirectory: fileURLToPath(new URL('./coverage', import.meta.url)),
       reporter: ['text', 'html', 'clover', 'lcov', 'json'],
       include: ['**/*.ts', '**/*.vue'],
+      exclude: [
+        '**/types/**/*',
+        '**/constants/**/*',
+      ],
     },
     include: ['**/*.spec.ts'],
-    environment: 'happy-dom',
+    environment: 'nuxt',
     environmentOptions: {
       nuxt: {
-        rootDir: fileURLToPath(new URL('./', import.meta.url)),
-        domEnvironment: 'happy-dom',
         mock: {
+          intersectionObserver: true,
           indexedDb: true,
         },
       },

@@ -1,5 +1,3 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
@@ -8,7 +6,7 @@ export default defineEventHandler(async () => {
       {
         method: 'GET',
       })
-    return await parseDataAs(response, z.any())
+    return await parseDataAs(response, zHealthCheckResponse)
   }
   catch (error) {
     await handleError(error)

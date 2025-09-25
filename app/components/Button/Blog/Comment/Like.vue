@@ -41,7 +41,7 @@ const emit = defineEmits<{
 }>()
 
 const attrs = useAttrs()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -66,7 +66,7 @@ const toggleFavourite = async () => {
     return
   }
 
-  await $fetch<BlogComment>(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
+  await $fetch(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
     method: 'POST',
     headers: useRequestHeaders(),
     onResponse({ response }) {

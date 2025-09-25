@@ -11,7 +11,7 @@ export default function () {
       })
     }
 
-    return $fetch<SessionResponse>(`${API_BASE_URL}/session`, {
+    return $fetch(`${API_BASE_URL}/session`, {
       method: 'GET',
       headers,
       async onResponse({ response }) {
@@ -37,7 +37,7 @@ export default function () {
   }
 
   async function login(body: LoginBody) {
-    return $fetch<LoginResponse>(`${API_BASE_URL}/login`, {
+    return $fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -51,7 +51,7 @@ export default function () {
   }
 
   async function signup(body: SignupBody) {
-    return $fetch<SignupResponse>(`${API_BASE_URL}/signup`, {
+    return $fetch(`${API_BASE_URL}/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -65,7 +65,7 @@ export default function () {
   }
 
   async function getEmailVerify(key: string) {
-    return $fetch<EmailVerifyGetResponse>(`${API_BASE_URL}/email/verify`, {
+    return $fetch(`${API_BASE_URL}/email/verify`, {
       method: 'GET',
       headers: {
         ...useRequestHeaders(),
@@ -81,7 +81,7 @@ export default function () {
   }
 
   async function emailVerify(body: EmailVerifyPostBody) {
-    return $fetch<EmailVerifyPostResponse>(`${API_BASE_URL}/email/verify`, {
+    return $fetch(`${API_BASE_URL}/email/verify`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -95,7 +95,7 @@ export default function () {
   }
 
   async function reauthenticate(body: ReauthenticateBody) {
-    return $fetch<ReauthenticateResponse>(`${API_BASE_URL}/reauthenticate`, {
+    return $fetch(`${API_BASE_URL}/reauthenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -109,7 +109,7 @@ export default function () {
   }
 
   async function passwordRequest(body: PasswordRequestBody) {
-    return $fetch<PasswordRequestResponse>(`${API_BASE_URL}/password/request`, {
+    return $fetch(`${API_BASE_URL}/password/request`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -123,7 +123,7 @@ export default function () {
   }
 
   async function getPasswordReset(key: string) {
-    return $fetch<PasswordResetGetResponse>(`${API_BASE_URL}/password/reset`, {
+    return $fetch(`${API_BASE_URL}/password/reset`, {
       method: 'GET',
       headers: {
         ...useRequestHeaders(),
@@ -139,7 +139,7 @@ export default function () {
   }
 
   async function passwordReset(body: PasswordResetPostBody) {
-    return $fetch<PasswordResetPostResponse>(`${API_BASE_URL}/password/reset`, {
+    return $fetch(`${API_BASE_URL}/password/reset`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -195,7 +195,7 @@ export default function () {
   }
 
   async function providerToken(body: ProviderTokenBody) {
-    return $fetch<ProviderTokenResponse>(`${API_BASE_URL}/provider/token`, {
+    return $fetch(`${API_BASE_URL}/provider/token`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -209,7 +209,7 @@ export default function () {
   }
 
   async function providerSignup(body: ProviderSignupBody) {
-    return $fetch<ProviderSignupResponse>(`${API_BASE_URL}/provider/signup`, {
+    return $fetch(`${API_BASE_URL}/provider/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -223,7 +223,7 @@ export default function () {
   }
 
   async function twoFaAuthenticate(body: TwoFaAuthenticateBody) {
-    return $fetch<TwoFaAuthenticateResponse>(`${API_BASE_URL}/2fa/authenticate`, {
+    return $fetch(`${API_BASE_URL}/2fa/authenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -237,7 +237,7 @@ export default function () {
   }
 
   async function twoFaReauthenticate(body: TwoFaReauthenticateBody) {
-    return $fetch<TwoFaReauthenticateResponse>(`${API_BASE_URL}/2fa/reauthenticate`, {
+    return $fetch(`${API_BASE_URL}/2fa/reauthenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -265,7 +265,7 @@ export default function () {
   }
 
   async function confirmLoginCode(body: CodeConfirmBody) {
-    return $fetch<CodeConfirmResponse>(`${API_BASE_URL}/code/confirm`, {
+    return $fetch(`${API_BASE_URL}/code/confirm`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -279,7 +279,7 @@ export default function () {
   }
 
   async function getWebAuthnRequestOptionsForReauthentication() {
-    return $fetch<WebAuthnReauthenticateGetResponse>(`${API_BASE_URL}/webauthn/reauthenticate`, {
+    return $fetch(`${API_BASE_URL}/webauthn/reauthenticate`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -292,7 +292,7 @@ export default function () {
   }
 
   async function reauthenticateUsingWebAuthn(body: WebAuthnReauthenticatePostBody) {
-    return $fetch<WebAuthnReauthenticatePostResponse>(`${API_BASE_URL}/webauthn/reauthenticate`, {
+    return $fetch(`${API_BASE_URL}/webauthn/reauthenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -306,7 +306,7 @@ export default function () {
   }
 
   async function authenticateUsingWebAuthn(body: WebAuthnAuthenticatePostBody) {
-    return $fetch<WebAuthnAuthenticatePostResponse>(`${API_BASE_URL}/webauthn/authenticate`, {
+    return $fetch(`${API_BASE_URL}/webauthn/authenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -320,7 +320,7 @@ export default function () {
   }
 
   async function loginUsingWebAuthn(body: WebAuthnLoginPostBody) {
-    return $fetch<WebAuthnLoginPostResponse>(`${API_BASE_URL}/webauthn/login`, {
+    return $fetch(`${API_BASE_URL}/webauthn/login`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -334,7 +334,7 @@ export default function () {
   }
 
   async function getWebAuthnRequestOptionsForLogin() {
-    return $fetch<WebAuthnLoginGetResponse>(`${API_BASE_URL}/webauthn/login`, {
+    return $fetch(`${API_BASE_URL}/webauthn/login`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -347,7 +347,7 @@ export default function () {
   }
 
   async function getWebAuthnRequestOptionsForAuthentication() {
-    return $fetch<WebAuthnAuthenticateGetResponse>(`${API_BASE_URL}/webauthn/authenticate`, {
+    return $fetch(`${API_BASE_URL}/webauthn/authenticate`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -360,7 +360,7 @@ export default function () {
   }
 
   async function signUpByPasskey(body: WebAuthnSignupPostBody) {
-    return $fetch<WebAuthnSignupPostResponse>(`${API_BASE_URL}/webauthn/signup`, {
+    return $fetch(`${API_BASE_URL}/webauthn/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -374,7 +374,7 @@ export default function () {
   }
 
   async function getWebAuthnCreateOptionsAtSignup() {
-    return $fetch<WebAuthnSignupGetResponse>(`${API_BASE_URL}/webauthn/signup`, {
+    return $fetch(`${API_BASE_URL}/webauthn/signup`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -387,7 +387,7 @@ export default function () {
   }
 
   async function signupWebAuthnCredential(body: WebAuthnSignupPutBody) {
-    return $fetch<WebAuthnSignupPutResponse>(`${API_BASE_URL}/webauthn/signup`, {
+    return $fetch(`${API_BASE_URL}/webauthn/signup`, {
       method: 'PUT',
       headers: useRequestHeaders(),
       body,

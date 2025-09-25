@@ -22,7 +22,7 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData<EmailGetResponse>(
+const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData(
   'emailAddresses',
   () => getEmailAddresses(),
 )
@@ -159,13 +159,17 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: $i18n.t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z
-        .string({ required_error: $i18n.t('validation.required') })
-        .email($i18n.t('validation.email.valid')),
+      rules: z.email({
+        error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.email.valid'),
+      }),
       autocomplete: 'email',
       readonly: false,
       required: true,
       placeholder: $i18n.t('email.title'),
+      condition: () => true,
+      disabledCondition: () => false,
       type: 'email',
     },
   ],
@@ -173,23 +177,50 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 </script>
 
 <template>
-  <div class="grid gap-4 md:gap-12">
-    <UTable :columns="columns" :data="data">
+  <div
+    class="
+      grid gap-4
+      md:gap-12
+    "
+  >
+    <UTable
+      :columns="columns"
+      :data="data"
+    >
       <template #actions-cell="{ row }">
-        <LazyUDropdownMenu v-if="actionItems(row.original).length > 0" :items="actionItems(row.original)">
-          <UButton color="neutral" icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
+        <LazyUDropdownMenu
+          v-if="actionItems(row.original).length > 0"
+          :items="actionItems(row.original)"
+        >
+          <UButton
+            color="neutral"
+            icon="i-heroicons-ellipsis-horizontal-20-solid"
+            variant="ghost"
+          />
         </LazyUDropdownMenu>
       </template>
       <template #verified-cell="{ row }">
         <UIcon
-          :class="row.original.verified ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          :class="row.original.verified ? `
+            text-green-500
+            dark:text-green-400
+          ` : `
+            text-red-500
+            dark:text-red-400
+          `"
           :name="row.original.verified ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
           class="size-6"
         />
       </template>
       <template #primary-cell="{ row }">
         <UIcon
-          :class="row.original.primary ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+          :class="row.original.primary ? `
+            text-green-500
+            dark:text-green-400
+          ` : `
+            text-red-500
+            dark:text-red-400
+          `"
           :name="row.original.primary ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
           class="size-6"
         />
@@ -197,10 +228,20 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     </UTable>
 
     <div class="grid">
-      <h2 class="text-primary-950 text-center dark:text-primary-50">
+      <h2
+        class="
+          text-center text-primary-950
+          dark:text-primary-50
+        "
+      >
         {{ $i18n.t('email.add') }}
       </h2>
-      <div class="container mx-auto p-0 md:px-6">
+      <div
+        class="
+          container mx-auto p-0
+          md:px-6
+        "
+      >
         <section class="grid items-center">
           <DynamicForm
             :button-label="$i18n.t('submit')"

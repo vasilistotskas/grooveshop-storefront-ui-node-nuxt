@@ -43,21 +43,18 @@ const filteredTags = computed(() => {
     <div
       class="
         flex gap-2
-
         md:flex-col
       "
     >
       <div
         class="
           grid items-center
-
           md:justify-center
         "
       >
         <h3
           class="
-            text-md flex items-center gap-2 text-center font-bold
-
+            flex items-center gap-2 text-center font-bold text-default
             md:text-lg
           "
         >
@@ -79,7 +76,6 @@ const filteredTags = computed(() => {
           icon="i-heroicons-magnifying-glass-20-solid"
           class="
             hidden
-
             md:grid
           "
           color="neutral"
@@ -113,12 +109,3 @@ const filteredTags = computed(() => {
     </div>
   </aside>
 </template>
-
-<style scoped>
-.scrollable-tags {
-  @media screen and (min-width: 768px) {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-}
-</style>

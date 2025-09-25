@@ -47,7 +47,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run lint fix
-        run: pnpm run lint:fix
+        run: pnpm run lint
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: pnpm audit signatures --audit-level=critical
       - name: Test

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -31,12 +31,12 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
+  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />
@@ -62,10 +62,9 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         To «microlearning» είναι ένα μοντέλο μάθησης που περιλαμβάνει την παροχή περιεχομένου σε μικρές δόσεις
         πληροφορίας (microcontent).
@@ -94,10 +93,9 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Το microlearning, βασίζεται στη θεωρία της «καμπύλης λήθης» (forgetting curve), η οποία σύμφωνα με τον Hermann
         Ebbinghaus, είναι μια γραφική αναπαράσταση της μείωσης της διατήρησης της μνήμης με την πάροδο του χρόνου. Η
@@ -128,10 +126,9 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Όπως αναφέρθηκε και παραπάνω, το microlearning βασίζεται στη διανομή μικρών δόσεων πληροφορίας και
         περιεχομένου, γνωστών ως «microcontent». Το microcontent μπορεί να λάβει πολλές μορφές, όπως βίντεο μικρής

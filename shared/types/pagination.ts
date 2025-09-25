@@ -1,14 +1,14 @@
 export type Pagination<T> = {
-  links: {
+  links?: {
     next?: string | null
-    prev?: string | null
+    previous?: string | null
   }
   count: number
-  totalPages: number
-  pageTotalResults: number
-  pageSize: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
   page?: number
-  results: T[] | null
+  results: T[]
 } & {
   limit?: number
   offset?: number

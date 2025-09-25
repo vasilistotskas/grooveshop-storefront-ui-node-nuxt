@@ -3,7 +3,7 @@ export default defineCachedEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      ZodProductCategoryParams.parse,
+      zRetrieveProductCategoryData.shape.path.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/product/category/${params.id}`,
@@ -11,7 +11,7 @@ export default defineCachedEventHandler(async (event) => {
         method: 'GET',
       },
     )
-    return await parseDataAs(response, ZodProductCategory)
+    return await parseDataAs(response, zRetrieveProductCategoryResponse)
   }
   catch (error) {
     await handleError(error)

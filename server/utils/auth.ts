@@ -55,8 +55,10 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
       },
     })
   }
+  console.log('response: ', response)
   if (response.meta?.access_token) {
     console.info('Setting access token from response')
+    console.log('Setting access token from response: ', response.meta.access_token)
     appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
     await setUserSession(event, {
       secure: {
@@ -98,9 +100,16 @@ export async function getAllAuthAccessToken(event?: H3Event) {
   return session?.secure?.accessToken
 }
 
-export async function requireAllAuthAccessToken(event?: H3Event) {
+export async function requireAllAuthAccessToken(event?: H3Event): Promise<string> {
   const session = await requireUserSession(event ?? useEvent())
-  return session?.secure?.accessToken
+  const accessToken = session?.secure?.accessToken
+  if (!accessToken) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Access token required',
+    })
+  }
+  return accessToken
 }
 
 export async function fetchUserData(response: AllAuthResponse, accessToken?: string | null) {
@@ -117,7 +126,7 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
     headers,
   })
 
-  const userResponse = await parseDataAs(user, ZodUserAccount)
+  const userResponse = await parseDataAs(user, zAuthentication)
   await setUserSession(useEvent(), {
     user: userResponse,
   })

@@ -2,8 +2,11 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, ZodOrderParams.parse)
-    const query = await getValidatedQuery(event, ZodOrderQuery.parse)
+    const params = await getValidatedRouterParams(
+      event,
+      zGetUserAccountOrdersData.shape.path.parse,
+    )
+    const query = await getValidatedQuery(event, zGetUserAccountOrdersData.shape.query.parse)
     const url = buildFullUrl(
       `${config.apiBaseUrl}/user/account/${params.id}/orders`,
       query,
@@ -14,7 +17,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodPagination(ZodOrder))
+    return await parseDataAs(response, zGetUserAccountOrdersResponse)
   }
   catch (error) {
     await handleError(error)

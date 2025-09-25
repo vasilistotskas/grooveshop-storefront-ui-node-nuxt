@@ -32,12 +32,32 @@ const onSubmit = async (values: PasswordChangeBody) => {
 }
 
 const formSchema = computed<DynamicFormSchema>(() => {
+  const createPasswordSchema = (_fieldType: 'current' | 'new' | 'confirm') => {
+    return z.string({
+      error: (issue) => {
+        if (issue.input === undefined || issue.input === '') {
+          return $i18n.t('validation.required')
+        }
+        if (typeof issue.input !== 'string') {
+          return $i18n.t('validation.string.invalid')
+        }
+        return $i18n.t('validation.string.invalid')
+      },
+    })
+      .min(8, {
+        error: issue => $i18n.t('validation.min', { min: issue.minimum }),
+      })
+      .max(255, {
+        error: issue => $i18n.t('validation.max', { max: issue.maximum }),
+      })
+  }
+
   const fields = [
     {
       label: $i18n.t('password.new'),
       name: 'new_password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+      rules: createPasswordSchema('new'),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -48,7 +68,7 @@ const formSchema = computed<DynamicFormSchema>(() => {
       label: $i18n.t('password.confirm'),
       name: 'confirm_password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+      rules: createPasswordSchema('confirm'),
       autocomplete: 'new-password',
       readonly: false,
       required: true,
@@ -62,8 +82,10 @@ const formSchema = computed<DynamicFormSchema>(() => {
       label: $i18n.t('password.current'),
       name: 'current_password',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(8).max(255),
+      rules: createPasswordSchema('current'),
       autocomplete: 'current-password',
+      condition: null,
+      disabledCondition: null,
       readonly: false,
       required: true,
       placeholder: $i18n.t('password.current'),
@@ -75,27 +97,29 @@ const formSchema = computed<DynamicFormSchema>(() => {
     fields,
     extraValidation: z
       .object({
-        current_password: z.string({ required_error: $i18n.t('validation.required') }).optional(),
-        new_password: z.string({ required_error: $i18n.t('validation.required') }),
-        confirm_password: z.string({ required_error: $i18n.t('validation.required') }),
-      }).superRefine((val, ctx) => {
+        current_password: hasCurrentPassword.value
+          ? createPasswordSchema('current')
+          : z.string().optional(),
+        new_password: createPasswordSchema('new'),
+        confirm_password: createPasswordSchema('confirm'),
+      })
+      .superRefine((val, ctx) => {
         if (val.new_password !== val.confirm_password) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: $i18n.t(
-              'validation.must_match', { field: $i18n.t('password.new'), other: $i18n.t('password.confirm') },
+              'validation.must_match',
+              { field: $i18n.t('password.new'), other: $i18n.t('password.confirm') },
             ),
             path: ['confirm_password'],
           })
         }
 
-        if (hasCurrentPassword.value && val.current_password === val.new_password) {
+        if (hasCurrentPassword.value && val.current_password && val.current_password === val.new_password) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: $i18n.t(
-              'validation.password.must_not_be_same',
-            ),
-            path: ['confirm_password'],
+            code: 'custom',
+            message: $i18n.t('validation.password.must_not_be_same'),
+            path: ['new_password'],
           })
         }
       }),
@@ -107,7 +131,6 @@ const formSchema = computed<DynamicFormSchema>(() => {
   <div
     class="
       grid gap-4
-
       lg:flex
     "
   >
@@ -115,8 +138,7 @@ const formSchema = computed<DynamicFormSchema>(() => {
     <section class="grid w-full items-center gap-4">
       <p
         class="
-          text-primary-950 text-center
-
+          text-center text-primary-950
           dark:text-primary-50
         "
       >

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -32,12 +32,12 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
+  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />
@@ -62,20 +62,18 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Χρησιμοποιώντας ως γνώμονα το μοντέλο ηλεκτρονικής μάθησης «Microlearning», ολοκληρώθηκε η δημιουργία της
         τελικής μορφής της εφαρμογής “Webside”.
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         To Webside, είναι μία ηλεκτρονική πλατφόρμα Microlearning και ηλεκτρονικού εμπορίου, όπου μπορείς να
         εκπαιδευτείς και να λάβεις χρήσιμες πληροφορίες σχετικά με την ηλεκτρονική προστασία σου από ηλεκτρονικές
@@ -84,20 +82,18 @@ definePageMeta({
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Ο σκοπός του Webside είναι η οικοδόμηση μίας κουλτούρας τεχνολογικής γνώσης και ηλεκτρονικής ασφάλειας, στα
         πλαίσια της αυξητικής τάσης χρήσης της τεχνολογίας σε καθημερινή βάση.
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Για την δημιουργία και παροχή του περιεχομένου σε όλα τα ψηφιακά κανάλια (ιστοσελίδα, social media κ.α.),
         γίνεται η χρήση διάφορων εκπαιδευτικών μεθόδων όπως το Microlearning, με τέτοιο τρόπο ώστε ο κάθε χρήστης να
@@ -105,10 +101,9 @@ definePageMeta({
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Παράλληλα, το Webside περιλαμβάνει και ηλεκτρονικό κατάστημα τεχνολογικών προιόντων, μέσω του οποίου μπορείς
         να

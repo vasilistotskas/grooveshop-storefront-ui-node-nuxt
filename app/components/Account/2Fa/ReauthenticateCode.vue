@@ -9,7 +9,7 @@ defineSlots<{
 
 const { twoFaReauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
 const { $i18n } = useNuxtApp()
@@ -39,12 +39,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
       placeholder: $i18n.t('code'),
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))
@@ -54,12 +58,12 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      :text="t('title')"
+      class="text-center capitalize"
     />
 
     <Account2FaReauthenticateFlow>
@@ -67,10 +71,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       <div class="grid items-center justify-center gap-2">
         <h3
           class="
-              text-primary-950 text-2xl font-bold
-
-              dark:text-primary-50
-            "
+            text-2xl font-bold text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ t('enter_authenticator_code') }}
         </h3>

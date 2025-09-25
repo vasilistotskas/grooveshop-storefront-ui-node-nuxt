@@ -2,7 +2,7 @@
 import type { ButtonProps } from '@nuxt/ui'
 
 const pwa = usePWA()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 
 const installActions = computed<ButtonProps[]>(() => {
@@ -68,7 +68,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="pwa" id="pwa" />
+  <div
+    v-if="pwa"
+    id="pwa"
+  />
 </template>
 
 <i18n lang="yaml">

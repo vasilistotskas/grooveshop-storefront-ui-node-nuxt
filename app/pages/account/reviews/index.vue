@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const route = useRoute()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
@@ -9,7 +9,7 @@ const pageSize = ref(8)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -22,7 +22,7 @@ const entityOrdering = ref<EntityOrdering<ProductReviewOrderingField>>([
   },
 ])
 
-const { data: reviews, status, error } = useFetch<Pagination<ProductReview>>(
+const { data: reviews, status, error } = useFetch(
   `/api/user/account/${user.value?.id}/product-reviews`,
   {
     key: `userProductReviews${user.value?.id}`,
@@ -38,7 +38,7 @@ const { data: reviews, status, error } = useFetch<Pagination<ProductReview>>(
 
 const refreshReviews = async () => {
   status.value = 'pending'
-  const reviews = await $fetch<Pagination<ProductReview>>(
+  const reviews = await $fetch(
     `/api/user/account/${user.value?.id}/product-reviews`,
     {
       method: 'GET',
@@ -60,7 +60,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<ProductReviewOrderingField>(entityOrdering.value)
+  return useOrdering<any>(entityOrdering.value)
 })
 
 watch(
@@ -79,11 +79,13 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1
+      md:mt-1 md:gap-8 md:!p-0
     "
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
       <PaginationPageNumber
@@ -103,7 +105,10 @@ definePageMeta({
       :reviews-count="reviews?.count"
       display-image-of="product"
     />
-    <div v-else-if="status === 'pending'" class="grid gap-4">
+    <div
+      v-else-if="status === 'pending'"
+      class="grid gap-4"
+    >
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
@@ -115,7 +120,10 @@ definePageMeta({
         />
       </div>
     </div>
-    <Error v-else-if="error" :error="error" />
+    <Error
+      v-else-if="error"
+      :error="error"
+    />
     <LazyEmptyState
       v-else-if="!reviews?.count"
       class="w-full"

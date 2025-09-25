@@ -1,5 +1,3 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
@@ -10,9 +8,7 @@ export default defineEventHandler(async () => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, z.object({
-      success: z.boolean(),
-    }))
+    return await parseDataAs(response, zMarkAllNotificationUsersAsSeenResponse)
   }
   catch (error) {
     await handleError(error)

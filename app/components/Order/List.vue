@@ -18,7 +18,7 @@ defineProps({
   },
 })
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
@@ -28,10 +28,7 @@ const { t } = useI18n({ useScope: 'local' })
       class="flex items-center justify-center gap-1"
     >
       <span
-        class="
-          text-sm font-semibold
-
-        "
+        class="text-sm font-semibold"
       >
         {{ t('total', ordersTotal) }}
       </span>
@@ -39,7 +36,6 @@ const { t } = useI18n({ useScope: 'local' })
     <ol
       class="
         grid gap-2
-
         md:gap-4
       "
     >

@@ -2,6 +2,10 @@
 import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 
+const { blogPostUrl } = useUrls()
+
+const localLikesCount = ref(0)
+
 const props = defineProps({
   post: { type: Object as PropType<BlogPost>, required: true },
   imgWidth: { type: Number, required: false, default: 575 },
@@ -49,12 +53,18 @@ const startShare = async () => {
   }
 }
 
+watchEffect(() => {
+  if (post.value?.likesCount !== undefined) {
+    localLikesCount.value = post.value.likesCount
+  }
+})
+
 const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   if (event.liked) {
-    post.value.likesCount++
+    localLikesCount.value++
   }
   else {
-    post.value.likesCount--
+    localLikesCount.value--
   }
 }
 </script>
@@ -63,20 +73,21 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      bg-primary-100 container grid min-h-60 w-full gap-4 rounded-lg !p-0
-
+      container grid min-h-60 w-full gap-4 rounded-lg bg-primary-100 !p-0
       dark:bg-primary-900 dark:text-primary-950
     "
   >
     <div class="relative grid">
       <Anchor
-        :to="{ path: post.absoluteUrl }"
+        :to="{ path: blogPostUrl(post.id, post.slug) }"
         :text="alt"
-        css-class="grid justify-center"
+        :ui="{
+          base: 'p-0',
+        }"
       >
         <ImgWithFallback
           :loading="imgLoading"
-          class="bg-primary-100 rounded-lg"
+          class="rounded-lg bg-primary-100"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
           :width="imgWidth"
@@ -93,32 +104,28 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         />
         <h2
           class="
-            absolute bottom-12 right-0 grid w-full justify-center
+            absolute right-0 bottom-12 grid w-full justify-center
             justify-items-start
           "
         >
           <span
             class="
-              text-primary-50 m-auto block w-[70%] text-3xl font-bold
-              tracking-tight
-
-              dark:text-primary-50
-
-              lg:w-[76%]
-
-              md:w-[66%] md:text-4xl
-
+              m-auto block w-[70%] text-3xl font-bold tracking-tight
+              text-primary-50
               sm:w-3/5
+              md:w-[66%] md:text-4xl
+              lg:w-[76%]
+              dark:text-primary-50
             "
           >
             {{ extractTranslated(post, 'title', locale) }}
           </span>
         </h2>
       </Anchor>
-      <div class="absolute bottom-4 right-4 grid items-end gap-2">
+      <div class="absolute right-4 bottom-4 grid items-end gap-2">
         <ButtonBlogPostLike
           :blog-post-id="post.id"
-          :likes-count="post.likesCount"
+          :likes-count="localLikesCount"
           size="3xl"
           @update="likeClicked"
         />
@@ -131,7 +138,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :title="$i18n.t('comments.count', {
             count: post.commentsCount,
           })"
-          :to="localePath({ path: post.absoluteUrl, hash: '#blog-post-comments' })"
+          :to="localePath({ path: blogPostUrl(post.id, post.slug), hash: '#blog-post-comments' })"
           :label="String(post.commentsCount)"
           :ui="{
             base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',

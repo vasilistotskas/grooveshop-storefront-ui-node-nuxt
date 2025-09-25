@@ -7,16 +7,18 @@ const searchBarFocused = useState<boolean>('search-bar-focused')
 </script>
 
 <template>
-  <div class="container mx-auto relative">
+  <div class="relative container mx-auto">
     <div class="mt-12 grid items-center justify-center">
       <Anchor
         :aria-label="appTitle"
         class="
-          text-md flex items-center gap-2 overflow-hidden font-bold
-
+          flex items-center gap-2 overflow-hidden text-base font-bold
           md:w-auto
         "
         to="index"
+        :ui="{
+          base: 'p-0',
+        }"
       >
         <NuxtImg
           :style="{ objectFit: 'contain' }"
@@ -31,11 +33,9 @@ const searchBarFocused = useState<boolean>('search-bar-focused')
     </div>
     <main
       class="
-        pt-[57px]
-
-        lg:pt-[65px]
-
-        md:pt-[65px]
+        pt-[54px]
+        md:pt-[62px]
+        lg:pt-[62px]
       "
       :class="{
         'opacity-70': searchBarFocused,

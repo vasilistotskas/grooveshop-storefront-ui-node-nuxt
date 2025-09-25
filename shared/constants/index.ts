@@ -1,15 +1,11 @@
-import { ScreenSizeEnum } from '#shared/types/enum'
-import type { FloorEnum, LocationTypeEnum } from '#shared/types'
-import { ZodFloorEnum, ZodLocationTypeEnum } from '#shared/schemas'
-
 export const floorChoicesList: { name: FloorEnum, value: FloorEnum }[]
-  = ZodFloorEnum.options.map(opt => ({
+  = zFloorEnum.options.map(opt => ({
     name: opt,
     value: opt,
   }))
 
 export const locationChoicesList: { name: LocationTypeEnum, value: LocationTypeEnum }[]
-  = ZodLocationTypeEnum.options.map(opt => ({
+  = zLocationTypeEnum.options.map(opt => ({
     name: opt,
     value: opt,
   }))

@@ -2,12 +2,12 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, ZodProductReviewPutBody.parse)
+    const body = await readValidatedBody(event, zPartialUpdateProductReviewData.shape.body.parse)
     const params = await getValidatedRouterParams(
       event,
-      ZodProductReviewParams.parse,
+      zPartialUpdateProductReviewData.shape.path.parse,
     )
-    const query = await getValidatedQuery(event, ZodProductReviewPutQuery.parse)
+    const query = await getValidatedQuery(event, zPartialUpdateProductReviewData.shape.query.parse)
     const url = buildFullUrl(
       `${config.apiBaseUrl}/product/review/${params.id}`,
       query,
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodProductReview)
+    return await parseDataAs(response, zPartialUpdateProductReviewResponse)
   }
   catch (error) {
     await handleError(error)

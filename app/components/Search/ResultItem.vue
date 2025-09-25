@@ -1,21 +1,25 @@
-<script lang="ts" setup>
-const isSearchProduct = (item: SearchProduct | SearchBlogPost): item is SearchProduct => {
-  return item.formatted !== undefined && item.formatted !== null && 'name' in item.formatted
-}
-
-const isSearchBlogPost = (item: SearchProduct | SearchBlogPost): item is SearchBlogPost => {
-  return item.formatted !== undefined && item.formatted !== null && 'title' in item.formatted
-}
-
+<script lang="ts" setup generic="T extends ProductMeiliSearchResult | BlogPostMeiliSearchResult">
 const props = defineProps<{
-  item: SearchProduct | SearchBlogPost
+  item: T
   highlighted: boolean
 }>()
 
 const { item } = toRefs(props)
 const emit = defineEmits(['click', 'mousedown', 'mouseover'])
 
-const { $i18n } = useNuxtApp()
+const { t } = useI18n()
+const { productUrl, blogPostUrl } = useUrls()
+
+const getPath = computed(() => {
+  switch (item.value.type) {
+    case 'product':
+      return productUrl(item.value.id, item.value.slug)
+    case 'blogPost':
+      return blogPostUrl(item.value.id, item.value.slug)
+    default:
+      return ''
+  }
+})
 
 const sortedFields = computed(() => {
   if (!item.value) return []
@@ -25,43 +29,23 @@ const sortedFields = computed(() => {
     ([key]) => key !== 'languageCode' && key !== 'id',
   )
 
-  if (isSearchProduct(item.value)) {
-    fields.sort(([keyA], [keyB]) => (keyA === 'name' ? -1 : keyB === 'name' ? 1 : 0))
-  }
-  else if (isSearchBlogPost(item.value)) {
-    fields.sort(([keyA], [keyB]) => (keyA === 'title' ? -1 : keyB === 'title' ? 1 : 0))
-  }
-
-  return fields.map(([key, value]) => [key, value ? stripHtml(value) : ''])
-})
-
-const imgAlt = computed(() => {
-  if (isSearchProduct(item.value)) {
-    return item.value.formatted?.name
-  }
-  else if (isSearchBlogPost(item.value)) {
-    return item.value.formatted?.title
-  }
-  return ''
+  return fields.map(([key, value]) => [key, value ? stripHtml(String(value)) : ''])
 })
 </script>
 
 <template>
   <li
     class="
-      border-primary-300 bg-primary-100 rounded-sm border
-
-      dark:bg-primary-900 dark:hover:bg-primary-800 dark:border-primary-500
-
+      rounded-sm border border-primary-300 bg-primary-100
       hover:bg-primary-200
+      dark:border-primary-500 dark:bg-primary-900 dark:hover:bg-primary-800
     "
   >
     <Anchor
       :class="{ 'bg-primary-200 dark:bg-primary-800': highlighted }"
-      :to="{ path: item.absoluteUrl }"
+      :to="{ path: getPath }"
       class="
-        focusable flex gap-1 p-2
-
+        flex gap-1 p-2
         md:gap-3
       "
       :prefetch-on="{ visibility: false, interaction: true }"
@@ -78,7 +62,7 @@ const imgAlt = computed(() => {
           fit="cover"
           :background="'transparent'"
           :src="item.mainImagePath"
-          :alt="imgAlt"
+          :alt="String(item.id)"
           :modifiers="{
             position: 'attention',
             trimThreshold: 5,
@@ -86,26 +70,26 @@ const imgAlt = computed(() => {
           densities="x1"
         />
         <div
-          v-if="sortedFields && sortedFields.length > 0" class="
-            grid overflow-hidden
-          "
+          v-if="sortedFields && sortedFields.length > 0"
+          class="grid overflow-hidden"
         >
-          <div v-for="([key, value], index) in sortedFields" :key="index">
+          <div
+            v-for="([key, value], index) in sortedFields"
+            :key="index"
+          >
             <span
               v-if="key"
               class="
-                text-primary-950 text-sm font-semibold
-
+                text-sm font-semibold text-primary-950
                 dark:text-primary-50
               "
             >
-              {{ $i18n.t(`fields.${key}`) }}:
+              {{ t(`fields.${key}`) }}:
             </span>
             <span
               v-if="value"
               class="
-                text-primary-950 line-clamp-1 text-sm
-
+                line-clamp-1 text-sm text-primary-950
                 dark:text-primary-50
               "
             >
@@ -117,3 +101,12 @@ const imgAlt = computed(() => {
     </Anchor>
   </li>
 </template>
+
+<i18n lang="yaml">
+el:
+  fields:
+    title: Τίτλος
+    subtitle: Περιγραφή
+    body: Περιγραφή
+    likesCount: likes
+</i18n>

@@ -3,21 +3,20 @@ import * as uiLocales from '@nuxt/ui/locale'
 export function setupPageHeader() {
   const publicConfig = useRuntimeConfig().public
   const siteConfig = useSiteConfig()
-  const { locale, locales } = useI18n()
+  const { $i18n } = useNuxtApp()
 
   const i18nHead = useLocaleHead({
     dir: true,
     lang: true,
     seo: true,
-    key: 'hid',
   })
 
   const colorMode = useColorMode()
   const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
-  const ogLocalesAlternate = computed(() => locales.value.map((l: any) => l.language))
-  const lang = computed(() => uiLocales[locale.value].code)
-  const dir = computed(() => uiLocales[locale.value].dir)
+  const ogLocalesAlternate = computed(() => $i18n.locales.value.map((l: any) => l.language))
+  const lang = computed(() => uiLocales[$i18n.locale.value].code)
+  const dir = computed(() => uiLocales[$i18n.locale.value].dir)
 
   useSeoMeta({
     title: publicConfig.appTitle,
@@ -42,7 +41,7 @@ export function setupPageHeader() {
     themeColor: themeColor,
     colorScheme: colorScheme,
     msapplicationTileColor: themeColor,
-    ogLocale: locale,
+    ogLocale: $i18n.locale,
     ogLocaleAlternate: ogLocalesAlternate,
   })
 

@@ -1,0 +1,24 @@
+{
+  "cookies": {
+    "optional": "Προαιρετικά cookies",
+    "optional_links": {
+      "privacy_policy": "Πολιτική Απορρήτου"
+    },
+    "necessary": "Απαραίτητα Cookies",
+    "necessary_description": "Τα απαραίτητα cookies βοηθούν να γίνει ένας ιστότοπος εύχρηστος, ενεργοποιώντας βασικές λειτουργίες όπως η πλοήγηση στη σελίδα και η πρόσβαση σε ασφαλείς περιοχές του ιστότοπου. Ο ιστότοπος δεν μπορεί να λειτουργήσει σωστά χωρίς αυτά τα cookies.",
+    "ad_storage": "Cookies Διαφήμισης",
+    "ad_storage_description": "Χρησιμοποιούνται για την προβολή σχετικών διαφημίσεων.",
+    "ad_user_data": "Δεδομένα Χρήστη Διαφήμισης",
+    "ad_user_data_description": "Επιτρέπει τη χρήση των δεδομένων σας για διαφημιστικούς σκοπούς.",
+    "ad_personalization": "Εξατομίκευση Διαφημίσεων",
+    "ad_personalization_description": "Προβολή διαφημίσεων προσαρμοσμένων στα ενδιαφέροντά σας.",
+    "analytics_storage": "Cookies Ανάλυσης",
+    "analytics_storage_description": "Συλλογή στατιστικών για τη βελτίωση της εμπειρίας σας.",
+    "functionality_storage": "Λειτουργικά Cookies",
+    "functionality_storage_description": "Αποθήκευση προτιμήσεων για τη βελτίωση της λειτουργικότητας του ιστότοπου.",
+    "personalization_storage": "Εξατομίκευση Περιεχομένου",
+    "personalization_storage_description": "Προσαρμογή περιεχομένου σύμφωνα με τις προτιμήσεις σας.",
+    "security_storage": "Cookies Ασφάλειας",
+    "security_storage_description": "Εξασφάλιση της ασφάλειας και της ακεραιότητας του ιστότοπου."
+  }
+}

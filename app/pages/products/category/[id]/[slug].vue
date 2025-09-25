@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const route = useRoute()
 
 const categoryId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: category } = await useFetch<ProductCategory>(
+const { data: category } = await useFetch(
   `/api/products/categories/${categoryId}`,
   {
     key: `category${categoryId}`,

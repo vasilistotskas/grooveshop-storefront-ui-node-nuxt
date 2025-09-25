@@ -28,8 +28,7 @@ const BlogPostCard = computed(() =>
     <h2
       v-if="title"
       class="
-        text-primary-950 mx-auto flex max-w-2xl text-2xl font-semibold
-
+        mx-auto flex max-w-2xl text-2xl font-semibold text-primary-950
         dark:text-primary-50
       "
     >
@@ -38,28 +37,23 @@ const BlogPostCard = computed(() =>
     <UCarousel
       v-slot="{ item }"
       :items="posts"
-      :ui="{ item: 'basis-full md:basis-1/2 items-center justify-center justify-items-center' }"
+      :ui="{
+        item: 'basis-full md:basis-1/2 items-center justify-center justify-items-center',
+        next: 'top-2/5 md:top-1/2',
+        prev: 'top-2/5 md:top-1/2',
+      }"
       :prev="{
         color: 'neutral',
         icon: 'i-heroicons-chevron-left',
-        class: '-start-2 md:-start-12',
-        ui: {
-          base: '-start-2 md:-start-12',
-        },
       }"
       :next="{
         color: 'neutral',
         icon: 'i-heroicons-chevron-right',
-        class: '-end-2 md:-end-12',
-        ui: {
-          base: '-end-2 md:-end-12',
-        },
       }"
       arrows
       wheel-gestures
       class="
         relative mx-auto max-w-4xl
-
         md:w-[43rem]
       "
     >

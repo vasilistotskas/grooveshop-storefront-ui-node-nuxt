@@ -16,7 +16,7 @@ const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { data: categories } = await useFetch<Pagination<BlogCategory>>(`/api/blog/categories`, {
+const { data: categories } = await useFetch(`/api/blog/categories`, {
   key: 'blogCategories',
   method: 'GET',
   headers: useRequestHeaders(),
@@ -25,12 +25,16 @@ const { data: categories } = await useFetch<Pagination<BlogCategory>>(`/api/blog
     language: locale,
   },
 })
-
 const categoryResults = shallowRef(categories.value?.results ?? [])
 </script>
 
 <template>
-  <div class="grid md:flex gap-2">
+  <div
+    class="
+      grid gap-2
+      md:flex
+    "
+  >
     <LazyUCarousel
       v-if="categoryResults && categoryResults?.length > 0"
       v-slot="{ item }"
@@ -39,12 +43,15 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
         container: 'items-unset',
         item: 'flex basis-[33%] md:basis-[17%]',
       }"
-      class="overflow-hidden md:w-full"
+      class="
+        overflow-hidden
+        md:w-full
+      "
     >
       <UButton
         :label="contentShorten(extractTranslated(item, 'name', locale), 0, isMobileOrTablet ? 6 : 10)"
         :to="localePath({ name: 'blog-category-id-slug', params: { id: item?.id, slug: item?.slug } })"
-        class="w-full !py-2 !px-2 font-bold"
+        class="w-full !px-2 !py-2 font-bold"
         color="secondary"
         size="xl"
       >

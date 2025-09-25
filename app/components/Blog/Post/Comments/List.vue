@@ -31,7 +31,7 @@ const { loggedIn, user } = useUserSession()
 
 const userHasCommented = (comment: BlogComment) => {
   if (loggedIn.value && user.value) {
-    return comment.user === user.value.id
+    return comment.user.id === user.value.id
   }
   return false
 }
@@ -43,7 +43,7 @@ const onReplyAdd = (data: BlogComment) => {
 watchEffect(() => {
   comments?.value?.sort((a) => {
     if (loggedIn.value && user.value) {
-      if (a.user === user.value.id) {
+      if (a.user.id === user.value.id) {
         return -1
       }
     }
@@ -53,21 +53,20 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="comments-list grid w-full gap-4">
+  <div class="grid w-full gap-4">
     <slot />
     <div
       id="comment-tree"
-      class="comments-list-items grid gap-4"
+      class="grid gap-4"
     >
       <BlogPostCommentsCard
         v-for="comment in comments"
         :key="comment.id"
         :comment="comment"
         :display-image-of="displayImageOf"
-        :class="userHasCommented(comment) ? 'user-commented' : ''"
+        :class="userHasCommented(comment) ? 'border-1 border-secondary-500' : ''"
         class="
-          comments-list-item bg-primary-100 rounded border p-4
-
+          rounded border bg-primary-100 p-4
           dark:bg-primary-900
         "
         @reply-add="onReplyAdd"

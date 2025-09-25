@@ -14,9 +14,9 @@ const emit = defineEmits(['twoFaAuthenticate'])
 
 const authInfo = useAuthInfo()
 const toast = useToast()
-const { t } = useI18n()
 const localePath = useLocalePath()
 const authStore = useAuthStore()
+const { t } = useI18n()
 const { session } = storeToRefs(authStore)
 const { $i18n } = useNuxtApp()
 
@@ -33,12 +33,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
       placeholder: '123456',
       type: 'text',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))
@@ -66,10 +70,16 @@ async function onSubmit(values: TwoFaAuthenticateBody) {
   <Account2FaAuthenticateFlow :authenticator-type="authenticatorType">
     <slot />
     <DynamicForm
-      :button-label="t('entry')"
+      :button-label="$i18n.t('entry')"
       :schema="formSchema"
       class="grid"
       @submit="onSubmit"
     />
   </Account2FaAuthenticateFlow>
 </template>
+
+<i18n lang="yaml">
+el:
+  success:
+    logged_in: Συνδέθηκες με επιτυχία
+</i18n>

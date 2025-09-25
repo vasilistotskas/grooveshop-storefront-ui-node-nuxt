@@ -1,5 +1,6 @@
 export default defineSitemapEventHandler(async () => {
   const config = useRuntimeConfig()
+  const baseUrl = config.public.baseUrl
 
   const cachedBlogPosts = createCachedFetcher<BlogPost>(
     'cachedBlogPosts',
@@ -16,13 +17,13 @@ export default defineSitemapEventHandler(async () => {
 
   return [
     ...allCategories.map(category => asSitemapUrl({
-      loc: category.absoluteUrl,
+      loc: baseUrl + '/blog/category/' + category.id + '/' + category.slug,
       changefreq: 'weekly',
       priority: 0.5,
       lastmod: new Date(category.updatedAt),
     })),
     ...allPosts.map(post => asSitemapUrl({
-      loc: post.absoluteUrl,
+      loc: baseUrl + '/blog/post/' + post.id + '/' + post.slug,
       changefreq: 'daily',
       priority: 0.8,
       lastmod: new Date(post.updatedAt),

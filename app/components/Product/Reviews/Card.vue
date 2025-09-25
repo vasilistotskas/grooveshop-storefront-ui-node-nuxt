@@ -20,16 +20,11 @@ const userAccount = computed(() => review?.value?.user)
 
 const { locale } = useI18n()
 const { contentShorten } = useText()
-
-const src = computed(() => {
-  return displayImageOf.value === 'user'
-    ? userAccount.value?.mainImagePath
-    : product.value?.mainImagePath
-})
+const { productUrl } = useUrls()
 
 const alt = computed(() => {
   return displayImageOf.value === 'user'
-    ? (userAccount.value?.fullName || 'Anonymous')
+    ? 'Anonymous'
     : extractTranslated(product?.value, 'name', locale.value)
 })
 
@@ -50,14 +45,12 @@ const reviewComment = computed(() => {
   <div
     class="
       flex flex-col gap-2
-
       md:items-center
     "
   >
     <div
       class="
         flex items-center gap-2
-
         md:w-full md:gap-6
       "
     >
@@ -71,14 +64,16 @@ const reviewComment = computed(() => {
           class="grid gap-2"
         >
           <Anchor
-            :to="{ path: product.absoluteUrl }"
+            :to="{ path: productUrl(product.id, product.slug) }"
             :text="productName"
           >
             <ImgWithFallback
               loading="lazy"
-              class="product-img w-30 bg-primary-100 h-20 object-cover"
-              :src="src"
+              class="h-28 w-28 bg-primary-100 object-cover"
+              :src="product.mainImagePath"
               :alt="alt"
+              width="112"
+              height="112"
               densities="x1"
             />
           </Anchor>
@@ -87,13 +82,12 @@ const reviewComment = computed(() => {
       <div
         class="
           grid gap-2 text-2xl
-
           md:gap-4
         "
       >
         <LazyAnchor
           v-if="displayImageOf === 'product' && product"
-          :to="{ path: product.absoluteUrl }"
+          :to="{ path: productUrl(product.id, product.slug) }"
           :text="productName"
         >
           <span class="text-lg font-medium">{{ productName }}</span>
@@ -104,14 +98,12 @@ const reviewComment = computed(() => {
     <div
       class="
         grid gap-2
-
         md:flex md:w-full md:justify-between
       "
     >
       <span
         class="
-          text-ellipsis break-all
-
+          break-all text-ellipsis
           md:w-full
         "
       >
@@ -120,12 +112,14 @@ const reviewComment = computed(() => {
       <div
         class="
           flex items-center
-
           md:justify-end
         "
       >
         <div class="text-xs">
-          <NuxtTime :datetime="review.createdAt" :locale="locale" />
+          <NuxtTime
+            :datetime="review.createdAt"
+            :locale="locale"
+          />
         </div>
       </div>
     </div>

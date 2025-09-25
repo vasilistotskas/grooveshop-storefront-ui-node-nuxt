@@ -1,12 +1,10 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
     const body = await readValidatedBody(
       event,
-      ZodProductFavouritesByProductsBody.parse,
+      zGetProductFavouritesByProductsData.shape.body.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/product/favourite/favourites_by_products`,
@@ -18,7 +16,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, z.array(ZodProductFavourite))
+    return await parseDataAs(response, zGetProductFavouritesByProductsResponse)
   }
   catch (error) {
     await handleError(error)

@@ -1,19 +1,19 @@
 import type { IFetchError, FetchContext, FetchHooks, FetchResponse } from 'ofetch'
 
 export const useCartStore = defineStore('cart', () => {
-  const cart = ref<Cart | null>(null)
+  const cart = ref<CartDetail | null>(null)
   const pending = ref<boolean>(false)
   const error = ref<IFetchError | null>(null)
 
-  const getCartItems = computed(() => cart.value?.cartItems ?? [])
+  const getCartItems = computed(() => cart.value?.items ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
-  const getCartItemIds = computed(() => cart.value?.cartItems?.map(item => item.id) ?? [])
+  const getCartItemIds = computed(() => cart.value?.items?.map((item: any) => item.id) ?? [])
 
   const getCartItemById = (id: number) =>
-    cart.value?.cartItems?.find(item => item.id === id) ?? null
+    cart.value?.items?.find((item: any) => item.id === id) ?? null
 
   const getCartItemByProductId = (id: number) =>
-    cart.value?.cartItems?.find(item => item.product.id === id) ?? null
+    cart.value?.items?.find((item: any) => item.product === id) ?? null
 
   function createFetchHandlers(): FetchHooks {
     return {
@@ -47,27 +47,17 @@ export const useCartStore = defineStore('cart', () => {
     console.error('Cart operation error:', error)
   }
 
-  async function createCartItem(body: Omit<CartItemCreateBody, 'cart'>) {
-    if (!cart.value) {
-      throw new Error('Cart not found')
-    }
-
-    const requestBody = {
-      cart: cart.value.id,
-      product: body.product,
-      quantity: body.quantity,
-    }
-
-    await $fetch<CartItemCreateResponse>('/api/cart/items', {
+  async function createCartItem(body: CartItemCreateRequest) {
+    await $fetch('/api/cart/items', {
       method: 'POST',
       headers: useRequestHeaders(),
-      body: requestBody,
+      body,
       ...createFetchHandlers(),
     })
   }
 
-  async function updateCartItem(id: number, body: CartItemPutBody) {
-    await $fetch<CartItem>(`/api/cart/items/${id}`, {
+  async function updateCartItem(id: number, body: CartItemUpdateRequest) {
+    await $fetch(`/api/cart/items/${id}`, {
       method: 'PUT',
       body,
       ...createFetchHandlers(),
@@ -89,7 +79,7 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    const { data, error: fetchError } = await useFetch<Cart>(
+    const { data, error: fetchError } = await useFetch(
       '/api/cart',
       {
         key: 'cart',
@@ -110,7 +100,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function refreshCart() {
-    await $fetch<Cart>('/api/cart', {
+    await $fetch('/api/cart', {
       method: 'GET',
       headers: useRequestHeaders(),
       ...createFetchHandlers(),

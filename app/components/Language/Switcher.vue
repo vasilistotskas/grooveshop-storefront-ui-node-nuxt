@@ -9,7 +9,7 @@ defineProps({
   },
 })
 
-const { locale, locales, t, setLocale } = useI18n({ useScope: 'local' })
+const { locale, locales, t, setLocale } = useI18n()
 
 const isOpen = ref(false)
 
@@ -92,11 +92,6 @@ const navigateToLocale = (locale: Locale) => {
       </UButton>
       <template #item="{ item }">
         <span class="truncate">{{ item.label }}</span>
-        <UIcon
-          v-if="item.icon"
-          :name="item.icon"
-          class="ms-auto h-5 w-5 flex-shrink-0"
-        />
       </template>
     </UDropdownMenu>
   </div>

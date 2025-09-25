@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
 const isOpen = defineModel<boolean>()
@@ -30,7 +30,7 @@ watch(loggedIn, () => {
           variant="ghost"
           size="xl"
           icon="i-heroicons-x-mark-20-solid"
-          class="absolute right-4 top-4 z-50"
+          class="absolute top-4 right-4 z-50"
           :ui="{
             base: 'absolute right-4 top-4 z-50 hover:bg-transparent cursor-pointer',
           }"
@@ -38,10 +38,9 @@ watch(loggedIn, () => {
         />
         <AccountLoginForm
           class="
-          p-4
-
-          md:p-8
-        "
+            p-4
+            md:p-8
+          "
         />
       </UCard>
     </template>

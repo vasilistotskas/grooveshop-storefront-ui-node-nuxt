@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const authStore = useAuthStore()
 const { $i18n } = useNuxtApp()
@@ -17,35 +17,32 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
       md:gap-8
     "
   >
     <PageTitle
-      :text="t('title')" class="text-center capitalize"
+      :text="t('title')"
+      class="text-center capitalize"
     />
 
     <div class="grid items-center justify-center">
       <p
         class="
-            text-primary-950 text-center
-
-            dark:text-primary-50
-          "
+          text-center text-primary-950
+          dark:text-primary-50
+        "
       >
         {{ t('authenticator.app') }}
       </p>
       <div
-        v-if="totpAuthenticator" class="
-            grid items-center justify-center justify-items-center gap-4
-          "
+        v-if="totpAuthenticator"
+        class="grid items-center justify-center justify-items-center gap-4"
       >
         <p
           class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
+            text-center text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ t('active') }}
         </p>
@@ -57,16 +54,14 @@ definePageMeta({
         />
       </div>
       <div
-        v-else class="
-            grid items-center justify-center justify-items-center gap-4
-          "
+        v-else
+        class="grid items-center justify-center justify-items-center gap-4"
       >
         <p
           class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
+            text-center text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ t('inactive') }}
         </p>
@@ -79,30 +74,26 @@ definePageMeta({
       </div>
     </div>
     <div
-      v-if="recoveryCodesAuthenticator" class="
-          grid items-center justify-center
-        "
+      v-if="recoveryCodesAuthenticator"
+      class="grid items-center justify-center"
     >
       <p
         class="
-            text-primary-950 text-center
-
-            dark:text-primary-50
-          "
+          text-center text-primary-950
+          dark:text-primary-50
+        "
       >
         {{ t('recovery-codes.title') }}
       </p>
       <div
-        v-if="!recoveryCodesAuthenticator" class="
-            grid items-center justify-center justify-items-center gap-4
-          "
+        v-if="!recoveryCodesAuthenticator"
+        class="grid items-center justify-center justify-items-center gap-4"
       >
         <p
           class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
+            text-center text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ t('recovery-codes.unset') }}
         </p>
@@ -114,16 +105,14 @@ definePageMeta({
         />
       </div>
       <div
-        v-else class="
-            grid items-center justify-center justify-items-center gap-4
-          "
+        v-else
+        class="grid items-center justify-center justify-items-center gap-4"
       >
         <p
           class="
-              text-primary-950 text-center
-
-              dark:text-primary-50
-            "
+            text-center text-primary-950
+            dark:text-primary-50
+          "
         >
           {{ t('recovery-codes.info', {
             unused_code_count: recoveryCodesAuthenticator.unused_code_count,

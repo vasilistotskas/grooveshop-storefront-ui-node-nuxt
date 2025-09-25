@@ -10,7 +10,7 @@ export default defineEventHandler(async () => {
       credentials: 'include',
     })
 
-    const parsedData = await parseDataAs(response, ZodCart)
+    const parsedData = await parseDataAs(response, zRetrieveCartResponse)
 
     await cartSession.handleCartResponse(parsedData)
 

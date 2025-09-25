@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const { enabled } = useAuthPreviewMode()
 const route = useRoute()
 const { user } = useUserSession()
@@ -12,7 +12,7 @@ const pageSize = ref(8)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -25,9 +25,10 @@ const entityOrdering = ref<EntityOrdering<ProductFavouriteOrderingField>>([
   },
 ])
 
-const { data: favourites, refresh: refreshFavourites, status, error } = await useFetch<Pagination<ProductFavourite>>(
+const { data: favourites, refresh: refreshFavourites, status, error } = await useFetch(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
+    key: `favouriteProducts${user.value?.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -50,7 +51,7 @@ const productIds = computed(() => {
   )
 })
 
-const { refresh: refreshFavouriteProducts } = await useFetch<ProductFavourite[]>('/api/products/favourites/favourites-by-products', {
+const { refresh: refreshFavouriteProducts } = await useFetch('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
   headers: useRequestHeaders(),
@@ -62,7 +63,9 @@ const { refresh: refreshFavouriteProducts } = await useFetch<ProductFavourite[]>
       return
     }
     const favourites = response._data
-    updateFavouriteProducts(favourites)
+    if (favourites) {
+      updateFavouriteProducts(favourites)
+    }
   },
 })
 
@@ -72,7 +75,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<ProductFavouriteOrderingField>(entityOrdering.value)
+  return useOrdering<any>(entityOrdering.value)
 })
 
 watch(
@@ -94,11 +97,13 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1
+      md:mt-1 md:gap-8 md:!p-0
     "
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
 
     <LazyUserAccountFavouritesNavbar v-if="enabled" />
     <div class="flex flex-row flex-wrap items-center gap-2">
@@ -119,11 +124,20 @@ definePageMeta({
       :favourites-total="favourites?.count"
       @refresh-favourites="refreshFavourites"
     />
-    <div v-else-if="status === 'pending'" class="grid w-full items-start gap-4">
+    <div
+      v-else-if="status === 'pending'"
+      class="grid w-full items-start gap-4"
+    >
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        class="
+          grid grid-cols-2 gap-4
+          lg:grid-cols-3
+          xl:grid-cols-4
+        "
+      >
         <USkeleton
           v-for="i in (favourites?.count || 4)"
           :key="i"
@@ -131,7 +145,10 @@ definePageMeta({
         />
       </div>
     </div>
-    <Error v-else-if="error" :error="error" />
+    <Error
+      v-else-if="error"
+      :error="error"
+    />
     <LazyEmptyState
       v-else-if="!favourites?.count"
       class="w-full"

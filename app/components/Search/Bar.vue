@@ -7,6 +7,7 @@ const keepFocus = ref(false)
 const router = useRouter()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
+const { productUrl, blogPostUrl } = useUrls()
 
 const query = ref(Array.isArray(route.query.query) ? (route.query.query[0] ?? '') : (route.query.query ?? ''))
 const limit = ref(Array.isArray(route.query.limit) ? (route.query.limit[0] ?? 3) : (route.query.limit ?? 3))
@@ -74,13 +75,22 @@ function searchGoTo(id: string, cleanQuery: boolean): void {
   if (!data.value) return
 
   let url = ''
-  Object.entries(data.value).forEach(([_s, v]) => {
-    if (!v || !v.results) return
-    const result = v.results.find(e => String(e.id) === id)
-    if (result) {
-      url = result.absoluteUrl
+
+  const allResults = [
+    ...data.value.products.results,
+    ...data.value.blogPosts.results,
+  ]
+
+  const targetResult = allResults.find(result => String(result.id) === id)
+
+  if (targetResult) {
+    if (targetResult.contentType === 'product') {
+      url = productUrl(targetResult.id, targetResult.slug)
     }
-  })
+    else if (targetResult.contentType === 'blog_post') {
+      url = blogPostUrl(targetResult.id, targetResult.slug)
+    }
+  }
 
   if (!url) return
 
@@ -134,44 +144,24 @@ async function loadMoreSectionResults(
   { lim, off }: { lim: number, off: number },
 ): Promise<void> {
   offset.value = off + lim
-  await execute()
 }
 
-const { data, execute, status } = await useLazyAsyncData<SearchResponse>(
-  'search',
-  () => $fetch<SearchResponse>('/api/search', {
+const { data, status }
+  = await useFetch('/api/search', {
+    key: `search${query.value}`,
     method: 'GET',
     headers: useRequestHeaders(),
     credentials: 'omit',
     retry: 120,
     retryDelay: 1000,
     query: {
-      query: query.value,
-      language: locale.value,
-      limit: limit.value,
-      offset: offset.value,
+      query: query,
+      language: locale,
+      limit: limit,
+      offset: offset,
     },
-  }),
-  {
-    dedupe: 'cancel',
-    immediate: false,
-  },
-)
-
-const debouncedExecute = useDebounceFn(async () => {
-  if (query.value.length < 3) {
-    data.value = undefined
-    return
-  }
-  allResults.value = undefined
-  await execute()
-}, 250)
-
-watch(query, async () => {
-  if (query.value.length < 3) {
-    await debouncedExecute()
-  }
-})
+    immediate: query.value.length >= 3,
+  })
 
 watch(
   () => data.value,
@@ -214,14 +204,12 @@ onClickOutside(autocomplete, () => {
   <div
     class="
       grid
-
       md:relative
     "
   >
     <div
       class="
         relative grid w-full items-center
-
         lg:justify-items-center
       "
     >
@@ -231,7 +219,6 @@ onClickOutside(autocomplete, () => {
         v-model="query"
         class="
           w-full
-
           md:max-w-[calc(100%-10rem)]
         "
         color="secondary"
@@ -267,12 +254,10 @@ onClickOutside(autocomplete, () => {
       v-model:keep-focus="keepFocus"
       v-model:highlighted="highlighted"
       class="
-        border-primary-300 bg-primary-100 absolute right-0 top-12
-        max-h-[calc(100vh-80px)] rounded border p-3.5
-
-        dark:border-primary-500 dark:bg-primary-900
-
+        absolute top-12 right-0 max-h-[calc(100vh-80px)] rounded border
+        border-primary-300 bg-primary-100 p-3.5
         md:top-10
+        dark:border-primary-500 dark:bg-primary-900
       "
       :query="query"
       :limit="Number(limit)"

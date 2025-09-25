@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -31,12 +31,12 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
+  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />
@@ -62,10 +62,9 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Είναι γεγονός το ότι ζούμε σε έναν κόσμο που είναι σε μεγάλο βαθμό βυθισμένος στην ψηφιακή τεχνολογία. Η
         σύγχρονη καθημερινότητα ενέχει πολλές αποσπάσεις οι οποίες μπορούν πολύ εύκολα να μειώσουν το εύρος προσοχής
@@ -94,20 +93,18 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Ο ευέλικτος και προσαρμοσμένος σχεδιασμός ανάλογων εκπαιδευτικών ενοτήτων, επιτρέπει το συγκεκριμένο κοινό να
         απορροφήσει το παρεχόμενο περιεχόμενο εύκολα και γρήγορα, όπου και όποτε αυτό επιθυμεί.
       </p>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Επιπροσθέτως, τα στοιχεία που προκύπτουν από τον σχεδιασμό μίας εκπαιδευτικής ενότητας microlearning, μέσω της
         διαδραστικότητας και της παιχνιδοποίησης του γραφικού περιβάλλοντος, αποτελούν ένα ακόμα κίνητρο και αρωγή
@@ -137,10 +134,9 @@ definePageMeta({
       </div>
       <p
         class="
-            text-primary-950
-
-            dark:text-primary-50
-          "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Ένας σύγχρονος μέσος χρήστης του διαδικτύου, διαθέτει περιορισμένο χρόνο για ηλεκτρονική αποκίμιση πληροφορίας
         και επιθυμεί να έχει πρόσβαση σε αυτήν με το πιο εύκολο και γρήγορο τρόπο προσπαθώντας να αποκομίσει όσο το

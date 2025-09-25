@@ -2,11 +2,10 @@
 import type { AccordionItem } from '@nuxt/ui'
 
 const localePath = useLocalePath()
-const { t } = useI18n({ useScope: 'local' })
-const { $i18n } = useNuxtApp()
+const { t } = useI18n()
 
 const items = ref<AccordionItem[]>([{
-  label: $i18n.t('about.us'),
+  label: t('about.us'),
   icon: 'i-heroicons-information-circle',
   slot: 'about',
 }, {
@@ -14,11 +13,11 @@ const items = ref<AccordionItem[]>([{
   icon: 'i-heroicons-light-bulb',
   slot: 'micro-learning',
 }, {
-  label: $i18n.t('terms_conditions'),
+  label: t('terms_conditions'),
   icon: 'i-heroicons-rectangle-group',
   slot: 'terms-conditions',
 }, {
-  label: $i18n.t('help_center'),
+  label: t('help_center'),
   icon: 'i-heroicons-chat-bubble-oval-left',
   slot: 'contact',
 }])
@@ -27,8 +26,8 @@ const items = ref<AccordionItem[]>([{
 <template>
   <footer
     class="
-      md:hidden bg-primary-50 w-full pb-[2.87rem]
-
+      w-full bg-primary-50 pb-[60px]
+      md:hidden
       dark:bg-primary-900
     "
   >
@@ -44,12 +43,11 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
           <UButton
-            :label="$i18n.t('about.site')"
+            :label="t('about.site')"
             :to="localePath('about')"
             class="font-semibold"
             color="secondary"
@@ -61,12 +59,11 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
           <UButton
-            :label="$i18n.t('vision')"
+            :label="t('vision')"
             :to="localePath('vision')"
             class="font-semibold"
             color="secondary"
@@ -81,7 +78,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -98,7 +94,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -118,12 +113,11 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
           <UButton
-            :label="$i18n.t('term_of_use')"
+            :label="t('term_of_use')"
             :to="localePath('terms-of-use')"
             class="font-semibold"
             color="secondary"
@@ -135,12 +129,11 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
           <UButton
-            :label="$i18n.t('privacy_policy')"
+            :label="t('privacy_policy')"
             :to="localePath('privacy-policy')"
             class="font-semibold"
             color="secondary"
@@ -152,12 +145,11 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
           <UButton
-            :label="$i18n.t('cookies_policy')"
+            :label="t('cookies_policy')"
             :to="localePath('cookies-policy')"
             class="font-semibold"
             color="secondary"
@@ -172,7 +164,6 @@ const items = ref<AccordionItem[]>([{
         <div
           class="
             text-primary-950
-
             dark:text-primary-50
           "
         >
@@ -194,6 +185,15 @@ const items = ref<AccordionItem[]>([{
 <i18n lang="yaml">
 el:
   title: Επικοινωνία
+  help_center: Κέντρο βοηθείας
+  terms_conditions: Όροι και Προϋποθέσεις
+  term_of_use: Όροι Χρήσης
+  vision: Όραμα
+  privacy_policy: Πολιτική Απορρήτου
+  cookies_policy: Πολιτική Cookies
+  about:
+    us: Σχετικά με εμάς,
+    site: Τι είναι το Webside
   microlearning:
     title: Microlearning
     why: Γιατί Microlearning

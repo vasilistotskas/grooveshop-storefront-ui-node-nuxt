@@ -3,10 +3,10 @@ export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, ZodChangeUserNameBody.parse)
+    const body = await readValidatedBody(event, zChangeUserAccountUsernameData.shape.body.parse)
     const params = await getValidatedRouterParams(
       event,
-      ZodUserAccountParams.parse,
+      zChangeUserAccountUsernameData.shape.path.parse,
     )
     const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/change_username`, {
       method: 'POST',
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    const data = await parseDataAs(response, ZodChangeUserNameResponse)
+    const data = await parseDataAs(response, zChangeUserAccountUsernameResponse)
     await setUserSession(event, {
       user: {
         ...session?.user,

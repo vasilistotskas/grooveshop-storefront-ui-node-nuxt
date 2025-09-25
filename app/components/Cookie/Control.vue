@@ -64,7 +64,7 @@ const setCookies = ({
   cookiesOptionalEnabled: Cookie[]
   isConsentGiven: boolean
 }) => {
-  isConsentGiven.value = isConsentGivenNew // must come before an update to `cookiesEnabled`
+  isConsentGiven.value = isConsentGivenNew
   cookiesEnabled.value = isConsentGivenNew
     ? [
         ...moduleOptions.cookies.necessary,
@@ -157,16 +157,44 @@ defineExpose({
     <aside class="relative z-50">
       <div
         v-if="!isConsentGiven && !moduleOptions.isModalForced"
-        class="fixed bottom-2 left-0 right-0 z-50 mx-auto border px-4 md:px-6 py-4 shadow-xl max-w-sm sm:max-w-xl lg:max-w-4xl rounded-md border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800 text-primary-600 dark:text-primary-100"
+        class="
+          fixed right-0 bottom-2 left-0 z-50 mx-auto max-w-sm rounded-md border
+          border-primary-200 bg-primary-50 px-4 py-4 text-primary-600 shadow-xl
+          sm:max-w-xl
+          md:px-6
+          lg:max-w-4xl
+          dark:border-primary-700 dark:bg-primary-800 dark:text-primary-100
+        "
       >
-        <div class="flex flex-col lg:flex-row items-center justify-between text-xs text-primary-700 dark:text-primary-100">
+        <div
+          class="
+            flex flex-col items-center justify-between text-xs text-primary-700
+            lg:flex-row
+            dark:text-primary-100
+          "
+        >
           <div>
             <slot name="bar">
-              <h2 class="mb-1 font-semibold" v-text="t('banner.title')" />
-              <p class="text-sm text-primary-600 dark:text-primary-100" v-text="t('banner.description')" />
+              <h2
+                class="mb-1 font-semibold"
+                v-text="t('banner.title')"
+              />
+              <p
+                class="
+                  text-sm text-primary-600
+                  dark:text-primary-100
+                "
+                v-text="t('banner.description')"
+              />
             </slot>
           </div>
-          <div class="ml-auto flex items-center gap-2 mt-4 lg:mt-0 md:space-y-0 md:flex-row-reverse">
+          <div
+            class="
+              mt-4 ml-auto flex items-center gap-2
+              md:flex-row-reverse md:space-y-0
+              lg:mt-0
+            "
+          >
             <UButton
               type="button"
               :label="t('manage_cookies')"
@@ -201,13 +229,27 @@ defineExpose({
         aria-label="Cookie control"
         data-testid="nuxt-cookie-control-control-button"
         type="button"
-        class="fixed bottom-[160px] right-[20px] h-[36px] w-[36px] cursor-pointer rounded-full border border-primary-200 bg-primary-50 text-primary-900 hover:bg-white hover:text-primary-700 focus:ring-primary-200 dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-700 transition duration-200"
+        class="
+          fixed right-[20px] bottom-[160px] h-[36px] w-[36px] cursor-pointer
+          rounded-full border border-primary-200 bg-primary-50 text-primary-900
+          transition duration-200
+          hover:bg-white hover:text-primary-700
+          focus:ring-primary-200
+          dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100
+          dark:hover:bg-primary-700 dark:hover:text-white
+          dark:focus:ring-primary-700
+        "
         @click="isModalActive = true"
       >
         <UIcon
           name="i-unjs:cookie-es"
           mode="svg"
-          class="absolute left-1/2 top-1/2 max-h-[24px] min-h-[24px] min-w-[24px] max-w-[24px] transition duration-200 text-primary-600 dark:text-primary-100 transform -translate-x-1/2 -translate-y-1/2"
+          class="
+            absolute top-1/2 left-1/2 max-h-[24px] min-h-[24px] max-w-[24px]
+            min-w-[24px] -translate-x-1/2 -translate-y-1/2 transform
+            text-primary-600 transition duration-200
+            dark:text-primary-100
+          "
         />
       </button>
       <LazyCookieModal v-if="isModalActive" />

@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      ZodBlogCommentParams.parse,
+      zGetUserAccountBlogPostCommentsData.shape.path.parse,
     )
-    const query = await getValidatedQuery(event, ZodBlogCommentQuery.parse)
+    const query = await getValidatedQuery(event, zGetUserAccountBlogPostCommentsData.shape.query.parse)
     const url = buildFullUrl(
       `${config.apiBaseUrl}/user/account/${params.id}/blog_post_comments`,
       query,
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return await parseDataAs(response, ZodPagination(ZodBlogComment))
+    return await parseDataAs(response, zGetUserAccountBlogPostCommentsResponse)
   }
   catch (error) {
     await handleError(error)

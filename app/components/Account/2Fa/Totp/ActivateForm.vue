@@ -13,7 +13,7 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-const { data, error } = await useAsyncData<TotpGetResponse | TotpGetResponseError>(
+const { data, error } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
   {
@@ -83,8 +83,12 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: t('authenticator_code'),
       name: 'code',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).min(6).max(6),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }).min(6).max(6),
       autocomplete: 'one-time-code',
+      condition: null,
+      disabledCondition: null,
       readonly: false,
       required: true,
       placeholder: '123456',
@@ -98,15 +102,14 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <div
     class="
       grid gap-4
-
       lg:flex
     "
   >
     <slot />
     <div
-      v-if="totpSecret && totpSvg" class="
+      v-if="totpSecret && totpSvg"
+      class="
         grid items-center justify-center justify-items-center gap-4
-
         md:gap-8
       "
     >
@@ -114,30 +117,30 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         <label
           class="grid items-center justify-center justify-items-center gap-2"
         >
-          {{ $i18n.t('authenticator_secret') }}:
+          {{ t('authenticator_secret') }}:
           <span
             class="
-              bg-primary-200 rounded-md
-
+              rounded-md bg-primary-200
               dark:bg-primary-800
-            " v-html="totpSvg"
+            "
+            v-html="totpSvg"
           />
           <UInput
             v-model="totpSecret"
             :ui="{
-              root: 'cursor-pointer text-center !px-0',
+              root: 'w-full',
+              base: 'cursor-pointer text-center !px-0',
             }"
-            class="w-full"
             readonly
             type="text"
             @click="onSecretClick"
           />
-          <span class="text-center">{{ $i18n.t('authenticator_secret_description') }}</span>
+          <span class="text-center">{{ t('authenticator_secret_description') }}</span>
         </label>
       </div>
       <section class="grid items-center justify-center justify-items-center">
         <DynamicForm
-          :button-label="t('entry')"
+          :button-label="$i18n.t('entry')"
           :schema="formSchema"
           class="grid"
           @submit="onSubmit"
@@ -146,3 +149,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  authenticator_secret: Μυστικό πολλαπλών παραγόντων
+  authenticator_secret_description: Μπορείς να αποθηκεύσεις αυτό το μυστικό και να το χρησιμοποιήσεις για να επανεγκαταστήσεις την εφαρμογή πολλαπλών παραγόντων σε μεταγενέστερο χρόνο.
+</i18n>

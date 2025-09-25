@@ -4,15 +4,18 @@ const { getCartItems } = storeToRefs(cartStore)
 
 const { locale } = useI18n()
 const { $i18n } = useNuxtApp()
+const { productUrl } = useUrls()
 </script>
 
 <template>
-  <div class="items">
+  <div
+    v-if="getCartItems?.length"
+    class="h-[6rem] overflow-auto"
+  >
     <div class="sr-only items-center justify-center">
       <h3
         class="
-          text-primary-950 text-md font-bold
-
+          text-base font-bold text-primary-950
           dark:text-primary-50
         "
       >
@@ -20,76 +23,66 @@ const { $i18n } = useNuxtApp()
       </h3>
     </div>
     <div
-      v-if="getCartItems?.length"
-      class="h-[6rem] overflow-auto"
+      v-for="item in getCartItems"
+      :key="item.id"
+      class="
+        flex justify-between gap-4
+        md:py-2
+      "
     >
-      <div
-        v-for="item in getCartItems"
-        :key="item.id"
-        class="
-            flex gap-4 justify-between
-
-            md:py-2
+      <div class="flex items-center">
+        <Anchor
+          :title="extractTranslated(item.product, 'name', locale)"
+          :to="{ path: productUrl(item.product.id, item.product.slug) }"
+        >
+          <span
+            class="
+              text-sm font-bold text-primary-950
+              dark:text-primary-50
+            "
+          >
+            {{ extractTranslated(item.product, 'name', locale) }}
+          </span>
+        </Anchor>
+      </div>
+      <div class="flex items-center">
+        <span
+          v-if="item.finalPrice"
+          class="
+            text-sm text-primary-950
+            dark:text-primary-50
           "
-      >
-        <div class="flex items-center">
-          <Anchor
-            :title="extractTranslated(item.product, 'name', locale)"
-            :to="{ path: item.product.absoluteUrl }"
-          >
-            <span
-              class="
-                  text-primary-950 text-sm font-bold
-
-                  dark:text-primary-50
-                "
-            >
-              {{ extractTranslated(item.product, 'name', locale) }}
-            </span>
-          </Anchor>
-        </div>
-        <div class="flex items-center">
-          <span
-            v-if="item.finalPrice" class="
-                              text-primary-950 text-sm
-
-                dark:text-primary-50
-            "
-          >
-            {{ $i18n.n(item.finalPrice, 'currency') }}
-          </span>
-        </div>
-        <div class="flex items-center">
+        >
+          {{ $i18n.n(item.finalPrice, 'currency') }}
+        </span>
+      </div>
+      <div class="flex items-center">
+        <span
+          class="
+            text-sm text-primary-950
+            dark:text-primary-50
+          "
+        >
+          {{ item.quantity }}x
+        </span>
+      </div>
+      <div class="flex items-center">
+        <span
+          v-if="item.finalPrice"
+          class="
+            text-sm text-primary-950
+            dark:text-primary-50
+          "
+        >
           <span
             class="
-                text-primary-950 text-sm
-
-                dark:text-primary-50
-              "
-          >
-            {{ item.quantity }}x
-          </span>
-        </div>
-        <div class="flex items-center">
-          <span
-            v-if="item.finalPrice"
-            class="
-                text-primary-950 text-sm
-
-                dark:text-primary-50
-              "
-          >
-            <span
-              class="
-                  text-primary-950 text-sm
-
-                  dark:text-primary-50
+              text-sm text-primary-950
+              dark:text-primary-50
             "
-            >
-              {{ $i18n.n(item.finalPrice * item.quantity, 'currency') }}
-            </span>
+          >
+            {{ $i18n.n(item.finalPrice * (item.quantity || 1), 'currency') }}
           </span>
-        </div>
+        </span>
       </div>
     </div>
   </div>

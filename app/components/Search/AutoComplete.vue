@@ -34,7 +34,7 @@ const props = defineProps({
   },
 })
 
-const { query, limit, offset, allResults, status, hasResults } = toRefs(props)
+const { query, limit, offset, allResults, status, hasResults, loadMore } = toRefs(props)
 
 const emit = defineEmits<{
   (
@@ -58,17 +58,18 @@ const highlighted = defineModel<string | undefined>('highlighted', {
 
 const attrs = useAttrs()
 const { $i18n } = useNuxtApp()
+const { t } = useI18n()
 
-function showMoreSectionResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number): boolean {
+function showMoreSectionResults(section: ProductMeiliSearchResponse | BlogPostMeiliSearchResponse, limit: number): boolean {
   return section.estimatedTotalHits > Number(limit)
 }
 
-function sectionExtraResults(section: SearchResult<SearchProduct | SearchBlogPost>, limit: number, offset: number): number {
+function sectionExtraResults(section: ProductMeiliSearchResponse | BlogPostMeiliSearchResponse, limit: number, offset: number): number {
   const remainingResults = section.estimatedTotalHits - offset - limit
   return Math.max(remainingResults, 0)
 }
 
-function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: number, off: number): void {
+function onLoadMore(section: ProductMeiliSearchResponse | BlogPostMeiliSearchResponse, lim: number, off: number): void {
   emit('load-more', { lim, off })
 }
 </script>
@@ -78,40 +79,42 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
     v-if="(searchBarFocused && hasResults) || (hasResults && status === 'pending')"
     v-bind="attrs"
     ref="autocomplete"
-    class="shadow-4xl flex w-full flex-col gap-4 overflow-auto"
+    class="flex w-full flex-col gap-4 overflow-auto"
   >
     <div
-      v-if="allResults && hasResults && query.length !== 0" class="grid gap-4"
+      v-if="allResults && hasResults && query.length !== 0"
+      class="grid gap-4"
     >
       <template
-        v-for="([key, section]) in Object.entries(allResults)" :key="key"
+        v-for="([key, section]) in Object.entries(allResults)"
+        :key="key"
       >
         <div
-          v-if="section && section.results && section.results.length > 0" class="
-            flex flex-col gap-2
-          "
+          v-if="section && section.results && section.results.length > 0"
+          class="flex flex-col gap-2"
         >
           <div class="flex items-center">
             <span
               class="
-                text-md text-primary-950 me-4 shrink
-
+                me-4 shrink text-base text-primary-950
                 dark:text-primary-50
               "
             >
-              {{ $i18n.t(`sections.${key}`) }}
+              {{ t(`sections.${key}`) }}
             </span>
             <div
               class="
-                border-primary-300 grow border-t
-
+                grow border-t border-primary-300
                 dark:border-primary-500
               "
             />
           </div>
 
           <template v-if="status === 'success'">
-            <ul v-for="result in section?.results" :key="result.id">
+            <ul
+              v-for="result in section?.results"
+              :key="result.id"
+            >
               <SearchResultItem
                 :highlighted="highlighted ? highlighted === String(result.id) : false"
                 :item="result"
@@ -135,8 +138,8 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
             >
               {{ $i18n.t("results_left", sectionExtraResults(section, Number(limit), Number(offset))) }}
             </UButton>
-            <span class="text-primary-400 text-sm">
-              {{ section.estimatedTotalHits > Number(limit) ? $i18n.t("approx_results", section.estimatedTotalHits) : $i18n.t("results", section.estimatedTotalHits) }}
+            <span class="text-sm text-primary-400">
+              {{ section.estimatedTotalHits > Number(limit) ? t("approx_results", section.estimatedTotalHits) : $i18n.t("results", section.estimatedTotalHits) }}
             </span>
           </div>
         </div>
@@ -144,3 +147,11 @@ function onLoadMore(section: SearchResult<SearchProduct | SearchBlogPost>, lim: 
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  approx_results: περισσότερα {count}
+  sections:
+    products: Προϊόντα
+    blogPosts: Blog
+</i18n>

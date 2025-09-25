@@ -3,7 +3,7 @@ export default defineCachedEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      ZodBlogAuthorParams.parse,
+      zRetrieveBlogAuthorData.shape.path.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/author/${params.id}`,
@@ -11,7 +11,7 @@ export default defineCachedEventHandler(async (event) => {
         method: 'GET',
       },
     )
-    return await parseDataAs(response, ZodBlogAuthor)
+    return await parseDataAs(response, zRetrieveBlogAuthorResponse)
   }
   catch (error) {
     await handleError(error)

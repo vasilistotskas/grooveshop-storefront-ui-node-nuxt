@@ -1,10 +1,8 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const query = await getValidatedQuery(event, ZodSearchQuery.parse)
+    const query = await getValidatedQuery(event, zApiV1SearchProductRetrieveData.shape.query.parse)
 
     const productUrl = buildFullUrl(
       `${config.apiBaseUrl}/search/product`,
@@ -16,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     const productsParsedData = await parseDataAs(
       productResponse,
-      z.union([z.undefined(), ZodSearchProductResult]),
+      zProductMeiliSearchResponse,
     )
 
     const blogPostUrl = buildFullUrl(
@@ -30,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     const blogPostsParsedData = await parseDataAs(
       blogPostResponse,
-      z.union([z.undefined(), ZodSearchBlogPostResult]),
+      zBlogPostMeiliSearchResponse,
     )
 
     const results = {
@@ -38,7 +36,7 @@ export default defineEventHandler(async (event) => {
       blogPosts: blogPostsParsedData || null,
     }
 
-    return await parseDataAs(results, ZodSearchResponse)
+    return results
   }
   catch (error) {
     await handleError(error)

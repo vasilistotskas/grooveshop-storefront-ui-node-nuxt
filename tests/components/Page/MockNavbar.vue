@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 
 defineProps({
   user: {
-    type: Object as PropType<UserAccount>,
+    type: Object as PropType<AuthenticationReadable>,
     default: () => ({ email: 'test@example.com' }),
   },
   loggedIn: {
@@ -46,15 +46,28 @@ defineProps({
               <button>Notifications</button>
             </li>
             <li>
-              <UChip color="success" :show="true" text="3">
+              <UChip
+                color="success"
+                :show="true"
+                text="3"
+              >
                 <button>Cart</button>
               </UChip>
             </li>
             <li v-if="loggedIn && user">
               <div>
-                <UserAvatar :img-height="30" :img-width="30" :show-name="false" :user-account="user" />
+                <UserAvatar
+                  :img-height="30"
+                  :img-width="30"
+                  :show-name="false"
+                  :user-account="user"
+                />
               </div>
-              <button class="logout-button" type="button" @click="onLogout()">
+              <button
+                class="logout-button"
+                type="button"
+                @click="onLogout()"
+              >
                 Logout
               </button>
             </li>

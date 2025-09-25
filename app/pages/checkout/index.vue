@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 const { fetch } = useUserSession()
 
@@ -7,7 +8,7 @@ const cartStore = useCartStore()
 const { cleanCartState } = cartStore
 const { getCartItems } = storeToRefs(cartStore)
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
@@ -15,7 +16,7 @@ const { $i18n } = useNuxtApp()
 const shippingPrice = ref(3)
 const regions = ref<Pagination<Region> | null>(null)
 const formRef = useTemplateRef('formRef')
-const { data: countries } = await useFetch<Pagination<Country>>(
+const { data: countries } = await useFetch(
   '/api/countries',
   {
     key: 'countries',
@@ -26,7 +27,7 @@ const { data: countries } = await useFetch<Pagination<Country>>(
     },
   },
 )
-const { data: payWays } = await useFetch<Pagination<PayWay>>(
+const { data: payWays } = await useFetch(
   '/api/pay-way',
   {
     key: 'payWays',
@@ -40,7 +41,7 @@ const { data: payWays } = await useFetch<Pagination<PayWay>>(
 
 const fetchRegions = async () => {
   try {
-    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
+    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
         country: formRef.value?.fields.country ? formRef.value?.fields.country[0].value : undefined,
@@ -67,12 +68,19 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
   }
 }
 
-async function onSubmit(values: OrderCreateUpdate) {
-  const updatedValues = processValues(values)
-  await $fetch<OrderCreateUpdate>('/api/orders', {
+async function onSubmit(values: any) {
+  const submitValues: OrderWriteRequest = {
+    ...values,
+    floor: values.floor === defaultSelectOptionChoose ? undefined : values.floor,
+    locationType: values.locationType === defaultSelectOptionChoose ? undefined : values.locationType,
+    country: values.country === defaultSelectOptionChoose ? undefined : values.country,
+    region: values.region === defaultSelectOptionChoose ? undefined : values.region,
+  }
+
+  await $fetch('/api/orders', {
     method: 'POST',
     headers: useRequestHeaders(),
-    body: updatedValues,
+    body: submitValues,
     async onResponse({ response }) {
       if (!response.ok) {
         return
@@ -140,7 +148,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.first_name'),
           autocomplete: 'given-name',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.first_name.min', { min: 3 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.first_name.min', { min: 3 }) }),
         },
         {
           name: 'lastName',
@@ -151,7 +163,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.last_name'),
           autocomplete: 'family-name',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.last_name.min', { min: 3 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.last_name.min', { min: 3 }) }),
         },
         {
           name: 'email',
@@ -162,7 +178,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.email'),
           autocomplete: 'email',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.email.valid') }),
         },
         {
           name: 'phone',
@@ -173,7 +193,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.phone'),
           autocomplete: 'tel',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.phone.min', { min: 3 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.phone.min', { min: 3 }) }),
         },
       ],
     },
@@ -198,7 +222,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             label: option.name,
             value: option.value,
           })),
-          rules: z.string({ required_error: $i18n.t('validation.required') }),
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.string.invalid') }),
           initialValue: defaultSelectOptionChoose,
           condition: () => true,
           disabledCondition: () => false,
@@ -219,7 +245,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             label: option.name,
             value: option.value,
           })),
-          rules: z.string({ required_error: $i18n.t('validation.required') }),
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.string.invalid') }),
           condition: () => true,
           disabledCondition: () => false,
         },
@@ -232,7 +260,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.city'),
           autocomplete: 'address-level2',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.city.min', { min: 3 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.city.min', { min: 3 }) }),
         },
         {
           name: 'place',
@@ -243,7 +275,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.place'),
           autocomplete: 'address-level2',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.place.min', { min: 3 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.place.min', { min: 3 }) }),
         },
         {
           name: 'zipcode',
@@ -254,7 +290,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.zipcode'),
           autocomplete: 'postal-code',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.zipcode.min', { min: 3 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.zipcode.min', { min: 3 }) }),
         },
         {
           name: 'street',
@@ -265,7 +305,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.street'),
           autocomplete: 'address-line1',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(3, t('validation.street.min', { min: 3 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.street.min', { min: 3 }) }),
         },
         {
           name: 'streetNumber',
@@ -276,7 +320,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.street_number'),
           autocomplete: 'address-line2',
-          rules: z.string({ required_error: $i18n.t('validation.required') }).min(1, t('validation.street_number.min', { min: 1 })),
+          condition: null,
+          disabledCondition: null,
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.street_number.min', { min: 1 }) }),
         },
         {
           name: 'floor',
@@ -287,6 +335,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: defaultSelectOptionChoose,
           autocomplete: 'off',
+          condition: null,
+          disabledCondition: null,
           children: floorChoicesList.map(option => ({
             tag: 'option',
             text: option.name || '',
@@ -294,7 +344,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             label: option.name,
             value: option.value,
           })),
-          rules: z.union([ZodFloorEnum, z.string()]).optional(),
+          rules: z.union([zFloorEnum, z.string()]).optional(),
         },
         {
           name: 'locationType',
@@ -305,6 +355,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: defaultSelectOptionChoose,
           autocomplete: 'off',
+          condition: null,
+          disabledCondition: null,
           children: locationChoicesList.map(option => ({
             tag: 'option',
             text: option.name || '',
@@ -312,7 +364,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             label: option.name,
             value: option.value,
           })),
-          rules: z.union([ZodLocationTypeEnum, z.string()]).optional(),
+          rules: z.union([zLocationTypeEnum, z.string()]).optional(),
         },
         {
           name: 'customerNotes',
@@ -323,6 +375,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: t('form.customer_notes'),
           autocomplete: 'off',
+          condition: null,
+          disabledCondition: null,
           rules: z.string().optional(),
         },
       ],
@@ -341,6 +395,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: '',
           autocomplete: 'off',
+          condition: null,
+          disabledCondition: null,
+          rules: null,
           items: payWayOptions.value,
         },
         {
@@ -352,17 +409,21 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           readonly: false,
           placeholder: '',
           autocomplete: 'off',
+          condition: null,
+          disabledCondition: null,
           items: [
             {
               label: t('form.document_type.receipt.label'),
-              value: ZodDocumentTypeEnum.enum.RECEIPT,
+              value: zDocumentTypeEnum.enum.RECEIPT,
             },
             {
               label: t('form.document_type.invoice.label'),
-              value: ZodDocumentTypeEnum.enum.INVOICE,
+              value: zDocumentTypeEnum.enum.INVOICE,
             },
           ],
-          rules: z.string({ required_error: $i18n.t('validation.required') }),
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.string.invalid') }),
         },
         {
           name: 'items',
@@ -371,6 +432,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           type: 'text',
           as: 'input',
           autocomplete: 'off',
+          condition: null,
+          disabledCondition: null,
           required: true,
           placeholder: '',
           initialValue: getCartItems.value.map(item => ({
@@ -386,10 +449,14 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           type: 'number',
           as: 'input',
           autocomplete: 'off',
+          condition: null,
+          disabledCondition: null,
           required: true,
           placeholder: '',
           initialValue: shippingPrice.value,
-          rules: z.number({ required_error: $i18n.t('validation.required') }),
+          rules: z.string({ error: issue => issue.input === undefined
+            ? $i18n.t('validation.required')
+            : $i18n.t('validation.string.invalid') }),
         },
       ],
     },
@@ -398,6 +465,22 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 
 definePageMeta({
   layout: 'default',
+  middleware: [
+    async function () {
+      const { data: cart } = useNuxtData('cart')
+      const { $i18n } = useNuxtApp()
+      const localePath = useLocalePath()
+      const toast = useToast()
+      const cartItems = cart.value?.items
+      if (!cartItems || cartItems.length === 0) {
+        toast.add({
+          title: $i18n.t('cart_empty'),
+          color: 'error',
+        })
+        return navigateTo(localePath('index'))
+      }
+    },
+  ],
 })
 </script>
 
@@ -425,20 +508,34 @@ definePageMeta({
       class="mb-8"
     />
 
-    <div class="flex flex-col lg:flex-row gap-8">
+    <div
+      class="
+        flex flex-col gap-8
+        lg:flex-row
+      "
+    >
       <div class="flex-1">
         <DynamicForm
           ref="formRef"
           :button-label="$i18n.t('submit')"
           :schema="formSchema"
           :loading="false"
-          class="h-full rounded-[calc(var(--ui-radius)*2)] bg-(--ui-bg) ring ring-(--ui-border) divide-y divide-(--ui-border) w-full p-4"
+          class="
+            h-full w-full divide-y divide-(--ui-border)
+            rounded-[calc(var(--ui-radius)*2)] bg-(--ui-bg) p-4 ring
+            ring-(--ui-border)
+          "
           @submit="onSubmit"
           @select-menu-change="onSelectMenuChange"
         />
       </div>
 
-      <div class="w-full lg:w-[400px]">
+      <div
+        class="
+          w-full
+          lg:w-[400px]
+        "
+      >
         <CheckoutSidebar
           :shipping-price="shippingPrice"
         >
@@ -464,7 +561,7 @@ el:
     payment: Πληρωμή
     payment_desc: Επίλεξε τον τρόπο πληρωμής
   form:
-    first_name: Ονομα
+    first_name: Όνομα
     last_name: Επίθετο
     email: Email
     phone: Τηλέφωνο

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const route = useRoute()
 const { user } = useUserSession()
 const { enabled } = useAuthPreviewMode()
@@ -9,7 +9,7 @@ const pageSize = ref(4)
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -22,7 +22,7 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
+const { data: favourites, status } = useFetch(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
     key: `likedBlogPosts${user.value?.id}`,
@@ -38,7 +38,7 @@ const { data: favourites, status } = useFetch<Pagination<BlogPost>>(
 
 const refreshFavourites = async () => {
   status.value = 'pending'
-  const favourites = await $fetch<Pagination<BlogPost>>(
+  const favourites = await $fetch(
     `/api/user/account/${user.value?.id}/liked-blog-posts`,
     {
       method: 'GET',
@@ -60,7 +60,7 @@ const pagination = computed(() => {
 })
 
 const orderingOptions = computed(() => {
-  return useOrdering<BlogPostOrderingField>(entityOrdering.value)
+  return useOrdering<any>(entityOrdering.value)
 })
 
 watch(
@@ -79,11 +79,13 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1
+      md:mt-1 md:gap-8 md:!p-0
     "
   >
-    <PageTitle :text="t('title')" class="md:mt-0" />
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
     <LazyUserAccountFavouritesNavbar v-if="enabled" />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
@@ -103,11 +105,20 @@ definePageMeta({
       :favourites="favourites?.results"
       :favourites-count="favourites?.count"
     />
-    <div v-if="status === 'pending'" class="grid w-full items-start gap-4">
+    <div
+      v-if="status === 'pending'"
+      class="grid w-full items-start gap-4"
+    >
       <USkeleton
         class="flex h-5 w-full items-center justify-center"
       />
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        class="
+          grid grid-cols-2 gap-4
+          lg:grid-cols-3
+          xl:grid-cols-4
+        "
+      >
         <USkeleton
           v-for="i in (favourites?.count || 4)"
           :key="i"

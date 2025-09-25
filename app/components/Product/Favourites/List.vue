@@ -22,45 +22,41 @@ const emit = defineEmits([
   'refresh-favourites',
 ])
 
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 </script>
 
 <template>
-  <div class="product-favourites-list grid gap-4">
+  <div
+    class="grid w-full items-start gap-4"
+  >
     <div
-      class="grid w-full items-start gap-4"
+      v-if="displayTotal"
+      class="flex items-center justify-center gap-1"
     >
-      <div
-        v-if="displayTotal"
-        class="flex items-center justify-center gap-1"
-      >
-        <span class="text-sm font-semibold">
-          {{ t('total.count', favouritesTotal) }}
-        </span>
-      </div>
-      <ul
-        class="
-          grid grid-cols-2 gap-4
-
-          md:grid-cols-3
-
-          xl:grid-cols-4
-        "
-      >
-        <template
-          v-for="favourite in favourites"
-          :key="favourite.id"
-        >
-          <LazyProductCard
-            :img-height="150"
-            :img-width="260"
-            :product="favourite.product"
-            :show-add-to-cart-button="false"
-            @favourite-delete="(_id) => emit('refresh-favourites')"
-          />
-        </template>
-      </ul>
+      <span class="text-sm font-semibold">
+        {{ t('total.count', favouritesTotal) }}
+      </span>
     </div>
+    <ul
+      class="
+        grid grid-cols-2 gap-4
+        md:grid-cols-3
+        xl:grid-cols-4
+      "
+    >
+      <template
+        v-for="favourite in favourites"
+        :key="favourite.id"
+      >
+        <LazyProductCard
+          :img-height="150"
+          :img-width="260"
+          :product="favourite.product"
+          :show-add-to-cart-button="false"
+          @favourite-delete="(_id: number) => emit('refresh-favourites')"
+        />
+      </template>
+    </ul>
   </div>
 </template>
 

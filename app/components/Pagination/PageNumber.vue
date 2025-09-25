@@ -56,16 +56,14 @@ watch(
 </script>
 
 <template>
-  <div class="pagination relative">
-    <UPagination
-      v-model:page="currentPage"
-      :total="items.length"
-      :items-per-page="pageSize"
-      :max="maxVisibleButtons"
-      :disabled="loading"
-      :size="size"
-      show-edges
-      color="neutral"
-    />
-  </div>
+  <UPagination
+    v-model:page="currentPage"
+    :total="items.length"
+    :items-per-page="pageSize"
+    :max="maxVisibleButtons"
+    :disabled="loading"
+    :size="size"
+    show-edges
+    color="neutral"
+  />
 </template>

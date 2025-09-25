@@ -1,11 +1,12 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, ZodNotificationUserParams.parse)
-    const response = await $fetch(
+    const params = await getValidatedRouterParams(
+      event,
+      zDestroyNotificationUserData.shape.path.parse,
+    )
+    await $fetch(
       `${config.apiBaseUrl}/notification/user/${params.id}`,
       {
         method: 'DELETE',
@@ -14,7 +15,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, z.any())
+    return { success: true }
   }
   catch (error) {
     await handleError(error)

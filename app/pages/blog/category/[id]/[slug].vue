@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { locale, t } = useI18n({ useScope: 'local' })
+const { locale, t } = useI18n()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
@@ -18,7 +18,7 @@ const BlogPostCard = computed(() =>
 )
 
 const pageSize = ref(15)
-const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
+const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
     label: $i18n.t('ordering.created_at'),
@@ -26,7 +26,7 @@ const entityOrdering = ref<EntityOrdering<BlogPostOrderingField>>([
   },
 ])
 
-const { data: category, status: categoryStatus, error } = await useFetch<BlogCategory>(
+const { data: category, status: categoryStatus, error } = await useFetch(
   `/api/blog/categories/${categoryId}`,
   {
     key: `blogCategory${categoryId}`,
@@ -50,7 +50,7 @@ const {
   data: posts,
   status: postStatus,
   refresh: refreshPosts,
-} = await useLazyFetch<Pagination<BlogPost>>(
+} = await useLazyFetch(
   `/api/blog/categories/${categoryId}/posts`,
   {
     key: `blogCategoryPosts${categoryId}`,
@@ -74,7 +74,7 @@ const categoryDescription = computed(() => {
   return extractTranslated(category?.value, 'description', locale.value) || ''
 })
 
-const totalPosts = computed(() => category.value?.recursivePostCount || 0)
+const totalPosts = computed(() => category.value?.postCount || 0)
 
 const pagination = computed(() => {
   if (!posts.value?.count) return
@@ -136,47 +136,42 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col max-w-(--container-6xl)">
+  <PageWrapper class="flex max-w-(--container-6xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="
-            mb-5
-
-            md:px-0
-          "
+        mb-5
+        md:px-0
+      "
     />
     <h2
       class="mb-5 flex w-full items-center justify-center gap-2"
     >
       <span
         class="
-              text-primary-950 text-2xl font-bold capitalize
-
-              dark:text-primary-50
-
-              md:text-3xl
-            "
+          text-2xl font-bold text-primary-950 capitalize
+          md:text-3xl
+          dark:text-primary-50
+        "
       >
         {{ categoryTitle }}
       </span>
       <span
         v-if="totalPosts"
         class="
-              text-primary-950 text-sm
-
-              dark:text-primary-50
-
-              md:text-md
-            "
+          text-sm text-primary-950
+          md:text-base
+          dark:text-primary-50
+        "
       >
         ({{ totalPosts }})
       </span>
     </h2>
-    <div class="posts-list flex w-full flex-col gap-4">
+    <div class="flex w-full flex-col gap-4">
       <div class="flex flex-row flex-wrap items-center gap-2">
         <Pagination
           v-if="pagination"
@@ -197,16 +192,12 @@ definePageMeta({
       <ol
         v-if="categoryStatus === 'success'"
         class="
-            grid grid-cols-1 items-center justify-center gap-4
-
-            lg:grid-cols-3
-
-            md:grid-cols-3
-
-            sm:grid-cols-2
-
-            xl:grid-cols-3
-          "
+          grid grid-cols-1 items-center justify-center gap-4
+          sm:grid-cols-2
+          md:grid-cols-3
+          lg:grid-cols-3
+          xl:grid-cols-3
+        "
       >
         <template v-if="postStatus === 'success'">
           <Component
@@ -220,7 +211,13 @@ definePageMeta({
       </ol>
       <div
         v-if="postStatus === 'pending'"
-        class="grid grid-cols-1 items-center justify-center gap-4 lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-3"
+        class="
+          grid grid-cols-1 items-center justify-center gap-4
+          sm:grid-cols-2
+          md:grid-cols-3
+          lg:grid-cols-3
+          xl:grid-cols-3
+        "
       >
         <USkeleton
           v-for="i in (posts?.count || 4)"

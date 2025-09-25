@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -30,12 +30,12 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-4xl) mx-auto flex flex-col">
+  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
         item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-md',
+        root: 'text-xs md:text-base',
       }"
       class="relative mb-5 min-w-0"
     />
@@ -47,19 +47,17 @@ definePageMeta({
     <div class="article">
       <p
         class="
-              text-primary-950 text-xl font-semibold
-
-              dark:text-primary-50
-            "
+          text-xl font-semibold text-primary-950
+          dark:text-primary-50
+        "
       >
         Εισαγωγή
       </p>
       <p
         class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Θα θέλαμε να σας ενημερώσουμε ότι για το Webside η προστασία των προσωπικών δεδομένων των χρηστών μας έχει
         πρωταρχική σημασία. Για το λόγο αυτό λαμβάνουμε τα κατάλληλα μέτρα για να προστατέψουμε τα προσωπικά
@@ -75,19 +73,17 @@ definePageMeta({
       </p>
       <p
         class="
-              text-primary-950 text-xl font-semibold
-
-              dark:text-primary-50
-            "
+          text-xl font-semibold text-primary-950
+          dark:text-primary-50
+        "
       >
         Ποιες κατηγορίες προσωπικών δεδομένων επεξεργαζόμαστε;
       </p>
       <p
         class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Τα προσωπικά δεδομένα που επεξεργαζόμαστε, είναι τα απολύτως αναγκαία, απαραίτητα και κατάλληλα για την
         επίτευξη των επιδιωκόμενων σκοπών μας και συνοψίζονται στα εξής: Προσωπικά δεδομένα, τα οποία μας παρέχετε
@@ -95,10 +91,9 @@ definePageMeta({
       </p>
       <ul
         class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         <li>
           Δεδομένα ταυτοποίησης προσώπου & νομιμοποίησης του υποκειμένου των συναλλαγών (ονοματεπώνυμο,
@@ -114,19 +109,17 @@ definePageMeta({
 
       <p
         class="
-              text-primary-950 text-xl font-semibold
-
-              dark:text-primary-50
-            "
+          text-xl font-semibold text-primary-950
+          dark:text-primary-50
+        "
       >
         Για τη δημιουργία λογαριασμού στο webside.gr
       </p>
       <p
         class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Προσωπικά δεδομένα συλλέγονται όταν δημιουργείτε λογαριασμό στον ιστότοπο του Webside webside.gr. Κατά τη
         δημιουργία λογαριασμού μπορεί να σας ζητηθούν περισσότερα στοιχεία, ωστόσο θα είναι τα ελάχιστα απαιτούμενα
@@ -134,19 +127,17 @@ definePageMeta({
       </p>
       <p
         class="
-              text-primary-950 text-xl font-semibold
-
-              dark:text-primary-50
-            "
+          text-xl font-semibold text-primary-950
+          dark:text-primary-50
+        "
       >
         Για να σας ενημερώσουμε για τα νέα και τις προσφορές μας
       </p>
       <p
         class="
-              text-primary-950
-
-              dark:text-primary-50
-            "
+          text-primary-950
+          dark:text-primary-50
+        "
       >
         Εφόσον έχετε συναινέσει σε αυτό ή καλύπτεται από το έννομο συμφέρον μας, (στις περιπτώσεις των εγγεγραμένων
         χρηστών - πελατών) και υπό τις συγκεκριμένες προϋποθέσεις που θέτει το νομικό πλαίσιο, σας αποστέλλουμε

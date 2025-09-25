@@ -29,6 +29,11 @@ const props = defineProps({
     required: false,
     default: 3,
   },
+  displayImageOf: {
+    type: String as PropType<'user' | 'blogPost'>,
+    required: true,
+    validator: (value: string) => ['user', 'blogPost'].includes(value),
+  },
 })
 
 const emit = defineEmits<{
@@ -39,11 +44,9 @@ const emit = defineEmits<{
 const { $i18n } = useNuxtApp()
 const userStore = useUserStore()
 const toast = useToast()
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const { user, loggedIn } = useUserSession()
 const { updateLikedComments } = userStore
-
-const { account } = storeToRefs(userStore)
 
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 
@@ -66,7 +69,8 @@ cursorState.value[cursorKey.value] = ''
 
 const cursor = computed(() => cursorState.value[cursorKey.value] ?? '')
 
-const blogPost = computed(() => comment?.value?.post)
+const route = useRoute()
+const blogPostId = computed(() => route.params.id as string)
 
 const likeClicked = (event: { blogCommentId: number, liked: boolean }) => {
   if (event.liked) {
@@ -84,8 +88,12 @@ const replyCommentFormSchema: DynamicFormSchema = {
       id: `content-${comment.value.id}`,
       name: 'content',
       as: 'textarea',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).max(1000),
+      rules: z.string({
+        error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
+      }).max(1000),
       autocomplete: 'on',
+      condition: null,
+      disabledCondition: null,
       readonly: false,
       required: true,
       placeholder: t('reply.placeholder'),
@@ -96,7 +104,7 @@ const replyCommentFormSchema: DynamicFormSchema = {
 
 const fetchReplies = async (cursorValue: string) => {
   pending.value = true
-  await $fetch<Pagination<BlogComment>>(`/api/blog/comments/${comment.value.id}/replies`, {
+  await $fetch(`/api/blog/comments/${comment.value.id}/replies`, {
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -118,18 +126,18 @@ const fetchReplies = async (cursorValue: string) => {
 }
 
 async function onReplySubmit({ content }: { content: string }) {
-  await $fetch<BlogComment>('/api/blog/comments', {
+  await $fetch('/api/blog/comments', {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
-      post: String(blogPost.value),
-      user: String(user?.value?.id),
+      post: Number(blogPostId.value),
+      user: Number(user?.value?.id),
       translations: {
         [locale.value]: {
           content: content,
         },
       },
-      parent: comment.value.id,
+      parent: Number(comment.value.id),
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -155,7 +163,7 @@ const replyIds = computed(() => {
 })
 
 const fetchLikedComments = async (ids: number[]) => {
-  return await $fetch<number[]>(`/api/blog/comments/liked-comments`, {
+  return await $fetch(`/api/blog/comments/liked-comments`, {
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
@@ -165,7 +173,7 @@ const fetchLikedComments = async (ids: number[]) => {
       if (!response.ok) {
         return
       }
-      const likedCommentIds = response._data
+      const likedCommentIds = response._data?.likedCommentIds || []
       updateLikedComments(likedCommentIds)
     },
   })
@@ -216,12 +224,12 @@ const onShowMoreRepliesButtonClick = async () => {
 
 const hasReplies = computed(() => {
   return (
-    allReplies.value.length > 0 || (comment.value?.children?.length ?? 0) > 0
+    allReplies.value.length > 0 || (comment.value?.hasReplies ?? false)
   )
 })
 
 const totalReplies = computed(() => {
-  return allReplies.value.length + (comment.value?.children?.length ?? 0)
+  return allReplies.value.length + (comment.value?.repliesCount ?? 0)
 })
 
 const pagination = computed(() => {
@@ -276,49 +284,44 @@ watch(
 
 <template>
   <details
-    v-show="blogPost"
+    v-show="blogPostId"
     :class="commentCardClass"
-    class="relative z-30"
+    class="relative z-30 grid gap-2"
     open
   >
-    <summary class="grid cursor-pointer grid-cols-[32px_1fr]">
-      <span class="flex w-full items-center">
-        <span class="flex items-center gap-2">
+    <summary class="flex w-full cursor-pointer items-center">
+      <span class="flex items-center gap-2">
+        <template v-if="comment.user">
           <LazyUserAvatar
-            v-if="account"
             :img-height="32"
             :img-width="32"
             :show-name="false"
-            :user-account="account"
+            :user-account="comment.user"
           />
           <span
-            v-if="account"
             class="
-              text-primary-950 font-bold
-
+              font-bold text-primary-950
               dark:text-primary-50
             "
           >
-            {{ account?.username }}
+            {{ comment.user?.username || comment.user?.firstName + ' ' + comment.user?.lastName }}
           </span>
-          <span class="flex items-center">
-            <span
-              class="
-                text-12 text-primary-400 mx-2 my-0 inline-block font-bold
-
-                dark:text-primary-400
-              "
-            >•</span>
-            <NuxtTime
-              :datetime="comment.createdAt"
-              :locale="locale"
-              class="
-                text-primary-400 w-full text-end text-xs
-
-                dark:text-primary-400
-              "
-            />
-          </span>
+        </template>
+        <span class="flex items-center">
+          <span
+            class="
+              mx-2 my-0 inline-block font-bold text-primary-400
+              dark:text-primary-400
+            "
+          >•</span>
+          <NuxtTime
+            :datetime="comment.createdAt"
+            :locale="locale"
+            class="
+              w-full text-end text-xs text-primary-400
+              dark:text-primary-400
+            "
+          />
         </span>
       </span>
     </summary>
@@ -327,7 +330,7 @@ watch(
         v-show="hasReplies"
         aria-hidden="true"
         class="
-          line absolute inset-y-0 left-0 z-10 mb-3 flex w-8 cursor-pointer
+          absolute inset-y-0 left-0 z-10 mb-3 flex w-8 cursor-pointer
           items-center justify-center
         "
         @click="onShowMoreRepliesButtonClick"
@@ -339,12 +342,10 @@ watch(
             isLineHovered
               ? `
                 bg-primary-600
-
                 dark:bg-primary-300
               `
               : `
                 bg-primary-300
-
                 dark:bg-primary-600
               `
           "
@@ -365,16 +366,15 @@ watch(
         <span
           v-show="repliesFetched"
           class="
-            bg-primary-100 relative z-20 mt-[6px] flex justify-center self-start
-
+            relative z-20 mt-[6px] flex justify-center self-start bg-primary-100
             dark:bg-primary-900
           "
         >
           <UButton
             v-if="hasReplies"
             class="
-              button inline-flex size-4 items-center justify-center
-              overflow-visible px-1.5
+              inline-flex size-4 items-center justify-center overflow-visible
+              px-1.5
             "
             size="sm"
             color="neutral"
@@ -382,8 +382,8 @@ watch(
             :aria-expanded="showReplies"
             :aria-label="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :disabled="pending"
             :icon="
@@ -393,8 +393,8 @@ watch(
             "
             :title="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :ui="{
               base: 'hover:bg-transparent p-0',
@@ -405,32 +405,30 @@ watch(
           />
         </span>
         <span class="min-w-0">
-          <span class="flex flex-col">
-            <span class="max-h-2xl flex items-center">
-              <ButtonBlogCommentLike
-                :aria-label="$i18n.t('like')"
-                :blog-comment-id="comment.id"
-                :likes-count="likes"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                @update="likeClicked"
-              />
-              <UButton
-                v-if="maxDepth > depth"
-                :aria-label="$i18n.t('reply')"
-                :icon="'i-heroicons-chat-bubble-left-ellipsis'"
-                :label="$i18n.t('reply')"
-                :title="$i18n.t('reply')"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                :ui="{
-                  base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
-                }"
-                @click="onReplyButtonClick"
-              />
-            </span>
+          <span class="flex items-center">
+            <ButtonBlogCommentLike
+              :aria-label="$i18n.t('like')"
+              :blog-comment-id="comment.id"
+              :likes-count="likes"
+              color="neutral"
+              variant="ghost"
+              size="md"
+              @update="likeClicked"
+            />
+            <UButton
+              v-if="maxDepth > depth"
+              :aria-label="$i18n.t('reply')"
+              :icon="'i-heroicons-chat-bubble-left-ellipsis'"
+              :label="$i18n.t('reply')"
+              :title="$i18n.t('reply')"
+              color="neutral"
+              variant="ghost"
+              size="md"
+              :ui="{
+                base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
+              }"
+              @click="onReplyButtonClick"
+            />
           </span>
         </span>
       </span>
@@ -448,27 +446,26 @@ watch(
             :aria-expanded="showReplies"
             :aria-hidden="!showReplies"
             :class="{
-              'threadline-hovered': isLineHovered,
-              'bg-primary-100 z-20 dark:bg-primary-900':
+              'z-20 bg-primary-100 dark:bg-primary-900':
                 !showReplies || (allReplies.length > 0 && allReplies[allReplies.length - 1]?.id === reply.id),
             }"
-            class="threadline-one align-start relative flex justify-end"
+            class="relative flex justify-end"
           >
 
             <span
+              :class="{
+                'border-primary-600 dark:border-primary-300': isLineHovered,
+                'border-primary-300 dark:border-primary-600': !isLineHovered,
+              }"
               class="
-                border-primary-300 box-border h-4 w-[calc(50%+0.5px)]
-                cursor-pointer rounded-bl-[12px] border-0 border-b border-l
-                border-solid
-
-                dark:border-primary-600
+                box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
+                rounded-bl-[12px] border-0 border-b border-l border-solid
               "
             />
             <span
               class="
-                border-primary-300 absolute right-[-8px] box-border h-4 w-2
-                cursor-pointer border-0 border-b border-solid
-
+                absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
+                border-b border-solid border-primary-300
                 dark:border-primary-600
               "
             />
@@ -476,6 +473,7 @@ watch(
           <BlogPostCommentsCard
             v-show="showReplies"
             :comment="reply"
+            :display-image-of="displayImageOf"
             :depth="depth + 1"
           />
         </template>
@@ -484,25 +482,22 @@ watch(
           :aria-expanded="showReplies"
           :aria-hidden="!showReplies"
           :class="{
-            'threadline-hovered': isLineHovered,
-            'bg-primary-100 z-20 dark:bg-primary-900': !showReplies || pending,
+            'z-20 bg-primary-100 dark:bg-primary-900': !showReplies || pending,
           }"
-          class="threadline-two align-start relative flex justify-end"
+          class="relative flex justify-end"
         >
           <span
             class="
-              border-primary-300 box-border h-4 w-[calc(50%+0.5px)]
-              cursor-pointer rounded-bl-[12px] border-0 border-b border-l
-              border-solid
-
+              box-border h-4 w-[calc(50%+0.5px)] cursor-pointer
+              rounded-bl-[12px] border-0 border-b border-l border-solid
+              border-primary-300
               dark:border-primary-600
             "
           />
           <span
             class="
-              border-primary-300 absolute right-[-8px] box-border h-4 w-2
-              cursor-pointer border-0 border-b border-solid
-
+              absolute right-[-8px] box-border h-4 w-2 cursor-pointer border-0
+              border-b border-solid border-primary-300
               dark:border-primary-600
             "
           />
@@ -517,8 +512,8 @@ watch(
             variant="ghost"
             :aria-label="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :disabled="pending"
             :icon="
@@ -528,13 +523,13 @@ watch(
             "
             :label="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :title="
               showReplies
-                ? $i18n.t('hide.replies')
-                : $i18n.t('more.replies', totalReplies)
+                ? t('hide.replies')
+                : t('more.replies', totalReplies)
             "
             :ui="{
               base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer z-20 px-1.25 py-1',
@@ -557,11 +552,12 @@ watch(
           rounded: 'rounded-full',
         },
       }"
-      class="reply-comment-form relative my-2"
+      class="relative my-2"
       @submit="onReplySubmit"
     />
     <Pagination
       v-if="pagination"
+      class="hidden"
       :count="pagination.count"
       :cursor-key="cursorKey"
       :links="pagination.links"
@@ -582,4 +578,8 @@ el:
   reply:
     login: Συνδέσου για να απαντήσεις
     placeholder: Γράψε κάτι...
+  hide:
+    replies: Απόκρυψη
+  more:
+    replies: Δεν υπάρχουν απαντήσεις | 1 Απάντηση | {count} Απαντήσεις
 </i18n>

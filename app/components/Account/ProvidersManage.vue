@@ -13,7 +13,7 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData<ProvidersGetResponse>(
+const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData(
   'providerAccounts',
   () => connectedThirdPartyProviderAccounts(),
 )
@@ -89,7 +89,12 @@ onReactivated(async () => {
 </script>
 
 <template>
-  <div class="grid gap-4 lg:flex">
+  <div
+    class="
+      grid gap-4
+      lg:flex
+    "
+  >
     <slot />
     <UTable
       class="w-full"

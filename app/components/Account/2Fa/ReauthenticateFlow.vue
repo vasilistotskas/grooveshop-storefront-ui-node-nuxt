@@ -13,7 +13,6 @@ const { flow } = toRefs(props)
 
 const router = useRouter()
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
@@ -71,31 +70,30 @@ const filteredMethods = computed(() => {
   <div
     class="
       grid gap-4
-
       md:gap-12
     "
   >
     <div class="grid items-center justify-center justify-items-center">
       <h3
         class="
-          text-primary-950 text-2xl font-bold
-
+          text-2xl font-bold text-primary-950
           dark:text-primary-50
         "
       >
-        {{ $i18n.t('confirm_access') }}
+        {{ t('confirm_access') }}
       </h3>
       <p>
-        {{ $i18n.t('reauthenticate.title') }}
+        {{ t('reauthenticate.title') }}
       </p>
     </div>
 
     <slot />
 
     <div
-      v-if="methods.length > 1" class="grid items-center justify-center gap-2"
+      v-if="methods.length > 1"
+      class="grid items-center justify-center gap-2"
     >
-      <p>{{ $i18n.t('alternative_options') }}</p>
+      <p>{{ t('alternative_options') }}</p>
       <ul class="grid items-center">
         <li
           v-for="f in filteredMethods"
@@ -120,3 +118,15 @@ const filteredMethods = computed(() => {
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  confirm_access: Επιβεβαίωση πρόσβασης
+  alternative_options: Εναλλακτικές επιλογές
+  mfa_reauthenticate:
+    totp: Χρησιμοποιήστε την εφαρμογή πολλαπλών παραγόντων
+    recovery_codes: Χρησιμοποιήστε κωδικούς ανάκτησης
+    webauthn: Χρησιμοποιήστε το κλειδί ασφαλείας
+  reauthenticate:
+    title: Επαναπιστοποίηση
+</i18n>

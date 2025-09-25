@@ -2,23 +2,18 @@
 const { locale } = useI18n()
 const { $i18n } = useNuxtApp()
 
-const { data: blogTags } = await useFetch<BlogTag[]>(
+const { data: blogTags } = await useFetch(
   '/api/blog/tags',
   {
     key: 'blogTags',
     method: 'GET',
     headers: useRequestHeaders(),
-    query: {
-      active: 'true',
-      pagination: 'false',
-      language: locale,
-    },
   },
 )
 
 const searchQuery = ref('')
 const filteredTags = computed(() => {
-  return blogTags?.value?.filter((tag) => {
+  return blogTags?.value?.results?.filter((tag) => {
     return extractTranslated(tag, 'name', locale.value)
       ?.toLowerCase()
       .includes(searchQuery.value.toLowerCase())
@@ -28,26 +23,22 @@ const filteredTags = computed(() => {
 
 <template>
   <aside
-    v-if="blogTags && blogTags.length > 0"
+    v-if="blogTags && blogTags.count > 0"
     class="
       row-start-1 hidden
-
-      lg:grid
-
       md:row-start-2
+      lg:grid
     "
   >
     <div
       class="
         flex gap-4
-
         md:flex-col
       "
     >
       <div
         class="
           grid items-center
-
           md:justify-center
         "
       >
@@ -69,7 +60,6 @@ const filteredTags = computed(() => {
         icon="i-heroicons-magnifying-glass-20-solid"
         class="
           hidden
-
           md:grid
         "
         color="neutral"
@@ -80,9 +70,8 @@ const filteredTags = computed(() => {
       <ul
         v-if="filteredTags && filteredTags.length > 0"
         class="
-          scrollable-tags grid items-center
-
-          md:gap-4
+          grid max-h-80 items-center overflow-y-auto
+          md:max-h-none md:gap-4
         "
       >
         <li
@@ -101,12 +90,3 @@ const filteredTags = computed(() => {
     </div>
   </aside>
 </template>
-
-<style scoped>
-.scrollable-tags {
-  @media screen and (min-width: 768px) {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-}
-</style>

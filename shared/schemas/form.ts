@@ -32,14 +32,8 @@ export const ZodDynamicFormSchemaField = z.array(
     children: ZodDynamicFormSchemaChildren.optional().nullish(),
     items: z.array(z.any()).optional().nullish(),
     rules: z.any(),
-    condition: z
-      .function(z.tuple([z.any()]), z.boolean())
-      .optional()
-      .nullish(),
-    disabledCondition: z
-      .function(z.tuple([z.any()]), z.boolean())
-      .optional()
-      .nullish(),
+    condition: z.any().optional(),
+    disabledCondition: z.any().optional(),
   }),
 )
 

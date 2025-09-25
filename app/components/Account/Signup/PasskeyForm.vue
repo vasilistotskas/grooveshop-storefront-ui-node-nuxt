@@ -4,7 +4,7 @@ import * as z from 'zod'
 const emit = defineEmits(['signUpByPasskey'])
 
 const { signUpByPasskey } = useAllAuthAuthentication()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
@@ -26,9 +26,15 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+      rules: z.email({
+        error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.email.valid'),
+      }),
       autocomplete: 'email',
       readonly: false,
+      condition: () => true,
+      disabledCondition: () => false,
       required: true,
       placeholder: $i18n.t('email.title'),
       type: 'email',
@@ -41,14 +47,12 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <div
     class="
       container mx-auto grid gap-1 p-0
-
       md:px-6
     "
   >
     <p
       class="
-        text-primary-950 flex items-center text-center
-
+        flex items-center text-center text-primary-950
         dark:text-primary-50
       "
     >

@@ -1,10 +1,4 @@
 <script lang="ts" setup>
-import {
-  parseRequestOptionsFromJSON,
-  get,
-} from '@github/webauthn-json/browser-ponyfill'
-import type { CredentialRequestOptionsJSON } from '@github/webauthn-json'
-
 const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAuthn'])
 
 const { $i18n } = useNuxtApp()
@@ -33,15 +27,15 @@ async function onSubmit() {
     await clear()
 
     const optResp = await getWebAuthnRequestOptionsForLogin()
-    const jsonOptions = optResp?.data.request_options as CredentialRequestOptionsJSON
+    const jsonOptions = optResp?.data.request_options.publicKey
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
 
-    const options = parseRequestOptionsFromJSON(jsonOptions)
-    const credential = await get(options)
+    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
+    const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
     const response = await loginUsingWebAuthn({
-      credential,
+      credential: credential.toJSON(),
     })
     session.value = response?.data
     await performPostLoginActions()

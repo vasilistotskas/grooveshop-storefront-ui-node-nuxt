@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      ZodUserAddressParams.parse,
+      zGetUserAccountAddressesData.shape.path.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/user/address/${params.id}`,
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
         },
       },
     )
-    return await parseDataAs(response, ZodUserAddress)
+    return await parseDataAs(response, zUserAddressDetail)
   }
   catch (error) {
     await handleError(error)

@@ -40,7 +40,7 @@ const emit = defineEmits<{
 }>()
 
 const attrs = useAttrs()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const toast = useToast()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
@@ -132,7 +132,10 @@ const getColor = computed(() => {
     :ui="mergedUI"
     @click="toggleFavourite"
   />
-  <LazyAccountLoginFormModal v-if="isOpen" v-model="isOpen" />
+  <LazyAccountLoginFormModal
+    v-if="isOpen"
+    v-model="isOpen"
+  />
 </template>
 
 <i18n lang="yaml">

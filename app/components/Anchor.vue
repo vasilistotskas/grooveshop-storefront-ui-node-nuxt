@@ -17,10 +17,6 @@ defineProps({
     type: String,
     default: '',
   },
-  cssClass: {
-    type: [String, Object],
-    default: '',
-  },
 })
 
 const attrs = useAttrs()
@@ -31,23 +27,25 @@ defineSlots<{
 </script>
 
 <template>
-  <NuxtLinkLocale
+  <UButton
     v-if="to"
     v-bind="attrs"
-    tag="a"
-    :to="to"
-    :aria-label="text"
-    :class="cssClass"
-    :prefetch="false"
+    variant="link"
+    :label="text"
   >
-    <slot>{{ text }}</slot>
-  </NuxtLinkLocale>
+    <NuxtLinkLocale
+      :to="to"
+      class="w-full"
+      :aria-label="text"
+      :prefetch="false"
+    >
+      <slot>{{ text }}</slot>
+    </NuxtLinkLocale>
+  </UButton>
   <ULink
     v-else
     v-bind="attrs"
     :aria-label="text"
-    :active-class="[cssClass].join(' ')"
-    :inactive-class="[cssClass].join(' ')"
     :href="href"
     :external="true"
     :prefetch="false"

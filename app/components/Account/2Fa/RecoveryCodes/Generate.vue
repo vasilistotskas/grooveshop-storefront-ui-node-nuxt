@@ -2,12 +2,12 @@
 const emit = defineEmits(['generateRecoveryCodes'])
 
 const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
 
-const { data, refresh, error } = await useAsyncData<RecoveryCodesGetResponse>(
+const { data, refresh, error } = await useAsyncData(
   'recoveryCodes',
   () => getRecoveryCodes(),
 )
@@ -57,7 +57,6 @@ onReactivated(async () => {
   <div
     class="
       grid gap-4
-
       lg:flex
     "
   >
@@ -66,7 +65,6 @@ onReactivated(async () => {
       <p
         class="
           text-primary-950
-
           dark:text-primary-50
         "
       >

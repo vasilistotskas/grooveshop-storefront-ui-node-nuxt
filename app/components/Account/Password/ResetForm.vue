@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-import type DynamicForm from '~/components/DynamicForm/index.vue'
-
 const emit = defineEmits(['passwordRequest'])
 
 const { passwordRequest } = useAllAuthAuthentication()
@@ -10,7 +8,6 @@ const toast = useToast()
 const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
-const form = ref<InstanceType<typeof DynamicForm> | null>(null)
 
 async function onSubmit(values: PasswordRequestBody) {
   try {
@@ -41,12 +38,18 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     {
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+      rules: z.email({
+        error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.email.valid'),
+      }),
       autocomplete: 'email',
       readonly: false,
       required: true,
       placeholder: $i18n.t('email.title'),
       type: 'email',
+      condition: () => true,
+      disabledCondition: () => false,
     },
   ],
 }))
@@ -55,7 +58,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 <template>
   <section class="grid">
     <DynamicForm
-      ref="form"
       :button-label="$i18n.t('reset')"
       :loading="loading"
       :schema="formSchema"

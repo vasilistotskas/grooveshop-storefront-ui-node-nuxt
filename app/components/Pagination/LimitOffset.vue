@@ -29,7 +29,7 @@ const props = defineProps({
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
-const { t } = useI18n({ useScope: 'local' })
+const { t } = useI18n()
 
 const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
 
@@ -104,16 +104,15 @@ const link = computed(() => {
 </script>
 
 <template>
-  <div class="pagination relative">
+  <div class="relative">
     <ol
       v-if="totalPages > 1"
       class="
-        pagination-ordered-list flex w-full items-center gap-1
-
+        flex w-full items-center gap-1
         md:grid md:gap-4
       "
     >
-      <li class="previous-page">
+      <li>
         <Anchor
           :to="{
             path: link,
@@ -124,13 +123,10 @@ const link = computed(() => {
               category: route.query?.category,
             },
           }"
-          :class="{
-            disabled: isInFirstPage,
-            active: isInFirstPage,
-          }"
           :text="t('previous_page')"
           :title="t('previous_page')"
           :disabled="isInFirstPage"
+          :aria-disabled="isInFirstPage"
           @click="
             async () =>
               await navigateTo(localePath({
@@ -147,7 +143,6 @@ const link = computed(() => {
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           >
@@ -158,7 +153,6 @@ const link = computed(() => {
 
       <li
         v-if="shouldDisplayFirstPage"
-        class="first-page"
       >
         <Anchor
           :to="{
@@ -170,13 +164,13 @@ const link = computed(() => {
               category: route.query?.category,
             },
           }"
-          :css-class="{
+          :class="{
             'grid grid-cols-2 gap-1': shouldDisplayPreviousTripleDots,
-            'disabled': isInFirstPage,
           }"
           :text="t('first_page')"
           :title="t('first_page')"
           :disabled="isInFirstPage"
+          :aria-disabled="isInFirstPage"
           @click="
             async () =>
               await navigateTo(localePath({
@@ -192,15 +186,14 @@ const link = computed(() => {
         >
           <span
             :class="{
-              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
+              'grid w-full items-center justify-center rounded bg-primary-100 px-2 py-1 text-primary-950 dark:bg-primary-900 dark:text-primary-50': true,
               'bg-primary-400 dark:bg-primary-400': isInFirstPage,
             }"
           >{{ firstPageNumber }}</span>
           <span
             v-if="shouldDisplayPreviousTripleDots"
             class="
-              text-primary-950 grid self-end justify-self-start text-sm
-
+              grid self-end justify-self-start text-sm text-primary-950
               dark:text-primary-50
             "
           >...</span>
@@ -210,7 +203,6 @@ const link = computed(() => {
       <li
         v-for="pageEntry in pages"
         :key="pageEntry"
-        class="page"
       >
         <Anchor
           :to="{
@@ -223,8 +215,7 @@ const link = computed(() => {
             },
           }"
           :class="{
-            'bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:bg-primary-900': true,
-            'active': pageEntry === page,
+            'grid w-full items-center justify-center rounded bg-primary-100 px-2 py-1 dark:bg-primary-900': true,
           }"
           :text="String(pageEntry)"
           :title="t('go_to_page', { page: pageEntry })"
@@ -236,7 +227,6 @@ const link = computed(() => {
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           >{{
@@ -247,7 +237,6 @@ const link = computed(() => {
 
       <li
         v-if="shouldDisplayLastPage"
-        class="last-page"
       >
         <Anchor
           :to="{
@@ -261,10 +250,10 @@ const link = computed(() => {
           }"
           :class="{
             'grid grid-cols-2 gap-1': shouldDisplayNextTripleDots,
-            'disabled': isInLastPage,
-            'active': isInLastPage,
           }"
           :text="String(lastPageNumber)"
+          :disabled="isInLastPage"
+          :aria-disabled="isInLastPage"
           :title="
             t('go_to_page', { page: lastPageNumber })
           "
@@ -276,21 +265,20 @@ const link = computed(() => {
           <span
             v-if="shouldDisplayNextTripleDots"
             class="
-              text-primary-950 grid self-end justify-self-end text-sm
-
+              grid self-end justify-self-end text-sm text-primary-950
               dark:text-primary-50
             "
           >...</span>
           <span
             :class="{
-              'text-primary-950 bg-primary-100 grid w-full items-center justify-center rounded px-2 py-1 dark:text-primary-50 dark:bg-primary-900': true,
+              'grid w-full items-center justify-center rounded bg-primary-100 px-2 py-1 text-primary-950 dark:bg-primary-900 dark:text-primary-50': true,
               'bg-primary-400 dark:bg-primary-400': isInLastPage,
             }"
           >{{ lastPageNumber }}</span>
         </Anchor>
       </li>
 
-      <li class="next-page">
+      <li>
         <Anchor
           :to="{
             path: link,
@@ -301,11 +289,9 @@ const link = computed(() => {
               category: route.query?.category,
             },
           }"
-          :class="{
-            disabled: isInLastPage,
-            active: isInLastPage,
-          }"
           :text="t('next_page')"
+          :disabled="isInLastPage"
+          :aria-disabled="isInLastPage"
           :title="
             isInLastPage
               ? t('you_are_on_last_page')
@@ -319,7 +305,6 @@ const link = computed(() => {
           <span
             class="
               text-primary-950
-
               dark:text-primary-50
             "
           ><UIcon name="i-fa-solid-angle-right" /></span>

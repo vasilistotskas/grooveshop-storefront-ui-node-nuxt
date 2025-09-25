@@ -1,25 +1,23 @@
 import type { QueryObject } from 'ufo'
 
-export function buildFullUrl(url: string, query: QueryObject): string {
-  const valuesToExclude: (QueryObject[keyof QueryObject] | undefined)[] = [
-    undefined,
-    null,
-    '',
-    'null',
-    'undefined',
-  ]
-  if (Object.keys(query).length > 0) {
-    url += '?'
-    Object.entries(query).forEach(([key, value]) => {
-      if (!valuesToExclude.includes(value)) {
-        url += `${key}=${value}&`
-      }
-    })
-    if (url.endsWith('&')) {
-      url = url.slice(0, -1)
+export function buildFullUrl(
+  base: string,
+  query: QueryObject = {},
+): string {
+  const url = new URL(base)
+
+  Object.entries(query).forEach(([key, value]) => {
+    if (
+      value != null
+      && value !== ''
+      && value !== 'null'
+      && value !== 'undefined'
+    ) {
+      url.searchParams.append(key, String(value))
     }
-  }
-  return url
+  })
+
+  return url.toString()
 }
 
 export function getMimeType(filePath: string): string {

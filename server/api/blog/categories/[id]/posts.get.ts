@@ -1,10 +1,10 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, ZodBlogPostQuery.parse)
+    const query = await getValidatedQuery(event, zListBlogCategoryPostsData.shape.query.parse)
     const params = await getValidatedRouterParams(
       event,
-      ZodBlogCategoryParams.parse,
+      zListBlogCategoryPostsData.shape.path.parse,
     )
 
     const url = buildFullUrl(`${config.apiBaseUrl}/blog/category/${params.id}/posts`, query)
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
     })
 
-    return await parseDataAs(response, ZodPagination(ZodBlogPost))
+    return await parseDataAs(response, zListBlogCategoryPostsResponse)
   }
   catch (error) {
     await handleError(error)

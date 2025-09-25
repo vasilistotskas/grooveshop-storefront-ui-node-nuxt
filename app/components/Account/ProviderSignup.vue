@@ -30,10 +30,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: $i18n.t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.string({ required_error: $i18n.t('validation.required') }).email($i18n.t('validation.email.valid')),
+      rules: z.email({
+        error: issue => issue.input === undefined
+          ? $i18n.t('validation.required')
+          : $i18n.t('validation.email.valid'),
+      }),
       autocomplete: 'email',
       readonly: false,
       required: true,
+      condition: () => true,
+      disabledCondition: () => false,
       placeholder: $i18n.t('email.title'),
       type: 'email',
     },
@@ -45,7 +51,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   <div
     class="
       container mx-auto p-0
-
       md:px-6
     "
   >

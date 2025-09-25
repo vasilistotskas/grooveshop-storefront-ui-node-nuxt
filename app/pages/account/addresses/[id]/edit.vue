@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
-const { t, locale } = useI18n({ useScope: 'local' })
+const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
@@ -12,7 +13,7 @@ const addressId = 'id' in route.params
   : undefined
 const regions = ref<Pagination<Region> | null>(null)
 
-const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${addressId}`, {
+const { data: address } = await useFetch(`/api/user/addresses/${addressId}`, {
   key: `address${addressId}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -21,7 +22,7 @@ const { data: address } = await useFetch<UserAddress>(`/api/user/addresses/${add
   },
 })
 
-const { data: countries } = await useFetch<Pagination<Country>>(
+const { data: countries } = await useFetch(
   '/api/countries',
   {
     key: 'countries',
@@ -49,7 +50,7 @@ const fetchRegions = async (countryCode: string) => {
   }
 
   try {
-    regions.value = await $fetch<Pagination<Region>>('/api/regions', {
+    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
         country: countryCode,
@@ -57,12 +58,8 @@ const fetchRegions = async (countryCode: string) => {
       },
     })
   }
-  catch {
-    toast.add({
-      title: $i18n.t('error.default'),
-      description: t('error_occurred'),
-      color: 'error',
-    })
+  catch (error) {
+    console.error('Failed to fetch regions: ', error)
   }
 }
 
@@ -83,28 +80,26 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
 }
 
 const onSubmit = async (values: any) => {
-  const updatedValues = processValues(values)
-
-  await $fetch<UserAddress>(`/api/user/addresses/${addressId}`, {
+  await $fetch(`/api/user/addresses/${addressId}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {
-      title: updatedValues.title,
-      firstName: updatedValues.firstName,
-      lastName: updatedValues.lastName,
-      street: updatedValues.street,
-      streetNumber: updatedValues.streetNumber,
-      city: updatedValues.city,
-      zipcode: updatedValues.zipcode,
-      floor: updatedValues.floor,
-      locationType: updatedValues.locationType,
-      phone: updatedValues.phone,
-      mobilePhone: updatedValues.mobilePhone,
-      notes: updatedValues.notes,
-      isMain: updatedValues.isMain,
-      user: updatedValues.user,
-      country: updatedValues.country,
-      region: updatedValues.region,
+      title: values.title,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      street: values.street,
+      streetNumber: values.streetNumber,
+      city: values.city,
+      zipcode: values.zipcode,
+      floor: values.floor === defaultSelectOptionChoose ? undefined : values.floor,
+      locationType: values.locationType === defaultSelectOptionChoose ? undefined : values.locationType,
+      phone: values.phone,
+      mobilePhone: values.mobilePhone,
+      notes: values.notes,
+      isMain: values.isMain,
+      user: values.user,
+      country: values.country === defaultSelectOptionChoose ? undefined : values.country,
+      region: values.region === defaultSelectOptionChoose ? undefined : values.region,
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -160,7 +155,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('form.title'),
       autocomplete: 'honorific-prefix',
       initialValue: address.value?.title || '',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'firstName',
@@ -172,7 +169,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('form.first_name'),
       autocomplete: 'given-name',
       initialValue: address.value?.firstName || '',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'lastName',
@@ -184,7 +183,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('form.last_name'),
       autocomplete: 'family-name',
       initialValue: address.value?.lastName || '',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'street',
@@ -196,7 +197,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('form.street'),
       autocomplete: 'address-line1',
       initialValue: address.value?.street || '',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'streetNumber',
@@ -208,7 +211,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('form.street_number'),
       autocomplete: 'address-line2',
       initialValue: address.value?.streetNumber || '',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'city',
@@ -220,7 +225,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('form.city'),
       autocomplete: 'address-level2',
       initialValue: address.value?.city || '',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'zipcode',
@@ -232,7 +239,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       placeholder: t('form.zipcode'),
       autocomplete: 'postal-code',
       initialValue: address.value?.zipcode || '',
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'phone',
@@ -275,7 +284,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.union([ZodFloorEnum, z.string()]).optional(),
+      rules: z.union([zFloorEnum, z.string()]).optional(),
     },
     {
       name: 'locationType',
@@ -294,7 +303,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.union([ZodLocationTypeEnum, z.string()]).optional(),
+      rules: z.union([zLocationTypeEnum, z.string()]).optional(),
     },
     {
       name: 'country',
@@ -313,7 +322,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'region',
@@ -332,7 +343,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
         label: option.name,
         value: option.value,
       })),
-      rules: z.string({ required_error: $i18n.t('validation.required') }),
+      rules: z.string({ error: issue => issue.input === undefined
+        ? $i18n.t('validation.required')
+        : $i18n.t('validation.string.invalid') }),
     },
     {
       name: 'notes',
@@ -368,7 +381,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: '',
       initialValue: address.value?.user || null,
-      rules: z.union([z.number(), ZodUserAccount]).optional(),
+      rules: z.union([z.number(), zAuthentication]).optional(),
     },
   ],
 }))
@@ -386,9 +399,10 @@ definePageMeta({
 
 <template>
   <PageWrapper
-    class="flex flex-col gap-4
-
-      md:gap-8 md:!p-0 md:mt-1"
+    class="
+      flex flex-col gap-4
+      md:mt-1 md:gap-8 md:!p-0
+    "
   >
     <div
       :class="[
@@ -421,7 +435,6 @@ definePageMeta({
         <span
           class="
             mr-2 text-green-500
-
             dark:text-green-400
           "
         >
@@ -450,7 +463,10 @@ definePageMeta({
 
     <div
       v-if="address"
-      class="bg-primary-100 rounded-lg p-4 dark:bg-primary-900"
+      class="
+        rounded-lg bg-primary-100 p-4
+        dark:bg-primary-900
+      "
     >
       <DynamicForm
         ref="formRef"

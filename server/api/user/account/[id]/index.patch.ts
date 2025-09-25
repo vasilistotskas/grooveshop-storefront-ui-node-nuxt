@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const form = await readFormData(event)
     const params = await getValidatedRouterParams(
       event,
-      ZodUserAccountParams.parse,
+      zPartialUpdateUserAccountData.shape.path.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/user/account/${params.id}`,
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
       },
     )
 
-    const userResponse = await parseDataAs(response, ZodUserAccount)
+    const userResponse = await parseDataAs(response, zPartialUpdateUserAccountResponse)
     await setUserSession(event, {
       user: userResponse,
     })
