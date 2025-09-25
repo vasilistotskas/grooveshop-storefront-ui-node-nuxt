@@ -1,3 +1,26 @@
+# [3.0.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.30.0...v3.0.0) (2025-09-25)
+
+
+### Bug Fixes
+
+* Vue templates for improved readability ([0542206](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/054220626ce153fb6f41b4545441a603c6f87012))
+
+
+### Features
+
+* blog post list, and user avatar UX ([4ea2b2e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4ea2b2e50b78c3d1ed3e14bca2abd3960226dcee))
+* Nuxt 4, Zod 4, remove hardcoded api types at `shared` and use `hey-api/openapi-ts`. ([d6fd3af](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d6fd3afeb7c17ff4337afe6aef32ae13b2f5318a))
+* Progress ([0725fd1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0725fd177bb7aebf490d74adbd2b6126300357e0))
+* UI/UX improvements and split i18n json files ([6a27386](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6a2738642b8d7686717b20f305f9119e23b8f81e))
+* V3 ([1f3ee4f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1f3ee4f2ad73abad40ae1e0cca9d608f0487d4cc))
+
+
+### BREAKING CHANGES
+
+* - Nuxt version 4
+- NuxtUI version 4
+- Zod version 4
+
 # [2.30.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.29.0...v2.30.0) (2025-06-07)
 
 
