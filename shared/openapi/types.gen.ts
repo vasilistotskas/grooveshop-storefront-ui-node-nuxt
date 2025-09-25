@@ -27,6 +27,9 @@ export type Authentication = {
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
     username?: string | null;
+    /**
+     * Εικόνα
+     */
     image?: string | null;
     phone?: string | null;
     city?: string;
@@ -102,7 +105,10 @@ export type AuthenticationRequest = {
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
     username?: string | null;
-    image?: string | null;
+    /**
+     * Εικόνα
+     */
+    image?: Blob | File | null;
     phone?: string | null;
     city?: string;
     /**
@@ -1815,64 +1821,6 @@ export type PaginatedUserSubscriptionList = {
     results: Array<UserSubscription>;
 };
 
-export type PatchedAuthenticationRequest = {
-    /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
-     */
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    /**
-     * Όνομα χρήστη
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
-     */
-    username?: string | null;
-    image?: string | null;
-    phone?: string | null;
-    city?: string;
-    /**
-     * Zip Code
-     */
-    zipcode?: string;
-    address?: string;
-    place?: string;
-    /**
-     * Country Code Alpha 2
-     */
-    country?: string | null;
-    /**
-     * Region Code
-     */
-    region?: string | null;
-    birthDate?: string | null;
-    /**
-     * Twitter Profile
-     */
-    twitter?: string | null;
-    /**
-     * LinkedIn Profile
-     */
-    linkedin?: string | null;
-    /**
-     * Facebook Profile
-     */
-    facebook?: string | null;
-    /**
-     * Instagram Profile
-     */
-    instagram?: string | null;
-    website?: string | null;
-    /**
-     * Youtube Profile
-     */
-    youtube?: string | null;
-    /**
-     * Github Profile
-     */
-    github?: string | null;
-    bio?: string;
-};
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -2397,6 +2345,67 @@ export type PatchedUserSubscriptionWriteRequest = {
      * Additional subscription preferences or data
      */
     metadata?: unknown;
+};
+
+export type PatchedUserWriteRequest = {
+    /**
+     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     */
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    /**
+     * Όνομα χρήστη
+     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     */
+    username?: string | null;
+    /**
+     * Εικόνα
+     */
+    image?: Blob | File | null;
+    phone?: string | null;
+    city?: string;
+    /**
+     * Zip Code
+     */
+    zipcode?: string;
+    address?: string;
+    place?: string;
+    /**
+     * Country Code Alpha 2
+     */
+    country?: string | null;
+    /**
+     * Region Code
+     */
+    region?: string | null;
+    birthDate?: string | null;
+    /**
+     * Twitter Profile
+     */
+    twitter?: string | null;
+    /**
+     * LinkedIn Profile
+     */
+    linkedin?: string | null;
+    /**
+     * Facebook Profile
+     */
+    facebook?: string | null;
+    /**
+     * Instagram Profile
+     */
+    instagram?: string | null;
+    website?: string | null;
+    /**
+     * Youtube Profile
+     */
+    youtube?: string | null;
+    /**
+     * Github Profile
+     */
+    github?: string | null;
+    bio?: string;
 };
 
 /**
@@ -3900,6 +3909,67 @@ export type UserSubscriptionWriteRequest = {
     metadata?: unknown;
 };
 
+export type UserWriteRequest = {
+    /**
+     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     */
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    /**
+     * Όνομα χρήστη
+     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     */
+    username?: string | null;
+    /**
+     * Εικόνα
+     */
+    image?: Blob | File | null;
+    phone?: string | null;
+    city?: string;
+    /**
+     * Zip Code
+     */
+    zipcode?: string;
+    address?: string;
+    place?: string;
+    /**
+     * Country Code Alpha 2
+     */
+    country?: string | null;
+    /**
+     * Region Code
+     */
+    region?: string | null;
+    birthDate?: string | null;
+    /**
+     * Twitter Profile
+     */
+    twitter?: string | null;
+    /**
+     * LinkedIn Profile
+     */
+    linkedin?: string | null;
+    /**
+     * Facebook Profile
+     */
+    facebook?: string | null;
+    /**
+     * Instagram Profile
+     */
+    instagram?: string | null;
+    website?: string | null;
+    /**
+     * Youtube Profile
+     */
+    youtube?: string | null;
+    /**
+     * Github Profile
+     */
+    github?: string | null;
+    bio?: string;
+};
+
 export type UsernameUpdateRequest = {
     /**
      * New username
@@ -3926,6 +3996,9 @@ export type AuthenticationWritable = {
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
     username?: string | null;
+    /**
+     * Εικόνα
+     */
     image?: string | null;
     phone?: string | null;
     city?: string;
@@ -13460,7 +13533,7 @@ export type ListUserAccountResponses = {
 export type ListUserAccountResponse = ListUserAccountResponses[keyof ListUserAccountResponses];
 
 export type CreateUserAccountData = {
-    body: AuthenticationRequest;
+    body: UserWriteRequest;
     path?: never;
     query?: {
         /**
@@ -13543,7 +13616,7 @@ export type RetrieveUserAccountResponses = {
 export type RetrieveUserAccountResponse = RetrieveUserAccountResponses[keyof RetrieveUserAccountResponses];
 
 export type PartialUpdateUserAccountData = {
-    body?: PatchedAuthenticationRequest;
+    body?: PatchedUserWriteRequest;
     path: {
         id: string | number;
     };
@@ -13573,7 +13646,7 @@ export type PartialUpdateUserAccountResponses = {
 export type PartialUpdateUserAccountResponse = PartialUpdateUserAccountResponses[keyof PartialUpdateUserAccountResponses];
 
 export type UpdateUserAccountData = {
-    body: AuthenticationRequest;
+    body: UserWriteRequest;
     path: {
         id: string | number;
     };

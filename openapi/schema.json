@@ -31389,17 +31389,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/AuthenticationRequest"
+                                "$ref": "#/components/schemas/UserWriteRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/AuthenticationRequest"
+                                "$ref": "#/components/schemas/UserWriteRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/AuthenticationRequest"
+                                "$ref": "#/components/schemas/UserWriteRequest"
                             }
                         }
                     },
@@ -31621,17 +31621,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/AuthenticationRequest"
+                                "$ref": "#/components/schemas/UserWriteRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/AuthenticationRequest"
+                                "$ref": "#/components/schemas/UserWriteRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/AuthenticationRequest"
+                                "$ref": "#/components/schemas/UserWriteRequest"
                             }
                         }
                     },
@@ -31751,17 +31751,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedAuthenticationRequest"
+                                "$ref": "#/components/schemas/PatchedUserWriteRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedAuthenticationRequest"
+                                "$ref": "#/components/schemas/PatchedUserWriteRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedAuthenticationRequest"
+                                "$ref": "#/components/schemas/PatchedUserWriteRequest"
                             }
                         }
                     }
@@ -36301,7 +36301,9 @@
                     },
                     "image": {
                         "type": "string",
-                        "nullable": true
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Εικόνα"
                     },
                     "phone": {
                         "type": "string",
@@ -36467,8 +36469,9 @@
                     },
                     "image": {
                         "type": "string",
+                        "format": "binary",
                         "nullable": true,
-                        "minLength": 1
+                        "title": "Εικόνα"
                     },
                     "phone": {
                         "type": "string",
@@ -42185,128 +42188,6 @@
                     }
                 }
             },
-            "PatchedAuthenticationRequest": {
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "minLength": 1,
-                        "title": "Διεύθυνση ηλεκτρονικού ταχυδρομείου",
-                        "maxLength": 254
-                    },
-                    "firstName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "lastName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "username": {
-                        "type": "string",
-                        "nullable": true,
-                        "title": "Όνομα χρήστη",
-                        "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+#-]+$",
-                        "maxLength": 30
-                    },
-                    "image": {
-                        "type": "string",
-                        "nullable": true,
-                        "minLength": 1
-                    },
-                    "phone": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "zipcode": {
-                        "type": "string",
-                        "title": "Zip Code",
-                        "maxLength": 255
-                    },
-                    "address": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "place": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "country": {
-                        "type": "string",
-                        "minLength": 1,
-                        "title": "Country Code Alpha 2",
-                        "nullable": true
-                    },
-                    "region": {
-                        "type": "string",
-                        "minLength": 1,
-                        "title": "Region Code",
-                        "nullable": true
-                    },
-                    "birthDate": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                    },
-                    "twitter": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Twitter Profile",
-                        "maxLength": 200
-                    },
-                    "linkedin": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "LinkedIn Profile",
-                        "maxLength": 200
-                    },
-                    "facebook": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Facebook Profile",
-                        "maxLength": 200
-                    },
-                    "instagram": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Instagram Profile",
-                        "maxLength": 200
-                    },
-                    "website": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200
-                    },
-                    "youtube": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Youtube Profile",
-                        "maxLength": 200
-                    },
-                    "github": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Github Profile",
-                        "maxLength": 200
-                    },
-                    "bio": {
-                        "type": "string"
-                    }
-                }
-            },
             "PatchedBlogAuthorWriteRequest": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -43552,6 +43433,129 @@
                     },
                     "metadata": {
                         "description": "Additional subscription preferences or data"
+                    }
+                }
+            },
+            "PatchedUserWriteRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1,
+                        "title": "Διεύθυνση ηλεκτρονικού ταχυδρομείου",
+                        "maxLength": 254
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true,
+                        "title": "Όνομα χρήστη",
+                        "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
+                        "pattern": "^[\\w.@+#-]+$",
+                        "maxLength": 30
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "binary",
+                        "nullable": true,
+                        "title": "Εικόνα"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "zipcode": {
+                        "type": "string",
+                        "title": "Zip Code",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "place": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "country": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Country Code Alpha 2",
+                        "nullable": true
+                    },
+                    "region": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Region Code",
+                        "nullable": true
+                    },
+                    "birthDate": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "twitter": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Twitter Profile",
+                        "maxLength": 200
+                    },
+                    "linkedin": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "LinkedIn Profile",
+                        "maxLength": 200
+                    },
+                    "facebook": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Facebook Profile",
+                        "maxLength": 200
+                    },
+                    "instagram": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Instagram Profile",
+                        "maxLength": 200
+                    },
+                    "website": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "maxLength": 200
+                    },
+                    "youtube": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Youtube Profile",
+                        "maxLength": 200
+                    },
+                    "github": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Github Profile",
+                        "maxLength": 200
+                    },
+                    "bio": {
+                        "type": "string"
                     }
                 }
             },
@@ -47796,6 +47800,132 @@
                 },
                 "required": [
                     "topic"
+                ]
+            },
+            "UserWriteRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1,
+                        "title": "Διεύθυνση ηλεκτρονικού ταχυδρομείου",
+                        "maxLength": 254
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true,
+                        "title": "Όνομα χρήστη",
+                        "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
+                        "pattern": "^[\\w.@+#-]+$",
+                        "maxLength": 30
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "binary",
+                        "nullable": true,
+                        "title": "Εικόνα"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "zipcode": {
+                        "type": "string",
+                        "title": "Zip Code",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "place": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "country": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Country Code Alpha 2",
+                        "nullable": true
+                    },
+                    "region": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Region Code",
+                        "nullable": true
+                    },
+                    "birthDate": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "twitter": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Twitter Profile",
+                        "maxLength": 200
+                    },
+                    "linkedin": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "LinkedIn Profile",
+                        "maxLength": 200
+                    },
+                    "facebook": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Facebook Profile",
+                        "maxLength": 200
+                    },
+                    "instagram": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Instagram Profile",
+                        "maxLength": 200
+                    },
+                    "website": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "maxLength": 200
+                    },
+                    "youtube": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Youtube Profile",
+                        "maxLength": 200
+                    },
+                    "github": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "title": "Github Profile",
+                        "maxLength": 200
+                    },
+                    "bio": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email"
                 ]
             },
             "UsernameUpdateRequest": {

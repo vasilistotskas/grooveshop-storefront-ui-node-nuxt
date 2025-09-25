@@ -24,7 +24,7 @@ export const zAuthentication = z.object({
         z.null()
     ])),
     image: z.optional(z.union([
-        z.string(),
+        z.url(),
         z.null()
     ])),
     phone: z.optional(z.union([
@@ -100,7 +100,7 @@ export const zAuthenticationRequest = z.object({
         z.null()
     ])),
     image: z.optional(z.union([
-        z.string().min(1),
+        z.string(),
         z.null()
     ])),
     phone: z.optional(z.union([
@@ -2820,69 +2820,6 @@ export const zPaginatedUserSubscriptionList = z.object({
     results: z.array(zUserSubscription)
 });
 
-export const zPatchedAuthenticationRequest = z.object({
-    email: z.optional(z.email().min(1).max(254)),
-    firstName: z.optional(z.string().max(255)),
-    lastName: z.optional(z.string().max(255)),
-    username: z.optional(z.union([
-        z.string().max(30).regex(/^[\w.@+#-]+$/),
-        z.null()
-    ])),
-    image: z.optional(z.union([
-        z.string().min(1),
-        z.null()
-    ])),
-    phone: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    city: z.optional(z.string().max(255)),
-    zipcode: z.optional(z.string().max(255)),
-    address: z.optional(z.string().max(255)),
-    place: z.optional(z.string().max(255)),
-    country: z.optional(z.union([
-        z.string().min(1),
-        z.null()
-    ])),
-    region: z.optional(z.union([
-        z.string().min(1),
-        z.null()
-    ])),
-    birthDate: z.optional(z.union([
-        z.iso.date(),
-        z.null()
-    ])),
-    twitter: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    linkedin: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    facebook: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    instagram: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    website: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    youtube: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    github: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    bio: z.optional(z.string())
-});
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -3413,6 +3350,69 @@ export const zPatchedUserSubscriptionWriteRequest = z.object({
     metadata: z.optional(z.unknown().register(z.globalRegistry, {
         description: 'Additional subscription preferences or data'
     }))
+});
+
+export const zPatchedUserWriteRequest = z.object({
+    email: z.optional(z.email().min(1).max(254)),
+    firstName: z.optional(z.string().max(255)),
+    lastName: z.optional(z.string().max(255)),
+    username: z.optional(z.union([
+        z.string().max(30).regex(/^[\w.@+#-]+$/),
+        z.null()
+    ])),
+    image: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    city: z.optional(z.string().max(255)),
+    zipcode: z.optional(z.string().max(255)),
+    address: z.optional(z.string().max(255)),
+    place: z.optional(z.string().max(255)),
+    country: z.optional(z.union([
+        z.string().min(1),
+        z.null()
+    ])),
+    region: z.optional(z.union([
+        z.string().min(1),
+        z.null()
+    ])),
+    birthDate: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    twitter: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    linkedin: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    facebook: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    instagram: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    website: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    youtube: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    github: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    bio: z.optional(z.string())
 });
 
 /**
@@ -4418,6 +4418,69 @@ export const zUserSubscriptionWriteRequest = z.object({
     }))
 });
 
+export const zUserWriteRequest = z.object({
+    email: z.email().min(1).max(254),
+    firstName: z.optional(z.string().max(255)),
+    lastName: z.optional(z.string().max(255)),
+    username: z.optional(z.union([
+        z.string().max(30).regex(/^[\w.@+#-]+$/),
+        z.null()
+    ])),
+    image: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    city: z.optional(z.string().max(255)),
+    zipcode: z.optional(z.string().max(255)),
+    address: z.optional(z.string().max(255)),
+    place: z.optional(z.string().max(255)),
+    country: z.optional(z.union([
+        z.string().min(1),
+        z.null()
+    ])),
+    region: z.optional(z.union([
+        z.string().min(1),
+        z.null()
+    ])),
+    birthDate: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    twitter: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    linkedin: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    facebook: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    instagram: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    website: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    youtube: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    github: z.optional(z.union([
+        z.url().max(200),
+        z.null()
+    ])),
+    bio: z.optional(z.string())
+});
+
 export const zUsernameUpdateRequest = z.object({
     username: z.string().min(1).max(150).register(z.globalRegistry, {
         description: 'New username'
@@ -4439,7 +4502,7 @@ export const zAuthenticationWritable = z.object({
         z.null()
     ])),
     image: z.optional(z.union([
-        z.string(),
+        z.url(),
         z.null()
     ])),
     phone: z.optional(z.union([
@@ -14554,7 +14617,7 @@ export const zListUserAccountData = z.object({
 export const zListUserAccountResponse = zPaginatedAuthenticationList;
 
 export const zCreateUserAccountData = z.object({
-    body: zAuthenticationRequest,
+    body: zUserWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
         language: z.optional(z.enum([
@@ -14609,7 +14672,7 @@ export const zRetrieveUserAccountData = z.object({
 export const zRetrieveUserAccountResponse = zAuthentication;
 
 export const zPartialUpdateUserAccountData = z.object({
-    body: z.optional(zPatchedAuthenticationRequest),
+    body: z.optional(zPatchedUserWriteRequest),
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),
@@ -14630,7 +14693,7 @@ export const zPartialUpdateUserAccountData = z.object({
 export const zPartialUpdateUserAccountResponse = zAuthentication;
 
 export const zUpdateUserAccountData = z.object({
-    body: zAuthenticationRequest,
+    body: zUserWriteRequest,
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),
