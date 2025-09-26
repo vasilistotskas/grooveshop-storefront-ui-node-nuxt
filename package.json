@@ -26,7 +26,8 @@
     "lint": "eslint . --fix",
     "cleanup": "nuxt cleanup",
     "analyze": "npx nuxt analyze",
-    "test": "vitest run --coverage && coveralls < coverage/lcov.info",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage && coveralls < coverage/lcov.info",
     "openapi-ts": "openapi-ts",
     "semantic-release": "semantic-release",
     "generate:schema": "node scripts/fetch-schema.mjs"
