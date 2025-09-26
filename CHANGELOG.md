@@ -1,3 +1,17 @@
+# [3.1.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.0.0...v3.1.0) (2025-09-26)
+
+
+### Bug Fixes
+
+* Remove Coveralls step from CI workflow ([25d6726](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/25d67264a511c1d811e18ec3bf260529f3d1e3e1))
+
+
+### Features
+
+* Remove PWA support and related files ([294d24f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/294d24ffce56c25ce2eec5582ade074a71228a06))
+* Split test and coverage scripts in package.json ([c94e53b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c94e53bc6f3543a65d3f6a8daaa8855977c6c8be))
+* Switch to lazy data fetching and update Nuxt config ([b90f21e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b90f21e2617fae546a43baf69ad84284749be6d5))
+
 # [3.0.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v2.30.0...v3.0.0) (2025-09-25)
 
 
