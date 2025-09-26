@@ -44,14 +44,12 @@ defineOgImage({
 </script>
 
 <template>
-  <NuxtPwaManifest />
   <NuxtRouteAnnouncer />
   <LoadingIndicator />
   <UApp :locale="uiLocales[locale]">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <Pwa />
     <CookieControl />
   </UApp>
 </template>

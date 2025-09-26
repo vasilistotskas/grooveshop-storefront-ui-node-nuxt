@@ -47,7 +47,6 @@
     "@tailwindcss/typography": "0.5.19",
     "@vee-validate/nuxt": "4.15.1",
     "@vee-validate/zod": "4.15.1",
-    "@vite-pwa/nuxt": "1.0.4",
     "@vueuse/nuxt": "13.9.0",
     "coveralls-next": "5.0.0",
     "defu": "6.1.4",
