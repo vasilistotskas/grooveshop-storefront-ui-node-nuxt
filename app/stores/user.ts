@@ -73,7 +73,7 @@ export const useUserStore = defineStore('user', () => {
       return
     }
     const { getUserAccount } = useAllAuthAccount()
-    const { data } = await useAsyncData(
+    const { data } = await useLazyAsyncData(
       'userAccount',
       () => {
         if (!user.value || !user.value.id!) {

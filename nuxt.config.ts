@@ -74,7 +74,7 @@ export default defineNuxtConfig({
         clientSecret: '',
       },
       facebook: {
-        clientId: '',
+        clientId: undefined,
         clientSecret: '',
       },
       github: {
@@ -91,8 +91,8 @@ export default defineNuxtConfig({
     },
     redis: {
       host: 'localhost',
-      port: '6379',
-      ttl: '30',
+      port: 6379,
+      ttl: 30,
     },
     public: {
       appKeywords: '',
@@ -190,10 +190,6 @@ export default defineNuxtConfig({
     server: false,
     client: true,
   },
-  future: {
-    compatibilityVersion: 4,
-    typescriptBundlerResolution: true,
-  },
   features: {
     inlineStyles: true,
   },
@@ -201,14 +197,8 @@ export default defineNuxtConfig({
     typedPages: true,
     asyncContext: true,
     cookieStore: true,
-    watcher: 'parcel',
-    defaults: {
-      nuxtLink: {
-        prefetch: false,
-      },
-    },
   },
-  compatibilityDate: '2025-05-06',
+  compatibilityDate: 'latest',
   nitro: {
     esbuild: {
       options: {
@@ -240,7 +230,6 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
-    builder: 'vite',
   },
   debug: false,
   hooks: {

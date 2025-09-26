@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const setupConfig = async () => {
-    const { data, status: configStatus } = await useFetch(
+    const { data, status: configStatus } = await useLazyFetch(
       '/api/_allauth/app/v1/config',
       {
         key: 'config',
@@ -82,7 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     const { getSession } = useAllAuthAuthentication()
-    const { data, error } = await useAsyncData(
+    const { data, error } = await useLazyAsyncData(
       'session',
       () => getSession(),
     )
@@ -100,7 +100,7 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     const { getSessions } = useAllAuthSessions()
-    const { data } = await useAsyncData(
+    const { data } = await useLazyAsyncData(
       'sessions',
       () => getSessions(),
     )
@@ -115,7 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     const { getAuthenticators } = useAllAuthAccount()
-    const { data } = await useAsyncData(
+    const { data } = await useLazyAsyncData(
       'authenticators',
       () => getAuthenticators(),
     )

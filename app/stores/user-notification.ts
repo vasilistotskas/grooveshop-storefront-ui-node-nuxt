@@ -15,7 +15,7 @@ export const useUserNotificationStore = defineStore('userNotification', () => {
       return
     }
     const { getNotifications } = useUserNotification()
-    const { data } = await useAsyncData(
+    const { data } = await useLazyAsyncData(
       'userNotifications',
       () => getNotifications(user.value?.id),
     )
