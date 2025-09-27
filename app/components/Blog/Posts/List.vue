@@ -229,6 +229,8 @@ watch(
             :key="index"
             :img-loading="imgLoading(index)"
             :post="post"
+            :img-width="isMobileOrTablet ? 480 : 440"
+            :img-height="isMobileOrTablet ? 315 : 247"
           />
         </ol>
         <div
@@ -244,7 +246,7 @@ watch(
           <USkeleton
             v-for="i in 3"
             :key="i"
-            class="h-[458px] w-full"
+            class="h-[461px] w-full"
           />
         </div>
       </div>

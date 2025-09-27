@@ -1,5 +1,5 @@
 declare module '#auth-utils' {
-  interface User extends Authentication {
+  interface User extends UserDetails {
     _dummy?: string
   }
 

@@ -343,7 +343,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       readonly: false,
       placeholder: '',
       initialValue: user.value?.id || undefined,
-      rules: z.union([z.number(), zAuthentication]).optional(),
+      rules: z.union([z.number(), zUserDetails]).optional(),
     },
   ],
 }))

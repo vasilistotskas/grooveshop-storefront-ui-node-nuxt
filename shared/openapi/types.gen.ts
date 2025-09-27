@@ -10,150 +10,6 @@ export type ClientOptions = {
  */
 export type ActionEnum = 'subscribe' | 'unsubscribe';
 
-export type Authentication = {
-    /**
-     * Id
-     */
-    readonly pk: number;
-    /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
-     */
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    readonly id: number;
-    /**
-     * Όνομα χρήστη
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
-     */
-    username?: string | null;
-    /**
-     * Εικόνα
-     */
-    image?: string | null;
-    phone?: string | null;
-    city?: string;
-    /**
-     * Zip Code
-     */
-    zipcode?: string;
-    address?: string;
-    place?: string;
-    /**
-     * Country Code Alpha 2
-     */
-    country?: string | null;
-    /**
-     * Region Code
-     */
-    region?: string | null;
-    birthDate?: string | null;
-    /**
-     * Twitter Profile
-     */
-    twitter?: string | null;
-    /**
-     * LinkedIn Profile
-     */
-    linkedin?: string | null;
-    /**
-     * Facebook Profile
-     */
-    facebook?: string | null;
-    /**
-     * Instagram Profile
-     */
-    instagram?: string | null;
-    website?: string | null;
-    /**
-     * Youtube Profile
-     */
-    youtube?: string | null;
-    /**
-     * Github Profile
-     */
-    github?: string | null;
-    bio?: string;
-    /**
-     * Active
-     */
-    readonly isActive: boolean;
-    /**
-     * Staff
-     */
-    readonly isStaff: boolean;
-    /**
-     * Κατάσταση υπερχρήστη
-     * Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.
-     */
-    readonly isSuperuser: boolean;
-    readonly createdAt: string;
-    readonly updatedAt: string;
-    readonly uuid: string;
-    readonly mainImagePath: string;
-};
-
-export type AuthenticationRequest = {
-    /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
-     */
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    /**
-     * Όνομα χρήστη
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
-     */
-    username?: string | null;
-    /**
-     * Εικόνα
-     */
-    image?: Blob | File | null;
-    phone?: string | null;
-    city?: string;
-    /**
-     * Zip Code
-     */
-    zipcode?: string;
-    address?: string;
-    place?: string;
-    /**
-     * Country Code Alpha 2
-     */
-    country?: string | null;
-    /**
-     * Region Code
-     */
-    region?: string | null;
-    birthDate?: string | null;
-    /**
-     * Twitter Profile
-     */
-    twitter?: string | null;
-    /**
-     * LinkedIn Profile
-     */
-    linkedin?: string | null;
-    /**
-     * Facebook Profile
-     */
-    facebook?: string | null;
-    /**
-     * Instagram Profile
-     */
-    instagram?: string | null;
-    website?: string | null;
-    /**
-     * Youtube Profile
-     */
-    youtube?: string | null;
-    /**
-     * Github Profile
-     */
-    github?: string | null;
-    bio?: string;
-};
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -172,7 +28,10 @@ export type BlogAuthor = {
     readonly id: number;
     readonly uuid: string;
     user: number;
-    website?: string;
+    /**
+     * URL link or empty string
+     */
+    readonly website: string | null;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly numberOfPosts: number;
@@ -196,8 +55,11 @@ export type BlogAuthorDetail = {
     };
     readonly id: number;
     readonly uuid: string;
-    user: Authentication;
-    website?: string;
+    user: UserDetails;
+    /**
+     * URL link or empty string
+     */
+    readonly website: string | null;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly numberOfPosts: number;
@@ -364,7 +226,7 @@ export type BlogComment = {
             content?: string;
         };
     };
-    user: Authentication;
+    user: UserDetails;
     /**
      * First 150 characters of the comment content
      */
@@ -375,7 +237,7 @@ export type BlogComment = {
     readonly isReply: boolean;
     readonly parent: number | null;
     /**
-     * Whether this comment has replies
+     * Whether this comment has approved replies
      */
     readonly hasReplies: boolean;
     readonly approved: boolean;
@@ -410,7 +272,7 @@ export type BlogCommentDetail = {
             content?: string;
         };
     };
-    user: Authentication;
+    user: UserDetails;
     /**
      * First 150 characters of the comment content
      */
@@ -421,7 +283,7 @@ export type BlogCommentDetail = {
     readonly isReply: boolean;
     readonly parent: number | null;
     /**
-     * Whether this comment has replies
+     * Whether this comment has approved replies
      */
     readonly hasReplies: boolean;
     readonly approved: boolean;
@@ -448,11 +310,11 @@ export type BlogCommentDetail = {
     readonly parentComment: {
         id: number;
         contentPreview: string;
-        user: Authentication;
+        user: UserDetails;
         createdAt: string;
     } | null;
     /**
-     * Direct child comments (replies)
+     * Direct approved child comments (replies)
      */
     readonly childrenComments: Array<BlogComment>;
     /**
@@ -461,7 +323,7 @@ export type BlogCommentDetail = {
     readonly ancestorsPath: Array<{
         id: number;
         contentPreview: string;
-        user: Authentication;
+        user: UserDetails;
     }>;
     /**
      * Position information in the comment tree
@@ -469,25 +331,8 @@ export type BlogCommentDetail = {
     readonly treePosition: {
         level: number;
         treeId: number;
-        positionInTree: number;
+        approvedDescendantsCount: number;
         siblingsCount: number;
-    };
-};
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export type BlogCommentDetailRequest = {
-    translations: {
-        el?: {
-            content?: string;
-        };
-        en?: {
-            content?: string;
-        };
-        de?: {
-            content?: string;
-        };
     };
 };
 
@@ -1041,6 +886,10 @@ export type CountryWriteRequest = {
     phoneCode?: number | null;
 };
 
+export type DetailRequest = {
+    detail: string;
+};
+
 /**
  * * `RECEIPT` - Receipt
  * * `INVOICE` - Invoice
@@ -1123,7 +972,10 @@ export type Notification = {
         };
     };
     readonly id: number;
-    link?: string;
+    /**
+     * URL link or empty string
+     */
+    readonly link: string | null;
     kind?: KindEnum;
     expiryDate?: string | null;
     readonly createdAt: string;
@@ -1149,30 +1001,14 @@ export type NotificationInfoResponse = {
     info: string;
 };
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export type NotificationRequest = {
-    translations: {
-        el?: {
-            title?: string;
-            message?: string;
-        };
-        en?: {
-            title?: string;
-            message?: string;
-        };
-        de?: {
-            title?: string;
-            message?: string;
-        };
-    };
-    link?: string;
-    kind?: KindEnum;
-    expiryDate?: string | null;
+export type NotificationSuccessResponse = {
+    /**
+     * Whether the operation was successful
+     */
+    success: boolean;
 };
 
-export type NotificationSuccessResponse = {
+export type NotificationSuccessResponseRequest = {
     /**
      * Whether the operation was successful
      */
@@ -1199,18 +1035,13 @@ export type NotificationUserActionRequest = {
 
 export type NotificationUserDetail = {
     readonly id: number;
-    user: Authentication;
+    user: UserDetails;
     notification: Notification;
     seen?: boolean;
     seenAt?: string | null;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
-};
-
-export type NotificationUserDetailRequest = {
-    seen?: boolean;
-    seenAt?: string | null;
 };
 
 export type NotificationUserWriteRequest = {
@@ -1494,19 +1325,6 @@ export type OrderWriteRequest = {
     paymentMethod?: string;
     trackingNumber?: string;
     shippingCarrier?: string;
-};
-
-export type PaginatedAuthenticationList = {
-    links?: {
-        next?: string | null;
-        previous?: string | null;
-    };
-    count: number;
-    totalPages?: number;
-    pageSize?: number;
-    pageTotalResults?: number;
-    page?: number;
-    results: Array<Authentication>;
 };
 
 export type PaginatedBlogAuthorList = {
@@ -1806,6 +1624,19 @@ export type PaginatedUserAddressList = {
     pageTotalResults?: number;
     page?: number;
     results: Array<UserAddress>;
+};
+
+export type PaginatedUserDetailsList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<UserDetails>;
 };
 
 export type PaginatedUserSubscriptionList = {
@@ -3124,7 +2955,7 @@ export type ProductMeiliSearchResult = {
 export type ProductReview = {
     readonly id: number;
     product: Product;
-    user: Authentication;
+    user: UserDetails;
     rate: RateEnum;
     status?: ReviewStatus;
     isPublished?: boolean;
@@ -3151,7 +2982,7 @@ export type ProductReview = {
 export type ProductReviewDetail = {
     readonly id: number;
     product: Product;
-    user: Authentication;
+    user: UserDetails;
     rate: RateEnum;
     status?: ReviewStatus;
     isPublished?: boolean;
@@ -3466,56 +3297,6 @@ export type SubscriptionTopicDetail = {
     readonly subscriberCount: number;
     readonly createdAt: string;
     readonly updatedAt: string;
-};
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export type SubscriptionTopicDetailRequest = {
-    translations: {
-        el?: {
-            name?: string;
-            description?: string;
-        };
-        en?: {
-            name?: string;
-            description?: string;
-        };
-        de?: {
-            name?: string;
-            description?: string;
-        };
-    };
-    /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
-     */
-    slug: string;
-    /**
-     * Category of the subscription topic
-     *
-     * * `MARKETING` - Marketing Campaigns
-     * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
-     * * `SYSTEM` - System Notifications
-     * * `NEWSLETTER` - Newsletter
-     * * `PROMOTIONAL` - Promotional
-     * * `OTHER` - Other
-     */
-    category?: CategoryEnum;
-    /**
-     * Active
-     * Whether this topic is currently available for subscription
-     */
-    isActive?: boolean;
-    /**
-     * Default Subscription
-     * Whether new users are automatically subscribed to this topic
-     */
-    isDefault?: boolean;
-    /**
-     * Whether subscription to this topic requires email confirmation
-     */
-    requiresConfirmation?: boolean;
 };
 
 /**
@@ -3849,6 +3630,88 @@ export type UserAddressWriteRequest = {
     region?: string;
 };
 
+export type UserDetails = {
+    /**
+     * Id
+     */
+    readonly pk: number;
+    /**
+     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     */
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    readonly id: number;
+    /**
+     * Όνομα χρήστη
+     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     */
+    username?: string | null;
+    phone?: string | null;
+    city?: string;
+    /**
+     * Zip Code
+     */
+    zipcode?: string;
+    address?: string;
+    place?: string;
+    /**
+     * Country Code Alpha 2
+     */
+    country?: string | null;
+    /**
+     * Region Code
+     */
+    region?: string | null;
+    birthDate?: string | null;
+    /**
+     * URL link or empty string
+     */
+    readonly twitter: string | null;
+    /**
+     * URL link or empty string
+     */
+    readonly linkedin: string | null;
+    /**
+     * URL link or empty string
+     */
+    readonly facebook: string | null;
+    /**
+     * URL link or empty string
+     */
+    readonly instagram: string | null;
+    /**
+     * URL link or empty string
+     */
+    readonly website: string | null;
+    /**
+     * URL link or empty string
+     */
+    readonly youtube: string | null;
+    /**
+     * URL link or empty string
+     */
+    readonly github: string | null;
+    bio?: string;
+    /**
+     * Active
+     */
+    readonly isActive: boolean;
+    /**
+     * Staff
+     */
+    readonly isStaff: boolean;
+    /**
+     * Κατάσταση υπερχρήστη
+     * Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.
+     */
+    readonly isSuperuser: boolean;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly uuid: string;
+    readonly mainImagePath: string;
+};
+
 export type UserSubscription = {
     readonly id: number;
     /**
@@ -3892,6 +3755,15 @@ export type UserSubscriptionDetail = {
 };
 
 export type UserSubscriptionDetailRequest = {
+    topic: number;
+    status?: SubscriptionStatus;
+    /**
+     * Additional subscription preferences or data
+     */
+    metadata?: unknown;
+};
+
+export type UserSubscriptionRequest = {
     topic: number;
     status?: SubscriptionStatus;
     /**
@@ -3984,67 +3856,6 @@ export type UsernameUpdateResponse = {
     detail: string;
 };
 
-export type AuthenticationWritable = {
-    /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
-     */
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    /**
-     * Όνομα χρήστη
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
-     */
-    username?: string | null;
-    /**
-     * Εικόνα
-     */
-    image?: string | null;
-    phone?: string | null;
-    city?: string;
-    /**
-     * Zip Code
-     */
-    zipcode?: string;
-    address?: string;
-    place?: string;
-    /**
-     * Country Code Alpha 2
-     */
-    country?: string | null;
-    /**
-     * Region Code
-     */
-    region?: string | null;
-    birthDate?: string | null;
-    /**
-     * Twitter Profile
-     */
-    twitter?: string | null;
-    /**
-     * LinkedIn Profile
-     */
-    linkedin?: string | null;
-    /**
-     * Facebook Profile
-     */
-    facebook?: string | null;
-    /**
-     * Instagram Profile
-     */
-    instagram?: string | null;
-    website?: string | null;
-    /**
-     * Youtube Profile
-     */
-    youtube?: string | null;
-    /**
-     * Github Profile
-     */
-    github?: string | null;
-    bio?: string;
-};
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -4061,7 +3872,6 @@ export type BlogAuthorWritable = {
         };
     };
     user: number;
-    website?: string;
 };
 
 /**
@@ -4079,7 +3889,6 @@ export type BlogAuthorDetailWritable = {
             bio?: string;
         };
     };
-    website?: string;
 };
 
 /**
@@ -4363,7 +4172,6 @@ export type NotificationWritable = {
             message?: string;
         };
     };
-    link?: string;
     kind?: KindEnum;
     expiryDate?: string | null;
 };
@@ -5108,6 +4916,38 @@ export type UserAddressDetailWritable = {
     region: string;
 };
 
+export type UserDetailsWritable = {
+    /**
+     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     */
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    /**
+     * Όνομα χρήστη
+     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     */
+    username?: string | null;
+    phone?: string | null;
+    city?: string;
+    /**
+     * Zip Code
+     */
+    zipcode?: string;
+    address?: string;
+    place?: string;
+    /**
+     * Country Code Alpha 2
+     */
+    country?: string | null;
+    /**
+     * Region Code
+     */
+    region?: string | null;
+    birthDate?: string | null;
+    bio?: string;
+};
+
 export type UserSubscriptionWritable = {
     topic: number;
     status?: SubscriptionStatus;
@@ -5736,7 +5576,7 @@ export type ListBlogCommentData = {
          */
         hasLikes?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter comments that have replies (true) or no replies (false)
+         * Filter comments that have approved replies (true) or no replies (false)
          */
         hasReplies?: 'true' | 'false' | '1' | '0' | boolean;
         id?: string | number;
@@ -5749,7 +5589,7 @@ export type ListBlogCommentData = {
          */
         isAnonymous?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter leaf comments (no replies)
+         * Filter leaf comments (no approved replies)
          */
         isLeaf?: 'true' | 'false' | '1' | '0' | boolean;
         /**
@@ -5787,7 +5627,7 @@ export type ListBlogCommentData = {
          */
         maxLikes?: string | number;
         /**
-         * Filter comments with at most this many replies
+         * Filter comments with at most this many approved replies
          */
         maxReplies?: string | number;
         /**
@@ -5799,7 +5639,7 @@ export type ListBlogCommentData = {
          */
         minLikes?: string | number;
         /**
-         * Filter comments with at least this many replies
+         * Filter comments with at least this many approved replies
          */
         minReplies?: string | number;
         /**
@@ -5807,13 +5647,13 @@ export type ListBlogCommentData = {
          */
         mostLiked?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Order comments by most replies first
+         * Order comments by most approved replies first
          */
         mostReplied?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved' | 'likesCountField' | '-likesCountField' | 'repliesCountField' | '-repliesCountField';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved';
         /**
          * A page number within the paginated result set.
          */
@@ -6138,7 +5978,7 @@ export type ListBlogCommentRepliesData = {
          */
         hasLikes?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter comments that have replies (true) or no replies (false)
+         * Filter comments that have approved replies (true) or no replies (false)
          */
         hasReplies?: 'true' | 'false' | '1' | '0' | boolean;
         id?: string | number;
@@ -6151,7 +5991,7 @@ export type ListBlogCommentRepliesData = {
          */
         isAnonymous?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter leaf comments (no replies)
+         * Filter leaf comments (no approved replies)
          */
         isLeaf?: 'true' | 'false' | '1' | '0' | boolean;
         /**
@@ -6185,7 +6025,7 @@ export type ListBlogCommentRepliesData = {
          */
         maxLikes?: string | number;
         /**
-         * Filter comments with at most this many replies
+         * Filter comments with at most this many approved replies
          */
         maxReplies?: string | number;
         /**
@@ -6197,7 +6037,7 @@ export type ListBlogCommentRepliesData = {
          */
         minLikes?: string | number;
         /**
-         * Filter comments with at least this many replies
+         * Filter comments with at least this many approved replies
          */
         minReplies?: string | number;
         /**
@@ -6205,13 +6045,13 @@ export type ListBlogCommentRepliesData = {
          */
         mostLiked?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Order comments by most replies first
+         * Order comments by most approved replies first
          */
         mostReplied?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved' | 'likesCountField' | '-likesCountField' | 'repliesCountField' | '-repliesCountField';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved';
         /**
          * A page number within the paginated result set.
          */
@@ -6360,7 +6200,7 @@ export type GetBlogCommentThreadData = {
          */
         hasLikes?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter comments that have replies (true) or no replies (false)
+         * Filter comments that have approved replies (true) or no replies (false)
          */
         hasReplies?: 'true' | 'false' | '1' | '0' | boolean;
         id?: string | number;
@@ -6373,7 +6213,7 @@ export type GetBlogCommentThreadData = {
          */
         isAnonymous?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter leaf comments (no replies)
+         * Filter leaf comments (no approved replies)
          */
         isLeaf?: 'true' | 'false' | '1' | '0' | boolean;
         /**
@@ -6407,7 +6247,7 @@ export type GetBlogCommentThreadData = {
          */
         maxLikes?: string | number;
         /**
-         * Filter comments with at most this many replies
+         * Filter comments with at most this many approved replies
          */
         maxReplies?: string | number;
         /**
@@ -6419,7 +6259,7 @@ export type GetBlogCommentThreadData = {
          */
         minLikes?: string | number;
         /**
-         * Filter comments with at least this many replies
+         * Filter comments with at least this many approved replies
          */
         minReplies?: string | number;
         /**
@@ -6427,13 +6267,13 @@ export type GetBlogCommentThreadData = {
          */
         mostLiked?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Order comments by most replies first
+         * Order comments by most approved replies first
          */
         mostReplied?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved' | 'likesCountField' | '-likesCountField' | 'repliesCountField' | '-repliesCountField';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved';
         /**
          * A page number within the paginated result set.
          */
@@ -6531,7 +6371,7 @@ export type GetBlogCommentThreadResponses = {
 export type GetBlogCommentThreadResponse = GetBlogCommentThreadResponses[keyof GetBlogCommentThreadResponses];
 
 export type ToggleBlogCommentLikeData = {
-    body: BlogCommentDetailRequest;
+    body?: never;
     path: {
         id: string | number;
     };
@@ -6616,7 +6456,7 @@ export type ListMyBlogCommentsData = {
          */
         hasLikes?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter comments that have replies (true) or no replies (false)
+         * Filter comments that have approved replies (true) or no replies (false)
          */
         hasReplies?: 'true' | 'false' | '1' | '0' | boolean;
         id?: string | number;
@@ -6629,7 +6469,7 @@ export type ListMyBlogCommentsData = {
          */
         isAnonymous?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter leaf comments (no replies)
+         * Filter leaf comments (no approved replies)
          */
         isLeaf?: 'true' | 'false' | '1' | '0' | boolean;
         /**
@@ -6663,7 +6503,7 @@ export type ListMyBlogCommentsData = {
          */
         maxLikes?: string | number;
         /**
-         * Filter comments with at most this many replies
+         * Filter comments with at most this many approved replies
          */
         maxReplies?: string | number;
         /**
@@ -6675,7 +6515,7 @@ export type ListMyBlogCommentsData = {
          */
         minLikes?: string | number;
         /**
-         * Filter comments with at least this many replies
+         * Filter comments with at least this many approved replies
          */
         minReplies?: string | number;
         /**
@@ -6683,13 +6523,13 @@ export type ListMyBlogCommentsData = {
          */
         mostLiked?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Order comments by most replies first
+         * Order comments by most approved replies first
          */
         mostReplied?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved' | 'likesCountField' | '-likesCountField' | 'repliesCountField' | '-repliesCountField';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'level' | '-level' | 'lft' | '-lft' | 'approved' | '-approved';
         /**
          * A page number within the paginated result set.
          */
@@ -6853,7 +6693,7 @@ export type ListBlogPostData = {
          */
         language?: 'de' | 'el' | 'en';
         /**
-         * Filter by minimum number of comments
+         * Filter by minimum number of approved comments
          */
         minComments?: string | number;
         /**
@@ -6861,7 +6701,7 @@ export type ListBlogPostData = {
          */
         minLikes?: string | number;
         /**
-         * Filter by minimum number of tags
+         * Filter by minimum number of active tags
          */
         minTags?: string | number;
         /**
@@ -6869,9 +6709,9 @@ export type ListBlogPostData = {
          */
         minViewCount?: string | number;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'likesCountField' | '-likesCountField' | 'commentsCountField' | '-commentsCountField' | 'tagsCountField' | '-tagsCountField' | 'featured' | '-featured';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'featured' | '-featured';
         /**
          * A page number within the paginated result set.
          */
@@ -7102,9 +6942,9 @@ export type ListBlogPostCommentsData = {
     };
     query?: {
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'likesCountField' | '-likesCountField' | 'commentsCountField' | '-commentsCountField' | 'tagsCountField' | '-tagsCountField' | 'featured' | '-featured';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'featured' | '-featured';
         /**
          * A page number within the paginated result set.
          */
@@ -7261,7 +7101,7 @@ export type ListFeaturedBlogPostsData = {
          */
         isPublished?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter by minimum number of comments
+         * Filter by minimum number of approved comments
          */
         minComments?: string | number;
         /**
@@ -7269,7 +7109,7 @@ export type ListFeaturedBlogPostsData = {
          */
         minLikes?: string | number;
         /**
-         * Filter by minimum number of tags
+         * Filter by minimum number of active tags
          */
         minTags?: string | number;
         /**
@@ -7277,9 +7117,9 @@ export type ListFeaturedBlogPostsData = {
          */
         minViewCount?: string | number;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'likesCountField' | '-likesCountField' | 'commentsCountField' | '-commentsCountField' | 'tagsCountField' | '-tagsCountField' | 'featured' | '-featured';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'featured' | '-featured';
         /**
          * A page number within the paginated result set.
          */
@@ -7414,7 +7254,7 @@ export type ListPopularBlogPostsData = {
          */
         isPublished?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter by minimum number of comments
+         * Filter by minimum number of approved comments
          */
         minComments?: string | number;
         /**
@@ -7422,7 +7262,7 @@ export type ListPopularBlogPostsData = {
          */
         minLikes?: string | number;
         /**
-         * Filter by minimum number of tags
+         * Filter by minimum number of active tags
          */
         minTags?: string | number;
         /**
@@ -7430,9 +7270,9 @@ export type ListPopularBlogPostsData = {
          */
         minViewCount?: string | number;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'likesCountField' | '-likesCountField' | 'commentsCountField' | '-commentsCountField' | 'tagsCountField' | '-tagsCountField' | 'featured' | '-featured';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'featured' | '-featured';
         /**
          * A page number within the paginated result set.
          */
@@ -7552,7 +7392,7 @@ export type ListTrendingBlogPostsData = {
          */
         isPublished?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter by minimum number of comments
+         * Filter by minimum number of approved comments
          */
         minComments?: string | number;
         /**
@@ -7560,7 +7400,7 @@ export type ListTrendingBlogPostsData = {
          */
         minLikes?: string | number;
         /**
-         * Filter by minimum number of tags
+         * Filter by minimum number of active tags
          */
         minTags?: string | number;
         /**
@@ -7568,9 +7408,9 @@ export type ListTrendingBlogPostsData = {
          */
         minViewCount?: string | number;
         /**
-         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
-        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'likesCountField' | '-likesCountField' | 'commentsCountField' | '-commentsCountField' | 'tagsCountField' | '-tagsCountField' | 'featured' | '-featured';
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'featured' | '-featured';
         /**
          * A page number within the paginated result set.
          */
@@ -9264,7 +9104,7 @@ export type UpdateNotificationUserResponses = {
 export type UpdateNotificationUserResponse = UpdateNotificationUserResponses[keyof UpdateNotificationUserResponses];
 
 export type MarkAllNotificationUsersAsSeenData = {
-    body?: NotificationUserDetailRequest;
+    body: NotificationSuccessResponseRequest;
     path?: never;
     query?: never;
     url: '/api/v1/notification/user/mark_all_as_seen/';
@@ -9283,7 +9123,7 @@ export type MarkAllNotificationUsersAsSeenResponses = {
 export type MarkAllNotificationUsersAsSeenResponse = MarkAllNotificationUsersAsSeenResponses[keyof MarkAllNotificationUsersAsSeenResponses];
 
 export type MarkAllNotificationUsersAsUnseenData = {
-    body?: NotificationUserDetailRequest;
+    body: NotificationSuccessResponseRequest;
     path?: never;
     query?: never;
     url: '/api/v1/notification/user/mark_all_as_unseen/';
@@ -11051,9 +10891,9 @@ export type ListProductData = {
          */
         minWeight?: string | number;
         /**
-         * Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, discountValueAmount, -discountValueAmount, finalPriceAmount, -finalPriceAmount, priceSavePercentField, -priceSavePercentField, reviewAverageField, -reviewAverageField, likesCountField, -likesCountField, viewCount, -viewCount, stock, -stock
+         * Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock
          */
-        ordering?: 'price' | '-price' | 'createdAt' | '-createdAt' | 'active' | '-active' | 'availabilityPriority' | '-availabilityPriority' | 'discountValueAmount' | '-discountValueAmount' | 'finalPriceAmount' | '-finalPriceAmount' | 'priceSavePercentField' | '-priceSavePercentField' | 'reviewAverageField' | '-reviewAverageField' | 'likesCountField' | '-likesCountField' | 'viewCount' | '-viewCount' | 'stock' | '-stock';
+        ordering?: 'price' | '-price' | 'createdAt' | '-createdAt' | 'active' | '-active' | 'availabilityPriority' | '-availabilityPriority' | 'viewCount' | '-viewCount' | 'stock' | '-stock';
         /**
          * A page number within the paginated result set.
          */
@@ -13527,7 +13367,7 @@ export type ListUserAccountErrors = {
 export type ListUserAccountError = ListUserAccountErrors[keyof ListUserAccountErrors];
 
 export type ListUserAccountResponses = {
-    200: PaginatedAuthenticationList;
+    200: PaginatedUserDetailsList;
 };
 
 export type ListUserAccountResponse = ListUserAccountResponses[keyof ListUserAccountResponses];
@@ -13555,7 +13395,7 @@ export type CreateUserAccountErrors = {
 export type CreateUserAccountError = CreateUserAccountErrors[keyof CreateUserAccountErrors];
 
 export type CreateUserAccountResponses = {
-    201: Authentication;
+    201: UserDetails;
 };
 
 export type CreateUserAccountResponse = CreateUserAccountResponses[keyof CreateUserAccountResponses];
@@ -13610,7 +13450,7 @@ export type RetrieveUserAccountErrors = {
 export type RetrieveUserAccountError = RetrieveUserAccountErrors[keyof RetrieveUserAccountErrors];
 
 export type RetrieveUserAccountResponses = {
-    200: Authentication;
+    200: UserDetails;
 };
 
 export type RetrieveUserAccountResponse = RetrieveUserAccountResponses[keyof RetrieveUserAccountResponses];
@@ -13640,7 +13480,7 @@ export type PartialUpdateUserAccountErrors = {
 export type PartialUpdateUserAccountError = PartialUpdateUserAccountErrors[keyof PartialUpdateUserAccountErrors];
 
 export type PartialUpdateUserAccountResponses = {
-    200: Authentication;
+    200: UserDetails;
 };
 
 export type PartialUpdateUserAccountResponse = PartialUpdateUserAccountResponses[keyof PartialUpdateUserAccountResponses];
@@ -13670,7 +13510,7 @@ export type UpdateUserAccountErrors = {
 export type UpdateUserAccountError = UpdateUserAccountErrors[keyof UpdateUserAccountErrors];
 
 export type UpdateUserAccountResponses = {
-    200: Authentication;
+    200: UserDetails;
 };
 
 export type UpdateUserAccountResponse = UpdateUserAccountResponses[keyof UpdateUserAccountResponses];
@@ -14825,7 +14665,7 @@ export type UpdateSubscriptionTopicResponses = {
 export type UpdateSubscriptionTopicResponse = UpdateSubscriptionTopicResponses[keyof UpdateSubscriptionTopicResponses];
 
 export type SubscribeToTopicData = {
-    body: SubscriptionTopicDetailRequest;
+    body: UserSubscriptionRequest;
     path: {
         id: string | number;
     };
@@ -14849,7 +14689,7 @@ export type SubscribeToTopicResponses = {
 export type SubscribeToTopicResponse = SubscribeToTopicResponses[keyof SubscribeToTopicResponses];
 
 export type UnsubscribeFromTopicData = {
-    body: SubscriptionTopicDetailRequest;
+    body: DetailRequest;
     path: {
         id: string | number;
     };

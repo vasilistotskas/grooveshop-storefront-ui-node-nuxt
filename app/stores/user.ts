@@ -1,5 +1,5 @@
 export const useUserStore = defineStore('user', () => {
-  const account = ref<Authentication | null>(null)
+  const account = ref<UserDetails | null>(null)
   const favouriteProductIds = ref<Map<number, number>>(new Map())
   const blogLikedPosts = ref<number[]>([])
   const blogLikedComments = ref<number[]>([])

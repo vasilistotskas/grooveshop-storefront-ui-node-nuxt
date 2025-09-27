@@ -138,15 +138,11 @@ if (shouldFetchFavouriteProducts.value) {
 }
 
 const { data: userProductReview, refresh: refreshUserProductReview }
-  = await useFetch('/api/products/reviews/user-product-review', {
+  = await useFetch(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     headers: useRequestHeaders(),
     method: 'GET',
     immediate: loggedIn.value,
-    query: {
-      product: productId,
-      user: user.value?.id,
-    },
   })
 
 const onAddExistingReview = async () => {

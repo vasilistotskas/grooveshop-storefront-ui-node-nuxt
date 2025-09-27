@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 
 const props = defineProps({
   userAccount: {
-    type: Object as PropType<Authentication>,
+    type: Object as PropType<UserDetails>,
     required: true,
   },
   showName: {

@@ -55,7 +55,6 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
       },
     })
   }
-  console.log('response: ', response)
   if (response.meta?.access_token) {
     console.info('Setting access token from response')
     console.log('Setting access token from response: ', response.meta.access_token)
@@ -126,7 +125,7 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
     headers,
   })
 
-  const userResponse = await parseDataAs(user, zAuthentication)
+  const userResponse = await parseDataAs(user, zUserDetails)
   await setUserSession(useEvent(), {
     user: userResponse,
   })

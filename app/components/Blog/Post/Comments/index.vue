@@ -54,6 +54,7 @@ const cursor = computed(
 
 const isOpen = ref(false)
 const allComments = ref<BlogComment[]>([])
+const isLoadingMore = ref(false)
 
 const refreshLikedComments = async (ids: number[]) => {
   if (!loggedIn.value) return
@@ -99,25 +100,68 @@ const pagination = computed(() => {
   return usePagination<BlogComment>(comments.value)
 })
 
-const showResults = computed(() => {
-  if (paginationType.value === 'cursor') {
-    return allComments.value.length
-  }
-  return status.value !== 'pending' && allComments.value.length
+const isLoading = computed(() => status.value === 'pending')
+const hasComments = computed(() => allComments.value.length > 0)
+const showCommentsList = computed(() => !isLoading.value && hasComments.value)
+const showEmptyState = computed(() => !isLoading.value && !hasComments.value)
+
+const hasNextPage = computed(() => {
+  return comments.value?.links?.next && !isLoading.value
 })
 
+const showLoadMoreButton = computed(() => {
+  return hasNextPage.value && hasComments.value
+})
+
+const loadMoreComments = async () => {
+  if (!hasNextPage.value || isLoadingMore.value) return
+
+  const nextUrl = comments.value?.links?.next
+  if (!nextUrl) return
+
+  isLoadingMore.value = true
+
+  try {
+    const response = await $fetch<any>(nextUrl, {
+      headers: useRequestHeaders(),
+    })
+
+    if (response?.results?.length) {
+      const newComments = response.results.filter(
+        (newComment: BlogComment) => !allComments.value.some(existingComment => existingComment.id === newComment.id),
+      )
+
+      allComments.value = [...allComments.value, ...newComments].sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      })
+
+      comments.value = response
+
+      if (loggedIn.value && newComments.length > 0) {
+        const newCommentIds = newComments.map((comment: BlogComment) => comment.id)
+        await refreshLikedComments(newCommentIds)
+      }
+    }
+  }
+  catch (error) {
+    console.error('Error loading more comments:', error)
+    toast.add({
+      title: t('load.error'),
+      color: 'error',
+    })
+  }
+  finally {
+    isLoadingMore.value = false
+  }
+}
+
 const loggedInAndHasComments = computed(() => {
-  return (
-    loggedIn.value
-    && comments.value
-    && comments.value.results
-    && comments.value.results.length > 0
-  ) || false
+  return loggedIn.value && hasComments.value
 })
 
 const commentIds = computed(() => {
   if (!comments.value) return []
-  return comments.value?.results?.map(comment => comment.id)
+  return comments.value?.results?.map(comment => comment.id) || []
 })
 
 if (loggedInAndHasComments.value) {
@@ -157,7 +201,7 @@ const addCommentFormSchema: DynamicFormSchema = {
       disabledCondition: null,
       readonly: false,
       required: true,
-      placeholder: '',
+      placeholder: t('reply.placeholder'),
       type: 'text',
     },
   ],
@@ -273,74 +317,38 @@ onMounted(() => {
         />
       </h2>
     </div>
+
+    <div v-if="isLoading" class="flex w-full justify-center py-8">
+      <UIcon name="i-heroicons-arrow-path" class="h-6 w-6 animate-spin" />
+    </div>
+
     <LazyBlogPostCommentsList
-      v-if="showResults"
+      v-if="showCommentsList"
       :comments="allComments"
       :comments-count="commentsCount"
       :display-image-of="displayImageOf"
       @reply-add="onReplyAdd"
-    >
-      <LazyEmptyState
-        v-if="commentsCount === 0"
-        :title="
-          loggedIn
-            ? $i18n.t('empty.title')
-            : ''
-        "
-        class="w-full !gap-0"
-      >
-        <template #actions>
-          <LazyDynamicForm
-            v-if="loggedIn"
-            id="add-comment-form"
-            :button-label="$i18n.t('submit')"
-            :schema="addCommentFormSchema"
-            class="container mx-auto"
-            :submit-button-ui="{
-              color: 'secondary',
-              size: 'xl',
-              type: 'submit',
-              variant: 'solid',
-              ui: {
-                rounded: 'rounded-full',
-              },
-            }"
-            @submit="onAddCommentSubmit"
-          />
-          <template v-else>
-            <UButton
-              :label="t('empty.description_guest')"
-              block
-              size="xl"
-              type="submit"
-              color="secondary"
-              variant="solid"
-              :ui="{
-                base: 'w-auto',
-              }"
-              @click="isOpen = true"
-            />
-            <LazyAccountLoginFormModal
-              v-if="isOpen"
-              v-model="isOpen"
-            />
-          </template>
-        </template>
-      </LazyEmptyState>
-    </LazyBlogPostCommentsList>
+    />
+
+    <div v-if="showLoadMoreButton" class="flex w-full justify-center">
+      <UButton
+        :label="$i18n.t('load.more')"
+        :loading="isLoadingMore"
+        size="md"
+        color="secondary"
+        variant="outline"
+        trailing-icon="i-heroicons-chevron-down"
+        @click="loadMoreComments"
+      />
+    </div>
+
     <LazyEmptyState
-      v-else
-      :description="
-        loggedIn
-          ? $i18n.t('empty.description')
-          : ''
-      "
+      v-if="showEmptyState"
+      :title="loggedIn ? t('empty.title') : t('empty.title_guest')"
+      :description="loggedIn ? t('empty.description') : ''"
       class="w-full"
-      :title="$i18n.t('empty.title')"
     >
-      <template
-        #actions
-      >
+      <template #actions>
         <LazyDynamicForm
           v-if="loggedIn"
           id="add-comment-form"
@@ -349,7 +357,7 @@ onMounted(() => {
           class="container mx-auto"
           :submit-button-ui="{
             color: 'secondary',
-            size: 'md',
+            size: 'xl',
             type: 'submit',
             variant: 'solid',
             ui: {
@@ -363,7 +371,7 @@ onMounted(() => {
             :label="t('empty.description_guest')"
             block
             size="xl"
-            type="submit"
+            type="button"
             color="secondary"
             variant="solid"
             :ui="{
@@ -378,12 +386,46 @@ onMounted(() => {
         </template>
       </template>
     </LazyEmptyState>
+
+    <div v-if="showCommentsList && loggedIn" class="w-full">
+      <LazyDynamicForm
+        id="add-comment-form-with-comments"
+        :button-label="$i18n.t('submit')"
+        :schema="addCommentFormSchema"
+        class="container mx-auto"
+        :submit-button-ui="{
+          color: 'secondary',
+          size: 'md',
+          type: 'submit',
+          variant: 'solid',
+          ui: {
+            rounded: 'rounded-full',
+          },
+        }"
+        @submit="onAddCommentSubmit"
+      />
+    </div>
+
+    <div v-if="showCommentsList && !loggedIn" class="flex w-full justify-center">
+      <UButton
+        :label="t('reply.login')"
+        size="md"
+        color="secondary"
+        variant="outline"
+        @click="isOpen = true"
+      />
+      <LazyAccountLoginFormModal
+        v-if="isOpen"
+        v-model="isOpen"
+      />
+    </div>
+
     <Pagination
-      v-if="pagination"
+      v-if="pagination && !isLoading && paginationType !== 'cursor'"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POST_COMMENTS"
       :links="pagination.links"
-      :loading="status === 'pending'"
+      :loading="false"
       :page="pagination.page"
       :page-size="pagination.pageSize"
       :page-total-results="pagination.pageTotalResults"
@@ -405,8 +447,12 @@ el:
     description_guest: Συνδέσου για να σχολιάσεις
   add:
     error: Σφάλμα δημιουργίας σχολίου
-    success: Το σχόλιο δημιουργήθηκε με επιτυχία
+    success: Το σχόλιο δημιουργήθηκε με επιτυχία και θα εμφανιστεί μόλις εγκριθεί
   reply:
     login: Συνδέσου για να απαντήσεις
     placeholder: Γράψε κάτι...
+  load:
+    more: Φόρτωσε περισσότερα
+    error: Σφάλμα φόρτωσης σχολίων
+  submit: Υποβολή
 </i18n>

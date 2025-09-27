@@ -145,6 +145,10 @@ async function onReplySubmit({ content }: { content: string }) {
       }
       emit('reply-add', response._data)
       await fetchReplies(cursor.value)
+      toast.add({
+        title: t('add.success'),
+        color: 'success',
+      })
       showReplyForm.value = false
       showReplies.value = true
     },
@@ -574,6 +578,7 @@ watch(
 <i18n lang="yaml">
 el:
   add:
+    success: Το σχόλιο δημιουργήθηκε με επιτυχία και θα εμφανιστεί μόλις εγκριθεί
     error: Σφάλμα δημιουργίας σχολίου
   reply:
     login: Συνδέσου για να απαντήσεις

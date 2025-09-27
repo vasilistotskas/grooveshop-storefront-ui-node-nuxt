@@ -123,7 +123,7 @@
     "workbox-strategies": "7.3.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.52.2"
+    "@rollup/rollup-linux-x64-gnu": "4.52.3"
   },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"

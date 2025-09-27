@@ -26,7 +26,7 @@ const props = defineProps({
     required: true,
   },
   user: {
-    type: Object as PropType<Authentication>,
+    type: Object as PropType<UserDetails>,
     required: true,
   },
 })
@@ -292,7 +292,10 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
       rate: String(event.rate),
       status: 'TRUE',
     },
-    async onResponse() {
+    async onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
       await refresh()
       emit('add-existing-review', userProductReview?.value)
       toast.add({
@@ -300,7 +303,16 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
         color: 'success',
       })
     },
-    onResponseError() {
+    onResponseError({ response }) {
+      if (response._data.data.nonFieldErrors) {
+        response._data.data.nonFieldErrors.forEach((error: string) => {
+          toast.add({
+            title: error,
+            color: 'error',
+          })
+        })
+        return
+      }
       toast.add({
         title: t('add.error'),
         color: 'error',
@@ -555,7 +567,7 @@ watch(
             :label="reviewButtonText"
             block
             class="w-full"
-            color="neutral"
+            color="success"
             variant="outline"
             size="lg"
             @click="onReviewSubmit"
@@ -599,14 +611,14 @@ el:
   must_be_logged_in: Πρέπει να συνδεθείς για να γράψεις μία κριτική
   write_review_for_product: Γράψε μια κριτική για το προϊόν {product}
   add:
-    error: Έλεγξε το σφάλμα δημιουργίας
+    error: Σφάλμα δημιουργίας σχολίου
     success: Η κριτική δημιουργήθηκε με επιτυχία
   update:
-    error: Ελέγξτε το σφάλμα ενημέρωσης
+    error: Σφάλμα ενημέρωσης σχολίου
     success: Η κριτική ενημερώθηκε με επιτυχία
   delete:
     success: Η κριτική διαγράφηκε με επιτυχία
-    error: Έλεγξε το σφάλμα διαγραφής
+    error: Προέκυψε σφάλμα κατά την διαγραφή
   rating:
     title: Βαθμολογία
     bad: Κακό

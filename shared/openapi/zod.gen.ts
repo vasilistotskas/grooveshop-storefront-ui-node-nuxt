@@ -13,147 +13,6 @@ export const zActionEnum = z.enum([
     description: '* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe'
 });
 
-export const zAuthentication = z.object({
-    pk: z.int().readonly(),
-    email: z.email().max(254),
-    firstName: z.optional(z.string().max(255)),
-    lastName: z.optional(z.string().max(255)),
-    id: z.int().readonly(),
-    username: z.optional(z.union([
-        z.string().max(30).regex(/^[\w.@+#-]+$/),
-        z.null()
-    ])),
-    image: z.optional(z.union([
-        z.url(),
-        z.null()
-    ])),
-    phone: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    city: z.optional(z.string().max(255)),
-    zipcode: z.optional(z.string().max(255)),
-    address: z.optional(z.string().max(255)),
-    place: z.optional(z.string().max(255)),
-    country: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    region: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    birthDate: z.optional(z.union([
-        z.iso.date(),
-        z.null()
-    ])),
-    twitter: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    linkedin: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    facebook: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    instagram: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    website: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    youtube: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    github: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    bio: z.optional(z.string()),
-    isActive: z.boolean().readonly(),
-    isStaff: z.boolean().readonly(),
-    isSuperuser: z.boolean().register(z.globalRegistry, {
-        description: 'Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.'
-    }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    mainImagePath: z.string().readonly()
-});
-
-export const zAuthenticationRequest = z.object({
-    email: z.email().min(1).max(254),
-    firstName: z.optional(z.string().max(255)),
-    lastName: z.optional(z.string().max(255)),
-    username: z.optional(z.union([
-        z.string().max(30).regex(/^[\w.@+#-]+$/),
-        z.null()
-    ])),
-    image: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    phone: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    city: z.optional(z.string().max(255)),
-    zipcode: z.optional(z.string().max(255)),
-    address: z.optional(z.string().max(255)),
-    place: z.optional(z.string().max(255)),
-    country: z.optional(z.union([
-        z.string().min(1),
-        z.null()
-    ])),
-    region: z.optional(z.union([
-        z.string().min(1),
-        z.null()
-    ])),
-    birthDate: z.optional(z.union([
-        z.iso.date(),
-        z.null()
-    ])),
-    twitter: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    linkedin: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    facebook: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    instagram: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    website: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    youtube: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    github: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    bio: z.optional(z.string())
-});
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -172,7 +31,10 @@ export const zBlogAuthor = z.object({
     id: z.int().readonly(),
     uuid: z.uuid().readonly(),
     user: z.int(),
-    website: z.optional(z.url().max(200)),
+    website: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
     createdAt: z.iso.datetime({
         offset: true
     }).readonly(),
@@ -186,6 +48,80 @@ export const zBlogAuthor = z.object({
     ])
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zUserDetails = z.object({
+    pk: z.int().readonly(),
+    email: z.email().max(254),
+    firstName: z.optional(z.string().max(255)),
+    lastName: z.optional(z.string().max(255)),
+    id: z.int().readonly(),
+    username: z.optional(z.union([
+        z.string().max(30).regex(/^[\w.@+#-]+$/),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    city: z.optional(z.string().max(255)),
+    zipcode: z.optional(z.string().max(255)),
+    address: z.optional(z.string().max(255)),
+    place: z.optional(z.string().max(255)),
+    country: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    region: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    birthDate: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    twitter: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    linkedin: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    facebook: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    instagram: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    website: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    youtube: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    github: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    bio: z.optional(z.string()),
+    isActive: z.boolean().readonly(),
+    isStaff: z.boolean().readonly(),
+    isSuperuser: z.boolean().register(z.globalRegistry, {
+        description: 'Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.'
+    }).readonly(),
+    createdAt: z.iso.datetime({
+        offset: true
+    }).readonly(),
+    updatedAt: z.iso.datetime({
+        offset: true
+    }).readonly(),
+    uuid: z.uuid().readonly(),
+    mainImagePath: z.string().readonly()
 });
 
 /**
@@ -258,8 +194,11 @@ export const zBlogAuthorDetail = z.object({
     }),
     id: z.int().readonly(),
     uuid: z.uuid().readonly(),
-    user: zAuthentication,
-    website: z.optional(z.url().max(200)),
+    user: zUserDetails,
+    website: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
     createdAt: z.iso.datetime({
         offset: true
     }).readonly(),
@@ -461,7 +400,7 @@ export const zBlogComment = z.object({
             content: z.optional(z.string())
         }))
     }),
-    user: zAuthentication,
+    user: zUserDetails,
     contentPreview: z.union([
         z.string().readonly(),
         z.null()
@@ -474,7 +413,7 @@ export const zBlogComment = z.object({
         z.null()
     ]).readonly(),
     hasReplies: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment has replies'
+        description: 'Whether this comment has approved replies'
     }).readonly(),
     approved: z.boolean().readonly(),
     isEdited: z.boolean().register(z.globalRegistry, {
@@ -512,7 +451,7 @@ export const zBlogCommentDetail = z.object({
             content: z.optional(z.string())
         }))
     }),
-    user: zAuthentication,
+    user: zUserDetails,
     contentPreview: z.union([
         z.string().readonly(),
         z.null()
@@ -525,7 +464,7 @@ export const zBlogCommentDetail = z.object({
         z.null()
     ]).readonly(),
     hasReplies: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment has replies'
+        description: 'Whether this comment has approved replies'
     }).readonly(),
     approved: z.boolean().readonly(),
     isEdited: z.boolean().register(z.globalRegistry, {
@@ -548,7 +487,7 @@ export const zBlogCommentDetail = z.object({
         z.object({
             id: z.int(),
             contentPreview: z.string(),
-            user: zAuthentication,
+            user: zUserDetails,
             createdAt: z.iso.datetime({
                 offset: true
             })
@@ -556,42 +495,23 @@ export const zBlogCommentDetail = z.object({
         z.null()
     ]).readonly(),
     childrenComments: z.array(zBlogComment).register(z.globalRegistry, {
-        description: 'Direct child comments (replies)'
+        description: 'Direct approved child comments (replies)'
     }).readonly(),
     ancestorsPath: z.array(z.object({
         id: z.int(),
         contentPreview: z.string(),
-        user: zAuthentication
+        user: zUserDetails
     })).register(z.globalRegistry, {
         description: 'Path from root comment to this comment'
     }).readonly(),
     treePosition: z.object({
         level: z.int(),
         treeId: z.int(),
-        positionInTree: z.int(),
+        approvedDescendantsCount: z.int(),
         siblingsCount: z.int()
     }).register(z.globalRegistry, {
         description: 'Position information in the comment tree'
     }).readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zBlogCommentDetailRequest = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            content: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            content: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            content: z.optional(z.string())
-        }))
-    })
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -1244,6 +1164,10 @@ export const zCountryWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+export const zDetailRequest = z.object({
+    detail: z.string().min(1)
+});
+
 /**
  * * `RECEIPT` - Receipt
  * * `INVOICE` - Invoice
@@ -1373,7 +1297,10 @@ export const zNotification = z.object({
         }))
     }),
     id: z.int().readonly(),
-    link: z.optional(z.url().max(200)),
+    link: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
     kind: z.optional(zKindEnum),
     expiryDate: z.optional(z.union([
         z.iso.datetime({
@@ -1408,37 +1335,13 @@ export const zNotificationInfoResponse = z.object({
     })
 });
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zNotificationRequest = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            title: z.optional(z.string()),
-            message: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            title: z.optional(z.string()),
-            message: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            title: z.optional(z.string()),
-            message: z.optional(z.string())
-        }))
-    }),
-    link: z.optional(z.url().max(200)),
-    kind: z.optional(zKindEnum),
-    expiryDate: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
-        z.null()
-    ]))
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+export const zNotificationSuccessResponse = z.object({
+    success: z.boolean().register(z.globalRegistry, {
+        description: 'Whether the operation was successful'
+    })
 });
 
-export const zNotificationSuccessResponse = z.object({
+export const zNotificationSuccessResponseRequest = z.object({
     success: z.boolean().register(z.globalRegistry, {
         description: 'Whether the operation was successful'
     })
@@ -1472,7 +1375,7 @@ export const zNotificationUserActionRequest = z.object({
 
 export const zNotificationUserDetail = z.object({
     id: z.int().readonly(),
-    user: zAuthentication,
+    user: zUserDetails,
     notification: zNotification,
     seen: z.optional(z.boolean()),
     seenAt: z.optional(z.union([
@@ -1488,16 +1391,6 @@ export const zNotificationUserDetail = z.object({
         offset: true
     }).readonly(),
     uuid: z.uuid().readonly()
-});
-
-export const zNotificationUserDetailRequest = z.object({
-    seen: z.optional(z.boolean()),
-    seenAt: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
-        z.null()
-    ]))
 });
 
 export const zNotificationUserWriteRequest = z.object({
@@ -1840,25 +1733,6 @@ export const zOrderWriteRequest = z.object({
     paymentMethod: z.optional(z.string().min(1)),
     trackingNumber: z.optional(z.string().max(255)),
     shippingCarrier: z.optional(z.string().max(255))
-});
-
-export const zPaginatedAuthenticationList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zAuthentication)
 });
 
 export const zPaginatedBlogAuthorList = z.object({
@@ -2456,7 +2330,7 @@ export const zReviewStatus = z.enum([
 export const zProductReview = z.object({
     id: z.int().readonly(),
     product: zProduct,
-    user: zAuthentication,
+    user: zUserDetails,
     rate: zRateEnum,
     status: z.optional(zReviewStatus),
     isPublished: z.optional(z.boolean()),
@@ -2758,6 +2632,25 @@ export const zPaginatedUserAddressList = z.object({
     pageTotalResults: z.optional(z.int()),
     page: z.optional(z.int()),
     results: z.array(zUserAddress)
+});
+
+export const zPaginatedUserDetailsList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zUserDetails)
 });
 
 /**
@@ -3917,7 +3810,7 @@ export const zProductMeiliSearchResponse = z.object({
 export const zProductReviewDetail = z.object({
     id: z.int().readonly(),
     product: zProduct,
-    user: zAuthentication,
+    user: zUserDetails,
     rate: zRateEnum,
     status: z.optional(zReviewStatus),
     isPublished: z.optional(z.boolean()),
@@ -4121,41 +4014,6 @@ export const zSubscriptionTopicDetail = z.object({
     updatedAt: z.iso.datetime({
         offset: true
     }).readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zSubscriptionTopicDetailRequest = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        }))
-    }),
-    slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
-    }),
-    category: z.optional(zCategoryEnum),
-    isActive: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether this topic is currently available for subscription'
-    })),
-    isDefault: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether new users are automatically subscribed to this topic'
-    })),
-    requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether subscription to this topic requires email confirmation'
-    }))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -4410,6 +4268,14 @@ export const zUserSubscriptionDetailRequest = z.object({
     }))
 });
 
+export const zUserSubscriptionRequest = z.object({
+    topic: z.int(),
+    status: z.optional(zSubscriptionStatus),
+    metadata: z.optional(z.unknown().register(z.globalRegistry, {
+        description: 'Additional subscription preferences or data'
+    }))
+});
+
 export const zUserSubscriptionWriteRequest = z.object({
     topic: z.int(),
     status: z.optional(zSubscriptionStatus),
@@ -4493,69 +4359,6 @@ export const zUsernameUpdateResponse = z.object({
     })
 });
 
-export const zAuthenticationWritable = z.object({
-    email: z.email().max(254),
-    firstName: z.optional(z.string().max(255)),
-    lastName: z.optional(z.string().max(255)),
-    username: z.optional(z.union([
-        z.string().max(30).regex(/^[\w.@+#-]+$/),
-        z.null()
-    ])),
-    image: z.optional(z.union([
-        z.url(),
-        z.null()
-    ])),
-    phone: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    city: z.optional(z.string().max(255)),
-    zipcode: z.optional(z.string().max(255)),
-    address: z.optional(z.string().max(255)),
-    place: z.optional(z.string().max(255)),
-    country: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    region: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    birthDate: z.optional(z.union([
-        z.iso.date(),
-        z.null()
-    ])),
-    twitter: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    linkedin: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    facebook: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    instagram: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    website: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    youtube: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    github: z.optional(z.union([
-        z.url().max(200),
-        z.null()
-    ])),
-    bio: z.optional(z.string())
-});
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -4571,8 +4374,7 @@ export const zBlogAuthorWritable = z.object({
             bio: z.optional(z.string())
         }))
     }),
-    user: z.int(),
-    website: z.optional(z.url().max(200))
+    user: z.int()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -4591,8 +4393,7 @@ export const zBlogAuthorDetailWritable = z.object({
         de: z.optional(z.object({
             bio: z.optional(z.string())
         }))
-    }),
-    website: z.optional(z.url().max(200))
+    })
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -4902,7 +4703,6 @@ export const zNotificationWritable = z.object({
             message: z.optional(z.string())
         }))
     }),
-    link: z.optional(z.url().max(200)),
     kind: z.optional(zKindEnum),
     expiryDate: z.optional(z.union([
         z.iso.datetime({
@@ -5625,6 +5425,37 @@ export const zUserAddressDetailWritable = z.object({
     isMain: z.optional(z.boolean()).default(false),
     country: z.string(),
     region: z.string()
+});
+
+export const zUserDetailsWritable = z.object({
+    email: z.email().max(254),
+    firstName: z.optional(z.string().max(255)),
+    lastName: z.optional(z.string().max(255)),
+    username: z.optional(z.union([
+        z.string().max(30).regex(/^[\w.@+#-]+$/),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    city: z.optional(z.string().max(255)),
+    zipcode: z.optional(z.string().max(255)),
+    address: z.optional(z.string().max(255)),
+    place: z.optional(z.string().max(255)),
+    country: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    region: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    birthDate: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    bio: z.optional(z.string())
 });
 
 export const zUserSubscriptionWritable = z.object({
@@ -6475,13 +6306,9 @@ export const zListBlogCommentData = z.object({
             'lft',
             '-lft',
             'approved',
-            '-approved',
-            'likesCountField',
-            '-likesCountField',
-            'repliesCountField',
-            '-repliesCountField'
+            '-approved'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -6887,13 +6714,9 @@ export const zListBlogCommentRepliesData = z.object({
             'lft',
             '-lft',
             'approved',
-            '-approved',
-            'likesCountField',
-            '-likesCountField',
-            'repliesCountField',
-            '-repliesCountField'
+            '-approved'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -7176,13 +6999,9 @@ export const zGetBlogCommentThreadData = z.object({
             'lft',
             '-lft',
             'approved',
-            '-approved',
-            'likesCountField',
-            '-likesCountField',
-            'repliesCountField',
-            '-repliesCountField'
+            '-approved'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -7295,7 +7114,7 @@ export const zGetBlogCommentThreadData = z.object({
 export const zGetBlogCommentThreadResponse = zPaginatedBlogCommentList;
 
 export const zToggleBlogCommentLikeData = z.object({
-    body: zBlogCommentDetailRequest,
+    body: z.optional(z.never()),
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),
@@ -7481,13 +7300,9 @@ export const zListMyBlogCommentsData = z.object({
             'lft',
             '-lft',
             'approved',
-            '-approved',
-            'likesCountField',
-            '-likesCountField',
-            'repliesCountField',
-            '-repliesCountField'
+            '-approved'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -7705,16 +7520,10 @@ export const zListBlogPostData = z.object({
             '-publishedAt',
             'viewCount',
             '-viewCount',
-            'likesCountField',
-            '-likesCountField',
-            'commentsCountField',
-            '-commentsCountField',
-            'tagsCountField',
-            '-tagsCountField',
             'featured',
             '-featured'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -7923,16 +7732,10 @@ export const zListBlogPostCommentsData = z.object({
             '-publishedAt',
             'viewCount',
             '-viewCount',
-            'likesCountField',
-            '-likesCountField',
-            'commentsCountField',
-            '-commentsCountField',
-            'tagsCountField',
-            '-tagsCountField',
             'featured',
             '-featured'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -8095,16 +7898,10 @@ export const zListFeaturedBlogPostsData = z.object({
             '-publishedAt',
             'viewCount',
             '-viewCount',
-            'likesCountField',
-            '-likesCountField',
-            'commentsCountField',
-            '-commentsCountField',
-            'tagsCountField',
-            '-tagsCountField',
             'featured',
             '-featured'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -8287,16 +8084,10 @@ export const zListPopularBlogPostsData = z.object({
             '-publishedAt',
             'viewCount',
             '-viewCount',
-            'likesCountField',
-            '-likesCountField',
-            'commentsCountField',
-            '-commentsCountField',
-            'tagsCountField',
-            '-tagsCountField',
             'featured',
             '-featured'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -8475,16 +8266,10 @@ export const zListTrendingBlogPostsData = z.object({
             '-publishedAt',
             'viewCount',
             '-viewCount',
-            'likesCountField',
-            '-likesCountField',
-            'commentsCountField',
-            '-commentsCountField',
-            'tagsCountField',
-            '-tagsCountField',
             'featured',
             '-featured'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured'
+            description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -10267,7 +10052,7 @@ export const zUpdateNotificationUserData = z.object({
 export const zUpdateNotificationUserResponse = zNotificationUserDetail;
 
 export const zMarkAllNotificationUsersAsSeenData = z.object({
-    body: z.optional(zNotificationUserDetailRequest),
+    body: zNotificationSuccessResponseRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -10275,7 +10060,7 @@ export const zMarkAllNotificationUsersAsSeenData = z.object({
 export const zMarkAllNotificationUsersAsSeenResponse = zNotificationSuccessResponse;
 
 export const zMarkAllNotificationUsersAsUnseenData = z.object({
-    body: z.optional(zNotificationUserDetailRequest),
+    body: zNotificationSuccessResponseRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -12177,22 +11962,12 @@ export const zListProductData = z.object({
             '-active',
             'availabilityPriority',
             '-availabilityPriority',
-            'discountValueAmount',
-            '-discountValueAmount',
-            'finalPriceAmount',
-            '-finalPriceAmount',
-            'priceSavePercentField',
-            '-priceSavePercentField',
-            'reviewAverageField',
-            '-reviewAverageField',
-            'likesCountField',
-            '-likesCountField',
             'viewCount',
             '-viewCount',
             'stock',
             '-stock'
         ]).register(z.globalRegistry, {
-            description: 'Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, discountValueAmount, -discountValueAmount, finalPriceAmount, -finalPriceAmount, priceSavePercentField, -priceSavePercentField, reviewAverageField, -reviewAverageField, likesCountField, -likesCountField, viewCount, -viewCount, stock, -stock'
+            description: 'Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
         })),
         page: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -14614,7 +14389,7 @@ export const zListUserAccountData = z.object({
     }))
 });
 
-export const zListUserAccountResponse = zPaginatedAuthenticationList;
+export const zListUserAccountResponse = zPaginatedUserDetailsList;
 
 export const zCreateUserAccountData = z.object({
     body: zUserWriteRequest,
@@ -14630,7 +14405,7 @@ export const zCreateUserAccountData = z.object({
     }))
 });
 
-export const zCreateUserAccountResponse = zAuthentication;
+export const zCreateUserAccountResponse = zUserDetails;
 
 export const zDestroyUserAccountData = z.object({
     body: z.optional(z.never()),
@@ -14669,7 +14444,7 @@ export const zRetrieveUserAccountData = z.object({
     }))
 });
 
-export const zRetrieveUserAccountResponse = zAuthentication;
+export const zRetrieveUserAccountResponse = zUserDetails;
 
 export const zPartialUpdateUserAccountData = z.object({
     body: z.optional(zPatchedUserWriteRequest),
@@ -14690,7 +14465,7 @@ export const zPartialUpdateUserAccountData = z.object({
     }))
 });
 
-export const zPartialUpdateUserAccountResponse = zAuthentication;
+export const zPartialUpdateUserAccountResponse = zUserDetails;
 
 export const zUpdateUserAccountData = z.object({
     body: zUserWriteRequest,
@@ -14711,7 +14486,7 @@ export const zUpdateUserAccountData = z.object({
     }))
 });
 
-export const zUpdateUserAccountResponse = zAuthentication;
+export const zUpdateUserAccountResponse = zUserDetails;
 
 export const zGetUserAccountAddressesData = z.object({
     body: z.optional(z.never()),
@@ -15858,7 +15633,7 @@ export const zUpdateSubscriptionTopicData = z.object({
 export const zUpdateSubscriptionTopicResponse = zSubscriptionTopicDetail;
 
 export const zSubscribeToTopicData = z.object({
-    body: zSubscriptionTopicDetailRequest,
+    body: zUserSubscriptionRequest,
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),
@@ -15871,7 +15646,7 @@ export const zSubscribeToTopicData = z.object({
 export const zSubscribeToTopicResponse = zUserSubscription;
 
 export const zUnsubscribeFromTopicData = z.object({
-    body: zSubscriptionTopicDetailRequest,
+    body: zDetailRequest,
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),

@@ -2135,7 +2135,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments that have replies (true) or no replies (false)"
+                        "description": "Filter comments that have approved replies (true) or no replies (false)"
                     },
                     {
                         "in": "query",
@@ -2213,7 +2213,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter leaf comments (no replies)"
+                        "description": "Filter leaf comments (no approved replies)"
                     },
                     {
                         "in": "query",
@@ -2385,7 +2385,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at most this many replies"
+                        "description": "Filter comments with at most this many approved replies"
                     },
                     {
                         "in": "query",
@@ -2433,7 +2433,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at least this many replies"
+                        "description": "Filter comments with at least this many approved replies"
                     },
                     {
                         "in": "query",
@@ -2475,13 +2475,13 @@
                                 }
                             ]
                         },
-                        "description": "Order comments by most replies first"
+                        "description": "Order comments by most approved replies first"
                     },
                     {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -2496,11 +2496,7 @@
                                 "lft",
                                 "-lft",
                                 "approved",
-                                "-approved",
-                                "likesCountField",
-                                "-likesCountField",
-                                "repliesCountField",
-                                "-repliesCountField"
+                                "-approved"
                             ]
                         }
                     },
@@ -3745,7 +3741,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments that have replies (true) or no replies (false)"
+                        "description": "Filter comments that have approved replies (true) or no replies (false)"
                     },
                     {
                         "in": "path",
@@ -3839,7 +3835,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter leaf comments (no replies)"
+                        "description": "Filter leaf comments (no approved replies)"
                     },
                     {
                         "in": "query",
@@ -3997,7 +3993,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at most this many replies"
+                        "description": "Filter comments with at most this many approved replies"
                     },
                     {
                         "in": "query",
@@ -4045,7 +4041,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at least this many replies"
+                        "description": "Filter comments with at least this many approved replies"
                     },
                     {
                         "in": "query",
@@ -4087,13 +4083,13 @@
                                 }
                             ]
                         },
-                        "description": "Order comments by most replies first"
+                        "description": "Order comments by most approved replies first"
                     },
                     {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -4108,11 +4104,7 @@
                                 "lft",
                                 "-lft",
                                 "approved",
-                                "-approved",
-                                "likesCountField",
-                                "-likesCountField",
-                                "repliesCountField",
-                                "-repliesCountField"
+                                "-approved"
                             ]
                         }
                     },
@@ -4689,7 +4681,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments that have replies (true) or no replies (false)"
+                        "description": "Filter comments that have approved replies (true) or no replies (false)"
                     },
                     {
                         "in": "path",
@@ -4783,7 +4775,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter leaf comments (no replies)"
+                        "description": "Filter leaf comments (no approved replies)"
                     },
                     {
                         "in": "query",
@@ -4941,7 +4933,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at most this many replies"
+                        "description": "Filter comments with at most this many approved replies"
                     },
                     {
                         "in": "query",
@@ -4989,7 +4981,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at least this many replies"
+                        "description": "Filter comments with at least this many approved replies"
                     },
                     {
                         "in": "query",
@@ -5031,13 +5023,13 @@
                                 }
                             ]
                         },
-                        "description": "Order comments by most replies first"
+                        "description": "Order comments by most approved replies first"
                     },
                     {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -5052,11 +5044,7 @@
                                 "lft",
                                 "-lft",
                                 "approved",
-                                "-approved",
-                                "likesCountField",
-                                "-likesCountField",
-                                "repliesCountField",
-                                "-repliesCountField"
+                                "-approved"
                             ]
                         }
                     },
@@ -5463,26 +5451,6 @@
                 "tags": [
                     "Blog Comments"
                 ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogCommentDetailRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogCommentDetailRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BlogCommentDetailRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
                 "security": [
                     {
                         "knoxApiToken": []
@@ -5781,7 +5749,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments that have replies (true) or no replies (false)"
+                        "description": "Filter comments that have approved replies (true) or no replies (false)"
                     },
                     {
                         "in": "query",
@@ -5859,7 +5827,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter leaf comments (no replies)"
+                        "description": "Filter leaf comments (no approved replies)"
                     },
                     {
                         "in": "query",
@@ -6017,7 +5985,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at most this many replies"
+                        "description": "Filter comments with at most this many approved replies"
                     },
                     {
                         "in": "query",
@@ -6065,7 +6033,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter comments with at least this many replies"
+                        "description": "Filter comments with at least this many approved replies"
                     },
                     {
                         "in": "query",
@@ -6107,13 +6075,13 @@
                                 }
                             ]
                         },
-                        "description": "Order comments by most replies first"
+                        "description": "Order comments by most approved replies first"
                     },
                     {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCountField, -likesCountField, repliesCountField, -repliesCountField",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -6128,11 +6096,7 @@
                                 "lft",
                                 "-lft",
                                 "approved",
-                                "-approved",
-                                "likesCountField",
-                                "-likesCountField",
-                                "repliesCountField",
-                                "-repliesCountField"
+                                "-approved"
                             ]
                         }
                     },
@@ -6762,7 +6726,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of comments"
+                        "description": "Filter by minimum number of approved comments"
                     },
                     {
                         "in": "query",
@@ -6794,7 +6758,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of tags"
+                        "description": "Filter by minimum number of active tags"
                     },
                     {
                         "in": "query",
@@ -6816,7 +6780,7 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -6830,12 +6794,6 @@
                                 "-publishedAt",
                                 "viewCount",
                                 "-viewCount",
-                                "likesCountField",
-                                "-likesCountField",
-                                "commentsCountField",
-                                "-commentsCountField",
-                                "tagsCountField",
-                                "-tagsCountField",
                                 "featured",
                                 "-featured"
                             ]
@@ -7750,7 +7708,7 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -7764,12 +7722,6 @@
                                 "-publishedAt",
                                 "viewCount",
                                 "-viewCount",
-                                "likesCountField",
-                                "-likesCountField",
-                                "commentsCountField",
-                                "-commentsCountField",
-                                "tagsCountField",
-                                "-tagsCountField",
                                 "featured",
                                 "-featured"
                             ]
@@ -8312,7 +8264,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of comments"
+                        "description": "Filter by minimum number of approved comments"
                     },
                     {
                         "in": "query",
@@ -8344,7 +8296,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of tags"
+                        "description": "Filter by minimum number of active tags"
                     },
                     {
                         "in": "query",
@@ -8366,7 +8318,7 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -8380,12 +8332,6 @@
                                 "-publishedAt",
                                 "viewCount",
                                 "-viewCount",
-                                "likesCountField",
-                                "-likesCountField",
-                                "commentsCountField",
-                                "-commentsCountField",
-                                "tagsCountField",
-                                "-tagsCountField",
                                 "featured",
                                 "-featured"
                             ]
@@ -8927,7 +8873,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of comments"
+                        "description": "Filter by minimum number of approved comments"
                     },
                     {
                         "in": "query",
@@ -8959,7 +8905,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of tags"
+                        "description": "Filter by minimum number of active tags"
                     },
                     {
                         "in": "query",
@@ -8981,7 +8927,7 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -8995,12 +8941,6 @@
                                 "-publishedAt",
                                 "viewCount",
                                 "-viewCount",
-                                "likesCountField",
-                                "-likesCountField",
-                                "commentsCountField",
-                                "-commentsCountField",
-                                "tagsCountField",
-                                "-tagsCountField",
                                 "featured",
                                 "-featured"
                             ]
@@ -9497,7 +9437,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of comments"
+                        "description": "Filter by minimum number of approved comments"
                     },
                     {
                         "in": "query",
@@ -9529,7 +9469,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by minimum number of tags"
+                        "description": "Filter by minimum number of active tags"
                     },
                     {
                         "in": "query",
@@ -9551,7 +9491,7 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, likesCountField, -likesCountField, commentsCountField, -commentsCountField, tagsCountField, -tagsCountField, featured, -featured",
+                        "description": "Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -9565,12 +9505,6 @@
                                 "-publishedAt",
                                 "viewCount",
                                 "-viewCount",
-                                "likesCountField",
-                                "-likesCountField",
-                                "commentsCountField",
-                                "-commentsCountField",
-                                "tagsCountField",
-                                "-tagsCountField",
                                 "featured",
                                 "-featured"
                             ]
@@ -15627,20 +15561,21 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/NotificationUserDetailRequest"
+                                "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/NotificationUserDetailRequest"
+                                "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/NotificationUserDetailRequest"
+                                "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         }
-                    }
+                    },
+                    "required": true
                 },
                 "security": [
                     {
@@ -15687,20 +15622,21 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/NotificationUserDetailRequest"
+                                "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/NotificationUserDetailRequest"
+                                "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/NotificationUserDetailRequest"
+                                "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         }
-                    }
+                    },
+                    "required": true
                 },
                 "security": [
                     {
@@ -22414,7 +22350,7 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, discountValueAmount, -discountValueAmount, finalPriceAmount, -finalPriceAmount, priceSavePercentField, -priceSavePercentField, reviewAverageField, -reviewAverageField, likesCountField, -likesCountField, viewCount, -viewCount, stock, -stock",
+                        "description": "Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -22426,16 +22362,6 @@
                                 "-active",
                                 "availabilityPriority",
                                 "-availabilityPriority",
-                                "discountValueAmount",
-                                "-discountValueAmount",
-                                "finalPriceAmount",
-                                "-finalPriceAmount",
-                                "priceSavePercentField",
-                                "-priceSavePercentField",
-                                "reviewAverageField",
-                                "-reviewAverageField",
-                                "likesCountField",
-                                "-likesCountField",
                                 "viewCount",
                                 "-viewCount",
                                 "stock",
@@ -31304,7 +31230,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedAuthenticationList"
+                                    "$ref": "#/components/schemas/PaginatedUserDetailsList"
                                 }
                             }
                         },
@@ -31418,7 +31344,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Authentication"
+                                    "$ref": "#/components/schemas/UserDetails"
                                 }
                             }
                         },
@@ -31530,7 +31456,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Authentication"
+                                    "$ref": "#/components/schemas/UserDetails"
                                 }
                             }
                         },
@@ -31650,7 +31576,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Authentication"
+                                    "$ref": "#/components/schemas/UserDetails"
                                 }
                             }
                         },
@@ -31779,7 +31705,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Authentication"
+                                    "$ref": "#/components/schemas/UserDetails"
                                 }
                             }
                         },
@@ -35965,17 +35891,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/SubscriptionTopicDetailRequest"
+                                "$ref": "#/components/schemas/UserSubscriptionRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/SubscriptionTopicDetailRequest"
+                                "$ref": "#/components/schemas/UserSubscriptionRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/SubscriptionTopicDetailRequest"
+                                "$ref": "#/components/schemas/UserSubscriptionRequest"
                             }
                         }
                     },
@@ -36073,17 +35999,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/SubscriptionTopicDetailRequest"
+                                "$ref": "#/components/schemas/DetailRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/SubscriptionTopicDetailRequest"
+                                "$ref": "#/components/schemas/DetailRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/SubscriptionTopicDetailRequest"
+                                "$ref": "#/components/schemas/DetailRequest"
                             }
                         }
                     },
@@ -36265,308 +36191,6 @@
                 "type": "string",
                 "description": "* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe"
             },
-            "Authentication": {
-                "type": "object",
-                "properties": {
-                    "pk": {
-                        "type": "integer",
-                        "readOnly": true,
-                        "title": "Id"
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "title": "Διεύθυνση ηλεκτρονικού ταχυδρομείου",
-                        "maxLength": 254
-                    },
-                    "firstName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "lastName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "id": {
-                        "type": "integer",
-                        "readOnly": true
-                    },
-                    "username": {
-                        "type": "string",
-                        "nullable": true,
-                        "title": "Όνομα χρήστη",
-                        "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+#-]+$",
-                        "maxLength": 30
-                    },
-                    "image": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Εικόνα"
-                    },
-                    "phone": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "zipcode": {
-                        "type": "string",
-                        "title": "Zip Code",
-                        "maxLength": 255
-                    },
-                    "address": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "place": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "country": {
-                        "type": "string",
-                        "title": "Country Code Alpha 2",
-                        "nullable": true
-                    },
-                    "region": {
-                        "type": "string",
-                        "title": "Region Code",
-                        "nullable": true
-                    },
-                    "birthDate": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                    },
-                    "twitter": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Twitter Profile",
-                        "maxLength": 200
-                    },
-                    "linkedin": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "LinkedIn Profile",
-                        "maxLength": 200
-                    },
-                    "facebook": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Facebook Profile",
-                        "maxLength": 200
-                    },
-                    "instagram": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Instagram Profile",
-                        "maxLength": 200
-                    },
-                    "website": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200
-                    },
-                    "youtube": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Youtube Profile",
-                        "maxLength": 200
-                    },
-                    "github": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Github Profile",
-                        "maxLength": 200
-                    },
-                    "bio": {
-                        "type": "string"
-                    },
-                    "isActive": {
-                        "type": "boolean",
-                        "readOnly": true,
-                        "title": "Active"
-                    },
-                    "isStaff": {
-                        "type": "boolean",
-                        "readOnly": true,
-                        "title": "Staff"
-                    },
-                    "isSuperuser": {
-                        "type": "boolean",
-                        "readOnly": true,
-                        "title": "Κατάσταση υπερχρήστη",
-                        "description": "Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά."
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "uuid": {
-                        "type": "string",
-                        "format": "uuid",
-                        "readOnly": true
-                    },
-                    "mainImagePath": {
-                        "type": "string",
-                        "readOnly": true
-                    }
-                },
-                "required": [
-                    "createdAt",
-                    "email",
-                    "id",
-                    "isActive",
-                    "isStaff",
-                    "isSuperuser",
-                    "mainImagePath",
-                    "pk",
-                    "updatedAt",
-                    "uuid"
-                ]
-            },
-            "AuthenticationRequest": {
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "minLength": 1,
-                        "title": "Διεύθυνση ηλεκτρονικού ταχυδρομείου",
-                        "maxLength": 254
-                    },
-                    "firstName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "lastName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "username": {
-                        "type": "string",
-                        "nullable": true,
-                        "title": "Όνομα χρήστη",
-                        "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+#-]+$",
-                        "maxLength": 30
-                    },
-                    "image": {
-                        "type": "string",
-                        "format": "binary",
-                        "nullable": true,
-                        "title": "Εικόνα"
-                    },
-                    "phone": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "zipcode": {
-                        "type": "string",
-                        "title": "Zip Code",
-                        "maxLength": 255
-                    },
-                    "address": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "place": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "country": {
-                        "type": "string",
-                        "minLength": 1,
-                        "title": "Country Code Alpha 2",
-                        "nullable": true
-                    },
-                    "region": {
-                        "type": "string",
-                        "minLength": 1,
-                        "title": "Region Code",
-                        "nullable": true
-                    },
-                    "birthDate": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                    },
-                    "twitter": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Twitter Profile",
-                        "maxLength": 200
-                    },
-                    "linkedin": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "LinkedIn Profile",
-                        "maxLength": 200
-                    },
-                    "facebook": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Facebook Profile",
-                        "maxLength": 200
-                    },
-                    "instagram": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Instagram Profile",
-                        "maxLength": 200
-                    },
-                    "website": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200
-                    },
-                    "youtube": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Youtube Profile",
-                        "maxLength": 200
-                    },
-                    "github": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "title": "Github Profile",
-                        "maxLength": 200
-                    },
-                    "bio": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "email"
-                ]
-            },
             "BlogAuthor": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -36614,8 +36238,10 @@
                     },
                     "website": {
                         "type": "string",
-                        "format": "uri",
-                        "maxLength": 200
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
                     },
                     "createdAt": {
                         "type": "string",
@@ -36654,7 +36280,8 @@
                     "translations",
                     "updatedAt",
                     "user",
-                    "uuid"
+                    "uuid",
+                    "website"
                 ]
             },
             "BlogAuthorDetail": {
@@ -36702,15 +36329,17 @@
                     "user": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/Authentication"
+                                "$ref": "#/components/schemas/UserDetails"
                             }
                         ],
                         "readOnly": true
                     },
                     "website": {
                         "type": "string",
-                        "format": "uri",
-                        "maxLength": 200
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
                     },
                     "createdAt": {
                         "type": "string",
@@ -36765,7 +36394,8 @@
                     "translations",
                     "updatedAt",
                     "user",
-                    "uuid"
+                    "uuid",
+                    "website"
                 ]
             },
             "BlogAuthorWriteRequest": {
@@ -37215,7 +36845,7 @@
                     "user": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/Authentication"
+                                "$ref": "#/components/schemas/UserDetails"
                             }
                         ],
                         "readOnly": true
@@ -37239,7 +36869,7 @@
                     "hasReplies": {
                         "type": "boolean",
                         "readOnly": true,
-                        "description": "Whether this comment has replies"
+                        "description": "Whether this comment has approved replies"
                     },
                     "approved": {
                         "type": "boolean",
@@ -37337,7 +36967,7 @@
                     "user": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/Authentication"
+                                "$ref": "#/components/schemas/UserDetails"
                             }
                         ],
                         "readOnly": true
@@ -37361,7 +36991,7 @@
                     "hasReplies": {
                         "type": "boolean",
                         "readOnly": true,
-                        "description": "Whether this comment has replies"
+                        "description": "Whether this comment has approved replies"
                     },
                     "approved": {
                         "type": "boolean",
@@ -37420,7 +37050,7 @@
                                 "type": "string"
                             },
                             "user": {
-                                "$ref": "#/components/schemas/Authentication"
+                                "$ref": "#/components/schemas/UserDetails"
                             },
                             "createdAt": {
                                 "type": "string",
@@ -37442,7 +37072,7 @@
                             "$ref": "#/components/schemas/BlogComment"
                         },
                         "readOnly": true,
-                        "description": "Direct child comments (replies)"
+                        "description": "Direct approved child comments (replies)"
                     },
                     "ancestorsPath": {
                         "type": "array",
@@ -37456,7 +37086,7 @@
                                     "type": "string"
                                 },
                                 "user": {
-                                    "$ref": "#/components/schemas/Authentication"
+                                    "$ref": "#/components/schemas/UserDetails"
                                 }
                             },
                             "required": [
@@ -37477,7 +37107,7 @@
                             "treeId": {
                                 "type": "integer"
                             },
-                            "positionInTree": {
+                            "approvedDescendantsCount": {
                                 "type": "integer"
                             },
                             "siblingsCount": {
@@ -37487,7 +37117,7 @@
                         "required": [
                             "level",
                             "treeId",
-                            "positionInTree",
+                            "approvedDescendantsCount",
                             "siblingsCount"
                         ],
                         "readOnly": true,
@@ -37515,44 +37145,6 @@
                     "user",
                     "userHasLiked",
                     "uuid"
-                ]
-            },
-            "BlogCommentDetailRequest": {
-                "type": "object",
-                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
-                "properties": {
-                    "translations": {
-                        "type": "object",
-                        "properties": {
-                            "el": {
-                                "type": "object",
-                                "properties": {
-                                    "content": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "en": {
-                                "type": "object",
-                                "properties": {
-                                    "content": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "de": {
-                                "type": "object",
-                                "properties": {
-                                    "content": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "required": [
-                    "translations"
                 ]
             },
             "BlogCommentLikedCommentsRequestRequest": {
@@ -39384,6 +38976,18 @@
                     "translations"
                 ]
             },
+            "DetailRequest": {
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "detail"
+                ]
+            },
             "DocumentTypeEnum": {
                 "enum": [
                     "RECEIPT",
@@ -39527,8 +39131,10 @@
                     },
                     "link": {
                         "type": "string",
-                        "format": "uri",
-                        "maxLength": 200
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
                     },
                     "kind": {
                         "$ref": "#/components/schemas/KindEnum"
@@ -39557,6 +39163,7 @@
                 "required": [
                     "createdAt",
                     "id",
+                    "link",
                     "translations",
                     "updatedAt",
                     "uuid"
@@ -39600,67 +39207,19 @@
                     "info"
                 ]
             },
-            "NotificationRequest": {
+            "NotificationSuccessResponse": {
                 "type": "object",
-                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
                 "properties": {
-                    "translations": {
-                        "type": "object",
-                        "properties": {
-                            "el": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "message": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "en": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "message": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "de": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "message": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "link": {
-                        "type": "string",
-                        "format": "uri",
-                        "maxLength": 200
-                    },
-                    "kind": {
-                        "$ref": "#/components/schemas/KindEnum"
-                    },
-                    "expiryDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
+                    "success": {
+                        "type": "boolean",
+                        "description": "Whether the operation was successful"
                     }
                 },
                 "required": [
-                    "translations"
+                    "success"
                 ]
             },
-            "NotificationSuccessResponse": {
+            "NotificationSuccessResponseRequest": {
                 "type": "object",
                 "properties": {
                     "success": {
@@ -39743,7 +39302,7 @@
                     "user": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/Authentication"
+                                "$ref": "#/components/schemas/UserDetails"
                             }
                         ],
                         "readOnly": true
@@ -39788,19 +39347,6 @@
                     "user",
                     "uuid"
                 ]
-            },
-            "NotificationUserDetailRequest": {
-                "type": "object",
-                "properties": {
-                    "seen": {
-                        "type": "boolean"
-                    },
-                    "seenAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    }
-                }
             },
             "NotificationUserWriteRequest": {
                 "type": "object",
@@ -40887,58 +40433,6 @@
                     "streetNumber",
                     "zipcode"
                 ]
-            },
-            "PaginatedAuthenticationList": {
-                "type": "object",
-                "required": [
-                    "count",
-                    "results"
-                ],
-                "properties": {
-                    "links": {
-                        "type": "object",
-                        "properties": {
-                            "next": {
-                                "type": "string",
-                                "nullable": true,
-                                "format": "uri",
-                                "example": "http://api.example.org/accounts/?page=4"
-                            },
-                            "previous": {
-                                "type": "string",
-                                "nullable": true,
-                                "format": "uri",
-                                "example": "http://api.example.org/accounts/?page=2"
-                            }
-                        }
-                    },
-                    "count": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "totalPages": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "pageSize": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "pageTotalResults": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "page": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "results": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Authentication"
-                        }
-                    }
-                }
             },
             "PaginatedBlogAuthorList": {
                 "type": "object",
@@ -42132,6 +41626,58 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/UserAddress"
+                        }
+                    }
+                }
+            },
+            "PaginatedUserDetailsList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserDetails"
                         }
                     }
                 }
@@ -45867,7 +45413,7 @@
                     "user": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/Authentication"
+                                "$ref": "#/components/schemas/UserDetails"
                             }
                         ],
                         "readOnly": true
@@ -45969,7 +45515,7 @@
                     "user": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/Authentication"
+                                "$ref": "#/components/schemas/UserDetails"
                             }
                         ],
                         "readOnly": true
@@ -46699,83 +46245,6 @@
                     "translations",
                     "updatedAt",
                     "uuid"
-                ]
-            },
-            "SubscriptionTopicDetailRequest": {
-                "type": "object",
-                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
-                "properties": {
-                    "translations": {
-                        "type": "object",
-                        "properties": {
-                            "el": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "en": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "de": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "slug": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "Unique identifier for the topic (e.g., 'weekly-newsletter')",
-                        "maxLength": 50,
-                        "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "category": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/CategoryEnum"
-                            }
-                        ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
-                    },
-                    "isActive": {
-                        "type": "boolean",
-                        "title": "Active",
-                        "description": "Whether this topic is currently available for subscription"
-                    },
-                    "isDefault": {
-                        "type": "boolean",
-                        "title": "Default Subscription",
-                        "description": "Whether new users are automatically subscribed to this topic"
-                    },
-                    "requiresConfirmation": {
-                        "type": "boolean",
-                        "description": "Whether subscription to this topic requires email confirmation"
-                    }
-                },
-                "required": [
-                    "slug",
-                    "translations"
                 ]
             },
             "SubscriptionTopicRequest": {
@@ -47638,6 +47107,184 @@
                     "zipcode"
                 ]
             },
+            "UserDetails": {
+                "type": "object",
+                "properties": {
+                    "pk": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "title": "Id"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Διεύθυνση ηλεκτρονικού ταχυδρομείου",
+                        "maxLength": 254
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true,
+                        "title": "Όνομα χρήστη",
+                        "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
+                        "pattern": "^[\\w.@+#-]+$",
+                        "maxLength": 30
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "zipcode": {
+                        "type": "string",
+                        "title": "Zip Code",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "place": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "country": {
+                        "type": "string",
+                        "title": "Country Code Alpha 2",
+                        "nullable": true
+                    },
+                    "region": {
+                        "type": "string",
+                        "title": "Region Code",
+                        "nullable": true
+                    },
+                    "birthDate": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "twitter": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
+                    },
+                    "linkedin": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
+                    },
+                    "facebook": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
+                    },
+                    "instagram": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
+                    },
+                    "website": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
+                    },
+                    "youtube": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
+                    },
+                    "github": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "description": "URL link or empty string",
+                        "readOnly": true
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "isActive": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "title": "Active"
+                    },
+                    "isStaff": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "title": "Staff"
+                    },
+                    "isSuperuser": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "title": "Κατάσταση υπερχρήστη",
+                        "description": "Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά."
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "createdAt",
+                    "email",
+                    "facebook",
+                    "github",
+                    "id",
+                    "instagram",
+                    "isActive",
+                    "isStaff",
+                    "isSuperuser",
+                    "linkedin",
+                    "mainImagePath",
+                    "pk",
+                    "twitter",
+                    "updatedAt",
+                    "uuid",
+                    "website",
+                    "youtube"
+                ]
+            },
             "UserSubscription": {
                 "type": "object",
                 "properties": {
@@ -47769,6 +47416,23 @@
                 ]
             },
             "UserSubscriptionDetailRequest": {
+                "type": "object",
+                "properties": {
+                    "topic": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SubscriptionStatus"
+                    },
+                    "metadata": {
+                        "description": "Additional subscription preferences or data"
+                    }
+                },
+                "required": [
+                    "topic"
+                ]
+            },
+            "UserSubscriptionRequest": {
                 "type": "object",
                 "properties": {
                     "topic": {
