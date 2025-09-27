@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.1.0...v3.2.0) (2025-09-27)
+
+
+### Features
+
+* user type to UserDetails and improve comments UX ([51f94d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/51f94d92ed97db6eb8a069026ae3d30b995d241d))
+
 # [3.1.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.0.0...v3.1.0) (2025-09-26)
 
 
