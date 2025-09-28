@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 const cartStore = useCartStore()
 const localePath = useLocalePath()
-const { cart, pending } = storeToRefs(cartStore)
+const {
+  cart,
+  pending,
+  hasStockIssues,
+} = storeToRefs(cartStore)
 const { t } = useI18n()
 const { $i18n } = useNuxtApp()
+const { hasStockIssue, getStockStatusMessage } = cartStore
 
 definePageMeta({
   layout: 'default',
@@ -27,9 +32,10 @@ const cardConfig = {
   variant: 'outline' as const,
 }
 
-const mainCardUI = {
-  root: 'w-full p-4',
-}
+const mainCardUI = (cartItem?: CartItem) => ({
+  root: `w-full p-4 ${cartItem && hasStockIssue(cartItem) ? 'bg-primary-50 dark:bg-primary-900' : ''}`,
+  body: 'p-0 sm:p-0',
+})
 
 const summaryCardUI = {
   root: 'p-6',
@@ -47,6 +53,18 @@ const emptyCardUI = {
       divider="chevron"
       class="mb-8"
     />
+
+    <UAlert
+      v-if="!pending && hasStockIssues"
+      color="warning"
+      variant="soft"
+      icon="i-heroicons-exclamation-triangle"
+      class="mb-6"
+    >
+      <template #title>
+        {{ t('stock_alert.title') }}
+      </template>
+    </UAlert>
 
     <div
       class="
@@ -84,11 +102,35 @@ const emptyCardUI = {
             v-for="(cartItem, index) in cart.items"
             :key="index"
             v-bind="cardConfig"
-            :ui="mainCardUI"
+            :ui="mainCardUI(cartItem)"
           >
+            <UAlert
+              v-if="getStockStatusMessage(cartItem)"
+              :color="getStockStatusMessage(cartItem)?.severity === 'error' ? 'error' : 'warning'"
+              variant="soft"
+              :icon="getStockStatusMessage(cartItem)?.severity === 'error' ? 'i-heroicons-x-circle' : 'i-heroicons-exclamation-triangle'"
+              class="mb-4"
+            >
+              <template #title>
+                {{ getStockStatusMessage(cartItem)?.severity === 'error' ? t('stock_status.unavailable_title') : t('stock_status.limited_title') }}
+              </template>
+              <template #description>
+                <div v-if="getStockStatusMessage(cartItem)?.type === 'limited_stock'">
+                  {{ t('stock_status.limited_stock', {
+                    available: getStockStatusMessage(cartItem)?.available,
+                    requested: getStockStatusMessage(cartItem)?.requested,
+                  }) }}
+                </div>
+                <div v-else>
+                  {{ t('stock_status.out_of_stock') }}
+                </div>
+              </template>
+            </UAlert>
+
             <CartItemCard :cart-item="cartItem" />
           </UCard>
         </div>
+
         <UCard
           v-else-if="!pending && !cart?.items?.length"
           v-bind="cardConfig"
@@ -117,6 +159,7 @@ const emptyCardUI = {
             {{ t('empty.description') }}
           </UButton>
         </UCard>
+
         <div
           v-else
           class="flex w-full flex-col gap-4"
@@ -125,7 +168,7 @@ const emptyCardUI = {
             v-for="index in (cart?.items?.length || 2)"
             :key="index"
             v-bind="cardConfig"
-            :ui="mainCardUI"
+            :ui="mainCardUI()"
           >
             <div
               class="
@@ -211,12 +254,13 @@ const emptyCardUI = {
           <template #footer>
             <UButton
               :to="localePath('checkout')"
+              :disabled="hasStockIssues"
               color="success"
               variant="solid"
               size="xl"
               block
             >
-              {{ t('proceed_to_checkout') }}
+              {{ hasStockIssues ? t('fix_stock_issues_first') : t('proceed_to_checkout') }}
             </UButton>
           </template>
         </UCard>
@@ -277,4 +321,17 @@ el:
   discount: Έκπτωση
   total: Σύνολο
   proceed_to_checkout: Ολοκλήρωση Παραγγελίας
+  fix_stock_issues_first: Διορθώστε τα προβλήματα διαθεσιμότητας
+  stock_status:
+    out_of_stock: Το προϊόν δεν είναι διαθέσιμο
+    limited_stock: "Διαθέσιμα μόνο {available} τεμάχια (έχετε {requested} στο καλάθι)"
+    unavailable_title: Μη Διαθέσιμο
+    limited_title: Περιορισμένη Διαθεσιμότητα
+  stock_alert:
+    title: Προβλήματα Διαθεσιμότητας
+    description: Κάποια προϊόντα στο καλάθι σας δεν είναι διαθέσιμα στην επιθυμητή ποσότητα.
+    fix_button: Αυτόματη Διόρθωση
+  stock_fix:
+    success_title: Το καλάθι ενημερώθηκε
+    success_description: Οι ποσότητες προσαρμόστηκαν στη διαθέσιμη προϊόντα.
 </i18n>

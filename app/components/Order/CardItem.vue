@@ -14,10 +14,10 @@ const { item } = toRefs(props)
 <template>
   <ImgWithFallback
     loading="lazy"
-    class="h-14 w-14 bg-primary-100"
+    class="h-24 w-24 bg-primary-100"
     :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-    :width="56"
-    :height="56"
+    :width="96"
+    :height="96"
     fit="contain"
     :background="'transparent'"
     :src="''"

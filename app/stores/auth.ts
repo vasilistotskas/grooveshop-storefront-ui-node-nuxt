@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
   const status = ref<StatusRecord>(statusFactory())
   const error = ref<ErrorRecord>(errorsFactory())
 
-  const hasSocialaccountProviders = computed(() => {
+  const hasSocialAccountProviders = computed(() => {
     if (!config?.value || !config.value || !config.value?.socialaccount) {
       return false
     }
@@ -145,7 +145,7 @@ export const useAuthStore = defineStore('auth', () => {
     config,
     status,
     error,
-    hasSocialaccountProviders,
+    hasSocialAccountProviders,
     hasCurrentPassword,
     otherSessions,
     totpAuthenticator,

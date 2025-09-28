@@ -69,37 +69,92 @@ const onSelectMenuChange = async ({ target, value }: { target: string, value: st
 }
 
 async function onSubmit(values: any) {
+  const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'country', 'region']
+  const missingFields = requiredFields.filter(field => !values[field])
+
+  if (missingFields.length > 0) {
+    return
+  }
+
   const submitValues: OrderWriteRequest = {
     ...values,
     floor: values.floor === defaultSelectOptionChoose ? undefined : values.floor,
     locationType: values.locationType === defaultSelectOptionChoose ? undefined : values.locationType,
     country: values.country === defaultSelectOptionChoose ? undefined : values.country,
     region: values.region === defaultSelectOptionChoose ? undefined : values.region,
+    mobilePhone: values.phone,
   }
 
-  await $fetch('/api/orders', {
-    method: 'POST',
-    headers: useRequestHeaders(),
-    body: submitValues,
-    async onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      toast.add({
-        title: t('form.submit.success'),
-        color: 'success',
-      })
-      cleanCartState()
-      await fetch()
-      await navigateTo(localePath({ name: 'checkout-success-uuid', params: { uuid: response._data.uuid } }))
-    },
-    onResponseError({ error }) {
-      toast.add({
-        title: error?.message,
-        color: 'error',
-      })
-    },
-  })
+  try {
+    await $fetch('/api/orders', {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body: submitValues,
+      async onResponse({ response }) {
+        if (!response.ok) {
+          return
+        }
+        toast.add({
+          title: t('form.submit.success'),
+          color: 'success',
+        })
+        cleanCartState()
+        await fetch()
+        await navigateTo(localePath({ name: 'checkout-success-uuid', params: { uuid: response._data.uuid } }))
+      },
+      onResponseError({ response }) {
+        let errorTitle = t('form.submit.error.general')
+        let errorDescription = undefined
+
+        if (response._data?.data?.items && Array.isArray(response._data.data.items)) {
+          const stockErrors: string[] = []
+
+          response._data.data.items.forEach((item: any) => {
+            if (item?.quantity && Array.isArray(item.quantity)) {
+              item.quantity.forEach((error: string) => {
+                stockErrors.push(error)
+              })
+            }
+          })
+
+          if (stockErrors.length > 0) {
+            errorTitle = t('form.submit.error.inventory')
+            errorDescription = stockErrors.join('. ')
+          }
+        }
+
+        else if (response._data?.message) {
+          errorTitle = t('form.submit.error.general')
+          errorDescription = response._data.message
+        }
+
+        else if (response._data?.errors) {
+          errorTitle = t('form.submit.error.validation')
+          errorDescription = Object.values(response._data.errors).flat().join('. ')
+        }
+
+        else if (response._data.data.nonFieldErrors && Array.isArray(response._data.data.nonFieldErrors)) {
+          errorTitle = t('form.submit.error.general')
+          response._data.data.nonFieldErrors.forEach((error: string) => {
+            errorDescription = error
+          })
+        }
+
+        toast.add({
+          title: errorTitle,
+          description: errorDescription,
+          color: 'error',
+        })
+      },
+    })
+  }
+  catch {
+    toast.add({
+      title: t('form.submit.error.network.title'),
+      description: t('form.submit.error.network.description'),
+      color: 'error',
+    })
+  }
 }
 
 const countryOptions = computed(() => {
@@ -454,7 +509,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           required: true,
           placeholder: '',
           initialValue: shippingPrice.value,
-          rules: z.string({ error: issue => issue.input === undefined
+          rules: z.number({ error: issue => issue.input === undefined
             ? $i18n.t('validation.required')
             : $i18n.t('validation.string.invalid') }),
         },
@@ -570,8 +625,7 @@ el:
     zipcode: Ταχυδρομικός Κώδικας
     country: Χώρα
     region: Περιφέρεια
-    mobile_phone: Κινητό τηλέφωνο
-    floor: Πάτωμα
+    floor: Όροφος
     location_type: Τύπος τοποθεσίας
     street: Οδός
     street_number: Αριθμός Οδού
@@ -586,7 +640,13 @@ el:
     submit:
       title: Αποθήκευση
       success: Η παραγγελία δημιουργήθηκε με επιτυχία
-      error: Σφάλμα δημιουργίας παραγγελίας
+      error:
+        general: Σφάλμα δημιουργίας παραγγελίας
+        inventory: Ανεπαρκές απόθεμα διαθέσιμο
+        validation: Παρακαλώ ελέγξτε τα στοιχεία της φόρμας
+        network:
+          title: Σφάλμα σύνδεσης
+          description: Παρακαλώ ελέγξτε τη σύνδεσή σας στο διαδίκτυο και δοκιμάστε ξανά
   validation:
     required: Το πεδίο είναι υποχρεωτικό
     email:

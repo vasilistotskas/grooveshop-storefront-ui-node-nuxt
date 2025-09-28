@@ -15,7 +15,7 @@ const { isMobileOrTablet } = useDevice()
 const { $i18n } = useNuxtApp()
 
 const authStore = useAuthStore()
-const { session, status, hasSocialaccountProviders } = storeToRefs(authStore)
+const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
 
 const ZodLogin = z.object({
   email: z.email({
@@ -273,7 +273,7 @@ const submitButtonDisabled = computed(() => {
                 </div>
               </div>
               <div
-                v-if="hasSocialaccountProviders"
+                v-if="hasSocialAccountProviders"
                 class="grid items-center justify-center gap-4"
               >
                 <p

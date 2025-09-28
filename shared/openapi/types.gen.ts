@@ -994,25 +994,18 @@ export type NotificationIdsRequest = {
     ids: Array<number>;
 };
 
-export type NotificationInfoResponse = {
-    /**
-     * Information message about notifications
-     */
-    info: string;
-};
-
 export type NotificationSuccessResponse = {
     /**
      * Whether the operation was successful
      */
-    success: boolean;
+    success?: boolean;
 };
 
 export type NotificationSuccessResponseRequest = {
     /**
      * Whether the operation was successful
      */
-    success: boolean;
+    success?: boolean;
 };
 
 export type NotificationUser = {
@@ -1124,7 +1117,7 @@ export type OrderDetail = {
     readonly mobilePhone: string;
     customerNotes?: string;
     readonly paidAmount: number;
-    items: Array<OrderItem>;
+    items: Array<OrderItemDetail>;
     readonly shippingPrice: number;
     documentType?: DocumentTypeEnum;
     readonly createdAt: string;
@@ -1163,12 +1156,12 @@ export type OrderDetail = {
      * Tracking and shipping details
      */
     readonly trackingDetails: {
-        trackingNumber?: string;
-        shippingCarrier?: string;
+        trackingNumber?: string | null;
+        shippingCarrier?: string | null;
         hasTracking?: boolean;
-        estimatedDelivery?: string;
-        trackingUrl?: string;
-    };
+        estimatedDelivery?: string | null;
+        trackingUrl?: string | null;
+    } | null;
     trackingNumber?: string;
     shippingCarrier?: string;
     readonly customerFullName: string;
@@ -1199,7 +1192,7 @@ export type OrderDetailRequest = {
     place?: string;
     city: string;
     customerNotes?: string;
-    items: Array<OrderItemRequest>;
+    items: Array<OrderItemDetailRequest>;
     documentType?: DocumentTypeEnum;
     paymentId?: string;
     paymentStatus?: PaymentStatusEnum;
@@ -1249,6 +1242,12 @@ export type OrderItemDetail = {
     notes?: string;
 };
 
+export type OrderItemDetailRequest = {
+    order: number;
+    quantity?: number;
+    notes?: string;
+};
+
 export type OrderItemRefundRequest = {
     /**
      * Quantity to refund. If not provided, refunds all.
@@ -1264,12 +1263,6 @@ export type OrderItemRefundResponse = {
     detail: string;
     refundedAmount: number;
     item: OrderItem;
-};
-
-export type OrderItemRequest = {
-    order: number;
-    product: number;
-    quantity?: number;
 };
 
 export type OrderItemWriteRequest = {
@@ -2952,6 +2945,40 @@ export type ProductMeiliSearchResult = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export type ProductRequest = {
+    translations: {
+        el?: {
+            name?: string;
+            description?: string;
+        };
+        en?: {
+            name?: string;
+            description?: string;
+        };
+        de?: {
+            name?: string;
+            description?: string;
+        };
+    };
+    slug: string;
+    category: number;
+    price: number;
+    vat: number;
+    stock?: number;
+    active?: boolean;
+    weight?: {
+        unit?: string;
+        value?: number;
+    } | null;
+    seoTitle?: string;
+    seoDescription?: string;
+    seoKeywords?: string;
+    discountPercent?: number;
+};
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export type ProductReview = {
     readonly id: number;
     product: Product;
@@ -4243,7 +4270,7 @@ export type OrderDetailWritable = {
     place?: string;
     city: string;
     customerNotes?: string;
-    items: Array<OrderItemWritable>;
+    items: Array<OrderItemDetailWritable>;
     documentType?: DocumentTypeEnum;
     paymentId?: string;
     paymentStatus?: PaymentStatusEnum;
@@ -8808,7 +8835,12 @@ export type ApiV1HealthRetrieveResponse = ApiV1HealthRetrieveResponses[keyof Api
 export type GetNotificationsByIdsData = {
     body: NotificationIdsRequest;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Filter notifications by seen status. If false, returns only unseen notifications.
+         */
+        seen?: 'true' | 'false' | '1' | '0' | boolean;
+    };
     url: '/api/v1/notification/ids';
 };
 
@@ -8998,7 +9030,7 @@ export type ListNotificationUserData = {
         userIds?: string;
         uuid?: string;
     };
-    url: '/api/v1/notification/user/';
+    url: '/api/v1/notification/user';
 };
 
 export type ListNotificationUserResponses = {
@@ -9016,7 +9048,7 @@ export type CreateNotificationUserData = {
          */
         language?: 'de' | 'el' | 'en';
     };
-    url: '/api/v1/notification/user/';
+    url: '/api/v1/notification/user';
 };
 
 export type CreateNotificationUserResponses = {
@@ -9031,7 +9063,7 @@ export type DestroyNotificationUserData = {
         id: string;
     };
     query?: never;
-    url: '/api/v1/notification/user/{id}/';
+    url: '/api/v1/notification/user/{id}';
 };
 
 export type DestroyNotificationUserResponses = {
@@ -9054,7 +9086,7 @@ export type RetrieveNotificationUserData = {
          */
         language?: 'de' | 'el' | 'en';
     };
-    url: '/api/v1/notification/user/{id}/';
+    url: '/api/v1/notification/user/{id}';
 };
 
 export type RetrieveNotificationUserResponses = {
@@ -9074,7 +9106,7 @@ export type PartialUpdateNotificationUserData = {
          */
         language?: 'de' | 'el' | 'en';
     };
-    url: '/api/v1/notification/user/{id}/';
+    url: '/api/v1/notification/user/{id}';
 };
 
 export type PartialUpdateNotificationUserResponses = {
@@ -9094,7 +9126,7 @@ export type UpdateNotificationUserData = {
          */
         language?: 'de' | 'el' | 'en';
     };
-    url: '/api/v1/notification/user/{id}/';
+    url: '/api/v1/notification/user/{id}';
 };
 
 export type UpdateNotificationUserResponses = {
@@ -9104,10 +9136,10 @@ export type UpdateNotificationUserResponses = {
 export type UpdateNotificationUserResponse = UpdateNotificationUserResponses[keyof UpdateNotificationUserResponses];
 
 export type MarkAllNotificationUsersAsSeenData = {
-    body: NotificationSuccessResponseRequest;
+    body?: NotificationSuccessResponseRequest;
     path?: never;
     query?: never;
-    url: '/api/v1/notification/user/mark_all_as_seen/';
+    url: '/api/v1/notification/user/mark_all_as_seen';
 };
 
 export type MarkAllNotificationUsersAsSeenErrors = {
@@ -9123,10 +9155,10 @@ export type MarkAllNotificationUsersAsSeenResponses = {
 export type MarkAllNotificationUsersAsSeenResponse = MarkAllNotificationUsersAsSeenResponses[keyof MarkAllNotificationUsersAsSeenResponses];
 
 export type MarkAllNotificationUsersAsUnseenData = {
-    body: NotificationSuccessResponseRequest;
+    body?: NotificationSuccessResponseRequest;
     path?: never;
     query?: never;
-    url: '/api/v1/notification/user/mark_all_as_unseen/';
+    url: '/api/v1/notification/user/mark_all_as_unseen';
 };
 
 export type MarkAllNotificationUsersAsUnseenErrors = {
@@ -9145,7 +9177,7 @@ export type MarkNotificationUsersAsSeenData = {
     body: NotificationUserActionRequest;
     path?: never;
     query?: never;
-    url: '/api/v1/notification/user/mark_as_seen/';
+    url: '/api/v1/notification/user/mark_as_seen';
 };
 
 export type MarkNotificationUsersAsSeenErrors = {
@@ -9165,7 +9197,7 @@ export type MarkNotificationUsersAsUnseenData = {
     body: NotificationUserActionRequest;
     path?: never;
     query?: never;
-    url: '/api/v1/notification/user/mark_as_unseen/';
+    url: '/api/v1/notification/user/mark_as_unseen';
 };
 
 export type MarkNotificationUsersAsUnseenErrors = {
@@ -9185,7 +9217,7 @@ export type GetNotificationUserUnseenCountData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/notification/user/unseen_count/';
+    url: '/api/v1/notification/user/unseen_count';
 };
 
 export type GetNotificationUserUnseenCountErrors = {
@@ -9196,7 +9228,6 @@ export type GetNotificationUserUnseenCountError = GetNotificationUserUnseenCount
 
 export type GetNotificationUserUnseenCountResponses = {
     200: NotificationCountResponse;
-    204: NotificationInfoResponse;
 };
 
 export type GetNotificationUserUnseenCountResponse = GetNotificationUserUnseenCountResponses[keyof GetNotificationUserUnseenCountResponses];

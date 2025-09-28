@@ -502,7 +502,7 @@ el:
     phone: Τηλέφωνο
     mobile_phone: Κινητό τηλέφωνο
     notes: Σημειώσεις
-    floor: Πάτωμα
+    floor: Όροφος
     location_type: Τύπος τοποθεσίας
     country: Χώρα
     region: Περιφέρεια

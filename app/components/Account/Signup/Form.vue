@@ -6,7 +6,7 @@ import * as z from 'zod'
 const config = useRuntimeConfig()
 const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
-const { hasSocialaccountProviders, status } = storeToRefs(authStore)
+const { hasSocialAccountProviders, status } = storeToRefs(authStore)
 
 const { t } = useI18n()
 const toast = useToast()
@@ -303,7 +303,7 @@ const submitButtonDisabled = computed(() => {
           </div>
           <div class="grid gap-4">
             <div
-              v-if="hasSocialaccountProviders && status.config === 'success'"
+              v-if="hasSocialAccountProviders && status.config === 'success'"
               class="grid gap-4"
             >
               <div

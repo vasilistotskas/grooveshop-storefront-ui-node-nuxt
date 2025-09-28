@@ -68,7 +68,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       disabledCondition: () => false,
     },
     {
-      label: t('message'),
+      label: $i18n.t('message'),
       name: 'message',
       as: 'textarea',
       rules: z.string({ error: issue => issue.input === undefined
@@ -77,7 +77,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       autocomplete: 'message',
       readonly: false,
       required: true,
-      placeholder: t('message'),
+      placeholder: $i18n.t('message'),
       type: 'text',
       condition: () => true,
       disabledCondition: () => false,

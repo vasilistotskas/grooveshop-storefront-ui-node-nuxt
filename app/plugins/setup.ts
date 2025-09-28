@@ -13,18 +13,24 @@ export default defineNuxtPlugin({
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
 
-    await setupConfig()
-    await setupSession()
+    try {
+      await setupConfig()
+      await setupSession()
 
-    await Promise.all([
-      setupAccount(),
-      setupSessions(),
-      setupCart(),
-      setupAuthenticators(),
-      setupNotifications(),
-    ])
+      await Promise.all([
+        setupAccount(),
+        setupSessions(),
+        setupCart(),
+        setupAuthenticators(),
+        setupNotifications(),
+      ])
+    }
+    catch (error) {
+      console.error('Failed during initial setup:', error)
+    }
 
-    watch(loggedIn, async (value) => {
+    watch(loggedIn, async (value, oldValue) => {
+      if (value === oldValue) return
       if (value) {
         await setupSession()
 
@@ -36,6 +42,6 @@ export default defineNuxtPlugin({
         ])
       }
       await setupCart()
-    })
+    }, { immediate: false })
   },
 })

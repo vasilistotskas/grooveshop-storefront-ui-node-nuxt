@@ -1,12 +1,21 @@
 <script lang="ts" setup>
+import type { TableColumn } from '@nuxt/ui'
+
+const UAvatar = resolveComponent('UAvatar')
+
 const route = useRoute()
-const orderUUID = 'uuid' in route.params
-  ? route.params.uuid
-  : undefined
+const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const img = useImage()
+
+const getImage = (mainImagePath: string) => {
+  return img(mainImagePath, { width: 96, height: 96, fit: 'cover' }, {
+    provider: 'mediaStream',
+  })
+}
 
 const { data: order, error } = await useFetch(
   `/api/orders/uuid/${orderUUID}`,
@@ -34,43 +43,136 @@ const customerName = computed(() => {
   return `${firstName} ${lastName}`
 })
 
-const customerEmail = computed(() => {
-  return order.value?.email
-})
+const customerEmail = computed(() => order.value?.email)
+const orderNumber = computed(() => order.value?.id)
+const orderItems = computed(() => order.value?.items || [])
 
-const orderNumber = computed(() => {
-  return order.value?.id
-})
+const orderStatus = computed(() => order.value?.status || '')
+const orderStatusDisplay = computed(() => order.value?.statusDisplay || '')
+const paymentStatus = computed(() => order.value?.paymentStatus || '')
+const isPaid = computed(() => order.value?.isPaid || false)
 
-const orderItems = computed(() => {
-  return order.value?.items
-})
+const paidAmount = computed(() => order.value?.paidAmount || 0)
+const shippingPrice = computed(() => order.value?.shippingPrice || 0)
+const totalPriceItems = computed(() => order.value?.totalPriceItems || 0)
+const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 
-const paidAmount = computed(() => {
-  return order.value?.paidAmount
-})
+const trackingNumber = computed(() => order.value?.trackingNumber)
+const shippingCarrier = computed(() => order.value?.shippingCarrier)
 
-const shippingPrice = computed(() => {
-  return order.value?.shippingPrice
-})
+const orderTimeline = computed(() => order.value?.orderTimeline.filter(event => event.changeType !== 'NOTE') || [])
 
-const totalPriceItems = computed(() => {
-  return order.value?.totalPriceItems
-})
-
-const totalPriceExtra = computed(() => {
-  return order.value?.totalPriceExtra
-})
-
-const payWayPrice = computed(() => {
-  const payWayCost = 0
-  const payWayFreeForOrderAmount = 0
-  const totalPriceItems = order.value?.totalPriceItems ?? 0
-  if (totalPriceItems >= payWayFreeForOrderAmount) {
-    return 0
+const getStatusColor = (status: string) => {
+  const statusColors: Record<string, 'success' | 'info' | 'warning' | 'error' | 'neutral' | 'primary'> = {
+    completed: 'success',
+    shipped: 'info',
+    processing: 'warning',
+    cancelled: 'error',
+    pending: 'info',
+    confirmed: 'primary',
   }
-  return payWayCost
+  return statusColors[status.toLowerCase()] || 'neutral'
+}
+
+const getPaymentStatusColor = (status: string) => {
+  const colors: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
+    paid: 'success',
+    pending: 'warning',
+    failed: 'error',
+    refunded: 'neutral',
+  }
+  return colors[status.toLowerCase()] || 'neutral'
+}
+
+const orderItemColumns: TableColumn<OrderItemDetail>[] = [
+  {
+    accessorKey: 'product.mainImagePath',
+    header: t('image'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h(UAvatar, {
+        src: getImage(item.product?.mainImagePath),
+        alt: `${extractTranslated(item.product, 'name', locale.value)} image`,
+        size: '3xl',
+        class: 'rounded-md',
+      })
+    },
+  },
+  {
+    accessorKey: 'product.name',
+    header: t('product'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'space-y-1' }, [
+        h('p', { class: 'font-medium text-highlighted' },
+          extractTranslated(item.product, 'name', locale.value),
+        ),
+        item.notes && h('p', { class: 'text-sm text-muted' }, item.notes),
+      ])
+    },
+  },
+  {
+    accessorKey: 'quantity',
+    header: t('quantity'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'text-center' }, [
+        h('span', { class: 'font-medium' }, item.quantity),
+        (item.refundedQuantity || 0) > 0 && h('div', { class: 'text-xs text-error' },
+          `(${item.refundedQuantity} ${t('refunded')})`,
+        ),
+      ])
+    },
+  },
+  {
+    accessorKey: 'price',
+    header: t('price.unit'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'text-right space-y-1' }, [
+        h('span', { class: 'font-medium' }, $i18n.n(item.price || 0, 'currency')),
+        (item.refundedAmount || 0) > 0 && h('div', { class: 'text-xs text-error' },
+          `- ${$i18n.n(item.refundedAmount || 0, 'currency')}`,
+        ),
+      ])
+    },
+  },
+  {
+    accessorKey: 'totalPrice',
+    header: t('price.total'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'text-right' }, [
+        h('span', { class: 'font-semibold text-highlighted' },
+          $i18n.n(item.totalPrice || 0, 'currency'),
+        ),
+      ])
+    },
+  },
+]
+
+const timelineItems = computed(() => {
+  return orderTimeline.value.map((event, index) => ({
+    date: event.timestamp ? new Date(event.timestamp).toLocaleDateString() : '',
+    title: event.description || event.changeType || '',
+    description: event.user ? `by ${event.user}` : undefined,
+    icon: getTimelineIcon(event.changeType),
+    value: index,
+  }))
 })
+
+const getTimelineIcon = (changeType: string | undefined): string => {
+  const icons: Record<string, string> = {
+    created: 'i-lucide-plus-circle',
+    confirmed: 'i-lucide-check-circle',
+    processing: 'i-lucide-clock',
+    shipped: 'i-lucide-truck',
+    delivered: 'i-lucide-package-check',
+    cancelled: 'i-lucide-x-circle',
+    refunded: 'i-lucide-undo-2',
+  }
+  return icons[changeType?.toLowerCase() || ''] || 'i-lucide-circle'
+}
 
 definePageMeta({
   layout: 'default',
@@ -80,210 +182,199 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      flex flex-col gap-4
+      flex flex-col gap-6
       md:gap-8
     "
   >
     <PageTitle
       :text="t('title')"
-      class="text-center capitalize"
+      class="text-center"
+    />
+
+    <UAlert
+      color="success"
+      variant="subtle"
+      :title="t('main.title', { customerName })"
+      :description="t('main.subtitle')"
+      icon="i-lucide-check-circle"
+      class="mx-auto max-w-2xl"
     />
 
     <div
       class="
-        container mx-auto rounded bg-primary-100 !p-4 shadow-md
-        md:px-6
-        dark:bg-primary-900
+        flex flex-col gap-6
+        md:grid
+        lg:grid-cols-3
       "
     >
       <div
         class="
-          grid items-center justify-center justify-items-center gap-8
-          md:gap-16
+          space-y-6
+          lg:col-span-2
         "
       >
-        <div
-          class="grid items-center justify-center justify-items-center gap-4"
-        >
-          <h2 class="text-4xl font-bold">
-            {{
-              t('main.title', {
-                customerName: customerName,
-              })
-            }}
-          </h2>
-          <p
-            class="
-              text-center text-primary-950
-              dark:text-primary-50
-            "
-            v-html="
-              t('main.text', {
-                orderId: orderNumber,
-                customerEmail: customerEmail,
-              })
-            "
-          />
-        </div>
-
-        <div
-          class="grid items-center justify-center justify-items-center gap-4"
-        >
-          <h2 class="w-full text-center text-2xl font-semibold">
-            {{ t('order.summary') }}
-          </h2>
-
-          <table
-            v-if="orderItems"
-            class="min-w-full table-auto text-center"
-          >
-            <thead>
-              <tr>
-                <th
-                  class="px-4 py-2"
-                  scope="col"
-                >
-                  {{ t('image') }}
-                </th>
-                <th
-                  class="px-4 py-2"
-                  scope="col"
-                >
-                  {{ t('product') }}
-                </th>
-                <th
-                  class="px-4 py-2"
-                  scope="col"
-                >
-                  {{ t('quantity') }}
-                </th>
-                <th
-                  class="px-4 py-2"
-                  scope="col"
-                >
-                  {{ t('price') }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(item, index) in orderItems"
-                :key="index"
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-highlighted">
+                {{ t('order.items') }}
+              </h2>
+              <UBadge
+                :color="getStatusColor(orderStatus)"
+                variant="soft"
+                size="lg"
               >
-                <td class="border px-4 py-2">
-                  <ImgWithFallback
-                    :alt="`Image - ${item.product}`"
-                    :background="'transparent'"
-                    fit="contain"
-                    :height="100"
-                    :src="''"
-                    :style="{
-                      objectFit: 'contain',
-                      contentVisibility: 'auto',
-                    }"
-                    :width="100"
-                    class="bg-primary-100"
-                    loading="lazy"
-                    sizes="sm:100vw md:50vw lg:auto"
-                  />
-                </td>
-                <td class="border px-4 py-2">
-                  {{ item.product }}
-                </td>
-                <td class="border px-4 py-2">
-                  {{ item.quantity }}
-                </td>
-                <td
-                  v-if="item.totalPrice"
-                  class="border px-4 py-2"
-                >
-                  <span>
-                    {{ $i18n.n(item.totalPrice, 'currency') }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                {{ orderStatusDisplay }}
+              </UBadge>
+            </div>
+          </template>
 
-          <div
-            class="
-              grid w-full items-center justify-center justify-items-center gap-2
-            "
-          >
-            <h3 class="text-xl font-semibold">
-              {{ t('order.details') }}
-            </h3>
-            <p
-              v-if="shippingPrice"
-              class="
-                text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('shippingPrice') }}:
-              <span>
-                {{ $i18n.n(shippingPrice, 'currency') }}
-              </span>
-            </p>
-            <p
-              v-if="totalPriceItems"
-              class="
-                text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('totalPriceItems') }}:
-              <span>
-                {{ $i18n.n(totalPriceItems, 'currency') }}
-              </span>
-            </p>
-            <p
-              v-if="totalPriceExtra"
-              class="
-                text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('totalPriceExtra') }}:
-              <span>
-                {{ $i18n.n(totalPriceExtra, 'currency') }}
-              </span>
-            </p>
-            <p
-              v-if="payWayPrice"
-              class="
-                text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('payWayPrice') }}:
-              <span>
-                {{ $i18n.n(payWayPrice, 'currency') }}
-              </span>
-            </p>
+          <UTable
+            :data="orderItems"
+            :columns="orderItemColumns"
+            :ui="{
+              root: 'overflow-auto',
+              base: 'overflow-auto min-w-full',
+              thead: 'bg-elevated/50',
+            }"
+          />
+        </UCard>
+
+        <UCard v-if="timelineItems.length > 1">
+          <template #header>
+            <h2 class="text-xl font-semibold text-highlighted">
+              {{ t('order.timeline') }}
+            </h2>
+          </template>
+
+          <UTimeline
+            :items="timelineItems"
+            :default-value="timelineItems.length - 1"
+            :color="getStatusColor(orderStatus)"
+            size="sm"
+          />
+        </UCard>
+      </div>
+
+      <div class="space-y-6">
+        <UCard>
+          <template #header>
+            <h2 class="text-lg font-semibold text-highlighted">
+              {{ t('order.summary') }}
+            </h2>
+          </template>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('order.number') }}</span>
+              <span class="font-mono font-medium">#{{ orderNumber }}</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-muted">{{ t('customer.name') }}</span>
+                <span class="font-medium">{{ customerName }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-muted">{{ t('customer.email') }}</span>
+                <span class="text-sm">{{ customerEmail }}</span>
+              </div>
+            </div>
+
+            <USeparator />
+
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('payment.status') }}</span>
+              <UBadge
+                :color="getPaymentStatusColor(paymentStatus)"
+                variant="subtle"
+              >
+                {{ isPaid ? t('payment.paid') : t('payment.pending') }}
+              </UBadge>
+            </div>
+
+            <div v-if="trackingNumber" class="space-y-2">
+              <USeparator />
+              <div class="flex items-center justify-between">
+                <span class="text-muted">{{ t('tracking.number') }}</span>
+                <span class="font-mono text-sm">{{ trackingNumber }}</span>
+              </div>
+              <div
+                v-if="shippingCarrier" class="flex items-center justify-between"
+              >
+                <span class="text-muted">{{ t('shipping.carrier') }}</span>
+                <span class="text-sm">{{ shippingCarrier }}</span>
+              </div>
+            </div>
           </div>
-          <p
-            v-if="paidAmount"
-            class="
-              font-bold text-primary-950
-              dark:text-primary-50
-            "
-          >
-            {{ t('total') }}:
-            <span>
-              {{ $i18n.n(paidAmount, 'currency') }}
-            </span>
-          </p>
-        </div>
-        <UButton
-          :label="t('button')"
-          :to="localePath('index')"
-          :trailing="false"
-          color="neutral"
-          icon="i-heroicons-home"
-          size="xl"
-          variant="solid"
-        />
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h2 class="text-lg font-semibold text-highlighted">
+              {{ t('pricing.breakdown') }}
+            </h2>
+          </template>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('pricing.subtotal') }}</span>
+              <span>{{ $i18n.n(totalPriceItems, 'currency') }}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('pricing.shipping') }}</span>
+              <span>{{ $i18n.n(shippingPrice, 'currency') }}</span>
+            </div>
+
+            <div
+              v-if="(totalPriceExtra || 0) > 0" class="
+                flex items-center justify-between
+              "
+            >
+              <span class="text-muted">{{ t('pricing.extras') }}</span>
+              <span>{{ $i18n.n(totalPriceExtra, 'currency') }}</span>
+            </div>
+
+            <USeparator />
+
+            <div class="flex items-center justify-between text-lg font-semibold">
+              <span class="text-highlighted">{{ t('pricing.total') }}</span>
+              <span class="text-highlighted">{{ $i18n.n(paidAmount, 'currency') }}</span>
+            </div>
+
+            <div v-if="order?.paymentMethod" class="pt-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-muted">{{ t('payment.method') }}</span>
+                <span>{{ order?.paymentMethod }}</span>
+              </div>
+            </div>
+          </div>
+        </UCard>
+
+        <UCard>
+          <div class="space-y-3">
+            <UButton
+              :to="localePath('index')"
+              color="neutral"
+              variant="subtle"
+              size="lg"
+              block
+              icon="i-lucide-home"
+              :label="t('actions.home')"
+            />
+
+            <UButton
+              v-if="trackingNumber"
+              color="info"
+              variant="outline"
+              size="lg"
+              block
+              icon="i-lucide-truck"
+              :label="t('actions.track')"
+            />
+          </div>
+        </UCard>
       </div>
     </div>
   </PageWrapper>
@@ -292,22 +383,41 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Η παραγγελία δημιουργήθηκε με επιτυχία
-  button: Πλοηγηθείτε στην Αρχική
   main:
-    title: Σας ευχαριστούμε, {customerName}!
-    text: Ο αριθμός παραγγελίας σας είναι {orderId}. Ένα email
-      επιβεβαίωσης έχει σταλεί στο {customerEmail}. Θα σας ειδοποιήσουμε
-      όταν η παραγγελία σας αποσταλεί.
+    title: Σε ευχαριστούμε, {customerName}!
+    subtitle: Η παραγγελία σας δημιουργήθηκε επιτυχώς και θα λάβετε email επιβεβαίωσης σύντομα.
   order:
+    number: Αριθμός Παραγγελίας
+    items: Προϊόντα Παραγγελίας
     summary: Σύνοψη Παραγγελίας
-    details: Λεπτομέρειες Παραγγελίας
+    timeline: Ιστορικό Παραγγελίας
+  customer:
+    name: Όνομα Πελάτη
+    email: Email
+  payment:
+    status: Κατάσταση Πληρωμής
+    paid: Πληρωμένο
+    pending: Εκκρεμεί
+    method: Τρόπος Πληρωμής
+  tracking:
+    number: Αριθμός Παρακολούθησης
+  shipping:
+    carrier: Εταιρεία Αποστολής
+  pricing:
+    breakdown: Ανάλυση Κόστους
+    subtotal: Υποσύνολο
+    shipping: Έξοδα Αποστολής
+    extras: Επιπλέον Κόστη
+    total: Σύνολο
+  actions:
+    cancel: Ακύρωση Παραγγελίας
+    home: Πίσω στην Αρχική
+    track: Παρακολούθηση Παραγγελίας
   image: Εικόνα
   product: Προϊόν
   quantity: Ποσότητα
-  price: Τιμή
-  shippingPrice: Κόστος αποστολής
-  totalPriceItems: Είδη Συνολικής Τιμής
-  totalPriceExtra: Συνολική Τιμή Επιπλέον
-  payWayPrice: Τιμή τρόπου πληρωμής
-  total: Σύνολο
+  price:
+    unit: Τιμή Μονάδας
+    total: Συνολική Τιμή
+  refunded: επιστράφηκε
 </i18n>

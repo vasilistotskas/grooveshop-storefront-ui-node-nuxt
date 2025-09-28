@@ -136,7 +136,7 @@ export default defineNuxtPlugin({
         const localePath = useLocalePath()
         const url = localePath(path)
         console.info('Navigating to URL:', url)
-        return await nuxtApp.runWithContext(() => navigateTo({ path: url, query }, { replace }))
+        return nuxtApp.runWithContext(() => navigateTo({ path: url, query }, { replace }))
       }
       catch (error) {
         console.error('Error navigating to URL:', error)

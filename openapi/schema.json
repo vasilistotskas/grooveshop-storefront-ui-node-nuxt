@@ -14527,6 +14527,29 @@
                 "operationId": "getNotificationsByIds",
                 "description": "Returns the notifications for a list of ids.",
                 "summary": "Returns the notifications for a list of ids.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "seen",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Filter notifications by seen status. If false, returns only unseen notifications."
+                    }
+                ],
                 "tags": [
                     "Notifications"
                 ],
@@ -14576,7 +14599,7 @@
                 }
             }
         },
-        "/api/v1/notification/user/": {
+        "/api/v1/notification/user": {
             "get": {
                 "operationId": "listNotificationUser",
                 "description": "Retrieve a list of Notification Users with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
@@ -15317,7 +15340,7 @@
                 }
             }
         },
-        "/api/v1/notification/user/{id}/": {
+        "/api/v1/notification/user/{id}": {
             "get": {
                 "operationId": "retrieveNotificationUser",
                 "description": "Get detailed information about a specific Notification User.",
@@ -15549,7 +15572,7 @@
                 }
             }
         },
-        "/api/v1/notification/user/mark_all_as_seen/": {
+        "/api/v1/notification/user/mark_all_as_seen": {
             "post": {
                 "operationId": "markAllNotificationUsersAsSeen",
                 "description": "Mark all of the authenticated user's notifications as seen.",
@@ -15574,8 +15597,7 @@
                                 "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "security": [
                     {
@@ -15610,7 +15632,7 @@
                 }
             }
         },
-        "/api/v1/notification/user/mark_all_as_unseen/": {
+        "/api/v1/notification/user/mark_all_as_unseen": {
             "post": {
                 "operationId": "markAllNotificationUsersAsUnseen",
                 "description": "Mark all of the authenticated user's notifications as unseen.",
@@ -15635,8 +15657,7 @@
                                 "$ref": "#/components/schemas/NotificationSuccessResponseRequest"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "security": [
                     {
@@ -15671,7 +15692,7 @@
                 }
             }
         },
-        "/api/v1/notification/user/mark_as_seen/": {
+        "/api/v1/notification/user/mark_as_seen": {
             "post": {
                 "operationId": "markNotificationUsersAsSeen",
                 "description": "Mark specific notifications as seen for the authenticated user.",
@@ -15742,7 +15763,7 @@
                 }
             }
         },
-        "/api/v1/notification/user/mark_as_unseen/": {
+        "/api/v1/notification/user/mark_as_unseen": {
             "post": {
                 "operationId": "markNotificationUsersAsUnseen",
                 "description": "Mark specific notifications as unseen for the authenticated user.",
@@ -15813,7 +15834,7 @@
                 }
             }
         },
-        "/api/v1/notification/user/unseen_count/": {
+        "/api/v1/notification/user/unseen_count": {
             "get": {
                 "operationId": "getNotificationUserUnseenCount",
                 "description": "Get the count of unseen notifications for the authenticated user.",
@@ -15836,16 +15857,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/NotificationCountResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "204": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotificationInfoResponse"
                                 }
                             }
                         },
@@ -39195,18 +39206,6 @@
                     "ids"
                 ]
             },
-            "NotificationInfoResponse": {
-                "type": "object",
-                "properties": {
-                    "info": {
-                        "type": "string",
-                        "description": "Information message about notifications"
-                    }
-                },
-                "required": [
-                    "info"
-                ]
-            },
             "NotificationSuccessResponse": {
                 "type": "object",
                 "properties": {
@@ -39214,10 +39213,7 @@
                         "type": "boolean",
                         "description": "Whether the operation was successful"
                     }
-                },
-                "required": [
-                    "success"
-                ]
+                }
             },
             "NotificationSuccessResponseRequest": {
                 "type": "object",
@@ -39226,10 +39222,7 @@
                         "type": "boolean",
                         "description": "Whether the operation was successful"
                     }
-                },
-                "required": [
-                    "success"
-                ]
+                }
             },
             "NotificationUser": {
                 "type": "object",
@@ -39658,7 +39651,7 @@
                     "items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/OrderItem"
+                            "$ref": "#/components/schemas/OrderItemDetail"
                         }
                     },
                     "shippingPrice": {
@@ -39790,21 +39783,26 @@
                     },
                     "trackingDetails": {
                         "type": "object",
+                        "nullable": true,
                         "properties": {
                             "trackingNumber": {
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
                             "shippingCarrier": {
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
                             "hasTracking": {
                                 "type": "boolean"
                             },
                             "estimatedDelivery": {
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
                             "trackingUrl": {
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             }
                         },
                         "readOnly": true,
@@ -39941,7 +39939,7 @@
                     "items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/OrderItemRequest"
+                            "$ref": "#/components/schemas/OrderItemDetailRequest"
                         }
                     },
                     "documentType": {
@@ -40196,6 +40194,25 @@
                     "uuid"
                 ]
             },
+            "OrderItemDetailRequest": {
+                "type": "object",
+                "properties": {
+                    "order": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": -2147483648
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "order"
+                ]
+            },
             "OrderItemRefundRequest": {
                 "type": "object",
                 "properties": {
@@ -40233,26 +40250,6 @@
                     "detail",
                     "item",
                     "refundedAmount"
-                ]
-            },
-            "OrderItemRequest": {
-                "type": "object",
-                "properties": {
-                    "order": {
-                        "type": "integer"
-                    },
-                    "product": {
-                        "type": "integer"
-                    },
-                    "quantity": {
-                        "type": "integer",
-                        "maximum": 2147483647,
-                        "minimum": -2147483648
-                    }
-                },
-                "required": [
-                    "order",
-                    "product"
                 ]
             },
             "OrderItemWriteRequest": {
@@ -40369,8 +40366,7 @@
                         "minLength": 1
                     },
                     "mobilePhone": {
-                        "type": "string",
-                        "minLength": 1
+                        "type": "string"
                     },
                     "paidAmount": {
                         "type": "number",
@@ -42205,8 +42201,7 @@
                         "minLength": 1
                     },
                     "mobilePhone": {
-                        "type": "string",
-                        "minLength": 1
+                        "type": "string"
                     },
                     "paidAmount": {
                         "type": "number",
@@ -42942,8 +42937,7 @@
                         "minLength": 1
                     },
                     "mobilePhone": {
-                        "type": "string",
-                        "minLength": 1
+                        "type": "string"
                     },
                     "notes": {
                         "type": "string",
@@ -45394,6 +45388,121 @@
                     "slug"
                 ]
             },
+            "ProductRequest": {
+                "type": "object",
+                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
+                "properties": {
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "de": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "slug": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255,
+                        "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "category": {
+                        "type": "integer"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "vat": {
+                        "type": "integer"
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "weight": {
+                        "type": "object",
+                        "properties": {
+                            "unit": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        },
+                        "example": {
+                            "unit": "kg",
+                            "value": 1.0
+                        },
+                        "nullable": true
+                    },
+                    "seoTitle": {
+                        "type": "string",
+                        "maxLength": 70
+                    },
+                    "seoDescription": {
+                        "type": "string",
+                        "maxLength": 300
+                    },
+                    "seoKeywords": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "discountPercent": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    }
+                },
+                "required": [
+                    "category",
+                    "price",
+                    "slug",
+                    "translations",
+                    "vat"
+                ]
+            },
             "ProductReview": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -47069,8 +47178,7 @@
                         "minLength": 1
                     },
                     "mobilePhone": {
-                        "type": "string",
-                        "minLength": 1
+                        "type": "string"
                     },
                     "notes": {
                         "type": "string",

@@ -294,11 +294,17 @@ const emit = defineEmits<{
 
 // Define the submit event handler using handleSubmit function and emit function
 const onSubmit = handleSubmit((formValues) => {
+  console.log('DynamicForm onSubmit called with:', formValues)
+  console.log('Form errors:', errors.value)
+  console.log('Form state:', formState.value)
+
   emit('submit', formValues)
 
   if (resetOnSubmit.value) {
     resetForm()
   }
+}, (errors) => {
+  console.error('Form validation failed:', errors)
 })
 
 // Define the form state for Nuxt UI
@@ -568,6 +574,7 @@ defineExpose({
           :submit-label="buttonLabel"
           @go-to-next-step="goToNextStep"
           @go-to-previous-step="goToPreviousStep"
+          @submit="onSubmit"
         />
 
         <UButton

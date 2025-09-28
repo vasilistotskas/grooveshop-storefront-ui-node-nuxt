@@ -1,19 +1,73 @@
 import type { IFetchError, FetchContext, FetchHooks, FetchResponse } from 'ofetch'
 
 export const useCartStore = defineStore('cart', () => {
+  const { $i18n } = useNuxtApp()
   const cart = ref<CartDetail | null>(null)
   const pending = ref<boolean>(false)
   const error = ref<IFetchError | null>(null)
 
   const getCartItems = computed(() => cart.value?.items ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
-  const getCartItemIds = computed(() => cart.value?.items?.map((item: any) => item.id) ?? [])
+  const getCartItemIds = computed(() => cart.value?.items?.map(item => item.id) ?? [])
+
+  const getItemsWithStockIssues = computed(() => {
+    return cart.value?.items?.filter((item) => {
+      return item.product.stock !== undefined
+        && item.quantity
+        && item.quantity > item.product.stock
+    }) ?? []
+  })
+
+  const getOutOfStockItems = computed(() => {
+    return cart.value?.items?.filter((item) => {
+      return item.product.stock === 0
+    }) ?? []
+  })
+
+  const hasStockIssues = computed(() => {
+    return getItemsWithStockIssues.value.length > 0 || getOutOfStockItems.value.length > 0
+  })
 
   const getCartItemById = (id: number) =>
-    cart.value?.items?.find((item: any) => item.id === id) ?? null
+    cart.value?.items?.find(item => item.id === id) ?? null
 
   const getCartItemByProductId = (id: number) =>
-    cart.value?.items?.find((item: any) => item.product === id) ?? null
+    cart.value?.items?.find(item => item.product.id === id) ?? null
+
+  const hasStockIssue = (cartItem: CartItem) => {
+    return cartItem.product.stock !== undefined
+      && cartItem.quantity
+      && cartItem.quantity > cartItem.product.stock
+  }
+
+  const getAvailableStock = (cartItem: CartItem) => {
+    return cartItem.product.stock ?? 0
+  }
+
+  const getStockStatusMessage = (cartItem: CartItem) => {
+    if (!cartItem.product.stock || cartItem.product.stock === 0) {
+      return {
+        type: 'out_of_stock' as const,
+        message: $i18n.t('out_of_stock'),
+        severity: 'error' as const,
+      }
+    }
+
+    if (hasStockIssue(cartItem)) {
+      return {
+        type: 'limited_stock' as const,
+        message: $i18n.t('limited_stock', {
+          stock: cartItem.product.stock,
+          quantity: cartItem.quantity,
+        }),
+        severity: 'warning' as const,
+        available: cartItem.product.stock,
+        requested: cartItem.quantity,
+      }
+    }
+
+    return null
+  }
 
   function createFetchHandlers(): FetchHooks {
     return {
@@ -29,12 +83,17 @@ export const useCartStore = defineStore('cart', () => {
       },
       onResponse(ctx: FetchContext & { response: FetchResponse<any> }) {
         console.log('Cart response completed', ctx)
+        if (!ctx.response?.ok) {
+          error.value = ctx.response._data
+          pending.value = false
+          return
+        }
         cart.value = ctx.response._data
         pending.value = false
       },
       onResponseError(ctx: FetchContext & { response: FetchResponse<any> }) {
         console.error('Cart response error:', ctx)
-        error.value = ctx.error as IFetchError
+        error.value = ctx.error ? ctx.error as IFetchError : ctx.response._data
         pending.value = false
         if (ctx.error) {
           handleError(ctx.error)
@@ -122,6 +181,12 @@ export const useCartStore = defineStore('cart', () => {
     getCartItemIds,
     getCartItemById,
     getCartItemByProductId,
+    getItemsWithStockIssues,
+    getOutOfStockItems,
+    hasStockIssues,
+    hasStockIssue,
+    getAvailableStock,
+    getStockStatusMessage,
     setupCart,
     refreshCart,
     createCartItem,

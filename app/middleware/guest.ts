@@ -5,6 +5,6 @@ export default defineNuxtRouteMiddleware(async () => {
 
   if (loggedIn.value) {
     console.info('Guest page only, navigating to Home page')
-    return await nuxtApp.runWithContext(() => navigateTo(localePath('index')))
+    return nuxtApp.runWithContext(() => navigateTo(localePath('index')))
   }
 })

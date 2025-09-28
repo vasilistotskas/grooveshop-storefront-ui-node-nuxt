@@ -21,6 +21,11 @@ defineProps({
 const emit = defineEmits(['goToNextStep', 'goToPreviousStep', 'submit'])
 
 const { $i18n } = useNuxtApp()
+
+const handleSubmit = () => {
+  console.log('Navigation submit clicked')
+  emit('submit')
+}
 </script>
 
 <template>
@@ -45,14 +50,13 @@ const { $i18n } = useNuxtApp()
     />
     <UButton
       v-if="currentStep === lastStep"
-      type="submit"
       color="success"
       variant="subtle"
       :label="submitLabel"
       :ui="{
         base: '!rounded-full',
       }"
-      @click="emit('submit')"
+      @click="handleSubmit"
     />
   </div>
 </template>

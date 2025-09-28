@@ -62,10 +62,7 @@ const formattedTotal = computed(() => {
       >
         <ImgWithFallback
           loading="lazy"
-          class="
-            h-full w-full bg-neutral-900 object-contain
-            dark:bg-neutral-50
-          "
+          class="h-full w-full bg-transparent object-contain"
           :width="96"
           :height="96"
           fit="contain"
@@ -89,6 +86,9 @@ const formattedTotal = computed(() => {
             <Anchor
               :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
               :title="alt"
+              :ui="{
+                base: 'p-0',
+              }"
             >
               {{ contentShorten(alt, 50) }}
             </Anchor>
@@ -101,7 +101,7 @@ const formattedTotal = computed(() => {
               v-if="cartItem.discountValue"
               class="text-green-600"
             >
-              ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }})
+              ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }} / {{ t('per_item') }})
             </span>
           </div>
         </div>
@@ -146,6 +146,7 @@ const formattedTotal = computed(() => {
 <i18n lang="yaml">
 el:
   remove_from_cart: Αφαίρεση από το καλάθι {name}
+  per_item: Ανά τεμάχιο
   price: Τιμή
   save: Έκπτωση
   total: Σύνολο

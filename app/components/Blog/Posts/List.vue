@@ -82,44 +82,23 @@ const pagination = computed(() => {
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
 
-if (shouldFetchLikedPosts.value) {
-  await useLazyFetch(
-    '/api/blog/posts/liked-posts',
-    {
-      key: `likedBlogPosts${user.value?.id}`,
-      method: 'POST',
-      headers: useRequestHeaders(),
-      body: { postIds: postIds },
-      onResponse({ response }) {
-        if (!response.ok) {
-          return
-        }
-        const likedPostsIds = response._data?.postIds || []
-        updateLikedPosts(likedPostsIds)
-      },
+await useLazyFetch(
+  '/api/blog/posts/liked-posts',
+  {
+    key: `likedBlogPosts${user.value?.id}`,
+    method: 'POST',
+    headers: useRequestHeaders(),
+    body: { postIds: postIds },
+    immediate: shouldFetchLikedPosts.value,
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      const likedPostsIds = response._data?.postIds || []
+      updateLikedPosts(likedPostsIds)
     },
-  )
-}
-
-const refreshLikedPosts = async (postIds: number[]) => {
-  if (shouldFetchLikedPosts.value) {
-    await $fetch(
-      '/api/blog/posts/liked-posts',
-      {
-        method: 'POST',
-        headers: useRequestHeaders(),
-        body: { postIds: postIds },
-        onResponse({ response }) {
-          if (!response.ok) {
-            return
-          }
-          const likedPostsIds = response._data?.postIds || []
-          updateLikedPosts(likedPostsIds)
-        },
-      },
-    )
-  }
-}
+  },
+)
 
 const showResults = computed(() => {
   if (paginationType.value === PaginationTypeEnum.CURSOR) {
@@ -138,16 +117,6 @@ const imgLoading = (index: number) => {
   }
   return index > 7 ? 'lazy' : 'eager'
 }
-
-watch(
-  () => loggedIn.value,
-  async (newVal, _oldVal) => {
-    if (newVal) {
-      await refreshLikedPosts(postIds.value)
-    }
-  },
-  { immediate: false },
-)
 
 watch(
   () => paginationType.value,

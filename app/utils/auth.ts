@@ -9,7 +9,7 @@ const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseErr
 
 export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
   if (!response || !response._data) return
-  console.info('onAllAuthResponse', response)
+  console.info('onAllAuthResponse', JSON.parse(JSON.stringify(response)))
   if (response.status === 200 && response._data.meta?.is_authenticated) {
     console.info('Status is 200 and is authenticated', response._data)
     await callAuthChangeHook(response._data)
@@ -189,7 +189,7 @@ export const navigateToPendingFlow = async (
     const next = useRouter().currentRoute.value.query.next
     const url = withQuery(localePath(path), { next })
     console.info('Navigating to URL:', url)
-    await nuxtApp.runWithContext(() => navigateTo(url))
+    return nuxtApp.runWithContext(() => navigateTo(url))
   }
   else {
     console.warn('No pending flow to navigate to')

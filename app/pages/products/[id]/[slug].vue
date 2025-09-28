@@ -449,7 +449,7 @@ definePageMeta({
                     name="i-heroicons-truck"
                     class="mr-1"
                   />
-                  {{ t('free_shipping') || 'Δωρεάν Αποστολή' }}
+                  {{ t('free_shipping') }}
                 </span>
                 <span
                   class="
@@ -500,8 +500,9 @@ definePageMeta({
                 dark:border-gray-700
               "
               :ui="{
-                root: 'overflow-hidden',
-                body: 'grow p-0',
+                root: 'p-0 overflow-hidden',
+                body: 'grow sm:p-2',
+                header: 'grow sm:p-2 pb-4',
               }"
             >
               <template #header>
@@ -513,7 +514,7 @@ definePageMeta({
               </template>
 
               <div
-                class="max-w-none pt-4"
+                class="max-w-none"
               >
                 <div v-if="extractTranslated(product, 'description', locale)" v-html="extractTranslated(product, 'description', locale) || ''" />
                 <p
