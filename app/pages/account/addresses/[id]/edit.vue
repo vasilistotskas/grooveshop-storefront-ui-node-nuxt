@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 const { t, locale } = useI18n()
 const toast = useToast()

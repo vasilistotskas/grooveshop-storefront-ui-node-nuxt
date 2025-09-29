@@ -4,7 +4,6 @@ import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
-import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 defineSlots<{
   default(props: object): any

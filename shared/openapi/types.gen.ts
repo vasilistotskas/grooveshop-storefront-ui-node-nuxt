@@ -10,6 +10,8 @@ export type ClientOptions = {
  */
 export type ActionEnum = 'subscribe' | 'unsubscribe';
 
+export type BlankEnum = '';
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -886,6 +888,56 @@ export type CountryWriteRequest = {
     phoneCode?: number | null;
 };
 
+/**
+ * Serializer for creating a Stripe PaymentIntent.
+ * For manual confirmation flow, we only need optional payment_data.
+ */
+export type CreatePaymentIntentRequestRequest = {
+    /**
+     * Additional payment data required by the payment provider
+     */
+    paymentData?: {
+        [key: string]: unknown;
+    };
+};
+
+export type CreatePaymentIntentResponse = {
+    /**
+     * Payment intent ID from the payment provider
+     */
+    paymentId: string;
+    /**
+     * Payment status
+     */
+    status: string;
+    /**
+     * Payment amount
+     */
+    amount: string;
+    /**
+     * Payment currency
+     */
+    currency: string;
+    /**
+     * Payment provider name
+     */
+    provider: string;
+    /**
+     * Stripe PaymentIntent client secret for frontend confirmation
+     */
+    clientSecret?: string;
+    /**
+     * Whether the payment requires additional action (3D Secure, etc.)
+     */
+    requiresAction?: boolean;
+    /**
+     * Next action required for payment completion
+     */
+    nextAction?: {
+        [key: string]: unknown;
+    } | null;
+};
+
 export type DetailRequest = {
     detail: string;
 };
@@ -1054,8 +1106,8 @@ export type Order = {
      * Region Code
      */
     region: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
     payWay: number;
@@ -1082,7 +1134,7 @@ export type Order = {
     readonly totalPriceExtra: number;
     readonly fullAddress: string;
     paymentId?: string;
-    paymentStatus?: PaymentStatusEnum;
+    paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     readonly canBeCanceled: boolean;
     readonly isPaid: boolean;
@@ -1099,8 +1151,8 @@ export type OrderDetail = {
      * Region Code
      */
     region: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
     payWay: number;
@@ -1127,7 +1179,7 @@ export type OrderDetail = {
     readonly totalPriceExtra: number;
     readonly fullAddress: string;
     paymentId?: string;
-    paymentStatus?: PaymentStatusEnum;
+    paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     readonly canBeCanceled: boolean;
     readonly isPaid: boolean;
@@ -1179,8 +1231,8 @@ export type OrderDetailRequest = {
      * Region Code
      */
     region: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
     payWay: number;
@@ -1195,7 +1247,7 @@ export type OrderDetailRequest = {
     items: Array<OrderItemDetailRequest>;
     documentType?: DocumentTypeEnum;
     paymentId?: string;
-    paymentStatus?: PaymentStatusEnum;
+    paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     trackingNumber?: string;
     shippingCarrier?: string;
@@ -1294,8 +1346,8 @@ export type OrderWriteRequest = {
      * Region Code
      */
     region?: string | null;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
     payWay?: number | null;
@@ -1825,8 +1877,8 @@ export type PatchedOrderWriteRequest = {
      * Region Code
      */
     region?: string | null;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     street?: string;
     streetNumber?: string;
     payWay?: number | null;
@@ -2145,8 +2197,8 @@ export type PatchedUserAddressWriteRequest = {
      * Zip Code
      */
     zipcode?: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     phone?: string;
     mobilePhone?: string;
     notes?: string;
@@ -2402,6 +2454,18 @@ export type ProcessPaymentRequestRequest = {
     paymentData?: {
         [key: string]: unknown;
     };
+    /**
+     * Stripe Payment Method ID (pm_...)
+     */
+    paymentMethodId?: string;
+    /**
+     * Stripe Customer ID (cus_...)
+     */
+    customerId?: string;
+    /**
+     * URL to redirect to after payment confirmation
+     */
+    returnUrl?: string;
 };
 
 export type ProcessPaymentResponse = {
@@ -2414,6 +2478,14 @@ export type ProcessPaymentResponse = {
     providerData: {
         [key: string]: unknown;
     };
+    /**
+     * Stripe PaymentIntent client secret for frontend confirmation
+     */
+    clientSecret?: string;
+    /**
+     * Whether the payment requires additional action (3D Secure, etc.)
+     */
+    requiresAction?: boolean;
 };
 
 /**
@@ -3577,8 +3649,8 @@ export type UserAddress = {
      * Zip Code
      */
     zipcode: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
     mobilePhone?: string;
     notes?: string;
@@ -3609,8 +3681,8 @@ export type UserAddressDetail = {
      * Zip Code
      */
     zipcode: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
     mobilePhone?: string;
     notes?: string;
@@ -3640,8 +3712,8 @@ export type UserAddressWriteRequest = {
      * Zip Code
      */
     zipcode: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
     mobilePhone?: string;
     notes?: string;
@@ -4225,8 +4297,8 @@ export type OrderWritable = {
      * Region Code
      */
     region: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
     payWay: number;
@@ -4243,7 +4315,7 @@ export type OrderWritable = {
     items: Array<OrderItemWritable>;
     documentType?: DocumentTypeEnum;
     paymentId?: string;
-    paymentStatus?: PaymentStatusEnum;
+    paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
 };
 
@@ -4257,8 +4329,8 @@ export type OrderDetailWritable = {
      * Region Code
      */
     region: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
     payWay: number;
@@ -4273,7 +4345,7 @@ export type OrderDetailWritable = {
     items: Array<OrderItemDetailWritable>;
     documentType?: DocumentTypeEnum;
     paymentId?: string;
-    paymentStatus?: PaymentStatusEnum;
+    paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     trackingNumber?: string;
     shippingCarrier?: string;
@@ -4900,8 +4972,8 @@ export type UserAddressWritable = {
      * Zip Code
      */
     zipcode: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
     mobilePhone?: string;
     notes?: string;
@@ -4927,8 +4999,8 @@ export type UserAddressDetailWritable = {
      * Zip Code
      */
     zipcode: string;
-    floor?: FloorEnum;
-    locationType?: LocationTypeEnum;
+    floor?: FloorEnum | BlankEnum;
+    locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
     mobilePhone?: string;
     notes?: string;
@@ -10093,6 +10165,29 @@ export type CancelOrderResponses = {
 };
 
 export type CancelOrderResponse = CancelOrderResponses[keyof CancelOrderResponses];
+
+export type CreateOrderPaymentIntentData = {
+    body?: CreatePaymentIntentRequestRequest;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/order/{id}/create_payment_intent';
+};
+
+export type CreateOrderPaymentIntentErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type CreateOrderPaymentIntentError = CreateOrderPaymentIntentErrors[keyof CreateOrderPaymentIntentErrors];
+
+export type CreateOrderPaymentIntentResponses = {
+    200: CreatePaymentIntentResponse;
+};
+
+export type CreateOrderPaymentIntentResponse = CreateOrderPaymentIntentResponses[keyof CreateOrderPaymentIntentResponses];
 
 export type CheckOrderPaymentStatusData = {
     body?: never;

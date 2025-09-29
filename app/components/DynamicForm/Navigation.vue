@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-defineProps({
+const props = defineProps({
   currentStep: {
     type: Number,
     default: 0,
@@ -18,9 +18,15 @@ defineProps({
   },
 })
 
+const { currentStep, lastStep } = toRefs(props)
+
 const emit = defineEmits(['goToNextStep', 'goToPreviousStep', 'submit'])
 
 const { $i18n } = useNuxtApp()
+
+const hasPrevious = computed(() => {
+  return currentStep.value > 0
+})
 
 const handleSubmit = () => {
   console.log('Navigation submit clicked')
@@ -29,7 +35,13 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="flex w-full items-center justify-between">
+  <div
+    class="flex w-full items-center"
+    :class="{
+      'justify-between': hasPrevious,
+      'justify-end': !hasPrevious,
+    }"
+  >
     <UButton
       v-if="currentStep > 0"
       icon="i-heroicons-chevron-left"

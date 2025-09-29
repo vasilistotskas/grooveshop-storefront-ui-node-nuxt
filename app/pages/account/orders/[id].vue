@@ -129,7 +129,7 @@ const stepperColor = computed(() => {
     return 'success'
   }
   else if (percentage >= 75) {
-    return 'primary'
+    return 'neutral'
   }
   else if (percentage >= 25) {
     return 'warning'
@@ -410,11 +410,15 @@ definePageMeta({
 
     <div
       class="
-        grid gap-6
-        lg:grid-cols-2
+        flex flex-col gap-6
+        md:flex-row
       "
     >
-      <UCard>
+      <UCard
+        :ui="{
+          root: 'md:min-w-2/3',
+        }"
+      >
         <template #header>
           <UCollapsible v-model:open="sectionsState.orderItems">
             <UButton
@@ -426,37 +430,46 @@ definePageMeta({
             />
 
             <template #content>
-              <div class="mt-4 max-h-96 space-y-4 overflow-y-auto">
+              <div class="mt-4 max-h-[32rem] space-y-4 overflow-y-auto pr-1">
                 <div
                   v-for="item in order.items"
                   :key="`product-${item.product.id}`"
                   class="
                     group relative overflow-hidden rounded-xl border
-                    border-gray-200 bg-white p-4 transition-all
-                    hover:border-gray-300 hover:shadow-md
-                    dark:border-gray-700 dark:bg-gray-800
+                    border-gray-200 bg-primary-100 transition-all duration-200
+                    hover:border-gray-300 hover:shadow-lg
+                    dark:border-gray-700 dark:bg-primary-900
                     dark:hover:border-gray-600
                   "
                 >
-                  <div class="flex gap-4">
+                  <div class="flex gap-4 p-4">
                     <div class="relative shrink-0">
                       <Anchor
                         :to="{ path: productUrl(item.product.id, item.product.slug) }"
-                        class="block overflow-hidden rounded-lg"
+                        class="block"
                       >
-                        <ImgWithFallback
-                          :alt="`Image - ${item.product.id}`"
-                          fit="cover"
-                          :height="100"
-                          :src="item.product.mainImagePath"
-                          :width="100"
+                        <div
                           class="
-                            h-24 w-24 object-cover transition-transform
-                            group-hover:scale-105
-                            sm:h-28 sm:w-28
+                            relative h-28 w-28 overflow-hidden rounded-lg
+                            bg-gray-100
+                            sm:h-32 sm:w-32
+                            dark:bg-gray-700
                           "
-                          loading="lazy"
-                        />
+                        >
+                          <ImgWithFallback
+                            :alt="`Image - ${item.product.id}`"
+                            fit="cover"
+                            :height="128"
+                            :src="item.product.mainImagePath"
+                            :width="128"
+                            class="
+                              h-full w-full object-cover transition-transform
+                              duration-200
+                              group-hover:scale-105
+                            "
+                            loading="lazy"
+                          />
+                        </div>
                       </Anchor>
 
                       <UBadge
@@ -464,136 +477,143 @@ definePageMeta({
                         color="primary"
                         variant="solid"
                         size="sm"
-                        class="absolute -top-2 -right-2"
+                        class="absolute -top-2 -right-2 shadow-md"
                       />
                     </div>
 
-                    <div class="min-w-0 flex-1 space-y-3">
-                      <div>
-                        <Anchor
-                          :to="{ path: productUrl(item.product.id, item.product.slug) }"
-                          class="block"
-                        >
-                          <h3
-                            class="
-                              line-clamp-2 font-semibold text-gray-900
-                              transition-colors
-                              hover:text-primary-600
-                              dark:text-gray-100 dark:hover:text-primary-400
-                            "
-                          >
-                            {{ extractTranslated(item.product, 'name', locale) }}
-                          </h3>
-                        </Anchor>
-
-                        <div
+                    <div class="flex min-w-0 flex-1 flex-col">
+                      <Anchor
+                        :to="{ path: productUrl(item.product.id, item.product.slug) }"
+                        class="group/link"
+                        :ui="{
+                          base: 'p-0',
+                        }"
+                      >
+                        <h3
                           class="
-                            mt-1 flex flex-wrap items-center gap-2 text-xs
-                            text-gray-500
+                            line-clamp-2 text-start text-lg font-semibold
+                            text-gray-900 transition-colors
+                            group-hover/link:text-primary-600
+                            dark:text-gray-100
+                            dark:group-hover/link:text-primary-400
+                          "
+                        >
+                          {{ extractTranslated(item.product, 'name', locale) }}
+                        </h3>
+                      </Anchor>
+
+                      <div
+                        class="
+                          mt-2 flex flex-wrap items-center gap-x-3 gap-y-1
+                          text-xs text-gray-500
+                          dark:text-gray-400
+                        "
+                      >
+                        <span class="font-mono">#{{ item.product.id }}</span>
+                        <span
+                          v-if="item.product.weight?.value"
+                          class="flex items-center gap-1"
+                        >
+                          <UIcon name="i-lucide-weight" class="h-3 w-3" />
+                          {{ item.product.weight.value }}{{ item.product.weight.unit || 'kg' }}
+                        </span>
+                      </div>
+
+                      <div class="mt-3 flex flex-wrap items-center gap-3">
+                        <span
+                          class="
+                            text-sm text-gray-600
                             dark:text-gray-400
                           "
                         >
-                          <span>#{{ item.product.id }}</span>
+                          {{ t('unit_price') }}:
+                        </span>
+                        <div class="flex items-center gap-2">
                           <span
-                            v-if="item.product.weight?.value" class="
-                              flex items-center gap-1
+                            v-if="item.product.discountPercent && item.product.discountPercent > 0"
+                            class="
+                              text-sm text-gray-400 line-through
+                              dark:text-gray-500
                             "
                           >
-                            <UIcon name="i-lucide-weight" class="h-3 w-3" />
-                            {{ item.product.weight.value }}{{ item.product.weight.unit || 'kg' }}
+                            {{ $i18n.n(item.product.price, 'currency') }}
                           </span>
+
+                          <span
+                            class="
+                              font-semibold text-gray-900
+                              dark:text-gray-100
+                            "
+                          >
+                            {{ $i18n.n(item.product.finalPrice, 'currency') }}
+                          </span>
+
+                          <UBadge
+                            v-if="item.product.discountPercent && item.product.discountPercent > 0"
+                            :label="`-${item.product.discountPercent}%`"
+                            color="success"
+                            variant="soft"
+                            size="sm"
+                          />
                         </div>
                       </div>
 
-                      <div class="space-y-2">
-                        <div class="flex flex-wrap items-center gap-2">
-                          <span
-                            class="
-                              text-sm text-gray-600
-                              dark:text-gray-400
-                            "
-                          >{{ t('unit_price') }}:</span>
-                          <div class="flex items-center gap-2">
-                            <span
-                              v-if="item.product.discountPercent && item.product.discountPercent > 0"
-                              class="
-                                text-sm text-gray-500 line-through
-                                dark:text-gray-400
-                              "
-                            >
-                              {{ $i18n.n(item.product.price, 'currency') }}
-                            </span>
-
-                            <span
-                              class="
-                                font-semibold text-gray-900
-                                dark:text-gray-100
-                              "
-                            >
-                              {{ $i18n.n(item.product.finalPrice, 'currency') }}
-                            </span>
-
-                            <UBadge
-                              v-if="item.product.discountPercent && item.product.discountPercent > 0"
-                              :label="`-${item.product.discountPercent}%`"
-                              color="success"
-                              variant="soft"
-                              size="sm"
-                            />
-                          </div>
+                      <div
+                        class="
+                          mt-auto flex items-end justify-between gap-4 border-t
+                          border-gray-100 pt-3
+                          dark:border-gray-700
+                        "
+                      >
+                        <div
+                          class="
+                            flex items-center gap-2 text-sm text-gray-600
+                            dark:text-gray-400
+                          "
+                        >
+                          <UIcon name="i-lucide-package" class="h-4 w-4" />
+                          <span>{{ t('quantity') }}: {{ item.quantity }}</span>
                         </div>
 
-                        <div class="flex items-center justify-between">
+                        <div class="text-right">
                           <div
                             class="
-                              flex items-center gap-2 text-sm text-gray-600
+                              text-xs text-gray-500
                               dark:text-gray-400
                             "
                           >
-                            <UIcon name="i-lucide-package" class="h-4 w-4" />
-                            <span>{{ t('quantity') }}: {{ item.quantity }}</span>
+                            {{ t('subtotal') }}
                           </div>
-
-                          <div class="text-right">
-                            <div
-                              class="
-                                text-sm text-gray-500
-                                dark:text-gray-400
-                              "
-                            >
-                              {{ t('subtotal') }}
-                            </div>
-                            <div
-                              v-if="item.quantity"
-                              class="
-                                text-lg font-bold text-gray-900
-                                dark:text-gray-100
-                              "
-                            >
-                              {{ $i18n.n(item.totalPrice || (item.product.finalPrice * item.quantity), 'currency') }}
-                            </div>
+                          <div
+                            v-if="item.quantity"
+                            class="
+                              text-lg font-bold text-gray-900
+                              dark:text-gray-100
+                            "
+                          >
+                            {{ $i18n.n(item.totalPrice || (item.product.finalPrice * item.quantity), 'currency') }}
                           </div>
                         </div>
+                      </div>
 
-                        <div
-                          v-if="item.quantity && item.product.discountPercent && item.product.discountPercent > 0"
-                          class="
-                            flex items-center gap-1 text-sm text-green-600
-                            dark:text-green-400
-                          "
-                        >
-                          <UIcon name="i-lucide-tag" class="h-4 w-4" />
-                          <span>
-                            {{ t('you_save') }}:
-                            {{ $i18n.n((item.product.price - item.product.finalPrice) * item.quantity, 'currency') }}
-                          </span>
-                        </div>
+                      <div
+                        v-if="item.quantity && item.product.discountPercent && item.product.discountPercent > 0"
+                        class="
+                          mt-2 flex items-center gap-1 text-sm text-green-600
+                          dark:text-green-400
+                        "
+                      >
+                        <UIcon name="i-lucide-tag" class="h-4 w-4" />
+                        <span>
+                          {{ t('you_save') }}:
+                          {{ $i18n.n((item.product.price - item.product.finalPrice) * item.quantity, 'currency') }}
+                        </span>
                       </div>
 
                       <div
                         v-if="item.product.reviewCount > 0"
                         class="
-                          flex items-center gap-2 text-sm text-gray-600
+                          mt-2 flex items-center gap-2 text-sm text-gray-600
                           dark:text-gray-400
                         "
                       >
@@ -614,7 +634,11 @@ definePageMeta({
         </template>
       </UCard>
 
-      <UCard>
+      <UCard
+        :ui="{
+          root: 'md:min-w-1/3  max-h-fit',
+        }"
+      >
         <template #header>
           <UCollapsible v-model:open="sectionsState.orderSummary">
             <UButton

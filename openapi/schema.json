@@ -19114,6 +19114,103 @@
                 }
             }
         },
+        "/api/v1/order/{id}/create_payment_intent": {
+            "post": {
+                "operationId": "createOrderPaymentIntent",
+                "description": "Create a payment intent for Stripe payments on an existing order",
+                "summary": "Create a payment intent for an order",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreatePaymentIntentResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/order/{id}/payment_status": {
             "get": {
                 "operationId": "checkOrderPaymentStatus",
@@ -36202,6 +36299,11 @@
                 "type": "string",
                 "description": "* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe"
             },
+            "BlankEnum": {
+                "enum": [
+                    ""
+                ]
+            },
             "BlogAuthor": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -38987,6 +39089,64 @@
                     "translations"
                 ]
             },
+            "CreatePaymentIntentRequestRequest": {
+                "type": "object",
+                "description": "Serializer for creating a Stripe PaymentIntent.\nFor manual confirmation flow, we only need optional payment_data.",
+                "properties": {
+                    "paymentData": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Additional payment data required by the payment provider"
+                    }
+                }
+            },
+            "CreatePaymentIntentResponse": {
+                "type": "object",
+                "properties": {
+                    "paymentId": {
+                        "type": "string",
+                        "description": "Payment intent ID from the payment provider"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Payment status"
+                    },
+                    "amount": {
+                        "type": "string",
+                        "description": "Payment amount"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Payment currency"
+                    },
+                    "provider": {
+                        "type": "string",
+                        "description": "Payment provider name"
+                    },
+                    "clientSecret": {
+                        "type": "string",
+                        "description": "Stripe PaymentIntent client secret for frontend confirmation"
+                    },
+                    "requiresAction": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether the payment requires additional action (3D Secure, etc.)"
+                    },
+                    "nextAction": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "nullable": true,
+                        "description": "Next action required for payment completion"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency",
+                    "paymentId",
+                    "provider",
+                    "status"
+                ]
+            },
             "DetailRequest": {
                 "type": "object",
                 "properties": {
@@ -39379,10 +39539,24 @@
                         "title": "Region Code"
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "street": {
                         "type": "string",
@@ -39511,7 +39685,14 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
-                        "$ref": "#/components/schemas/PaymentStatusEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PaymentStatusEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -39574,10 +39755,24 @@
                         "title": "Region Code"
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "street": {
                         "type": "string",
@@ -39708,7 +39903,14 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
-                        "$ref": "#/components/schemas/PaymentStatusEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PaymentStatusEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -39882,10 +40084,24 @@
                         "title": "Region Code"
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "street": {
                         "type": "string",
@@ -39950,7 +40166,14 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
-                        "$ref": "#/components/schemas/PaymentStatusEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/PaymentStatusEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -40309,10 +40532,24 @@
                         "nullable": true
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "street": {
                         "type": "string",
@@ -42144,10 +42381,24 @@
                         "nullable": true
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "street": {
                         "type": "string",
@@ -42927,10 +43178,24 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "phone": {
                         "type": "string",
@@ -43509,6 +43774,22 @@
                         "type": "object",
                         "additionalProperties": {},
                         "description": "Additional payment data required by the payment provider"
+                    },
+                    "paymentMethodId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Stripe Payment Method ID (pm_...)"
+                    },
+                    "customerId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Stripe Customer ID (cus_...)"
+                    },
+                    "returnUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "minLength": 1,
+                        "description": "URL to redirect to after payment confirmation"
                     }
                 },
                 "required": [
@@ -43539,6 +43820,15 @@
                     "providerData": {
                         "type": "object",
                         "additionalProperties": {}
+                    },
+                    "clientSecret": {
+                        "type": "string",
+                        "description": "Stripe PaymentIntent client secret for frontend confirmation"
+                    },
+                    "requiresAction": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether the payment requires additional action (3D Secure, etc.)"
                     }
                 },
                 "required": [
@@ -46961,10 +47251,24 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "phone": {
                         "type": "string"
@@ -47063,10 +47367,24 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "phone": {
                         "type": "string"
@@ -47168,10 +47486,24 @@
                         "maxLength": 255
                     },
                     "floor": {
-                        "$ref": "#/components/schemas/FloorEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FloorEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "locationType": {
-                        "$ref": "#/components/schemas/LocationTypeEnum"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LocationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     },
                     "phone": {
                         "type": "string",

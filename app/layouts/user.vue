@@ -8,7 +8,6 @@ defineSlots<{
 const { isMobileOrTablet } = useDevice()
 const route = useRoute()
 const { loggedIn, user } = useUserSession()
-const { t } = useI18n()
 const img = useImage()
 const { $i18n } = useNuxtApp()
 
@@ -38,7 +37,7 @@ const items = computed(() => {
     {
       icon: 'i-heroicons-magnifying-glass',
       to: '/search',
-      label: t('search.title'),
+      label: $i18n.t('search.title'),
       labelClass: 'sr-only',
     },
     {

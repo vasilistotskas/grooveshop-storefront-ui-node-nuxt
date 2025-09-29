@@ -13,6 +13,10 @@ export const zActionEnum = z.enum([
     description: '* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe'
 });
 
+export const zBlankEnum = z.enum([
+    ''
+]);
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -1164,6 +1168,46 @@ export const zCountryWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+/**
+ * Serializer for creating a Stripe PaymentIntent.
+ * For manual confirmation flow, we only need optional payment_data.
+ */
+export const zCreatePaymentIntentRequestRequest = z.object({
+    paymentData: z.optional(z.record(z.string(), z.unknown()).register(z.globalRegistry, {
+        description: 'Additional payment data required by the payment provider'
+    }))
+}).register(z.globalRegistry, {
+    description: 'Serializer for creating a Stripe PaymentIntent.\nFor manual confirmation flow, we only need optional payment_data.'
+});
+
+export const zCreatePaymentIntentResponse = z.object({
+    paymentId: z.string().register(z.globalRegistry, {
+        description: 'Payment intent ID from the payment provider'
+    }),
+    status: z.string().register(z.globalRegistry, {
+        description: 'Payment status'
+    }),
+    amount: z.string().register(z.globalRegistry, {
+        description: 'Payment amount'
+    }),
+    currency: z.string().register(z.globalRegistry, {
+        description: 'Payment currency'
+    }),
+    provider: z.string().register(z.globalRegistry, {
+        description: 'Payment provider name'
+    }),
+    clientSecret: z.optional(z.string().register(z.globalRegistry, {
+        description: 'Stripe PaymentIntent client secret for frontend confirmation'
+    })),
+    requiresAction: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether the payment requires additional action (3D Secure, etc.)'
+    })).default(false),
+    nextAction: z.optional(z.union([
+        z.record(z.string(), z.unknown()),
+        z.null()
+    ]))
+});
+
 export const zDetailRequest = z.object({
     detail: z.string().min(1)
 });
@@ -1464,8 +1508,14 @@ export const zOrder = z.object({
     ])),
     country: z.string(),
     region: z.string(),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     street: z.string().max(255),
     streetNumber: z.string().max(255),
     payWay: z.int(),
@@ -1501,7 +1551,10 @@ export const zOrder = z.object({
     totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
     fullAddress: z.string().readonly(),
     paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(zPaymentStatusEnum),
+    paymentStatus: z.optional(z.union([
+        zPaymentStatusEnum,
+        zBlankEnum
+    ])),
     paymentMethod: z.optional(z.string().max(50)),
     canBeCanceled: z.boolean().readonly(),
     isPaid: z.boolean().readonly()
@@ -1545,8 +1598,14 @@ export const zOrderDetail = z.object({
     ])),
     country: z.string(),
     region: z.string(),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     street: z.string().max(255),
     streetNumber: z.string().max(255),
     payWay: z.int(),
@@ -1582,7 +1641,10 @@ export const zOrderDetail = z.object({
     totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
     fullAddress: z.string().readonly(),
     paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(zPaymentStatusEnum),
+    paymentStatus: z.optional(z.union([
+        zPaymentStatusEnum,
+        zBlankEnum
+    ])),
     paymentMethod: z.optional(z.string().max(50)),
     canBeCanceled: z.boolean().readonly(),
     isPaid: z.boolean().readonly(),
@@ -1650,8 +1712,14 @@ export const zOrderDetailRequest = z.object({
     ])),
     country: z.string().min(1),
     region: z.string().min(1),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     street: z.string().min(1).max(255),
     streetNumber: z.string().min(1).max(255),
     payWay: z.int(),
@@ -1666,7 +1734,10 @@ export const zOrderDetailRequest = z.object({
     items: z.array(zOrderItemDetailRequest),
     documentType: z.optional(zDocumentTypeEnum),
     paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(zPaymentStatusEnum),
+    paymentStatus: z.optional(z.union([
+        zPaymentStatusEnum,
+        zBlankEnum
+    ])),
     paymentMethod: z.optional(z.string().max(50)),
     trackingNumber: z.optional(z.string().max(255)),
     shippingCarrier: z.optional(z.string().max(255))
@@ -1713,8 +1784,14 @@ export const zOrderWriteRequest = z.object({
         z.string().min(1),
         z.null()
     ])),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     street: z.string().min(1).max(255),
     streetNumber: z.string().min(1).max(255),
     payWay: z.optional(z.union([
@@ -2604,8 +2681,14 @@ export const zUserAddress = z.object({
     streetNumber: z.string().max(255),
     city: z.string().max(255),
     zipcode: z.string().max(255),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     phone: z.string(),
     mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
@@ -2920,8 +3003,14 @@ export const zPatchedOrderWriteRequest = z.object({
         z.string().min(1),
         z.null()
     ])),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     street: z.optional(z.string().min(1).max(255)),
     streetNumber: z.optional(z.string().min(1).max(255)),
     payWay: z.optional(z.union([
@@ -3233,8 +3322,14 @@ export const zPatchedUserAddressWriteRequest = z.object({
     streetNumber: z.optional(z.string().min(1).max(255)),
     city: z.optional(z.string().min(1).max(255)),
     zipcode: z.optional(z.string().min(1).max(255)),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     phone: z.optional(z.string().min(1)),
     mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
@@ -3429,6 +3524,15 @@ export const zProcessPaymentRequestRequest = z.object({
     }),
     paymentData: z.optional(z.record(z.string(), z.unknown()).register(z.globalRegistry, {
         description: 'Additional payment data required by the payment provider'
+    })),
+    paymentMethodId: z.optional(z.string().min(1).register(z.globalRegistry, {
+        description: 'Stripe Payment Method ID (pm_...)'
+    })),
+    customerId: z.optional(z.string().min(1).register(z.globalRegistry, {
+        description: 'Stripe Customer ID (cus_...)'
+    })),
+    returnUrl: z.optional(z.url().min(1).register(z.globalRegistry, {
+        description: 'URL to redirect to after payment confirmation'
     }))
 });
 
@@ -3439,7 +3543,13 @@ export const zProcessPaymentResponse = z.object({
     paymentId: z.string(),
     requiresConfirmation: z.boolean(),
     isOnlinePayment: z.boolean(),
-    providerData: z.record(z.string(), z.unknown())
+    providerData: z.record(z.string(), z.unknown()),
+    clientSecret: z.optional(z.string().register(z.globalRegistry, {
+        description: 'Stripe PaymentIntent client secret for frontend confirmation'
+    })),
+    requiresAction: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether the payment requires additional action (3D Secure, etc.)'
+    })).default(false)
 });
 
 /**
@@ -4240,8 +4350,14 @@ export const zUserAddressDetail = z.object({
     streetNumber: z.string().max(255),
     city: z.string().max(255),
     zipcode: z.string().max(255),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     phone: z.string(),
     mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
@@ -4266,8 +4382,14 @@ export const zUserAddressWriteRequest = z.object({
     streetNumber: z.string().min(1).max(255),
     city: z.string().min(1).max(255),
     zipcode: z.string().min(1).max(255),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     phone: z.string().min(1),
     mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
@@ -4795,8 +4917,14 @@ export const zOrderWritable = z.object({
     ])),
     country: z.string(),
     region: z.string(),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     street: z.string().max(255),
     streetNumber: z.string().max(255),
     payWay: z.int(),
@@ -4813,7 +4941,10 @@ export const zOrderWritable = z.object({
     items: z.array(zOrderItemWritable),
     documentType: z.optional(zDocumentTypeEnum),
     paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(zPaymentStatusEnum),
+    paymentStatus: z.optional(z.union([
+        zPaymentStatusEnum,
+        zBlankEnum
+    ])),
     paymentMethod: z.optional(z.string().max(50))
 });
 
@@ -4830,8 +4961,14 @@ export const zOrderDetailWritable = z.object({
     ])),
     country: z.string(),
     region: z.string(),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     street: z.string().max(255),
     streetNumber: z.string().max(255),
     payWay: z.int(),
@@ -4846,7 +4983,10 @@ export const zOrderDetailWritable = z.object({
     items: z.array(zOrderItemDetailWritable),
     documentType: z.optional(zDocumentTypeEnum),
     paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(zPaymentStatusEnum),
+    paymentStatus: z.optional(z.union([
+        zPaymentStatusEnum,
+        zBlankEnum
+    ])),
     paymentMethod: z.optional(z.string().max(50)),
     trackingNumber: z.optional(z.string().max(255)),
     shippingCarrier: z.optional(z.string().max(255))
@@ -5445,8 +5585,14 @@ export const zUserAddressWritable = z.object({
     streetNumber: z.string().max(255),
     city: z.string().max(255),
     zipcode: z.string().max(255),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     phone: z.string(),
     mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
@@ -5463,8 +5609,14 @@ export const zUserAddressDetailWritable = z.object({
     streetNumber: z.string().max(255),
     city: z.string().max(255),
     zipcode: z.string().max(255),
-    floor: z.optional(zFloorEnum),
-    locationType: z.optional(zLocationTypeEnum),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
     phone: z.string(),
     mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
@@ -11141,6 +11293,19 @@ export const zCancelOrderData = z.object({
 });
 
 export const zCancelOrderResponse = zOrderDetail;
+
+export const zCreateOrderPaymentIntentData = z.object({
+    body: z.optional(zCreatePaymentIntentRequestRequest),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.never())
+});
+
+export const zCreateOrderPaymentIntentResponse = zCreatePaymentIntentResponse;
 
 export const zCheckOrderPaymentStatusData = z.object({
     body: z.optional(z.never()),

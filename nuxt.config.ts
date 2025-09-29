@@ -94,6 +94,11 @@ export default defineNuxtConfig({
       port: 6379,
       ttl: 30,
     },
+    scripts: {
+      registry: {
+        stripe: true,
+      },
+    },
     public: {
       appKeywords: '',
       appLogo: '',
@@ -137,6 +142,7 @@ export default defineNuxtConfig({
       static: {
         origin: 'http://localhost:8000',
       },
+      stripePublishableKey: '',
     },
   },
   build: {
@@ -446,6 +452,7 @@ export default defineNuxtConfig({
         'frame-src': [
           '\'self\'',
           'https://www.youtube.com',
+          'https://js.stripe.com',
         ],
         'script-src': [
           '\'self\'',
@@ -453,6 +460,7 @@ export default defineNuxtConfig({
           'https://www.googletagmanager.com',
           'https://www.google-analytics.com',
           'https://static.cloudflareinsights.com',
+          'https://js.stripe.com',
           `${process.env.NUXT_SITE_URL}/cdn-cgi/speculation`,
           `${process.env.NUXT_SITE_URL}`,
         ],
@@ -460,12 +468,16 @@ export default defineNuxtConfig({
           '\'self\'',
           '\'nonce-{{nonce}}\'',
           'https://www.googletagmanager.com',
+          'https://www.google-analytics.com',
+          'https://static.cloudflareinsights.com',
+          'https://js.stripe.com',
         ],
         'script-src-elem': [
           '\'self\'',
           '\'nonce-{{nonce}}\'',
           'https://www.googletagmanager.com',
           'https://static.cloudflareinsights.com',
+          'https://js.stripe.com',
           `${process.env.NUXT_SITE_URL}`,
         ],
         'worker-src': [

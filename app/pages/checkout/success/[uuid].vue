@@ -60,8 +60,6 @@ const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
 
-const orderTimeline = computed(() => order.value?.orderTimeline.filter(event => event.changeType !== 'NOTE') || [])
-
 const getStatusColor = (status: string) => {
   const statusColors: Record<string, 'success' | 'info' | 'warning' | 'error' | 'neutral' | 'primary'> = {
     completed: 'success',
@@ -151,29 +149,6 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
   },
 ]
 
-const timelineItems = computed(() => {
-  return orderTimeline.value.map((event, index) => ({
-    date: event.timestamp ? new Date(event.timestamp).toLocaleDateString() : '',
-    title: event.description || event.changeType || '',
-    description: event.user ? `by ${event.user}` : undefined,
-    icon: getTimelineIcon(event.changeType),
-    value: index,
-  }))
-})
-
-const getTimelineIcon = (changeType: string | undefined): string => {
-  const icons: Record<string, string> = {
-    created: 'i-lucide-plus-circle',
-    confirmed: 'i-lucide-check-circle',
-    processing: 'i-lucide-clock',
-    shipped: 'i-lucide-truck',
-    delivered: 'i-lucide-package-check',
-    cancelled: 'i-lucide-x-circle',
-    refunded: 'i-lucide-undo-2',
-  }
-  return icons[changeType?.toLowerCase() || ''] || 'i-lucide-circle'
-}
-
 definePageMeta({
   layout: 'default',
 })
@@ -237,21 +212,6 @@ definePageMeta({
               base: 'overflow-auto min-w-full',
               thead: 'bg-elevated/50',
             }"
-          />
-        </UCard>
-
-        <UCard v-if="timelineItems.length > 1">
-          <template #header>
-            <h2 class="text-xl font-semibold text-highlighted">
-              {{ t('order.timeline') }}
-            </h2>
-          </template>
-
-          <UTimeline
-            :items="timelineItems"
-            :default-value="timelineItems.length - 1"
-            :color="getStatusColor(orderStatus)"
-            size="sm"
           />
         </UCard>
       </div>
