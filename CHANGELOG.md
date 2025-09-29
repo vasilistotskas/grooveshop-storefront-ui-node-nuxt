@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.3.0...v3.4.0) (2025-09-29)
+
+
+### Features
+
+* Integrate Stripe payment flow in checkout ([051c3ce](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/051c3ce5910a9ee489810dddaf54da3054a3dd18))
+
 # [3.3.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.2.0...v3.3.0) (2025-09-28)
 
 
