@@ -114,14 +114,14 @@ const customerInitials = computed(() => {
             color="success"
             variant="soft"
             icon="i-lucide-check-circle"
-            label="Paid"
+            :label="t('paid')"
           />
           <UBadge
             v-if="order.canBeCanceled"
             color="warning"
             variant="outline"
             icon="i-lucide-clock"
-            label="Cancelable"
+            :label="t('cancelable')"
             size="xs"
           />
         </UFieldGroup>
@@ -450,6 +450,8 @@ el:
   shipping: Έξοδα αποστολής
   created_at: Δημιουργήθηκε
   cancel: Ακύρωση
+  paid: Πληρωμένη
+  cancelable: Ακυρώσιμη
   actions:
     details: Λεπτομέρειες
 </i18n>

@@ -39791,7 +39791,7 @@
                     "items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/OrderItem"
+                            "$ref": "#/components/schemas/OrderItemDetail"
                         }
                     },
                     "shippingPrice": {

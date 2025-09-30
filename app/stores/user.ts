@@ -72,18 +72,21 @@ export const useUserStore = defineStore('user', () => {
     if (!loggedIn.value || !user.value) {
       return
     }
-    const { getUserAccount } = useAllAuthAccount()
-    const { data } = await useLazyAsyncData(
-      'userAccount',
-      () => {
-        if (!user.value || !user.value.id!) {
-          throw new Error('User is not logged in')
-        }
-        return getUserAccount(user.value.id)
-      },
-    )
-    if (data.value) {
-      account.value = data.value
+
+    try {
+      if (!user.value || !user.value.id) {
+        throw new Error('User is not logged in')
+      }
+
+      const { getUserAccount } = useAllAuthAccount()
+      const data = await getUserAccount(user.value.id)
+
+      if (data) {
+        account.value = data
+      }
+    }
+    catch (err) {
+      console.error('Failed to setup account:', err)
     }
   }
 

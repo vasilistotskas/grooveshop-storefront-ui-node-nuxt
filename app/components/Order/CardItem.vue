@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 
 const props = defineProps({
   item: {
-    type: Object as PropType<OrderItem>,
+    type: Object as PropType<OrderItemDetail>,
     required: true,
   },
 })
@@ -20,7 +20,7 @@ const { item } = toRefs(props)
     :height="96"
     fit="contain"
     :background="'transparent'"
-    :src="''"
-    :alt="`Image - ${item.product}`"
+    :src="item.product.mainImagePath"
+    :alt="`Image - ${item.product.id}`"
   />
 </template>

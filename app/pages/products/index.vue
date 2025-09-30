@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
+const { isMobileOrTablet } = useDevice()
 
 const items = computed(() => [
   {
@@ -26,7 +27,10 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col">
+  <PageWrapper
+    class="flex flex-col"
+    :class="{ 'pb-24': isMobileOrTablet }"
+  >
     <div class="container !p-0">
       <UBreadcrumb
         :items="items"
@@ -40,7 +44,14 @@ definePageMeta({
         "
       />
     </div>
-    <div class="flex gap-4">
+
+    <div
+      class="flex gap-4"
+      :class="{
+        'flex-col': isMobileOrTablet,
+        'flex-row': !isMobileOrTablet,
+      }"
+    >
       <ProductsSidebar />
       <ProductsList />
     </div>

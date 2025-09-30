@@ -15,30 +15,27 @@ const isDropdownVisible = ref(false)
 const dropdown = ref<HTMLDivElement>()
 const toggleButton = ref<HTMLButtonElement>()
 
-const { data: unseen, execute: executeUnseenCount, status: unseenStatus } = await useAsyncData(
+const shouldFetch = computed(() => {
+  return loggedIn.value && notificationIds.value && notificationIds.value.length > 0
+})
+
+const { data: unseen, status: unseenStatus } = await useAsyncData(
   'unseenNotificationsCount',
   () => getUnseenCount(),
   {
-    immediate: false,
+    immediate: shouldFetch.value,
     watch: [notificationIds],
   },
 )
 
-const { data, execute, status: notificationsStatus } = await useLazyAsyncData(
+const { data, status: notificationsStatus } = await useLazyAsyncData(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
-    immediate: false,
+    immediate: shouldFetch.value,
     watch: [notificationIds],
   },
 )
-
-watchEffect(async () => {
-  if (loggedIn.value && notificationIds.value && notificationIds.value.length) {
-    await execute()
-    await executeUnseenCount()
-  }
-})
 
 const pending = computed(() => {
   return unseenStatus.value === 'pending' || notificationsStatus.value === 'pending'

@@ -2,7 +2,6 @@
 import type { TableColumn, DropdownMenuItem } from '@nuxt/ui'
 
 const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
-const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
@@ -111,13 +110,14 @@ const actionItems = (row: { name: string, type: string, created_at: number, last
   items.push({
     label: $i18n.t('edit.title'),
     icon: 'i-heroicons-pencil-20-solid',
+    class: 'cursor-pointer',
     onSelect: () => (editId.value = keys.value?.find(key => key.name === row.name)?.id ?? null),
   })
 
   items.push({
     label: $i18n.t('delete.title'),
     icon: 'i-heroicons-trash-20-solid',
-    class: 'bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
+    class: 'cursor-pointer text-white bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
     onSelect: async () => await deleteKey(keys.value?.find(key => key.name === row.name)),
   })
 
@@ -166,7 +166,9 @@ onReactivated(async () => {
               :placeholder="row.original.name"
               :disabled="editId !== row.original.id"
               :loading="loading"
-              :ui="{ root: '!p-0' }"
+              :ui="{
+                base: '!p-0',
+              }"
             >
               <template #trailing>
                 <UButton
@@ -182,7 +184,7 @@ onReactivated(async () => {
           </template>
           <template #type-cell="{ row }">
             <span>
-              {{ typeof row.original.is_passwordless === 'undefined' ? t('type_unspecified') : (row.original.is_passwordless ? $i18n.t('passkey') : $i18n.t('security_key')) }}
+              {{ row.original.type }}
             </span>
           </template>
           <template #created_at-cell="{ row }">

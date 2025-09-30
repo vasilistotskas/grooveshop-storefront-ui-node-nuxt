@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
-const { t } = useI18n()
 
 if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
   await navigateTo(localePath('index'))
@@ -13,9 +12,7 @@ definePageMeta({
 </script>
 
 <template>
-  <Account2FaReauthenticateCode>
-    <p>{{ t('reauthenticate.recovery_code') }}:</p>
-  </Account2FaReauthenticateCode>
+  <Account2FaReauthenticateCode />
 </template>
 
 <i18n lang="yaml">

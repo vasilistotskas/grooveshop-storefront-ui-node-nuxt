@@ -147,12 +147,4 @@ el:
   checkout_session_error: Αποτυχία δημιουργίας συνεδρίας πληρωμής
   retry: Επανάληψη
   secure_redirect_notice: Θα μεταφερθείτε στην ασφαλή σελίδα πληρωμής της Stripe. Μην κλείσετε αυτό το παράθυρο.
-
-en:
-  redirecting_to_checkout: Redirecting to checkout
-  please_wait: Please wait...
-  checkout_error: Checkout Error
-  checkout_session_error: Failed to create checkout session
-  retry: Retry
-  secure_redirect_notice: You will be redirected to Stripe's secure payment page. Do not close this window.
 </i18n>

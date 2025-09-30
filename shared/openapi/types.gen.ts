@@ -1141,7 +1141,7 @@ export type Order = {
     mobilePhone?: string;
     customerNotes?: string;
     readonly paidAmount: number;
-    items: Array<OrderItem>;
+    items: Array<OrderItemDetail>;
     readonly shippingPrice: number;
     documentType?: DocumentTypeEnum;
     readonly createdAt: string;
@@ -4329,7 +4329,7 @@ export type OrderWritable = {
     phone: string;
     mobilePhone?: string;
     customerNotes?: string;
-    items: Array<OrderItemWritable>;
+    items: Array<OrderItemDetailWritable>;
     documentType?: DocumentTypeEnum;
     paymentId?: string;
     paymentStatus?: PaymentStatusEnum | BlankEnum;

@@ -230,7 +230,7 @@ defineExpose({
         data-testid="nuxt-cookie-control-control-button"
         type="button"
         class="
-          fixed right-[20px] bottom-[160px] h-[36px] w-[36px] cursor-pointer
+          fixed bottom-[160px] left-[20px] h-[36px] w-[36px] cursor-pointer
           rounded-full border border-primary-200 bg-primary-50 text-primary-900
           transition duration-200
           hover:bg-white hover:text-primary-700

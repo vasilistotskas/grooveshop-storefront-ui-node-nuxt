@@ -176,7 +176,7 @@ const fetchRegions = async () => {
   catch {
     toast.add({
       title: $i18n.t('error.default'),
-      description: t('error_occurred'),
+      description: $i18n.t('error_occurred'),
       color: 'error',
     })
   }

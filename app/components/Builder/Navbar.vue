@@ -21,6 +21,7 @@ const {
 } = storeToRefs(appStore)
 
 const navbar = ref(null)
+const isScrolled = ref(false)
 
 const routeName = computed(() => $routeBaseName(route as unknown as keyof RouteNamedMapI18n))
 const isPageWithH1 = computed(() => {
@@ -30,17 +31,29 @@ const isPageWithH1 = computed(() => {
 
 const appTitle = computed(() => config.public.appTitle as string)
 const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
   <div
     ref="navbar"
     class="
-      top-0 z-50 w-full flex-none border-b border-primary-500 backdrop-blur-md
-      transition-colors duration-300
+      top-0 z-50 w-full flex-none backdrop-blur-md
       lg:z-50
-      dark:border-primary-500
     "
+    :class="{ 'border-b border-gray-200 dark:border-gray-800': isScrolled }"
   >
     <div
       id="navbar-banner"

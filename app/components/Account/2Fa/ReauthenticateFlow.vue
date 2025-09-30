@@ -82,9 +82,6 @@ const filteredMethods = computed(() => {
       >
         {{ t('confirm_access') }}
       </h3>
-      <p>
-        {{ t('reauthenticate.title') }}
-      </p>
     </div>
 
     <slot />

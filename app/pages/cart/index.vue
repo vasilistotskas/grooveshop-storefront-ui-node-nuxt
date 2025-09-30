@@ -245,7 +245,7 @@ const emptyCardUI = {
               <span>-{{ $i18n.n(cart.totalDiscountValue, 'currency') }}</span>
             </div>
             <USeparator />
-            <div class="flex justify-between font-semibold">
+            <div class="flex justify-between text-lg font-semibold">
               <span>{{ t('total') }}</span>
               <span>{{ $i18n.n(cart.totalPrice, 'currency') }}</span>
             </div>

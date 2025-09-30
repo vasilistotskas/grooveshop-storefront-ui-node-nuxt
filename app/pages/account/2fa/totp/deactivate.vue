@@ -8,6 +8,7 @@ const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 const loading = ref(false)
+const showConfirmation = ref(false)
 
 const { error, refresh } = await useAsyncData(
   'totpAuthenticatorStatus',
@@ -20,20 +21,31 @@ watchEffect(async () => {
   }
 })
 
-async function onSubmit() {
+async function onConfirm() {
   try {
     loading.value = true
     await deactivateTotp()
+
     toast.add({
       title: $i18n.t('success.title'),
+      description: t('success.description'),
       color: 'success',
+      icon: 'i-lucide-shield-check',
     })
+
     emit('deactivateTotp')
     await navigateTo(localePath('account-settings'))
   }
   catch (error) {
     handleAllAuthClientError(error)
   }
+  finally {
+    loading.value = false
+  }
+}
+
+function onCancel() {
+  navigateTo(localePath('account-settings'))
 }
 
 onReactivated(async () => {
@@ -48,39 +60,165 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      flex flex-col gap-4
-      md:gap-8
+      grid items-center justify-center gap-6
+      md:!p-0
+      lg:grid-cols-[280px_1fr]
     "
   >
-    <PageTitle
-      :text="t('title')"
-      class="text-center capitalize"
-    />
-    <p
-      class="
-        text-center text-primary-950
-        dark:text-primary-50
-      "
+    <aside
+      class="h-full"
     >
-      {{ t('description') }}
-    </p>
+      <div class="md:sticky md:top-16">
+        <AccountAuthSettingsNavigation />
+      </div>
+    </aside>
+    <UCard
+      class="w-full max-w-5xl p-0"
+      :ui="{
+        body: 'space-y-6',
+      }"
+    >
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div
+            class="
+              flex size-10 items-center justify-center rounded-full bg-error/10
+            "
+          >
+            <UIcon
+              name="i-lucide-shield-off"
+              class="size-5 text-error"
+            />
+          </div>
+          <div>
+            <h1
+              class="
+                text-lg font-semibold text-gray-900
+                dark:text-white
+              "
+            >
+              {{ t('title') }}
+            </h1>
+            <p
+              class="
+                mt-0.5 text-sm text-gray-500
+                dark:text-gray-400
+              "
+            >
+              {{ t('subtitle') }}
+            </p>
+          </div>
+        </div>
+      </template>
 
-    <div
-      class="grid items-center justify-center justify-items-center"
-    >
-      <UButton
-        :label="$i18n.t('deactivate')"
-        color="error"
-        size="lg"
-        @click="onSubmit"
+      <UAlert
+        color="warning"
+        variant="soft"
+        icon="i-lucide-alert-triangle"
+        :title="t('warning.title')"
+        :description="t('warning.description')"
       />
-    </div>
+
+      <div class="space-y-4">
+        <div
+          class="
+            text-sm text-gray-700
+            dark:text-gray-300
+          "
+        >
+          {{ t('info.paragraph1') }}
+        </div>
+
+        <div
+          class="
+            rounded-lg bg-gray-50 p-4
+            dark:bg-gray-800/50
+          "
+        >
+          <h3
+            class="
+              mb-2 text-sm font-medium text-gray-900
+              dark:text-white
+            "
+          >
+            {{ t('info.consequences_title') }}
+          </h3>
+          <ul
+            class="
+              space-y-2 text-sm text-gray-600
+              dark:text-gray-400
+            "
+          >
+            <li class="flex items-start gap-2">
+              <UIcon name="i-lucide-x" class="mt-0.5 size-4 shrink-0 text-error" />
+              <span>{{ t('info.consequence1') }}</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-lucide-x" class="mt-0.5 size-4 shrink-0 text-error" />
+              <span>{{ t('info.consequence2') }}</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-lucide-x" class="mt-0.5 size-4 shrink-0 text-error" />
+              <span>{{ t('info.consequence3') }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <UCheckbox
+        v-model="showConfirmation"
+        color="neutral"
+        :label="t('confirmation.checkbox')"
+        :ui="{
+          label: 'text-sm font-medium',
+        }"
+      />
+
+      <template #footer>
+        <div
+          class="
+            flex flex-col-reverse gap-3
+            sm:flex-row sm:justify-end
+          "
+        >
+          <UButton
+            :label="$i18n.t('cancel')"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            :disabled="loading"
+            @click="onCancel"
+          />
+          <UButton
+            :label="$i18n.t('deactivate')"
+            color="error"
+            size="lg"
+            icon="i-lucide-shield-off"
+            :loading="loading"
+            :disabled="!showConfirmation"
+            @click="onConfirm"
+          />
+        </div>
+      </template>
+    </UCard>
   </PageWrapper>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Απενεργοποίηση εφαρμογής ελέγχου ταυτότητας (TOTP)
-  description: Είσαι σίγουρος ότι θέλεις να απενεργοποιήσεις την εφαρμογή
-    ελέγχου ταυτότητας;
+  subtitle: Διαχείριση ρυθμίσεων ασφάλειας λογαριασμού
+  warning:
+    title: Προειδοποίηση Ασφαλείας
+    description: Η απενεργοποίηση του TOTP θα μειώσει την ασφάλεια του λογαριασμού σου. Σιγουρέψου ότι έχεις εναλλακτικά μέτρα ασφαλείας.
+  info:
+    paragraph1: Είσαι σίγουρος ότι θέλεις να απενεργοποιήσεις την εφαρμογή ελέγχου ταυτότητας;
+    consequences_title: Τι θα συμβεί αν απενεργοποιήσετε το TOTP
+    consequence1: Δεν θα χρειάζεται πλέον κωδικός επαλήθευσης κατά τη σύνδεση
+    consequence2: Ο λογαριασμός σας θα είναι λιγότερο ασφαλής
+    consequence3: Θα πρέπει να ρυθμίσετε ξανά το TOTP αν το ενεργοποιήσετε στο μέλλον
+  confirmation:
+    checkbox: Κατανοώ τους κινδύνους και θέλω να συνεχίσω
+  success:
+    description: Η εφαρμογή ελέγχου ταυτότητας απενεργοποιήθηκε επιτυχώς
 </i18n>

@@ -138,24 +138,26 @@ export const useCartStore = defineStore('cart', () => {
       return
     }
 
-    const { data, error: fetchError } = await useLazyFetch(
-      '/api/cart',
-      {
-        key: 'cart',
+    try {
+      pending.value = true
+
+      const data = await $fetch('/api/cart', {
         method: 'GET',
         headers: useRequestHeaders(),
-      },
-    )
+      })
 
-    if (fetchError.value) {
-      error.value = fetchError.value
+      if (data) {
+        cart.value = data
+      }
+
+      error.value = null
     }
-
-    if (data.value) {
-      cart.value = data.value
+    catch (err) {
+      console.error('Failed to setup cart:', err)
     }
-
-    pending.value = false
+    finally {
+      pending.value = false
+    }
   }
 
   async function refreshCart() {

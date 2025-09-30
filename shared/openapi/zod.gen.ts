@@ -48,7 +48,7 @@ export const zBlogAuthor = z.object({
     numberOfPosts: z.int().readonly(),
     totalLikesReceived: z.union([
         z.int(),
-        z.unknown()
+        z.literal(0)
     ])
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
@@ -212,7 +212,7 @@ export const zBlogAuthorDetail = z.object({
     numberOfPosts: z.int().readonly(),
     totalLikesReceived: z.union([
         z.int(),
-        z.unknown()
+        z.literal(0)
     ]),
     recentPosts: z.array(zBlogPost).readonly(),
     topPosts: z.array(zBlogPost).readonly()
@@ -916,7 +916,7 @@ export const zCart = z.object({
     totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
     totalItems: z.union([
         z.int(),
-        z.unknown()
+        z.literal(0)
     ]),
     totalItemsUnique: z.int().readonly(),
     createdAt: z.iso.datetime({
@@ -946,7 +946,7 @@ export const zCartDetail = z.object({
     totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
     totalItems: z.union([
         z.int(),
-        z.unknown()
+        z.literal(0)
     ]),
     totalItemsUnique: z.int().readonly(),
     createdAt: z.iso.datetime({
@@ -1477,11 +1477,11 @@ export const zOrderStatus = z.enum([
     description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded'
 });
 
-export const zOrderItem = z.object({
+export const zOrderItemDetail = z.object({
     id: z.int().readonly(),
     uuid: z.uuid().readonly(),
     order: z.int(),
-    product: z.int(),
+    product: zProduct,
     price: z.number().gt(-1000000000).lt(1000000000).readonly(),
     quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
     isRefunded: z.boolean().readonly(),
@@ -1493,7 +1493,18 @@ export const zOrderItem = z.object({
     }).readonly(),
     updatedAt: z.iso.datetime({
         offset: true
-    }).readonly()
+    }).readonly(),
+    originalQuantity: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    refundedAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    netPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    notes: z.optional(z.string())
 });
 
 /**
@@ -1554,7 +1565,7 @@ export const zOrder = z.object({
     mobilePhone: z.optional(z.string()),
     customerNotes: z.optional(z.string()),
     paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    items: z.array(zOrderItem),
+    items: z.array(zOrderItemDetail),
     shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
     documentType: z.optional(zDocumentTypeEnum),
     createdAt: z.iso.datetime({
@@ -1575,36 +1586,6 @@ export const zOrder = z.object({
     paymentMethod: z.optional(z.string().max(50)),
     canBeCanceled: z.boolean().readonly(),
     isPaid: z.boolean().readonly()
-});
-
-export const zOrderItemDetail = z.object({
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    order: z.int(),
-    product: zProduct,
-    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
-    isRefunded: z.boolean().readonly(),
-    refundedQuantity: z.int().readonly(),
-    netQuantity: z.int().readonly(),
-    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    originalQuantity: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    refundedAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    netPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    notes: z.optional(z.string())
 });
 
 export const zOrderDetail = z.object({
@@ -1758,6 +1739,25 @@ export const zOrderDetailRequest = z.object({
     paymentMethod: z.optional(z.string().max(50)),
     trackingNumber: z.optional(z.string().max(255)),
     shippingCarrier: z.optional(z.string().max(255))
+});
+
+export const zOrderItem = z.object({
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    order: z.int(),
+    product: z.int(),
+    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
+    isRefunded: z.boolean().readonly(),
+    refundedQuantity: z.int().readonly(),
+    netQuantity: z.int().readonly(),
+    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    createdAt: z.iso.datetime({
+        offset: true
+    }).readonly(),
+    updatedAt: z.iso.datetime({
+        offset: true
+    }).readonly()
 });
 
 export const zOrderItemCreateRequest = z.object({
@@ -2408,7 +2408,18 @@ export const zPaginatedProductList = z.object({
  * * `9` - Nine
  * * `10` - Ten
  */
-export const zRateEnum = z.unknown().register(z.globalRegistry, {
+export const zRateEnum = z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9),
+    z.literal(10)
+]).register(z.globalRegistry, {
     description: '* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten'
 });
 
@@ -4921,10 +4932,10 @@ export const zNotificationUserDetailWritable = z.object({
     ]))
 });
 
-export const zOrderItemWritable = z.object({
+export const zOrderItemDetailWritable = z.object({
     order: z.int(),
-    product: z.int(),
-    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647))
+    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
+    notes: z.optional(z.string())
 });
 
 export const zOrderWritable = z.object({
@@ -4955,7 +4966,7 @@ export const zOrderWritable = z.object({
     phone: z.string(),
     mobilePhone: z.optional(z.string()),
     customerNotes: z.optional(z.string()),
-    items: z.array(zOrderItemWritable),
+    items: z.array(zOrderItemDetailWritable),
     documentType: z.optional(zDocumentTypeEnum),
     paymentId: z.optional(z.string().max(255)),
     paymentStatus: z.optional(z.union([
@@ -4963,12 +4974,6 @@ export const zOrderWritable = z.object({
         zBlankEnum
     ])),
     paymentMethod: z.optional(z.string().max(50))
-});
-
-export const zOrderItemDetailWritable = z.object({
-    order: z.int(),
-    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
-    notes: z.optional(z.string())
 });
 
 export const zOrderDetailWritable = z.object({
@@ -5007,6 +5012,12 @@ export const zOrderDetailWritable = z.object({
     paymentMethod: z.optional(z.string().max(50)),
     trackingNumber: z.optional(z.string().max(255)),
     shippingCarrier: z.optional(z.string().max(255))
+});
+
+export const zOrderItemWritable = z.object({
+    order: z.int(),
+    product: z.int(),
+    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647))
 });
 
 export const zPatchedTaggedItemWriteRequestWritable = z.object({

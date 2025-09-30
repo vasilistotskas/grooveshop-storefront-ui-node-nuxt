@@ -33,6 +33,7 @@ export default defineNuxtPlugin({
 
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
         console.info('Authenticated')
+        await new Promise(resolve => setTimeout(resolve, 200))
         await fetch()
       }
 

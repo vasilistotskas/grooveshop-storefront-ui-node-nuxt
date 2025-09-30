@@ -57,23 +57,26 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const setupConfig = async () => {
-    const { data, status: configStatus } = await useLazyFetch(
-      '/api/_allauth/app/v1/config',
-      {
-        key: 'config',
-        method: 'GET',
-        headers: useRequestHeaders(),
-        onResponseError(context) {
-          config.value = undefined
-          status.value.config = 'error'
-          error.value.config = context.error
+    try {
+      status.value.config = 'pending'
+      const data = await $fetch<ConfigResponse>(
+        '/api/_allauth/app/v1/config',
+        {
+          method: 'GET',
+          headers: useRequestHeaders(),
         },
-      },
-    )
-    if (data.value) {
-      config.value = data.value.data
+      )
+      if (data) {
+        config.value = data.data
+        status.value.config = 'success'
+      }
     }
-    status.value.config = configStatus.value
+    catch (err) {
+      config.value = undefined
+      status.value.config = 'error'
+      error.value.config = err as IFetchError
+      console.error('Failed to setup config:', err)
+    }
   }
 
   const setupSession = async () => {
@@ -81,16 +84,18 @@ export const useAuthStore = defineStore('auth', () => {
     if (!loggedIn.value) {
       return
     }
-    const { getSession } = useAllAuthAuthentication()
-    const { data, error } = await useLazyAsyncData(
-      'session',
-      () => getSession(),
-    )
-    if (error.value) {
-      await clear()
+
+    try {
+      const { getSession } = useAllAuthAuthentication()
+      const data = await getSession()
+
+      if (data) {
+        session.value = data.data
+      }
     }
-    if (data.value) {
-      session.value = data.value.data
+    catch (err) {
+      console.error('Failed to setup session:', err)
+      await clear()
     }
   }
 
@@ -99,13 +104,17 @@ export const useAuthStore = defineStore('auth', () => {
     if (!loggedIn.value) {
       return
     }
-    const { getSessions } = useAllAuthSessions()
-    const { data } = await useLazyAsyncData(
-      'sessions',
-      () => getSessions(),
-    )
-    if (data.value) {
-      sessions.value = data.value.data
+
+    try {
+      const { getSessions } = useAllAuthSessions()
+      const data = await getSessions()
+
+      if (data) {
+        sessions.value = data.data
+      }
+    }
+    catch (err) {
+      console.error('Failed to setup sessions:', err)
     }
   }
 
@@ -114,13 +123,17 @@ export const useAuthStore = defineStore('auth', () => {
     if (!loggedIn.value) {
       return
     }
-    const { getAuthenticators } = useAllAuthAccount()
-    const { data } = await useLazyAsyncData(
-      'authenticators',
-      () => getAuthenticators(),
-    )
-    if (data.value) {
-      authenticators.value = data.value.data
+
+    try {
+      const { getAuthenticators } = useAllAuthAccount()
+      const data = await getAuthenticators()
+
+      if (data) {
+        authenticators.value = data.data
+      }
+    }
+    catch (err) {
+      console.error('Failed to setup authenticators:', err)
     }
   }
 

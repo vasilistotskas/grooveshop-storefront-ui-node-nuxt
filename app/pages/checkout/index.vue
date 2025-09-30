@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { ListRegionResponse } from '#shared/openapi/types.gen'
 
 const { fetch } = useUserSession()
 
@@ -589,12 +588,26 @@ definePageMeta({
   layout: 'default',
   middleware: [
     async function () {
-      const { data: cart } = useNuxtData('cart')
       const { $i18n } = useNuxtApp()
       const localePath = useLocalePath()
       const toast = useToast()
-      const cartItems = cart.value?.items
-      if (!cartItems || cartItems.length === 0) {
+      let cart: CartDetail | null = null
+      try {
+        cart = await $fetch('/api/cart', {
+          method: 'GET',
+          headers: useRequestHeaders(),
+        })
+      }
+      catch {
+        toast.add({
+          title: $i18n.t('error.default'),
+          description: $i18n.t('error_occurred'),
+          color: 'error',
+        })
+        return navigateTo(localePath('index'))
+      }
+
+      if (!cart?.items || cart?.items.length === 0) {
         toast.add({
           title: $i18n.t('cart_empty'),
           color: 'error',
@@ -767,7 +780,6 @@ el:
   payment_successful: Η πληρωμή ολοκληρώθηκε με επιτυχία
   order_completed_successfully: Η παραγγελία ολοκληρώθηκε με επιτυχία
   payment_failed: Η πληρωμή απέτυχε
-  error_occurred: Παρουσιάστηκε σφάλμα
   redirecting: Μεταφορά στην σελίδα πληρωμής
   steps:
     personal_info: Προσωπικά Στοιχεία

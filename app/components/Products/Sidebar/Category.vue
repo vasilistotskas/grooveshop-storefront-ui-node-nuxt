@@ -76,28 +76,6 @@ const isCategorySelected = computed(() => {
       "
       @click.prevent="() => emit('categoryClick', category)"
     >
-      <div
-        class="
-          flex size-[48px] items-center rounded-full bg-primary-100
-          dark:bg-primary-900
-        "
-      >
-        <ImgWithFallback
-          class="
-            rounded-full bg-primary-100 object-cover
-            dark:bg-primary-900
-          "
-          :style="{ contentVisibility: 'auto' }"
-          :src="''"
-          :width="48"
-          :height="48"
-          fit="contain"
-          :background="'transparent'"
-          sizes="sm:48px md:48px lg:48px xl:48px xxl:48px 2xl:48px"
-          :alt="categoryName"
-          densities="x1"
-        />
-      </div>
       <div class="flex items-center">
         <span
           class="

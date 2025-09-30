@@ -1,6 +1,4 @@
 export const useUserNotificationStore = defineStore('userNotification', () => {
-  const { loggedIn, user } = useUserSession()
-
   const notifications = ref<Pagination<NotificationUser>>()
 
   const notificationIds = computed(() => {
@@ -11,16 +9,21 @@ export const useUserNotificationStore = defineStore('userNotification', () => {
   })
 
   const setupNotifications = async () => {
+    const { loggedIn, user } = useUserSession()
     if (!loggedIn.value) {
       return
     }
-    const { getNotifications } = useUserNotification()
-    const { data } = await useLazyAsyncData(
-      'userNotifications',
-      () => getNotifications(user.value?.id),
-    )
-    if (data.value) {
-      notifications.value = data.value
+
+    try {
+      const { getNotifications } = useUserNotification()
+      const data = await getNotifications(user.value?.id)
+
+      if (data) {
+        notifications.value = data
+      }
+    }
+    catch (err) {
+      console.error('Failed to setup notifications:', err)
     }
   }
 
