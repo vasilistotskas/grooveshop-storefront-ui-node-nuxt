@@ -13,6 +13,8 @@ const toast = useToast()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
+const checkoutMode = ref<'embedded' | 'hosted'>('embedded')
+const useHostedCheckout = computed(() => checkoutMode.value === 'hosted')
 const showPaymentStep = ref(false)
 const createdOrder = ref<OrderDetail | null>(null)
 const selectedPayWay = ref<PayWay | null>(null)
@@ -117,6 +119,9 @@ async function onSubmit(values: any) {
 
       if (isStripePayment.value) {
         showPaymentStep.value = true
+
+        checkoutMode.value = 'hosted'
+
         toast.add({
           title: t('order_created_payment_required'),
           description: t('complete_payment_to_finish'),
@@ -698,8 +703,16 @@ definePageMeta({
               </div>
             </div>
 
+            <StripeCheckout
+              v-if="isStripePayment && useHostedCheckout && createdOrder && selectedPayWay"
+              :order="createdOrder"
+              :pay-way="selectedPayWay"
+              @error="onPaymentError"
+              @redirecting="() => toast.add({ title: t('redirecting'), color: 'info' })"
+            />
+
             <StripePayment
-              v-if="isStripePayment && createdOrder && selectedPayWay"
+              v-else-if="isStripePayment && !useHostedCheckout && createdOrder && selectedPayWay"
               ref="stripePaymentRef"
               :order="createdOrder"
               :pay-way="selectedPayWay"
@@ -755,6 +768,7 @@ el:
   order_completed_successfully: Η παραγγελία ολοκληρώθηκε με επιτυχία
   payment_failed: Η πληρωμή απέτυχε
   error_occurred: Παρουσιάστηκε σφάλμα
+  redirecting: Μεταφορά στην σελίδα πληρωμής
   steps:
     personal_info: Προσωπικά Στοιχεία
     personal_info_desc: Συμπληρώστε τα προσωπικά σας στοιχεία

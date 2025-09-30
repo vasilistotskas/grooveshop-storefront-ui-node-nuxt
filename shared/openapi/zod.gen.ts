@@ -1168,6 +1168,23 @@ export const zCountryWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+export const zCreateCheckoutSessionRequestRequest = z.object({
+    successUrl: z.url().min(1),
+    cancelUrl: z.url().min(1),
+    customerEmail: z.optional(z.email().min(1)),
+    customerId: z.optional(z.string().min(1)),
+    description: z.optional(z.string().min(1).max(500))
+});
+
+export const zCreateCheckoutSessionResponse = z.object({
+    sessionId: z.string(),
+    checkoutUrl: z.url(),
+    status: z.string(),
+    amount: z.string(),
+    currency: z.string(),
+    provider: z.string()
+});
+
 /**
  * Serializer for creating a Stripe PaymentIntent.
  * For manual confirmation flow, we only need optional payment_data.
@@ -11293,6 +11310,19 @@ export const zCancelOrderData = z.object({
 });
 
 export const zCancelOrderResponse = zOrderDetail;
+
+export const zCreateOrderCheckoutSessionData = z.object({
+    body: zCreateCheckoutSessionRequestRequest,
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.never())
+});
+
+export const zCreateOrderCheckoutSessionResponse = zCreateCheckoutSessionResponse;
 
 export const zCreateOrderPaymentIntentData = z.object({
     body: z.optional(zCreatePaymentIntentRequestRequest),

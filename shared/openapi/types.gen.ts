@@ -888,6 +888,23 @@ export type CountryWriteRequest = {
     phoneCode?: number | null;
 };
 
+export type CreateCheckoutSessionRequestRequest = {
+    successUrl: string;
+    cancelUrl: string;
+    customerEmail?: string;
+    customerId?: string;
+    description?: string;
+};
+
+export type CreateCheckoutSessionResponse = {
+    sessionId: string;
+    checkoutUrl: string;
+    status: string;
+    amount: string;
+    currency: string;
+    provider: string;
+};
+
 /**
  * Serializer for creating a Stripe PaymentIntent.
  * For manual confirmation flow, we only need optional payment_data.
@@ -10165,6 +10182,29 @@ export type CancelOrderResponses = {
 };
 
 export type CancelOrderResponse = CancelOrderResponses[keyof CancelOrderResponses];
+
+export type CreateOrderCheckoutSessionData = {
+    body: CreateCheckoutSessionRequestRequest;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/order/{id}/create_checkout_session';
+};
+
+export type CreateOrderCheckoutSessionErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type CreateOrderCheckoutSessionError = CreateOrderCheckoutSessionErrors[keyof CreateOrderCheckoutSessionErrors];
+
+export type CreateOrderCheckoutSessionResponses = {
+    200: CreateCheckoutSessionResponse;
+};
+
+export type CreateOrderCheckoutSessionResponse = CreateOrderCheckoutSessionResponses[keyof CreateOrderCheckoutSessionResponses];
 
 export type CreateOrderPaymentIntentData = {
     body?: CreatePaymentIntentRequestRequest;

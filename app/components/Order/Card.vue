@@ -333,6 +333,8 @@ const customerInitials = computed(() => {
           <NuxtTime
             :datetime="order.createdAt"
             :locale="locale"
+            :date-style="'medium'"
+            :time-style="'medium'"
             class="
               text-gray-700
               dark:text-gray-300

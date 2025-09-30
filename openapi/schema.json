@@ -19114,6 +19114,104 @@
                 }
             }
         },
+        "/api/v1/order/{id}/create_checkout_session": {
+            "post": {
+                "operationId": "createOrderCheckoutSession",
+                "description": "Create a Stripe Checkout Session for hosted payment page. The customer will be redirected to Stripe's checkout page to complete payment.",
+                "summary": "Create a Stripe Checkout Session for an order",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCheckoutSessionRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCheckoutSessionRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCheckoutSessionRequestRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateCheckoutSessionResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/order/{id}/create_payment_intent": {
             "post": {
                 "operationId": "createOrderPaymentIntent",
@@ -39087,6 +39185,71 @@
                     "alpha2",
                     "alpha3",
                     "translations"
+                ]
+            },
+            "CreateCheckoutSessionRequestRequest": {
+                "type": "object",
+                "properties": {
+                    "successUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "minLength": 1
+                    },
+                    "cancelUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "minLength": 1
+                    },
+                    "customerEmail": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    },
+                    "customerId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500
+                    }
+                },
+                "required": [
+                    "cancelUrl",
+                    "successUrl"
+                ]
+            },
+            "CreateCheckoutSessionResponse": {
+                "type": "object",
+                "properties": {
+                    "sessionId": {
+                        "type": "string"
+                    },
+                    "checkoutUrl": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "provider": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "checkoutUrl",
+                    "currency",
+                    "provider",
+                    "sessionId",
+                    "status"
                 ]
             },
             "CreatePaymentIntentRequestRequest": {

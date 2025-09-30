@@ -6,6 +6,11 @@ const UAvatar = resolveComponent('UAvatar')
 const route = useRoute()
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
+const sessionId = computed(() => route.query.session_id as string | undefined)
+const fromCheckout = computed(() => !!sessionId.value)
+const sessionVerified = ref(false)
+const verifyingSession = ref(false)
+
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
@@ -17,7 +22,7 @@ const getImage = (mainImagePath: string) => {
   })
 }
 
-const { data: order, error } = await useFetch(
+const { data: order, error, refresh } = await useFetch(
   `/api/orders/uuid/${orderUUID}`,
   {
     key: `order${orderUUID}`,
@@ -59,6 +64,26 @@ const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
+
+watchEffect(async () => {
+  if (sessionId.value && order.value && !sessionVerified.value) {
+    verifyingSession.value = true
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      await refresh()
+
+      if (order.value?.isPaid) {
+        sessionVerified.value = true
+      }
+    }
+    catch (err) {
+      console.error('Failed to verify session:', err)
+    }
+    finally {
+      verifyingSession.value = false
+    }
+  }
+})
 
 const getStatusColor = (status: string) => {
   const statusColors: Record<string, 'success' | 'info' | 'warning' | 'error' | 'neutral' | 'primary'> = {
@@ -167,6 +192,37 @@ definePageMeta({
     />
 
     <UAlert
+      v-if="fromCheckout && verifyingSession"
+      color="info"
+      variant="subtle"
+      icon="i-lucide-loader-2"
+      class="mx-auto max-w-2xl animate-pulse"
+    >
+      <template #title>
+        {{ t('verifying.payment') }}
+      </template>
+      <template #description>
+        {{ t('verifying.description') }}
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else-if="fromCheckout && sessionVerified"
+      color="success"
+      variant="subtle"
+      icon="i-lucide-check-circle"
+      class="mx-auto max-w-2xl"
+    >
+      <template #title>
+        {{ t('payment.completed') }}
+      </template>
+      <template #description>
+        {{ t('payment.completed.description') }}
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else
       color="success"
       variant="subtle"
       :title="t('main.title', { customerName })"
@@ -354,11 +410,16 @@ el:
   customer:
     name: Όνομα Πελάτη
     email: Email
+  verifying:
+    payment: Επαλήθευση πληρωμής...
+    description: Παρακαλώ περιμένετε ενώ επιβεβαιώνουμε την πληρωμή σας.
   payment:
     status: Κατάσταση Πληρωμής
     paid: Πληρωμένο
     pending: Εκκρεμεί
     method: Τρόπος Πληρωμής
+    completed:
+      description: Η παραγγελία σας επιβεβαιώθηκε και θα λάβετε email επιβεβαίωσης σύντομα.
   tracking:
     number: Αριθμός Παρακολούθησης
   shipping:
