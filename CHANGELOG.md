@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.4.0...v3.5.0) (2025-09-30)
+
+
+### Features
+
+* Add Stripe hosted checkout integration for orders ([ac25203](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ac252035d6a66c38623bcea6464c0d163a07fa06))
+
 # [3.4.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.3.0...v3.4.0) (2025-09-29)
 
 
