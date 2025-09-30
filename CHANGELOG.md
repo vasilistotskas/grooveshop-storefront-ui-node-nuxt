@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.5.0...v3.6.0) (2025-09-30)
+
+
+### Features
+
+* Revamp Account auth settings UI and UX ([4c1b356](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4c1b356454f122c4eb7b20d5ed0b04b6f5410333))
+
 # [3.5.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.4.0...v3.5.0) (2025-09-30)
 
 
