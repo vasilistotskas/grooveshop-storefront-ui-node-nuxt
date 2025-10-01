@@ -198,8 +198,8 @@ watch(
             :key="index"
             :img-loading="imgLoading(index)"
             :post="post"
-            :img-width="isMobileOrTablet ? 480 : 440"
-            :img-height="isMobileOrTablet ? 315 : 247"
+            :img-width="isMobileOrTablet ? 575 : 440"
+            :img-height="isMobileOrTablet ? 670 : 247"
           />
         </ol>
         <div
