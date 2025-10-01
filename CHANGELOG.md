@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.6.1...v3.7.0) (2025-10-01)
+
+
+### Features
+
+* password change form UI and validation ([0e96738](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0e967381cd6c3c30a3a6c3af9b3a7db7d626d8c8))
+
 ## [3.6.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.6.0...v3.6.1) (2025-10-01)
 
 
