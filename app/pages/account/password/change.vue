@@ -21,7 +21,11 @@ definePageMeta({
     />
 
     <AccountPasswordChangeForm>
-      <AccountAuthSettingsNavigation />
+      <aside
+        class="md:sticky md:top-16"
+      >
+        <AccountAuthSettingsNavigation />
+      </aside>
     </AccountPasswordChangeForm>
   </PageWrapper>
 </template>

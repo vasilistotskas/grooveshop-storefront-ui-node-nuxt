@@ -21,8 +21,7 @@
   --ui-secondary: #3364FF;
 }
 
-@layer components {
-  .article {
+.article {
     h1, h2, h3, h4, h5, h6 {
       @apply font-bold;
     }
@@ -85,7 +84,6 @@
       @apply list-disc;
     }
   }
-}
 
 .items-unset {
   align-items: unset;

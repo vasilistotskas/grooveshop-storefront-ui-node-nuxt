@@ -15,6 +15,7 @@ export default withNuxt(
       ...eslintPluginBetterTailwindcss.configs['recommended-warn'].rules,
       'better-tailwindcss/no-unregistered-classes': ['warn', {
         detectComponentClasses: true,
+        ignore: ['article'],
       }],
       'nuxt/prefer-import-meta': 'off',
       'vue/multi-word-component-names': 'off',
