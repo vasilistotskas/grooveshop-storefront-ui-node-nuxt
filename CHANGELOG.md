@@ -1,3 +1,10 @@
+## [3.6.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.6.0...v3.6.1) (2025-10-01)
+
+
+### Bug Fixes
+
+* UI improvements ([f2f5dfc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f2f5dfcc510bca9a70b4dedd96dcc10f54aa98e0))
+
 # [3.6.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.5.0...v3.6.0) (2025-09-30)
 
 
