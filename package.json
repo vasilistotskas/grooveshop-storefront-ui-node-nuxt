@@ -33,14 +33,14 @@
     "generate:schema": "node scripts/fetch-schema.mjs"
   },
   "dependencies": {
-    "@internationalized/date": "3.9.0",
+    "@internationalized/date": "3.10.0",
     "@nuxt/eslint": "1.9.0",
     "@nuxt/fonts": "0.11.4",
     "@nuxt/icon": "2.0.0",
     "@nuxt/image": "1.11.0",
     "@nuxt/scripts": "0.12.1",
     "@nuxt/test-utils": "3.19.2",
-    "@nuxt/ui": "4.0.0",
+    "@nuxt/ui": "4.0.1",
     "@nuxtjs/device": "3.2.4",
     "@nuxtjs/i18n": "10.1.0",
     "@nuxtjs/seo": "3.2.2",
@@ -59,7 +59,7 @@
     "nuxt-security": "2.4.0",
     "ofetch": "1.4.1",
     "pinia": "3.0.3",
-    "redis": "5.8.2",
+    "redis": "5.8.3",
     "rss": "1.2.2",
     "string-replace-loader": "3.2.0",
     "tailwindcss": "4.1.14",
@@ -95,8 +95,8 @@
     "@semantic-release/npm": "12.0.2",
     "@semantic-release/release-notes-generator": "14.1.0",
     "@stripe/stripe-js": "^8.0.0",
-    "@testing-library/jest-dom": "6.9.0",
-    "@types/node": "24.6.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@types/node": "24.6.2",
     "@types/rss": "0.0.32",
     "@vitest/coverage-v8": "3.2.4",
     "@vitest/ui": "3.2.4",
@@ -111,7 +111,7 @@
     "nuxt-mcp": "0.2.4",
     "semantic-release": "24.2.9",
     "typescript": "5.9.3",
-    "vite": "7.1.7",
+    "vite": "7.1.8",
     "vite-plugin-eslint2": "5.0.4",
     "vitest": "3.2.4",
     "vitest-environment-nuxt": "1.0.1",
@@ -176,7 +176,7 @@
       ]
     ]
   },
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.18.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@intlify/vue-i18n-bridge",

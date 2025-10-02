@@ -124,7 +124,13 @@ onUnmounted(() => {
               "
             >
               <LazyLanguageSwitcher v-if="enabled" />
-              <ThemeSwitcher />
+              <UColorModeButton
+                class="w-6"
+                :ui="{
+                  base: 'cursor-pointer hover:bg-transparent p-0',
+                  leadingIcon: 'size-6',
+                }"
+              />
               <LazyUserNotificationsBell v-if="loggedIn" />
             </div>
           </MobileOrTabletOnly>

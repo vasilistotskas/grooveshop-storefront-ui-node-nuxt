@@ -203,6 +203,7 @@ export default defineNuxtConfig({
     typedPages: true,
     asyncContext: true,
     cookieStore: true,
+    payloadExtraction: true,
   },
   compatibilityDate: 'latest',
   nitro: {

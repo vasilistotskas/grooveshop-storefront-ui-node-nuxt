@@ -64,11 +64,16 @@ const items = computed(() => {
       icon: 'i-heroicons-key',
       to: localePath('account-2fa-webauthn'),
       value: 'account-2fa-webauthn',
+    }, {
+      label: $i18n.t('two_factor.webauthn.add.title'),
+      icon: 'i-heroicons-key',
+      to: localePath('account-2fa-webauthn-add'),
+      value: 'account-2fa-webauthn-add',
     })
   }
   else {
     items.push({
-      label: $i18n.t('two_factor.webauthn.add'),
+      label: $i18n.t('two_factor.webauthn.add.title'),
       icon: 'i-heroicons-key',
       to: localePath('account-2fa-webauthn-add'),
       value: 'account-2fa-webauthn-add',

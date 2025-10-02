@@ -58,6 +58,7 @@ const reviewComment = computed(() => {
         <LazyUserAvatar
           v-if="userAccount && displayImageOf === 'user'"
           :user-account="userAccount"
+          size="2xl"
         />
         <div
           v-if="displayImageOf === 'product' && product"

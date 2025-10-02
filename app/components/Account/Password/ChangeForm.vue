@@ -118,205 +118,215 @@ async function onSubmit() {
 <template>
   <div
     class="
-      grid gap-6
-      lg:grid-cols-[280px_1fr]
+      grid gap-4
+      lg:flex
     "
   >
     <slot />
 
-    <UCard class="w-full max-w-2xl flex-1">
-      <template #header>
-        <div class="flex items-center gap-3">
-          <UIcon
-            name="i-heroicons-lock-closed"
-            class="size-6 text-primary"
-          />
-          <div>
-            <h2
+    <div class="space-y-6">
+      <UCard>
+        <template #header>
+          <div class="flex items-center gap-3">
+            <div
               class="
-                text-lg font-semibold text-primary-950
-                dark:text-primary-50
+                flex size-10 min-w-10 items-center justify-center rounded-full
+                bg-warning/10
               "
             >
-              {{ hasCurrentPassword ? t('change.title') : t('set.title') }}
-            </h2>
-            <p
-              class="
-                text-sm text-gray-500
-                dark:text-gray-400
-              "
-            >
-              {{ hasCurrentPassword ? t('change.description') : t('set.description') }}
-            </p>
+              <UIcon
+                name="i-lucide-shield-off"
+                class="size-5 text-warning"
+              />
+            </div>
+            <div>
+              <h2
+                class="
+                  text-lg font-semibold text-primary-950
+                  md:text-xl
+                  dark:text-primary-50
+                "
+              >
+                {{ hasCurrentPassword ? t('change.title') : t('set.title') }}
+              </h2>
+              <p
+                class="
+                  mt-1 text-sm text-gray-500
+                  dark:text-gray-400
+                "
+              >
+                {{ hasCurrentPassword ? t('change.description') : t('set.description') }}
+              </p>
+            </div>
           </div>
-        </div>
-      </template>
+        </template>
 
-      <UAlert
-        v-if="!hasCurrentPassword"
-        icon="i-heroicons-shield-exclamation"
-        color="warning"
-        variant="soft"
-        :title="t('security.title')"
-        :description="t('security.description')"
-        class="mb-6"
-      />
-      <UForm
-        :schema="schema"
-        :state="state"
-        class="space-y-6"
-        @submit="onSubmit"
-      >
-        <UFormField
-          v-if="hasCurrentPassword"
-          :label="$i18n.t('password.current')"
-          name="current_password"
-          required
+        <UAlert
+          v-if="!hasCurrentPassword"
+          icon="i-heroicons-shield-exclamation"
+          color="warning"
+          variant="soft"
+          :title="t('security.title')"
+          :description="t('security.description')"
+          class="mb-6"
+        />
+        <UForm
+          :schema="schema"
+          :state="state"
+          class="space-y-6"
+          @submit="onSubmit"
         >
-          <UInput
-            v-model="state.current_password"
-            :type="showCurrent ? 'text' : 'password'"
-            :placeholder="$i18n.t('password.current')"
-            autocomplete="current-password"
-            icon="i-heroicons-lock-closed"
-            size="lg"
-            :ui="{
-              root: 'w-full',
-              trailing: 'pe-1',
-            }"
+          <UFormField
+            v-if="hasCurrentPassword"
+            :label="$i18n.t('password.current')"
+            name="current_password"
+            required
           >
-            <template #trailing>
-              <UButton
-                color="neutral"
-                variant="link"
-                size="sm"
-                :icon="showCurrent ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                :aria-label="showCurrent ? 'Hide password' : 'Show password'"
-                @click="showCurrent = !showCurrent"
-              />
-            </template>
-          </UInput>
-        </UFormField>
+            <UInput
+              v-model="state.current_password"
+              :type="showCurrent ? 'text' : 'password'"
+              :placeholder="$i18n.t('password.current')"
+              autocomplete="current-password"
+              icon="i-heroicons-lock-closed"
+              size="lg"
+              :ui="{
+                root: 'w-full',
+                trailing: 'pe-1',
+              }"
+            >
+              <template #trailing>
+                <UButton
+                  color="neutral"
+                  variant="link"
+                  size="sm"
+                  :icon="showCurrent ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
+                  :aria-label="showCurrent ? 'Hide password' : 'Show password'"
+                  @click="showCurrent = !showCurrent"
+                />
+              </template>
+            </UInput>
+          </UFormField>
 
-        <UFormField
-          :label="$i18n.t('password.new')"
-          name="new_password"
-          required
-        >
-          <UInput
-            v-model="state.new_password"
-            :type="showNew ? 'text' : 'password'"
-            :placeholder="$i18n.t('password.new')"
-            :color="state.new_password ? strengthColor : 'primary'"
-            autocomplete="new-password"
-            icon="i-heroicons-key"
-            size="lg"
-            :ui="{
-              root: 'w-full',
-              trailing: 'pe-1',
-            }"
+          <UFormField
+            :label="$i18n.t('password.new')"
+            name="new_password"
+            required
           >
-            <template #trailing>
-              <UButton
-                color="neutral"
-                variant="link"
-                size="sm"
-                :icon="showNew ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                :aria-label="showNew ? 'Hide password' : 'Show password'"
-                @click="showNew = !showNew"
-              />
-            </template>
-          </UInput>
+            <UInput
+              v-model="state.new_password"
+              :type="showNew ? 'text' : 'password'"
+              :placeholder="$i18n.t('password.new')"
+              :color="state.new_password ? strengthColor : 'primary'"
+              autocomplete="new-password"
+              icon="i-heroicons-key"
+              size="lg"
+              :ui="{
+                root: 'w-full',
+                trailing: 'pe-1',
+              }"
+            >
+              <template #trailing>
+                <UButton
+                  color="neutral"
+                  variant="link"
+                  size="sm"
+                  :icon="showNew ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
+                  :aria-label="showNew ? 'Hide password' : 'Show password'"
+                  @click="showNew = !showNew"
+                />
+              </template>
+            </UInput>
 
-          <div v-if="state.new_password" class="mt-3 space-y-2">
-            <UProgress
-              :color="strengthColor"
-              :model-value="passwordScore"
-              :max="4"
-              size="sm"
+            <div v-if="state.new_password" class="mt-3 space-y-2">
+              <UProgress
+                :color="strengthColor"
+                :model-value="passwordScore"
+                :max="4"
+                size="sm"
+              />
+
+              <p class="flex items-center gap-2 text-sm font-medium">
+                <UIcon
+                  :name="passwordScore === 4 ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
+                  :class="passwordScore === 4 ? 'text-success' : 'text-warning'"
+                  class="size-4"
+                />
+                {{ strengthText }}
+              </p>
+
+              <ul class="mt-3 space-y-1.5" aria-label="Password requirements">
+                <li
+                  v-for="(req, index) in passwordStrength"
+                  :key="index"
+                  class="flex items-center gap-2 text-xs"
+                  :class="req.met ? 'text-success' : `
+                    text-gray-500
+                    dark:text-gray-400
+                  `"
+                >
+                  <UIcon
+                    :name="req.met ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
+                    class="size-4 shrink-0"
+                  />
+                  <span>{{ req.text }}</span>
+                </li>
+              </ul>
+            </div>
+          </UFormField>
+
+          <UFormField
+            :label="$i18n.t('password.confirm')"
+            name="confirm_password"
+            required
+          >
+            <UInput
+              v-model="state.confirm_password"
+              :type="showConfirm ? 'text' : 'password'"
+              :placeholder="$i18n.t('password.confirm')"
+              autocomplete="new-password"
+              icon="i-heroicons-check-badge"
+              size="lg"
+              :ui="{
+                root: 'w-full',
+                trailing: 'pe-1',
+              }"
+            >
+              <template #trailing>
+                <UButton
+                  color="neutral"
+                  variant="link"
+                  size="sm"
+                  :icon="showConfirm ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
+                  :aria-label="showConfirm ? 'Hide password' : 'Show password'"
+                  @click="showConfirm = !showConfirm"
+                />
+              </template>
+            </UInput>
+          </UFormField>
+
+          <div class="flex items-center gap-3 pt-4">
+            <UButton
+              type="submit"
+              color="neutral"
+              variant="outline"
+              size="lg"
+              icon="i-heroicons-check"
+              :label="hasCurrentPassword ? t('change.submit') : $i18n.t('set.submit')"
             />
 
-            <p class="flex items-center gap-2 text-sm font-medium">
-              <UIcon
-                :name="passwordScore === 4 ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
-                :class="passwordScore === 4 ? 'text-success' : 'text-warning'"
-                class="size-4"
-              />
-              {{ strengthText }}
-            </p>
-
-            <ul class="mt-3 space-y-1.5" aria-label="Password requirements">
-              <li
-                v-for="(req, index) in passwordStrength"
-                :key="index"
-                class="flex items-center gap-2 text-xs"
-                :class="req.met ? 'text-success' : `
-                  text-gray-500
-                  dark:text-gray-400
-                `"
-              >
-                <UIcon
-                  :name="req.met ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
-                  class="size-4 shrink-0"
-                />
-                <span>{{ req.text }}</span>
-              </li>
-            </ul>
+            <UButton
+              type="button"
+              color="neutral"
+              variant="outline"
+              size="lg"
+              icon="i-heroicons-arrow-left"
+              :label="t('common.cancel')"
+              @click="navigateTo(localePath('account'))"
+            />
           </div>
-        </UFormField>
-
-        <UFormField
-          :label="$i18n.t('password.confirm')"
-          name="confirm_password"
-          required
-        >
-          <UInput
-            v-model="state.confirm_password"
-            :type="showConfirm ? 'text' : 'password'"
-            :placeholder="$i18n.t('password.confirm')"
-            autocomplete="new-password"
-            icon="i-heroicons-check-badge"
-            size="lg"
-            :ui="{
-              root: 'w-full',
-              trailing: 'pe-1',
-            }"
-          >
-            <template #trailing>
-              <UButton
-                color="neutral"
-                variant="link"
-                size="sm"
-                :icon="showConfirm ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                :aria-label="showConfirm ? 'Hide password' : 'Show password'"
-                @click="showConfirm = !showConfirm"
-              />
-            </template>
-          </UInput>
-        </UFormField>
-
-        <div class="flex items-center gap-3 pt-4">
-          <UButton
-            type="submit"
-            color="neutral"
-            variant="outline"
-            size="lg"
-            icon="i-heroicons-check"
-            :label="hasCurrentPassword ? t('change.submit') : $i18n.t('set.submit')"
-          />
-
-          <UButton
-            type="button"
-            color="neutral"
-            variant="outline"
-            size="lg"
-            icon="i-heroicons-arrow-left"
-            :label="t('common.cancel')"
-            @click="navigateTo(localePath('account'))"
-          />
-        </div>
-      </UForm>
-    </UCard>
+        </UForm>
+      </UCard>
+    </div>
   </div>
 </template>
 

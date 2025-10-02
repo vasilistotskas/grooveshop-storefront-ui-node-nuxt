@@ -136,14 +136,16 @@ const items = computed(() => [
             <li
               v-if="enabled"
               class="
-                relative grid items-center justify-center justify-items-center
+                relative grid max-w-6 items-center justify-center
+                justify-items-center
               "
             >
               <LazyLanguageSwitcher />
             </li>
             <li
               class="
-                relative grid items-center justify-center justify-items-center
+                relative grid max-w-6 items-center justify-center
+                justify-items-center
               "
             >
               <UButton
@@ -162,15 +164,23 @@ const items = computed(() => [
             </li>
             <li
               class="
-                relative grid items-center justify-center justify-items-center
+                relative grid max-w-6 items-center justify-center
+                justify-items-center
               "
             >
-              <ThemeSwitcher />
+              <UColorModeButton
+                class="w-6"
+                :ui="{
+                  base: 'cursor-pointer hover:bg-transparent p-0',
+                  leadingIcon: 'size-6',
+                }"
+              />
             </li>
             <li
               v-if="loggedIn"
               class="
-                relative grid items-center justify-center justify-items-center
+                relative grid max-w-6 items-center justify-center
+                justify-items-center
               "
             >
               <LazyUserNotificationsBell />
@@ -178,7 +188,8 @@ const items = computed(() => [
             <li
               v-if="enabled"
               class="
-                relative grid items-center justify-center justify-items-center
+                relative grid max-w-6 items-center justify-center
+                justify-items-center
               "
             >
               <CartButton />

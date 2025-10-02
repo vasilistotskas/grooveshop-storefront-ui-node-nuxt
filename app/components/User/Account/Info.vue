@@ -24,7 +24,6 @@ const props = defineProps({
 })
 
 const { account } = toRefs(props)
-const { isMobileOrTablet } = useDevice()
 const toast = useToast()
 const { t } = useI18n()
 const { fetch } = useUserSession()
@@ -32,8 +31,6 @@ const { $i18n } = useNuxtApp()
 
 const userNameEditing = ref(false)
 const username = ref(account.value.username || account.value.email || '')
-const imgWidth = computed(() => (isMobileOrTablet ? 96 : 144))
-const imgHeight = computed(() => (isMobileOrTablet ? 96 : 144))
 
 const onEditUserName = async () => {
   if (userNameEditing.value) {
@@ -95,10 +92,8 @@ const changeUserName = async () => {
         "
       >
         <UserAvatar
-          :background-border="true"
           :change-avatar="true"
-          :img-height="imgHeight"
-          :img-width="imgWidth"
+          size="7xl"
           :show-name="false"
           :user-account="account"
         />

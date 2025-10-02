@@ -69,28 +69,29 @@ onReactivated(async () => {
 <template>
   <div
     class="
-      grid gap-6
-      lg:grid-cols-[280px_1fr]
+      grid gap-4
+      lg:flex
     "
   >
     <slot />
 
-    <div class="flex items-center justify-center">
-      <UCard class="w-full max-w-2xl">
+    <div class="space-y-6">
+      <UCard>
         <template #header>
           <div class="flex items-center gap-3">
             <div
               class="
-                flex size-10 items-center justify-center rounded-full
-                bg-primary/10
+                flex size-10 min-w-10 items-center justify-center rounded-full
+                bg-neutral-100
               "
             >
-              <UIcon name="i-lucide-refresh-cw" class="size-5 text-primary" />
+              <UIcon name="i-lucide-refresh-cw" class="size-5 text-primary-900" />
             </div>
             <div>
               <h1
                 class="
                   text-lg font-semibold text-gray-900
+                  md:text-xl
                   dark:text-white
                 "
               >
@@ -98,7 +99,7 @@ onReactivated(async () => {
               </h1>
               <p
                 class="
-                  mt-0.5 text-sm text-gray-500
+                  mt-1 text-sm text-gray-500
                   dark:text-gray-400
                 "
               >
@@ -266,7 +267,7 @@ onReactivated(async () => {
               {{ $i18n.t('cancel') }}
             </UButton>
             <UButton
-              color="primary"
+              color="neutral"
               size="lg"
               icon="i-lucide-refresh-cw"
               :loading="loading"

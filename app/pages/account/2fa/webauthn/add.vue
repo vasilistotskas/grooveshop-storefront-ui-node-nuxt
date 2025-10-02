@@ -19,7 +19,11 @@ definePageMeta({
     />
 
     <Account2FaWebAuthnAddForm>
-      <AccountAuthSettingsNavigation />
+      <aside
+        class="md:sticky md:top-16"
+      >
+        <AccountAuthSettingsNavigation />
+      </aside>
     </Account2FaWebAuthnAddForm>
   </PageWrapper>
 </template>

@@ -40,18 +40,49 @@ const logout = async (fromSessions: Session[]) => {
   }
 }
 
+function getDeviceIcon(userAgent: string): string {
+  const ua = userAgent.toLowerCase()
+  if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
+    return 'i-heroicons-device-phone-mobile'
+  }
+  if (ua.includes('tablet') || ua.includes('ipad')) {
+    return 'i-heroicons-device-tablet'
+  }
+  return 'i-heroicons-computer-desktop'
+}
+
+function getBrowserName(userAgent: string): string {
+  const ua = userAgent.toLowerCase()
+  if (ua.includes('edg/')) return 'Edge'
+  if (ua.includes('chrome/')) return 'Chrome'
+  if (ua.includes('firefox/')) return 'Firefox'
+  if (ua.includes('safari/') && !ua.includes('chrome')) return 'Safari'
+  if (ua.includes('opera/') || ua.includes('opr/')) return 'Opera'
+  return 'Unknown'
+}
+
+function getOSName(userAgent: string): string {
+  const ua = userAgent.toLowerCase()
+  if (ua.includes('windows')) return 'Windows'
+  if (ua.includes('mac os')) return 'macOS'
+  if (ua.includes('linux')) return 'Linux'
+  if (ua.includes('android')) return 'Android'
+  if (ua.includes('ios') || ua.includes('iphone') || ua.includes('ipad')) return 'iOS'
+  return 'Unknown'
+}
+
 const columns: TableColumn<Session>[] = [
   {
     accessorKey: 'is_current',
-    header: t('is_current'),
+    header: '',
+  },
+  {
+    accessorKey: 'device',
+    header: t('device'),
   },
   {
     accessorKey: 'ip',
     header: $i18n.t('ip_address'),
-  },
-  {
-    accessorKey: 'user_agent',
-    header: $i18n.t('user_agent'),
   },
   {
     accessorKey: 'created_at',
@@ -77,9 +108,13 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
   return [[
     {
       label: $i18n.t('logout'),
-      icon: 'i-heroicons-trash-20-solid',
+      icon: 'i-heroicons-arrow-right-start-on-rectangle',
+      class: session.is_current ? '' : 'cursor-pointer text-white bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
+      disabled: session.is_current,
       onSelect: () => {
-        logout([session])
+        if (!session.is_current) {
+          logout([session])
+        }
       },
     },
   ]]
@@ -94,67 +129,130 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
     "
   >
     <slot />
-    <div class="grid w-full gap-4">
-      <UTable
-        :data="data"
-        :columns="columns"
-        :loading="loading"
-      >
-        <template #actions-cell="{ row }">
-          <LazyUDropdownMenu
-            v-if="getActionItems(row.original).length > 0"
-            :items="getActionItems(row.original)"
-          >
-            <UButton
-              color="neutral"
-              icon="i-heroicons-ellipsis-horizontal-20-solid"
-              variant="ghost"
-            />
-          </LazyUDropdownMenu>
-        </template>
-        <template #is_current-cell="{ row }">
-          <UIcon
-            v-if="row.original.is_current"
-            name="i-heroicons-star-solid"
-            class="
-              size-6 text-yellow-500
-              dark:text-yellow-400
-            "
-          />
-          <UIcon
-            v-else
-            name="i-heroicons-star"
-            class="
-              size-6 text-neutral-400
-              dark:text-neutral-500
-            "
-          />
-        </template>
-        <template #user_agent-cell="{ row }">
-          <span :title="row.original.user_agent">
-            {{ contentShorten(row.original.user_agent, 0, 40) }}
-          </span>
-        </template>
-        <template #created_at-cell="{ row }">
-          <NuxtTime
-            date-style="medium"
-            :datetime="new Date(row.original.created_at * 1000)"
-            time-style="medium"
-            :locale="locale"
-          />
-        </template>
-      </UTable>
-      <div class="grid items-center justify-center justify-items-center">
-        <UButton
-          :disabled="otherSessions.length < 1"
+    <div class="space-y-6">
+      <UCard>
+        <UAlert
+          color="info"
+          variant="soft"
+          icon="i-heroicons-shield-check"
+          :title="t('sessions.info.title')"
+          :description="t('sessions.info.description')"
+        />
+
+        <UTable
+          :data="data"
+          :columns="columns"
           :loading="loading"
-          color="error"
-          variant="subtle"
-          @click="logout(otherSessions)"
+          :empty-state="{
+            icon: 'i-heroicons-signal-slash',
+            label: t('sessions.empty.title'),
+            description: t('sessions.empty.description'),
+          }"
         >
-          {{ t('logout_all_other_sessions') }}
-        </UButton>
-      </div>
+          <template #is_current-cell="{ row }">
+            <UTooltip
+              :text="row.original.is_current ? t('sessions.current') : t('sessions.other')"
+            >
+              <UBadge
+                v-if="row.original.is_current"
+                color="success"
+                variant="soft"
+                size="xs"
+                icon="i-heroicons-check-circle"
+              >
+                {{ t('sessions.active') }}
+              </UBadge>
+              <div v-else class="size-2" />
+            </UTooltip>
+          </template>
+          <template #device-cell="{ row }">
+            <div class="flex items-center gap-3">
+              <UIcon
+                :name="getDeviceIcon(row.original.user_agent)"
+                class="size-5 text-muted"
+              />
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium">
+                    {{ getBrowserName(row.original.user_agent) }}
+                  </span>
+                  <span class="text-xs text-muted">•</span>
+                  <span class="text-xs text-muted">
+                    {{ getOSName(row.original.user_agent) }}
+                  </span>
+                </div>
+                <UTooltip :text="row.original.user_agent">
+                  <span class="text-xs text-muted">
+                    {{ contentShorten(row.original.user_agent, 0, 50) }}
+                  </span>
+                </UTooltip>
+              </div>
+            </div>
+          </template>
+          <template #ip-cell="{ row }">
+            <UBadge
+              color="neutral"
+              variant="subtle"
+              size="sm"
+              class="font-mono"
+            >
+              {{ row.original.ip }}
+            </UBadge>
+          </template>
+          <template #created_at-cell="{ row }">
+            <span class="text-sm text-muted">
+              <NuxtTime
+                date-style="medium"
+                :datetime="new Date(row.original.created_at * 1000)"
+                time-style="short"
+                :locale="locale"
+              />
+            </span>
+          </template>
+          <template #actions-cell="{ row }">
+            <UTooltip :text="row.original.is_current ? t('sessions.cannot_logout_current') : $i18n.t('logout')">
+              <LazyUDropdownMenu
+                v-if="getActionItems(row.original).length > 0"
+                :items="getActionItems(row.original)"
+              >
+                <UButton
+                  color="neutral"
+                  icon="i-heroicons-ellipsis-horizontal-20-solid"
+                  variant="ghost"
+                  size="sm"
+                  :disabled="row.original.is_current"
+                />
+              </LazyUDropdownMenu>
+            </UTooltip>
+          </template>
+        </UTable>
+
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-sm text-muted">
+            {{ t('sessions.total', { count: data.length, other: otherSessions.length }) }}
+          </span>
+          <UButton
+            :disabled="otherSessions.length < 1"
+            :loading="loading"
+            icon="i-heroicons-arrow-right-start-on-rectangle"
+            color="error"
+            variant="subtle"
+            size="md"
+            @click="logout(otherSessions)"
+          >
+            {{ t('logout_all_other_sessions') }}
+          </UButton>
+        </div>
+
+        <UAlert
+          v-if="otherSessions.length > 0"
+          color="warning"
+          variant="soft"
+          icon="i-heroicons-exclamation-triangle"
+          :title="t('sessions.security.title')"
+          :description="t('sessions.security.description')"
+        />
+      </UCard>
     </div>
   </div>
 </template>
@@ -162,7 +260,23 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
 <i18n lang="yaml">
 el:
   is_current: Τρέχουσα
+  device: Συσκευή
   logout_all_other_sessions: Αποσύνδεση από όλες τις υπόλοιπες συσκευές
   session:
     logged_out: Αποσυνδέθηκες από όλες τις άλλες συνεδρίες
+  sessions:
+    info:
+      title: Ενεργές Συνεδρίες
+      description: Παρακολουθήστε και διαχειριστείτε όλες τις ενεργές συνεδρίες σας. Μπορείτε να αποσυνδεθείτε από οποιαδήποτε συσκευή για επιπλέον ασφάλεια.
+    active: Ενεργή
+    current: Αυτή είναι η τρέχουσα συνεδρία σας
+    other: Άλλη συσκευή
+    cannot_logout_current: Δεν μπορείτε να αποσυνδεθείτε από την τρέχουσα συνεδρία
+    total: 'Σύνολο: {count} συνεδρία/συνεδρίες ({other} άλλες)'
+    empty:
+      title: Δεν υπάρχουν ενεργές συνεδρίες
+      description: Θα δείτε τις συνδεδεμένες συσκευές σας εδώ
+    security:
+      title: Ασφάλεια Λογαριασμού
+      description: Αν δείτε συνεδρίες που δεν αναγνωρίζετε, αποσυνδεθείτε αμέσως και αλλάξτε τον κωδικό σας.
 </i18n>

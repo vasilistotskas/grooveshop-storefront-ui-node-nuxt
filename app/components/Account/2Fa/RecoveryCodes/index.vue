@@ -123,8 +123,8 @@ onReactivated(async () => {
 <template>
   <div
     class="
-      grid gap-6
-      lg:grid-cols-[280px_1fr]
+      grid gap-4
+      lg:flex
     "
   >
     <slot />
@@ -136,16 +136,17 @@ onReactivated(async () => {
             <div class="flex items-center gap-3">
               <div
                 class="
-                  flex size-12 items-center justify-center rounded-full
+                  flex size-10 min-w-10 items-center justify-center rounded-full
                   bg-primary/10
                 "
               >
-                <UIcon name="i-lucide-shield-check" class="size-6 text-primary" />
+                <UIcon name="i-lucide-shield-check" class="size-5 text-primary" />
               </div>
               <div>
                 <h1
                   class="
-                    text-xl font-semibold text-gray-900
+                    text-lg font-semibold text-gray-900
+                    md:text-xl
                     dark:text-white
                   "
                 >

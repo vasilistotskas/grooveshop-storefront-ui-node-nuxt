@@ -12,7 +12,7 @@ const toast = useToast()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
-const checkoutMode = ref<'embedded' | 'hosted'>('embedded')
+const checkoutMode = ref<'embedded' | 'hosted'>('hosted')
 const useHostedCheckout = computed(() => checkoutMode.value === 'hosted')
 const showPaymentStep = ref(false)
 const createdOrder = ref<OrderDetail | null>(null)
@@ -118,8 +118,6 @@ async function onSubmit(values: any) {
 
       if (isStripePayment.value) {
         showPaymentStep.value = true
-
-        checkoutMode.value = 'hosted'
 
         toast.add({
           title: t('order_created_payment_required'),

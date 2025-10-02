@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { TableColumn, DropdownMenuItem } from '@nuxt/ui'
+import type { BadgeProps, TableColumn, DropdownMenuItem } from '@nuxt/ui'
 
 const emit = defineEmits(['disconnectThirdPartyProviderAccount'])
 
@@ -37,18 +37,46 @@ async function disconnect(values: ProvidersDeleteBody) {
   }
 }
 
+function getProviderIcon(providerName: string): string {
+  const icons: Record<string, string> = {
+    google: 'i-logos-google-icon',
+    github: 'i-logos-github-icon',
+    facebook: 'i-logos-facebook',
+    twitter: 'i-logos-twitter',
+    microsoft: 'i-logos-microsoft-icon',
+    apple: 'i-logos-apple',
+    gitlab: 'i-logos-gitlab',
+    linkedin: 'i-logos-linkedin-icon',
+  }
+  return icons[providerName.toLowerCase()] || 'i-heroicons-link'
+}
+
+function getProviderColor(providerName: string) {
+  const colors: Record<string, Partial<BadgeProps['color']>> = {
+    google: 'error',
+    github: 'neutral',
+    facebook: 'info',
+    twitter: 'info',
+    microsoft: 'info',
+    apple: 'neutral',
+    gitlab: 'warning',
+    linkedin: 'info',
+  }
+  return colors[providerName.toLowerCase()] || 'primary'
+}
+
 const columns: TableColumn<any>[] = [
   {
-    accessorKey: 'uid',
-    header: t('uid'),
+    accessorKey: 'name',
+    header: t('provider'),
   },
   {
     accessorKey: 'display',
-    header: t('display'),
+    header: t('account'),
   },
   {
-    accessorKey: 'name',
-    header: t('name'),
+    accessorKey: 'uid',
+    header: t('uid'),
   },
   {
     id: 'actions',
@@ -62,15 +90,17 @@ const data = computed(() => {
       uid: account.uid,
       display: account.display,
       name: account.provider.name,
+      providerId: account.provider.id,
     }
   }) || []
 })
 
-const actionItems = (row: { uid: string, display: string, name: string }): DropdownMenuItem[][] => {
+const actionItems = (row: { uid: string, display: string, name: string, providerId: string }): DropdownMenuItem[][] => {
   const items: DropdownMenuItem[] = []
   items.push({
-    label: t('disconnect'),
+    label: $i18n.t('disconnect'),
     icon: 'i-heroicons-trash-20-solid',
+    class: 'cursor-pointer text-white bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
     onSelect: async () => {
       const account = providerAccounts.value?.data.find(item => item.uid === row.uid)
       if (!account) return
@@ -96,25 +126,88 @@ onReactivated(async () => {
     "
   >
     <slot />
-    <UTable
-      class="w-full"
-      :columns="columns"
-      :data="data"
-      :empty-state="{ icon: 'i-heroicons-ellipsis-horizontal-20-solid', label: $i18n.t('auth.providers.empty') }"
-      :loading="loading"
-    >
-      <template #actions-cell="{ row }">
-        <LazyUDropdownMenu
-          v-if="actionItems(row.original).length > 0"
-          :items="actionItems(row.original)"
-        >
-          <UButton
-            color="neutral"
-            icon="i-heroicons-ellipsis-horizontal-20-solid"
-            variant="ghost"
-          />
-        </LazyUDropdownMenu>
-      </template>
-    </UTable>
+    <div class="flex w-full flex-col gap-4">
+      <UAlert
+        color="info"
+        variant="soft"
+        icon="i-heroicons-link"
+        :title="t('providers.info.title')"
+        :description="t('providers.info.description')"
+      />
+
+      <UTable
+        class="w-full"
+        :columns="columns"
+        :data="data"
+        :empty-state="{
+          icon: 'i-heroicons-link-slash',
+          label: t('auth.providers.empty'),
+          description: t('providers.empty.description'),
+        }"
+        :loading="loading"
+      >
+        <template #name-cell="{ row }">
+          <div class="flex items-center gap-2">
+            <UIcon
+              :name="getProviderIcon(row.original.name)"
+              class="size-5"
+            />
+            <UBadge
+              :color="getProviderColor(row.original.name)"
+              variant="subtle"
+              size="sm"
+            >
+              {{ row.original.name }}
+            </UBadge>
+          </div>
+        </template>
+        <template #display-cell="{ row }">
+          <span class="font-medium">
+            {{ row.original.display }}
+          </span>
+        </template>
+        <template #uid-cell="{ row }">
+          <UTooltip :text="row.original.uid">
+            <span class="font-mono text-sm text-muted">
+              {{ row.original.uid.length > 20 ? row.original.uid.substring(0, 20) + '...' : row.original.uid }}
+            </span>
+          </UTooltip>
+        </template>
+        <template #actions-cell="{ row }">
+          <UTooltip :text="$i18n.t('actions')">
+            <LazyUDropdownMenu
+              v-if="actionItems(row.original).length > 0"
+              :items="actionItems(row.original)"
+            >
+              <UButton
+                color="neutral"
+                icon="i-heroicons-ellipsis-horizontal-20-solid"
+                variant="ghost"
+                size="sm"
+              />
+            </LazyUDropdownMenu>
+          </UTooltip>
+        </template>
+      </UTable>
+
+      <div class="flex items-center justify-between pt-2">
+        <span class="text-sm text-muted">
+          {{ t('providers.total', { count: data.length }) }}
+        </span>
+      </div>
+    </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  provider: Πάροχος
+  account: Λογαριασμός
+  providers:
+    info:
+      title: Συνδεδεμένοι Πάροχοι
+      description: Διαχειριστείτε τους λογαριασμούς τρίτων που έχετε συνδέσει με τον λογαριασμό σας. Μπορείτε να αποσυνδέσετε οποιονδήποτε πάροχο οποιαδήποτε στιγμή.
+    empty:
+      description: Συνδέστε λογαριασμούς τρίτων για ευκολότερη σύνδεση
+    total: Κανένας συνδεδεμένος πάροχος | 1 Συνδεδεμένος πάροχος | {count} συνδεδεμένοι πάροχοι
+</i18n>

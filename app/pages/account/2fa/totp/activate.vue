@@ -19,7 +19,11 @@ definePageMeta({
     />
 
     <Account2FaTotpActivateForm>
-      <AccountAuthSettingsNavigation />
+      <aside
+        class="md:sticky md:top-16"
+      >
+        <AccountAuthSettingsNavigation />
+      </aside>
     </Account2FaTotpActivateForm>
   </PageWrapper>
 </template>

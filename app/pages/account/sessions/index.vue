@@ -19,12 +19,16 @@ definePageMeta({
     />
 
     <AccountSessionsManage>
-      <AccountAuthSettingsNavigation />
+      <aside
+        class="md:sticky md:top-16"
+      >
+        <AccountAuthSettingsNavigation />
+      </aside>
     </AccountSessionsManage>
   </PageWrapper>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Sessions
+  title: Συνεδρίες
 </i18n>

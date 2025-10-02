@@ -19,7 +19,11 @@ definePageMeta({
     />
 
     <AccountProvidersManage>
-      <AccountAuthSettingsNavigation />
+      <aside
+        class="md:sticky md:top-16"
+      >
+        <AccountAuthSettingsNavigation />
+      </aside>
     </AccountProvidersManage>
   </PageWrapper>
 </template>

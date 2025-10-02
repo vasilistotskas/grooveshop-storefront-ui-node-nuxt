@@ -51,6 +51,16 @@ export default defineAppConfig({
         base: 'data-[state=unchecked]:bg-(--ui-secondary)/25',
       },
     },
+    avatar: {
+      variants: {
+        size: {
+          '4xl': { root: 'size-16 text-2xl' },
+          '5xl': { root: 'size-20 text-3xl' },
+          '6xl': { root: 'size-24 text-4xl' },
+          '7xl': { root: 'size-28 text-5xl' },
+        },
+      },
+    },
   },
   nuxtIcon: {},
 })
