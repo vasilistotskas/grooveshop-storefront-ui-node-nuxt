@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.7.0...v3.8.0) (2025-10-02)
+
+
+### Features
+
+* Revamp account management UI and enhance 2FA flows ([94e59ab](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/94e59abf49d0ece83d8aaf2c2e00dc1f7cd554f0))
+
 # [3.7.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.6.1...v3.7.0) (2025-10-01)
 
 
