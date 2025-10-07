@@ -78,9 +78,7 @@ definePageMeta({
       <aside
         class="md:sticky md:top-16"
       >
-        <div class="md:sticky md:top-16">
-          <AccountAuthSettingsNavigation />
-        </div>
+        <AccountAuthSettingsNavigation />
       </aside>
       <UCard
         :ui="{
@@ -233,8 +231,8 @@ el:
     paragraph1: Είσαι σίγουρος ότι θέλεις να απενεργοποιήσεις την εφαρμογή ελέγχου ταυτότητας;
     consequences_title: Τι θα συμβεί αν απενεργοποιήσετε το TOTP
     consequence1: Δεν θα χρειάζεται πλέον κωδικός επαλήθευσης κατά τη σύνδεση
-    consequence2: Ο λογαριασμός σας θα είναι λιγότερο ασφαλής
-    consequence3: Θα πρέπει να ρυθμίσετε ξανά το TOTP αν το ενεργοποιήσετε στο μέλλον
+    consequence2: Ο λογαριασμός σου θα είναι λιγότερο ασφαλής
+    consequence3: Θα πρέπει να ρυθμίσεις ξανά το TOTP αν το ενεργοποιήσεις στο μέλλον
   confirmation:
     checkbox: Κατανοώ τους κινδύνους και θέλω να συνεχίσω
   success:

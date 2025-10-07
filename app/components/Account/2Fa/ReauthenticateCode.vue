@@ -92,5 +92,5 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 <i18n lang="yaml">
 el:
   title: Επαλήθευση
-  enter_authenticator_code: Εισάγετε τον κωδικό πολλαπλών παραγόντων
+  enter_authenticator_code: Εισάγαγε τον κωδικό πολλαπλών παραγόντων
 </i18n>

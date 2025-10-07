@@ -162,7 +162,6 @@ watch(uploadFile, (newFile) => {
     arrow
   >
     <div class="group relative">
-      <!-- Avatar with Skeleton loading state -->
       <UAvatar
         v-if="!loading"
         :src="avatarSrc"
@@ -180,7 +179,6 @@ watch(uploadFile, (newFile) => {
         class="rounded-full"
       />
 
-      <!-- File Upload Overlay (only when changeAvatar is true) -->
       <UFileUpload
         v-if="changeAvatar && !loading"
         v-slot="{ open }"
@@ -209,7 +207,6 @@ watch(uploadFile, (newFile) => {
       </UFileUpload>
     </div>
 
-    <!-- User Name -->
     <div
       v-if="showName"
       class="flex flex-col"

@@ -1,3 +1,5 @@
+import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+
 export const floorChoicesList: { name: FloorEnum, value: FloorEnum }[]
   = zFloorEnum.options.map(opt => ({
     name: opt,
@@ -12,26 +14,33 @@ export const locationChoicesList: { name: LocationTypeEnum, value: LocationTypeE
 
 export const defaultSelectOptionChoose = 'choose'
 
-export const AuthenticatedRoutePrefixes = [
-  '/account/2fa/totp',
-  '/account/2fa/recovery-codes',
-  '/account/addresses',
-  '/account/favourites',
-  '/account/help',
-  '/account/orders',
-  '/account/providers',
-  '/account/reviews',
-  '/account/sessions',
-  '/account/settings',
-  '/account/2fa/reauthenticate',
-] as const
-
 export const AuthenticatedRoutes = [
-  '/account',
-  '/account/2fa',
-  '/account/email',
-  '/account/reauthenticate',
-] as const
+  'account',
+  'account-2fa',
+  'account-2fa-webauthn-add',
+  'account-2fa-totp-activate',
+  'account-2fa-totp-deactivate',
+  'account-2fa-recovery-codes',
+  'account-2fa-recovery-codes-generate',
+  'account-2fa-webauthn',
+  'account-2fa-webauthn-add',
+  'account-addresses',
+  'account-addresses-new',
+  'account-addresses-id-edit',
+  'account-email',
+  'account-favourites-posts',
+  'account-favourites-products',
+  'account-help',
+  'account-orders',
+  'account-orders-id',
+  'account-password-change',
+  'account-providers',
+  'account-reviews',
+  'account-sessions',
+  'account-settings',
+] as const satisfies readonly (keyof RouteNamedMapI18n)[]
+
+export const AuthenticatedRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthenticatedRoutes)
 
 export const THEME_COLORS = {
   themeDark: '#1a202c',
@@ -40,19 +49,12 @@ export const THEME_COLORS = {
   backgroundLight: '#1a202c',
 } as const
 
-export const defaultScreenConfig = {
-  [ScreenSizeEnum.SMALL]: 576,
-  [ScreenSizeEnum.MEDIUM]: 768,
-  [ScreenSizeEnum.LARGE]: 992,
-  [ScreenSizeEnum.EXTRA_LARGE]: 1200,
-} as const
-
-export const AuthProcess = {
+export const GSIAuthProcess = {
   LOGIN: 'login',
   CONNECT: 'connect',
 } as const
 
-export const URLs = {
+export const RedirectToURLs = {
   LOGIN_URL: 'account-login',
   LOGIN_REDIRECT_URL: 'account',
   LOGOUT_REDIRECT_URL: 'index',

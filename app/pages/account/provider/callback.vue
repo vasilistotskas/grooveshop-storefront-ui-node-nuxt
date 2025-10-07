@@ -23,7 +23,7 @@ const {
 const { t } = useI18n()
 const authInfo = useAuthInfo()
 
-const url = ref<typeof URLs[keyof typeof URLs]>(URLs.LOGIN_URL)
+const url = ref<typeof RedirectToURLs[keyof typeof RedirectToURLs]>(RedirectToURLs.LOGIN_URL)
 const error = ref(false)
 const loading = ref(true)
 
@@ -47,7 +47,7 @@ onMounted(async () => {
   }
 
   if (authInfo.isAuthenticated) {
-    url.value = URLs.LOGIN_REDIRECT_URL
+    url.value = RedirectToURLs.LOGIN_REDIRECT_URL
     await navigateTo(localePath(url.value))
     return
   }

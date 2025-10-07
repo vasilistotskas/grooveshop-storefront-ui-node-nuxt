@@ -1,3 +1,5 @@
-export const isRouteProtected = (route: string) => {
-  return AuthenticatedRoutePrefixes.some(prefix => route.startsWith(prefix)) || AuthenticatedRoutes.includes(route as typeof AuthenticatedRoutes[number])
+import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+
+export const isRouteProtected = (route: keyof RouteNamedMapI18n) => {
+  return AuthenticatedRoutesSet.has(route)
 }

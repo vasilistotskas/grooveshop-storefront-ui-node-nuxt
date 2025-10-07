@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
-
 defineProps({
   useToggle: {
     type: Boolean,
@@ -23,7 +21,7 @@ const {
 const navbar = ref(null)
 const isScrolled = ref(false)
 
-const routeName = computed(() => $routeBaseName(route as unknown as keyof RouteNamedMapI18n))
+const routeName = computed(() => $routeBaseName(route))
 const isPageWithH1 = computed(() => {
   if (!routeName.value) return false
   return ['blog-post-id-slug'].includes(routeName.value)

@@ -78,7 +78,7 @@ function getTypeLabel(type: string) {
   const labels: Record<string, string> = {
     webauthn: 'WebAuthn',
     totp: 'TOTP',
-    recovery_codes: $i18n.t('recovery_codes'),
+    recovery_codes: t('recovery_codes'),
   }
   return labels[type] || type
 }
@@ -127,13 +127,19 @@ const actionItems = (row: { id: number, name: string, type: string, created_at: 
     label: $i18n.t('edit.title'),
     icon: 'i-heroicons-pencil-20-solid',
     class: 'cursor-pointer',
+    ui: {
+      itemLeadingIcon: 'text-dark dark:text-white',
+    },
     onSelect: () => (editId.value = row.id),
   })
 
   items.push({
     label: $i18n.t('delete.title'),
     icon: 'i-heroicons-trash-20-solid',
-    class: 'cursor-pointer text-white bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
+    class: 'cursor-pointer',
+    ui: {
+      itemLeadingIcon: 'text-red-500 dark:text-red-500 hover:text-red-500 hover:dark:text-red-500',
+    },
     onSelect: async () => await deleteKey(key),
   })
 
@@ -159,139 +165,143 @@ onReactivated(async () => {
     "
   >
     <slot />
-    <div class="flex w-full flex-col gap-4">
-      <UAlert
-        color="info"
-        variant="soft"
-        icon="i-heroicons-key"
-        :title="t('webauthn.info.title')"
-        :description="t('webauthn.info.description')"
-      />
-
-      <section
-        class="
-          grid gap-4
-          md:gap-8
-        "
-      >
-        <UTable
-          :columns="columns"
-          :empty-state="{
-            icon: 'i-heroicons-key',
-            label: $i18n.t('empty.title'),
-            description: t('empty.description'),
-          }"
-          :data="rows"
-          :loading="loading"
-        >
-          <template #name-cell="{ row }">
-            <div class="flex items-center gap-2">
-              <UInput
-                v-model="row.original.name"
-                :name="row.original.name"
-                size="sm"
-                color="neutral"
-                variant="none"
-                :placeholder="row.original.name || t('unnamed_key')"
-                :disabled="editId !== row.original.id"
-                :loading="loading"
-                :ui="{
-                  base: '!p-0',
-                }"
-              >
-                <template #trailing>
-                  <UTooltip
-                    v-if="row.original.name && editId === row.original.id"
-                    :text="$i18n.t('save')"
-                  >
-                    <UButton
-                      color="success"
-                      variant="link"
-                      icon="i-heroicons-check-20-solid"
-                      :padded="false"
-                      @click="onSave(row.original, row.original.name)"
-                    />
-                  </UTooltip>
-                </template>
-              </UInput>
-              <UBadge
-                v-if="row.original.is_passwordless"
-                color="secondary"
-                variant="soft"
-                :label="t('passwordless')"
-              />
-            </div>
-          </template>
-          <template #type-cell="{ row }">
-            <UBadge
-              :color="getTypeColor(row.original.type)"
-              variant="subtle"
-            >
-              {{ getTypeLabel(row.original.type) }}
-            </UBadge>
-          </template>
-          <template #created_at-cell="{ row }">
-            <span class="text-sm text-muted">
-              {{ new Date(row.original.created_at * 1000).toLocaleString() }}
-            </span>
-          </template>
-          <template #last_used_at-cell="{ row }">
-            <span class="text-sm">
-              <UBadge
-                v-if="!row.original.last_used_at"
-                color="neutral"
-                variant="soft"
-              >
-                {{ $i18n.t('unused') }}
-              </UBadge>
-              <span v-else class="text-muted">
-                {{ new Date(row.original.last_used_at * 1000).toLocaleString() }}
-              </span>
-            </span>
-          </template>
-          <template #actions-cell="{ row }">
-            <UTooltip :text="$i18n.t('actions')">
-              <LazyUDropdownMenu
-                v-if="actionItems({
-                  id: row.original.id,
-                  name: row.original.name ?? '',
-                  type: row.original.type,
-                  created_at: row.original.created_at,
-                  last_used_at: row.original.last_used_at ?? null,
-                }).length > 0"
-                :items="actionItems({
-                  id: row.original.id,
-                  name: row.original.name ?? '',
-                  type: row.original.type,
-                  created_at: row.original.created_at,
-                  last_used_at: row.original.last_used_at ?? null,
-                })"
-              >
-                <UButton
-                  color="neutral"
-                  icon="i-heroicons-ellipsis-horizontal-20-solid"
-                  variant="ghost"
-                  size="sm"
-                />
-              </LazyUDropdownMenu>
-            </UTooltip>
-          </template>
-        </UTable>
-      </section>
-
-      <div class="flex items-center justify-between pt-2">
-        <span class="text-sm text-muted">
-          {{ t('total') }}: {{ t('total_keys', { count: rows.length }) }}
-        </span>
-        <UButton
-          :label="$i18n.t('add.title')"
-          :to="localePath('account-2fa-webauthn-add')"
-          icon="i-heroicons-plus"
-          color="neutral"
-          size="md"
-          type="button"
+    <div class="w-full space-y-6">
+      <UCard>
+        <UAlert
+          color="info"
+          variant="soft"
+          icon="i-heroicons-key"
+          :title="t('webauthn.info.title')"
+          :description="t('webauthn.info.description')"
         />
-      </div>
+
+        <section
+          class="
+            grid gap-4
+            md:gap-8
+          "
+        >
+          <UTable
+            :columns="columns"
+            :empty-state="{
+              icon: 'i-heroicons-key',
+              label: $i18n.t('empty.title'),
+              description: t('empty.description'),
+            }"
+            :data="rows"
+            :loading="loading"
+          >
+            <template #name-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <UInput
+                  v-model="row.original.name"
+                  :name="row.original.name"
+                  size="sm"
+                  color="neutral"
+                  variant="none"
+                  :placeholder="row.original.name || t('unnamed_key')"
+                  :disabled="editId !== row.original.id"
+                  :loading="loading"
+                  :ui="{
+                    base: '!p-0',
+                  }"
+                >
+                  <template #trailing>
+                    <UTooltip
+                      v-if="row.original.name && editId === row.original.id"
+                      :text="$i18n.t('save')"
+                    >
+                      <UButton
+                        color="success"
+                        variant="link"
+                        icon="i-heroicons-check-20-solid"
+                        :padded="false"
+                        @click="onSave(row.original, row.original.name)"
+                      />
+                    </UTooltip>
+                  </template>
+                </UInput>
+                <UBadge
+                  v-if="row.original.is_passwordless"
+                  color="secondary"
+                  variant="soft"
+                  :label="t('passwordless')"
+                />
+              </div>
+            </template>
+            <template #type-cell="{ row }">
+              <UBadge
+                :color="getTypeColor(row.original.type)"
+                variant="subtle"
+              >
+                {{ getTypeLabel(row.original.type) }}
+              </UBadge>
+            </template>
+            <template #created_at-cell="{ row }">
+              <span class="text-sm text-muted">
+                {{ new Date(row.original.created_at * 1000).toLocaleString() }}
+              </span>
+            </template>
+            <template #last_used_at-cell="{ row }">
+              <span class="text-sm">
+                <UBadge
+                  v-if="!row.original.last_used_at"
+                  color="neutral"
+                  variant="soft"
+                >
+                  {{ $i18n.t('unused') }}
+                </UBadge>
+                <span v-else class="text-muted">
+                  {{ new Date(row.original.last_used_at * 1000).toLocaleString() }}
+                </span>
+              </span>
+            </template>
+            <template #actions-cell="{ row }">
+              <UTooltip :text="$i18n.t('actions')">
+                <LazyUDropdownMenu
+                  v-if="actionItems({
+                    id: row.original.id,
+                    name: row.original.name ?? '',
+                    type: row.original.type,
+                    created_at: row.original.created_at,
+                    last_used_at: row.original.last_used_at ?? null,
+                  }).length > 0"
+                  :items="actionItems({
+                    id: row.original.id,
+                    name: row.original.name ?? '',
+                    type: row.original.type,
+                    created_at: row.original.created_at,
+                    last_used_at: row.original.last_used_at ?? null,
+                  })"
+                >
+                  <UButton
+                    color="neutral"
+                    icon="i-heroicons-ellipsis-horizontal-20-solid"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </LazyUDropdownMenu>
+              </UTooltip>
+            </template>
+          </UTable>
+        </section>
+
+        <template #footer>
+          <div class="flex items-center justify-between pt-2">
+            <span class="text-sm text-muted">
+              {{ t('total') }}: {{ t('total_keys', { count: rows.length }) }}
+            </span>
+            <UButton
+              :label="$i18n.t('add.title')"
+              :to="localePath('account-2fa-webauthn-add')"
+              icon="i-heroicons-plus"
+              color="neutral"
+              size="md"
+              type="button"
+            />
+          </div>
+        </template>
+      </UCard>
     </div>
   </div>
 </template>
@@ -302,12 +312,12 @@ el:
   webauthn:
     info:
       title: Κλειδιά Ασφαλείας WebAuthn
-      description: Διαχειριστείτε τα κλειδιά ασφαλείας WebAuthn που χρησιμοποιείτε για έλεγχο ταυτότητας. Μπορείτε να χρησιμοποιήσετε υλικά κλειδιά ασφαλείας ή βιομετρικά στοιχεία του συστήματός σας.
+      description: Διαχειρίσου τα κλειδιά ασφαλείας WebAuthn που χρησιμοποιείς για έλεγχο ταυτότητας. Μπορείς να χρησιμοποιήσεις υλικά κλειδιά ασφαλείας ή βιομετρικά στοιχεία του συστήματός σου.
   passwordless: Χωρίς κωδικό
   recovery_codes: Κωδικοί ανάκτησης
   unnamed_key: Ανώνυμο κλειδί
   total: Σύνολο
   total_keys: Δεν υπάρχουν κλειδιά | 1 κλειδί | {count} κλειδιά
   empty:
-    description: Προσθέστε ένα κλειδί ασφαλείας για να ξεκινήσετε
+    description: Πρόσθεσε ένα κλειδί ασφαλείας για να ξεκινήσεις
 </i18n>

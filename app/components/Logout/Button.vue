@@ -15,10 +15,13 @@ const { cleanCartState, refreshCart } = cartStore
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
+const { $i18n, $routeBaseName } = useNuxtApp()
+
+const routeName = computed(() => $routeBaseName(route))
 
 const onClickLogout = async () => {
-  if (isRouteProtected(route.path))
+  if (!routeName.value) return
+  if (isRouteProtected(routeName.value))
     await navigateTo(localePath('index'))
 
   cleanCartState()

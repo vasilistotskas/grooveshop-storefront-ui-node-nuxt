@@ -10,7 +10,8 @@
     "api": {
       "invalid_login": "Λανθασμένος κωδικός",
       "email_password_mismatch": "Λανθασμένος κωδικός",
-      "enter_current_password": "Παρακαλώ γράψτε το τρέχον συνθηματικό σας."
+      "enter_current_password": "Παρακαλώ γράψτε το τρέχον συνθηματικό σας.",
+      "incorrect_code": "Λανθασμένος κωδικός"
     },
     "password": {
       "must_not_be_same": "Ο νέος κωδικός δεν πρέπει να είναι ίδιος με τον τρέχοντα"

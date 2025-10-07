@@ -53,7 +53,7 @@ async function onSubmit(values: {
 const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
-      label: t('name'),
+      label: $i18n.t('name'),
       name: 'name',
       as: 'input',
       rules: z.string({ error: issue => issue.input === undefined
@@ -88,55 +88,57 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 <template>
   <section
     class="
-      grid gap-6
+      grid gap-4
       lg:flex
     "
   >
     <slot />
-    <div class="flex w-full flex-col gap-4">
-      <UAlert
-        color="info"
-        variant="soft"
-        icon="i-heroicons-information-circle"
-        :title="t('alert.title')"
-        :description="t('alert.description')"
-      />
-
-      <div class="space-y-4">
-        <div>
-          <h3 class="mb-2 text-lg font-semibold">
-            {{ t('add_key_title') }}
-          </h3>
-          <p class="text-sm text-muted">
-            {{ t('add_key_description') }}
-          </p>
-        </div>
-
+    <div class="w-full space-y-6">
+      <UCard>
         <UAlert
           color="info"
           variant="soft"
-          icon="i-heroicons-light-bulb"
-        >
-          <template #title>
-            {{ t('tip.title') }}
-          </template>
-          <template #description>
-            <ul class="mt-2 list-inside list-disc space-y-1 text-sm">
-              <li>{{ t('tip.browser') }}</li>
-              <li>{{ t('tip.device') }}</li>
-              <li>{{ t('tip.passwordless') }}</li>
-            </ul>
-          </template>
-        </UAlert>
-      </div>
+          icon="i-heroicons-information-circle"
+          :title="t('alert.title')"
+          :description="t('alert.description')"
+        />
 
-      <DynamicForm
-        class="!flex flex-col"
-        :button-label="$i18n.t('submit')"
-        :schema="formSchema"
-        :loading="loading"
-        @submit="onSubmit"
-      />
+        <div class="space-y-4 pt-4 pb-4">
+          <div>
+            <h3 class="mb-2 text-lg font-semibold">
+              {{ t('add_key_title') }}
+            </h3>
+            <p class="text-sm text-muted">
+              {{ t('add_key_description') }}
+            </p>
+          </div>
+
+          <UAlert
+            color="info"
+            variant="soft"
+            icon="i-heroicons-light-bulb"
+          >
+            <template #title>
+              {{ t('tip.title') }}
+            </template>
+            <template #description>
+              <ul class="mt-2 list-inside list-disc space-y-1 text-sm">
+                <li>{{ t('tip.browser') }}</li>
+                <li>{{ t('tip.device') }}</li>
+                <li>{{ t('tip.passwordless') }}</li>
+              </ul>
+            </template>
+          </UAlert>
+        </div>
+
+        <DynamicForm
+          class="!flex flex-col"
+          :button-label="$i18n.t('submit')"
+          :schema="formSchema"
+          :loading="loading"
+          @submit="onSubmit"
+        />
+      </UCard>
     </div>
   </section>
 </template>
@@ -145,16 +147,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
 el:
   name_placeholder: π.χ. "YubiKey μου" ή "Τηλέφωνο εργασίας"
   add_key_title: Προσθήκη νέου κλειδιού ασφαλείας
-  add_key_description: Δώστε ένα περιγραφικό όνομα στο κλειδί σας για να το αναγνωρίζετε εύκολα.
+  add_key_description: Δώσε ένα περιγραφικό όνομα στο κλειδί σου για να το αναγνωρίζεις εύκολα.
   passwordless: Χωρίς κωδικό
   alert:
     title: Τι είναι το WebAuthn;
-    description: Το WebAuthn σας επιτρέπει να χρησιμοποιείτε κλειδιά ασφαλείας (όπως YubiKey) ή βιομετρικά στοιχεία (όπως αναγνώριση προσώπου ή δακτυλικών αποτυπωμάτων) για ασφαλή σύνδεση στον λογαριασμό σας.
+    description: Το WebAuthn σου επιτρέπει να χρησιμοποιήσεις κλειδιά ασφαλείας (όπως YubiKey) ή βιομετρικά στοιχεία (όπως αναγνώριση προσώπου ή δακτυλικών αποτυπωμάτων) για ασφαλή σύνδεση στον λογαριασμό σου.
   tip:
     title: Συμβουλές
-    browser: Βεβαιωθείτε ότι το πρόγραμμα περιήγησής σας υποστηρίζει WebAuthn
-    device: Έχετε έτοιμο το κλειδί ασφαλείας ή τη συσκευή σας
-    passwordless: Η επιλογή "Χωρίς κωδικό" σας επιτρέπει να συνδεθείτε χωρίς κωδικό πρόσβασης
+    browser: Βεβαιώσου ότι το πρόγραμμα περιήγησής σου υποστηρίζει WebAuthn
+    device: Έχεις έτοιμο το κλειδί ασφαλείας ή τη συσκευή σου
+    passwordless: Η επιλογή "Χωρίς κωδικό" σου επιτρέπει να συνδεθείς χωρίς κωδικό πρόσβασης
   error:
-    webauthn_failed: Η διαδικασία WebAuthn απέτυχε. Δοκιμάστε ξανά.
+    webauthn_failed: Η διαδικασία WebAuthn απέτυχε. Δοκίμασε ξανά.
 </i18n>

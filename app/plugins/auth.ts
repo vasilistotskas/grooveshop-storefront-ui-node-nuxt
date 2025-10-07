@@ -33,7 +33,7 @@ export default defineNuxtPlugin({
 
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
         console.info('Authenticated')
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 400))
         await fetch()
       }
 
@@ -81,7 +81,7 @@ export default defineNuxtPlugin({
           console.info('handleLoggedOut, clearing user session')
           await clear()
         }
-        return await navigateToUrl({ path: URLs.LOGIN_REDIRECT_URL })
+        return await navigateToUrl({ path: RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
         console.error('Error handling logged out:', error)
@@ -95,7 +95,7 @@ export default defineNuxtPlugin({
         const returnToPath = route.query.next?.toString()
         const isRedirectingToLogin = returnToPath === 'account-login'
         const redirectTo = isRedirectingToLogin || !returnToPath
-          ? URLs.LOGIN_REDIRECT_URL
+          ? RedirectToURLs.LOGIN_REDIRECT_URL
           : returnToPath as keyof RouteNamedMapI18n
         return await navigateToUrl({ path: redirectTo })
       }
@@ -108,7 +108,7 @@ export default defineNuxtPlugin({
       try {
         const router = useRouter()
         const next = router.currentRoute.value.query.next as keyof RouteNamedMapI18n
-        return await navigateToUrl({ path: next || URLs.LOGIN_REDIRECT_URL })
+        return await navigateToUrl({ path: next || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
         console.error('Error handling reauthenticated:', error)

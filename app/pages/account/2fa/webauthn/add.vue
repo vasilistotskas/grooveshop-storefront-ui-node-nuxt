@@ -7,15 +7,10 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:gap-8 md:!p-0
-    "
-  >
+  <PageWrapper class="md:!p-0">
     <PageTitle
       :text="t('title')"
-      class="hidden"
+      class="sr-only"
     />
 
     <Account2FaWebAuthnAddForm>

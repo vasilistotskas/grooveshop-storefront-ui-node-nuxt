@@ -9,7 +9,11 @@ export default defineNuxtRouteMiddleware(
     const verifyAuthenticatedRoutes = async (
       to: RouteLocationNormalized,
     ) => {
-      if (loggedIn.value || !isRouteProtected(to.path)) return
+      const routeName = nuxtApp.$routeBaseName(to)
+      if (!routeName) return
+      console.log('---> Route Name:', routeName)
+      console.log('---> To Path:', to.path)
+      if (loggedIn.value || !isRouteProtected(routeName)) return
       console.info('Navigating to Home page due to unauthenticated route:', to.path)
       return nuxtApp.runWithContext(() => navigateTo(localePath('index')))
     }

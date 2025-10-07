@@ -145,7 +145,7 @@ export function setupSocialLogin() {
             id_token: response.credential,
             client_id: provider?.client_id ? provider.client_id : '',
           },
-          process: AuthProcess.LOGIN,
+          process: GSIAuthProcess.LOGIN,
         })
       }
 

@@ -181,5 +181,5 @@ onClickOutside(dropdown, () => {
 el:
   notifications:
     title: Ειδοποιήσεις
-    no_notifications: Δεν έχετε ειδοποιήσεις
+    no_notifications: Δεν έχεις ειδοποιήσεις
 </i18n>

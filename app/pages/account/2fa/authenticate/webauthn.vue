@@ -114,7 +114,7 @@ el:
     title: Συνδέθηκες
   use:
     security:
-      key: Χρησιμοποιήστε το κλειδί ασφαλείας
+      key: Χρησιμοποίησε το κλειδί ασφαλείας
   breadcrumb:
     items:
       account-login:

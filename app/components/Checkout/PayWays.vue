@@ -65,5 +65,5 @@ watch(selectedPayWay, (value) => {
 
 <i18n lang="yaml">
 el:
-  title: Επιλέξτε τον τρόπο πληρωμής
+  title: Επέλεξε τον τρόπο πληρωμής
 </i18n>

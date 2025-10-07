@@ -321,7 +321,7 @@ el:
   discount: Έκπτωση
   total: Σύνολο
   proceed_to_checkout: Ολοκλήρωση Παραγγελίας
-  fix_stock_issues_first: Διορθώστε τα προβλήματα διαθεσιμότητας
+  fix_stock_issues_first: Διόρθωσε τα προβλήματα διαθεσιμότητας
   stock_status:
     out_of_stock: Το προϊόν δεν είναι διαθέσιμο
     limited_stock: "Διαθέσιμα μόνο {available} τεμάχια (έχετε {requested} στο καλάθι)"
@@ -329,7 +329,7 @@ el:
     limited_title: Περιορισμένη Διαθεσιμότητα
   stock_alert:
     title: Προβλήματα Διαθεσιμότητας
-    description: Κάποια προϊόντα στο καλάθι σας δεν είναι διαθέσιμα στην επιθυμητή ποσότητα.
+    description: Κάποια προϊόντα στο καλάθι σου δεν είναι διαθέσιμα στην επιθυμητή ποσότητα.
     fix_button: Αυτόματη Διόρθωση
   stock_fix:
     success_title: Το καλάθι ενημερώθηκε

@@ -142,9 +142,9 @@ onMounted(() => {
 <i18n lang="yaml">
 el:
   redirecting_to_checkout: Μεταφορά στην σελίδα πληρωμής
-  please_wait: Παρακαλώ περιμένετε...
+  please_wait: Παρακαλώ περίμενε...
   checkout_error: Σφάλμα Checkout
   checkout_session_error: Αποτυχία δημιουργίας συνεδρίας πληρωμής
   retry: Επανάληψη
-  secure_redirect_notice: Θα μεταφερθείτε στην ασφαλή σελίδα πληρωμής της Stripe. Μην κλείσετε αυτό το παράθυρο.
+  secure_redirect_notice: Θα μεταφερθείς στην ασφαλή σελίδα πληρωμής της Stripe. Μην κλείσεις αυτό το παράθυρο.
 </i18n>

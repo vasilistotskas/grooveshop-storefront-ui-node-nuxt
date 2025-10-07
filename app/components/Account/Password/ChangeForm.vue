@@ -124,7 +124,7 @@ async function onSubmit() {
   >
     <slot />
 
-    <div class="space-y-6">
+    <div class="w-full space-y-6">
       <UCard>
         <template #header>
           <div class="flex items-center gap-3">
@@ -173,7 +173,7 @@ async function onSubmit() {
         <UForm
           :schema="schema"
           :state="state"
-          class="space-y-6"
+          class="w-full space-y-6"
           @submit="onSubmit"
         >
           <UFormField
@@ -200,7 +200,7 @@ async function onSubmit() {
                   variant="link"
                   size="sm"
                   :icon="showCurrent ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  :aria-label="showCurrent ? 'Hide password' : 'Show password'"
+                  :aria-label="showCurrent ? t('hide_password') : t('show_password')"
                   @click="showCurrent = !showCurrent"
                 />
               </template>
@@ -231,7 +231,7 @@ async function onSubmit() {
                   variant="link"
                   size="sm"
                   :icon="showNew ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  :aria-label="showNew ? 'Hide password' : 'Show password'"
+                  :aria-label="showNew ? t('hide_password') : t('show_password')"
                   @click="showNew = !showNew"
                 />
               </template>
@@ -254,7 +254,7 @@ async function onSubmit() {
                 {{ strengthText }}
               </p>
 
-              <ul class="mt-3 space-y-1.5" aria-label="Password requirements">
+              <ul class="mt-3 space-y-1.5" :aria-label="t('password.requirements.title')">
                 <li
                   v-for="(req, index) in passwordStrength"
                   :key="index"
@@ -297,7 +297,7 @@ async function onSubmit() {
                   variant="link"
                   size="sm"
                   :icon="showConfirm ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  :aria-label="showConfirm ? 'Hide password' : 'Show password'"
+                  :aria-label="showConfirm ? t('hide_password') : t('show_password')"
                   @click="showConfirm = !showConfirm"
                 />
               </template>
@@ -311,7 +311,7 @@ async function onSubmit() {
               variant="outline"
               size="lg"
               icon="i-heroicons-check"
-              :label="hasCurrentPassword ? t('change.submit') : $i18n.t('set.submit')"
+              :label="hasCurrentPassword ? t('change.submit') : t('set.submit')"
             />
 
             <UButton
@@ -337,6 +337,7 @@ el:
     new: Νέος κωδικός
     confirm: Επιβεβαίωση κωδικού
     requirements:
+      title: Απαιτήσεις κωδικού πρόσβασης
       length: Τουλάχιστον 8 χαρακτήρες
       number: Τουλάχιστον 1 αριθμός
       lowercase: Τουλάχιστον 1 πεζό γράμμα
@@ -348,15 +349,17 @@ el:
       strong: Ισχυρός κωδικός
   change:
     title: Αλλαγή κωδικού πρόσβασης
-    description: Ενημερώστε τον κωδικό σας για να διατηρήσετε τον λογαριασμό σας ασφαλή
+    description: Ενημέρωσε τον κωδικό σου για να διατηρήσεις τον λογαριασμό σου ασφαλή
     submit: Αλλαγή κωδικού
   set:
     title: Αλλαγή κωδικού πρόσβασης
-    description: Δημιουργήστε έναν ισχυρό κωδικό για να προστατεύσετε τον λογαριασμό σας
+    description: Δημιούργησε έναν ισχυρό κωδικό για να προστατεύσεις τον λογαριασμό σου
     submit: Όρισε κωδικό
   common:
     cancel: Ακύρωση
   security:
     title: Ασφαλής κωδικός
-    description: Βεβαιωθείτε ότι ο κωδικός σας περιέχει τουλάχιστον 8 χαρακτήρες με συνδυασμό γραμμάτων και αριθμών
+    description: Βεβαιώσου ότι ο κωδικός σου περιέχει τουλάχιστον 8 χαρακτήρες με συνδυασμό γραμμάτων και αριθμών
+  hide_password: Απόκρυψη κωδικού πρόσβασης
+  show_password: Εμφάνιση κωδικού πρόσβασης
 </i18n>

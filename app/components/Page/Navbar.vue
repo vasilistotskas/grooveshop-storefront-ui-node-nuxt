@@ -6,14 +6,18 @@ const { user, loggedIn } = useUserSession()
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+const { t } = useI18n()
 const localePath = useLocalePath()
 const { enabled } = useAuthPreviewMode()
-const { $i18n } = useNuxtApp()
+const { $i18n, $routeBaseName } = useNuxtApp()
+
+const routeName = computed(() => $routeBaseName(route))
 
 const searchBarFocused = useState<boolean>('searchBarFocused', () => false)
 
 const onClickLogout = async () => {
-  if (isRouteProtected(route.path))
+  if (!routeName.value) return
+  if (isRouteProtected(routeName.value))
     await navigateTo(localePath('index'))
 
   cleanCartState()
@@ -77,7 +81,7 @@ const items = computed(() => [
         "
       >
         <nav
-          aria-label="Main Navigation"
+          :aria-label="t('navigation')"
           class="
             flex items-center text-lg leading-6 font-semibold text-primary-950
             dark:text-primary-50
@@ -204,12 +208,12 @@ const items = computed(() => [
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
               >
-                <LazyUserAvatar
+                <UserAvatar
                   :img-height="30"
                   :img-width="30"
                   :show-name="false"
                   :user-account="user"
-                  aria-label="User profile"
+                  :aria-label="t('user.profile')"
                 />
 
                 <template #account="{ item }">
@@ -268,3 +272,10 @@ const items = computed(() => [
     </template>
   </BuilderNavbar>
 </template>
+
+<i18n lang="yaml">
+el:
+  navigation: Πλοήγηση
+  user:
+    profile: Προφίλ
+</i18n>

@@ -766,9 +766,9 @@ el:
   home: Αρχική
   shopping_cart: Καλάθι Αγορών
   complete_payment: Ολοκλήρωση Πληρωμής
-  order_created_complete_payment: Η παραγγελία δημιουργήθηκε. Ολοκληρώστε την πληρωμή για να ολοκληρώσετε την παραγγελία.
+  order_created_complete_payment: Η παραγγελία δημιουργήθηκε. Ολοκλήρωσε την πληρωμή για να ολοκληρώσεις την παραγγελία.
   order_created_payment_required: Παραγγελία δημιουργήθηκε
-  complete_payment_to_finish: Ολοκληρώστε την πληρωμή για να ολοκληρώσετε την παραγγελία
+  complete_payment_to_finish: Ολοκληρώστε την πληρωμή για να ολοκληρώσεις την παραγγελία
   back_to_form: Επιστροφή
   order_summary: Σύνοψη Παραγγελίας
   order_number: Αριθμός παραγγελίας
@@ -781,7 +781,7 @@ el:
   redirecting: Μεταφορά στην σελίδα πληρωμής
   steps:
     personal_info: Προσωπικά Στοιχεία
-    personal_info_desc: Συμπληρώστε τα προσωπικά σας στοιχεία
+    personal_info_desc: Συμπλήρωσε τα προσωπικά σου στοιχεία
     address: Διεύθυνση
     address_desc: Συμπληρώστε τη διεύθυνση παράδοσης
     payment: Πληρωμή
@@ -814,7 +814,7 @@ el:
       error:
         general: Σφάλμα δημιουργίας παραγγελίας
         inventory: Ανεπαρκές απόθεμα διαθέσιμο
-        validation: Παρακαλώ ελέγξτε τα στοιχεία της φόρμας
+        validation: Παρακαλώ έλεγξε τα στοιχεία της φόρμας
   validation:
     required: Το πεδίο είναι υποχρεωτικό
     email:

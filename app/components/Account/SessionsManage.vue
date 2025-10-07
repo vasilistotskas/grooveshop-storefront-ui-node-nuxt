@@ -109,7 +109,10 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
     {
       label: $i18n.t('logout'),
       icon: 'i-heroicons-arrow-right-start-on-rectangle',
-      class: session.is_current ? '' : 'cursor-pointer text-white bg-red-500 dark:bg-red-500 hover:dark:bg-red-600',
+      class: session.is_current ? '' : 'cursor-pointer',
+      ui: {
+        itemLeadingIcon: 'text-red-500 dark:text-red-500 hover:text-red-500 hover:dark:text-red-500',
+      },
       disabled: session.is_current,
       onSelect: () => {
         if (!session.is_current) {
@@ -129,7 +132,12 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
     "
   >
     <slot />
-    <div class="space-y-6">
+    <div
+      class="
+        w-full space-y-6 overflow-auto
+        md:overflow-visible
+      "
+    >
       <UCard>
         <UAlert
           color="info"
@@ -227,7 +235,12 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           </template>
         </UTable>
 
-        <div class="flex items-center justify-between pt-2">
+        <div
+          class="
+            flex flex-col items-center justify-between gap-2 pt-2
+            md:flex-row
+          "
+        >
           <span class="text-sm text-muted">
             {{ t('sessions.total', { count: data.length, other: otherSessions.length }) }}
           </span>
@@ -249,6 +262,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           color="warning"
           variant="soft"
           icon="i-heroicons-exclamation-triangle"
+          class="mt-6"
           :title="t('sessions.security.title')"
           :description="t('sessions.security.description')"
         />
@@ -267,16 +281,16 @@ el:
   sessions:
     info:
       title: Ενεργές Συνεδρίες
-      description: Παρακολουθήστε και διαχειριστείτε όλες τις ενεργές συνεδρίες σας. Μπορείτε να αποσυνδεθείτε από οποιαδήποτε συσκευή για επιπλέον ασφάλεια.
+      description: Παρακολούθησε και διαχειρίσου όλες τις ενεργές συνεδρίες σου. Μπορείς να αποσυνδεθείς από οποιαδήποτε συσκευή για επιπλέον ασφάλεια.
     active: Ενεργή
-    current: Αυτή είναι η τρέχουσα συνεδρία σας
+    current: Αυτή είναι η τρέχουσα συνεδρία σου
     other: Άλλη συσκευή
-    cannot_logout_current: Δεν μπορείτε να αποσυνδεθείτε από την τρέχουσα συνεδρία
+    cannot_logout_current: Δεν μπορείς να αποσυνδεθείς από την τρέχουσα συνεδρία
     total: 'Σύνολο: {count} συνεδρία/συνεδρίες ({other} άλλες)'
     empty:
       title: Δεν υπάρχουν ενεργές συνεδρίες
-      description: Θα δείτε τις συνδεδεμένες συσκευές σας εδώ
+      description: Θα δείς τις συνδεδεμένες συσκευές σου εδώ
     security:
       title: Ασφάλεια Λογαριασμού
-      description: Αν δείτε συνεδρίες που δεν αναγνωρίζετε, αποσυνδεθείτε αμέσως και αλλάξτε τον κωδικό σας.
+      description: Αν δείς συνεδρίες που δεν αναγνωρίζεις, αποσυνδέσου αμέσως και αλλάξτε τον κωδικό σου.
 </i18n>

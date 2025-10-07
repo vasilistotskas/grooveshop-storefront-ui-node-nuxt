@@ -116,7 +116,7 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Επιβεβαίωση διεύθυνσης ηλεκτρονικού ταχυδρομείου
-  please_confirm_that: Παρακαλώ επιβεβαιώστε ότι η διεύθυνση
+  please_confirm_that: Παρακαλώ επιβεβαίωσε ότι η διεύθυνση
   is_an_email_address_for_user: ανήκει στον χρήστη
   invalid_verification_url: Μη έγκυρος σύνδεσμος επαλήθευσης
   unable_to_confirm_email: Αδυναμία επιβεβαίωσης email

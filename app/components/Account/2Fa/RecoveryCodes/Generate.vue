@@ -75,7 +75,7 @@ onReactivated(async () => {
   >
     <slot />
 
-    <div class="space-y-6">
+    <div class="w-full space-y-6">
       <UCard>
         <template #header>
           <div class="flex items-center gap-3">

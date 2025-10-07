@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-const { t } = useI18n()
 const toast = useToast()
 const { $i18n } = useNuxtApp()
 
@@ -36,7 +35,7 @@ async function onSubmit(values: ContactWriteRequest) {
 const formSchema = computed<DynamicFormSchema>(() => ({
   fields: [
     {
-      label: t('name'),
+      label: $i18n.t('name'),
       name: 'name',
       as: 'input',
       rules: z.string({ error: issue => issue.input === undefined
@@ -45,7 +44,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       autocomplete: 'name',
       readonly: false,
       required: true,
-      placeholder: t('name'),
+      placeholder: $i18n.t('name'),
       type: 'text',
       condition: () => true,
       disabledCondition: () => false,

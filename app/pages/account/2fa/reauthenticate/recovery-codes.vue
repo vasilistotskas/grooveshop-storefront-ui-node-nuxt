@@ -18,5 +18,5 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   reauthenticate:
-    recovery_code: Εισήγαγε έναν κωδικό ανάκτησης
+    recovery_code: Εισάγαγε έναν κωδικό ανάκτησης
 </i18n>
