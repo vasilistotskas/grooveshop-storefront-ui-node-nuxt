@@ -1,3 +1,10 @@
+# [3.9.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.8.0...v3.9.0) (2025-10-07)
+
+
+### Features
+
+* Refactor 2FA and account settings UI and i18n (el-GR) ([7871894](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7871894dd07da7f2f98ceb0b9672e0159d0044e7))
+
 # [3.8.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.7.0...v3.8.0) (2025-10-02)
 
 
