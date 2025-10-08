@@ -1,3 +1,10 @@
+# [3.10.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.9.0...v3.10.0) (2025-10-08)
+
+
+### Features
+
+* Add user notification subscriptions management ([a294184](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a294184f80d0c59274a55ee8fd4944702b23a1ce))
+
 # [3.9.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.8.0...v3.9.0) (2025-10-07)
 
 
