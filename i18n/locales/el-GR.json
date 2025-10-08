@@ -2,6 +2,33 @@
   "id": "ID",
   "type": "Τύπος",
   "favourites": "Αγαπημένα",
+  "subscriptions": "Ειδοποιήσεις",
+  "subscription_notifications": {
+    "subscribe": {
+      "success_title": "Επιτυχής εγγραφή",
+      "success_description": "Εγγραφήκατε επιτυχώς στο θέμα ειδοποιήσεων",
+      "error_title": "Σφάλμα εγγραφής",
+      "error_description": "Δεν ήταν δυνατή η εγγραφή σας. Παρακαλώ δοκιμάστε ξανά."
+    },
+    "unsubscribe": {
+      "success_title": "Επιτυχής διαγραφή",
+      "success_description": "Διαγραφήκατε επιτυχώς από το θέμα ειδοποιήσεων",
+      "error_title": "Σφάλμα διαγραφής",
+      "error_description": "Δεν ήταν δυνατή η διαγραφή σας. Παρακαλώ δοκιμάστε ξανά."
+    },
+    "bulk_subscribe": {
+      "success_title": "Επιτυχής μαζική εγγραφή",
+      "success_description": "Εγγραφήκατε επιτυχώς σε όλα τα επιλεγμένα θέματα"
+    },
+    "bulk_unsubscribe": {
+      "success_title": "Επιτυχής μαζική διαγραφή",
+      "success_description": "Διαγραφήκατε επιτυχώς από όλα τα επιλεγμένα θέματα"
+    },
+    "bulk_operation": {
+      "error_title": "Σφάλμα μαζικής λειτουργίας",
+      "error_description": "Δεν ήταν δυνατή η εκτέλεση της λειτουργίας. Παρακαλώ δοκιμάστε ξανά."
+    }
+  },
   "settings": "Ρυθμίσεις",
   "addresses": "Διευθύνσεις",
   "orders": "Παραγγελίες",

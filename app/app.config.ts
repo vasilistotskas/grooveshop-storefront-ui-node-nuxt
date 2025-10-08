@@ -48,7 +48,7 @@ export default defineAppConfig({
     },
     switch: {
       slots: {
-        base: 'data-[state=unchecked]:bg-(--ui-secondary)/25',
+        base: 'data-[state=unchecked]:bg-(--ui-secondary)/25 data-[state=unchecked]:dark:bg-gray-300/25',
       },
     },
     avatar: {

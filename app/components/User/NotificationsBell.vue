@@ -55,10 +55,10 @@ const userNotifications = computed(() => {
   if (!data.value) {
     return []
   }
-  return notifications.value?.results?.map((notification) => {
+  return data.value?.map((notification) => {
     return {
       ...notification,
-      notification: data.value?.find(n => (n as any).id === notification.notification),
+      notification: data.value?.find(n => n.id === notification.id),
     }
   })
 })

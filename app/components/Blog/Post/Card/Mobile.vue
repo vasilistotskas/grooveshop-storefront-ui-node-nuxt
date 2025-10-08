@@ -110,7 +110,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         >
           <span
             class="
-              m-auto block w-[70%] text-start text-4xl font-bold tracking-tight
+              m-auto block w-[70%] text-start text-3xl font-bold tracking-tight
               text-primary-50
               sm:w-3/5
               md:w-[66%] md:text-4xl

@@ -23,6 +23,12 @@ export const useAccountMenus = () => {
     },
     {
       type: 'link',
+      text: $i18n.t('subscriptions'),
+      route: { name: 'account-subscriptions', path: '/account/subscriptions' },
+      icon: 'i-heroicons-bell',
+    },
+    {
+      type: 'link',
       text: $i18n.t('settings'),
       route: { name: 'account-settings', path: '/account/settings' },
       icon: 'i-mdi-cog-outline',

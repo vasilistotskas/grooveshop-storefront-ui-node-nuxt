@@ -156,6 +156,9 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
             label: t('sessions.empty.title'),
             description: t('sessions.empty.description'),
           }"
+          :ui="{
+            root: 'max-w-2xl',
+          }"
         >
           <template #is_current-cell="{ row }">
             <UTooltip
@@ -165,7 +168,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
                 v-if="row.original.is_current"
                 color="success"
                 variant="soft"
-                size="xs"
+                size="sm"
                 icon="i-heroicons-check-circle"
               >
                 {{ t('sessions.active') }}
@@ -191,7 +194,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
                 </div>
                 <UTooltip :text="row.original.user_agent">
                   <span class="text-xs text-muted">
-                    {{ contentShorten(row.original.user_agent, 0, 50) }}
+                    {{ contentShorten(row.original.user_agent, 0, 20) }}
                   </span>
                 </UTooltip>
               </div>

@@ -488,10 +488,8 @@ export default defineNuxtConfig({
         ],
       },
     },
-    rateLimiter: {
-      tokensPerInterval: process.env.NODE_ENV === 'production' ? 1200 : 10000,
-      interval: process.env.NODE_ENV === 'production' ? 300000 : 60000,
-    },
+    requestSizeLimiter: false,
+    rateLimiter: false,
   },
   seo: {
     redirectToCanonicalSiteUrl: true,

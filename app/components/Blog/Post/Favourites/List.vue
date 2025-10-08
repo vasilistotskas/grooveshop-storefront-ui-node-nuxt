@@ -84,7 +84,8 @@ const { t, locale } = useI18n()
             :to="{ path: blogPostUrl(favourite.id, favourite.slug) }"
             :text="extractTranslated(favourite, 'title', locale)"
             class="
-              flex truncate text-lg font-bold tracking-tight text-primary-950
+              flex max-w-full truncate text-lg font-bold tracking-tight
+              text-primary-950
               md:h-14
               dark:text-primary-50
             "

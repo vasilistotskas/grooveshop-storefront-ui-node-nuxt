@@ -38,6 +38,7 @@ export const AuthenticatedRoutes = [
   'account-reviews',
   'account-sessions',
   'account-settings',
+  'account-subscriptions',
 ] as const satisfies readonly (keyof RouteNamedMapI18n)[]
 
 export const AuthenticatedRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthenticatedRoutes)
