@@ -35,7 +35,7 @@ defineSlots<{
   >
     <NuxtLinkLocale
       :to="to"
-      class="w-full truncate"
+      class="w-full"
       :aria-label="text"
       :prefetch="false"
     >
