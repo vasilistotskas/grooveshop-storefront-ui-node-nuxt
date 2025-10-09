@@ -26,33 +26,37 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="grid gap-4">
-    <div class="grid w-full items-start gap-4">
-      <div
-        v-if="displayTotal"
-        class="flex items-center justify-center gap-1"
+  <div class="grid gap-6">
+    <div
+      v-if="displayTotal"
+      class="flex items-center justify-center"
+    >
+      <UBadge
+        color="primary"
+        variant="subtle"
+        size="lg"
+        class="px-4 py-2"
       >
-        <span
-          class="text-sm font-semibold"
-        >
+        <span class="text-sm font-semibold">
           {{ t('total', addressesCount) }}
         </span>
-      </div>
-      <ul
-        class="
-          grid grid-cols-1 gap-4
-          md:grid-cols-2
-          lg:grid-cols-3
-        "
-      >
-        <AddressCard
-          v-for="address in addresses"
-          :key="address.id"
-          :address="address"
-          @address-delete="emit('address-delete')"
-        />
-      </ul>
+      </UBadge>
     </div>
+
+    <ul
+      class="
+        grid grid-cols-1 gap-4
+        sm:grid-cols-2
+        lg:grid-cols-3
+      "
+    >
+      <AddressCard
+        v-for="address in addresses"
+        :key="address.id"
+        :address="address"
+        @address-delete="emit('address-delete')"
+      />
+    </ul>
   </div>
 </template>
 

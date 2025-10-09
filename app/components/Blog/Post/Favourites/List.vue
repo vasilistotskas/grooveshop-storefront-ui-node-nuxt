@@ -90,7 +90,7 @@ const { t, locale } = useI18n()
               dark:text-primary-50
             "
           >
-            {{ contentShorten(extractTranslated(favourite, 'title', locale), 0, 52) }}
+            {{ contentShorten(extractTranslated(favourite, 'title', locale), 0, 20) }}
           </Anchor>
         </UCard>
       </template>

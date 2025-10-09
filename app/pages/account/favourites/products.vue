@@ -141,7 +141,7 @@ definePageMeta({
         <USkeleton
           v-for="i in (favourites?.count || 4)"
           :key="i"
-          class="h-[295px] w-full"
+          class="h-72 w-full"
         />
       </div>
     </div>

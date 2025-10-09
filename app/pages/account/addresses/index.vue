@@ -82,51 +82,79 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      flex flex-col gap-4
+      flex flex-col gap-6
       md:mt-1 md:gap-8 md:!p-0
     "
   >
-    <PageTitle
-      :text="t('title')"
-      class="md:mt-0"
-    />
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center justify-between gap-4">
+        <PageTitle
+          :text="t('title')"
+          class="md:mt-0"
+        />
+        <UButton
+          v-if="addresses?.count"
+          color="neutral"
+          size="lg"
+          icon="i-heroicons-plus"
+          :label="t('button')"
+          :to="localePath('account-addresses-new')"
+          class="
+            hidden
+            md:flex
+          "
+        />
+      </div>
 
-    <div class="flex flex-row items-center gap-2">
-      <PaginationPageNumber
-        v-if="pagination"
-        :count="pagination.count"
-        :page="pagination.page"
-        :page-size="pagination.pageSize"
-      />
-      <Ordering
-        :ordering="String(ordering)"
-        :ordering-options="orderingOptions.orderingOptionsArray.value"
-      />
       <UButton
-        class="w-auto"
-        color="secondary"
-        variant="outline"
-        trailing-icon="i-heroicons-plus"
+        color="neutral"
+        size="lg"
+        icon="i-heroicons-plus"
         :label="t('button')"
         :to="localePath('account-addresses-new')"
+        class="md:hidden"
+        block
       />
     </div>
+
+    <UCard
+      v-if="addresses?.count"
+    >
+      <div
+        class="
+          flex flex-col gap-4
+          sm:flex-row sm:items-center sm:justify-between
+        "
+      >
+        <PaginationPageNumber
+          v-if="pagination"
+          :count="pagination.count"
+          :page="pagination.page"
+          :page-size="pagination.pageSize"
+        />
+        <Ordering
+          :ordering="String(ordering)"
+          :ordering-options="orderingOptions.orderingOptionsArray.value"
+        />
+      </div>
+    </UCard>
+
     <LazyAddressList
       v-if="status !== 'pending' && addresses?.count"
       :addresses="addresses?.results"
       :addresses-count="addresses?.count"
       @address-delete="onAddressDelete"
     />
+
     <div
       v-else-if="status === 'pending'"
-      class="grid w-full items-start gap-4"
+      class="grid w-full gap-6"
     >
-      <USkeleton
-        class="flex h-5 w-full items-center justify-center"
-      />
+      <USkeleton class="h-20 w-full rounded-lg" />
       <div
         class="
-          grid grid-cols-2 gap-4
+          grid grid-cols-1 gap-4
+          sm:grid-cols-2
           lg:grid-cols-3
           xl:grid-cols-4
         "
@@ -134,14 +162,18 @@ definePageMeta({
         <USkeleton
           v-for="i in (addresses?.results?.length || 4)"
           :key="i"
-          class="h-[360px] w-full"
+          class="h-[280px] w-full rounded-xl"
         />
       </div>
     </div>
-    <Error
+
+    <UCard
       v-else-if="error"
-      :error="error"
-    />
+      class="p-6"
+    >
+      <Error :error="error" />
+    </UCard>
+
     <AddressAddNew v-else-if="!addresses?.count" />
   </PageWrapper>
 </template>

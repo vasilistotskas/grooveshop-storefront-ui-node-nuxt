@@ -10,6 +10,11 @@ export type ClientOptions = {
  */
 export type ActionEnum = 'subscribe' | 'unsubscribe';
 
+export type AddTrackingRequest = {
+    trackingNumber: string;
+    shippingCarrier: string;
+};
+
 export type BlankEnum = '';
 
 /**
@@ -643,6 +648,17 @@ export type BulkSubscriptionRequest = {
     action: ActionEnum;
 };
 
+export type CancelOrderRequestRequest = {
+    /**
+     * Reason for canceling the order
+     */
+    reason?: string;
+    /**
+     * Whether to automatically refund the payment if the order is paid
+     */
+    refundPayment?: boolean;
+};
+
 export type Cart = {
     readonly id: number;
     user?: number | null;
@@ -905,10 +921,6 @@ export type CreateCheckoutSessionResponse = {
     provider: string;
 };
 
-/**
- * Serializer for creating a Stripe PaymentIntent.
- * For manual confirmation flow, we only need optional payment_data.
- */
 export type CreatePaymentIntentRequestRequest = {
     /**
      * Additional payment data required by the payment provider
@@ -1238,38 +1250,6 @@ export type OrderDetail = {
     readonly isCanceled: boolean;
 };
 
-export type OrderDetailRequest = {
-    user?: number | null;
-    /**
-     * Country Code Alpha 2
-     */
-    country: string;
-    /**
-     * Region Code
-     */
-    region: string;
-    floor?: FloorEnum | BlankEnum;
-    locationType?: LocationTypeEnum | BlankEnum;
-    street: string;
-    streetNumber: string;
-    payWay: number;
-    status?: OrderStatus;
-    firstName: string;
-    lastName: string;
-    email: string;
-    zipcode: string;
-    place?: string;
-    city: string;
-    customerNotes?: string;
-    items: Array<OrderItemDetailRequest>;
-    documentType?: DocumentTypeEnum;
-    paymentId?: string;
-    paymentStatus?: PaymentStatusEnum | BlankEnum;
-    paymentMethod?: string;
-    trackingNumber?: string;
-    shippingCarrier?: string;
-};
-
 export type OrderItem = {
     readonly id: number;
     readonly uuid: string;
@@ -1308,12 +1288,6 @@ export type OrderItemDetail = {
     readonly refundedAmount: number;
     readonly netPrice: number;
     readonly sortOrder: number | null;
-    notes?: string;
-};
-
-export type OrderItemDetailRequest = {
-    order: number;
-    quantity?: number;
     notes?: string;
 };
 
@@ -2451,60 +2425,6 @@ export type PayWayWriteRequest = {
  */
 export type PaymentStatusEnum = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED' | 'CANCELED';
 
-export type PaymentStatusResponse = {
-    orderId: number;
-    paymentStatus: string;
-    isPaid: boolean;
-    statusDetails: {
-        [key: string]: unknown;
-    };
-};
-
-export type ProcessPaymentRequestRequest = {
-    /**
-     * ID of the payment method to use
-     */
-    payWayId: number;
-    /**
-     * Additional payment data required by the payment provider
-     */
-    paymentData?: {
-        [key: string]: unknown;
-    };
-    /**
-     * Stripe Payment Method ID (pm_...)
-     */
-    paymentMethodId?: string;
-    /**
-     * Stripe Customer ID (cus_...)
-     */
-    customerId?: string;
-    /**
-     * URL to redirect to after payment confirmation
-     */
-    returnUrl?: string;
-};
-
-export type ProcessPaymentResponse = {
-    detail: string;
-    orderId: number;
-    paymentStatus: string;
-    paymentId: string;
-    requiresConfirmation: boolean;
-    isOnlinePayment: boolean;
-    providerData: {
-        [key: string]: unknown;
-    };
-    /**
-     * Stripe PaymentIntent client secret for frontend confirmation
-     */
-    clientSecret?: string;
-    /**
-     * Whether the payment requires additional action (3D Secure, etc.)
-     */
-    requiresAction?: boolean;
-};
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -3034,40 +2954,6 @@ export type ProductMeiliSearchResult = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export type ProductRequest = {
-    translations: {
-        el?: {
-            name?: string;
-            description?: string;
-        };
-        en?: {
-            name?: string;
-            description?: string;
-        };
-        de?: {
-            name?: string;
-            description?: string;
-        };
-    };
-    slug: string;
-    category: number;
-    price: number;
-    vat: number;
-    stock?: number;
-    active?: boolean;
-    weight?: {
-        unit?: string;
-        value?: number;
-    } | null;
-    seoTitle?: string;
-    seoDescription?: string;
-    seoKeywords?: string;
-    discountPercent?: number;
-};
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export type ProductReview = {
     readonly id: number;
     product: Product;
@@ -3187,27 +3073,6 @@ export type ProductWriteRequest = {
  * * `10` - Ten
  */
 export type RateEnum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-
-export type RefundRequestRequest = {
-    /**
-     * Refund amount (optional, defaults to full refund)
-     */
-    amount?: number;
-    /**
-     * Currency code (required if amount is specified)
-     */
-    currency?: string;
-};
-
-export type RefundResponse = {
-    detail: string;
-    orderId: number;
-    paymentStatus: string;
-    refundId: string;
-    refundDetails: {
-        [key: string]: unknown;
-    };
-};
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -3652,6 +3517,10 @@ export type Unsubscribe = {
     userEmail?: string;
     topicSlug?: string;
     error?: string;
+};
+
+export type UpdateStatusRequest = {
+    status: OrderStatus;
 };
 
 export type UserAddress = {
@@ -5093,7 +4962,7 @@ export type ListBlogAuthorData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website
          */
@@ -5135,7 +5004,7 @@ export type CreateBlogAuthorData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/author';
 };
@@ -5173,7 +5042,7 @@ export type RetrieveBlogAuthorData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/author/{id}';
 };
@@ -5193,7 +5062,7 @@ export type PartialUpdateBlogAuthorData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/author/{id}';
 };
@@ -5213,7 +5082,7 @@ export type UpdateBlogAuthorData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/author/{id}';
 };
@@ -5269,7 +5138,7 @@ export type ListBlogCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
          */
@@ -5311,7 +5180,7 @@ export type CreateBlogCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/category';
 };
@@ -5349,7 +5218,7 @@ export type RetrieveBlogCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/category/{id}';
 };
@@ -5369,7 +5238,7 @@ export type PartialUpdateBlogCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/category/{id}';
 };
@@ -5389,7 +5258,7 @@ export type UpdateBlogCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/category/{id}';
 };
@@ -5711,7 +5580,7 @@ export type ListBlogCommentData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by comment nesting level (0 for top-level)
          */
@@ -5891,7 +5760,7 @@ export type CreateBlogCommentData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/comment';
 };
@@ -5947,7 +5816,7 @@ export type RetrieveBlogCommentData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/comment/{id}';
 };
@@ -5976,7 +5845,7 @@ export type PartialUpdateBlogCommentData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/comment/{id}';
 };
@@ -6006,7 +5875,7 @@ export type UpdateBlogCommentData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/comment/{id}';
 };
@@ -6807,7 +6676,7 @@ export type ListBlogPostData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by minimum number of approved comments
          */
@@ -6915,7 +6784,7 @@ export type CreateBlogPostData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/post';
 };
@@ -6971,7 +6840,7 @@ export type RetrieveBlogPostData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/post/{id}';
 };
@@ -7000,7 +6869,7 @@ export type PartialUpdateBlogPostData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/post/{id}';
 };
@@ -7030,7 +6899,7 @@ export type UpdateBlogPostData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/post/{id}';
 };
@@ -7632,7 +7501,7 @@ export type ListBlogTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter tags with at most X posts
          */
@@ -7754,7 +7623,7 @@ export type CreateBlogTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/tag';
 };
@@ -7810,7 +7679,7 @@ export type RetrieveBlogTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/tag/{id}';
 };
@@ -7839,7 +7708,7 @@ export type PartialUpdateBlogTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/tag/{id}';
 };
@@ -7869,7 +7738,7 @@ export type UpdateBlogTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/blog/tag/{id}';
 };
@@ -8092,7 +7961,7 @@ export type ListCartItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by maximum discount percentage
          */
@@ -8304,7 +8173,7 @@ export type RetrieveCartItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/cart/item/{id}';
 };
@@ -8342,7 +8211,7 @@ export type PartialUpdateCartItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/cart/item/{id}';
 };
@@ -8469,7 +8338,7 @@ export type ListCartData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by exact last activity date
          */
@@ -8712,7 +8581,7 @@ export type ListCountryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by multiple country codes (comma-separated, alpha-2 or alpha-3)
          */
@@ -8803,7 +8672,7 @@ export type CreateCountryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/country';
 };
@@ -8849,7 +8718,7 @@ export type RetrieveCountryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/country/{alpha_2}';
 };
@@ -8873,7 +8742,7 @@ export type PartialUpdateCountryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/country/{alpha_2}';
 };
@@ -8897,7 +8766,7 @@ export type UpdateCountryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/country/{alpha_2}';
 };
@@ -8908,18 +8777,18 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses];
 
-export type ApiV1HealthRetrieveData = {
+export type HealthRetrieveData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/v1/health';
 };
 
-export type ApiV1HealthRetrieveResponses = {
+export type HealthRetrieveResponses = {
     200: HealthCheckResponse;
 };
 
-export type ApiV1HealthRetrieveResponse = ApiV1HealthRetrieveResponses[keyof ApiV1HealthRetrieveResponses];
+export type HealthRetrieveResponse = HealthRetrieveResponses[keyof HealthRetrieveResponses];
 
 export type GetNotificationsByIdsData = {
     body: NotificationIdsRequest;
@@ -8974,7 +8843,7 @@ export type ListNotificationUserData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by notification ID
          */
@@ -9135,7 +9004,7 @@ export type CreateNotificationUserData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/notification/user';
 };
@@ -9173,7 +9042,7 @@ export type RetrieveNotificationUserData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/notification/user/{id}';
 };
@@ -9193,7 +9062,7 @@ export type PartialUpdateNotificationUserData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/notification/user/{id}';
 };
@@ -9213,7 +9082,7 @@ export type UpdateNotificationUserData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/notification/user/{id}';
 };
@@ -9437,7 +9306,7 @@ export type ListOrderData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by customer last name (case-insensitive)
          */
@@ -9669,7 +9538,7 @@ export type CreateOrderData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order';
 };
@@ -9735,7 +9604,7 @@ export type ListOrderItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by notes content (case-insensitive)
          */
@@ -9946,7 +9815,7 @@ export type CreateOrderItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order-items';
 };
@@ -9984,7 +9853,7 @@ export type RetrieveOrderItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order-items/{id}';
 };
@@ -10004,7 +9873,7 @@ export type PartialUpdateOrderItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order-items/{id}';
 };
@@ -10024,7 +9893,7 @@ export type UpdateOrderItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order-items/{id}';
 };
@@ -10086,7 +9955,7 @@ export type RetrieveOrderData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order/{id}';
 };
@@ -10106,7 +9975,7 @@ export type PartialUpdateOrderData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order/{id}';
 };
@@ -10126,7 +9995,7 @@ export type UpdateOrderData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/order/{id}';
 };
@@ -10138,7 +10007,7 @@ export type UpdateOrderResponses = {
 export type UpdateOrderResponse = UpdateOrderResponses[keyof UpdateOrderResponses];
 
 export type AddOrderTrackingData = {
-    body: OrderDetailRequest;
+    body: AddTrackingRequest;
     path: {
         id: string | number;
     };
@@ -10161,7 +10030,7 @@ export type AddOrderTrackingResponses = {
 export type AddOrderTrackingResponse = AddOrderTrackingResponses[keyof AddOrderTrackingResponses];
 
 export type CancelOrderData = {
-    body: OrderDetailRequest;
+    body?: CancelOrderRequestRequest;
     path: {
         id: string | number;
     };
@@ -10229,76 +10098,8 @@ export type CreateOrderPaymentIntentResponses = {
 
 export type CreateOrderPaymentIntentResponse = CreateOrderPaymentIntentResponses[keyof CreateOrderPaymentIntentResponses];
 
-export type CheckOrderPaymentStatusData = {
-    body?: never;
-    path: {
-        id: string | number;
-    };
-    query?: never;
-    url: '/api/v1/order/{id}/payment_status';
-};
-
-export type CheckOrderPaymentStatusErrors = {
-    400: ErrorResponse;
-    403: ErrorResponse;
-    500: ErrorResponse;
-};
-
-export type CheckOrderPaymentStatusError = CheckOrderPaymentStatusErrors[keyof CheckOrderPaymentStatusErrors];
-
-export type CheckOrderPaymentStatusResponses = {
-    200: PaymentStatusResponse;
-};
-
-export type CheckOrderPaymentStatusResponse = CheckOrderPaymentStatusResponses[keyof CheckOrderPaymentStatusResponses];
-
-export type ProcessOrderPaymentData = {
-    body: ProcessPaymentRequestRequest;
-    path: {
-        id: string | number;
-    };
-    query?: never;
-    url: '/api/v1/order/{id}/process_payment';
-};
-
-export type ProcessOrderPaymentErrors = {
-    400: ErrorResponse;
-    403: ErrorResponse;
-    500: ErrorResponse;
-};
-
-export type ProcessOrderPaymentError = ProcessOrderPaymentErrors[keyof ProcessOrderPaymentErrors];
-
-export type ProcessOrderPaymentResponses = {
-    200: ProcessPaymentResponse;
-};
-
-export type ProcessOrderPaymentResponse = ProcessOrderPaymentResponses[keyof ProcessOrderPaymentResponses];
-
-export type RefundOrderPaymentData = {
-    body?: RefundRequestRequest;
-    path: {
-        id: string | number;
-    };
-    query?: never;
-    url: '/api/v1/order/{id}/refund';
-};
-
-export type RefundOrderPaymentErrors = {
-    400: ErrorResponse;
-    500: ErrorResponse;
-};
-
-export type RefundOrderPaymentError = RefundOrderPaymentErrors[keyof RefundOrderPaymentErrors];
-
-export type RefundOrderPaymentResponses = {
-    200: RefundResponse;
-};
-
-export type RefundOrderPaymentResponse = RefundOrderPaymentResponses[keyof RefundOrderPaymentResponses];
-
 export type UpdateOrderStatusData = {
-    body: OrderDetailRequest;
+    body: UpdateStatusRequest;
     path: {
         id: string | number;
     };
@@ -10731,7 +10532,7 @@ export type ListPayWayData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by name (partial match)
          */
@@ -10800,7 +10601,7 @@ export type CreatePayWayData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/pay_way';
 };
@@ -10856,7 +10657,7 @@ export type RetrievePayWayData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/pay_way/{id}';
 };
@@ -10885,7 +10686,7 @@ export type PartialUpdatePayWayData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/pay_way/{id}';
 };
@@ -10915,7 +10716,7 @@ export type UpdatePayWayData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/pay_way/{id}';
 };
@@ -10983,7 +10784,7 @@ export type ListProductData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Maximum discount value amount
          */
@@ -11123,7 +10924,7 @@ export type CreateProductData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product';
 };
@@ -11161,7 +10962,7 @@ export type RetrieveProductData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/{id}';
 };
@@ -11181,7 +10982,7 @@ export type PartialUpdateProductData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/{id}';
 };
@@ -11201,7 +11002,7 @@ export type UpdateProductData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/{id}';
 };
@@ -11224,7 +11025,7 @@ export type ListProductImagesData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/{id}/images';
 };
@@ -11381,7 +11182,7 @@ export type ListProductCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by hierarchy level (0 = root)
          */
@@ -11483,7 +11284,7 @@ export type CreateProductCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category';
 };
@@ -11521,7 +11322,7 @@ export type RetrieveProductCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category/{id}';
 };
@@ -11541,7 +11342,7 @@ export type PartialUpdateProductCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category/{id}';
 };
@@ -11561,7 +11362,7 @@ export type UpdateProductCategoryData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category/{id}';
 };
@@ -11599,7 +11400,7 @@ export type ListProductCategoryImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Which field to use when ordering the results. Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder
          */
@@ -11641,7 +11442,7 @@ export type CreateProductCategoryImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category/image';
 };
@@ -11679,7 +11480,7 @@ export type RetrieveProductCategoryImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category/image/{id}';
 };
@@ -11699,7 +11500,7 @@ export type PartialUpdateProductCategoryImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category/image/{id}';
 };
@@ -11719,7 +11520,7 @@ export type UpdateProductCategoryImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/category/image/{id}';
 };
@@ -11802,7 +11603,7 @@ export type ListProductFavouriteData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Which field to use when ordering the results. Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt
          */
@@ -11857,7 +11658,7 @@ export type CreateProductFavouriteData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/favourite';
 };
@@ -11895,7 +11696,7 @@ export type RetrieveProductFavouriteData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/favourite/{id}';
 };
@@ -11915,7 +11716,7 @@ export type PartialUpdateProductFavouriteData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/favourite/{id}';
 };
@@ -11935,7 +11736,7 @@ export type UpdateProductFavouriteData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/favourite/{id}';
 };
@@ -11999,7 +11800,7 @@ export type ListProductImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, isMain, -isMain, sortOrder, -sortOrder
          */
@@ -12044,7 +11845,7 @@ export type CreateProductImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/image';
 };
@@ -12082,7 +11883,7 @@ export type RetrieveProductImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/image/{id}';
 };
@@ -12102,7 +11903,7 @@ export type PartialUpdateProductImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/image/{id}';
 };
@@ -12122,7 +11923,7 @@ export type UpdateProductImageData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/image/{id}';
 };
@@ -12179,7 +11980,7 @@ export type ListProductReviewData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by maximum rating (alias)
          */
@@ -12359,7 +12160,7 @@ export type CreateProductReviewData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/review';
 };
@@ -12415,7 +12216,7 @@ export type RetrieveProductReviewData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/review/{id}';
 };
@@ -12444,7 +12245,7 @@ export type PartialUpdateProductReviewData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/review/{id}';
 };
@@ -12474,7 +12275,7 @@ export type UpdateProductReviewData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/product/review/{id}';
 };
@@ -12575,7 +12376,7 @@ export type ListRegionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by region name (partial match)
          */
@@ -12643,7 +12444,7 @@ export type CreateRegionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/region';
 };
@@ -12707,7 +12508,7 @@ export type RetrieveRegionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/region/{alpha}';
 };
@@ -12740,7 +12541,7 @@ export type PartialUpdateRegionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/region/{alpha}';
 };
@@ -12774,7 +12575,7 @@ export type UpdateRegionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/region/{alpha}';
 };
@@ -12878,10 +12679,14 @@ export type ListRegionsByCountryResponses = {
 
 export type ListRegionsByCountryResponse = ListRegionsByCountryResponses[keyof ListRegionsByCountryResponses];
 
-export type ApiV1SearchBlogPostRetrieveData = {
+export type SearchBlogPostRetrieveData = {
     body?: never;
     path?: never;
     query: {
+        /**
+         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
+         */
+        languageCode?: string;
         /**
          * Maximum number of results to return
          */
@@ -12898,22 +12703,26 @@ export type ApiV1SearchBlogPostRetrieveData = {
     url: '/api/v1/search/blog/post';
 };
 
-export type ApiV1SearchBlogPostRetrieveErrors = {
+export type SearchBlogPostRetrieveErrors = {
     400: ErrorResponse;
 };
 
-export type ApiV1SearchBlogPostRetrieveError = ApiV1SearchBlogPostRetrieveErrors[keyof ApiV1SearchBlogPostRetrieveErrors];
+export type SearchBlogPostRetrieveError = SearchBlogPostRetrieveErrors[keyof SearchBlogPostRetrieveErrors];
 
-export type ApiV1SearchBlogPostRetrieveResponses = {
+export type SearchBlogPostRetrieveResponses = {
     200: BlogPostMeiliSearchResponse;
 };
 
-export type ApiV1SearchBlogPostRetrieveResponse = ApiV1SearchBlogPostRetrieveResponses[keyof ApiV1SearchBlogPostRetrieveResponses];
+export type SearchBlogPostRetrieveResponse = SearchBlogPostRetrieveResponses[keyof SearchBlogPostRetrieveResponses];
 
-export type ApiV1SearchProductRetrieveData = {
+export type SearchProductRetrieveData = {
     body?: never;
     path?: never;
     query: {
+        /**
+         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
+         */
+        languageCode?: string;
         /**
          * Maximum number of results to return
          */
@@ -12930,17 +12739,17 @@ export type ApiV1SearchProductRetrieveData = {
     url: '/api/v1/search/product';
 };
 
-export type ApiV1SearchProductRetrieveErrors = {
+export type SearchProductRetrieveErrors = {
     400: ErrorResponse;
 };
 
-export type ApiV1SearchProductRetrieveError = ApiV1SearchProductRetrieveErrors[keyof ApiV1SearchProductRetrieveErrors];
+export type SearchProductRetrieveError = SearchProductRetrieveErrors[keyof SearchProductRetrieveErrors];
 
-export type ApiV1SearchProductRetrieveResponses = {
+export type SearchProductRetrieveResponses = {
     200: ProductMeiliSearchResponse;
 };
 
-export type ApiV1SearchProductRetrieveResponse = ApiV1SearchProductRetrieveResponses[keyof ApiV1SearchProductRetrieveResponses];
+export type SearchProductRetrieveResponse = SearchProductRetrieveResponses[keyof SearchProductRetrieveResponses];
 
 export type ListTagData = {
     body?: never;
@@ -13001,7 +12810,7 @@ export type ListTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter tags used at most X times
          */
@@ -13091,7 +12900,7 @@ export type CreateTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tag';
 };
@@ -13147,7 +12956,7 @@ export type RetrieveTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tag/{id}';
 };
@@ -13176,7 +12985,7 @@ export type PartialUpdateTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tag/{id}';
 };
@@ -13206,7 +13015,7 @@ export type UpdateTagData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tag/{id}';
 };
@@ -13262,7 +13071,7 @@ export type ListTaggedItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by object ID
          */
@@ -13346,7 +13155,7 @@ export type CreateTaggedItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tagged-item';
 };
@@ -13402,7 +13211,7 @@ export type RetrieveTaggedItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tagged-item/{id}';
 };
@@ -13431,7 +13240,7 @@ export type PartialUpdateTaggedItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tagged-item/{id}';
 };
@@ -13461,7 +13270,7 @@ export type UpdateTaggedItemData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/tagged-item/{id}';
 };
@@ -13493,7 +13302,7 @@ export type ListUserAccountData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
@@ -13545,7 +13354,7 @@ export type CreateUserAccountData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/account';
 };
@@ -13601,7 +13410,7 @@ export type RetrieveUserAccountData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/account/{id}';
 };
@@ -13630,7 +13439,7 @@ export type PartialUpdateUserAccountData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/account/{id}';
 };
@@ -13660,7 +13469,7 @@ export type UpdateUserAccountData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/account/{id}';
 };
@@ -14050,7 +13859,7 @@ export type ListUserAddressData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by last name (partial match)
          */
@@ -14171,7 +13980,7 @@ export type CreateUserAddressData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/address';
 };
@@ -14227,7 +14036,7 @@ export type RetrieveUserAddressData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/address/{id}';
 };
@@ -14256,7 +14065,7 @@ export type PartialUpdateUserAddressData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/address/{id}';
 };
@@ -14286,7 +14095,7 @@ export type UpdateUserAddressData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/address/{id}';
 };
@@ -14364,7 +14173,7 @@ export type ListUserSubscriptionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Which field to use when ordering the results. Available fields: subscribedAt, -subscribedAt, unsubscribedAt, -unsubscribedAt, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, topic_Category, -topic_Category
          */
@@ -14481,7 +14290,7 @@ export type CreateUserSubscriptionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription';
 };
@@ -14519,7 +14328,7 @@ export type RetrieveUserSubscriptionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription/{id}';
 };
@@ -14539,7 +14348,7 @@ export type PartialUpdateUserSubscriptionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription/{id}';
 };
@@ -14559,7 +14368,7 @@ export type UpdateUserSubscriptionData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription/{id}';
 };
@@ -14670,7 +14479,7 @@ export type ListSubscriptionTopicData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
         /**
          * Filter by name (partial match)
          */
@@ -14741,7 +14550,7 @@ export type CreateSubscriptionTopicData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription/topic';
 };
@@ -14779,7 +14588,7 @@ export type RetrieveSubscriptionTopicData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription/topic/{id}';
 };
@@ -14799,7 +14608,7 @@ export type PartialUpdateSubscriptionTopicData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription/topic/{id}';
 };
@@ -14819,7 +14628,7 @@ export type UpdateSubscriptionTopicData = {
         /**
          * Language code for translations (el, en, de)
          */
-        language?: 'de' | 'el' | 'en';
+        languageCode?: 'de' | 'el' | 'en';
     };
     url: '/api/v1/user/subscription/topic/{id}';
 };

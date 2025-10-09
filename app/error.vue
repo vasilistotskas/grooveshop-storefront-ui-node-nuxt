@@ -74,7 +74,7 @@ const handleGoHome = () => {
                 text-9xl font-black text-primary-300 transition-all duration-500
                 select-none
                 group-hover:scale-110
-                dark:text-primary-900
+                dark:text-primary-700
               "
             >
               {{ error.statusCode }}

@@ -388,6 +388,7 @@ definePageMeta({
         ref="formRef"
         :button-label="$i18n.t('submit')"
         :schema="formSchema"
+        :columns="{ default: 1, md: 2 }"
         :loading="false"
         @submit="onSubmit"
         @select-menu-change="onSelectMenuChange"

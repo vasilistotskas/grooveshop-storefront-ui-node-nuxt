@@ -25,6 +25,16 @@ interface DisabledFields {
   [key: string]: boolean
 }
 
+// Column configuration type
+interface ColumnConfig {
+  'default'?: number
+  'sm'?: number
+  'md'?: number
+  'lg'?: number
+  'xl'?: number
+  '2xl'?: number
+}
+
 // Define the UI configuration for Nuxt-UI
 const nuxtUiConfig = (state: DynamicFormState) => {
   return {
@@ -50,6 +60,7 @@ const props = withDefaults(
     loading?: boolean
     maxSubmitCount?: number
     resetOnSubmit?: boolean
+    columns?: number | ColumnConfig
   }>(),
   {
     id: undefined,
@@ -76,6 +87,7 @@ const props = withDefaults(
     loading: false,
     maxSubmitCount: 5,
     resetOnSubmit: false,
+    columns: 1,
   },
 )
 
@@ -92,12 +104,85 @@ const {
   loading,
   maxSubmitCount,
   resetOnSubmit,
+  columns,
 } = toRefs(props)
 
 const finalID = id.value ?? useId()
 const currentStep = ref(0)
 const isMultiStep = ref(Array.isArray(schema.value.steps) && schema.value.steps.length > 0)
 const lastStep = ref(schema.value.steps?.length ? schema.value.steps.length - 1 : 0)
+
+// Generate grid column classes based on configuration
+const gridColsClasses = computed(() => {
+  const cols = columns.value
+  const classes: string[] = []
+
+  if (typeof cols === 'number') {
+    // Simple number format
+    if (cols > 1) {
+      classes.push(`grid-cols-${cols}`)
+    }
+  }
+  else if (typeof cols === 'object') {
+    // Responsive object format
+    if (cols.default && cols.default > 1) {
+      classes.push(`grid-cols-${cols.default}`)
+    }
+    if (cols.sm && cols.sm > 1) {
+      classes.push(`sm:grid-cols-${cols.sm}`)
+    }
+    if (cols.md && cols.md > 1) {
+      classes.push(`md:grid-cols-${cols.md}`)
+    }
+    if (cols.lg && cols.lg > 1) {
+      classes.push(`lg:grid-cols-${cols.lg}`)
+    }
+    if (cols.xl && cols.xl > 1) {
+      classes.push(`xl:grid-cols-${cols.xl}`)
+    }
+    if (cols['2xl'] && cols['2xl'] > 1) {
+      classes.push(`2xl:grid-cols-${cols['2xl']}`)
+    }
+  }
+
+  return classes.join(' ')
+})
+
+// Get column span classes for individual fields
+const getFieldColSpanClasses = (field: any) => {
+  if (!field.colSpan) return ''
+
+  const colSpan = field.colSpan
+  const classes: string[] = []
+
+  if (typeof colSpan === 'number') {
+    if (colSpan > 1) {
+      classes.push(`col-span-${colSpan}`)
+    }
+  }
+  else if (typeof colSpan === 'object') {
+    if (colSpan.default && colSpan.default > 1) {
+      classes.push(`col-span-${colSpan.default}`)
+    }
+    if (colSpan.sm && colSpan.sm > 1) {
+      classes.push(`sm:col-span-${colSpan.sm}`)
+    }
+    if (colSpan.md && colSpan.md > 1) {
+      classes.push(`md:col-span-${colSpan.md}`)
+    }
+    if (colSpan.lg && colSpan.lg > 1) {
+      classes.push(`lg:col-span-${colSpan.lg}`)
+    }
+    if (colSpan.xl && colSpan.xl > 1) {
+      classes.push(`xl:col-span-${colSpan.xl}`)
+    }
+    if (colSpan['2xl'] && colSpan['2xl'] > 1) {
+      classes.push(`2xl:col-span-${colSpan['2xl']}`)
+    }
+  }
+
+  return classes.join(' ')
+}
 
 // Filter the schema fields based on the current step
 const formFields = computed(() => {
@@ -418,10 +503,13 @@ defineExpose({
       @submit="onSubmit"
     >
       <div
-        class="
-          grid gap-2
-          md:gap-4
-        "
+        :class="[
+          `
+            grid gap-2
+            md:gap-4
+          `,
+          gridColsClasses,
+        ]"
       >
         <template
           v-for="{
@@ -442,15 +530,18 @@ defineExpose({
         >
           <LazyUFormField
             v-if="fields[name]"
-            :class="{
-              'items-center': true,
-              'grid': as !== 'checkbox',
-              'gap-1': children && children.length > 0,
-              'sr-only': hidden,
-              'flex': as === 'checkbox',
-              'gap-2': as === 'checkbox',
-              'px-4 md:px-8': as === 'radio',
-            }"
+            :class="[
+              {
+                'items-center': true,
+                'grid': as !== 'checkbox',
+                'gap-1': children && children.length > 0,
+                'sr-only': hidden,
+                'flex': as === 'checkbox',
+                'gap-2': as === 'checkbox',
+                'px-4 md:px-8': as === 'radio',
+              },
+              getFieldColSpanClasses(fields[name]),
+            ]"
             :label="label ? label : undefined"
             :name="name"
             :error="errors[name]"

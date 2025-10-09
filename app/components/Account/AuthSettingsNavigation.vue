@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const localePath = useLocalePath()
@@ -76,7 +75,7 @@ const items = computed(() => {
             icon: 'i-heroicons-key',
             value: 'account-2fa-webauthn-section',
             defaultOpen: ['account-2fa-webauthn', 'account-2fa-webauthn-add'].includes(
-              $routeBaseName(route as unknown as keyof RouteNamedMapI18n) || '',
+              $routeBaseName(route) || '',
             ),
             children: [
               ...(recoveryCodesAuthenticator.value
@@ -110,7 +109,7 @@ const items = computed(() => {
               icon: 'i-heroicons-ticket',
               value: 'account-2fa-recovery-section',
               defaultOpen: ['account-2fa-recovery-codes', 'account-2fa-recovery-codes-generate'].includes(
-                $routeBaseName(route as unknown as keyof RouteNamedMapI18n) || '',
+                $routeBaseName(route) || '',
               ),
               children: [
                 {

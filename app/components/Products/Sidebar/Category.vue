@@ -87,7 +87,7 @@ const isCategorySelected = computed(() => {
         </span>
         <LazyUIcon
           v-if="isCategorySelected"
-          name="i-fa6-solid-circle-check"
+          name="i-heroicons-check"
           class="
             text-green-500
             dark:text-green-400

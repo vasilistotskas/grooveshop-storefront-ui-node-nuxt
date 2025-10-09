@@ -37,7 +37,6 @@ defineSlots<{
       :to="to"
       class="w-full"
       :aria-label="text"
-      :prefetch="false"
     >
       <slot>{{ text }}</slot>
     </NuxtLinkLocale>
@@ -48,7 +47,6 @@ defineSlots<{
     :aria-label="text"
     :href="href"
     :external="true"
-    :prefetch="false"
   >
     <slot>{{ text }}</slot>
   </ULink>

@@ -436,9 +436,7 @@ definePageMeta({
             mr-2 text-green-500
             dark:text-green-400
           "
-        >
-          <UIcon name="i-fa6-circle-check" />
-        </span>
+        />
         <UBadge
           icon="i-heroicons-check-badge"
           size="lg"
@@ -471,6 +469,7 @@ definePageMeta({
         ref="formRef"
         :button-label="t('form.update')"
         :schema="formSchema"
+        :columns="{ default: 1, md: 2 }"
         :loading="false"
         @submit="onSubmit"
         @select-menu-change="onSelectMenuChange"

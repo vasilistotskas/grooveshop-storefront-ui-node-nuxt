@@ -20,6 +20,8 @@ const { contentShorten } = useText()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
+const isDeleting = ref(false)
+
 const submit = async () => {
   if (address?.value && address?.value.isMain) {
     toast.add({
@@ -28,6 +30,8 @@ const submit = async () => {
     })
     return
   }
+
+  isDeleting.value = true
 
   await $fetch(`/api/user/addresses/${address?.value.id}`, {
     method: 'DELETE',
@@ -49,158 +53,204 @@ const submit = async () => {
       })
     },
   })
+
+  isDeleting.value = false
 }
+
+const addressDetails = computed(() => {
+  const details = []
+
+  if (address.value.firstName || address.value.lastName) {
+    details.push({
+      icon: 'i-heroicons-user',
+      text: `${address.value.firstName} ${address.value.lastName}`,
+    })
+  }
+
+  if (address.value.street || address.value.streetNumber) {
+    details.push({
+      icon: 'i-heroicons-map-pin',
+      text: `${address.value.street} ${address.value.streetNumber}`,
+    })
+  }
+
+  if (address.value.city || address.value.zipcode) {
+    details.push({
+      icon: 'i-heroicons-building-office-2',
+      text: `${address.value.city} ${address.value.zipcode}`,
+    })
+  }
+
+  if (address.value.country || address.value.region) {
+    details.push({
+      icon: 'i-heroicons-globe-alt',
+      text: `${address.value.country} ${address.value.region}`,
+    })
+  }
+
+  if (address.value.phone) {
+    details.push({
+      icon: 'i-heroicons-phone',
+      text: address.value.phone,
+    })
+  }
+
+  if (address.value.mobilePhone) {
+    details.push({
+      icon: 'i-heroicons-device-phone-mobile',
+      text: address.value.mobilePhone,
+    })
+  }
+
+  return details
+})
 </script>
 
 <template>
-  <li
+  <UCard
     v-if="address"
-    class="
-      relative grid w-full items-start gap-4 rounded-lg bg-primary-100 p-2
-      text-primary-950
-      sm:px-4 sm:py-10
-      md:p-5
-      dark:bg-primary-900 dark:text-primary-50
-    "
+    as="li"
+    class="relative h-full"
+    varian="soft"
   >
-    <div
+    <UBadge
       v-if="address.isMain"
-      class="
-        absolute top-3 right-24 grid place-items-center text-sm text-[#f0c14b]
-        md:top-1 md:right-1
-      "
+      color="warning"
+      variant="soft"
+      class="absolute top-4 right-4"
     >
-      <UTooltip :text="t('main_address')">
+      <div class="flex items-center gap-1">
         <UIcon
-          name="i-mdi-star"
-          class="size-5 cursor-help"
+          name="i-heroicons-star-solid"
+          class="size-3"
         />
-      </UTooltip>
-    </div>
-    <div class="flex items-center justify-between gap-2">
+        <span class="text-xs font-medium">{{ t('main_address') }}</span>
+      </div>
+    </UBadge>
+
+    <div class="mb-4 flex items-start justify-between gap-2">
       <h3
         class="
-          text-start text-xl font-bold text-primary-950
-          dark:text-primary-50
+          text-lg font-bold text-gray-900
+          dark:text-gray-100
         "
       >
         {{ contentShorten(address.title, 0, 25) }}
       </h3>
-      <div class="grid grid-cols-[auto_auto] items-center gap-2">
-        <UButton
-          class="grid size-8 place-items-center rounded-full"
-          icon="i-heroicons-pencil"
-          :to="localePath({ name: 'account-addresses-id-edit', params: { id: address.id } })"
-          size="sm"
-          :trailing="true"
-          color="neutral"
-        />
-        <UButton
-          class="grid size-8 place-items-center rounded-full"
-          icon="i-heroicons-trash"
-          size="sm"
-          :trailing="true"
-          color="error"
-          @click="submit"
-        />
-      </div>
     </div>
-    <div
-      class="
-        grid gap-2
-        md:items-center md:justify-center md:gap-4
-      "
-    >
+
+    <USeparator class="mb-4" />
+
+    <div class="mb-4 space-y-3">
       <div
-        class="
-          grid w-full grid-cols-2 items-center gap-2 overflow-auto
-          md:h-68 md:grid-cols-1
-        "
+        v-for="detail in addressDetails"
+        :key="detail.text"
+        class="flex items-start gap-2"
       >
-        <span
-          v-if="address.firstName || address.lastName"
+        <UIcon
+          :name="detail.icon"
           class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
+            mt-0.5 size-4 shrink-0 text-gray-400
+            dark:text-gray-500
+          "
+        />
+        <span
+          class="
+            text-sm text-gray-700
+            dark:text-gray-300
           "
         >
-          {{ address.firstName }} {{ address.lastName }}
+          {{ detail.text }}
         </span>
-        <span
-          v-if="address.street || address.streetNumber"
+      </div>
+
+      <div
+        v-if="address.floor"
+        class="flex items-start gap-2"
+      >
+        <UIcon
+          name="i-heroicons-building-office"
           class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
+            mt-0.5 size-4 shrink-0 text-gray-400
+            dark:text-gray-500
           "
-        >
-          {{ address.street }} {{ address.streetNumber }}
-        </span>
+        />
         <span
-          v-if="address.city || address.zipcode"
           class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
-          "
-        >
-          {{ address.city }} {{ address.zipcode }}
-        </span>
-        <span
-          v-if="address.country || address.region"
-          class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
-          "
-        >
-          {{ address.country }} {{ address.region }}
-        </span>
-        <span
-          v-if="address.floor"
-          class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
+            text-sm text-gray-700
+            dark:text-gray-300
           "
         >
           {{ $i18n.t('floor') }}: {{ address.floor }}
         </span>
-        <span
-          v-if="address.locationType"
+      </div>
+
+      <div
+        v-if="address.locationType"
+        class="flex items-start gap-2"
+      >
+        <UIcon
+          name="i-heroicons-home"
           class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
+            mt-0.5 size-4 shrink-0 text-gray-400
+            dark:text-gray-500
+          "
+        />
+        <span
+          class="
+            text-sm text-gray-700
+            dark:text-gray-300
           "
         >
-          {{ $i18n.t('location_type') }}: {{ address.locationType }}
+          {{ address.locationType }}
         </span>
-        <span
-          v-if="address.phone"
+      </div>
+
+      <div
+        v-if="address.notes"
+        class="flex items-start gap-2"
+      >
+        <UIcon
+          name="i-heroicons-document-text"
           class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
+            mt-0.5 size-4 shrink-0 text-gray-400
+            dark:text-gray-500
+          "
+        />
+        <span
+          class="
+            text-sm text-gray-600 italic
+            dark:text-gray-400
           "
         >
-          {{ $i18n.t('phone') }}: {{ address.phone }}
-        </span>
-        <span
-          v-if="address.mobilePhone"
-          class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
-          "
-        >
-          {{ $i18n.t('mobile_phone') }}: {{ address.mobilePhone }}
-        </span>
-        <span
-          v-if="address.notes"
-          class="
-            text-sm font-bold text-primary-950
-            dark:text-primary-50
-          "
-        >
-          {{ $i18n.t('notes') }}: {{ address.notes }}
+          {{ contentShorten(address.notes, 0, 50) }}
         </span>
       </div>
     </div>
-  </li>
+
+    <USeparator class="mb-4" />
+
+    <div class="flex items-center gap-2">
+      <UButton
+        icon="i-heroicons-pencil"
+        :to="localePath({ name: 'account-addresses-id-edit', params: { id: address.id } })"
+        color="neutral"
+        variant="soft"
+        class="flex-1"
+        :label="t('edit')"
+      />
+      <UButton
+        icon="i-heroicons-trash"
+        color="error"
+        variant="soft"
+        :loading="isDeleting"
+        :disabled="isDeleting"
+        @click="submit"
+      >
+        <span v-if="!isDeleting">{{ t('delete') }}</span>
+      </UButton>
+    </div>
+  </UCard>
 </template>
 
 <i18n lang="yaml">
@@ -210,4 +260,6 @@ el:
   cant_delete_main: Δεν μπορείς να διαγράψεις την κύρια διεύθυνσή σου, όρισε
     μια άλλη διεύθυνση ως κύρια και ξαναπροσπάθησε.
   main_address: Κύρια διεύθυνση
+  edit: Επεξεργασία
+  delete: Διαγραφή
 </i18n>

@@ -110,7 +110,7 @@ definePageMeta({
       class="grid w-full items-start gap-4"
     >
       <USkeleton
-        class="flex h-5 w-full items-center justify-center"
+        class="flex h-4 w-full items-center justify-center"
       />
       <div
         class="
@@ -122,7 +122,7 @@ definePageMeta({
         <USkeleton
           v-for="i in (favourites?.count || 4)"
           :key="i"
-          class="h-[400px] w-full"
+          class="h-72 w-full"
         />
       </div>
     </div>

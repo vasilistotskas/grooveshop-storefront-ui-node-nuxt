@@ -22,7 +22,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -163,7 +163,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -246,7 +246,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -307,7 +307,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -388,7 +388,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -623,7 +623,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -766,7 +766,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -849,7 +849,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -910,7 +910,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -991,7 +991,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -2217,7 +2217,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -2959,7 +2959,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -3091,7 +3091,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -3191,7 +3191,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -3321,7 +3321,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -6700,7 +6700,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -7139,7 +7139,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -7272,7 +7272,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -7373,7 +7373,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -7504,7 +7504,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -9946,7 +9946,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -10453,7 +10453,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -10586,7 +10586,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -10687,7 +10687,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -10818,7 +10818,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -11570,7 +11570,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -12227,7 +12227,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -12472,7 +12472,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -12937,7 +12937,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -13825,7 +13825,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -14192,7 +14192,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -14269,7 +14269,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -14324,7 +14324,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -14399,7 +14399,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -14493,7 +14493,7 @@
         },
         "/api/v1/health": {
             "get": {
-                "operationId": "api_v1_health_retrieve",
+                "operationId": "health_retrieve",
                 "description": "Check the health status of database, Redis, and Celery",
                 "summary": "Check the health status of database, Redis, and Celery",
                 "tags": [
@@ -14735,7 +14735,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -15281,7 +15281,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -15356,7 +15356,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -15409,7 +15409,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -15482,7 +15482,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -16328,7 +16328,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -17111,7 +17111,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -17410,7 +17410,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18233,7 +18233,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18315,7 +18315,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18375,7 +18375,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18455,7 +18455,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18682,7 +18682,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18742,7 +18742,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18822,7 +18822,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -18948,17 +18948,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/AddTrackingRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/AddTrackingRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/AddTrackingRequest"
                             }
                         }
                     },
@@ -19046,21 +19046,20 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/CancelOrderRequestRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/CancelOrderRequestRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/CancelOrderRequestRequest"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "security": [
                     {
@@ -19309,271 +19308,6 @@
                 }
             }
         },
-        "/api/v1/order/{id}/payment_status": {
-            "get": {
-                "operationId": "checkOrderPaymentStatus",
-                "description": "Retrieves the current payment status for the specified order.",
-                "summary": "Check payment status",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    }
-                ],
-                "tags": [
-                    "Order Payment"
-                ],
-                "security": [
-                    {
-                        "knoxApiToken": []
-                    },
-                    {
-                        "cookieAuth": []
-                    },
-                    {}
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PaymentStatusResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/api/v1/order/{id}/process_payment": {
-            "post": {
-                "operationId": "processOrderPayment",
-                "description": "Initiates payment processing for the specified order using the provided payment method.",
-                "summary": "Process payment for an order",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    }
-                ],
-                "tags": [
-                    "Order Payment"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ProcessPaymentRequestRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ProcessPaymentRequestRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ProcessPaymentRequestRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "security": [
-                    {
-                        "knoxApiToken": []
-                    },
-                    {
-                        "cookieAuth": []
-                    },
-                    {}
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProcessPaymentResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/api/v1/order/{id}/refund": {
-            "post": {
-                "operationId": "refundOrderPayment",
-                "description": "Initiates a refund for the specified order. Requires admin permissions.",
-                "summary": "Refund payment",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    }
-                ],
-                "tags": [
-                    "Order Payment"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RefundRequestRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RefundRequestRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RefundRequestRequest"
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "knoxApiToken": []
-                    },
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RefundResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/api/v1/order/{id}/update_status": {
             "post": {
                 "operationId": "updateOrderStatus",
@@ -19604,17 +19338,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/UpdateStatusRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/UpdateStatusRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderDetailRequest"
+                                "$ref": "#/components/schemas/UpdateStatusRequest"
                             }
                         }
                     },
@@ -21203,7 +20937,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -21493,7 +21227,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -21618,7 +21352,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -21711,7 +21445,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -21834,7 +21568,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -22252,7 +21986,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -22921,7 +22655,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -23004,7 +22738,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -23065,7 +22799,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -23146,7 +22880,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -23269,7 +23003,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -23808,7 +23542,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24211,7 +23945,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24294,7 +24028,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24355,7 +24089,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24436,7 +24170,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24620,7 +24354,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24751,7 +24485,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24834,7 +24568,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24895,7 +24629,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -24976,7 +24710,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -25271,7 +25005,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -25492,7 +25226,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -25567,7 +25301,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -25620,7 +25354,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -25693,7 +25427,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -25968,7 +25702,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -26141,7 +25875,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -26224,7 +25958,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -26285,7 +26019,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -26366,7 +26100,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -26625,7 +26359,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -27267,7 +27001,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -27399,7 +27133,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -27500,7 +27234,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -27630,7 +27364,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -28000,7 +27734,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -28260,7 +27994,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -28387,7 +28121,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -28482,7 +28216,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -28607,7 +28341,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -29030,10 +28764,18 @@
         },
         "/api/v1/search/blog/post": {
             "get": {
-                "operationId": "api_v1_search_blog_post_retrieve",
-                "description": "Search blog posts using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities.",
+                "operationId": "search_blog_post_retrieve",
+                "description": "Search blog posts using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
                 "summary": "Search blog posts",
                 "parameters": [
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+                    },
                     {
                         "in": "query",
                         "name": "limit",
@@ -29114,10 +28856,18 @@
         },
         "/api/v1/search/product": {
             "get": {
-                "operationId": "api_v1_search_product_retrieve",
-                "description": "Search products using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities.",
+                "operationId": "search_product_retrieve",
+                "description": "Search products using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
                 "summary": "Search products",
                 "parameters": [
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+                    },
                     {
                         "in": "query",
                         "name": "limit",
@@ -29393,7 +29143,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -29786,7 +29536,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -29919,7 +29669,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -30020,7 +29770,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -30151,7 +29901,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -30439,7 +30189,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -30758,7 +30508,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -30891,7 +30641,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -30992,7 +30742,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -31123,7 +30873,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -31317,7 +31067,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -31501,7 +31251,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -31633,7 +31383,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -31733,7 +31483,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -31863,7 +31613,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -33358,7 +33108,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -33753,7 +33503,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -33885,7 +33635,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -33985,7 +33735,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -34115,7 +33865,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -34495,7 +34245,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -34844,7 +34594,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -34926,7 +34676,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -34986,7 +34736,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -35066,7 +34816,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -35515,7 +35265,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -35749,7 +35499,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -35831,7 +35581,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -35891,7 +35641,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -35971,7 +35721,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "language",
+                        "name": "languageCode",
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -36396,6 +36146,25 @@
                 ],
                 "type": "string",
                 "description": "* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe"
+            },
+            "AddTrackingRequest": {
+                "type": "object",
+                "properties": {
+                    "trackingNumber": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "shippingCarrier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                    }
+                },
+                "required": [
+                    "shippingCarrier",
+                    "trackingNumber"
+                ]
             },
             "BlankEnum": {
                 "enum": [
@@ -38278,6 +38047,21 @@
                     "topicIds"
                 ]
             },
+            "CancelOrderRequestRequest": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "description": "Reason for canceling the order",
+                        "maxLength": 500
+                    },
+                    "refundPayment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Whether to automatically refund the payment if the order is paid"
+                    }
+                }
+            },
             "Cart": {
                 "type": "object",
                 "properties": {
@@ -39254,7 +39038,6 @@
             },
             "CreatePaymentIntentRequestRequest": {
                 "type": "object",
-                "description": "Serializer for creating a Stripe PaymentIntent.\nFor manual confirmation flow, we only need optional payment_data.",
                 "properties": {
                     "paymentData": {
                         "type": "object",
@@ -40229,142 +40012,6 @@
                     "zipcode"
                 ]
             },
-            "OrderDetailRequest": {
-                "type": "object",
-                "properties": {
-                    "user": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "minLength": 1,
-                        "title": "Country Code Alpha 2"
-                    },
-                    "region": {
-                        "type": "string",
-                        "minLength": 1,
-                        "title": "Region Code"
-                    },
-                    "floor": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/FloorEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
-                    },
-                    "locationType": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/LocationTypeEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
-                    },
-                    "street": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255
-                    },
-                    "streetNumber": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255
-                    },
-                    "payWay": {
-                        "type": "integer"
-                    },
-                    "status": {
-                        "$ref": "#/components/schemas/OrderStatus"
-                    },
-                    "firstName": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255
-                    },
-                    "lastName": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "minLength": 1,
-                        "maxLength": 255
-                    },
-                    "zipcode": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255
-                    },
-                    "place": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "city": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255
-                    },
-                    "customerNotes": {
-                        "type": "string"
-                    },
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/OrderItemDetailRequest"
-                        }
-                    },
-                    "documentType": {
-                        "$ref": "#/components/schemas/DocumentTypeEnum"
-                    },
-                    "paymentId": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "paymentStatus": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/PaymentStatusEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
-                    },
-                    "paymentMethod": {
-                        "type": "string",
-                        "maxLength": 50
-                    },
-                    "trackingNumber": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "shippingCarrier": {
-                        "type": "string",
-                        "maxLength": 255
-                    }
-                },
-                "required": [
-                    "city",
-                    "country",
-                    "email",
-                    "firstName",
-                    "items",
-                    "lastName",
-                    "payWay",
-                    "region",
-                    "street",
-                    "streetNumber",
-                    "zipcode"
-                ]
-            },
             "OrderItem": {
                 "type": "object",
                 "properties": {
@@ -40578,25 +40225,6 @@
                     "totalPrice",
                     "updatedAt",
                     "uuid"
-                ]
-            },
-            "OrderItemDetailRequest": {
-                "type": "object",
-                "properties": {
-                    "order": {
-                        "type": "integer"
-                    },
-                    "quantity": {
-                        "type": "integer",
-                        "maximum": 2147483647,
-                        "minimum": -2147483648
-                    },
-                    "notes": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "order"
                 ]
             },
             "OrderItemRefundRequest": {
@@ -43902,108 +43530,6 @@
                 "type": "string",
                 "description": "* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled"
             },
-            "PaymentStatusResponse": {
-                "type": "object",
-                "properties": {
-                    "orderId": {
-                        "type": "integer"
-                    },
-                    "paymentStatus": {
-                        "type": "string"
-                    },
-                    "isPaid": {
-                        "type": "boolean"
-                    },
-                    "statusDetails": {
-                        "type": "object",
-                        "additionalProperties": {}
-                    }
-                },
-                "required": [
-                    "isPaid",
-                    "orderId",
-                    "paymentStatus",
-                    "statusDetails"
-                ]
-            },
-            "ProcessPaymentRequestRequest": {
-                "type": "object",
-                "properties": {
-                    "payWayId": {
-                        "type": "integer",
-                        "description": "ID of the payment method to use"
-                    },
-                    "paymentData": {
-                        "type": "object",
-                        "additionalProperties": {},
-                        "description": "Additional payment data required by the payment provider"
-                    },
-                    "paymentMethodId": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "Stripe Payment Method ID (pm_...)"
-                    },
-                    "customerId": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "Stripe Customer ID (cus_...)"
-                    },
-                    "returnUrl": {
-                        "type": "string",
-                        "format": "uri",
-                        "minLength": 1,
-                        "description": "URL to redirect to after payment confirmation"
-                    }
-                },
-                "required": [
-                    "payWayId"
-                ]
-            },
-            "ProcessPaymentResponse": {
-                "type": "object",
-                "properties": {
-                    "detail": {
-                        "type": "string"
-                    },
-                    "orderId": {
-                        "type": "integer"
-                    },
-                    "paymentStatus": {
-                        "type": "string"
-                    },
-                    "paymentId": {
-                        "type": "string"
-                    },
-                    "requiresConfirmation": {
-                        "type": "boolean"
-                    },
-                    "isOnlinePayment": {
-                        "type": "boolean"
-                    },
-                    "providerData": {
-                        "type": "object",
-                        "additionalProperties": {}
-                    },
-                    "clientSecret": {
-                        "type": "string",
-                        "description": "Stripe PaymentIntent client secret for frontend confirmation"
-                    },
-                    "requiresAction": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Whether the payment requires additional action (3D Secure, etc.)"
-                    }
-                },
-                "required": [
-                    "detail",
-                    "isOnlinePayment",
-                    "orderId",
-                    "paymentId",
-                    "paymentStatus",
-                    "providerData",
-                    "requiresConfirmation"
-                ]
-            },
             "Product": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -45841,121 +45367,6 @@
                     "slug"
                 ]
             },
-            "ProductRequest": {
-                "type": "object",
-                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
-                "properties": {
-                    "translations": {
-                        "type": "object",
-                        "properties": {
-                            "el": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "en": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "de": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "slug": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 255,
-                        "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "category": {
-                        "type": "integer"
-                    },
-                    "price": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true
-                    },
-                    "vat": {
-                        "type": "integer"
-                    },
-                    "stock": {
-                        "type": "integer",
-                        "maximum": 2147483647,
-                        "minimum": 0
-                    },
-                    "active": {
-                        "type": "boolean"
-                    },
-                    "weight": {
-                        "type": "object",
-                        "properties": {
-                            "unit": {
-                                "type": "string"
-                            },
-                            "value": {
-                                "type": "number"
-                            }
-                        },
-                        "example": {
-                            "unit": "kg",
-                            "value": 1.0
-                        },
-                        "nullable": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "discountPercent": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true
-                    }
-                },
-                "required": [
-                    "category",
-                    "price",
-                    "slug",
-                    "translations",
-                    "vat"
-                ]
-            },
             "ProductReview": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -46348,54 +45759,6 @@
                 ],
                 "type": "integer",
                 "description": "* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten"
-            },
-            "RefundRequestRequest": {
-                "type": "object",
-                "properties": {
-                    "amount": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 100000000,
-                        "minimum": -100000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "description": "Refund amount (optional, defaults to full refund)"
-                    },
-                    "currency": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "Currency code (required if amount is specified)",
-                        "maxLength": 3
-                    }
-                }
-            },
-            "RefundResponse": {
-                "type": "object",
-                "properties": {
-                    "detail": {
-                        "type": "string"
-                    },
-                    "orderId": {
-                        "type": "integer"
-                    },
-                    "paymentStatus": {
-                        "type": "string"
-                    },
-                    "refundId": {
-                        "type": "string"
-                    },
-                    "refundDetails": {
-                        "type": "object",
-                        "additionalProperties": {}
-                    }
-                },
-                "required": [
-                    "detail",
-                    "orderId",
-                    "paymentStatus",
-                    "refundDetails",
-                    "refundId"
-                ]
             },
             "Region": {
                 "type": "object",
@@ -47375,6 +46738,17 @@
                 },
                 "required": [
                     "message"
+                ]
+            },
+            "UpdateStatusRequest": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "$ref": "#/components/schemas/OrderStatus"
+                    }
+                },
+                "required": [
+                    "status"
                 ]
             },
             "UserAddress": {

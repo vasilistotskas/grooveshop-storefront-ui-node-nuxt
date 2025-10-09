@@ -13,6 +13,11 @@ export const zActionEnum = z.enum([
     description: '* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe'
 });
 
+export const zAddTrackingRequest = z.object({
+    trackingNumber: z.string().min(1).max(100),
+    shippingCarrier: z.string().min(1).max(50)
+});
+
 export const zBlankEnum = z.enum([
     ''
 ]);
@@ -813,6 +818,15 @@ export const zBulkSubscriptionRequest = z.object({
     action: zActionEnum
 });
 
+export const zCancelOrderRequestRequest = z.object({
+    reason: z.optional(z.string().max(500).register(z.globalRegistry, {
+        description: 'Reason for canceling the order'
+    })),
+    refundPayment: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether to automatically refund the payment if the order is paid'
+    })).default(true)
+});
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -1185,16 +1199,10 @@ export const zCreateCheckoutSessionResponse = z.object({
     provider: z.string()
 });
 
-/**
- * Serializer for creating a Stripe PaymentIntent.
- * For manual confirmation flow, we only need optional payment_data.
- */
 export const zCreatePaymentIntentRequestRequest = z.object({
     paymentData: z.optional(z.record(z.string(), z.unknown()).register(z.globalRegistry, {
         description: 'Additional payment data required by the payment provider'
     }))
-}).register(z.globalRegistry, {
-    description: 'Serializer for creating a Stripe PaymentIntent.\nFor manual confirmation flow, we only need optional payment_data.'
 });
 
 export const zCreatePaymentIntentResponse = z.object({
@@ -1695,50 +1703,6 @@ export const zOrderDetail = z.object({
     customerFullName: z.string().readonly(),
     isCompleted: z.boolean().readonly(),
     isCanceled: z.boolean().readonly()
-});
-
-export const zOrderItemDetailRequest = z.object({
-    order: z.int(),
-    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
-    notes: z.optional(z.string())
-});
-
-export const zOrderDetailRequest = z.object({
-    user: z.optional(z.union([
-        z.int(),
-        z.null()
-    ])),
-    country: z.string().min(1),
-    region: z.string().min(1),
-    floor: z.optional(z.union([
-        zFloorEnum,
-        zBlankEnum
-    ])),
-    locationType: z.optional(z.union([
-        zLocationTypeEnum,
-        zBlankEnum
-    ])),
-    street: z.string().min(1).max(255),
-    streetNumber: z.string().min(1).max(255),
-    payWay: z.int(),
-    status: z.optional(zOrderStatus),
-    firstName: z.string().min(1).max(255),
-    lastName: z.string().min(1).max(255),
-    email: z.email().min(1).max(255),
-    zipcode: z.string().min(1).max(255),
-    place: z.optional(z.string().max(255)),
-    city: z.string().min(1).max(255),
-    customerNotes: z.optional(z.string()),
-    items: z.array(zOrderItemDetailRequest),
-    documentType: z.optional(zDocumentTypeEnum),
-    paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(z.union([
-        zPaymentStatusEnum,
-        zBlankEnum
-    ])),
-    paymentMethod: z.optional(z.string().max(50)),
-    trackingNumber: z.optional(z.string().max(255)),
-    shippingCarrier: z.optional(z.string().max(255))
 });
 
 export const zOrderItem = z.object({
@@ -3539,47 +3503,6 @@ export const zPayWayWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
-export const zPaymentStatusResponse = z.object({
-    orderId: z.int(),
-    paymentStatus: z.string(),
-    isPaid: z.boolean(),
-    statusDetails: z.record(z.string(), z.unknown())
-});
-
-export const zProcessPaymentRequestRequest = z.object({
-    payWayId: z.int().register(z.globalRegistry, {
-        description: 'ID of the payment method to use'
-    }),
-    paymentData: z.optional(z.record(z.string(), z.unknown()).register(z.globalRegistry, {
-        description: 'Additional payment data required by the payment provider'
-    })),
-    paymentMethodId: z.optional(z.string().min(1).register(z.globalRegistry, {
-        description: 'Stripe Payment Method ID (pm_...)'
-    })),
-    customerId: z.optional(z.string().min(1).register(z.globalRegistry, {
-        description: 'Stripe Customer ID (cus_...)'
-    })),
-    returnUrl: z.optional(z.url().min(1).register(z.globalRegistry, {
-        description: 'URL to redirect to after payment confirmation'
-    }))
-});
-
-export const zProcessPaymentResponse = z.object({
-    detail: z.string(),
-    orderId: z.int(),
-    paymentStatus: z.string(),
-    paymentId: z.string(),
-    requiresConfirmation: z.boolean(),
-    isOnlinePayment: z.boolean(),
-    providerData: z.record(z.string(), z.unknown()),
-    clientSecret: z.optional(z.string().register(z.globalRegistry, {
-        description: 'Stripe PaymentIntent client secret for frontend confirmation'
-    })),
-    requiresAction: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether the payment requires additional action (3D Secure, etc.)'
-    })).default(false)
-});
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -3952,45 +3875,6 @@ export const zProductMeiliSearchResponse = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zProductRequest = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        }))
-    }),
-    slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
-    category: z.int(),
-    price: z.number().gt(-1000000000).lt(1000000000),
-    vat: z.int(),
-    stock: z.optional(z.int().gte(0).lte(2147483647)),
-    active: z.optional(z.boolean()),
-    weight: z.optional(z.union([
-        z.object({
-            unit: z.optional(z.string()),
-            value: z.optional(z.number())
-        }),
-        z.null()
-    ])),
-    seoTitle: z.optional(z.string().max(70)),
-    seoDescription: z.optional(z.string().max(300)),
-    seoKeywords: z.optional(z.string().max(255)),
-    discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000))
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zProductReviewDetail = z.object({
     id: z.int().readonly(),
     product: zProduct,
@@ -4086,23 +3970,6 @@ export const zProductWriteRequest = z.object({
     active: z.optional(z.boolean())
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zRefundRequestRequest = z.object({
-    amount: z.optional(z.number().gt(-100000000).lt(100000000).register(z.globalRegistry, {
-        description: 'Refund amount (optional, defaults to full refund)'
-    })),
-    currency: z.optional(z.string().min(1).max(3).register(z.globalRegistry, {
-        description: 'Currency code (required if amount is specified)'
-    }))
-});
-
-export const zRefundResponse = z.object({
-    detail: z.string(),
-    orderId: z.int(),
-    paymentStatus: z.string(),
-    refundId: z.string(),
-    refundDetails: z.record(z.string(), z.unknown())
 });
 
 /**
@@ -4367,6 +4234,10 @@ export const zUnsubscribe = z.object({
     userEmail: z.optional(z.email()),
     topicSlug: z.optional(z.string()),
     error: z.optional(z.string())
+});
+
+export const zUpdateStatusRequest = z.object({
+    status: zOrderStatus
 });
 
 export const zUserAddressDetail = z.object({
@@ -5707,7 +5578,7 @@ export const zListBlogAuthorData = z.object({
         cursor: z.optional(z.string().register(z.globalRegistry, {
             description: 'Cursor for pagination'
         })),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -5767,7 +5638,7 @@ export const zCreateBlogAuthorData = z.object({
     body: zBlogAuthorWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -5806,7 +5677,7 @@ export const zRetrieveBlogAuthorData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -5827,7 +5698,7 @@ export const zPartialUpdateBlogAuthorData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -5848,7 +5719,7 @@ export const zUpdateBlogAuthorData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -5909,7 +5780,7 @@ export const zListBlogCategoryData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -5971,7 +5842,7 @@ export const zCreateBlogCategoryData = z.object({
     body: zBlogCategoryWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6010,7 +5881,7 @@ export const zRetrieveBlogCategoryData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6031,7 +5902,7 @@ export const zPartialUpdateBlogCategoryData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6052,7 +5923,7 @@ export const zUpdateBlogCategoryData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6447,7 +6318,7 @@ export const zListBlogCommentData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6663,7 +6534,7 @@ export const zCreateBlogCommentData = z.object({
     body: zBlogCommentWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6702,7 +6573,7 @@ export const zRetrieveBlogCommentData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6723,7 +6594,7 @@ export const zPartialUpdateBlogCommentData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -6744,7 +6615,7 @@ export const zUpdateBlogCommentData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -7712,7 +7583,7 @@ export const zListBlogPostData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -7845,7 +7716,7 @@ export const zCreateBlogPostData = z.object({
     body: zBlogPostWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -7884,7 +7755,7 @@ export const zRetrieveBlogPostData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -7905,7 +7776,7 @@ export const zPartialUpdateBlogPostData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -7926,7 +7797,7 @@ export const zUpdateBlogPostData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -8636,7 +8507,7 @@ export const zListBlogTagData = z.object({
             }),
             z.array(z.int())
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -8786,7 +8657,7 @@ export const zCreateBlogTagData = z.object({
     body: zBlogTagWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -8825,7 +8696,7 @@ export const zRetrieveBlogTagData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -8846,7 +8717,7 @@ export const zPartialUpdateBlogTagData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -8867,7 +8738,7 @@ export const zUpdateBlogTagData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9038,7 +8909,7 @@ export const zListCartItemData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9250,7 +9121,7 @@ export const zRetrieveCartItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9280,7 +9151,7 @@ export const zPartialUpdateCartItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9410,7 +9281,7 @@ export const zListCartData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9702,7 +9573,7 @@ export const zListCountryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9830,7 +9701,7 @@ export const zCreateCountryData = z.object({
     body: zCountryWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9867,7 +9738,7 @@ export const zRetrieveCountryData = z.object({
         })
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9887,7 +9758,7 @@ export const zPartialUpdateCountryData = z.object({
         })
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9907,7 +9778,7 @@ export const zUpdateCountryData = z.object({
         })
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -9919,13 +9790,13 @@ export const zUpdateCountryData = z.object({
 
 export const zUpdateCountryResponse = zCountryDetail;
 
-export const zApiV1HealthRetrieveData = z.object({
+export const zHealthRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zApiV1HealthRetrieveResponse = zHealthCheckResponse;
+export const zHealthRetrieveResponse = zHealthCheckResponse;
 
 export const zGetNotificationsByIdsData = z.object({
     body: zNotificationIdsRequest,
@@ -9991,7 +9862,7 @@ export const zListNotificationUserData = z.object({
             }),
             z.array(z.int())
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -10204,7 +10075,7 @@ export const zCreateNotificationUserData = z.object({
     body: zNotificationUserWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -10237,7 +10108,7 @@ export const zRetrieveNotificationUserData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -10255,7 +10126,7 @@ export const zPartialUpdateNotificationUserData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -10273,7 +10144,7 @@ export const zUpdateNotificationUserData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -10475,7 +10346,7 @@ export const zListOrderData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -10747,7 +10618,7 @@ export const zCreateOrderData = z.object({
     body: zOrderWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -10842,7 +10713,7 @@ export const zListOrderItemData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11109,7 +10980,7 @@ export const zCreateOrderItemData = z.object({
     body: zOrderItemWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11148,7 +11019,7 @@ export const zRetrieveOrderItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11169,7 +11040,7 @@ export const zPartialUpdateOrderItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11190,7 +11061,7 @@ export const zUpdateOrderItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11242,7 +11113,7 @@ export const zRetrieveOrderData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11263,7 +11134,7 @@ export const zPartialUpdateOrderData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11284,7 +11155,7 @@ export const zUpdateOrderData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11297,7 +11168,7 @@ export const zUpdateOrderData = z.object({
 export const zUpdateOrderResponse = zOrderDetail;
 
 export const zAddOrderTrackingData = z.object({
-    body: zOrderDetailRequest,
+    body: zAddTrackingRequest,
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),
@@ -11310,7 +11181,7 @@ export const zAddOrderTrackingData = z.object({
 export const zAddOrderTrackingResponse = zOrderDetail;
 
 export const zCancelOrderData = z.object({
-    body: zOrderDetailRequest,
+    body: z.optional(zCancelOrderRequestRequest),
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),
@@ -11348,47 +11219,8 @@ export const zCreateOrderPaymentIntentData = z.object({
 
 export const zCreateOrderPaymentIntentResponse = zCreatePaymentIntentResponse;
 
-export const zCheckOrderPaymentStatusData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        id: z.union([
-            z.string().regex(/^-?\d+$/),
-            z.int()
-        ])
-    }),
-    query: z.optional(z.never())
-});
-
-export const zCheckOrderPaymentStatusResponse = zPaymentStatusResponse;
-
-export const zProcessOrderPaymentData = z.object({
-    body: zProcessPaymentRequestRequest,
-    path: z.object({
-        id: z.union([
-            z.string().regex(/^-?\d+$/),
-            z.int()
-        ])
-    }),
-    query: z.optional(z.never())
-});
-
-export const zProcessOrderPaymentResponse = zProcessPaymentResponse;
-
-export const zRefundOrderPaymentData = z.object({
-    body: z.optional(zRefundRequestRequest),
-    path: z.object({
-        id: z.union([
-            z.string().regex(/^-?\d+$/),
-            z.int()
-        ])
-    }),
-    query: z.optional(z.never())
-});
-
-export const zRefundOrderPaymentResponse = zRefundResponse;
-
 export const zUpdateOrderStatusData = z.object({
-    body: zOrderDetailRequest,
+    body: zUpdateStatusRequest,
     path: z.object({
         id: z.union([
             z.string().regex(/^-?\d+$/),
@@ -11879,7 +11711,7 @@ export const zListPayWayData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -11968,7 +11800,7 @@ export const zCreatePayWayData = z.object({
     body: zPayWayWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12001,7 +11833,7 @@ export const zRetrievePayWayData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12019,7 +11851,7 @@ export const zPartialUpdatePayWayData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12037,7 +11869,7 @@ export const zUpdatePayWayData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12131,7 +11963,7 @@ export const zListProductData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12327,7 +12159,7 @@ export const zCreateProductData = z.object({
     body: zProductWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12366,7 +12198,7 @@ export const zRetrieveProductData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12387,7 +12219,7 @@ export const zPartialUpdateProductData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12408,7 +12240,7 @@ export const zUpdateProductData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12429,7 +12261,7 @@ export const zListProductImagesData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12585,7 +12417,7 @@ export const zListProductCategoryData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12716,7 +12548,7 @@ export const zCreateProductCategoryData = z.object({
     body: zProductCategoryWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12755,7 +12587,7 @@ export const zRetrieveProductCategoryData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12776,7 +12608,7 @@ export const zPartialUpdateProductCategoryData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12797,7 +12629,7 @@ export const zUpdateProductCategoryData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12845,7 +12677,7 @@ export const zListProductCategoryImageData = z.object({
         ]).register(z.globalRegistry, {
             description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image'
         })),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12895,7 +12727,7 @@ export const zCreateProductCategoryImageData = z.object({
     body: zProductCategoryImageWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12934,7 +12766,7 @@ export const zRetrieveProductCategoryImageData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12955,7 +12787,7 @@ export const zPartialUpdateProductCategoryImageData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -12976,7 +12808,7 @@ export const zUpdateProductCategoryImageData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13033,7 +12865,7 @@ export const zListProductFavouriteData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13114,7 +12946,7 @@ export const zCreateProductFavouriteData = z.object({
     body: zProductFavouriteWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13147,7 +12979,7 @@ export const zRetrieveProductFavouriteData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13165,7 +12997,7 @@ export const zPartialUpdateProductFavouriteData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13183,7 +13015,7 @@ export const zUpdateProductFavouriteData = z.object({
         id: z.string()
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13241,7 +13073,7 @@ export const zListProductImageData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13306,7 +13138,7 @@ export const zCreateProductImageData = z.object({
     body: zProductImageWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13345,7 +13177,7 @@ export const zRetrieveProductImageData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13366,7 +13198,7 @@ export const zPartialUpdateProductImageData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13387,7 +13219,7 @@ export const zUpdateProductImageData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13455,7 +13287,7 @@ export const zListProductReviewData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13653,7 +13485,7 @@ export const zCreateProductReviewData = z.object({
     body: zProductReviewWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13692,7 +13524,7 @@ export const zRetrieveProductReviewData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13713,7 +13545,7 @@ export const zPartialUpdateProductReviewData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13734,7 +13566,7 @@ export const zUpdateProductReviewData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13796,7 +13628,7 @@ export const zListRegionData = z.object({
         cursor: z.optional(z.string().register(z.globalRegistry, {
             description: 'Cursor for pagination'
         })),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13872,7 +13704,7 @@ export const zCreateRegionData = z.object({
     body: zRegionWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13909,7 +13741,7 @@ export const zRetrieveRegionData = z.object({
         })
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13929,7 +13761,7 @@ export const zPartialUpdateRegionData = z.object({
         })
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -13949,7 +13781,7 @@ export const zUpdateRegionData = z.object({
         })
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14044,10 +13876,13 @@ export const zListRegionsByCountryData = z.object({
 
 export const zListRegionsByCountryResponse = zPaginatedRegionList;
 
-export const zApiV1SearchBlogPostRetrieveData = z.object({
+export const zSearchBlogPostRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
+        languageCode: z.optional(z.string().register(z.globalRegistry, {
+            description: "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+        })),
         limit: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
@@ -14062,12 +13897,15 @@ export const zApiV1SearchBlogPostRetrieveData = z.object({
     })
 });
 
-export const zApiV1SearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse;
+export const zSearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse;
 
-export const zApiV1SearchProductRetrieveData = z.object({
+export const zSearchProductRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
+        languageCode: z.optional(z.string().register(z.globalRegistry, {
+            description: "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+        })),
         limit: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
@@ -14082,7 +13920,7 @@ export const zApiV1SearchProductRetrieveData = z.object({
     })
 });
 
-export const zApiV1SearchProductRetrieveResponse = zProductMeiliSearchResponse;
+export const zSearchProductRetrieveResponse = zProductMeiliSearchResponse;
 
 export const zListTagData = z.object({
     body: z.optional(z.never()),
@@ -14154,7 +13992,7 @@ export const zListTagData = z.object({
         label_Startswith: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter tags with labels starting with'
         })),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14269,7 +14107,7 @@ export const zCreateTagData = z.object({
     body: zTagWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14308,7 +14146,7 @@ export const zRetrieveTagData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14329,7 +14167,7 @@ export const zPartialUpdateTagData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14350,7 +14188,7 @@ export const zUpdateTagData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14402,7 +14240,7 @@ export const zListTaggedItemData = z.object({
             }),
             z.array(z.int())
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14498,7 +14336,7 @@ export const zCreateTaggedItemData = z.object({
     body: zTaggedItemWriteRequestWritable,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14537,7 +14375,7 @@ export const zRetrieveTaggedItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14558,7 +14396,7 @@ export const zPartialUpdateTaggedItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14579,7 +14417,7 @@ export const zUpdateTaggedItemData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14598,7 +14436,7 @@ export const zListUserAccountData = z.object({
         cursor: z.optional(z.string().register(z.globalRegistry, {
             description: 'Cursor for pagination'
         })),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14652,7 +14490,7 @@ export const zCreateUserAccountData = z.object({
     body: zUserWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14691,7 +14529,7 @@ export const zRetrieveUserAccountData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14712,7 +14550,7 @@ export const zPartialUpdateUserAccountData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -14733,7 +14571,7 @@ export const zUpdateUserAccountData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15112,7 +14950,7 @@ export const zListUserAddressData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15231,7 +15069,7 @@ export const zCreateUserAddressData = z.object({
     body: zUserAddressWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15270,7 +15108,7 @@ export const zRetrieveUserAddressData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15291,7 +15129,7 @@ export const zPartialUpdateUserAddressData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15312,7 +15150,7 @@ export const zUpdateUserAddressData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15385,7 +15223,7 @@ export const zListUserSubscriptionData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15528,7 +15366,7 @@ export const zCreateUserSubscriptionData = z.object({
     body: zUserSubscriptionWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15567,7 +15405,7 @@ export const zRetrieveUserSubscriptionData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15588,7 +15426,7 @@ export const zPartialUpdateUserSubscriptionData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15609,7 +15447,7 @@ export const zUpdateUserSubscriptionData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15709,7 +15547,7 @@ export const zListSubscriptionTopicData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15796,7 +15634,7 @@ export const zCreateSubscriptionTopicData = z.object({
     body: zSubscriptionTopicWriteRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15835,7 +15673,7 @@ export const zRetrieveSubscriptionTopicData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15856,7 +15694,7 @@ export const zPartialUpdateSubscriptionTopicData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
@@ -15877,7 +15715,7 @@ export const zUpdateSubscriptionTopicData = z.object({
         ])
     }),
     query: z.optional(z.object({
-        language: z.optional(z.enum([
+        languageCode: z.optional(z.enum([
             'de',
             'el',
             'en'
