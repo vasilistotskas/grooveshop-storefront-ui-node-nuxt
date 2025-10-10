@@ -39,7 +39,7 @@ const resultUrl = (result: SearchResult) => {
 
 <template>
   <UButton
-    variant="ghost"
+    variant="link"
     size="lg"
     block
     :to="resultUrl(result)"
@@ -48,8 +48,7 @@ const resultUrl = (result: SearchResult) => {
     <span
       class="
         flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden
-        rounded-lg bg-gray-100
-        dark:bg-gray-800
+        rounded-lg
       "
     >
       <ImgWithFallback
@@ -96,7 +95,7 @@ const resultUrl = (result: SearchResult) => {
     </span>
 
     <UIcon
-      name="i-lucide-arrow-right"
+      name="i-heroicons-chevron-right"
       class="
         size-5 shrink-0 text-gray-400 transition-all duration-150
         group-hover:translate-x-1 group-hover:text-gray-600

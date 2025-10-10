@@ -159,6 +159,7 @@ onMounted(() => {
     :ui="{
       content: 'max-w-3xl max-h-[85vh]',
       body: 'p-0',
+      footer: 'md:h-16',
     }"
   >
     <template #header>
@@ -223,7 +224,12 @@ onMounted(() => {
         />
       </div>
 
-      <div class="max-h-[60vh] overflow-y-auto">
+      <div
+        class="
+          h-full overflow-y-auto
+          md:h-[60vh]
+        "
+      >
         <div
           v-if="status === 'pending' && !searchResults"
           class="space-y-3 p-6"
@@ -277,7 +283,7 @@ onMounted(() => {
 
         <div
           v-else class="
-            divide-y divide-gray-100
+            grid gap-2 divide-y divide-gray-100 px-1 pt-2
             dark:divide-gray-800
           "
         >
@@ -292,21 +298,18 @@ onMounted(() => {
     </template>
 
     <template #footer>
-      <div
+      <UButton
         v-if="
           filteredResults.length > 0
             && filteredResults.length < totalResults
         "
-      >
-        <UButton
-          :label="t('search.load_more')"
-          variant="ghost"
-          color="neutral"
-          block
-          :loading="status === 'pending'"
-          @click="loadMore"
-        />
-      </div>
+        :label="t('search.load_more')"
+        variant="ghost"
+        color="neutral"
+        block
+        :loading="status === 'pending'"
+        @click="loadMore"
+      />
 
       <div class="flex w-full items-center justify-end">
         <UButton
@@ -327,7 +330,7 @@ el:
   search:
     title: Αναζήτηση
     description: Αναζήτηση
-    modal_placeholder: Αναζήτηση σε όλα τα προϊόντα και άρθρα...
+    modal_placeholder: Αναζήτηση...
     tabs:
       all: Όλα
       products: Προϊόντα ({count})

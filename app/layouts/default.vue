@@ -84,7 +84,7 @@ const items = computed(() => {
         <PageNavbar />
       </PageHeader>
     </slot>
-    <main
+    <UMain
       class="
         pt-[54px]
         md:pt-[62px]
@@ -94,7 +94,7 @@ const items = computed(() => {
       <section class="flex w-full flex-1 flex-col">
         <slot />
       </section>
-    </main>
+    </UMain>
     <slot name="footer">
       <MobileOrTabletOnly>
         <div
