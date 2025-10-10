@@ -3164,6 +3164,17 @@ export type RegionWriteRequest = {
  */
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE';
 
+export type SearchSuggestion = {
+    term: string;
+    type: string;
+    highlight: string;
+};
+
+export type SearchSuggestionResponse = {
+    query: string;
+    suggestions: Array<SearchSuggestion>;
+};
+
 /**
  * * `ACTIVE` - Active
  * * `PENDING` - Pending Confirmation
@@ -8777,18 +8788,18 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses];
 
-export type HealthRetrieveData = {
+export type ApiV1HealthRetrieveData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/v1/health';
 };
 
-export type HealthRetrieveResponses = {
+export type ApiV1HealthRetrieveResponses = {
     200: HealthCheckResponse;
 };
 
-export type HealthRetrieveResponse = HealthRetrieveResponses[keyof HealthRetrieveResponses];
+export type ApiV1HealthRetrieveResponse = ApiV1HealthRetrieveResponses[keyof ApiV1HealthRetrieveResponses];
 
 export type GetNotificationsByIdsData = {
     body: NotificationIdsRequest;
@@ -12679,7 +12690,7 @@ export type ListRegionsByCountryResponses = {
 
 export type ListRegionsByCountryResponse = ListRegionsByCountryResponses[keyof ListRegionsByCountryResponses];
 
-export type SearchBlogPostRetrieveData = {
+export type ApiV1SearchBlogPostRetrieveData = {
     body?: never;
     path?: never;
     query: {
@@ -12703,19 +12714,19 @@ export type SearchBlogPostRetrieveData = {
     url: '/api/v1/search/blog/post';
 };
 
-export type SearchBlogPostRetrieveErrors = {
+export type ApiV1SearchBlogPostRetrieveErrors = {
     400: ErrorResponse;
 };
 
-export type SearchBlogPostRetrieveError = SearchBlogPostRetrieveErrors[keyof SearchBlogPostRetrieveErrors];
+export type ApiV1SearchBlogPostRetrieveError = ApiV1SearchBlogPostRetrieveErrors[keyof ApiV1SearchBlogPostRetrieveErrors];
 
-export type SearchBlogPostRetrieveResponses = {
+export type ApiV1SearchBlogPostRetrieveResponses = {
     200: BlogPostMeiliSearchResponse;
 };
 
-export type SearchBlogPostRetrieveResponse = SearchBlogPostRetrieveResponses[keyof SearchBlogPostRetrieveResponses];
+export type ApiV1SearchBlogPostRetrieveResponse = ApiV1SearchBlogPostRetrieveResponses[keyof ApiV1SearchBlogPostRetrieveResponses];
 
-export type SearchProductRetrieveData = {
+export type ApiV1SearchProductRetrieveData = {
     body?: never;
     path?: never;
     query: {
@@ -12739,17 +12750,49 @@ export type SearchProductRetrieveData = {
     url: '/api/v1/search/product';
 };
 
-export type SearchProductRetrieveErrors = {
+export type ApiV1SearchProductRetrieveErrors = {
     400: ErrorResponse;
 };
 
-export type SearchProductRetrieveError = SearchProductRetrieveErrors[keyof SearchProductRetrieveErrors];
+export type ApiV1SearchProductRetrieveError = ApiV1SearchProductRetrieveErrors[keyof ApiV1SearchProductRetrieveErrors];
 
-export type SearchProductRetrieveResponses = {
+export type ApiV1SearchProductRetrieveResponses = {
     200: ProductMeiliSearchResponse;
 };
 
-export type SearchProductRetrieveResponse = SearchProductRetrieveResponses[keyof SearchProductRetrieveResponses];
+export type ApiV1SearchProductRetrieveResponse = ApiV1SearchProductRetrieveResponses[keyof ApiV1SearchProductRetrieveResponses];
+
+export type ApiV1SearchSuggestionsRetrieveData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
+         */
+        languageCode?: string;
+        /**
+         * Maximum number of suggestions to return
+         */
+        limit?: string | number;
+        /**
+         * Partial search query string
+         */
+        query: string;
+    };
+    url: '/api/v1/search/suggestions';
+};
+
+export type ApiV1SearchSuggestionsRetrieveErrors = {
+    400: ErrorResponse;
+};
+
+export type ApiV1SearchSuggestionsRetrieveError = ApiV1SearchSuggestionsRetrieveErrors[keyof ApiV1SearchSuggestionsRetrieveErrors];
+
+export type ApiV1SearchSuggestionsRetrieveResponses = {
+    200: SearchSuggestionResponse;
+};
+
+export type ApiV1SearchSuggestionsRetrieveResponse = ApiV1SearchSuggestionsRetrieveResponses[keyof ApiV1SearchSuggestionsRetrieveResponses];
 
 export type ListTagData = {
     body?: never;

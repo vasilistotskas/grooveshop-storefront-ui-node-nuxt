@@ -14493,7 +14493,7 @@
         },
         "/api/v1/health": {
             "get": {
-                "operationId": "health_retrieve",
+                "operationId": "api_v1_health_retrieve",
                 "description": "Check the health status of database, Redis, and Celery",
                 "summary": "Check the health status of database, Redis, and Celery",
                 "tags": [
@@ -28764,7 +28764,7 @@
         },
         "/api/v1/search/blog/post": {
             "get": {
-                "operationId": "search_blog_post_retrieve",
+                "operationId": "api_v1_search_blog_post_retrieve",
                 "description": "Search blog posts using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
                 "summary": "Search blog posts",
                 "parameters": [
@@ -28856,7 +28856,7 @@
         },
         "/api/v1/search/product": {
             "get": {
-                "operationId": "search_product_retrieve",
+                "operationId": "api_v1_search_product_retrieve",
                 "description": "Search products using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
                 "summary": "Search products",
                 "parameters": [
@@ -28928,6 +28928,82 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ProductMeiliSearchResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/search/suggestions": {
+            "get": {
+                "operationId": "api_v1_search_suggestions_retrieve",
+                "description": "Get search suggestions based on partial query input. Returns suggested terms from both products and blog posts. For example, typing 'mob' might suggest 'mobile', 'mobile phone', etc.",
+                "summary": "Get search suggestions",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Maximum number of suggestions to return"
+                    },
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Partial search query string",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchSuggestionResponse"
                                 }
                             }
                         },
@@ -45965,6 +46041,43 @@
                 ],
                 "type": "string",
                 "description": "* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False"
+            },
+            "SearchSuggestion": {
+                "type": "object",
+                "properties": {
+                    "term": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "highlight": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "highlight",
+                    "term",
+                    "type"
+                ]
+            },
+            "SearchSuggestionResponse": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string"
+                    },
+                    "suggestions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SearchSuggestion"
+                        }
+                    }
+                },
+                "required": [
+                    "query",
+                    "suggestions"
+                ]
             },
             "SubscriptionStatus": {
                 "enum": [
