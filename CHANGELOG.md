@@ -1,3 +1,10 @@
+# [3.13.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.12.0...v3.13.0) (2025-10-10)
+
+
+### Features
+
+* Add search suggestions API and optimize chunk splitting ([9fa4f3c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9fa4f3c7a2811d59c13aed7785da9176f29d9c63))
+
 # [3.12.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.11.0...v3.12.0) (2025-10-10)
 
 
