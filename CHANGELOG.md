@@ -1,3 +1,12 @@
+# [3.11.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.10.1...v3.11.0) (2025-10-10)
+
+
+### Features
+
+* `language` to `languageCode` rename at API query, bump versions ([837bea4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/837bea4a8b9e19dd9706adfff64c3e63543d530f))
+* Add responsive columns to DynamicForm and update OpenAPI schema ([9b250b7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9b250b73099d467c25bd75311505c373789af15e))
+* New search UI to use modal and input components ([05e5850](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/05e58501f6d95d3ad25721c3cd32cc6e924c30c1))
+
 ## [3.10.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.10.0...v3.10.1) (2025-10-09)
 
 
