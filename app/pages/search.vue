@@ -1,313 +1,279 @@
 <script lang="ts" setup>
-const searchStore = useSearchStore()
-const {
-  results,
-} = storeToRefs(searchStore)
-const { reset, addToSearchHistory } = searchStore
-
-const route = useRoute()
-const router = useRouter()
-const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n()
-const { isMobileOrTablet } = useDevice()
-const localePath = useLocalePath()
-
-const query = ref(Array.isArray(route.query.query) ? (route.query.query[0] ?? '') : (route.query.query ?? ''))
-const limit = ref(3)
-const currentSearch = ref((route.query.query || '').toString())
-const isSuggestionsOpen = ref(false)
-const suggestionsContent = ref(null)
-const keepFocus = ref(false)
-const highlighted = ref<string | undefined>(undefined)
-const initialPage = parseInt(route.query.page as string) || 1
-const currentPage = ref(initialPage)
-
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('search'),
-    label: t('breadcrumb.items.search.label'),
-    icon: t('breadcrumb.items.search.icon'),
-    current: true,
-  },
-])
-
-const offset = computed({
-  get: () => (currentPage.value - 1) * Number(limit.value),
-  set: (val) => {
-    offset.value = val
-  },
-})
-
-const { data, status, refresh } = await useFetch(
-  '/api/search',
-  {
-    key: `search${query.value}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    credentials: 'omit',
-    retry: 120,
-    retryDelay: 1000,
-    dedupe: 'cancel',
-    query: {
-      query: query,
-      language: locale,
-      limit: limit,
-      offset: offset,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      if (response && response._data) {
-        results.value = response._data
-        if (!Object.values(response._data).every(value => !value)) {
-          addToSearchHistory(query.value)
-        }
-        isSuggestionsOpen.value = false
-      }
-    },
-  },
-)
-
-async function loadMoreSectionResults(
-  { lim, off }: { lim: number, off: number },
-): Promise<void> {
-  offset.value = off + lim
-  await refresh()
-}
-
-const throttledSearch = useDebounceFn(async () => {
-  await refresh()
-}, 250)
-
-const vFocus = {
-  mounted: (el: HTMLElement) => el.focus(),
-}
-
-const hasResults = computed(() => {
-  if (!data.value) return false
-
-  let has = false
-  Object.entries(data.value).forEach(([_s, v]) => {
-    if (v && v.results && v.results.length > 0) {
-      has = true
-    }
-  })
-  return has
-})
-
-const total = computed(() => {
-  if (!data.value) return 0
-
-  let total = 0
-  Object.entries(data.value).forEach(([_s, v]) => {
-    if (v && v.estimatedTotalHits) {
-      total += v.estimatedTotalHits
-    }
-  })
-  return total
-})
-
-const size = computed(() => {
-  if (isMobileOrTablet) return 'sm'
-  return 'md'
-})
-
-const max = computed(() => {
-  if (isMobileOrTablet) return 5
-  return 10
-})
-
-watch(
-  () => currentSearch,
-  async (newVal) => {
-    if (newVal.value.length < 3) return
-    query.value = newVal.value
-    currentPage.value = 1
-    await router.replace({
-      query: {
-        ...route.query,
-        query: newVal.value,
-      },
-    })
-    await throttledSearch()
-  },
-  {
-    immediate: false,
-    deep: true,
-  },
-)
-
-watch(
-  () => currentPage,
-  async (newPage) => {
-    await router.replace({
-      query: {
-        ...route.query,
-        page: newPage.value,
-      },
-    })
-  },
-  {
-    immediate: false,
-    deep: true,
-  },
-)
-
-onClickOutside(suggestionsContent, () => {
-  isSuggestionsOpen.value = false
-})
-
-onUnmounted(() => {
-  currentSearch.value = ''
-  isSuggestionsOpen.value = false
-  reset()
-})
-
-onMounted(() => {
-  isSuggestionsOpen.value = false
-})
-
-useSeoMeta({
-  title: t('title'),
-})
-useHead({
-  title: t('title'),
-})
-
 definePageMeta({
   layout: 'default',
+})
+
+const route = useRoute('search')
+const { t, locale } = useI18n()
+
+// Search parameters
+const query = ref(
+  Array.isArray(route.query.query)
+    ? route.query.query[0] ?? ''
+    : route.query.query ?? '',
+)
+const limit = ref(12)
+const offset = ref(0)
+const activeTab = ref<'all' | 'products' | 'blogPosts'>('all')
+
+const {
+  data: searchResults,
+  status,
+} = await useFetch<SearchResponse>('/api/search', {
+  query: {
+    query,
+    languageCode: locale,
+    limit,
+    offset,
+  },
+  watch: [query, limit, offset],
+})
+
+// Computed results based on active tab
+const displayResults = computed(() => {
+  if (!searchResults.value) return []
+
+  const products = searchResults.value.products?.results || []
+  const blogPosts = searchResults.value.blogPosts?.results || []
+
+  if (activeTab.value === 'products') return products
+  if (activeTab.value === 'blogPosts') return blogPosts
+
+  return [...products, ...blogPosts]
+})
+
+const totalResults = computed(() => {
+  if (!searchResults.value) return 0
+
+  const productsTotal
+    = searchResults.value.products?.estimatedTotalHits || 0
+  const blogPostsTotal
+    = searchResults.value.blogPosts?.estimatedTotalHits || 0
+
+  if (activeTab.value === 'products') return productsTotal
+  if (activeTab.value === 'blogPosts') return blogPostsTotal
+
+  return productsTotal + blogPostsTotal
+})
+
+const hasMore = computed(() => {
+  return displayResults.value.length < totalResults.value
+})
+
+// Load more results
+function loadMore() {
+  offset.value += limit.value
+}
+
+// Reset offset when changing tabs
+watch(activeTab, () => {
+  offset.value = 0
+})
+
+// Update URL when query changes
+watch(query, (newQuery) => {
+  if (newQuery) {
+    navigateTo({
+      query: { query: newQuery },
+    })
+  }
+})
+
+// SEO
+useHead({
+  title: computed(() =>
+    query.value
+      ? t('page.search_query', { query: query.value })
+      : t('page.title'),
+  ),
 })
 </script>
 
 <template>
-  <PageWrapper class="container flex flex-col gap-10">
-    <PageTitle
-      :text="t('title')"
-      class="hidden text-center"
-    />
-
-    <div class="mt-8 grid">
-      <div
-        id="search-bar"
-        v-focus
-        class="
-          fixed top-[48px] left-0 z-20 grid w-full items-center gap-4
-          bg-primary-50 p-[8px]
-          md:top-[58px] md:p-[14px]
-          lg:top-[63px]
-          dark:bg-primary-900
-        "
-      >
-        <div
+  <div
+    class="
+      min-h-screen bg-gray-50
+      dark:bg-gray-900
+    "
+  >
+    <UContainer class="py-8">
+      <div class="mb-8">
+        <h1
           class="
-            flex w-full items-center gap-2
-            md:gap-4
+            mb-4 text-3xl font-bold text-gray-900
+            dark:text-gray-100
           "
         >
-          <Anchor
-            :to="'index'"
-            aria-label="index"
-            class="
-              flex items-center gap-3 overflow-hidden border-r-2
-              border-primary-500 pr-2 text-base font-bold text-primary-950
-              md:w-auto md:pr-8
-              dark:border-primary-500 dark:text-primary-50
-            "
-          >
-            <span class="sr-only">{{ t('back_to_home') }}</span>
-            <UIcon name="i-heroicons-arrow-left" />
-          </Anchor>
-          <UIcon
-            name="i-heroicons-magnifying-glass"
-            class="
-              text-lg
-              md:text-base
-            "
-          />
-          <label
-            class="sr-only"
-            for="search"
-          >{{ t('placeholder') }}</label>
+          {{ t('page.title') }}
+        </h1>
+
+        <div class="max-w-2xl">
           <UInput
-            id="search"
-            v-model="currentSearch"
-            v-focus
-            :placeholder="t('placeholder')"
-            class="w-full bg-transparent text-xl outline-none"
-            type="text"
-            variant="none"
-            @click="isSuggestionsOpen = true"
-            @keyup.enter="refresh"
+            v-model="query"
+            icon="i-lucide-search"
+            size="lg"
+            :placeholder="t('page.search_placeholder')"
+            autofocus
           />
         </div>
-      </div>
-      <div class="container mx-auto grid gap-4">
-        <UBreadcrumb
-          :items="items"
-          :ui="{
-            item: 'text-primary-950 dark:text-primary-50',
-            root: 'text-xs md:text-base',
-          }"
+
+        <div
+          v-if="query && searchResults"
           class="
-            relative container mx-auto mt-5 min-w-0 !p-0
-            md:mb-5
+            mt-4 text-sm text-gray-600
+            dark:text-gray-400
+          "
+        >
+          {{
+            t('page.results_count', {
+              count: totalResults,
+              query: query,
+            })
+          }}
+        </div>
+      </div>
+
+      <div
+        v-if="searchResults && query"
+        class="
+          mb-6 flex gap-2 border-b border-gray-200 pb-2
+          dark:border-gray-700
+        "
+      >
+        <UButton
+          :label="t('page.tabs.all')"
+          :variant="activeTab === 'all' ? 'soft' : 'ghost'"
+          :color="activeTab === 'all' ? 'secondary' : 'primary'"
+          @click="activeTab = 'all'"
+        />
+        <UButton
+          :label="
+            t('page.tabs.products', {
+              count: searchResults.products?.estimatedTotalHits || 0,
+            })
+          "
+          :variant="activeTab === 'products' ? 'soft' : 'ghost'"
+          :color="activeTab === 'products' ? 'neutral' : 'primary'"
+          @click="activeTab = 'products'"
+        />
+        <UButton
+          :label="
+            t('page.tabs.blog_posts', {
+              count: searchResults.blogPosts?.estimatedTotalHits || 0,
+            })
+          "
+          :variant="activeTab === 'blogPosts' ? 'soft' : 'ghost'"
+          :color="activeTab === 'blogPosts' ? 'neutral' : 'primary'"
+          @click="activeTab = 'blogPosts'"
+        />
+      </div>
+
+      <div v-if="status === 'pending' && !searchResults" class="space-y-4">
+        <UCard v-for="i in 6" :key="i">
+          <div class="flex gap-4">
+            <USkeleton class="h-24 w-24" />
+            <div class="flex-1 space-y-2">
+              <USkeleton class="h-6 w-3/4" />
+              <USkeleton class="h-4 w-full" />
+              <USkeleton class="h-4 w-2/3" />
+            </div>
+          </div>
+        </UCard>
+      </div>
+
+      <div
+        v-else-if="!query"
+        class="py-16 text-center"
+      >
+        <UIcon
+          name="i-lucide-search"
+          class="
+            mx-auto mb-4 size-16 text-gray-300
+            dark:text-gray-600
           "
         />
-        <PageTitle class="text-lg">
-          <span :class="{ 'opacity-0': !query }">
-            <span>{{ t('results') }}:</span>
-            <span
-              v-if="query"
-              class="font-bold"
-            >{{ query }}</span>
-          </span>
-        </PageTitle>
-        <div class="grid gap-4">
-          <UPagination
-            v-show="hasResults"
-            v-model:page="currentPage"
-            :total="total"
-            :max="max"
-            :disabled="!hasResults || status === 'pending'"
-            :size="size"
-            color="neutral"
-            show-edges
-          />
-          <SearchAutoComplete
-            v-if="results"
-            v-model:keep-focus="keepFocus"
-            v-model:highlighted="highlighted"
-            class="relative"
-            :query="query"
-            :limit="limit"
-            :offset="offset"
-            :all-results="results"
-            :status="status"
-            :has-results="hasResults"
-            :load-more="false"
-            @load-more="loadMoreSectionResults"
+        <h2
+          class="
+            mb-2 text-xl font-semibold text-gray-700
+            dark:text-gray-300
+          "
+        >
+          {{ t('page.empty.title') }}
+        </h2>
+        <p class="text-gray-500">
+          {{ t('page.empty.description') }}
+        </p>
+      </div>
+
+      <div
+        v-else-if="
+          searchResults
+            && displayResults.length === 0
+            && status !== 'pending'
+        "
+        class="py-16 text-center"
+      >
+        <UIcon
+          name="i-lucide-search-x"
+          class="
+            mx-auto mb-4 size-16 text-gray-300
+            dark:text-gray-600
+          "
+        />
+        <h2
+          class="
+            mb-2 text-xl font-semibold text-gray-700
+            dark:text-gray-300
+          "
+        >
+          {{ t('page.no_results.title') }}
+        </h2>
+        <p class="text-gray-500">
+          {{ t('page.no_results.description') }}
+        </p>
+      </div>
+
+      <div v-else class="space-y-4">
+        <UCard
+          v-for="result in displayResults"
+          :key="`${result.contentType}-${result.id}`"
+          :ui="{
+            root: 'transition-shadow cursor-pointer hover:shadow-md',
+          }"
+        >
+          <SearchResult :result="result" />
+        </UCard>
+
+        <div v-if="hasMore" class="flex justify-center pt-6">
+          <UButton
+            :label="t('page.load_more')"
+            size="lg"
+            variant="outline"
+            :loading="status === 'pending'"
+            @click="loadMore"
           />
         </div>
       </div>
-    </div>
-  </PageWrapper>
+    </UContainer>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Αναζήτηση
-  breadcrumb:
-    items:
-      search:
-        label: Αναζήτηση
-        icon: i-heroicons-magnifying-glass-circle
-  placeholder: Αναζήτηση...
-  results: Αποτέλεσμα αναζήτησης για
-  back_to_home: Πίσω στην Αρχική
+  page:
+    title: Αναζήτηση
+    search_query: Αναζήτηση {query}
+    search_placeholder: Πληκτρολογήστε για αναζήτηση...
+    results_count: Βρέθηκαν {count} αποτελέσματα για "{query}"
+    tabs:
+      all: Όλα
+      products: Προϊόντα ({count})
+      blog_posts: Άρθρα ({count})
+    empty:
+      title: Ξεκινήστε την αναζήτησή σας
+      description: Πληκτρολογήστε κάτι στο πεδίο αναζήτησης παραπάνω
+    no_results:
+      title: Δεν βρέθηκαν αποτελέσματα
+      description: Δοκιμάστε διαφορετικούς όρους αναζήτησης ή επιστρέψτε στην αρχική σελίδα
+    load_more: Φόρτωση περισσότερων αποτελεσμάτων
 </i18n>

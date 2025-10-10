@@ -11,8 +11,6 @@ const { loggedIn, user } = useUserSession()
 const img = useImage()
 const { $i18n } = useNuxtApp()
 
-const searchBarFocused = useState<boolean>('search-bar-focused')
-
 const avatarImg = computed(() => {
   if (!user.value || !user.value?.mainImagePath) {
     return ''
@@ -118,9 +116,6 @@ const Footer = computed(() => {
             mx-auto w-full max-w-(--container-main)
             md:!p-0
           "
-          :class="{
-            'opacity-70': searchBarFocused,
-          }"
         >
           <div
             class="

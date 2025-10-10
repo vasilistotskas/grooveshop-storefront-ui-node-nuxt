@@ -1,7 +1,3 @@
-/**
- * Composable for generating product URLs
- * Handles both full product objects and ID references
- */
 export const useProductUrl = () => {
   const productUrl = (productOrId: Product | number, slug?: string) => {
     if (typeof productOrId === 'number') {

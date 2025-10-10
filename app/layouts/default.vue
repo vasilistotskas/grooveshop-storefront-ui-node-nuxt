@@ -11,8 +11,6 @@ const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const { $i18n } = useNuxtApp()
 
-const searchBarFocused = useState<boolean>('search-bar-focused')
-
 const avatarImg = computed(() => {
   if (!user.value || !user.value?.mainImagePath) {
     return ''
@@ -92,9 +90,6 @@ const items = computed(() => {
         md:pt-[62px]
         lg:pt-[62px]
       "
-      :class="{
-        'opacity-70': searchBarFocused,
-      }"
     >
       <section class="flex w-full flex-1 flex-col">
         <slot />

@@ -5,7 +5,6 @@ const { cleanCartState, refreshCart } = cartStore
 const { user, loggedIn } = useUserSession()
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
-const { isMobileOrTablet } = useDevice()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { enabled } = useAuthPreviewMode()

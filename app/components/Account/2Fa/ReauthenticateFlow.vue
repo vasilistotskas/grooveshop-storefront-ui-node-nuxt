@@ -92,12 +92,6 @@ function flowsToMethods(flows: Flow[]) {
 const methods = computed(() => {
   return flowsToMethods(flows.value)
 })
-
-const currentMethod = computed(() => {
-  return methods.value.find((m) => {
-    return m.path === routeName.value
-  })
-})
 </script>
 
 <template>
@@ -111,21 +105,24 @@ const currentMethod = computed(() => {
         <ULink
           v-for="method in methods"
           :key="method.id"
+          :disabled="method.path === routeName"
           :to="localePath({
             name: method.path,
             query: { next },
           })"
-          class="
-            flex items-center gap-3 rounded-lg border border-default p-4
-            transition-colors
-            hover:bg-elevated
-          "
+          :class="[
+            'flex items-center gap-3 rounded-lg border p-4 transition-colors',
+            method.path === routeName ? 'border-primary bg-primary/5' : `
+              border-default
+              hover:bg-elevated
+            `,
+          ]"
         >
           <div
-            class="
-              flex size-10 shrink-0 items-center justify-center rounded-full
-              bg-primary/10
-            "
+            :class="[
+              'flex size-10 shrink-0 items-center justify-center rounded-full',
+              method.path === routeName ? 'bg-primary/20' : 'bg-primary/10',
+            ]"
           >
             <UIcon
               :name="method.icon"
@@ -135,9 +132,18 @@ const currentMethod = computed(() => {
           </div>
 
           <div class="min-w-0 flex-1">
-            <p class="text-sm font-medium text-default">
-              {{ method.label }}
-            </p>
+            <div class="flex items-center gap-2">
+              <p class="text-sm font-medium text-default">
+                {{ method.label }}
+              </p>
+              <UBadge
+                v-if="method.path === routeName"
+                :label="t('current_method')"
+                color="info"
+                variant="subtle"
+                size="sm"
+              />
+            </div>
             <p class="truncate text-xs text-muted">
               {{ method.description }}
             </p>
@@ -156,6 +162,7 @@ const currentMethod = computed(() => {
 <i18n lang="yaml">
 el:
   alternative_options: Εναλλακτικές μέθοδοι
+  current_method: Τρέχουσα
   mfa_reauthenticate:
     totp: Εφαρμογή επαλήθευσης
     totp_description: Χρησιμοποιήστε τον 6ψήφιο κωδικό από την εφαρμογή σας

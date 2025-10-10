@@ -2,8 +2,6 @@
 const config = useRuntimeConfig()
 
 const appTitle = computed(() => config.public.appTitle as string)
-
-const searchBarFocused = useState<boolean>('search-bar-focused')
 </script>
 
 <template>
@@ -36,11 +34,7 @@ const searchBarFocused = useState<boolean>('search-bar-focused')
         />
       </Anchor>
     </div>
-    <main
-      :class="{
-        'opacity-70': searchBarFocused,
-      }"
-    >
+    <main>
       <section class="flex w-full flex-1 flex-col">
         <slot />
       </section>
