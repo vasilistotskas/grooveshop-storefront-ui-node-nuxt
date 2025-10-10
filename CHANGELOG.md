@@ -1,3 +1,10 @@
+# [3.12.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.11.0...v3.12.0) (2025-10-10)
+
+
+### Features
+
+* Redesign and enhance search page UI/UX ([109ee20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/109ee208bbf06457a34080df722221d958e04c07))
+
 # [3.11.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.10.1...v3.11.0) (2025-10-10)
 
 
