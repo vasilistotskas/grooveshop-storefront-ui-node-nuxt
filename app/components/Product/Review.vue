@@ -58,7 +58,7 @@ const { refresh } = await useLazyFetch(
     headers: useRequestHeaders(),
     query: {
       ordering: ordering,
-      language: locale,
+      languageCode: locale,
     },
   },
 )

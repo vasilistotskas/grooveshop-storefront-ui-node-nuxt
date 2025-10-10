@@ -42,7 +42,7 @@ const {
   headers: useRequestHeaders(),
   query: {
     ordering: ordering,
-    language: locale,
+    languageCode: locale,
   },
 })
 

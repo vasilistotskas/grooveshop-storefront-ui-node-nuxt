@@ -13,8 +13,6 @@ const { $i18n, $routeBaseName } = useNuxtApp()
 
 const routeName = computed(() => $routeBaseName(route))
 
-const searchBarFocused = useState<boolean>('searchBarFocused', () => false)
-
 const onClickLogout = async () => {
   if (!routeName.value) return
   if (isRouteProtected(routeName.value))
@@ -70,10 +68,7 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <LazySearchBar
-        v-if="!isMobileOrTablet && route.path !== '/search'"
-        v-model:search-bar-focused="searchBarFocused"
-      />
+      <LazySearchInput />
       <div
         class="
           relative ml-auto hidden items-center

@@ -29,7 +29,7 @@ const { data: countries } = await useFetch(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
   },
 )
@@ -41,7 +41,7 @@ const { data: payWays } = await useFetch(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
   },
 )
@@ -52,7 +52,7 @@ const fetchRegions = async () => {
       method: 'GET',
       query: {
         country: formRef.value?.fields.country ? formRef.value?.fields.country[0].value : undefined,
-        language: locale.value,
+        languageCode: locale.value,
       },
     })
   }

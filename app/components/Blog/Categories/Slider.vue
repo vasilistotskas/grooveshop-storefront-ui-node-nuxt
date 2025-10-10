@@ -22,7 +22,7 @@ const { data: categories } = await useFetch(`/api/blog/categories`, {
   headers: useRequestHeaders(),
   query: {
     pageSize: max,
-    language: locale,
+    languageCode: locale,
   },
 })
 const categoryResults = shallowRef(categories.value?.results ?? [])

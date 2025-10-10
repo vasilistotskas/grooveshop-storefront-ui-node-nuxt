@@ -65,7 +65,7 @@ const {
       cursor: cursor,
       pageSize: pageSize,
       paginationType: paginationType,
-      language: locale,
+      languageCode: locale,
     },
 
   },

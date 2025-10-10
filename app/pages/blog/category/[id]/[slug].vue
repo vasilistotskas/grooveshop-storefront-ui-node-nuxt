@@ -33,7 +33,7 @@ const { data: category, status: categoryStatus, error } = await useFetch(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
   },
 )
@@ -61,7 +61,7 @@ const {
       page: page,
       ordering: ordering,
       paginationType: paginationType,
-      language: locale,
+      languageCode: locale,
     },
   },
 )

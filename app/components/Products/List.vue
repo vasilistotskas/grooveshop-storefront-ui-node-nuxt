@@ -52,7 +52,7 @@ const {
       category: category,
       pageSize: pageSize,
       paginationType: paginationType,
-      language: locale,
+      languageCode: locale,
     },
   },
 )

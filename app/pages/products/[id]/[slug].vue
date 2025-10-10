@@ -88,7 +88,7 @@ const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
   },
 )
@@ -108,7 +108,7 @@ const { data: productImages } = await useFetch(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
   },
 )

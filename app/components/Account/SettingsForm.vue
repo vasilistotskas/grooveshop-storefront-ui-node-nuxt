@@ -143,7 +143,7 @@ const { data: countries } = await useFetch('/api/countries', {
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
-    language: locale,
+    languageCode: locale,
   },
 })
 
@@ -169,7 +169,7 @@ const fetchRegions = async () => {
       method: 'GET',
       query: {
         country: country.value,
-        language: locale.value,
+        languageCode: locale.value,
       },
     })
   }

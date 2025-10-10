@@ -111,7 +111,7 @@ const fetchReplies = async (cursorValue: string) => {
       cursor: cursorValue,
       paginationType: paginationType.value,
       pageSize: pageSize.value,
-      language: locale.value,
+      languageCode: locale.value,
     },
     onResponse({ response }) {
       if (!response.ok) {

@@ -26,7 +26,7 @@ const { data: blogPost, refresh, error: blogPostError } = await useFetch(
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
   },
 )
@@ -50,7 +50,7 @@ const [
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
     pick: ['id', 'translations'],
   }),
@@ -59,7 +59,7 @@ const [
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
-      language: locale,
+      languageCode: locale,
     },
   }),
   useFetch('/api/blog/posts/liked-posts', {

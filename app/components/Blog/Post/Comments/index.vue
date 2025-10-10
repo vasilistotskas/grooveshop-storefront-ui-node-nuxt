@@ -89,7 +89,7 @@ const {
       parent_Isnull: true,
       paginationType: paginationType,
       pageSize: pageSize,
-      language: locale,
+      languageCode: locale,
       approved: true,
     },
   },

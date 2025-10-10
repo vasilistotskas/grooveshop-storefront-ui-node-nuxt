@@ -8,7 +8,7 @@ const { data: categories, status } = await useLazyFetch(`/api/blog/categories`, 
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
-    language: locale,
+    languageCode: locale,
   },
 })
 

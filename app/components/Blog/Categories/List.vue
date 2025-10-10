@@ -34,7 +34,7 @@ const {
       page: page,
       pageSize: pageSize,
       paginationType: paginationType,
-      language: locale,
+      languageCode: locale,
     },
   },
 )
