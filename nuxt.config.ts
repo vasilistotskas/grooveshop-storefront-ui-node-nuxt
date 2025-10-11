@@ -59,40 +59,40 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     buildDate: new Date().toISOString(),
-    apiBaseUrl: 'http://localhost:8000/api/v1',
-    mediaStreamPath: 'http://localhost:3003/media_stream-image',
-    cacheBase: 'cache',
-    cacheMaxAge: '30',
-    djangoUrl: 'http://localhost:8000',
-    secretKey: '',
+    apiBaseUrl: process.env.NUXT_API_BASE_URL,
+    mediaStreamPath: process.env.NUXT_MEDIA_STREAM_PATH,
+    cacheBase: process.env.NUXT_CACHE_BASE,
+    djangoUrl: process.env.NUXT_DJANGO_URL,
+    secretKey: process.env.NUXT_SECRET_KEY,
+    sessionPassword: process.env.NUXT_SESSION_PASSWORD,
     auth: {
-      cookieDomain: 'localhost',
+      cookieDomain: process.env.NUXT_AUTH_COOKIE_DOMAIN,
     },
     oauth: {
       discord: {
-        clientId: '',
-        clientSecret: '',
+        clientId: process.env.NUXT_OAUTH_DISCORD_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_DISCORD_CLIENT_SECRET,
       },
       facebook: {
-        clientId: undefined,
-        clientSecret: '',
+        clientId: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET,
       },
       github: {
-        clientId: '',
-        clientSecret: '',
+        clientId: process.env.NUXT_OAUTH_GITHUB_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET,
       },
       google: {
-        clientId: '',
-        clientSecret: '',
+        clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID,
+        clientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET,
       },
     },
     turnstile: {
-      secretKey: '',
+      secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY,
     },
     redis: {
-      host: 'localhost',
-      port: 6379,
-      ttl: 30,
+      host: process.env.NUXT_REDIS_HOST,
+      port: Number(process.env.NUXT_REDIS_PORT),
+      ttl: Number(process.env.NUXT_REDIS_TTL),
     },
     scripts: {
       registry: {
@@ -100,49 +100,44 @@ export default defineNuxtConfig({
       },
     },
     public: {
-      appKeywords: '',
-      appLogo: '',
-      appTitle: '',
-      baseUrl: 'http://localhost:3000',
-      apiBaseUrl: 'http://localhost:8000/api/v1',
-      environment: 'development',
+      appKeywords: process.env.NUXT_PUBLIC_APP_KEYWORDS,
+      appLogo: process.env.NUXT_PUBLIC_APP_LOGO,
+      appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
+      apiBaseUrl: process.env.NUXT_API_BASE_URL,
       author: {
-        github_url: '',
-        name: '',
+        github_url: process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL,
+        name: process.env.NUXT_PUBLIC_AUTHOR_NAME,
       },
-      djangoHost: 'localhost:8000',
-      djangoHostName: 'localhost:8000',
-      djangoUrl: 'http://localhost:8000',
-      facebookAppId: '',
+      djangoHostName: process.env.NUXT_PUBLIC_DJANGO_HOST_NAME,
+      djangoUrl: process.env.NUXT_PUBLIC_DJANGO_URL,
+      facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID,
       socials: {
-        discord: '',
-        facebook: '',
-        instagram: '',
-        pinterest: '',
-        reddit: '',
-        tiktok: '',
-        twitter: '',
-        youtube: '',
+        discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD,
+        facebook: process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
+        instagram: process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM,
+        pinterest: process.env.NUXT_PUBLIC_SOCIALS_PINTEREST,
+        reddit: process.env.NUXT_PUBLIC_SOCIALS_REDDIT,
+        tiktok: process.env.NUXT_PUBLIC_SOCIALS_TIKTOK,
+        twitter: process.env.NUXT_PUBLIC_SOCIALS_TWITTER,
+        youtube: process.env.NUXT_PUBLIC_SOCIALS_YOUTUBE,
       },
-      domainVerifyId: '',
+      domainVerifyId: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID,
       googleGsiEnable: false,
-      googleSiteVerification: '',
-      mediaStreamOrigin: 'http://localhost:3003',
-      mediaStreamPath: 'http://localhost:3003/media_stream-image',
+      googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+      mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
+      mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
       scripts: {
         googleAnalytics: {
-          id: '',
-        },
-        googleTagManager: {
-          id: '',
+          id: process.env.NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID,
         },
       },
-      titleSeparator: '-',
+      titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR,
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {
-        origin: 'http://localhost:8000',
+        origin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       },
-      stripePublishableKey: '',
+      stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     },
   },
   build: {
@@ -232,22 +227,6 @@ export default defineNuxtConfig({
   vite: {
     build: {
       sourcemap: true,
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              const modulePath = id.split('node_modules/')[1]
-              const topLevelFolder = modulePath?.split('/')[0]
-              if (topLevelFolder !== '.pnpm') {
-                return topLevelFolder
-              }
-
-              const scopedPackageName = modulePath?.split('/')[1]
-              return scopedPackageName?.split('@')[scopedPackageName.startsWith('@') ? 1 : 0]
-            }
-          },
-        },
-      },
     },
   },
   typescript: {

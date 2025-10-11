@@ -1,6 +1,4 @@
 import type { Storage } from 'unstorage'
-import type { SessionConfig } from 'h3'
-import process from 'node:process'
 
 interface CartSessionData {
   cartId?: number
@@ -9,29 +7,28 @@ interface CartSessionData {
   lastActivity: string
 }
 
-const sessionConfig: SessionConfig = {
-  name: 'nuxt-session',
-  password: process.env.NUXT_SESSION_PASSWORD || 'your-secure-password-here',
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30,
-  },
-}
-
 function getStorage(): Storage {
-  const config = useRuntimeConfig()
+  const config = useRuntimeConfig(useEvent())
   return useStorage(config.cacheBase)
 }
 
 export async function getCartSession(): Promise<CartSessionData> {
+  const config = useRuntimeConfig(useEvent())
   const storage = getStorage()
-  const session = await useSession<{ sessionId: string }>(useEvent(), sessionConfig)
+  const session = await useSession<{ sessionId: string }>(useEvent(), {
+    name: 'nuxt-session',
+    password: config.sessionPassword || 'your-secure-password-here',
+    cookie: {
+      httpOnly: true,
+      secure: !import.meta.dev,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+    },
+  })
 
   if (!session.data.sessionId) {
     console.info('Session Id not set, updating...')
-    await session.update({ sessionId: process.env.NUXT_SESSION_PASSWORD || 'your-secure-password-here' })
+    await session.update({ sessionId: config.sessionPassword || 'your-secure-password-here' })
   }
 
   const sessionId = session.data.sessionId!
@@ -42,7 +39,7 @@ export async function getCartSession(): Promise<CartSessionData> {
   if (!cartData) {
     console.info('Sets cart data in storage')
     cartData = {
-      sessionKey: process.env.NUXT_SESSION_PASSWORD || 'your-secure-password-here',
+      sessionKey: config.sessionPassword || 'your-secure-password-here',
       lastActivity: new Date().toISOString(),
     }
     await storage.setItem(cartKey, cartData, {
@@ -55,8 +52,18 @@ export async function getCartSession(): Promise<CartSessionData> {
 
 export async function updateCartSession(updates: Partial<CartSessionData>): Promise<void> {
   console.info('Updating cart session')
+  const config = useRuntimeConfig(useEvent())
   const storage = getStorage()
-  const session = await useSession<{ sessionId: string }>(useEvent(), sessionConfig)
+  const session = await useSession<{ sessionId: string }>(useEvent(), {
+    name: 'nuxt-session',
+    password: config.sessionPassword || 'your-secure-password-here',
+    cookie: {
+      httpOnly: true,
+      secure: !import.meta.dev,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+    },
+  })
   const sessionId = session.data.sessionId
 
   if (!sessionId) {
@@ -114,8 +121,18 @@ export async function handleCartResponse(response: any): Promise<void> {
 }
 
 export async function clearCartSession(): Promise<void> {
+  const config = useRuntimeConfig(useEvent())
   const storage = getStorage()
-  const session = await useSession<{ sessionId: string }>(useEvent(), sessionConfig)
+  const session = await useSession<{ sessionId: string }>(useEvent(), {
+    name: 'nuxt-session',
+    password: config.sessionPassword || 'your-secure-password-here',
+    cookie: {
+      httpOnly: true,
+      secure: !import.meta.dev,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+    },
+  })
   const sessionId = session.data.sessionId
 
   if (sessionId) {
