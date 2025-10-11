@@ -1,3 +1,10 @@
+## [3.13.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.13.0...v3.13.1) (2025-10-11)
+
+
+### Bug Fixes
+
+* config to use environment variables ([2f5cd5a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2f5cd5af65095399e766832959e68cf8d5fa6ffb))
+
 # [3.13.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.12.0...v3.13.0) (2025-10-10)
 
 
