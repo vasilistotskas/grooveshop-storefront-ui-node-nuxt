@@ -1,3 +1,10 @@
+## [3.13.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.13.1...v3.13.2) (2025-10-12)
+
+
+### Bug Fixes
+
+* Use getAllAuthAccessToken and conditionally set headers ([5d5d3b4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5d5d3b4e9446069feadf6675733ffe31a7a88ff2))
+
 ## [3.13.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.13.0...v3.13.1) (2025-10-11)
 
 
