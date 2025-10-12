@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await getAllAuthAccessToken(event)
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -11,7 +11,11 @@ export default defineEventHandler(async (event) => {
       `${config.apiBaseUrl}/order/uuid/${params.uuid}`,
       {
         method: 'GET',
-        headers: { Authorization: `Bearer ${accessToken}` },
+        ...(accessToken && {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }),
       },
     )
 
