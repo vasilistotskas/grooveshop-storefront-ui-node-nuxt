@@ -100,6 +100,13 @@ function loadMore() {
   execute()
 }
 
+defineShortcuts({
+  enter: {
+    usingInput: 'queryInput',
+    handler: () => goToSearchPage(),
+  },
+})
+
 watch(activeTab, () => {
   offset.value = 0
 })
@@ -165,8 +172,9 @@ onMounted(() => {
     <template #header>
       <div class="flex w-full items-center gap-3">
         <UIcon name="i-lucide-search" class="size-5 text-gray-400" />
-        <input
+        <UInput
           v-model="localQuery"
+          name="queryInput"
           type="text"
           :placeholder="t('search.modal_placeholder')"
           class="
@@ -175,15 +183,16 @@ onMounted(() => {
           "
           autofocus
         >
-        <UKbd v-if="!isMobileOrTablet" value="ESC" />
-        <UButton
-          v-if="isMobileOrTablet"
-          icon="i-lucide-x"
-          color="error"
-          variant="ghost"
-          size="sm"
-          @click="close"
-        />
+          <UKbd v-if="!isMobileOrTablet" value="ESC" />
+          <UButton
+            v-if="isMobileOrTablet"
+            icon="i-lucide-x"
+            color="error"
+            variant="ghost"
+            size="sm"
+            @click="close"
+          />
+        </UInput>
       </div>
     </template>
 

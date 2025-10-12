@@ -2,7 +2,6 @@
 const { t } = useI18n()
 const route = useRoute()
 
-// Search state
 const searchQuery = ref(
   Array.isArray(route.query.query)
     ? route.query.query[0] ?? ''
@@ -10,12 +9,10 @@ const searchQuery = ref(
 )
 const isModalOpen = ref(false)
 
-// Open search modal
 function openSearchModal() {
   isModalOpen.value = true
 }
 
-// Keyboard shortcuts to open search
 defineShortcuts({
   'meta_k': {
     handler: () => {

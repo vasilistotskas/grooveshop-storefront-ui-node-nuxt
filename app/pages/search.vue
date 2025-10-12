@@ -62,17 +62,17 @@ const tabItems = computed(() => {
 
   return [
     {
-      key: 'all',
+      value: 'all',
       label: t('page.tabs.all'),
       badge: productsCount + blogPostsCount,
     },
     {
-      key: 'products',
+      value: 'products',
       label: t('page.tabs.products_label'),
       badge: productsCount,
     },
     {
-      key: 'blogPosts',
+      value: 'blogPosts',
       label: t('page.tabs.blog_posts_label'),
       badge: blogPostsCount,
     },
