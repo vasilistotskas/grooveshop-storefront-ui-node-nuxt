@@ -1,3 +1,10 @@
+# [3.14.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.13.2...v3.14.0) (2025-10-13)
+
+
+### Features
+
+* product card and add category/product sliders ([bdb2d43](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bdb2d43adecd663299df0755cc9e1c432f75728e))
+
 ## [3.13.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.13.1...v3.13.2) (2025-10-12)
 
 
