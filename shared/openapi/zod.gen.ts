@@ -4025,17 +4025,6 @@ export const zRegionWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
-export const zSearchSuggestion = z.object({
-    term: z.string(),
-    type: z.string(),
-    highlight: z.string()
-});
-
-export const zSearchSuggestionResponse = z.object({
-    query: z.string(),
-    suggestions: z.array(zSearchSuggestion)
-});
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -13932,25 +13921,6 @@ export const zApiV1SearchProductRetrieveData = z.object({
 });
 
 export const zApiV1SearchProductRetrieveResponse = zProductMeiliSearchResponse;
-
-export const zApiV1SearchSuggestionsRetrieveData = z.object({
-    body: z.optional(z.never()),
-    path: z.optional(z.never()),
-    query: z.object({
-        languageCode: z.optional(z.string().register(z.globalRegistry, {
-            description: "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
-        })),
-        limit: z.optional(z.union([
-            z.string().regex(/^-?\d+$/),
-            z.int()
-        ])),
-        query: z.string().register(z.globalRegistry, {
-            description: 'Partial search query string'
-        })
-    })
-});
-
-export const zApiV1SearchSuggestionsRetrieveResponse = zSearchSuggestionResponse;
 
 export const zListTagData = z.object({
     body: z.optional(z.never()),

@@ -1328,6 +1328,9 @@ export type OrderItemWriteRequest = {
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'COMPLETED' | 'CANCELED' | 'RETURNED' | 'REFUNDED';
 
 export type OrderWriteRequest = {
+    /**
+     * User ID. Leave empty for guest orders.
+     */
     user?: number | null;
     /**
      * Country Code Alpha 2
@@ -1859,6 +1862,9 @@ export type PatchedOrderItemWriteRequest = {
 };
 
 export type PatchedOrderWriteRequest = {
+    /**
+     * User ID. Leave empty for guest orders.
+     */
     user?: number | null;
     /**
      * Country Code Alpha 2
@@ -3163,17 +3169,6 @@ export type RegionWriteRequest = {
  * * `FALSE` - False
  */
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE';
-
-export type SearchSuggestion = {
-    term: string;
-    type: string;
-    highlight: string;
-};
-
-export type SearchSuggestionResponse = {
-    query: string;
-    suggestions: Array<SearchSuggestion>;
-};
 
 /**
  * * `ACTIVE` - Active
@@ -12761,38 +12756,6 @@ export type ApiV1SearchProductRetrieveResponses = {
 };
 
 export type ApiV1SearchProductRetrieveResponse = ApiV1SearchProductRetrieveResponses[keyof ApiV1SearchProductRetrieveResponses];
-
-export type ApiV1SearchSuggestionsRetrieveData = {
-    body?: never;
-    path?: never;
-    query: {
-        /**
-         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
-         */
-        languageCode?: string;
-        /**
-         * Maximum number of suggestions to return
-         */
-        limit?: string | number;
-        /**
-         * Partial search query string
-         */
-        query: string;
-    };
-    url: '/api/v1/search/suggestions';
-};
-
-export type ApiV1SearchSuggestionsRetrieveErrors = {
-    400: ErrorResponse;
-};
-
-export type ApiV1SearchSuggestionsRetrieveError = ApiV1SearchSuggestionsRetrieveErrors[keyof ApiV1SearchSuggestionsRetrieveErrors];
-
-export type ApiV1SearchSuggestionsRetrieveResponses = {
-    200: SearchSuggestionResponse;
-};
-
-export type ApiV1SearchSuggestionsRetrieveResponse = ApiV1SearchSuggestionsRetrieveResponses[keyof ApiV1SearchSuggestionsRetrieveResponses];
 
 export type ListTagData = {
     body?: never;

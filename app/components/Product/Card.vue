@@ -63,198 +63,231 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 </script>
 
 <template>
-  <li class="relative">
+  <UCard
+    as="li"
+    class="
+      group relative h-full transition-all duration-300
+      hover:shadow-xl
+    "
+    :ui="{
+      body: 'p-0 sm:p-0',
+    }"
+  >
     <div
       class="
-        container rounded-lg bg-primary-100
-        dark:bg-primary-900
+        relative overflow-hidden bg-white
+        dark:bg-primary-800
       "
     >
-      <div class="flex flex-col gap-4 px-4 py-5">
-        <div class="max-w-full">
-          <Anchor
-            :to="{ path: productUrl(product.id, product.slug) }"
-            :text="alt"
-            :ui="{
-              base: 'p-0',
-            }"
-          >
-            <ImgWithFallback
-              :loading="imgLoading"
-              class="bg-transparent"
-              :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
-              :src="product.mainImagePath"
-              :width="imgWidth"
-              :height="imgHeight"
-              fit="contain"
-              :background="'transparent'"
-              sizes="sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px"
-              :alt="alt"
-              densities="x1"
-            />
-          </Anchor>
-        </div>
-        <div class="flex flex-1 flex-col justify-end gap-2">
-          <div
-            class="
-              grid items-center justify-between gap-2
-              md:flex md:gap-4
-            "
-          >
-            <h2 class="text-lg leading-6 font-semibold">
-              <Anchor
-                :to="{ path: productUrl(product.id, product.slug) }"
-                :text="alt"
-                class="
-                  text-primary-950
-                  dark:text-primary-50
-                "
-              >
-                {{ extractTranslated(product, 'name', locale) }}
-              </Anchor>
-            </h2>
-            <div
-              class="
-                row-start-1 flex gap-1
-                md:relative md:gap-4
-              "
-            >
-              <ClientOnly>
-                <UButton
-                  v-if="isSupported && showShareButton"
-                  :disabled="!isSupported"
-                  :aria-label="t('share')"
-                  icon="i-heroicons-share"
-                  size="lg"
-                  color="neutral"
-                  square
-                  variant="ghost"
-                  class="font-extrabold capitalize"
-                  :title="t('share')"
-                  @click="startShare"
-                />
-                <template #fallback>
-                  <USkeleton
-                    class="h-8 w-8"
-                  />
-                </template>
-              </ClientOnly>
-              <LazyButtonProductAddToFavourite
-                v-if="showAddToFavouriteButton"
-                :product-id="product.id"
-                :user-id="user?.id"
-                :favourite-id="favouriteId"
-                size="lg"
-                @favourite-delete="onFavouriteDelete"
-              />
-            </div>
-          </div>
-          <p
-            v-if="showDescription"
-            class="
-              min-h-[3.75rem] text-sm leading-6 text-primary-950
-              dark:text-primary-50
-            "
-          >
-            {{
-              contentShorten(
-                extractTranslated(product, 'description', locale),
-                0,
-                100,
-              )
-            }}
-          </p>
-          <div
-            v-if="showStartPrice || showVat"
-            class="grid"
-          >
-            <div
-              v-if="showStartPrice"
-              class="flex justify-between"
-            >
-              <p>
-                <span
-                  class="
-                    text-primary-950
-                    dark:text-primary-50
-                  "
-                >{{
-                  t('price')
-                }}</span><span
-                  class="
-                    text-primary-950
-                    dark:text-primary-50
-                  "
-                >{{
-                  product.price
-                }}</span>
-              </p>
-            </div>
-            <div
-              v-if="showVat"
-              class="flex justify-between"
-            >
-              <span
-                class="
-                  text-primary-950
-                  dark:text-primary-50
-                "
-              >{{
-                t('vat_percent')
-              }}
-              </span>
-              <span
-                class="
-                  text-primary-950
-                  dark:text-primary-50
-                "
-              >{{
-                product.vatPercent
-              }}
-              </span>
-            </div>
-          </div>
-          <div class="flex justify-between font-bold">
-            <p
-              class="grid items-center gap-2"
-            >
-              <span
-                class="
-                  text-sm leading-6 text-primary-950
-                  dark:text-primary-50
-                "
-              >
-                {{ t('total_price') }}
-              </span>
-              <span
-                class="
-                  text-lg leading-6 text-primary-950
-                  dark:text-primary-50
-                "
-              >
-                {{ $i18n.n(product.finalPrice, 'currency') }}
-              </span>
-            </p>
-          </div>
-        </div>
-        <div class="grid place-items-center">
-          <LazyButtonProductAddToCart
-            v-if="showAddToCartButton"
-            :product="product"
-            :quantity="1"
-            :text="t('add_to_cart')"
+      <div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
+        <UBadge
+          v-if="product.discountPercent && product.discountPercent > 0"
+          color="error"
+          variant="solid"
+          size="lg"
+          class="w-fit font-bold"
+        >
+          -{{ Math.round(product.discountPercent) }}%
+        </UBadge>
+        <UBadge
+          v-if="product.stock === 0"
+          color="neutral"
+          variant="soft"
+          size="md"
+          class="w-fit"
+        >
+          {{ t('out_of_stock') }}
+        </UBadge>
+        <UBadge
+          v-else-if="product.stock && product.stock < 10"
+          color="warning"
+          variant="soft"
+          size="md"
+          class="w-fit"
+        >
+          {{ t('low_stock') }}
+        </UBadge>
+      </div>
+
+      <div class="absolute top-3 right-3 z-10 flex gap-2">
+        <ClientOnly>
+          <UButton
+            v-if="isSupported && showShareButton"
+            :disabled="!isSupported"
+            :aria-label="t('share')"
+            icon="i-heroicons-share"
+            size="md"
+            color="neutral"
+            square
+            variant="soft"
+            :title="t('share')"
+            @click.stop="startShare"
+          />
+          <template #fallback>
+            <USkeleton class="size-8 rounded-md" />
+          </template>
+        </ClientOnly>
+        <LazyButtonProductAddToFavourite
+          v-if="showAddToFavouriteButton"
+          :product-id="product.id"
+          :user-id="user?.id"
+          :favourite-id="favouriteId"
+          size="md"
+          @favourite-delete="onFavouriteDelete"
+        />
+      </div>
+
+      <NuxtLink
+        :to="{ path: productUrl(product.id, product.slug) }"
+        :aria-label="alt"
+        class="block"
+      >
+        <div class="aspect-square overflow-hidden">
+          <ImgWithFallback
+            :loading="imgLoading"
+            class="size-full bg-transparent object-contain"
+            :src="product.mainImagePath"
+            :width="imgWidth"
+            :height="imgHeight"
+            fit="contain"
+            :background="'transparent'"
+            sizes="sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px"
+            :alt="alt"
+            densities="x1"
           />
         </div>
-      </div>
+      </NuxtLink>
     </div>
-  </li>
+
+    <div class="flex flex-col gap-3 p-4">
+      <NuxtLink
+        :to="{ path: productUrl(product.id, product.slug) }"
+        class="group/link"
+      >
+        <h3
+          class="
+            line-clamp-2 text-base leading-tight font-bold text-primary-950
+            transition-colors
+            group-hover/link:text-primary-600
+            md:text-lg
+            dark:text-primary-50 dark:group-hover/link:text-primary-400
+          "
+        >
+          {{ extractTranslated(product, 'name', locale) }}
+        </h3>
+      </NuxtLink>
+
+      <p
+        v-if="showDescription"
+        class="
+          line-clamp-2 min-h-[2.5rem] text-sm leading-relaxed text-primary-700
+          dark:text-primary-300
+        "
+      >
+        {{
+          contentShorten(
+            extractTranslated(product, 'description', locale),
+            0,
+            100,
+          )
+        }}
+      </p>
+
+      <div
+        v-if="product.reviewAverage && product.reviewAverage > 0" class="
+          flex items-center gap-2
+        "
+      >
+        <div class="flex items-center">
+          <UIcon
+            v-for="star in 5"
+            :key="star"
+            :name="star <= Math.round(product.reviewAverage) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
+            class="size-4 text-warning"
+          />
+        </div>
+        <span
+          class="
+            flex items-center gap-1 text-sm text-primary-700
+            dark:text-primary-300
+          "
+        >
+          {{ product.reviewAverage.toFixed(1) }}
+          <span v-if="product.reviewCount" class="text-xs">
+            ({{ product.reviewCount }})
+          </span>
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div
+          v-if="showStartPrice && product.price !== product.finalPrice"
+          class="flex items-center gap-2"
+        >
+          <span
+            class="
+              text-sm text-primary-600 line-through
+              dark:text-primary-400
+            "
+          >
+            {{ $i18n.n(product.price, 'currency') }}
+          </span>
+        </div>
+
+        <div class="flex items-baseline justify-between">
+          <div class="flex flex-col">
+            <span
+              class="
+                text-xs text-primary-600
+                dark:text-primary-400
+              "
+            >
+              {{ t('total_price') }}
+            </span>
+            <span
+              class="
+                text-2xl font-bold text-primary-950
+                dark:text-primary-50
+              "
+            >
+              {{ $i18n.n(product.finalPrice, 'currency') }}
+            </span>
+          </div>
+          <span
+            v-if="showVat && product.vatPercent"
+            class="
+              text-xs text-primary-600
+              dark:text-primary-400
+            "
+          >
+            {{ t('vat_included') }} {{ product.vatPercent }}%
+          </span>
+        </div>
+      </div>
+
+      <LazyButtonProductAddToCart
+        v-if="showAddToCartButton"
+        :product="product"
+        :quantity="1"
+        :text="t('add_to_cart')"
+        :disabled="product.stock === 0"
+        class="
+          w-full transition-all duration-300
+          hover:scale-105
+        "
+      />
+    </div>
+  </UCard>
 </template>
 
 <i18n lang="yaml">
 el:
   price: Τιμή
   vat_percent: Ποσοστό ΦΠΑ
-  total_price: Συνολικό ποσό
-  share: Share
+  vat_included: ΦΠΑ περιλαμβάνεται
+  total_price: Τελική Τιμή
+  share: Κοινοποίηση
   add_to_cart: Προσθήκη στο καλάθι
+  out_of_stock: Εξαντλημένο
+  low_stock: Τελευταία κομμάτια
 </i18n>
