@@ -1,3 +1,10 @@
+## [3.14.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.14.0...v3.14.1) (2025-10-13)
+
+
+### Bug Fixes
+
+* session password, remove server/error.ts, UI improvements ([184e64c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/184e64ce8b1d9e7d8c8fc61add7511415c9b7dc9))
+
 # [3.14.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.13.2...v3.14.0) (2025-10-13)
 
 
