@@ -1,3 +1,10 @@
+## [3.14.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.14.1...v3.14.2) (2025-10-13)
+
+
+### Bug Fixes
+
+* simplify cart, remove session middleware, improve error page ([1de76d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1de76d9062cbe8808ef56d72221923563368723c))
+
 ## [3.14.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.14.0...v3.14.1) (2025-10-13)
 
 
