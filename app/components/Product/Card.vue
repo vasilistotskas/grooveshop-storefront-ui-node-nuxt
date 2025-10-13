@@ -66,10 +66,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
   <UCard
     as="li"
     class="
-      group relative h-full transition-all duration-300
+      group relative h-full w-full max-w-full transition-all duration-300
       hover:shadow-xl
     "
     :ui="{
+      root: 'w-full max-w-full',
       body: 'p-0 sm:p-0',
     }"
   >
@@ -142,16 +143,15 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         :aria-label="alt"
         class="block"
       >
-        <div class="aspect-square overflow-hidden">
+        <div class="aspect-square max-w-full overflow-hidden">
           <ImgWithFallback
             :loading="imgLoading"
-            class="size-full bg-transparent object-contain"
+            class="size-full max-w-full bg-transparent object-contain"
             :src="product.mainImagePath"
             :width="imgWidth"
             :height="imgHeight"
             fit="contain"
             :background="'transparent'"
-            sizes="sm:330px md:290px lg:302px xl:280px xxl:410px 2xl:410px"
             :alt="alt"
             densities="x1"
           />

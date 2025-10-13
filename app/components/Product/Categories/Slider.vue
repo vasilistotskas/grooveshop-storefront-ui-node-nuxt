@@ -21,7 +21,6 @@ const { data: categories } = await useFetch(`/api/products/categories`, {
   headers: useRequestHeaders(),
 })
 
-// Take only the first 'max' items from the results
 const categoryResults = computed(() => {
   const results = categories.value?.results ?? []
   return results.slice(0, max.value)

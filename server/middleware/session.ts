@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const session = await useSession(event, {
     name: 'nuxt-cart-session',
-    password: config.sessionPassword || 'your-secure-password-here',
+    password: config.session.password,
     cookie: {
       httpOnly: true,
       secure: !import.meta.dev,

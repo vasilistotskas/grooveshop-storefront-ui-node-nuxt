@@ -7,9 +7,14 @@ const props = defineProps({
     validator: (value: string) =>
       Object.values(PaginationTypeEnum).includes(value as PaginationTypeEnum),
   },
+  categoryId: {
+    type: Number,
+    required: false,
+    default: undefined,
+  },
 })
 
-const { paginationType } = toRefs(props)
+const { paginationType, categoryId } = toRefs(props)
 
 const route = useRoute()
 const { t, locale } = useI18n()
@@ -53,6 +58,7 @@ const {
       pageSize: pageSize,
       paginationType: paginationType,
       languageCode: locale,
+      categoryId: categoryId,
     },
   },
 )

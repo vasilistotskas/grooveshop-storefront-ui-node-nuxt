@@ -35,10 +35,9 @@ definePageMeta({
   <PageWrapper class="flex flex-col">
     <PageTitle
       :text="t('title')"
-      class="capitalize"
+      class="mb-4 capitalize"
     />
-
-    <div v-if="category" />
+    <ProductsList v-if="categoryId" :category-id="Number(categoryId)" />
   </PageWrapper>
 </template>
 

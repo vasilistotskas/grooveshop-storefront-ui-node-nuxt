@@ -30,21 +30,30 @@ const { data: products } = await useFetch(`/api/products`, {
 })
 
 const productResults = computed(() => products.value?.results ?? [])
+
+const mobileUI = {
+  root: 'w-full max-w-full',
+  viewport: 'overflow-hidden w-full',
+  container: 'flex w-full p-6',
+  item: 'min-w-0 shrink-0 grow-0 basis-[90%] pl-3 first:pl-0 h-full max-h-full',
+}
+
+const desktopUI = {
+  container: 'p-4',
+  item: 'basis-full md:basis-1/3 lg:basis-1/4 px-2',
+}
 </script>
 
 <template>
-  <div class="relative">
+  <div
+    class="w-full max-w-full"
+  >
     <LazyUCarousel
       v-if="productResults && productResults.length > 0"
       v-slot="{ item, index }"
       :items="productResults"
-      :ui="{
-        container: 'p-4',
-        item: 'basis-full md:basis-1/3 lg:basis-1/4 px-2',
-        prev: 'top-1/2 -translate-y-1/2',
-        next: 'top-1/2 -translate-y-1/2',
-      }"
-      :arrows="showArrows"
+      :ui="isMobileOrTablet ? mobileUI : desktopUI"
+      :arrows="isMobileOrTablet ? false : showArrows"
       :dots="showDots"
       :prev="{
         color: 'neutral',
@@ -59,15 +68,15 @@ const productResults = computed(() => products.value?.results ?? [])
         square: true,
       }"
       class="
-        mx-auto w-full max-w-(--container-main)
-        md:!p-0
+        w-full max-w-full
+        md:mx-auto md:max-w-(--container-main)
       "
     >
       <ProductCard
         :product="item"
         :img-loading="index > 2 ? 'lazy' : 'eager'"
-        :img-width="isMobileOrTablet ? 575 : 440"
-        :img-height="isMobileOrTablet ? 670 : 440"
+        :img-width="isMobileOrTablet ? 280 : 440"
+        :img-height="isMobileOrTablet ? 280 : 440"
         :show-description="false"
         :show-start-price="true"
         :show-vat="false"

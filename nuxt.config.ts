@@ -25,10 +25,6 @@ export default defineNuxtConfig({
       '../shared/**',
     ],
   },
-  devtools: {
-    enabled: process.env.NODE_ENV !== 'production',
-    timeline: { enabled: true },
-  },
   app: {
     head: {
       viewport: 'width=device-width,initial-scale=1,viewport-fit=cover',
@@ -64,7 +60,6 @@ export default defineNuxtConfig({
     cacheBase: process.env.NUXT_CACHE_BASE,
     djangoUrl: process.env.NUXT_DJANGO_URL,
     secretKey: process.env.NUXT_SECRET_KEY,
-    sessionPassword: process.env.NUXT_SESSION_PASSWORD,
     auth: {
       cookieDomain: process.env.NUXT_AUTH_COOKIE_DOMAIN,
     },
@@ -392,8 +387,8 @@ export default defineNuxtConfig({
       html: true,
       markdown: true,
     },
-    debug: process.env.NODE_ENV !== 'production',
-    enabled: process.env.NODE_ENV !== 'production',
+    debug: false,
+    enabled: false,
   },
   ogImage: {
     defaults: {
