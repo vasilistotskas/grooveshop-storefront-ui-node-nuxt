@@ -1,7 +1,13 @@
-export default defineEventHandler(async () => {
-  const config = useRuntimeConfig()
-  const cartSession = useCartSession()
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig(event)
+  const cartSession = useCartSession(event)
   try {
+    const sessionData = await cartSession.getSession()
+
+    if (!sessionData.cartId) {
+      return null
+    }
+
     const headers = await cartSession.getCartHeaders()
 
     const response = await $fetch(`${config.apiBaseUrl}/cart`, {

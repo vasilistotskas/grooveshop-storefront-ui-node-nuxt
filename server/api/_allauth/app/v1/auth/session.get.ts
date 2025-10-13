@@ -1,8 +1,9 @@
 import { createHash, createDecipheriv } from 'node:crypto'
 import { Buffer } from 'buffer'
+import type { H3Event } from 'h3'
 
-function decryptToken(encryptedToken: string): string {
-  const config = useRuntimeConfig()
+function decryptToken(event: H3Event, encryptedToken: string): string {
+  const config = useRuntimeConfig(event)
   const secret_key = String(config.secretKey)
   const key = createHash('sha256').update(secret_key).digest()
   const tokenBuffer = Buffer.from(encryptedToken, 'base64')
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
     const signedToken = getRequestHeader(event, 'X-Encrypted-Token')
     if (signedToken) {
       try {
-        decodedToken = decryptToken(signedToken)
+        decodedToken = decryptToken(event, signedToken)
       }
       catch (error) {
         console.error('Error verifying signed token:', error)

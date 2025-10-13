@@ -5,7 +5,7 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
-const { refreshCart, updateCartItem } = cartStore
+const { updateCartItem } = cartStore
 
 const { max, cartItemId } = toRefs(props)
 
@@ -17,7 +17,6 @@ const decreaseQuantityEvent = async () => {
   await updateCartItem(props.cartItemId, {
     quantity: cartItemQuantity.value,
   })
-  await refreshCart()
 }
 
 const increaseQuantityEvent = async () => {
@@ -26,7 +25,6 @@ const increaseQuantityEvent = async () => {
   await updateCartItem(props.cartItemId, {
     quantity: cartItemQuantity.value,
   })
-  await refreshCart()
 }
 
 const changeQuantityEvent = async () => {
@@ -35,7 +33,6 @@ const changeQuantityEvent = async () => {
   await updateCartItem(props.cartItemId, {
     quantity: value,
   })
-  await refreshCart()
 }
 
 const quantityItems = computed(() => {

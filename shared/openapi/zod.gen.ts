@@ -920,9 +920,6 @@ export const zCart = z.object({
         z.int(),
         z.null()
     ])),
-    sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
-        description: 'Session key for guest users'
-    })),
     uuid: z.uuid().readonly(),
     items: z.array(zCartItem).readonly(),
     totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -950,9 +947,6 @@ export const zCartDetail = z.object({
         z.int(),
         z.null()
     ])),
-    sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
-        description: 'Session key for guest users'
-    })),
     uuid: z.uuid().readonly(),
     items: z.array(zCartItem).readonly(),
     totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -1023,10 +1017,7 @@ export const zCartWriteRequest = z.object({
     user: z.optional(z.union([
         z.int(),
         z.null()
-    ])),
-    sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
-        description: 'Session key for guest users'
-    }))
+    ]))
 });
 
 /**
@@ -2934,10 +2925,7 @@ export const zPatchedCartWriteRequest = z.object({
     user: z.optional(z.union([
         z.int(),
         z.null()
-    ])),
-    sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
-        description: 'Session key for guest users'
-    }))
+    ]))
 });
 
 /**
@@ -4664,20 +4652,14 @@ export const zCartWritable = z.object({
     user: z.optional(z.union([
         z.int(),
         z.null()
-    ])),
-    sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
-        description: 'Session key for guest users'
-    }))
+    ]))
 });
 
 export const zCartDetailWritable = z.object({
     user: z.optional(z.union([
         z.int(),
         z.null()
-    ])),
-    sessionKey: z.optional(z.string().max(40).register(z.globalRegistry, {
-        description: 'Session key for guest users'
-    }))
+    ]))
 });
 
 export const zCartItemWritable = z.object({
@@ -8758,10 +8740,7 @@ export const zDestroyCartData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -8780,10 +8759,7 @@ export const zRetrieveCartData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -8797,10 +8773,7 @@ export const zPartialUpdateCartData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -8814,10 +8787,7 @@ export const zUpdateCartData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -8838,10 +8808,6 @@ export const zListCartItemData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        cart_SessionKey: z.optional(z.string().register(z.globalRegistry, {
-            description: 'Filter by cart session key'
-        })),
-        cart_SessionKey_Icontains: z.optional(z.string()),
         cart_User: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
@@ -9059,10 +9025,7 @@ export const zListCartItemData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -9076,10 +9039,7 @@ export const zCreateCartItemData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -9098,10 +9058,7 @@ export const zDestroyCartItemData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -9133,10 +9090,7 @@ export const zRetrieveCartItemData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -9163,10 +9117,7 @@ export const zPartialUpdateCartItemData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -9185,10 +9136,7 @@ export const zUpdateCartItemData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 
@@ -9237,13 +9185,6 @@ export const zListCartData = z.object({
             z.boolean()
         ])),
         hasItems: z.optional(z.union([
-            z.literal('true'),
-            z.literal('false'),
-            z.literal('1'),
-            z.literal('0'),
-            z.boolean()
-        ])),
-        hasSessionKey: z.optional(z.union([
             z.literal('true'),
             z.literal('false'),
             z.literal('1'),
@@ -9372,14 +9313,6 @@ export const zListCartData = z.object({
         search: z.optional(z.string().register(z.globalRegistry, {
             description: 'A search term.'
         })),
-        sessionKey: z.optional(z.string().register(z.globalRegistry, {
-            description: 'Filter by exact session key'
-        })),
-        sessionKey_Icontains: z.optional(z.string()),
-        sessionKey_Istartswith: z.optional(z.string()),
-        sessionKey_Startswith: z.optional(z.string().register(z.globalRegistry, {
-            description: 'Filter by session key prefix'
-        })),
         updatedAfter: z.optional(z.iso.datetime({
             offset: true
         }).register(z.globalRegistry, {
@@ -9427,10 +9360,7 @@ export const zListCartData = z.object({
         'X-Cart-Id': z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
-        ])),
-        'X-Session-Key': z.optional(z.string().register(z.globalRegistry, {
-            description: 'Session key for guest users. Used to validate cart ownership for anonymous sessions.'
-        }))
+        ]))
     }))
 });
 

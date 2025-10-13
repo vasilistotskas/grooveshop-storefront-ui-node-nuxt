@@ -10,7 +10,7 @@ const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 const cartStore = useCartStore()
-const { refreshCart, deleteCartItem } = cartStore
+const { deleteCartItem } = cartStore
 
 const { contentShorten } = useText()
 
@@ -27,7 +27,6 @@ const cartItemQuantity = useState<number>(
 
 const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   await deleteCartItem(cartItemId)
-  await refreshCart()
 }
 
 const formattedPrice = computed(() => {

@@ -662,10 +662,6 @@ export type CancelOrderRequestRequest = {
 export type Cart = {
     readonly id: number;
     user?: number | null;
-    /**
-     * Session key for guest users
-     */
-    sessionKey?: string;
     readonly uuid: string;
     readonly items: Array<CartItem>;
     readonly totalPrice: number;
@@ -681,10 +677,6 @@ export type Cart = {
 export type CartDetail = {
     readonly id: number;
     user?: number | null;
-    /**
-     * Session key for guest users
-     */
-    sessionKey?: string;
     readonly uuid: string;
     readonly items: Array<CartItem>;
     readonly totalPrice: number;
@@ -770,10 +762,6 @@ export type CartItemUpdateRequest = {
 
 export type CartWriteRequest = {
     user?: number | null;
-    /**
-     * Session key for guest users
-     */
-    sessionKey?: string;
 };
 
 /**
@@ -1812,10 +1800,6 @@ export type PatchedCartItemUpdateRequest = {
 
 export type PatchedCartWriteRequest = {
     user?: number | null;
-    /**
-     * Session key for guest users
-     */
-    sessionKey?: string;
 };
 
 /**
@@ -4057,18 +4041,10 @@ export type BlogTagDetailWritable = {
 
 export type CartWritable = {
     user?: number | null;
-    /**
-     * Session key for guest users
-     */
-    sessionKey?: string;
 };
 
 export type CartDetailWritable = {
     user?: number | null;
-    /**
-     * Session key for guest users
-     */
-    sessionKey?: string;
 };
 
 export type CartItemWritable = {
@@ -7772,10 +7748,6 @@ export type DestroyCartData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path?: never;
     query?: never;
@@ -7805,10 +7777,6 @@ export type RetrieveCartData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path?: never;
     query?: never;
@@ -7834,10 +7802,6 @@ export type PartialUpdateCartData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path?: never;
     query?: never;
@@ -7863,10 +7827,6 @@ export type UpdateCartData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path?: never;
     query?: never;
@@ -7892,10 +7852,6 @@ export type ListCartItemData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path?: never;
     query?: {
@@ -7907,11 +7863,6 @@ export type ListCartItemData = {
          * Filter items in guest carts
          */
         cart_IsGuest?: 'true' | 'false' | '1' | '0' | boolean;
-        /**
-         * Filter by cart session key
-         */
-        cart_SessionKey?: string;
-        cart_SessionKey_Icontains?: string;
         /**
          * Filter by cart user ID
          */
@@ -8100,10 +8051,6 @@ export type CreateCartItemData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path?: never;
     query?: never;
@@ -8131,10 +8078,6 @@ export type DestroyCartItemData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path: {
         id: string | number;
@@ -8167,10 +8110,6 @@ export type RetrieveCartItemData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path: {
         id: string | number;
@@ -8205,10 +8144,6 @@ export type PartialUpdateCartItemData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path: {
         id: string | number;
@@ -8244,10 +8179,6 @@ export type UpdateCartItemData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path: {
         id: string | number;
@@ -8278,10 +8209,6 @@ export type ListCartData = {
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
          */
         'X-Cart-Id'?: string | number;
-        /**
-         * Session key for guest users. Used to validate cart ownership for anonymous sessions.
-         */
-        'X-Session-Key'?: string;
     };
     path?: never;
     query?: {
@@ -8320,10 +8247,6 @@ export type ListCartData = {
          * Filter carts that have/don't have items
          */
         hasItems?: 'true' | 'false' | '1' | '0' | boolean;
-        /**
-         * Filter carts with/without session keys
-         */
-        hasSessionKey?: 'true' | 'false' | '1' | '0' | boolean;
         id?: string | number;
         /**
          * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
@@ -8408,16 +8331,6 @@ export type ListCartData = {
          * A search term.
          */
         search?: string;
-        /**
-         * Filter by exact session key
-         */
-        sessionKey?: string;
-        sessionKey_Icontains?: string;
-        sessionKey_Istartswith?: string;
-        /**
-         * Filter by session key prefix
-         */
-        sessionKey_Startswith?: string;
         /**
          * Filter items updated after this date
          */

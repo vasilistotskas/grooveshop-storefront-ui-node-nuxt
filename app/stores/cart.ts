@@ -1,4 +1,4 @@
-import type { IFetchError, FetchContext, FetchHooks, FetchResponse } from 'ofetch'
+import type { IFetchError } from 'ofetch'
 
 export const useCartStore = defineStore('cart', () => {
   const { $i18n } = useNuxtApp()
@@ -69,66 +69,68 @@ export const useCartStore = defineStore('cart', () => {
     return null
   }
 
-  function createFetchHandlers(): FetchHooks {
-    return {
-      onRequest() {
-        console.log('Cart request started')
-        pending.value = true
-      },
-      onRequestError(ctx: FetchContext & { error: Error }) {
-        console.error('Cart request error:', ctx)
-        error.value = ctx.error as IFetchError
-        pending.value = false
-        handleError(ctx.error)
-      },
-      onResponse(ctx: FetchContext & { response: FetchResponse<any> }) {
-        console.log('Cart response completed', ctx)
-        if (!ctx.response?.ok) {
-          error.value = ctx.response._data
-          pending.value = false
-          return
-        }
-        cart.value = ctx.response._data
-        pending.value = false
-      },
-      onResponseError(ctx: FetchContext & { response: FetchResponse<any> }) {
-        console.error('Cart response error:', ctx)
-        error.value = ctx.error ? ctx.error as IFetchError : ctx.response._data
-        pending.value = false
-        if (ctx.error) {
-          handleError(ctx.error)
-        }
-      },
+  async function createCartItem(body: CartItemCreateRequest) {
+    try {
+      pending.value = true
+      await $fetch('/api/cart/items', {
+        method: 'POST',
+        headers: useRequestHeaders(),
+        body,
+      })
+      // Refresh cart after adding item
+      await refreshCart()
+      error.value = null
+    }
+    catch (err) {
+      console.error('Failed to create cart item:', err)
+      error.value = err as IFetchError
+      throw err
+    }
+    finally {
+      pending.value = false
     }
   }
 
-  function handleError(error: Error) {
-    console.error('Cart operation error:', error)
-  }
-
-  async function createCartItem(body: CartItemCreateRequest) {
-    await $fetch('/api/cart/items', {
-      method: 'POST',
-      headers: useRequestHeaders(),
-      body,
-      ...createFetchHandlers(),
-    })
-  }
-
   async function updateCartItem(id: number, body: CartItemUpdateRequest) {
-    await $fetch(`/api/cart/items/${id}`, {
-      method: 'PUT',
-      body,
-      ...createFetchHandlers(),
-    })
+    try {
+      pending.value = true
+      await $fetch(`/api/cart/items/${id}`, {
+        method: 'PUT',
+        body,
+      })
+      // Refresh cart after updating item
+      await refreshCart()
+      error.value = null
+    }
+    catch (err) {
+      console.error('Failed to update cart item:', err)
+      error.value = err as IFetchError
+      throw err
+    }
+    finally {
+      pending.value = false
+    }
   }
 
   async function deleteCartItem(id: number) {
-    await $fetch(`/api/cart/items/${id}`, {
-      method: 'DELETE',
-      headers: useRequestHeaders(),
-      ...createFetchHandlers(),
-    })
+    try {
+      pending.value = true
+      await $fetch(`/api/cart/items/${id}`, {
+        method: 'DELETE',
+        headers: useRequestHeaders(),
+      })
+      // Refresh cart after deleting item
+      await refreshCart()
+      error.value = null
+    }
+    catch (err) {
+      console.error('Failed to delete cart item:', err)
+      error.value = err as IFetchError
+      throw err
+    }
+    finally {
+      pending.value = false
+    }
   }
 
   async function setupCart() {
@@ -141,13 +143,22 @@ export const useCartStore = defineStore('cart', () => {
     try {
       pending.value = true
 
-      const data = await $fetch('/api/cart', {
+      // Only fetch cart if we have a cart ID in session (cart already exists)
+      // This prevents creating empty carts for every visitor
+      const hasExistingCart = await $fetch('/api/cart/check', {
         method: 'GET',
         headers: useRequestHeaders(),
       })
 
-      if (data) {
-        cart.value = data
+      if (hasExistingCart) {
+        const data = await $fetch('/api/cart', {
+          method: 'GET',
+          headers: useRequestHeaders(),
+        })
+
+        if (data) {
+          cart.value = data
+        }
       }
 
       error.value = null
@@ -161,11 +172,19 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function refreshCart() {
-    await $fetch('/api/cart', {
-      method: 'GET',
-      headers: useRequestHeaders(),
-      ...createFetchHandlers(),
-    })
+    try {
+      const data = await $fetch('/api/cart', {
+        method: 'GET',
+        headers: useRequestHeaders(),
+      })
+
+      if (data) {
+        cart.value = data
+      }
+    }
+    catch (err) {
+      console.error('Failed to refresh cart:', err)
+    }
   }
 
   function cleanCartState() {

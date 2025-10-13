@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const cartSession = useCartSession()
+  const cartSession = useCartSession(event)
 
   try {
     const headers = await cartSession.getCartHeaders()

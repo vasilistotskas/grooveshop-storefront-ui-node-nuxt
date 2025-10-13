@@ -60,6 +60,10 @@ export default defineNuxtConfig({
     cacheBase: process.env.NUXT_CACHE_BASE,
     djangoUrl: process.env.NUXT_DJANGO_URL,
     secretKey: process.env.NUXT_SECRET_KEY,
+    session: {
+      name: 'nuxt-session',
+      password: process.env.NUXT_SESSION_PASSWORD || '',
+    },
     auth: {
       cookieDomain: process.env.NUXT_AUTH_COOKIE_DOMAIN,
     },

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { NuxtError } from '#app'
 
-defineProps({
+const props = defineProps({
   error: Object as () => NuxtError,
 })
 
@@ -28,6 +28,24 @@ defineOgImage(ogImageOptions)
 const handleGoHome = () => {
   clearError({ redirect: '/' })
 }
+
+const helpfulTips = computed(() => {
+  if (props.error?.statusCode === 404) {
+    return [
+      t('tip.check.url'),
+      t('tip.use.search'),
+      t('tip.go.home'),
+    ]
+  }
+  else if (props.error?.statusCode === 500) {
+    return [
+      t('tip.server.error'),
+      t('tip.try.again'),
+      t('tip.contact.support'),
+    ]
+  }
+  return [t('tip.general')]
+})
 </script>
 
 <template>
@@ -41,33 +59,40 @@ const handleGoHome = () => {
   >
     <div class="pointer-events-none absolute inset-0 overflow-hidden opacity-20">
       <div
+        v-for="(_blob, index) in 3"
+        :key="index"
         class="
-          absolute top-20 left-10 size-72 animate-pulse rounded-full
-          bg-primary-300 mix-blend-multiply blur-3xl
-          dark:bg-primary-700
+          absolute size-72 animate-pulse rounded-full mix-blend-multiply
+          blur-3xl
+          dark:mix-blend-lighten
         "
-      />
-      <div
-        class="
-          absolute top-40 right-10 size-72 animate-pulse rounded-full
-          bg-warning-300 mix-blend-multiply blur-3xl
-          [animation-delay:2s]
-          dark:bg-warning-700
-        "
-      />
-      <div
-        class="
-          absolute bottom-20 left-1/2 size-72 animate-pulse rounded-full
-          bg-error-300 mix-blend-multiply blur-3xl
-          [animation-delay:4s]
-          dark:bg-error-700
-        "
+        :class="[
+          index === 0 && `
+            top-20 left-10 bg-primary-300
+            dark:bg-primary-700
+          `,
+          index === 1 && `
+            top-40 right-10 bg-warning-300
+            [animation-delay:2s]
+            dark:bg-warning-700
+          `,
+          index === 2 && `
+            bottom-20 left-1/2 bg-error-300
+            [animation-delay:4s]
+            dark:bg-error-700
+          `,
+        ]"
       />
     </div>
 
-    <UMain class="relative z-10 flex items-center justify-center">
+    <UMain
+      class="
+        relative z-10 flex items-center justify-center py-8
+        sm:py-12
+      "
+    >
       <UContainer>
-        <div class="flex flex-col items-center gap-6 py-12 text-center">
+        <div class="flex flex-col items-center gap-8 text-center">
           <div class="group relative">
             <div
               class="
@@ -90,110 +115,133 @@ const handleGoHome = () => {
               />
             </div>
           </div>
-          <template v-if="error.statusCode === 404">
-            <div
-              class="max-w-2xl space-y-4"
-            >
-              <h1
-                class="
-                  bg-gradient-to-r from-primary-600 to-primary-900 bg-clip-text
-                  text-4xl font-bold text-transparent
-                  sm:text-5xl
-                  dark:from-primary-400 dark:to-primary-200
-                "
-              >
-                {{ t('hmmm') }}
-              </h1>
 
-              <p
-                class="
-                  text-lg text-gray-700
-                  sm:text-xl
-                  dark:text-gray-300
-                "
-              >
-                {{ t('page.not.found') }}
-              </p>
-
-              <p
-                class="
-                  text-base text-gray-600
-                  dark:text-gray-400
-                "
-              >
-                {{ t('go.home') }}
-              </p>
-            </div>
-
-            <div
+          <div class="max-w-2xl space-y-4">
+            <h1
               class="
-                mt-8 flex flex-col gap-4
-                sm:flex-row
+                bg-gradient-to-r from-primary-600 to-primary-900 bg-clip-text
+                text-4xl font-bold text-transparent
+                sm:text-5xl
+                dark:from-primary-400 dark:to-primary-200
               "
             >
-              <UButton
-                size="xl"
-                color="neutral"
-                variant="solid"
-                icon="i-heroicons-home-20-solid"
-                class="
-                  rounded-full shadow-lg transition-all duration-300
-                  hover:scale-105 hover:shadow-xl
-                "
-                @click="handleGoHome"
-              >
-                {{ t('home') }}
-              </UButton>
+              {{ error.statusCode === 404 ? t('hmmm') : t('error.general.title') }}
+            </h1>
 
-              <UButton
-                size="xl"
-                color="neutral"
-                variant="outline"
-                icon="i-heroicons-arrow-left-20-solid"
-                class="
-                  rounded-full shadow-lg transition-all duration-300
-                  hover:scale-105 hover:shadow-xl
-                "
-                @click="$router.back()"
-              >
-                {{ t('go.back') }}
-              </UButton>
-            </div>
-
-            <div
-              class="mt-12"
+            <p
+              class="
+                text-lg text-gray-700
+                sm:text-xl
+                dark:text-gray-300
+              "
             >
-              <p
-                class="
-                  mb-4 text-sm font-medium text-gray-600
-                  dark:text-gray-400
-                "
-              >
-                {{ t('popular.pages') }}
-              </p>
-              <div class="flex flex-wrap justify-center gap-3">
-                <UButton
-                  v-for="link in [
-                    { to: '/', label: t('homepage'), icon: 'i-heroicons-home' },
-                    { to: '/about', label: t('about'), icon: 'i-heroicons-information-circle' },
-                    { to: '/contact', label: t('contact'), icon: 'i-heroicons-envelope' },
-                  ]"
-                  :key="link.to"
-                  :to="link.to"
-                  size="sm"
-                  variant="soft"
-                  color="neutral"
-                  :icon="link.icon"
-                  class="
-                    rounded-full transition-transform duration-300
-                    hover:scale-105
+              {{ error.statusCode === 404 ? t('page.not.found') : error.statusMessage || t('error.general.message') }}
+            </p>
+          </div>
+
+          <div
+            class="
+              flex flex-col gap-4
+              sm:flex-row
+            "
+          >
+            <UButton
+              size="xl"
+              color="neutral"
+              variant="solid"
+              icon="i-heroicons-home-20-solid"
+              class="
+                rounded-full shadow-lg transition-all duration-300
+                hover:scale-105 hover:shadow-xl
+              "
+              @click="handleGoHome"
+            >
+              {{ t('home') }}
+            </UButton>
+
+            <UButton
+              size="xl"
+              color="neutral"
+              variant="outline"
+              icon="i-heroicons-arrow-left-20-solid"
+              class="
+                rounded-full shadow-lg transition-all duration-300
+                hover:scale-105 hover:shadow-xl
+              "
+              @click="$router.back()"
+            >
+              {{ t('go.back') }}
+            </UButton>
+          </div>
+
+          <UAlert
+            v-if="helpfulTips.length > 0"
+            color="info"
+            variant="soft"
+            :title="t('helpful.tips')"
+            class="max-w-2xl"
+          >
+            <template #description>
+              <ul class="mt-2 space-y-1 text-sm">
+                <li
+                  v-for="(tip, index) in helpfulTips" :key="index" class="
+                    flex items-start gap-2
                   "
                 >
-                  {{ link.label }}
-                </UButton>
+                  <UIcon
+                    name="i-heroicons-check-circle" class="
+                      mt-0.5 size-4 shrink-0
+                    "
+                  />
+                  <span>{{ tip }}</span>
+                </li>
+              </ul>
+            </template>
+          </UAlert>
+
+          <UCard
+            v-if="error.message"
+            variant="outline"
+            class="max-w-2xl"
+          >
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-heroicons-code-bracket" class="size-5" />
+                <span class="font-semibold">{{ t('debug.info') }}</span>
+              </div>
+            </template>
+
+            <div class="space-y-2 text-left text-sm">
+              <div v-if="error.message">
+                <span
+                  class="
+                    font-medium text-gray-700
+                    dark:text-gray-300
+                  "
+                >{{ t('error.message') }}:</span>
+                <code
+                  class="
+                    ml-2 text-error-600
+                    dark:text-error-400
+                  "
+                >{{ error.message }}</code>
+              </div>
+              <div v-if="error.data">
+                <span
+                  class="
+                    font-medium text-gray-700
+                    dark:text-gray-300
+                  "
+                >{{ t('error.data') }}:</span>
+                <pre
+                  class="
+                    mt-1 overflow-auto rounded bg-gray-100 p-2 text-xs
+                    dark:bg-gray-800
+                  "
+                >{{ error.data }}</pre>
               </div>
             </div>
-          </template>
+          </UCard>
         </div>
       </UContainer>
     </UMain>
@@ -202,20 +250,37 @@ const handleGoHome = () => {
 
 <i18n lang="yaml">
 el:
-  home: Αρχική Σελίδα
   go:
     back: Επιστροφή Πίσω
-    home: Μπορεί όμως να σε οδηγήσει στην αρχική σελίδα!
+  home: Αρχική
   hmmm: Ωχ, κάτι πήγε στραβά!
   error:
     page:
       title: Σφάλμα 404
+    general:
+      title: Ωχ! Κάτι πήγε στραβά
+      message: Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα
+    message: Μήνυμα σφάλματος
+    data: Δεδομένα σφάλματος
   page:
     not:
       found: H αράχνη δεν μπόρεσε να βρει την σελίδα που ψάχνεις
-  popular:
-    pages: Δημοφιλείς σελίδες
-  homepage: Αρχική
-  about: Σχετικά με εμάς
-  contact: Επικοινωνία
+  helpful:
+    tips: Χρήσιμες συμβουλές
+  tip:
+    check:
+      url: Ελέγξτε αν η διεύθυνση URL είναι σωστή
+    use:
+      search: Χρησιμοποιήστε την αναζήτηση για να βρείτε αυτό που ψάχνετε
+    go:
+      home: Επιστρέψτε στην αρχική σελίδα
+    server:
+      error: Παρουσιάστηκε σφάλμα διακομιστή
+    try:
+      again: Δοκιμάστε ξανά σε λίγα λεπτά
+    contact:
+      support: Επικοινωνήστε με την υποστήριξη αν το πρόβλημα παραμένει
+    general: Κάτι πήγε στραβά, δοκιμάστε ξανά
+  debug:
+    info: Πληροφορίες αποσφαλμάτωσης
 </i18n>
