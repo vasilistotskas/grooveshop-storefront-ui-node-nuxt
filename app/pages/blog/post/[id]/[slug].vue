@@ -294,6 +294,9 @@ definePageMeta({
               square
               color="neutral"
               variant="soft"
+              :ui="{
+                base: 'gap-1',
+              }"
               @click="scrollToComments"
             />
 

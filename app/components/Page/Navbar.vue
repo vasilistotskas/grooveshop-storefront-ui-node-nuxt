@@ -148,7 +148,7 @@ const items = computed(() => [
             >
               <UButton
                 :aria-label="$i18n.t('favourites')"
-                :to="localePath('account-favourites-posts')"
+                :to="loggedIn ? localePath('account-favourites-posts') : localePath('account-login')"
                 class="p-0"
                 color="neutral"
                 icon="i-heroicons-heart"

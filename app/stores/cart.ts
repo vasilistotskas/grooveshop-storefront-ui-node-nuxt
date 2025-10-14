@@ -77,7 +77,6 @@ export const useCartStore = defineStore('cart', () => {
         headers: useRequestHeaders(),
         body,
       })
-      // Refresh cart after adding item
       await refreshCart()
       error.value = null
     }
@@ -98,7 +97,6 @@ export const useCartStore = defineStore('cart', () => {
         method: 'PUT',
         body,
       })
-      // Refresh cart after updating item
       await refreshCart()
       error.value = null
     }
@@ -119,7 +117,6 @@ export const useCartStore = defineStore('cart', () => {
         method: 'DELETE',
         headers: useRequestHeaders(),
       })
-      // Refresh cart after deleting item
       await refreshCart()
       error.value = null
     }
@@ -143,8 +140,6 @@ export const useCartStore = defineStore('cart', () => {
     try {
       pending.value = true
 
-      // Only fetch cart if we have a cart ID in session (cart already exists)
-      // This prevents creating empty carts for every visitor
       const hasExistingCart = await $fetch('/api/cart/check', {
         method: 'GET',
         headers: useRequestHeaders(),

@@ -80,6 +80,18 @@
       @apply list-disc;
     }
 
+    li {
+      @apply mt-[0.25em] mb-[0.25em];
+
+      &:first-child {
+        @apply mt-0;
+      }
+
+      &:last-child {
+        @apply mb-0;
+      }
+    }
+
     menu {
       @apply list-disc;
     }

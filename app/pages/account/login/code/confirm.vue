@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
+const { isMobileOrTablet } = useDevice()
 const { $i18n } = useNuxtApp()
 
 const items = computed(() => [
@@ -36,32 +37,58 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      mx-auto flex max-w-(--container-2xl) flex-col gap-4
-      md:gap-8 md:!p-0
+      !mt-0 flex flex-col gap-0 p-0
+      md:!mt-4
     "
   >
     <UBreadcrumb
       :items="items"
       :ui="{
-        item: 'text-primary-950 dark:text-primary-50',
+        item: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
         root: 'text-xs md:text-base',
       }"
-      class="relative mb-5 min-w-0"
-    />
-    <PageTitle
-      :text="t('title')"
-      class="text-center"
-    />
-    <p
       class="
-        text-center text-primary-950
-        dark:text-primary-50
+        absolute z-10 mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
+        !pt-2
+        md:relative md:mb-5 md:w-full md:!pt-0
+        dark:bg-transparent
+      "
+    />
+    <UContainer
+      class="
+        mt-12 w-xl max-w-full
+        sm:px-0
+        md:mt-0
+        lg:px-0
       "
     >
-      {{ t('description') }}
-    </p>
+      <UPageCard variant="outline" class="w-full max-w-full">
+        <div class="space-y-6">
+          <div class="text-center">
+            <div class="mb-4 inline-flex items-center justify-center">
+              <UIcon
+                name="i-heroicons-shield-check" class="size-12 text-primary"
+              />
+            </div>
+            <h1 class="text-2xl font-bold text-highlighted">
+              {{ t('title') }}
+            </h1>
+            <p class="mt-2 text-sm text-muted">
+              {{ t('description') }}
+            </p>
+          </div>
 
-    <AccountLoginCodeConfirmForm />
+          <UAlert
+            color="warning"
+            variant="soft"
+            icon="i-heroicons-clock"
+            :description="t('countdown_text')"
+          />
+
+          <AccountLoginCodeConfirmForm />
+        </div>
+      </UPageCard>
+    </UContainer>
   </PageWrapper>
 </template>
 
@@ -69,6 +96,7 @@ definePageMeta({
 el:
   title: Επιβεβαίωση κωδικού
   description: Ο κωδικός λήγει σύντομα, οπότε πρέπει να είσαι γρήγορος.
+  countdown_text: Ο κωδικός λήγει μετά από 10 λεπτά.
   breadcrumb:
     items:
       account-login:

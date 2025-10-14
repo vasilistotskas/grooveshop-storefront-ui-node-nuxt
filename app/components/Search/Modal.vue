@@ -178,8 +178,9 @@ onMounted(() => {
           type="text"
           :placeholder="t('search.modal_placeholder')"
           class="
-            flex-1 border-0 bg-transparent text-base
+            flex-1 gap-2 border-0 bg-transparent text-base
             focus:outline-none
+            md:gap-4
           "
           autofocus
         >

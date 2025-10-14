@@ -141,7 +141,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :to="localePath({ path: blogPostUrl(post.id, post.slug), hash: '#blog-post-comments' })"
           :label="String(post.commentsCount)"
           :ui="{
-            base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
+            base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white',
           }"
         />
         <ClientOnly>
@@ -155,7 +155,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             variant="ghost"
             :title="$i18n.t('share')"
             :ui="{
-              base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
+              base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white',
             }"
             @click="startShare"
           />

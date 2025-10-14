@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 
 const emit = defineEmits(['signUpByPasskey'])
 
@@ -7,89 +8,134 @@ const { signUpByPasskey } = useAllAuthAuthentication()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
+const toast = useToast()
 
 const loading = ref(false)
+const hasError = ref(false)
 
-async function onSubmit(values: WebAuthnSignupPostBody) {
+const schema = z.object({
+  email: z.email({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.email.valid'),
+  }),
+})
+
+type Schema = z.output<typeof schema>
+
+const fields: AuthFormField[] = [
+  {
+    name: 'email',
+    type: 'email',
+    label: t('email.title'),
+    placeholder: 'example@email.com',
+    required: true,
+  },
+]
+
+async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   try {
     loading.value = true
-    await signUpByPasskey(values)
+    hasError.value = false
+
+    await signUpByPasskey(event.data)
+
+    toast.add({
+      title: t('success.title'),
+      description: t('success.description'),
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
+    })
+
     emit('signUpByPasskey')
   }
   catch (error) {
+    hasError.value = true
     handleAllAuthClientError(error)
   }
+  finally {
+    loading.value = false
+  }
 }
-
-const formSchema = computed<DynamicFormSchema>(() => ({
-  fields: [
-    {
-      name: 'email',
-      as: 'input',
-      rules: z.email({
-        error: issue => issue.input === undefined
-          ? $i18n.t('validation.required')
-          : $i18n.t('validation.email.valid'),
-      }),
-      autocomplete: 'email',
-      readonly: false,
-      condition: () => true,
-      disabledCondition: () => false,
-      required: true,
-      placeholder: $i18n.t('email.title'),
-      type: 'email',
-    },
-  ],
-}))
 </script>
 
 <template>
-  <div
-    class="
-      container mx-auto grid gap-1 p-0
-      md:px-6
-    "
-  >
-    <p
-      class="
-        flex items-center text-center text-primary-950
-        dark:text-primary-50
-      "
+  <div class="space-y-6">
+    <UAuthForm
+      :schema="schema"
+      :fields="fields"
+      :loading="loading"
+      :submit="{
+        label: $i18n.t('submit'),
+        icon: 'i-heroicons-finger-print',
+        block: true,
+        size: 'lg',
+        color: 'neutral',
+        variant: 'subtle',
+      }"
+      @submit="onSubmit"
     >
-      {{ t('description') }}
-      <UButton
-        :label="t('login_here')"
-        :to="localePath('account-login')"
-        color="secondary"
-        size="lg"
-        type="submit"
-        variant="link"
-      />
-    </p>
-    <section class="grid items-center">
-      <DynamicForm
-        :button-label="$i18n.t('submit')"
-        :schema="formSchema"
-        @submit="onSubmit"
-      />
-    </section>
-    <div class="flex items-center justify-end">
-      <UButton
-        class="!px-0"
-        :label="t('using_password')"
-        :to="localePath('account-signup')"
-        color="secondary"
-        size="lg"
-        type="submit"
-        variant="link"
-      />
-    </div>
+      <template #validation>
+        <UAlert
+          v-if="hasError"
+          color="error"
+          variant="soft"
+          icon="i-heroicons-exclamation-circle"
+          :title="t('error.title')"
+          :description="t('error.description')"
+        />
+      </template>
+
+      <template #footer>
+        <div class="space-y-3">
+          <USeparator :label="t('or')" />
+
+          <div class="flex flex-col items-center gap-2 text-sm">
+            <div class="text-muted">
+              {{ t('already_have_account') }}
+              <ULink
+                :to="localePath('account-login')"
+                class="
+                  font-medium text-primary
+                  hover:underline
+                "
+              >
+                {{ t('login_here') }}
+              </ULink>
+            </div>
+
+            <div class="text-muted">
+              {{ t('prefer_password') }}
+              <ULink
+                :to="localePath('account-signup')"
+                class="
+                  font-medium text-primary
+                  hover:underline
+                "
+              >
+                {{ t('using_password') }}
+              </ULink>
+            </div>
+          </div>
+        </div>
+      </template>
+    </UAuthForm>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  description: Έχεις ήδη λογαριασμό;
+  email:
+    title: Email
+  success:
+    title: Επιτυχία
+    description: Το κλειδί πρόσβασης δημιουργήθηκε επιτυχώς.
+  error:
+    title: Σφάλμα εγγραφής
+    description: Δεν ήταν δυνατή η εγγραφή με κλειδί πρόσβασης.
+  or: ή
+  already_have_account: Έχεις ήδη λογαριασμό;
   login_here: Συνδέσου εδώ
-  using_password: Εγγράψου με κωδικό
+  prefer_password: Προτιμάς κωδικό πρόσβασης;
+  using_password: Εγγραφή με κωδικό
 </i18n>

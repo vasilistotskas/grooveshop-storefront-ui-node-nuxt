@@ -40,7 +40,7 @@ const items = computed(() => {
     },
     {
       icon: 'i-heroicons-heart',
-      to: '/account/favourites/posts',
+      to: loggedIn.value ? '/account/favourites/posts' : '/account/login',
       label: $i18n.t('favourites'),
       labelClass: 'sr-only',
     },
@@ -122,8 +122,8 @@ const items = computed(() => {
         :ui="{
           root: 'border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50 bottom-0 left-0 right-0 z-50 block w-full border-t dark:border-primary-700 dark:bg-primary-900',
           list: 'w-full',
-          item: 'w-full',
-          link: 'flex place-items-center justify-center before:bg-transparent dark:before:bg-transparent',
+          item: 'w-full px-0 py-2',
+          link: 'flex place-items-center justify-center before:bg-transparent dark:before:bg-transparent p-0',
           linkLabel: 'sr-only',
           linkLeadingIcon: 'size-8',
           linkLeadingAvatar: 'size-8',

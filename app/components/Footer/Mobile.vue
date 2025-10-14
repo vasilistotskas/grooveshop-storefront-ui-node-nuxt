@@ -26,7 +26,7 @@ const items = ref<AccordionItem[]>([{
 <template>
   <footer
     class="
-      w-full bg-primary-50 pb-[60px]
+      w-full bg-primary-50 pb-11
       md:hidden
       dark:bg-primary-900
     "
@@ -192,7 +192,7 @@ el:
   privacy_policy: Πολιτική Απορρήτου
   cookies_policy: Πολιτική Cookies
   about:
-    us: Σχετικά με εμάς,
+    us: Σχετικά με εμάς
     site: Τι είναι το Webside
   microlearning:
     title: Microlearning

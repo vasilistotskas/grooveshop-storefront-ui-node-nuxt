@@ -1,90 +1,96 @@
 <script lang="ts" setup>
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
 
 const emit = defineEmits(['passwordReset'])
 
 const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
-
 const { t } = useI18n()
-
 const route = useRoute()
 const toast = useToast()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
+const router = useRouter()
 
-const key = 'key' in route.params
-  ? route.params.key
-  : undefined
+const key = 'key' in route.params ? route.params.key : undefined
 
 if (!key) {
   navigateTo(localePath('account-password-reset'))
 }
 
-await useAsyncData(
-  'passwordReset',
-  () => getPasswordReset(String(key)),
-)
+await useAsyncData('passwordReset', () => getPasswordReset(String(key)))
 
-const ZodPasswordResetConfirm = z
-  .object({
-    newPassword1: z.string({
-      error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
-    }).min(8, {
-      error: $i18n.t('validation.min', {
-        min: 8,
-      }),
-    }).max(255),
-    newPassword2: z.string({
-      error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
-    }).min(8, {
-      error: $i18n.t('validation.min', {
-        min: 8,
-      }),
-    }).max(255),
-    key: z.string({ error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.string.invalid') }),
-  })
-  .refine(data => data.newPassword1 === data.newPassword2, {
-    message: t(
-      'form.newPassword2.errors.match',
-    ),
-    path: ['newPassword2'],
-  })
+const loading = ref(false)
+const hasError = ref(false)
+const showPassword1 = ref(false)
+const showPassword2 = ref(false)
 
-const initialValues = {
-  newPassword1: '',
-  newPassword2: '',
-  key: String(key),
+function checkStrength(str: string) {
+  const requirements = [
+    { regex: /.{8,}/, text: t('password.requirements.length') },
+    { regex: /\d/, text: t('password.requirements.number') },
+    { regex: /[a-z]/, text: t('password.requirements.lowercase') },
+    { regex: /[A-Z]/, text: t('password.requirements.uppercase') },
+  ]
+  return requirements.map(req => ({ met: req.regex.test(str), text: req.text }))
 }
 
-const validationSchema = toTypedSchema(ZodPasswordResetConfirm)
+const newPassword1 = ref('')
+const newPassword2 = ref('')
 
-const { defineField, handleSubmit, errors, isSubmitting, meta } = useForm({
-  validationSchema,
-  initialValues,
+const strength = computed(() => checkStrength(newPassword1.value))
+const score = computed(() => strength.value.filter(req => req.met).length)
+
+const color = computed(() => {
+  if (score.value === 0) return 'neutral'
+  if (score.value <= 1) return 'error'
+  if (score.value <= 2) return 'warning'
+  if (score.value === 3) return 'warning'
+  return 'success'
 })
 
-const [newPassword1, newPassword1Props] = defineField('newPassword1', {
-  validateOnModelUpdate: true,
-})
-const [newPassword2, newPassword2Props] = defineField('newPassword2', {
-  validateOnModelUpdate: true,
+const strengthText = computed(() => {
+  if (score.value === 0) return t('password.strength.none')
+  if (score.value <= 2) return t('password.strength.weak')
+  if (score.value === 3) return t('password.strength.medium')
+  return t('password.strength.strong')
 })
 
-const onSubmit = handleSubmit(async (values) => {
+const schema = z.object({
+  newPassword1: z.string()
+    .min(8, $i18n.t('validation.min', { min: 8 }))
+    .max(255),
+  newPassword2: z.string()
+    .min(8, $i18n.t('validation.min', { min: 8 }))
+    .max(255),
+  key: z.string(),
+}).refine(data => data.newPassword1 === data.newPassword2, {
+  message: t('form.newPassword2.errors.match'),
+  path: ['newPassword2'],
+})
+
+type Schema = z.output<typeof schema>
+
+async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   try {
+    loading.value = true
+    hasError.value = false
+
     await passwordReset({
-      password: values.newPassword1,
-      key: values.key,
+      password: event.data.newPassword1,
+      key: event.data.key,
     })
+
     toast.add({
       title: t('password.reset.success'),
+      description: t('success.description'),
       color: 'success',
+      icon: 'i-heroicons-check-circle',
     })
+
     emit('passwordReset')
+
+    await router.push(localePath('account-login'))
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
@@ -93,7 +99,8 @@ const onSubmit = handleSubmit(async (values) => {
           title: t('password.reset.success'),
           color: 'success',
         })
-        return navigateTo(localePath('account-login'))
+        await navigateTo(localePath('account-login'))
+        return
       }
       const errors = 'errors' in error.data.data ? error.data.data.errors : []
       errors.forEach((error) => {
@@ -104,134 +111,166 @@ const onSubmit = handleSubmit(async (values) => {
       })
       return
     }
+    hasError.value = true
     toast.add({
-      title: $i18n.t('error.default'),
+      title: t('error.default'),
       color: 'error',
     })
   }
-})
+  finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <section class="grid">
-    <form
-      id="passwordResetConfirmForm"
-      ref="passwordResetConfirmForm"
-      class="
-        container mx-auto p-0
-        md:px-20
-      "
-      name="passwordResetConfirmForm"
+  <div class="space-y-6">
+    <UAlert
+      v-if="hasError"
+      color="error"
+      variant="soft"
+      icon="i-heroicons-exclamation-circle"
+      :title="t('error.title')"
+      :description="t('error.description')"
+      close
+      @update:open="hasError = false"
+    />
+
+    <UForm
+      :schema="schema"
+      :state="{ newPassword1, newPassword2, key: String(key) }"
+      class="space-y-5"
       @submit="onSubmit"
     >
-      <div
-        class="
-          flex h-full flex-wrap items-center justify-center rounded-lg
-          bg-primary-100 p-4 shadow-[0_4px_9px_-4px_#0000000d]
-          md:p-8
-          lg:justify-between
-          dark:bg-primary-900 dark:shadow-[0_4px_9px_-4px_#0000000d]
-        "
+      <UFormField
+        name="newPassword1"
+        :label="t('form.newPassword1.label')"
+        required
       >
-        <div
-          class="
-            relative grid w-full gap-4
-            md:gap-8
-          "
+        <UInput
+          v-model="newPassword1"
+          :type="showPassword1 ? 'text' : 'password'"
+          :color="color"
+          autocomplete="new-password"
+          :placeholder="t('password.placeholder')"
+          :ui="{ trailing: 'pe-1' }"
         >
-          <div class="grid gap-4">
-            <div class="sr-only">
-              <label for="email">{{
-                t('form.email.label')
-              }}</label>
-              <input
-                id="email"
-                autocomplete="username email"
-                name="email"
-                style="display: none"
-                type="text"
-                value="..."
+          <template #trailing>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="sm"
+              :icon="showPassword1 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
+              :aria-label="showPassword1 ? 'Hide password' : 'Show password'"
+              @click="showPassword1 = !showPassword1"
+            />
+          </template>
+        </UInput>
+
+        <template v-if="newPassword1" #hint>
+          <div class="mt-2 space-y-2">
+            <UProgress
+              :color="color"
+              :model-value="score"
+              :max="4"
+              size="sm"
+            />
+
+            <p class="text-xs font-medium text-muted">
+              {{ strengthText }}. {{ t('password.requirements.title') }}
+            </p>
+
+            <ul class="space-y-1">
+              <li
+                v-for="(req, index) in strength"
+                :key="index"
+                class="flex items-center gap-1"
+                :class="req.met ? 'text-success' : 'text-muted'"
               >
-            </div>
-
-            <div class="grid content-evenly items-start gap-1">
-              <label
-                class="
-                  mb-2 text-primary-950
-                  dark:text-primary-50
-                "
-                for="newPassword1"
-              >{{
-                t('form.newPassword1.label')
-              }}</label>
-              <FormTextInput
-                id="newPassword1"
-                v-model="newPassword1"
-                :bind="newPassword1Props"
-                :required="true"
-                autocomplete="new-password"
-                name="newPassword1"
-                type="password"
-              />
-              <span
-                v-if="errors.newPassword1 && meta.touched"
-                class="relative px-4 py-3 text-xs text-red-600"
-              >{{ errors.newPassword1 }}</span>
-            </div>
-
-            <div class="grid content-evenly items-start gap-1">
-              <label
-                class="
-                  mb-2 text-primary-950
-                  dark:text-primary-50
-                "
-                for="newPassword2"
-              >{{
-                t('form.newPassword2.label')
-              }}</label>
-              <FormTextInput
-                id="newPassword2"
-                v-model="newPassword2"
-                :bind="newPassword2Props"
-                :required="true"
-                autocomplete="new-password"
-                name="newPassword2"
-                type="password"
-              />
-              <span
-                v-if="errors.newPassword2"
-                class="relative px-4 py-3 text-xs text-red-600"
-              >{{ errors.newPassword2 }}</span>
-            </div>
+                <UIcon
+                  :name="req.met ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
+                  class="size-4 shrink-0"
+                />
+                <span class="text-xs">{{ req.text }}</span>
+              </li>
+            </ul>
           </div>
-          <UButton
-            :aria-busy="isSubmitting"
-            :disabled="isSubmitting"
-            :label="t('form.submit')"
-            :trailing="true"
-            class="ml-0 justify-center"
-            color="neutral"
-            size="xl"
-            type="submit"
-            variant="solid"
-          />
-        </div>
-      </div>
-    </form>
-  </section>
+        </template>
+      </UFormField>
+
+      <UFormField
+        name="newPassword2"
+        :label="t('form.newPassword2.label')"
+        required
+      >
+        <UInput
+          v-model="newPassword2"
+          :type="showPassword2 ? 'text' : 'password'"
+          autocomplete="new-password"
+          :placeholder="t('password.placeholder_confirm')"
+          :ui="{ trailing: 'pe-1' }"
+        >
+          <template #trailing>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="sm"
+              :icon="showPassword2 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
+              :aria-label="showPassword2 ? 'Hide password' : 'Show password'"
+              @click="showPassword2 = !showPassword2"
+            />
+          </template>
+        </UInput>
+      </UFormField>
+
+      <UButton
+        type="submit"
+        color="neutral"
+        variant="subtle"
+        :loading="loading"
+        :disabled="loading || score < 4"
+        block
+        size="lg"
+        icon="i-heroicons-check-circle"
+      >
+        {{ t('form.submit') }}
+      </UButton>
+
+      <p v-if="score < 4 && newPassword1" class="text-center text-xs text-muted">
+        {{ t('password.requirements.complete') }}
+      </p>
+    </UForm>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
   form:
-    email:
-      label: Email
     newPassword1:
       label: Κωδικός πρόσβασης
     newPassword2:
       label: Επιβεβαίωση κωδικού πρόσβασης
       errors:
-        match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον
-          κωδικό πρόσβασης
+        match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον κωδικό πρόσβασης
     submit: Επαναφορά
+  password:
+    placeholder: Εισάγετε νέο κωδικό πρόσβασης
+    placeholder_confirm: Επιβεβαιώστε τον νέο κωδικό
+    strength:
+      none: Εισάγετε κωδικό πρόσβασης
+      weak: Αδύναμος κωδικός
+      medium: Μέτριος κωδικός
+      strong: Ισχυρός κωδικός
+    requirements:
+      title: Πρέπει να περιέχει
+      length: Τουλάχιστον 8 χαρακτήρες
+      number: Τουλάχιστον 1 αριθμό
+      lowercase: Τουλάχιστον 1 πεζό γράμμα
+      uppercase: Τουλάχιστον 1 κεφαλαίο γράμμα
+      complete: Ολοκληρώστε όλες τις απαιτήσεις για να συνεχίσετε
+  success:
+    description: Ο κωδικός σας έχει επαναφερθεί επιτυχώς.
+  error:
+    title: Σφάλμα επαναφοράς
+    description: Ο σύνδεσμος επαναφοράς μπορεί να έχει λήξει ή να είναι άκυρος.
 </i18n>

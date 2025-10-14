@@ -57,7 +57,7 @@ definePageMeta({
       "
     />
     <UCard
-      class="mx-auto w-full max-w-(--container-xl) !p-0"
+      class="mx-auto w-xl max-w-full !p-0"
       :ui="{
         root: isMobileOrTablet? 'rounded-none ring-0' : '',
         body: isMobileOrTablet? 'p-0' : 'px-4 py-5 sm:p-6',

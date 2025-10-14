@@ -21,14 +21,14 @@ const ZodSignup = z.object({
   email: z.email({
     error: issue => issue.input === undefined
       ? $i18n.t('validation.required')
-      : $i18n.t('validation.invalidEmail'),
+      : t('email.validation.email'),
   }),
   password: z.string({
     error: issue => issue.input === undefined
       ? $i18n.t('validation.required')
       : undefined,
   }).min(8, {
-    error: $i18n.t('validation.passwordTooShort'),
+    error: t('password1.validation.min'),
   }),
   password2: z.string({
     error: issue => issue.input === undefined
@@ -36,7 +36,7 @@ const ZodSignup = z.object({
       : undefined,
   }),
 }).refine(data => data.password === data.password2, {
-  message: $i18n.t('validation.passwordsNoMatch'),
+  message: t('password2.validation.match'),
   path: ['password2'],
 })
 

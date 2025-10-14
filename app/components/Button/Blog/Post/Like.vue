@@ -51,7 +51,7 @@ const liked = computed(() => blogPostLiked(props.blogPostId))
 
 const defaultUI = computed(() => {
   return {
-    base: `flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 ${liked.value ? '!text-(--ui-liked)' : ''}`,
+    base: `flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 ${liked.value ? '!text-[var(--ui-liked)]' : 'text-white md:text-black dark:text-white dark:md:text-white'}`,
   }
 })
 
