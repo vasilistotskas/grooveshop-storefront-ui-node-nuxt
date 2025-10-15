@@ -1,3 +1,10 @@
+# [3.17.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.16.1...v3.17.0) (2025-10-15)
+
+
+### Features
+
+* added `defineRouteRules` to disable robots, bump versions. ([b5b2ef0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b5b2ef097b33c9308a49655e67fe284b888eb864))
+
 ## [3.16.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.16.0...v3.16.1) (2025-10-15)
 
 
