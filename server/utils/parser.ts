@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod'
+import { createError } from 'h3'
 
 const apiValidateWithSchema = <ZodSchema extends ZodType>(
   data: any,
