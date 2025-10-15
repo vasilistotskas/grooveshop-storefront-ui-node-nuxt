@@ -89,7 +89,7 @@ const ogImage = computed(() => {
   if (!category || !category.value || !category.value.mainImagePath) {
     return ''
   }
-  return img(category.value.mainImagePath, { width: 1200, height: 630, fit: 'cover' }, {
+  return img(category.value.mainImagePath, { width: 1200, height: 630, format: 'png', fit: 'cover' }, {
     provider: 'mediaStream',
   })
 })

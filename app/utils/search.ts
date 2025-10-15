@@ -3,26 +3,23 @@ export function getDisplayTitle(result: SearchResult): string {
     if (result?.name) {
       return stripHtml(result.name)
     }
-    return result.name || ''
+    return ''
   }
   else {
     if (result?.title) {
       return stripHtml(result.title)
     }
-    return result.title || ''
+    return ''
   }
 }
 
 export function getDisplaySubtitle(result: SearchResult, maxLength = 150): string {
   if (isProductResult(result)) {
     if (result?.description) {
-      return stripHtml(result.description)
-    }
-    if (result?.description) {
       const text = stripHtml(result.description)
       return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
     }
-    return result.description || ''
+    return ''
   }
   else {
     if (result?.subtitle) {
@@ -32,7 +29,7 @@ export function getDisplaySubtitle(result: SearchResult, maxLength = 150): strin
       const text = stripHtml(result.body)
       return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
     }
-    return result.subtitle || ''
+    return ''
   }
 }
 

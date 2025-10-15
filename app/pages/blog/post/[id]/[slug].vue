@@ -117,6 +117,7 @@ const ogImage = computed(() => {
     width: 1200,
     height: 630,
     fit: 'cover',
+    format: 'png',
   }, {
     provider: 'mediaStream',
   })
