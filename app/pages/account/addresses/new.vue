@@ -347,6 +347,10 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   ],
 }))
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })

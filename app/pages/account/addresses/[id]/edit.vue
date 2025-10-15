@@ -391,6 +391,10 @@ onMounted(async () => {
   }
 })
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })

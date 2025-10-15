@@ -28,7 +28,7 @@ export default defineNitroPlugin(async () => {
       ttl: Number(redisConfig.ttl),
     })
 
-    await client.disconnect()
+    client.destroy()
   }
   catch (error) {
     console.error('Redis connection failed, falling back to in-memory storage:', error)

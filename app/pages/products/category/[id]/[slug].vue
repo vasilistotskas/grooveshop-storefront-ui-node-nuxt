@@ -26,6 +26,10 @@ if (!category.value) {
   })
 }
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'default',
 })

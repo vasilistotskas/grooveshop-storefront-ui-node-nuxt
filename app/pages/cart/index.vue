@@ -10,10 +10,6 @@ const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
 
-definePageMeta({
-  layout: 'default',
-})
-
 const breadcrumb = computed(() => [
   {
     label: t('home'),
@@ -44,6 +40,14 @@ const summaryCardUI = {
 const emptyCardUI = {
   root: 'w-full p-8',
 }
+
+defineRouteRules({
+  robots: false,
+})
+
+definePageMeta({
+  layout: 'default',
+})
 </script>
 
 <template>

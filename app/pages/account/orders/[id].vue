@@ -258,6 +258,10 @@ async function handleTrackOrder() {
   }
 }
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })

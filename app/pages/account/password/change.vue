@@ -3,6 +3,10 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const { hasCurrentPassword } = storeToRefs(authStore)
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })

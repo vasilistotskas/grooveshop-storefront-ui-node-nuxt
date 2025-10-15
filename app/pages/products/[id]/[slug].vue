@@ -262,6 +262,10 @@ useSchemaOrg([
   }),
 ])
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'default',
 })

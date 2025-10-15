@@ -70,6 +70,10 @@ watch(
   },
 )
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })

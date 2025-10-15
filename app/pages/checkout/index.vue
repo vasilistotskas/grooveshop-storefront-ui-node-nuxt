@@ -579,6 +579,10 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   ],
 } satisfies DynamicFormSchema))
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'default',
   middleware: [

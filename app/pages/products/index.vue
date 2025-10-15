@@ -21,6 +21,10 @@ useHead({
   title: t('title'),
 })
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'default',
 })

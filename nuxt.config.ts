@@ -198,6 +198,7 @@ export default defineNuxtConfig({
     asyncContext: true,
     cookieStore: true,
     payloadExtraction: true,
+    inlineRouteRules: true,
   },
   compatibilityDate: 'latest',
   nitro: {
@@ -398,32 +399,6 @@ export default defineNuxtConfig({
     defaults: {
       cacheMaxAgeSeconds: 60 * 60 * 24 * 7 * 1000, // 7 days
     },
-  },
-  robots: {
-    disallow: [
-      '/account',
-      '/account/2fa',
-      '/account/2fa/**',
-      '/account/addresses',
-      '/account/addresses/**',
-      '/account/email',
-      '/account/favourites/**',
-      '/account/help',
-      '/account/orders',
-      '/account/orders/**',
-      '/account/password/change',
-      '/account/provider/**',
-      '/account/providers',
-      '/account/reviews',
-      '/account/sessions',
-      '/account/settings',
-      '/account/reauthenticate',
-      '/cart',
-      '/checkout',
-      '/feedback',
-      '/products',
-      '/return-policy',
-    ],
   },
   schemaOrg: {
     enabled: true,

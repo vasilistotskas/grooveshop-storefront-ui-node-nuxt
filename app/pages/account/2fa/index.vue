@@ -8,6 +8,10 @@ const { totpAuthenticator, recoveryCodesAuthenticator } = storeToRefs(authStore)
 
 await setupAuthenticators()
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })

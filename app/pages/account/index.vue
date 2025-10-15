@@ -4,6 +4,10 @@ const { t } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })

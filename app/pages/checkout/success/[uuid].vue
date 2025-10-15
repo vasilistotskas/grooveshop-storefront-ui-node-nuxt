@@ -174,6 +174,10 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
   },
 ]
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'default',
 })

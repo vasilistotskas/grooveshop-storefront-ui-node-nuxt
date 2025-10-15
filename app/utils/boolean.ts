@@ -16,7 +16,6 @@ export function parseBoolean(value: any): boolean | undefined {
       if (value === 0) return false
     }
 
-    console.error('Invalid input type or value')
     return undefined
   }
 }

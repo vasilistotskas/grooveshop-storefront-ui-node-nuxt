@@ -17,7 +17,6 @@ export const defaultSelectOptionChoose = 'choose'
 export const AuthenticatedRoutes = [
   'account',
   'account-2fa',
-  'account-2fa-webauthn-add',
   'account-2fa-totp-activate',
   'account-2fa-totp-deactivate',
   'account-2fa-recovery-codes',

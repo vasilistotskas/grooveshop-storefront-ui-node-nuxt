@@ -17,9 +17,14 @@ const items = computed(() => [
   },
 ])
 
+defineRouteRules({
+  robots: false,
+})
+
 useSeoMeta({
   title: t('title'),
 })
+
 useHead({
   title: t('title'),
 })

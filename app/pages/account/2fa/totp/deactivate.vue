@@ -52,6 +52,10 @@ onReactivated(async () => {
   await refresh()
 })
 
+defineRouteRules({
+  robots: false,
+})
+
 definePageMeta({
   layout: 'user',
 })
