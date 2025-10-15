@@ -255,7 +255,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
   steps: [
     {
       title: t('steps.personal_info'),
-      description: t('steps.personal_info_desc'),
       icon: 'i-heroicons-user-circle',
       fields: [
         {
@@ -322,7 +321,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     },
     {
       title: t('steps.address'),
-      description: t('steps.address_desc'),
       icon: 'i-heroicons-map-pin',
       fields: [
         {
@@ -502,7 +500,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
     },
     {
       title: t('steps.payment'),
-      description: t('steps.payment_desc'),
       icon: 'i-heroicons-credit-card',
       fields: [
         {
@@ -781,11 +778,8 @@ el:
   redirecting: Μεταφορά στην σελίδα πληρωμής
   steps:
     personal_info: Προσωπικά Στοιχεία
-    personal_info_desc: Συμπλήρωσε τα προσωπικά σου στοιχεία
     address: Διεύθυνση
-    address_desc: Συμπληρώστε τη διεύθυνση παράδοσης
     payment: Πληρωμή
-    payment_desc: Επίλεξε τον τρόπο πληρωμής
   form:
     first_name: Όνομα
     last_name: Επίθετο

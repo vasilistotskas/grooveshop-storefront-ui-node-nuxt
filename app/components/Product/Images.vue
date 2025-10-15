@@ -43,7 +43,12 @@ watch(
     class="flex flex-col"
     :class="[images && images?.length > 1 ? 'gap-4' : '']"
   >
-    <UCard variant="soft">
+    <UCard
+      variant="soft"
+      :ui="{
+        body: 'p-0',
+      }"
+    >
       <ProductImage
         :image="selectedImage"
         img-loading="eager"

@@ -28,6 +28,12 @@ const labels = {
   [AuthenticatorType.WEBAUTHN]: t('mfa_reauthenticate.webauthn'),
 }
 
+const icons = {
+  [AuthenticatorType.TOTP]: 'i-heroicons-device-phone-mobile',
+  [AuthenticatorType.RECOVERY_CODES]: 'i-heroicons-key',
+  [AuthenticatorType.WEBAUTHN]: 'i-heroicons-finger-print',
+}
+
 const isCurrentPath = (path: FlowPathValue) => {
   const targetRoute = localeRoute(path)
   return targetRoute?.path === router.currentRoute.value.path
@@ -40,7 +46,8 @@ const filteredFlows = computed(() => {
     return {
       label: labels[type],
       id: type,
-      path: flow.value ? pathForFlow(flow.value, type) : null,
+      icon: icons[type],
+      path: flow.value ? pathForFlow(flow.value, type) : 'index' as FlowPathValue,
     }
   })
     .filter(f => f.path !== currentPath)
@@ -48,22 +55,12 @@ const filteredFlows = computed(() => {
 </script>
 
 <template>
-  <section
-    class="
-      grid gap-4
-      md:gap-12
-    "
-  >
-    <div class="grid items-center justify-center justify-items-center">
-      <h3
-        class="
-          text-2xl font-bold text-primary-950
-          dark:text-primary-50
-        "
-      >
+  <div class="space-y-6">
+    <div class="space-y-2 text-center">
+      <h3 class="text-2xl font-bold text-highlighted">
         {{ t('2fa.title') }}
       </h3>
-      <p>
+      <p class="text-sm text-muted">
         {{ t('2fa.subtitle') }}
       </p>
     </div>
@@ -72,34 +69,29 @@ const filteredFlows = computed(() => {
 
     <div
       v-if="flow && flow.types && flow?.types?.length > 1"
-      class="grid items-center justify-center gap-2"
+      class="space-y-4"
     >
-      <p>{{ t('alternative_options') }}</p>
-      <ul class="grid items-center">
-        <li
+      <USeparator :label="t('alternative_options')" />
+
+      <div class="grid gap-3">
+        <UButton
           v-for="f in filteredFlows"
           :key="f.id"
-          class="grid items-center gap-2"
-        >
-          <UButton
-            v-if="f.path"
-            :label="f.label"
-            :to="localePath({
-              name: f.path,
-              query: { next },
-            })"
-            class="p-0"
-            color="neutral"
-            :disabled="isCurrentPath(f.path)"
-            icon="i-heroicons-arrow-right"
-            size="xl"
-            type="button"
-            variant="ghost"
-          />
-        </li>
-      </ul>
+          :label="f.label"
+          :icon="f.icon"
+          :to="localePath({
+            name: f.path,
+            query: { next },
+          })"
+          :disabled="isCurrentPath(f.path)"
+          variant="outline"
+          color="neutral"
+          size="lg"
+          block
+        />
+      </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <i18n lang="yaml">

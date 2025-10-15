@@ -34,30 +34,57 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      mx-auto flex max-w-(--container-2xl) flex-col gap-4
-      md:gap-8 md:!p-0
-    "
-  >
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-base',
-      }"
-      class="relative mb-5 min-w-0"
-    />
-    <PageTitle
-      :text="$i18n.t('authenticate.recovery_code')"
-      class="text-center capitalize"
-    />
-    <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.RECOVERY_CODES" />
-  </PageWrapper>
+  <div class="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
+    <UContainer class="max-w-2xl">
+      <UBreadcrumb
+        :items="items"
+        :ui="{
+          item: 'text-primary-950 dark:text-primary-50',
+          root: 'text-xs md:text-base',
+        }"
+        class="mb-6"
+      />
+
+      <UPageCard variant="outline">
+        <div class="space-y-6">
+          <div class="text-center">
+            <div class="mb-4 inline-flex items-center justify-center">
+              <UIcon name="i-heroicons-key" class="size-12 text-warning" />
+            </div>
+            <h1 class="text-2xl font-bold text-highlighted">
+              {{ $i18n.t('authenticate.recovery_code') }}
+            </h1>
+            <p class="mt-2 text-sm text-muted">
+              {{ t('description') }}
+            </p>
+          </div>
+
+          <UAlert
+            color="warning"
+            variant="soft"
+            icon="i-heroicons-exclamation-triangle"
+          >
+            <template #title>
+              {{ t('warning.title') }}
+            </template>
+            <template #description>
+              {{ t('warning.description') }}
+            </template>
+          </UAlert>
+
+          <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.RECOVERY_CODES" />
+        </div>
+      </UPageCard>
+    </UContainer>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
+  description: Χρησιμοποίησε έναν από τους κωδικούς ανάκτησης που αποθήκευσες
+  warning:
+    title: Προσοχή
+    description: Κάθε κωδικός ανάκτησης μπορεί να χρησιμοποιηθεί μόνο μία φορά. Φρόντισε να αποθηκεύσεις τους υπόλοιπους κωδικούς σε ασφαλές μέρος.
   breadcrumb:
     items:
       account-login:

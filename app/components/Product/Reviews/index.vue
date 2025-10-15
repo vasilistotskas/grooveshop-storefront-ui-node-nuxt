@@ -69,10 +69,8 @@ watch(
 <template>
   <div
     class="
-      container mx-auto grid gap-2 border-t border-primary-500 !px-0 !py-6
-      text-primary-950
-      md:!p-6
-      dark:border-primary-500 dark:text-primary-50
+      container mx-auto grid gap-2 text-primary-950
+      dark:text-primary-50
     "
   >
     <div class="grid gap-4">

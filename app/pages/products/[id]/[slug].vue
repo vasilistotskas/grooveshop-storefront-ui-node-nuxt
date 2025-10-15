@@ -1,18 +1,5 @@
 <script setup lang="ts">
-import type { AccordionItem } from '@nuxt/ui'
-
-interface ProductAttributes {
-  processor?: string
-  memory?: string
-  storage?: string
-  graphics?: string
-  display?: string
-  battery?: string
-  weight?: string
-  dimensions?: string
-  highlights?: string
-  features?: string
-}
+import type { TabsItem, ButtonProps } from '@nuxt/ui'
 
 const route = useRoute()
 const { $i18n } = useNuxtApp()
@@ -30,56 +17,8 @@ const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
 const isReviewModalOpen = ref(false)
 const isLoginModalOpen = ref(false)
 const selectorQuantity = ref(1)
-const productAttributes = ref<ProductAttributes>({
-  processor: 'Intel Core i7-12700H',
-  memory: '16GB DDR5',
-  storage: '512GB NVMe SSD',
-  graphics: 'NVIDIA RTX 3060 6GB',
-  display: '15.6" FHD IPS 144Hz',
-  battery: '70Wh Li-ion',
-  weight: '2.1kg',
-  dimensions: '359 x 266 x 23.9mm',
-  highlights: 'High-performance gaming laptop with the latest Intel CPU and NVIDIA graphics',
-  features: 'RGB keyboard, Thunderbolt 4, Wi-Fi 6, Bluetooth 5.2',
-})
-const accordionItems = ref<AccordionItem[]>([
-  {
-    id: 'highlights',
-    label: t('key_highlights'),
-    icon: 'i-heroicons-star',
-    content: productAttributes.value?.highlights || t('no_highlights_available'),
-    open: true,
-  },
-  {
-    id: 'features',
-    label: t('key_features'),
-    icon: 'i-heroicons-check-badge',
-    content: productAttributes.value?.features || t('no_features_available'),
-    open: false,
-  },
-  {
-    id: 'shipping',
-    label: t('shipping_returns'),
-    icon: 'i-heroicons-truck',
-    content: t('standard_shipping_info'),
-    open: false,
-  },
-  {
-    id: 'warranty',
-    label: t('warranty_support'),
-    icon: 'i-heroicons-shield-check',
-    content: t('standard_warranty_info'),
-    open: false,
-  },
-])
-const technicalSpecifications = ref([
-  { property: 'Weight', value: '1.2 kg' },
-  { property: 'Dimensions', value: '10 x 5 x 2 cm' },
-])
 
-const productId = 'id' in route.params
-  ? route.params.id
-  : undefined
+const productId = 'id' in route.params ? route.params.id : undefined
 
 const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>(
   `/api/products/${productId}`,
@@ -164,6 +103,7 @@ const formatProductPrice = (price?: number) => {
     currency: 'EUR',
   }).format(price || 0)
 }
+
 const incrementQuantity = () => {
   if (selectorQuantity.value < productStock.value) {
     selectorQuantity.value++
@@ -175,11 +115,13 @@ const incrementQuantity = () => {
     })
   }
 }
+
 const decrementQuantity = () => {
   if (selectorQuantity.value > 1) {
     selectorQuantity.value--
   }
 }
+
 const openModal = () => {
   if (user?.value) {
     isReviewModalOpen.value = true
@@ -200,13 +142,16 @@ const productTitle = computed(() => {
     || '',
   )
 })
+
 const productStock = computed(() => product.value?.stock || 0)
 const showStickyAddToCart = computed(() => scrollY.value > 350)
+
 const favouriteId = computed(() => {
   if (!product.value) return
   const favourite = getFavouriteIdByProductId(product.value?.id)
   return favourite
 })
+
 const items = computed(() => [
   {
     to: localePath('index'),
@@ -218,10 +163,14 @@ const items = computed(() => [
     label: t('breadcrumb.items.products.label'),
   },
   {
-    to: localePath({ name: 'products-id-slug', params: { id: productId, slug: product.value?.slug } }),
+    to: localePath({
+      name: 'products-id-slug',
+      params: { id: productId, slug: product.value?.slug },
+    }),
     label: productTitle.value,
   },
 ])
+
 const reviewButtonText = computed(() => {
   if (user.value && userProductReview.value) {
     return t('update_review')
@@ -232,9 +181,13 @@ const reviewButtonText = computed(() => {
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value) || '',
   text: extractTranslated(product.value, 'description', locale.value) || '',
-  url: import.meta.client ? `/products/${product.value?.id}/${product.value?.slug}` : '',
+  url: import.meta.client
+    ? `/products/${product.value?.id}/${product.value?.slug}`
+    : '',
 })
+
 const { share, isSupported } = useShare(shareOptions)
+
 const startShare = async () => {
   try {
     await share()
@@ -243,6 +196,46 @@ const startShare = async () => {
     console.error('Share failed:', error)
   }
 }
+
+const stockStatus = computed(() => {
+  const stock = productStock.value
+  if (stock === 0) {
+    return { label: t('out_of_stock'), color: 'error', icon: 'i-heroicons-x-circle' } as { label: string, color: ButtonProps['color'], icon: string }
+  }
+  else if (stock <= 5) {
+    return { label: t('low_stock', { count: stock }), color: 'warning', icon: 'i-heroicons-exclamation-triangle' } as { label: string, color: ButtonProps['color'], icon: string }
+  }
+  else {
+    return { label: t('in_stock'), color: 'success', icon: 'i-heroicons-check-circle' } as { label: string, color: ButtonProps['color'], icon: string }
+  }
+})
+
+const productTabs = computed<TabsItem[]>(() => [
+  {
+    label: t('description'),
+    icon: 'i-heroicons-document-text',
+    slot: 'description',
+  },
+  {
+    label: t('specifications'),
+    icon: 'i-heroicons-cpu-chip',
+    slot: 'specifications',
+  },
+])
+
+const productSpecifications = computed(() => {
+  const specs = []
+
+  if (product.value?.weight) {
+    specs.push({
+      label: t('weight'),
+      value: `${product.value.weight.value} ${product.value.weight.unit || 'kg'}`,
+      icon: 'i-heroicons-scale',
+    })
+  }
+
+  return specs
+})
 
 watch(
   () => route.query,
@@ -277,9 +270,7 @@ definePageMeta({
 <template>
   <PageWrapper>
     <div
-      v-if="product"
-      id="product"
-      class="
+      v-if="product" id="product" class="
         mb-12
         md:mb-24
       "
@@ -288,7 +279,6 @@ definePageMeta({
         class="
           mx-auto max-w-7xl pb-6
           sm:px-6
-          md:px-4
           lg:px-8
         "
       >
@@ -300,100 +290,116 @@ definePageMeta({
           }"
           class="mb-5"
         />
+
         <div
           class="
-            grid gap-2
-            md:grid-cols-2
+            grid gap-6
+            md:gap-8
+            lg:grid-cols-2
           "
         >
           <ProductImages :product="product" />
+
           <div
             class="
-              grid content-center items-center gap-4
-              md:gap-6 md:px-4
+              flex flex-col gap-4
+              md:gap-6
             "
           >
-            <h2
-              class="
-                group text-3xl leading-tight font-semibold tracking-tight
-                text-primary-950
-                md:text-5xl
-                dark:text-primary-50
-              "
-            >
-              <span class="relative inline-block">
+            <div>
+              <h1
+                class="
+                  text-2xl font-bold tracking-tight text-primary-950
+                  sm:text-3xl
+                  lg:text-4xl
+                  dark:text-primary-50
+                "
+              >
                 {{ extractTranslated(product, 'name', locale) }}
+              </h1>
+
+              <div class="mt-3 flex items-center gap-2">
+                <UBadge
+                  :color="stockStatus.color"
+                  :icon="stockStatus.icon"
+                  size="lg"
+                  variant="soft"
+                >
+                  {{ stockStatus.label }}
+                </UBadge>
+
+                <UBadge
+                  v-if="product.discountPercent && product.discountPercent > 0"
+                  color="info"
+                  size="lg"
+                  variant="soft"
+                >
+                  -{{ product.discountPercent }}%
+                </UBadge>
+              </div>
+            </div>
+
+            <USeparator />
+
+            <div class="flex flex-wrap items-end gap-4">
+              <div class="flex flex-col">
                 <span
                   class="
-                    absolute -bottom-1 left-0 h-0.5 w-0 bg-indigo-600
-                    transition-all duration-300
-                    group-hover:w-full
-                    dark:bg-indigo-400
+                    bg-gradient-to-r from-neutral-600 to-secondary-900
+                    bg-clip-text text-3xl font-bold text-transparent
+                    sm:text-4xl
+                    dark:from-neutral-400 dark:to-secondary-400
                   "
-                />
-              </span>
-            </h2>
+                >
+                  {{ formatProductPrice(product?.finalPrice) }}
+                </span>
 
-            <section class="mt-2 flex flex-wrap items-center gap-3">
+                <span
+                  v-if="product.discountValue && product.discountValue > 0"
+                  class="
+                    text-lg text-gray-500 line-through
+                    dark:text-gray-400
+                  "
+                >
+                  {{ formatProductPrice(product?.price) }}
+                </span>
+              </div>
+            </div>
+
+            <USeparator />
+
+            <div class="flex flex-wrap items-center gap-3">
               <ClientOnly>
                 <UButton
                   v-if="isSupported"
                   :disabled="!isSupported"
                   :title="t('share')"
-                  class="
-                    group font-semibold capitalize transition-all duration-300
-                    hover:scale-105
-                  "
                   color="neutral"
                   variant="ghost"
-                  size="md"
+                  size="lg"
+                  icon="i-heroicons-share"
                   @click="startShare"
                 >
-                  <template #leading>
-                    <UIcon
-                      name="i-heroicons-share"
-                      class="
-                        mr-1
-                        group-hover:animate-pulse
-                      "
-                    />
-                  </template>
                   {{ t('share') }}
                 </UButton>
                 <template #fallback>
-                  <USkeleton
-                    class="h-8 w-[130px]"
-                  />
+                  <USkeleton class="h-9 w-full max-w-32" />
                 </template>
               </ClientOnly>
 
               <UButton
                 :label="reviewButtonText"
-                class="
-                  group font-semibold capitalize transition-all duration-300
-                  hover:scale-105
-                "
                 color="neutral"
                 variant="ghost"
-                size="md"
+                size="lg"
+                icon="i-heroicons-chat-bubble-left-right"
                 @click="openModal"
-              >
-                <template #leading>
-                  <UIcon
-                    name="i-heroicons-chat-bubble-left-right"
-                    class="
-                      mr-1
-                      group-hover:animate-pulse
-                    "
-                  />
-                </template>
-              </UButton>
+              />
 
               <ButtonProductAddToFavourite
                 :favourite-id="favouriteId"
                 :product-id="product?.id"
                 :user-id="user?.id"
-                class="z-10"
               />
 
               <LazyProductReview
@@ -413,211 +419,192 @@ definePageMeta({
                   v-model="isLoginModalOpen"
                 />
               </template>
-            </section>
-            <div class="mt-3 mb-4 space-y-4">
-              <div class="flex flex-wrap items-end gap-3">
-                <div class="relative">
-                  <span
-                    class="
-                      bg-gradient-to-r from-primary-600 to-secondary-600
-                      bg-clip-text text-4xl font-bold text-transparent
-                      transition-all duration-300
-                      hover:scale-105
-                      dark:from-primary-400 dark:to-secondary-400
-                    "
-                  >
-                    {{ formatProductPrice(product?.finalPrice) }}
-                  </span>
-                </div>
-              </div>
-
-              <div
-                class="
-                  flex flex-wrap items-center gap-4 text-sm text-gray-600
-                  dark:text-gray-300
-                "
-              >
-                <span
-                  class="
-                    inline-flex items-center rounded-full bg-primary-50 px-3
-                    py-1 transition-transform duration-300
-                    hover:scale-105
-                    dark:bg-primary-900
-                  "
-                >
-                  <UIcon
-                    name="i-heroicons-truck"
-                    class="mr-1"
-                  />
-                  {{ t('free_shipping') }}
-                </span>
-                <span
-                  class="
-                    inline-flex items-center rounded-full bg-primary-50 px-3
-                    py-1 transition-transform duration-300
-                    hover:scale-105
-                    dark:bg-primary-900
-                  "
-                >
-                  <UIcon
-                    name="i-heroicons-shield-check"
-                    class="mr-1"
-                  />
-                  {{ t('inclusive_of_taxes') || 'Περιλαμβάνονται όλοι οι φόροι.' }}
-                </span>
-              </div>
             </div>
+
+            <USeparator />
+
             <div
               class="
-                flex flex-col gap-4
-                md:flex-row
+                flex items-center gap-4
+                sm:flex-row
               "
             >
-              <div class="grid">
+              <div class="flex h-full">
                 <label
-                  class="sr-only"
-                  for="counter-input"
-                >{{
-                  t('qty')
-                }}</label>
+                  class="sr-only mb-2 text-sm font-medium" for="quantity"
+                >
+                  {{ t('qty') }}
+                </label>
                 <UInputNumber
+                  id="quantity"
                   v-model="selectorQuantity"
+                  class="h-full"
                   :min="1"
                   :max="product?.stock"
+                  :disabled="productStock === 0"
                 />
               </div>
 
-              <ButtonProductAddToCart
-                :product="product"
-                :quantity="selectorQuantity || 1"
-                :text="$i18n.t('add_to_cart')"
-              />
+              <div class="flex h-full">
+                <label class="sr-only mb-2 block text-sm font-medium opacity-0">
+                  {{ t('add_to_cart') }}
+                </label>
+                <ButtonProductAddToCart
+                  :product="product"
+                  :quantity="selectorQuantity || 1"
+                  :text="$i18n.t('add_to_cart')"
+                  :disabled="productStock === 0"
+                  class="w-full"
+                />
+              </div>
             </div>
 
-            <UCard
-              class="
-                border border-gray-200 p-4
-                dark:border-gray-700
-              "
-              :ui="{
-                root: 'p-0 overflow-hidden',
-                body: 'grow sm:p-2',
-                header: 'grow sm:p-2 pb-4',
-              }"
-            >
-              <template #header>
-                <div class="flex items-center justify-between">
-                  <h3 class="text-lg font-semibold">
-                    {{ t('product_details') }}
-                  </h3>
-                </div>
-              </template>
+            <USeparator class="my-2" />
 
-              <div
-                class="max-w-none"
-              >
-                <div v-if="extractTranslated(product, 'description', locale)" v-html="extractTranslated(product, 'description', locale) || ''" />
-                <p
-                  v-else
-                  class="
-                    text-gray-500
-                    dark:text-gray-400
-                  "
+            <UTabs :items="productTabs" class="w-full" color="neutral">
+              <template #description>
+                <div
+                  class="max-w-none py-4"
                 >
-                  {{ t('no_description_available') }}
-                </p>
-              </div>
-            </UCard>
-
-            <UTable :data="technicalSpecifications" />
-
-            <UAccordion
-              :items="accordionItems"
-            >
-              <template #default="{ item }">
-                <div class="py-4">
                   <div
-                    class="max-w-none"
+                    v-if="extractTranslated(product, 'description', locale)"
+                    v-html="extractTranslated(product, 'description', locale) || ''"
+                  />
+                  <p
+                    v-else
+                    class="
+                      text-gray-500
+                      dark:text-gray-400
+                    "
                   >
-                    {{ item.content }}
-                  </div>
+                    {{ t('no_description_available') }}
+                  </p>
                 </div>
               </template>
-            </UAccordion>
+
+              <template #specifications>
+                <div class="py-4">
+                  <div v-if="productSpecifications.length > 0" class="space-y-3">
+                    <div
+                      v-for="spec in productSpecifications"
+                      :key="spec.label"
+                      class="
+                        flex items-center justify-between rounded-lg border
+                        border-gray-200 p-4
+                        dark:border-gray-700
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <UIcon :name="spec.icon" class="h-5 w-5 text-gray-400" />
+                        <span class="font-medium">{{ spec.label }}</span>
+                      </div>
+                      <span
+                        class="
+                          text-gray-600
+                          dark:text-gray-400
+                        "
+                      >
+                        {{ spec.value }}
+                      </span>
+                    </div>
+                  </div>
+                  <p
+                    v-else
+                    class="
+                      text-gray-500
+                      dark:text-gray-400
+                    "
+                  >
+                    {{ t('no_specifications_available') }}
+                  </p>
+                </div>
+              </template>
+            </UTabs>
           </div>
         </div>
       </div>
+
       <div
         v-if="showStickyAddToCart"
         class="
           fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200
-          bg-primary-50 px-4 py-3 shadow-md
-          dark:border-gray-700 dark:bg-primary-800
+          bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm
+          dark:border-gray-700 dark:bg-gray-900/95
         "
       >
-        <div class="mx-auto flex max-w-7xl items-center justify-between">
-          <div class="flex items-center space-x-4">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <div class="flex min-w-0 flex-1 items-center gap-3">
             <ProductImage
-              v-if="productImages"
+              v-if="productImages && productImages[0]"
               :key="product?.id"
               :image="productImages[0]"
-              class="h-12 w-12 rounded-md object-contain"
+              class="h-12 w-12 flex-shrink-0 rounded-lg object-contain"
             />
-            <div>
-              <h3
-                class="
-                  max-w-[200px] truncate text-sm font-medium
-                  md:max-w-md
-                "
-              >
+            <div class="min-w-0 flex-1">
+              <h3 class="truncate text-sm font-medium">
                 {{ productTitle }}
               </h3>
-              <div class="flex items-center space-x-2">
+              <div class="flex items-center gap-2">
                 <span
                   class="
-                    text-lg font-bold text-secondary-600
-                    dark:text-secondary-400
+                    text-lg font-bold text-primary-600
+                    dark:text-primary-400
                   "
                 >
-                  {{ new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(product?.finalPrice || 0) }}
+                  {{ formatProductPrice(product?.finalPrice) }}
                 </span>
+                <UBadge
+                  v-if="productStock <= 5 && productStock > 0"
+                  :color="stockStatus.color"
+                  size="sm"
+                  variant="soft"
+                >
+                  {{ stockStatus.label }}
+                </UBadge>
               </div>
             </div>
           </div>
-          <div class="flex items-center space-x-3">
+
+          <div class="flex items-center gap-3">
             <div
               class="
-                flex items-center rounded-lg border border-gray-300
-                dark:border-gray-600
+                hidden items-center gap-1
+                sm:flex
               "
             >
               <UButton
                 icon="i-heroicons-minus"
-                color="primary"
+                color="neutral"
                 variant="ghost"
                 size="sm"
-                aria-label="Decrease quantity"
+                :disabled="selectorQuantity <= 1"
                 @click="decrementQuantity"
               />
-              <span class="w-8 text-center">{{ selectorQuantity }}</span>
+              <span class="min-w-[2rem] text-center text-sm font-medium">
+                {{ selectorQuantity }}
+              </span>
               <UButton
                 icon="i-heroicons-plus"
-                color="primary"
+                color="neutral"
                 variant="ghost"
                 size="sm"
-                aria-label="Increase quantity"
+                :disabled="selectorQuantity >= productStock"
                 @click="incrementQuantity"
               />
             </div>
+
             <ButtonProductAddToCart
               :product="product"
               :quantity="selectorQuantity || 1"
               :text="$i18n.t('add_to_cart')"
+              :disabled="productStock === 0"
+              size="lg"
             />
           </div>
         </div>
       </div>
 
+      <USeparator class="my-8" />
       <ProductReviews
         :product-id="String(product.id)"
         :reviews-average="product.reviewAverage"
@@ -635,39 +622,19 @@ el:
       products:
         label: Προϊόντα
   product_id: Αναγνωριστικό προϊόντος
-  save: Αποθήκευση
-  inclusive_of_taxes: Συμπεριλαμβάνονται όλοι οι φόροι.
-  qty: Ποσ
+  qty: Ποσότητα
   share: Μοιράσου το
   max_quantity_reached: Επιτεύχθηκε η μέγιστη ποσότητα
-  adjusted_to_stock: Προσαρμόστηκε στο απόθεμα {stock}
   must_be_logged_in: Πρέπει να συνδεθείς
   update_review: Ενημέρωση κριτικής
   write_review: Γράψε κριτική
-  processor: Επεξεργαστής
-  memory: Μνήμη
-  storage: Αποθηκευτικός χώρος
-  graphics: Γραφικά
-  display: Οθόνη
-  battery: Μπαταρία
   weight: Βάρος
-  dimensions: Διαστάσεις
-  key_highlights: Βασικά σημεία
-  key_features: Βασικά χαρακτηριστικά
-  shipping_returns: Αποστολή & Επιστροφές
-  warranty_support: Εγγύηση & Υποστήριξη
-  no_highlights_available: Δεν υπάρχουν διαθέσιμα κύρια σημεία
-  no_features_available: Δεν υπάρχουν διαθέσιμα χαρακτηριστικά
-  standard_shipping_info: Τυπικές πληροφορίες αποστολής
-  standard_warranty_info: Τυπική εγγύηση κατασκευαστή 1 έτους
-  product_details: Λεπτομέρειες προϊόντος
+  description: Περιγραφή
+  specifications: Προδιαγραφές
   no_description_available: Δεν υπάρχει διαθέσιμη περιγραφή
-  related_products: Σχετικά προϊόντα
-  click_to_zoom: Κάντε κλικ για μεγέθυνση
-  view_image: Προβολή εικόνας
-  product: Προϊόν
-  increment: Αύξηση
-  decrement: Μείωση
+  no_specifications_available: Δεν υπάρχουν διαθέσιμες προδιαγραφές
   add_to_cart: Προσθήκη στο καλάθι
-  free_shipping: Δωρεάν Μεταφορικά
+  out_of_stock: Μη διαθέσιμο
+  low_stock: Χαμηλό απόθεμα ({count})
+  in_stock: Διαθέσιμο
 </i18n>

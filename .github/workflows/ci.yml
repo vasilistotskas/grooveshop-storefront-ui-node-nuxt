@@ -25,10 +25,10 @@ jobs:
       packages: write # to be able to publish to GitHub Packages
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24.x'
       - name: Enable corepack for pnpm
@@ -36,7 +36,7 @@ jobs:
       - name: Check pnpm version
         run: pnpm --version
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24.x'
           registry-url: 'https://npm.pkg.github.com'

@@ -33,31 +33,53 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      mx-auto flex max-w-(--container-2xl) flex-col gap-4
-      md:gap-8 md:!p-0
-    "
-  >
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-base',
-      }"
-      class="relative mb-5 min-w-0"
-    />
-    <PageTitle
-      :text="$i18n.t('authenticate.totp')"
-      class="text-center capitalize"
-    />
+  <div class="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
+    <UContainer class="max-w-2xl">
+      <UBreadcrumb
+        :items="items"
+        :ui="{
+          item: 'text-primary-950 dark:text-primary-50',
+          root: 'text-xs md:text-base',
+        }"
+        class="mb-6"
+      />
 
-    <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.TOTP" />
-  </PageWrapper>
+      <UPageCard variant="outline">
+        <div class="space-y-6">
+          <div class="text-center">
+            <div class="mb-4 inline-flex items-center justify-center">
+              <UIcon
+                name="i-heroicons-device-phone-mobile" class="
+                  size-12 text-primary
+                "
+              />
+            </div>
+            <h1 class="text-2xl font-bold text-highlighted">
+              {{ $i18n.t('authenticate.totp') }}
+            </h1>
+            <p class="mt-2 text-sm text-muted">
+              {{ t('description') }}
+            </p>
+          </div>
+
+          <UAlert
+            color="info"
+            variant="soft"
+            icon="i-heroicons-information-circle"
+            :description="t('info_text')"
+          />
+
+          <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.TOTP" />
+        </div>
+      </UPageCard>
+    </UContainer>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
+  description: Εισάγετε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας
+  info_text: Άνοιξε την εφαρμογή authenticator (Google Authenticator, Authy, κλπ.) και εισάγαγε τον 6-ψήφιο κωδικό.
   breadcrumb:
     items:
       account-login:
