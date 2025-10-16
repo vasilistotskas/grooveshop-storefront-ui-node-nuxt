@@ -68,7 +68,7 @@ const defaultModifiers = {
   background: 'transparent',
   trimThreshold: 5,
   format: 'webp',
-  quality: 100,
+  quality: 80,
 }
 
 export const getImage: ProviderGetImage = (

@@ -310,4 +310,172 @@ describe('Server Utils - Auth', () => {
       expect(headers).not.toHaveProperty('X-Forwarded-For')
     })
   })
+
+  describe('createHeaders - Additional Coverage', () => {
+    it('should include both session and access tokens', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders('session-token', 'access-token')
+
+      expect(headers['X-Session-Token']).toBe('session-token')
+      expect(headers['Authorization']).toBe('Bearer access-token')
+      expect(headers['Content-Type']).toBe('application/json')
+    })
+
+    it('should include X-Forwarded-Host when host is present', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('example.com'))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Forwarded-Host']).toBe('example.com')
+    })
+
+    it('should include User-Agent from request headers', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'user-agent': 'Mozilla/5.0',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['User-Agent']).toBe('Mozilla/5.0')
+    })
+
+    it('should include X-Forwarded-For from request headers', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'x-forwarded-for': '192.168.1.1',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
+    })
+
+    it('should include all headers when all data is present', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'user-agent': 'Mozilla/5.0',
+        'x-forwarded-for': '192.168.1.1',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('example.com'))
+
+      const headers = createHeaders('session-token', 'access-token')
+
+      expect(headers['Content-Type']).toBe('application/json')
+      expect(headers['X-Forwarded-Host']).toBe('example.com')
+      expect(headers['X-Session-Token']).toBe('session-token')
+      expect(headers['Authorization']).toBe('Bearer access-token')
+      expect(headers['User-Agent']).toBe('Mozilla/5.0')
+      expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
+    })
+
+    it('should handle null tokens', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders(null, null)
+
+      expect(headers['X-Session-Token']).toBeUndefined()
+      expect(headers['Authorization']).toBeUndefined()
+      expect(headers['Content-Type']).toBe('application/json')
+    })
+
+    it('should handle undefined tokens', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders(undefined, undefined)
+
+      expect(headers['X-Session-Token']).toBeUndefined()
+      expect(headers['Authorization']).toBeUndefined()
+      expect(headers['Content-Type']).toBe('application/json')
+    })
+
+    it('should handle empty string tokens', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders('', '')
+
+      // Empty strings are falsy, so they won't be included
+      expect(headers['X-Session-Token']).toBeUndefined()
+      expect(headers['Authorization']).toBeUndefined()
+    })
+
+    it('should handle missing user-agent in request headers', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'x-forwarded-for': '192.168.1.1',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['User-Agent']).toBeUndefined()
+      expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
+    })
+
+    it('should handle missing x-forwarded-for in request headers', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'user-agent': 'Mozilla/5.0',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['User-Agent']).toBe('Mozilla/5.0')
+      expect(headers['X-Forwarded-For']).toBeUndefined()
+    })
+  })
 })

@@ -356,7 +356,6 @@ export default defineNuxtConfig({
     presets: {
       default: {
         modifiers: {
-          quality: 90,
           format: 'webp',
         },
       },

@@ -56,7 +56,7 @@ definePageMeta({
           alt="Webside"
           loading="eager"
           format="png"
-          quality="100"
+          quality="80"
           preload
         />
       </div>

@@ -131,7 +131,7 @@ const submitButtonDisabled = computed(() => {
                 :width="isMobileOrTablet ? 100 : 140"
                 :height="isMobileOrTablet ? 100 : 140"
                 :alt="`${'Login Logo ' + config.public.appTitle}`"
-                quality="100"
+                quality="80"
                 preload
               />
             </div>

@@ -77,7 +77,7 @@ useSeoMeta({
             :width="bannerWidth"
             sizes="xs:382px sm:352px md:545px lg:1194px xl:1194px xxl:1194px 2xl:1194px"
             fit="cover"
-            quality="100"
+            quality="80"
             class="rounded-lg"
             format="webp"
             loading="eager"

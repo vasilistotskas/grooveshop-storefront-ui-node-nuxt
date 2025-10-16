@@ -86,7 +86,7 @@ const categoryResults = computed(() => {
               :height="isMobileOrTablet ? 96 : 112"
               :src="item.mainImagePath"
               :width="isMobileOrTablet ? 96 : 112"
-              quality="100"
+              quality="80"
               :modifiers="{
                 position: 'entropy',
                 trimThreshold: 5,

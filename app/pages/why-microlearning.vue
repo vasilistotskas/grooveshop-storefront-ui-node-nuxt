@@ -56,7 +56,7 @@ definePageMeta({
           :modifiers="{ position: 'entropy' }"
           loading="eager"
           format="png"
-          quality="100"
+          quality="80"
           preload
         />
       </div>
@@ -87,7 +87,7 @@ definePageMeta({
           :modifiers="{ position: 'entropy' }"
           loading="eager"
           format="png"
-          quality="100"
+          quality="80"
           preload
         />
       </div>
@@ -128,7 +128,7 @@ definePageMeta({
           :modifiers="{ position: 'entropy' }"
           loading="eager"
           format="png"
-          quality="100"
+          quality="80"
           preload
         />
       </div>

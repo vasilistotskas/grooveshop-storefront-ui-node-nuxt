@@ -65,7 +65,7 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
             :height="25"
             :src="item?.mainImagePath"
             :width="25"
-            quality="100"
+            quality="80"
             :modifiers="{
               position: 'entropy',
               trimThreshold: 5,

@@ -105,7 +105,7 @@ onUnmounted(() => {
                       :width="145"
                       :height="30"
                       :alt="appTitle"
-                      quality="100"
+                      quality="80"
                       preload
                     />
                   </Anchor>

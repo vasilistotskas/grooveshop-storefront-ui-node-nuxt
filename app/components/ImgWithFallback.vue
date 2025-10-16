@@ -11,7 +11,7 @@ interface Props extends /* @vue-ignore */ Omit<ExtractPropTypes<typeof baseImage
 const props = withDefaults(defineProps<Props>(), {
   src: undefined,
   fallback: '/img/placeholder.png',
-  quality: 100,
+  quality: 80,
   ismap: true,
 })
 
