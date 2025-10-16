@@ -1,3 +1,10 @@
+# [3.19.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.18.0...v3.19.0) (2025-10-16)
+
+
+### Features
+
+* More tests, bump versions, image default quality to 80 ([bd2564b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bd2564b40f12bd534f9ed9dc8c0b25a8b7ab23f5))
+
 # [3.18.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.17.0...v3.18.0) (2025-10-15)
 
 
