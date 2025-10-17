@@ -1,3 +1,10 @@
+## [3.22.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.2...v3.22.3) (2025-10-17)
+
+
+### Bug Fixes
+
+* remove node env from ci.yml ([aedb5d1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aedb5d17bcb4499a49871e583753e74bca44a130))
+
 ## [3.22.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.1...v3.22.2) (2025-10-17)
 
 
