@@ -51,15 +51,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Setup ESLint cache
-        uses: actions/cache@v4
-        with:
-          path: .eslintcache
-          key: ${{ runner.os }}-eslint-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.ts', '**/*.vue', '**/*.js') }}
-          restore-keys: |
-            ${{ runner.os }}-eslint-${{ hashFiles('**/pnpm-lock.yaml') }}-
-            ${{ runner.os }}-eslint-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
@@ -67,7 +58,7 @@ jobs:
         run: pnpm run prepare
 
       - name: Run linting
-        run: npx eslint . --cache --cache-location .eslintcache --max-warnings 0
+        run: pnpm run lint
 
       - name: Verify dependency signatures
         run: pnpm audit signatures --audit-level=critical
@@ -112,7 +103,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
-      - name: Run unit tests with coverage
+      - name: Run unit/nuxt tests with coverage (exclude e2e for now)
         run: vitest run --coverage --exclude test/e2e/**
         env:
           NODE_ENV: test
