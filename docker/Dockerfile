@@ -1,11 +1,11 @@
 ARG NODE_VERSION=25.0.0
 
-FROM node:${NODE_VERSION}-slim AS build
+FROM node:${NODE_VERSION}-alpine AS build
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-RUN corepack enable pnpm
+RUN npm install -g pnpm@latest
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ ENV NODE_ENV=production \
 
 RUN pnpm run build
 
-FROM node:${NODE_VERSION}-slim AS production
+FROM node:${NODE_VERSION}-alpine AS production
 
 ENV NODE_ENV=production
 
