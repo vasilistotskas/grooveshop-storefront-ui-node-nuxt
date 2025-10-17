@@ -1,3 +1,10 @@
+## [3.21.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.21.0...v3.21.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* dockerfile ([ec80cad](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ec80cada7e37e5b6b68d1832d605fd30eb853582))
+
 # [3.21.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.20.0...v3.21.0) (2025-10-17)
 
 
