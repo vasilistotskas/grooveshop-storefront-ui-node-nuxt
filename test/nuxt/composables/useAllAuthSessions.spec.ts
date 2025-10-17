@@ -111,7 +111,7 @@ describe('useAllAuthSessions', () => {
       vi.stubGlobal('$fetch', mockFetch)
 
       const { deleteSession } = useAllAuthSessions()
-      
+
       try {
         await deleteSession({ sessionId: 'invalid' })
       }

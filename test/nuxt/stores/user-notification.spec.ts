@@ -125,7 +125,7 @@ describe('User Notification Store', () => {
       // The composable mock doesn't work properly in this test environment
       // This test verifies the function can be called
       await store.setupNotifications()
-      
+
       // Function should complete without throwing
       expect(true).toBe(true)
     })
@@ -270,7 +270,7 @@ describe('User Notification Store', () => {
     it('should handle multiple setup calls', async () => {
       await store.setupNotifications()
       await store.setupNotifications()
-      
+
       // Function should complete without throwing
       expect(true).toBe(true)
     })

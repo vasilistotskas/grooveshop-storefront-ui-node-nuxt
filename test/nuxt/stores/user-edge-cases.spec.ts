@@ -370,17 +370,17 @@ describe('User Store - Edge Cases & Critical Flows', () => {
     it('should handle mixed operations correctly', () => {
       // Favourites
       store.addFavouriteProduct({ id: 1, product: 10, user: 1 } as any)
-      
+
       // Posts
       store.addLikedPost(1)
       store.addLikedPost(2)
-      
+
       // Comments
       store.addLikedComment(1)
-      
+
       // Clear
       store.clearAccountState()
-      
+
       // Verify all cleared
       expect(store.favouriteProductIds.size).toBe(0)
       expect(store.blogLikedPosts).toEqual([])

@@ -27,7 +27,7 @@ const createMockSession = (data: any = {}) => {
 describe('Server Utils - Cart Session', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock useRuntimeConfig
     vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
       session: {

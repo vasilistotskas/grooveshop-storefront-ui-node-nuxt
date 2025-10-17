@@ -44,19 +44,19 @@ describe('Pagination Utils', () => {
       const state = generateInitialCursorState()
       expect(state).toBeDefined()
       expect(typeof state).toBe('object')
-      
+
       // Should have exactly 2 keys based on PaginationCursorStateEnum
       expect(Object.keys(state).length).toBe(2)
-      
+
       // All values should be empty strings
-      Object.values(state).forEach(value => {
+      Object.values(state).forEach((value) => {
         expect(value).toBe('')
       })
     })
 
     it('should include all pagination cursor state enum values', () => {
       const state = generateInitialCursorState()
-      
+
       // Should include blogPostsCursor and blogPostCommentsCursor
       expect(state).toHaveProperty('blogPostsCursor')
       expect(state).toHaveProperty('blogPostCommentsCursor')

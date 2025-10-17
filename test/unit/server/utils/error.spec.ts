@@ -158,7 +158,7 @@ describe('Server Utils - Error', () => {
         },
       ])
 
-      vi.stubGlobal('createError', vi.fn((err) => err))
+      vi.stubGlobal('createError', vi.fn(err => err))
 
       await expect(handleError(zodError)).rejects.toThrow()
     })
@@ -166,7 +166,7 @@ describe('Server Utils - Error', () => {
     it('should throw FetchError', async () => {
       const fetchError = new FetchError('Network error')
 
-      vi.stubGlobal('createError', vi.fn((err) => err))
+      vi.stubGlobal('createError', vi.fn(err => err))
 
       await expect(handleError(fetchError)).rejects.toThrow()
     })
@@ -174,7 +174,7 @@ describe('Server Utils - Error', () => {
     it('should throw H3Error', async () => {
       const h3Error = new H3Error('Bad Request')
 
-      vi.stubGlobal('createError', vi.fn((err) => err))
+      vi.stubGlobal('createError', vi.fn(err => err))
 
       await expect(handleError(h3Error)).rejects.toThrow()
     })
@@ -210,7 +210,7 @@ describe('Server Utils - Error', () => {
       ])
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      vi.stubGlobal('createError', vi.fn((err) => err))
+      vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
         await handleError(zodError)
@@ -228,7 +228,7 @@ describe('Server Utils - Error', () => {
       const fetchError = new FetchError('Network error')
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      vi.stubGlobal('createError', vi.fn((err) => err))
+      vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
         await handleError(fetchError)
@@ -246,7 +246,7 @@ describe('Server Utils - Error', () => {
       const h3Error = new H3Error('Bad Request')
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      vi.stubGlobal('createError', vi.fn((err) => err))
+      vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
         await handleError(h3Error)

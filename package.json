@@ -24,6 +24,7 @@
     "start": "node .output/server/index.mjs",
     "serve": "serve dist/",
     "lint": "eslint . --fix",
+    "lint:ci": "eslint . --cache --debug",
     "cleanup": "nuxt cleanup",
     "analyze": "npx nuxt analyze",
     "test": "vitest run",

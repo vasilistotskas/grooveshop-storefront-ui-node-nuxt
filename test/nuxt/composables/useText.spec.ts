@@ -8,7 +8,7 @@ describe('useText Composable', () => {
     it('should shorten content to specified length', () => {
       const content = 'This is a long piece of content that needs to be shortened'
       const result = text.contentShorten(content, 0, 20)
-      
+
       expect(result.length).toBeLessThanOrEqual(23) // 20 + '...'
       expect(result).toContain('...')
     })
@@ -16,25 +16,25 @@ describe('useText Composable', () => {
     it('should not shorten content shorter than max length', () => {
       const content = 'Short'
       const result = text.contentShorten(content, 0, 20)
-      
+
       expect(result).toBe('Short')
     })
 
     it('should handle null content', () => {
       const result = text.contentShorten(null, 0, 20)
-      
+
       expect(result).toBe('')
     })
 
     it('should handle undefined content', () => {
       const result = text.contentShorten(undefined, 0, 20)
-      
+
       expect(result).toBe('')
     })
 
     it('should handle empty string', () => {
       const result = text.contentShorten('', 0, 20)
-      
+
       expect(result).toBe('')
     })
   })
@@ -43,21 +43,21 @@ describe('useText Composable', () => {
     it('should shorten content by word count', () => {
       const content = 'This is a long piece of content with many words'
       const result = text.contentShortenByWords(content, 0, 5)
-      
+
       expect(result).toBe('This is a long piece...')
     })
 
     it('should not shorten content with fewer words than max', () => {
       const content = 'Short content'
       const result = text.contentShortenByWords(content, 0, 5)
-      
+
       expect(result).toBe('Short content')
     })
 
     it('should handle single word', () => {
       const content = 'Word'
       const result = text.contentShortenByWords(content, 0, 5)
-      
+
       expect(result).toBe('Word')
     })
   })
@@ -124,7 +124,7 @@ describe('useText Composable', () => {
       const cleaned = text.cleanHtml(html)
       const shortened = text.contentShorten(cleaned, 0, 20)
       const capitalized = text.capitalize(shortened)
-      
+
       expect(capitalized).toContain('This is a long')
       expect(capitalized[0]).toBe('T')
     })

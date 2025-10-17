@@ -22,14 +22,14 @@ describe('App Store', () => {
 
     it('should allow setting healthy state', () => {
       const store = useAppStore()
-      
+
       // Initially healthy
       expect(store.healthy).toBe(true)
-      
+
       // Can be set to unhealthy
       store.healthy = false
       expect(store.healthy).toBe(false)
-      
+
       // Can recover to healthy
       store.healthy = true
       expect(store.healthy).toBe(true)

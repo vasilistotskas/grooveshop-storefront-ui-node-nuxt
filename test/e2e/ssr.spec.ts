@@ -74,12 +74,14 @@ describe('SSR (Server-Side Rendering) E2E Tests', async () => {
       try {
         const html = await $fetch('/en')
         expect(html).toMatch(/lang="en"/i)
-      } catch (error: any) {
+      }
+      catch (error: any) {
         // If locale routing is not configured, skip this test
         if (error.statusCode === 404) {
           console.warn('English locale route not configured, skipping test')
           expect(true).toBe(true)
-        } else {
+        }
+        else {
           throw error
         }
       }
@@ -89,12 +91,14 @@ describe('SSR (Server-Side Rendering) E2E Tests', async () => {
       try {
         const html = await $fetch('/de')
         expect(html).toMatch(/lang="de"/i)
-      } catch (error: any) {
+      }
+      catch (error: any) {
         // If locale routing is not configured, skip this test
         if (error.statusCode === 404) {
           console.warn('German locale route not configured, skipping test')
           expect(true).toBe(true)
-        } else {
+        }
+        else {
           throw error
         }
       }

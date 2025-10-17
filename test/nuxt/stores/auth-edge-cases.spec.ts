@@ -342,7 +342,7 @@ describe('Auth Store - Edge Cases & Critical Flows', () => {
       }
 
       let resolvePromise: any
-      mockFetch.mockImplementation(() => new Promise(resolve => {
+      mockFetch.mockImplementation(() => new Promise((resolve) => {
         resolvePromise = resolve
       }))
 
