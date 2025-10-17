@@ -1,3 +1,23 @@
+# [3.20.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.19.0...v3.20.0) (2025-10-17)
+
+
+### Bug Fixes
+
+* ci ([5412da8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5412da8624c4d0636e322f705428062843bb430e))
+* ci ([17a2410](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/17a24100c6d8f6b832f57a6774d476d4c543d7eb))
+* ci ([cd9387e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cd9387e5ea077583cd2ded31257d0ca5346cfd0d))
+* ci ([8dc6566](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8dc6566bd2e6061c9059ffafb90ec6ae357b7959))
+* ci ([de9f3df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/de9f3df6219fab1ce9a94867a3b1632ee946c697))
+* ci, added eslintignore ([cd4e5a3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cd4e5a302d67e6c6b5194997591dfc418caa18bc))
+* ci, lint ([22db9ae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/22db9ae0d7c7e5a35cf77b986c4650b2494ec9bd))
+
+
+### Features
+
+* Bump Versions, remove `.eslintignore` and remove nuxt prepare step from ci ([fd11202](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fd112020cbf3940bc093b9ccf88c6c4d538b5b57))
+* bump versions, tests, optimizations and remove `buildFullUrl` method and usages ([aafae2a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aafae2abfefc459d681223ab4f08f2a752507911))
+* update github actions ci ([27fbfc5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27fbfc554248ad430eca6be96532679d10840c18))
+
 # [3.19.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.18.0...v3.19.0) (2025-10-16)
 
 
