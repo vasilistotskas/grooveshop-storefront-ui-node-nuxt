@@ -1,3 +1,15 @@
+# [3.21.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.20.0...v3.21.0) (2025-10-17)
+
+
+### Bug Fixes
+
+* skip ci on release ([aca71fe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aca71fedfe1a5f41459565fab4dd0249e579d58d))
+
+
+### Features
+
+* Dockerfile improved ([7a88d97](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7a88d97f9b23c195bee1a363668d641ae7029756))
+
 # [3.20.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.19.0...v3.20.0) (2025-10-17)
 
 
