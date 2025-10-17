@@ -53,6 +53,5 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: production
-          platforms: linux/amd64,linux/arm64
           build-args: |
             NODE_VERSION=25.0.0

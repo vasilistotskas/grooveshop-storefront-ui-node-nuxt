@@ -190,6 +190,5 @@ jobs:
           name: release-artifacts
           path: |
             .output
-            .nuxt
             CHANGELOG.md
           retention-days: 90
