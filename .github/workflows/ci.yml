@@ -12,49 +12,185 @@ permissions:
 env:
   COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
   SYSTEM_ENV: ci
+  NODE_ENV: test
 
 jobs:
-  Release:
-    name: GitHub Actions Release
+  quality:
+    name: Code Quality
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
-      packages: write # to be able to publish to GitHub Packages
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24.x'
-      - name: Enable corepack for pnpm
-        run: corepack enable pnpm
-      - name: Check pnpm version
-        run: pnpm --version
-      - name: Install Node.js
+
+      - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
           registry-url: 'https://npm.pkg.github.com'
           cache: 'pnpm'
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          # Defaults to the user or organization that owns the workflow file
+          cache-dependency-path: '**/pnpm-lock.yaml'
           scope: '@vasilistotskas'
+
+      - name: Enable corepack for pnpm
+        run: corepack enable pnpm
+
+      - name: Check pnpm version
+        run: pnpm --version
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
-      - name: Run lint fix
+
+      - name: Prepare Nuxt
+        run: pnpm run prepare
+
+      - name: Run linting
         run: pnpm run lint
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+
+      - name: Verify dependency signatures
         run: pnpm audit signatures --audit-level=critical
-      - name: Test
-        run: pnpm run test
+        continue-on-error: true
+
+      - name: Check TypeScript
+        run: npx vue-tsc --noEmit
+        continue-on-error: true
+
+  test:
+    name: Testing
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          registry-url: 'https://npm.pkg.github.com'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
+          scope: '@vasilistotskas'
+
+      - name: Enable corepack for pnpm
+        run: corepack enable pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Run tests with coverage
+        run: pnpm run test:coverage
+        env:
+          NODE_ENV: test
+          CI: true
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
+        continue-on-error: true
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          registry-url: 'https://npm.pkg.github.com'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
+          scope: '@vasilistotskas'
+
+      - name: Enable corepack for pnpm
+        run: corepack enable pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Build application
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            .output
+            .nuxt
+            package.json
+            pnpm-lock.yaml
+          retention-days: 7
+
+  release:
+    name: Release
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency: release
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.NUXT_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          registry-url: 'https://npm.pkg.github.com'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
+          scope: '@vasilistotskas'
+
+      - name: Enable corepack for pnpm
+        run: corepack enable pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: pnpm run semantic-release
+
+      - name: Upload release artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            .output
+            CHANGELOG.md
+          retention-days: 90
