@@ -12,7 +12,6 @@ permissions:
 env:
   COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
   SYSTEM_ENV: ci
-  NODE_ENV: test
 
 jobs:
   quality:
