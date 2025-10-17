@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getMimeType, createCachedFetcher } from '../../../../server/utils/api'
 
+// Mock defineCachedFunction for unit tests
+vi.stubGlobal('defineCachedFunction', (fn: Function, options: any) => fn)
+
 describe('Server Utils - API', () => {
   beforeEach(() => {
     vi.clearAllMocks()

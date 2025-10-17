@@ -47,7 +47,6 @@ export default defineConfig({
           name: 'unit',
           include: ['test/unit/**/*.{test,spec}.ts'],
           environment: 'node',
-          setupFiles: ['./test/setup/auto-imports.ts'],
         },
       },
 
@@ -56,7 +55,6 @@ export default defineConfig({
           name: 'e2e',
           include: ['test/e2e/**/*.{test,spec}.ts'],
           environment: 'nuxt',
-          setupFiles: ['./test/setup/nuxt-environment.ts'],
           environmentOptions: {
             nuxt: {
               mock: {
@@ -73,7 +71,6 @@ export default defineConfig({
           name: 'nuxt',
           include: ['test/nuxt/**/*.{test,spec}.ts'],
           environment: 'nuxt',
-          setupFiles: ['./test/setup/nuxt-environment.ts'],
           environmentOptions: {
             nuxt: {
               mock: {

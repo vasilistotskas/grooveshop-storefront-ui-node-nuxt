@@ -1,3 +1,6 @@
+import type { CursorState } from '#shared/types/pagination'
+import { PaginationCursorStateEnum } from '#shared/types/enum'
+
 export function getCursorFromUrl(
   url: string,
   cursorQueryParam: string = 'cursor',

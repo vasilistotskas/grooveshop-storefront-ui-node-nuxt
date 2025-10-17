@@ -1,3 +1,5 @@
+import type { Pagination } from '#shared/types/pagination'
+
 export function getMimeType(filePath: string): string {
   const extension = filePath.split('.').pop()?.toLowerCase()
   switch (extension) {

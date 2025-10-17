@@ -15,7 +15,6 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
-    'nuxt-mcp',
     'nuxt-security',
   ],
   ssr: true,
