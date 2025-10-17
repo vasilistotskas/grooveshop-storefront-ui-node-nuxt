@@ -54,9 +54,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
-      - name: Prepare Nuxt
-        run: pnpm run prepare
-
       - name: Run linting
         run: pnpm run lint
 

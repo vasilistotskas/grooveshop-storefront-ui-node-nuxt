@@ -4,7 +4,21 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 import { globalIgnores } from 'eslint/config'
 
 export default withNuxt(
-  globalIgnores(['**/test/', '**/openapi/']),
+  globalIgnores([
+    '**/test/',
+    '**/openapi/',
+    '**/.nuxt/**',
+    '**/.output/**',
+    '**/dist/**',
+    '**/build/**',
+    '**/node_modules/**',
+    '**/.pnpm-store/**',
+    '**/.cache/**',
+    '**/.eslintcache',
+    '**/coverage/**',
+    '**/*.log',
+    '**/logs/**',
+  ]),
   {
     plugins: {
       'better-tailwindcss': eslintPluginBetterTailwindcss,
