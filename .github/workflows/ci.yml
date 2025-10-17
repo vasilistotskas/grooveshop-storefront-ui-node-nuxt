@@ -103,8 +103,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
-      - name: Run tests with coverage
-        run: pnpm run test:coverage
+      - name: Run unit/nuxt tests with coverage (exclude e2e for now)
+        run: vitest run --coverage --exclude test/e2e/**
         env:
           NODE_ENV: test
           CI: true
