@@ -7,12 +7,9 @@ export default defineEventHandler(async (event) => {
       zGetUserAccountAddressesData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zGetUserAccountAddressesData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/user/account/${params.id}/addresses`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/addresses`, {
       method: 'GET',
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

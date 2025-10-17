@@ -45,40 +45,40 @@ export default defineConfig({
         },
         test: {
           name: 'unit',
-          include: ['test/{e2e,unit}/**/*.{test,spec}.ts'],
+          include: ['test/unit/**/*.{test,spec}.ts'],
           environment: 'node',
           setupFiles: ['./test/setup/auto-imports.ts'],
         },
       },
+
       await defineVitestProject({
         test: {
-          name: 'nuxt',
-          include: ['test/nuxt/**/*.{test,spec}.ts'],
+          name: 'e2e',
+          include: ['test/e2e/**/*.{test,spec}.ts'],
           environment: 'nuxt',
+          setupFiles: ['./test/setup/nuxt-environment.ts'],
           environmentOptions: {
             nuxt: {
               mock: {
                 intersectionObserver: true,
                 indexedDb: true,
               },
-              overrides: {
-                i18n: {
-                  legacy: false,
-                  locale: 'el',
-                  availableLocales: ['el', 'en', 'de'],
-                  fallbackLocale: 'el',
-                  silentFallbackWarn: true,
-                  vueI18n: {
-                    legacy: false,
-                    locale: 'el',
-                    fallbackLocale: 'el',
-                    messages: {
-                      el: {},
-                      en: {},
-                      de: {},
-                    },
-                  },
-                },
+            },
+          },
+        },
+      }),
+
+      await defineVitestProject({
+        test: {
+          name: 'nuxt',
+          include: ['test/nuxt/**/*.{test,spec}.ts'],
+          environment: 'nuxt',
+          setupFiles: ['./test/setup/nuxt-environment.ts'],
+          environmentOptions: {
+            nuxt: {
+              mock: {
+                intersectionObserver: true,
+                indexedDb: true,
               },
             },
           },

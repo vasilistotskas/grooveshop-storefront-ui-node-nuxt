@@ -7,12 +7,9 @@ export default defineEventHandler(async (event) => {
       zGetUserAccountLikedBlogPostsData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zGetUserAccountLikedBlogPostsData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/user/account/${params.id}/liked_blog_posts`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/liked_blog_posts`, {
       method: 'GET',
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

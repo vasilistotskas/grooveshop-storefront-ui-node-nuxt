@@ -69,7 +69,7 @@ useSeoMeta({
           indicators
         >
           <NuxtImg
-            v-if="item && typeof item === 'string'"
+            v-if="item"
             :alt="appTitle"
             :src="item"
             :style="{ objectFit: 'contain' }"
@@ -81,7 +81,7 @@ useSeoMeta({
             class="rounded-lg"
             format="webp"
             loading="eager"
-            fetchpriority="high"
+            fetch-priority="high"
             preload
           />
         </UCarousel>

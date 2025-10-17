@@ -3,12 +3,9 @@ export default defineEventHandler(async (event) => {
   const accessToken = await requireAllAuthAccessToken()
   try {
     const query = await getValidatedQuery(event, zListProductFavouriteData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/product/favourite`,
-      query as any,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/product/favourite`, {
       method: 'GET',
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

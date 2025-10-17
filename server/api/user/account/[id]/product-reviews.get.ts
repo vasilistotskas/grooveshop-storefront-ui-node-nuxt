@@ -7,12 +7,9 @@ export default defineEventHandler(async (event) => {
       zGetUserAccountProductReviewsData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zGetUserAccountProductReviewsData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/user/account/${params.id}/product_reviews`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/product_reviews`, {
       method: 'GET',
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

@@ -51,7 +51,7 @@ watch(
     >
       <ProductImage
         :image="selectedImage"
-        img-loading="eager"
+        img-loading="lazy"
         class="rounded-md"
       />
     </UCard>

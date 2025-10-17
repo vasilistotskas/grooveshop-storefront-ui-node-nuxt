@@ -6,12 +6,9 @@ export default defineEventHandler(async (event) => {
       zListProductTagsData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zListProductTagsData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/product/${params.id}/tags`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/product/${params.id}/tags`, {
       method: 'GET',
+      query,
     })
     return await parseDataAs(response, zListProductTagsResponse)
   }

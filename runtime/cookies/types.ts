@@ -30,7 +30,6 @@ export interface ModuleOptions {
   isCookieIdVisible: boolean
   isCssEnabled: boolean
   isDashInDescriptionEnabled: boolean
-  isIframeBlocked: boolean
   isModalForced: boolean
 }
 
@@ -54,7 +53,6 @@ export const DEFAULTS: Required<ModuleOptions> = {
   isCookieIdVisible: true,
   isCssEnabled: true,
   isDashInDescriptionEnabled: true,
-  isIframeBlocked: false,
   isModalForced: false,
 }
 

@@ -7,12 +7,9 @@ export default defineEventHandler(async (event) => {
       zGetUserAccountNotificationsData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zGetUserAccountNotificationsData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/user/account/${params.id}/notifications`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/notifications`, {
       method: 'GET',
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

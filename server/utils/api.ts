@@ -1,25 +1,3 @@
-import type { QueryObject } from 'ufo'
-
-export function buildFullUrl(
-  base: string,
-  query: QueryObject = {},
-): string {
-  const url = new URL(base)
-
-  Object.entries(query).forEach(([key, value]) => {
-    if (
-      value != null
-      && value !== ''
-      && value !== 'null'
-      && value !== 'undefined'
-    ) {
-      url.searchParams.append(key, String(value))
-    }
-  })
-
-  return url.toString()
-}
-
 export function getMimeType(filePath: string): string {
   const extension = filePath.split('.').pop()?.toLowerCase()
   switch (extension) {

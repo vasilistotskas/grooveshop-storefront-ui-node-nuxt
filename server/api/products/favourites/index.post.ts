@@ -7,13 +7,10 @@ export default defineEventHandler(async (event) => {
       zCreateProductFavouriteData.shape.body.parse,
     )
     const query = await getValidatedQuery(event, zCreateProductFavouriteData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/product/favourite`,
-      query as any,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/product/favourite`, {
       method: 'POST',
       body,
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

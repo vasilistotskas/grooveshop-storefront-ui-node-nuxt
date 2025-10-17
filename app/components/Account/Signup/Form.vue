@@ -130,7 +130,6 @@ const submitButtonDisabled = computed(() => {
                 :height="isMobileOrTablet ? 100 : 140"
                 :alt="`${'Login Logo ' + config.public.appTitle}`"
                 quality="80"
-                preload
               />
             </div>
             <div class="grid content-evenly items-start gap-1">

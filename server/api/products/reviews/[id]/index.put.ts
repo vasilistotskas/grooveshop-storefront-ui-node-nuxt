@@ -8,13 +8,10 @@ export default defineEventHandler(async (event) => {
       zPartialUpdateProductReviewData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zPartialUpdateProductReviewData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/product/review/${params.id}`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/product/review/${params.id}`, {
       method: 'PUT',
       body,
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

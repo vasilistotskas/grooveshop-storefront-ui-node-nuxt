@@ -4,12 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const query = await getValidatedQuery(event, zApiV1SearchProductRetrieveData.shape.query.parse)
 
-    const productUrl = buildFullUrl(
-      `${config.apiBaseUrl}/search/product`,
-      query,
-    )
-    const productResponse = await $fetch(productUrl, {
+    const productResponse = await $fetch(`${config.apiBaseUrl}/search/product`, {
       method: 'GET',
+      query,
     })
 
     const productsParsedData = await parseDataAs(
@@ -17,13 +14,9 @@ export default defineEventHandler(async (event) => {
       zProductMeiliSearchResponse,
     )
 
-    const blogPostUrl = buildFullUrl(
-      `${config.apiBaseUrl}/search/blog/post`,
-      query,
-    )
-
-    const blogPostResponse = await $fetch(blogPostUrl, {
+    const blogPostResponse = await $fetch(`${config.apiBaseUrl}/search/blog/post`, {
       method: 'GET',
+      query,
     })
 
     const blogPostsParsedData = await parseDataAs(

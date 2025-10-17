@@ -2,9 +2,9 @@ export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, zListBlogCategoryData.shape.query.parse)
-    const url = buildFullUrl(`${config.apiBaseUrl}/blog/category`, query)
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/blog/category`, {
       method: 'GET',
+      query,
     })
     return await parseDataAs(response, zListBlogCategoryResponse)
   }

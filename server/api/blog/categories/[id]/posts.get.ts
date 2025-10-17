@@ -6,12 +6,10 @@ export default defineEventHandler(async (event) => {
       event,
       zListBlogCategoryPostsData.shape.path.parse,
     )
-
-    const url = buildFullUrl(`${config.apiBaseUrl}/blog/category/${params.id}/posts`, query)
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/blog/category/${params.id}/posts`, {
       method: 'GET',
+      query,
     })
-
     return await parseDataAs(response, zListBlogCategoryPostsResponse)
   }
   catch (error) {

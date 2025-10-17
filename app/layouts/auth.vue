@@ -30,7 +30,6 @@ const appTitle = computed(() => config.public.appTitle as string)
           :height="30"
           :alt="appTitle"
           quality="80"
-          preload
         />
       </Anchor>
     </div>

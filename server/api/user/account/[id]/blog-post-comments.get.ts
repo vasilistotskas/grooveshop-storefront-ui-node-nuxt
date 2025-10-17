@@ -7,12 +7,9 @@ export default defineEventHandler(async (event) => {
       zGetUserAccountBlogPostCommentsData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zGetUserAccountBlogPostCommentsData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/user/account/${params.id}/blog_post_comments`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/blog_post_comments`, {
       method: 'GET',
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

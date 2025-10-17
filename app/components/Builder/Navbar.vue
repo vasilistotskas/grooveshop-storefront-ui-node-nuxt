@@ -106,6 +106,7 @@ onUnmounted(() => {
                       :height="30"
                       :alt="appTitle"
                       quality="80"
+                      fetch-priority="high"
                       preload
                     />
                   </Anchor>

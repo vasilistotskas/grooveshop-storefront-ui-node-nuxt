@@ -2,9 +2,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, zListBlogCommentData.shape.query.parse)
-    const url = buildFullUrl(`${config.apiBaseUrl}/blog/comment`, query)
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/blog/comment`, {
       method: 'GET',
+      query,
     })
     return await parseDataAs(response, zListBlogCommentResponse)
   }

@@ -3,12 +3,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(event, zListProductImagesData.shape.path.parse)
     const query = await getValidatedQuery(event, zListProductImagesData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/product/${params.id}/images`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/product/${params.id}/images`, {
       method: 'GET',
+      query,
     })
     return await parseDataAs(response, zListProductImagesResponse)
   }

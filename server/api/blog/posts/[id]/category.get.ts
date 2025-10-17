@@ -6,12 +6,9 @@ export default defineEventHandler(async (event) => {
       zRetrieveBlogPostData.shape.path.parse,
     )
     const query = await getValidatedQuery(event, zRetrieveBlogPostData.shape.query.parse)
-    const url = buildFullUrl(
-      `${config.apiBaseUrl}/blog/post/${params.id}/category`,
-      query,
-    )
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/blog/post/${params.id}/category`, {
       method: 'GET',
+      query,
     })
     return await parseDataAs(response, zRetrieveBlogCategoryResponse)
   }

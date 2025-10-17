@@ -7,10 +7,10 @@ export default defineEventHandler(async (event) => {
       event,
       zCreateProductReviewData.shape.query.parse,
     )
-    const url = buildFullUrl(`${config.apiBaseUrl}/product/review`, query)
-    const response = await $fetch(url, {
+    const response = await $fetch(`${config.apiBaseUrl}/product/review`, {
       method: 'POST',
       body,
+      query,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

@@ -88,7 +88,6 @@ definePageMeta({
           loading="eager"
           format="png"
           quality="80"
-          preload
         />
       </div>
       <p
@@ -129,7 +128,6 @@ definePageMeta({
           loading="eager"
           format="png"
           quality="80"
-          preload
         />
       </div>
       <p
