@@ -1,3 +1,10 @@
+## [3.22.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.1...v3.22.2) (2025-10-17)
+
+
+### Bug Fixes
+
+* remove platforms ([f52b4cc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f52b4cce4580f6bcb74bebf77644ca8693f34a03))
+
 ## [3.22.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.0...v3.22.1) (2025-10-17)
 
 
