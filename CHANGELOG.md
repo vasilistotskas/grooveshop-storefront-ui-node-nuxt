@@ -1,3 +1,10 @@
+## [3.22.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.3...v3.22.4) (2025-10-17)
+
+
+### Bug Fixes
+
+* testing and remove useless deps ([c57cb67](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c57cb67c7c5b519968908446e32d1ca5c6cb60a3))
+
 ## [3.22.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.2...v3.22.3) (2025-10-17)
 
 
