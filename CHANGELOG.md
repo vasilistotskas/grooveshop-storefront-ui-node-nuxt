@@ -1,3 +1,10 @@
+## [3.22.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.0...v3.22.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* Dockerfile ([95f6f61](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/95f6f61af3c0e416dbae4182eb3fff60c9230c3b))
+
 # [3.22.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.21.1...v3.22.0) (2025-10-17)
 
 
