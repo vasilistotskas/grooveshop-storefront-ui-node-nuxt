@@ -1,3 +1,10 @@
+# [3.22.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.21.1...v3.22.0) (2025-10-17)
+
+
+### Features
+
+* ci use pnpm action ([92ec570](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/92ec570812f30677958ca4fe44e4c66aa7adf56c))
+
 ## [3.21.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.21.0...v3.21.1) (2025-10-17)
 
 
