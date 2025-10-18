@@ -1,3 +1,17 @@
+# [3.24.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.23.0...v3.24.0) (2025-10-18)
+
+
+### Bug Fixes
+
+* Remove nuxt-skew-protection and related code ([ae27b71](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ae27b71a21d4be7fe2439d2923cd70af157fa0d6))
+* Remove unused variables and debug output ([ab974fe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ab974fe62d98cf7a177908364453514e086f8a7d))
+* Replace SkewNotification with SkewNotificationMinimal ([8de366d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8de366dc28bd97d16d0552d15abb2b7989a5c1c6))
+
+
+### Features
+
+* Add nuxt-skew-protection for build update notifications ([0a626db](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0a626db68f5b9f581af585cd2977e62ff64ac19f))
+
 # [3.23.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.5...v3.23.0) (2025-10-18)
 
 
