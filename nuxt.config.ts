@@ -365,13 +365,14 @@ export default defineNuxtConfig({
         provider: '~/providers/media-stream',
         options: {
           format: 'webp',
+          quality: 80,
           width: 100,
           height: 100,
           fit: 'contain',
           position: 'entropy',
           background: 'transparent',
           trimThreshold: 5,
-          path: '',
+          // baseURL can be overridden here if needed
         },
       },
     },
