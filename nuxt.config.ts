@@ -16,7 +16,6 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
     'nuxt-security',
-    'nuxt-skew-protection',
   ],
   ssr: true,
   imports: {

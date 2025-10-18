@@ -51,12 +51,5 @@ defineOgImage({
       <NuxtPage />
     </NuxtLayout>
     <CookieControl />
-    <SkewNotificationMinimal />
   </UApp>
 </template>
-
-<i18n lang="yaml">
-el:
-  update:
-    available: Διαθέσιμη ενημέρωση
-</i18n>
