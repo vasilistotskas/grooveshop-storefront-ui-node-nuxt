@@ -1,3 +1,10 @@
+# [3.23.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.5...v3.23.0) (2025-10-18)
+
+
+### Features
+
+* media-stream provider for custom URL generation ([49e8009](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/49e80095f678a73213f79f13d0ed09d09482e9a1))
+
 ## [3.22.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.22.4...v3.22.5) (2025-10-18)
 
 
