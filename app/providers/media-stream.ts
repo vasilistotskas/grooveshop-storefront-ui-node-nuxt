@@ -21,7 +21,7 @@ export const getImage: ProviderGetImage = (src, { modifiers = {}, baseURL } = {}
     throw new Error('Media Stream base URL is not configured')
   }
 
-  // Default modifiers with sensible defaults
+  // Default modifiers
   const width = modifiers.width || 100
   const height = modifiers.height || 100
   const fit = modifiers.fit || 'contain'
@@ -31,7 +31,6 @@ export const getImage: ProviderGetImage = (src, { modifiers = {}, baseURL } = {}
   const quality = modifiers.quality || 80
   const format = modifiers.format || 'webp'
 
-  // Build URL path segments
   // Pattern: /{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
   const pathSegments = [
     src,
@@ -41,13 +40,49 @@ export const getImage: ProviderGetImage = (src, { modifiers = {}, baseURL } = {}
     position,
     background,
     trimThreshold.toString(),
-    `${quality}.${format}`, // Format with extension: "80.webp"
+    `${quality}.${format}`,
   ]
 
   const url = joinURL(mediaStreamBaseURL, ...pathSegments)
 
+  const encodedUrl = encodeImageUrl(url)
+
   return {
-    url,
+    url: encodedUrl,
+  }
+}
+
+/**
+ * Encode image URL to handle Unicode characters for social media crawlers
+ *
+ * @param url - The image URL to encode
+ * @returns Properly encoded URL safe for social media meta tags
+ *
+ * @example
+ * encodeImageUrl('https://cdn.com/media/πωσ.png/1200/630/80.webp')
+ * // Returns: 'https://cdn.com/media/%CF%80%CF%89%CF%83.png/1200/630/80.webp'
+ */
+function encodeImageUrl(url: string): string {
+  try {
+    const urlObj = new URL(url)
+
+    urlObj.pathname = urlObj.pathname
+      .split('/')
+      .map((segment) => {
+        try {
+          return encodeURIComponent(decodeURIComponent(segment))
+        }
+        catch {
+          return encodeURIComponent(segment)
+        }
+      })
+      .join('/')
+
+    return urlObj.toString()
+  }
+  catch (error) {
+    console.warn('Failed to encode image URL:', error)
+    return url
   }
 }
 
@@ -83,7 +118,6 @@ function normalizePosition(position: string | undefined): string {
 function normalizeBackground(background: string | undefined): string {
   if (!background) return 'transparent'
 
-  // Convert common color names to hex
   const colorMap: Record<string, string> = {
     black: '000000',
     white: 'FFFFFF',
