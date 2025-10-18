@@ -54,4 +54,4 @@ jobs:
           cache-to: type=gha,mode=max
           target: production
           build-args: |
-            NODE_VERSION=25.0.0
+            NODE_VERSION=24.10.0
