@@ -10,7 +10,7 @@ const { enabled } = useAuthPreviewMode()
 const { loggedIn, user } = useUserSession()
 const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
-const { locales, locale, t } = useI18n()
+const { locales, locale } = useI18n()
 
 watch([loggedIn, user], ([l, u]) => {
   if (import.meta.dev || process.env.NODE_ENV === 'development') return

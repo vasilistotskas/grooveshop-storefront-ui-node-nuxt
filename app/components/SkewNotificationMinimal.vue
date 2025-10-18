@@ -25,7 +25,6 @@ async function reload() {
 </script>
 
 <template>
-  test: {{ skew }}
   <Transition name="slide-up">
     <div
       v-if="isVisible"
