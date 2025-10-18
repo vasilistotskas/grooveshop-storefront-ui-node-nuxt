@@ -1,3 +1,10 @@
+# [3.25.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.24.0...v3.25.0) (2025-10-18)
+
+
+### Features
+
+* Encode image URLs for Unicode compatibility ([c288083](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c28808378f82fd0734962fde0b7ff29cdb57e54a))
+
 # [3.24.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.23.0...v3.24.0) (2025-10-18)
 
 
