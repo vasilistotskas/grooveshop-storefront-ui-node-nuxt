@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     'nuxt-auth-utils',
     'nuxt-security',
+    'nuxt-skew-protection',
   ],
   ssr: true,
   imports: {
@@ -198,6 +199,7 @@ export default defineNuxtConfig({
     cookieStore: true,
     payloadExtraction: true,
     inlineRouteRules: true,
+    checkOutdatedBuildInterval: 5 * 60 * 1000,
   },
   compatibilityDate: 'latest',
   nitro: {
