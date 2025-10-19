@@ -260,6 +260,7 @@ definePageMeta({
                 {{ t('order.items') }}
               </h2>
               <UBadge
+                v-if="orderStatus"
                 :color="getStatusColor(orderStatus)"
                 variant="soft"
                 size="lg"
