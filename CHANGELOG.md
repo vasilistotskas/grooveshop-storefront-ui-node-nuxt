@@ -1,3 +1,10 @@
+## [3.29.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.29.0...v3.29.1) (2025-10-19)
+
+
+### Bug Fixes
+
+* Update image modal and carousel styles ([a68caad](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a68caada43c4ef80c9ff76644526e359117d40b0))
+
 # [3.29.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.28.0...v3.29.0) (2025-10-19)
 
 
