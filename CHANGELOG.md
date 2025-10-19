@@ -1,3 +1,15 @@
+# [3.30.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.29.1...v3.30.0) (2025-10-19)
+
+
+### Bug Fixes
+
+* Add @vue/test-utils to devDependencies ([6937c43](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6937c4339741dd8ccae52888710fd5d590876ddf))
+
+
+### Features
+
+* Update dependencies and Nuxt link prefetch config ([7843efb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7843efba5f35e5942ab48a8694bd449f3abd9cf7))
+
 ## [3.29.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.29.0...v3.29.1) (2025-10-19)
 
 
