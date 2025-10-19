@@ -85,7 +85,7 @@ watchEffect(async () => {
   }
 })
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status: OrderDetail['status']) => {
   const statusColors: Record<string, 'success' | 'info' | 'warning' | 'error' | 'neutral' | 'primary'> = {
     completed: 'success',
     shipped: 'info',
@@ -94,16 +94,21 @@ const getStatusColor = (status: string) => {
     pending: 'info',
     confirmed: 'primary',
   }
+  if (!status) return 'neutral'
   return statusColors[status.toLowerCase()] || 'neutral'
 }
 
-const getPaymentStatusColor = (status: string) => {
-  const colors: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
-    paid: 'success',
+const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {
+  const colors: Record<string, 'success' | 'warning' | 'error' | 'neutral' | 'info'> = {
     pending: 'warning',
+    processing: 'warning',
+    completed: 'success',
     failed: 'error',
-    refunded: 'neutral',
+    refunded: 'info',
+    partially_refunded: 'info',
+    canceled: 'error',
   }
+  if (!status) return 'neutral'
   return colors[status.toLowerCase()] || 'neutral'
 }
 
@@ -218,7 +223,7 @@ definePageMeta({
       class="mx-auto max-w-2xl"
     >
       <template #title>
-        {{ t('payment.completed') }}
+        {{ t('payment.completed.title') }}
       </template>
       <template #description>
         {{ t('payment.completed.description') }}
@@ -348,12 +353,12 @@ definePageMeta({
             </div>
 
             <div
-              v-if="(totalPriceExtra || 0) > 0" class="
+              v-if="(totalPriceExtra - shippingPrice || 0) > 0" class="
                 flex items-center justify-between
               "
             >
               <span class="text-muted">{{ t('pricing.extras') }}</span>
-              <span>{{ $i18n.n(totalPriceExtra, 'currency') }}</span>
+              <span>{{ $i18n.n(totalPriceExtra - shippingPrice, 'currency') }}</span>
             </div>
 
             <USeparator />
@@ -376,7 +381,7 @@ definePageMeta({
           <div class="space-y-3">
             <UButton
               :to="localePath('index')"
-              color="neutral"
+              color="info"
               variant="subtle"
               size="lg"
               block
@@ -419,10 +424,11 @@ el:
     description: Παρακαλώ περίμενε ενώ επιβεβαιώνουμε την πληρωμή σου.
   payment:
     status: Κατάσταση Πληρωμής
-    paid: Πληρωμένο
+    paid: Πληρωμένη
     pending: Εκκρεμεί
     method: Τρόπος Πληρωμής
     completed:
+      title: Η παραγγελία ολοκληρώθηκε
       description: Η παραγγελία σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.
   tracking:
     number: Αριθμός Παρακολούθησης

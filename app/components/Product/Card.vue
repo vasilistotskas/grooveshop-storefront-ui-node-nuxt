@@ -84,7 +84,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <UBadge
           v-if="product.discountPercent && product.discountPercent > 0"
           color="error"
-          variant="solid"
+          variant="soft"
           size="lg"
           class="w-fit font-bold"
         >
@@ -93,17 +93,17 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <UBadge
           v-if="product.stock === 0"
           color="neutral"
-          variant="soft"
-          size="md"
+          variant="solid"
+          size="sm"
           class="w-fit"
         >
           {{ t('out_of_stock') }}
         </UBadge>
         <UBadge
           v-else-if="product.stock && product.stock < 10"
-          color="warning"
-          variant="soft"
-          size="md"
+          color="info"
+          variant="solid"
+          size="sm"
           class="w-fit"
         >
           {{ t('low_stock') }}
@@ -271,7 +271,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         :product="product"
         :quantity="1"
         :text="t('add_to_cart')"
-        :disabled="product.stock === 0"
         class="
           w-full transition-all duration-300
           hover:scale-105

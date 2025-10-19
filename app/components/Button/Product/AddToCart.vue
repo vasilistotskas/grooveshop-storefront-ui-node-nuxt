@@ -12,7 +12,7 @@ const props = defineProps({
 
 const cartStore = useCartStore()
 const { createCartItem, updateCartItem, getCartItemByProductId } = cartStore
-
+const { error } = storeToRefs(cartStore)
 const { product, quantity, text } = toRefs(props)
 const { t } = useI18n()
 const toast = useToast()
@@ -42,22 +42,37 @@ const label = computed(() => {
 const addToCartEvent = async () => {
   const existingCartItem = getCartItemByProductId(product.value.id)
 
-  if (existingCartItem) {
-    await updateCartItem(existingCartItem.id, {
-      quantity: (existingCartItem.quantity || 0) + quantity.value,
+  try {
+    if (existingCartItem) {
+      await updateCartItem(existingCartItem.id, {
+        quantity: (existingCartItem.quantity || 0) + quantity.value,
+      })
+    }
+    else {
+      await createCartItem({
+        product: product.value.id,
+        quantity: quantity.value,
+      })
+    }
+  }
+  catch {
+    //
+  }
+
+  if (error.value?.data.data.nonFieldErrors && error.value?.data.data.nonFieldErrors.length > 0) {
+    error.value?.data.data.nonFieldErrors.forEach((error: string) => {
+      toast.add({
+        title: error,
+        color: 'error',
+      })
     })
   }
   else {
-    await createCartItem({
-      product: product.value.id,
-      quantity: quantity.value,
+    toast.add({
+      title: t('added_to_cart'),
+      color: 'success',
     })
   }
-
-  toast.add({
-    title: t('added_to_cart'),
-    color: 'success',
-  })
 }
 </script>
 

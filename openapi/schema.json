@@ -28792,6 +28792,112 @@
                 }
             }
         },
+        "/api/v1/settings": {
+            "get": {
+                "operationId": "api_v1_settings_list",
+                "description": "Retrieve all settings with their names, values, and types",
+                "summary": "List all available settings",
+                "tags": [
+                    "Settings"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Setting"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/get": {
+            "get": {
+                "operationId": "api_v1_settings_get_retrieve",
+                "description": "Retrieve a specific setting value by its key name",
+                "summary": "Get setting by key",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Setting key name (e.g., CHECKOUT_SHIPPING_PRICE)",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Settings"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/tag": {
             "get": {
                 "operationId": "listTag",
@@ -40245,14 +40351,6 @@
                             "$ref": "#/components/schemas/OrderItemCreateRequest"
                         }
                     },
-                    "shippingPrice": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true
-                    },
                     "documentType": {
                         "$ref": "#/components/schemas/DocumentTypeEnum"
                     },
@@ -40284,7 +40382,6 @@
                     "items",
                     "lastName",
                     "phone",
-                    "shippingPrice",
                     "street",
                     "streetNumber",
                     "zipcode"
@@ -42089,14 +42186,6 @@
                         "items": {
                             "$ref": "#/components/schemas/OrderItemCreateRequest"
                         }
-                    },
-                    "shippingPrice": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true
                     },
                     "documentType": {
                         "$ref": "#/components/schemas/DocumentTypeEnum"
@@ -45793,6 +45882,40 @@
                 ],
                 "type": "string",
                 "description": "* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False"
+            },
+            "Setting": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "value"
+                ]
+            },
+            "SettingDetail": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "value"
+                ]
             },
             "SubscriptionStatus": {
                 "enum": [

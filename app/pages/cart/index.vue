@@ -259,8 +259,8 @@ definePageMeta({
             <UButton
               :to="localePath('checkout')"
               :disabled="hasStockIssues"
-              color="success"
-              variant="solid"
+              :color="hasStockIssues ? 'warning' : 'success'"
+              variant="subtle"
               size="xl"
               block
             >
@@ -325,7 +325,7 @@ el:
   discount: Έκπτωση
   total: Σύνολο
   proceed_to_checkout: Ολοκλήρωση Παραγγελίας
-  fix_stock_issues_first: Διόρθωσε τα προβλήματα διαθεσιμότητας
+  fix_stock_issues_first: Διόρθωσε τα προβλήματα
   stock_status:
     out_of_stock: Το προϊόν δεν είναι διαθέσιμο
     limited_stock: "Διαθέσιμα μόνο {available} τεμάχια (έχετε {requested} στο καλάθι)"

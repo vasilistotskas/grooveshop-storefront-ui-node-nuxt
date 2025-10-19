@@ -143,6 +143,11 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
+    '/_nuxt/builds/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=60, stale-while-revalidate=3600',
+      },
+    },
     '/assets/**': {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',

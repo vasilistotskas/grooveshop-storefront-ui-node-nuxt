@@ -2,14 +2,17 @@
 import * as z from 'zod'
 
 const { fetch } = useUserSession()
+const localePath = useLocalePath()
 
 const cartStore = useCartStore()
 const { cleanCartState } = cartStore
-const { getCartItems } = storeToRefs(cartStore)
+const { getCartItems, hasStockIssues } = storeToRefs(cartStore)
 
+if (hasStockIssues.value) {
+  navigateTo(localePath('cart'))
+}
 const { t, locale } = useI18n()
 const toast = useToast()
-const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 
 const checkoutMode = ref<'embedded' | 'hosted'>('hosted')
@@ -18,10 +21,20 @@ const showPaymentStep = ref(false)
 const createdOrder = ref<OrderDetail | null>(null)
 const selectedPayWay = ref<PayWay | null>(null)
 
-// @TODO should be based on pay way Cost and Free Threshold and django Setting `CHECKOUT_SHIPPING_PRICE`
-const shippingPrice = ref(0)
 const regions = ref<Pagination<Region> | null>(null)
 const formRef = useTemplateRef('formRef')
+
+const { data: setting } = await useFetch(
+  '/api/settings/get',
+  {
+    key: 'CHECKOUT_SHIPPING_PRICE',
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      key: 'CHECKOUT_SHIPPING_PRICE',
+    },
+  },
+)
 
 const { data: countries } = await useFetch(
   '/api/countries',
@@ -83,7 +96,15 @@ const isStripePayment = computed(() => {
   return selectedPayWay.value?.providerCode === 'stripe'
 })
 
+const shippingPrice = computed(() => {
+  if (!setting?.value) {
+    return 0
+  }
+  return parseFloat(setting.value?.value)
+})
+
 async function onSubmit(values: any) {
+  console.log('Submit values:', values)
   const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'country', 'region']
   const missingFields = requiredFields.filter(field => !values[field])
 
@@ -558,22 +579,6 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             quantity: item.quantity,
           })),
           rules: z.array(z.any()),
-        },
-        {
-          name: 'shippingPrice',
-          hidden: true,
-          readonly: true,
-          type: 'number',
-          as: 'input',
-          autocomplete: 'off',
-          condition: null,
-          disabledCondition: null,
-          required: true,
-          placeholder: '',
-          initialValue: shippingPrice.value,
-          rules: z.number({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.string.invalid') }),
         },
       ],
     },

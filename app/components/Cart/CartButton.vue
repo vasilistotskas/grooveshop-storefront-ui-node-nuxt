@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 import type { ButtonProps } from '@nuxt/ui'
 
 const cartStore = useCartStore()
-const { getCartTotalItems, pending } = storeToRefs(cartStore)
+const { getCartTotalItems, hasStockIssues, pending } = storeToRefs(cartStore)
 const { t } = useI18n()
 const localePath = useLocalePath()
 
@@ -12,10 +12,11 @@ defineProps({
     type: String as PropType<ButtonProps['size']>,
     default: 'xl',
   },
-  color: {
-    type: String as PropType<ButtonProps['color']>,
-    default: 'success',
-  },
+})
+
+const color = computed(() => {
+  if (hasStockIssues.value) return 'warning'
+  return 'success'
 })
 </script>
 

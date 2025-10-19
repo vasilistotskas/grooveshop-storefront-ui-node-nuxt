@@ -461,7 +461,6 @@ definePageMeta({
                   :product="product"
                   :quantity="selectorQuantity || 1"
                   :text="$i18n.t('add_to_cart')"
-                  :disabled="productStock === 0"
                   class="w-full"
                 />
               </div>
@@ -611,7 +610,6 @@ definePageMeta({
               :product="product"
               :quantity="selectorQuantity || 1"
               :text="$i18n.t('add_to_cart')"
-              :disabled="productStock === 0"
               size="lg"
             />
           </div>

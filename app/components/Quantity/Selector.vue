@@ -4,9 +4,10 @@ const props = defineProps({
   cartItemId: { type: Number, required: true },
 })
 
+const toast = useToast()
 const cartStore = useCartStore()
 const { updateCartItem } = cartStore
-
+const { error } = storeToRefs(cartStore)
 const { max, cartItemId } = toRefs(props)
 
 const cartItemQuantity = useState<number>(`${cartItemId.value}-quantity`)
@@ -30,9 +31,23 @@ const increaseQuantityEvent = async () => {
 const changeQuantityEvent = async () => {
   const value = cartItemQuantity.value
   if (value < 1 || value > props.max) return
-  await updateCartItem(props.cartItemId, {
-    quantity: value,
-  })
+  try {
+    await updateCartItem(props.cartItemId, {
+      quantity: value,
+    })
+  }
+  catch {
+    //
+  }
+
+  if (error.value?.data.data.nonFieldErrors && error.value?.data.data.nonFieldErrors.length > 0) {
+    error.value?.data.data.nonFieldErrors.forEach((error: string) => {
+      toast.add({
+        title: error,
+        color: 'error',
+      })
+    })
+  }
 }
 
 const quantityItems = computed(() => {
