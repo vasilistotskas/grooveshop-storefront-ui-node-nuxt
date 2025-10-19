@@ -1,3 +1,10 @@
+# [3.27.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.26.0...v3.27.0) (2025-10-19)
+
+
+### Features
+
+* Add product image modal with zoom and improve image UX ([63aa60b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/63aa60b0cb8d78f9dbdf8b60d6d7f5a58ea8d7a1))
+
 # [3.26.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.25.0...v3.26.0) (2025-10-19)
 
 
