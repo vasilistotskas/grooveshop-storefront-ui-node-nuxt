@@ -92,7 +92,8 @@ const { t } = useI18n()
       </ul>
 
       <UButton
-        color="primary"
+        color="neutral"
+        variant="subtle"
         size="xl"
         icon="i-heroicons-plus"
         :label="t('button')"

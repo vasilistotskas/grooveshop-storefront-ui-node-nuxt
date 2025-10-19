@@ -52,7 +52,7 @@ const items = computed(() => {
               label: t('navigation.recommended'),
               color: 'success',
               variant: 'soft',
-              size: 'xs',
+              size: 'sm',
             },
           }
         : {

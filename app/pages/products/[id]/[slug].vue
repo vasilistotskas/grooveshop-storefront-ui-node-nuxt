@@ -542,7 +542,12 @@ definePageMeta({
               v-if="productImages && productImages[0]"
               :key="product?.id"
               :image="productImages[0]"
-              class="h-12 w-12 flex-shrink-0 rounded-lg object-contain"
+              :width="64"
+              :height="64"
+              class="
+                h-12 w-12 flex-shrink-0 rounded-lg object-contain
+                md:h-16 md:w-16
+              "
             />
             <div class="min-w-0 flex-1">
               <h3 class="truncate text-sm font-medium">

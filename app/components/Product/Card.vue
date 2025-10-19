@@ -146,13 +146,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <div class="aspect-square max-w-full overflow-hidden">
           <ImgWithFallback
             :loading="imgLoading"
-            class="size-full max-w-full bg-transparent object-contain"
+            class="size-full max-w-full bg-white object-contain"
             :src="product.mainImagePath"
             :width="imgWidth"
             :height="imgHeight"
             fit="contain"
             :background="'transparent'"
             :alt="alt"
+            quality="100"
             densities="x1"
           />
         </div>

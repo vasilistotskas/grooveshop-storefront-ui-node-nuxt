@@ -112,10 +112,13 @@ const addressDetails = computed(() => {
     as="li"
     class="relative h-full"
     varian="soft"
+    :ui="{
+      body: 'p-2 sm:p-4',
+    }"
   >
     <UBadge
       v-if="address.isMain"
-      color="warning"
+      color="info"
       variant="soft"
       class="absolute top-4 right-4"
     >

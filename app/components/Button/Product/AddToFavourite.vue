@@ -130,7 +130,7 @@ const toggleFavourite = async () => {
 }
 
 const buttonLabel = computed(() => {
-  if (!props.showLabel) return ''
+  if (!props.showLabel) return undefined
   return props.favouriteId
     ? t('remove')
     : t('add')
@@ -149,7 +149,7 @@ const buttonAreaLabel = computed(() => {
     :label="buttonLabel"
     :icon="!favouriteId ? 'i-heroicons-heart' : 'i-heroicons-heart'"
     :color="favouriteId ? 'error' : 'neutral'"
-    variant="ghost"
+    variant="subtle"
     :aria-label="buttonAreaLabel"
     :title="buttonAreaLabel"
     :loading="isLoading"

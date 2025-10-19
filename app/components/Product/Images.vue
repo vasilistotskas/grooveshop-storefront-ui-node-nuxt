@@ -46,7 +46,7 @@ watch(
     <UCard
       variant="soft"
       :ui="{
-        body: 'p-0',
+        body: 'p-0 sm:p-0',
       }"
     >
       <ProductImage
@@ -70,10 +70,9 @@ watch(
         }"
         type="button"
         class="
-          flex w-full items-center justify-center rounded-lg bg-primary-100 p-2
+          flex w-full items-center justify-center rounded-lg bg-primary-100
           hover:cursor-pointer
           focus:outline-none
-          md:h-32
           dark:bg-primary-900
         "
         :aria-label="`Select image ${item.id}`"
@@ -83,7 +82,7 @@ watch(
           :key="item.id"
           :image="item"
           :width="200"
-          :height="120"
+          :height="128"
           img-loading="lazy"
           class="rounded-md"
         />

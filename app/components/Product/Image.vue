@@ -47,6 +47,6 @@ const alt = computed(() => {
     :sizes="sizes"
     :src="image?.mainImagePath"
     :alt="alt"
-    densities="x1"
+    quality="100"
   />
 </template>

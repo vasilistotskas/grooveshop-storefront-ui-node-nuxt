@@ -63,7 +63,7 @@ watch(
     :max="maxVisibleButtons"
     :disabled="loading"
     :size="size"
-    show-edges
+    :show-edges="isMobileOrTablet ? false : true"
     color="neutral"
   />
 </template>
