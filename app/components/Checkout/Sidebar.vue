@@ -58,37 +58,9 @@ defineSlots<{
       </template>
 
       <div class="space-y-4">
-        <div class="flex items-center gap-4">
-          <UIcon
-            name="i-heroicons-truck"
-            class="
-              size-8 text-primary-600
-              dark:text-primary-400
-            "
-          />
-          <div class="w-full space-y-1">
-            <p
-              class="
-                text-sm text-primary-600
-                dark:text-primary-400
-              "
-            >
-              {{ t('delivery_estimation') }}
-            </p>
-            <p
-              class="
-                text-sm text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('shipping_address') }}
-            </p>
-          </div>
-        </div>
-
         <div
           class="
-            border-t border-primary-200 pt-4
+            border-primary-200
             dark:border-primary-800
           "
         >
@@ -208,8 +180,6 @@ el:
   shipping: Αποστολή
   total: Σύνολο
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
-  delivery_estimation: Παράδοση έως Τετ, 09 Απρ
-  shipping_address: Ηρούς 4, Αθήνα
   back_to_cart: Επιστροφή στο καλάθι
   vat_included: Στις τιμές συμπεριλαμβάνεται Φ.Π.Α.
   need_help: Χρειάζεσαι βοήθεια;

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const route = useRoute()
+const { isMobileOrTablet } = useDevice()
 
 const searchQuery = ref(
   Array.isArray(route.query.query)
@@ -29,22 +30,32 @@ defineShortcuts({
 </script>
 
 <template>
-  <div class="relative w-full">
+  <Component
+    :is="isMobileOrTablet ? 'li' : 'div'"
+    class="
+      relative flex items-center
+      md:w-full
+    "
+  >
     <UButton
-      :label="t('search.placeholder')"
+      :label="isMobileOrTablet ? undefined : t('search.placeholder')"
       color="neutral"
-      variant="outline"
+      :variant="isMobileOrTablet ? 'ghost' : 'outline'"
       size="md"
       block
       :ui="{
-        base: 'text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
+        base: 'p-0 text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 md:px-2.5 md:py-1.5',
         label: 'font-normal',
       }"
-      class="max-w-md"
+      class="md:max-w-md"
       @click="openSearchModal"
     >
       <template #default>
-        <div class="flex w-full items-center justify-between">
+        <div
+          v-if="!isMobileOrTablet" class="
+            flex w-full items-center justify-between
+          "
+        >
           <div class="flex items-center gap-2">
             <UIcon
               name="i-lucide-search"
@@ -68,6 +79,14 @@ defineShortcuts({
             </UKbd>
           </div>
         </div>
+        <UIcon
+          v-else
+          name="i-lucide-search"
+          class="
+            size-6
+            md:size-5
+          "
+        />
       </template>
     </UButton>
 
@@ -75,7 +94,7 @@ defineShortcuts({
       v-model:open="isModalOpen"
       v-model:query="searchQuery"
     />
-  </div>
+  </Component>
 </template>
 
 <i18n lang="yaml">

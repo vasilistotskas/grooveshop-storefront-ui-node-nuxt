@@ -122,6 +122,7 @@ onUnmounted(() => {
                 lg:sr-only
               "
             >
+              <LazySearchInput />
               <LazyLanguageSwitcher v-if="enabled" />
               <UColorModeButton
                 class="w-6"

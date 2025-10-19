@@ -446,6 +446,10 @@ definePageMeta({
                   :min="1"
                   :max="product?.stock"
                   :disabled="productStock === 0"
+                  :ui="{
+                    root: 'h-full',
+                    base: 'h-full',
+                  }"
                 />
               </div>
 
@@ -531,8 +535,9 @@ definePageMeta({
       <div
         v-if="showStickyAddToCart"
         class="
-          fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200
+          fixed right-0 bottom-12 left-0 z-40 border-t border-gray-200
           bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm
+          md:bottom-0
           dark:border-gray-700 dark:bg-gray-900/95
         "
       >

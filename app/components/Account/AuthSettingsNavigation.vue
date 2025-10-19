@@ -215,7 +215,6 @@ watch(() => route.path, () => {
         :items="items"
         :collapsible="true"
         type="multiple"
-        class="p-3"
       />
     </template>
   </UDrawer>

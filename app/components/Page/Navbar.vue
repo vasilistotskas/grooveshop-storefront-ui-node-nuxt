@@ -9,6 +9,7 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const { enabled } = useAuthPreviewMode()
 const { $i18n, $routeBaseName } = useNuxtApp()
+const { isMobileOrTablet } = useDevice()
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -67,7 +68,7 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <LazySearchInput />
+      <LazySearchInput v-if="!isMobileOrTablet" />
       <div
         class="
           relative ml-auto hidden items-center
