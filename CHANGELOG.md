@@ -1,3 +1,10 @@
+# [3.28.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.27.0...v3.28.0) (2025-10-19)
+
+
+### Features
+
+* Update UI elements and add cache headers ([997d67c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/997d67cd59c0052eab81adafe551140401a2999f))
+
 # [3.27.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.26.0...v3.27.0) (2025-10-19)
 
 
