@@ -142,6 +142,22 @@ export default defineNuxtConfig({
     analyze: true,
   },
   routeRules: {
+    '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
+    '/assets/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
+    '/**/*.{png,jpg,jpeg,gif,webp,svg,ico}': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
+    '/**/*.{css,js}': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
     '/api/**': { cors: true },
     '/manifest.webmanifest': {
       headers: {

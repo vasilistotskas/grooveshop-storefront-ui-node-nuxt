@@ -273,7 +273,7 @@ definePageMeta({
 
 <template>
   <PageWrapper>
-    <div
+    <section
       v-if="product" id="product" class="
         mb-12
         md:mb-24
@@ -625,7 +625,7 @@ definePageMeta({
         :reviews-count="product.reviewCount"
         display-image-of="user"
       />
-    </div>
+    </section>
   </PageWrapper>
 </template>
 

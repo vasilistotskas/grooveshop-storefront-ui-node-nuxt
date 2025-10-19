@@ -18,7 +18,8 @@ const showPaymentStep = ref(false)
 const createdOrder = ref<OrderDetail | null>(null)
 const selectedPayWay = ref<PayWay | null>(null)
 
-const shippingPrice = ref(3)
+// @TODO should be based on pay way Cost and Free Threshold and django Setting `CHECKOUT_SHIPPING_PRICE`
+const shippingPrice = ref(0)
 const regions = ref<Pagination<Region> | null>(null)
 const formRef = useTemplateRef('formRef')
 

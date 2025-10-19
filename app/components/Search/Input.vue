@@ -30,8 +30,7 @@ defineShortcuts({
 </script>
 
 <template>
-  <Component
-    :is="isMobileOrTablet ? 'li' : 'div'"
+  <div
     class="
       relative flex items-center
       md:w-full
@@ -44,10 +43,11 @@ defineShortcuts({
       size="md"
       block
       :ui="{
-        base: 'p-0 text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 md:px-2.5 md:py-1.5',
+        base: 'p-0 text-primary-800 dark:text-primary-200 hover:text-primary-950 dark:hover:text-primary-50 md:px-2.5 md:py-1.5',
         label: 'font-normal',
       }"
       class="md:max-w-md"
+      :aria-label="t('search.placeholder')"
       @click="openSearchModal"
     >
       <template #default>
@@ -94,7 +94,7 @@ defineShortcuts({
       v-model:open="isModalOpen"
       v-model:query="searchQuery"
     />
-  </Component>
+  </div>
 </template>
 
 <i18n lang="yaml">
