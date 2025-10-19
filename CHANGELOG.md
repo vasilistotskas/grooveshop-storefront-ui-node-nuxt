@@ -1,3 +1,15 @@
+# [3.29.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.28.0...v3.29.0) (2025-10-19)
+
+
+### Bug Fixes
+
+* Show order status badge only when available ([3effd3c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3effd3c234c90291335f4a610e9d4e35996b312d))
+
+
+### Features
+
+* Add dynamic settings API and improve cart/checkout UX ([86f3746](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/86f37466ad255c79ae54695e37442d576710f458))
+
 # [3.28.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.27.0...v3.28.0) (2025-10-19)
 
 
