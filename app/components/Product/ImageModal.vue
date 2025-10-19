@@ -22,7 +22,7 @@ const activeIndex = ref(props.initialIndex)
 const carousel = useTemplateRef('carousel')
 const imageContainerRef = ref<HTMLElement | null>(null)
 
-const magnifierSize = 420
+const magnifierSize = 360
 const zoomLevel = 2.5
 const showMagnifier = ref(false)
 
@@ -208,25 +208,15 @@ watch(modelValue, (isOpen) => {
               <UKbd :value="t('first')" size="sm" />
               <UKbd :value="t('last')" size="sm" />
             </div>
-            <UButton
-              :aria-label="t('close')"
-              color="error"
-              variant="subtle"
-              icon="i-heroicons-x-mark"
-              size="lg"
-              class="rounded-full backdrop-blur-sm"
-              @click="closeModal"
-            />
           </div>
 
           <UButton
-            v-if="isMobileOrTablet"
             :aria-label="t('close')"
-            color="neutral"
-            variant="soft"
+            color="error"
+            variant="subtle"
             icon="i-heroicons-x-mark"
             size="lg"
-            class="backdrop-blur-sm"
+            class="rounded-full backdrop-blur-sm"
             @click="closeModal"
           />
         </div>
@@ -346,7 +336,7 @@ watch(modelValue, (isOpen) => {
               >
                 <ImgWithFallback
                   class="
-                    max-h-full w-auto touch-pinch-zoom rounded-lg bg-white
+                    max-h-[90vh] w-auto touch-pinch-zoom rounded-lg bg-white
                     object-contain select-none
                   "
                   loading="eager"

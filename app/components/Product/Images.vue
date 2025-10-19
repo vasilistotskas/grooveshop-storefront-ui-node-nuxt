@@ -142,7 +142,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
         variant="ghost"
         color="neutral"
         :ui="{
-          base: `p-1 rounded-none ring-0 hover:bg-transparent`,
+          base: `relative p-1 rounded-none ring-0 hover:bg-transparent`,
         }"
         :aria-label="t('selectImage', { number: index + 1 })"
         :aria-pressed="selectedImageId === item.id"
@@ -152,30 +152,17 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
         <ProductImage
           :key="item.id"
           :image="item"
-          :width="98"
-          :height="62"
+          :width="90"
+          :height="60"
           img-loading="lazy"
           :class="`
-            w-full rounded-md
+            relative w-full rounded-md
             ${selectedImageId === item.id ? `
-              ring-2 ring-neutral-500 ring-offset-2
+              ring-1 ring-neutral-500 ring-offset-1
               dark:ring-neutral-100
             ` : ''}
           `"
         />
-
-        <span
-          v-if="selectedImageId === item.id"
-          class="
-            absolute inset-0 flex items-center justify-center bg-primary-500/20
-            sm:hidden
-          "
-        >
-          <UIcon
-            name="i-heroicons-hand-raised"
-            class="h-6 w-6 animate-pulse text-primary-600"
-          />
-        </span>
       </UButton>
     </LazyUCarousel>
 
