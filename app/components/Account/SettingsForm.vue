@@ -125,10 +125,10 @@ const df = new DateFormatter('en-US', { dateStyle: 'medium' })
 const calendarDate = shallowRef<DateValue | null>(
   birthDate.value && birthDate.value instanceof Date
     ? new CalendarDate(
-      birthDate.value.getFullYear(),
-      birthDate.value.getMonth() + 1,
-      birthDate.value.getDate(),
-    )
+        birthDate.value.getFullYear(),
+        birthDate.value.getMonth() + 1,
+        birthDate.value.getDate(),
+      )
     : null,
 )
 

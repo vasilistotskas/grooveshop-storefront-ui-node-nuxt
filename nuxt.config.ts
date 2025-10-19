@@ -220,6 +220,14 @@ export default defineNuxtConfig({
     payloadExtraction: true,
     inlineRouteRules: true,
     checkOutdatedBuildInterval: 5 * 60 * 1000,
+    defaults: {
+      nuxtLink: {
+        prefetchOn: {
+          visibility: false,
+          interaction: true,
+        },
+      },
+    },
   },
   compatibilityDate: 'latest',
   nitro: {
