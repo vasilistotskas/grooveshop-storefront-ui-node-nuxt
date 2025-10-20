@@ -12,6 +12,8 @@ const addressId = 'id' in route.params
   : undefined
 const regions = ref<Pagination<Region> | null>(null)
 
+const selectPlaceholder = computed(() => t('form.select_placeholder'))
+
 const { data: address } = await useFetch(`/api/user/addresses/${addressId}`, {
   key: `address${addressId}`,
   method: 'GET',
@@ -71,6 +73,56 @@ const regionOptions = computed(() => {
     }
   }) || []
 })
+
+const floorChoicesList = computed(() => [
+  {
+    name: t('form.floor_options.BASEMENT'),
+    value: 'BASEMENT',
+  },
+  {
+    name: t('form.floor_options.GROUND_FLOOR'),
+    value: 'GROUND_FLOOR',
+  },
+  {
+    name: t('form.floor_options.FIRST_FLOOR'),
+    value: 'FIRST_FLOOR',
+  },
+  {
+    name: t('form.floor_options.SECOND_FLOOR'),
+    value: 'SECOND_FLOOR',
+  },
+  {
+    name: t('form.floor_options.THIRD_FLOOR'),
+    value: 'THIRD_FLOOR',
+  },
+  {
+    name: t('form.floor_options.FOURTH_FLOOR'),
+    value: 'FOURTH_FLOOR',
+  },
+  {
+    name: t('form.floor_options.FIFTH_FLOOR'),
+    value: 'FIFTH_FLOOR',
+  },
+  {
+    name: t('form.floor_options.SIXTH_FLOOR_PLUS'),
+    value: 'SIXTH_FLOOR_PLUS',
+  },
+])
+
+const locationChoicesList = computed(() => [
+  {
+    name: t('form.location_type_options.HOME'),
+    value: 'HOME',
+  },
+  {
+    name: t('form.location_type_options.OFFICE'),
+    value: 'OFFICE',
+  },
+  {
+    name: t('form.location_type_options.OTHER'),
+    value: 'OTHER',
+  },
+])
 
 const onSelectMenuChange = async ({ target, value }: { target: string, value: string }) => {
   if (target === 'country') {
@@ -273,16 +325,26 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       type: 'text',
       required: false,
       readonly: false,
-      placeholder: defaultSelectOptionChoose,
+      placeholder: selectPlaceholder.value,
       autocomplete: 'off',
       initialValue: address.value?.floor || defaultSelectOptionChoose,
-      children: floorChoicesList.map(option => ({
-        tag: 'option',
-        text: option.name || '',
-        as: 'option',
-        label: option.name,
-        value: option.value,
-      })),
+      children: [
+        {
+          tag: 'option',
+          text: selectPlaceholder.value,
+          as: 'option',
+          label: selectPlaceholder.value,
+          value: defaultSelectOptionChoose,
+          disabled: true,
+        },
+        ...floorChoicesList.value.map(option => ({
+          tag: 'option',
+          text: option.name || '',
+          as: 'option',
+          label: option.name,
+          value: option.value,
+        })),
+      ],
       rules: z.union([zFloorEnum, z.string()]).optional(),
     },
     {
@@ -292,16 +354,26 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       type: 'text',
       required: false,
       readonly: false,
-      placeholder: defaultSelectOptionChoose,
+      placeholder: selectPlaceholder.value,
       autocomplete: 'off',
       initialValue: address.value?.locationType || defaultSelectOptionChoose,
-      children: locationChoicesList.map(option => ({
-        tag: 'option',
-        text: option.name || '',
-        as: 'option',
-        label: option.name,
-        value: option.value,
-      })),
+      children: [
+        {
+          tag: 'option',
+          text: selectPlaceholder.value,
+          as: 'option',
+          label: selectPlaceholder.value,
+          value: defaultSelectOptionChoose,
+          disabled: true,
+        },
+        ...locationChoicesList.value.map(option => ({
+          tag: 'option',
+          text: option.name || '',
+          as: 'option',
+          label: option.name,
+          value: option.value,
+        })),
+      ],
       rules: z.union([zLocationTypeEnum, z.string()]).optional(),
     },
     {
@@ -311,16 +383,26 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       type: 'text',
       required: true,
       readonly: false,
-      placeholder: defaultSelectOptionChoose,
+      placeholder: selectPlaceholder.value,
       autocomplete: 'country',
       initialValue: address.value?.country || defaultSelectOptionChoose,
-      children: (countryOptions.value || []).map(option => ({
-        tag: 'option',
-        text: option.name || '',
-        as: 'option',
-        label: option.name,
-        value: option.value,
-      })),
+      children: [
+        {
+          tag: 'option',
+          text: selectPlaceholder.value,
+          as: 'option',
+          label: selectPlaceholder.value,
+          value: defaultSelectOptionChoose,
+          disabled: true,
+        },
+        ...(countryOptions.value || []).map(option => ({
+          tag: 'option',
+          text: option.name || '',
+          as: 'option',
+          label: option.name,
+          value: option.value,
+        })),
+      ],
       rules: z.string({ error: issue => issue.input === undefined
         ? $i18n.t('validation.required')
         : $i18n.t('validation.string.invalid') }),
@@ -332,16 +414,26 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       type: 'text',
       required: true,
       readonly: false,
-      placeholder: defaultSelectOptionChoose,
+      placeholder: selectPlaceholder.value,
       autocomplete: 'address-level1',
       initialValue: address.value?.region || defaultSelectOptionChoose,
-      children: (regionOptions.value || []).map(option => ({
-        tag: 'option',
-        text: option.name || '',
-        as: 'option',
-        label: option.name,
-        value: option.value,
-      })),
+      children: [
+        {
+          tag: 'option',
+          text: selectPlaceholder.value,
+          as: 'option',
+          label: selectPlaceholder.value,
+          value: defaultSelectOptionChoose,
+          disabled: true,
+        },
+        ...(regionOptions.value || []).map(option => ({
+          tag: 'option',
+          text: option.name || '',
+          as: 'option',
+          label: option.name,
+          value: option.value,
+        })),
+      ],
       rules: z.string({ error: issue => issue.input === undefined
         ? $i18n.t('validation.required')
         : $i18n.t('validation.string.invalid') }),
@@ -494,6 +586,7 @@ el:
     error: Σφάλμα ενημέρωσης κύριας διεύθυνσης
     button: Ορισμός ως κύρια διεύθυνση
   form:
+    select_placeholder: Επέλεξε
     title: Διεύθυνση
     first_name: Όνομα
     last_name: Επίθετο
@@ -505,7 +598,20 @@ el:
     mobile_phone: Κινητό τηλέφωνο
     notes: Σημειώσεις
     floor: Όροφος
-    location_type: Τύπος τοποθεσίας
+    floor_options:
+      BASEMENT: Υπόγειο
+      GROUND_FLOOR: Ισόγειο
+      FIRST_FLOOR: 1ος Όροφος
+      SECOND_FLOOR: 2ος Όροφος
+      THIRD_FLOOR: 3ος Όροφος
+      FOURTH_FLOOR: 4ος Όροφος
+      FIFTH_FLOOR: 5ος Όροφος
+      SIXTH_FLOOR_PLUS: 6ος+ Όροφος
+    location_type: Τοποθεσία
+    location_type_options:
+      HOME: Κατοικία
+      OFFICE: Γραφείο
+      OTHER: Άλλο
     country: Χώρα
     region: Περιφέρεια
     submit: Αποθήκευση

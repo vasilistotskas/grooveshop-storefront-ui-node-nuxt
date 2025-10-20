@@ -8,6 +8,7 @@ export const ZodDynamicFormSchemaChildren = z
       as: z.string(),
       label: z.string().optional(),
       value: z.any().optional(),
+      disabled: z.boolean().optional(),
     }),
   )
   .optional()
@@ -34,6 +35,18 @@ export const ZodDynamicFormSchemaField = z.array(
     rules: z.any(),
     condition: z.any().optional(),
     disabledCondition: z.any().optional(),
+    color: z.enum(['primary', 'secondary', 'success', 'warning', 'error', 'info', 'neutral']).optional(),
+    colSpan: z.union([
+      z.number(),
+      z.object({
+        'default': z.number().optional(),
+        'sm': z.number().optional(),
+        'md': z.number().optional(),
+        'lg': z.number().optional(),
+        'xl': z.number().optional(),
+        '2xl': z.number().optional(),
+      }),
+    ]).optional(),
   }),
 )
 

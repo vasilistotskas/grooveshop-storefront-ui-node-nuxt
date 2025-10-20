@@ -52,8 +52,6 @@ const customerEmail = computed(() => order.value?.email)
 const orderNumber = computed(() => order.value?.id)
 const orderItems = computed(() => order.value?.items || [])
 
-const orderStatus = computed(() => order.value?.status || '')
-const orderStatusDisplay = computed(() => order.value?.statusDisplay || '')
 const paymentStatus = computed(() => order.value?.paymentStatus || '')
 const isPaid = computed(() => order.value?.isPaid || false)
 
@@ -84,19 +82,6 @@ watchEffect(async () => {
     }
   }
 })
-
-const getStatusColor = (status: OrderDetail['status']) => {
-  const statusColors: Record<string, 'success' | 'info' | 'warning' | 'error' | 'neutral' | 'primary'> = {
-    completed: 'success',
-    shipped: 'info',
-    processing: 'warning',
-    cancelled: 'error',
-    pending: 'info',
-    confirmed: 'primary',
-  }
-  if (!status) return 'neutral'
-  return statusColors[status.toLowerCase()] || 'neutral'
-}
 
 const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {
   const colors: Record<string, 'success' | 'warning' | 'error' | 'neutral' | 'info'> = {
@@ -255,18 +240,10 @@ definePageMeta({
       >
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center">
               <h2 class="text-xl font-semibold text-highlighted">
                 {{ t('order.items') }}
               </h2>
-              <UBadge
-                v-if="orderStatus"
-                :color="getStatusColor(orderStatus)"
-                variant="soft"
-                size="lg"
-              >
-                {{ orderStatusDisplay }}
-              </UBadge>
             </div>
           </template>
 
@@ -344,7 +321,7 @@ definePageMeta({
 
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-muted">{{ t('pricing.subtotal') }}</span>
+              <span class="text-muted">{{ t('pricing.subtotal', orderItems.length) }}</span>
               <span>{{ $i18n.n(totalPriceItems, 'currency') }}</span>
             </div>
 
@@ -437,7 +414,7 @@ el:
     carrier: Εταιρεία Αποστολής
   pricing:
     breakdown: Ανάλυση Κόστους
-    subtotal: Υποσύνολο
+    subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
     shipping: Έξοδα Αποστολής
     extras: Επιπλέον Κόστη
     total: Σύνολο

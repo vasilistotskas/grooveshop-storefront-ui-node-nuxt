@@ -65,6 +65,9 @@
     },
     "string": {
       "invalid": "Λάθος τιμή"
+    },
+    "payment_method": {
+      "required": "Επέλεξε μέθοδο πληρωμής"
     }
   }
 }

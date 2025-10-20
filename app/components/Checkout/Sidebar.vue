@@ -8,7 +8,6 @@ const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
 const { t } = useI18n()
-const localePath = useLocalePath()
 
 const payWayCost = computed(() => {
   if (!payWay?.value || typeof payWay.value === 'number') return 0
@@ -36,7 +35,7 @@ defineSlots<{
   >
     <UCard class="w-full">
       <template #header>
-        <div class="flex items-center justify-between">
+        <div class="flex items-center">
           <h3
             class="
               text-lg font-semibold text-primary-950
@@ -45,15 +44,6 @@ defineSlots<{
           >
             {{ t('title') }}
           </h3>
-          <UButton
-            :to="localePath('cart')"
-            color="neutral"
-            variant="link"
-            size="sm"
-            icon="i-heroicons-chevron-left"
-          >
-            {{ t('back_to_cart') }}
-          </UButton>
         </div>
       </template>
 
@@ -177,10 +167,9 @@ defineSlots<{
 el:
   title: Ολοκλήρωση αγοράς
   items_unique: Είδη
-  shipping: Αποστολή
+  shipping: Μεταφορικά
   total: Σύνολο
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
-  back_to_cart: Επιστροφή στο καλάθι
   vat_included: Στις τιμές συμπεριλαμβάνεται Φ.Π.Α.
   need_help: Χρειάζεσαι βοήθεια;
 </i18n>

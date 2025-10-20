@@ -17,6 +17,8 @@ const { $i18n } = useNuxtApp()
 const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
+const selectPlaceholder = computed(() => t('form.select_placeholder'))
+
 const ZodAccountSettings = z.object({
   email: z.email({
     error: issue => issue.input === undefined
@@ -148,15 +150,22 @@ const { data: countries } = await useFetch('/api/countries', {
 })
 
 const countryOptions = computed(() => {
-  return (
-    countries.value?.results?.map((country) => {
-      const countryName = extractTranslated(country, 'name', locale.value)
-      return {
-        label: countryName,
-        value: country.alpha2,
-      }
-    }) || []
-  )
+  const options = countries.value?.results?.map((country) => {
+    const countryName = extractTranslated(country, 'name', locale.value)
+    return {
+      label: countryName,
+      value: country.alpha2,
+    }
+  }) || []
+
+  return [
+    {
+      label: selectPlaceholder.value,
+      value: defaultSelectOptionChoose,
+      disabled: true,
+    },
+    ...options,
+  ]
 })
 
 const fetchRegions = async () => {
@@ -187,15 +196,22 @@ if (countries.value) {
 }
 
 const regionOptions = computed(() => {
-  return (
-    regions.value?.results?.map((region) => {
-      const regionName = extractTranslated(region, 'name', locale.value)
-      return {
-        label: regionName,
-        value: region.alpha,
-      }
-    }) || []
-  )
+  const options = regions.value?.results?.map((region) => {
+    const regionName = extractTranslated(region, 'name', locale.value)
+    return {
+      label: regionName,
+      value: region.alpha,
+    }
+  }) || []
+
+  return [
+    {
+      label: selectPlaceholder.value,
+      value: defaultSelectOptionChoose,
+      disabled: true,
+    },
+    ...options,
+  ]
 })
 
 const onCountryChange = async (payload: string | undefined) => {
@@ -536,7 +552,6 @@ watch(calendarDate, (newVal) => {
             name="country"
             value-key="value"
             :items="countryOptions"
-            :placeholder="country === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             color="neutral"
             v-bind="countryProps"
             @update:model-value="onCountryChange"
@@ -566,7 +581,6 @@ watch(calendarDate, (newVal) => {
             v-model="region"
             name="region"
             :items="regionOptions"
-            :placeholder="region === defaultSelectOptionChoose ? `${defaultSelectOptionChoose}...` : ''"
             color="neutral"
             value-key="value"
             v-bind="regionProps"
@@ -600,6 +614,7 @@ watch(calendarDate, (newVal) => {
 <i18n lang="yaml">
 el:
   form:
+    select_placeholder: Επέλεξε
     first_name: Όνομα
     last_name: Επώνυμο
     phone: Τηλέφωνο

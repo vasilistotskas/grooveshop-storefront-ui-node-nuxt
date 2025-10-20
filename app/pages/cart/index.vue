@@ -234,7 +234,7 @@ definePageMeta({
 
           <div class="grid gap-4">
             <div class="flex justify-between">
-              <span>{{ t('subtotal') }}</span>
+              <span>{{ t('subtotal', cart.totalItems) }}</span>
               <span>{{ $i18n.n(cart.totalPrice - cart.totalVatValue, 'currency') }}</span>
             </div>
             <div class="flex justify-between">
@@ -320,7 +320,7 @@ el:
     description: Συνέχεια
     description_long: Δεν έχεις προσθέσει ακόμα προϊόντα στο καλάθι σου
   order_summary: Σύνοψη Παραγγελίας
-  subtotal: Υποσύνολο
+  subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
   vat: ΦΠΑ
   discount: Έκπτωση
   total: Σύνολο

@@ -409,7 +409,11 @@ const getSelectMenuItems = (name: string) => {
   }
   const children = field.children
   if (children && children.length > 0) {
-    return children.map(child => ({ label: child.label, value: child.value }))
+    return children.map(child => ({
+      label: child.label,
+      value: child.value,
+      disabled: child.disabled || false,
+    }))
   }
   return []
 }
@@ -525,6 +529,7 @@ defineExpose({
             type = 'text',
             children = [],
             items = [],
+            color = 'neutral' as 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'neutral',
           } in filteredFields"
           :key="name"
         >
@@ -560,7 +565,7 @@ defineExpose({
               :readonly="readonly"
               :required="required"
               :type="type"
-              color="neutral"
+              :color="color"
               v-bind="fields[name][1].value"
             >
               <div v-if="children && children.length > 0">
@@ -583,7 +588,7 @@ defineExpose({
               :readonly="readonly"
               :required="required"
               :type="type"
-              color="neutral"
+              :color="color"
               v-bind="fields[name][1].value"
             >
               <div v-if="children && children.length > 0">
@@ -605,7 +610,7 @@ defineExpose({
               :name="name"
               :items="items"
               variant="list"
-              color="secondary"
+              :color="color || 'neutral'"
               :ui="{
                 fieldset: 'max-h-72 overflow-y-auto',
               }"
@@ -621,7 +626,7 @@ defineExpose({
               value-key="value"
               :items="getSelectMenuItems(name)"
               :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-              color="neutral"
+              :color="color"
               class="w-full"
               @update:model-value="onSelectMenuChange({ target: name, value: fields[name][0].value })"
               @change="onSelectMenuChange({ target: name, value: fields[name][0].value })"
@@ -642,7 +647,7 @@ defineExpose({
               :readonly="readonly"
               :required="required"
               :type="type"
-              color="neutral"
+              :color="color"
               v-bind="fields[name][1].value"
             >
               <LazyDynamicFormChildren

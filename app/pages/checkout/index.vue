@@ -103,6 +103,8 @@ const shippingPrice = computed(() => {
   return parseFloat(setting.value?.value)
 })
 
+const selectPlaceholder = computed(() => t('form.select_placeholder'))
+
 async function onSubmit(values: any) {
   console.log('Submit values:', values)
   const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'country', 'region']
@@ -273,6 +275,56 @@ const payWayOptions = computed(() => {
   }) || []
 })
 
+const floorChoicesList = computed(() => [
+  {
+    name: t('form.floor_options.BASEMENT'),
+    value: 'BASEMENT',
+  },
+  {
+    name: t('form.floor_options.GROUND_FLOOR'),
+    value: 'GROUND_FLOOR',
+  },
+  {
+    name: t('form.floor_options.FIRST_FLOOR'),
+    value: 'FIRST_FLOOR',
+  },
+  {
+    name: t('form.floor_options.SECOND_FLOOR'),
+    value: 'SECOND_FLOOR',
+  },
+  {
+    name: t('form.floor_options.THIRD_FLOOR'),
+    value: 'THIRD_FLOOR',
+  },
+  {
+    name: t('form.floor_options.FOURTH_FLOOR'),
+    value: 'FOURTH_FLOOR',
+  },
+  {
+    name: t('form.floor_options.FIFTH_FLOOR'),
+    value: 'FIFTH_FLOOR',
+  },
+  {
+    name: t('form.floor_options.SIXTH_FLOOR_PLUS'),
+    value: 'SIXTH_FLOOR_PLUS',
+  },
+])
+
+const locationChoicesList = computed(() => [
+  {
+    name: t('form.location_type_options.HOME'),
+    value: 'HOME',
+  },
+  {
+    name: t('form.location_type_options.OFFICE'),
+    value: 'OFFICE',
+  },
+  {
+    name: t('form.location_type_options.OTHER'),
+    value: 'OTHER',
+  },
+])
+
 const formSchema = computed<DynamicFormSchema>(() => ({
   steps: [
     {
@@ -352,18 +404,29 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           type: 'text',
           required: true,
           readonly: false,
-          placeholder: defaultSelectOptionChoose,
+          placeholder: selectPlaceholder.value,
           autocomplete: 'country',
-          children: (countryOptions.value || []).map(option => ({
-            tag: 'option',
-            text: option.name || '',
-            as: 'option',
-            label: option.name,
-            value: option.value,
-          })),
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.string.invalid') }),
+          children: [
+            {
+              tag: 'option',
+              text: selectPlaceholder.value,
+              as: 'option',
+              label: selectPlaceholder.value,
+              value: defaultSelectOptionChoose,
+              disabled: true,
+            },
+            ...(countryOptions.value || []).map(option => ({
+              tag: 'option',
+              text: option.name || '',
+              as: 'option',
+              label: option.name,
+              value: option.value,
+            })),
+          ],
+          rules: z.string()
+            .refine(val => val !== defaultSelectOptionChoose, {
+              message: $i18n.t('validation.required'),
+            }),
           initialValue: defaultSelectOptionChoose,
           condition: () => true,
           disabledCondition: () => false,
@@ -375,18 +438,30 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           type: 'text',
           required: true,
           readonly: false,
-          placeholder: defaultSelectOptionChoose,
+          placeholder: selectPlaceholder.value,
           autocomplete: 'address-level1',
-          children: (regionOptions.value || []).map(option => ({
-            tag: 'option',
-            text: option.name || '',
-            as: 'option',
-            label: option.name,
-            value: option.value,
-          })),
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.string.invalid') }),
+          children: [
+            {
+              tag: 'option',
+              text: selectPlaceholder.value,
+              as: 'option',
+              label: selectPlaceholder.value,
+              value: defaultSelectOptionChoose,
+              disabled: true,
+            },
+            ...(regionOptions.value || []).map(option => ({
+              tag: 'option',
+              text: option.name || '',
+              as: 'option',
+              label: option.name,
+              value: option.value,
+            })),
+          ],
+          rules: z.string()
+            .refine(val => val !== defaultSelectOptionChoose, {
+              message: $i18n.t('validation.required'),
+            }),
+          initialValue: defaultSelectOptionChoose,
           condition: () => true,
           disabledCondition: () => false,
         },
@@ -472,17 +547,27 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           type: 'text',
           required: false,
           readonly: false,
-          placeholder: defaultSelectOptionChoose,
+          placeholder: selectPlaceholder.value,
           autocomplete: 'off',
           condition: null,
           disabledCondition: null,
-          children: floorChoicesList.map(option => ({
-            tag: 'option',
-            text: option.name || '',
-            as: 'option',
-            label: option.name,
-            value: option.value,
-          })),
+          children: [
+            {
+              tag: 'option',
+              text: selectPlaceholder.value,
+              as: 'option',
+              label: selectPlaceholder.value,
+              value: defaultSelectOptionChoose,
+              disabled: true,
+            },
+            ...floorChoicesList.value.map(option => ({
+              tag: 'option',
+              text: option.name || '',
+              as: 'option',
+              label: option.name,
+              value: option.value,
+            })),
+          ],
           rules: z.union([zFloorEnum, z.string()]).optional(),
         },
         {
@@ -492,17 +577,27 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           type: 'text',
           required: false,
           readonly: false,
-          placeholder: defaultSelectOptionChoose,
+          placeholder: selectPlaceholder.value,
           autocomplete: 'off',
           condition: null,
           disabledCondition: null,
-          children: locationChoicesList.map(option => ({
-            tag: 'option',
-            text: option.name || '',
-            as: 'option',
-            label: option.name,
-            value: option.value,
-          })),
+          children: [
+            {
+              tag: 'option',
+              text: selectPlaceholder.value,
+              as: 'option',
+              label: selectPlaceholder.value,
+              value: defaultSelectOptionChoose,
+              disabled: true,
+            },
+            ...locationChoicesList.value.map(option => ({
+              tag: 'option',
+              text: option.name || '',
+              as: 'option',
+              label: option.name,
+              value: option.value,
+            })),
+          ],
           rules: z.union([zLocationTypeEnum, z.string()]).optional(),
         },
         {
@@ -535,7 +630,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'off',
           condition: null,
           disabledCondition: null,
-          rules: null,
+          initialValue: payWayOptions.value?.[0]?.value || '',
+          color: 'success',
+          rules: z.number().min(1, {
+            message: $i18n.t('validation.payment_method.required'),
+          }),
           items: payWayOptions.value,
         },
         {
@@ -549,6 +648,8 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'off',
           condition: null,
           disabledCondition: null,
+          hidden: true,
+          initialValue: zDocumentTypeEnum.enum.RECEIPT,
           items: [
             {
               label: t('form.document_type.receipt.label'),
@@ -626,31 +727,10 @@ definePageMeta({
 
 <template>
   <PageWrapper class="max-w-(--container-6xl)">
-    <UBreadcrumb
-      :items="[
-        {
-          label: t('home'),
-          to: localePath('index'),
-          icon: 'i-heroicons-home',
-        },
-        {
-          label: t('shopping_cart'),
-          to: localePath('cart'),
-          icon: 'i-heroicons-shopping-cart',
-        },
-        {
-          label: t('title'),
-          to: localePath('checkout'),
-          icon: 'i-heroicons-credit-card',
-        },
-      ]"
-      divider="chevron"
-      class="mb-8"
-    />
-
     <div
       class="
-        flex flex-col gap-8
+        flex flex-col gap-8 pt-2
+        md:pt-4
         lg:flex-row
       "
     >
@@ -791,6 +871,7 @@ el:
     address: Διεύθυνση
     payment: Πληρωμή
   form:
+    select_placeholder: Επέλεξε
     first_name: Όνομα
     last_name: Επίθετο
     email: Email
@@ -801,7 +882,20 @@ el:
     country: Χώρα
     region: Περιφέρεια
     floor: Όροφος
+    floor_options:
+      BASEMENT: Υπόγειο
+      GROUND_FLOOR: Ισόγειο
+      FIRST_FLOOR: 1ος Όροφος
+      SECOND_FLOOR: 2ος Όροφος
+      THIRD_FLOOR: 3ος Όροφος
+      FOURTH_FLOOR: 4ος Όροφος
+      FIFTH_FLOOR: 5ος Όροφος
+      SIXTH_FLOOR_PLUS: 6ος+ Όροφος
     location_type: Τύπος τοποθεσίας
+    location_type_options:
+      HOME: Κατοικία
+      OFFICE: Γραφείο
+      OTHER: Άλλο
     street: Οδός
     street_number: Αριθμός Οδού
     customer_notes: Σημειώσεις

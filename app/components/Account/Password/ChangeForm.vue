@@ -304,24 +304,23 @@ async function onSubmit() {
             </UInput>
           </UFormField>
 
-          <div class="flex items-center gap-3 pt-4">
-            <UButton
-              type="submit"
-              color="neutral"
-              variant="outline"
-              size="lg"
-              icon="i-heroicons-check"
-              :label="hasCurrentPassword ? t('change.submit') : t('set.submit')"
-            />
-
+          <div class="flex items-center justify-between gap-3 pt-4">
             <UButton
               type="button"
-              color="neutral"
-              variant="outline"
+              color="error"
+              variant="subtle"
               size="lg"
               icon="i-heroicons-arrow-left"
               :label="t('common.cancel')"
               @click="navigateTo(localePath('account'))"
+            />
+            <UButton
+              type="submit"
+              color="success"
+              variant="soft"
+              size="lg"
+              icon="i-heroicons-check"
+              :label="hasCurrentPassword ? t('change.submit') : t('set.submit')"
             />
           </div>
         </UForm>
