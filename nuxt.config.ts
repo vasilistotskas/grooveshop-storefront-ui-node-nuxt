@@ -368,9 +368,10 @@ export default defineNuxtConfig({
     },
   },
   icon: {
+    mode: 'local',
     serverBundle: {
-      externalizeIconsJson: false,
-      collections: ['heroicons', 'heroicons-solid', 'heroicons-outline', 'ant-design', 'fa-solid', 'fa6-solid', 'mdi'],
+      externalizeIconsJson: true,
+      collections: ['ant-design', 'fa-solid', 'fa6-solid', 'heroicons', 'heroicons-solid', 'heroicons-outline', 'lucide', 'mdi', 'unjs'],
     },
     clientBundle: {
       scan: true,

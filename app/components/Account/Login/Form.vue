@@ -13,6 +13,7 @@ const cartStore = useCartStore()
 const { refreshCart } = cartStore
 const { isMobileOrTablet } = useDevice()
 const { $i18n } = useNuxtApp()
+const img = useImage()
 
 const authStore = useAuthStore()
 const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
@@ -94,6 +95,18 @@ const submitButtonLabel = computed(() => {
 const submitButtonDisabled = computed(() => {
   return loading.value || submitCount.value > 5
 })
+
+const backgroundImage = computed(() => {
+  return img(
+    '/img/login-background.png',
+    {
+      width: 400,
+      height: 256,
+      fit: 'contain',
+      format: 'webp',
+    },
+  )
+})
 </script>
 
 <template>
@@ -101,7 +114,7 @@ const submitButtonDisabled = computed(() => {
     <div
       v-if="isMobileOrTablet"
       class="absolute top-[-1px] z-0 h-64 w-full bg-center"
-      :style="isMobileOrTablet ? { backgroundImage: 'url(/img/login-background.png)', backgroundSize: 'cover' } : ''"
+      :style="isMobileOrTablet ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover' } : ''"
     />
     <form
       id="loginForm"
