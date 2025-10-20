@@ -1,3 +1,10 @@
+# [3.31.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.30.1...v3.31.0) (2025-10-20)
+
+
+### Features
+
+* Improve form UX and i18n for address, checkout, and contact ([9b265a0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9b265a0dd43f8747b0a56d2fca10b3b95cd6143b))
+
 ## [3.30.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.30.0...v3.30.1) (2025-10-20)
 
 
