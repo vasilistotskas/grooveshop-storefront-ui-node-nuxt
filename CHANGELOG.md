@@ -1,3 +1,10 @@
+## [3.30.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.30.0...v3.30.1) (2025-10-20)
+
+
+### Bug Fixes
+
+* Optimize login/signup background image and update deps ([2e403f1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2e403f178b9fe6be5558545d81b9b9e7154ad051))
+
 # [3.30.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.29.1...v3.30.0) (2025-10-19)
 
 
