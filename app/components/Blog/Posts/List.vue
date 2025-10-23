@@ -115,7 +115,7 @@ const imgLoading = (index: number) => {
   if (isMobileOrTablet) {
     return index > 0 ? 'lazy' : 'eager'
   }
-  return index > 7 ? 'lazy' : 'eager'
+  return 'lazy'
 }
 
 watch(

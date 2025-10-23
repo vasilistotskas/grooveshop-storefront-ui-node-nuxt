@@ -179,6 +179,24 @@ export default defineNuxtConfig({
         'Cache-Control': 'max-age=31536000',
       },
     },
+    '/favicon.png': {
+      cache: {
+        maxAge: 60 * 60 * 24 * 365,
+      },
+      headers: {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'max-age=31536000',
+      },
+    },
+    '/logo.svg': {
+      cache: {
+        maxAge: 60 * 60 * 24 * 365,
+      },
+      headers: {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'max-age=31536000',
+      },
+    },
     '/favicon/**': {
       cache: {
         maxAge: 60 * 60 * 24 * 365,
@@ -187,7 +205,7 @@ export default defineNuxtConfig({
         'Cache-Control': 'max-age=31536000',
       },
     },
-    'img/**': {
+    '/img/**': {
       cache: {
         maxAge: 60 * 60 * 24 * 365,
       },
