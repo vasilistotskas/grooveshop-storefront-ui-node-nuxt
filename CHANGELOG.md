@@ -1,3 +1,10 @@
+## [3.31.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.31.0...v3.31.1) (2025-10-23)
+
+
+### Bug Fixes
+
+* Update image loading and static asset caching ([c56f449](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c56f4490b86621c2d9d9e1d178005308ddc1889b))
+
 # [3.31.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.30.1...v3.31.0) (2025-10-20)
 
 
