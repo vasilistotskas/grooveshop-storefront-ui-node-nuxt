@@ -52,6 +52,11 @@ export default defineNuxtConfig({
     fallback: 'light',
     storage: 'cookie',
   },
+  ui: {
+    experimental: {
+      componentDetection: true,
+    },
+  },
   runtimeConfig: {
     buildDate: new Date().toISOString(),
     apiBaseUrl: process.env.NUXT_API_BASE_URL,
