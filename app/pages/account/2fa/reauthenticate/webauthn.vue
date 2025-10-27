@@ -40,7 +40,7 @@ async function onSubmit() {
       title: $i18n.t('success.title'),
       description: t('success.description'),
       color: 'success',
-      icon: 'i-lucide-check-circle',
+      icon: 'i-heroicons-check-circle',
     })
     emit('getWebAuthnRequestOptionsForReauthentication')
     emit('reauthenticateUsingWebAuthn')
@@ -51,7 +51,7 @@ async function onSubmit() {
       title: $i18n.t('error.default'),
       description: t('error.description'),
       color: 'error',
-      icon: 'i-lucide-alert-circle',
+      icon: 'i-heroicons-exclamation-circle',
     })
   }
   finally {
@@ -81,7 +81,7 @@ definePageMeta({
             "
           >
             <UIcon
-              name="i-lucide-fingerprint"
+              name="i-heroicons-finger-print"
               class="size-6 text-secondary"
             />
           </div>
@@ -104,7 +104,7 @@ definePageMeta({
               " @click="onSubmit"
             >
               <UIcon
-                name="i-lucide-usb"
+                name="i-heroicons-cpu-chip"
                 class="size-8 text-info"
               />
             </div>
@@ -125,7 +125,7 @@ definePageMeta({
             v-if="error"
             color="error"
             variant="soft"
-            icon="i-lucide-alert-circle"
+            icon="i-heroicons-exclamation-circle"
             :description="error"
           />
 
@@ -134,7 +134,7 @@ definePageMeta({
             color="neutral"
             block
             :loading="loading"
-            icon="i-lucide-fingerprint"
+            icon="i-heroicons-finger-print"
             @click="onSubmit"
           >
             {{ t('button.label') }}
@@ -146,7 +146,7 @@ definePageMeta({
         <UAlert
           color="info"
           variant="soft"
-          icon="i-lucide-info"
+          icon="i-heroicons-information-circle"
           :title="t('info.title')"
           :description="t('info.description')"
         />

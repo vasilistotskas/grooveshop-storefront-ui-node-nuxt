@@ -176,7 +176,7 @@ useHead({
             <UInput
               ref="inputRef"
               v-model="query"
-              icon="i-lucide-search"
+              icon="i-heroicons-magnifying-glass"
               size="xl"
               :placeholder="t('page.search_placeholder')"
               autofocus
@@ -194,7 +194,7 @@ useHead({
                   />
                   <UButton
                     v-else
-                    icon="i-lucide-x"
+                    icon="i-heroicons-x-mark"
                     color="neutral"
                     variant="ghost"
                     size="sm"
@@ -220,7 +220,7 @@ useHead({
             "
           >
             <UIcon
-              name="i-lucide-info"
+              name="i-heroicons-information-circle"
               class="size-4 text-info"
             />
             <span>
@@ -288,7 +288,7 @@ useHead({
           "
         >
           <UIcon
-            name="i-lucide-search"
+            name="i-heroicons-magnifying-glass"
             class="
               size-12 text-gray-400
               dark:text-gray-600
@@ -345,7 +345,7 @@ useHead({
           "
         >
           <UIcon
-            name="i-lucide-search-x"
+            name="i-heroicons-magnifying-glass-minus"
             class="
               size-12 text-red-400
               dark:text-red-600
@@ -369,7 +369,7 @@ useHead({
           {{ t('page.no_results.description', { query }) }}
         </p>
         <UButton
-          icon="i-lucide-refresh-cw"
+          icon="i-heroicons-arrow-path"
           color="neutral"
           @click="query = ''"
         >

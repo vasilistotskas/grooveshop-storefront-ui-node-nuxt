@@ -186,8 +186,8 @@ const isUnSaved = computed(() => {
                       :model-value="isCookieEnabled(cookie)"
                       color="secondary"
                       size="xl"
-                      unchecked-icon="i-lucide-x"
-                      checked-icon="i-lucide-check"
+                      unchecked-icon="i-heroicons-x-mark"
+                      checked-icon="i-heroicons-check"
                       :label="getName(cookie.name)"
                       :disabled="cookieType === ZodCookieTypeEnum.enum.necessary"
                       :ui="{

@@ -177,7 +177,7 @@ describe('Search Utils', () => {
         contentType: 'product',
       } as SearchResult
 
-      expect(getResultIcon(result)).toBe('i-lucide-shopping-bag')
+      expect(getResultIcon(result)).toBe('i-heroicons-shopping-bag')
     })
 
     it('should return file text icon for post', () => {
@@ -185,7 +185,7 @@ describe('Search Utils', () => {
         contentType: 'post',
       } as SearchResult
 
-      expect(getResultIcon(result)).toBe('i-lucide-file-text')
+      expect(getResultIcon(result)).toBe('i-heroicons-document-text')
     })
 
     it('should return file text icon for unknown content type', () => {
@@ -193,13 +193,13 @@ describe('Search Utils', () => {
         contentType: 'unknown',
       } as any
 
-      expect(getResultIcon(result)).toBe('i-lucide-file-text')
+      expect(getResultIcon(result)).toBe('i-heroicons-document-text')
     })
 
     it('should return file text icon for missing content type', () => {
       const result = {} as SearchResult
 
-      expect(getResultIcon(result)).toBe('i-lucide-file-text')
+      expect(getResultIcon(result)).toBe('i-heroicons-document-text')
     })
   })
 })

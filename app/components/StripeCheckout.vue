@@ -82,7 +82,7 @@ onMounted(() => {
       "
     >
       <UIcon
-        name="i-lucide-loader-2"
+        name="i-heroicons-arrow-path"
         class="h-12 w-12 animate-spin text-primary"
       />
       <div class="text-center">
@@ -104,7 +104,7 @@ onMounted(() => {
       v-if="error"
       color="error"
       variant="soft"
-      icon="i-lucide-alert-circle"
+      icon="i-heroicons-exclamation-circle"
       :title="t('checkout_error')"
       :description="error"
       :close="{ color: 'error', variant: 'link' }"
@@ -119,7 +119,7 @@ onMounted(() => {
         :loading="processing"
         block
         size="lg"
-        icon="i-lucide-refresh-cw"
+        icon="i-heroicons-arrow-path"
         @click="createCheckoutSession"
       >
         {{ t('retry') }}
@@ -133,7 +133,7 @@ onMounted(() => {
         dark:bg-primary-900 dark:text-primary-50
       "
     >
-      <UIcon name="i-lucide-shield-check" class="mt-0.5 h-4 w-4 shrink-0" />
+      <UIcon name="i-heroicons-shield-check" class="mt-0.5 h-4 w-4 shrink-0" />
       <p>{{ t('secure_redirect_notice') }}</p>
     </div>
   </div>

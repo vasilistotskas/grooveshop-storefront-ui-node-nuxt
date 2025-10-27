@@ -44,7 +44,7 @@ async function onSubmit() {
       title: t('toast.success.title'),
       description: t('toast.success.description'),
       color: 'success',
-      icon: 'i-lucide-check-circle',
+      icon: 'i-heroicons-check-circle',
     })
     emit('generateRecoveryCodes')
     await navigateTo(localePath('account-2fa-recovery-codes'))
@@ -85,7 +85,9 @@ onReactivated(async () => {
                 bg-neutral-100
               "
             >
-              <UIcon name="i-lucide-refresh-cw" class="size-5 text-primary-900" />
+              <UIcon
+                name="i-heroicons-arrow-path" class="size-5 text-primary-900"
+              />
             </div>
             <div>
               <h1
@@ -114,7 +116,7 @@ onReactivated(async () => {
             v-if="hasCodes"
             color="warning"
             variant="soft"
-            icon="i-lucide-alert-triangle"
+            icon="i-heroicons-exclamation-triangle"
           >
             <template #title>
               {{ t('existing.title', unusedCodeCount) }}
@@ -128,7 +130,7 @@ onReactivated(async () => {
             v-else
             color="info"
             variant="soft"
-            icon="i-lucide-info"
+            icon="i-heroicons-information-circle"
           >
             <template #title>
               {{ t('no_existing.title') }}
@@ -204,7 +206,7 @@ onReactivated(async () => {
                 dark:text-white
               "
             >
-              <UIcon name="i-lucide-list-checks" class="size-4" />
+              <UIcon name="i-heroicons-list-bullet" class="size-4" />
               {{ t('what_happens.title') }}
             </h3>
             <ul
@@ -215,7 +217,7 @@ onReactivated(async () => {
             >
               <li class="flex items-start gap-2">
                 <UIcon
-                  name="i-lucide-check"
+                  name="i-heroicons-check"
                   class="mt-0.5 size-4 shrink-0 text-success"
                 />
                 <span>{{ t('what_happens.point1') }}</span>
@@ -225,14 +227,14 @@ onReactivated(async () => {
                 class="flex items-start gap-2"
               >
                 <UIcon
-                  name="i-lucide-x"
+                  name="i-heroicons-x-mark"
                   class="mt-0.5 size-4 shrink-0 text-error"
                 />
                 <span>{{ t('what_happens.point2') }}</span>
               </li>
               <li class="flex items-start gap-2">
                 <UIcon
-                  name="i-lucide-check"
+                  name="i-heroicons-check"
                   class="mt-0.5 size-4 shrink-0 text-success"
                 />
                 <span>{{ t('what_happens.point3') }}</span>
@@ -269,7 +271,7 @@ onReactivated(async () => {
             <UButton
               color="neutral"
               size="lg"
-              icon="i-lucide-refresh-cw"
+              icon="i-heroicons-arrow-path"
               :loading="loading"
               :disabled="hasCodes && !confirmed"
               @click="onSubmit"

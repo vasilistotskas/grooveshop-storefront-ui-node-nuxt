@@ -51,7 +51,7 @@ async function copyAllCodes() {
     title: t('toast.copy_all.title'),
     description: t('toast.copy_all.description'),
     color: 'success',
-    icon: 'i-lucide-copy-check',
+    icon: 'i-heroicons-clipboard-document-check',
   })
 }
 
@@ -61,7 +61,7 @@ async function copyCode(code: string) {
     title: t('toast.copy_single.title'),
     description: code,
     color: 'success',
-    icon: 'i-lucide-copy-check',
+    icon: 'i-heroicons-clipboard-document-check',
   })
 }
 
@@ -79,7 +79,7 @@ function downloadCodes() {
   toast.add({
     title: t('toast.download.title'),
     color: 'success',
-    icon: 'i-lucide-download',
+    icon: 'i-heroicons-arrow-down-tray',
   })
 }
 
@@ -140,7 +140,9 @@ onReactivated(async () => {
                   bg-primary/10
                 "
               >
-                <UIcon name="i-lucide-shield-check" class="size-5 text-primary" />
+                <UIcon
+                  name="i-heroicons-shield-check" class="size-5 text-primary"
+                />
               </div>
               <div>
                 <h1
@@ -223,7 +225,7 @@ onReactivated(async () => {
               "
             >
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-calendar" class="size-4 text-gray-400" />
+                <UIcon name="i-heroicons-calendar" class="size-4 text-gray-400" />
                 <span
                   class="
                     text-xs font-medium tracking-wide text-gray-500 uppercase
@@ -250,7 +252,7 @@ onReactivated(async () => {
               "
             >
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-clock" class="size-4 text-gray-400" />
+                <UIcon name="i-heroicons-clock" class="size-4 text-gray-400" />
                 <span
                   class="
                     text-xs font-medium tracking-wide text-gray-500 uppercase
@@ -273,7 +275,7 @@ onReactivated(async () => {
             <UButton
               color="neutral"
               variant="outline"
-              icon="i-lucide-copy"
+              icon="i-heroicons-clipboard"
               @click="copyAllCodes"
             >
               {{ t('actions.copy_all') }}
@@ -281,7 +283,7 @@ onReactivated(async () => {
             <UButton
               color="neutral"
               variant="outline"
-              icon="i-lucide-download"
+              icon="i-heroicons-arrow-down-tray"
               @click="downloadCodes"
             >
               {{ t('actions.download') }}
@@ -289,7 +291,7 @@ onReactivated(async () => {
             <UButton
               color="neutral"
               variant="outline"
-              icon="i-lucide-printer"
+              icon="i-heroicons-printer"
               @click="printCodes"
             >
               {{ t('actions.print') }}
@@ -299,7 +301,7 @@ onReactivated(async () => {
           <UAlert
             color="warning"
             variant="soft"
-            icon="i-lucide-alert-triangle"
+            icon="i-heroicons-exclamation-triangle"
             :title="t('warning.title')"
             :description="t('warning.description')"
           />
@@ -344,7 +346,7 @@ onReactivated(async () => {
                   >{{ code }}</span>
                 </span>
                 <UIcon
-                  name="i-lucide-copy"
+                  name="i-heroicons-clipboard"
                   class="
                     size-4 text-gray-400 opacity-0 transition-opacity
                     group-hover:opacity-100
@@ -374,7 +376,7 @@ onReactivated(async () => {
               :to="localePath('account-2fa-recovery-codes-generate')"
               color="neutral"
               variant="outline"
-              trailing-icon="i-lucide-refresh-cw"
+              trailing-icon="i-heroicons-arrow-path"
             >
               {{ t('footer.regenerate') }}
             </UButton>

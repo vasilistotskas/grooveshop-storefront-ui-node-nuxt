@@ -30,7 +30,7 @@ async function onConfirm() {
       title: $i18n.t('success.title'),
       description: t('success.description'),
       color: 'success',
-      icon: 'i-lucide-shield-check',
+      icon: 'i-heroicons-shield-check',
     })
 
     emit('deactivateTotp')
@@ -98,7 +98,7 @@ definePageMeta({
               "
             >
               <UIcon
-                name="i-lucide-shield-off"
+                name="i-heroicons-shield-exclamation"
                 class="size-5 text-error"
               />
             </div>
@@ -127,7 +127,7 @@ definePageMeta({
         <UAlert
           color="warning"
           variant="soft"
-          icon="i-lucide-alert-triangle"
+          icon="i-heroicons-exclamation-triangle"
           :title="t('warning.title')"
           :description="t('warning.description')"
         />
@@ -164,19 +164,25 @@ definePageMeta({
             >
               <li class="flex items-start gap-2">
                 <UIcon
-                  name="i-lucide-x" class="mt-0.5 size-4 shrink-0 text-error"
+                  name="i-heroicons-x-mark" class="
+                    mt-0.5 size-4 shrink-0 text-error
+                  "
                 />
                 <span>{{ t('info.consequence1') }}</span>
               </li>
               <li class="flex items-start gap-2">
                 <UIcon
-                  name="i-lucide-x" class="mt-0.5 size-4 shrink-0 text-error"
+                  name="i-heroicons-x-mark" class="
+                    mt-0.5 size-4 shrink-0 text-error
+                  "
                 />
                 <span>{{ t('info.consequence2') }}</span>
               </li>
               <li class="flex items-start gap-2">
                 <UIcon
-                  name="i-lucide-x" class="mt-0.5 size-4 shrink-0 text-error"
+                  name="i-heroicons-x-mark" class="
+                    mt-0.5 size-4 shrink-0 text-error
+                  "
                 />
                 <span>{{ t('info.consequence3') }}</span>
               </li>
@@ -212,7 +218,7 @@ definePageMeta({
               :label="$i18n.t('deactivate')"
               color="error"
               size="lg"
-              icon="i-lucide-shield-off"
+              icon="i-heroicons-shield-exclamation"
               :loading="loading"
               :disabled="!showConfirmation"
               @click="onConfirm"

@@ -113,14 +113,14 @@ const customerInitials = computed(() => {
             v-if="order.isPaid"
             color="success"
             variant="soft"
-            icon="i-lucide-check-circle"
+            icon="i-heroicons-check-circle"
             :label="t('paid')"
           />
           <UBadge
             v-if="order.canBeCanceled"
             color="warning"
             variant="outline"
-            icon="i-lucide-clock"
+            icon="i-heroicons-clock"
             :label="t('cancelable')"
             size="xs"
           />
@@ -139,7 +139,7 @@ const customerInitials = computed(() => {
       >
         <div class="h-full w-full">
           <div class="mb-3 flex w-full items-center gap-2">
-            <UIcon name="i-lucide-shopping-bag" class="h-5 w-5 text-gray-500" />
+            <UIcon name="i-heroicons-shopping-bag" class="h-5 w-5 text-gray-500" />
             <span
               class="
                 text-base font-semibold text-gray-700
@@ -178,7 +178,7 @@ const customerInitials = computed(() => {
           <div class="flex w-full flex-col items-start">
             <div class="mb-3 flex w-full items-center justify-between gap-2">
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-truck" class="h-5 w-5 text-gray-500" />
+                <UIcon name="i-heroicons-truck" class="h-5 w-5 text-gray-500" />
                 <span
                   class="
                     text-base font-semibold text-gray-700
@@ -212,7 +212,7 @@ const customerInitials = computed(() => {
               <div class="flex w-full items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
                   <UIcon
-                    name="i-lucide-credit-card" class="h-5 w-5 text-gray-500"
+                    name="i-heroicons-credit-card" class="h-5 w-5 text-gray-500"
                   />
                   <span
                     class="
@@ -249,7 +249,7 @@ const customerInitials = computed(() => {
       <div class="flex items-center justify-between gap-3">
         <div class="flex h-full w-full flex-col">
           <div class="mb-3 flex items-center gap-2">
-            <UIcon name="i-lucide-user" class="h-5 w-5 text-gray-500" />
+            <UIcon name="i-heroicons-user" class="h-5 w-5 text-gray-500" />
             <span
               class="
                 text-base font-semibold text-gray-700
@@ -278,7 +278,7 @@ const customerInitials = computed(() => {
               dark:text-gray-400
             "
           >
-            <UIcon name="i-lucide-credit-card" class="h-4 w-4" />
+            <UIcon name="i-heroicons-credit-card" class="h-4 w-4" />
             {{ t('payment_method') }}
           </div>
           <p
@@ -305,7 +305,7 @@ const customerInitials = computed(() => {
               dark:text-gray-400
             "
           >
-            <UIcon name="i-lucide-map-pin" class="h-4 w-4" />
+            <UIcon name="i-heroicons-map-pin" class="h-4 w-4" />
             {{ t('address') }}
           </div>
           <p
@@ -327,7 +327,7 @@ const customerInitials = computed(() => {
               dark:text-gray-400
             "
           >
-            <UIcon name="i-lucide-calendar" class="h-4 w-4" />
+            <UIcon name="i-heroicons-calendar" class="h-4 w-4" />
             {{ t('order_date') }}
           </div>
           <NuxtTime
@@ -349,7 +349,7 @@ const customerInitials = computed(() => {
               dark:text-gray-400
             "
           >
-            <UIcon name="i-lucide-truck" class="h-4 w-4" />
+            <UIcon name="i-heroicons-truck" class="h-4 w-4" />
             {{ t('shipping') }}
           </div>
           <p
@@ -372,7 +372,7 @@ const customerInitials = computed(() => {
             dark:text-gray-400
           "
         >
-          <UIcon name="i-lucide-euro" class="h-4 w-4" />
+          <UIcon name="i-heroicons-currency-euro" class="h-4 w-4" />
           {{ t('total_price') }}
         </div>
         <p
@@ -398,7 +398,7 @@ const customerInitials = computed(() => {
             dark:text-gray-400
           "
         >
-          <UIcon name="i-lucide-clock" class="h-4 w-4" />
+          <UIcon name="i-heroicons-clock" class="h-4 w-4" />
           <span>{{ t('created_at') }}:</span>
           <NuxtTime :datetime="order.createdAt" :locale="locale" />
         </div>
@@ -409,7 +409,7 @@ const customerInitials = computed(() => {
             color="error"
             variant="outline"
             size="md"
-            trailing-icon="i-lucide-x-circle"
+            trailing-icon="i-heroicons-x-circle"
             :ui="{
               base: 'w-full justify-center',
             }"
@@ -422,7 +422,7 @@ const customerInitials = computed(() => {
             color="neutral"
             variant="outline"
             size="md"
-            icon="i-lucide-eye"
+            icon="i-heroicons-eye"
             trailing
             :ui="{
               base: 'w-full justify-center',

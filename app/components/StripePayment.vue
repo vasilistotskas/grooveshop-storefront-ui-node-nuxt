@@ -223,10 +223,10 @@ defineExpose({
     <UStepper
       v-model="currentStep"
       :items="[
-        { value: 'card', title: t('step_enter_card'), icon: 'i-lucide-credit-card' },
-        { value: 'create', title: t('step_create_intent'), icon: 'i-lucide-loader' },
-        { value: 'confirm', title: t('step_confirm'), icon: 'i-lucide-shield-check' },
-        { value: 'success', title: t('step_complete'), icon: 'i-lucide-check-circle' },
+        { value: 'card', title: t('step_enter_card'), icon: 'i-heroicons-credit-card' },
+        { value: 'create', title: t('step_create_intent'), icon: 'i-heroicons-arrow-path' },
+        { value: 'confirm', title: t('step_confirm'), icon: 'i-heroicons-shield-check' },
+        { value: 'success', title: t('step_complete'), icon: 'i-heroicons-check-circle' },
       ]"
       disabled
       size="sm"
@@ -247,7 +247,7 @@ defineExpose({
       >
         <div class="space-y-2 text-center">
           <UIcon
-            name="i-lucide-loader-2" class="
+            name="i-heroicons-arrow-path" class="
               mx-auto h-8 w-8 animate-spin text-primary
             "
           />
@@ -267,7 +267,7 @@ defineExpose({
       v-if="error"
       color="error"
       variant="soft"
-      icon="i-lucide-alert-circle"
+      icon="i-heroicons-exclamation-circle"
       :title="t('payment_error')"
       :description="error"
       :close="{ color: 'error', variant: 'link' }"
@@ -278,7 +278,7 @@ defineExpose({
       v-if="currentStep === 'confirm' && !processing && !error"
       color="success"
       variant="soft"
-      icon="i-lucide-check-circle"
+      icon="i-heroicons-check-circle"
       :title="t('payment_intent_ready')"
       :description="t('ready_to_confirm')"
     />
@@ -298,7 +298,7 @@ defineExpose({
         block
         size="lg"
         variant="soft"
-        icon="i-lucide-shield"
+        icon="i-heroicons-shield-check"
         @click="createPaymentIntent"
       >
         {{ t('create_payment') }}
@@ -311,7 +311,7 @@ defineExpose({
         color="neutral"
         block
         size="lg"
-        icon="i-lucide-lock"
+        icon="i-heroicons-lock-closed"
         @click="confirmPayment"
       >
         {{ t('confirm_payment') }}
@@ -324,7 +324,7 @@ defineExpose({
           variant="subtle"
           size="sm"
         >
-          <UIcon name="i-lucide-check" class="mr-1 h-3 w-3" />
+          <UIcon name="i-heroicons-check" class="mr-1 h-3 w-3" />
           {{ t('card_valid') }}
         </UBadge>
         <UBadge
@@ -333,7 +333,7 @@ defineExpose({
           variant="subtle"
           size="sm"
         >
-          <UIcon name="i-lucide-shield-check" class="mr-1 h-3 w-3" />
+          <UIcon name="i-heroicons-shield-check" class="mr-1 h-3 w-3" />
           {{ t('secure_connection') }}
         </UBadge>
       </div>
@@ -346,7 +346,7 @@ defineExpose({
         dark:bg-primary-900 dark:text-primary-50
       "
     >
-      <UIcon name="i-lucide-lock" class="mt-0.5 h-4 w-4 shrink-0" />
+      <UIcon name="i-heroicons-lock-closed" class="mt-0.5 h-4 w-4 shrink-0" />
       <p>{{ t('security_notice') }}</p>
     </div>
   </div>

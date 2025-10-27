@@ -198,7 +198,7 @@ watch(uploadFile, (newFile) => {
           @click="open()"
         >
           <UIcon
-            name="i-lucide-camera"
+            name="i-heroicons-camera"
             :class="iconSizeClass"
             class="text-white"
           />

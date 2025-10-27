@@ -135,7 +135,7 @@ async function onSubmit() {
               "
             >
               <UIcon
-                name="i-lucide-shield-off"
+                name="i-heroicons-shield-exclamation"
                 class="size-5 text-warning"
               />
             </div>

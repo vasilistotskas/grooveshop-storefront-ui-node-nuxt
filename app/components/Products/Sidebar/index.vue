@@ -81,7 +81,7 @@ onMounted(() => {
         >
           <div class="flex items-center gap-2">
             <UIcon
-              name="i-lucide-folder"
+              name="i-heroicons-folder"
               class="
                 size-5 text-gray-500
                 dark:text-gray-400
@@ -104,7 +104,7 @@ onMounted(() => {
             </UBadge>
           </div>
           <UIcon
-            name="i-lucide-chevron-down"
+            name="i-heroicons-chevron-down"
             class="
               size-5 text-gray-500 transition-transform duration-200
               group-data-[state=open]:rotate-180
@@ -117,7 +117,7 @@ onMounted(() => {
           <div class="space-y-3">
             <UInput
               v-model="searchQuery"
-              icon="i-lucide-search"
+              icon="i-heroicons-magnifying-glass"
               color="neutral"
               variant="outline"
               size="md"
@@ -128,7 +128,7 @@ onMounted(() => {
                 #trailing
               >
                 <UButton
-                  icon="i-lucide-x"
+                  icon="i-heroicons-x-mark"
                   color="neutral"
                   variant="ghost"
                   size="xs"
@@ -168,7 +168,7 @@ onMounted(() => {
               <template v-else>
                 <div class="py-8 text-center">
                   <UIcon
-                    name="i-lucide-search-x"
+                    name="i-heroicons-magnifying-glass-minus"
                     class="
                       mx-auto size-12 text-gray-300
                       dark:text-gray-600
@@ -213,7 +213,7 @@ onMounted(() => {
           color="neutral"
           variant="ghost"
           size="xs"
-          trailing-icon="i-lucide-x"
+          trailing-icon="i-heroicons-x-mark"
           @click="clearFilters"
         >
           {{ $i18n.t('filters.clear') }}
@@ -226,7 +226,7 @@ onMounted(() => {
     <UButton
       v-if="hasActiveFilters"
       color="neutral"
-      icon="i-lucide-x"
+      icon="i-heroicons-x-mark"
       class="
         fixed right-6 bottom-32 z-40 shadow-lg
         lg:hidden
@@ -243,7 +243,7 @@ onMounted(() => {
       <UButton
         color="secondary"
         size="lg"
-        icon="i-lucide-filter"
+        icon="i-heroicons-funnel"
         class="
           fixed right-6 bottom-20 z-40 shadow-lg
           lg:hidden
@@ -266,7 +266,7 @@ onMounted(() => {
       <template #header>
         <div class="flex items-center gap-2">
           <UIcon
-            name="i-lucide-filter"
+            name="i-heroicons-funnel"
             class="size-5 text-primary"
           />
           <h2
@@ -312,7 +312,7 @@ onMounted(() => {
       <template #header>
         <div class="flex items-center gap-2">
           <UIcon
-            name="i-lucide-filter"
+            name="i-heroicons-funnel"
             class="size-5 text-primary"
           />
           <h2

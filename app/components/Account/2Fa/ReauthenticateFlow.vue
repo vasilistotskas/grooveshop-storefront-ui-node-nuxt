@@ -22,10 +22,10 @@ const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
 const next = router.currentRoute.value.query.next as string | undefined
 
 const flowIcons = {
-  [Flows.REAUTHENTICATE]: 'i-lucide-lock',
-  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: 'i-lucide-smartphone',
-  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: 'i-lucide-key-round',
-  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: 'i-lucide-fingerprint',
+  [Flows.REAUTHENTICATE]: 'i-heroicons-lock-closed',
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: 'i-heroicons-device-phone-mobile',
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: 'i-heroicons-key',
+  [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: 'i-heroicons-finger-print',
 }
 
 const flowLabels = {
@@ -68,7 +68,7 @@ function flowsToMethods(flows: Flow[]) {
         methods.push({
           label: flowLabels[key] || flow.id,
           description: flowDescriptions[key] || '',
-          icon: flowIcons[key] || 'i-lucide-shield',
+          icon: flowIcons[key] || 'i-heroicons-shield-check',
           iconColor: flowIconColors[key] || 'primary',
           id: flow.id,
           path: pathForFlow(flow, typ),
@@ -79,7 +79,7 @@ function flowsToMethods(flows: Flow[]) {
       methods.push({
         label: flowLabels[flow.id] || flow.id,
         description: flowDescriptions[flow.id] || '',
-        icon: flowIcons[flow.id] || 'i-lucide-shield',
+        icon: flowIcons[flow.id] || 'i-heroicons-shield-check',
         iconColor: flowIconColors[flow.id] || 'primary',
         id: flow.id,
         path: pathForFlow(flow),
@@ -150,7 +150,7 @@ const methods = computed(() => {
           </div>
 
           <UIcon
-            name="i-lucide-chevron-right"
+            name="i-heroicons-chevron-right"
             class="size-5 shrink-0 text-muted"
           />
         </ULink>

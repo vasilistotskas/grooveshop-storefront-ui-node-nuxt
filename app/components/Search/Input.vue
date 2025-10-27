@@ -58,7 +58,7 @@ defineShortcuts({
         >
           <div class="flex items-center gap-2">
             <UIcon
-              name="i-lucide-search"
+              name="i-heroicons-magnifying-glass"
               class="size-5"
             />
             <span>
@@ -81,7 +81,7 @@ defineShortcuts({
         </div>
         <UIcon
           v-else
-          name="i-lucide-search"
+          name="i-heroicons-magnifying-glass"
           class="
             size-6
             md:size-5

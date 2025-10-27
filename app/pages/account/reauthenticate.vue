@@ -34,7 +34,7 @@ async function onSubmit() {
       title: $i18n.t('success.title'),
       description: t('success.description'),
       color: 'success',
-      icon: 'i-lucide-check-circle',
+      icon: 'i-heroicons-check-circle',
     })
     emit('reauthenticate')
   }
@@ -68,7 +68,7 @@ definePageMeta({
             "
           >
             <UIcon
-              name="i-lucide-shield-check"
+              name="i-heroicons-shield-check"
               class="size-6 text-info"
             />
           </div>
@@ -99,7 +99,7 @@ definePageMeta({
               :type="showPassword ? 'text' : 'password'"
               :placeholder="t('password.placeholder')"
               size="lg"
-              icon="i-lucide-lock"
+              icon="i-heroicons-lock-closed"
               autocomplete="current-password"
               :disabled="loading"
               :ui="{
@@ -112,7 +112,7 @@ definePageMeta({
                   color="neutral"
                   variant="link"
                   size="sm"
-                  :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                  :icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
                   :aria-label="showPassword ? t('password.hide') : t('password.show')"
                   :aria-pressed="showPassword"
                   @click="showPassword = !showPassword"
@@ -128,7 +128,7 @@ definePageMeta({
             block
             :loading="loading"
             :disabled="!password"
-            icon="i-lucide-arrow-right"
+            icon="i-heroicons-arrow-right"
             trailing
           >
             {{ t('submit') }}
@@ -140,7 +140,7 @@ definePageMeta({
         <UAlert
           color="info"
           variant="soft"
-          icon="i-lucide-info"
+          icon="i-heroicons-information-circle"
           :title="t('info.title')"
           :description="t('info.description')"
         />

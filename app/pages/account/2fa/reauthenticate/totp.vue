@@ -20,7 +20,7 @@ async function onSubmit() {
     toast.add({
       title: t('error.invalid_code'),
       color: 'error',
-      icon: 'i-lucide-alert-circle',
+      icon: 'i-heroicons-exclamation-circle',
     })
     return
   }
@@ -32,7 +32,7 @@ async function onSubmit() {
       title: $i18n.t('success.title'),
       description: t('success.description'),
       color: 'success',
-      icon: 'i-lucide-check-circle',
+      icon: 'i-heroicons-check-circle',
     })
   }
   catch (error) {
@@ -71,7 +71,7 @@ definePageMeta({
             "
           >
             <UIcon
-              name="i-lucide-smartphone"
+              name="i-heroicons-device-phone-mobile"
               class="size-6 text-primary"
             />
           </div>
@@ -119,7 +119,7 @@ definePageMeta({
             block
             :loading="loading"
             :disabled="code.join('').length !== 6"
-            icon="i-lucide-arrow-right"
+            icon="i-heroicons-arrow-right"
             trailing
           >
             {{ t('submit') }}
@@ -131,7 +131,7 @@ definePageMeta({
         <UAlert
           color="warning"
           variant="soft"
-          icon="i-lucide-alert-triangle"
+          icon="i-heroicons-exclamation-triangle"
           :title="t('warning.title')"
           :description="t('warning.description')"
         />

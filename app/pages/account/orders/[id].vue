@@ -76,31 +76,31 @@ const orderSteps = computed(() => {
     {
       title: t('order_placed'),
       description: t('order_placed_desc'),
-      icon: 'i-lucide-shopping-cart',
+      icon: 'i-heroicons-shopping-cart',
       value: 'pending',
     },
     {
       title: t('confirmed'),
       description: t('confirmed_desc'),
-      icon: 'i-lucide-check-circle',
+      icon: 'i-heroicons-check-circle',
       value: 'confirmed',
     },
     {
       title: t('processing'),
       description: t('processing_desc'),
-      icon: 'i-lucide-package',
+      icon: 'i-heroicons-archive-box',
       value: 'processing',
     },
     {
       title: t('shipped'),
       description: t('shipped_desc'),
-      icon: 'i-lucide-truck',
+      icon: 'i-heroicons-truck',
       value: 'shipped',
     },
     {
       title: t('delivered'),
       description: t('delivered_desc'),
-      icon: 'i-lucide-check-circle-2',
+      icon: 'i-heroicons-check-circle',
       value: 'delivered',
     },
   ]
@@ -148,7 +148,7 @@ const orderAlert = computed(() => {
       color: 'error' as const,
       title: t('order_cancelled'),
       description: t('order_cancelled_desc'),
-      icon: 'i-lucide-x-circle',
+      icon: 'i-heroicons-x-circle',
     }
   }
 
@@ -158,7 +158,7 @@ const orderAlert = computed(() => {
       color: 'success' as const,
       title: t('order_delivered'),
       description: t('order_delivered_desc'),
-      icon: 'i-lucide-check-circle-2',
+      icon: 'i-heroicons-check-circle',
     }
   }
 
@@ -168,7 +168,7 @@ const orderAlert = computed(() => {
       color: 'warning' as const,
       title: t('payment_pending'),
       description: t('payment_pending_desc', { amount: $i18n.n(order.value.pricingBreakdown.remainingAmount, 'currency') }),
-      icon: 'i-lucide-credit-card',
+      icon: 'i-heroicons-credit-card',
     }
   }
 
@@ -188,19 +188,19 @@ function getTimelineIcon(changeType?: string) {
   switch (changeType?.toLowerCase()) {
     case 'created':
     case 'placed':
-      return 'i-lucide-shopping-cart'
+      return 'i-heroicons-shopping-cart'
     case 'confirmed':
-      return 'i-lucide-check-circle'
+      return 'i-heroicons-check-circle'
     case 'shipped':
-      return 'i-lucide-truck'
+      return 'i-heroicons-truck'
     case 'delivered':
-      return 'i-lucide-check-circle-2'
+      return 'i-heroicons-check-circle'
     case 'cancelled':
-      return 'i-lucide-x-circle'
+      return 'i-heroicons-x-circle'
     case 'payment':
-      return 'i-lucide-credit-card'
+      return 'i-heroicons-credit-card'
     default:
-      return 'i-lucide-clock'
+      return 'i-heroicons-clock'
   }
 }
 
@@ -286,7 +286,7 @@ definePageMeta({
           :to="localePath('account-orders')"
           color="neutral"
           variant="outline"
-          icon="i-lucide-arrow-left"
+          icon="i-heroicons-arrow-left"
           size="sm"
         >
           {{ t('back') }}
@@ -334,7 +334,7 @@ definePageMeta({
           :label="order.paymentStatus"
           variant="subtle"
           size="lg"
-          icon="i-lucide-credit-card"
+          icon="i-heroicons-credit-card"
         />
 
         <UBadge
@@ -342,7 +342,7 @@ definePageMeta({
           color="success"
           label="Paid"
           variant="soft"
-          icon="i-lucide-check-circle"
+          icon="i-heroicons-check-circle"
         />
       </div>
     </div>
@@ -365,7 +365,7 @@ definePageMeta({
         v-if="order.canBeCanceled"
         color="error"
         variant="outline"
-        icon="i-lucide-x-circle"
+        icon="i-heroicons-x-circle"
         @click="handleCancelOrder"
       >
         {{ t('cancel_order') }}
@@ -375,7 +375,7 @@ definePageMeta({
         v-if="order.trackingDetails?.hasTracking"
         color="primary"
         variant="outline"
-        icon="i-lucide-external-link"
+        icon="i-heroicons-arrow-top-right-on-square"
         @click="handleTrackOrder"
       >
         {{ t('track_order') }}
@@ -429,7 +429,7 @@ definePageMeta({
               :label="t('order_items')"
               color="neutral"
               variant="ghost"
-              :trailing-icon="sectionsState.orderItems ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+              :trailing-icon="sectionsState.orderItems ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
               class="w-full justify-between text-lg font-semibold"
             />
 
@@ -518,7 +518,7 @@ definePageMeta({
                           v-if="item.product.weight?.value"
                           class="flex items-center gap-1"
                         >
-                          <UIcon name="i-lucide-weight" class="h-3 w-3" />
+                          <UIcon name="i-heroicons-scale" class="h-3 w-3" />
                           {{ item.product.weight.value }}{{ item.product.weight.unit || 'kg' }}
                         </span>
                       </div>
@@ -575,7 +575,7 @@ definePageMeta({
                             dark:text-gray-400
                           "
                         >
-                          <UIcon name="i-lucide-package" class="h-4 w-4" />
+                          <UIcon name="i-heroicons-archive-box" class="h-4 w-4" />
                           <span>{{ t('quantity') }}: {{ item.quantity }}</span>
                         </div>
 
@@ -607,7 +607,7 @@ definePageMeta({
                           dark:text-green-400
                         "
                       >
-                        <UIcon name="i-lucide-tag" class="h-4 w-4" />
+                        <UIcon name="i-heroicons-tag" class="h-4 w-4" />
                         <span>
                           {{ t('you_save') }}:
                           {{ $i18n.n((item.product.price - item.product.finalPrice) * item.quantity, 'currency') }}
@@ -623,7 +623,9 @@ definePageMeta({
                       >
                         <div class="flex items-center">
                           <UIcon
-                            name="i-lucide-star" class="h-4 w-4 text-yellow-400"
+                            name="i-heroicons-star" class="
+                              h-4 w-4 text-yellow-400
+                            "
                           />
                           <span class="ml-1">{{ item.product.reviewAverage?.toFixed(1) || 0 }}</span>
                         </div>
@@ -649,7 +651,7 @@ definePageMeta({
               :label="t('order_summary')"
               color="neutral"
               variant="ghost"
-              :trailing-icon="sectionsState.orderSummary ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+              :trailing-icon="sectionsState.orderSummary ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
               class="w-full justify-between text-lg font-semibold"
             />
 
@@ -708,7 +710,7 @@ definePageMeta({
               :label="t('shipping_information')"
               color="neutral"
               variant="ghost"
-              :trailing-icon="sectionsState.shippingInfo ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+              :trailing-icon="sectionsState.shippingInfo ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
               class="w-full justify-between text-lg font-semibold"
             />
 
@@ -804,7 +806,7 @@ definePageMeta({
               :label="t('order_details')"
               color="neutral"
               variant="ghost"
-              :trailing-icon="sectionsState.orderDetails ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+              :trailing-icon="sectionsState.orderDetails ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
               class="w-full justify-between text-lg font-semibold"
             />
 
@@ -902,7 +904,7 @@ definePageMeta({
               :label="t('tracking_information')"
               color="neutral"
               variant="ghost"
-              :trailing-icon="sectionsState.trackingInfo ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+              :trailing-icon="sectionsState.trackingInfo ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
               class="w-full flex-1 justify-between text-lg font-semibold"
             />
 
@@ -972,7 +974,7 @@ definePageMeta({
             :label="t('order_history')"
             color="neutral"
             variant="ghost"
-            :trailing-icon="sectionsState.orderHistory ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+            :trailing-icon="sectionsState.orderHistory ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
             class="w-full justify-between text-lg font-semibold"
           />
 

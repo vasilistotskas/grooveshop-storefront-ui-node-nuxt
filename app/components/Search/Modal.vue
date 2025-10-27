@@ -171,7 +171,7 @@ onMounted(() => {
   >
     <template #header>
       <div class="flex w-full items-center gap-3">
-        <UIcon name="i-lucide-search" class="size-5 text-gray-400" />
+        <UIcon name="i-heroicons-magnifying-glass" class="size-5 text-gray-400" />
         <UInput
           v-model="localQuery"
           name="queryInput"
@@ -187,7 +187,7 @@ onMounted(() => {
           <UKbd v-if="!isMobileOrTablet" value="ESC" />
           <UButton
             v-if="isMobileOrTablet"
-            icon="i-lucide-x"
+            icon="i-heroicons-x-mark"
             color="error"
             variant="ghost"
             size="sm"
@@ -252,7 +252,7 @@ onMounted(() => {
           class="p-12 text-center"
         >
           <UIcon
-            name="i-lucide-search"
+            name="i-heroicons-magnifying-glass"
             class="
               mx-auto mb-4 size-12 text-gray-300
               dark:text-gray-600
@@ -272,7 +272,7 @@ onMounted(() => {
           class="p-12 text-center"
         >
           <UIcon
-            name="i-lucide-search-x"
+            name="i-heroicons-magnifying-glass-minus"
             class="
               mx-auto mb-4 size-12 text-gray-300
               dark:text-gray-600

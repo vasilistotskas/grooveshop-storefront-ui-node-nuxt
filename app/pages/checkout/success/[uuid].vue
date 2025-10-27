@@ -189,7 +189,7 @@ definePageMeta({
       v-if="fromCheckout && verifyingSession"
       color="info"
       variant="subtle"
-      icon="i-lucide-loader-2"
+      icon="i-heroicons-arrow-path"
       class="mx-auto max-w-2xl animate-pulse"
     >
       <template #title>
@@ -204,7 +204,7 @@ definePageMeta({
       v-else-if="fromCheckout && sessionVerified"
       color="success"
       variant="subtle"
-      icon="i-lucide-check-circle"
+      icon="i-heroicons-check-circle"
       class="mx-auto max-w-2xl"
     >
       <template #title>
@@ -221,7 +221,7 @@ definePageMeta({
       variant="subtle"
       :title="t('main.title', { customerName })"
       :description="t('main.subtitle')"
-      icon="i-lucide-check-circle"
+      icon="i-heroicons-check-circle"
       class="mx-auto max-w-2xl"
     />
 
@@ -363,7 +363,7 @@ definePageMeta({
               variant="subtle"
               size="lg"
               block
-              icon="i-lucide-home"
+              icon="i-heroicons-home"
               :label="t('actions.home')"
             />
 
@@ -373,7 +373,7 @@ definePageMeta({
               variant="outline"
               size="lg"
               block
-              icon="i-lucide-truck"
+              icon="i-heroicons-truck"
               :label="t('actions.track')"
             />
           </div>

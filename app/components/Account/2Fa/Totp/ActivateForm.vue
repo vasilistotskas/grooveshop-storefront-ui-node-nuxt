@@ -146,7 +146,7 @@ async function onSubmit() {
           <UAlert
             color="info"
             variant="soft"
-            icon="i-lucide-info"
+            icon="i-heroicons-information-circle"
             :title="t('setup_instructions')"
             :description="t('setup_instructions_description')"
             class="w-full"
@@ -245,7 +245,7 @@ async function onSubmit() {
       <UAlert
         color="error"
         variant="soft"
-        icon="i-lucide-alert-triangle"
+        icon="i-heroicons-exclamation-triangle"
         :title="t('error.failed_to_load')"
         :description="t('error.failed_to_load_description')"
       />

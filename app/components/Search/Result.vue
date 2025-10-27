@@ -12,13 +12,13 @@ const { productUrl, blogPostUrl } = useUrls()
 const contentTypeInfo = computed(() => {
   if (props.result.contentType === 'product') {
     return {
-      icon: 'i-lucide-shopping-bag',
+      icon: 'i-heroicons-shopping-bag',
       color: 'neutral' as const,
       label: 'Προϊόν',
     }
   }
   return {
-    icon: 'i-lucide-file-text',
+    icon: 'i-heroicons-document-text',
     color: 'secondary' as const,
     label: 'Άρθρο',
   }

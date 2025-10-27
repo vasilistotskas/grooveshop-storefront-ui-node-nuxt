@@ -39,6 +39,6 @@ export function getDisplaySubtitle(result: SearchResult, maxLength = 150): strin
 
 export function getResultIcon(result: SearchResult): string {
   return result.contentType === 'product'
-    ? 'i-lucide-shopping-bag'
-    : 'i-lucide-file-text'
+    ? 'i-heroicons-shopping-bag'
+    : 'i-heroicons-document-text'
 }
