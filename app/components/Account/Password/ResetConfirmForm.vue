@@ -82,7 +82,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     })
 
     toast.add({
-      title: t('password.reset.success'),
+      title: $i18n.t('password.reset.success'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
@@ -96,7 +96,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     if (isAllAuthClientError(error)) {
       if (error.data.data.status === 401) {
         toast.add({
-          title: t('password.reset.success'),
+          title: $i18n.t('password.reset.success'),
           color: 'success',
         })
         await navigateTo(localePath('account-login'))
@@ -153,7 +153,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
           :color="color"
           autocomplete="new-password"
           :placeholder="t('password.placeholder')"
-          :ui="{ trailing: 'pe-1' }"
+          :ui="{
+            root: 'w-full',
+            trailing: 'pe-1',
+          }"
         >
           <template #trailing>
             <UButton
@@ -208,7 +211,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
           :type="showPassword2 ? 'text' : 'password'"
           autocomplete="new-password"
           :placeholder="t('password.placeholder_confirm')"
-          :ui="{ trailing: 'pe-1' }"
+          :ui="{
+            root: 'w-full',
+            trailing: 'pe-1',
+          }"
         >
           <template #trailing>
             <UButton

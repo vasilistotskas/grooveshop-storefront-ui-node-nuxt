@@ -163,7 +163,18 @@ watch(uploadFile, (newFile) => {
   >
     <div class="group relative">
       <UAvatar
-        v-if="!loading"
+        v-if="!avatarSrc"
+        :src="'/img/default.png'"
+        :alt="avatarAlt"
+        :size="size"
+        :class="{
+          'ring-2 ring-orange-500': enabled,
+        }"
+        class="transition-opacity"
+      />
+
+      <UAvatar
+        v-else-if="!loading"
         :src="avatarSrc"
         :alt="avatarAlt"
         :size="size"
