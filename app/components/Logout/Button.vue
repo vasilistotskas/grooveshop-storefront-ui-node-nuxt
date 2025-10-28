@@ -5,7 +5,7 @@ import type { ButtonProps } from '@nuxt/ui'
 defineProps({
   size: {
     type: String as PropType<ButtonProps['size']>,
-    default: 'sm',
+    default: 'xl',
   },
 })
 
@@ -44,7 +44,6 @@ const onClickLogout = async () => {
     :size="size"
     :title="$i18n.t('logout')"
     :variant="'subtle'"
-    icon="i-heroicons-arrow-left-end-on-rectangle"
     @click="onClickLogout"
   />
 </template>

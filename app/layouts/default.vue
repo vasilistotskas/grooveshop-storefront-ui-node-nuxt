@@ -85,6 +85,7 @@ const items = computed(() => {
       </PageHeader>
     </slot>
     <UMain
+      as="main"
       class="
         pt-[54px]
         md:pt-[62px]
