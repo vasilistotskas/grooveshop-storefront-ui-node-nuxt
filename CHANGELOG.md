@@ -1,3 +1,10 @@
+# [3.33.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.32.0...v3.33.0) (2025-10-28)
+
+
+### Features
+
+* Account index page implemented ([1132eb4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1132eb4eb108722cb1b187f8ffb2cfeaf6b94222))
+
 # [3.32.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.31.1...v3.32.0) (2025-10-28)
 
 
