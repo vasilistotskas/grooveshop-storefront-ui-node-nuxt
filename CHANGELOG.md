@@ -1,3 +1,17 @@
+# [3.32.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.31.1...v3.32.0) (2025-10-28)
+
+
+### Bug Fixes
+
+* tests ([eb8c1a1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eb8c1a1672bb9ba8beb0b35527be16ebc9add861))
+
+
+### Features
+
+* Bump Versions ([cb87fe7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cb87fe7c97020e10fa19e6f8714ef0ddccb1649e))
+* Bump Versions, remove useless tests ([9fb57b5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9fb57b59cb15c237141b4a70f470c55ba315c78b))
+* Replace Lucide icons with Heroicons and remove Lucide ([53770ee](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/53770ee41a6537376ece83082fefe0d752bfca40))
+
 ## [3.31.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.31.0...v3.31.1) (2025-10-23)
 
 
