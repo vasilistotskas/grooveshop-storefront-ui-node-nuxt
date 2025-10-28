@@ -28,9 +28,9 @@
     "cleanup": "nuxt cleanup",
     "analyze": "npx nuxt analyze",
     "test": "vitest run",
-    "test:ci": "vitest run --project=unit --project=nuxt --coverage && coveralls < coverage/lcov.info",
+    "test:ci": "vitest run --project=unit --project=nuxt --coverage",
     "test:e2e": "vitest --project=e2e",
-    "test:coverage": "vitest run --coverage && coveralls < coverage/lcov.info",
+    "test:coverage": "vitest run --coverage",
     "openapi-ts": "openapi-ts",
     "semantic-release": "semantic-release",
     "generate:schema": "node scripts/fetch-schema.mjs"
