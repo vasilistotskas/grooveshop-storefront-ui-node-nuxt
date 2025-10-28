@@ -23,7 +23,7 @@ useSchemaOrg([
     url: config.public.baseUrl,
     name: config.public.appTitle,
     description: siteConfig.description,
-    inLanguage: locales.value.map((l: any) => l.language),
+    inLanguage: locales.value.map(l => l.language),
   }),
   defineOrganization({
     name: config.public.appTitle,

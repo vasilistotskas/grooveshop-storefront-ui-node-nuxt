@@ -122,7 +122,7 @@ const loadMoreComments = async () => {
   isLoadingMore.value = true
 
   try {
-    const response = await $fetch<any>(nextUrl, {
+    const response = await $fetch<PaginatedBlogCommentList>(nextUrl, {
       headers: useRequestHeaders(),
     })
 

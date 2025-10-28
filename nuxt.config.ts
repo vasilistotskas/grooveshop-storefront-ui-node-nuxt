@@ -143,9 +143,6 @@ export default defineNuxtConfig({
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     },
   },
-  build: {
-    analyze: true,
-  },
   routeRules: {
     '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
     '/_nuxt/builds/**': {
@@ -233,6 +230,9 @@ export default defineNuxtConfig({
     server: false,
     client: true,
   },
+  future: {
+    compatibilityVersion: 5,
+  },
   features: {
     inlineStyles: true,
   },
@@ -243,6 +243,7 @@ export default defineNuxtConfig({
     payloadExtraction: true,
     inlineRouteRules: true,
     checkOutdatedBuildInterval: 5 * 60 * 1000,
+    viteEnvironmentApi: true,
     defaults: {
       nuxtLink: {
         prefetchOn: {
@@ -446,7 +447,7 @@ export default defineNuxtConfig({
       markdown: true,
     },
     debug: false,
-    enabled: false,
+    enabled: true,
   },
   ogImage: {
     defaults: {

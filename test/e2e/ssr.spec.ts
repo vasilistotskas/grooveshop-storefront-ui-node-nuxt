@@ -4,8 +4,6 @@ import { setup, $fetch, fetch } from '@nuxt/test-utils/e2e'
 describe('SSR (Server-Side Rendering) E2E Tests', async () => {
   await setup({
     setupTimeout: 300000,
-    server: false, // Don't start a server, use existing one
-    host: 'http://localhost:3000',
   })
 
   describe('SSR Rendering', () => {
@@ -106,9 +104,13 @@ describe('SSR (Server-Side Rendering) E2E Tests', async () => {
   })
 
   describe('Static Assets', () => {
-    it('includes CSS links', async () => {
+    it('includes CSS (inline or linked)', async () => {
       const html = await $fetch('/')
-      expect(html).toMatch(/<link[^>]*rel="stylesheet"/i)
+      // CSS can be either inlined as <style> tags or linked as <link rel="stylesheet">
+      // depending on the inlineStyles configuration
+      const hasInlineStyles = /<style[^>]*>/i.test(html)
+      const hasLinkedStyles = /<link[^>]*rel="stylesheet"/i.test(html)
+      expect(hasInlineStyles || hasLinkedStyles).toBe(true)
     })
 
     it('includes script tags', async () => {

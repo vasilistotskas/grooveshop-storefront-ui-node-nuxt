@@ -4,8 +4,6 @@ import { setup, $fetch, fetch } from '@nuxt/test-utils/e2e'
 describe('Homepage E2E Tests', async () => {
   await setup({
     setupTimeout: 300000,
-    server: false, // Don't start a server, use existing one
-    host: 'http://localhost:3000',
   })
 
   it('renders the homepage successfully', async () => {

@@ -64,6 +64,11 @@ export default defineConfig({
             },
           },
         },
+        resolve: {
+          alias: {
+            'bun:test': 'vitest',
+          },
+        },
       }),
 
       await defineVitestProject({
@@ -78,6 +83,11 @@ export default defineConfig({
                 indexedDb: true,
               },
             },
+          },
+        },
+        resolve: {
+          alias: {
+            'bun:test': 'vitest',
           },
         },
       }),

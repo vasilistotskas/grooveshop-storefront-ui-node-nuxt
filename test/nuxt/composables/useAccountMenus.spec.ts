@@ -1,15 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+let mockEnabledValue = false
+
 mockNuxtImport('useAuthPreviewMode', () => {
-  return vi.fn(() => ({
-    enabled: { value: false },
-  }))
+  return () => ({
+    enabled: { value: mockEnabledValue },
+  })
 })
 
 describe('useAccountMenus', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockEnabledValue = false
   })
 
   it('should return basic menu items when preview mode is disabled', () => {
@@ -22,9 +25,7 @@ describe('useAccountMenus', () => {
   })
 
   it('should include all menu items when preview mode is enabled', () => {
-    vi.mocked(useAuthPreviewMode).mockReturnValue({
-      enabled: { value: true },
-    } as any)
+    mockEnabledValue = true
 
     const { menus } = useAccountMenus()
 
@@ -69,9 +70,7 @@ describe('useAccountMenus', () => {
   })
 
   it('should add preview mode menus with correct paths', () => {
-    vi.mocked(useAuthPreviewMode).mockReturnValue({
-      enabled: { value: true },
-    } as any)
+    mockEnabledValue = true
 
     const { menus } = useAccountMenus()
 

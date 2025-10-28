@@ -210,9 +210,7 @@ const handleOrderError = (response: any) => {
   })
 }
 
-const onPaymentSuccess = async (paymentData: any) => {
-  console.log('Payment success', paymentData)
-
+const onPaymentSuccess = async () => {
   toast.add({
     title: t('payment_successful'),
     description: t('order_completed_successfully'),

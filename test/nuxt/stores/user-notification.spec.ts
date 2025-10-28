@@ -4,6 +4,7 @@ import { useUserNotificationStore } from '~/stores/user-notification'
 
 // Mock dependencies
 vi.mock('#app', () => ({
+  useNuxtApp: () => ({}),
   useUserSession: () => ({
     loggedIn: { value: true },
     user: { value: { id: 1 } },
