@@ -13,4 +13,9 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { name: 'BlogPostViewSet' })
+}, {
+  name: 'BlogPostViewSet',
+  maxAge: 60 * 10,
+  staleMaxAge: 60 * 60 * 2,
+  swr: true,
+})

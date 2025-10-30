@@ -4,6 +4,10 @@ export default defineAppConfig({
       primary: 'neutral',
       neutral: 'zinc',
     },
+    icons: {
+      light: 'i-heroicons-sun',
+      dark: 'i-heroicons-moon',
+    },
     container: {
       base: 'w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8',
     },
@@ -62,5 +66,4 @@ export default defineAppConfig({
       },
     },
   },
-  nuxtIcon: {},
 })

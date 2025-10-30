@@ -22,7 +22,9 @@ ENV NODE_ENV=production \
     NUXT_PORT=3000 \
     NUXT_PUBLIC_APP_TITLE="Webside - Το side της τεχνολογίας" \
     NUXT_SITE_DESCRIPTION="Μπες στο side της τεχνολογίας, εύκολα, δωρεάν και με ασφάλεια." \
+    NUXT_MEDIA_STREAM_INTERNAL_PATH="http://media-stream-service:80/media_stream-image" \
     NUXT_SITE_URL="https://webside.gr" \
+    NUXT_PUBLIC_DJANGO_URL="https://api.webside.gr" \
     NUXT_PUBLIC_MEDIA_STREAM_ORIGIN="https://assets.webside.gr" \
     NUXT_PUBLIC_STATIC_ORIGIN="https://static.webside.gr"
 

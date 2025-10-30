@@ -35,6 +35,15 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
         { rel: 'icon', type: 'image/png', href: '/favicon/favicon-16x16.png' },
         { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
+        // DNS prefetch for external domains to reduce DNS lookup time
+        { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003' },
+        { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000' },
+        { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_DJANGO_URL || 'http://localhost:8000' },
+        { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com' },
+        { rel: 'dns-prefetch', href: 'https://www.google-analytics.com' },
+        // Preconnect for critical resources
+        { rel: 'preconnect', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000', crossorigin: 'anonymous' },
       ],
     },
   },
@@ -61,6 +70,8 @@ export default defineNuxtConfig({
     buildDate: new Date().toISOString(),
     apiBaseUrl: process.env.NUXT_API_BASE_URL,
     mediaStreamPath: process.env.NUXT_MEDIA_STREAM_PATH,
+    mediaStreamInternalPath: process.env.NUXT_MEDIA_STREAM_INTERNAL_PATH,
+    staticInternalPath: process.env.NUXT_STATIC_INTERNAL_PATH,
     cacheBase: process.env.NUXT_CACHE_BASE,
     djangoUrl: process.env.NUXT_DJANGO_URL,
     secretKey: process.env.NUXT_SECRET_KEY,
@@ -546,7 +557,7 @@ export default defineNuxtConfig({
     sources: [
       '/api/__sitemap__/urls',
     ],
-    cacheMaxAgeSeconds: 1000 * 60 * 60 * 24,
+    cacheMaxAgeSeconds: 60 * 60 * 24, // 24 hours
     runtimeCacheStorage: {
       driver: 'redis',
       port: 6379,
