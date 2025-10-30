@@ -1,3 +1,10 @@
+## [3.34.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.34.0...v3.34.1) (2025-10-30)
+
+
+### Bug Fixes
+
+* revert media stream ([4500f39](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4500f39a38328543fbb76c2946faf4a67a0eedc4))
+
 # [3.34.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.33.1...v3.34.0) (2025-10-30)
 
 
