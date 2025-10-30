@@ -70,8 +70,6 @@ export default defineNuxtConfig({
     buildDate: new Date().toISOString(),
     apiBaseUrl: process.env.NUXT_API_BASE_URL,
     mediaStreamPath: process.env.NUXT_MEDIA_STREAM_PATH,
-    mediaStreamInternalPath: process.env.NUXT_MEDIA_STREAM_INTERNAL_PATH,
-    staticInternalPath: process.env.NUXT_STATIC_INTERNAL_PATH,
     cacheBase: process.env.NUXT_CACHE_BASE,
     djangoUrl: process.env.NUXT_DJANGO_URL,
     secretKey: process.env.NUXT_SECRET_KEY,

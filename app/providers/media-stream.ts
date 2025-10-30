@@ -14,17 +14,7 @@ import { joinURL } from 'ufo'
 export const getImage: ProviderGetImage = (src, { modifiers = {}, baseURL } = {}) => {
   const config = useRuntimeConfig()
 
-  let mediaStreamBaseURL: string
-
-  if (baseURL) {
-    mediaStreamBaseURL = baseURL
-  }
-  else if (import.meta.server && config.mediaStreamInternalPath) {
-    mediaStreamBaseURL = config.mediaStreamInternalPath as string
-  }
-  else {
-    mediaStreamBaseURL = config.public.mediaStreamPath as string
-  }
+  const mediaStreamBaseURL = baseURL || config.public.mediaStreamPath as string
 
   if (!mediaStreamBaseURL) {
     throw new Error('Media Stream base URL is not configured')
