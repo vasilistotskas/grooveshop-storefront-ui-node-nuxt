@@ -1,3 +1,10 @@
+## [3.34.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.34.1...v3.34.2) (2025-10-30)
+
+
+### Bug Fixes
+
+* redis ([91b0dd9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91b0dd961c9238db512494b4fd50e0dcae9f1cd2))
+
 ## [3.34.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.34.0...v3.34.1) (2025-10-30)
 
 
