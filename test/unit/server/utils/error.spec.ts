@@ -158,30 +158,37 @@ describe('Server Utils - Error', () => {
         },
       ])
 
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
       await expect(handleError(zodError)).rejects.toThrow()
+      consoleErrorSpy.mockRestore()
     })
 
     it('should throw FetchError', async () => {
       const fetchError = new FetchError('Network error')
 
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
       await expect(handleError(fetchError)).rejects.toThrow()
+      consoleErrorSpy.mockRestore()
     })
 
     it('should throw H3Error', async () => {
       const h3Error = new H3Error('Bad Request')
 
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
       await expect(handleError(h3Error)).rejects.toThrow()
+      consoleErrorSpy.mockRestore()
     })
 
     it('should throw generic error for unknown error types', async () => {
       const unknownError = new Error('Unknown error')
 
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -195,6 +202,9 @@ describe('Server Utils - Error', () => {
       catch (error: any) {
         expect(error.statusCode).toBe(500)
         expect(error.statusMessage).toBe('Internal Server Error')
+      }
+      finally {
+        consoleErrorSpy.mockRestore()
       }
     })
 
@@ -297,6 +307,7 @@ describe('Server Utils - Error', () => {
 
   describe('Edge Cases', () => {
     it('should handle null error', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -310,9 +321,13 @@ describe('Server Utils - Error', () => {
       catch (error: any) {
         expect(error.statusCode).toBe(500)
       }
+      finally {
+        consoleErrorSpy.mockRestore()
+      }
     })
 
     it('should handle undefined error', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -326,9 +341,13 @@ describe('Server Utils - Error', () => {
       catch (error: any) {
         expect(error.statusCode).toBe(500)
       }
+      finally {
+        consoleErrorSpy.mockRestore()
+      }
     })
 
     it('should handle string error', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -342,9 +361,13 @@ describe('Server Utils - Error', () => {
       catch (error: any) {
         expect(error.statusCode).toBe(500)
       }
+      finally {
+        consoleErrorSpy.mockRestore()
+      }
     })
 
     it('should handle number error', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -357,6 +380,9 @@ describe('Server Utils - Error', () => {
       }
       catch (error: any) {
         expect(error.statusCode).toBe(500)
+      }
+      finally {
+        consoleErrorSpy.mockRestore()
       }
     })
   })

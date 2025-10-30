@@ -32,6 +32,7 @@ export default defineConfig({
       clean: true,
       cleanOnRerun: true,
       all: false,
+      ignoreEmptyLines: true,
     },
     globals: true,
     projects: [
