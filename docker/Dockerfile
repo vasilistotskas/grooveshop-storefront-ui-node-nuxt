@@ -20,6 +20,7 @@ RUN pnpm prepare
 ENV NODE_ENV=production \
     NUXT_HOST=0.0.0.0 \
     NUXT_PORT=3000 \
+    NUXT_API_BASE_URL="http://backend-service:80/api/v1" \
     NUXT_PUBLIC_APP_TITLE="Webside - Το side της τεχνολογίας" \
     NUXT_SITE_DESCRIPTION="Μπες στο side της τεχνολογίας, εύκολα, δωρεάν και με ασφάλεια." \
     NUXT_SITE_URL="https://webside.gr" \
