@@ -1,3 +1,10 @@
+## [3.34.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.34.3...v3.34.4) (2025-10-31)
+
+
+### Bug Fixes
+
+* cache homepage ([e44221d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e44221d7995b90cecd88ce2216cc54054a9b7a4f))
+
 ## [3.34.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.34.2...v3.34.3) (2025-10-31)
 
 
