@@ -1,3 +1,10 @@
+# [3.35.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.34.4...v3.35.0) (2025-10-31)
+
+
+### Features
+
+* swr for blog ([1e0bd68](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1e0bd6800c63dda0ad1d5a8f98e60300f3dd3cab))
+
 ## [3.34.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.34.3...v3.34.4) (2025-10-31)
 
 
