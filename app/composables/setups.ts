@@ -1,9 +1,12 @@
 import * as uiLocales from '@nuxt/ui/locale'
 
 export function setupPageHeader() {
+  const route = useRoute()
   const publicConfig = useRuntimeConfig().public
   const siteConfig = useSiteConfig()
   const { $i18n } = useNuxtApp()
+
+  const siteUrl = siteConfig.url
 
   const i18nHead = useLocaleHead({
     dir: true,
@@ -20,7 +23,7 @@ export function setupPageHeader() {
 
   useSeoMeta({
     title: publicConfig.appTitle,
-    ogUrl: publicConfig.baseUrl,
+    ogUrl: () => `${siteUrl}${route.path}`,
     ogTitle: '%s',
     ogType: 'website',
     ogSiteName: siteConfig.name,

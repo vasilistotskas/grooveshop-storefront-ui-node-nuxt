@@ -4,10 +4,12 @@ const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
+const siteConfig = useSiteConfig()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
+const siteUrl = siteConfig.url
 
 const blogPostId = computed(() => Number(route.params.id) || null)
 
@@ -193,9 +195,11 @@ useSeoMeta({
   title: () => blogPostSeoTitle.value,
   description: () => blogPost.value?.seoDescription || blogPostSubtitle.value || '',
   ogDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value || '',
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
   ogImage: () => ogImage.value,
   ogType: 'article',
-  ogUrl: () => import.meta.client ? window.location.href : route.fullPath,
+  ogUrl: () => `${siteUrl}${route.path}`,
   twitterTitle: () => blogPost.value?.seoTitle || blogPostTitle.value,
   twitterDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value || '',
   twitterImage: () => ogImage.value,

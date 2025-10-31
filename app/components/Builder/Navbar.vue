@@ -109,6 +109,7 @@ onUnmounted(() => {
                       fetch-priority="high"
                       preload
                     />
+                    <span class="sr-only">{{ appTitle }}</span>
                   </Anchor>
                 </UChip>
               </UTooltip>
