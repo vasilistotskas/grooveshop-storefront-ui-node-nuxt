@@ -44,8 +44,11 @@ export default defineNuxtConfig({
         // Preconnect for critical resources
         { rel: 'preconnect', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: process.env.NUXT_PUBLIC_DJANGO_URL || 'http://localhost:8000', crossorigin: 'anonymous' },
       ],
     },
+    pageTransition: false,
+    layoutTransition: false,
   },
   css: [
     '~/assets/css/main.css',
@@ -258,6 +261,7 @@ export default defineNuxtConfig({
     inlineRouteRules: true,
     checkOutdatedBuildInterval: 5 * 60 * 1000,
     viteEnvironmentApi: true,
+    componentIslands: true,
     defaults: {
       nuxtLink: {
         prefetchOn: {
@@ -283,6 +287,8 @@ export default defineNuxtConfig({
       gzip: true,
       brotli: true,
     },
+    minify: true,
+    timing: false,
     prerender: {
       crawlLinks: false,
       ignore: [],
@@ -296,6 +302,7 @@ export default defineNuxtConfig({
       sourcemap: true,
       cssCodeSplit: true,
       minify: 'esbuild',
+      target: 'esnext',
     },
     css: {
       devSourcemap: false,
