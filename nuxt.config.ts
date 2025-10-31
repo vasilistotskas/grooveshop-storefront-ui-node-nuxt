@@ -156,14 +156,6 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    '/': {
-      cache: {
-        maxAge: 60,
-        swr: true,
-      },
-    },
-    '/blog': { swr: true },
-    '/blog/**': { swr: 3600 },
     '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
     '/_nuxt/builds/**': {
       headers: {
