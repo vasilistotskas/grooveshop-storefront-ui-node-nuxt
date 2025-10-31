@@ -250,9 +250,6 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 5,
   },
-  features: {
-    inlineStyles: true,
-  },
   experimental: {
     typedPages: true,
     asyncContext: true,
@@ -297,6 +294,11 @@ export default defineNuxtConfig({
   vite: {
     build: {
       sourcemap: true,
+      cssCodeSplit: true,
+      minify: 'esbuild',
+    },
+    css: {
+      devSourcemap: false,
     },
   },
   typescript: {
