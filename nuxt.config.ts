@@ -54,10 +54,10 @@ export default defineNuxtConfig({
     '~/assets/css/main.css',
   ],
   site: {
-    url: 'http://localhost:3000',
-    name: '',
-    description: '',
-    defaultLocale: 'el',
+    url: process.env.NUXT_SITE_URL,
+    name: process.env.NUXT_SITE_NAME,
+    description: process.env.NUXT_SITE_DESCRIPTION,
+    defaultLocale: process.env.NUXT_SITE_DEFAULT_LOCALE || 'el',
   },
   colorMode: {
     preference: 'system',
