@@ -1,3 +1,16 @@
+# [3.37.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.36.1...v3.37.0) (2025-11-02)
+
+
+### Bug Fixes
+
+* revert vitest version ([05e75f5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/05e75f534e51f9db8bc7ebde8b1f3e19c6818a1a))
+
+
+### Features
+
+* Added `fetchpriority` ([dde994a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dde994aaf2c52a8f694bdb883578feeacc848005))
+* Bump Versions ([3167410](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3167410b872ca9ee005bca66669fb535a6adef61))
+
 ## [3.36.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.36.0...v3.36.1) (2025-10-31)
 
 
