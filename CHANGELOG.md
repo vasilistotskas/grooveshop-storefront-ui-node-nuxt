@@ -1,3 +1,10 @@
+## [3.38.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.38.1...v3.38.2) (2025-11-02)
+
+
+### Bug Fixes
+
+* icons ([f639c9a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f639c9a26723a45d2aa78733d62e2337b4610a10))
+
 ## [3.38.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.38.0...v3.38.1) (2025-11-02)
 
 
