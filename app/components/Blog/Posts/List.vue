@@ -112,10 +112,17 @@ const BlogPostCard = computed(() =>
 )
 
 const imgLoading = (index: number) => {
-  if (isMobileOrTablet) {
-    return index > 0 ? 'lazy' : 'eager'
+  if (index < 3) {
+    return 'eager'
   }
   return 'lazy'
+}
+
+const imgFetchPriority = (index: number) => {
+  if (index === 0) {
+    return 'high'
+  }
+  return 'auto'
 }
 
 watch(
@@ -197,6 +204,7 @@ watch(
             v-for="(post, index) in allPosts"
             :key="index"
             :img-loading="imgLoading(index)"
+            :img-fetch-priority="imgFetchPriority(index)"
             :post="post"
             :img-width="isMobileOrTablet ? 575 : 440"
             :img-height="isMobileOrTablet ? 670 : 247"

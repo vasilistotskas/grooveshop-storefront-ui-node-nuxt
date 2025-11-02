@@ -31,6 +31,12 @@ const props = defineProps({
     default: undefined,
     validator: (value: string) => ['lazy', 'eager'].includes(value),
   },
+  imgFetchPriority: {
+    type: String,
+    required: false,
+    default: 'auto',
+    validator: (value: string) => ['high', 'low', 'auto'].includes(value),
+  },
   as: {
     type: String,
     default: 'li',
@@ -102,6 +108,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       >
         <ImgWithFallback
           :loading="imgLoading"
+          :fetchpriority="imgFetchPriority"
           class="rounded-t-lg bg-primary-100"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
