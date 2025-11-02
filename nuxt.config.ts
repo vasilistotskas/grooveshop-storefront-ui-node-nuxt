@@ -245,6 +245,9 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 5,
   },
+  features: {
+    inlineStyles: true,
+  },
   experimental: {
     typedPages: true,
     asyncContext: true,
@@ -254,6 +257,8 @@ export default defineNuxtConfig({
     checkOutdatedBuildInterval: 5 * 60 * 1000,
     viteEnvironmentApi: true,
     componentIslands: true,
+    crossOriginPrefetch: true,
+    buildCache: true,
     defaults: {
       nuxtLink: {
         prefetchOn: {

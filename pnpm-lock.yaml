@@ -42,8 +42,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4
       '@nuxtjs/i18n':
-        specifier: 10.1.2
-        version: 10.1.2(@vue/compiler-dom@3.5.22)(db0@0.3.4)(eslint@9.38.0(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.5.1)(rollup@4.52.5)(vue@3.5.22(typescript@5.9.3))
+        specifier: 10.2.0
+        version: 10.2.0(@vue/compiler-dom@3.5.22)(db0@0.3.4)(eslint@9.38.0(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.5.1)(rollup@4.52.5)(vue@3.5.22(typescript@5.9.3))
       '@nuxtjs/seo':
         specifier: 3.2.2
         version: 3.2.2(@unhead/vue@2.0.19(vue@3.5.22(typescript@5.9.3)))(db0@0.3.4)(h3@1.15.4)(ioredis@5.8.2)(magicast@0.5.1)(rollup@4.52.5)(unhead@2.0.19)(unstorage@1.17.2(db0@0.3.4)(ioredis@5.8.2))(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
@@ -1329,8 +1329,8 @@ packages:
   '@nuxtjs/device@3.2.4':
     resolution: {integrity: sha512-jIvN6QeodBNrUrL/1FCHk4bebsiLsGHlJd8c/m2ksLrGY4IZ0npA8IYhDTdYV92epGxoe8+3iZOzCjav+6TshQ==}
 
-  '@nuxtjs/i18n@10.1.2':
-    resolution: {integrity: sha512-3OY8eozqNRiaZaMcmZPfLK1cqe5nUg8ADpGct3iSS6JPIkp8lHhBV6e9PFAMd9u0gz2QlMILySCRV0fNcGLCIA==}
+  '@nuxtjs/i18n@10.2.0':
+    resolution: {integrity: sha512-noQTJICmiWLgi6QgF26n//IwBT0p4ntEV+CALhj+/4EFGEoBxl5/AEm1Ved6WSLBWHodrayMk3dRGVfQdRP2nQ==}
     engines: {node: '>=20.11.1'}
 
   '@nuxtjs/robots@5.5.6':
@@ -8730,7 +8730,7 @@ snapshots:
     dependencies:
       defu: 6.1.4
 
-  '@nuxtjs/i18n@10.1.2(@vue/compiler-dom@3.5.22)(db0@0.3.4)(eslint@9.38.0(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.5.1)(rollup@4.52.5)(vue@3.5.22(typescript@5.9.3))':
+  '@nuxtjs/i18n@10.2.0(@vue/compiler-dom@3.5.22)(db0@0.3.4)(eslint@9.38.0(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.5.1)(rollup@4.52.5)(vue@3.5.22(typescript@5.9.3))':
     dependencies:
       '@intlify/core': 11.1.12
       '@intlify/h3': 0.7.4
