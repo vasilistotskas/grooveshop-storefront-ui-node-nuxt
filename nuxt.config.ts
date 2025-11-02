@@ -413,6 +413,9 @@ export default defineNuxtConfig({
     compilation: {
       strictMessage: false,
     },
+    experimental: {
+      httpCacheDuration: 86400, // 1 day
+    },
   },
   icon: {
     mode: 'local',
