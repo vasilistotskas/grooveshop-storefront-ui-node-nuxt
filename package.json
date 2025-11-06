@@ -60,7 +60,6 @@
     "magic-string": "0.30.21",
     "nuxt": "4.2.0",
     "nuxt-auth-utils": "0.5.25",
-    "nuxt-security": "2.4.0",
     "ofetch": "1.5.1",
     "pinia": "3.0.4",
     "redis": "5.9.0",
