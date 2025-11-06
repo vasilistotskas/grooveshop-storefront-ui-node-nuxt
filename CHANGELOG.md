@@ -1,3 +1,10 @@
+# [3.40.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.39.0...v3.40.0) (2025-11-06)
+
+
+### Features
+
+* remove nuxt-security ([1d62a74](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1d62a74bd9ac63581e09ed0ffd883f859cdb8ba7))
+
 # [3.39.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.38.2...v3.39.0) (2025-11-06)
 
 
