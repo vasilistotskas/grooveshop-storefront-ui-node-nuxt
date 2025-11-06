@@ -1,6 +1,7 @@
 import { createClient } from 'redis'
 import redisDriver from 'unstorage/drivers/redis'
 import memoryDriver from 'unstorage/drivers/memory'
+import type { Driver } from 'unstorage'
 
 export default defineNitroPlugin(async () => {
   const storage = useStorage()
@@ -13,7 +14,7 @@ export default defineNitroPlugin(async () => {
 
   console.log(`[Nitro Storage] Attempting to connect to Redis at ${redisHost}:${redisPort}`)
 
-  let driver
+  let driver: Driver | undefined = undefined
   let isRedisConnected = false
 
   try {
@@ -59,7 +60,9 @@ export default defineNitroPlugin(async () => {
     driver = memoryDriver()
   }
 
-  storage.mount(config.cacheBase, driver)
+  if (driver) {
+    storage.mount(config.cacheBase, driver)
+  }
 
   if (isRedisConnected) {
     console.log(`[Nitro Storage] Cache storage mounted at '${config.cacheBase}' using Redis driver`)
