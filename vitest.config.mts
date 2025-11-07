@@ -29,10 +29,6 @@ export default defineConfig({
         '**/constants/**',
         '**/shared/**',
       ],
-      clean: true,
-      cleanOnRerun: true,
-      all: false,
-      ignoreEmptyLines: true,
     },
     globals: true,
     projects: [

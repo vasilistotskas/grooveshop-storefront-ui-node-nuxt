@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
 
 const config = useRuntimeConfig()
 const { t } = useI18n()
@@ -18,7 +16,7 @@ const img = useImage()
 const authStore = useAuthStore()
 const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
 
-const ZodLogin = z.object({
+const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
       ? $i18n.t('validation.required')
@@ -29,27 +27,21 @@ const ZodLogin = z.object({
     : $i18n.t('validation.string.invalid') }),
 })
 
-const validationSchema = toTypedSchema(ZodLogin)
+type Schema = z.output<typeof schema>
 
-const { defineField, handleSubmit, errors, meta, submitCount } = useForm({
-  validationSchema,
-})
-
-const [email, emailProps] = defineField('email', {
-  validateOnBlur: false,
-  validateOnModelUpdate: true,
-})
-const [password, passwordProps] = defineField('password', {
-  validateOnBlur: false,
-  validateOnModelUpdate: true,
+const state = reactive<Partial<Schema>>({
+  email: undefined,
+  password: undefined,
 })
 
 const showPassword = ref(false)
 const loading = ref(false)
+const submitCount = ref(0)
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   try {
     loading.value = true
+    submitCount.value++
     const currentPath = router.currentRoute.value.path
     const currentQuery = router.currentRoute.value.query
 
@@ -58,8 +50,8 @@ const onSubmit = handleSubmit(async (values) => {
     }
 
     const response = await login({
-      email: values.email,
-      password: values.password,
+      email: event.data.email,
+      password: event.data.password,
     })
 
     session.value = response?.data
@@ -72,7 +64,7 @@ const onSubmit = handleSubmit(async (values) => {
   finally {
     await finalizeLogin()
   }
-})
+}
 
 async function performPostLoginActions() {
   await refreshCart()
@@ -116,14 +108,15 @@ const backgroundImage = computed(() => {
       class="absolute top-[-1px] z-0 h-64 w-full bg-center"
       :style="isMobileOrTablet ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover' } : ''"
     />
-    <form
+    <UForm
       id="loginForm"
       ref="loginForm"
+      :schema="schema"
+      :state="state"
       class="
         z-10 container mx-auto px-4 !pt-12 !pb-6
         md:!p-0
       "
-      name="loginForm"
       @submit="onSubmit"
     >
       <div
@@ -147,43 +140,34 @@ const backgroundImage = computed(() => {
                 quality="80"
               />
             </div>
-            <div class="grid content-evenly items-start gap-1">
-              <label
-                class="text-xl font-bold"
-                for="email"
-              >{{
-                t('email.label')
-              }}</label>
-              <FormTextInput
-                id="email"
-                v-model="email"
-                :bind="emailProps"
-                :required="true"
-                :size="'lg'"
-                autocomplete="email"
-                name="email"
+            <UFormField
+              :label="t('email.label')"
+              name="email"
+              :required="true"
+              size="lg"
+            >
+              <UInput
+                v-model="state.email"
                 type="text"
+                autocomplete="email"
+                class="w-full"
+                size="lg"
               />
-              <span
-                v-if="errors.email && meta.touched"
-                class="relative px-4 py-3 text-xs text-red-600"
-              >{{ errors.email }}</span>
-            </div>
-            <div class="grid content-evenly items-start gap-1">
-              <label
-                class="text-xl font-bold"
-                for="password"
-              >{{ t('password.label') }}</label>
+            </UFormField>
+
+            <UFormField
+              :label="t('password.label')"
+              name="password"
+              :required="true"
+              size="lg"
+            >
               <div class="relative grid items-center gap-2">
-                <FormTextInput
-                  id="password"
-                  v-model="password"
-                  :bind="passwordProps"
-                  :required="true"
-                  :size="'lg'"
+                <UInput
+                  v-model="state.password"
                   :type="showPassword ? 'text' : 'password'"
                   autocomplete="current-password"
-                  name="password"
+                  class="w-full"
+                  size="lg"
                 />
                 <UButton
                   :aria-label="t('password.toggle')"
@@ -199,11 +183,8 @@ const backgroundImage = computed(() => {
                   @click="showPassword = !showPassword"
                 />
               </div>
-              <span
-                v-if="errors.password && meta.touched"
-                class="relative px-4 py-3 text-xs text-red-600"
-              >{{ errors.password }}</span>
-            </div>
+            </UFormField>
+
             <UButton
               :aria-busy="loading"
               :disabled="submitButtonDisabled"
@@ -318,7 +299,7 @@ const backgroundImage = computed(() => {
           </div>
         </div>
       </div>
-    </form>
+    </UForm>
   </section>
 </template>
 

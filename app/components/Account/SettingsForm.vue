@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { useForm } from 'vee-validate'
 import * as z from 'zod'
-import { toTypedSchema } from '@vee-validate/zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
 
@@ -19,7 +18,7 @@ const userId = user.value?.id
 
 const selectPlaceholder = computed(() => t('form.select_placeholder'))
 
-const ZodAccountSettings = z.object({
+const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
       ? $i18n.t('validation.required')
@@ -72,9 +71,9 @@ const ZodAccountSettings = z.object({
     .optional(),
 })
 
-const validationSchema = toTypedSchema(ZodAccountSettings)
+type Schema = z.output<typeof schema>
 
-const initialValues = ZodAccountSettings.parse({
+const state = reactive<Partial<Schema>>({
   email: user.value?.email || '',
   firstName: user.value?.firstName || '',
   lastName: user.value?.lastName || '',
@@ -88,48 +87,16 @@ const initialValues = ZodAccountSettings.parse({
   region: user.value?.region || defaultSelectOptionChoose,
 })
 
-const { defineField, handleSubmit, errors, isSubmitting } = useForm({
-  validationSchema,
-  initialValues,
-})
-
-const [firstName, firstNameProps] = defineField('firstName', {
-  validateOnModelUpdate: true,
-})
-const [lastName, lastNameProps] = defineField('lastName', {
-  validateOnModelUpdate: true,
-})
-const [phone, phoneProps] = defineField('phone', {
-  validateOnModelUpdate: true,
-})
-const [city, cityProps] = defineField('city', { validateOnModelUpdate: true })
-const [zipcode, zipcodeProps] = defineField('zipcode', {
-  validateOnModelUpdate: true,
-})
-const [address, addressProps] = defineField('address', {
-  validateOnModelUpdate: true,
-})
-const [place, placeProps] = defineField('place', {
-  validateOnModelUpdate: true,
-})
-const [country, countryProps] = defineField('country', {
-  validateOnModelUpdate: true,
-})
-const [region, regionProps] = defineField('region', {
-  validateOnModelUpdate: true,
-})
-const [birthDate] = defineField('birthDate', {
-  validateOnModelUpdate: true,
-})
+const isSubmitting = ref(false)
 
 const df = new DateFormatter('en-US', { dateStyle: 'medium' })
 
 const calendarDate = shallowRef<DateValue | null>(
-  birthDate.value && birthDate.value instanceof Date
+  state.birthDate && state.birthDate instanceof Date
     ? new CalendarDate(
-        birthDate.value.getFullYear(),
-        birthDate.value.getMonth() + 1,
-        birthDate.value.getDate(),
+        state.birthDate.getFullYear(),
+        state.birthDate.getMonth() + 1,
+        state.birthDate.getDate(),
       )
     : null,
 )
@@ -169,7 +136,7 @@ const countryOptions = computed(() => {
 })
 
 const fetchRegions = async () => {
-  if (country.value === defaultSelectOptionChoose) {
+  if (state.country === defaultSelectOptionChoose) {
     return
   }
 
@@ -177,7 +144,7 @@ const fetchRegions = async () => {
     regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
-        country: country.value,
+        country: state.country,
         languageCode: locale.value,
       },
     })
@@ -216,12 +183,16 @@ const regionOptions = computed(() => {
 
 const onCountryChange = async (payload: string | undefined) => {
   if (!payload) return
-  country.value = String(payload)
-  region.value = defaultSelectOptionChoose
+  state.country = String(payload)
+  state.region = defaultSelectOptionChoose
   await fetchRegions()
 }
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
+  isSubmitting.value = true
+
+  const values = { ...event.data }
+
   if (
     values.region === defaultSelectOptionChoose
     || values.country === defaultSelectOptionChoose
@@ -230,7 +201,10 @@ const onSubmit = handleSubmit(async (values) => {
     values.country = undefined
   }
 
-  if (!userId) return
+  if (!userId) {
+    isSubmitting.value = false
+    return
+  }
 
   await $fetch(`/api/user/account/${userId}`, {
     method: 'PUT',
@@ -250,6 +224,7 @@ const onSubmit = handleSubmit(async (values) => {
     },
     async onResponse({ response }) {
       if (!response.ok) {
+        isSubmitting.value = false
         return
       }
       await fetch()
@@ -257,23 +232,21 @@ const onSubmit = handleSubmit(async (values) => {
         title: t('form.success'),
         color: 'success',
       })
+      isSubmitting.value = false
     },
     onResponseError() {
       toast.add({ title: t('form.error'), color: 'error' })
+      isSubmitting.value = false
     },
   })
-})
-
-const submitButtonDisabled = computed(() => {
-  return isSubmitting.value || Object.keys(errors.value).length > 0
-})
+}
 
 watch(calendarDate, (newVal) => {
   if (newVal) {
-    birthDate.value = newVal.toDate(getLocalTimeZone())
+    state.birthDate = newVal.toDate(getLocalTimeZone())
   }
   else {
-    birthDate.value = undefined
+    state.birthDate = undefined
   }
 })
 </script>
@@ -286,328 +259,170 @@ watch(calendarDate, (newVal) => {
     "
   >
     <slot />
-    <form
+    <UForm
       id="accountSettingsForm"
+      :schema="schema"
+      :state="state"
       class="
         flex w-full flex-col gap-4 rounded bg-primary-100 p-4
         md:grid md:grid-cols-2
         dark:bg-primary-900
       "
-      name="accountSettingsForm"
       @submit="onSubmit"
     >
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="firstName"
-        >
-          {{ t('form.first_name') }}
-        </label>
-        <div class="grid">
-          <FormTextInput
-            id="firstName"
-            v-model="firstName"
-            :bind="firstNameProps"
-            :placeholder="t('form.first_name')"
-            :required="true"
-            autocomplete="given-name"
-            name="firstName"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.firstName"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.firstName }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.first_name')"
+        name="firstName"
+        :required="true"
+      >
+        <UInput
+          v-model="state.firstName"
+          :placeholder="t('form.first_name')"
+          autocomplete="given-name"
+          class="w-full"
+          type="text"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="lastName"
-        >
-          {{ t('form.last_name') }}
-        </label>
-        <div class="grid">
-          <FormTextInput
-            id="lastName"
-            v-model="lastName"
-            :bind="lastNameProps"
-            :placeholder="t('form.last_name')"
-            :required="true"
-            autocomplete="family-name"
-            name="lastName"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.lastName"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.lastName }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.last_name')"
+        name="lastName"
+        :required="true"
+      >
+        <UInput
+          v-model="state.lastName"
+          :placeholder="t('form.last_name')"
+          autocomplete="family-name"
+          class="w-full"
+          type="text"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="phone"
-        >
-          {{ t('form.phone') }}
-        </label>
-        <div class="grid">
-          <FormTextInput
-            id="phone"
-            v-model="phone"
-            :bind="phoneProps"
-            :placeholder="t('form.phone')"
-            autocomplete="tel"
-            name="phone"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.phone"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.phone }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.phone')"
+        name="phone"
+      >
+        <UInput
+          v-model="state.phone"
+          :placeholder="t('form.phone')"
+          autocomplete="tel"
+          class="w-full"
+          type="text"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="city"
-        >
-          {{ t('form.city') }}
-        </label>
-        <div class="grid">
-          <FormTextInput
-            id="city"
-            v-model="city"
-            :bind="cityProps"
-            :placeholder="t('form.city')"
-            autocomplete="address-level2"
-            name="city"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.city"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.city }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.city')"
+        name="city"
+      >
+        <UInput
+          v-model="state.city"
+          :placeholder="t('form.city')"
+          autocomplete="address-level2"
+          class="w-full"
+          type="text"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="zipcode"
-        >
-          {{ t('form.zipcode') }}
-        </label>
-        <div class="grid">
-          <FormTextInput
-            id="zipcode"
-            v-model="zipcode"
-            :bind="zipcodeProps"
-            :placeholder="t('form.zipcode')"
-            autocomplete="postal-code"
-            name="zipcode"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.zipcode"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.zipcode }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.zipcode')"
+        name="zipcode"
+      >
+        <UInput
+          v-model="state.zipcode"
+          :placeholder="t('form.zipcode')"
+          autocomplete="postal-code"
+          class="w-full"
+          type="text"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="address"
-        >
-          {{ t('form.address') }}
-        </label>
-        <div class="grid">
-          <FormTextInput
-            id="address"
-            v-model="address"
-            :bind="addressProps"
-            :placeholder="t('form.address')"
-            autocomplete="address-line1"
-            name="address"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.address"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.address }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.address')"
+        name="address"
+      >
+        <UInput
+          v-model="state.address"
+          :placeholder="t('form.address')"
+          autocomplete="address-line1"
+          class="w-full"
+          type="text"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="place"
-        >
-          {{ t('form.place') }}
-        </label>
-        <div class="grid">
-          <FormTextInput
-            id="place"
-            v-model="place"
-            :bind="placeProps"
-            :placeholder="t('form.place')"
-            autocomplete="address-level3"
-            name="place"
-            type="text"
-          />
-        </div>
-        <span
-          v-if="errors.place"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.place }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.place')"
+        name="place"
+      >
+        <UInput
+          v-model="state.place"
+          :placeholder="t('form.place')"
+          autocomplete="address-level3"
+          class="w-full"
+          type="text"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="birthDate"
-        >
-          {{ t('form.birth_date') }}
-        </label>
-        <div class="grid">
-          <UPopover :popper="{ placement: 'bottom-start' }">
-            <UButton
-              :label="label"
-              color="neutral"
-              icon="i-heroicons-calendar-days-20-solid"
+      <UFormField
+        :label="t('form.birth_date')"
+        name="birthDate"
+      >
+        <UPopover :popper="{ placement: 'bottom-start' }">
+          <UButton
+            :label="label"
+            color="neutral"
+            icon="i-heroicons-calendar-days-20-solid"
+          />
+          <template #content>
+            <UCalendar
+              v-model="calendarDate"
+              color="secondary"
+              class="p-2"
             />
-            <template #content>
-              <UCalendar
-                v-model="calendarDate"
-                color="secondary"
-                class="p-2"
-              />
-            </template>
-          </UPopover>
-        </div>
-        <span
-          v-if="errors.birthDate"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.birthDate }}
-        </span>
-      </div>
+          </template>
+        </UPopover>
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="country"
-        >
-          {{ t('form.country') }}
-        </label>
-        <div class="grid">
-          <USelect
-            id="country"
-            v-model="country"
-            name="country"
-            value-key="value"
-            :items="countryOptions"
-            color="neutral"
-            v-bind="countryProps"
-            @update:model-value="onCountryChange"
-          />
-        </div>
-        <span
-          v-if="errors.country"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.country }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.country')"
+        name="country"
+      >
+        <USelect
+          v-model="state.country"
+          name="country"
+          value-key="value"
+          :items="countryOptions"
+          color="neutral"
+          class="w-full"
+          @update:model-value="onCountryChange"
+        />
+      </UFormField>
 
-      <div class="grid">
-        <label
-          class="
-            mb-2 text-primary-950
-            dark:text-primary-50
-          "
-          for="region"
-        >
-          {{ t('form.region') }}
-        </label>
-        <div class="grid">
-          <USelect
-            id="region"
-            v-model="region"
-            name="region"
-            :items="regionOptions"
-            color="neutral"
-            value-key="value"
-            v-bind="regionProps"
-          />
-        </div>
-        <span
-          v-if="errors.region"
-          class="relative px-4 py-3 text-xs text-red-600"
-        >
-          {{ errors.region }}
-        </span>
-      </div>
+      <UFormField
+        :label="t('form.region')"
+        name="region"
+      >
+        <USelect
+          v-model="state.region"
+          name="region"
+          :items="regionOptions"
+          color="neutral"
+          class="w-full"
+          value-key="value"
+        />
+      </UFormField>
 
       <div class="col-span-2 grid items-end justify-end">
-        <button
+        <UButton
           :aria-busy="isSubmitting"
-          :disabled="submitButtonDisabled"
-          class="
-            rounded bg-secondary px-4 py-2 font-bold text-primary-50
-            disabled:cursor-not-allowed disabled:opacity-50
-          "
+          :disabled="isSubmitting"
+          :label="t('form.submit')"
           type="submit"
-        >
-          {{ t('form.submit') }}
-        </button>
+          color="secondary"
+          size="lg"
+        />
       </div>
-    </form>
+    </UForm>
   </div>
 </template>
 

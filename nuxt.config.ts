@@ -417,13 +417,21 @@ export default defineNuxtConfig({
     },
   },
   icon: {
-    mode: 'local',
     serverBundle: {
+      remote: true,
       externalizeIconsJson: true,
       collections: ['ant-design', 'fa-solid', 'fa6-solid', 'heroicons', 'lucide', 'heroicons-solid', 'heroicons-outline', 'mdi', 'unjs'],
     },
     clientBundle: {
-      scan: true,
+      icons: [
+        'i-lucide:moon',
+        'i-heroicons:heart',
+        'i-fa6-solid:circle-user',
+      ],
+      scan: {
+        globInclude: ['components/**/*.vue', 'app/**/*.vue', 'pages/**/*.vue', 'layouts/**/*.vue'],
+        globExclude: ['node_modules', 'dist'],
+      },
       sizeLimitKb: 256,
     },
   },

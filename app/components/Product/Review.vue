@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import { Field, useForm } from 'vee-validate'
 import * as z from 'zod'
-
-import { toTypedSchema } from '@vee-validate/zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
 
 const starSvg
   = '<path fill="currentColor" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" class=""></path>'
@@ -32,7 +30,6 @@ const props = defineProps({
 })
 
 const { userProductReview, userHadReviewed, product, user } = toRefs(props)
-const UTextarea = resolveComponent('UTextarea')
 
 const isReviewModalOpen = defineModel<boolean>()
 
@@ -171,9 +168,45 @@ const useConstant = (value: string) => {
   return () => value
 }
 
+const schema = z.object({
+  comment: z
+    .string()
+    .min(10, {
+      error: $i18n.t('validation.min', {
+        min: 10,
+      }),
+    })
+    .max(1000, {
+      error: $i18n.t('validation.max', {
+        max: 1000,
+      }),
+    }),
+  rate: z
+    .number()
+    .min(1, {
+      error: $i18n.t('validation.min', { min: 1 }),
+    })
+    .max(10, {
+      error: $i18n.t('validation.min', { max: 10 }),
+    }),
+})
+
+type Schema = z.output<typeof schema>
+
+const state = reactive<Partial<Schema>>({
+  comment: userProductReview?.value
+    ? extractTranslated(userProductReview?.value, 'comment', locale.value)
+    : '',
+  rate: Number(userProductReview?.value?.rate) || 0,
+})
+
+const submitCount = ref(0)
+
+const formRef = ref<any>(null)
+
 const foregroundStars = computed(() => {
-  if (!values.rate) return []
-  const reviewStarRatio = values.rate * 0.099 * starCountMax.value
+  if (!state.rate) return []
+  const reviewStarRatio = state.rate * 0.099 * starCountMax.value
   if (reviewStarRatio < 0.1) {
     return []
   }
@@ -226,59 +259,11 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
   newSelectionRatio.value = leftBound / rightBound
 }
 
-const ZodReviewSchema = z.object({
-  comment: z
-    .string()
-    .min(10, {
-      message: $i18n.t('validation.min', {
-        min: 10,
-      }),
-    })
-    .max(1000, {
-      message: $i18n.t('validation.max', {
-        max: 1000,
-      }),
-    }),
-  rate: z
-    .number()
-    .min(1, {
-      message: $i18n.t('validation.min', { min: 1 }),
-    })
-    .max(10, {
-      message: $i18n.t('validation.min', { max: 10 }),
-    }),
-})
-
-const validationSchema = toTypedSchema(ZodReviewSchema)
-const {
-  defineField,
-  values,
-  setFieldValue,
-  handleSubmit,
-  errors,
-  submitCount,
-} = useForm({
-  validationSchema,
-  initialValues: {
-    comment: userProductReview?.value
-      ? extractTranslated(userProductReview?.value, 'comment', locale.value)
-      : '',
-    rate: userProductReview?.value?.rate || 0,
-  },
-})
-
-const [comment, commentProps] = defineField('comment', {
-  validateOnModelUpdate: true,
-})
-const [rate, rateProps] = defineField('rate', {
-  validateOnModelUpdate: true,
-})
-
 const tooManyAttempts = computed(() => {
   return submitCount.value >= 10
 })
 
-const createReviewEvent = async (event: { comment: string, rate: number }) => {
+const createReviewEvent = async (event: Schema) => {
   await $fetch(`/api/products/reviews`, {
     method: 'POST',
     headers: useRequestHeaders(),
@@ -289,8 +274,7 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
           comment: event.comment,
         },
       },
-      rate: String(event.rate),
-      status: 'TRUE',
+      rate: event.rate,
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -303,16 +287,7 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
         color: 'success',
       })
     },
-    onResponseError({ response }) {
-      if (response._data.data.nonFieldErrors) {
-        response._data.data.nonFieldErrors.forEach((error: string) => {
-          toast.add({
-            title: error,
-            color: 'error',
-          })
-        })
-        return
-      }
+    onResponseError() {
       toast.add({
         title: t('add.error'),
         color: 'error',
@@ -321,19 +296,19 @@ const createReviewEvent = async (event: { comment: string, rate: number }) => {
   })
 }
 
-const updateReviewEvent = async (event: { comment: string, rate: number }) => {
+const updateReviewEvent = async (event: Schema) => {
   if (!userProductReview?.value) return
   await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
     method: 'PUT',
     headers: useRequestHeaders(),
     body: {
       product: product.value?.id,
-      rate: String(event.rate),
       translations: {
         [locale.value]: {
           comment: event.comment,
         },
       },
+      rate: event.rate,
     },
     async onResponse({ response }) {
       if (!userProductReview?.value) return
@@ -366,8 +341,8 @@ const deleteReviewEvent = async () => {
         if (!response.ok) {
           return
         }
-        setFieldValue('rate', 0)
-        setFieldValue('comment', '')
+        state.rate = 0
+        state.comment = ''
         emit('delete-existing-review', userProductReview?.value)
         await refresh()
         toast.add({
@@ -391,13 +366,15 @@ const deleteReviewEvent = async () => {
   }
 }
 
-const onSubmit = handleSubmit(async (event) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
+  submitCount.value++
+
   if (user?.value) {
     if (!userHadReviewed.value) {
-      await createReviewEvent(event)
+      await createReviewEvent(event.data)
     }
     else {
-      await updateReviewEvent(event)
+      await updateReviewEvent(event.data)
     }
   }
   else {
@@ -406,18 +383,13 @@ const onSubmit = handleSubmit(async (event) => {
       color: 'error',
     })
   }
-})
-
-const onReviewSubmit = (event: Event) => {
-  onSubmit(event)
-  event.preventDefault()
 }
 
 watch(
   () => liveReviewCount.value,
   (to: number | undefined) => {
     if (to !== undefined) {
-      setFieldValue('rate', to)
+      state.rate = to
     }
   },
 )
@@ -452,106 +424,101 @@ watch(
     </template>
 
     <template #body>
-      <div class="relative grid gap-6">
-        <div class="grid gap-2">
-          <div
-            class="
-              mb-0 text-xl leading-tight font-medium
-              md:text-base
-            "
-          >
-            <p>{{ t('rating.title') }}</p>
-          </div>
-          <div class="relative grid grid-cols-[auto_1fr] items-center gap-4">
+      <UForm
+        ref="formRef"
+        :schema="schema"
+        :state="state"
+        @submit="onSubmit"
+      >
+        <div class="relative grid gap-6">
+          <div class="grid gap-2">
             <div
-              ref="ratingBoard"
               class="
-                relative z-10 inline-flex h-[26px] flex-row flex-nowrap
-                items-center justify-start
+                mb-0 text-xl leading-tight font-medium
+                md:text-base
               "
-              @click="lockSelection($event)"
-              @mouseenter.passive="unlockSelection()"
-              @mouseleave.passive="reLockSelection()"
-              @mousemove.passive="updateNewSelectionRatio($event)"
-              @touchend.passive="reLockSelection()"
-              @touchmove.passive="updateNewSelectionRatio($event)"
-              @touchstart.passive="unlockSelection()"
             >
-              <svg
-                v-for="(star, i) of backgroundStars"
-                :key="`bg-${i}`"
-                aria-hidden="true"
-                class="h-[26px] w-[26px] cursor-pointer text-slate-300"
-                data-icon="star"
-                data-prefix="fas"
-                focusable="false"
-                role="img"
-                viewBox="0 0 576 512"
-                xmlns="http://www.w3.org/2000/svg"
-                v-html="star"
-              />
-
+              <p>{{ t('rating.title') }}</p>
+            </div>
+            <div class="relative grid grid-cols-[auto_1fr] items-center gap-4">
               <div
+                ref="ratingBoard"
                 class="
-                  pointer-events-none absolute top-0 left-0 z-20 inline-flex
-                  h-[26px] flex-row flex-nowrap items-center justify-start
+                  relative z-10 inline-flex h-[26px] flex-row flex-nowrap
+                  items-center justify-start
                 "
+                @click="lockSelection($event)"
+                @mouseenter.passive="unlockSelection()"
+                @mouseleave.passive="reLockSelection()"
+                @mousemove.passive="updateNewSelectionRatio($event)"
+                @touchend.passive="reLockSelection()"
+                @touchmove.passive="updateNewSelectionRatio($event)"
+                @touchstart.passive="unlockSelection()"
               >
                 <svg
-                  v-for="(star, i) of foregroundStars"
-                  :key="`fg-${i}`"
+                  v-for="(star, i) of backgroundStars"
+                  :key="`bg-${i}`"
                   aria-hidden="true"
-                  class="h-[26px] w-[26px] cursor-pointer text-orange-400"
+                  class="h-[26px] w-[26px] cursor-pointer text-slate-300"
+                  data-icon="star"
+                  data-prefix="fas"
                   focusable="false"
                   role="img"
                   viewBox="0 0 576 512"
                   xmlns="http://www.w3.org/2000/svg"
                   v-html="star"
                 />
+
+                <div
+                  class="
+                    pointer-events-none absolute top-0 left-0 z-20 inline-flex
+                    h-[26px] flex-row flex-nowrap items-center justify-start
+                  "
+                >
+                  <svg
+                    v-for="(star, i) of foregroundStars"
+                    :key="`fg-${i}`"
+                    aria-hidden="true"
+                    class="h-[26px] w-[26px] cursor-pointer text-orange-400"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 576 512"
+                    xmlns="http://www.w3.org/2000/svg"
+                    v-html="star"
+                  />
+                </div>
               </div>
+
+              <span class="px-2 text-sm font-medium">{{ reviewScoreText }}</span>
             </div>
-
-            <span class="px-2 text-sm font-medium">{{ reviewScoreText }}</span>
+            <UFormField name="rate">
+              <template #error="{ error }">
+                <span class="h-6 text-sm font-normal text-red-400">{{ error }}</span>
+              </template>
+            </UFormField>
           </div>
-          <span class="h-6 text-sm font-normal text-red-400">{{ errors.rate }}</span>
-        </div>
 
-        <div class="grid gap-2">
-          <div
-            class="
-              mb-0 text-xl leading-tight font-medium
-              md:text-base
-            "
+          <UFormField
+            :label="t('comment.label')"
+            name="comment"
           >
-            <p>
-              <label for="comment">{{ t('comment.label') }}</label>
-            </p>
-          </div>
-          <div class="relative">
-            <Field
-              id="comment"
-              v-model="comment"
-              class="w-full"
-              :as="UTextarea"
+            <UTextarea
+              v-model="state.comment"
               :placeholder="t('comment.placeholder')"
               :rows="6"
               color="neutral"
               maxlength="10000"
-              name="comment"
-              type="text"
-              v-bind="commentProps"
+              class="w-full"
             />
-          </div>
-          <span class="h-6 text-sm font-normal text-red-400">{{ errors.comment }}</span>
-        </div>
+          </UFormField>
 
-        <input
-          v-model="rate"
-          name="rate"
-          type="hidden"
-          v-bind="rateProps"
-        >
-      </div>
+          <input
+            v-model="state.rate"
+            name="rate"
+            type="hidden"
+          >
+        </div>
+      </UForm>
     </template>
 
     <template #footer>
@@ -570,7 +537,7 @@ watch(
             color="success"
             variant="outline"
             size="lg"
-            @click="onReviewSubmit"
+            @click="formRef?.submit()"
           />
           <UButton
             v-else
