@@ -1,3 +1,10 @@
+# [3.41.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.40.0...v3.41.0) (2025-11-07)
+
+
+### Features
+
+* icons optimize, forms nuxt ui (remove vee validate from login settings signup) ([60290ee](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/60290ee903183506ac542e1216a4ffc803a9f903))
+
 # [3.40.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.39.0...v3.40.0) (2025-11-06)
 
 
