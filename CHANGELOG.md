@@ -1,3 +1,10 @@
+# [3.42.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.41.0...v3.42.0) (2025-11-08)
+
+
+### Features
+
+* refactor dynamic form, import from '#ui/types', remove vee validate ([b74d436](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b74d436e6f945ddfca412b635a1e409896e7dda8))
+
 # [3.41.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.40.0...v3.41.0) (2025-11-07)
 
 
