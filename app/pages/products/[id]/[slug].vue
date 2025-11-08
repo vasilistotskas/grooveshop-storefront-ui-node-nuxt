@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TabsItem, ButtonProps } from '@nuxt/ui'
+import type { TabsItem, ButtonProps } from '#ui/types'
 
 const route = useRoute()
 const { $i18n } = useNuxtApp()

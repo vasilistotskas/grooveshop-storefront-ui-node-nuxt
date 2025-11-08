@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { DropdownMenuItem } from '@nuxt/ui'
+import type { DropdownMenuItem } from '#ui/types'
 
 const props = defineProps({
   orderingOptions: {

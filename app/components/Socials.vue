@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { ButtonProps } from '@nuxt/ui'
+import type { ButtonProps } from '#ui/types'
 
 defineProps({
   buttonSize: {

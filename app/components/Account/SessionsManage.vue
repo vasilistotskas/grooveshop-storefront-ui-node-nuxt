@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { TableColumn, DropdownMenuItem } from '@nuxt/ui'
+import type { TableColumn, DropdownMenuItem } from '#ui/types'
 
 const emit = defineEmits(['deleteSession'])
 

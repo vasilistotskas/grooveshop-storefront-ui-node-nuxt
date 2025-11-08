@@ -207,7 +207,7 @@ const addCommentFormSchema: DynamicFormSchema = {
   ],
 }
 
-async function onAddCommentSubmit({ content }: { content: string }) {
+async function onAddCommentSubmit(values: Record<string, any>) {
   await $fetch('/api/blog/comments', {
     method: 'POST',
     headers: useRequestHeaders(),
@@ -216,7 +216,7 @@ async function onAddCommentSubmit({ content }: { content: string }) {
       user: Number(user?.value?.id),
       translations: {
         [locale.value]: {
-          content: content,
+          content: values.content,
         },
       },
     },

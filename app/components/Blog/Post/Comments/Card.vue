@@ -125,7 +125,7 @@ const fetchReplies = async (cursorValue: string) => {
   pending.value = false
 }
 
-async function onReplySubmit({ content }: { content: string }) {
+async function onReplySubmit(values: Record<string, any>) {
   await $fetch('/api/blog/comments', {
     method: 'POST',
     headers: useRequestHeaders(),
@@ -134,7 +134,7 @@ async function onReplySubmit({ content }: { content: string }) {
       user: Number(user?.value?.id),
       translations: {
         [locale.value]: {
-          content: content,
+          content: values.content,
         },
       },
       parent: Number(comment.value.id),

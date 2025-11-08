@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { NavigationMenuItem } from '@nuxt/ui'
+import type { NavigationMenuItem } from '#ui/types'
 
 const localePath = useLocalePath()
 const route = useRoute()

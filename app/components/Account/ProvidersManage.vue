@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { BadgeProps, TableColumn, DropdownMenuItem } from '@nuxt/ui'
+import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
 
 const emit = defineEmits(['disconnectThirdPartyProviderAccount'])
 

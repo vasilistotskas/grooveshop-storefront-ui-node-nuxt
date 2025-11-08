@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
+import type { FormSubmitEvent, AuthFormField } from '#ui/types'
 
 const emit = defineEmits(['signUpByPasskey'])
 

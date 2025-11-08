@@ -16,7 +16,15 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-async function onSubmit(values: TwoFaReauthenticateBody) {
+const reauthenticateCodeZodSchema = z.object({
+  code: z.string({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.string.invalid'),
+  }),
+})
+
+async function onSubmit(values: { code: string }) {
   try {
     loading.value = true
     const response = await twoFaReauthenticate({
@@ -34,14 +42,15 @@ async function onSubmit(values: TwoFaReauthenticateBody) {
   }
 }
 
-const formSchema = computed<DynamicFormSchema>(() => ({
+const formSchema = computed(() => ({
   fields: [
     {
       name: 'code',
       as: 'input',
-      rules: z.string({ error: issue => issue.input === undefined
-        ? $i18n.t('validation.required')
-        : $i18n.t('validation.string.invalid') }),
+      rules: reauthenticateCodeZodSchema.shape.code,
+      ui: {
+        root: 'w-full',
+      },
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
@@ -51,7 +60,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       disabledCondition: () => false,
     },
   ],
-}))
+} as const satisfies DynamicFormSchema))
 </script>
 
 <template>

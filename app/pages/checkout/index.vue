@@ -62,10 +62,11 @@ const { data: payWays } = await useFetch(
 
 const fetchRegions = async () => {
   try {
+    const countryValue = formRef.value?.getFieldValue('country')
     regions.value = await $fetch<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
-        country: formRef.value?.fields.country ? formRef.value?.fields.country[0].value : undefined,
+        country: countryValue && countryValue !== defaultSelectOptionChoose ? countryValue : undefined,
         languageCode: locale.value,
       },
     })
@@ -80,8 +81,8 @@ const fetchRegions = async () => {
 }
 
 const onCountryChange = async () => {
-  if (formRef.value?.fields?.region) {
-    formRef.value.fields.region[0].value = defaultSelectOptionChoose
+  if (formRef.value) {
+    formRef.value.setFieldValue('region', defaultSelectOptionChoose)
   }
   await fetchRegions()
 }
@@ -323,7 +324,7 @@ const locationChoicesList = computed(() => [
   },
 ])
 
-const formSchema = computed<DynamicFormSchema>(() => ({
+const formSchema = computed(() => ({
   steps: [
     {
       title: t('steps.personal_info'),
@@ -340,9 +341,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'given-name',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.first_name.min', { min: 3 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.first_name.min', { min: 3 }),
+          }).min(3, {
+            error: $i18n.t('validation.first_name.min', { min: 3 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'lastName',
@@ -355,9 +363,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'family-name',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.last_name.min', { min: 3 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.last_name.min', { min: 3 }),
+          }).min(3, {
+            error: $i18n.t('validation.last_name.min', { min: 3 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'email',
@@ -370,9 +385,14 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'email',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.email.valid') }),
+          rules: z.email({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.email.valid'),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'phone',
@@ -385,9 +405,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'tel',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.phone.min', { min: 3 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.phone.min', { min: 3 }),
+          }).min(3, {
+            error: $i18n.t('validation.phone.min', { min: 3 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
       ],
     },
@@ -423,8 +450,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           ],
           rules: z.string()
             .refine(val => val !== defaultSelectOptionChoose, {
-              message: $i18n.t('validation.required'),
+              error: $i18n.t('validation.required'),
             }),
+          ui: {
+            base: 'w-full',
+          },
           initialValue: defaultSelectOptionChoose,
           condition: () => true,
           disabledCondition: () => false,
@@ -457,8 +487,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           ],
           rules: z.string()
             .refine(val => val !== defaultSelectOptionChoose, {
-              message: $i18n.t('validation.required'),
+              error: $i18n.t('validation.required'),
             }),
+          ui: {
+            base: 'w-full',
+          },
           initialValue: defaultSelectOptionChoose,
           condition: () => true,
           disabledCondition: () => false,
@@ -474,9 +507,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'address-level2',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.city.min', { min: 3 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.city.min', { min: 3 }),
+          }).min(3, {
+            error: $i18n.t('validation.city.min', { min: 3 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'place',
@@ -489,9 +529,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'address-level2',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.place.min', { min: 3 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.place.min', { min: 3 }),
+          }).min(3, {
+            error: $i18n.t('validation.place.min', { min: 3 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'zipcode',
@@ -504,9 +551,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'postal-code',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.zipcode.min', { min: 3 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.zipcode.min', { min: 3 }),
+          }).min(3, {
+            error: $i18n.t('validation.zipcode.min', { min: 3 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'street',
@@ -519,9 +573,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'address-line1',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.street.min', { min: 3 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.street.min', { min: 3 }),
+          }).min(3, {
+            error: $i18n.t('validation.street.min', { min: 3 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'streetNumber',
@@ -534,9 +595,16 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           autocomplete: 'address-line2',
           condition: null,
           disabledCondition: null,
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.street_number.min', { min: 1 }) }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.street_number.min', { min: 1 }),
+          }).min(1, {
+            error: $i18n.t('validation.street_number.min', { min: 1 }),
+          }),
+          ui: {
+            root: 'w-full',
+          },
         },
         {
           name: 'floor',
@@ -567,6 +635,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             })),
           ],
           rules: z.union([zFloorEnum, z.string()]).optional(),
+          ui: {
+            base: 'w-full',
+          },
         },
         {
           name: 'locationType',
@@ -597,6 +668,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             })),
           ],
           rules: z.union([zLocationTypeEnum, z.string()]).optional(),
+          ui: {
+            base: 'w-full',
+          },
         },
         {
           name: 'customerNotes',
@@ -610,6 +684,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           condition: null,
           disabledCondition: null,
           rules: z.string().optional(),
+          ui: {
+            root: 'w-full',
+          },
         },
       ],
     },
@@ -631,7 +708,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
           initialValue: payWayOptions.value?.[0]?.value || '',
           color: 'success',
           rules: z.number().min(1, {
-            message: $i18n.t('validation.payment_method.required'),
+            error: $i18n.t('validation.payment_method.required'),
           }),
           items: payWayOptions.value,
         },
@@ -658,9 +735,11 @@ const formSchema = computed<DynamicFormSchema>(() => ({
               value: zDocumentTypeEnum.enum.INVOICE,
             },
           ],
-          rules: z.string({ error: issue => issue.input === undefined
-            ? $i18n.t('validation.required')
-            : $i18n.t('validation.string.invalid') }),
+          rules: z.string({
+            error: issue => issue.input === undefined
+              ? $i18n.t('validation.required')
+              : $i18n.t('validation.string.invalid'),
+          }),
         },
         {
           name: 'items',
@@ -678,6 +757,9 @@ const formSchema = computed<DynamicFormSchema>(() => ({
             quantity: item.quantity,
           })),
           rules: z.array(z.any()),
+          ui: {
+            root: 'w-full',
+          },
         },
       ],
     },

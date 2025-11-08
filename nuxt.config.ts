@@ -13,7 +13,6 @@ export default defineNuxtConfig({
     '@nuxtjs/seo',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    '@vee-validate/nuxt',
     'nuxt-auth-utils',
   ],
   ssr: true,
@@ -425,6 +424,7 @@ export default defineNuxtConfig({
     clientBundle: {
       icons: [
         'i-lucide:moon',
+        'i-lucide:sun',
         'i-heroicons:heart',
         'i-fa6-solid:circle-user',
       ],
@@ -530,9 +530,5 @@ export default defineNuxtConfig({
       host: 'redis-standalone',
       db: 0,
     },
-  },
-  veeValidate: {
-    typedSchemaPackage: 'zod',
-    autoImports: false,
   },
 })

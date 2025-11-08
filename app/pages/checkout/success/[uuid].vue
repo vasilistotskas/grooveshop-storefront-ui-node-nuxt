@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '#ui/types'
 
 const UAvatar = resolveComponent('UAvatar')
 

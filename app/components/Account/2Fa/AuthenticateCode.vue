@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
+import type { FormSubmitEvent } from '#ui/types'
 
 defineProps({
   authenticatorType: { type: String as PropType<AuthenticatorTypeValues>, required: true },

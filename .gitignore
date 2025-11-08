@@ -33,11 +33,11 @@ coverage
 .eslintcache
 
 # AI
+.claude
 .cursor
 .cursorrules
 .windsurfrules
 .kiro
-memory-bank
 
 # Public
 public/.well-known

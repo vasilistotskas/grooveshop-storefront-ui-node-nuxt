@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { TableColumn, DropdownMenuItem } from '@nuxt/ui'
+import type { TableColumn, DropdownMenuItem } from '#ui/types'
 
 const emit = defineEmits([
   'addEmailAddress',
@@ -27,7 +27,44 @@ const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncD
   () => getEmailAddresses(),
 )
 
-async function addEmail(values: EmailPostBody) {
+const data = computed(() => {
+  return emailAddresses.value?.data.map(email => ({
+    email: email.email,
+    verified: email.verified,
+    primary: email.primary,
+  })) || []
+})
+
+const emailFormZodSchema = z.object({
+  email: z.email({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.email.valid'),
+  }),
+})
+
+const formSchema = computed(() => ({
+  fields: [
+    {
+      label: $i18n.t('email.title'),
+      name: 'email',
+      as: 'input',
+      rules: emailFormZodSchema.shape.email,
+      ui: {
+        root: 'w-full',
+      },
+      autocomplete: 'email',
+      readonly: false,
+      required: true,
+      placeholder: $i18n.t('email.title'),
+      condition: () => true,
+      disabledCondition: () => false,
+      type: 'email',
+    },
+  ],
+} as const satisfies DynamicFormSchema))
+
+async function addEmail(values: z.infer<typeof emailFormZodSchema>) {
   try {
     loading.value = true
     await addEmailAddress(values)
@@ -121,14 +158,6 @@ const columns: TableColumn<EmailAddress>[] = [
   },
 ]
 
-const data = computed(() => {
-  return emailAddresses.value?.data.map(email => ({
-    email: email.email,
-    verified: email.verified,
-    primary: email.primary,
-  })) || []
-})
-
 const actionItems = (row: { email: string, verified: boolean, primary: boolean }): DropdownMenuItem[][] => {
   const items: DropdownMenuItem[] = []
   if (!row.primary) {
@@ -152,28 +181,6 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
   }
   return items.length ? [items] : []
 }
-
-const formSchema = computed<DynamicFormSchema>(() => ({
-  fields: [
-    {
-      label: $i18n.t('email.title'),
-      name: 'email',
-      as: 'input',
-      rules: z.email({
-        error: issue => issue.input === undefined
-          ? $i18n.t('validation.required')
-          : $i18n.t('validation.email.valid'),
-      }),
-      autocomplete: 'email',
-      readonly: false,
-      required: true,
-      placeholder: $i18n.t('email.title'),
-      condition: () => true,
-      disabledCondition: () => false,
-      type: 'email',
-    },
-  ],
-}))
 </script>
 
 <template>

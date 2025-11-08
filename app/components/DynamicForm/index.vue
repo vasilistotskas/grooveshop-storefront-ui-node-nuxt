@@ -1,696 +1,519 @@
-<script lang="ts" setup>
-import { type BaseFieldProps, type GenericObject, useForm } from 'vee-validate'
+<script lang="ts" setup generic="T extends DynamicFormSchema">
 import * as z from 'zod'
+import type { FormSubmitEvent } from '#ui/types'
 
-import { toTypedSchema } from '@vee-validate/zod'
-import type { Ref } from 'vue'
-import type { ButtonProps } from '@nuxt/ui'
-
-type DynamicFormState = {
-  errors: string[]
-}
-
-type DynamicFormFields<
-  TValue = any,
-  TExtras extends GenericObject = GenericObject,
-> = {
-  [key: string]: [Ref<TValue>, Ref<BaseFieldProps & TExtras>]
-}
-
-type FormValues = {
-  [key: string]: unknown
-}
-
-interface DisabledFields {
-  [key: string]: boolean
-}
-
-// Column configuration type
-interface ColumnConfig {
-  'default'?: number
-  'sm'?: number
-  'md'?: number
-  'lg'?: number
-  'xl'?: number
-  '2xl'?: number
-}
-
-// Define the UI configuration for Nuxt-UI
-const nuxtUiConfig = (state: DynamicFormState) => {
-  return {
-    props: {
-      error: state.errors[0],
-    },
-  }
-}
-
-// Define the props for the component
-const props = withDefaults(
-  defineProps<{
-    id?: string
-    schema: DynamicFormSchema
-    submitButton?: boolean
-    resetButton?: boolean
-    buttonLabel?: string
-    resetLabel?: string
-    disableSubmitUntilValid?: boolean
-    submitButtonUi?: ButtonProps & { ui: Record<string, unknown> }
-    resetButtonUi?: ButtonProps & { ui: Record<string, unknown> }
-    buttonsPosition?: 'center' | 'left' | 'right'
-    loading?: boolean
-    maxSubmitCount?: number
-    resetOnSubmit?: boolean
-    columns?: number | ColumnConfig
-  }>(),
-  {
-    id: undefined,
-    submitButton: true,
-    resetButton: false,
-    buttonLabel: 'Submit',
-    resetLabel: 'Reset',
-    disableSubmitUntilValid: true,
-    submitButtonUi: () => ({
-      type: 'submit',
-      variant: 'solid',
-      color: 'neutral',
-      size: 'md',
-      ui: {},
-    }),
-    resetButtonUi: () => ({
-      type: 'button',
-      variant: 'outline',
-      color: 'secondary',
-      size: 'md',
-      ui: {},
-    }),
-    buttonsPosition: 'right',
-    loading: false,
-    maxSubmitCount: 5,
-    resetOnSubmit: false,
-    columns: 1,
-  },
-)
-
-const {
-  id,
-  schema,
-  submitButton,
-  resetButton,
-  buttonLabel,
-  resetLabel,
-  disableSubmitUntilValid,
-  submitButtonUi,
-  resetButtonUi,
-  loading,
-  maxSubmitCount,
-  resetOnSubmit,
-  columns,
-} = toRefs(props)
-
-const finalID = id.value ?? useId()
-const currentStep = ref(0)
-const isMultiStep = ref(Array.isArray(schema.value.steps) && schema.value.steps.length > 0)
-const lastStep = ref(schema.value.steps?.length ? schema.value.steps.length - 1 : 0)
-
-// Generate grid column classes based on configuration
-const gridColsClasses = computed(() => {
-  const cols = columns.value
-  const classes: string[] = []
-
-  if (typeof cols === 'number') {
-    // Simple number format
-    if (cols > 1) {
-      classes.push(`grid-cols-${cols}`)
-    }
-  }
-  else if (typeof cols === 'object') {
-    // Responsive object format
-    if (cols.default && cols.default > 1) {
-      classes.push(`grid-cols-${cols.default}`)
-    }
-    if (cols.sm && cols.sm > 1) {
-      classes.push(`sm:grid-cols-${cols.sm}`)
-    }
-    if (cols.md && cols.md > 1) {
-      classes.push(`md:grid-cols-${cols.md}`)
-    }
-    if (cols.lg && cols.lg > 1) {
-      classes.push(`lg:grid-cols-${cols.lg}`)
-    }
-    if (cols.xl && cols.xl > 1) {
-      classes.push(`xl:grid-cols-${cols.xl}`)
-    }
-    if (cols['2xl'] && cols['2xl'] > 1) {
-      classes.push(`2xl:grid-cols-${cols['2xl']}`)
-    }
-  }
-
-  return classes.join(' ')
+const props = withDefaults(defineProps<{
+  schema: T
+  buttonLabel?: string
+  loading?: boolean
+  resetOnSubmit?: boolean
+}>(), {
+  buttonLabel: 'Submit',
+  loading: false,
+  resetOnSubmit: false,
 })
 
-// Get column span classes for individual fields
-const getFieldColSpanClasses = (field: any) => {
-  if (!field.colSpan) return ''
-
-  const colSpan = field.colSpan
-  const classes: string[] = []
-
-  if (typeof colSpan === 'number') {
-    if (colSpan > 1) {
-      classes.push(`col-span-${colSpan}`)
-    }
-  }
-  else if (typeof colSpan === 'object') {
-    if (colSpan.default && colSpan.default > 1) {
-      classes.push(`col-span-${colSpan.default}`)
-    }
-    if (colSpan.sm && colSpan.sm > 1) {
-      classes.push(`sm:col-span-${colSpan.sm}`)
-    }
-    if (colSpan.md && colSpan.md > 1) {
-      classes.push(`md:col-span-${colSpan.md}`)
-    }
-    if (colSpan.lg && colSpan.lg > 1) {
-      classes.push(`lg:col-span-${colSpan.lg}`)
-    }
-    if (colSpan.xl && colSpan.xl > 1) {
-      classes.push(`xl:col-span-${colSpan.xl}`)
-    }
-    if (colSpan['2xl'] && colSpan['2xl'] > 1) {
-      classes.push(`2xl:col-span-${colSpan['2xl']}`)
-    }
-  }
-
-  return classes.join(' ')
-}
-
-// Filter the schema fields based on the current step
-const formFields = computed(() => {
-  return (isMultiStep.value ? schema.value?.steps?.[currentStep.value]?.fields : schema.value.fields) ?? []
-})
-
-// Filter the schema fields based on the condition function
-const filteredFields = computed(() => {
-  return formFields.value.filter((field) => {
-    if (!field.condition || typeof field.condition !== 'function') {
-      return true
-    }
-    return field.condition(values)
-  })
-})
-
-// Create an object of disabled fields based on the disabledCondition function
-const disabledFields = computed<DisabledFields>(() => {
-  if (!formFields.value) {
-    return {}
-  }
-  return formFields.value.reduce((acc: DisabledFields, field) => {
-    acc[field.name] = field.disabledCondition && typeof field.disabledCondition === 'function' ? field.disabledCondition(values) : false
-    return acc
-  }, {})
-})
-
-// Create an array of all field names from all steps
-const allSchemaFieldNames = computed(() => {
-  if (isMultiStep.value && schema.value.steps) {
-    return schema.value.steps.flatMap(step => step.fields.map(field => field.name))
-  }
-  return formFields.value.map(field => field.name)
-})
-
-// Generate complete schema for all fields
-const completeGeneratedSchema = computed(() => {
-  if (isMultiStep.value && schema.value.steps) {
-    const fields = schema.value.steps.flatMap(step =>
-      step.fields.map(field => [field.name, field.rules ?? z.any()]),
-    )
-    return z.object(Object.fromEntries(fields))
-  }
-  const fields = formFields.value.map(field => [field.name, field.rules ?? z.any()])
-  return z.object(Object.fromEntries(fields))
-})
-
-// Use schema.fields to generate a Zod schema object for current step
-const currentStepSchema = computed(() => {
-  const fields = formFields.value.map(field => [field.name, field.rules ?? z.any()])
-  return z.object(Object.fromEntries(fields))
-})
-
-// Use schema.extraValidation to generate a Zod schema object
-const extraValidationSchema = computed(() => {
-  return schema.value.extraValidation ?? undefined
-})
-
-// Merge the generated Zod schema object with the extraValidationSchema
-const merged = computed(() => {
-  const baseSchema = isMultiStep.value ? completeGeneratedSchema.value : currentStepSchema.value
-  if (!extraValidationSchema.value) {
-    return baseSchema
-  }
-
-  return z.object({
-    ...baseSchema.shape,
-    ...extraValidationSchema.value.shape,
-  }).superRefine((val, ctx) => {
-    const result = extraValidationSchema.value.safeParse(val)
-    if (!result.success) {
-      result.error.issues.forEach((issue: string) => {
-        ctx.addIssue(issue)
-      })
-    }
-  })
-})
-
-// Convert the generated Zod schema object to a VeeValidate compatible schema object
-const validationSchema = toTypedSchema(merged.value)
-
-const initialFormValues = computed(() => {
-  const values: FormValues = {}
-
-  if (isMultiStep.value && schema.value.steps) {
-    // For multistep forms, get all fields from all steps
-    schema.value.steps.forEach((step) => {
-      step.fields.forEach((field) => {
-        if (field.initialValue !== undefined) {
-          values[field.name] = field.initialValue
-        }
-      })
-    })
-  }
-  else {
-    // For single step forms, use the current fields
-    formFields.value.forEach((field) => {
-      if (field.initialValue !== undefined) {
-        values[field.name] = field.initialValue
-      }
-    })
-  }
-
-  return values
-})
-
-const {
-  defineField,
-  handleSubmit,
-  resetForm,
-  errors,
-  isSubmitting,
-  submitCount,
-  values,
-  validateField,
-  setFieldError,
-} = useForm({
-  validationSchema,
-  initialValues: initialFormValues.value,
-  keepValuesOnUnmount: isMultiStep.value,
-})
-
-const reset = () => {
-  resetForm()
-}
-
-// Helper to get current step field names
-const currentStepFieldNames = computed(() => {
-  const currentStepFields = schema.value.steps?.[currentStep.value]?.fields ?? []
-  return currentStepFields.map(field => field.name)
-})
-
-// Check if current step has errors
-const currentStepHasErrors = computed(() => {
-  const currentFields = currentStepFieldNames.value
-  return Object.entries(errors.value)
-    .some(([field, error]) => currentFields.includes(field) && error)
-})
-
-const nextStepButtonDisabled = computed(() => {
-  return isSubmitting.value || currentStepHasErrors.value
-})
-
-const goToPreviousStep = () => {
-  if (currentStep.value > 0) {
-    currentStep.value--
-    const nextStepFields = schema.value.steps?.[currentStep.value + 1]?.fields ?? []
-    nextStepFields.forEach((field) => {
-      setFieldError(field.name, '')
-    })
-  }
-}
-
-const goToNextStep = async () => {
-  const currentStepFields = schema.value.steps?.[currentStep.value]?.fields ?? []
-  const fieldsToValidate = currentStepFields.map(field => field.name)
-
-  const validationResults = await Promise.all(
-    fieldsToValidate.map(field => validateField(field)),
-  )
-
-  const isStepValid = validationResults.every(result => result.valid)
-
-  if (isStepValid) {
-    if (currentStep.value < lastStep.value) {
-      currentStepFields.forEach((field) => {
-        setFieldError(field.name, '')
-      })
-      currentStep.value++
-    }
-  }
-}
-
-// Create an object of field bindings using defineField and nuxtUiConfig functions
-function createFields(keys: string[] | undefined): DynamicFormFields {
-  if (!keys) {
-    return {}
-  }
-  const fieldValues: DynamicFormFields = {}
-  keys.forEach((key) => {
-    const [field, fieldProps] = defineField(key, nuxtUiConfig)
-    fieldValues[key] = [field, fieldProps]
-  })
-  return fieldValues
-}
-
-const fields = computed(() => createFields(allSchemaFieldNames.value))
-
-// Define the submit event emitter using defineEmits function
+// Keep emit simple - let parent components handle the typing
 const emit = defineEmits<{
-  (e: 'submit', payload: any): void
-  (e: 'select-menu-change', payload: { target: string, value: string }): void
+  submit: [values: InferZodSchemaType<T>]
+  selectMenuChange: [payload: { target: string, value: any }]
 }>()
 
-// Define the submit event handler using handleSubmit function and emit function
-const onSubmit = handleSubmit((formValues) => {
-  console.log('DynamicForm onSubmit called with:', formValues)
-  console.log('Form errors:', errors.value)
-  console.log('Form state:', formState.value)
-
-  emit('submit', formValues)
-
-  if (resetOnSubmit.value) {
-    resetForm()
-  }
-}, (errors) => {
-  console.error('Form validation failed:', errors)
-})
-
-// Define the form state for Nuxt UI
-const formState = computed(() => {
-  return Object.fromEntries(
-    Object.entries(fields.value).map(([key, value]) => [key, value[0].value]),
-  )
-})
-
-// Define the select menu items
-const getSelectMenuItems = (name: string) => {
-  const fields = isMultiStep.value ? schema.value.steps?.[currentStep.value]?.fields : formFields.value
-
-  const field = fields?.find(field => field.name === name)
-  if (!field) {
-    return []
-  }
-  const children = field.children
-  if (children && children.length > 0) {
-    return children.map(child => ({
-      label: child.label,
-      value: child.value,
-      disabled: child.disabled || false,
-    }))
-  }
-  return []
-}
-
-// Define the select menu change handler
-const onSelectMenuChange = ({ target, value }: { target: string, value: string }) => {
-  emit('select-menu-change', { target, value })
-}
-
-// Define the submit button disabled state
-const valid = computedAsync(async () => {
-  if (submitCount.value >= maxSubmitCount.value || loading.value) {
-    console.log('Returning true due to submit count or loading')
-    return true
-  }
-
-  return await validationSchema
-    .parse(formState.value)
-    .then((result) => {
-      const liveResultValid = result.errors.length === 0
-      return isSubmitting.value || Object.keys(errors.value).length > 0
-        ? !liveResultValid
-        : false
-    })
-    .catch((error) => {
-      console.log('Validation error:', error)
-      return true
-    })
-}, disableSubmitUntilValid.value)
-
-// Watch for changes to the disabledFields object
-formFields.value.forEach((field) => {
-  watch(
-    () => disabledFields.value?.[field.name],
-    (newVal, oldVal) => {
-      if (newVal && !oldVal) {
-        const fieldEntry = fields.value[field.name]
-        if (fieldEntry && Array.isArray(fieldEntry) && fieldEntry[0]) {
-          fieldEntry[0].value = ''
-        }
+// Create a combined Zod schema from all steps or fields
+const combinedSchema = computed(() => {
+  if (props.schema.steps) {
+    const schemaObject: Record<string, z.ZodType> = {}
+    for (const step of props.schema.steps) {
+      for (const field of step.fields) {
+        schemaObject[field.name] = field.rules
       }
-    },
-  )
+    }
+    return z.object(schemaObject)
+  }
+
+  if (props.schema.fields) {
+    const schemaObject: Record<string, z.ZodType> = {}
+    for (const field of props.schema.fields) {
+      schemaObject[field.name] = field.rules
+    }
+    return z.object(schemaObject)
+  }
+
+  return z.object({})
 })
 
-// Add stepper items computed property
+// Initialize form state with initial values
+const formState = reactive<Record<string, any>>({})
+const initializedFields = new Set<string>()
+
+// Set initial values only once per field
+watchEffect(() => {
+  const allFields = props.schema.steps
+    ? props.schema.steps.flatMap(step => step.fields)
+    : props.schema.fields || []
+
+  for (const field of allFields) {
+    // Only set initial value if field hasn't been initialized yet
+    if (
+      !initializedFields.has(field.name)
+      && field.initialValue !== undefined
+      && field.initialValue !== null
+    ) {
+      formState[field.name] = field.initialValue
+      initializedFields.add(field.name)
+    }
+  }
+})
+
+const currentStepIndex = ref(0)
+const stepper = useTemplateRef('stepper')
+const form = useTemplateRef('form')
+
+// Expose fields for parent component access (for backward compatibility)
+interface FieldExport {
+  value: any
+}
+
+const fields = computed(() => {
+  const fieldsMap: Record<string, FieldExport[]> = {}
+
+  const allFields = props.schema.steps
+    ? props.schema.steps.flatMap(step => step.fields)
+    : props.schema.fields || []
+
+  for (const field of allFields) {
+    if (!fieldsMap[field.name]) {
+      fieldsMap[field.name] = []
+    }
+    fieldsMap[field.name]!.push({
+      value: formState[field.name],
+    })
+  }
+
+  return fieldsMap
+})
+
+// Methods to get/set field values
+function getFieldValue(fieldName: string): any {
+  return formState[fieldName]
+}
+
+function setFieldValue(fieldName: string, value: any): void {
+  formState[fieldName] = value
+}
+
+// Method to reset form - fixed to avoid ESLint error
+function resetForm(): void {
+  // Get all keys first, then delete them
+  const keys = Object.keys(formState)
+  keys.forEach((key) => {
+    formState[key] = undefined
+  })
+  initializedFields.clear()
+}
+
+defineExpose({
+  fields,
+  formState,
+  getFieldValue,
+  setFieldValue,
+  resetForm,
+})
+
+// Stepper item interface
+interface StepperItem {
+  title?: string
+  description?: string
+  icon?: string
+  value: number
+}
+
+// Convert steps to stepper items
 const stepperItems = computed(() => {
-  if (!isMultiStep.value || !schema.value.steps) {
+  if (!props.schema.steps) {
     return []
   }
-  return schema.value.steps.map((step, index) => ({
+
+  return props.schema.steps.map((step, index: number): StepperItem => ({
     title: step.title,
     description: step.description,
     icon: step.icon,
     value: index,
-    disabled: index > currentStep.value,
   }))
 })
 
-defineExpose({
-  fields,
-  valid,
+// Get current step fields
+const currentStepFields = computed(() => {
+  if (!props.schema.steps || currentStepIndex.value >= props.schema.steps.length) {
+    return []
+  }
+  return props.schema.steps[currentStepIndex.value]?.fields
 })
+
+// Check if field should be visible based on condition
+function isFieldVisible(field: DynamicFormSchemaField): boolean {
+  if (field.hidden) {
+    return false
+  }
+
+  if (typeof field.condition === 'function') {
+    return field.condition(formState)
+  }
+
+  return field.condition !== false
+}
+
+// Check if field should be disabled based on disabledCondition
+function isFieldDisabled(field: DynamicFormSchemaField): boolean {
+  if (field.readonly) {
+    return true
+  }
+
+  if (typeof field.disabledCondition === 'function') {
+    return field.disabledCondition(formState)
+  }
+
+  return field.disabledCondition === true
+}
+
+// Handle step change
+function handleStepChange(value: string | number | undefined): void {
+  if (typeof value === 'number') {
+    currentStepIndex.value = value
+  }
+}
+
+// Handle next step
+async function handleNext(): Promise<void> {
+  try {
+    // Validate current step fields
+    const currentStepFieldNames = currentStepFields.value?.map((f: DynamicFormSchemaField) => f.name)
+    await form.value?.validate({
+      name: currentStepFieldNames,
+      silent: false,
+    })
+
+    // Move to next step
+    if (stepper.value?.hasNext) {
+      stepper.value.next()
+    }
+  }
+  catch (error) {
+    // Validation failed, stay on current step
+    console.error('Validation failed:', error)
+  }
+}
+
+// Handle previous step
+function handlePrev(): void {
+  if (stepper.value?.hasPrev) {
+    stepper.value.prev()
+  }
+}
+
+// Handle form submission
+async function handleSubmit(event: FormSubmitEvent<any>): Promise<void> {
+  emit('submit', event.data as InferZodSchemaType<T>)
+
+  if (props.resetOnSubmit) {
+    resetForm()
+  }
+}
+
+// Handle select change
+function handleSelectChange(fieldName: string, value: any): void {
+  formState[fieldName] = value
+  emit('selectMenuChange', { target: fieldName, value })
+}
+
+// Select option interface
+interface SelectOption {
+  label: string
+  value: string | number | boolean
+  disabled?: boolean
+}
+
+// Render select options for native select
+function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
+  if (!field.children) {
+    return []
+  }
+
+  return field.children.map((child: DynamicFormChildElement): SelectOption => ({
+    label: child.label || child.text,
+    value: child.value ?? child.text,
+    disabled: child.disabled,
+  }))
+}
 </script>
 
 <template>
-  <div class="grid w-full gap-4">
+  <div v-if="schema.steps && schema.steps.length > 0" class="space-y-6">
     <UStepper
-      v-if="isMultiStep"
       ref="stepper"
-      v-model="currentStep"
-      color="secondary"
+      v-model="currentStepIndex"
       :items="stepperItems"
-      class="w-full"
-      size="lg"
-      :ui="{
-        root: 'pb-4',
-        description: 'text-xs',
-      }"
-      @update:model-value="(value: string | number | undefined) => currentStep = Number(value || 0)"
-    />
+      @update:model-value="handleStepChange"
+    >
+      <template #content>
+        <UForm
+          ref="form"
+          :state="formState"
+          :schema="combinedSchema"
+          class="space-y-4"
+          @submit="handleSubmit"
+        >
+          <div
+            v-for="field in currentStepFields"
+            :key="field.name"
+            :class="{
+              hidden: !isFieldVisible(field),
+            }"
+          >
+            <!-- Input field -->
+            <UFormField
+              v-if="field.as === 'input'"
+              :label="field.label"
+              :name="field.name"
+              :required="field.required"
+              :ui="schema.ui"
+            >
+              <UInput
+                v-model="formState[field.name]"
+                :type="field.type"
+                :placeholder="field.placeholder"
+                :autocomplete="field.autocomplete"
+                :disabled="isFieldDisabled(field)"
+                :readonly="field.readonly"
+                :ui="field.ui"
+              />
+            </UFormField>
 
+            <!-- Textarea field -->
+            <UFormField
+              v-else-if="field.as === 'textarea'"
+              :label="field.label"
+              :name="field.name"
+              :required="field.required"
+              :ui="schema.ui"
+            >
+              <UTextarea
+                v-model="formState[field.name]"
+                :placeholder="field.placeholder"
+                :autocomplete="field.autocomplete"
+                :disabled="isFieldDisabled(field)"
+                :readonly="field.readonly"
+                :ui="field.ui"
+              />
+            </UFormField>
+
+            <!-- Select field -->
+            <UFormField
+              v-else-if="field.as === 'select'"
+              :label="field.label"
+              :name="field.name"
+              :required="field.required"
+              :ui="schema.ui"
+            >
+              <USelect
+                v-model="formState[field.name]"
+                :items="getSelectOptions(field)"
+                :placeholder="field.placeholder"
+                :disabled="isFieldDisabled(field)"
+                :ui="field.ui"
+                @update:model-value="(value) => handleSelectChange(field.name, value)"
+              />
+            </UFormField>
+
+            <!-- Radio field -->
+            <UFormField
+              v-else-if="field.as === 'radio' && field.items"
+              :name="field.name"
+              :required="field.required"
+              :ui="schema.ui"
+            >
+              <URadioGroup
+                v-model="formState[field.name]"
+                :legend="field.label"
+                :items="field.items"
+                :color="field.color || 'primary'"
+                :disabled="isFieldDisabled(field)"
+                :ui="field.ui"
+              />
+            </UFormField>
+
+            <!-- Checkbox field -->
+            <UFormField
+              v-else-if="field.as === 'checkbox'"
+              :name="field.name"
+              :required="field.required"
+              :ui="schema.ui"
+            >
+              <UCheckbox
+                v-model="formState[field.name]"
+                :label="field.label"
+                :disabled="isFieldDisabled(field)"
+                :ui="field.ui"
+              />
+            </UFormField>
+          </div>
+
+          <!-- Navigation buttons for stepper -->
+          <div
+            v-if="schema.steps && schema.steps.length > 1" class="
+              flex justify-between gap-2 pt-4
+            "
+          >
+            <UButton
+              type="button"
+              variant="outline"
+              :disabled="!stepper?.hasPrev"
+              @click="handlePrev"
+            >
+              Previous
+            </UButton>
+
+            <UButton
+              v-if="currentStepIndex < schema.steps.length - 1"
+              type="button"
+              @click="handleNext"
+            >
+              Next
+            </UButton>
+
+            <UButton
+              v-else
+              type="submit"
+              :loading="loading"
+            >
+              {{ buttonLabel }}
+            </UButton>
+          </div>
+
+          <!-- Submit button for non-stepper forms -->
+          <div v-else class="pt-4">
+            <UButton
+              type="submit"
+              :loading="loading"
+            >
+              {{ buttonLabel }}
+            </UButton>
+          </div>
+        </UForm>
+      </template>
+    </UStepper>
+  </div>
+
+  <!-- Non-stepper form (single step with fields) -->
+  <div v-else-if="schema.fields && schema.fields.length > 0">
     <UForm
-      :id="finalID"
-      :state="fields"
-      autocomplete="on"
-      class="
-        grid w-full gap-4 divide-none
-        dark:divide-primary-800
-      "
-      @submit="onSubmit"
+      ref="form"
+      :state="formState"
+      :schema="combinedSchema"
+      class="space-y-4"
+      @submit="handleSubmit"
     >
       <div
-        :class="[
-          `
-            grid gap-2
-            md:gap-4
-          `,
-          gridColsClasses,
-        ]"
+        v-for="field in schema.fields"
+        :key="field.name"
+        :class="{
+          hidden: !isFieldVisible(field),
+        }"
       >
-        <template
-          v-for="{
-            as,
-            id: groupId,
-            name,
-            label,
-            autocomplete = 'off',
-            readonly = false,
-            required = false,
-            hidden = false,
-            placeholder = '',
-            type = 'text',
-            children = [],
-            items = [],
-            color = 'neutral' as 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'neutral',
-          } in filteredFields"
-          :key="name"
+        <!-- Input field -->
+        <UFormField
+          v-if="field.as === 'input'"
+          :label="field.label"
+          :name="field.name"
+          :required="field.required"
+          :ui="schema.ui"
         >
-          <LazyUFormField
-            v-if="fields[name]"
-            :class="[
-              {
-                'items-center': true,
-                'grid': as !== 'checkbox',
-                'gap-1': children && children.length > 0,
-                'sr-only': hidden,
-                'flex': as === 'checkbox',
-                'gap-2': as === 'checkbox',
-                'px-4 md:px-8': as === 'radio',
-              },
-              getFieldColSpanClasses(fields[name]),
-            ]"
-            :label="label ? label : undefined"
-            :name="name"
-            :error="errors[name]"
-            :required="required"
-          >
-            <LazyUTextarea
-              v-if="as === 'textarea'"
-              :id="groupId"
-              v-model="fields[name][0].value"
-              :aria-readonly="readonly"
-              :autocomplete="autocomplete"
-              :class="{ 'grid': true, 'gap-1': children && children.length > 0 }"
-              :disabled="disabledFields[name]"
-              :name="name"
-              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-              :readonly="readonly"
-              :required="required"
-              :type="type"
-              :color="color"
-              v-bind="fields[name][1].value"
-            >
-              <div v-if="children && children.length > 0">
-                <LazyDynamicFormChildren :children="children" />
-              </div>
-            </LazyUTextarea>
-            <LazyUCheckbox
-              v-else-if="as === 'checkbox'"
-              :id="groupId"
-              v-model="fields[name][0].value"
-              :aria-describedby="errors[name] ? `error-${name}` : undefined"
-              :aria-invalid="errors[name] ? 'true' : 'false'"
-              :aria-readonly="readonly"
-              :autocomplete="autocomplete"
-              :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
-              :disabled="disabledFields[name]"
-              :hidden="hidden ? 'hidden' : undefined"
-              :name="name"
-              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-              :readonly="readonly"
-              :required="required"
-              :type="type"
-              :color="color"
-              v-bind="fields[name][1].value"
-            >
-              <div v-if="children && children.length > 0">
-                <LazyDynamicFormChildren :children="children" />
-              </div>
-            </LazyUCheckbox>
-            <LazyURadioGroup
-              v-else-if="as === 'radio' && items && items.length > 0"
-              :id="groupId"
-              v-model="fields[name][0].value"
-              value-key="value"
-              :aria-describedby="errors[name] ? `error-${name}` : undefined"
-              :aria-invalid="errors[name] ? 'true' : 'false'"
-              :aria-readonly="readonly"
-              :autocomplete="autocomplete"
-              :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
-              :disabled="disabledFields[name]"
-              :hidden="hidden ? 'hidden' : undefined"
-              :name="name"
-              :items="items"
-              variant="list"
-              :color="color || 'neutral'"
-              :ui="{
-                fieldset: 'max-h-72 overflow-y-auto',
-              }"
-            >
-              <div v-if="children && children.length > 0">
-                <LazyDynamicFormChildren :children="children" />
-              </div>
-            </LazyURadioGroup>
-            <LazyUSelectMenu
-              v-else-if="as === 'select'"
-              v-model="fields[name][0].value"
-              :name="name"
-              value-key="value"
-              :items="getSelectMenuItems(name)"
-              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-              :color="color"
-              class="w-full"
-              @update:model-value="onSelectMenuChange({ target: name, value: fields[name][0].value })"
-              @change="onSelectMenuChange({ target: name, value: fields[name][0].value })"
-            />
-            <UInput
-              v-else-if="!hidden || (hidden && !Array.isArray(fields[name][0].value))"
-              :id="groupId"
-              v-model="fields[name][0].value"
-              :aria-describedby="errors[name] ? `error-${name}` : undefined"
-              :aria-invalid="errors[name] ? 'true' : 'false'"
-              :aria-readonly="readonly"
-              :autocomplete="autocomplete"
-              :class="{ 'grid': true, 'gap-1': children && children.length > 0, 'sr-only': hidden }"
-              :disabled="disabledFields[name]"
-              :hidden="hidden ? 'hidden' : undefined"
-              :name="name"
-              :placeholder="type === 'text' || type === 'password' || type === 'email' ? placeholder : ''"
-              :readonly="readonly"
-              :required="required"
-              :type="type"
-              :color="color"
-              v-bind="fields[name][1].value"
-            >
-              <LazyDynamicFormChildren
-                v-if="children && children.length > 0"
-                :children="children"
-              />
-            </UInput>
-          </LazyUFormField>
-        </template>
+          <UInput
+            v-model="formState[field.name]"
+            :type="field.type"
+            :placeholder="field.placeholder"
+            :autocomplete="field.autocomplete"
+            :disabled="isFieldDisabled(field)"
+            :readonly="field.readonly"
+            :ui="field.ui"
+          />
+        </UFormField>
+
+        <!-- Textarea field -->
+        <UFormField
+          v-else-if="field.as === 'textarea'"
+          :label="field.label"
+          :name="field.name"
+          :required="field.required"
+          :ui="schema.ui"
+        >
+          <UTextarea
+            v-model="formState[field.name]"
+            :placeholder="field.placeholder"
+            :autocomplete="field.autocomplete"
+            :disabled="isFieldDisabled(field)"
+            :readonly="field.readonly"
+            :ui="field.ui"
+          />
+        </UFormField>
+
+        <!-- Select field -->
+        <UFormField
+          v-else-if="field.as === 'select'"
+          :label="field.label"
+          :name="field.name"
+          :required="field.required"
+          :ui="schema.ui"
+        >
+          <USelect
+            v-model="formState[field.name]"
+            :items="getSelectOptions(field)"
+            :placeholder="field.placeholder"
+            :disabled="isFieldDisabled(field)"
+            :ui="field.ui"
+            @update:model-value="(value) => handleSelectChange(field.name, value)"
+          />
+        </UFormField>
+
+        <!-- Radio field -->
+        <UFormField
+          v-else-if="field.as === 'radio' && field.items"
+          :name="field.name"
+          :required="field.required"
+          :ui="schema.ui"
+        >
+          <URadioGroup
+            v-model="formState[field.name]"
+            :legend="field.label"
+            :items="field.items"
+            :color="field.color || 'primary'"
+            :disabled="isFieldDisabled(field)"
+            :ui="field.ui"
+          />
+        </UFormField>
+
+        <!-- Checkbox field -->
+        <UFormField
+          v-else-if="field.as === 'checkbox'"
+          :name="field.name"
+          :required="field.required"
+          :ui="schema.ui"
+        >
+          <UCheckbox
+            v-model="formState[field.name]"
+            :label="field.label"
+            :disabled="isFieldDisabled(field)"
+            :ui="field.ui"
+          />
+        </UFormField>
       </div>
 
-      <div
-        :class="{ 'flex': true, 'justify-end': buttonsPosition === 'right', 'justify-center': buttonsPosition === 'center', 'justify-start': buttonsPosition === 'left' }"
-      >
-        <LazyDynamicFormNavigation
-          v-if="isMultiStep"
-          :current-step="currentStep"
-          :last-step="lastStep"
-          :next-step-button-disabled="nextStepButtonDisabled"
-          :submit-label="buttonLabel"
-          @go-to-next-step="goToNextStep"
-          @go-to-previous-step="goToPreviousStep"
-          @submit="onSubmit"
-        />
-
+      <div class="pt-4">
         <UButton
-          v-if="!isMultiStep && submitButton"
-          v-bind="submitButtonUi"
-          :aria-busy="isSubmitting"
-          :disabled="valid"
-          :label="buttonLabel"
-        />
-
-        <UButton
-          v-if="!isMultiStep && resetButton"
-          :color="resetButtonUi?.color"
-          :size="resetButtonUi?.size"
-          :type="resetButtonUi?.type"
-          :ui="resetButtonUi?.ui"
-          :variant="resetButtonUi?.variant"
-          @click="reset"
+          type="submit"
+          :loading="loading"
         >
-          {{ resetLabel }}
+          {{ buttonLabel }}
         </UButton>
       </div>
     </UForm>

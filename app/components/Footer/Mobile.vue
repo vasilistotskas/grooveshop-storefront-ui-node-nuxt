@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { AccordionItem } from '@nuxt/ui'
+import type { AccordionItem } from '#ui/types'
 
 const localePath = useLocalePath()
 const { t } = useI18n()

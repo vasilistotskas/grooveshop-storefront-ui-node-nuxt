@@ -12,10 +12,16 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-async function onSubmit(values: {
-  name: string
-  passwordless: boolean
-}) {
+const webAuthnFormZodSchema = z.object({
+  name: z.string({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.string.invalid'),
+  }),
+  passwordless: z.boolean(),
+})
+
+async function onSubmit(values: z.infer<typeof webAuthnFormZodSchema>) {
   try {
     loading.value = true
     const optResp = await getWebAuthnCreateOptions(values.passwordless)
@@ -50,15 +56,16 @@ async function onSubmit(values: {
   }
 }
 
-const formSchema = computed<DynamicFormSchema>(() => ({
+const formSchema = computed(() => ({
   fields: [
     {
       label: $i18n.t('name'),
       name: 'name',
       as: 'input',
-      rules: z.string({ error: issue => issue.input === undefined
-        ? $i18n.t('validation.required')
-        : $i18n.t('validation.string.invalid') }),
+      rules: webAuthnFormZodSchema.shape.name,
+      ui: {
+        root: 'w-full',
+      },
       autocomplete: 'name',
       readonly: false,
       required: true,
@@ -71,7 +78,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       label: t('passwordless'),
       name: 'passwordless',
       as: 'checkbox',
-      rules: z.boolean(),
+      rules: webAuthnFormZodSchema.shape.passwordless,
       autocomplete: 'passwordless',
       readonly: false,
       required: false,
@@ -82,7 +89,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       disabledCondition: () => false,
     },
   ],
-}))
+} as const satisfies DynamicFormSchema))
 </script>
 
 <template>

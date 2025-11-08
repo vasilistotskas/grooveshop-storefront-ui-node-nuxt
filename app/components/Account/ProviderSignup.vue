@@ -9,10 +9,18 @@ const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
-async function onSubmit(values: ProviderSignupBody) {
+const providerSignupZodSchema = z.object({
+  email: z.email({
+    error: issue => issue.input === undefined
+      ? $i18n.t('validation.required')
+      : $i18n.t('validation.email.valid'),
+  }),
+})
+
+async function onSubmit(values: z.infer<typeof providerSignupZodSchema>) {
   try {
     loading.value = true
-    await providerSignup(values)
+    await providerSignup(values) // Properly typed as { email: string }
     toast.add({
       title: $i18n.t('success.title'),
       color: 'success',
@@ -24,17 +32,16 @@ async function onSubmit(values: ProviderSignupBody) {
   }
 }
 
-const formSchema = computed<DynamicFormSchema>(() => ({
+const formSchema = computed(() => ({
   fields: [
     {
       label: $i18n.t('email.title'),
       name: 'email',
       as: 'input',
-      rules: z.email({
-        error: issue => issue.input === undefined
-          ? $i18n.t('validation.required')
-          : $i18n.t('validation.email.valid'),
-      }),
+      rules: providerSignupZodSchema.shape.email,
+      ui: {
+        root: 'w-full',
+      },
       autocomplete: 'email',
       readonly: false,
       required: true,
@@ -44,7 +51,7 @@ const formSchema = computed<DynamicFormSchema>(() => ({
       type: 'email',
     },
   ],
-}))
+} as const satisfies DynamicFormSchema))
 </script>
 
 <template>

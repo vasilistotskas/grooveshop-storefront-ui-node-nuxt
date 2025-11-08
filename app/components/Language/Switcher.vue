@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { DropdownMenuItem } from '@nuxt/ui'
+import type { DropdownMenuItem } from '#ui/types'
 import type { Locale } from '@intlify/core-base'
 
 defineProps({
