@@ -1,3 +1,10 @@
+## [3.42.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.42.0...v3.42.1) (2025-11-11)
+
+
+### Bug Fixes
+
+* remove useless component ([186f882](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/186f88235b8873aa66780e74fc6634556002c829))
+
 # [3.42.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.41.0...v3.42.0) (2025-11-08)
 
 
