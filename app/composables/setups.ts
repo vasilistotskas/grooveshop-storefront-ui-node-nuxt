@@ -17,7 +17,7 @@ export function setupPageHeader() {
   const colorMode = useColorMode()
   const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
-  const ogLocalesAlternate = computed(() => $i18n.locales.value.map(l => l.language))
+  const ogLocalesAlternate = computed(() => $i18n.locales.value.map(l => l.language || l.code))
   const lang = computed(() => uiLocales[$i18n.locale.value].code)
   const dir = computed(() => uiLocales[$i18n.locale.value].dir)
 
@@ -45,7 +45,7 @@ export function setupPageHeader() {
     colorScheme: colorScheme,
     msapplicationTileColor: themeColor,
     ogLocale: $i18n.locale,
-    ogLocaleAlternate: ogLocalesAlternate,
+    ogLocaleAlternate: ogLocalesAlternate.value,
   })
 
   useHead(() => ({
