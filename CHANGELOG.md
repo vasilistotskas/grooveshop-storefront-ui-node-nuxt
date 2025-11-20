@@ -1,3 +1,16 @@
+# [3.43.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.42.1...v3.43.0) (2025-11-20)
+
+
+### Bug Fixes
+
+* revert vitest ([7e7dfb9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7e7dfb9a141a3e9cc57ff553a5a2a2234fcc899f))
+
+
+### Features
+
+* Bump Versions, lint nuxt ui property ([80859df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/80859df813c1bbe2bead7e879fd460ed79c0a933))
+* pnpm-workspace.yaml ([c82c0f4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c82c0f4887f31f5f3b9825e0cdb3aa651590436d))
+
 ## [3.42.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.42.0...v3.42.1) (2025-11-11)
 
 
