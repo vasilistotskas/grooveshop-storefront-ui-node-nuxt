@@ -391,7 +391,11 @@ useHead({
               dark:hover:ring-primary-400
             "
             :ui="{
-              body: 'p-2 sm:p-4 dark:bg-elevated/50',
+              body: `
+                dark:bg-elevated/50
+                p-2
+                sm:p-4
+              `,
             }"
           >
             <SearchResult :result="result" />

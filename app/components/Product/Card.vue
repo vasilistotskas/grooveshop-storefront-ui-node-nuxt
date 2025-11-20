@@ -71,7 +71,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
     "
     :ui="{
       root: 'w-full max-w-full',
-      body: 'p-0 sm:p-0',
+      body: `
+        p-0
+        sm:p-0
+      `,
     }"
   >
     <div

@@ -175,7 +175,10 @@ const backgroundImage = computed(() => {
                   type="button"
                   variant="ghost"
                   :ui="{
-                    base: 'absolute right-2 top-1/2 -translate-y-1/2 hover:bg-transparent cursor-pointer',
+                    base: `
+                      absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer
+                      hover:bg-transparent
+                    `,
                   }"
                   @click="showPassword1 = !showPassword1"
                 />
@@ -205,7 +208,10 @@ const backgroundImage = computed(() => {
                   type="button"
                   variant="ghost"
                   :ui="{
-                    base: 'absolute right-2 top-1/2 -translate-y-1/2 hover:bg-transparent cursor-pointer',
+                    base: `
+                      absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer
+                      hover:bg-transparent
+                    `,
                   }"
                   @click="showPassword2 = !showPassword2"
                 />
@@ -219,7 +225,7 @@ const backgroundImage = computed(() => {
                 icon="i-heroicons-check"
                 :color="'info'"
                 :ui="{
-                  label: 'text-sm font-medium ',
+                  label: 'text-sm font-medium',
                 }"
               >
                 <template #label>

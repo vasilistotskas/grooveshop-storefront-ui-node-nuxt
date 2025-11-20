@@ -37,7 +37,10 @@ const color = computed(() => {
       :title="t('cart')"
       :to="localePath('cart')"
       :ui="{
-        base: 'cursor-pointer hover:bg-transparent',
+        base: `
+          cursor-pointer
+          hover:bg-transparent
+        `,
       }"
     />
   </UChip>

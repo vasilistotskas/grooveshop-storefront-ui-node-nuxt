@@ -61,7 +61,9 @@ useSeoMeta({
         <UCarousel
           v-slot="{ item }"
           :items="items"
-          :ui="{ item: 'basis-full items-center justify-center justify-items-center' }"
+          :ui="{ item: `
+            basis-full items-center justify-center justify-items-center
+          ` }"
           class="
             mx-auto max-w-(--container-main)
             md:!p-0

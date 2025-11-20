@@ -22,7 +22,13 @@ watch(loggedIn, () => {
       <UCard
         class="relative"
         :ui="{
-          body: isMobileOrTablet? 'p-0 sm:p-0' : 'p-0 sm:p-0',
+          body: isMobileOrTablet? `
+            p-0
+            sm:p-0
+          ` : `
+            p-0
+            sm:p-0
+          `,
         }"
       >
         <UButton
@@ -32,7 +38,10 @@ watch(loggedIn, () => {
           icon="i-heroicons-x-mark-20-solid"
           class="absolute top-4 right-4 z-50"
           :ui="{
-            base: 'absolute right-4 top-4 z-50 hover:bg-transparent cursor-pointer',
+            base: `
+              absolute top-4 right-4 z-50 cursor-pointer
+              hover:bg-transparent
+            `,
           }"
           @click="isOpen = false"
         />

@@ -128,7 +128,10 @@ onUnmounted(() => {
               <UColorModeButton
                 class="w-6"
                 :ui="{
-                  base: 'cursor-pointer hover:bg-transparent p-0',
+                  base: `
+                    cursor-pointer p-0
+                    hover:bg-transparent
+                  `,
                   leadingIcon: 'size-6',
                 }"
               />

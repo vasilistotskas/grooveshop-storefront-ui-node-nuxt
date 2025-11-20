@@ -252,7 +252,7 @@ definePageMeta({
             :columns="orderItemColumns"
             :ui="{
               root: 'overflow-auto',
-              base: 'overflow-auto min-w-full',
+              base: 'min-w-full overflow-auto',
               thead: 'bg-elevated/50',
             }"
           />

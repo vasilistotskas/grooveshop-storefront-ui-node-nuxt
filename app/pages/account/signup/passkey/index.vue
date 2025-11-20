@@ -46,8 +46,17 @@ definePageMeta({
     <UBreadcrumb
       :items="items"
       :ui="{
-        item: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-base',
+        item: isMobileOrTablet ? `
+          text-primary-950
+          dark:text-primary-50
+        ` : `
+          text-primary-950
+          dark:text-primary-50
+        `,
+        root: `
+          text-xs
+          md:text-base
+        `,
       }"
       class="
         absolute z-10 mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4

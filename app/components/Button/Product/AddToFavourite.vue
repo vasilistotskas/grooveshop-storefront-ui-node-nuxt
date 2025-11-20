@@ -155,7 +155,10 @@ const buttonAreaLabel = computed(() => {
     :loading="isLoading"
     :disabled="isLoading"
     :ui="{
-      base: 'hover:bg-transparent cursor-pointer',
+      base: `
+        cursor-pointer
+        hover:bg-transparent
+      `,
     }"
     @click="toggleFavourite"
   />

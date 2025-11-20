@@ -41,7 +41,10 @@ const categoryResults = shallowRef(categories.value?.results ?? [])
       :items="categoryResults"
       :ui="{
         container: 'items-unset',
-        item: 'flex basis-[33%] md:basis-[17%]',
+        item: `
+          flex basis-[33%]
+          md:basis-[17%]
+        `,
       }"
       class="
         overflow-hidden

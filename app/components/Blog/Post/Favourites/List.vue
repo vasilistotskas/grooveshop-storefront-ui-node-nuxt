@@ -51,7 +51,10 @@ const { t, locale } = useI18n()
       >
         <UCard
           :ui="{
-            body: 'p-2 sm:p-3',
+            body: `
+              p-2
+              sm:p-3
+            `,
           }"
         >
           <template #header>

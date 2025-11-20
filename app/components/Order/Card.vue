@@ -92,7 +92,10 @@ const customerInitials = computed(() => {
       hover:shadow-md
     "
     :ui="{
-      root: 'overflow-hidden bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-50',
+      root: `
+        bg-primary-100 text-primary-950 overflow-hidden
+        dark:bg-primary-900 dark:text-primary-50
+      `,
       body: 'p-0',
     }"
   >

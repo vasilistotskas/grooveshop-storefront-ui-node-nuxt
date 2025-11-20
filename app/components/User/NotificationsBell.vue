@@ -99,7 +99,10 @@ onClickOutside(dropdown, () => {
         :aria-label="t('notifications.title')"
         :title="t('notifications.title')"
         :ui="{
-          base: 'p-0 hover:bg-transparent',
+          base: `
+            p-0
+            hover:bg-transparent
+          `,
         }"
         @click="toggleDropdown"
       />
@@ -129,8 +132,11 @@ onClickOutside(dropdown, () => {
               <UCard
                 variant="subtle"
                 :ui="{
-                  root: 'w-full h-full',
-                  body: 'p-2 sm:p-4',
+                  root: 'h-full w-full',
+                  body: `
+                    p-2
+                    sm:p-4
+                  `,
                 }"
               >
                 <UChip

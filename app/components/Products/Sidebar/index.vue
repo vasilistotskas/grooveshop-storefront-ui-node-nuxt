@@ -305,8 +305,14 @@ onMounted(() => {
     <UCard
       class="w-full"
       :ui="{
-        body: 'sm:p-4 space-y-4',
-        header: 'sm:p-4 space-y-4',
+        body: `
+          space-y-4
+          sm:p-4
+        `,
+        header: `
+          space-y-4
+          sm:p-4
+        `,
       }"
     >
       <template #header>

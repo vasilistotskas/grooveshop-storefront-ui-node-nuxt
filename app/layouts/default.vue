@@ -121,10 +121,18 @@ const items = computed(() => {
         orientation="horizontal"
         :items="items"
         :ui="{
-          root: 'border-primary-200 bg-primary-50 fixed bottom-0 left-0 right-0 z-50 bottom-0 left-0 right-0 z-50 block w-full border-t dark:border-primary-700 dark:bg-primary-900',
+          root: `
+            border-primary-200 bg-primary-50 fixed right-0 bottom-0 left-0 z-50
+            block w-full border-t
+            dark:border-primary-700 dark:bg-primary-900
+          `,
           list: 'w-full',
           item: 'w-full px-0 py-2',
-          link: 'flex place-items-center justify-center before:bg-transparent dark:before:bg-transparent p-0',
+          link: `
+            flex place-items-center justify-center p-0
+            before:bg-transparent
+            dark:before:bg-transparent
+          `,
           linkLabel: 'sr-only',
           linkLeadingIcon: 'size-8',
           linkLeadingAvatar: 'size-8',

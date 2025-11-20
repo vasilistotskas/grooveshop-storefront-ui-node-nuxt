@@ -66,7 +66,10 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
     <UCard
       variant="soft"
       :ui="{
-        body: 'p-0 sm:p-0 relative',
+        body: `
+          relative p-0
+          sm:p-0
+        `,
       }"
     >
       <UTooltip :text="t('viewFullscreen')" :delay-duration="500">
@@ -75,7 +78,11 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
           variant="ghost"
           color="neutral"
           :ui="{
-            base: 'flex group relative w-full overflow-hidden rounded-md transition-all duration-200 hover:opacity-95 p-0',
+            base: `
+              group relative flex w-full overflow-hidden rounded-md p-0
+              transition-all duration-200
+              hover:opacity-95
+            `,
           }"
           :aria-label="t('viewFullSizeImage')"
           @click="openModal()"
@@ -130,7 +137,11 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
       v-slot="{ item, index }"
       :items="images"
       :ui="{
-        item: `basis-1/3 sm:basis-1/4 lg:basis-1/5`,
+        item: `
+          basis-1/3
+          sm:basis-1/4
+          lg:basis-1/5
+        `,
       }"
       class="overflow-hidden rounded-lg"
       arrows
@@ -142,7 +153,10 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
         variant="ghost"
         color="neutral"
         :ui="{
-          base: `relative p-1 rounded-none ring-0 hover:bg-transparent`,
+          base: `
+            relative rounded-none p-1 ring-0
+            hover:bg-transparent
+          `,
         }"
         :aria-label="t('selectImage', { number: index + 1 })"
         :aria-pressed="selectedImageId === item.id"

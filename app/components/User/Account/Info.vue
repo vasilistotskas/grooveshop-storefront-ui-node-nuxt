@@ -113,7 +113,10 @@ const changeUserName = async () => {
             variant="ghost"
             size="lg"
             :ui="{
-              base: 'hover:bg-transparent cursor-pointer p-0',
+              base: `
+                cursor-pointer p-0
+                hover:bg-transparent
+              `,
             }"
             @click="onEditUserName"
           />

@@ -51,7 +51,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('about.site') }}
@@ -69,7 +69,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('vision') }}
@@ -105,7 +105,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('microlearning.what') }}
@@ -123,7 +123,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('microlearning.why') }}
@@ -159,7 +159,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('term_of_use') }}
@@ -177,7 +177,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('privacy_policy') }}
@@ -195,7 +195,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('cookies_policy') }}
@@ -231,7 +231,7 @@ const packageVersion = pkg.version
                   hover:dark:text-primary-50
                 "
                 :ui="{
-                  base: 'p-0 text-start items-start',
+                  base: 'items-start p-0 text-start',
                 }"
               >
                 {{ t('contact.us') }}

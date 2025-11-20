@@ -38,8 +38,14 @@ definePageMeta({
       <UBreadcrumb
         :items="items"
         :ui="{
-          item: 'text-primary-950 dark:text-primary-50',
-          root: 'text-xs md:text-base',
+          item: `
+            text-primary-950
+            dark:text-primary-50
+          `,
+          root: `
+            text-xs
+            md:text-base
+          `,
         }"
         class="mb-6"
       />

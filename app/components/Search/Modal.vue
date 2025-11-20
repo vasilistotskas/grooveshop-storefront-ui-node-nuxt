@@ -164,7 +164,7 @@ onMounted(() => {
     :fullscreen="isMobileOrTablet"
     :description="t('search.description')"
     :ui="{
-      content: 'max-w-3xl max-h-[85vh]',
+      content: 'max-h-[85vh] max-w-3xl',
       body: 'p-0',
       footer: 'md:h-16',
     }"

@@ -38,9 +38,18 @@ const BlogPostCard = computed(() =>
       v-slot="{ item }"
       :items="posts"
       :ui="{
-        item: 'basis-full md:basis-1/2 items-center justify-center justify-items-center',
-        next: 'top-2/5 md:top-1/2',
-        prev: 'top-2/5 md:top-1/2',
+        item: `
+          basis-full items-center justify-center justify-items-center
+          md:basis-1/2
+        `,
+        next: `
+          top-2/5
+          md:top-1/2
+        `,
+        prev: `
+          top-2/5
+          md:top-1/2
+        `,
       }"
       :prev="{
         color: 'neutral',

@@ -113,7 +113,10 @@ const addressDetails = computed(() => {
     class="relative h-full"
     varian="soft"
     :ui="{
-      body: 'p-2 sm:p-4',
+      body: `
+        p-2
+        sm:p-4
+      `,
     }"
   >
     <UBadge

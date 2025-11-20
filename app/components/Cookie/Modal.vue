@@ -191,9 +191,9 @@ const isUnSaved = computed(() => {
                       :label="getName(cookie.name)"
                       :disabled="cookieType === ZodCookieTypeEnum.enum.necessary"
                       :ui="{
-                        root: 'flex-row-reverse w-full',
+                        root: 'w-full flex-row-reverse',
                         base: 'cursor-pointer',
-                        wrapper: 'w-full m-0',
+                        wrapper: 'm-0 w-full',
                         label: 'cursor-pointer',
                       }"
                       @update:model-value="(_: boolean) => toggleCookie(cookie, cookieType)"

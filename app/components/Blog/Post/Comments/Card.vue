@@ -401,7 +401,10 @@ watch(
                 : t('more.replies', totalReplies)
             "
             :ui="{
-              base: 'hover:bg-transparent p-0',
+              base: `
+                p-0
+                hover:bg-transparent
+              `,
             }"
             @click="onShowMoreRepliesButtonClick"
             @mouseenter="isLineHovered = true"
@@ -429,7 +432,10 @@ watch(
               variant="ghost"
               size="md"
               :ui="{
-                base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer',
+                base: `
+                  flex cursor-pointer flex-row items-center gap-1
+                  hover:bg-transparent
+                `,
               }"
               @click="onReplyButtonClick"
             />
@@ -536,7 +542,11 @@ watch(
                 : t('more.replies', totalReplies)
             "
             :ui="{
-              base: 'flex flex-row items-center gap-1 hover:bg-transparent cursor-pointer z-20 px-1.25 py-1',
+              base: `
+                z-20 flex cursor-pointer flex-row items-center gap-1 px-1.25
+                py-1
+                hover:bg-transparent
+              `,
             }"
             @click="onShowMoreRepliesButtonClick"
           />

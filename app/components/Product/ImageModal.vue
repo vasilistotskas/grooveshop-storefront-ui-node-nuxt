@@ -258,9 +258,15 @@ watch(modelValue, (isOpen) => {
                 disabled: activeIndex === images.length - 1,
               }"
               :ui="{
-                root: 'h-full w-full flex items-center',
-                prev: 'left-2 sm:left-4',
-                next: 'right-2 sm:right-4',
+                root: 'flex h-full w-full items-center',
+                prev: `
+                  left-2
+                  sm:left-4
+                `,
+                next: `
+                  right-2
+                  sm:right-4
+                `,
               }"
               class="h-full w-full"
               @select="onSelect"
@@ -419,7 +425,10 @@ watch(modelValue, (isOpen) => {
               variant="ghost"
               color="neutral"
               :ui="{
-                base: 'relative p-0 flex-shrink-0 bg-transparent hover:bg-transparent',
+                base: `
+                  relative flex-shrink-0 bg-transparent p-0
+                  hover:bg-transparent
+                `,
               }"
               @click="selectImage(index)"
             >

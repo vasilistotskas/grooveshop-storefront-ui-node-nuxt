@@ -39,7 +39,10 @@ const categoryResults = computed(() => {
       v-slot="{ item }"
       :items="categoryResults"
       :ui="{
-        item: 'basis-full md:basis-1/4 px-2',
+        item: `
+          basis-full px-2
+          md:basis-1/4
+        `,
       }"
       arrows
       :prev="{

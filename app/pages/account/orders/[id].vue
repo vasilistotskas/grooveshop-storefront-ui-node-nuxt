@@ -642,7 +642,10 @@ definePageMeta({
 
       <UCard
         :ui="{
-          root: 'md:min-w-1/3  max-h-fit',
+          root: `
+            max-h-fit
+            md:min-w-1/3
+          `,
         }"
       >
         <template #header>

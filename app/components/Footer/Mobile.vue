@@ -34,7 +34,7 @@ const items = ref<AccordionItem[]>([{
     <UAccordion
       :items="items"
       :ui="{
-        trigger: 'bg-(--ui-secondary) p-3 gap-4',
+        trigger: 'gap-4 bg-(--ui-secondary) p-3',
         leadingIcon: 'size-8 text-white',
         label: 'truncate text-2xl font-semibold text-white',
       }"

@@ -178,7 +178,10 @@ const backgroundImage = computed(() => {
                   type="button"
                   variant="ghost"
                   :ui="{
-                    base: 'absolute right-2 top-1/2 -translate-y-1/2 hover:bg-transparent cursor-pointer',
+                    base: `
+                      absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer
+                      hover:bg-transparent
+                    `,
                   }"
                   @click="showPassword = !showPassword"
                 />

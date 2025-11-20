@@ -264,7 +264,10 @@ const activityStats = computed(() => {
               variant="subtle"
               :ui="{
                 root: 'h-full',
-                body: 'h-full sm:p-0',
+                body: `
+                  h-full
+                  sm:p-0
+                `,
               }"
               class="
                 group transition-all duration-200
@@ -326,7 +329,13 @@ const activityStats = computed(() => {
 
             <UCard
               :ui="{
-                body: 'flex items-center justify-center h-full sm:p-5 bg-gradient-to-br from-red-100 to-red-200 group-hover:scale-105 dark:from-red-900/20 dark:to-red-800/20',
+                body: `
+                  flex h-full items-center justify-center bg-gradient-to-br
+                  from-red-100 to-red-200
+                  group-hover:scale-105
+                  sm:p-5
+                  dark:from-red-900/20 dark:to-red-800/20
+                `,
               }"
               variant="subtle"
               class="

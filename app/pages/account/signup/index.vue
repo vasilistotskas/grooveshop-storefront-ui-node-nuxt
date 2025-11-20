@@ -46,8 +46,17 @@ definePageMeta({
     <UBreadcrumb
       :items="items"
       :ui="{
-        item: isMobileOrTablet ? 'text-primary-950 dark:text-primary-50' : 'text-primary-950 dark:text-primary-50',
-        root: 'text-xs md:text-base',
+        item: isMobileOrTablet ? `
+          text-primary-950
+          dark:text-primary-50
+        ` : `
+          text-primary-950
+          dark:text-primary-50
+        `,
+        root: `
+          text-xs
+          md:text-base
+        `,
       }"
       class="
         absolute z-10 mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
@@ -60,7 +69,10 @@ definePageMeta({
       class="mx-auto w-full max-w-(--container-xl) !p-0"
       :ui="{
         root: isMobileOrTablet? 'rounded-none ring-0' : '',
-        body: isMobileOrTablet? 'p-0' : 'px-4 py-5 sm:p-6',
+        body: isMobileOrTablet? 'p-0' : `
+          px-4 py-5
+          sm:p-6
+        `,
       }"
     >
       <AccountSignupForm />

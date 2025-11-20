@@ -86,7 +86,7 @@ const addToCartEvent = async () => {
     variant="subtle"
     :disabled="disabled"
     :ui="{
-      base: 'w-full place-items-center place-content-center',
+      base: 'w-full place-content-center place-items-center',
     }"
     @click.prevent="addToCartEvent"
   />

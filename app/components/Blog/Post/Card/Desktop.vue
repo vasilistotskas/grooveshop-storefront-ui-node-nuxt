@@ -142,7 +142,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
               dark:text-primary-50
             "
             :ui="{
-              base: 'p-0 text-start items-start',
+              base: 'items-start p-0 text-start',
             }"
           />
         </h2>
@@ -165,7 +165,10 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :label="String(post.commentsCount)"
           :to="localePath({ path: blogPostUrl(post.id, post.slug), hash: '#blog-post-comments' })"
           :ui="{
-            base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
+            base: `
+              flex cursor-pointer flex-col items-center gap-1 p-0
+              hover:bg-transparent
+            `,
           }"
         />
         <ClientOnly>
@@ -179,7 +182,10 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             variant="ghost"
             :title="$i18n.t('share')"
             :ui="{
-              base: 'flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0',
+              base: `
+                flex cursor-pointer flex-col items-center gap-1 p-0
+                hover:bg-transparent
+              `,
             }"
             @click="startShare"
           />

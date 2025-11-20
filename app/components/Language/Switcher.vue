@@ -76,7 +76,10 @@ const navigateToLocale = (locale: Locale) => {
         size="xl"
         trailing-icon="i-heroicons-language"
         :ui="{
-          base: 'cursor-pointer hover:bg-transparent',
+          base: `
+            cursor-pointer
+            hover:bg-transparent
+          `,
         }"
         :title="t('current_language', {
           language: locale,

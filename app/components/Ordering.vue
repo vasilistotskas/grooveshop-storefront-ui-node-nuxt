@@ -90,7 +90,10 @@ const onOptionClick = async (option: OrderingOption) => {
       :items="items"
       :popper="{ placement: 'bottom-start' }"
       :ui="{
-        item: 'text-primary-800 dark:text-primary-200',
+        item: `
+          text-primary-800
+          dark:text-primary-200
+        `,
       }"
       class="md:h-full"
     >

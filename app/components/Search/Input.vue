@@ -43,7 +43,13 @@ defineShortcuts({
       size="md"
       block
       :ui="{
-        base: 'p-0 text-primary-800 dark:text-primary-200 hover:text-primary-950 dark:hover:text-primary-50 md:px-2.5 md:py-1.5',
+        base: `
+          text-primary-800 p-0
+          dark:text-primary-200
+          hover:text-primary-950
+          dark:hover:text-primary-50
+          md:px-2.5 md:py-1.5
+        `,
         label: 'font-normal',
       }"
       class="md:max-w-md"

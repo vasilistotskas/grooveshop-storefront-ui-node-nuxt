@@ -89,8 +89,12 @@ const filteredTags = computed(() => {
         v-slot="{ item }"
         :items="filteredTags"
         :ui="{
-          item: 'basis-1/2 md:basis-1/3 lg:basis-1/4',
-          container: 'rounded-lg gap-3',
+          item: `
+            basis-1/2
+            md:basis-1/3
+            lg:basis-1/4
+          `,
+          container: 'gap-3 rounded-lg',
         }"
       >
         <UButton
