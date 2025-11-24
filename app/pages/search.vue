@@ -392,9 +392,9 @@ useHead({
             "
             :ui="{
               body: `
-                dark:bg-elevated/50
                 p-2
                 sm:p-4
+                dark:bg-elevated/50
               `,
             }"
           >

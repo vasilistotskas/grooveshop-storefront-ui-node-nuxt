@@ -44,11 +44,10 @@ defineShortcuts({
       block
       :ui="{
         base: `
-          text-primary-800 p-0
-          dark:text-primary-200
+          p-0 text-primary-800
           hover:text-primary-950
-          dark:hover:text-primary-50
           md:px-2.5 md:py-1.5
+          dark:text-primary-200 dark:hover:text-primary-50
         `,
         label: 'font-normal',
       }"

@@ -93,7 +93,7 @@ const customerInitials = computed(() => {
     "
     :ui="{
       root: `
-        bg-primary-100 text-primary-950 overflow-hidden
+        overflow-hidden bg-primary-100 text-primary-950
         dark:bg-primary-900 dark:text-primary-50
       `,
       body: 'p-0',

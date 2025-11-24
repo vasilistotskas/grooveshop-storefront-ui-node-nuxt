@@ -177,8 +177,8 @@ const Footer = computed(() => {
         :items="items"
         :ui="{
           root: `
-            border-primary-200 bg-primary-50 fixed right-0 bottom-0 left-0 z-50
-            block w-full border-t
+            fixed right-0 bottom-0 left-0 z-50 block w-full border-t
+            border-primary-200 bg-primary-50
             dark:border-primary-700 dark:bg-primary-900
           `,
           list: 'w-full',

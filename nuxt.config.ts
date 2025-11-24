@@ -236,10 +236,6 @@ export default defineNuxtConfig({
     '/_ipx/**': { headers: { 'cache-control': 'max-age=31536000' } },
     '/index': { redirect: '/' },
   },
-  sourcemap: {
-    server: false,
-    client: true,
-  },
   future: {
     compatibilityVersion: 5,
   },
@@ -294,13 +290,9 @@ export default defineNuxtConfig({
   },
   vite: {
     build: {
-      sourcemap: true,
       cssCodeSplit: true,
       minify: 'esbuild',
       target: 'esnext',
-    },
-    css: {
-      devSourcemap: false,
     },
   },
   typescript: {
@@ -308,16 +300,6 @@ export default defineNuxtConfig({
     typeCheck: true,
   },
   debug: false,
-  hooks: {
-    'build:manifest': (manifest) => {
-      const css = manifest['node_modules/nuxt/dist/app/entry.js']?.css
-      if (css) {
-        for (let i = css.length - 1; i >= 0; i--) {
-          if (css[i]?.startsWith('entry')) css.splice(i, 1)
-        }
-      }
-    },
-  },
   cookieControl: {
     cookies: {
       necessary: [
