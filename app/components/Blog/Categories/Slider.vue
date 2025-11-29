@@ -2,7 +2,7 @@
 const props = defineProps({
   max: {
     type: Number,
-    default: 6,
+    default: 8,
   },
   showAllButton: {
     type: Boolean,
