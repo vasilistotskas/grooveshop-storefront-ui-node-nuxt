@@ -236,11 +236,9 @@ export default defineNuxtConfig({
     '/_ipx/**': { headers: { 'cache-control': 'max-age=31536000' } },
     '/index': { redirect: '/' },
   },
+  sourcemap: process.env.NODE_ENV !== 'production',
   future: {
     compatibilityVersion: 5,
-  },
-  features: {
-    inlineStyles: true,
   },
   experimental: {
     typedPages: true,
@@ -291,8 +289,8 @@ export default defineNuxtConfig({
   vite: {
     build: {
       cssCodeSplit: true,
+      cssMinify: 'lightningcss',
       minify: 'esbuild',
-      target: 'esnext',
     },
   },
   typescript: {
@@ -414,7 +412,7 @@ export default defineNuxtConfig({
         globInclude: ['components/**/*.vue', 'app/**/*.vue', 'pages/**/*.vue', 'layouts/**/*.vue'],
         globExclude: ['node_modules', 'dist'],
       },
-      sizeLimitKb: 256,
+      sizeLimitKb: 128,
     },
   },
   image: {
