@@ -1,3 +1,10 @@
+# [3.47.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.46.2...v3.47.0) (2025-12-05)
+
+
+### Features
+
+* trying prerender ([2454e1c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2454e1c725806a99573912cb41ebdf604984342c))
+
 ## [3.46.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.46.1...v3.46.2) (2025-12-05)
 
 
