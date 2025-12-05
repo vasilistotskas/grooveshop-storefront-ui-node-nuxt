@@ -121,12 +121,27 @@ jobs:
       - name: Create .env file from GitHub variables and secrets
         env:
           ALL_VARS: ${{ toJSON(vars) }}
-          NUXT_SECRETS: ${{ secrets.NUXT_SECRETS }}
+          # Secrets must be explicitly listed (GitHub doesn't allow dynamic iteration)
+          NUXT_SESSION_PASSWORD: ${{ secrets.NUXT_SESSION_PASSWORD }}
+          NUXT_SECRET_KEY: ${{ secrets.NUXT_SECRET_KEY }}
+          NUXT_OAUTH_GOOGLE_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_SECRET }}
+          NUXT_OAUTH_GOOGLE_CLIENT_ID: ${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_ID }}
+          NUXT_OAUTH_FACEBOOK_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET }}
+          NUXT_OAUTH_FACEBOOK_CLIENT_ID: ${{ secrets.NUXT_OAUTH_FACEBOOK_CLIENT_ID }}
+          NUXT_OAUTH_DISCORD_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_SECRET }}
+          NUXT_OAUTH_DISCORD_CLIENT_ID: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_ID }}
         run: |
+          # Add all NUXT_* variables (dynamic)
           echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
-          if [ -n "$NUXT_SECRETS" ]; then
-            echo "$NUXT_SECRETS" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> .env
-          fi
+          # Add secrets (must be explicit)
+          [ -n "NUXT_SESSION_PASSWORD" ] && echo "NUXT_SESSION_PASSWORD=NUXT_SESSION_PASSWORD" >> .env
+          [ -n "NUXT_SECRET_KEY" ] && echo "NUXT_SECRET_KEY=NUXT_SECRET_KEY" >> .env
+          [ -n "NUXT_OAUTH_GOOGLE_CLIENT_SECRET" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_SECRET=NUXT_OAUTH_GOOGLE_CLIENT_SECRET" >> .env
+          [ -n "NUXT_OAUTH_GOOGLE_CLIENT_ID" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_ID=NUXT_OAUTH_GOOGLE_CLIENT_ID" >> .env
+          [ -n "NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_SECRET=NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" >> .env
+          [ -n "NUXT_OAUTH_FACEBOOK_CLIENT_ID" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_ID=NUXT_OAUTH_FACEBOOK_CLIENT_ID" >> .env
+          [ -n "NUXT_OAUTH_DISCORD_CLIENT_SECRET" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_SECRET=NUXT_OAUTH_DISCORD_CLIENT_SECRET" >> .env
+          [ -n "NUXT_OAUTH_DISCORD_CLIENT_ID" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_ID=NUXT_OAUTH_DISCORD_CLIENT_ID" >> .env
 
       - name: Build application
         run: pnpm run build
