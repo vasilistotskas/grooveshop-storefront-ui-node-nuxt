@@ -153,11 +153,10 @@ defineExpose({
 </script>
 
 <template>
-  <ClientOnly>
-    <aside class="relative z-50">
-      <div
-        v-if="!isConsentGiven && !moduleOptions.isModalForced"
-        class="
+  <aside class="relative z-50">
+    <div
+      v-if="!isConsentGiven && !moduleOptions.isModalForced"
+      class="
           fixed right-0 bottom-2 left-0 z-50 mx-auto max-w-sm rounded-md border
           border-primary-200 bg-primary-50 px-4 py-4 text-primary-600 shadow-xl
           sm:max-w-xl
@@ -165,71 +164,71 @@ defineExpose({
           lg:max-w-4xl
           dark:border-primary-700 dark:bg-primary-800 dark:text-primary-100
         "
-      >
-        <div
-          class="
+    >
+      <div
+        class="
             flex flex-col items-center justify-between text-xs text-primary-700
             lg:flex-row
             dark:text-primary-100
           "
-        >
-          <div>
-            <slot name="bar">
-              <h2
-                class="mb-1 font-semibold"
-                v-text="t('banner.title')"
-              />
-              <p
-                class="
+      >
+        <div>
+          <slot name="bar">
+            <h2
+              class="mb-1 font-semibold"
+              v-text="t('banner.title')"
+            />
+            <p
+              class="
                   text-sm text-primary-600
                   dark:text-primary-100
                 "
-                v-text="t('banner.description')"
-              />
-            </slot>
-          </div>
-          <div
-            class="
+              v-text="t('banner.description')"
+            />
+          </slot>
+        </div>
+        <div
+          class="
               mt-4 ml-auto flex items-center gap-2
               md:flex-row-reverse md:space-y-0
               lg:mt-0
             "
-          >
-            <UButton
-              type="button"
-              :label="t('manage_cookies')"
-              color="secondary"
-              variant="solid"
-              size="lg"
-              @click="isModalActive = true"
-            />
-            <UButton
-              type="button"
-              :label="t('accept')"
-              color="neutral"
-              variant="outline"
-              size="lg"
-              @click="accept()"
-            />
-            <UButton
-              v-if="moduleOptions.isAcceptNecessaryButtonEnabled"
-              type="button"
-              :label="t('decline')"
-              color="neutral"
-              variant="outline"
-              size="lg"
-              @click="decline()"
-            />
-          </div>
+        >
+          <UButton
+            type="button"
+            :label="t('manage_cookies')"
+            color="secondary"
+            variant="solid"
+            size="lg"
+            @click="isModalActive = true"
+          />
+          <UButton
+            type="button"
+            :label="t('accept')"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            @click="accept()"
+          />
+          <UButton
+            v-if="moduleOptions.isAcceptNecessaryButtonEnabled"
+            type="button"
+            :label="t('decline')"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            @click="decline()"
+          />
         </div>
       </div>
-      <button
-        v-if="moduleOptions.isControlButtonEnabled && isConsentGiven"
-        :title="t('title')"
-        aria-label="Cookie control"
-        data-testid="nuxt-cookie-control-control-button"
-        type="button"
-        class="
+    </div>
+    <button
+      v-if="moduleOptions.isControlButtonEnabled && isConsentGiven"
+      :title="t('title')"
+      aria-label="Cookie control"
+      data-testid="nuxt-cookie-control-control-button"
+      type="button"
+      class="
           fixed bottom-[160px] left-[20px] h-[36px] w-[36px] cursor-pointer
           rounded-full border border-primary-200 bg-primary-50 text-primary-900
           transition duration-200
@@ -239,22 +238,21 @@ defineExpose({
           dark:hover:bg-primary-700 dark:hover:text-white
           dark:focus:ring-primary-700
         "
-        @click="isModalActive = true"
-      >
-        <UIcon
-          name="i-unjs:cookie-es"
-          mode="svg"
-          class="
+      @click="isModalActive = true"
+    >
+      <UIcon
+        name="i-unjs:cookie-es"
+        mode="svg"
+        class="
             absolute top-1/2 left-1/2 max-h-[24px] min-h-[24px] max-w-[24px]
             min-w-[24px] -translate-x-1/2 -translate-y-1/2 transform
             text-primary-600 transition duration-200
             dark:text-primary-100
           "
-        />
-      </button>
-      <LazyCookieModal v-if="isModalActive" />
-    </aside>
-  </ClientOnly>
+      />
+    </button>
+    <LazyCookieModal v-if="isModalActive" />
+  </aside>
 </template>
 
 <i18n lang="yaml">

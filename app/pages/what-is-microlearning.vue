@@ -61,9 +61,10 @@ definePageMeta({
           alt="Webside"
           :modifiers="{ position: 'entropy' }"
           loading="eager"
-          format="png"
+          format="webp"
           quality="80"
           preload
+          fetchpriority="high"
         />
       </div>
       <p
@@ -91,8 +92,8 @@ definePageMeta({
           :width="960"
           :height="860"
           alt="Webside"
-          loading="eager"
-          format="png"
+          loading="lazy"
+          format="webp"
           quality="80"
         />
       </div>
@@ -123,8 +124,8 @@ definePageMeta({
           :width="960"
           :height="860"
           alt="Webside"
-          loading="eager"
-          format="png"
+          loading="lazy"
+          format="webp"
           quality="80"
         />
       </div>

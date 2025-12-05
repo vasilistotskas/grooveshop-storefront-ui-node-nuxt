@@ -44,3 +44,6 @@ public/.well-known
 
 # Auth
 .auth-token
+
+# Other
+.unlighthouse

@@ -59,9 +59,10 @@ definePageMeta({
           :height="600"
           alt="Webside"
           loading="eager"
-          format="png"
+          format="webp"
           quality="80"
           preload
+          fetchpriority="high"
         />
       </div>
       <p

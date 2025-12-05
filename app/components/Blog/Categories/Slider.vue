@@ -16,7 +16,7 @@ const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { data: categories } = await useFetch(`/api/blog/categories`, {
+const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
   key: 'blogCategories',
   method: 'GET',
   headers: useRequestHeaders(),
@@ -25,7 +25,7 @@ const { data: categories } = await useFetch(`/api/blog/categories`, {
     languageCode: locale,
   },
 })
-const categoryResults = shallowRef(categories.value?.results ?? [])
+const categoryResults = computed(() => categories.value?.results ?? [])
 </script>
 
 <template>

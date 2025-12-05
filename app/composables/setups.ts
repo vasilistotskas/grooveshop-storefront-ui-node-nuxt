@@ -76,6 +76,10 @@ export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
   const { proxy } = useScriptGoogleAnalytics({
     id: config.public.scripts.googleAnalytics.id,
+    // Defer loading until after hydration to not block initial render
+    scriptOptions: {
+      trigger: 'onNuxtReady',
+    },
     onBeforeGtagStart(gtag) {
       gtag('consent', 'default', {
         ad_user_data: 'denied',
