@@ -143,9 +143,9 @@ const items = computed(() => [
             </li>
             <li
               class="
-                relative grid max-w-6 items-center justify-center
-                justify-items-center
-              "
+                  relative grid max-w-6 items-center justify-center
+                  justify-items-center
+                "
             >
               <UButton
                 :aria-label="$i18n.t('favourites')"
@@ -181,15 +181,16 @@ const items = computed(() => [
                 }"
               />
             </li>
-            <li
-              v-if="loggedIn"
-              class="
-                relative grid max-w-6 items-center justify-center
-                justify-items-center
-              "
-            >
-              <LazyUserNotificationsBell />
-            </li>
+            <template v-if="loggedIn">
+              <li
+                class="
+                    relative grid max-w-6 items-center justify-center
+                    justify-items-center
+                  "
+              >
+                <LazyUserNotificationsBell />
+              </li>
+            </template>
             <li
               v-if="enabled"
               class="
@@ -202,8 +203,8 @@ const items = computed(() => [
             <li
               v-if="loggedIn && user"
               class="
-                relative grid items-center justify-center justify-items-center
-              "
+                  relative grid items-center justify-center justify-items-center
+                "
             >
               <UDropdownMenu
                 :items="items"
@@ -222,9 +223,9 @@ const items = computed(() => [
                     <p>{{ $i18n.t('email.title') }}</p>
                     <p
                       class="
-                        truncate font-medium text-primary-900
-                        dark:text-primary-50
-                      "
+                          truncate font-medium text-primary-900
+                          dark:text-primary-50
+                        "
                     >
                       {{ item.label }}
                     </p>
@@ -237,34 +238,36 @@ const items = computed(() => [
                     v-if="item.icon"
                     :name="item.icon"
                     class="
-                      ms-auto size-4 shrink-0 text-primary-900
-                      dark:text-primary-100
-                    "
+                        ms-auto size-4 shrink-0 text-primary-900
+                        dark:text-primary-100
+                      "
                   />
                 </template>
               </UDropdownMenu>
             </li>
             <li
-              v-if="!loggedIn"
+              v-else
               class="
-                relative grid items-center justify-center justify-items-center
-              "
+                  relative grid items-center justify-center justify-items-center
+                "
             >
               <Anchor
-                :title="loggedIn ? $i18n.t('account') : $i18n.t('login')"
+                :title="$i18n.t('login')"
+                :aria-label="$i18n.t('login')"
                 :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
                 class="
-                  flex size-[30px] items-center self-center text-[1.5rem]
-                  text-primary-700
-                  hover:text-primary-900
-                  dark:text-primary-200
-                  hover:dark:text-primary-50
-                "
+                    flex size-[30px] items-center self-center text-[1.5rem]
+                    text-primary-700
+                    hover:text-primary-900
+                    dark:text-primary-200
+                    hover:dark:text-primary-50
+                  "
                 :ui="{
                   base: 'p-0',
                 }"
               >
                 <UIcon name="i-fa6-solid-circle-user" />
+                <span class="sr-only">{{ $i18n.t('login') }}</span>
               </Anchor>
             </li>
           </ul>

@@ -154,7 +154,6 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    '/': { prerender: true },
     '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
     '/_nuxt/builds/**': {
       headers: {
@@ -240,7 +239,7 @@ export default defineNuxtConfig({
     },
     '/index': { redirect: '/' },
   },
-  sourcemap: process.env.NODE_ENV !== 'production',
+  sourcemap: { client: true, server: false },
   future: {
     compatibilityVersion: 5,
   },
@@ -269,6 +268,8 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: false,
       routes: [
+        '/sitemap.xml',
+        '/robots.txt',
         '/_ipx/q_80&s_145x30/img/logo-navbar.svg',
         '/_ipx/f_webp&q_80&fit_cover&s_1194x418/img/main-banner.png',
         '/_ipx/f_webp&q_80&fit_cover&s_510x638/img/main-banner-mobile.png',
@@ -295,6 +296,11 @@ export default defineNuxtConfig({
     },
   },
   vite: {
+    vue: {
+      features: {
+        optionsAPI: false,
+      },
+    },
     build: {
       cssCodeSplit: true,
       cssMinify: 'lightningcss',
@@ -304,6 +310,7 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
+    hoist: ['vite'],
   },
   debug: false,
   cookieControl: {
@@ -467,8 +474,9 @@ export default defineNuxtConfig({
       html: true,
       markdown: true,
     },
-    debug: process.env.NODE_ENV !== 'production',
-    enabled: true,
+    debug: false,
+    enabled: process.env.NODE_ENV !== 'production',
+    failOnError: false,
   },
   ogImage: {
     defaults: {
@@ -514,8 +522,8 @@ export default defineNuxtConfig({
     cacheMaxAgeSeconds: 60 * 60 * 24, // 24 hours
     runtimeCacheStorage: {
       driver: 'redis',
-      port: 6379,
-      host: 'redis-standalone',
+      port: process.env.NUXT_REDIS_PORT ?? 6379,
+      host: process.env.NUXT_REDIS_HOST ?? 'redis-standalone',
       db: 0,
     },
   },
