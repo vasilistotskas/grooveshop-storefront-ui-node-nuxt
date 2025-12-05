@@ -118,6 +118,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Create .env file from GitHub variables and secrets
+        env:
+          ALL_VARS: ${{ toJSON(vars) }}
+          NUXT_SECRETS: ${{ secrets.NUXT_SECRETS }}
+        run: |
+          echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
+          if [ -n "$NUXT_SECRETS" ]; then
+            echo "$NUXT_SECRETS" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> .env
+          fi
+
       - name: Build application
         run: pnpm run build
         env:
