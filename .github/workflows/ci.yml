@@ -146,15 +146,15 @@ jobs:
           # Override Redis host for CI (use localhost instead of production hostname)
           echo "NUXT_REDIS_HOST=localhost" >> .env
           echo "NUXT_REDIS_PORT=6379" >> .env
-          # Add secrets (must be explicit)
-          [ -n "$NUXT_SESSION_PASSWORD" ] && echo "NUXT_SESSION_PASSWORD=$NUXT_SESSION_PASSWORD" >> .env
-          [ -n "$NUXT_SECRET_KEY" ] && echo "NUXT_SECRET_KEY=$NUXT_SECRET_KEY" >> .env
-          [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_SECRET=$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" >> .env
-          [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_ID" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_ID=$NUXT_OAUTH_GOOGLE_CLIENT_ID" >> .env
-          [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_SECRET=$NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" >> .env
-          [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_ID" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_ID=$NUXT_OAUTH_FACEBOOK_CLIENT_ID" >> .env
-          [ -n "$NUXT_OAUTH_DISCORD_CLIENT_SECRET" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_SECRET=$NUXT_OAUTH_DISCORD_CLIENT_SECRET" >> .env
-          [ -n "$NUXT_OAUTH_DISCORD_CLIENT_ID" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_ID=$NUXT_OAUTH_DISCORD_CLIENT_ID" >> .env
+          # Add secrets (must be explicit) - use || true to prevent exit code 1 when var is empty
+          [ -n "$NUXT_SESSION_PASSWORD" ] && echo "NUXT_SESSION_PASSWORD=$NUXT_SESSION_PASSWORD" >> .env || true
+          [ -n "$NUXT_SECRET_KEY" ] && echo "NUXT_SECRET_KEY=$NUXT_SECRET_KEY" >> .env || true
+          [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_SECRET=$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" >> .env || true
+          [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_ID" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_ID=$NUXT_OAUTH_GOOGLE_CLIENT_ID" >> .env || true
+          [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_SECRET=$NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" >> .env || true
+          [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_ID" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_ID=$NUXT_OAUTH_FACEBOOK_CLIENT_ID" >> .env || true
+          [ -n "$NUXT_OAUTH_DISCORD_CLIENT_SECRET" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_SECRET=$NUXT_OAUTH_DISCORD_CLIENT_SECRET" >> .env || true
+          [ -n "$NUXT_OAUTH_DISCORD_CLIENT_ID" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_ID=$NUXT_OAUTH_DISCORD_CLIENT_ID" >> .env || true
 
       - name: Build application
         run: pnpm run build
