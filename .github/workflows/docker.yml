@@ -34,6 +34,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create .env file from GitHub variables and secrets
+        env:
+          ALL_VARS: ${{ toJSON(vars) }}
+          NUXT_SECRETS: ${{ secrets.NUXT_SECRETS }}
+        run: |
+          # Add all NUXT_* variables
+          echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
+          # Add all NUXT_* secrets (from NUXT_SECRETS JSON object)
+          if [ -n "$NUXT_SECRETS" ]; then
+            echo "$NUXT_SECRETS" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> .env
+          fi
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -54,4 +66,4 @@ jobs:
           cache-to: type=gha,mode=max
           target: production
           build-args: |
-            NODE_VERSION=24.10.0
+            NODE_VERSION=24.11.1
