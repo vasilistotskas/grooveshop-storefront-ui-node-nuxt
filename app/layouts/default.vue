@@ -30,19 +30,16 @@ const items = computed(() => {
       icon: 'i-heroicons-home',
       to: '/',
       label: $i18n.t('home'),
-      labelClass: 'sr-only',
     },
     {
       icon: 'i-heroicons-magnifying-glass',
       to: '/search',
       label: $i18n.t('search.title'),
-      labelClass: 'sr-only',
     },
     {
       icon: 'i-heroicons-heart',
       to: loggedIn.value ? '/account/favourites/posts' : '/account/login',
       label: $i18n.t('favourites'),
-      labelClass: 'sr-only',
     },
   ] as LinksOption[]
 
@@ -51,14 +48,12 @@ const items = computed(() => {
       icon: 'i-heroicons-user',
       to: `/account/login?next=${route.path}`,
       label: $i18n.t('account'),
-      labelClass: 'sr-only',
     })
   }
   else if (avatarImg.value) {
     items.push({
       to: '/account',
       label: $i18n.t('account'),
-      labelClass: 'sr-only',
       avatar: {
         src: avatarImg.value,
       },
@@ -69,7 +64,6 @@ const items = computed(() => {
       icon: 'i-heroicons-user',
       to: '/account',
       label: $i18n.t('account'),
-      labelClass: 'sr-only',
     })
   }
 

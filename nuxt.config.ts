@@ -154,6 +154,7 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
+    '/': { prerender: true },
     '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
     '/_nuxt/builds/**': {
       headers: {
@@ -233,7 +234,10 @@ export default defineNuxtConfig({
         'Cache-Control': 'max-age=31536000',
       },
     },
-    '/_ipx/**': { headers: { 'cache-control': 'max-age=31536000' } },
+    '/_ipx/**': {
+      headers: { 'cache-control': 'max-age=31536000' },
+      prerender: true,
+    },
     '/index': { redirect: '/' },
   },
   sourcemap: process.env.NODE_ENV !== 'production',
@@ -463,7 +467,7 @@ export default defineNuxtConfig({
       html: true,
       markdown: true,
     },
-    debug: false,
+    debug: process.env.NODE_ENV !== 'production',
     enabled: true,
   },
   ogImage: {
