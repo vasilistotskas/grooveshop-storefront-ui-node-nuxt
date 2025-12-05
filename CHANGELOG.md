@@ -1,3 +1,10 @@
+# [3.49.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.48.3...v3.49.0) (2025-12-05)
+
+
+### Features
+
+* image deafult avif ([99ac7b4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/99ac7b4f5e3de323d58a37721d6e07b67cd9b91f))
+
 ## [3.48.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.48.2...v3.48.3) (2025-12-05)
 
 
