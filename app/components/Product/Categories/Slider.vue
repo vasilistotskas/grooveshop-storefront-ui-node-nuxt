@@ -85,7 +85,6 @@ const categoryResults = computed(() => {
               :alt="`${extractTranslated(item, 'name', locale)}`"
               :background="'transparent'"
               fit="contain"
-              :format="'webp'"
               :height="isMobileOrTablet ? 96 : 112"
               :src="item.mainImagePath"
               :width="isMobileOrTablet ? 96 : 112"

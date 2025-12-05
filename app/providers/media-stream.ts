@@ -28,7 +28,7 @@ export const getImage: ProviderGetImage = (src, { modifiers = {}, baseURL } = {}
   const background = normalizeBackground(modifiers.background)
   const trimThreshold = modifiers.trimThreshold || 5
   const quality = modifiers.quality || 80
-  const format = modifiers.format || 'webp'
+  const format = modifiers.format || 'avif'
 
   // Pattern: /{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
   const pathSegments = [

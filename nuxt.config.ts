@@ -168,7 +168,7 @@ export default defineNuxtConfig({
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     },
-    '/**/*.{png,jpg,jpeg,gif,webp,svg,ico}': {
+    '/**/*.{png,jpg,jpeg,gif,avif,webp,svg,ico}': {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
@@ -272,8 +272,8 @@ export default defineNuxtConfig({
       crawlLinks: false,
       routes: [
         '/_ipx/q_80&s_145x30/img/logo-navbar.svg',
-        '/_ipx/f_webp&q_80&fit_cover&s_1194x418/img/main-banner.png',
-        '/_ipx/f_webp&q_80&fit_cover&s_510x638/img/main-banner-mobile.png',
+        '/_ipx/f_avif&q_80&fit_cover&s_1194x418/img/main-banner.png',
+        '/_ipx/f_avif&q_80&fit_cover&s_510x638/img/main-banner-mobile.png',
       ],
     },
     esbuild: {
@@ -433,22 +433,15 @@ export default defineNuxtConfig({
   },
   image: {
     provider: 'ipx',
+    format: ['avif', 'webp'],
     ipx: {
       maxAge: 60 * 60 * 24 * 365,
-    },
-    presets: {
-      default: {
-        modifiers: {
-          format: 'webp',
-        },
-      },
     },
     providers: {
       mediaStream: {
         name: 'mediaStream',
         provider: '~/providers/media-stream',
         options: {
-          format: 'webp',
           quality: 80,
           width: 100,
           height: 100,

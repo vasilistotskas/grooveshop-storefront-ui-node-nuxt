@@ -17,8 +17,8 @@ definePageMeta({
 
 const lcpImageUrl = computed(() =>
   isMobileOrTablet
-    ? '/_ipx/f_webp&q_80&fit_cover&s_510x638/img/main-banner-mobile.png'
-    : '/_ipx/f_webp&q_80&fit_cover&s_1194x418/img/main-banner.png',
+    ? '/_ipx/f_avif&q_80&fit_cover&s_510x638/img/main-banner-mobile.png'
+    : '/_ipx/f_avif&q_80&fit_cover&s_1194x418/img/main-banner.png',
 )
 
 useHead({
@@ -29,7 +29,7 @@ useHead({
       as: 'image',
       href: lcpImageUrl,
       fetchpriority: 'high',
-      type: 'image/webp',
+      type: 'image/avif',
     },
   ],
 })
@@ -96,7 +96,6 @@ useSeoMeta({
             quality="80"
             class="rounded-lg"
             style="object-fit: contain; content-visibility: auto;"
-            format="webp"
             loading="eager"
             fetchpriority="high"
             decoding="async"

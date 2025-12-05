@@ -95,7 +95,6 @@ const backgroundImage = computed(() => {
       width: 400,
       height: 256,
       fit: 'contain',
-      format: 'webp',
     },
   )
 })
