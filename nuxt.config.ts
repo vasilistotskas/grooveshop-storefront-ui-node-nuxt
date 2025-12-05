@@ -262,6 +262,14 @@ export default defineNuxtConfig({
   },
   compatibilityDate: 'latest',
   nitro: {
+    prerender: {
+      crawlLinks: false,
+      routes: [
+        '/_ipx/q_80&s_145x30/img/logo-navbar.svg',
+        '/_ipx/f_webp&q_80&fit_cover&s_1194x418/img/main-banner.png',
+        '/_ipx/f_webp&q_80&fit_cover&s_510x638/img/main-banner-mobile.png',
+      ],
+    },
     esbuild: {
       options: {
         target: 'esnext',
@@ -278,10 +286,6 @@ export default defineNuxtConfig({
     },
     minify: true,
     timing: false,
-    prerender: {
-      crawlLinks: false,
-      ignore: [],
-    },
     experimental: {
       asyncContext: true,
     },
