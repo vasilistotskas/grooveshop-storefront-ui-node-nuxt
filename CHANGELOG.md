@@ -1,3 +1,10 @@
+## [3.48.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.48.1...v3.48.2) (2025-12-05)
+
+
+### Bug Fixes
+
+* perf ([0665d52](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0665d52db6671e22d93cc285ef478b79776a914c))
+
 ## [3.48.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.48.0...v3.48.1) (2025-12-05)
 
 
