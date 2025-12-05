@@ -13,7 +13,7 @@ export default defineCachedEventHandler(async (event) => {
   }
 }, {
   name: 'BlogCategoryViewSet',
-  maxAge: 60 * 10,
-  staleMaxAge: 60 * 60 * 2,
+  maxAge: 60 * 30, // 30 minutes - categories change rarely
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
 })

@@ -13,7 +13,7 @@ export default defineCachedEventHandler(async (event) => {
   }
 }, {
   name: 'BlogPostViewSet',
-  maxAge: 60 * 5,
-  staleMaxAge: 60 * 60,
+  maxAge: 60 * 10, // 10 minutes cache for better performance
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
 })

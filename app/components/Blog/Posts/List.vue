@@ -44,7 +44,7 @@ const tags = computed(() => route.query.tags)
 const cursor = computed(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POSTS],
 )
-const allPosts = ref<BlogPost[]>([])
+const allPosts = shallowRef<BlogPost[]>([])
 
 const {
   data: posts,
