@@ -43,6 +43,9 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: process.env.NUXT_PUBLIC_DJANGO_URL || 'http://localhost:8000', crossorigin: 'anonymous' },
+        // Preconnect to Google services (deferred but still useful for consent flow)
+        { rel: 'preconnect', href: 'https://www.googletagmanager.com', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://www.google-analytics.com', crossorigin: 'anonymous' },
       ],
     },
     pageTransition: false,

@@ -8,36 +8,28 @@ const items = computed(() => [
   isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
 
-const bannerWidth = ref(isMobileOrTablet ? 510 : 1194)
-const bannerHeight = ref(isMobileOrTablet ? 638 : 418)
+const bannerWidth = computed(() => isMobileOrTablet ? 510 : 1194)
+const bannerHeight = computed(() => isMobileOrTablet ? 638 : 418)
 
-// Responsive sizes for banner image
-const bannerSizes = computed(() =>
-  isMobileOrTablet
-    ? 'xs:510px sm:510px md:510px'
-    : 'lg:1194px xl:1194px 2xl:1194px',
-)
+definePageMeta({
+  layout: 'default',
+})
 
-// Precompute LCP image URL for preloading
 const lcpImageUrl = computed(() =>
   isMobileOrTablet
     ? '/_ipx/f_webp&q_80&fit_cover&s_510x638/img/main-banner-mobile.png'
     : '/_ipx/f_webp&q_80&fit_cover&s_1194x418/img/main-banner.png',
 )
 
-definePageMeta({
-  layout: 'default',
-})
-
 useHead({
   titleTemplate: '%s',
   link: [
-    // Preload LCP image for faster Largest Contentful Paint
     {
       rel: 'preload',
       as: 'image',
-      href: lcpImageUrl.value,
+      href: lcpImageUrl,
       fetchpriority: 'high',
+      type: 'image/webp',
     },
   ],
 })
@@ -97,17 +89,17 @@ useSeoMeta({
             v-if="item"
             :alt="appTitle"
             :src="item"
-            :style="{ objectFit: 'contain' }"
             :height="bannerHeight"
             :width="bannerWidth"
-            :sizes="bannerSizes"
+            densities="x1"
             fit="cover"
             quality="80"
             class="rounded-lg"
+            style="object-fit: contain; content-visibility: auto;"
             format="webp"
             loading="eager"
-            fetch-priority="high"
             fetchpriority="high"
+            decoding="async"
             preload
           />
         </UCarousel>
