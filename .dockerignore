@@ -28,7 +28,6 @@ coverage
 node_modules
 
 # Others
-.env
 README.md
 helm-charts
 

@@ -49,6 +49,8 @@ jobs:
         run: |
           # Add all NUXT_* variables (dynamic)
           echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
+          # Override cache to memory for Docker build (no Redis available)
+          echo "NUXT_CACHE_BASE=memory" >> .env
           # Add secrets (must be explicit) - use || true to prevent exit code 1 when var is empty
           [ -n "$NUXT_SESSION_PASSWORD" ] && echo "NUXT_SESSION_PASSWORD=$NUXT_SESSION_PASSWORD" >> .env || true
           [ -n "$NUXT_SECRET_KEY" ] && echo "NUXT_SECRET_KEY=$NUXT_SECRET_KEY" >> .env || true
@@ -58,6 +60,9 @@ jobs:
           [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_ID" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_ID=$NUXT_OAUTH_FACEBOOK_CLIENT_ID" >> .env || true
           [ -n "$NUXT_OAUTH_DISCORD_CLIENT_SECRET" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_SECRET=$NUXT_OAUTH_DISCORD_CLIENT_SECRET" >> .env || true
           [ -n "$NUXT_OAUTH_DISCORD_CLIENT_ID" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_ID=$NUXT_OAUTH_DISCORD_CLIENT_ID" >> .env || true
+          # Debug: show .env file (without secrets)
+          echo "=== .env file created (keys only) ==="
+          cut -d'=' -f1 .env
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta

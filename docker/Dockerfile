@@ -19,7 +19,9 @@ RUN pnpm prepare
 
 ENV NODE_ENV=production \
     NUXT_HOST=0.0.0.0 \
-    NUXT_PORT=3000
+    NUXT_PORT=3000 \
+    NODE_OPTIONS="--max-old-space-size=8192" \
+    NUXT_CACHE_BASE=memory
 
 RUN pnpm run build
 
