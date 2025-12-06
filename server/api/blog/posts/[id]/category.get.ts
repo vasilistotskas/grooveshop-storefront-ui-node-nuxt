@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(
@@ -15,4 +15,10 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  name: 'BlogPostCategory',
+  maxAge: 60 * 30, // 30 minutes - post category rarely changes
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  swr: true,
+  getKey: event => `post-category:${event.context.params?.id}`,
 })

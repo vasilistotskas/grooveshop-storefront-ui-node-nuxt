@@ -371,9 +371,9 @@ definePageMeta({
               dark:text-primary-50
             "
           >
-            <div
-              class="article"
-              v-html="blogPostBody"
+            <LazyBlogContent
+              hydrate-never
+              :html="blogPostBody"
             />
           </div>
         </div>

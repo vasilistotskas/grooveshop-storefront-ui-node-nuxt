@@ -1,4 +1,4 @@
-export default defineEventHandler(async () => {
+export default defineCachedEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const response = await $fetch(
@@ -12,4 +12,9 @@ export default defineEventHandler(async () => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  name: 'SettingsViewSet',
+  maxAge: 60 * 60, // 1 hour - settings rarely change
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  swr: true,
 })

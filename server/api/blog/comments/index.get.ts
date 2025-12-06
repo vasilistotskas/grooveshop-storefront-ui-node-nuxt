@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, zListBlogCommentData.shape.query.parse)
@@ -11,4 +11,9 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  name: 'BlogCommentViewSet',
+  maxAge: 60 * 5, // 5 minutes - comments can change frequently
+  staleMaxAge: 60 * 60, // Serve stale for 1 hour while revalidating
+  swr: true,
 })

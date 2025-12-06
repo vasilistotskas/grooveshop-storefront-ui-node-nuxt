@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, zListProductData.shape.query.parse)
@@ -11,4 +11,9 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  maxAge: 300, // Cache for 5 minutes
+  staleMaxAge: 600, // Serve stale for 10 minutes while revalidating
+  swr: true,
+  getKey: event => `products:${JSON.stringify(getQuery(event))}`,
 })

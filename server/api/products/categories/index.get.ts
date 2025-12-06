@@ -12,4 +12,9 @@ export default defineCachedEventHandler(async () => {
   catch (error) {
     await handleError(error)
   }
-}, { name: 'ProductCategoryViewSet' })
+}, {
+  name: 'ProductCategoryViewSet',
+  maxAge: 60 * 60, // 1 hour cache - categories rarely change
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  swr: true,
+})

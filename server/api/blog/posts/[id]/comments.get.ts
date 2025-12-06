@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(
@@ -15,4 +15,10 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  name: 'BlogPostComments',
+  maxAge: 60 * 5, // 5 minutes - comments can change frequently
+  staleMaxAge: 60 * 60, // Serve stale for 1 hour while revalidating
+  swr: true,
+  getKey: event => `post-comments:${event.context.params?.id}`,
 })

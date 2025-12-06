@@ -11,4 +11,10 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { name: 'CountryViewSet' })
+}, {
+  name: 'CountryViewSet',
+  maxAge: 60 * 60 * 24, // 24 hours - countries are static data
+  staleMaxAge: 60 * 60 * 24 * 7, // Serve stale for 7 days while revalidating
+  swr: true,
+  getKey: event => `countries:${JSON.stringify(getQuery(event))}`,
+})
