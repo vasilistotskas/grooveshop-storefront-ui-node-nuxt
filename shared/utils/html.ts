@@ -15,6 +15,16 @@ export interface HtmlImageOptimizationConfig {
   mediaStreamPath: string
   /** Allowed source domains that should be transformed */
   allowedDomains: string[]
+  /**
+   * Default width when not specified or invalid (e.g., percentage).
+   * Use 0 to preserve original image dimensions (no resizing).
+   */
+  defaultWidth?: number
+  /**
+   * Default height when not specified or invalid (e.g., percentage).
+   * Use 0 to preserve original image dimensions (no resizing).
+   */
+  defaultHeight?: number
   /** Default image format (avif, webp, etc.) */
   format?: string
   /** Default image quality (1-100) */
@@ -35,11 +45,15 @@ export interface HtmlImageOptimizationConfig {
 
 /**
  * Default configuration for image optimization
+ * Note: defaultWidth/defaultHeight of 0 means "use original image dimensions"
+ * The media stream service will skip resizing when dimensions are 0.
  */
 export const defaultHtmlImageConfig: Required<HtmlImageOptimizationConfig> = {
   mediaStreamOrigin: '',
   mediaStreamPath: '/media_stream-image',
   allowedDomains: [],
+  defaultWidth: 0,
+  defaultHeight: 0,
   format: 'avif',
   quality: 80,
   fit: 'contain',
@@ -64,6 +78,36 @@ export interface ParsedImageAttributes {
 }
 
 /**
+ * Parse a dimension value (width/height) from an img tag
+ * Returns undefined for percentage values, auto, or invalid values
+ */
+function parseDimensionValue(value: string | undefined): number | undefined {
+  if (!value) return undefined
+
+  const trimmedValue = value.trim()
+
+  // Skip percentage values (e.g., "100%", "50%")
+  if (trimmedValue.includes('%')) return undefined
+
+  // Skip 'auto' or other non-numeric values
+  if (trimmedValue === 'auto' || trimmedValue === 'inherit') return undefined
+
+  // Skip values with units other than px (em, rem, vw, vh, etc.)
+  if (/[a-z]/i.test(trimmedValue.replace('px', ''))) return undefined
+
+  // Parse numeric value (handles "800", "800px", etc.)
+  const numValue = Number.parseInt(trimmedValue, 10)
+
+  // Only return if it's a valid positive number and reasonably sized
+  // Skip very small values that are likely not actual pixel dimensions
+  if (!Number.isNaN(numValue) && numValue > 50) {
+    return numValue
+  }
+
+  return undefined
+}
+
+/**
  * Parse attributes from an img tag string
  */
 export function parseImgAttributes(imgTag: string): ParsedImageAttributes {
@@ -80,8 +124,8 @@ export function parseImgAttributes(imgTag: string): ParsedImageAttributes {
     const value = doubleQuoted ?? singleQuoted ?? unquoted ?? ''
 
     if (name === 'width' || name === 'height') {
-      const numValue = Number.parseInt(value, 10)
-      if (!Number.isNaN(numValue)) {
+      const numValue = parseDimensionValue(value)
+      if (numValue !== undefined) {
         attrs[name] = numValue
       }
     }
@@ -156,8 +200,9 @@ export function buildMediaStreamUrl(
     trimThreshold: number
   }>,
 ): string {
-  const width = overrides?.width || 800
-  const height = overrides?.height || 600
+  // Use provided dimensions or fall back to config defaults
+  const width = overrides?.width || config.defaultWidth
+  const height = overrides?.height || config.defaultHeight
   const format = overrides?.format || config.format
   const quality = overrides?.quality || config.quality
   const fit = overrides?.fit || config.fit
@@ -293,10 +338,15 @@ export function transformImgTag(
     return imgTag
   }
 
-  // Build optimized URL
+  // Determine actual dimensions to use (parsed value or default)
+  // 0 means "use original image dimensions" (media stream will skip resizing)
+  const actualWidth = attrs.width || config.defaultWidth
+  const actualHeight = attrs.height || config.defaultHeight
+
+  // Build optimized URL with actual dimensions
   const optimizedSrc = buildMediaStreamUrl(attrs.src, config, {
-    width: attrs.width,
-    height: attrs.height,
+    width: actualWidth,
+    height: actualHeight,
   })
 
   // Start building the new img tag
@@ -307,6 +357,43 @@ export function transformImgTag(
     /src=["'][^"']*["']/i,
     `src="${optimizedSrc}"`,
   )
+
+  // Handle width/height attributes based on whether we have valid dimensions
+  if (attrs.width) {
+    // Width was valid pixel value, keep it
+  }
+  else if (actualWidth > 0) {
+    // We have a non-zero default width, update the attribute
+    if (/width=["'][^"']*["']/i.test(newTag)) {
+      newTag = newTag.replace(/width=["'][^"']*["']/i, `width="${actualWidth}"`)
+    }
+    else {
+      newTag = newTag.replace(/<img/i, `<img width="${actualWidth}"`)
+    }
+  }
+  else {
+    // Width is 0 (use original) - remove invalid width attribute (like "100%")
+    // Let the browser use the image's natural dimensions
+    newTag = newTag.replace(/\s*width=["'][^"']*["']/i, '')
+  }
+
+  if (attrs.height) {
+    // Height was valid pixel value, keep it
+  }
+  else if (actualHeight > 0) {
+    // We have a non-zero default height, update the attribute
+    if (/height=["'][^"']*["']/i.test(newTag)) {
+      newTag = newTag.replace(/height=["'][^"']*["']/i, `height="${actualHeight}"`)
+    }
+    else {
+      newTag = newTag.replace(/<img/i, `<img height="${actualHeight}"`)
+    }
+  }
+  else {
+    // Height is 0 (use original) - remove invalid height attribute (like "100%")
+    // Let the browser use the image's natural dimensions
+    newTag = newTag.replace(/\s*height=["'][^"']*["']/i, '')
+  }
 
   // Add loading="lazy" if not present and enabled
   if (config.addLazyLoading && !attrs.loading) {
