@@ -1,3 +1,10 @@
+## [3.50.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.50.0...v3.50.1) (2025-12-06)
+
+
+### Bug Fixes
+
+* html image size ([d5c5acf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d5c5acf39188d28fe6f61117d1cbf61f44b52976))
+
 # [3.50.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.49.0...v3.50.0) (2025-12-06)
 
 
