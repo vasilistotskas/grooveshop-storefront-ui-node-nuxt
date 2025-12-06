@@ -84,9 +84,12 @@ if (likedPostsData.value) {
   updateLikedPosts(likedPostsData.value.postIds)
 }
 
-const blogPostBody = computed(() =>
-  extractTranslated(blogPost.value, 'body', locale.value) ?? '',
-)
+const { transformImages } = useHtmlContent()
+
+const blogPostBody = computed(() => {
+  const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
+  return transformImages(rawBody)
+})
 
 const blogPostTitle = computed(() =>
   extractTranslated(blogPost.value, 'title', locale.value) ?? '',
