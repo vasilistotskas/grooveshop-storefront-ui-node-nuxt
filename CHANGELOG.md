@@ -1,3 +1,10 @@
+# [3.50.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.49.0...v3.50.0) (2025-12-06)
+
+
+### Features
+
+* transformImages ([86fe225](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/86fe225d04391882bc1a65c9c62c53f89ed8075b))
+
 # [3.49.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.48.3...v3.49.0) (2025-12-05)
 
 
