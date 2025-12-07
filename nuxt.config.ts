@@ -257,6 +257,14 @@ export default defineNuxtConfig({
     componentIslands: true,
     crossOriginPrefetch: true,
     buildCache: true,
+    defaults: {
+      nuxtLink: {
+        prefetchOn: {
+          visibility: false,
+          interaction: true,
+        },
+      },
+    },
   },
   compatibilityDate: 'latest',
   nitro: {
