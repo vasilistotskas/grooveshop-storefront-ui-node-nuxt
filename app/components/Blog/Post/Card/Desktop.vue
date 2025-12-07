@@ -37,6 +37,11 @@ const props = defineProps({
     default: 'auto',
     validator: (value: string) => ['high', 'low', 'auto'].includes(value),
   },
+  preload: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   as: {
     type: String,
     default: 'li',
@@ -109,6 +114,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <ImgWithFallback
           :loading="imgLoading"
           :fetchpriority="imgFetchPriority"
+          :preload="preload"
           class="rounded-t-lg bg-primary-100"
           :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
           :src="post.mainImagePath"

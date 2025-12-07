@@ -345,7 +345,8 @@ definePageMeta({
                 class="rounded-lg bg-primary-100"
                 densities="x1"
                 loading="eager"
-                fetch-priority="high"
+                fetchpriority="high"
+                preload
                 style="object-fit: contain"
               />
             </div>

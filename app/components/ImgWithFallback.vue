@@ -6,6 +6,7 @@ interface Props extends /* @vue-ignore */ Omit<ExtractPropTypes<typeof baseImage
   src?: string
   fallback?: string
   ismap?: boolean
+  preload?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -13,6 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   fallback: '/img/placeholder.png',
   quality: 80,
   ismap: true,
+  preload: false,
 })
 
 const emit = defineEmits(['error', 'load'])
@@ -22,8 +24,8 @@ const attrs = useAttrs()
 const hasError = ref(false)
 
 const mainImageProps = computed(() => {
-  const { fallback, src, ...restProps } = props
-  return { ...attrs, ...restProps }
+  const { fallback, src, preload, ...restProps } = props
+  return { ...attrs, ...restProps, preload }
 })
 
 const fallbackImageProps = computed(() => {

@@ -125,6 +125,10 @@ const imgFetchPriority = (index: number) => {
   return 'auto'
 }
 
+const shouldPreload = (index: number) => {
+  return index === 0
+}
+
 watch(
   () => paginationType.value,
   (newType, oldType) => {
@@ -205,6 +209,7 @@ watch(
             :key="index"
             :img-loading="imgLoading(index)"
             :img-fetch-priority="imgFetchPriority(index)"
+            :preload="shouldPreload(index)"
             :post="post"
             :img-width="isMobileOrTablet ? 575 : 440"
             :img-height="isMobileOrTablet ? 670 : 247"
