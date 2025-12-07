@@ -1,3 +1,10 @@
+## [3.51.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.51.1...v3.51.2) (2025-12-07)
+
+
+### Bug Fixes
+
+* prefetch links on interaction only ([c173091](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c173091fb52374f787bbf43a4dd5c84a92ce709e))
+
 ## [3.51.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.51.0...v3.51.1) (2025-12-07)
 
 
