@@ -23,40 +23,40 @@ vi.stubGlobal('$fetch', mockFetch)
 describe('Cart Store', () => {
   let store: ReturnType<typeof useCartStore>
 
-  const mockCartData: CartDetail = {
+  const mockCartData = {
     id: 1,
     user: 1,
     totalItems: 2,
-    totalPrice: '100.00',
+    totalPrice: 100.00,
     items: [
       {
         id: 1,
-        cart: 1,
+        cartId: 1,
         product: {
           id: 1,
           name: 'Test Product 1',
           slug: 'test-product-1',
           price: '50.00',
           stock: 10,
-        } as any,
+        },
         quantity: 2,
-        totalPrice: '100.00',
+        totalPrice: 100.00,
       },
       {
         id: 2,
-        cart: 1,
+        cartId: 1,
         product: {
           id: 2,
           name: 'Test Product 2',
           slug: 'test-product-2',
           price: '30.00',
           stock: 0,
-        } as any,
+        },
         quantity: 1,
-        totalPrice: '30.00',
+        totalPrice: 30.00,
       },
     ],
-  }
+  } as unknown as CartDetail
 
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -115,27 +115,27 @@ describe('Cart Store', () => {
         items: [
           {
             id: 1,
-            cart: 1,
-            product: { id: 1, stock: 5 } as any,
+            cartId: 1,
+            product: { id: 1, stock: 5 },
             quantity: 10, // More than stock
-            totalPrice: '100.00',
+            totalPrice: 100.00,
           },
           {
             id: 2,
-            cart: 1,
-            product: { id: 2, stock: 0 } as any,
+            cartId: 1,
+            product: { id: 2, stock: 0 },
             quantity: 1,
-            totalPrice: '30.00',
+            totalPrice: 30.00,
           },
           {
             id: 3,
-            cart: 1,
-            product: { id: 3, stock: 20 } as any,
+            cartId: 1,
+            product: { id: 3, stock: 20 },
             quantity: 5, // Within stock
-            totalPrice: '50.00',
+            totalPrice: 50.00,
           },
         ],
-      }
+      } as unknown as CartDetail
     })
 
     it('should identify items with stock issues', () => {
@@ -144,14 +144,14 @@ describe('Cart Store', () => {
       // Item 2 has stock 0 and quantity 1 (issue: quantity > stock)
       // Item 3 has quantity 5 and stock 20 (no issue)
       expect(issues.length).toBe(2)
-      expect(issues[0].id).toBe(1)
-      expect(issues[1].id).toBe(2)
+      expect(issues[0]!.id).toBe(1)
+      expect(issues[1]!.id).toBe(2)
     })
 
     it('should identify out of stock items', () => {
       const outOfStock = store.getOutOfStockItems
       expect(outOfStock.length).toBe(1)
-      expect(outOfStock[0].id).toBe(2)
+      expect(outOfStock[0]!.id).toBe(2)
     })
 
     it('should detect when cart has stock issues', () => {
@@ -164,31 +164,31 @@ describe('Cart Store', () => {
         items: [
           {
             id: 1,
-            cart: 1,
-            product: { id: 1, stock: 20 } as any,
+            cartId: 1,
+            product: { id: 1, stock: 20 },
             quantity: 5,
-            totalPrice: '100.00',
+            totalPrice: 100.00,
           },
         ],
-      }
+      } as unknown as CartDetail
       expect(store.hasStockIssues).toBe(false)
     })
 
     it('should check if specific cart item has stock issue', () => {
-      const itemWithIssue = store.cart!.items[0]
-      const itemWithoutIssue = store.cart!.items[2]
+      const itemWithIssue = store.cart!.items[0] as CartItem
+      const itemWithoutIssue = store.cart!.items[2] as CartItem
 
       expect(store.hasStockIssue(itemWithIssue)).toBe(true)
       expect(store.hasStockIssue(itemWithoutIssue)).toBe(false)
     })
 
     it('should get available stock for cart item', () => {
-      const item = store.cart!.items[0]
+      const item = store.cart!.items[0] as CartItem
       expect(store.getAvailableStock(item)).toBe(5)
     })
 
     it('should return stock status message for out of stock', () => {
-      const item = store.cart!.items[1]
+      const item = store.cart!.items[1] as CartItem
       const status = store.getStockStatusMessage(item)
 
       expect(status?.type).toBe('out_of_stock')
@@ -197,7 +197,7 @@ describe('Cart Store', () => {
     })
 
     it('should return stock status message for limited stock', () => {
-      const item = store.cart!.items[0]
+      const item = store.cart!.items[0] as CartItem
       const status = store.getStockStatusMessage(item)
 
       expect(status?.type).toBe('limited_stock')
@@ -208,7 +208,7 @@ describe('Cart Store', () => {
     })
 
     it('should return null for items with sufficient stock', () => {
-      const item = store.cart!.items[2]
+      const item = store.cart!.items[2] as CartItem
       const status = store.getStockStatusMessage(item)
 
       expect(status).toBeNull()

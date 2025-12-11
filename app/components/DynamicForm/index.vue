@@ -66,8 +66,8 @@ watchEffect(() => {
 })
 
 const currentStepIndex = ref(0)
-const stepper = useTemplateRef('stepper')
-const form = useTemplateRef('form')
+const stepper = useTemplateRef<{ hasNext: boolean, hasPrev: boolean, next: () => void, prev: () => void }>('stepper')
+const form = useTemplateRef<{ validate: (options?: { name?: string[], silent?: boolean }) => Promise<void> }>('form')
 
 // Expose fields for parent component access (for backward compatibility)
 interface FieldExport {
@@ -321,7 +321,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
                 :placeholder="field.placeholder"
                 :disabled="isFieldDisabled(field)"
                 :ui="field.ui"
-                @update:model-value="(value) => handleSelectChange(field.name, value)"
+                @update:model-value="(value: any) => handleSelectChange(field.name, value)"
               />
             </UFormField>
 
@@ -384,6 +384,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
             <UButton
               v-else
               type="submit"
+              color="info"
               :loading="loading"
             >
               {{ buttonLabel }}
@@ -394,6 +395,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
           <div v-else class="pt-4">
             <UButton
               type="submit"
+              color="success"
               :loading="loading"
             >
               {{ buttonLabel }}
@@ -471,7 +473,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
             :placeholder="field.placeholder"
             :disabled="isFieldDisabled(field)"
             :ui="field.ui"
-            @update:model-value="(value) => handleSelectChange(field.name, value)"
+            @update:model-value="(value: any) => handleSelectChange(field.name, value)"
           />
         </UFormField>
 
@@ -511,6 +513,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
       <div class="pt-4">
         <UButton
           type="submit"
+          color="success"
           :loading="loading"
         >
           {{ buttonLabel }}

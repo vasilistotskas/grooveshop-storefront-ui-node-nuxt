@@ -90,7 +90,7 @@ describe('useAllAuthAccount', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { changePrimaryEmailAddress } = useAllAuthAccount()
-      const body = { email: 'primary@example.com' }
+      const body = { email: 'primary@example.com', primary: true }
       await changePrimaryEmailAddress(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -309,7 +309,15 @@ describe('useAllAuthAccount', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { addWebAuthnCredential } = useAllAuthAccount()
-      const body = { credential: 'webauthn-credential', name: 'My Key' }
+      const body = {
+        name: 'My Key',
+        credential: {
+          type: 'public-key',
+          id: 'credential-id',
+          rawId: 'raw-id',
+          response: {},
+        },
+      }
       await addWebAuthnCredential(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -326,7 +334,7 @@ describe('useAllAuthAccount', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { deleteWebAuthnCredential } = useAllAuthAccount()
-      const body = { id: 1 }
+      const body = { authenticators: [1] }
       await deleteWebAuthnCredential(body)
 
       expect(mockFetch).toHaveBeenCalledWith(

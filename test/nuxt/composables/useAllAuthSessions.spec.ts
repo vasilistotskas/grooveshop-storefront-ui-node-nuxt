@@ -66,7 +66,7 @@ describe('useAllAuthSessions', () => {
       vi.stubGlobal('$fetch', mockFetch)
 
       const { deleteSession } = useAllAuthSessions()
-      const body = { sessionId: '123' }
+      const body = { sessions: [123] }
       await deleteSession(body)
 
       expect(mockFetch).toHaveBeenCalledWith('/api/_allauth/app/v1/auth/sessions', {
@@ -83,7 +83,7 @@ describe('useAllAuthSessions', () => {
       vi.stubGlobal('$fetch', mockFetch)
 
       const { deleteSession } = useAllAuthSessions()
-      const result = await deleteSession({ sessionId: '456' })
+      const result = await deleteSession({ sessions: [456] })
 
       expect(result).toEqual(mockData)
     })
@@ -97,7 +97,7 @@ describe('useAllAuthSessions', () => {
       vi.stubGlobal('$fetch', mockFetch)
 
       const { deleteSession } = useAllAuthSessions()
-      await deleteSession({ sessionId: '789' })
+      await deleteSession({ sessions: [789] })
 
       expect(onAllAuthResponse).toHaveBeenCalledWith(mockResponse)
     })
@@ -113,7 +113,7 @@ describe('useAllAuthSessions', () => {
       const { deleteSession } = useAllAuthSessions()
 
       try {
-        await deleteSession({ sessionId: 'invalid' })
+        await deleteSession({ sessions: [999] })
       }
       catch (error) {
         expect(onAllAuthResponseError).toHaveBeenCalledWith(mockError)

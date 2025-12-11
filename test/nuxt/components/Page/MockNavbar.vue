@@ -3,7 +3,7 @@ import type { PropType } from 'vue'
 
 defineProps({
   user: {
-    type: Object as PropType<AuthenticationReadable>,
+    type: Object as PropType<UserDetails>,
     default: () => ({ email: 'test@example.com' }),
   },
   loggedIn: {

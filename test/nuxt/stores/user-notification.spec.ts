@@ -290,8 +290,8 @@ describe('User Notification Store', () => {
         ],
       }
 
-      expect(store.notifications.links.next).toBeDefined()
-      expect(store.notifications.links.previous).toBeNull()
+      expect(store.notifications.links!.next).toBeDefined()
+      expect(store.notifications.links!.previous).toBeNull()
     })
 
     it('should handle last page pagination', () => {
@@ -306,8 +306,8 @@ describe('User Notification Store', () => {
         ],
       }
 
-      expect(store.notifications.links.next).toBeNull()
-      expect(store.notifications.links.previous).toBeDefined()
+      expect(store.notifications.links!.next).toBeNull()
+      expect(store.notifications.links!.previous).toBeDefined()
     })
   })
 })

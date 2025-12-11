@@ -98,6 +98,9 @@ const replyCommentFormSchema: DynamicFormSchema = {
       required: true,
       placeholder: t('reply.placeholder'),
       type: 'text',
+      ui: {
+        root: 'w-full',
+      },
     },
   ],
 }
@@ -558,14 +561,6 @@ watch(
       :id="'reply-comment-form-' + comment.id"
       :button-label="$i18n.t('submit')"
       :schema="replyCommentFormSchema"
-      :submit-button-ui="{
-        type: 'submit',
-        size: 'xs',
-        color: 'success',
-        ui: {
-          rounded: 'rounded-full',
-        },
-      }"
       class="relative my-2"
       @submit="onReplySubmit"
     />

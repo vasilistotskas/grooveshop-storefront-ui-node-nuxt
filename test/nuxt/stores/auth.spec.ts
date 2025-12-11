@@ -62,6 +62,7 @@ describe('Auth Store', () => {
         username: 'testuser',
         has_usable_password: true,
       } as any,
+      methods: [],
     },
     meta: {} as any,
   }
@@ -89,17 +90,17 @@ describe('Auth Store', () => {
     data: [
       {
         id: 1,
-        type: 'totp' as AuthenticatorType,
+        type: 'totp' as typeof AuthenticatorType.TOTP,
         created_at: '2024-01-01',
       } as any,
       {
         id: 2,
-        type: 'webauthn' as AuthenticatorType,
+        type: 'webauthn' as typeof AuthenticatorType.WEBAUTHN,
         created_at: '2024-01-01',
       } as any,
       {
         id: 3,
-        type: 'recovery_codes' as AuthenticatorType,
+        type: 'recovery_codes' as typeof AuthenticatorType.RECOVERY_CODES,
         created_at: '2024-01-01',
       } as any,
     ],
@@ -192,8 +193,8 @@ describe('Auth Store', () => {
         store.sessions = mockSessions.data
         const others = store.otherSessions
         expect(others.length).toBe(1)
-        expect(others[0].id).toBe(2)
-        expect(others[0].is_current).toBe(false)
+        expect(others[0]!.id).toBe(2)
+        expect(others[0]!.is_current).toBe(false)
       })
 
       it('should return empty array when no sessions', () => {

@@ -184,8 +184,8 @@ describe('usePagination', () => {
     expect(pagination.pageTotalResults).toBe(10)
     expect(pagination.pageSize).toBe(10)
     expect(pagination.page).toBe(5)
-    expect(pagination.links.next).toBe('/api/items?page=6')
-    expect(pagination.links.previous).toBe('/api/items?page=4')
+    expect(pagination.links!.next).toBe('/api/items?page=6')
+    expect(pagination.links!.previous).toBe('/api/items?page=4')
     expect(pagination.results).toHaveLength(3)
   })
 
@@ -211,13 +211,13 @@ describe('usePagination', () => {
       count: 10,
       pageSize: 10,
       page: 1,
-      links: null,
+      links: undefined,
       results: [],
     }
 
     const pagination = usePagination(results)
 
-    expect(pagination.links).toBeNull()
+    expect(pagination.links).toBeUndefined()
   })
 
   it('should handle undefined links', () => {

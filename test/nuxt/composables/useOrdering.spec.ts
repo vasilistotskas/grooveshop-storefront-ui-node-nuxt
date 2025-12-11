@@ -120,8 +120,8 @@ describe('useOrdering', () => {
 
     const { orderingOptions } = useOrdering(ordering)
 
-    expect(orderingOptions.value.score?.[0].label).toContain('▲')
-    expect(orderingOptions.value.score?.[1].label).toContain('▼')
+    expect(orderingOptions.value.score?.[0]!.label).toContain('▲')
+    expect(orderingOptions.value.score?.[1]!.label).toContain('▼')
   })
 
   it('should prefix descending values with minus sign', () => {
@@ -135,8 +135,8 @@ describe('useOrdering', () => {
 
     const { orderingOptions } = useOrdering(ordering)
 
-    expect(orderingOptions.value.rating?.[0].value).toBe('rating')
-    expect(orderingOptions.value.rating?.[1].value).toBe('-rating')
+    expect(orderingOptions.value.rating?.[0]!.value).toBe('rating')
+    expect(orderingOptions.value.rating?.[1]!.value).toBe('-rating')
   })
 
   it('should handle complex field names', () => {
@@ -157,6 +157,6 @@ describe('useOrdering', () => {
 
     expect(orderingOptions.value.created_at).toBeDefined()
     expect(orderingOptions.value.updated_at).toBeDefined()
-    expect(orderingOptions.value.created_at?.[1].value).toBe('-created_at')
+    expect(orderingOptions.value.created_at?.[1]!.value).toBe('-created_at')
   })
 })

@@ -203,6 +203,9 @@ const addCommentFormSchema: DynamicFormSchema = {
       required: true,
       placeholder: t('reply.placeholder'),
       type: 'text',
+      ui: {
+        root: 'w-full',
+      },
     },
   ],
 }
@@ -355,15 +358,6 @@ onMounted(() => {
           :button-label="$i18n.t('submit')"
           :schema="addCommentFormSchema"
           class="container mx-auto"
-          :submit-button-ui="{
-            color: 'secondary',
-            size: 'xl',
-            type: 'submit',
-            variant: 'solid',
-            ui: {
-              rounded: 'rounded-full',
-            },
-          }"
           @submit="onAddCommentSubmit"
         />
         <template v-else>

@@ -224,7 +224,14 @@ describe('useAllAuthAuthentication', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { providerToken } = useAllAuthAuthentication()
-      const body = { provider: 'google', token: 'google-token-123' }
+      const body = {
+        provider: 'google',
+        process: 'login' as const,
+        token: {
+          client_id: 'google-client-id',
+          access_token: 'google-token-123',
+        },
+      }
       await providerToken(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -327,6 +334,18 @@ describe('useAllAuthAuthentication', () => {
   })
 
   describe('WebAuthn authentication', () => {
+    const mockWebAuthnCredential = {
+      type: 'public-key',
+      id: 'credential-id',
+      rawId: 'raw-id',
+      response: {
+        clientDataJSON: 'client-data',
+        authenticatorData: 'auth-data',
+        signature: 'signature',
+        userHandle: 'user-handle',
+      },
+    }
+
     it('should get WebAuthn options for login', async () => {
       const mockResponse = { status: 200, data: { challenge: 'challenge-123' } }
       mockFetch.mockResolvedValue(mockResponse)
@@ -347,7 +366,7 @@ describe('useAllAuthAuthentication', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { loginUsingWebAuthn } = useAllAuthAuthentication()
-      const body = { credential: 'webauthn-credential' }
+      const body = { credential: mockWebAuthnCredential }
       await loginUsingWebAuthn(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -379,7 +398,7 @@ describe('useAllAuthAuthentication', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { authenticateUsingWebAuthn } = useAllAuthAuthentication()
-      const body = { credential: 'webauthn-credential' }
+      const body = { credential: mockWebAuthnCredential }
       await authenticateUsingWebAuthn(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -411,7 +430,7 @@ describe('useAllAuthAuthentication', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
-      const body = { credential: 'webauthn-credential' }
+      const body = { credential: mockWebAuthnCredential }
       await reauthenticateUsingWebAuthn(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -443,7 +462,15 @@ describe('useAllAuthAuthentication', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { signUpByPasskey } = useAllAuthAuthentication()
-      const body = { credential: 'webauthn-credential', email: 'test@example.com' }
+      const body = {
+        credential: {
+          type: 'public-key',
+          id: 'credential-id',
+          rawId: 'raw-id',
+          response: {},
+        },
+        email: 'test@example.com',
+      }
       await signUpByPasskey(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -460,7 +487,15 @@ describe('useAllAuthAuthentication', () => {
       mockFetch.mockResolvedValue(mockResponse)
 
       const { signupWebAuthnCredential } = useAllAuthAuthentication()
-      const body = { credential: 'webauthn-credential' }
+      const body = {
+        name: 'My Passkey',
+        credential: {
+          type: 'public-key',
+          id: 'credential-id',
+          rawId: 'raw-id',
+          response: {},
+        },
+      }
       await signupWebAuthnCredential(body)
 
       expect(mockFetch).toHaveBeenCalledWith(
