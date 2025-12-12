@@ -36,6 +36,7 @@ const { data: favourites, refresh: refreshFavourites, status, error } = await us
       ordering: ordering,
       pageSize: pageSize,
     },
+    server: false, // User-specific data: client-side only
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -58,6 +59,7 @@ const { refresh: refreshFavouriteProducts } = await useFetch('/api/products/favo
   body: {
     productIds: productIds,
   },
+  server: false, // User-specific data: client-side only
   onResponse({ response }) {
     if (!response.ok) {
       return

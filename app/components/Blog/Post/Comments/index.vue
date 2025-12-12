@@ -164,6 +164,7 @@ const commentIds = computed(() => {
   return comments.value?.results?.map(comment => comment.id) || []
 })
 
+// User-specific data: client-side only to avoid blocking SSR
 if (loggedInAndHasComments.value) {
   await useFetch('/api/blog/comments/liked-comments', {
     key: `likedComments${blogPostId.value}`,
@@ -172,6 +173,7 @@ if (loggedInAndHasComments.value) {
     body: {
       commentIds: commentIds,
     },
+    server: false, // Client-side only - user-specific data
     onResponse({ response }) {
       if (!response.ok) {
         return

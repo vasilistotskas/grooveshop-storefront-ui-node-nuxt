@@ -16,6 +16,9 @@ const loading = ref(false)
 const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData(
   'providerAccounts',
   () => connectedThirdPartyProviderAccounts(),
+  {
+    server: false, // User-specific data: client-side only
+  },
 )
 
 async function disconnect(values: ProvidersDeleteBody) {

@@ -56,14 +56,16 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
 
+// User-specific data: client-side only to avoid blocking SSR
 if (shouldFetchFavouriteProducts.value) {
-  await useLazyFetch('/api/products/favourites/favourites-by-products', {
+  await useFetch('/api/products/favourites/favourites-by-products', {
     key: `favouritesByProducts${user.value?.id}`,
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
       productIds: [Number(productId)],
     },
+    server: false, // Client-side only - user-specific data
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -76,12 +78,14 @@ if (shouldFetchFavouriteProducts.value) {
   })
 }
 
+// User-specific data: client-side only
 const { data: userProductReview, refresh: refreshUserProductReview }
   = await useFetch(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     headers: useRequestHeaders(),
     method: 'GET',
     immediate: loggedIn.value,
+    server: false, // Client-side only - user-specific data
   })
 
 const onAddExistingReview = async () => {
@@ -414,6 +418,7 @@ definePageMeta({
 
               <LazyProductReview
                 v-if="user && isReviewModalOpen"
+                hydrate-on-interaction
                 v-model="isReviewModalOpen"
                 :product="product"
                 :user="user"
@@ -426,6 +431,7 @@ definePageMeta({
               <template v-else>
                 <LazyAccountLoginFormModal
                   v-if="isLoginModalOpen"
+                  hydrate-on-interaction
                   v-model="isLoginModalOpen"
                 />
               </template>
@@ -623,7 +629,8 @@ definePageMeta({
       </div>
 
       <USeparator class="my-8" />
-      <ProductReviews
+      <LazyProductReviews
+        hydrate-on-visible
         :product-id="String(product.id)"
         :reviews-average="product.reviewAverage"
         :reviews-count="product.reviewCount"

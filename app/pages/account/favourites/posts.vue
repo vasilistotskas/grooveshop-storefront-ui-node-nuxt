@@ -33,6 +33,7 @@ const { data: favourites, status } = useFetch(
       ordering: ordering,
       pageSize: pageSize,
     },
+    server: false, // User-specific data: client-side only
   },
 )
 

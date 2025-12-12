@@ -18,6 +18,7 @@ const { data, error, status } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
   {
+    server: false, // User-specific data: client-side only
     getCachedData(key) {
       return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
     },

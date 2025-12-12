@@ -82,7 +82,8 @@ const pagination = computed(() => {
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
 
-await useLazyFetch(
+// User-specific data: client-side only to avoid blocking SSR
+await useFetch(
   '/api/blog/posts/liked-posts',
   {
     key: `likedBlogPosts${user.value?.id}`,
@@ -90,6 +91,7 @@ await useLazyFetch(
     headers: useRequestHeaders(),
     body: { postIds: postIds },
     immediate: shouldFetchLikedPosts.value,
+    server: false, // Client-side only - user-specific data
     onResponse({ response }) {
       if (!response.ok) {
         return

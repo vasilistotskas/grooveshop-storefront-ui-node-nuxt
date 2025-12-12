@@ -39,6 +39,7 @@ const { data: orders, status, error } = await useFetch(
       ordering: ordering,
       pageSize: pageSize,
     },
+    server: false, // User-specific data: client-side only
     onResponse({ response }) {
       if (!response.ok) {
         return

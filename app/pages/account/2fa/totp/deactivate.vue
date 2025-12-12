@@ -13,6 +13,9 @@ const showConfirmation = ref(false)
 const { error, refresh } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
+  {
+    server: false, // User-specific data: client-side only
+  },
 )
 
 watchEffect(async () => {

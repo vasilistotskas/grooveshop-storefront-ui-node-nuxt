@@ -19,21 +19,26 @@ const shouldFetch = computed(() => {
   return loggedIn.value && notificationIds.value && notificationIds.value.length > 0
 })
 
+// User-specific data: client-side only to avoid blocking SSR
 const { data: unseen, status: unseenStatus } = await useAsyncData(
   'unseenNotificationsCount',
   () => getUnseenCount(),
   {
     immediate: shouldFetch.value,
     watch: [notificationIds],
+    server: false,
   },
 )
 
-const { data, status: notificationsStatus } = await useLazyAsyncData(
+// User-specific data: client-side only
+const { data, status: notificationsStatus } = await useAsyncData(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
     immediate: shouldFetch.value,
     watch: [notificationIds],
+    server: false,
+    lazy: true,
   },
 )
 

@@ -72,14 +72,16 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value && productIds.value && productIds.value.length > 0
 })
 
+// User-specific data: client-side only to avoid blocking SSR
 if (shouldFetchFavouriteProducts.value) {
-  await useLazyFetch('/api/products/favourites/favourites-by-products', {
+  await useFetch('/api/products/favourites/favourites-by-products', {
     key: `favouritesByProducts${user.value?.id}`,
     method: 'POST',
     headers: useRequestHeaders(),
     body: {
       productIds: productIds,
     },
+    server: false, // Client-side only - user-specific data
     onResponse({ response }) {
       if (!response.ok) {
         return

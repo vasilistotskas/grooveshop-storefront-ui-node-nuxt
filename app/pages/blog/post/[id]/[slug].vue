@@ -41,11 +41,10 @@ if (blogPostError.value || !blogPost.value) {
   })
 }
 
+// Critical data: category and author (needed for initial render)
 const [
   { data: blogPostCategory },
   { data: blogPostAuthor },
-  { data: likedPostsData },
-  { data: relatedPosts, status: relatedPostsStatus },
 ] = await Promise.all([
   useFetch(`/api/blog/categories/${blogPost.value.category.id}`, {
     key: `blogCategory-${blogPost.value.category.id}`,
@@ -64,21 +63,26 @@ const [
       languageCode: locale,
     },
   }),
-  useFetch('/api/blog/posts/liked-posts', {
-    key: `likedPosts${blogPostId.value}`,
-    method: 'POST',
-    headers: useRequestHeaders(),
-    body: {
-      postIds: [blogPostId.value],
-    },
-    immediate: loggedIn.value,
-  }),
-  useFetch(`/api/blog/posts/${blogPostId.value}/related-posts`, {
-    key: `relatedPosts${blogPostId.value}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-  }),
 ])
+
+// Non-critical data: defer to client-side (doesn't block FCP/LCP)
+const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
+  key: `likedPosts${blogPostId.value}`,
+  method: 'POST',
+  headers: useRequestHeaders(),
+  body: {
+    postIds: [blogPostId.value],
+  },
+  immediate: loggedIn.value,
+  server: false, // Client-side only - not needed for initial render
+})
+
+// Below-the-fold content: use useLazyFetch to not block navigation
+const { data: relatedPosts, status: relatedPostsStatus } = await useLazyFetch(`/api/blog/posts/${blogPostId.value}/related-posts`, {
+  key: `relatedPosts${blogPostId.value}`,
+  method: 'GET',
+  headers: useRequestHeaders(),
+})
 
 if (likedPostsData.value) {
   updateLikedPosts(likedPostsData.value.postIds)
@@ -235,6 +239,32 @@ defineOgImage({
   height: 630,
 })
 
+// Preload LCP image for faster rendering
+const lcpImageUrl = computed(() => {
+  if (!blogPost.value?.mainImagePath) return null
+  const width = isMobileOrTablet ? 400 : 672
+  const height = isMobileOrTablet ? 200 : 340
+  return img(blogPost.value.mainImagePath, {
+    width,
+    height,
+    fit: 'cover',
+    format: 'avif',
+  }, {
+    provider: 'mediaStream',
+  })
+})
+
+useHead({
+  link: lcpImageUrl.value
+    ? [{
+        rel: 'preload',
+        as: 'image',
+        href: lcpImageUrl.value,
+        fetchpriority: 'high',
+      }]
+    : [],
+})
+
 definePageMeta({
   layout: 'default',
 })
@@ -338,10 +368,11 @@ definePageMeta({
                 :alt="blogPostTitle"
                 :background="'transparent'"
                 fit="cover"
-                :height="340"
+                :height="isMobileOrTablet ? 200 : 340"
                 :src="blogPost.mainImagePath"
-                :width="672"
+                :width="isMobileOrTablet ? 400 : 672"
                 :modifiers="{ position: 'attention', trimThreshold: 5 }"
+                :sizes="'(max-width: 640px) 400px, 672px'"
                 class="rounded-lg bg-primary-100"
                 densities="x1"
                 loading="eager"
