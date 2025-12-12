@@ -239,32 +239,6 @@ defineOgImage({
   height: 630,
 })
 
-// Preload LCP image for faster rendering
-const lcpImageUrl = computed(() => {
-  if (!blogPost.value?.mainImagePath) return null
-  const width = isMobileOrTablet ? 400 : 672
-  const height = isMobileOrTablet ? 200 : 340
-  return img(blogPost.value.mainImagePath, {
-    width,
-    height,
-    fit: 'cover',
-    format: 'avif',
-  }, {
-    provider: 'mediaStream',
-  })
-})
-
-useHead({
-  link: lcpImageUrl.value
-    ? [{
-        rel: 'preload',
-        as: 'image',
-        href: lcpImageUrl.value,
-        fetchpriority: 'high',
-      }]
-    : [],
-})
-
 definePageMeta({
   layout: 'default',
 })
