@@ -418,8 +418,8 @@ definePageMeta({
 
               <LazyProductReview
                 v-if="user && isReviewModalOpen"
-                hydrate-on-interaction
                 v-model="isReviewModalOpen"
+                hydrate-on-interaction
                 :product="product"
                 :user="user"
                 :user-had-reviewed="!!userProductReview"
@@ -431,8 +431,8 @@ definePageMeta({
               <template v-else>
                 <LazyAccountLoginFormModal
                   v-if="isLoginModalOpen"
-                  hydrate-on-interaction
                   v-model="isLoginModalOpen"
+                  hydrate-on-interaction
                 />
               </template>
             </div>
