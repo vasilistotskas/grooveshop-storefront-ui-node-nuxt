@@ -1,3 +1,10 @@
+# [3.56.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.55.0...v3.56.0) (2026-01-08)
+
+
+### Features
+
+* @nuxt/a11y and server\plugins\http-agent.ts added ([25e395f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/25e395fa7ebfecf1712fd7cd89220dc186d6b353))
+
 # [3.55.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.54.0...v3.55.0) (2026-01-08)
 
 
