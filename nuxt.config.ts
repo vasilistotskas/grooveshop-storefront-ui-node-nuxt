@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
     'nuxt-auth-utils',
+    '@nuxt/a11y',
   ],
   ssr: true,
   imports: {
