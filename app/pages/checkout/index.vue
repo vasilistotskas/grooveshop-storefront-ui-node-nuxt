@@ -667,11 +667,11 @@ definePageMeta({
                       v-if="item.mainImagePath"
                       class="
                         flex size-12 shrink-0 items-center justify-center
-                        overflow-hidden rounded-lg bg-white
+                        overflow-hidden rounded-lg
                       "
                     >
                       <ImgWithFallback
-                        class="size-full object-contain"
+                        class="size-full object-contain dark:invert"
                         :style="{ contentVisibility: 'auto' }"
                         :src="item.mainImagePath"
                         :width="48"
