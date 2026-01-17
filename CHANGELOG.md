@@ -1,3 +1,10 @@
+## [3.57.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.0...v3.57.1) (2026-01-17)
+
+
+### Bug Fixes
+
+* remove product reviews from UI , Navigate to checkout if cart was empty before adding the first item ([e8314c6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e8314c667f17957f0af2cdcc34a4c4354f6d413c))
+
 # [3.57.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.56.0...v3.57.0) (2026-01-17)
 
 
