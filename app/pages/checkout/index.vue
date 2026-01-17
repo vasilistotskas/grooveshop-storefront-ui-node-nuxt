@@ -6,7 +6,7 @@ const localePath = useLocalePath()
 
 const cartStore = useCartStore()
 const { cleanCartState } = cartStore
-const { getCartItems, hasStockIssues } = storeToRefs(cartStore)
+const { getCartItems, hasStockIssues, cart } = storeToRefs(cartStore)
 
 if (hasStockIssues.value) {
   navigateTo(localePath('cart'))
@@ -21,7 +21,7 @@ const currentStep = ref(0) // UStepper uses 0-based indexing
 const checkoutMode = ref<'embedded' | 'hosted'>('hosted')
 const useHostedCheckout = computed(() => checkoutMode.value === 'hosted')
 const createdOrder = ref<OrderDetail | null>(null)
-const selectedPayWay = ref<PayWay | null>(null)
+const selectedPayWay = useState<PayWay | null>('selectedPayWay', () => null)
 const isSubmitting = ref(false)
 
 // Form state
@@ -76,6 +76,7 @@ const { data: payWays } = await useFetch('/api/pay-way', {
 // Initialize payment method
 if (payWays.value?.results?.[0]) {
   formState.payWay = payWays.value.results[0].id
+  selectedPayWay.value = payWays.value.results[0]
 }
 
 // Initialize first country and fetch its regions on mount
@@ -83,6 +84,16 @@ onMounted(async () => {
   if (countries.value?.results?.[0] && !formState.country) {
     formState.country = countries.value.results[0].alpha2
     await fetchRegions()
+  }
+})
+
+// Watch for payment method changes and update selectedPayWay
+watch(() => formState.payWay, (newPayWayId) => {
+  if (newPayWayId && payWays.value?.results) {
+    const payWay = payWays.value.results.find(pw => pw.id === newPayWayId)
+    if (payWay) {
+      selectedPayWay.value = payWay
+    }
   }
 })
 
@@ -122,8 +133,13 @@ const payWayOptions = computed(() => {
       payWayNameLocalized = t('cardPayment')
     }
 
+    // Calculate cost display based on free threshold
+    const cartTotal = cart.value?.totalPrice || 0
+    const threshold = payWay.freeThreshold || 0
+    const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : payWay.cost
+
     return {
-      label: `${payWayNameLocalized} (+${n(payWay.cost, 'currency')})`,
+      label: `${payWayNameLocalized} (+${n(displayCost, 'currency')})`,
       value: payWay.id,
       mainImagePath: payWay.mainImagePath,
     }

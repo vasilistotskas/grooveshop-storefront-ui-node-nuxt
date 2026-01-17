@@ -13,9 +13,14 @@ const { t } = useI18n()
 const payWayCost = computed(() => {
   if (!payWay?.value || typeof payWay.value === 'number') return 0
   const cartTotal = cart.value?.totalPrice || 0
-  return cartTotal >= 0
-    ? 0
-    : payWay?.value?.cost
+  const threshold = payWay.value.freeThreshold || 0
+
+  // If cart total meets or exceeds the free threshold, no cost
+  if (threshold > 0 && cartTotal >= threshold) {
+    return 0
+  }
+
+  return payWay.value.cost || 0
 })
 
 const checkoutTotal = computed(() => {
