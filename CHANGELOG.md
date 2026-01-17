@@ -1,3 +1,10 @@
+## [3.57.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.2...v3.57.3) (2026-01-17)
+
+
+### Bug Fixes
+
+* payment cost ([bb0524a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bb0524a15ddbbbea180bb830adcca13d13456c02))
+
 ## [3.57.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.1...v3.57.2) (2026-01-17)
 
 
