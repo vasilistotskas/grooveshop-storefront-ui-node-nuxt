@@ -88,15 +88,15 @@ const { data: userProductReview, refresh: refreshUserProductReview }
     server: false, // Client-side only - user-specific data
   })
 
-const onAddExistingReview = async () => {
+const _onAddExistingReview = async () => {
   await refreshProduct()
   await refreshUserProductReview()
 }
-const onUpdateExistingReview = async () => {
+const _onUpdateExistingReview = async () => {
   await refreshProduct()
   await refreshUserProductReview()
 }
-const onDeleteExistingReview = async () => {
+const _onDeleteExistingReview = async () => {
   await refreshProduct()
   await refreshUserProductReview()
 }
@@ -126,7 +126,7 @@ const decrementQuantity = () => {
   }
 }
 
-const openModal = () => {
+const _openModal = () => {
   if (user?.value) {
     isReviewModalOpen.value = true
   }
@@ -175,7 +175,7 @@ const items = computed(() => [
   },
 ])
 
-const reviewButtonText = computed(() => {
+const _reviewButtonText = computed(() => {
   if (user.value && userProductReview.value) {
     return t('update_review')
   }

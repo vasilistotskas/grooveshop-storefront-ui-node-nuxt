@@ -4,9 +4,8 @@ export default defineConfig({
   input: './openapi/schema.json',
   output: {
     indexFile: false,
-    format: 'prettier',
-    lint: 'eslint',
     path: './shared/openapi',
+    postProcess: ['eslint'],
   },
   plugins: [
     '@hey-api/typescript',

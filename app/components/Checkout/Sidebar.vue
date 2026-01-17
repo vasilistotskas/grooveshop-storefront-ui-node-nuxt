@@ -7,6 +7,7 @@ const { $i18n } = useNuxtApp()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
+const localePath = useLocalePath()
 const { t } = useI18n()
 
 const payWayCost = computed(() => {
@@ -154,6 +155,8 @@ defineSlots<{
             size="sm"
             icon="i-heroicons-question-mark-circle"
             block
+            :to="localePath('contact')"
+            target="_blank"
           >
             {{ t('need_help') }}
           </UButton>

@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zApiV1SettingsGetRetrieveData.shape.query.parse)
+    const query = await getValidatedQuery(event, zSettingsGetRetrieveData.shape.query.parse)
     const response = await $fetch(
       `${config.apiBaseUrl}/settings/get`,
       {
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
         query,
       },
     )
-    return await parseDataAs(response, zApiV1SettingsGetRetrieveResponse)
+    return await parseDataAs(response, zSettingsGetRetrieveResponse)
   }
   catch (error) {
     await handleError(error)

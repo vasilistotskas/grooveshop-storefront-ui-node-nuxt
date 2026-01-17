@@ -6,10 +6,7 @@ import { z } from 'zod';
  * * `subscribe` - subscribe
  * * `unsubscribe` - unsubscribe
  */
-export const zActionEnum = z.enum([
-    'subscribe',
-    'unsubscribe'
-]).register(z.globalRegistry, {
+export const zActionEnum = z.enum(['subscribe', 'unsubscribe']).register(z.globalRegistry, {
     description: '* `subscribe` - subscribe\n* `unsubscribe` - unsubscribe'
 });
 
@@ -18,9 +15,7 @@ export const zAddTrackingRequest = z.object({
     shippingCarrier: z.string().min(1).max(50)
 });
 
-export const zBlankEnum = z.enum([
-    ''
-]);
+export const zBlankEnum = z.enum(['']);
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -44,183 +39,13 @@ export const zBlogAuthor = z.object({
         z.string().max(200).readonly(),
         z.null()
     ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     numberOfPosts: z.int().readonly(),
     totalLikesReceived: z.union([
         z.int(),
         z.literal(0)
     ])
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zUserDetails = z.object({
-    pk: z.int().readonly(),
-    email: z.email().max(254),
-    firstName: z.optional(z.string().max(255)),
-    lastName: z.optional(z.string().max(255)),
-    id: z.int().readonly(),
-    username: z.optional(z.union([
-        z.string().max(30).regex(/^[\w.@+#-]+$/),
-        z.null()
-    ])),
-    phone: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    city: z.optional(z.string().max(255)),
-    zipcode: z.optional(z.string().max(255)),
-    address: z.optional(z.string().max(255)),
-    place: z.optional(z.string().max(255)),
-    country: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    region: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    birthDate: z.optional(z.union([
-        z.iso.date(),
-        z.null()
-    ])),
-    twitter: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    linkedin: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    facebook: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    instagram: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    website: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    youtube: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    github: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    bio: z.optional(z.string()),
-    isActive: z.boolean().readonly(),
-    isStaff: z.boolean().readonly(),
-    isSuperuser: z.boolean().register(z.globalRegistry, {
-        description: 'Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.'
-    }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    mainImagePath: z.string().readonly()
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zBlogPost = z.object({
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-    likes: z.array(z.int()),
-    translations: z.object({
-        el: z.optional(z.object({
-            title: z.optional(z.string()),
-            subtitle: z.optional(z.string()),
-            body: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            title: z.optional(z.string()),
-            subtitle: z.optional(z.string()),
-            body: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            title: z.optional(z.string()),
-            subtitle: z.optional(z.string()),
-            body: z.optional(z.string())
-        }))
-    }),
-    author: z.int(),
-    category: z.int(),
-    tags: z.array(z.int()),
-    featured: z.optional(z.boolean()),
-    viewCount: z.int().readonly(),
-    likesCount: z.int().readonly(),
-    commentsCount: z.int().readonly(),
-    tagsCount: z.int().readonly(),
-    isPublished: z.optional(z.boolean()),
-    publishedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    mainImagePath: z.string().readonly(),
-    readingTime: z.int().readonly(),
-    contentPreview: z.string().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zBlogAuthorDetail = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            bio: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            bio: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            bio: z.optional(z.string())
-        }))
-    }),
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    user: zUserDetails,
-    website: z.union([
-        z.string().max(200).readonly(),
-        z.null()
-    ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    numberOfPosts: z.int().readonly(),
-    totalLikesReceived: z.union([
-        z.int(),
-        z.literal(0)
-    ]),
-    recentPosts: z.array(zBlogPost).readonly(),
-    topPosts: z.array(zBlogPost).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -275,15 +100,15 @@ export const zBlogCategory = z.object({
         z.int().readonly(),
         z.null()
     ]).readonly(),
-    postCount: z.int().readonly(),
-    hasChildren: z.boolean().readonly(),
-    mainImagePath: z.string().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
+    postCount: z.int().register(z.globalRegistry, {
+        description: 'Return post count from annotation if available, otherwise query.\n\nUses _post_count annotation from BlogCategoryManager.for_list().'
     }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly()
+    hasChildren: z.boolean().register(z.globalRegistry, {
+        description: 'Return has_children from annotation if available, otherwise query.\n\nUses _has_children annotation from BlogCategoryManager.for_list().'
+    }).readonly(),
+    mainImagePath: z.string().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -317,15 +142,15 @@ export const zBlogCategoryDetail = z.object({
         z.int().readonly(),
         z.null()
     ]).readonly(),
-    postCount: z.int().readonly(),
-    hasChildren: z.boolean().readonly(),
+    postCount: z.int().register(z.globalRegistry, {
+        description: 'Return post count from annotation if available, otherwise query.\n\nUses _post_count annotation from BlogCategoryManager.for_list().'
+    }).readonly(),
+    hasChildren: z.boolean().register(z.globalRegistry, {
+        description: 'Return has_children from annotation if available, otherwise query.\n\nUses _has_children annotation from BlogCategoryManager.for_list().'
+    }).readonly(),
     mainImagePath: z.string().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     children: z.array(zBlogCategory).readonly(),
     ancestors: z.array(zBlogCategory).readonly(),
     siblingsCount: z.int().readonly(),
@@ -393,138 +218,6 @@ export const zBlogCategoryWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zBlogComment = z.object({
-    id: z.int().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            content: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            content: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            content: z.optional(z.string())
-        }))
-    }),
-    user: zUserDetails,
-    contentPreview: z.union([
-        z.string().readonly(),
-        z.null()
-    ]).readonly(),
-    isReply: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment is a reply to another comment'
-    }).readonly(),
-    parent: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    hasReplies: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment has approved replies'
-    }).readonly(),
-    approved: z.boolean().readonly(),
-    isEdited: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment has been edited'
-    }).readonly(),
-    likesCount: z.int().readonly(),
-    repliesCount: z.int().readonly(),
-    userHasLiked: z.boolean().register(z.globalRegistry, {
-        description: 'Whether the current user has liked this comment'
-    }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zBlogCommentDetail = z.object({
-    id: z.int().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            content: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            content: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            content: z.optional(z.string())
-        }))
-    }),
-    user: zUserDetails,
-    contentPreview: z.union([
-        z.string().readonly(),
-        z.null()
-    ]).readonly(),
-    isReply: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment is a reply to another comment'
-    }).readonly(),
-    parent: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    hasReplies: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment has approved replies'
-    }).readonly(),
-    approved: z.boolean().readonly(),
-    isEdited: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this comment has been edited'
-    }).readonly(),
-    likesCount: z.int().readonly(),
-    repliesCount: z.int().readonly(),
-    userHasLiked: z.boolean().register(z.globalRegistry, {
-        description: 'Whether the current user has liked this comment'
-    }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    post: zBlogPost,
-    parentComment: z.union([
-        z.object({
-            id: z.int(),
-            contentPreview: z.string(),
-            user: zUserDetails,
-            createdAt: z.iso.datetime({
-                offset: true
-            })
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    childrenComments: z.array(zBlogComment).register(z.globalRegistry, {
-        description: 'Direct approved child comments (replies)'
-    }).readonly(),
-    ancestorsPath: z.array(z.object({
-        id: z.int(),
-        contentPreview: z.string(),
-        user: zUserDetails
-    })).register(z.globalRegistry, {
-        description: 'Path from root comment to this comment'
-    }).readonly(),
-    treePosition: z.object({
-        level: z.int(),
-        treeId: z.int(),
-        approvedDescendantsCount: z.int(),
-        siblingsCount: z.int()
-    }).register(z.globalRegistry, {
-        description: 'Position information in the comment tree'
-    }).readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
 export const zBlogCommentLikedCommentsRequestRequest = z.object({
     commentIds: z.array(z.int()).register(z.globalRegistry, {
         description: 'List of comment IDs to check like status for'
@@ -565,46 +258,11 @@ export const zBlogCommentWriteRequest = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zBlogTagDetail = z.object({
-    id: z.int().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string())
-        }))
-    }),
-    active: z.optional(z.boolean()),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    postsCount: z.string().register(z.globalRegistry, {
-        description: 'Number of blog posts using this tag'
-    }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zBlogPostDetail = z.object({
+export const zBlogPost = z.object({
     id: z.int().readonly(),
     uuid: z.uuid().readonly(),
     slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-    likes: z.array(z.int()).readonly(),
+    likes: z.array(z.int()),
     translations: z.object({
         el: z.optional(z.object({
             title: z.optional(z.string()),
@@ -622,9 +280,9 @@ export const zBlogPostDetail = z.object({
             body: z.optional(z.string())
         }))
     }),
-    author: zBlogAuthorDetail,
-    category: zBlogCategoryDetail,
-    tags: z.array(zBlogTagDetail).readonly(),
+    author: z.int(),
+    category: z.int(),
+    tags: z.array(z.int()),
     featured: z.optional(z.boolean()),
     viewCount: z.int().readonly(),
     likesCount: z.int().readonly(),
@@ -632,24 +290,14 @@ export const zBlogPostDetail = z.object({
     tagsCount: z.int().readonly(),
     isPublished: z.optional(z.boolean()),
     publishedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
+        z.iso.datetime({ offset: true }).readonly(),
         z.null()
     ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     mainImagePath: z.string().readonly(),
     readingTime: z.int().readonly(),
-    contentPreview: z.string().readonly(),
-    userHasLiked: z.boolean().readonly(),
-    seoTitle: z.optional(z.string().max(70)),
-    seoDescription: z.optional(z.string().max(300)),
-    seoKeywords: z.optional(z.string().max(255))
+    contentPreview: z.string().readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -780,12 +428,39 @@ export const zBlogTag = z.object({
     postsCount: z.string().register(z.globalRegistry, {
         description: 'Number of blog posts using this tag'
     }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zBlogTagDetail = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string())
+        }))
+    }),
+    active: z.optional(z.boolean()),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    postsCount: z.string().register(z.globalRegistry, {
+        description: 'Number of blog posts using this tag'
     }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
@@ -827,186 +502,9 @@ export const zCancelOrderRequestRequest = z.object({
     })).default(true)
 });
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProduct = z.object({
-    id: z.int().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        }))
-    }),
-    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-    category: z.int(),
-    price: z.number().gt(-1000000000).lt(1000000000),
-    vat: z.int(),
-    viewCount: z.int().readonly(),
-    stock: z.optional(z.int().gte(0).lte(2147483647)),
-    active: z.optional(z.boolean()),
-    weight: z.optional(z.union([
-        z.object({
-            unit: z.optional(z.string()),
-            value: z.optional(z.number())
-        }),
-        z.null()
-    ])),
-    seoTitle: z.optional(z.string().max(70)),
-    seoDescription: z.optional(z.string().max(300)),
-    seoKeywords: z.optional(z.string().max(255)),
-    discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    priceSavePercent: z.number().readonly(),
-    vatPercent: z.number().readonly(),
-    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    mainImagePath: z.string().readonly(),
-    reviewAverage: z.number().readonly(),
-    reviewCount: z.int().readonly(),
-    likesCount: z.int().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zCartItem = z.object({
-    id: z.int().readonly(),
-    cartId: z.int().readonly(),
-    product: zProduct,
-    quantity: z.optional(z.int().gte(0).lte(2147483647)),
-    weightInfo: z.object({
-        unitWeight: z.number(),
-        totalWeight: z.number(),
-        weightUnit: z.string()
-    }).register(z.globalRegistry, {
-        description: 'Weight information for shipping calculations'
-    }).readonly(),
-    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    priceSavePercent: z.number().readonly(),
-    discountPercent: z.number().readonly(),
-    vatPercent: z.number().readonly(),
-    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-});
-
-export const zCart = z.object({
-    id: z.int().readonly(),
-    user: z.optional(z.union([
-        z.int(),
-        z.null()
-    ])),
-    uuid: z.uuid().readonly(),
-    items: z.array(zCartItem).readonly(),
-    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalItems: z.union([
-        z.int(),
-        z.literal(0)
-    ]),
-    totalItemsUnique: z.int().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    lastActivity: z.iso.datetime({
-        offset: true
-    }).readonly()
-});
-
-export const zCartDetail = z.object({
-    id: z.int().readonly(),
-    user: z.optional(z.union([
-        z.int(),
-        z.null()
-    ])),
-    uuid: z.uuid().readonly(),
-    items: z.array(zCartItem).readonly(),
-    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalItems: z.union([
-        z.int(),
-        z.literal(0)
-    ]),
-    totalItemsUnique: z.int().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    lastActivity: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    recommendations: z.array(zProduct).register(z.globalRegistry, {
-        description: 'Product recommendations based on cart contents'
-    }).readonly()
-});
-
 export const zCartItemCreateRequest = z.object({
     product: z.int(),
     quantity: z.optional(z.int().gte(0).lte(2147483647))
-});
-
-export const zCartItemDetail = z.object({
-    id: z.int().readonly(),
-    cartId: z.int().readonly(),
-    product: zProduct,
-    quantity: z.optional(z.int().gte(0).lte(2147483647)),
-    weightInfo: z.object({
-        unitWeight: z.number(),
-        totalWeight: z.number(),
-        weightUnit: z.string()
-    }).register(z.globalRegistry, {
-        description: 'Weight information for shipping calculations'
-    }).readonly(),
-    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    priceSavePercent: z.number().readonly(),
-    discountPercent: z.number().readonly(),
-    vatPercent: z.number().readonly(),
-    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    recommendations: z.array(zProduct).register(z.globalRegistry, {
-        description: 'Related products that might interest the customer'
-    }).readonly()
 });
 
 export const zCartItemUpdateRequest = z.object({
@@ -1046,12 +544,8 @@ export const zContactWrite = z.object({
     name: z.string().max(100),
     email: z.email().max(254),
     message: z.string(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 });
 
@@ -1090,12 +584,8 @@ export const zCountry = z.object({
         z.int().readonly(),
         z.null()
     ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
     mainImagePath: z.string().readonly()
 }).register(z.globalRegistry, {
@@ -1131,12 +621,8 @@ export const zCountryDetail = z.object({
         z.int().readonly(),
         z.null()
     ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
     mainImagePath: z.string().readonly(),
     regions: z.array(z.string()).readonly()
@@ -1363,17 +849,11 @@ export const zNotification = z.object({
     ]).readonly(),
     kind: z.optional(zKindEnum),
     expiryDate: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
+        z.iso.datetime({ offset: true }),
         z.null()
     ])),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
@@ -1407,17 +887,11 @@ export const zNotificationUser = z.object({
     notification: z.int(),
     seen: z.optional(z.boolean()),
     seenAt: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
+        z.iso.datetime({ offset: true }),
         z.null()
     ])),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 });
 
@@ -1427,273 +901,10 @@ export const zNotificationUserActionRequest = z.object({
     })
 });
 
-export const zNotificationUserDetail = z.object({
-    id: z.int().readonly(),
-    user: zUserDetails,
-    notification: zNotification,
-    seen: z.optional(z.boolean()),
-    seenAt: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
-        z.null()
-    ])),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-});
-
 export const zNotificationUserWriteRequest = z.object({
     user: z.int(),
     notification: z.int(),
     seen: z.optional(z.boolean())
-});
-
-/**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `SHIPPED` - Shipped
- * * `DELIVERED` - Delivered
- * * `COMPLETED` - Completed
- * * `CANCELED` - Canceled
- * * `RETURNED` - Returned
- * * `REFUNDED` - Refunded
- */
-export const zOrderStatus = z.enum([
-    'PENDING',
-    'PROCESSING',
-    'SHIPPED',
-    'DELIVERED',
-    'COMPLETED',
-    'CANCELED',
-    'RETURNED',
-    'REFUNDED'
-]).register(z.globalRegistry, {
-    description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded'
-});
-
-export const zOrderItemDetail = z.object({
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    order: z.int(),
-    product: zProduct,
-    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
-    isRefunded: z.boolean().readonly(),
-    refundedQuantity: z.int().readonly(),
-    netQuantity: z.int().readonly(),
-    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    originalQuantity: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    refundedAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    netPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    notes: z.optional(z.string())
-});
-
-/**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `COMPLETED` - Completed
- * * `FAILED` - Failed
- * * `REFUNDED` - Refunded
- * * `PARTIALLY_REFUNDED` - Partially Refunded
- * * `CANCELED` - Canceled
- */
-export const zPaymentStatusEnum = z.enum([
-    'PENDING',
-    'PROCESSING',
-    'COMPLETED',
-    'FAILED',
-    'REFUNDED',
-    'PARTIALLY_REFUNDED',
-    'CANCELED'
-]).register(z.globalRegistry, {
-    description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled'
-});
-
-export const zOrder = z.object({
-    id: z.int().readonly(),
-    user: z.optional(z.union([
-        z.int(),
-        z.null()
-    ])),
-    country: z.string(),
-    region: z.string(),
-    floor: z.optional(z.union([
-        zFloorEnum,
-        zBlankEnum
-    ])),
-    locationType: z.optional(z.union([
-        zLocationTypeEnum,
-        zBlankEnum
-    ])),
-    street: z.string().max(255),
-    streetNumber: z.string().max(255),
-    payWay: z.int(),
-    status: z.optional(zOrderStatus),
-    statusDisplay: z.string().readonly(),
-    statusUpdatedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    firstName: z.string().max(255),
-    lastName: z.string().max(255),
-    email: z.email().max(255),
-    zipcode: z.string().max(255),
-    place: z.optional(z.string().max(255)),
-    city: z.string().max(255),
-    phone: z.string(),
-    mobilePhone: z.optional(z.string()),
-    customerNotes: z.optional(z.string()),
-    paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    items: z.array(zOrderItemDetail),
-    shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    documentType: z.optional(zDocumentTypeEnum),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    fullAddress: z.string().readonly(),
-    paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(z.union([
-        zPaymentStatusEnum,
-        zBlankEnum
-    ])),
-    paymentMethod: z.optional(z.string().max(50)),
-    canBeCanceled: z.boolean().readonly(),
-    isPaid: z.boolean().readonly()
-});
-
-export const zOrderDetail = z.object({
-    id: z.int().readonly(),
-    user: z.optional(z.union([
-        z.int(),
-        z.null()
-    ])),
-    country: z.string(),
-    region: z.string(),
-    floor: z.optional(z.union([
-        zFloorEnum,
-        zBlankEnum
-    ])),
-    locationType: z.optional(z.union([
-        zLocationTypeEnum,
-        zBlankEnum
-    ])),
-    street: z.string().max(255),
-    streetNumber: z.string().max(255),
-    payWay: z.int(),
-    status: z.optional(zOrderStatus),
-    statusDisplay: z.string().readonly(),
-    statusUpdatedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    firstName: z.string().max(255),
-    lastName: z.string().max(255),
-    email: z.email().max(255),
-    zipcode: z.string().max(255),
-    place: z.optional(z.string().max(255)),
-    city: z.string().max(255),
-    phone: z.string().readonly(),
-    mobilePhone: z.string().readonly(),
-    customerNotes: z.optional(z.string()),
-    paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    items: z.array(zOrderItemDetail),
-    shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    documentType: z.optional(zDocumentTypeEnum),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    fullAddress: z.string().readonly(),
-    paymentId: z.optional(z.string().max(255)),
-    paymentStatus: z.optional(z.union([
-        zPaymentStatusEnum,
-        zBlankEnum
-    ])),
-    paymentMethod: z.optional(z.string().max(50)),
-    canBeCanceled: z.boolean().readonly(),
-    isPaid: z.boolean().readonly(),
-    orderTimeline: z.array(z.object({
-        changeType: z.optional(z.string()),
-        timestamp: z.optional(z.string()),
-        description: z.optional(z.string()),
-        user: z.optional(z.union([
-            z.string(),
-            z.null()
-        ]))
-    })).register(z.globalRegistry, {
-        description: 'Order status timeline and history'
-    }).readonly(),
-    pricingBreakdown: z.object({
-        itemsSubtotal: z.optional(z.number()),
-        shippingCost: z.optional(z.number()),
-        extrasTotal: z.optional(z.number()),
-        grandTotal: z.optional(z.number()),
-        currency: z.optional(z.string()),
-        paidAmount: z.optional(z.number()),
-        remainingAmount: z.optional(z.number())
-    }).register(z.globalRegistry, {
-        description: 'Detailed pricing breakdown'
-    }).readonly(),
-    trackingDetails: z.union([
-        z.object({
-            trackingNumber: z.optional(z.union([
-                z.string(),
-                z.null()
-            ])),
-            shippingCarrier: z.optional(z.union([
-                z.string(),
-                z.null()
-            ])),
-            hasTracking: z.optional(z.boolean()),
-            estimatedDelivery: z.optional(z.union([
-                z.string(),
-                z.null()
-            ])),
-            trackingUrl: z.optional(z.union([
-                z.string(),
-                z.null()
-            ]))
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    trackingNumber: z.optional(z.string().max(255)),
-    shippingCarrier: z.optional(z.string().max(255)),
-    customerFullName: z.string().readonly(),
-    isCompleted: z.boolean().readonly(),
-    isCanceled: z.boolean().readonly()
 });
 
 export const zOrderItem = z.object({
@@ -1707,12 +918,8 @@ export const zOrderItem = z.object({
     refundedQuantity: z.int().readonly(),
     netQuantity: z.int().readonly(),
     totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly()
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
 });
 
 export const zOrderItemCreateRequest = z.object({
@@ -1741,6 +948,29 @@ export const zOrderItemWriteRequest = z.object({
     product: z.int(),
     quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
     notes: z.optional(z.string())
+});
+
+/**
+ * * `PENDING` - Pending
+ * * `PROCESSING` - Processing
+ * * `SHIPPED` - Shipped
+ * * `DELIVERED` - Delivered
+ * * `COMPLETED` - Completed
+ * * `CANCELED` - Canceled
+ * * `RETURNED` - Returned
+ * * `REFUNDED` - Refunded
+ */
+export const zOrderStatus = z.enum([
+    'PENDING',
+    'PROCESSING',
+    'SHIPPED',
+    'DELIVERED',
+    'COMPLETED',
+    'CANCELED',
+    'RETURNED',
+    'REFUNDED'
+]).register(z.globalRegistry, {
+    description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded'
 });
 
 export const zOrderWriteRequest = z.object({
@@ -1828,25 +1058,6 @@ export const zPaginatedBlogCategoryList = z.object({
     results: z.array(zBlogCategory)
 });
 
-export const zPaginatedBlogCommentList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zBlogComment)
-});
-
 export const zPaginatedBlogPostList = z.object({
     links: z.optional(z.object({
         next: z.optional(z.union([
@@ -1883,44 +1094,6 @@ export const zPaginatedBlogTagList = z.object({
     pageTotalResults: z.optional(z.int()),
     page: z.optional(z.int()),
     results: z.array(zBlogTag)
-});
-
-export const zPaginatedCartItemList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zCartItem)
-});
-
-export const zPaginatedCartList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zCart)
 });
 
 export const zPaginatedCountryList = z.object({
@@ -1978,811 +1151,6 @@ export const zPaginatedOrderItemList = z.object({
     pageTotalResults: z.optional(z.int()),
     page: z.optional(z.int()),
     results: z.array(zOrderItem)
-});
-
-export const zPaginatedOrderList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zOrder)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zPayWay = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string()),
-            instructions: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string()),
-            instructions: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string()),
-            instructions: z.optional(z.string())
-        }))
-    }),
-    id: z.int().readonly(),
-    active: z.optional(z.boolean()),
-    cost: z.number().gt(-1000000000).lt(1000000000),
-    freeThreshold: z.number().gt(-1000000000).lt(1000000000),
-    icon: z.optional(z.union([
-        z.url(),
-        z.null()
-    ])),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    iconFilename: z.string().readonly(),
-    providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
-        description: "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')"
-    })),
-    isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether this payment method is processed online'
-    })),
-    requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)'
-    }))
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedPayWayList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zPayWay)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductCategoryImage = z.object({
-    id: z.int().readonly(),
-    category: z.int(),
-    categoryName: z.string().readonly(),
-    image: z.url(),
-    imageType: z.optional(zImageTypeEnum),
-    active: z.optional(z.boolean()),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            title: z.optional(z.string()),
-            altText: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            title: z.optional(z.string()),
-            altText: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            title: z.optional(z.string()),
-            altText: z.optional(z.string())
-        }))
-    }),
-    imagePath: z.string().readonly(),
-    imageUrl: z.string().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedProductCategoryImageList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zProductCategoryImage)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductCategory = z.object({
-    id: z.int().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        }))
-    }),
-    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-    active: z.optional(z.boolean()),
-    parent: z.optional(z.union([
-        z.int(),
-        z.null()
-    ])),
-    level: z.int().readonly(),
-    treeId: z.int().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    recursiveProductCount: z.int().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedProductCategoryList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zProductCategory)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductDetail = z.object({
-    id: z.int().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        }))
-    }),
-    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-    category: z.int(),
-    price: z.number().gt(-1000000000).lt(1000000000),
-    vat: z.int(),
-    viewCount: z.int().readonly(),
-    stock: z.optional(z.int().gte(0).lte(2147483647)),
-    active: z.optional(z.boolean()),
-    weight: z.optional(z.union([
-        z.object({
-            unit: z.optional(z.string()),
-            value: z.optional(z.number())
-        }),
-        z.null()
-    ])),
-    seoTitle: z.optional(z.string().max(70)),
-    seoDescription: z.optional(z.string().max(300)),
-    seoKeywords: z.optional(z.string().max(255)),
-    discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly(),
-    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    priceSavePercent: z.number().readonly(),
-    vatPercent: z.number().readonly(),
-    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    mainImagePath: z.string().readonly(),
-    reviewAverage: z.number().readonly(),
-    reviewCount: z.int().readonly(),
-    likesCount: z.int().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zProductFavourite = z.object({
-    id: z.int().readonly(),
-    userId: z.int().readonly(),
-    userUsername: z.string().readonly(),
-    product: zProductDetail,
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-});
-
-export const zPaginatedProductFavouriteList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zProductFavourite)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductImage = z.object({
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    product: z.int().readonly(),
-    image: z.url(),
-    imageUrl: z.string().readonly(),
-    imageSizeKb: z.number().readonly(),
-    altText: z.string().readonly(),
-    isMain: z.optional(z.boolean()),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            title: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            title: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            title: z.optional(z.string())
-        }))
-    }),
-    mainImagePath: z.string().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedProductImageList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zProductImage)
-});
-
-export const zPaginatedProductList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zProduct)
-});
-
-/**
- * * `1` - One
- * * `2` - Two
- * * `3` - Three
- * * `4` - Four
- * * `5` - Five
- * * `6` - Six
- * * `7` - Seven
- * * `8` - Eight
- * * `9` - Nine
- * * `10` - Ten
- */
-export const zRateEnum = z.union([
-    z.literal(1),
-    z.literal(2),
-    z.literal(3),
-    z.literal(4),
-    z.literal(5),
-    z.literal(6),
-    z.literal(7),
-    z.literal(8),
-    z.literal(9),
-    z.literal(10)
-]).register(z.globalRegistry, {
-    description: '* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten'
-});
-
-/**
- * * `NEW` - New
- * * `TRUE` - True
- * * `FALSE` - False
- */
-export const zReviewStatus = z.enum([
-    'NEW',
-    'TRUE',
-    'FALSE'
-]).register(z.globalRegistry, {
-    description: '* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductReview = z.object({
-    id: z.int().readonly(),
-    product: zProduct,
-    user: zUserDetails,
-    rate: zRateEnum,
-    status: z.optional(zReviewStatus),
-    isPublished: z.optional(z.boolean()),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    publishedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    uuid: z.uuid().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            comment: z.optional(z.string())
-        }))
-    })
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedProductReviewList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zProductReview)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zRegion = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string())
-        }))
-    }),
-    alpha: z.string().max(10),
-    country: z.string(),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedRegionList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zRegion)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zSubscriptionTopic = z.object({
-    translations: z.object({
-        el: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            name: z.optional(z.string()),
-            description: z.optional(z.string())
-        }))
-    }),
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
-    }),
-    category: z.optional(zCategoryEnum),
-    isActive: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether this topic is currently available for subscription'
-    })),
-    isDefault: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether new users are automatically subscribed to this topic'
-    })),
-    requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
-        description: 'Whether subscription to this topic requires email confirmation'
-    })),
-    subscriberCount: z.int().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedSubscriptionTopicList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zSubscriptionTopic)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zTag = z.object({
-    id: z.int().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            label: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            label: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            label: z.optional(z.string())
-        }))
-    }),
-    active: z.optional(z.boolean()),
-    sortOrder: z.union([
-        z.int().readonly(),
-        z.null()
-    ]).readonly(),
-    usageCount: z.string().register(z.globalRegistry, {
-        description: 'Number of times this tag is used'
-    }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedTagList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zTag)
-});
-
-export const zTaggedItem = z.object({
-    id: z.int().readonly(),
-    tag: zTag,
-    contentType: z.int(),
-    contentTypeName: z.string().register(z.globalRegistry, {
-        description: 'Name of the content type'
-    }).readonly(),
-    objectId: z.int().gte(0).lte(2147483647),
-    contentObject: z.object({
-        id: z.optional(z.int()),
-        name: z.optional(z.string()),
-        description: z.optional(z.string()),
-        price: z.optional(z.string()),
-        active: z.optional(z.boolean())
-    }).register(z.globalRegistry, {
-        description: 'Serialized representation of the related content object'
-    }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-});
-
-export const zPaginatedTaggedItemList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zTaggedItem)
-});
-
-export const zUserAddress = z.object({
-    id: z.int().readonly(),
-    title: z.string().max(255),
-    firstName: z.string().max(255),
-    lastName: z.string().max(255),
-    street: z.string().max(255),
-    streetNumber: z.string().max(255),
-    city: z.string().max(255),
-    zipcode: z.string().max(255),
-    floor: z.optional(z.union([
-        zFloorEnum,
-        zBlankEnum
-    ])),
-    locationType: z.optional(z.union([
-        zLocationTypeEnum,
-        zBlankEnum
-    ])),
-    phone: z.string(),
-    mobilePhone: z.optional(z.string()),
-    notes: z.optional(z.string().max(255)),
-    isMain: z.optional(z.boolean()).default(false),
-    user: z.int().readonly(),
-    country: z.string(),
-    region: z.string(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    uuid: z.uuid().readonly()
-});
-
-export const zPaginatedUserAddressList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zUserAddress)
-});
-
-export const zPaginatedUserDetailsList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zUserDetails)
-});
-
-/**
- * * `ACTIVE` - Active
- * * `PENDING` - Pending Confirmation
- * * `UNSUBSCRIBED` - Unsubscribed
- * * `BOUNCED` - Bounced
- */
-export const zSubscriptionStatus = z.enum([
-    'ACTIVE',
-    'PENDING',
-    'UNSUBSCRIBED',
-    'BOUNCED'
-]).register(z.globalRegistry, {
-    description: '* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced'
-});
-
-export const zUserSubscription = z.object({
-    id: z.int().readonly(),
-    user: z.int().readonly(),
-    topic: z.int(),
-    topicDetails: zSubscriptionTopic,
-    status: z.optional(zSubscriptionStatus),
-    subscribedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    unsubscribedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    metadata: z.optional(z.unknown().register(z.globalRegistry, {
-        description: 'Additional subscription preferences or data'
-    })),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly()
-});
-
-export const zPaginatedUserSubscriptionList = z.object({
-    links: z.optional(z.object({
-        next: z.optional(z.union([
-            z.url(),
-            z.null()
-        ])),
-        previous: z.optional(z.union([
-            z.url(),
-            z.null()
-        ]))
-    })),
-    count: z.int(),
-    totalPages: z.optional(z.int()),
-    pageSize: z.optional(z.int()),
-    pageTotalResults: z.optional(z.int()),
-    page: z.optional(z.int()),
-    results: z.array(zUserSubscription)
 });
 
 /**
@@ -3045,7 +1413,7 @@ export const zPatchedPayWayWriteRequest = z.object({
         z.null()
     ])),
     providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
-        description: "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')"
+        description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')'
     })),
     isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
         description: 'Whether this payment method is processed online'
@@ -3152,29 +1520,6 @@ export const zPatchedProductImageWriteRequest = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zPatchedProductReviewWriteRequest = z.object({
-    product: z.optional(z.int()),
-    rate: z.optional(zRateEnum),
-    status: z.optional(zReviewStatus),
-    isPublished: z.optional(z.boolean()),
-    translations: z.optional(z.object({
-        el: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            comment: z.optional(z.string())
-        }))
-    }))
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zPatchedProductWriteRequest = z.object({
     translations: z.optional(z.object({
         el: z.optional(z.object({
@@ -3251,7 +1596,7 @@ export const zPatchedSubscriptionTopicWriteRequest = z.object({
         }))
     })),
     slug: z.optional(z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     })),
     category: z.optional(zCategoryEnum),
     isActive: z.optional(z.boolean().register(z.globalRegistry, {
@@ -3315,14 +1660,6 @@ export const zPatchedUserAddressWriteRequest = z.object({
     user: z.optional(z.int()),
     country: z.optional(z.string().min(1)),
     region: z.optional(z.string().min(1))
-});
-
-export const zPatchedUserSubscriptionWriteRequest = z.object({
-    topic: z.optional(z.int()),
-    status: z.optional(zSubscriptionStatus),
-    metadata: z.optional(z.unknown().register(z.globalRegistry, {
-        description: 'Additional subscription preferences or data'
-    }))
 });
 
 export const zPatchedUserWriteRequest = z.object({
@@ -3391,6 +1728,76 @@ export const zPatchedUserWriteRequest = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export const zPayWay = z.object({
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string()),
+            instructions: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string()),
+            instructions: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string()),
+            instructions: z.optional(z.string())
+        }))
+    }),
+    id: z.int().readonly(),
+    active: z.optional(z.boolean()),
+    cost: z.number().gt(-1000000000).lt(1000000000),
+    freeThreshold: z.number().gt(-1000000000).lt(1000000000),
+    icon: z.optional(z.union([
+        z.url(),
+        z.null()
+    ])),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    mainImagePath: z.string().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    iconFilename: z.string().readonly(),
+    providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
+        description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')'
+    })),
+    isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether this payment method is processed online'
+    })),
+    requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)'
+    }))
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedPayWayList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zPayWay)
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export const zPayWayDetail = z.object({
     translations: z.object({
         el: z.optional(z.object({
@@ -3421,16 +1828,13 @@ export const zPayWayDetail = z.object({
         z.int().readonly(),
         z.null()
     ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    mainImagePath: z.string().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
     iconFilename: z.string().readonly(),
     providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
-        description: "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')"
+        description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')'
     })),
     isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
         description: 'Whether this payment method is processed online'
@@ -3474,7 +1878,7 @@ export const zPayWayWriteRequest = z.object({
         z.null()
     ])),
     providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
-        description: "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')"
+        description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')'
     })),
     isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
         description: 'Whether this payment method is processed online'
@@ -3487,6 +1891,503 @@ export const zPayWayWriteRequest = z.object({
     }))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * * `PENDING` - Pending
+ * * `PROCESSING` - Processing
+ * * `COMPLETED` - Completed
+ * * `FAILED` - Failed
+ * * `REFUNDED` - Refunded
+ * * `PARTIALLY_REFUNDED` - Partially Refunded
+ * * `CANCELED` - Canceled
+ */
+export const zPaymentStatusEnum = z.enum([
+    'PENDING',
+    'PROCESSING',
+    'COMPLETED',
+    'FAILED',
+    'REFUNDED',
+    'PARTIALLY_REFUNDED',
+    'CANCELED'
+]).register(z.globalRegistry, {
+    description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProduct = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        }))
+    }),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+    category: z.int(),
+    price: z.number().gt(-1000000000).lt(1000000000),
+    vat: z.int(),
+    viewCount: z.int().readonly(),
+    stock: z.optional(z.int().gte(0).lte(2147483647)),
+    active: z.optional(z.boolean()),
+    weight: z.optional(z.union([
+        z.object({
+            unit: z.optional(z.string()),
+            value: z.optional(z.number())
+        }),
+        z.null()
+    ])),
+    seoTitle: z.optional(z.string().max(70)),
+    seoDescription: z.optional(z.string().max(300)),
+    seoKeywords: z.optional(z.string().max(255)),
+    discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    priceSavePercent: z.number().readonly(),
+    vatPercent: z.number().readonly(),
+    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    mainImagePath: z.string().readonly(),
+    reviewAverage: z.number().register(z.globalRegistry, {
+        description: 'Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    reviewCount: z.int().register(z.globalRegistry, {
+        description: 'Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    likesCount: z.int().register(z.globalRegistry, {
+        description: 'Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zCartItem = z.object({
+    id: z.int().readonly(),
+    cartId: z.int().readonly(),
+    product: zProduct,
+    quantity: z.optional(z.int().gte(0).lte(2147483647)),
+    weightInfo: z.object({
+        unitWeight: z.number(),
+        totalWeight: z.number(),
+        weightUnit: z.string()
+    }).register(z.globalRegistry, {
+        description: 'Weight information for shipping calculations'
+    }).readonly(),
+    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    priceSavePercent: z.number().readonly(),
+    discountPercent: z.number().readonly(),
+    vatPercent: z.number().readonly(),
+    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+});
+
+export const zCart = z.object({
+    id: z.int().readonly(),
+    user: z.optional(z.union([
+        z.int(),
+        z.null()
+    ])),
+    uuid: z.uuid().readonly(),
+    items: z.array(zCartItem).readonly(),
+    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalItems: z.union([
+        z.int(),
+        z.literal(0)
+    ]),
+    totalItemsUnique: z.int().register(z.globalRegistry, {
+        description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    lastActivity: z.iso.datetime({ offset: true }).readonly()
+});
+
+export const zCartDetail = z.object({
+    id: z.int().readonly(),
+    user: z.optional(z.union([
+        z.int(),
+        z.null()
+    ])),
+    uuid: z.uuid().readonly(),
+    items: z.array(zCartItem).readonly(),
+    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalItems: z.union([
+        z.int(),
+        z.literal(0)
+    ]),
+    totalItemsUnique: z.int().register(z.globalRegistry, {
+        description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    lastActivity: z.iso.datetime({ offset: true }).readonly(),
+    recommendations: z.array(zProduct).register(z.globalRegistry, {
+        description: 'Product recommendations based on cart contents'
+    }).readonly()
+});
+
+export const zCartItemDetail = z.object({
+    id: z.int().readonly(),
+    cartId: z.int().readonly(),
+    product: zProduct,
+    quantity: z.optional(z.int().gte(0).lte(2147483647)),
+    weightInfo: z.object({
+        unitWeight: z.number(),
+        totalWeight: z.number(),
+        weightUnit: z.string()
+    }).register(z.globalRegistry, {
+        description: 'Weight information for shipping calculations'
+    }).readonly(),
+    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    priceSavePercent: z.number().readonly(),
+    discountPercent: z.number().readonly(),
+    vatPercent: z.number().readonly(),
+    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    recommendations: z.array(zProduct).register(z.globalRegistry, {
+        description: 'Related products that might interest the customer'
+    }).readonly()
+});
+
+export const zOrderItemDetail = z.object({
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    order: z.int(),
+    product: zProduct,
+    price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647)),
+    isRefunded: z.boolean().readonly(),
+    refundedQuantity: z.int().readonly(),
+    netQuantity: z.int().readonly(),
+    totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    originalQuantity: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    refundedAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    netPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    notes: z.optional(z.string())
+});
+
+export const zOrder = z.object({
+    id: z.int().readonly(),
+    user: z.optional(z.union([
+        z.int(),
+        z.null()
+    ])),
+    country: z.string(),
+    region: z.string(),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
+    street: z.string().max(255),
+    streetNumber: z.string().max(255),
+    payWay: z.int(),
+    status: z.optional(zOrderStatus),
+    statusDisplay: z.string().readonly(),
+    statusUpdatedAt: z.union([
+        z.iso.datetime({ offset: true }).readonly(),
+        z.null()
+    ]).readonly(),
+    firstName: z.string().max(255),
+    lastName: z.string().max(255),
+    email: z.email().max(255),
+    zipcode: z.string().max(255),
+    place: z.optional(z.string().max(255)),
+    city: z.string().max(255),
+    phone: z.string(),
+    mobilePhone: z.optional(z.string()),
+    customerNotes: z.optional(z.string()),
+    paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    items: z.array(zOrderItemDetail),
+    shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    documentType: z.optional(zDocumentTypeEnum),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    fullAddress: z.string().readonly(),
+    paymentId: z.optional(z.string().max(255)),
+    paymentStatus: z.optional(z.union([
+        zPaymentStatusEnum,
+        zBlankEnum
+    ])),
+    paymentMethod: z.optional(z.string().max(50)),
+    canBeCanceled: z.boolean().readonly(),
+    isPaid: z.boolean().readonly()
+});
+
+export const zOrderDetail = z.object({
+    id: z.int().readonly(),
+    user: z.optional(z.union([
+        z.int(),
+        z.null()
+    ])),
+    country: z.string(),
+    region: z.string(),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
+    street: z.string().max(255),
+    streetNumber: z.string().max(255),
+    payWay: z.int(),
+    status: z.optional(zOrderStatus),
+    statusDisplay: z.string().readonly(),
+    statusUpdatedAt: z.union([
+        z.iso.datetime({ offset: true }).readonly(),
+        z.null()
+    ]).readonly(),
+    firstName: z.string().max(255),
+    lastName: z.string().max(255),
+    email: z.email().max(255),
+    zipcode: z.string().max(255),
+    place: z.optional(z.string().max(255)),
+    city: z.string().max(255),
+    phone: z.string().readonly(),
+    mobilePhone: z.string().readonly(),
+    customerNotes: z.optional(z.string()),
+    paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    items: z.array(zOrderItemDetail),
+    shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    documentType: z.optional(zDocumentTypeEnum),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    fullAddress: z.string().readonly(),
+    paymentId: z.optional(z.string().max(255)),
+    paymentStatus: z.optional(z.union([
+        zPaymentStatusEnum,
+        zBlankEnum
+    ])),
+    paymentMethod: z.optional(z.string().max(50)),
+    canBeCanceled: z.boolean().readonly(),
+    isPaid: z.boolean().readonly(),
+    orderTimeline: z.array(z.object({
+        changeType: z.optional(z.string()),
+        timestamp: z.optional(z.string()),
+        description: z.optional(z.string()),
+        user: z.optional(z.union([
+            z.string(),
+            z.null()
+        ]))
+    })).register(z.globalRegistry, {
+        description: 'Order status timeline and history'
+    }).readonly(),
+    pricingBreakdown: z.object({
+        itemsSubtotal: z.optional(z.number()),
+        shippingCost: z.optional(z.number()),
+        extrasTotal: z.optional(z.number()),
+        grandTotal: z.optional(z.number()),
+        currency: z.optional(z.string()),
+        paidAmount: z.optional(z.number()),
+        remainingAmount: z.optional(z.number())
+    }).register(z.globalRegistry, {
+        description: 'Detailed pricing breakdown'
+    }).readonly(),
+    trackingDetails: z.union([
+        z.object({
+            trackingNumber: z.optional(z.union([
+                z.string(),
+                z.null()
+            ])),
+            shippingCarrier: z.optional(z.union([
+                z.string(),
+                z.null()
+            ])),
+            hasTracking: z.optional(z.boolean()),
+            estimatedDelivery: z.optional(z.union([
+                z.string(),
+                z.null()
+            ])),
+            trackingUrl: z.optional(z.union([
+                z.string(),
+                z.null()
+            ]))
+        }).readonly(),
+        z.null()
+    ]).readonly(),
+    trackingNumber: z.optional(z.string().max(255)),
+    shippingCarrier: z.optional(z.string().max(255)),
+    customerFullName: z.string().readonly(),
+    isCompleted: z.boolean().readonly(),
+    isCanceled: z.boolean().readonly()
+});
+
+export const zPaginatedCartItemList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zCartItem)
+});
+
+export const zPaginatedCartList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zCart)
+});
+
+export const zPaginatedOrderList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zOrder)
+});
+
+export const zPaginatedProductList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProduct)
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductCategory = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        }))
+    }),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+    active: z.optional(z.boolean()),
+    parent: z.optional(z.union([
+        z.int(),
+        z.null()
+    ])),
+    level: z.int().readonly(),
+    treeId: z.int().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    recursiveProductCount: z.int().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedProductCategoryList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductCategory)
 });
 
 /**
@@ -3516,12 +2417,8 @@ export const zProductCategoryDetail = z.object({
     ])),
     level: z.int().readonly(),
     treeId: z.int().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
     recursiveProductCount: z.int().readonly(),
     children: z.array(zProductCategory).readonly(),
@@ -3530,6 +2427,62 @@ export const zProductCategoryDetail = z.object({
     seoKeywords: z.optional(z.string().max(255))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductCategoryImage = z.object({
+    id: z.int().readonly(),
+    category: z.int(),
+    categoryName: z.string().readonly(),
+    image: z.url(),
+    imageType: z.optional(zImageTypeEnum),
+    active: z.optional(z.boolean()),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            title: z.optional(z.string()),
+            altText: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            title: z.optional(z.string()),
+            altText: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            title: z.optional(z.string()),
+            altText: z.optional(z.string())
+        }))
+    }),
+    imagePath: z.string().readonly(),
+    imageUrl: z.string().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedProductCategoryImageList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductCategoryImage)
 });
 
 export const zProductCategoryImageBulkResponse = z.object({
@@ -3568,12 +2521,8 @@ export const zProductCategoryImageDetail = z.object({
     }),
     imagePath: z.string().readonly(),
     imageUrl: z.string().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
@@ -3632,6 +2581,65 @@ export const zProductCategoryWriteRequest = z.object({
     seoTitle: z.optional(z.string().max(70)),
     seoDescription: z.optional(z.string().max(300)),
     seoKeywords: z.optional(z.string().max(255))
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductDetail = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        }))
+    }),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+    category: z.int(),
+    price: z.number().gt(-1000000000).lt(1000000000),
+    vat: z.int(),
+    viewCount: z.int().readonly(),
+    stock: z.optional(z.int().gte(0).lte(2147483647)),
+    active: z.optional(z.boolean()),
+    weight: z.optional(z.union([
+        z.object({
+            unit: z.optional(z.string()),
+            value: z.optional(z.number())
+        }),
+        z.null()
+    ])),
+    seoTitle: z.optional(z.string().max(70)),
+    seoDescription: z.optional(z.string().max(300)),
+    seoKeywords: z.optional(z.string().max(255)),
+    discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    priceSavePercent: z.number().readonly(),
+    vatPercent: z.number().readonly(),
+    vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    mainImagePath: z.string().readonly(),
+    reviewAverage: z.number().register(z.globalRegistry, {
+        description: 'Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    reviewCount: z.int().register(z.globalRegistry, {
+        description: 'Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    likesCount: z.int().register(z.globalRegistry, {
+        description: 'Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -3712,12 +2720,8 @@ export const zProductDetailResponse = z.object({
     seoDescription: z.optional(z.string().max(300)),
     seoKeywords: z.optional(z.string().max(255)),
     discountPercent: z.optional(z.number().gt(-1000000000).lt(1000000000)),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
     discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
     priceSavePercent: z.number().readonly(),
@@ -3725,11 +2729,45 @@ export const zProductDetailResponse = z.object({
     vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
     finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
     mainImagePath: z.string().readonly(),
-    reviewAverage: z.number().readonly(),
-    reviewCount: z.int().readonly(),
-    likesCount: z.int().readonly()
+    reviewAverage: z.number().register(z.globalRegistry, {
+        description: 'Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    reviewCount: z.int().register(z.globalRegistry, {
+        description: 'Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly(),
+    likesCount: z.int().register(z.globalRegistry, {
+        description: 'Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+    }).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zProductFavourite = z.object({
+    id: z.int().readonly(),
+    userId: z.int().readonly(),
+    userUsername: z.string().readonly(),
+    product: zProductDetail,
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+});
+
+export const zPaginatedProductFavouriteList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductFavourite)
 });
 
 export const zProductFavouriteByProductsRequestRequest = z.object({
@@ -3743,14 +2781,10 @@ export const zProductFavouriteDetail = z.object({
     userId: z.int().readonly(),
     userUsername: z.string().readonly(),
     product: zProductDetail,
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
     user: z.string().readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly()
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
 });
 
 export const zProductFavouriteWrite = z.object({
@@ -3760,6 +2794,58 @@ export const zProductFavouriteWrite = z.object({
 
 export const zProductFavouriteWriteRequest = z.object({
     product: z.int()
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductImage = z.object({
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    product: z.int().readonly(),
+    image: z.url(),
+    imageUrl: z.string().readonly(),
+    imageSizeKb: z.number().readonly(),
+    altText: z.string().readonly(),
+    isMain: z.optional(z.boolean()),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            title: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            title: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            title: z.optional(z.string())
+        }))
+    }),
+    mainImagePath: z.string().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedProductImageList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductImage)
 });
 
 /**
@@ -3790,9 +2876,7 @@ export const zProductImageDetail = z.object({
         }))
     }),
     mainImagePath: z.string().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
     imageDimensions: z.object({
         width: z.optional(z.number()),
         height: z.optional(z.number()),
@@ -3805,9 +2889,7 @@ export const zProductImageDetail = z.object({
         totalProductImages: z.optional(z.number()),
         recommendedFor: z.optional(z.string())
     }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly()
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -3861,67 +2943,6 @@ export const zProductMeiliSearchResponse = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zProductReviewDetail = z.object({
-    id: z.int().readonly(),
-    product: zProduct,
-    user: zUserDetails,
-    rate: zRateEnum,
-    status: z.optional(zReviewStatus),
-    isPublished: z.optional(z.boolean()),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    publishedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
-        z.null()
-    ]).readonly(),
-    uuid: z.uuid().readonly(),
-    translations: z.object({
-        el: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            comment: z.optional(z.string())
-        }))
-    })
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductReviewWriteRequest = z.object({
-    product: z.int(),
-    rate: zRateEnum,
-    status: z.optional(zReviewStatus),
-    isPublished: z.optional(z.boolean()),
-    translations: z.object({
-        el: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        en: z.optional(z.object({
-            comment: z.optional(z.string())
-        })),
-        de: z.optional(z.object({
-            comment: z.optional(z.string())
-        }))
-    })
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zProductWriteRequest = z.object({
     translations: z.object({
         el: z.optional(z.object({
@@ -3959,6 +2980,80 @@ export const zProductWriteRequest = z.object({
 });
 
 /**
+ * * `1` - One
+ * * `2` - Two
+ * * `3` - Three
+ * * `4` - Four
+ * * `5` - Five
+ * * `6` - Six
+ * * `7` - Seven
+ * * `8` - Eight
+ * * `9` - Nine
+ * * `10` - Ten
+ */
+export const zRateEnum = z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9),
+    z.literal(10)
+]).register(z.globalRegistry, {
+    description: '* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zRegion = z.object({
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string())
+        }))
+    }),
+    alpha: z.string().max(10),
+    country: z.string(),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedRegionList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zRegion)
+});
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zRegionDetail = z.object({
@@ -3979,12 +3074,8 @@ export const zRegionDetail = z.object({
         z.int().readonly(),
         z.null()
     ]).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
@@ -4011,6 +3102,65 @@ export const zRegionWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+/**
+ * * `NEW` - New
+ * * `TRUE` - True
+ * * `FALSE` - False
+ */
+export const zReviewStatus = z.enum([
+    'NEW',
+    'TRUE',
+    'FALSE'
+]).register(z.globalRegistry, {
+    description: '* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPatchedProductReviewWriteRequest = z.object({
+    product: z.optional(z.int()),
+    rate: z.optional(zRateEnum),
+    status: z.optional(zReviewStatus),
+    isPublished: z.optional(z.boolean()),
+    translations: z.optional(z.object({
+        el: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            comment: z.optional(z.string())
+        }))
+    }))
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductReviewWriteRequest = z.object({
+    product: z.int(),
+    rate: zRateEnum,
+    status: z.optional(zReviewStatus),
+    isPublished: z.optional(z.boolean()),
+    translations: z.object({
+        el: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            comment: z.optional(z.string())
+        }))
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
 export const zSetting = z.object({
     name: z.string(),
     value: z.string(),
@@ -4020,6 +3170,86 @@ export const zSetting = z.object({
 export const zSettingDetail = z.object({
     name: z.string(),
     value: z.string()
+});
+
+/**
+ * * `ACTIVE` - Active
+ * * `PENDING` - Pending Confirmation
+ * * `UNSUBSCRIBED` - Unsubscribed
+ * * `BOUNCED` - Bounced
+ */
+export const zSubscriptionStatus = z.enum([
+    'ACTIVE',
+    'PENDING',
+    'UNSUBSCRIBED',
+    'BOUNCED'
+]).register(z.globalRegistry, {
+    description: '* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced'
+});
+
+export const zPatchedUserSubscriptionWriteRequest = z.object({
+    topic: z.optional(z.int()),
+    status: z.optional(zSubscriptionStatus),
+    metadata: z.optional(z.unknown().register(z.globalRegistry, {
+        description: 'Additional subscription preferences or data'
+    }))
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zSubscriptionTopic = z.object({
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        }))
+    }),
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
+    }),
+    category: z.optional(zCategoryEnum),
+    isActive: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether this topic is currently available for subscription'
+    })),
+    isDefault: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether new users are automatically subscribed to this topic'
+    })),
+    requiresConfirmation: z.optional(z.boolean().register(z.globalRegistry, {
+        description: 'Whether subscription to this topic requires email confirmation'
+    })),
+    subscriberCount: z.int().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedSubscriptionTopicList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zSubscriptionTopic)
 });
 
 /**
@@ -4043,7 +3273,7 @@ export const zSubscriptionTopicDetail = z.object({
     id: z.int().readonly(),
     uuid: z.uuid().readonly(),
     slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     }),
     category: z.optional(zCategoryEnum),
     isActive: z.optional(z.boolean().register(z.globalRegistry, {
@@ -4056,12 +3286,8 @@ export const zSubscriptionTopicDetail = z.object({
         description: 'Whether subscription to this topic requires email confirmation'
     })),
     subscriberCount: z.int().readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly()
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -4085,7 +3311,7 @@ export const zSubscriptionTopicRequest = z.object({
         }))
     }),
     slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     }),
     category: z.optional(zCategoryEnum),
     isActive: z.optional(z.boolean().register(z.globalRegistry, {
@@ -4120,7 +3346,7 @@ export const zSubscriptionTopicWriteRequest = z.object({
         }))
     }),
     slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     }),
     category: z.optional(zCategoryEnum),
     isActive: z.optional(z.boolean().register(z.globalRegistry, {
@@ -4134,6 +3360,56 @@ export const zSubscriptionTopicWriteRequest = z.object({
     }))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zTag = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            label: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            label: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            label: z.optional(z.string())
+        }))
+    }),
+    active: z.optional(z.boolean()),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    usageCount: z.string().register(z.globalRegistry, {
+        description: 'Number of times this tag is used'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedTagList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zTag)
 });
 
 /**
@@ -4160,12 +3436,8 @@ export const zTagDetail = z.object({
     usageCount: z.string().register(z.globalRegistry, {
         description: 'Number of times this tag is used'
     }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
     contentTypes: z.string().register(z.globalRegistry, {
         description: 'Content types this tag is used with'
@@ -4194,6 +3466,47 @@ export const zTagWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+export const zTaggedItem = z.object({
+    id: z.int().readonly(),
+    tag: zTag,
+    contentType: z.int(),
+    contentTypeName: z.string().register(z.globalRegistry, {
+        description: 'Name of the content type'
+    }).readonly(),
+    objectId: z.int().gte(0).lte(2147483647),
+    contentObject: z.object({
+        id: z.optional(z.int()),
+        name: z.optional(z.string()),
+        description: z.optional(z.string()),
+        price: z.optional(z.string()),
+        active: z.optional(z.boolean())
+    }).register(z.globalRegistry, {
+        description: 'Serialized representation of the related content object'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+});
+
+export const zPaginatedTaggedItemList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zTaggedItem)
+});
+
 export const zTaggedItemDetail = z.object({
     id: z.int().readonly(),
     tag: zTagDetail,
@@ -4211,12 +3524,8 @@ export const zTaggedItemDetail = z.object({
     }).register(z.globalRegistry, {
         description: 'Serialized representation of the related content object'
     }).readonly(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 });
 
@@ -4235,6 +3544,54 @@ export const zUnsubscribe = z.object({
 
 export const zUpdateStatusRequest = z.object({
     status: zOrderStatus
+});
+
+export const zUserAddress = z.object({
+    id: z.int().readonly(),
+    title: z.string().max(255),
+    firstName: z.string().max(255),
+    lastName: z.string().max(255),
+    street: z.string().max(255),
+    streetNumber: z.string().max(255),
+    city: z.string().max(255),
+    zipcode: z.string().max(255),
+    floor: z.optional(z.union([
+        zFloorEnum,
+        zBlankEnum
+    ])),
+    locationType: z.optional(z.union([
+        zLocationTypeEnum,
+        zBlankEnum
+    ])),
+    phone: z.string(),
+    mobilePhone: z.optional(z.string()),
+    notes: z.optional(z.string().max(255)),
+    isMain: z.optional(z.boolean()).default(false),
+    user: z.int().readonly(),
+    country: z.string(),
+    region: z.string(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+});
+
+export const zPaginatedUserAddressList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zUserAddress)
 });
 
 export const zUserAddressDetail = z.object({
@@ -4261,12 +3618,8 @@ export const zUserAddressDetail = z.object({
     user: z.int().readonly(),
     country: z.string(),
     region: z.string(),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 });
 
@@ -4295,30 +3648,472 @@ export const zUserAddressWriteRequest = z.object({
     region: z.optional(z.string().min(1))
 });
 
+export const zUserDetails = z.object({
+    pk: z.int().readonly(),
+    email: z.email().max(254),
+    firstName: z.optional(z.string().max(255)),
+    lastName: z.optional(z.string().max(255)),
+    id: z.int().readonly(),
+    username: z.optional(z.union([
+        z.string().max(30).regex(/^[\w.@+#-]+$/),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    city: z.optional(z.string().max(255)),
+    zipcode: z.optional(z.string().max(255)),
+    address: z.optional(z.string().max(255)),
+    place: z.optional(z.string().max(255)),
+    country: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    region: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    birthDate: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    twitter: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    linkedin: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    facebook: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    instagram: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    website: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    youtube: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    github: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    bio: z.optional(z.string()),
+    isActive: z.boolean().readonly(),
+    isStaff: z.boolean().readonly(),
+    isSuperuser: z.boolean().register(z.globalRegistry, {
+        description: 'Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    mainImagePath: z.string().readonly()
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zBlogAuthorDetail = z.object({
+    translations: z.object({
+        el: z.optional(z.object({
+            bio: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            bio: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            bio: z.optional(z.string())
+        }))
+    }),
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    user: zUserDetails,
+    website: z.union([
+        z.string().max(200).readonly(),
+        z.null()
+    ]).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    numberOfPosts: z.int().readonly(),
+    totalLikesReceived: z.union([
+        z.int(),
+        z.literal(0)
+    ]),
+    recentPosts: z.array(zBlogPost).readonly(),
+    topPosts: z.array(zBlogPost).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zBlogComment = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            content: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            content: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            content: z.optional(z.string())
+        }))
+    }),
+    user: zUserDetails,
+    contentPreview: z.union([
+        z.string().readonly(),
+        z.null()
+    ]).readonly(),
+    isReply: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this comment is a reply to another comment'
+    }).readonly(),
+    parent: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    hasReplies: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this comment has approved replies'
+    }).readonly(),
+    approved: z.boolean().readonly(),
+    isEdited: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this comment has been edited'
+    }).readonly(),
+    likesCount: z.int().readonly(),
+    repliesCount: z.int().readonly(),
+    userHasLiked: z.boolean().register(z.globalRegistry, {
+        description: 'Whether the current user has liked this comment'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zBlogCommentDetail = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            content: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            content: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            content: z.optional(z.string())
+        }))
+    }),
+    user: zUserDetails,
+    contentPreview: z.union([
+        z.string().readonly(),
+        z.null()
+    ]).readonly(),
+    isReply: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this comment is a reply to another comment'
+    }).readonly(),
+    parent: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    hasReplies: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this comment has approved replies'
+    }).readonly(),
+    approved: z.boolean().readonly(),
+    isEdited: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this comment has been edited'
+    }).readonly(),
+    likesCount: z.int().readonly(),
+    repliesCount: z.int().readonly(),
+    userHasLiked: z.boolean().register(z.globalRegistry, {
+        description: 'Whether the current user has liked this comment'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly(),
+    post: zBlogPost,
+    parentComment: z.union([
+        z.object({
+            id: z.int(),
+            contentPreview: z.string(),
+            user: zUserDetails,
+            createdAt: z.iso.datetime({ offset: true })
+        }).readonly(),
+        z.null()
+    ]).readonly(),
+    childrenComments: z.array(zBlogComment).register(z.globalRegistry, {
+        description: 'Direct approved child comments (replies)'
+    }).readonly(),
+    ancestorsPath: z.array(z.object({
+        id: z.int(),
+        contentPreview: z.string(),
+        user: zUserDetails
+    })).register(z.globalRegistry, {
+        description: 'Path from root comment to this comment'
+    }).readonly(),
+    treePosition: z.object({
+        level: z.int(),
+        treeId: z.int(),
+        approvedDescendantsCount: z.int(),
+        siblingsCount: z.int()
+    }).register(z.globalRegistry, {
+        description: 'Position information in the comment tree'
+    }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zBlogPostDetail = z.object({
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+    likes: z.array(z.int()).readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            title: z.optional(z.string()),
+            subtitle: z.optional(z.string()),
+            body: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            title: z.optional(z.string()),
+            subtitle: z.optional(z.string()),
+            body: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            title: z.optional(z.string()),
+            subtitle: z.optional(z.string()),
+            body: z.optional(z.string())
+        }))
+    }),
+    author: zBlogAuthorDetail,
+    category: zBlogCategoryDetail,
+    tags: z.array(zBlogTagDetail).readonly(),
+    featured: z.optional(z.boolean()),
+    viewCount: z.int().readonly(),
+    likesCount: z.int().readonly(),
+    commentsCount: z.int().readonly(),
+    tagsCount: z.int().readonly(),
+    isPublished: z.optional(z.boolean()),
+    publishedAt: z.union([
+        z.iso.datetime({ offset: true }).readonly(),
+        z.null()
+    ]).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    mainImagePath: z.string().readonly(),
+    readingTime: z.int().readonly(),
+    contentPreview: z.string().readonly(),
+    userHasLiked: z.boolean().readonly(),
+    seoTitle: z.optional(z.string().max(70)),
+    seoDescription: z.optional(z.string().max(300)),
+    seoKeywords: z.optional(z.string().max(255))
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zNotificationUserDetail = z.object({
+    id: z.int().readonly(),
+    user: zUserDetails,
+    notification: zNotification,
+    seen: z.optional(z.boolean()),
+    seenAt: z.optional(z.union([
+        z.iso.datetime({ offset: true }),
+        z.null()
+    ])),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+});
+
+export const zPaginatedBlogCommentList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zBlogComment)
+});
+
+export const zPaginatedUserDetailsList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zUserDetails)
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductReview = z.object({
+    id: z.int().readonly(),
+    product: zProduct,
+    user: zUserDetails,
+    rate: zRateEnum,
+    status: z.optional(zReviewStatus),
+    isPublished: z.optional(z.boolean()),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    publishedAt: z.union([
+        z.iso.datetime({ offset: true }).readonly(),
+        z.null()
+    ]).readonly(),
+    uuid: z.uuid().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            comment: z.optional(z.string())
+        }))
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedProductReviewList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductReview)
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductReviewDetail = z.object({
+    id: z.int().readonly(),
+    product: zProduct,
+    user: zUserDetails,
+    rate: zRateEnum,
+    status: z.optional(zReviewStatus),
+    isPublished: z.optional(z.boolean()),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    publishedAt: z.union([
+        z.iso.datetime({ offset: true }).readonly(),
+        z.null()
+    ]).readonly(),
+    uuid: z.uuid().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            comment: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            comment: z.optional(z.string())
+        }))
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zUserSubscription = z.object({
+    id: z.int().readonly(),
+    user: z.int().readonly(),
+    topic: z.int(),
+    topicDetails: zSubscriptionTopic,
+    status: z.optional(zSubscriptionStatus),
+    subscribedAt: z.iso.datetime({ offset: true }).readonly(),
+    unsubscribedAt: z.union([
+        z.iso.datetime({ offset: true }).readonly(),
+        z.null()
+    ]).readonly(),
+    metadata: z.optional(z.unknown().register(z.globalRegistry, {
+        description: 'Additional subscription preferences or data'
+    })),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
+});
+
+export const zPaginatedUserSubscriptionList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zUserSubscription)
+});
+
 export const zUserSubscriptionDetail = z.object({
     id: z.int().readonly(),
     user: z.int().readonly(),
     topic: z.int(),
     topicDetails: zSubscriptionTopic,
     status: z.optional(zSubscriptionStatus),
-    subscribedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    subscribedAt: z.iso.datetime({ offset: true }).readonly(),
     unsubscribedAt: z.union([
-        z.iso.datetime({
-            offset: true
-        }).readonly(),
+        z.iso.datetime({ offset: true }).readonly(),
         z.null()
     ]).readonly(),
     metadata: z.optional(z.unknown().register(z.globalRegistry, {
         description: 'Additional subscription preferences or data'
     })),
-    createdAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
-    updatedAt: z.iso.datetime({
-        offset: true
-    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
     confirmationToken: z.string().register(z.globalRegistry, {
         description: 'Token for email confirmation if required'
     }).readonly()
@@ -4763,9 +4558,7 @@ export const zNotificationWritable = z.object({
     }),
     kind: z.optional(zKindEnum),
     expiryDate: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
+        z.iso.datetime({ offset: true }),
         z.null()
     ]))
 }).register(z.globalRegistry, {
@@ -4777,9 +4570,7 @@ export const zNotificationUserWritable = z.object({
     notification: z.int(),
     seen: z.optional(z.boolean()),
     seenAt: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
+        z.iso.datetime({ offset: true }),
         z.null()
     ]))
 });
@@ -4787,11 +4578,15 @@ export const zNotificationUserWritable = z.object({
 export const zNotificationUserDetailWritable = z.object({
     seen: z.optional(z.boolean()),
     seenAt: z.optional(z.union([
-        z.iso.datetime({
-            offset: true
-        }),
+        z.iso.datetime({ offset: true }),
         z.null()
     ]))
+});
+
+export const zOrderItemWritable = z.object({
+    order: z.int(),
+    product: z.int(),
+    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647))
 });
 
 export const zOrderItemDetailWritable = z.object({
@@ -4876,10 +4671,219 @@ export const zOrderDetailWritable = z.object({
     shippingCarrier: z.optional(z.string().max(255))
 });
 
-export const zOrderItemWritable = z.object({
-    order: z.int(),
-    product: z.int(),
-    quantity: z.optional(z.int().gte(-2147483648).lte(2147483647))
+export const zOrderItemRefundResponseWritable = z.object({
+    detail: z.string(),
+    refundedAmount: z.number().gt(-1000000000).lt(1000000000),
+    item: zOrderItemWritable
+});
+
+export const zPaginatedBlogAuthorListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zBlogAuthorWritable)
+});
+
+export const zPaginatedBlogCategoryListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zBlogCategoryWritable)
+});
+
+export const zPaginatedBlogCommentListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zBlogCommentWritable)
+});
+
+export const zPaginatedBlogPostListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zBlogPostWritable)
+});
+
+export const zPaginatedBlogTagListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zBlogTagWritable)
+});
+
+export const zPaginatedCartItemListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zCartItemWritable)
+});
+
+export const zPaginatedCartListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zCartWritable)
+});
+
+export const zPaginatedCountryListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zCountryWritable)
+});
+
+export const zPaginatedNotificationUserListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zNotificationUserWritable)
+});
+
+export const zPaginatedOrderItemListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zOrderItemWritable)
+});
+
+export const zPaginatedOrderListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zOrderWritable)
 });
 
 export const zPatchedTaggedItemWriteRequestWritable = z.object({
@@ -4919,7 +4923,7 @@ export const zPayWayWritable = z.object({
         z.null()
     ])),
     providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
-        description: "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')"
+        description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')'
     })),
     isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
         description: 'Whether this payment method is processed online'
@@ -4929,6 +4933,25 @@ export const zPayWayWritable = z.object({
     }))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedPayWayListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zPayWayWritable)
 });
 
 /**
@@ -4960,7 +4983,7 @@ export const zPayWayDetailWritable = z.object({
         z.null()
     ])),
     providerCode: z.optional(z.string().max(50).register(z.globalRegistry, {
-        description: "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')"
+        description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')'
     })),
     isOnlinePayment: z.optional(z.boolean().register(z.globalRegistry, {
         description: 'Whether this payment method is processed online'
@@ -5014,6 +5037,25 @@ export const zProductWritable = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+export const zPaginatedProductListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductWritable)
+});
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -5040,6 +5082,25 @@ export const zProductCategoryWritable = z.object({
     ]))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedProductCategoryListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductCategoryWritable)
 });
 
 /**
@@ -5097,6 +5158,25 @@ export const zProductCategoryImageWritable = z.object({
     })
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedProductCategoryImageListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductCategoryImageWritable)
 });
 
 /**
@@ -5205,6 +5285,25 @@ export const zProductDetailResponseWritable = z.object({
 
 export const zProductFavouriteWritable = z.record(z.string(), z.unknown());
 
+export const zPaginatedProductFavouriteListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductFavouriteWritable)
+});
+
 export const zProductFavouriteDetailWritable = z.record(z.string(), z.unknown());
 
 export const zProductFavouriteWriteWritable = z.object({
@@ -5230,6 +5329,25 @@ export const zProductImageWritable = z.object({
     })
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedProductImageListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductImageWritable)
 });
 
 /**
@@ -5275,6 +5393,25 @@ export const zProductReviewWritable = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+export const zPaginatedProductReviewListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zProductReviewWritable)
+});
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -5318,6 +5455,25 @@ export const zRegionWritable = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+export const zPaginatedRegionListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zRegionWritable)
+});
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -5358,7 +5514,7 @@ export const zSubscriptionTopicWritable = z.object({
         }))
     }),
     slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     }),
     category: z.optional(zCategoryEnum),
     isActive: z.optional(z.boolean().register(z.globalRegistry, {
@@ -5372,6 +5528,25 @@ export const zSubscriptionTopicWritable = z.object({
     }))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedSubscriptionTopicListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zSubscriptionTopicWritable)
 });
 
 /**
@@ -5393,7 +5568,7 @@ export const zSubscriptionTopicDetailWritable = z.object({
         }))
     }),
     slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: "Unique identifier for the topic (e.g., 'weekly-newsletter')"
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     }),
     category: z.optional(zCategoryEnum),
     isActive: z.optional(z.boolean().register(z.globalRegistry, {
@@ -5429,6 +5604,25 @@ export const zTagWritable = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+export const zPaginatedTagListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zTagWritable)
+});
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -5452,6 +5646,25 @@ export const zTagDetailWritable = z.object({
 export const zTaggedItemWritable = z.object({
     contentType: z.int(),
     objectId: z.int().gte(0).lte(2147483647)
+});
+
+export const zPaginatedTaggedItemListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zTaggedItemWritable)
 });
 
 export const zTaggedItemDetailWritable = z.object({
@@ -5489,6 +5702,25 @@ export const zUserAddressWritable = z.object({
     isMain: z.optional(z.boolean()).default(false),
     country: z.string(),
     region: z.string()
+});
+
+export const zPaginatedUserAddressListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zUserAddressWritable)
 });
 
 export const zUserAddressDetailWritable = z.object({
@@ -5546,12 +5778,50 @@ export const zUserDetailsWritable = z.object({
     bio: z.optional(z.string())
 });
 
+export const zPaginatedUserDetailsListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zUserDetailsWritable)
+});
+
 export const zUserSubscriptionWritable = z.object({
     topic: z.int(),
     status: z.optional(zSubscriptionStatus),
     metadata: z.optional(z.unknown().register(z.globalRegistry, {
         description: 'Additional subscription preferences or data'
     }))
+});
+
+export const zPaginatedUserSubscriptionListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zUserSubscriptionWritable)
 });
 
 export const zUserSubscriptionDetailWritable = z.object({
@@ -5604,10 +5874,7 @@ export const zListBlogAuthorData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -5808,10 +6075,7 @@ export const zListBlogCategoryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -6240,21 +6504,13 @@ export const zListBlogCommentData = z.object({
             z.string().regex(/^-?\d+(\.\d+)?$/),
             z.number()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -6406,10 +6662,7 @@ export const zListBlogCommentData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -6477,21 +6730,13 @@ export const zListBlogCommentData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -6658,21 +6903,13 @@ export const zListBlogCommentRepliesData = z.object({
             z.string().regex(/^-?\d+(\.\d+)?$/),
             z.number()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         descendantOf: z.optional(z.union([
@@ -6872,21 +7109,13 @@ export const zListBlogCommentRepliesData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -6943,21 +7172,13 @@ export const zGetBlogCommentThreadData = z.object({
             z.string().regex(/^-?\d+(\.\d+)?$/),
             z.number()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         descendantOf: z.optional(z.union([
@@ -7157,21 +7378,13 @@ export const zGetBlogCommentThreadData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -7244,21 +7457,13 @@ export const zListMyBlogCommentsData = z.object({
             z.string().regex(/^-?\d+(\.\d+)?$/),
             z.number()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         descendantOf: z.optional(z.union([
@@ -7458,21 +7663,13 @@ export const zListMyBlogCommentsData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -7523,21 +7720,13 @@ export const zListBlogPostData = z.object({
         categoryName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by category name (case-insensitive)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         currentlyPublished: z.optional(z.union([
@@ -7621,10 +7810,7 @@ export const zListBlogPostData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -7634,21 +7820,13 @@ export const zListBlogPostData = z.object({
         ]).register(z.globalRegistry, {
             description: 'Pagination strategy type'
         })),
-        publishedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published after this date'
         })),
         publishedAt_Date: z.optional(z.iso.date()),
-        publishedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        publishedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        publishedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published before this date'
         })),
         search: z.optional(z.string().register(z.globalRegistry, {
@@ -7668,21 +7846,13 @@ export const zListBlogPostData = z.object({
         title: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by title (case-insensitive)'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid()),
@@ -7911,21 +8081,13 @@ export const zListFeaturedBlogPostsData = z.object({
         categoryName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by category name (case-insensitive)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         currentlyPublished: z.optional(z.union([
@@ -7999,21 +8161,13 @@ export const zListFeaturedBlogPostsData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        publishedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published after this date'
         })),
         publishedAt_Date: z.optional(z.iso.date()),
-        publishedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        publishedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        publishedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published before this date'
         })),
         search: z.optional(z.string().register(z.globalRegistry, {
@@ -8033,21 +8187,13 @@ export const zListFeaturedBlogPostsData = z.object({
         title: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by title (case-insensitive)'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid()),
@@ -8097,21 +8243,13 @@ export const zListPopularBlogPostsData = z.object({
         categoryName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by category name (case-insensitive)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         currentlyPublished: z.optional(z.union([
@@ -8185,21 +8323,13 @@ export const zListPopularBlogPostsData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        publishedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published after this date'
         })),
         publishedAt_Date: z.optional(z.iso.date()),
-        publishedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        publishedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        publishedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published before this date'
         })),
         search: z.optional(z.string().register(z.globalRegistry, {
@@ -8219,21 +8349,13 @@ export const zListPopularBlogPostsData = z.object({
         title: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by title (case-insensitive)'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid()),
@@ -8275,21 +8397,13 @@ export const zListTrendingBlogPostsData = z.object({
         categoryName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by category name (case-insensitive)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         currentlyPublished: z.optional(z.union([
@@ -8367,21 +8481,13 @@ export const zListTrendingBlogPostsData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        publishedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published after this date'
         })),
         publishedAt_Date: z.optional(z.iso.date()),
-        publishedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        publishedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        publishedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published before this date'
         })),
         search: z.optional(z.string().register(z.globalRegistry, {
@@ -8401,21 +8507,13 @@ export const zListTrendingBlogPostsData = z.object({
         title: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by title (case-insensitive)'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid()),
@@ -8447,21 +8545,13 @@ export const zListBlogTagData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -8564,10 +8654,7 @@ export const zListBlogTagData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -8621,21 +8708,13 @@ export const zListBlogTagData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -8830,31 +8909,19 @@ export const zListCartItemData = z.object({
         cart_Uuid: z.optional(z.uuid().register(z.globalRegistry, {
             description: 'Filter by cart UUID'
         })),
-        cartLastActivityAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        cartLastActivityAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter by cart last activity after date'
         })),
-        cartLastActivityBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        cartLastActivityBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter by cart last activity before date'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -8949,10 +9016,7 @@ export const zListCartItemData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -9004,21 +9068,13 @@ export const zListCartItemData = z.object({
         search: z.optional(z.string().register(z.globalRegistry, {
             description: 'A search term.'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid()),
@@ -9162,21 +9218,13 @@ export const zListCartData = z.object({
         ]).register(z.globalRegistry, {
             description: 'Filter by cart type\n\n* `user` - User Cart\n* `guest` - Guest Cart\n* `anonymous` - Anonymous Cart'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -9238,26 +9286,16 @@ export const zListCartData = z.object({
         ]).register(z.globalRegistry, {
             description: 'Language code for translations (el, en, de)'
         })),
-        lastActivity: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        lastActivity: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter by exact last activity date'
         })),
         lastActivity_Date: z.optional(z.iso.date()),
-        lastActivity_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        lastActivity_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        lastActivityAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        lastActivity_Gte: z.optional(z.iso.datetime({ offset: true })),
+        lastActivity_Lte: z.optional(z.iso.datetime({ offset: true })),
+        lastActivityAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter carts with last activity after this date'
         })),
-        lastActivityBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        lastActivityBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter carts with last activity before this date'
         })),
         maxItems: z.optional(z.union([
@@ -9306,10 +9344,7 @@ export const zListCartData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -9322,21 +9357,13 @@ export const zListCartData = z.object({
         search: z.optional(z.string().register(z.globalRegistry, {
             description: 'A search term.'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -9424,21 +9451,13 @@ export const zListCountryData = z.object({
         ]).register(z.globalRegistry, {
             description: 'Filter by continent (based on ISO codes)\n\n* `AF` - Africa\n* `AS` - Asia\n* `EU` - Europe\n* `NA` - North America\n* `OC` - Oceania\n* `SA` - South America\n* `AN` - Antarctica'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -9559,10 +9578,7 @@ export const zListCountryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -9613,21 +9629,13 @@ export const zListCountryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -9729,13 +9737,13 @@ export const zUpdateCountryData = z.object({
 
 export const zUpdateCountryResponse = zCountryDetail;
 
-export const zApiV1HealthRetrieveData = z.object({
+export const zHealthRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zApiV1HealthRetrieveResponse = zHealthCheckResponse;
+export const zHealthRetrieveResponse = zHealthCheckResponse;
 
 export const zGetNotificationsByIdsData = z.object({
     body: zNotificationIdsRequest,
@@ -9757,21 +9765,13 @@ export const zListNotificationUserData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -9815,14 +9815,10 @@ export const zListNotificationUserData = z.object({
         notification_Category: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by notification category'
         })),
-        notification_ExpiresAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        notification_ExpiresAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter notifications expiring after this date'
         })),
-        notification_ExpiresBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        notification_ExpiresBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter notifications expiring before this date'
         })),
         notification_IsExpired: z.optional(z.union([
@@ -9896,10 +9892,7 @@ export const zListNotificationUserData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -9926,21 +9919,13 @@ export const zListNotificationUserData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        seenAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        seenAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter notifications seen after this date'
         })),
         seenAt_Date: z.optional(z.iso.date()),
-        seenAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        seenAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        seenBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        seenAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        seenAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        seenBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter notifications seen before this date'
         })),
         seenOnly: z.optional(z.union([
@@ -9957,21 +9942,13 @@ export const zListNotificationUserData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -10169,21 +10146,13 @@ export const zListOrderData = z.object({
         countryIds: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by multiple country IDs (comma-separated)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -10342,10 +10311,7 @@ export const zListOrderData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -10475,21 +10441,13 @@ export const zListOrderData = z.object({
         statusList: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by multiple statuses (comma-separated)'
         })),
-        statusUpdatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        statusUpdatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter orders with status updated after this date'
         })),
         statusUpdatedAt_Date: z.optional(z.iso.date()),
-        statusUpdatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        statusUpdatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        statusUpdatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        statusUpdatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        statusUpdatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        statusUpdatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter orders with status updated before this date'
         })),
         street: z.optional(z.string().register(z.globalRegistry, {
@@ -10504,21 +10462,13 @@ export const zListOrderData = z.object({
             description: 'Filter by tracking number'
         })),
         trackingNumber_Icontains: z.optional(z.string()),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -10580,21 +10530,13 @@ export const zListOrderItemData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -10762,10 +10704,7 @@ export const zListOrderItemData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -10892,21 +10831,13 @@ export const zListOrderItemData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -11205,21 +11136,13 @@ export const zListMyOrdersData = z.object({
         countryIds: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by multiple country IDs (comma-separated)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         customerNotes: z.optional(z.string()),
@@ -11488,21 +11411,13 @@ export const zListMyOrdersData = z.object({
         statusList: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by multiple statuses (comma-separated)'
         })),
-        statusUpdatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        statusUpdatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter orders with status updated after this date'
         })),
         statusUpdatedAt_Date: z.optional(z.iso.date()),
-        statusUpdatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        statusUpdatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        statusUpdatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        statusUpdatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        statusUpdatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        statusUpdatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter orders with status updated before this date'
         })),
         street: z.optional(z.string().register(z.globalRegistry, {
@@ -11517,21 +11432,13 @@ export const zListMyOrdersData = z.object({
             description: 'Filter by tracking number'
         })),
         trackingNumber_Icontains: z.optional(z.string()),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -11690,10 +11597,7 @@ export const zListPayWayData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -11838,33 +11742,21 @@ export const zListProductData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
             description: 'Cursor for pagination'
         })),
         deletedAt_Date: z.optional(z.iso.date()),
-        deletedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        deletedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
+        deletedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        deletedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
         discountPercent: z.optional(z.union([
             z.string().regex(/^-?\d+(\.\d+)?$/),
             z.number()
@@ -12005,10 +11897,7 @@ export const zListProductData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -12047,21 +11936,13 @@ export const zListProductData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid()),
@@ -12225,10 +12106,7 @@ export const zListProductReviewsData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -12300,21 +12178,13 @@ export const zListProductCategoryData = z.object({
             z.string().regex(/^-?\d+(\.\d+)?$/),
             z.number()
         ])),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -12419,10 +12289,7 @@ export const zListProductCategoryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -12460,21 +12327,13 @@ export const zListProductCategoryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -12641,10 +12500,7 @@ export const zListProductCategoryImageData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -12787,14 +12643,10 @@ export const zListProductFavouriteData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -12833,10 +12685,7 @@ export const zListProductFavouriteData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -12857,14 +12706,10 @@ export const zListProductFavouriteData = z.object({
         search: z.optional(z.string().register(z.globalRegistry, {
             description: 'A search term.'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -12986,18 +12831,14 @@ export const zGetProductFavouritesByProductsResponse = z.array(z.object({
     id: z.int(),
     userId: z.int(),
     productId: z.int(),
-    createdAt: z.iso.datetime({
-        offset: true
-    })
+    createdAt: z.iso.datetime({ offset: true })
 }));
 
 export const zListProductImageData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        createdAt: z.optional(z.iso.datetime({
-            offset: true
-        })),
+        createdAt: z.optional(z.iso.datetime({ offset: true })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
             description: 'Cursor for pagination'
         })),
@@ -13041,10 +12882,7 @@ export const zListProductImageData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -13065,9 +12903,7 @@ export const zListProductImageData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAt: z.optional(z.iso.datetime({
-            offset: true
-        }))
+        updatedAt: z.optional(z.iso.datetime({ offset: true }))
     }))
 });
 
@@ -13177,21 +13013,13 @@ export const zListProductReviewData = z.object({
         comment: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by comment content (partial match)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         currentlyPublished: z.optional(z.union([
@@ -13271,10 +13099,7 @@ export const zListProductReviewData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -13314,21 +13139,13 @@ export const zListProductReviewData = z.object({
         productName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by product name (partial match)'
         })),
-        publishedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published after this date'
         })),
         publishedAt_Date: z.optional(z.iso.date()),
-        publishedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        publishedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        publishedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        publishedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        publishedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items published before this date'
         })),
         publishedRecentDays: z.optional(z.union([
@@ -13369,21 +13186,13 @@ export const zListProductReviewData = z.object({
         ]).register(z.globalRegistry, {
             description: 'Filter by review status\n\n* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         user: z.optional(z.union([
@@ -13554,14 +13363,10 @@ export const zListRegionData = z.object({
         countryName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by country name (partial match)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -13595,10 +13400,7 @@ export const zListRegionData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -13623,14 +13425,10 @@ export const zListRegionData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -13753,14 +13551,10 @@ export const zListRegionsByCountryData = z.object({
         countryName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by country name (partial match)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         name: z.optional(z.string().register(z.globalRegistry, {
@@ -13799,14 +13593,10 @@ export const zListRegionsByCountryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -13815,12 +13605,12 @@ export const zListRegionsByCountryData = z.object({
 
 export const zListRegionsByCountryResponse = zPaginatedRegionList;
 
-export const zApiV1SearchBlogPostRetrieveData = z.object({
+export const zSearchBlogPostRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
         languageCode: z.optional(z.string().register(z.globalRegistry, {
-            description: "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+            description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.'
         })),
         limit: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -13836,14 +13626,14 @@ export const zApiV1SearchBlogPostRetrieveData = z.object({
     })
 });
 
-export const zApiV1SearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse;
+export const zSearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse;
 
-export const zApiV1SearchProductRetrieveData = z.object({
+export const zSearchProductRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
         languageCode: z.optional(z.string().register(z.globalRegistry, {
-            description: "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+            description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.'
         })),
         limit: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
@@ -13859,17 +13649,17 @@ export const zApiV1SearchProductRetrieveData = z.object({
     })
 });
 
-export const zApiV1SearchProductRetrieveResponse = zProductMeiliSearchResponse;
+export const zSearchProductRetrieveResponse = zProductMeiliSearchResponse;
 
-export const zApiV1SettingsListData = z.object({
+export const zSettingsListData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zApiV1SettingsListResponse = z.array(zSetting);
+export const zSettingsListResponse = z.array(zSetting);
 
-export const zApiV1SettingsGetRetrieveData = z.object({
+export const zSettingsGetRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -13879,7 +13669,7 @@ export const zApiV1SettingsGetRetrieveData = z.object({
     })
 });
 
-export const zApiV1SettingsGetRetrieveResponse = zSettingDetail;
+export const zSettingsGetRetrieveResponse = zSettingDetail;
 
 export const zListTagData = z.object({
     body: z.optional(z.never()),
@@ -13898,21 +13688,13 @@ export const zListTagData = z.object({
         contentType_AppLabel: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter tags used for content from specific app'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -14001,10 +13783,7 @@ export const zListTagData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -14039,21 +13818,13 @@ export const zListTagData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -14169,21 +13940,13 @@ export const zListTaggedItemData = z.object({
         contentType_AppLabel: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by content type app label'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -14238,10 +14001,7 @@ export const zListTaggedItemData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -14268,21 +14028,13 @@ export const zListTaggedItemData = z.object({
         tag_Label: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by tag label (partial match)'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -14424,10 +14176,7 @@ export const zListUserAccountData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -14840,26 +14589,18 @@ export const zListUserAddressData = z.object({
             description: 'Filter by country alpha_2 code'
         })),
         countryCode: z.optional(z.string().register(z.globalRegistry, {
-            description: "Filter by country code (e.g., 'US', 'CA')"
+            description: 'Filter by country code (e.g., \'US\', \'CA\')'
         })),
         countryName: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by country name (partial match)'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -14955,10 +14696,7 @@ export const zListUserAddressData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -14994,21 +14732,13 @@ export const zListUserAddressData = z.object({
         streetNumber_Icontains: z.optional(z.string()),
         title: z.optional(z.string()),
         title_Icontains: z.optional(z.string()),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid()),
@@ -15138,21 +14868,13 @@ export const zListUserSubscriptionData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -15213,10 +14935,7 @@ export const zListUserSubscriptionData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -15237,21 +14956,13 @@ export const zListUserSubscriptionData = z.object({
         ]).register(z.globalRegistry, {
             description: 'Filter by subscription status\n\n* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced'
         })),
-        subscribedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        subscribedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter subscriptions created after this date'
         })),
         subscribedAt_Date: z.optional(z.iso.date()),
-        subscribedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        subscribedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        subscribedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        subscribedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        subscribedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        subscribedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter subscriptions created before this date'
         })),
         topic: z.optional(z.union([
@@ -15281,38 +14992,22 @@ export const zListUserSubscriptionData = z.object({
         topicSlugExact: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by exact topic slug'
         })),
-        unsubscribedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        unsubscribedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter subscriptions unsubscribed after this date'
         })),
         unsubscribedAt_Date: z.optional(z.iso.date()),
-        unsubscribedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        unsubscribedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        unsubscribedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        unsubscribedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        unsubscribedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        unsubscribedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter subscriptions unsubscribed before this date'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())
@@ -15452,21 +15147,13 @@ export const zListSubscriptionTopicData = z.object({
         ]).register(z.globalRegistry, {
             description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
         })),
-        createdAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'
         })),
         createdAt_Date: z.optional(z.iso.date()),
-        createdAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        createdBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created before this date'
         })),
         cursor: z.optional(z.string().register(z.globalRegistry, {
@@ -15536,10 +15223,7 @@ export const zListSubscriptionTopicData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        pagination: z.optional(z.enum([
-            'false',
-            'true'
-        ]).register(z.globalRegistry, {
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
             description: 'Enable or disable pagination'
         })),
         paginationType: z.optional(z.enum([
@@ -15566,21 +15250,13 @@ export const zListSubscriptionTopicData = z.object({
         slugExact: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by exact slug'
         })),
-        updatedAfter: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated after this date'
         })),
         updatedAt_Date: z.optional(z.iso.date()),
-        updatedAt_Gte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedAt_Lte: z.optional(z.iso.datetime({
-            offset: true
-        })),
-        updatedBefore: z.optional(z.iso.datetime({
-            offset: true
-        }).register(z.globalRegistry, {
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items updated before this date'
         })),
         uuid: z.optional(z.uuid())

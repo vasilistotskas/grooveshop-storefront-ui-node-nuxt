@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const query = await getValidatedQuery(event, zApiV1SearchProductRetrieveData.shape.query.parse)
+    const query = await getValidatedQuery(event, zSearchProductRetrieveData.shape.query.parse)
 
     const productResponse = await $fetch(`${config.apiBaseUrl}/search/product`, {
       method: 'GET',

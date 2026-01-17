@@ -117,7 +117,17 @@ export type BlogCategory = {
     parent?: number | null;
     readonly level: number;
     readonly sortOrder: number | null;
+    /**
+     * Return post count from annotation if available, otherwise query.
+     *
+     * Uses _post_count annotation from BlogCategoryManager.for_list().
+     */
     readonly postCount: number;
+    /**
+     * Return has_children from annotation if available, otherwise query.
+     *
+     * Uses _has_children annotation from BlogCategoryManager.for_list().
+     */
     readonly hasChildren: boolean;
     readonly mainImagePath: string;
     readonly createdAt: string;
@@ -147,7 +157,17 @@ export type BlogCategoryDetail = {
     parent?: number | null;
     readonly level: number;
     readonly sortOrder: number | null;
+    /**
+     * Return post count from annotation if available, otherwise query.
+     *
+     * Uses _post_count annotation from BlogCategoryManager.for_list().
+     */
     readonly postCount: number;
+    /**
+     * Return has_children from annotation if available, otherwise query.
+     *
+     * Uses _has_children annotation from BlogCategoryManager.for_list().
+     */
     readonly hasChildren: boolean;
     readonly mainImagePath: string;
     readonly createdAt: string;
@@ -667,7 +687,19 @@ export type Cart = {
     readonly totalPrice: number;
     readonly totalDiscountValue: number;
     readonly totalVatValue: number;
+    /**
+     * Return the total quantity of all items in the cart.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise calculates from items.
+     */
     totalItems: number | 0;
+    /**
+     * Return the number of unique items in the cart.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly totalItemsUnique: number;
     readonly createdAt: string;
     readonly updatedAt: string;
@@ -682,7 +714,19 @@ export type CartDetail = {
     readonly totalPrice: number;
     readonly totalDiscountValue: number;
     readonly totalVatValue: number;
+    /**
+     * Return the total quantity of all items in the cart.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise calculates from items.
+     */
     totalItems: number | 0;
+    /**
+     * Return the number of unique items in the cart.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly totalItemsUnique: number;
     readonly createdAt: string;
     readonly updatedAt: string;
@@ -2294,6 +2338,7 @@ export type PayWay = {
     freeThreshold: number;
     icon?: string | null;
     readonly sortOrder: number | null;
+    readonly mainImagePath: string;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
@@ -2339,6 +2384,7 @@ export type PayWayDetail = {
     freeThreshold: number;
     icon?: string | null;
     readonly sortOrder: number | null;
+    readonly mainImagePath: string;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
@@ -2462,8 +2508,26 @@ export type Product = {
     readonly vatValue: number;
     readonly finalPrice: number;
     readonly mainImagePath: string;
+    /**
+     * Return the average review rating for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly reviewAverage: number;
+    /**
+     * Return the number of reviews for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly reviewCount: number;
+    /**
+     * Return the number of likes/favourites for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly likesCount: number;
 };
 
@@ -2703,8 +2767,26 @@ export type ProductDetail = {
     readonly vatValue: number;
     readonly finalPrice: number;
     readonly mainImagePath: string;
+    /**
+     * Return the average review rating for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly reviewAverage: number;
+    /**
+     * Return the number of reviews for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly reviewCount: number;
+    /**
+     * Return the number of likes/favourites for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly likesCount: number;
 };
 
@@ -2785,8 +2867,26 @@ export type ProductDetailResponse = {
     readonly vatValue: number;
     readonly finalPrice: number;
     readonly mainImagePath: string;
+    /**
+     * Return the average review rating for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly reviewAverage: number;
+    /**
+     * Return the number of reviews for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly reviewCount: number;
+    /**
+     * Return the number of likes/favourites for this product.
+     *
+     * Uses annotated value if available (from optimized queryset),
+     * otherwise queries the database.
+     */
     readonly likesCount: number;
 };
 
@@ -4255,6 +4355,337 @@ export type OrderItemDetailWritable = {
     order: number;
     quantity?: number;
     notes?: string;
+};
+
+export type OrderItemRefundResponseWritable = {
+    detail: string;
+    refundedAmount: number;
+    item: OrderItemWritable;
+};
+
+export type PaginatedBlogAuthorListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<BlogAuthorWritable>;
+};
+
+export type PaginatedBlogCategoryListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<BlogCategoryWritable>;
+};
+
+export type PaginatedBlogCommentListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<BlogCommentWritable>;
+};
+
+export type PaginatedBlogPostListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<BlogPostWritable>;
+};
+
+export type PaginatedBlogTagListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<BlogTagWritable>;
+};
+
+export type PaginatedCartItemListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<CartItemWritable>;
+};
+
+export type PaginatedCartListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<CartWritable>;
+};
+
+export type PaginatedCountryListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<CountryWritable>;
+};
+
+export type PaginatedNotificationUserListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<NotificationUserWritable>;
+};
+
+export type PaginatedOrderItemListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<OrderItemWritable>;
+};
+
+export type PaginatedOrderListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<OrderWritable>;
+};
+
+export type PaginatedPayWayListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<PayWayWritable>;
+};
+
+export type PaginatedProductCategoryImageListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductCategoryImageWritable>;
+};
+
+export type PaginatedProductCategoryListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductCategoryWritable>;
+};
+
+export type PaginatedProductFavouriteListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductFavouriteWritable>;
+};
+
+export type PaginatedProductImageListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductImageWritable>;
+};
+
+export type PaginatedProductListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductWritable>;
+};
+
+export type PaginatedProductReviewListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductReviewWritable>;
+};
+
+export type PaginatedRegionListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<RegionWritable>;
+};
+
+export type PaginatedSubscriptionTopicListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<SubscriptionTopicWritable>;
+};
+
+export type PaginatedTagListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<TagWritable>;
+};
+
+export type PaginatedTaggedItemListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<TaggedItemWritable>;
+};
+
+export type PaginatedUserAddressListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<UserAddressWritable>;
+};
+
+export type PaginatedUserDetailsListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<UserDetailsWritable>;
+};
+
+export type PaginatedUserSubscriptionListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<UserSubscriptionWritable>;
 };
 
 export type PatchedTaggedItemWriteRequestWritable = {
@@ -8732,18 +9163,18 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses];
 
-export type ApiV1HealthRetrieveData = {
+export type HealthRetrieveData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/v1/health';
 };
 
-export type ApiV1HealthRetrieveResponses = {
+export type HealthRetrieveResponses = {
     200: HealthCheckResponse;
 };
 
-export type ApiV1HealthRetrieveResponse = ApiV1HealthRetrieveResponses[keyof ApiV1HealthRetrieveResponses];
+export type HealthRetrieveResponse = HealthRetrieveResponses[keyof HealthRetrieveResponses];
 
 export type GetNotificationsByIdsData = {
     body: NotificationIdsRequest;
@@ -12639,7 +13070,7 @@ export type ListRegionsByCountryResponses = {
 
 export type ListRegionsByCountryResponse = ListRegionsByCountryResponses[keyof ListRegionsByCountryResponses];
 
-export type ApiV1SearchBlogPostRetrieveData = {
+export type SearchBlogPostRetrieveData = {
     body?: never;
     path?: never;
     query: {
@@ -12663,19 +13094,19 @@ export type ApiV1SearchBlogPostRetrieveData = {
     url: '/api/v1/search/blog/post';
 };
 
-export type ApiV1SearchBlogPostRetrieveErrors = {
+export type SearchBlogPostRetrieveErrors = {
     400: ErrorResponse;
 };
 
-export type ApiV1SearchBlogPostRetrieveError = ApiV1SearchBlogPostRetrieveErrors[keyof ApiV1SearchBlogPostRetrieveErrors];
+export type SearchBlogPostRetrieveError = SearchBlogPostRetrieveErrors[keyof SearchBlogPostRetrieveErrors];
 
-export type ApiV1SearchBlogPostRetrieveResponses = {
+export type SearchBlogPostRetrieveResponses = {
     200: BlogPostMeiliSearchResponse;
 };
 
-export type ApiV1SearchBlogPostRetrieveResponse = ApiV1SearchBlogPostRetrieveResponses[keyof ApiV1SearchBlogPostRetrieveResponses];
+export type SearchBlogPostRetrieveResponse = SearchBlogPostRetrieveResponses[keyof SearchBlogPostRetrieveResponses];
 
-export type ApiV1SearchProductRetrieveData = {
+export type SearchProductRetrieveData = {
     body?: never;
     path?: never;
     query: {
@@ -12699,38 +13130,38 @@ export type ApiV1SearchProductRetrieveData = {
     url: '/api/v1/search/product';
 };
 
-export type ApiV1SearchProductRetrieveErrors = {
+export type SearchProductRetrieveErrors = {
     400: ErrorResponse;
 };
 
-export type ApiV1SearchProductRetrieveError = ApiV1SearchProductRetrieveErrors[keyof ApiV1SearchProductRetrieveErrors];
+export type SearchProductRetrieveError = SearchProductRetrieveErrors[keyof SearchProductRetrieveErrors];
 
-export type ApiV1SearchProductRetrieveResponses = {
+export type SearchProductRetrieveResponses = {
     200: ProductMeiliSearchResponse;
 };
 
-export type ApiV1SearchProductRetrieveResponse = ApiV1SearchProductRetrieveResponses[keyof ApiV1SearchProductRetrieveResponses];
+export type SearchProductRetrieveResponse = SearchProductRetrieveResponses[keyof SearchProductRetrieveResponses];
 
-export type ApiV1SettingsListData = {
+export type SettingsListData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/v1/settings';
 };
 
-export type ApiV1SettingsListErrors = {
+export type SettingsListErrors = {
     500: ErrorResponse;
 };
 
-export type ApiV1SettingsListError = ApiV1SettingsListErrors[keyof ApiV1SettingsListErrors];
+export type SettingsListError = SettingsListErrors[keyof SettingsListErrors];
 
-export type ApiV1SettingsListResponses = {
+export type SettingsListResponses = {
     200: Array<Setting>;
 };
 
-export type ApiV1SettingsListResponse = ApiV1SettingsListResponses[keyof ApiV1SettingsListResponses];
+export type SettingsListResponse = SettingsListResponses[keyof SettingsListResponses];
 
-export type ApiV1SettingsGetRetrieveData = {
+export type SettingsGetRetrieveData = {
     body?: never;
     path?: never;
     query: {
@@ -12742,18 +13173,18 @@ export type ApiV1SettingsGetRetrieveData = {
     url: '/api/v1/settings/get';
 };
 
-export type ApiV1SettingsGetRetrieveErrors = {
+export type SettingsGetRetrieveErrors = {
     404: ErrorResponse;
     500: ErrorResponse;
 };
 
-export type ApiV1SettingsGetRetrieveError = ApiV1SettingsGetRetrieveErrors[keyof ApiV1SettingsGetRetrieveErrors];
+export type SettingsGetRetrieveError = SettingsGetRetrieveErrors[keyof SettingsGetRetrieveErrors];
 
-export type ApiV1SettingsGetRetrieveResponses = {
+export type SettingsGetRetrieveResponses = {
     200: SettingDetail;
 };
 
-export type ApiV1SettingsGetRetrieveResponse = ApiV1SettingsGetRetrieveResponses[keyof ApiV1SettingsGetRetrieveResponses];
+export type SettingsGetRetrieveResponse = SettingsGetRetrieveResponses[keyof SettingsGetRetrieveResponses];
 
 export type ListTagData = {
     body?: never;

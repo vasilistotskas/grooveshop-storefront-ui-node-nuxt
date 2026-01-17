@@ -14339,7 +14339,7 @@
         },
         "/api/v1/health": {
             "get": {
-                "operationId": "api_v1_health_retrieve",
+                "operationId": "health_retrieve",
                 "description": "Check the health status of database, Redis, and Celery",
                 "summary": "Check the health status of database, Redis, and Celery",
                 "tags": [
@@ -28610,7 +28610,7 @@
         },
         "/api/v1/search/blog/post": {
             "get": {
-                "operationId": "api_v1_search_blog_post_retrieve",
+                "operationId": "search_blog_post_retrieve",
                 "description": "Search blog posts using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
                 "summary": "Search blog posts",
                 "parameters": [
@@ -28702,7 +28702,7 @@
         },
         "/api/v1/search/product": {
             "get": {
-                "operationId": "api_v1_search_product_retrieve",
+                "operationId": "search_product_retrieve",
                 "description": "Search products using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
                 "summary": "Search products",
                 "parameters": [
@@ -28794,7 +28794,7 @@
         },
         "/api/v1/settings": {
             "get": {
-                "operationId": "api_v1_settings_list",
+                "operationId": "settings_list",
                 "description": "Retrieve all settings with their names, values, and types",
                 "summary": "List all available settings",
                 "tags": [
@@ -28838,7 +28838,7 @@
         },
         "/api/v1/settings/get": {
             "get": {
-                "operationId": "api_v1_settings_get_retrieve",
+                "operationId": "settings_get_retrieve",
                 "description": "Retrieve a specific setting value by its key name",
                 "summary": "Get setting by key",
                 "parameters": [
@@ -36443,10 +36443,12 @@
                     },
                     "postCount": {
                         "type": "integer",
+                        "description": "Return post count from annotation if available, otherwise query.\n\nUses _post_count annotation from BlogCategoryManager.for_list().",
                         "readOnly": true
                     },
                     "hasChildren": {
                         "type": "boolean",
+                        "description": "Return has_children from annotation if available, otherwise query.\n\nUses _has_children annotation from BlogCategoryManager.for_list().",
                         "readOnly": true
                     },
                     "mainImagePath": {
@@ -36543,10 +36545,12 @@
                     },
                     "postCount": {
                         "type": "integer",
+                        "description": "Return post count from annotation if available, otherwise query.\n\nUses _post_count annotation from BlogCategoryManager.for_list().",
                         "readOnly": true
                     },
                     "hasChildren": {
                         "type": "boolean",
+                        "description": "Return has_children from annotation if available, otherwise query.\n\nUses _has_children annotation from BlogCategoryManager.for_list().",
                         "readOnly": true
                     },
                     "mainImagePath": {
@@ -38076,10 +38080,12 @@
                                 "type": "integer"
                             }
                         ],
+                        "description": "Return the total quantity of all items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise calculates from items.",
                         "readOnly": true
                     },
                     "totalItemsUnique": {
                         "type": "integer",
+                        "description": "Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "createdAt": {
@@ -38174,10 +38180,12 @@
                                 "type": "integer"
                             }
                         ],
+                        "description": "Return the total quantity of all items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise calculates from items.",
                         "readOnly": true
                     },
                     "totalItemsUnique": {
                         "type": "integer",
+                        "description": "Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "createdAt": {
@@ -43156,6 +43164,10 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -43195,6 +43207,7 @@
                     "freeThreshold",
                     "iconFilename",
                     "id",
+                    "mainImagePath",
                     "sortOrder",
                     "translations",
                     "updatedAt",
@@ -43285,6 +43298,10 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -43329,6 +43346,7 @@
                     "freeThreshold",
                     "iconFilename",
                     "id",
+                    "mainImagePath",
                     "sortOrder",
                     "translations",
                     "updatedAt",
@@ -43619,14 +43637,17 @@
                     "reviewAverage": {
                         "type": "number",
                         "format": "double",
+                        "description": "Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "reviewCount": {
                         "type": "integer",
+                        "description": "Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "likesCount": {
                         "type": "integer",
+                        "description": "Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     }
                 },
@@ -44424,14 +44445,17 @@
                     "reviewAverage": {
                         "type": "number",
                         "format": "double",
+                        "description": "Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "reviewCount": {
                         "type": "integer",
+                        "description": "Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "likesCount": {
                         "type": "integer",
+                        "description": "Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     }
                 },
@@ -44744,14 +44768,17 @@
                     "reviewAverage": {
                         "type": "number",
                         "format": "double",
+                        "description": "Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "reviewCount": {
                         "type": "integer",
+                        "description": "Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
                     "likesCount": {
                         "type": "integer",
+                        "description": "Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     }
                 },

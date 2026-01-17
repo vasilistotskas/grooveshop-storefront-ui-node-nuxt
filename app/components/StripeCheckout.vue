@@ -119,6 +119,8 @@ onMounted(() => {
         :loading="processing"
         block
         size="lg"
+        variant="subtle"
+        color="info"
         icon="i-heroicons-arrow-path"
         @click="createCheckoutSession"
       >
@@ -133,7 +135,7 @@ onMounted(() => {
         dark:bg-primary-900 dark:text-primary-50
       "
     >
-      <UIcon name="i-heroicons-shield-check" class="mt-0.5 h-4 w-4 shrink-0" />
+      <UIcon name="i-heroicons-shield-check" class="h-4 w-4 shrink-0" />
       <p>{{ t('secure_redirect_notice') }}</p>
     </div>
   </div>
