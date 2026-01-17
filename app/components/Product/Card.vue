@@ -290,7 +290,7 @@ el:
   vat_included: ΦΠΑ περιλαμβάνεται
   total_price: Τελική Τιμή
   share: Κοινοποίηση
-  add_to_cart: Προσθήκη στο καλάθι
+  add_to_cart: Αγορά
   out_of_stock: Εξαντλημένο
   low_stock: Τελευταία κομμάτια
 </i18n>

@@ -401,40 +401,11 @@ definePageMeta({
                 </template>
               </ClientOnly>
 
-              <UButton
-                :label="reviewButtonText"
-                color="neutral"
-                variant="ghost"
-                size="lg"
-                icon="i-heroicons-chat-bubble-left-right"
-                @click="openModal"
-              />
-
               <ButtonProductAddToFavourite
                 :favourite-id="favouriteId"
                 :product-id="product?.id"
                 :user-id="user?.id"
               />
-
-              <LazyProductReview
-                v-if="user && isReviewModalOpen"
-                v-model="isReviewModalOpen"
-                hydrate-on-interaction
-                :product="product"
-                :user="user"
-                :user-had-reviewed="!!userProductReview"
-                :user-product-review="userProductReview"
-                @add-existing-review="onAddExistingReview"
-                @update-existing-review="onUpdateExistingReview"
-                @delete-existing-review="onDeleteExistingReview"
-              />
-              <template v-else>
-                <LazyAccountLoginFormModal
-                  v-if="isLoginModalOpen"
-                  v-model="isLoginModalOpen"
-                  hydrate-on-interaction
-                />
-              </template>
             </div>
 
             <USeparator />
@@ -629,13 +600,6 @@ definePageMeta({
       </div>
 
       <USeparator class="my-8" />
-      <LazyProductReviews
-        hydrate-on-visible
-        :product-id="String(product.id)"
-        :reviews-average="product.reviewAverage"
-        :reviews-count="product.reviewCount"
-        display-image-of="user"
-      />
     </section>
   </PageWrapper>
 </template>
@@ -658,7 +622,7 @@ el:
   specifications: Προδιαγραφές
   no_description_available: Δεν υπάρχει διαθέσιμη περιγραφή
   no_specifications_available: Δεν υπάρχουν διαθέσιμες προδιαγραφές
-  add_to_cart: Προσθήκη στο καλάθι
+  add_to_cart: Αγορά
   out_of_stock: Μη διαθέσιμο
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
