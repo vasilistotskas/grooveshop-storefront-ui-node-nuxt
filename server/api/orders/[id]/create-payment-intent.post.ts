@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await getAllAuthAccessToken(event)
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -10,9 +10,11 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/create_payment_intent`, {
       method: 'POST',
       body,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      ...(accessToken && {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
     })
     return await parseDataAs(response, zCreateOrderPaymentIntentResponse)
   }

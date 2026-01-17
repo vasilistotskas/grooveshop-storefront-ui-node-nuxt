@@ -183,11 +183,6 @@ const fetchRegions = async () => {
         languageCode: locale.value,
       },
     })
-
-    // Auto-select first region if available and no region is currently selected
-    if (regions.value?.results?.[0] && !formState.region) {
-      formState.region = regions.value.results[0].alpha
-    }
   }
   catch {
     toast.add({
