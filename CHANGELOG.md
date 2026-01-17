@@ -1,3 +1,10 @@
+## [3.57.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.1...v3.57.2) (2026-01-17)
+
+
+### Bug Fixes
+
+* region no auto select, allow guest users to create_payment_intent and create_checkout_session ([cb20fe3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cb20fe37136dba5c80c2e3b926193abdf98a356d))
+
 ## [3.57.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.0...v3.57.1) (2026-01-17)
 
 
