@@ -16,4 +16,16 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 10, // 10 minutes cache for better performance
   staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
+  getKey: (event) => {
+    const query = getQuery(event)
+    // Create a stable cache key based on relevant query params
+    const keyParts = [
+      query.pageSize || '10',
+      query.languageCode || 'el',
+      query.paginationType || 'pageNumber',
+      query.page || '1',
+      query.ordering || '-createdAt',
+    ]
+    return `blog-posts:${keyParts.join(':')}`
+  },
 })

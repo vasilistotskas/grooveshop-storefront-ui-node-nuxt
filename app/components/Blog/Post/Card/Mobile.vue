@@ -158,7 +158,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
               flex cursor-pointer flex-col items-center gap-1 p-0 text-white
               hover:bg-transparent
               md:text-black
-              dark:text-white dark:md:text-white
+              dark:text-white
+              dark:md:text-white
             `,
           }"
         />
@@ -177,7 +178,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
                 flex cursor-pointer flex-col items-center gap-1 p-0 text-white
                 hover:bg-transparent
                 md:text-black
-                dark:text-white dark:md:text-white
+                dark:text-white
+                dark:md:text-white
               `,
             }"
             @click="startShare"

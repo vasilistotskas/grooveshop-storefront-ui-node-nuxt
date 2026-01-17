@@ -66,7 +66,7 @@ const handleSubmit = () => {
       variant="subtle"
       :label="submitLabel"
       :ui="{
-        base: '!rounded-full',
+        base: 'rounded-full!',
       }"
       @click="handleSubmit"
     />

@@ -47,7 +47,8 @@ defineShortcuts({
           p-0 text-primary-800
           hover:text-primary-950
           md:px-2.5 md:py-1.5
-          dark:text-primary-200 dark:hover:text-primary-50
+          dark:text-primary-200
+          dark:hover:text-primary-50
         `,
         label: 'font-normal',
       }"

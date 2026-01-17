@@ -39,7 +39,7 @@ const BlogPostCard = computed(() =>
       :items="posts"
       :ui="{
         item: `
-          basis-full items-center justify-center justify-items-center
+          basis-full place-items-center justify-center
           md:basis-1/2
         `,
         next: `

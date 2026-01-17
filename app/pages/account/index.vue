@@ -330,7 +330,7 @@ const activityStats = computed(() => {
             <UCard
               :ui="{
                 body: `
-                  flex h-full items-center justify-center bg-gradient-to-br
+                  flex h-full items-center justify-center bg-linear-to-br
                   from-red-100 to-red-200
                   group-hover:scale-105
                   sm:p-5

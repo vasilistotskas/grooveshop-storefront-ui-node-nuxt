@@ -258,7 +258,7 @@ watch(modelValue, (isOpen) => {
                 disabled: activeIndex === images.length - 1,
               }"
               :ui="{
-                root: 'flex h-full w-full items-center',
+                root: 'flex size-full items-center',
                 prev: `
                   left-2
                   sm:left-4
@@ -426,7 +426,7 @@ watch(modelValue, (isOpen) => {
               color="neutral"
               :ui="{
                 base: `
-                  relative flex-shrink-0 bg-transparent p-0
+                  relative shrink-0 bg-transparent p-0
                   hover:bg-transparent
                 `,
               }"

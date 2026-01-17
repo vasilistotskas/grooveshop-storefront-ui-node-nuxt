@@ -137,7 +137,7 @@ onClickOutside(dropdown, () => {
               <UCard
                 variant="subtle"
                 :ui="{
-                  root: 'h-full w-full',
+                  root: 'size-full',
                   body: `
                     p-2
                     sm:p-4

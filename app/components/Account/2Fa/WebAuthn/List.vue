@@ -203,7 +203,7 @@ onReactivated(async () => {
                   :disabled="editId !== row.original.id"
                   :loading="loading"
                   :ui="{
-                    base: '!p-0',
+                    base: 'p-0!',
                   }"
                 >
                   <template #trailing>

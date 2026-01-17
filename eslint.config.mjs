@@ -27,7 +27,7 @@ export default withNuxt(
   {
     rules: {
       ...eslintPluginBetterTailwindcss.configs['recommended-warn'].rules,
-      'better-tailwindcss/no-unregistered-classes': ['warn', {
+      'better-tailwindcss/no-unknown-classes': ['warn', {
         detectComponentClasses: true,
         ignore: [
           'article',
