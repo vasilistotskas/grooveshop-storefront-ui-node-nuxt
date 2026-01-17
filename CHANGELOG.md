@@ -1,3 +1,15 @@
+# [3.57.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.56.0...v3.57.0) (2026-01-17)
+
+
+### Bug Fixes
+
+* vitest ([911015c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/911015c7f8c41d60c08b1fc0ea2f1ed0af524384))
+
+
+### Features
+
+* Bump Versions, Lint fix getKey at API blog categories and posts ([8b2a43a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b2a43a3d4122863a64bef51afd52e32827bd224))
+
 # [3.56.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.55.0...v3.56.0) (2026-01-08)
 
 
