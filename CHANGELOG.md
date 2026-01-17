@@ -1,3 +1,10 @@
+## [3.57.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.3...v3.57.4) (2026-01-17)
+
+
+### Bug Fixes
+
+* payment icon bg ([0e37a9d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0e37a9ddd8654beb9c614b22184717cc4402609a))
+
 ## [3.57.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.2...v3.57.3) (2026-01-17)
 
 
