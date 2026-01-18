@@ -1,4 +1,5 @@
 import RSS from 'rss'
+import type { SupportedLocale } from '~~/i18n/locales'
 
 export default defineCachedEventHandler(async (event) => {
   try {
