@@ -45,6 +45,7 @@ const categoryResults = computed(() => categories.value?.results ?? [])
           md:basis-[17%]
         `,
       }"
+      :aria-label="t('carousel.categories')"
       class="
         overflow-hidden
         md:w-full
@@ -94,4 +95,9 @@ const categoryResults = computed(() => categories.value?.results ?? [])
 el:
   all: Όλες
   see_all: Δές τες όλες
+  carousel:
+    categories: Κατηγορίες
+en:
+  carousel:
+    categories: Blog categories
 </i18n>

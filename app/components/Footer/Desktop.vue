@@ -260,14 +260,14 @@ const packageVersion = pkg.version
               row-start-2 text-sm text-primary-950
               sm:text-center
               md:row-start-1
-              dark:text-primary-300
+              dark:text-primary-100
             "
           >© {{ new Date().getFullYear() }}&nbsp;
             <UButton
               :label="`${siteConfig.name}™.`"
               :to="localePath('index')"
-              class="p-0"
-              color="secondary"
+              class="p-0 text-primary-950 dark:text-primary-50"
+              color="neutral"
               size="lg"
               type="button"
               variant="link"

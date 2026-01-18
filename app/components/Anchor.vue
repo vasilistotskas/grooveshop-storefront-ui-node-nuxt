@@ -27,20 +27,14 @@ defineSlots<{
 </script>
 
 <template>
-  <UButton
+  <NuxtLinkLocale
     v-if="to"
-    v-bind="attrs"
-    variant="link"
-    :label="text"
+    :to="to"
+    class="w-full"
+    :aria-label="text"
   >
-    <NuxtLinkLocale
-      :to="to"
-      class="w-full"
-      :aria-label="text"
-    >
-      <slot>{{ text }}</slot>
-    </NuxtLinkLocale>
-  </UButton>
+    <slot>{{ text }}</slot>
+  </NuxtLinkLocale>
   <ULink
     v-else
     v-bind="attrs"

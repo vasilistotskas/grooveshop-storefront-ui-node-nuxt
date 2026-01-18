@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const config = useRuntimeConfig()
 const { isMobileOrTablet } = useDevice()
+const { t } = useI18n()
 
 const appTitle = computed(() => config.public.appTitle as string)
 
@@ -77,6 +78,7 @@ useSeoMeta({
           v-slot="{ item }"
           :items="items"
           :ui="{ item: `basis-full place-items-center justify-center` }"
+          :aria-label="t('carousel.banner')"
           class="
             mx-auto max-w-(--container-main)
             md:!p-0
@@ -115,3 +117,12 @@ useSeoMeta({
     </section>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  carousel:
+    banner: Κύριο banner
+en:
+  carousel:
+    banner: Main banner
+</i18n>

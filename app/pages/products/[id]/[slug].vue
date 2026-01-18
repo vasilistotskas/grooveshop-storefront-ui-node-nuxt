@@ -61,30 +61,29 @@ const shouldFetchFavouriteProducts = computed(() => {
 })
 
 // User-specific data: client-side only to avoid blocking SSR
-if (shouldFetchFavouriteProducts.value) {
-  await useFetch('/api/products/favourites/favourites-by-products', {
-    key: `favouritesByProducts${user.value?.id}`,
-    method: 'POST',
-    headers: useRequestHeaders(),
-    body: {
-      productIds: [Number(productId)],
-    },
-    server: false, // Client-side only - user-specific data
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const favourites = response._data
-      if (favourites) {
-        updateFavouriteProducts(favourites)
-      }
-    },
-  })
-}
+await useLazyFetch('/api/products/favourites/favourites-by-products', {
+  key: `favouritesByProducts${user.value?.id}`,
+  method: 'POST',
+  headers: useRequestHeaders(),
+  body: {
+    productIds: [Number(productId)],
+  },
+  server: false, // Client-side only - user-specific data
+  immediate: shouldFetchFavouriteProducts.value,
+  onResponse({ response }) {
+    if (!response.ok) {
+      return
+    }
+    const favourites = response._data
+    if (favourites) {
+      updateFavouriteProducts(favourites)
+    }
+  },
+})
 
 // User-specific data: client-side only
 const { data: userProductReview, refresh: refreshUserProductReview }
-  = await useFetch(`/api/products/reviews/${productId}/user-product-review`, {
+  = await useLazyFetch(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     headers: useRequestHeaders(),
     method: 'GET',
@@ -528,7 +527,7 @@ definePageMeta({
                   {{ t('share') }}
                 </UButton>
                 <template #fallback>
-                  <USkeleton class="h-9 w-full max-w-32" />
+                  <USkeleton class="h-9 w-full max-w-34" />
                 </template>
               </ClientOnly>
 

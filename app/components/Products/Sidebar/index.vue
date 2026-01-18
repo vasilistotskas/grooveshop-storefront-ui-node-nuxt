@@ -137,7 +137,7 @@ onMounted(() => {
               </template>
             </UInput>
 
-            <div
+            <ol
               class="
                 max-h-96 space-y-2 overflow-y-auto
                 lg:max-h-96
@@ -184,7 +184,7 @@ onMounted(() => {
                   </p>
                 </div>
               </template>
-            </div>
+            </ol>
           </div>
         </template>
       </UCollapsible>

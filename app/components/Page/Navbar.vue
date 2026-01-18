@@ -211,8 +211,6 @@ const items = computed(() => [
                 :popper="{ placement: 'bottom-start' }"
               >
                 <UserAvatar
-                  :img-height="30"
-                  :img-width="30"
                   :show-name="false"
                   :user-account="user"
                   :aria-label="t('user.profile')"
