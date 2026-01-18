@@ -1,3 +1,10 @@
+## [3.58.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.58.1...v3.58.2) (2026-01-18)
+
+
+### Bug Fixes
+
+* defaults white colors ([36e2878](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/36e28781f77041f25b0670e32d992303b9480ca0))
+
 ## [3.58.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.58.0...v3.58.1) (2026-01-18)
 
 
