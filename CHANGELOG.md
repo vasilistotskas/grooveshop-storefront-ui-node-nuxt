@@ -1,3 +1,12 @@
+## [3.57.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.5...v3.57.6) (2026-01-18)
+
+
+### Bug Fixes
+
+* locales ([5ad98ff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ad98ffffa8dd406bdcb74b0335deb6d40041e12))
+* rss ([a635891](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a635891103da3fce933512ef191cb304b9c22314))
+* rss ([7edf052](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7edf0520c2cf03e10a6a219563fcb1b373a6ebf6))
+
 ## [3.57.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.4...v3.57.5) (2026-01-18)
 
 
