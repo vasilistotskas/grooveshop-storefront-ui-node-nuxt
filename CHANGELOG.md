@@ -1,3 +1,11 @@
+## [3.57.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.4...v3.57.5) (2026-01-18)
+
+
+### Bug Fixes
+
+* cache ([cdc00b8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cdc00b8e5bcebecfb19ef6c6ddd382b5644d43f6))
+* og image ([9a965dc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9a965dc5632d0f9fbc8cd5a4f13c48beb1ac3a06))
+
 ## [3.57.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.3...v3.57.4) (2026-01-17)
 
 
