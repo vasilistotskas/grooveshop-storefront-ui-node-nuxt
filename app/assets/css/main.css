@@ -9,9 +9,14 @@
 :root {
   --ui-bg: var(--ui-color-neutral-50);
   --ui-liked: #FF00BD;
-  --ui-secondary: #003DFF;
 
   --ui-container: var(--container-8xl);
+
+  --ui-secondary: #003DFF;
+  --ui-success: var(--color-success-600);
+  --ui-info: var(--color-info-600);
+  --ui-warning: var(--color-warning-600);
+  --ui-error: var(--color-error-600);
 }
 
 
