@@ -299,7 +299,7 @@ useSeoMeta({
 
   ogTitle: () => productTitle.value,
   ogDescription: () => productDescription.value,
-  ogImage: () => ogImage.value,
+  ogImage: ogImage.value,
   ogImageAlt: () => productTitle.value,
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
@@ -308,7 +308,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   twitterTitle: () => productTitle.value,
   twitterDescription: () => productDescription.value,
-  twitterImage: () => ogImage.value,
+  twitterImage: ogImage.value,
   twitterImageAlt: () => productTitle.value,
 })
 
