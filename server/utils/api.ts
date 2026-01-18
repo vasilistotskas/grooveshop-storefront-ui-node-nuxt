@@ -10,6 +10,10 @@ export function getMimeType(filePath: string): string {
       return 'image/png'
     case 'gif':
       return 'image/gif'
+    case 'webp':
+      return 'image/webp'
+    case 'avif':
+      return 'image/avif'
     default:
       return 'application/octet-stream'
   }
