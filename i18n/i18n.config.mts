@@ -1,8 +1,10 @@
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from './locales'
+
 export default defineI18nConfig(() => ({
   legacy: false,
-  availableLocales: ['el'],
-  locale: 'el',
-  fallbackLocale: 'el',
+  availableLocales: SUPPORTED_LOCALES,
+  locale: DEFAULT_LOCALE,
+  fallbackLocale: DEFAULT_LOCALE,
   silentFallbackWarn: true,
   numberFormats: {
     el: {

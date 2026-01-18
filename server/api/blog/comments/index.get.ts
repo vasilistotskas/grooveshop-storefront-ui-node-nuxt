@@ -22,6 +22,8 @@ export default defineCachedEventHandler(async (event) => {
       query.pageSize || '10',
       query.page || '1',
       query.languageCode || 'el',
+      query.paginationType || 'pageNumber',
+      query.cursor || '',
     ]
     return `blog-comments:${keyParts.join(':')}`
   },

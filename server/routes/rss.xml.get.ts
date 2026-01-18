@@ -1,4 +1,5 @@
 import RSS from 'rss'
+import type { SupportedLocale } from '~~/i18n/locales'
 
 export default defineCachedEventHandler(async (event) => {
   try {
@@ -12,7 +13,7 @@ export default defineCachedEventHandler(async (event) => {
       60 * 60,
     )
 
-    const locale: 'el' = (siteConfig.defaultLocale || 'el').split('-')[0]
+    const locale: SupportedLocale = (event.context.locale || siteConfig.defaultLocale).split('-')[0]
     const siteUrl = siteConfig.url
     const apiBaseUrl = config.apiBaseUrl
 
@@ -131,9 +132,4 @@ export default defineCachedEventHandler(async (event) => {
     console.error('Error generating RSS feed:', error)
     return createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }
-}, {
-  name: 'RssFeed',
-  maxAge: 60 * 60, // 1 hour
-  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
-  swr: true,
 })

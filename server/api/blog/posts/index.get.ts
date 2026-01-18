@@ -25,6 +25,7 @@ export default defineCachedEventHandler(async (event) => {
       query.paginationType || 'pageNumber',
       query.page || '1',
       query.ordering || '-createdAt',
+      query.cursor || '',
     ]
     return `blog-posts:${keyParts.join(':')}`
   },

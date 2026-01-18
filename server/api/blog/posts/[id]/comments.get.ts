@@ -20,5 +20,15 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 5, // 5 minutes - comments can change frequently
   staleMaxAge: 60 * 60, // Serve stale for 1 hour while revalidating
   swr: true,
-  getKey: event => `post-comments:${event.context.params?.id}`,
+  getKey: (event) => {
+    const query = getQuery(event)
+    const keyParts = [
+      getRouterParams(event).id || '',
+      query.pageSize || '10',
+      query.paginationType || 'cursor',
+      query.cursor || '',
+      query.languageCode || 'el',
+    ]
+    return `post-comments:${keyParts.join(':')}`
+  },
 })

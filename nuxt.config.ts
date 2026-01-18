@@ -1,3 +1,5 @@
+import { DEFAULT_LOCALE } from './i18n/locales'
+
 export default defineNuxtConfig({
 
   modules: [
@@ -378,7 +380,7 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    defaultLocale: 'el',
+    defaultLocale: DEFAULT_LOCALE,
     debug: false,
     restructureDir: 'i18n',
     detectBrowserLanguage: {
@@ -409,6 +411,7 @@ export default defineNuxtConfig({
       strictMessage: false,
     },
     experimental: {
+      localeDetector: 'localeDetector.ts',
       httpCacheDuration: 86400, // 1 day
     },
   },

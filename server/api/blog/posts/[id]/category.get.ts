@@ -20,5 +20,5 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 30, // 30 minutes - post category rarely changes
   staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
-  getKey: event => `post-category:${event.context.params?.id}`,
+  getKey: event => `post-category:${getRouterParams(event).id}`,
 })
