@@ -16,5 +16,12 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 60 * 24, // 24 hours - countries are static data
   staleMaxAge: 60 * 60 * 24 * 7, // Serve stale for 7 days while revalidating
   swr: true,
-  getKey: event => `countries:${JSON.stringify(getQuery(event))}`,
+  getKey: (event) => {
+    const query = getQuery(event)
+    const keyParts = [
+      query.pageSize || '250',
+      query.languageCode || 'el',
+    ]
+    return `countries:${keyParts.join(':')}`
+  },
 })

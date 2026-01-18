@@ -16,4 +16,10 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { name: 'BlogAuthorViewSet' })
+}, {
+  name: 'BlogAuthorDetail',
+  maxAge: 60 * 60, // 1 hour - authors change rarely
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  swr: true,
+  getKey: event => `blog-author:${getRouterParams(event).id}`,
+})

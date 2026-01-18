@@ -131,4 +131,9 @@ export default defineCachedEventHandler(async (event) => {
     console.error('Error generating RSS feed:', error)
     return createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }
-}, { maxAge: 60 * 60 })
+}, {
+  name: 'RssFeed',
+  maxAge: 60 * 60, // 1 hour
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  swr: true,
+})

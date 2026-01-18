@@ -12,8 +12,19 @@ export default defineCachedEventHandler(async (event) => {
     await handleError(error)
   }
 }, {
+  name: 'ProductViewSet',
   maxAge: 300, // Cache for 5 minutes
   staleMaxAge: 600, // Serve stale for 10 minutes while revalidating
   swr: true,
-  getKey: event => `products:${JSON.stringify(getQuery(event))}`,
+  getKey: (event) => {
+    const query = getQuery(event)
+    const keyParts = [
+      query.pageSize || '12',
+      query.page || '1',
+      query.ordering || '-createdAt',
+      query.categoryId || 'all',
+      query.search || '',
+    ]
+    return `products:${keyParts.join(':')}`
+  },
 })

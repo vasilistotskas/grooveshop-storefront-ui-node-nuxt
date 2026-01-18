@@ -508,18 +508,11 @@ export default defineNuxtConfig({
       '/cart',
       '/checkout',
       '/feedback',
-      '/products',
       '/return-policy',
     ],
     sources: [
       '/api/__sitemap__/urls',
     ],
     cacheMaxAgeSeconds: 60 * 60 * 24, // 24 hours
-    runtimeCacheStorage: {
-      driver: 'redis',
-      port: process.env.NUXT_REDIS_PORT ?? 6379,
-      host: process.env.NUXT_REDIS_HOST ?? 'redis-standalone',
-      db: 0,
-    },
   },
 })

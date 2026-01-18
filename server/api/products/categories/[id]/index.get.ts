@@ -16,4 +16,10 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { name: 'ProductCategoryViewSet' })
+}, {
+  name: 'ProductCategoryDetail',
+  maxAge: 60 * 60, // 1 hour - categories change rarely
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  swr: true,
+  getKey: event => `product-category:${getRouterParams(event).id}`,
+})

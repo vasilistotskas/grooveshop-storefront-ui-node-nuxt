@@ -11,4 +11,13 @@ export default defineCachedEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
-}, { name: 'ProductImageViewSet' })
+}, {
+  name: 'ProductImageViewSet',
+  maxAge: 60 * 30, // 30 minutes
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  swr: true,
+  getKey: (event) => {
+    const query = getQuery(event)
+    return `product-images:${JSON.stringify(query)}`
+  },
+})

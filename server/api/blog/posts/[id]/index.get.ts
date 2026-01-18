@@ -18,4 +18,8 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 10,
   staleMaxAge: 60 * 60 * 2,
   swr: true,
+  getKey: (event) => {
+    const params = getRouterParams(event)
+    return `blog-post:${params.id}`
+  },
 })

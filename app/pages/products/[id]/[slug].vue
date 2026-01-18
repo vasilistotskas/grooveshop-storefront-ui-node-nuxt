@@ -9,7 +9,11 @@ const { y: scrollY } = useWindowScroll()
 const { user, loggedIn } = useUserSession()
 
 const toast = useToast()
+const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
+const siteConfig = useSiteConfig()
+const runtimeConfig = useRuntimeConfig()
+const img = useImage()
 
 const userStore = useUserStore()
 const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
@@ -147,8 +151,43 @@ const productTitle = computed(() => {
   )
 })
 
+const productDescription = computed(() => {
+  const seoDesc = product.value?.seoDescription
+  if (seoDesc) return seoDesc
+
+  const rawDescription = extractTranslated(product?.value, 'description', locale.value) || ''
+  return rawDescription.replace(/<[^>]*>/g, '').slice(0, 160)
+})
+
 const productStock = computed(() => product.value?.stock || 0)
 const showStickyAddToCart = computed(() => scrollY.value > 350)
+
+const canonicalUrl = computed(() => {
+  const baseUrl = runtimeConfig.public.baseUrl
+  return `${baseUrl}/products/${product.value?.id}/${product.value?.slug}`
+})
+
+const ogImage = computed(() => {
+  if (!product.value?.mainImagePath) return ''
+
+  return img(product.value.mainImagePath, {
+    width: 1200,
+    height: 630,
+    fit: 'cover',
+    format: 'png',
+  }, {
+    provider: 'mediaStream',
+  })
+})
+
+const productAvailability = computed(() => {
+  const stock = productStock.value
+  if (stock === 0) return 'https://schema.org/OutOfStock'
+  if (stock <= 5) return 'https://schema.org/LimitedAvailability'
+  return 'https://schema.org/InStock'
+})
+
+const productCondition = computed(() => 'https://schema.org/NewCondition')
 
 const favouriteId = computed(() => {
   if (!product.value) return
@@ -254,21 +293,113 @@ onMounted(() => {
   })
 })
 
+useSeoMeta({
+  title: () => productTitle.value,
+  description: () => productDescription.value,
+
+  ogTitle: () => productTitle.value,
+  ogDescription: () => productDescription.value,
+  ogImage: () => ogImage.value,
+  ogImageAlt: () => productTitle.value,
+  ogUrl: () => canonicalUrl.value,
+  ogSiteName: siteConfig.name,
+  ogLocale: () => dateLocale.value,
+
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => productTitle.value,
+  twitterDescription: () => productDescription.value,
+  twitterImage: () => ogImage.value,
+  twitterImageAlt: () => productTitle.value,
+})
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: canonicalUrl.value,
+    },
+  ],
+  meta: [
+    {
+      name: 'keywords',
+      content: product.value?.seoKeywords || productTitle.value,
+    },
+  ],
+})
+
 useSchemaOrg([
   defineProduct({
     name: () => extractTranslated(product.value, 'name', locale.value) || '',
-    description: () =>
-      extractTranslated(product.value, 'description', locale.value) || '',
+    description: () => extractTranslated(product.value, 'description', locale.value)?.replace(/<[^>]*>/g, '') || '',
     sku: () => product.value?.uuid || '',
-    offer: {
-      price: () => (product.value?.price || 0).toFixed(2),
+    productID: () => product.value?.id?.toString() || '',
+
+    image: () => {
+      const images: string[] = []
+      if (productImages.value) {
+        productImages.value.forEach((img) => {
+          const imgPath = img.imageUrl
+          if (imgPath) {
+            images.push(imgPath)
+          }
+        })
+      }
+      return images.length > 0 ? images : undefined
     },
+
+    url: () => canonicalUrl.value,
+
+    offers: {
+      '@type': 'Offer',
+      'price': () => (product.value?.finalPrice || 0).toFixed(2),
+      'priceCurrency': 'EUR',
+      'availability': () => productAvailability.value,
+      'itemCondition': () => productCondition.value,
+      'url': () => canonicalUrl.value,
+      'priceValidUntil': () => {
+        const date = new Date()
+        date.setDate(date.getDate() + 30)
+        return date.toISOString().split('T')[0]
+      },
+      'seller': {
+        '@type': 'Organization',
+        'name': siteConfig.name,
+      },
+    },
+
+    aggregateRating: () => {
+      if (product.value?.reviewCount && product.value.reviewCount > 0) {
+        return {
+          '@type': 'AggregateRating',
+          'ratingValue': product.value.reviewAverage || 0,
+          'reviewCount': product.value.reviewCount,
+          'bestRating': 5,
+          'worstRating': 1,
+        }
+      }
+      return undefined
+    },
+
+    category: () => product.value?.category?.toString() || undefined,
+  }),
+
+  defineBreadcrumb({
+    itemListElement: () => [
+      {
+        name: $i18n.t('breadcrumb.items.index.label'),
+        item: localePath('index'),
+      },
+      {
+        name: t('breadcrumb.items.products.label'),
+        item: localePath('products'),
+      },
+      {
+        name: productTitle.value,
+        item: canonicalUrl.value,
+      },
+    ],
   }),
 ])
-
-defineRouteRules({
-  robots: false,
-})
 
 definePageMeta({
   layout: 'default',
