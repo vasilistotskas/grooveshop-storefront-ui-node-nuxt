@@ -1,3 +1,10 @@
+# [3.58.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.6...v3.58.0) (2026-01-18)
+
+
+### Features
+
+* sitemap and rss products ([68ccc8e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/68ccc8e530d308783a6fa8cfd57f9032d4f9a81e))
+
 ## [3.57.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.57.5...v3.57.6) (2026-01-18)
 
 
