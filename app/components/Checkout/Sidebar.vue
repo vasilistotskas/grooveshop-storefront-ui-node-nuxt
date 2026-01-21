@@ -9,7 +9,7 @@ const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const payWayCost = computed(() => {
   if (!payWay?.value || typeof payWay.value === 'number') return 0
@@ -23,6 +23,10 @@ const payWayCost = computed(() => {
 
   return payWay.value.cost || 0
 })
+
+const payWayName = computed(() =>
+  extractTranslated(payWay.value, 'name', locale.value) ?? t('pay_way_fee'),
+)
 
 const checkoutTotal = computed(() => {
   if (!cart.value) return 0
@@ -108,7 +112,7 @@ defineSlots<{
                 text-primary-950
                 dark:text-primary-50
               "
-            >{{ t('pay_way_fee') }}</span>
+            >{{ payWayName }}</span>
             <span
               class="
                 font-bold text-primary-950

@@ -70,11 +70,6 @@ const addToCartEvent = async () => {
     })
   }
   else {
-    toast.add({
-      title: t('added_to_cart'),
-      color: 'success',
-    })
-
     // Navigate to checkout if cart was empty before adding this item
     if (wasCartEmpty && getCartTotalItems.value > 0) {
       await navigateTo(localePath('checkout'))
@@ -101,6 +96,5 @@ const addToCartEvent = async () => {
 
 <i18n lang="yaml">
 el:
-  added_to_cart: Προστέθηκε στο καλάθι
   unavailable: Μή Διαθέσιμο
 </i18n>

@@ -113,7 +113,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     }
     hasError.value = true
     toast.add({
-      title: t('error.default'),
+      title: $i18n.t('error.default'),
       color: 'error',
     })
   }

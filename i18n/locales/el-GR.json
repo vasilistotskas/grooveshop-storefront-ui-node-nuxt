@@ -3,6 +3,9 @@
   "type": "Τύπος",
   "favourites": "Αγαπημένα",
   "subscriptions": "Ειδοποιήσεις",
+  "error": {
+    "default": "Σφάλμα"
+  },
   "subscription_notifications": {
     "subscribe": {
       "success_title": "Επιτυχής εγγραφή",
