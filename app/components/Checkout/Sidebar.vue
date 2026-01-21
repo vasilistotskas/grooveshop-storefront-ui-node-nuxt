@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps({
   shippingPrice: { type: Number, required: true },
+  showPaymentFee: { type: Boolean, default: false },
 })
 
 const { $i18n } = useNuxtApp()
@@ -25,7 +26,8 @@ const payWayCost = computed(() => {
 
 const checkoutTotal = computed(() => {
   if (!cart.value) return 0
-  return cart.value.totalPrice + props.shippingPrice + payWayCost.value
+  const paymentFee = props.showPaymentFee ? payWayCost.value : 0
+  return cart.value.totalPrice + props.shippingPrice + paymentFee
 })
 
 defineSlots<{
@@ -98,7 +100,7 @@ defineSlots<{
             >{{ $i18n.n(shippingPrice, 'currency') }}</span>
           </div>
           <div
-            v-if="payWayCost"
+            v-if="showPaymentFee && payWayCost"
             class="flex items-center justify-between"
           >
             <span

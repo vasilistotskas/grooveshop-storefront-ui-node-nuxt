@@ -182,10 +182,20 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function cleanCartState() {
+  async function cleanCartState() {
     cart.value = null
     pending.value = false
     error.value = null
+
+    // Clear the cart session on the server
+    try {
+      await $fetch('/api/cart/clear-session', {
+        method: 'POST',
+      })
+    }
+    catch (err) {
+      console.error('Failed to clear cart session:', err)
+    }
   }
 
   return {

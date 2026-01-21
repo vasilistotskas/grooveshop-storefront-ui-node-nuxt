@@ -714,7 +714,10 @@ definePageMeta({
 
       <!-- Sidebar -->
       <div class="w-full lg:w-[400px]">
-        <CheckoutSidebar :shipping-price="shippingPrice">
+        <CheckoutSidebar
+          :shipping-price="shippingPrice"
+          :show-payment-fee="currentStep === 1"
+        >
           <template #items>
             <CheckoutItems />
           </template>

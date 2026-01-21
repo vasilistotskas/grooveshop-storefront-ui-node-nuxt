@@ -40,7 +40,6 @@ if (!product.value) {
   throw createError({
     statusCode: 404,
     message: t('error.page.not.found'),
-    fatal: true,
   })
 }
 

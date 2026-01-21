@@ -25,10 +25,18 @@ export async function getCartSession(event: H3Event): Promise<CartSessionData> {
 
 export async function updateCartSession(event: H3Event, updates: Partial<CartSessionData>): Promise<void> {
   const session = await getSession(event)
-  await session.update({
-    ...session.data,
-    ...updates,
-  })
+
+  // If cartId is explicitly set to undefined, remove it from session
+  if ('cartId' in updates && updates.cartId === undefined) {
+    const { cartId, ...rest } = session.data
+    await session.update(rest)
+  }
+  else {
+    await session.update({
+      ...session.data,
+      ...updates,
+    })
+  }
 }
 
 export async function getCartHeaders(event: H3Event): Promise<Record<string, string>> {
@@ -53,11 +61,17 @@ export async function handleCartResponse(event: H3Event, response: any): Promise
   }
 }
 
+export async function clearCartSession(event: H3Event): Promise<void> {
+  const session = await getSession(event)
+  await session.clear()
+}
+
 export const useCartSession = (event: H3Event) => {
   return {
     getSession: () => getCartSession(event),
     updateSession: (updates: Partial<CartSessionData>) => updateCartSession(event, updates),
     getCartHeaders: () => getCartHeaders(event),
     handleCartResponse: (response: any) => handleCartResponse(event, response),
+    clearSession: () => clearCartSession(event),
   }
 }

@@ -17,7 +17,6 @@ if (!blogPostId.value) {
   throw createError({
     statusCode: 404,
     message: t('error.page.not.found'),
-    fatal: true,
   })
 }
 
@@ -37,7 +36,6 @@ if (blogPostError.value || !blogPost.value) {
   throw createError({
     statusCode: blogPostError.value?.statusCode || 404,
     message: blogPostError.value?.message || t('error.page.not.found'),
-    fatal: true,
   })
 }
 
