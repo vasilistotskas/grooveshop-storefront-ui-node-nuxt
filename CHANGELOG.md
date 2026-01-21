@@ -1,3 +1,10 @@
+# [3.59.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.58.2...v3.59.0) (2026-01-21)
+
+
+### Features
+
+* bump versions, clean cart at order creation ([574a6c3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/574a6c3750449a8a84113f3b1f672b39c031ad28))
+
 ## [3.58.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.58.1...v3.58.2) (2026-01-18)
 
 
