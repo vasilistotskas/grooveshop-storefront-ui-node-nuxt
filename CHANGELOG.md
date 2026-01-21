@@ -1,3 +1,10 @@
+## [3.59.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.59.0...v3.59.1) (2026-01-21)
+
+
+### Bug Fixes
+
+* cart/checkou UI related fixes ([fbcf03a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fbcf03a4329269cc7654f9f292ba276a1ce5d07b))
+
 # [3.59.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.58.2...v3.59.0) (2026-01-21)
 
 
