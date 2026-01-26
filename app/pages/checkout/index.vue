@@ -297,17 +297,14 @@ const handleOrderError = (response: any) => {
   let errorTitle = t('form.submit.error.general')
   let errorDescription = undefined
 
-  // The error data can be in response._data or response.data depending on context
+  console.info('handleOrderError response:', response)
+
   const errorData = response._data || response.data
+  const errorType = errorData?.error?.type
 
-  // The actual error details might be nested in errorData.data or errorData
-  const actualErrorData = errorData?.data || errorData
-
-  // Check for error type in actualErrorData.error.type (new format)
-  const errorType = actualErrorData?.error?.type
-
+  // Handle structured error types
   if (errorType === 'invalid_order_data') {
-    const detail = actualErrorData?.detail || ''
+    const detail = errorData?.detail || ''
 
     // Check if it's an expired reservation error
     if (detail.includes('expired') || detail.includes('Reservation')) {
@@ -322,12 +319,19 @@ const handleOrderError = (response: any) => {
     errorTitle = t('form.submit.error.invalid_order_data')
     errorDescription = detail || t('form.submit.error.invalid_order_data_description')
   }
-  // Handle ValidationError with errors.cart array (insufficient stock from validation)
-  else if (actualErrorData?.errors?.cart && Array.isArray(actualErrorData.errors.cart)) {
-    const cartErrors = actualErrorData.errors.cart
+  else if (errorType === 'insufficient_stock') {
+    errorTitle = t('form.submit.error.insufficient_stock')
+    errorDescription = errorData?.detail || t('form.submit.error.insufficient_stock_description')
+  }
+  else if (errorType === 'payment_not_found') {
+    errorTitle = t('form.submit.error.payment_verification')
+    errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
+  }
+  // Handle ValidationError with cart field
+  else if (errorData?.cart && Array.isArray(errorData.cart)) {
+    const cartErrors = errorData.cart
     if (cartErrors.length > 0) {
       const errorMsg = cartErrors[0]
-      // Check if it's an insufficient stock error
       if (errorMsg.includes('insufficient stock') || errorMsg.includes('Insufficient stock')) {
         errorTitle = t('form.submit.error.insufficient_stock')
         errorDescription = errorMsg
@@ -338,55 +342,10 @@ const handleOrderError = (response: any) => {
       }
     }
   }
-  // Handle new error types from the audit implementation (legacy code field)
-  else if (actualErrorData?.code) {
-    switch (actualErrorData.code) {
-      case 'insufficient_stock':
-        errorTitle = t('form.submit.error.insufficient_stock')
-        errorDescription = t('form.submit.error.insufficient_stock_description', {
-          product: actualErrorData.product_name || t('product'),
-          available: actualErrorData.available || 0,
-        })
-        break
-      case 'payment_failed':
-        errorTitle = t('form.submit.error.payment_failed')
-        errorDescription = actualErrorData.detail || t('form.submit.error.payment_failed_description')
-        break
-      case 'stock_reservation_error':
-        errorTitle = t('form.submit.error.stock_reservation')
-        errorDescription = actualErrorData.detail || t('form.submit.error.stock_reservation_description')
-        break
-      case 'payment_verification_error':
-        errorTitle = t('form.submit.error.payment_verification')
-        errorDescription = actualErrorData.detail || t('form.submit.error.payment_verification_description')
-        break
-      default:
-        errorTitle = t('form.submit.error.general')
-        errorDescription = actualErrorData.detail || actualErrorData.message
-    }
-  }
-  // Handle legacy stock errors (array format)
-  else if (actualErrorData?.data?.items && Array.isArray(actualErrorData.data.items)) {
-    const stockErrors: string[] = []
-    actualErrorData.data.items.forEach((item: any) => {
-      if (item?.quantity && Array.isArray(item.quantity)) {
-        item.quantity.forEach((error: string) => {
-          stockErrors.push(error)
-        })
-      }
-    })
-    if (stockErrors.length > 0) {
-      errorTitle = t('form.submit.error.inventory')
-      errorDescription = stockErrors.join('. ')
-    }
-  }
-  else if (actualErrorData?.detail) {
+  // Fallback to detail
+  else if (errorData?.detail) {
     errorTitle = t('form.submit.error.general')
-    errorDescription = actualErrorData.detail
-  }
-  else if (actualErrorData?.message) {
-    errorTitle = t('form.submit.error.general')
-    errorDescription = actualErrorData.message
+    errorDescription = errorData.detail
   }
 
   return { title: errorTitle, description: errorDescription, shouldRetry: false }
@@ -1063,7 +1022,7 @@ definePageMeta({
                 icon="i-heroicons-arrow-right"
                 trailing
               >
-                {{ t('continue_to_payment') }}
+                {{ t('continue') }}
               </UButton>
             </div>
           </UForm>
@@ -1170,6 +1129,7 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
+  continue: Συνέχεια
   title: Ολοκλήρωση αγοράς
   payOnDelivery: Αντικαταβολή
   cardPayment: Πληρωμή με κάρτα
