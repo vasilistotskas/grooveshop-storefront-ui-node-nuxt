@@ -1,3 +1,10 @@
+# [3.60.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.59.1...v3.60.0) (2026-01-26)
+
+
+### Features
+
+* order progress ([348e6fc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/348e6fcbcf7557a2c7b06c9fc8009fb591722ab5))
+
 ## [3.59.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.59.0...v3.59.1) (2026-01-21)
 
 
